@@ -267,7 +267,7 @@ EOT
                         begin
                             str << "Body: " <<
                                 OZonesJSON.parse_json(value.body,
-                                                            "error")["message"]
+                                                      "error")["message"]
                         rescue
                             str.gsub!("\nBody:","")
                         end

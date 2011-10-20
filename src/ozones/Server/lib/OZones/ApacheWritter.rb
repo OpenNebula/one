@@ -15,33 +15,33 @@
 #--------------------------------------------------------------------------- #
 
 module OZones
-    
-    class ApacheWritter 
-        def initialize(file_path) 
+
+    class ApacheWritter
+        def initialize(file_path)
             @file_path = file_path
         end
-        
+
         def update
             htaccess = "RewriteEngine On\n"
-                                              
+
             OZones::Zones.all.each{|zone|
                 zone.vdcs.all.each{|vdc|
                     htaccess << "RewriteRule ^#{vdc.NAME} " +
-                                "#{zone.ENDPOINT} [P]\n"
+                    "#{zone.ENDPOINT} [P]\n"
                     if zone.SUNSENDPOINT != nil
                         htaccess << "RewriteRule ^sunstone_#{vdc.NAME}/(.+) " +
-                                    "#{zone.SUNSENDPOINT}/$1 [P]\n"
+                            "#{zone.SUNSENDPOINT}/$1 [P]\n"
                         htaccess << "RewriteRule ^sunstone_#{vdc.NAME} " +
-                                    "#{zone.SUNSENDPOINT}/ [P]\n"
+                            "#{zone.SUNSENDPOINT}/ [P]\n"
                     end
                 }
             }
 
-            File.open(@file_path, 'w') {|f| 
+            File.open(@file_path, 'w') {|f|
                 f.flock(File::LOCK_EX)
-                f.write(htaccess) 
+                f.write(htaccess)
             }
         end
     end
-    
+
 end

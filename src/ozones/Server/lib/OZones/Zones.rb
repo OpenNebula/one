@@ -15,12 +15,12 @@
 #--------------------------------------------------------------------------- #
 
 module OZones
-    
-    class Zones 
+
+    class Zones
         include DataMapper::Resource
         include OpenNebulaJSON::JSONUtils
         extend  OpenNebulaJSON::JSONUtils
-       
+
         #######################################################################
         # Data Model for the Zone
         #######################################################################
@@ -30,9 +30,9 @@ module OZones
         property :ONEPASS,      String, :required => true
         property :ENDPOINT,     String, :required => true
         property :SUNSENDPOINT, String
-        
+
         has n,   :vdcs
-        
+
         #######################################################################
         # Constants
         #######################################################################
@@ -47,13 +47,13 @@ module OZones
             zonePoolHash["ZONE_POOL"]["ZONE"] = Array.new unless self.all.empty?
 
             self.all.each{|zone|
-                  zonePoolHash["ZONE_POOL"]["ZONE"] <<  
-                     zone.attributes.merge({:NUMBERVDCS => zone.vdcs.all.size})
+                zonePoolHash["ZONE_POOL"]["ZONE"] <<
+                zone.attributes.merge({:NUMBERVDCS => zone.vdcs.all.size})
             }
 
             return zonePoolHash
         end
-        
+
         def to_hash
             zone_attributes = Hash.new
             zone_attributes["ZONE"] = attributes
@@ -74,7 +74,7 @@ module OZones
             ZONE_ATTRS.each { |param|
                 if !zone_data[param]
                     return OZones::Error.new("Error: Couldn't create zone. " \
-                                "Mandatory attribute '#{param}' is missing.")
+                                             "Mandatory attribute '#{param}' is missing.")
                 end
             }
 
@@ -84,18 +84,18 @@ module OZones
             $stderr.puts zone_data
 
             rc = OpenNebulaZone::check_oneadmin(zone_data[:ONENAME],
-                                        zone_data[:ONEPASS],
-                                        zone_data[:ENDPOINT])
+                                                zone_data[:ONEPASS],
+                                                zone_data[:ENDPOINT])
 
             if OpenNebula.is_error?(rc)
                 return OZones::Error.new("Error: Couldn't create zone. "\
-                            "Reason: #{rc.message}")
+                                         "Reason: #{rc.message}")
             end
 
 
             # Create the zone
             begin
-                zone = Zones.new 
+                zone = Zones.new
                 zone.raise_on_save_failure = true
 
                 zone.attributes = zone_data
@@ -106,46 +106,46 @@ module OZones
 
             return zone
         end
-    end 
-    
+    end
+
     ###########################################################################
     #  This class represents a Zone able to interact with its supporting
     #  OpenNebula installation through OCA. Data persistence is provided by a
-    #  Zones class  
+    #  Zones class
     ##########################################################################
     class OpenNebulaZone
         def initialize(zoneid)
             @zone = Zones.get(zoneid)
-            
+
             if !@zone
                 raise "Error: Zone with id #{zoneid} not found"
             end
 
             @client = OpenNebula::Client.new(
-                            "#{@zone.ONENAME}:#{@zone.ONEPASS}",
-                            @zone.ENDPOINT,
-                            false)
+                                             "#{@zone.ONENAME}:#{@zone.ONEPASS}",
+                                             @zone.ENDPOINT,
+                                             false)
         end
-        
+
         def pool_to_json(pool_kind)
             pool = case pool_kind
-                when "host"  then 
-                    OpenNebulaJSON::HostPoolJSON.new(@client)
-                when "image" then 
-                    OpenNebulaJSON::ImagePoolJSON.new(@client)
-                when "user"  then 
-                    OpenNebulaJSON::UserPoolJSON.new(@client)
-                when "vm"    then                       
-                    OpenNebulaJSON::VirtualMachinePoolJSON.new(@client)
-                when "vn","vnet" then 
-                    OpenNebulaJSON::VirtualNetworkPoolJSON.new(@client)
-                when "template","vmtemplate" then 
-                    OpenNebulaJSON::TemplatePoolJSON.new(@client)
-                else
-                    error = OZones::Error.new("Error: Pool #{pool_kind} not " \
-                                              "supported for zone view")
-                    return [404, error.to_json]
-            end
+                   when "host"  then
+                       OpenNebulaJSON::HostPoolJSON.new(@client)
+                   when "image" then
+                       OpenNebulaJSON::ImagePoolJSON.new(@client)
+                   when "user"  then
+                       OpenNebulaJSON::UserPoolJSON.new(@client)
+                   when "vm"    then
+                       OpenNebulaJSON::VirtualMachinePoolJSON.new(@client)
+                   when "vn","vnet" then
+                       OpenNebulaJSON::VirtualNetworkPoolJSON.new(@client)
+                   when "template","vmtemplate" then
+                       OpenNebulaJSON::TemplatePoolJSON.new(@client)
+                   else
+                       error = OZones::Error.new("Error: Pool #{pool_kind} not " \
+                                                 "supported for zone view")
+                       return [404, error.to_json]
+                   end
 
             pool.info
 
@@ -154,23 +154,23 @@ module OZones
 
         def self.all_pools_to_json(pool_kind)
             pool = case pool_kind
-                when "host"  then 
-                    OZones::AggregatedHosts.new
-                when "image" then 
-                    OZones::AggregatedImages.new
-                when "user"  then 
-                    OZones::AggregatedUsers.new
-                when "vm"    then 
-                    OZones::AggregatedVirtualMachines.new
-                when "vn","vnet" then 
-                    OZones::AggregatedVirtualNetworks.new
-                when "template","vmtemplate" then 
-                    OZones::AggregatedTemplates.new
-                else
-                    error = OZones::Error.new("Error: Pool #{pool_kind} not" \
-                                " supported for aggregated zone view")
-                    return [404, error.to_json]
-            end
+                   when "host"  then
+                       OZones::AggregatedHosts.new
+                   when "image" then
+                       OZones::AggregatedImages.new
+                   when "user"  then
+                       OZones::AggregatedUsers.new
+                   when "vm"    then
+                       OZones::AggregatedVirtualMachines.new
+                   when "vn","vnet" then
+                       OZones::AggregatedVirtualNetworks.new
+                   when "template","vmtemplate" then
+                       OZones::AggregatedTemplates.new
+                   else
+                       error = OZones::Error.new("Error: Pool #{pool_kind} not" \
+                                                 " supported for aggregated zone view")
+                       return [404, error.to_json]
+                   end
 
             return [200, pool.to_json]
         end

@@ -15,8 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 module OZones
-    
-    class Vdc 
+
+    class Vdc
         include DataMapper::Resource
         include OpenNebulaJSON::JSONUtils
         extend OpenNebulaJSON::JSONUtils
@@ -30,7 +30,7 @@ module OZones
         property :HOSTS,        String
 
         belongs_to :zones
-        
+
         def self.to_hash
             zonePoolHash = Hash.new
             zonePoolHash["VDC_POOL"] = Hash.new
@@ -46,7 +46,7 @@ module OZones
             }
             return zonePoolHash
         end
-        
+
         def to_hash
             vdc_attributes = Hash.new
 
@@ -64,7 +64,7 @@ module OZones
     ###########################################################################
     #  This class represents a VDC able to interact with its supporting
     #  OpenNebula installation through OCA. Data persistence is provided by a
-    #  Vdc class  
+    #  Vdc class
     ###########################################################################
     class OpenNebulaVdc
         #######################################################################
@@ -77,10 +77,10 @@ module OZones
 
         #Creates an OpenNebula VDC, using its ID, vdcid and the associated zone
         def initialize(vdcid, zone = nil)
-            
-            if vdcid != -1 
+
+            if vdcid != -1
                 @vdc = Vdc.get(vdcid)
-                
+
                 if !@vdc
                     raise "VDC with id #{vdcid} not found."
                 end
@@ -91,9 +91,9 @@ module OZones
             end
 
             @client = OpenNebula::Client.new(
-                            "#{@zone.ONENAME}:#{@zone.ONEPASS}",
-                            @zone.ENDPOINT,
-                            false)
+                                             "#{@zone.ONENAME}:#{@zone.ONEPASS}",
+                                             @zone.ENDPOINT,
+                                             false)
         end
 
         def to_json
@@ -108,20 +108,20 @@ module OZones
             VDC_ATTRS.each { |param|
                 if !vdc_data[param]
                     return OZones::Error.new("Error: Couldn't create vdc." \
-                                "Mandatory attribute '#{param}' is missing.")
+                                             "Mandatory attribute '#{param}' is missing.")
                 end
             }
 
             #Create a vdc record
             @vdc = Vdc.new
-  
+
             vdcpass = Digest::SHA1.hexdigest(vdc_data.delete(:VDCADMINPASS))
             @vdc.attributes = vdc_data
 
             # Create a group in the zone with the VDC name
             group = OpenNebula::Group.new(OpenNebula::Group.build_xml, @client)
             rc    = group.allocate(@vdc.NAME)
-        
+
             return rc if OpenNebula.is_error?(rc)
 
             @vdc.GROUP_ID = group.id
@@ -197,7 +197,7 @@ module OZones
                 host_acls    = get_host_acls(host_list)
                 rc, acls_str = create_acls(host_acls)
 
-                return rc if OpenNebula.is_error?(rc) 
+                return rc if OpenNebula.is_error?(rc)
 
                 #Create the new acl string.
                 newacls << "," << acls_str
@@ -215,7 +215,7 @@ module OZones
                 return OpenNebula::Error.new(e.message)
             end
 
-            return @vdc.to_json 
+            return @vdc.to_json
         end
 
         private
@@ -225,19 +225,19 @@ module OZones
         # The ID of the first host ACL
         HOST_ACL_FIRST_ID = 3
 
-        # This method returns an Array of ACL strings to create them 
+        # This method returns an Array of ACL strings to create them
         # in the target zone
         def get_acls
             rule_str = Array.new
 
             # Grant permissions to the group
             rule_str << "@#{@vdc.GROUP_ID} VM+NET+IMAGE+TEMPLATE/* " \
-                        "CREATE+INFO_POOL_MINE"
+            "CREATE+INFO_POOL_MINE"
 
             # Grant permissions to the vdc admin
             rule_str << "##{@vdc.VDCADMIN_ID} USER/* CREATE"
             rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} " \
-                        "MANAGE+DELETE+INFO"
+            "MANAGE+DELETE+INFO"
 
             ###############################################################
             #When more rules are added the class constant HOST_ACL_FIRST_ID
@@ -252,12 +252,12 @@ module OZones
 
             if host_list == nil
                 host_list = @vdc.HOSTS
-            end 
+            end
 
             # Grant permissions to use the vdc hosts
             host_list.split(',').each{|hostid|
                 rule_str << "@#{@vdc.GROUP_ID} HOST/##{hostid} USE"
-            }    
+            }
 
             return rule_str
         end
@@ -276,14 +276,14 @@ module OZones
             end
         end
 
-        # Delete ACLs 
+        # Delete ACLs
         def delete_acls
             @vdc.ACLS.split(",").each{|acl|
                 OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
             }
         end
 
-        # Deletes images 
+        # Deletes images
         def delete_images
             ip = OpenNebula::ImagePool.new(@client)
             ip.info
@@ -293,7 +293,7 @@ module OZones
             }
         end
 
-        # Deletes templates 
+        # Deletes templates
         def delete_templates
             tp = OpenNebula::TemplatePool.new(@client)
             tp.info
@@ -303,7 +303,7 @@ module OZones
             }
         end
 
-        # Deletes VMs 
+        # Deletes VMs
         def delete_vms
             vmp = OpenNebula::VirtualMachinePool.new(@client)
             vmp.info
@@ -313,7 +313,7 @@ module OZones
             }
         end
 
-        # Deletes VNs 
+        # Deletes VNs
         def delete_vns
             vnp = OpenNebula::VirtualNetworkPool.new(@client)
             vnp.info
@@ -331,13 +331,13 @@ module OZones
         def rollback(group, user, acls, rc)
             group.delete
             user.delete if user
-           
+
             if acls
                 acls.chop
                 acls.split(",").each{|acl|
                     OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
                 }
-            end 
+            end
 
             return rc
         end
@@ -353,7 +353,7 @@ module OZones
                 rc  = acl.allocate(*OpenNebula::Acl.parse_rule(rule))
 
                 break if OpenNebula.is_error?(rc)
-                
+
                 acls_str << acl.id.to_s << ","
             }
 

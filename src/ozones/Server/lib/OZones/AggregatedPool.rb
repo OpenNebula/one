@@ -15,54 +15,54 @@
 #--------------------------------------------------------------------------- #
 
 module OZones
-    
-    class AggregatedPool 
-        include  OpenNebulaJSON::JSONUtils 
-         
+
+    class AggregatedPool
+        include  OpenNebulaJSON::JSONUtils
+
         def initialize(tag)
             @tag                          = tag
         end
-    
+
         def info
             @sup_aggregated_pool               = Hash.new
             @sup_aggregated_pool[@tag]         = Hash.new
             @sup_aggregated_pool[@tag]["ZONE"] = Array.new
-        
+
             OZones::Zones.all.each{|zone|
-                
+
                 zone_pool_hash = Hash.new
-                
+
                 zone_pool_hash = zone.to_hash["ZONE"]
-                
+
                 client   = OpenNebula::Client.new(
-                                      zone.ONENAME + ":" + zone.ONEPASS,
-                                      zone.ENDPOINT,
-                                      false)
-                                                         
-                pool = factory(client)  
-                
+                                           zone.ONENAME + ":" + zone.ONEPASS,
+                                           zone.ENDPOINT,
+                                           false)
+
+                pool = factory(client)
+
                 if OpenNebula.is_error?(pool)
                     zone_pool_hash.merge!(pool.to_hash)
                     next
                 end
-                     
+
                 rc = pool.info
 
-                if !rc  
-                    zone_pool_hash.merge!(pool.to_hash)       
+                if !rc
+                    zone_pool_hash.merge!(pool.to_hash)
                 else
                     zone_pool_hash.merge!(rc.to_hash)
                 end
-                
+
                 @sup_aggregated_pool[@tag]["ZONE"] << zone_pool_hash
 
             }
-        end    
-    
+        end
+
         def to_hash
             info
             return @sup_aggregated_pool
         end
     end
-    
+
 end

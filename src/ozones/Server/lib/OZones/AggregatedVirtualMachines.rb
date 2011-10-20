@@ -15,16 +15,16 @@
 #--------------------------------------------------------------------------- #
 
 module OZones
-    
-    class AggregatedVirtualMachines < AggregatedPool 
-        
+
+    class AggregatedVirtualMachines < AggregatedPool
+
         def initialize
             super("ZONE_POOL")
         end
-        
-        def factory(client) 
+
+        def factory(client)
             OpenNebulaJSON::VirtualMachinePoolJSON.new(client)
-        end    
+        end
     end
-    
+
 end

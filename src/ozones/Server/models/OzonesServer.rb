@@ -35,11 +35,11 @@ class OzonesServer
         if vdc
             return [200, vdc.to_json]
         else
-            return [404, 
-                OZones::Error.new("Error:VDC with id #{id} not found").to_json]
+            return [404,
+                    OZones::Error.new("Error:VDC with id #{id} not found").to_json]
         end
     end
- 
+
     #Gets all Zones
     def get_zones
         return 200, OZones::Zones.to_json
@@ -52,8 +52,8 @@ class OzonesServer
         if zone
             return [200, zone.to_json]
         else
-            return [404, 
-                OZones::Error.new("Error:Zone with id #{id} not found").to_json]
+            return [404,
+                    OZones::Error.new("Error:Zone with id #{id} not found").to_json]
         end
     end
 
@@ -81,7 +81,7 @@ class OzonesServer
 
         if OpenNebula.is_error?(vdc_data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
-                "Reason: #{data.message}.").to_json]
+                                           "Reason: #{data.message}.").to_json]
         end
 
         #Get the Zone that will host the VDC. And check resouces
@@ -89,21 +89,23 @@ class OzonesServer
         force  = vdc_data.delete(:FORCE)
 
         if !zoneid
-            return [400, OZones::Error.new("Error: Couldn't create vdc. " \
-                "Mandatory attribute zoneid missing.").to_json]
+            return [400, 
+                    OZones::Error.new("Error: Couldn't create vdc. " \
+                                      "Mandatory attribute zoneid missing.").to_json]
         end
 
         zone = OZones::Zones.get(zoneid)
         if !zone
             return [404, OZones::Error.new("Error: Couldn't create vdc. " \
-                "Zone #{zoneid} not found.").to_json]
+                                           "Zone #{zoneid} not found.").to_json]
         end
 
-        if (!force or force.upcase!="YES") and 
-            !host_uniqueness?(zone, vdc_data[:HOSTS])
+        if (!force or force.upcase!="YES") and
+                !host_uniqueness?(zone, vdc_data[:HOSTS])
 
-            return [403, OZones::Error.new("Error: Couldn't create vdc. " \
-                "Hosts are not unique, use force to override").to_json]
+            return [403, 
+                    OZones::Error.new("Error: Couldn't create vdc. " \
+                                      "Hosts are not unique, use force to override").to_json]
         end
 
         # Create de VDC
@@ -112,20 +114,21 @@ class OzonesServer
 
         if OpenNebula.is_error?(rc)
             return [400, OZones::Error.new("Error: Couldn't create vdc. " \
-                "Reason: #{rc.message}").to_json]
+                                           "Reason: #{rc.message}").to_json]
         end
 
         #Update the zone and save the vdc
         zone.raise_on_save_failure = true
         zone.vdcs << vdc.vdc
 
-        begin 
+        begin
             zone.save
         rescue => e
             vdc.clean_bootstrap
 
-            return [400, OZones::Error.new("Error: Couldn't create " \
-                "vdc. Zone could not be saved: #{e.message}").to_json]
+            return [400, 
+                    OZones::Error.new("Error: Couldn't create " \
+                                      "vdc. Zone could not be saved: #{e.message}").to_json]
         end
 
         pr.update # Rewrite proxy conf file
@@ -138,7 +141,7 @@ class OzonesServer
 
         if OpenNebula.is_error?(data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
-                "Reason: #{data.message}.").to_json]
+                                           "Reason: #{data.message}.").to_json]
         end
 
         zone = OZones::Zones.create(data)
@@ -160,7 +163,7 @@ class OzonesServer
 
         if OpenNebula.is_error?(vdc_data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
-                "Reason: #{data.message}.").to_json]
+                                           "Reason: #{data.message}.").to_json]
         end
 
         hosts  = vdc_data.delete(:HOSTS)
@@ -169,7 +172,7 @@ class OzonesServer
         # Check parameters
         if !hosts
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
-                "Missing HOSTS.").to_json]
+                                           "Missing HOSTS.").to_json]
         end
 
         # Check if the referenced Vdc exists
@@ -177,25 +180,26 @@ class OzonesServer
             vdc  = OZones::OpenNebulaVdc.new(vdc_id)
         rescue => e
             return [404, OZones::Error.new("Error: Couldn't update vdc. " \
-                "#{e.message}").to_json]
+                                           "#{e.message}").to_json]
         end
-        
-        if (!force or force.upcase != "YES") and
-            !host_uniqueness?(vdc.zone, hosts, vdc_id.to_i) 
 
-            return [403, OZones::Error.new("Error: Couldn't update vdc. " \
-                "Hosts are not unique, use force to override").to_json]
+        if (!force or force.upcase != "YES") and
+                !host_uniqueness?(vdc.zone, hosts, vdc_id.to_i)
+
+            return [403, 
+                    OZones::Error.new("Error: Couldn't update vdc. " \
+                                      "Hosts are not unique, use force to override").to_json]
         end
-        
+
         rc = vdc.update(hosts)
-                                      
+
         if !OpenNebula.is_error?(rc)
             return [200, rc]
         else
             return [500, OZones::Error.new("Error: Couldn't update vdc. " \
-            " Reason: #{rc.message}").to_json]
+                                           " Reason: #{rc.message}").to_json]
         end
-   end
+    end
 
     ############################################################################
     # Delete resources
@@ -206,12 +210,12 @@ class OzonesServer
             rc  = vdc.destroy
         rescue => e
             return [404, OZones::Error.new("Error: Can not delete vdc. " \
-                "Reason: #{e.message}").to_json]
+                                           "Reason: #{e.message}").to_json]
         end
 
         if !rc
             return [500, OZones::Error.new("Error: Couldn't delete " \
-                "vdc #{id}").to_json]
+                                           "vdc #{id}").to_json]
         else
             pr.update # Rewrite proxy conf file
             return [200, OZones.str_to_json("Vdc #{id} successfully deleted")]
@@ -224,13 +228,14 @@ class OzonesServer
         if zone
             rc = zone.destroy
         else
-            return [404, OZones::Error.new("Error: Can not delete " \
-                "zone. Reason: zone #{id} not found").to_json]
+            return [404, 
+                    OZones::Error.new("Error: Can not delete " \
+                                      "zone. Reason: zone #{id} not found").to_json]
         end
 
         if !rc
             return [500, OZones::Error.new("Error: Couldn't delete " \
-                "zone #{id}").to_json]
+                                           "zone #{id}").to_json]
         else
             pr.update # Rewrite proxy conf file
             return [200, OZones.str_to_json("Zone #{id} successfully deleted")]
@@ -241,11 +246,11 @@ class OzonesServer
     # Misc Helper Functions
     ############################################################################
     private
-    
+
     # Check if hosts are already include in any Vdc of the zone
     def host_uniqueness?(zone, host_list, vdc_id = -1)
         return true if host_list.empty?
-        
+
         all_hosts = ""
         zone.vdcs.all.each{|vdc|
             if vdc.HOSTS != nil and !vdc.HOSTS.empty? and vdc.id != vdc_id
