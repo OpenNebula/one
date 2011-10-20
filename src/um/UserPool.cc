@@ -272,6 +272,8 @@ bool UserPool::authenticate(const string& session,
 
         auth_driver = user->auth_driver;
 
+        result = user->valid_session(session);
+
         user->unlock();
     }
     else //External User
@@ -281,6 +283,19 @@ bool UserPool::authenticate(const string& session,
 
         uid    = -1;
         gid    = -1;
+    }
+
+    // The user is known to OpenNebula and the session token was authenticated
+    // and is still valid
+    if ( result == true )
+    {
+        user_id  = uid;
+        group_id = gid;
+
+        uname = tuname;
+        gname = tgname;
+
+        return result;
     }
 
     AuthRequest ar(uid, gid);
@@ -393,6 +408,15 @@ bool UserPool::authenticate(const string& session,
         NebulaLog::log("AuM",Log::ERROR,
             "Auth Error: Authentication driver not enabled. "
             "Check AUTH_MAD in oned.conf");
+    }
+
+    if ( result == true )
+    {
+        user = get(user_id, true);
+
+        user->set_session(session);
+
+        user->unlock();
     }
 
     return result;

@@ -81,6 +81,7 @@ public:
     void disable()
     {
         enabled = false;
+        invalidate_session();
     };
 
     /**
@@ -115,6 +116,7 @@ public:
         if (pass_is_valid(passwd, error_str))
         { 
             password = passwd;
+            invalidate_session();
         }
         else
         {
@@ -134,6 +136,7 @@ public:
     int set_auth_driver(const string& _auth_driver, string& error_str)
     {
         auth_driver = _auth_driver;
+        invalidate_session();
 
         return 0;
     };
@@ -180,6 +183,57 @@ private:
      * Flag marking user enabled/disabled
      */
     bool        enabled;
+
+    // *************************************************************************
+    // Authentication session (Private)
+    // *************************************************************************
+
+    /**
+     * Until when the session_token is valid
+     */
+    time_t session_expiration_time;
+
+    /**
+     * Last authentication token validated by the driver, can
+     * be trusted until the session_expiration_time
+     */
+    string session_token;
+
+    /**
+     * Checks if a session token is authorized and still valid
+     *
+     * @param token The authentication token
+     * @return true if the token is still valid
+     */
+    bool valid_session(const string& token)
+    {
+        return (( session_token == token ) &&
+                ( time(0) < session_expiration_time ) );
+    };
+
+    /**
+     * Resets the authentication session
+     */
+    void invalidate_session()
+    {
+        session_token.clear();
+        session_expiration_time = 0;
+    };
+
+    /**
+     * Stores the given session token for a limited time. This eliminates the
+     * need to call the external authentication driver for the expiration time.
+     *
+     * @param token The authenticated token
+     */
+    void set_session(const string& token)
+    {
+        session_token = token;
+
+        // TODO: read the validity time from oned.conf
+        time_t validity_time = 300;
+        session_expiration_time = time(0) + validity_time;
+    };
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -229,7 +283,9 @@ protected:
         PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table),
         password(_password),
         auth_driver(_auth_driver),
-        enabled(_enabled)
+        enabled(_enabled),
+        session_expiration_time(0),
+        session_token("")
     {
         obj_template = new UserTemplate;
     };
