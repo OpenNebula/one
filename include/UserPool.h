@@ -141,6 +141,23 @@ public:
      */
     static const char * CORE_AUTH;
 
+    /**
+     *  Name for the OpenNebula server (delegated) authentication process 
+     */
+    static const char * SERVER_AUTH;
+
+    /**
+     *  Name for the OpenNebula public authentication process. It only
+     *  allows delegated
+     */
+    static const char * PUBLIC_AUTH;
+
+    /**
+     *  Name for the default auth driver to be used for not registered users
+     */
+    static const char * DEFAULT_AUTH;
+
+
 private:
     //--------------------------------------------------------------------------
     // Configuration Attributes for Users
@@ -152,6 +169,25 @@ private:
     static time_t _session_expiration_time;
 
     /**
+     *  Function to authenticate internal (known) users
+     */
+    bool authenticate_internal(const string& username,
+                               const string& token,
+                               int&    user_id,
+                               int&    group_id,
+                               string& uname,
+                               string& gname);
+    
+    /**
+     *  Function to authenticate external (not known) users
+     */
+    bool authenticate_external(const string& username,
+                               const string& token,
+                               int&    user_id,
+                               int&    group_id,
+                               string& uname,
+                               string& gname);
+    /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User
      */
@@ -159,6 +195,7 @@ private:
     {
         return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
     };
+
 };
 
 #endif /*USER_POOL_H_*/

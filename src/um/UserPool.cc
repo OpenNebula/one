@@ -29,7 +29,10 @@
 #include <pwd.h>
 #include <stdlib.h>
 
-const char * UserPool::CORE_AUTH = "core";
+const char * UserPool::CORE_AUTH    = "core";
+const char * UserPool::SERVER_AUTH  = "server";
+const char * UserPool::PUBLIC_AUTH  = "public";
+const char * UserPool::DEFAULT_AUTH = "default";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -231,204 +234,292 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool UserPool::authenticate_internal(const string& username,
+                                     const string& token,
+                                     int&    user_id,
+                                     int&    group_id,
+                                     string& uname,
+                                     string& gname)
+{
+    User * user = 0;
+    bool result = false;
+
+    ostringstream oss;
+
+    string password;
+    string auth_driver;
+
+    Nebula&     nd      = Nebula::instance();
+    AuthManager * authm = nd.get_authm();
+
+    AuthRequest ar;
+
+    user = get(username,true);
+
+    if (user == 0)
+    {
+        goto auth_failure;
+    } 
+
+    password = user->password;
+
+    user_id  = user->oid;
+    group_id = user->gid;
+
+    uname  = user->name;
+    gname  = user->gname;
+
+    auth_driver = user->auth_driver;
+
+    result = user->valid_session(token);
+
+    user->unlock();
+
+    if (result)
+    {
+        return true;
+    }
+                                   
+    ar.set_user_ids(user_id, group_id);
+
+    if ( auth_driver == UserPool::CORE_AUTH )
+    {
+        ar.add_authenticate("",username,password,token);
+
+        if (!ar.core_authenticate())
+        {
+            goto auth_failure;
+        } 
+    }
+    else if (auth_driver == UserPool::PUBLIC_AUTH )
+    {
+        goto auth_failure_public;
+    }
+    else if ( authm != 0 ) //use auth driver if it was loaded
+    {
+        //Initialize authentication request and call the driver
+        ar.add_authenticate(auth_driver,username,password,token);
+
+        authm->trigger(AuthManager::AUTHENTICATE,&ar);
+        ar.wait();
+
+        if (ar.result!=true) //User was not authenticated
+        {   
+            goto auth_failure_driver;
+        }
+
+        if (auth_driver == UserPool::SERVER_AUTH)
+        {
+            user = get(ar.message,true);
+
+            if (user == 0)
+            {
+                goto auth_failure_user;
+            } 
+
+            user_id  = user->oid;
+            group_id = user->gid;
+
+            uname  = user->name;
+            gname  = user->gname;
+
+            user->unlock();
+        }
+    } 
+    else
+    {
+        goto auth_failure_nodriver;
+    }
+
+    user = get(username, true);
+
+    if (user != 0)
+    {
+        user->set_session(token, _session_expiration_time);
+        user->unlock();
+    } 
+
+    return true;
+
+auth_failure_public:
+    oss << "User: " << username << "attempted a direct authentication.";
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_user:
+    oss << "User: " << ar.message 
+        << ", does not exist. Returned by server auth.";
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_driver:
+    oss << "Auth Error: " << ar.message;
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_nodriver:
+    NebulaLog::log("AuM",Log::ERROR,
+        "Auth Error: Authentication driver not enabled. "
+        "Check AUTH_MAD in oned.conf");
+
+auth_failure:
+    user_id  = -1;
+    group_id = -1;
+
+    uname = "";
+    gname = "";
+
+    return false;
+}
+ 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+    
+bool UserPool::authenticate_external(const string& username,
+                                     const string& token,
+                                     int&    user_id,
+                                     int&    group_id,
+                                     string& uname,
+                                     string& gname)
+{
+    ostringstream oss;
+    istringstream is;
+
+    string driver_name;
+    string mad_name;
+    string mad_pass;
+    string error_str;
+
+    Nebula&     nd      = Nebula::instance();
+    AuthManager * authm = nd.get_authm();
+
+    AuthRequest ar(-1,-1);
+
+    if (authm == 0)
+    {
+        goto auth_failure_nodriver;
+    }
+
+    //Initialize authentication request and call the driver
+    ar.add_authenticate(UserPool::DEFAULT_AUTH, username,"-",token);
+
+    authm->trigger(AuthManager::AUTHENTICATE, &ar);
+    ar.wait();
+
+    if (ar.result != true) //User was not authenticated
+    {   
+        goto auth_failure_driver;
+    }
+
+    is.str(ar.message);
+
+    user_id = -1;
+
+    if ( is.good() )
+    {
+        is >> driver_name >> ws;
+    }
+
+    if ( !is.fail() )
+    {
+        is >> mad_name >> ws;
+    }
+
+    if ( !is.fail() )
+    {
+        getline(is, mad_pass);
+    }
+
+    if ( !is.fail() )
+    {
+        allocate(&user_id,
+                 GroupPool::USERS_ID,
+                 mad_name,
+                 GroupPool::USERS_NAME,
+                 mad_pass,
+                 driver_name,
+                 true,
+                 error_str);
+    }
+
+    if ( user_id == -1 )
+    {
+        goto auth_failure_user;
+    }
+
+    group_id = GroupPool::USERS_ID;
+
+    uname = mad_name;
+    gname = GroupPool::USERS_NAME;
+
+    return true;
+        
+auth_failure_user:
+    oss << "Can't create user: " << error_str << ". Driver response: " 
+        << ar.message;
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_driver:
+    oss << "Auth Error: " << ar.message;
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_nodriver:
+    NebulaLog::log("AuM",Log::ERROR,
+        "Auth Error: Authentication driver not enabled. "
+        "Check AUTH_MAD in oned.conf");
+
+auth_failure:
+    user_id  = -1;
+    group_id = -1;
+
+    uname = "";
+    gname = "";
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+ 
 bool UserPool::authenticate(const string& session, 
                             int&          user_id, 
                             int&          group_id,
                             string&       uname,
                             string&       gname)
 {
-    map<string, int>::iterator index;
-
     User * user = 0;
     string username;
-    string u_secret, u_pass;
-    string auth_driver;
+    string token;
 
-    string tuname;
-    string tgname;
-
-    int  uid, gid;
     int  rc;
-    bool result;
+    bool ar;
 
-    Nebula&     nd      = Nebula::instance();
-    AuthManager * authm = nd.get_authm();
-
-    user_id  = -1;
-    group_id = -1;
-    uname    = "";
-    gname    = "";
-    result   = false;
-
-    rc = User::split_secret(session,username,u_secret);
+    rc = User::split_secret(session,username,token);
 
     if ( rc != 0 )
     {
-        return -1;
+        return false;
     }
 
+    user = get(username,false);
 
-    user = get(username,true);
-
-    if (user != 0) //User known to OpenNebula
+    if (user != 0 ) //User known to OpenNebula
     {
-        u_pass = user->password;
-        uid    = user->oid;
-        gid    = user->gid;
-
-        tuname  = user->name;
-        tgname  = user->gname;
-
-        auth_driver = user->auth_driver;
-
-        result = user->valid_session(session);
-
-        user->unlock();
-    }
-    else //External User
-    {
-        u_pass      = "-";
-        auth_driver = "";
-
-        uid    = -1;
-        gid    = -1;
-    }
-
-    // The user is known to OpenNebula and the session token was authenticated
-    // and is still valid
-    if ( result == true )
-    {
-        user_id  = uid;
-        group_id = gid;
-
-        uname = tuname;
-        gname = tgname;
-
-        return result;
-    }
-
-    AuthRequest ar(uid, gid);
-
-    if ( auth_driver == UserPool::CORE_AUTH )
-    {
-        if (user != 0) //no core auth for external users
-        {
-            ar.add_authenticate("",username,u_pass,u_secret);
-
-            if (ar.core_authenticate()) 
-            {
-                user_id  = uid;
-                group_id = gid;
-
-                uname = tuname;
-                gname = tgname;
-
-                result   = true;
-            }
-        }
-    }
-    else if ( authm != 0 ) //use auth driver if it was loaded
-    {
-        //Initialize authentication request and call the driver
-        ar.add_authenticate(auth_driver,username,u_pass,u_secret);
-
-        authm->trigger(AuthManager::AUTHENTICATE,&ar);
-        ar.wait();
-
-        if (ar.result==true) //User was authenticated
-        {
-            if ( user != 0 ) //knwon user_id
-            {
-                user_id  = uid;
-                group_id = gid;
-
-                uname = tuname;
-                gname = tgname;
-
-                result   = true;
-            }
-            else //External user, username & pass in driver message
-            {
-                string driver_name;
-                string mad_name;
-                string mad_pass;
-
-                string error_str;
-
-                istringstream is(ar.message);
-
-                if ( is.good() )
-                {
-                    is >> driver_name >> ws;
-                }
-
-                if ( !is.fail() )
-                {
-                    is >> mad_name >> ws;
-                }
-
-                if ( !is.fail() )
-                {
-                    getline(is, mad_pass);
-                }
-
-                if ( !is.fail() )
-                {
-                    allocate(&user_id,
-                             GroupPool::USERS_ID,
-                             mad_name,
-                             GroupPool::USERS_NAME,
-                             mad_pass,
-                             driver_name,
-                             true,
-                             error_str);
-                }
-
-                if ( user_id == -1 )
-                {
-                    ostringstream oss;
-
-                    oss << "Can't create user: " << error_str <<
-                           ". Driver response: " << ar.message;
-
-                    NebulaLog::log("AuM",Log::ERROR,oss);
-                }
-                else
-                {
-                    group_id = GroupPool::USERS_ID;
-
-                    uname = mad_name;
-                    gname = GroupPool::USERS_NAME;
-
-                    result   = true;
-                }
-            }
-        }
-        else
-        {
-            ostringstream oss;
-            oss << "Auth Error: " << ar.message;
-
-            NebulaLog::log("AuM",Log::ERROR,oss);
-        }
+        ar = authenticate_internal(username,token,user_id,group_id,uname,gname);
     }
     else
     {
-        NebulaLog::log("AuM",Log::ERROR,
-            "Auth Error: Authentication driver not enabled. "
-            "Check AUTH_MAD in oned.conf");
+        ar = authenticate_external(username,token,user_id,group_id,uname,gname);
     }
 
-    if ( result == true )
-    {
-        user = get(user_id, true);
-
-        user->set_session(session, _session_expiration_time);
-
-        user->unlock();
-    }
-
-    return result;
+   return ar;
 }
 
 /* -------------------------------------------------------------------------- */
