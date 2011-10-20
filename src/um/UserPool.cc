@@ -34,7 +34,14 @@ const char * UserPool::CORE_AUTH = "core";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
+time_t UserPool::_session_expiration_time;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+UserPool::UserPool(SqlDB * db,
+                   time_t  __session_expiration_time):
+                       PoolSQL(db,User::table)
 {
     int           one_uid = -1;
     ostringstream oss;
@@ -45,6 +52,8 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 
     const char *  one_auth;
     ifstream      file;
+
+    _session_expiration_time = __session_expiration_time;
 
     if (get(0,false) != 0)
     {
@@ -414,7 +423,7 @@ bool UserPool::authenticate(const string& session,
     {
         user = get(user_id, true);
 
-        user->set_session(session);
+        user->set_session(session, _session_expiration_time);
 
         user->unlock();
     }

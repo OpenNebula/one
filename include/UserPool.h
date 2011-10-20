@@ -39,7 +39,8 @@ class UserPool : public PoolSQL
 {
 public:
 
-    UserPool(SqlDB * db);
+    UserPool(SqlDB * db,
+             time_t  __session_expiration_time);
 
     ~UserPool(){};
 
@@ -141,6 +142,15 @@ public:
     static const char * CORE_AUTH;
 
 private:
+    //--------------------------------------------------------------------------
+    // Configuration Attributes for Users
+    // -------------------------------------------------------------------------
+
+    /**
+     * Authentication session expiration time
+     **/
+    static time_t _session_expiration_time;
+
     /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User

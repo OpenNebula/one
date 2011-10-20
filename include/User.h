@@ -222,16 +222,14 @@ private:
 
     /**
      * Stores the given session token for a limited time. This eliminates the
-     * need to call the external authentication driver for the expiration time.
+     * need to call the external authentication driver until the time expires.
      *
      * @param token The authenticated token
+     * @param validity_time
      */
-    void set_session(const string& token)
+    void set_session(const string& token, time_t validity_time)
     {
-        session_token = token;
-
-        // TODO: read the validity time from oned.conf
-        time_t validity_time = 300;
+        session_token           = token;
         session_expiration_time = time(0) + validity_time;
     };
 
