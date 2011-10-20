@@ -146,16 +146,20 @@ public class User extends PoolElement{
     }
 
     /**
-     * Changes the auth driver of the given user
+     * Changes the auth driver and the password of the given user
      * 
      * @param client XML-RPC Client.
      * @param id The user id (uid) of the target user we want to modify.
      * @param auth The new auth driver.
+     * @param password The new password.
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse chauth(Client client, int id, String auth)
+    public static OneResponse chauth(Client client,
+                                    int id,
+                                    String auth,
+                                    String password)
     {
-        return client.call(CHAUTH, id, auth);
+        return client.call(CHAUTH, id, auth, password);
     }
 
     /**
@@ -222,14 +226,15 @@ public class User extends PoolElement{
     }
 
     /**
-     * Changes the auth driver of the given user
+     * Changes the auth driver and the password of the given user
      * 
      * @param auth The new auth driver.
+     * @param password The new password.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse chauth(String auth)
+    public OneResponse chauth(String auth, String password)
     {
-        return chauth(client, id, auth);
+        return chauth(client, id, auth, password);
     }
 
     /**

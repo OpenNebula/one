@@ -116,15 +116,16 @@ module OpenNebula
             return rc
         end
 
-        # Changes the auth driver
+        # Changes the auth driver and the password of the given User
         #
         # @param auth [String] the new auth driver
+        # @param password [String] the new password
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def chauth(auth)
+        def chauth(auth, password)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(USER_METHODS[:chauth],@pe_id, auth)
+            rc = @client.call(USER_METHODS[:chauth],@pe_id, auth, password)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

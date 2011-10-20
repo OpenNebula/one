@@ -85,7 +85,7 @@ public:
     UserChangeAuth():
         RequestManagerUser("UserChangeAuth",
                            "Changes user's authentication driver",
-                           "A:sis")
+                           "A:siss")
     {
         auth_op = AuthRequest::CHAUTH;
     };

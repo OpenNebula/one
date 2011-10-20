@@ -81,8 +81,17 @@ int UserChangeAuth::user_action(User * user,
                                 string& error_str)
 {
     string new_auth = xmlrpc_c::value_string(paramList.getString(2));
+    string new_pass = xmlrpc_c::value_string(paramList.getString(3));
 
-    int rc = user->set_auth_driver(new_auth, error_str);
+    int rc;
+
+    // The password may be invalid, try to change it first
+    rc = user->set_password(new_pass, error_str);
+
+    if ( rc == 0 )
+    {
+        rc = user->set_auth_driver(new_auth, error_str);
+    }
 
     if ( rc == 0 )
     {
