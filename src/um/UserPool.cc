@@ -234,33 +234,25 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool UserPool::authenticate_internal(const string& username,
+bool UserPool::authenticate_internal(User *        user,
                                      const string& token,
-                                     int&    user_id,
-                                     int&    group_id,
-                                     string& uname,
-                                     string& gname)
+                                     int&          user_id,
+                                     int&          group_id,
+                                     string&       uname,
+                                     string&       gname)
 {
-    User * user = 0;
     bool result = false;
 
     ostringstream oss;
 
     string password;
     string auth_driver;
+    string username;
 
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
 
-    AuthRequest ar;
-
-    user = get(username,true);
-
-    if (user == 0)
-    {
-        goto auth_failure;
-    } 
-
+    username = user->name;
     password = user->password;
 
     user_id  = user->oid;
@@ -280,7 +272,7 @@ bool UserPool::authenticate_internal(const string& username,
         return true;
     }
                                    
-    ar.set_user_ids(user_id, group_id);
+    AuthRequest ar(user_id, group_id);
 
     if ( auth_driver == UserPool::CORE_AUTH )
     {
@@ -508,11 +500,11 @@ bool UserPool::authenticate(const string& session,
         return false;
     }
 
-    user = get(username,false);
+    user = get(username,true);
 
     if (user != 0 ) //User known to OpenNebula
     {
-        ar = authenticate_internal(username,token,user_id,group_id,uname,gname);
+        ar = authenticate_internal(user,token,user_id,group_id,uname,gname);
     }
     else
     {

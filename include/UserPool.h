@@ -171,12 +171,12 @@ private:
     /**
      *  Function to authenticate internal (known) users
      */
-    bool authenticate_internal(const string& username,
+    bool authenticate_internal(User *        user,
                                const string& token,
-                               int&    user_id,
-                               int&    group_id,
-                               string& uname,
-                               string& gname);
+                               int&          user_id,
+                               int&          group_id,
+                               string&       uname,
+                               string&       gname);
     
     /**
      *  Function to authenticate external (not known) users

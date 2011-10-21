@@ -271,17 +271,6 @@ public:
         am.addListener(this);
     };
 
-    AuthRequest():
-        result(false),
-        timeout(false),
-        uid(-1),
-        gid(-1),
-        time_out(0),
-        self_authorize(true)
-    {
-        am.addListener(this);
-    };
-
     ~AuthRequest(){};
 
     /**
@@ -366,17 +355,6 @@ public:
         session  = _session;
         
         driver   = _driver;
-    }
-
-    /**
-     *  Sets the user id and its group id for this request
-     *  @param _uid of the user
-     *  @param _gid of user's group
-     */
-    void set_user_ids(int _uid, int _gid)
-    {
-        uid = _uid;
-        gid = _gid;    
     }
 
     /**
