@@ -18,11 +18,11 @@ include REXML
 
 module Migrator
     def db_version
-        "3.0"
+        "3.0.0"
     end
 
     def one_version
-        "OpenNebula 3.0"
+        "OpenNebula 3.0.0"
     end
 
     def up

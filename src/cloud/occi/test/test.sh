@@ -16,38 +16,34 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#------------------------------------------------------------------------------
-# Configuration File for File-System based Image Repositories
-#------------------------------------------------------------------------------
-if [ -z "${ONE_LOCATION}" ]; then
-    export IMAGE_REPOSITORY_PATH=/var/lib/one/images
-else
-    export IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
+if [ -z $ONE_LOCATION ]; then
+    echo "ONE_LOCATION not defined."
+    exit -1
 fi
 
-#------------------------------------------------------------------------------
-# Function used to generate Image names, you should not need to override this
-#------------------------------------------------------------------------------
-function generate_image_path {
+VAR_LOCATION="$ONE_LOCATION/var"
 
-CANONICAL_STR="`$DATE +%s`:$ID"
+if [ "$(ls -A $VAR_LOCATION)" ]; then
+    echo "$VAR_LOCATION is not empty."
+    exit -1
+fi
 
-CANONICAL_MD5=$($MD5SUM - << EOF
-$CANONICAL_STR
-EOF
-)
+for j in `ls ./spec/*_spec.rb` ; do
+    find $VAR_LOCATION -mindepth 1 ! \( -path "$VAR_LOCATION/remotes*" -o -path "$VAR_LOCATION/images" \) -delete
 
-echo "$IMAGE_REPOSITORY_PATH/`echo $CANONICAL_MD5 | cut -d ' ' -f1`"
-}
+    PID=$$
 
-function fs_du {
-	SIZE=`$(stat -c %s $1)`
+    oned -f &
+    sleep 2s;
 
-	if [ $? -ne 0 ]; then
-	    SIZE=0
-	else
-		SIZE=$(($SIZE/1048576))
-	fi
+    rspec $j -f s
+    CODE=$?
 
-	echo "$SIZE"
-}
+    pkill -P $PID oned
+    sleep 2s;
+    pkill -9 -P $PID oned
+
+    if [ $CODE != 0 ] ; then
+        exit 1
+    fi
+done

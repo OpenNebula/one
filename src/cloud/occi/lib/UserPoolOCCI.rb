@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,38 +14,30 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#------------------------------------------------------------------------------
-# Configuration File for File-System based Image Repositories
-#------------------------------------------------------------------------------
-if [ -z "${ONE_LOCATION}" ]; then
-    export IMAGE_REPOSITORY_PATH=/var/lib/one/images
-else
-    export IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
-fi
+require 'OpenNebula'
 
-#------------------------------------------------------------------------------
-# Function used to generate Image names, you should not need to override this
-#------------------------------------------------------------------------------
-function generate_image_path {
+include OpenNebula
 
-CANONICAL_STR="`$DATE +%s`:$ID"
+class UserPoolOCCI < UserPool
+    OCCI_USER_POOL = %q{
+        <USER_COLLECTION>
+            <% self.each{ |user|  %>
+            <USER href="<%= base_url %>/user/<%= user.id.to_s  %>" name="<%= user.name  %>"/>
+            <% } %>
+        </USER_COLLECTION>
+    }
 
-CANONICAL_MD5=$($MD5SUM - << EOF
-$CANONICAL_STR
-EOF
-)
 
-echo "$IMAGE_REPOSITORY_PATH/`echo $CANONICAL_MD5 | cut -d ' ' -f1`"
-}
+    # Creates the OCCI representation of a User Pool
+    def to_occi(base_url)
+        begin
+            occi = ERB.new(OCCI_USER_POOL)
+            occi_text = occi.result(binding)
+        rescue Exception => e
+            error = OpenNebula::Error.new(e.message)
+            return error
+        end
 
-function fs_du {
-	SIZE=`$(stat -c %s $1)`
-
-	if [ $? -ne 0 ]; then
-	    SIZE=0
-	else
-		SIZE=$(($SIZE/1048576))
-	fi
-
-	echo "$SIZE"
-}
+        return occi_text.gsub(/\n\s*/,'')
+    end
+end

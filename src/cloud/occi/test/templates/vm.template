@@ -1,0 +1,10 @@
+CPU = 1
+MEMORY = 512
+
+DISK = [
+    IMAGE_ID = 0
+]
+
+DISK = [
+    IMAGE_ID = 1
+]

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,38 +14,28 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#------------------------------------------------------------------------------
-# Configuration File for File-System based Image Repositories
-#------------------------------------------------------------------------------
-if [ -z "${ONE_LOCATION}" ]; then
-    export IMAGE_REPOSITORY_PATH=/var/lib/one/images
-else
-    export IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
-fi
+FIXTURES_PATH  = File.join(File.dirname(__FILE__),'../fixtures')
+TEMPLATES_PATH = File.join(File.dirname(__FILE__),'../templates')
 
-#------------------------------------------------------------------------------
-# Function used to generate Image names, you should not need to override this
-#------------------------------------------------------------------------------
-function generate_image_path {
+$: << File.join(File.dirname(__FILE__), '..', '..', 'lib')
 
-CANONICAL_STR="`$DATE +%s`:$ID"
+# Load the testing libraries
+require 'rubygems'
+require 'rspec'
+require 'rack/test'
 
-CANONICAL_MD5=$($MD5SUM - << EOF
-$CANONICAL_STR
-EOF
-)
+# Load the Sinatra app
+require 'occi-server'
 
-echo "$IMAGE_REPOSITORY_PATH/`echo $CANONICAL_MD5 | cut -d ' ' -f1`"
-}
+# Make Rack::Test available to all spec contexts
+RSpec.configure do |conf|
+    conf.include Rack::Test::Methods
+end
 
-function fs_du {
-	SIZE=`$(stat -c %s $1)`
+# Set the Sinatra environment
+set :environment, :test
 
-	if [ $? -ne 0 ]; then
-	    SIZE=0
-	else
-		SIZE=$(($SIZE/1048576))
-	fi
-
-	echo "$SIZE"
-}
+# Add an app method for RSpec
+def app
+    Sinatra::Application
+end

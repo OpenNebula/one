@@ -22,6 +22,18 @@ require 'CloudAuth'
 # API (OCA). Any cloud implementation should derive from this class
 ##############################################################################
 class CloudServer
+    ##########################################################################
+    # Class Constants. Define the OpenNebula Error and HTTP codes mapping
+    ##########################################################################
+    HTTP_ERROR_CODE = {
+        OpenNebula::Error::EAUTHENTICATION => 401,
+        OpenNebula::Error::EAUTHORIZATION  => 403,
+        OpenNebula::Error::ENO_EXISTS      => 404,
+        OpenNebula::Error::EACTION         => 500,
+        OpenNebula::Error::EXML_RPC_API    => 500,
+        OpenNebula::Error::EINTERNAL       => 500,
+        OpenNebula::Error::ENOTDEFINED     => 500
+    }
 
     ##########################################################################
     # Public attributes
