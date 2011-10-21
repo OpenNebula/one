@@ -232,6 +232,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/ssh \
           $VAR_LOCATION/remotes/auth/x509 \
           $VAR_LOCATION/remotes/auth/server \
+          $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/quota \
           $VAR_LOCATION/remotes/auth/dummy"
 
@@ -328,6 +329,7 @@ INSTALL_FILES=(
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_SERVER_FILES:$VAR_LOCATION/remotes/auth/server
+    AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain    
     AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota    
@@ -498,6 +500,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/quota/quota.rb \
                 src/authm_mad/remotes/server/server_auth.rb \
+                src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
                 src/authm_mad/remotes/x509/x509_auth.rb"
 
 #-----------------------------------------------------------------------------
@@ -589,6 +592,8 @@ IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
 #-------------------------------------------------------------------------------
+
+AUTH_SERVER_CIPHER_FILES="src/authm_mad/remotes/server_cipher/authenticate"
 
 AUTH_SERVER_FILES="src/authm_mad/remotes/server/authenticate"
 
