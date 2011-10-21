@@ -33,7 +33,8 @@ module OpenNebula
             :publish     => "image.publish",
             :persistent  => "image.persistent",
             :delete      => "image.delete",
-            :chown       => "image.chown"
+            :chown       => "image.chown",
+            :chtype      => "image.chtype"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR}
@@ -143,6 +144,19 @@ module OpenNebula
         # [return] nil in case of success or an Error object
         def chown(uid, gid)
             super(IMAGE_METHODS[:chown], uid, gid)
+        end
+
+        # Changes the Image type
+        # @param type [String] new Image type
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chtype(type)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(IMAGE_METHODS[:chtype], @pe_id, type)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         #######################################################################
