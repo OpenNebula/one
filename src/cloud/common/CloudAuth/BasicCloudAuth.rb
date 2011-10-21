@@ -24,7 +24,7 @@ module BasicCloudAuth
             one_pass = get_password(username)
 
             if one_pass && one_pass == Digest::SHA1.hexdigest(password)
-                @token = "#{username}:#{password}"
+                @token  = @server_auth.login_token(username)
                 @client = Client.new(@token, @conf[:one_xmlrpc])
                 return nil
             else
