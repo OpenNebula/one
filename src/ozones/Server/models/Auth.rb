@@ -14,12 +14,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-class Auth 
-    
+class Auth
+
     include DataMapper::Resource
 
     property :id,         Serial
-    property :name,       String, :required => true, :unique => true 
-    property :password,   String, :required => true 
-    
+    property :name,       String, :required => true, :unique => true
+    property :password,   String, :required => true
+
 end

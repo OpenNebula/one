@@ -15,16 +15,16 @@
 #--------------------------------------------------------------------------- #
 
 module OZones
-    
-    class AggregatedHosts < AggregatedPool 
-        
+
+    class AggregatedHosts < AggregatedPool
+
         def initialize
             super("ZONE_POOL")
         end
-        
-        def factory(client) 
+
+        def factory(client)
             OpenNebulaJSON::HostPoolJSON.new(client)
-        end    
+        end
     end
-    
+
 end

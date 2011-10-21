@@ -46,7 +46,7 @@ module OZones
         def to_str
             @message
         end
-        
+
         def to_json
             message = { :message => @message }
             error_hash = { :error => message }
@@ -54,7 +54,7 @@ module OZones
             return JSON.pretty_generate error_hash
         end
     end
-    
+
     # -------------------------------------------------------------------------
     # Returns true if the object returned by a method of the OZones
     # library is an Error
@@ -62,10 +62,8 @@ module OZones
     def self.is_error?(value)
         value.class==OZones::Error
     end
-    
+
     def self.str_to_json(str)
         return JSON.pretty_generate({:message  => str})
     end
 end
-
-
