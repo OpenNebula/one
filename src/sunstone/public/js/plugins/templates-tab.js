@@ -535,7 +535,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                     <input type="text" id="custom_var_name" name="custom_var_name" />\
                     <div class="tip">Name for the custom variable</div>\
               </div>\
-              <div class="vm_param kvm_opt xen_opt">\
+              <div class="vm_param kvm_opt xen_opt vmware_opt">\
                     <label for="custom_var_value">Value:</label>\
                     <input type="text" id="custom_var_value" name="custom_var_value" />\
                     <div class="tip">Value of the custom variable</div>\
@@ -1733,8 +1733,7 @@ function setupCreateTemplateDialog(){
                 var name = $('#custom_var_name',section_custom_var).val();
                 var value = $('#custom_var_value',section_custom_var).val();
                 if (!name.length || !value.length) {
-                    notifyError("Custom variable name and value must be\
-filled in");
+                    notifyError("Custom variable name and value must be filled in");
                     return false;
                 }
                 option= '<option value=\''+value+'\' name=\''+name+'\'>'+
