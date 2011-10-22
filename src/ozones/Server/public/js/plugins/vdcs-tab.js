@@ -224,11 +224,11 @@ function vdcElementArray(vdc_json){
     var vdc = vdc_json.VDC;
 
     return [
-        '<input type="checkbox" id="vdc_'+vdc.id+'" name="selected_items" value="'+vdc.id+'"/>',
-        vdc.id,
-        vdc.name,
-        vdc.zones_id,
-        vdc.hosts ? vdc.hosts : "none"
+        '<input type="checkbox" id="vdc_'+vdc.ID+'" name="selected_items" value="'+vdc.ID+'"/>',
+        vdc.ID,
+        vdc.NAME,
+        vdc.ZONES_ID,
+        vdc.HOSTS ? vdc.HOSTS : "none"
     ];
 }
 
@@ -253,7 +253,7 @@ function addVDCElement(req,vdc_json){
 }
 
 function updateVDCElement(request, vdc_json){
-    var id = vdc_json.VDC.id;
+    var id = vdc_json.VDC.ID;
     var element = vdcElementArray(vdc_json);
     updateSingleElement(element,dataTable_vdcs,'#vdc_'+id);
 }
@@ -276,36 +276,36 @@ function updateVDCInfo(req,vdc_json){
         content :
            '<table id="info_vdc_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">Virtual Data Center - '+vdc.name+'</th></tr>\
+               <tr><th colspan="2">Virtual Data Center - '+vdc.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">ID</td>\
-                <td class="value_td">'+vdc.id+'</td>\
+                <td class="value_td">'+vdc.ID+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Name</td>\
-                <td class="value_td">'+vdc.name+'</td>\
+                <td class="value_td">'+vdc.NAME+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Zone ID</td>\
-                <td class="value_td">'+vdc.zones_id+'</td>\
+                <td class="value_td">'+vdc.ZONES_ID+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Hosts</td>\
-                <td class="value_td">'+(vdc.hosts? vdc.hosts : "none")+'</td>\
+                <td class="value_td">'+(vdc.HOSTS? vdc.HOSTS : "none")+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Admin name</td>\
-                <td class="value_td">'+vdc.vdcadminname+'</td>\
+                <td class="value_td">'+vdc.VDCADMINNAME+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Group ID</td>\
-                <td class="value_td">'+vdc.group_id+'</td>\
+                <td class="value_td">'+vdc.GROUP_ID+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">ACLs</td>\
-                <td class="value_td">'+vdc.acls+'</td>\
+                <td class="value_td">'+vdc.ACLS+'</td>\
             </tr>\
             </tbody>\
          </table>'
@@ -461,16 +461,16 @@ function setupCreateVDCDialog(){
         };
 
         var vdc_json = {
-            "vdc" : {
-                "name" : name,
-                "zoneid" : zoneid,
-                "vdcadminname" : vdcadminname,
-                "vdcadminpass" : vdcadminpass,
-                "force" : force
+            "VDC" : {
+                "NAME" : name,
+                "ZONEID" : zoneid,
+                "VDCADMINNAME" : vdcadminname,
+                "VDCADMINPASS" : vdcadminpass,
+                "FORCE" : force
             }
         };
         if (hosts.length){
-            vdc_json["vdc"]["hosts"]=hosts;
+            vdc_json["VDC"]["HOSTS"]=hosts;
         };
 
         Sunstone.runAction("VDC.create",vdc_json);
@@ -549,15 +549,15 @@ function setupUpdateVDCDialog(){
         };
 
         var vdc_json = {
-            "vdc" : {
-                "id": id,
-                "force": force,
-                "hosts": hosts
+            "VDC" : {
+                "ID": id,
+                "FORCE": force,
+                "HOSTS": ""
             }
         };
 
         if (hosts.length){
-            vdc_json["vdc"]["hosts"]=hosts;
+            vdc_json["VDC"]["HOSTS"]=hosts;
         };
         Sunstone.runAction("VDC.update",id,vdc_json);
         dialog.dialog('close');

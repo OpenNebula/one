@@ -61,62 +61,48 @@ class VirtualMachineOCCI < VirtualMachine
             <% end %>
         </COMPUTE>
     }
-    
+
+    OCCI_ACTION = {
+        "STOPPED"   => { :from => ["ACTIVE"], :action => :stop},
+        "SUSPENDED" => { :from => ["ACTIVE"], :action => :suspend},
+        "RESUME"    => { :from => ["STOPPED", "SUSPENDED"], :action => :resume},
+        "CANCEL"    => { :from => ["ACTIVE"], :action => :cancel},
+        "SHUTDOWN"  => { :from => ["ACTIVE"], :action => :shutdown},
+        "DONE"      => { :from => VM_STATE, :action => :finalize},
+    }
+
     # Class constructor
     def initialize(xml, client, xml_info=nil, types=nil, base=nil)
         super(xml, client)
         @vm_info  = nil
         @template = nil
         @common_template = base + '/common.erb' if base
-        
+
         if xml_info != nil
             xmldoc   = XMLElement.build_xml(xml_info, 'COMPUTE')
             @vm_info = XMLElement.new(xmldoc) if xmldoc != nil
         end
-        
+
         if @vm_info != nil
             itype = @vm_info['INSTANCE_TYPE']
-            
+
             if itype != nil and types[itype.to_sym] != nil
                 @template = base + "/#{types[itype.to_sym][:template]}"
             end
         end
-        
+
     end
-    
-    def mk_action(action_str)
-        case action_str.downcase
-            when "stopped"
-                rc = self.stop
-            when "suspended"
-                rc = self.suspend
-            when "resume"
-                rc = self.resume
-            when "cancel"
-                rc = self.cancel
-            when "shutdown"
-                rc = self.shutdown
-            when "done"
-                rc = self.finalize
-            else
-                error_msg = "Invalid state"
-                error = OpenNebula::Error.new(error_msg)
-                return error
-        end
-        
-        return rc
-    end
-    
+
     def to_one_template()
         if @vm_info == nil
             error_msg = "Missing COMPUTE section in the XML body"
             return OpenNebula::Error.new(error_msg), 400
         end
-        
+
         if @template == nil
             return OpenNebula::Error.new("Bad instance type"), 500
         end
-        
+
         begin
             template = ERB.new(File.read(@common_template)).result(binding)
             template << ERB.new(File.read(@template)).result(binding)
@@ -124,10 +110,10 @@ class VirtualMachineOCCI < VirtualMachine
             error = OpenNebula::Error.new(e.message)
             return error
         end
-        
+
         return template
     end
-    
+
     # Creates the VMI representation of a Virtual Machine
     def to_occi(base_url)
         begin
@@ -138,8 +124,89 @@ class VirtualMachineOCCI < VirtualMachine
             return error
         end
 
-        
         return occi_vm_text.gsub(/\n\s*/,'')
+    end
+
+    # Update de resource from an XML representation of the COMPUTE
+    # @param [String] xml_compute XML representation of the COMPUTE
+    # @return [[nil, OpenNebula::Error], HTTP_CODE] If there is no error
+    #   the first component is nil.
+    def update_from_xml(xml_compute)
+        xmldoc  = XMLElement.build_xml(xml_compute, 'COMPUTE')
+        vm_info = XMLElement.new(xmldoc) if xmldoc != nil
+
+        action = nil
+        args   = []
+
+        # Check if a state change is required
+        occi_state = vm_info['STATE']
+
+        if occi_state
+            # If a state is provided
+            occi_state.upcase!
+            if OCCI_ACTION.keys.include?(occi_state)
+                # If the requested state is one the OCCI action states
+                shash = OCCI_ACTION[occi_state]
+                if shash[:from].include?(state_str)
+                    # Action to be performed
+                    action = shash[:action]
+                elsif occi_state != state_str
+                    # If the requested state is different from the resource
+                    # state but it does not belong to the "from" state array
+                    error_msg = "The state of the resource cannot be changed" \
+                        " from #{state_str} to #{occi_state}."
+                    error = OpenNebula::Error.new(error_msg)
+                    return error, 403
+                end
+            elsif !VM_STATE.include?(occi_state)
+                # The requested state is not one of the OCCI action states nor
+                # a resource state
+                error_msg = "Invalid state: \"#{occi_state}\""
+                error = OpenNebula::Error.new(error_msg)
+                return error, 400
+            end
+        end
+
+        # Check if a disk image save as is required
+        image_name = nil
+        vm_info.each('DISK/SAVE_AS') { |save_as|
+            image_name = save_as.attr('.', 'name')
+            if image_name
+                if action
+                    # Return erro if an action has been defined before
+                    if action == :save_as
+                        error_msg = "Only one disk can be saved per request"
+                    else
+                        error_msg = "Changig the state of the resource and" \
+                            " saving a disk is not allowed in the same request"
+                    end
+                    error = OpenNebula::Error.new(error_msg)
+                    return error, 403
+                else
+                    # if no action is defined yet and a save_as is requested
+                    action  = :save_as
+                    disk_id = save_as.attr('..', 'id')
+
+                    # Params for the save_as action:
+                    # save_as(disk_id, image_name)
+                    args << disk_id.to_i
+                    args << image_name
+                end
+            end
+        }
+
+        # Perform the requested action
+        if action
+            rc = self.send(action, *args)
+            if OpenNebula.is_error?(rc)
+                return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+            else
+                return nil, 202
+            end
+        else
+            # There is no change requested
+            return nil, 200
+        end
     end
 end
 

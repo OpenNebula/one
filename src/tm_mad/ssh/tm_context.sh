@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-CONTEXT_FILE=$1
-
 while (( "$#" )); do
     if [ "$#" == "1" ]; then
         DST=$1
@@ -60,12 +58,8 @@ for f in $SRC; do
         ;;
 
     *)
-        if [ $SECURE_CONTEXT -eq 0 -o "$f" == "$CONTEXT_FILE" ]; then
-            exec_and_log "cp -R $f $ISO_DIR" \
-                "Error copying $f to $ISO_DIR"
-        else
-            log "not copying potentialy dangerous file $f"
-        fi
+        exec_and_log "cp -R $f $ISO_DIR" \
+            "Error copying $f to $ISO_DIR"
         ;;
     esac
 done
@@ -76,4 +70,3 @@ exec_and_log "$SCP $TMP_DIR/$DST_FILE $DST" \
     "Error copying $TMP_DIR/$DST_FILE to $DST"
 exec_and_log "rm -rf $TMP_DIR" \
     "Error deleting $TMP_DIR"
-

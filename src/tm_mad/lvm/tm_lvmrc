@@ -22,10 +22,6 @@ VG_NAME=
 # Default size for logical volumes if not specified
 DEFAULT_LV_SIZE="1G"
 
-# Set to 1 to disable adding files to context image other than context.sh
-# itself or http url's
-SECURE_CONTEXT=0
-
 # -------------------------------------------------------------------------- #
 # Helper functions for the LVM plugin                                        #
 # -------------------------------------------------------------------------- #

@@ -416,7 +416,7 @@ function hostsListCB(req,list){
             return;
         };
         var host_json = oZones.Helper.pool("HOST",this.ZONE);
-        updateHostsList(req, host_json,'#datatable_agg_hosts',this.ZONE.id,this.ZONE.name);
+        updateHostsList(req, host_json,'#datatable_agg_hosts',this.ZONE.ID,this.ZONE.NAME);
         updateZonesDashboard("hosts",host_json);
     });
 }
@@ -429,7 +429,7 @@ function vmsListCB(req,list){
             return;
         };
         var vms_json = oZones.Helper.pool("VM",this.ZONE);
-        updateVMsList(req, vms_json,'#datatable_agg_vms',this.ZONE.id,this.ZONE.name);
+        updateVMsList(req, vms_json,'#datatable_agg_vms',this.ZONE.ID,this.ZONE.NAME);
         updateZonesDashboard("vms",vms_json);
     });
 }
@@ -442,7 +442,7 @@ function vnsListCB(req,list){
             return;
         };
         var vn_json = oZones.Helper.pool("VNET",this.ZONE);
-        updateVNsList(req, vn_json,'#datatable_agg_vnets',this.ZONE.id,this.ZONE.name);
+        updateVNsList(req, vn_json,'#datatable_agg_vnets',this.ZONE.ID,this.ZONE.NAME);
         updateZonesDashboard("vnets",vn_json);
     });
 }
@@ -455,7 +455,7 @@ function imagesListCB(req,list){
             return;
         };
         var image_json = oZones.Helper.pool("IMAGE",this.ZONE);
-        updateImagesList(req,image_json,'#datatable_agg_images',this.ZONE.id,this.ZONE.name);
+        updateImagesList(req,image_json,'#datatable_agg_images',this.ZONE.ID,this.ZONE.NAME);
         updateZonesDashboard("images",image_json);
     });
 }
@@ -468,7 +468,7 @@ function usersListCB(req,list){
             return;
         };
         var user_json = oZones.Helper.pool("USER",this.ZONE);
-        updateUsersList(req,user_json,'#datatable_agg_users',this.ZONE.id,this.ZONE.name);
+        updateUsersList(req,user_json,'#datatable_agg_users',this.ZONE.ID,this.ZONE.NAME);
         updateZonesDashboard("users",user_json);
     });
 }
@@ -481,7 +481,7 @@ function templatesListCB(req,list){
             return;
         };
         var template_json = oZones.Helper.pool("VMTEMPLATE",this.ZONE);
-        updateTemplatesList(req,template_json,'#datatable_agg_templates',this.ZONE.id,this.ZONE.name);
+        updateTemplatesList(req,template_json,'#datatable_agg_templates',this.ZONE.ID,this.ZONE.NAME);
         updateZonesDashboard("templates",template_json);
     });
 }

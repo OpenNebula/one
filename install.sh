@@ -198,6 +198,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
+          $LIB_LOCATION/ruby/zona \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
@@ -273,7 +274,8 @@ OZONES_DIRS="$OZONES_LOCATION/lib \
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cli \
-                 $LIB_LOCATION/ruby/cli/ozones_helper"
+                 $LIB_LOCATION/ruby/cli/ozones_helper \
+                 $LIB_LOCATION/ruby/zona"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
@@ -372,10 +374,11 @@ INSTALL_CLIENT_FILES=(
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     ETC_CLIENT_FILES:$ETC_LOCATION
-    OZONES_LIB_CLIENT_FILES:$LIB_LOCATION/ruby
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
+    OZONES_LIB_API_FILES:$LIB_LOCATION/ruby
+    OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
     CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
@@ -430,10 +433,11 @@ INSTALL_OZONES_FILES=(
     OZONES_PUBLIC_IMAGES_FILES:$OZONES_LOCATION/public/images
     OZONES_PUBLIC_CSS_FILES:$OZONES_LOCATION/public/css
     OZONES_PUBLIC_JS_PLUGINS_FILES:$OZONES_LOCATION/public/js/plugins
-    OZONES_LIB_CLIENT_FILES:$LIB_LOCATION/ruby
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
+    OZONES_LIB_API_FILES:$LIB_LOCATION/ruby
+    OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
 )
 
 INSTALL_OZONES_ETC_FILES=(
@@ -1061,6 +1065,16 @@ OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
                 src/ozones/Server/lib/OZones/AggregatedImages.rb \
                 src/ozones/Server/lib/OZones/AggregatedTemplates.rb"
                 
+OZONES_LIB_API_FILES="src/ozones/Client/lib/zona.rb"
+
+OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
+                src/ozones/Client/lib/zona/OZonesPool.rb \
+                src/ozones/Client/lib/zona/OZonesJSON.rb \
+                src/ozones/Client/lib/zona/VDCPool.rb \
+                src/ozones/Client/lib/zona/VDCElement.rb \
+                src/ozones/Client/lib/zona/OZonesElement.rb \
+                src/ozones/Client/lib/zona/ZonePool.rb"
+
 OZONES_PUBLIC_VENDOR_JQUERY=$SUNSTONE_PUBLIC_VENDOR_JQUERY
                         
 OZONES_PUBLIC_VENDOR_DATATABLES=$SUNSTONE_PUBLIC_VENDOR_DATATABLES
@@ -1096,8 +1110,6 @@ OZONES_PUBLIC_JS_PLUGINS_FILES="src/ozones/Server/public/js/plugins/zones-tab.js
                                src/ozones/Server/public/js/plugins/aggregated-tab.js \
                                src/ozones/Server/public/js/plugins/dashboard-tab.js"
                 
-OZONES_LIB_CLIENT_FILES="src/ozones/Client/lib/OZonesClient.rb"
-                                
 OZONES_LIB_CLIENT_CLI_FILES="src/ozones/Client/lib/cli/ozones_helper.rb"                   
                 
 OZONES_LIB_CLIENT_CLI_HELPER_FILES="\

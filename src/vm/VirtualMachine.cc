@@ -185,13 +185,30 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string name;
 
     SingleAttribute *   attr;
+    string              aname;
     string              value;
     ostringstream       oss;
 
 
-    // -----------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Check template for restricted attributes
+    // ------------------------------------------------------------------------
+
+    if ( gid != GroupPool::ONEADMIN_ID )
+    {
+        VirtualMachineTemplate *vt = 
+            static_cast<VirtualMachineTemplate *>(obj_template);
+        
+        if (vt->check(aname))
+        {
+            goto error_restricted;            
+        }
+    }
+
+    // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
+
     oss << oid;
     value = oss.str();
 
@@ -290,8 +307,14 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
+error_restricted:
+    oss << "VM Template includes a restricted attribute " << aname << "."; 
+    error_str = oss.str(); 
+    goto error_common;
+
 error_name_length:
     oss << "NAME is too long; max length is 128 chars.";
+    error_str = oss.str(); 
     goto error_common;
 
 error_common:

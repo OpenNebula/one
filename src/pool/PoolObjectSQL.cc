@@ -84,7 +84,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     set_callback(
             static_cast<Callbackable::Callback>(&PoolObjectSQL::select_cb));
 
-    oss << "SELECT body FROM " << table << " WHERE name = '" <<_name << "'";
+    oss << "SELECT body FROM " << table << " WHERE name = '" << sql_name << "'";
 
     if ( _uid != -1 )
     {
