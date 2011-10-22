@@ -129,6 +129,20 @@ var create_image_tmpl =
                  </div>\
                </fieldset>\
                <fieldset>\
+                  <div class="">\
+                    <label for="custom_var_image_name">Name:</label>\
+                    <input type="text" id="custom_var_image_name" name="custom_var_image_name" />\
+                    <label for="custom_var_image_value">Value:</label>\
+                    <input type="text" id="custom_var_image_value" name="custom_var_image_value" />\
+                    <button class="add_remove_button add_button" id="add_custom_var_image_button" value="add_custom_image_var">Add</button>\
+                    <button class="add_remove_button" id="remove_custom_var_image_button" value="remove_custom_image_var">Remove selected</button>\
+                    <div class="clear"></div>\
+                    <label for="custom_var_image_box">Custom attributes:</label>\
+                    <select id="custom_var_image_box" name="custom_var_image_box" style="height:100px;" multiple>\
+                    </select>\
+                 </div>\
+               </fieldset>\
+               <fieldset>\
                   <div class="form_buttons">\
                     <button class="button" id="create_image_submit" value="user/create">Create</button>\
                     <button class="button" type="reset" value="reset">Reset</button>\
@@ -658,6 +672,30 @@ function setupCreateImageDialog(){
     });
 
 
+    $('#add_custom_var_image_button', dialog).click(
+        function(){
+            var name = $('#custom_var_image_name',$create_image_dialog).val();
+            var value = $('#custom_var_image_value',$create_image_dialog).val();
+            if (!name.length || !value.length) {
+                notifyError("Custom attribute name and value must be filled in");
+                return false;
+            }
+            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+                name+'='+value+
+                '</option>';
+            $('select#custom_var_image_box',$create_image_dialog).append(option);
+            return false;
+        }
+    );
+
+    $('#remove_custom_var_image_button', dialog).click(
+        function(){
+            $('select#custom_var_image_box :selected',$create_image_dialog).remove();
+            return false;
+        }
+    );
+
+
     $('#create_image_form_easy',dialog).submit(function(){
         var exit = false;
         $('.img_man',this).each(function(){
@@ -709,6 +747,15 @@ function setupCreateImageDialog(){
             img_json["FSTYPE"] = fstype;
             break;
         }
+
+        //Time to add custom attributes
+        $('#custom_var_image_box option',$create_image_dialog).each(function(){
+            var attr_name = $(this).attr("name");
+            var attr_value = $(this).val();
+            img_json[attr_name] = attr_value;
+        });
+
+
         var obj = { "image" : img_json };
         Sunstone.runAction("Image.create", obj);
 

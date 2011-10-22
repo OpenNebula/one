@@ -93,6 +93,20 @@ var create_vn_tmpl =
             <div class="clear"></div>\
           </fieldset>\
           <fieldset>\
+              <div class="">\
+                    <label for="custom_var_vnet_name">Name:</label>\
+                    <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" />\
+                    <label for="custom_var_vnet_value">Value:</label>\
+                    <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" />\
+                    <button class="add_remove_button add_button" id="add_custom_var_vnet_button" value="add_custom_vnet_var">Add</button>\
+                    <button class="add_remove_button" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">Remove selected</button>\
+                    <div class="clear"></div>\
+                    <label for="custom_var_vnet_box">Custom attributes:</label>\
+                    <select id="custom_var_vnet_box" name="custom_var_vnet_box" style="height:100px;" multiple>\
+                    </select>\
+              </div>\
+          </fieldset>\
+          <fieldset>\
             <div class="form_buttons">\
               <button class="button" id="create_vn_submit_easy" value="vn/create">\
                  Create\
@@ -508,12 +522,14 @@ function setupCreateVNetDialog() {
     var dialog = $create_vn_dialog;
     dialog.html(create_vn_tmpl);
 
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+
     //Prepare the jquery-ui dialog. Set style options here.
     dialog.dialog({
         autoOpen: false,
         modal: true,
         width: 475,
-        height: 500
+        height: height
     });
 
     //Make the tabs look nice for the creation mode
@@ -565,6 +581,31 @@ function setupCreateVNetDialog() {
         return false;
     });
 
+
+    $('#add_custom_var_vnet_button', dialog).click(
+        function(){
+            var name = $('#custom_var_vnet_name',$create_vn_dialog).val();
+            var value = $('#custom_var_vnet_value',$create_vn_dialog).val();
+            if (!name.length || !value.length) {
+                notifyError("Custom attribute name and value must be filled in");
+                return false;
+            }
+            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+                name+'='+value+
+                '</option>';
+            $('select#custom_var_vnet_box',$create_vn_dialog).append(option);
+            return false;
+        }
+    );
+
+    $('#remove_custom_var_vnet_button', dialog).click(
+        function(){
+            $('select#custom_var_vnet_box :selected',$create_vn_dialog).remove();
+            return false;
+        }
+    );
+
+
     //Handle submission of the easy mode
     $('#create_vn_form_easy',dialog).submit(function(){
         //Fetch values
@@ -615,6 +656,13 @@ function setupCreateVNetDialog() {
                     "name" : name }
             };
         };
+
+        //Time to add custom attributes
+        $('#custom_var_vnet_box option',$create_vn_dialog).each(function(){
+            var attr_name = $(this).attr("name");
+            var attr_value = $(this).val();
+            network_json["vnet"][attr_name] = attr_value;
+        });
 
         //Create the VNetwork.
 
