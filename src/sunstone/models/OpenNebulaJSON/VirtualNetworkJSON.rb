@@ -31,7 +31,7 @@ module OpenNebulaJSON
             else
                 template = template_to_str(vnet_hash)
             end
-            
+
             self.allocate(template)
         end
 
@@ -46,6 +46,7 @@ module OpenNebulaJSON
                  when "rmleases" then self.rmleases(action_hash['params'])
                  when "publish"   then self.publish
                  when "unpublish" then self.unpublish
+                 when "update"    then self.update(action_hash['params'])
                  when "chown"     then self.chown(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
@@ -60,6 +61,10 @@ module OpenNebulaJSON
 
         def rmleases(params=Hash.new)
             super(params['ip'])
+        end
+
+        def update(params=Hash.new)
+            super(params['template_raw'])
         end
 
         def chown(params=Hash.new)

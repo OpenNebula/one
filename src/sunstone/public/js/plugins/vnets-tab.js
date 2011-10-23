@@ -135,6 +135,30 @@ var create_vn_tmpl =
         </div>\
 </div>';
 
+var update_vnet_tmpl =
+   '<form action="javascript:alert(\'js error!\');">\
+         <h3 style="margin-bottom:10px;">Please, choose and modify the virtual network you want to update:</h3>\
+            <fieldset style="border-top:none;">\
+                 <label for="vnet_template_update_select">Select a network:</label>\
+                 <select id="vnet_template_update_select" name="vnet_template_update_select"></select>\
+                 <div class="clear"></div>\
+                 <div>\
+                   <label for="vnet_template_update_public">Public:</label>\
+                   <input type="checkbox" name="vnet_template_update_public" id="vnet_template_update_public" />\
+                 </div>\
+                 <label for="vnet_template_update_textarea">Template:</label>\
+                 <div class="clear"></div>\
+                 <textarea id="vnet_template_update_textarea" style="width:100%; height:14em;"></textarea>\
+            </fieldset>\
+            <fieldset>\
+                 <div class="form_buttons">\
+                    <button class="button" id="vnet_template_update_button" value="Network.update_template">\
+                       Update\
+                    </button>\
+                 </div>\
+            </fieldset>\
+</form>';
+
 var vnetworks_select="";
 var dataTable_vNetworks;
 var $create_vn_dialog;
@@ -272,8 +296,34 @@ var vnet_actions = {
         elements: vnElements,
         error:onError,
         notify: true
-    }
-}
+    },
+
+    "Network.fetch_template" : {
+        type: "single",
+        call: OpenNebula.Network.fetch_template,
+        callback: function (request,response) {
+            $('#vnet_template_update_dialog #vnet_template_update_textarea').val(response.template);
+        },
+        error: onError
+    },
+
+    "Network.update_dialog" : {
+        type: "custom",
+        call: function() {
+            popUpVNetTemplateUpdateDialog();
+        }
+    },
+
+    "Network.update" : {
+        type: "single",
+        call: OpenNebula.Network.update,
+        callback: function() {
+            notifyMessage("Template updated correctly");
+        },
+        error: onError
+    },
+
+};
 
 
 var vnet_buttons = {
@@ -286,6 +336,12 @@ var vnet_buttons = {
     "Network.create_dialog" : {
         type: "create_dialog",
         text: "+ New"
+    },
+
+    "Network.update_dialog" : {
+        type: "action",
+        text: "Update a template",
+        alwaysActive: true
     },
 
     "Network.publish" : {
@@ -684,6 +740,109 @@ function popUpCreateVnetDialog() {
     $create_vn_dialog.dialog('open');
 }
 
+
+function setupVNetTemplateUpdateDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="vnet_template_update_dialog" title="Update network template"></div>');
+    var dialog = $('#vnet_template_update_dialog',dialogs_context);
+
+    //Put HTML in place
+    dialog.html(update_vnet_tmpl);
+
+    //Convert into jQuery
+    dialog.dialog({
+        autoOpen:false,
+        width:700,
+        modal:true,
+        height:480,
+        resizable:false,
+    });
+
+    $('button',dialog).button();
+
+    $('#vnet_template_update_select',dialog).change(function(){
+        var id = $(this).val();
+        if (id && id.length){
+            var dialog = $('#vnet_template_update_dialog');
+            $('#vnet_template_update_textarea',dialog).val("Loading...");
+
+            var data = getElementData(id,"#vnetwork",dataTable_vNetworks);
+            var is_public = data[7] == "yes";
+
+            if (is_public){
+                $('#vnet_template_update_public',dialog).attr("checked","checked")
+            } else {
+                $('#vnet_template_update_public',dialog).removeAttr("checked")
+            }
+
+            Sunstone.runAction("Network.fetch_template",id);
+        } else {
+            $('#vnet_template_update_textarea',dialog).val("");
+        };
+    });
+
+    $('#vnet_template_update_button',dialog).click(function(){
+        var dialog = $('#vnet_template_update_dialog');
+        var new_template = $('#vnet_template_update_textarea',dialog).val();
+        var id = $('#vnet_template_update_select',dialog).val();
+        if (!id || !id.length) {
+            dialog.dialog('close');
+            return false;
+        };
+
+        var data = getElementData(id,"#vnetwork",dataTable_vNetworks);
+        var is_public = data[7] == "yes";
+
+        var new_public = $('#vnet_template_update_public:checked',dialog).length;
+
+        if (is_public != new_public){
+            if (new_public) Sunstone.runAction("Network.publish",id);
+            else Sunstone.runAction("Network.unpublish",id);
+        };
+
+        Sunstone.runAction("Network.update",id,new_template);
+        dialog.dialog('close');
+        return false;
+    });
+};
+
+function popUpVNetTemplateUpdateDialog(){
+    var select = makeSelectOptions(dataTable_vNetworks,
+                                   1,//id_col
+                                   4,//name_col
+                                   [],
+                                   []
+                                  );
+    var sel_elems = getSelectedNodes(dataTable_vNetworks);
+
+
+    var dialog =  $('#vnet_template_update_dialog');
+    $('#vnet_template_update_select',dialog).html(select);
+    $('#vnet_template_update_textarea',dialog).val("");
+    $('#vnet_template_update_public',dialog).removeAttr("checked")
+
+    if (sel_elems.length >= 1){ //several items in the list are selected
+        //grep them
+        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        $('option','<select>'+select+'</select>').each(function(){
+            var val = $(this).val();
+            if ($.inArray(val,sel_elems) >= 0){
+                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
+            };
+        });
+        $('#vnet_template_update_select',dialog).html(new_select);
+        if (sel_elems.length == 1) {
+            $('#vnet_template_update_select option',dialog).attr("selected","selected");
+            $('#vnet_template_update_select',dialog).trigger("change");
+        }
+
+    };
+
+    dialog.dialog('open');
+    return false;
+
+}
+
 function setupAddRemoveLeaseDialog() {
     dialogs_context.append('<div title="Lease management" id="lease_vn_dialog"></div>');
     $lease_vn_dialog = $('#lease_vn_dialog',dialogs_context)
@@ -786,6 +945,7 @@ $(document).ready(function(){
     Sunstone.runAction("Network.list");
 
     setupCreateVNetDialog();
+    setupVNetTemplateUpdateDialog();
     setupAddRemoveLeaseDialog();
     setVNetAutorefresh();
 

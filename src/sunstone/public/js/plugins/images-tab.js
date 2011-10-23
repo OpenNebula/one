@@ -173,7 +173,7 @@ var update_image_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
          <h3 style="margin-bottom:10px;">Please, choose and modify the image you want to update:</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="image_template_update_select">Select am image:</label>\
+                 <label for="image_template_update_select">Select an image:</label>\
                  <select id="image_template_update_select" name="image_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
@@ -900,7 +900,7 @@ function popUpImageTemplateUpdateDialog(){
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
         var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-        $('option','<select>'+select_items+'</select>').each(function(){
+        $('option','<select>'+select+'</select>').each(function(){
             var val = $(this).val();
             if ($.inArray(val,sel_elems) >= 0){
                 new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
