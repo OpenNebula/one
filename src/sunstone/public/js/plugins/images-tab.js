@@ -169,6 +169,34 @@ var create_image_tmpl =
         </div>\
 </div>';
 
+var update_image_tmpl =
+   '<form action="javascript:alert(\'js error!\');">\
+         <h3 style="margin-bottom:10px;">Please, choose and modify the image you want to update:</h3>\
+            <fieldset style="border-top:none;">\
+                 <label for="image_template_update_select">Select am image:</label>\
+                 <select id="image_template_update_select" name="image_template_update_select"></select>\
+                 <div class="clear"></div>\
+                 <div>\
+                   <label for="image_template_update_public">Public:</label>\
+                   <input type="checkbox" name="image_template_update_public" id="image_template_update_public" />\
+                 </div>\
+                 <div>\
+                   <label for="image_template_update_public">Persistent:</label>\
+                   <input type="checkbox" name="image_template_update_persistent" id="image_template_update_persistent" />\
+                 </div>\
+                 <label for="image_template_update_textarea">Template:</label>\
+                 <div class="clear"></div>\
+                 <textarea id="image_template_update_textarea" style="width:100%; height:14em;"></textarea>\
+            </fieldset>\
+            <fieldset>\
+                 <div class="form_buttons">\
+                    <button class="button" id="image_template_update_button" value="Image.update_template">\
+                       Update\
+                    </button>\
+                 </div>\
+            </fieldset>\
+</form>';
+
 var images_select = "";
 var dataTable_images;
 var $create_image_dialog;
@@ -228,7 +256,7 @@ var image_actions = {
         type: "single",
         call: OpenNebula.Image.fetch_template,
         callback: function (request,response) {
-            $('#template_update_dialog #template_update_textarea').val(response.template);
+            $('#image_template_update_dialog #image_template_update_textarea').val(response.template);
         },
         error: onError
     },
@@ -236,14 +264,7 @@ var image_actions = {
     "Image.update_dialog" : {
         type: "custom",
         call: function() {
-            popUpTemplateUpdateDialog("Image",
-                                      makeSelectOptions(dataTable_images,
-                                          1,//id_col
-                                          4,//name_col
-                                          [],
-                                          []
-                                      ),
-                                      getSelectedNodes(dataTable_images));
+            popUpImageTemplateUpdateDialog();
         }
     },
 
@@ -450,6 +471,8 @@ function imageElements() {
 // Returns an array containing the values of the image_json and ready
 // to be inserted in the dataTable
 function imageElementArray(image_json){
+    //Changing this? It may affect to the is_public and is_persistent
+    //variables in setupImageTemplateUpdateDialog();
     var image = image_json.IMAGE;
     return [
         '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
@@ -775,6 +798,127 @@ function popUpCreateImageDialog(){
     $create_image_dialog.dialog('open');
 }
 
+
+
+function setupImageTemplateUpdateDialog(){
+
+    //Append to DOM
+    dialogs_context.append('<div id="image_template_update_dialog" title="Update image template"></div>');
+    var dialog = $('#image_template_update_dialog',dialogs_context);
+
+    //Put HTML in place
+    dialog.html(update_image_tmpl);
+
+    //Convert into jQuery
+    dialog.dialog({
+        autoOpen:false,
+        width:700,
+        modal:true,
+        height:480,
+        resizable:false,
+    });
+
+    $('button',dialog).button();
+
+    $('#image_template_update_select',dialog).change(function(){
+        var id = $(this).val();
+        if (id && id.length){
+            var dialog = $('#image_template_update_dialog');
+            $('#image_template_update_textarea',dialog).val("Loading...");
+
+            var data = getElementData(id,"#image",dataTable_images);
+            var is_public = data[7] == "yes";
+            var is_persistent = data[8] == "yes";
+
+            if (is_public){
+                $('#image_template_update_public',dialog).attr("checked","checked")
+            } else {
+                $('#image_template_update_public',dialog).removeAttr("checked")
+            }
+
+            if (is_persistent){
+                $('#image_template_update_persistent',dialog).attr("checked","checked")
+            } else {
+                $('#image_template_update_persistent',dialog).removeAttr("checked")
+            }
+
+            Sunstone.runAction("Image.fetch_template",id);
+        } else {
+            $('#image_template_update_textarea',dialog).val("");
+        };
+    });
+
+    $('#image_template_update_button',dialog).click(function(){
+        var dialog = $('#image_template_update_dialog');
+        var new_template = $('#image_template_update_textarea',dialog).val();
+        var id = $('#image_template_update_select',dialog).val();
+        if (!id || !id.length) {
+            dialog.dialog('close');
+            return false;
+        };
+
+        var data = getElementData(id,"#image",dataTable_images);
+        var is_public = data[7] == "yes";
+        var is_persistent = data[8] == "yes";
+
+        var new_public = $('#image_template_update_public:checked',dialog).length;
+        var new_persistent = $('#image_template_update_persistent:checked',dialog).length;
+
+        if (is_public != new_public){
+            if (new_public) Sunstone.runAction("Image.publish",id);
+            else Sunstone.runAction("Image.unpublish",id);
+        };
+
+        if (is_persistent != new_persistent){
+            if (new_persistent) Sunstone.runAction("Image.persistent",id);
+            else Sunstone.runAction("Image.nonpersistent",id);
+        };
+
+        Sunstone.runAction("Image.update",id,new_template);
+        dialog.dialog('close');
+        return false;
+    });
+}
+
+
+function popUpImageTemplateUpdateDialog(){
+    var select = makeSelectOptions(dataTable_images,
+                                   1,//id_col
+                                   4,//name_col
+                                   [],
+                                   []
+                                  );
+    var sel_elems = getSelectedNodes(dataTable_images);
+
+
+    var dialog =  $('#image_template_update_dialog');
+    $('#image_template_update_select',dialog).html(select);
+    $('#image_template_update_textarea',dialog).val("");
+    $('#image_template_update_public',dialog).removeAttr("checked")
+    $('#image_template_update_persistent',dialog).removeAttr("checked")
+
+    if (sel_elems.length >= 1){ //several items in the list are selected
+        //grep them
+        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        $('option','<select>'+select_items+'</select>').each(function(){
+            var val = $(this).val();
+            if ($.inArray(val,sel_elems) >= 0){
+                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
+            };
+        });
+        $('#image_template_update_select',dialog).html(new_select);
+        if (sel_elems.length == 1) {
+            $('#image_template_update_select option',dialog).attr("selected","selected");
+            $('#image_template_update_select',dialog).trigger("change");
+        }
+
+    };
+
+    dialog.dialog('open');
+    return false;
+
+}
+
 // Set the autorefresh interval for the datatable
 function setImageAutorefresh() {
     setInterval(function(){
@@ -811,6 +955,7 @@ $(document).ready(function(){
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
+    setupImageTemplateUpdateDialog();
     setupTips($create_image_dialog);
     setImageAutorefresh();
 
