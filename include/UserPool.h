@@ -177,6 +177,17 @@ private:
                                int&          group_id,
                                string&       uname,
                                string&       gname);
+
+    /**
+     *  Function to authenticate internal users using a server driver
+     */
+    bool authenticate_server(User *        user,
+                             const string& token,
+                             int&          user_id,
+                             int&          group_id,
+                             string&       uname,
+                             string&       gname);
+
     
     /**
      *  Function to authenticate external (not known) users
