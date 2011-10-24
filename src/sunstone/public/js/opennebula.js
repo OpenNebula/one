@@ -510,7 +510,17 @@ var OpenNebula = {
                                             OpenNebula.Network.resource,
                                             "rmleases",
                                             action_obj);
-        }
+        },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Network.resource,
+                                            "update",
+                                            action_obj);
+        },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Network.resource,"template");
+        },
     },
 
     "VM": {
