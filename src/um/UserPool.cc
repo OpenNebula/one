@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <stdlib.h>
+#include <fnmatch.h>
 
 const char * UserPool::CORE_AUTH    = "core";
 const char * UserPool::SERVER_AUTH  = "server*";
