@@ -275,7 +275,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             if rc.first == 0
                 pass = rc[1]
             else
-                exit_with_code *rc
+                pass = ""
             end
         end
 
