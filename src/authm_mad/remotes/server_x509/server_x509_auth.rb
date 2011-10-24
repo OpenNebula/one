@@ -46,13 +46,12 @@ class ServerX509Auth < X509Auth
             certs = [ File.read(@options[:one_cert]) ]
             key   =   File.read(@options[:one_key])
 
-            super(:certs_pem => certs, 
-                  :key_pem   => key)
+            super(:certs_pem => certs, :key_pem => key)
         rescue
             raise
         end
 
-        if @options[:server_user] == nil || @options[:server_user].empty?
+        if @options[:srv_user] == nil || @options[:srv_user].empty?
            raise "User for x509 server not defined"  
         end
     end
@@ -60,13 +59,13 @@ class ServerX509Auth < X509Auth
     # Generates a login token in the form:
     #   - server_user:target_user:time_expires 
     def login_token(expire, target_user=nil)
-        target_user ||= @options[:server_user]
-        token_txt   =   "#{@options[:server_user]}:#{target_user}:#{expire}"
+        target_user ||= @options[:srv_user]
+        token_txt   =   "#{@options[:srv_user]}:#{target_user}:#{expire}"
 
-        token     = encrypt(token_txt)
-        token64   = Base64::encode64(token).strip.delete("\n")
+        token   = encrypt(token_txt)
+        token64 = Base64::encode64(token).strip.delete("\n")
 
-        return "#{@options[:server_user]}:#{target_user}:#{token64}"
+        return "#{@options[:srv_user]}:#{target_user}:#{token64}"
     end
 
     ###########################################################################
@@ -75,17 +74,14 @@ class ServerX509Auth < X509Auth
     # auth method for auth_mad
     def authenticate(server_user, server_pass, signed_text)
         begin           
-            return false,"Server password missmatch" if server_pass != password
-            
             s_user, t_user, expires = decrypt(signed_text).split(':')
+   
+            return "Server password missmatch" if server_pass != password
 
-            if ( s_user != server_user || s_user != @options[:server_user] )
-                return false, "User name missmatch" 
-            end
+            return "User name missmatch" if ( s_user != server_user || 
+                                              s_user != @options[:srv_user] )
            
-            if Time.now.to_i >= expires.to_i 
-                return false, "login token expired"
-            end  
+            return "login token expired" if Time.now.to_i >= expires.to_i
 
             return true
         rescue => e

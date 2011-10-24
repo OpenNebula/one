@@ -32,69 +32,69 @@ class ServerCipherAuth
 
     ###########################################################################
 
-    def initialize(one_auth = nil)
-        begin 
-            if one_auth  
-                auth = one_auth
-            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and 
-                  File.file?(ENV["ONE_AUTH"])
-                auth = File.read(ENV["ONE_AUTH"])
-            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                auth = File.read(ENV["HOME"]+"/.one/one_auth")
-            else
-                raise "ONE_AUTH file not present"
-            end
-             
-            auth.rstrip! 
-            
-            @server_user, @passwd = auth.split(':')
-            @key =  Digest::SHA1.hexdigest(@passwd)
-   
-            @cipher = OpenSSL::Cipher::Cipher.new(CIPHER)
-        rescue
-            raise 
+    def initialize(srv_user, srv_passwd)
+        @srv_user   = srv_user
+        @srv_passwd = srv_passwd 
+
+        if !srv_passwd.empty?
+            @key = Digest::SHA1.hexdigest(@srv_passwd)
+        else
+            @key = ""
         end
+
+        @cipher = OpenSSL::Cipher::Cipher.new(CIPHER)
+    end
+
+    ###########################################################################
+    # Client side
+    ###########################################################################
+
+    # Creates a ServerCipher for client usage
+    def self.new_client(srv_user, srv_passwd)
+        self.new(srv_user, srv_passwd)
     end
 
     # Generates a login token in the form:
     #   - server_user:target_user:time_expires 
     # The token is then encrypted with the contents of one_auth
     def login_token(expire, target_user=nil)
-        target_user ||= @server_user
-        token_txt   =   "#{@server_user}:#{target_user}:#{expire}"
+        target_user ||= @srv_user
+        token_txt   =   "#{@srv_user}:#{target_user}:#{expire}"
 
-        token     = encrypt(token_txt)
-        token64   = Base64::encode64(token).strip.delete("\n")
+        token   = encrypt(token_txt)
+        token64 = Base64::encode64(token).strip.delete("\n")
 
-        return "#{@server_user}:#{target_user}:#{token64}"
+        return "#{@srv_user}:#{target_user}:#{token64}"
     end
 
     # Returns a valid password string to create a user using this auth driver
     def password
-        return @passwd
+        return @srv_passwd
     end
 
     ###########################################################################
-    # Server side
+    # Driver side
     ###########################################################################
+
+    # Creates a ServerCipher for driver usage
+    def self.new_driver()
+        self.new("","")
+    end
+
     # auth method for auth_mad
-    def authenticate(server_user,server_pass, signed_text)
+    def authenticate(srv_user,srv_pass, signed_text)
         begin
-            return false,"Server password missmatch" if server_pass != @key
+            @key = srv_pass
             
             s_user, t_user, expires = decrypt(signed_text).split(':')
 
-            if ( s_user != server_user || s_user != @server_user )
-                return false, "User name missmatch" 
-            end
-           
-            if Time.now.to_i >= expires.to_i 
-                return false, "login token expired"
-            end  
+            return "User name missmatch" if s_user != srv_user
+             
+            return "login token expired" if Time.now.to_i >= expires.to_i
 
             return true
         rescue => e
-            return false, e.message
+            return e.message
         end
     end
 
