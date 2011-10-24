@@ -91,6 +91,12 @@ class SshAuth
         secret_crypted
     end
 
+    # Returns a valid password string to create a user using this auth driver.
+    # In this case the dn of the user certificate.
+    def password
+        @public_key
+    end
+
     # Checks the proxy created with the login method
     def authenticate(user, token)
         begin

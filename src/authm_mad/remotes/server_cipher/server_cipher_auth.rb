@@ -48,8 +48,8 @@ class ServerCipherAuth
              
             auth.rstrip! 
             
-            @server_user, passwd = auth.split(':')
-            @key =  Digest::SHA1.hexdigest(passwd)
+            @server_user, @passwd = auth.split(':')
+            @key =  Digest::SHA1.hexdigest(@passwd)
    
             @cipher = OpenSSL::Cipher::Cipher.new(CIPHER)
         rescue
@@ -70,6 +70,10 @@ class ServerCipherAuth
         return "#{@server_user}:#{token64}"
     end
 
+    # Returns a valid password string to create a user using this auth driver
+    def password
+        return @passwd
+    end
     ###########################################################################
     # Server side
     ###########################################################################
