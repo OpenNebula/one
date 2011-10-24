@@ -28,7 +28,7 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'server_auth'
+require 'server_x509_auth'
 require 'scripts_common'
 
 user   = ARGV[0] # username as registered in OpenNebula
@@ -38,7 +38,7 @@ secret = ARGV[2] # Base64 encoded secret as obtained from login_token
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
 begin
-    server_auth = ServerAuth.new
+    server_auth = ServerX509Auth.new
     dsecret     = Base64::decode64(secret)
 
     rc = server_auth.authenticate(user, pass, dsecret)

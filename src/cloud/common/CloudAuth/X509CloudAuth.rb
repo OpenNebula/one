@@ -61,7 +61,7 @@ module X509CloudAuth
         cert_line = nil if cert_line == '(null)' # For Apache mod_ssl
 
         #  Use the https credentials for authentication
-        require 'server_auth'
+        require 'server_x509_auth'
         while cert_line
             begin
                 cert_array=cert_line.scan(/([^\s]*)\s/)
@@ -98,7 +98,7 @@ module X509CloudAuth
             raise msg
         end
 
-        auth = ServerAuth.new
+        auth = ServerX509Auth.new
 
         @token = auth.login_token(username, subjectname, 300)
         @client = Client.new(@token, @conf[:one_xmlrpc])

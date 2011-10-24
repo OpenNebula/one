@@ -23,12 +23,12 @@ require 'x509_auth'
 # Server authentication class. This authmethod can be used by opennebula services
 # to let access authenticated users by other means. It is based on x509 server 
 # certificates
-class ServerAuth < X509Auth
+class ServerX509Auth < X509Auth
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################
 
-    SERVER_AUTH_CONF_PATH = ETC_LOCATION + "/auth/server_auth.conf"
+    SERVER_AUTH_CONF_PATH = ETC_LOCATION + "/auth/server_x509_auth.conf"
 
     SERVER_DEFAULTS = {
         :one_cert => ETC_LOCATION + "/auth/cert.pem",
