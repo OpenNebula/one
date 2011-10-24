@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-require 'json'
 
 module OpenNebula 
     ############################################################################
@@ -59,10 +58,6 @@ module OpenNebula
 
         def [](key)
             @conf[key.to_s.upcase]
-        end
-
-        def to_json
-            JSON::generate(@conf) if @conf
         end
 
         ########################################################################
