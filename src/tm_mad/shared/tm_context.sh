@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-CONTEXT_FILE=$1
-
 while (( "$#" )); do
     if [ "$#" == "1" ]; then
         DST=$1
@@ -26,7 +24,6 @@ while (( "$#" )); do
     fi
     shift
 done
-
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/usr/lib/one/mads/tm_common.sh
@@ -55,12 +52,8 @@ for f in $SRC; do
         ;;
 
     *)
-        if [ $SECURE_CONTEXT -eq 0 -o "$f" == "$CONTEXT_FILE" ]; then
-            exec_and_log "cp -R $f $ISO_DIR" \
-                "Error copying $f to $ISO_DIR"
-        else
-            log "not copying potentialy dangerous file $f"
-        fi
+        exec_and_log "cp -R $f $ISO_DIR" \
+            "Error copying $f to $ISO_DIR"
         ;;
     esac
 done
@@ -69,5 +62,3 @@ exec_and_log "$MKISOFS -o $DST_PATH -J -R $ISO_DIR" \
     "Error creating iso fs"
 
 exec_and_log "rm -rf $ISO_DIR"
-
-

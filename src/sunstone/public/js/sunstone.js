@@ -640,6 +640,12 @@ function setupConfirmDialogs(){
     //enhace the button look
     $('button',dialog).button();
 
+    //if a cancel button is pressed, we close the dialog.
+    $('button.confirm_cancel',dialog).click(function(){
+        $(this).parents('div:ui-dialog').dialog("close");
+        return false;
+    });
+
     dialogs_context.append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
     dialog = $('div#confirm_with_select_dialog',dialogs_context);
 

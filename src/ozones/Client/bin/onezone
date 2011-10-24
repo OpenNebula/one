@@ -66,56 +66,55 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         zone=helper.show_resource(args[0],options)[1]
 
         case args[1]
-            when "host"
-                aux_helper  = OneHostHelper.new(
-                                zone['onename'] + ":" + zone['onepass'],
-                                zone['endpoint'],
-                                false)
+        when "host"
+            aux_helper  = OneHostHelper.new(
+                              zone[:ONENAME] + ":" + zone[:ONEPASS],
+                              zone[:ENDPOINT],
+                              false)
 
-                aux_helper.list_pool(options)
-            when "vm"
-                aux_helper  = OneVMHelper.new(
-                                zone['onename'] + ":" + zone['onepass'],
-                                zone['endpoint'],
-                                false)
+            aux_helper.list_pool(options)
+        when "vm"
+            aux_helper  = OneVMHelper.new(
+                              zone[:ONENAME] + ":" + zone[:ONEPASS],
+                              zone[:ENDPOINT],
+                              false)
 
-                aux_helper.list_pool(options)
-            when "image"
-                aux_helper  = OneImageHelper.new(
-                                zone['onename'] + ":" + zone['onepass'],
-                                zone['endpoint'],
-                                false)
+            aux_helper.list_pool(options)
+        when "image"
+            aux_helper  = OneImageHelper.new(
+                              zone[:ONENAME] + ":" + zone[:ONEPASS],
+                              zone[:ENDPOINT],
+                              false)
 
-                aux_helper.list_pool(options)
-            when "vn"
-                aux_helper  = OneVNetHelper.new(
-                                zone['onename'] + ":" + zone['onepass'],
-                                zone['endpoint'],
-                                false)
+            aux_helper.list_pool(options)
+        when "vn"
+            aux_helper  = OneVNetHelper.new(
+                              zone[:ONENAME] + ":" + zone[:ONEPASS],
+                              zone[:ENDPOINT],
+                              false)
 
-                aux_helper.list_pool(options)
+            aux_helper.list_pool(options)
 
-            when "template"
-                aux_helper  = OneTemplateHelper.new(
-                                zone['onename'] + ":" + zone['onepass'],
-                                zone['endpoint'],
-                                false)
+        when "template"
+            aux_helper  = OneTemplateHelper.new(
+                              zone[:ONENAME] + ":" + zone[:ONEPASS],
+                              zone[:ENDPOINT],
+                              false)
 
-                aux_helper.list_pool(options)
+            aux_helper.list_pool(options)
 
-            when "user"
-                aux_helper  = OneUserHelper.new(
-                                zone['onename'] + ":" + zone['onepass'],
-                                zone['endpoint'],
-                                false)
+        when "user"
+            aux_helper  = OneUserHelper.new(
+                              zone[:ONENAME] + ":" + zone[:ONEPASS],
+                              zone[:ENDPOINT],
+                              false)
 
-                aux_helper.list_pool(options)
+            aux_helper.list_pool(options)
         end
         0
     end
 
-    command :list, 'Lists Zones in the pool',
-                :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+    command :list, 'Lists Zones in the pool' do
         helper.list_pool(options)
     end
 

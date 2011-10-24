@@ -60,7 +60,8 @@ class ServerCipherAuth
     # Generates a login token in the form:
     #   - server_user:target_user:time_expires 
     # The token is then encrypted with the contents of one_auth
-    def login_token(target_user)
+    def login_token(target_user=nil)
+        target_user ||= @server_user
         token_txt = "#{@server_user}:#{target_user}:#{Time.now.to_i + EXPIRE}"
 
         token     = encrypt(token_txt)

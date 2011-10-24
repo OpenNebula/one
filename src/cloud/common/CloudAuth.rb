@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'server_cipher_auth'
+
 class CloudAuth
     AUTH_MODULES = {
         "basic" => 'BasicCloudAuth',
@@ -32,12 +34,15 @@ class CloudAuth
         else
             raise "Auth module not specified"
         end
+
+        @server_auth = ServerCipherAuth.new
     end
 
     protected
 
     def get_password(username)
-        @oneadmin_client ||= OpenNebula::Client.new(nil, @conf[:one_xmlrpc])
+        token = @server_auth.login_token
+        @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
 
         if @user_pool.nil?
             @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)

@@ -15,34 +15,34 @@
 #--------------------------------------------------------------------------- #
 
 module OZones
-    
-    class ProxyRules 
-        def initialize(type, file_path) 
+
+    class ProxyRules
+        def initialize(type, file_path)
             @type      = type
             if file_path
                 @file_path = file_path
-            else 
+            else
                 if !ENV["ONE_LOCATION"]
                     @file_path="/var/lib/one/.htaccess"
                 else
-                    @file_path=ENV["ONE_LOCATION"]+"/var/.htaccess"    
+                    @file_path=ENV["ONE_LOCATION"]+"/var/.htaccess"
                 end
             end
-            
+
             # Let's check for file permissions
-            if !File.writable?(@file_path) and 
-               !File.writable?(File.dirname(@file_path))
-                raise "#{@file_path} is not writable" 
+            if !File.writable?(@file_path) and
+                    !File.writable?(File.dirname(@file_path))
+                raise "#{@file_path} is not writable"
             end
         end
-        
+
         def update
             case @type
-                when "apache"
-                    apWritter = OZones::ApacheWritter.new @file_path
-                    apWritter.update
+            when "apache"
+                apWritter = OZones::ApacheWritter.new @file_path
+                apWritter.update
             end
         end
     end
-    
+
 end
