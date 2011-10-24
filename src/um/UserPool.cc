@@ -30,7 +30,7 @@
 #include <stdlib.h>
 
 const char * UserPool::CORE_AUTH    = "core";
-const char * UserPool::SERVER_AUTH  = "server";
+const char * UserPool::SERVER_AUTH  = "server*";
 const char * UserPool::PUBLIC_AUTH  = "public";
 const char * UserPool::DEFAULT_AUTH = "default";
 
@@ -602,7 +602,9 @@ bool UserPool::authenticate(const string& session,
 
     if (user != 0 ) //User known to OpenNebula
     {
-        if ( user->get_auth_driver() == UserPool::SERVER_AUTH )
+        string driver = user->get_auth_driver();
+
+        if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
         {
             ar = authenticate_server(user,token,user_id,group_id,uname,gname);
         }
