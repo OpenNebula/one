@@ -50,43 +50,42 @@ class ServerX509Auth < X509Auth
                   :key_pem   => key)
         rescue
             raise
-        end  
+        end
+
+        if @options[:server_user] == nil || @options[:server_user].empty?
+           raise "User for x509 server not defined"  
+        end
     end
 
     # Generates a login token in the form:
-    # user_name:server:user_name:user_pass:time_expires
-    #   - user_name:user_pass:time_expires is encrypted with the server certificate
-    def login_token(user, user_pass, expire)
-
-        expires = Time.now.to_i+expire
-        
-        token_txt = "#{user}:#{user_pass}:#{expires}"
+    #   - server_user:target_user:time_expires 
+    def login_token(expire, target_user=nil)
+        target_user ||= @options[:server_user]
+        token_txt   =   "#{@options[:server_user]}:#{target_user}:#{expire}"
 
         token     = encrypt(token_txt)
         token64   = Base64::encode64(token).strip.delete("\n")
 
-        login_out = "#{user}:#{token64}"
-        
-        login_out
+        return "#{@options[:server_user]}:#{target_user}:#{token64}"
     end
 
     ###########################################################################
     # Server side
     ###########################################################################
     # auth method for auth_mad
-    def authenticate(user, pass, signed_text)
-        begin            
-            # Decryption demonstrates that the user posessed the private key.
-            _user, user_pass, expires = decrypt(signed_text).split(':')
+    def authenticate(server_user, server_pass, signed_text)
+        begin           
+            return false,"Server password missmatch" if server_pass != password
+            
+            s_user, t_user, expires = decrypt(signed_text).split(':')
 
-            return "User name missmatch" if user != _user
-
-            return "login token expired" if Time.now.to_i >= expires.to_i
-
-            # Check that the signed password matches one for the user.
-            if !pass.split('|').include?(user_pass)
-                return "User password missmatch"
+            if ( s_user != server_user || s_user != @options[:server_user] )
+                return false, "User name missmatch" 
             end
+           
+            if Time.now.to_i >= expires.to_i 
+                return false, "login token expired"
+            end  
 
             return true
         rescue => e

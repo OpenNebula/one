@@ -46,7 +46,6 @@ rescue => e
 end
 
 if rc == true
-    puts user
     exit 0
 else
     OpenNebula.error_message user 

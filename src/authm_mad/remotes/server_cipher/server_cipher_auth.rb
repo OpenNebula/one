@@ -29,7 +29,6 @@ class ServerCipherAuth
     ###########################################################################
 
     CIPHER = "aes-256-cbc"
-    EXPIRE = 300
 
     ###########################################################################
 
@@ -60,34 +59,40 @@ class ServerCipherAuth
     # Generates a login token in the form:
     #   - server_user:target_user:time_expires 
     # The token is then encrypted with the contents of one_auth
-    def login_token(target_user=nil)
+    def login_token(expire, target_user=nil)
         target_user ||= @server_user
-        token_txt = "#{@server_user}:#{target_user}:#{Time.now.to_i + EXPIRE}"
+        token_txt   =   "#{@server_user}:#{target_user}:#{expire}"
 
         token     = encrypt(token_txt)
         token64   = Base64::encode64(token).strip.delete("\n")
 
-        return "#{@server_user}:#{token64}"
+        return "#{@server_user}:#{target_user}:#{token64}"
     end
 
     # Returns a valid password string to create a user using this auth driver
     def password
         return @passwd
     end
+
     ###########################################################################
     # Server side
     ###########################################################################
     # auth method for auth_mad
-    def authenticate(user, pass, signed_text)
-        begin            
-            # Decryption demonstrates that the user posessed the private key.
-            s_user, t_user, expires = decrypt(signed_text,pass).split(':')
+    def authenticate(server_user,server_pass, signed_text)
+        begin
+            return false,"Server password missmatch" if server_pass != @key
+            
+            s_user, t_user, expires = decrypt(signed_text).split(':')
 
-            return "User name missmatch" if s_user != @server_user
+            if ( s_user != server_user || s_user != @server_user )
+                return false, "User name missmatch" 
+            end
+           
+            if Time.now.to_i >= expires.to_i 
+                return false, "login token expired"
+            end  
 
-            return "login token expired" if Time.now.to_i >= expires.to_i
-
-            return true, t_user
+            return true
         rescue => e
             return false, e.message
         end
@@ -105,9 +110,9 @@ class ServerCipherAuth
         return rc
     end
 
-    def decrypt(data,pass) 
+    def decrypt(data) 
         @cipher.decrypt
-        @cipher.key = pass
+        @cipher.key = @key
         
         rc = @cipher.update(Base64::decode64(data))
         rc << @cipher.final
