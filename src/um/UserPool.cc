@@ -412,7 +412,10 @@ bool UserPool::authenticate_server(User *        user,
     }
 
     //Initialize authentication request and call the driver
-    ar.add_authenticate(auth_driver,server_username,server_password,token);
+    ar.add_authenticate(auth_driver,
+                        server_username,
+                        server_password,
+                        second_token);
 
     authm->trigger(AuthManager::AUTHENTICATE,&ar);
     ar.wait();
