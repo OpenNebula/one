@@ -43,6 +43,7 @@ require 'sinatra'
 require 'yaml'
 
 require 'EC2QueryServer'
+require 'CloudAuth'
 
 include OpenNebula
 
@@ -73,24 +74,34 @@ if CloudServer.is_port_open?(settings.config[:server],
     puts "Port busy, please shutdown the service or move econe server port."
     exit 1
 end
+ 
+set :cloud_auth, CloudAuth.new(settings.config)
+
+econe_host = conf[:ssl_server]
+econe_host ||= conf[:server]
+econe_port = conf[:port]
+    
+set :econe_host, econe_host
+set :econe_port, econe_port
 
 ##############################################################################
 # Actions
 ##############################################################################
 
 before do
-    @econe_server = EC2QueryServer.new(settings.config)
-
     begin
-        result = @econe_server.authenticate(request.env, params)
+        params[:econe_host] = settings.econe_host
+        params[:econe_port] = settings.econe_port
+        username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
-        # Add a log message
         error 500, error_xml("AuthFailure", 0)
     end
 
-    if result
-        # Add a log message
-        error 400, error_xml("AuthFailure", 0)
+    if username.nil?
+        error 401, error_xml("AuthFailure", 0)
+    else
+        client = settings.cloud_auth.client(username)
+        @econe_server = EC2QueryServer.new(client, settings.config)
     end
 end
 

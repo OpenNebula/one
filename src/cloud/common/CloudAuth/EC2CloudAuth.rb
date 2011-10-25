@@ -18,26 +18,22 @@ module EC2CloudAuth
     def auth(env, params={})
         username = params['AWSAccessKeyId']
         one_pass = get_password(username)
-        return "Invalid credentials" unless one_pass
+        return nil unless one_pass
 
         signature = case params['SignatureVersion']
             when "1" then signature_v1(params.clone,one_pass)
             when "2" then signature_v2(params.clone,one_pass,env,true,false)
         end
 
-        if params['Signature'] != signature
-            if params['SignatureVersion']=="2"
-                signature = signature_v2(params.clone,one_pass,env,false,false)
-                if params['Signature'] != signature
-                    return "Invalid Credentials"
-                end
-            else
-                return "Invalid Credentials"
+        if params['Signature'] == signature
+            return username
+        elsif params['SignatureVersion']=="2"
+            signature = signature_v2(params.clone,one_pass,env,false,false)
+            if params['Signature'] == signature
+                return username
             end
         end
 
-        @token = @server_auth.login_token(username)
-        @client = Client.new(@token, @conf[:one_xmlrpc])
         return nil
     end
 
