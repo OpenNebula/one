@@ -808,7 +808,7 @@ COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
 
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
-CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/BasicCloudAuth.rb \
+CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/OCCICloudAuth.rb \
                       src/cloud/common/CloudAuth/SunstoneCloudAuth.rb \
                       src/cloud/common/CloudAuth/EC2CloudAuth.rb \
                       src/cloud/common/CloudAuth/X509CloudAuth.rb"
@@ -860,6 +860,8 @@ OCCI_LIB_FILES="src/cloud/occi/lib/OCCIServer.rb \
                 src/cloud/occi/lib/VirtualMachinePoolOCCI.rb \
                 src/cloud/occi/lib/VirtualNetworkOCCI.rb \
                 src/cloud/occi/lib/VirtualNetworkPoolOCCI.rb \
+                src/cloud/occi/lib/UserOCCI.rb \
+                src/cloud/occi/lib/UserPoolOCCI.rb \
                 src/cloud/occi/lib/ImageOCCI.rb \
                 src/cloud/occi/lib/ImagePoolOCCI.rb"
 

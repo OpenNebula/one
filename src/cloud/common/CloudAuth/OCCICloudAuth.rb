@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-module BasicCloudAuth
+module OCCICloudAuth
     def auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)
 
@@ -23,15 +23,11 @@ module BasicCloudAuth
 
             one_pass = get_password(username)
 
-            if one_pass && one_pass == Digest::SHA1.hexdigest(password)
-                @token  = @server_auth.login_token(username)
-                @client = Client.new(@token, @conf[:one_xmlrpc])
-                return nil
-            else
-                return "Authentication failure"
+            if one_pass && one_pass == password
+                return username
             end
-        else
-            return "Basic auth not provided"
         end
-    end
+
+        return nil 
+    end 
 end

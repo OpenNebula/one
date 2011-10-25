@@ -14,12 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'server_cipher_auth'
-
 class CloudAuth
     # These are the authentication methods for the user requests
     AUTH_MODULES = {
-        "basic"    => 'BasicCloudAuth',
+        "occi"     => 'OCCICloudAuth',
         "sunstone" => 'SunstoneCloudAuth' ,
         "ec2"      => 'EC2CloudAuth',
         "x509"     => 'X509CloudAuth'

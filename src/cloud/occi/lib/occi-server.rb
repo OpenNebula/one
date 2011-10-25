@@ -46,6 +46,7 @@ require 'sinatra'
 require 'yaml'
 
 require 'OCCIServer'
+require 'CloudAuth'
 
 include OpenNebula
 
@@ -77,20 +78,24 @@ end
 set :host, settings.config[:server]
 set :port, settings.config[:port]
 
+set :cloud_auth, CloudAuth.new(settings.config)
+
 ##############################################################################
 # Helpers
 ##############################################################################
 
 before do
-    @occi_server = OCCIServer.new(settings.config)
     begin
-        result = @occi_server.authenticate(request.env)
+        username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
         error 500, e.message
     end
 
-    if result
-        error 401, result
+    if username.nil?
+        return [401, ""]
+    else
+        client  = settings.cloud_auth.client(username)
+        @occi_server = OCCIServer.new(client, settings.config)
     end
 end
 
