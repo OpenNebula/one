@@ -23,10 +23,20 @@ class CloudAuth
         "x509"  => 'X509CloudAuth'
     }
 
+    # Default interval for timestamps. Tokens will be generated using the same
+    # timestamp for this interval of time.
+    EXPIRE_DELTA = 36000
+
+    # Tokens will be generated if time > EXPIRE_TIME - EXPIRE_MARGIN
+    EXPIRE_MARGIN = 300
+
     attr_reader :client, :token
 
     def initialize(conf)
         @conf = conf
+
+        @token_expiration_delta = @conf[:token_expiration_delta] || EXPIRE_DELTA
+        @token_expiration_time  = Time.now.to_i + @token_expiration_delta
 
         if AUTH_MODULES.include?(@conf[:auth])
             require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
@@ -40,8 +50,19 @@ class CloudAuth
 
     protected
 
+    def expiration_time
+        time_now = Time.now.to_i
+
+        expire = time_now - @token_expiration_time
+        if expire < EXPIRE_MARGIN
+            @token_expiration_time = time_now + @token_expiration_delta
+        end
+
+        @token_expiration_time
+    end
+
     def get_password(username)
-        token = @server_auth.login_token
+        token = @server_auth.login_token(nil, expiration_time)
         @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
 
         if @user_pool.nil?
