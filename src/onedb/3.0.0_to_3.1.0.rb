@@ -26,6 +26,10 @@ module Migrator
     end
 
     def up
+        ########################################################################
+        # Update table definitions
+        ########################################################################
+
         [   [:group_pool,   "group"],
             [:host_pool,    "host"],
             [:image_pool,   "image"],
@@ -44,6 +48,10 @@ module Migrator
                 @db.run "ALTER TABLE #{pair[0]} CHANGE name name VARCHAR(128);"
             end
         }
+
+        ########################################################################
+        # Add new attributes to images
+        ########################################################################
 
         @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
         @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid) );"
@@ -78,6 +86,9 @@ module Migrator
 
         @db.run "DROP TABLE old_image_pool;"
 
+        ########################################################################
+        # Add new attributes to users
+        ########################################################################
 
         @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
         @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, UNIQUE(name));"
@@ -100,6 +111,81 @@ module Migrator
 
         @db.run "DROP TABLE old_user_pool;"
 
+        ########################################################################
+        # Create new serveradmin user
+        ########################################################################
+
+        username        = "serveradmin"
+        found           = false
+        oneadmin_row    = nil
+        user_oid        = nil
+
+        @db.fetch("SELECT * FROM user_pool WHERE name='#{username}'") do |row|
+            found = true
+        end
+
+        if ( found )
+            puts "    > Trying to create user '#{username}' "<<
+                "for Sunstone and public servers operation;\n"<<
+                "      but a user with that name already exists. "<<
+                "You will need to create manually a new user, visit\n"<<
+                "      http://opennebula.org/documentation:rel3.2:upgrade"
+        else
+            @db.fetch("SELECT * FROM user_pool WHERE oid=0") do |row|
+                oneadmin_row = row
+            end
+
+            @db.fetch("SELECT last_oid FROM pool_control WHERE tablename='user_pool'") do |row|
+                user_oid = (row[:last_oid].to_i + 1)
+            end
+
+            doc = Document.new(oneadmin_row[:body])
+
+            doc.root.each_element("ID") { |e|
+                e.text = (user_oid).to_s
+            }
+
+            doc.root.each_element("GID") { |e|
+                e.text = "0"
+            }
+
+            doc.root.each_element("NAME") { |e|
+                e.text = username
+            }
+
+            doc.root.each_element("AUTH_DRIVER") { |e|
+                e.text = "server_cipher"
+            }
+
+            # Insert new user
+            @db[:user_pool].insert(
+                :oid        => user_oid,
+                :name       => username,
+                :body       => doc.root.to_s)
+
+            # Update last oid in pool_control
+            @db.run("UPDATE pool_control SET last_oid=#{user_oid} WHERE tablename='user_pool';")
+
+            # Insert new user ID in oneadmin group
+
+            @db.fetch("SELECT body FROM group_pool WHERE oid=0") do |row|
+                doc = Document.new(row[:body])
+            end
+
+            doc.root.each_element("USERS"){ |e|
+                new_elem = e.add_element("ID")
+                new_elem.text = user_oid
+            }
+
+            @db.run("UPDATE group_pool SET body='#{doc.root.to_s}' WHERE oid=0;")
+
+            puts "    > New user '#{username}' created "<<
+                "for Sunstone and public servers operation.\n"<<
+                "      You will need to create some configuration files "<<
+                "before Sunstone, OCCI or EC2 are "<<
+                "started.\n      Visit\n"<<
+                "      http://opennebula.org/documentation:rel3.2:upgrade"
+        end
 
         return true
     end

@@ -157,6 +157,10 @@ public:
      */
     static const char * DEFAULT_AUTH;
 
+    /**
+     *  Name for the default Sunstone server user
+     */
+    static const char * SERVER_NAME;
 
 private:
     //--------------------------------------------------------------------------

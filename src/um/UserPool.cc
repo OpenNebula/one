@@ -35,6 +35,8 @@ const char * UserPool::SERVER_AUTH  = "server*";
 const char * UserPool::PUBLIC_AUTH  = "public";
 const char * UserPool::DEFAULT_AUTH = "default";
 
+const char * UserPool::SERVER_NAME  = "serveradmin";
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -47,7 +49,8 @@ UserPool::UserPool(SqlDB * db,
                    time_t  __session_expiration_time):
                        PoolSQL(db,User::table)
 {
-    int           one_uid = -1;
+    int           one_uid    = -1;
+    int           server_uid = -1;
     ostringstream oss;
     string        one_token;
     string        one_name;
@@ -100,16 +103,33 @@ UserPool::UserPool(SqlDB * db,
         {
             if (User::split_secret(one_token,one_name,one_pass) == 0)
             {
-                string error_str;
+                if ( one_name == SERVER_NAME )
+                {
+                    oss << "The name '" << SERVER_NAME << "' is reserved";
+                }
+                else
+                {
+                    string error_str;
 
-                allocate(&one_uid,
-                         GroupPool::ONEADMIN_ID,
-                         one_name,
-                         GroupPool::ONEADMIN_NAME,
-                         one_pass,
-                         UserPool::CORE_AUTH,
-                         true, 
-                         error_str);
+                    allocate(&one_uid,
+                             GroupPool::ONEADMIN_ID,
+                             one_name,
+                             GroupPool::ONEADMIN_NAME,
+                             one_pass,
+                             UserPool::CORE_AUTH,
+                             true,
+                             error_str);
+
+                    // Create the serveradmin user with the same password
+                    allocate(&server_uid,
+                             GroupPool::ONEADMIN_ID,
+                             SERVER_NAME,
+                             GroupPool::ONEADMIN_NAME,
+                             SSLTools::sha1_digest(one_pass),
+                             "server_cipher",
+                             true,
+                             error_str);
+                }
             }
             else
             {
@@ -119,12 +139,12 @@ UserPool::UserPool(SqlDB * db,
     }
     else
     {
-        oss << "Cloud not open file: " << one_auth;
+        oss << "Could not open file: " << one_auth;
     }
 
     file.close();
 
-    if (one_uid != 0)
+    if (one_uid != 0 || server_uid != 1)
     {
         NebulaLog::log("ONE",Log::ERROR,oss);
         throw;
