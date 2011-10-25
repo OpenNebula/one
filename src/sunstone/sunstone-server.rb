@@ -88,7 +88,7 @@ helpers do
         else
             client  = settings.cloud_auth.client(result)
             user_id = OpenNebula::User::SELF
-            
+
             user    = OpenNebula::User.new_with_id(user_id, client)
             rc = user.info
             if OpenNebula.is_error?(rc)
@@ -143,7 +143,12 @@ end
 ##############################################################################
 get '/' do
     if !authorized?
-        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
+        if settings.config[:auth] == "x509" 
+            templ = "login_x509.html"
+        else
+            templ = "login.html"
+        end
+
         return File.read(File.dirname(__FILE__)+'/templates/'+templ)
     end
     time = Time.now + 60
@@ -165,7 +170,12 @@ end
 
 get '/login' do
     if !authorized?
-        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
+        if settings.config[:auth] == "x509" 
+            templ = "login_x509.html"
+        else
+            templ = "login.html"
+        end
+
         return File.read(File.dirname(__FILE__)+'/templates/'+templ)
     end
 end

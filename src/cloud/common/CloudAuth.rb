@@ -81,8 +81,7 @@ class CloudAuth
     def expiration_time
         time_now = Time.now.to_i
 
-        expire = time_now - @token_expiration_time
-        if expire < EXPIRE_MARGIN
+        if time_now > @token_expiration_time - EXPIRE_MARGIN
             @token_expiration_time = time_now + @token_expiration_delta
         end
 
