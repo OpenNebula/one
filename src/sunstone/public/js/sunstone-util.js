@@ -140,7 +140,7 @@ function tableCheckboxesListener(dataTable){
     //listen to changes in the visible inputs
     $('tbody input',dataTable).live("change",function(){
         var datatable = $(this).parents('table');
-        recountCheckboxes(dataTable);
+        recountCheckboxes(datatable);
     });
 }
 
@@ -161,6 +161,12 @@ function updateSingleElement(element,dataTable,tag){
     var position = dataTable.fnGetPosition(tr);
     dataTable.fnUpdate(element,position,0,false);
     recountCheckboxes(dataTable);
+}
+
+function getElementData(id, resource_tag, dataTable){
+    var nodes = dataTable.fnGetNodes();
+    var tr = $(resource_tag+'_'+id,nodes).parents('tr')[0];
+    return dataTable.fnGetData(tr);
 }
 
 // Returns an string in the form key=value key=value ...
@@ -657,6 +663,12 @@ function setupTemplateUpdateDialog(){
         var dialog = $('#template_update_dialog');
         var new_template = $('#template_update_textarea',dialog).val();
         var id = $('#template_update_select',dialog).val();
+
+        if (!id || !id.length) {
+            dialog.dialog('close');
+            return false;
+        };
+
         var resource = $(this).val();
         Sunstone.runAction(resource+".update",id,new_template);
         dialog.dialog('close');

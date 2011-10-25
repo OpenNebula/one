@@ -79,8 +79,9 @@ class X509Auth
         write_login(login_token(user,expire))
     end
 
-    # Returns the dn of the user certificate
-    def dn
+    # Returns a valid password string to create a user using this auth driver.
+    # In this case the dn of the user certificate.
+    def password
         @cert_chain[0].subject.to_s.delete("\s")
     end
 

@@ -38,17 +38,16 @@ secret = ARGV[2] # Base64 encoded secret as obtained from login_token
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
 begin
-    server_auth = ServerCipherAuth.new
-    rc,user = server_auth.authenticate(user, pass, secret)
+    server_auth = ServerCipherAuth.new_driver
+    rc = server_auth.authenticate(user, pass, secret)
 rescue => e
     OpenNebula.error_message e.message
     exit -1
 end
 
 if rc == true
-    puts user
     exit 0
 else
-    OpenNebula.error_message user 
+    OpenNebula.error_message rc
     exit -1
 end

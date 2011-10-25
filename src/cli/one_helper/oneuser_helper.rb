@@ -37,11 +37,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "Can not read file: #{arg}"
             end
         else
-            if options[:x509]
-                password = arg.delete("\s")
-            else
-                password = arg
-            end
+            password = arg
+        end
+
+        if options[:x509]
+            password.delete!("\s")
         end
 
         return 0, password
@@ -56,12 +56,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             require 'ssh_auth'
 
             begin
-                sshauth = SshAuth.new(:private_key=>options[:key])
+                auth = SshAuth.new(:private_key=>options[:key])
             rescue Exception => e
                 return -1, e.message
             end
-
-            return 0, sshauth.public_key
         elsif options[:x509]
             options[:cert] ||= ENV['X509_USER_CERT']
 
@@ -72,16 +70,16 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             require 'x509_auth'
 
             begin
-                cert     = [File.read(options[:cert])]
-                x509auth = X509Auth.new(:certs_pem=>cert)
+                cert = [File.read(options[:cert])]
+                auth = X509Auth.new(:certs_pem=>cert)
             rescue Exception => e
                 return -1, e.message
             end
-
-            return 0, x509auth.dn
         else
             return -1, "You have to specify an Auth method or define a password"
         end
+
+        return 0, auth.password
     end
 
     def self.login(username, options)

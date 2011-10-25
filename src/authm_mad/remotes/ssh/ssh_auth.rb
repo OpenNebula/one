@@ -26,8 +26,6 @@ require 'fileutils'
 class SshAuth
     LOGIN_PATH = ENV['HOME']+'/.one/one_ssh'
 
-    attr_reader :public_key
-
     # Initialize SshAuth object
     #
     # @param [Hash] default options for path
@@ -89,6 +87,12 @@ class SshAuth
         file.close
 
         secret_crypted
+    end
+
+    # Returns a valid password string to create a user using this auth driver.
+    # In this case the ssh public key.
+    def password
+        @public_key
     end
 
     # Checks the proxy created with the login method

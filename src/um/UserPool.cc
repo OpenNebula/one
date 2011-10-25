@@ -28,9 +28,10 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <stdlib.h>
+#include <fnmatch.h>
 
 const char * UserPool::CORE_AUTH    = "core";
-const char * UserPool::SERVER_AUTH  = "server";
+const char * UserPool::SERVER_AUTH  = "server*";
 const char * UserPool::PUBLIC_AUTH  = "public";
 const char * UserPool::DEFAULT_AUTH = "default";
 
@@ -271,7 +272,7 @@ bool UserPool::authenticate_internal(User *        user,
     {
         return true;
     }
-                                   
+
     AuthRequest ar(user_id, group_id);
 
     if ( auth_driver == UserPool::CORE_AUTH )
@@ -281,7 +282,7 @@ bool UserPool::authenticate_internal(User *        user,
         if (!ar.core_authenticate())
         {
             goto auth_failure;
-        } 
+        }
     }
     else if (auth_driver == UserPool::PUBLIC_AUTH )
     {
@@ -296,52 +297,27 @@ bool UserPool::authenticate_internal(User *        user,
         ar.wait();
 
         if (ar.result!=true) //User was not authenticated
-        {   
+        {
             goto auth_failure_driver;
         }
-
-        if (auth_driver == UserPool::SERVER_AUTH)
-        {
-            user = get(ar.message,true);
-
-            if (user == 0)
-            {
-                goto auth_failure_user;
-            } 
-
-            user_id  = user->oid;
-            group_id = user->gid;
-
-            uname  = user->name;
-            gname  = user->gname;
-
-            user->unlock();
-        }
-    } 
+    }
     else
     {
         goto auth_failure_nodriver;
     }
 
-    user = get(username, true);
+    user = get(user_id, true);
 
     if (user != 0)
     {
         user->set_session(token, _session_expiration_time);
         user->unlock();
-    } 
+    }
 
     return true;
 
 auth_failure_public:
-    oss << "User: " << username << "attempted a direct authentication.";
-    NebulaLog::log("AuM",Log::ERROR,oss);
-
-    goto auth_failure;
-
-auth_failure_user:
-    oss << "User: " << ar.message 
-        << ", does not exist. Returned by server auth.";
+    oss << "User: " << username << " attempted a direct authentication.";
     NebulaLog::log("AuM",Log::ERROR,oss);
 
     goto auth_failure;
@@ -366,7 +342,133 @@ auth_failure:
 
     return false;
 }
- 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool UserPool::authenticate_server(User *        user,
+                                   const string& token,
+                                   int&          user_id,
+                                   int&          group_id,
+                                   string&       uname,
+                                   string&       gname)
+{
+    bool result = false;
+
+    ostringstream oss;
+
+    string server_password;
+    string auth_driver;
+    string server_username;
+
+    string target_username;
+    string second_token;
+
+    Nebula&     nd      = Nebula::instance();
+    AuthManager * authm = nd.get_authm();
+
+    server_username = user->name;
+    server_password = user->password;
+
+    auth_driver = user->auth_driver;
+
+    AuthRequest ar(user->oid, user->gid);
+
+    user->unlock();
+
+    // token = target_username:second_token
+    int rc = User::split_secret(token,target_username,second_token);
+
+    if ( rc != 0 )
+    {
+        goto wrong_server_token;
+    }
+
+    user = get(target_username,true);
+
+    if ( user == 0 )
+    {
+        goto auth_failure_user;
+    }
+
+    user_id  = user->oid;
+    group_id = user->gid;
+
+    uname  = user->name;
+    gname  = user->gname;
+
+    result = user->valid_session(second_token);
+
+    user->unlock();
+
+    if (result)
+    {
+        return true;
+    }
+
+    if ( authm == 0 )
+    {
+        goto auth_failure_nodriver;
+    }
+
+    //Initialize authentication request and call the driver
+    ar.add_authenticate(auth_driver,
+                        server_username,
+                        server_password,
+                        second_token);
+
+    authm->trigger(AuthManager::AUTHENTICATE,&ar);
+    ar.wait();
+
+    if (ar.result!=true) //User was not authenticated
+    {
+        goto auth_failure_driver;
+    }
+
+    user = get(user_id, true);
+
+    if (user != 0)
+    {
+        user->set_session(second_token, _session_expiration_time);
+        user->unlock();
+    }
+
+    return true;
+
+wrong_server_token:
+    oss << "Wrong token format";
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_user:
+    oss << "User: " << target_username
+        << " does not exist. Returned by server auth";
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_driver:
+    oss << "Auth Error: " << ar.message;
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    goto auth_failure;
+
+auth_failure_nodriver:
+    NebulaLog::log("AuM",Log::ERROR,
+        "Auth Error: Authentication driver not enabled. "
+        "Check AUTH_MAD in oned.conf");
+
+auth_failure:
+    user_id  = -1;
+    group_id = -1;
+
+    uname = "";
+    gname = "";
+
+    return false;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
     
@@ -504,7 +606,16 @@ bool UserPool::authenticate(const string& session,
 
     if (user != 0 ) //User known to OpenNebula
     {
-        ar = authenticate_internal(user,token,user_id,group_id,uname,gname);
+        string driver = user->get_auth_driver();
+
+        if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
+        {
+            ar = authenticate_server(user,token,user_id,group_id,uname,gname);
+        }
+        else
+        {
+            ar = authenticate_internal(user,token,user_id,group_id,uname,gname);
+        }
     }
     else
     {

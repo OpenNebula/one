@@ -88,15 +88,18 @@ int UserChangeAuth::user_action(User * user,
     string new_auth = xmlrpc_c::value_string(paramList.getString(2));
     string new_pass = xmlrpc_c::value_string(paramList.getString(3));
 
-    int rc;
+    int rc = 0;
 
-    if (new_auth == UserPool::CORE_AUTH)
+    if ( !new_pass.empty() )
     {
-        new_pass = SSLTools::sha1_digest(new_pass);
-    }
+        if ( new_auth == UserPool::CORE_AUTH)
+        {
+            new_pass = SSLTools::sha1_digest(new_pass);
+        }
 
-    // The password may be invalid, try to change it first
-    rc = user->set_password(new_pass, error_str);
+        // The password may be invalid, try to change it first
+        rc = user->set_password(new_pass, error_str);
+    }
 
     if ( rc == 0 )
     {
