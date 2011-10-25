@@ -53,10 +53,10 @@ class ServerCipherAuth
     def self.new_client(srv_user=nil, srv_passwd=nil)
         if ( srv_user == nil || srv_passwd == nil ) 
             begin
-                if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty?
-                    one_auth = File.read(ENV["ONE_AUTH"])
+                if ENV["ONE_CIPHER_AUTH"] and !ENV["ONE_CIPHER_AUTH"].empty?
+                    one_auth = File.read(ENV["ONE_CIPHER_AUTH"])
                 else
-                    one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+                    raise "ONE_CIPHER_AUTH environment variable not set"
                 end
 
                 one_auth.rstrip!

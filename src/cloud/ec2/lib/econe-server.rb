@@ -23,10 +23,12 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION  = "/usr/lib/one/ruby"
     CONFIGURATION_FILE = "/etc/one/econe.conf"
     TEMPLATE_LOCATION  = "/etc/one/ec2query_templates"
+    EC2_AUTH = "/etc/one/auth/ec2_auth"
 else
     RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
     TEMPLATE_LOCATION  = ONE_LOCATION+"/etc/ec2query_templates"
+    EC2_AUTH = ONE_LOCATION + "/etc/one/auth/ec2_auth"
 end
 
 VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
@@ -75,7 +77,16 @@ if CloudServer.is_port_open?(settings.config[:server],
     exit 1
 end
  
-set :cloud_auth, CloudAuth.new(settings.config)
+begin    
+    ENV["ONE_CIPHER_AUTH"] = EC2_AUTH
+    cloud_auth = CloudAuth.new(settings.config)
+rescue => e
+    puts "Error initializing authentication system"
+    puts e.message 
+    exit -1
+end
+
+set :cloud_auth, cloud_auth
 
 econe_host = conf[:ssl_server]
 econe_host ||= conf[:server]
