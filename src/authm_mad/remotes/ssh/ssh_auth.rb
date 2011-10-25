@@ -86,6 +86,8 @@ class SshAuth
         file.write(proxy)
         file.close
 
+        File.chmod(0600,LOGIN_PATH)
+        
         secret_crypted
     end
 

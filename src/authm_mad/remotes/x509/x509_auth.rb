@@ -157,6 +157,8 @@ private
         file = File.open(LOGIN_PATH, "w")
         file.write(login_txt)        
         file.close
+
+        File.chmod(0600,LOGIN_PATH)
     end
 
     # Load class options form a configuration file (yaml syntax)
