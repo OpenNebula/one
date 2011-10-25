@@ -35,8 +35,14 @@ module OpenNebula
 
         SELF      = -1
         
-        #Selects core authentication driver        
+        # Driver name for default core authentication
         CORE_AUTH = "core"
+
+        # Driver name for ssh authentication
+        SSH_AUTH  = "ssh"
+
+        # Driver name for x509 authentication
+        X509_AUTH = "x509"
 
         # Creates a User description with just its identifier
         # this method should be used to create plain User objects.
