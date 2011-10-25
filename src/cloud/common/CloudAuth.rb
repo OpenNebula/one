@@ -86,7 +86,7 @@ class CloudAuth
         @token_expiration_time
     end
 
-    def get_password(username)
+    def get_password(username, non_public_user=false)
         token = @server_auth.login_token(expiration_time)
         @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
 
@@ -99,6 +99,12 @@ class CloudAuth
             end
         end
 
-        return @user_pool["USER[NAME=\"#{username}\"]/PASSWORD"]
+        if non_public_user == true
+            xp="USER[NAME=\"#{username}\" and AUTH_DRIVER!=\"public\"]/PASSWORD"
+        else
+            xp="USER[NAME=\"#{username}\"]/PASSWORD"
+        end
+
+        return @user_pool[xp]
     end
 end

@@ -21,7 +21,7 @@ module SunstoneCloudAuth
         if auth.provided? && auth.basic?
             username, password = auth.credentials
 
-            one_pass = get_password(username)
+            one_pass = get_password(username, true)
 
             if one_pass && one_pass == Digest::SHA1.hexdigest(password)
                 return username

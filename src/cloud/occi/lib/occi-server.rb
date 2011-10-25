@@ -33,7 +33,7 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
     TEMPLATE_LOCATION=ONE_LOCATION+"/etc/occi_templates"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/occi-server.conf"
-    OCCI_AUTH = ONE_LOCATION + "/etc/one/auth/occi_auth"
+    OCCI_AUTH = ONE_LOCATION + "/etc/auth/occi_auth"
 end
 
 $: << RUBY_LIB_LOCATION

@@ -32,7 +32,7 @@ else
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-server.conf"
     PLUGIN_CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-plugins.yaml"
-    SUNSTONE_AUTH = ONE_LOCATION + "/etc/one/auth/sunstone_auth"
+    SUNSTONE_AUTH = ONE_LOCATION + "/etc/auth/sunstone_auth"
 end
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)

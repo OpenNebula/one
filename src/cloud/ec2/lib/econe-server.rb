@@ -28,7 +28,7 @@ else
     RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
     TEMPLATE_LOCATION  = ONE_LOCATION+"/etc/ec2query_templates"
-    EC2_AUTH = ONE_LOCATION + "/etc/one/auth/ec2_auth"
+    EC2_AUTH = ONE_LOCATION + "/etc/auth/ec2_auth"
 end
 
 VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
