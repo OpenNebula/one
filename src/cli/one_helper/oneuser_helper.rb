@@ -82,6 +82,21 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, auth.password
     end
 
+    # Returns the driver to be used for 'oneuser create'
+    # @param options [Hash] oneuser command options
+    # @return [String] the authentication driver to use
+    def driver(options)
+        if options[:driver]
+            return options[:driver]
+        elsif options[:ssh]
+            return OpenNebula::User::SSH_AUTH
+        elsif options[:x509]
+            return OpenNebula::User::X509_AUTH
+        else
+            return OpenNebula::User::CORE_AUTH
+        end
+    end
+
     def self.login(username, options)
         if options[:ssh]
             require 'ssh_auth'

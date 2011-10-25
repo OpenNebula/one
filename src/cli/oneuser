@@ -159,8 +159,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
         end
 
+        driver = helper.driver(options)
+
         helper.create_resource(options) do |user|
-            driver = options[:driver] || OpenNebula::User::CORE_AUTH
             user.allocate(args[0], pass, driver)
         end
     end
