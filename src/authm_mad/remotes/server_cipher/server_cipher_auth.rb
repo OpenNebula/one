@@ -50,7 +50,30 @@ class ServerCipherAuth
     ###########################################################################
 
     # Creates a ServerCipher for client usage
-    def self.new_client(srv_user, srv_passwd)
+    def self.new_client(srv_user=nil, srv_passwd=nil)
+        if ( srv_user == nil || srv_passwd == nil ) 
+            begin
+                if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty?
+                    one_auth = File.read(ENV["ONE_AUTH"])
+                else
+                    one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+                end
+
+                one_auth.rstrip!
+
+                rc =  one_auth.match(/(.*?):(.*)/)
+                
+                if rc.nil?
+                    raise "Bad format for one_auth token (<user>:<passwd>)"
+                else 
+                    srv_user   = rc[1]
+                    srv_passwd = rc[2]
+                end
+            rescue => e
+                raise e.message
+            end
+        end 
+
         self.new(srv_user, srv_passwd)
     end
 

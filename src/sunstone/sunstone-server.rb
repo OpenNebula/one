@@ -66,6 +66,8 @@ set :config, conf
 set :host, settings.config[:host]
 set :port, settings.config[:port]
 
+set :cloud_auth, CloudAuth.new(settings.config)
+
 ##############################################################################
 # Helpers
 ##############################################################################
@@ -75,20 +77,19 @@ helpers do
     end
 
     def build_session
-        cloud_auth = CloudAuth.new(settings.config)
+        # begin
+            result = settings.cloud_auth.auth(request.env, params)
+        # rescue Exception => e
+        #     error 500, e.message
+        # end
 
-        begin
-            result = cloud_auth.auth(request.env, params)
-        rescue Exception => e
-            error 500, e.message
-        end
-
-        if result
+        if result.nil?
             return [401, ""]
         else
+            client  = settings.cloud_auth.client(result)
             user_id = OpenNebula::User::SELF
-            user    = OpenNebula::User.new_with_id(user_id, cloud_auth.client)
-
+            
+            user    = OpenNebula::User.new_with_id(user_id, client)
             rc = user.info
             if OpenNebula.is_error?(rc)
                 # Add a log message
@@ -99,7 +100,6 @@ helpers do
             session[:user_id]    = user['ID']
             session[:user_gid]   = user['GID']
             session[:user_gname] = user['GNAME']
-            session[:token]      = cloud_auth.token
             session[:ip]         = request.ip
             session[:remember]   = params[:remember]
 
@@ -122,8 +122,7 @@ before do
         halt 401 unless authorized?
 
         @SunstoneServer = SunstoneServer.new(
-                                session[:token],
-                                settings.config[:one_xmlrpc])
+            settings.cloud_auth.client(session[:user]))
     end
 end
 

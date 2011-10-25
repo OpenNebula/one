@@ -56,6 +56,13 @@ class ServerX509Auth < X509Auth
         end
     end
 
+    ###########################################################################
+    # Client side
+    ###########################################################################
+
+    # Creates a ServerCipher for client usage
+    alias :new_client :new
+
     # Generates a login token in the form:
     #   - server_user:target_user:time_expires 
     def login_token(expire, target_user=nil)
@@ -71,6 +78,10 @@ class ServerX509Auth < X509Auth
     ###########################################################################
     # Server side
     ###########################################################################
+    
+    # Creates a ServerCipher for driver usage
+    alias :new_driver :new
+
     # auth method for auth_mad
     def authenticate(server_user, server_pass, signed_text)
         begin           

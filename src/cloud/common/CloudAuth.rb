@@ -17,11 +17,21 @@
 require 'server_cipher_auth'
 
 class CloudAuth
+    # These are the authentication methods for the user requests
     AUTH_MODULES = {
-        "basic" => 'BasicCloudAuth',
-        "ec2"   => 'EC2CloudAuth',
-        "x509"  => 'X509CloudAuth'
+        "basic"    => 'BasicCloudAuth',
+        "sunstone" => 'SunstoneCloudAuth' ,
+        "ec2"      => 'EC2CloudAuth',
+        "x509"     => 'X509CloudAuth'
     }
+
+    # These are the authentication modules for the OpenNebula requests
+    # Each entry is an array with the filename  for require and class name
+    # to instantiate the object.
+    AUTH_CORE_MODULES = {
+       "cipher" => [ 'server_cipher_auth', 'ServerCipherAuth' ],
+       "x509"   => [ 'server_x509_auth',   'ServerX509Auth' ]
+    } 
 
     # Default interval for timestamps. Tokens will be generated using the same
     # timestamp for this interval of time.
@@ -32,6 +42,7 @@ class CloudAuth
 
     attr_reader :client, :token
 
+    # conf a hash with the configuration attributes as symbols
     def initialize(conf)
         @conf = conf
 
@@ -45,7 +56,24 @@ class CloudAuth
             raise "Auth module not specified"
         end
 
-        @server_auth = ServerCipherAuth.new
+
+        if AUTH_CORE_MODULES.include?(@conf[:core_auth])
+            core_auth = AUTH_CORE_MODULES[@conf[:core_auth]]
+        else
+            core_auth =AUTH_CORE_MODULES["cipher"]
+        end
+         
+        begin
+            require core_auth[0]
+            @server_auth = Kernel.const_get(core_auth[1]).new_client
+        rescue => e
+            raise e.message
+        end
+    end
+
+    def client(username)
+        token = @server_auth.login_token(expiration_time,username) 
+        Client.new(token,@conf[:one_xmlrpc])
     end
 
     protected
@@ -62,7 +90,7 @@ class CloudAuth
     end
 
     def get_password(username)
-        token = @server_auth.login_token(nil, expiration_time)
+        token = @server_auth.login_token(expiration_time)
         @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
 
         if @user_pool.nil?
