@@ -18,6 +18,7 @@
 var dataTable_users;
 var users_select="";
 var $create_user_dialog;
+var $update_pw_dialog;
 
 var users_tab_content =
 '<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
@@ -30,6 +31,7 @@ var users_tab_content =
       <th>ID</th>\
       <th>Name</th>\
       <th>Group</th>\
+      <th>Authentication driver</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyusers">\
@@ -45,6 +47,13 @@ var create_user_tmpl =
                 <input type="text" name="username" id="username" /><br />\
                 <label for="pass">Password:</label>\
                 <input type="password" name="pass" id="pass" />\
+                <label for="driver">Authentication:</label>\
+                <select name="driver" id="driver">\
+                     <option value="core" selected="selected">Core</option>\
+                     <option value="ssh" selected="selected">SSH</option>\
+                     <option value="x509" selected="selected">x509</option>\
+                     <option value="server" selected="selected">Server</option>\
+                </select>\
         </div>\
         </fieldset>\
         <fieldset>\
@@ -54,6 +63,23 @@ var create_user_tmpl =
         </div>\
 </fieldset>\
 </form>';
+
+var update_pw_tmpl = '<form id="update_user_pw_form" action="">\
+  <fieldset>\
+        <div>\
+                <div>This will change the password for the selected users:</div>\
+                <label for="new_password">New password:</label>\
+                <input type="password" name="new_password" id="new_password" />\
+        </div>\
+        </fieldset>\
+        <fieldset>\
+        <div class="form_buttons">\
+                <button class="button" id="update_pw_submit" value="user/create">Change</button>\
+                <button class="button" type="reset" value="reset">Reset</button>\
+        </div>\
+</fieldset>\
+</form>';
+
 
 var user_actions = {
     "User.create" : {
@@ -95,6 +121,18 @@ var user_actions = {
         }
     },
 
+    "User.update_password" : {
+        type: "custom",
+        call: popUpUpdatePasswordDialog
+    },
+
+    "User.passwd" : {
+        type: "multiple",
+        call: OpenNebula.User.passwd,
+        //nocallback
+        elements: userElements,
+        error: onError
+    },
     "User.chgrp" : {
         type: "multiple",
         call: OpenNebula.User.chgrp,
@@ -102,6 +140,17 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0]);
         },
         elements : userElements,
+        error: onError,
+        notify: true
+    },
+
+    "User.chauth" : {
+        type: "multiple",
+        call: OpenNebula.User.chauth,
+        callback : function(req){
+            Sunstone.runAction("User.show",req.request.data[0]);
+        },
+        elements: userElements,
         error: onError,
         notify: true
     },
@@ -143,6 +192,39 @@ var user_actions = {
         error: onError,
         notify: true
     },
+
+    "User.fetch_template" : {
+        type: "single",
+        call: OpenNebula.User.fetch_template,
+        callback: function (request,response) {
+            $('#template_update_dialog #template_update_textarea').val(response.template);
+        },
+        error: onError
+    },
+
+    "User.update_dialog" : {
+        type: "custom",
+        call: function() {
+            popUpTemplateUpdateDialog("User",
+                                      makeSelectOptions(dataTable_users,
+                                                        1,//id_col
+                                                        2,//name_col
+                                                        [],
+                                                        []
+                                                       ),
+                                      getSelectedNodes(dataTable_users));
+        }
+    },
+
+    "User.update" : {
+        type: "single",
+        call: OpenNebula.User.update,
+        callback: function() {
+            notifyMessage("Template updated correctly");
+        },
+        error: onError
+    }
+
 }
 
 var user_buttons = {
@@ -155,11 +237,31 @@ var user_buttons = {
         type: "create_dialog",
         text: "+ New"
     },
+    "User.update_dialog" : {
+        type: "action",
+        text: "Update a template",
+        alwaysActive: true
+    },
+    "User.update_password" : {
+        type : "action",
+        text : "Change password",
+    },
     "User.chgrp" : {
         type: "confirm_with_select",
         text: "Change group",
         select: groups_sel,
         tip: "This will change the main group of the selected users. Select the new group:"
+    },
+    "User.chauth" : {
+        type: "confirm_with_select",
+        text: "Change authentication",
+        select: function() {
+            return '<option value="core" selected="selected">Core</option>\
+                 <option value="ssh" selected="selected">SSH</option>\
+                 <option value="x509" selected="selected">x509</option>\
+                 <option value="server" selected="selected">Server</option>'
+        },
+        tip: "Please choose the new type of authentication for the selected users:"
     },
     // "User.addgroup" : {
     //     type: "confirm_with_select",
@@ -203,7 +305,8 @@ function userElementArray(user_json){
         '<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
         user.ID,
         user.NAME,
-        user.GNAME
+        user.GNAME,
+        user.AUTH_DRIVER
     ]
 }
 
@@ -268,6 +371,8 @@ function setupCreateUserDialog(){
     $('#create_user_form',dialog).submit(function(){
         var user_name=$('#username',this).val();
         var user_password=$('#pass',this).val();
+        var driver = $('#driver', this).val();
+
         if (!user_name.length || !user_password.length){
             notifyError("User name and password must be filled in");
             return false;
@@ -275,7 +380,9 @@ function setupCreateUserDialog(){
 
         var user_json = { "user" :
                           { "name" : user_name,
-                            "password" : user_password }
+                            "password" : user_password,
+                            "auth_driver" : driver
+                          }
                         };
         Sunstone.runAction("User.create",user_json);
         $create_user_dialog.dialog('close');
@@ -283,9 +390,45 @@ function setupCreateUserDialog(){
     });
 }
 
+function setupUpdatePasswordDialog(){
+    dialogs_context.append('<div title="Change password" id="update_user_pw_dialog"></div>');
+    $update_pw_dialog = $('#update_user_pw_dialog',dialogs_context);
+    var dialog = $update_pw_dialog;
+    dialog.html(update_pw_tmpl);
+
+    //Prepare jquery dialog
+    dialog.dialog({
+        autoOpen: false,
+        modal:true,
+        width: 400
+    });
+
+    $('button',dialog).button();
+
+    $('#update_user_pw_form',dialog).submit(function(){
+        var pw=$('#new_password',this).val();
+
+        if (!pw.length){
+            notifyError("Fill in a new password");
+            return false;
+        }
+
+        Sunstone.runAction("User.passwd",getSelectedNodes(dataTable_users),pw);
+        $update_pw_dialog.dialog('close');
+        return false;
+    });
+};
+
 function popUpCreateUserDialog(){
     $create_user_dialog.dialog('open');
 }
+
+
+function popUpUpdatePasswordDialog(){
+    $update_pw_dialog.dialog('open');
+}
+
+
 
 // Prepare the autorefresh of the list
 function setUserAutorefresh(){
@@ -309,17 +452,19 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "150px", "aTargets": [4] }
         ]
     });
     dataTable_users.fnClearTable();
     addElement([
         spinner,
-        '','',''],dataTable_users);
+        '','','',''],dataTable_users);
 
     Sunstone.runAction("User.list");
 
     setupCreateUserDialog();
+    setupUpdatePasswordDialog();
     setUserAutorefresh();
 
     initCheckAllBoxes(dataTable_users);
