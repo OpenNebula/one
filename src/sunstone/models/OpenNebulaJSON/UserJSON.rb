@@ -27,7 +27,8 @@ module OpenNebulaJSON
             end
 
             password = Digest::SHA1.hexdigest(user_hash['password'])
-            self.allocate(user_hash['name'], password)
+
+            self.allocate(user_hash['name'], password, user_hash['auth_driver'])
         end
 
         def perform_action(template_json)
@@ -37,10 +38,12 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "passwd" then self.passwd(action_hash['params'])
+                 when "passwd"       then self.passwd(action_hash['params'])
                  when "chgrp"        then self.chgrp(action_hash['params'])
-                 when "addgroup" then self.addgroup(action_hash['params'])
-                 when "delgroup" then self.delgroup(action_hash['params'])
+                 when "chauth"        then self.chauth(action_hash['params'])
+                 when "update"       then self.update(action_hash['params'])
+                 when "addgroup"     then self.addgroup(action_hash['params'])
+                 when "delgroup"     then self.delgroup(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -55,6 +58,14 @@ module OpenNebulaJSON
 
         def chgrp(params=Hash.new)
             super(params['group_id'].to_i)
+        end
+
+        def chauth(params=Hash.new)
+            super(params['auth_driver'])
+        end
+
+        def update(params=Hash.new)
+            super(params['raw_template'])
         end
 
         def addgroup(params=Hash.new)
