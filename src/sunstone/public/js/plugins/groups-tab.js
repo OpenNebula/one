@@ -167,7 +167,7 @@ function groupElementArray(group_json){
     };
 
     return [
-        '<input type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
         group.ID,
         group.NAME,
         users_str ];
@@ -258,7 +258,7 @@ function popUpCreateGroupDialog(){
 //Prepares the autorefresh
 function setGroupAutorefresh(){
     setInterval(function(){
-        var checked = $('input:checked',dataTable_groups.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_groups);
         var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Group.autorefresh");

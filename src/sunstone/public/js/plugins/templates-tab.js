@@ -813,13 +813,14 @@ function templateShow(req){
 function templateElementArray(template_json){
     var template = template_json.VMTEMPLATE;
     return [
-        '<input type="checkbox" id="template_'+template.ID+'" name="selected_items" value="'+template.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="template_'+template.ID+'" name="selected_items" value="'+template.ID+'"/>',
         template.ID,
         template.UNAME,
         template.GNAME,
         template.NAME,
         pretty_time(template.REGTIME),
-        parseInt(template.PUBLIC) ? "yes" : "no"
+        parseInt(template.PUBLIC) ? '<input class="action_cb" id="cb_public_template" type="checkbox" elem_id="'+template.ID+'" checked="checked"/>'
+            : '<input class="action_cb" id="cb_public_template" type="checkbox" elem_id="'+template.ID+'"/>'
         ];
 }
 
@@ -1958,13 +1959,30 @@ function popUpCreateTemplateDialog(){
 // Set the autorefresh interval for the datatable
 function setTemplateAutorefresh() {
     setInterval(function(){
-        var checked = $('input:checked',dataTable_templates.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_templates);
         var filter = $("#datatable_templates_filter input",
                        dataTable_templates.parents('#datatable_templates_wrapper')).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Template.autorefresh");
         }
     },INTERVAL+someTime());
+}
+
+function is_public_template(id){
+    var data = getElementData(id,"#template",dataTable_templates)[6];
+    return $(data).attr("checked");
+};
+
+function setupTemplateActionCheckboxes(){
+    $('input.action_cb#cb_public_template',dataTable_templates).live("click",function(){
+        var $this = $(this)
+        var id=$this.attr("elem_id");
+        if ($this.attr("checked"))
+                Sunstone.runAction("Template.publish",id);
+        else Sunstone.runAction("Template.unpublish",id);
+
+        return true;
+    });
 }
 
 //The DOM is ready at this point
@@ -1991,6 +2009,7 @@ $(document).ready(function(){
     Sunstone.runAction("Template.list");
 
     setupCreateTemplateDialog();
+    setupTemplateActionCheckboxes();
     setTemplateAutorefresh();
 
     initCheckAllBoxes(dataTable_templates);

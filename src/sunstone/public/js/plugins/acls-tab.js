@@ -277,7 +277,7 @@ function aclElementArray(acl_json){
     var acl_array = parseAclString(acl_string);
 
     return [
-        '<input type="checkbox" id="acl_'+acl.ID+'" name="selected_items" value="'+acl.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="acl_'+acl.ID+'" name="selected_items" value="'+acl.ID+'"/>',
         acl.ID,
         acl_array[0],
         acl_array[1],
@@ -460,12 +460,13 @@ function popUpCreateAclDialog(){
 // Prepare the autorefresh of the list
 function setAclAutorefresh(){
     setInterval(function(){
-        var checked = $('input:checked',dataTable_acls.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_acls);
         var filter = $("#datatable_acls_filter input",dataTable_acls.parents("#datatable_acls_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Acl.autorefresh");
         }
     },INTERVAL+someTime());
+
 }
 
 $(document).ready(function(){

@@ -471,19 +471,20 @@ function imageElements() {
 // Returns an array containing the values of the image_json and ready
 // to be inserted in the dataTable
 function imageElementArray(image_json){
-    //Changing this? It may affect to the is_public and is_persistent
-    //variables in setupImageTemplateUpdateDialog();
+    //Changing this? It may affect to the is_public() and is_persistent() functions.
     var image = image_json.IMAGE;
     return [
-        '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
         image.UNAME,
         image.GNAME,
         image.NAME,
         OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
-        parseInt(image.PUBLIC) ? "yes" : "no",
-        parseInt(image.PERSISTENT) ? "yes" : "no",
+        parseInt(image.PUBLIC) ? '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
+            : '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'"/>',
+        parseInt(image.PERSISTENT) ? '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
+            : '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'"/>',
         OpenNebula.Helper.resource_state("image",image.STATE),
         image.RUNNING_VMS
         ];
@@ -826,17 +827,16 @@ function setupImageTemplateUpdateDialog(){
             var dialog = $('#image_template_update_dialog');
             $('#image_template_update_textarea',dialog).val("Loading...");
 
-            var data = getElementData(id,"#image",dataTable_images);
-            var is_public = data[7] == "yes";
-            var is_persistent = data[8] == "yes";
+            var img_public = is_public_image(id);
+            var img_persistent = is_persistent_image(id)
 
-            if (is_public){
+            if (img_public){
                 $('#image_template_update_public',dialog).attr("checked","checked")
             } else {
                 $('#image_template_update_public',dialog).removeAttr("checked")
             }
 
-            if (is_persistent){
+            if (img_persistent){
                 $('#image_template_update_persistent',dialog).attr("checked","checked")
             } else {
                 $('#image_template_update_persistent',dialog).removeAttr("checked")
@@ -857,19 +857,18 @@ function setupImageTemplateUpdateDialog(){
             return false;
         };
 
-        var data = getElementData(id,"#image",dataTable_images);
-        var is_public = data[7] == "yes";
-        var is_persistent = data[8] == "yes";
+        var old_public = is_public_image(id)
+        var old_persistent = is_persistent_image(id);
 
         var new_public = $('#image_template_update_public:checked',dialog).length;
         var new_persistent = $('#image_template_update_persistent:checked',dialog).length;
 
-        if (is_public != new_public){
+        if (old_public != new_public){
             if (new_public) Sunstone.runAction("Image.publish",id);
             else Sunstone.runAction("Image.unpublish",id);
         };
 
-        if (is_persistent != new_persistent){
+        if (old_persistent != new_persistent){
             if (new_persistent) Sunstone.runAction("Image.persistent",id);
             else Sunstone.runAction("Image.nonpersistent",id);
         };
@@ -922,13 +921,55 @@ function popUpImageTemplateUpdateDialog(){
 // Set the autorefresh interval for the datatable
 function setImageAutorefresh() {
     setInterval(function(){
-        var checked = $('input:checked',dataTable_images.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_images);
         var filter = $("#datatable_images_filter input",
                        dataTable_images.parents("#datatable_images_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Image.autorefresh");
         }
     },INTERVAL+someTime());
+};
+
+function is_public_image(id){
+    var data = getElementData(id,"#image",dataTable_images)[7];
+    return $(data).attr("checked");
+};
+
+function is_persistent_image(id){
+    var data = getElementData(id,"#image",dataTable_images)[8];
+    return $(data).attr("checked");
+};
+
+function setupImageActionCheckboxes(){
+    $('input.action_cb#cb_public_image',dataTable_images).live("click",function(){
+        var $this = $(this)
+        var id=$this.attr("elem_id");
+        if ($this.attr("checked")){
+            if (!is_persistent_image(id))
+                Sunstone.runAction("Image.publish",id);
+            else {
+                notifyError("Image cannot be public and persistent");
+                return false;
+            };
+        } else Sunstone.runAction("Image.unpublish",id);
+
+        return true;
+    });
+
+    $('input.action_cb#cb_persistent_image',dataTable_images).live("click",function(){
+        var $this = $(this)
+        var id=$this.attr("elem_id");
+        if ($this.attr("checked")){
+            if (!is_public_image(id))
+                Sunstone.runAction("Image.persistent",id);
+            else {
+                notifyError("Image cannot be public and persistent");
+                return false;
+            };
+        } else Sunstone.runAction("Image.nonpersistent",id);
+
+        return true;
+    });
 }
 
 //The DOM is ready at this point
@@ -957,6 +998,7 @@ $(document).ready(function(){
     setupCreateImageDialog();
     setupImageTemplateUpdateDialog();
     setupTips($create_image_dialog);
+    setupImageActionCheckboxes();
     setImageAutorefresh();
 
     initCheckAllBoxes(dataTable_images);

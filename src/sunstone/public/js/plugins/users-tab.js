@@ -302,7 +302,7 @@ function userElementArray(user_json){
     var user = user_json.USER;
 
     return [
-        '<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
         user.ID,
         user.NAME,
         user.GNAME,
@@ -433,7 +433,7 @@ function popUpUpdatePasswordDialog(){
 // Prepare the autorefresh of the list
 function setUserAutorefresh(){
     setInterval(function(){
-        var checked = $('input:checked',dataTable_users.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_users);
         var filter = $("#datatable_users_filter input",
                        dataTable_users.parents("#datatable_users_wrapper")).attr("value");
         if (!checked.length && !filter.length){

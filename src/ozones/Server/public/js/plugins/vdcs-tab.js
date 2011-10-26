@@ -224,7 +224,7 @@ function vdcElementArray(vdc_json){
     var vdc = vdc_json.VDC;
 
     return [
-        '<input type="checkbox" id="vdc_'+vdc.ID+'" name="selected_items" value="'+vdc.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="vdc_'+vdc.ID+'" name="selected_items" value="'+vdc.ID+'"/>',
         vdc.ID,
         vdc.NAME,
         vdc.ZONES_ID,
@@ -602,7 +602,7 @@ function openUpdateVDCDialog(){
 
 function setVDCAutorefresh() {
     setInterval(function(){
-        var checked = $('input:checked',dataTable_zones.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_vdcs);
         var  filter = $("#datatable_vdcs_filter input").attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("VDC.autorefresh");
