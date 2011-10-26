@@ -34,7 +34,7 @@ module OpenNebula
         }
 
         SELF      = -1
-        
+
         # Driver name for default core authentication
         CORE_AUTH = "core"
 
@@ -43,6 +43,9 @@ module OpenNebula
 
         # Driver name for x509 authentication
         X509_AUTH = "x509"
+
+        # Driver name for x509 proxy authentication
+        X509_PROXY_AUTH = "x509_proxy"
 
         # Creates a User description with just its identifier
         # this method should be used to create plain User objects.

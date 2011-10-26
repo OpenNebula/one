@@ -40,15 +40,17 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             password = arg
         end
 
-        if options[:x509]
-            password.delete!("\s")
+        if options[:sha1]
+            require 'digest/sha1'
+            password = Digest::SHA1.hexdigest(password)
         end
 
         return 0, password
     end
 
     def password(options)
-        if options[:ssh]
+        case options[:driver]
+        when OpenNebula::User::SSH_AUTH
             if !options[:key]
                 return -1, "You have to specify the --key option"
             end
@@ -60,7 +62,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
-        elsif options[:x509]
+        when OpenNebula::User::X509_AUTH
             options[:cert] ||= ENV['X509_USER_CERT']
 
             if !options[:cert]
@@ -82,23 +84,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, auth.password
     end
 
-    # Returns the driver to be used for 'oneuser create'
-    # @param options [Hash] oneuser command options
-    # @return [String] the authentication driver to use
-    def driver(options)
-        if options[:driver]
-            return options[:driver]
-        elsif options[:ssh]
-            return OpenNebula::User::SSH_AUTH
-        elsif options[:x509]
-            return OpenNebula::User::X509_AUTH
-        else
-            return OpenNebula::User::CORE_AUTH
-        end
-    end
-
     def self.login(username, options)
-        if options[:ssh]
+        case options[:driver]
+        when OpenNebula::User::SSH_AUTH
             require 'ssh_auth'
 
             options[:key]  ||= ENV['HOME']+'/.ssh/id_rsa'
@@ -108,7 +96,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
-        elsif options[:x509]
+        when OpenNebula::User::X509_AUTH
             require 'x509_auth'
 
             options[:cert] ||= ENV['X509_USER_CERT']
@@ -122,12 +110,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
-        elsif options[:x509_proxy]
+        when OpenNebula::User::X509_PROXY_AUTH
             require 'x509_auth'
 
             options[:proxy] ||= ENV['X509_PROXY_CERT']
-            
-            begin  
+
+            begin
                 proxy = File.read(options[:proxy])
 
                 certs = proxy.scan(/(-+BEGIN CERTIFICATE-+\n[^-]*\n-+END CERTIFICATE-+)/)
@@ -143,10 +131,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         else
             return -1, "You have to specify an Auth method"
         end
-        
+
         options[:time] ||= 3600
 
-        auth.login(username, options[:time])
+        auth.login(username, Time.now+options[:time])
 
         return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
     end
@@ -180,9 +168,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
-        
+
         puts
-        
+
         CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
         puts user.template_str
     end
