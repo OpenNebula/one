@@ -52,7 +52,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     SHA1={
         :name => "sha1",
-        :short => "-s",
         :large => "--sha1",
         :description => "The password will be hashed using the sha1 algorithm"
     }
@@ -114,7 +113,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Token duration in seconds, defaults to 3600 (1 h)"
     }
 
-    create_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT]
+    DRIVER={
+        :name => "driver",
+        :large => "--driver driver",
+        :format => String,
+        :description => "Driver to autehnticate this user"
+    }
+
+    create_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
     login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME]
 
     ########################################################################
