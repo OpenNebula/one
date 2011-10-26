@@ -103,8 +103,6 @@ int Image::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("TYPE", type_att);
 
-    TO_UPPER(type_att);
-
     if ( type_att.empty() == true )
     {
         type_att = ImagePool::default_type();
@@ -520,6 +518,35 @@ int Image::disk_attribute(  VectorAttribute * disk,
     }
 
     return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Image::set_type(string& _type)
+{
+    int rc = 0;
+
+    TO_UPPER(_type);
+
+    if ( _type == "OS" )
+    {
+        type = OS;
+    }
+    else if ( _type == "CDROM" )
+    {
+        type = CDROM;
+    }
+    else if ( _type == "DATABLOCK" )
+    {
+        type = DATABLOCK;
+    }
+    else
+    {
+        rc = -1;
+    }
+
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */

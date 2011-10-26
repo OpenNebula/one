@@ -112,3 +112,51 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
 
     success_response(id, att);
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
+                                      RequestAttributes& att)
+{
+    int     id   = xmlrpc_c::value_int(paramList.getInt(1));
+    string  type = xmlrpc_c::value_string(paramList.getString(2));
+    int     rc;
+
+    Image * image;
+    string  err_msg;
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    image = static_cast<Image *>(pool->get(id,true));
+
+    if ( image == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
+        return;
+    }
+
+    rc = image->set_type(type);
+
+    if ( rc != 0  )
+    {
+        err_msg = "Unknown type " + type;
+
+        failure_response(INTERNAL,request_error(err_msg,""), att);
+
+        image->unlock();
+        return;
+    }
+
+    pool->update(image);
+
+    image->unlock();
+
+    success_response(id, att);
+}
