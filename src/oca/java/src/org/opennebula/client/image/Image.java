@@ -35,6 +35,7 @@ public class Image extends PoolElement
     private static final String ENABLE   = METHOD_PREFIX + "enable";
     private static final String PUBLISH  = METHOD_PREFIX + "publish";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
+    private static final String CHTYPE   = METHOD_PREFIX + "chtype";
 
     private static final String[] IMAGE_STATES =
         {"INIT", "READY", "USED", "DISABLED"};
@@ -160,6 +161,19 @@ public class Image extends PoolElement
     public static OneResponse chown(Client client, int id, int uid, int gid)
     {
         return client.call(CHOWN, id, uid, gid);
+    }
+
+    /**
+     * Changes the Image type
+     * 
+     * @param client XML-RPC Client.
+     * @param id The image id of the target image we want to modify.
+     * @param type The new Image type
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chtype(Client client, int id, String type)
+    {
+        return client.call(CHTYPE, id, type);
     }
 
     // =================================
@@ -294,6 +308,17 @@ public class Image extends PoolElement
     public OneResponse chgrp(int gid)
     {
         return chown(-1, gid);
+    }
+
+    /**
+     * Changes the Image type
+     * 
+     * @param type The new Image type
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chtype(String type)
+    {
+        return chtype(client, id, type);
     }
 
     // =================================

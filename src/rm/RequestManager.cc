@@ -267,6 +267,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_publish(new TemplatePublish());
     xmlrpc_c::methodPtr vn_publish(new VirtualNetworkPublish());
     xmlrpc_c::methodPtr image_publish(new ImagePublish());
+    xmlrpc_c::methodPtr image_chtype(new ImageChangeType());
 
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
@@ -385,6 +386,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.delete", image_delete);
     RequestManagerRegistry.addMethod("one.image.info", image_info);
     RequestManagerRegistry.addMethod("one.image.chown", image_chown);
+    RequestManagerRegistry.addMethod("one.image.chtype", image_chtype);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 

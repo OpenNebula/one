@@ -88,7 +88,7 @@ module OpenNebulaJSON
         end
 
         def save_as(params=Hash.new)
-            super(params['disk_id'].to_i, params['image_name'])
+            super(params['disk_id'].to_i, params['image_name'], params['type'])
         end
 
         def chown(params=Hash.new)

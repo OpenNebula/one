@@ -394,6 +394,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     int    id       = xmlrpc_c::value_int(paramList.getInt(1));
     int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
     string img_name = xmlrpc_c::value_string(paramList.getString(3));
+    string img_type = xmlrpc_c::value_string(paramList.getString(4));
 
     VirtualMachine * vm;
     string           vm_owner;
@@ -411,6 +412,11 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     oss << "NAME= \"" << img_name << "\"" << endl;
     oss << "PUBLIC = NO " << endl;
     oss << "SOURCE = - " << endl;
+
+    if ( img_type != "" )
+    {
+        oss << "TYPE = " << img_type << endl;
+    }
 
     itemplate = new ImageTemplate;
 
