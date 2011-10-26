@@ -13,6 +13,7 @@
 # limitations under the License.                                             *
 # -------------------------------------------------------------------------- *
 
+require 'digest/sha1'
 require "rexml/document"
 include REXML
 
@@ -157,6 +158,12 @@ module Migrator
                 e.text = "server_cipher"
             }
 
+            pass = Digest::SHA1.hexdigest( rand(10000).to_s )
+
+            doc.root.each_element("PASSWORD") { |e|
+                e.text = Digest::SHA1.hexdigest( pass )
+            }
+
             # Insert new user
             @db[:user_pool].insert(
                 :oid        => user_oid,
@@ -178,6 +185,21 @@ module Migrator
             }
 
             @db.run("UPDATE group_pool SET body='#{doc.root.to_s}' WHERE oid=0;")
+
+            # Create new config files
+
+            new_auth = "#{username}:#{pass}\n"
+
+            begin
+                ["sunstone_auth", "occi_auth", "ec2_auth"].each { |name|
+                    File.open("#{VAR_LOCATION}/#{name}", 'w') {|f|
+                        f.write(new_auth)
+                    }
+                }
+            rescue
+                puts "Error trying to create new configuration files in #{VAR_LOCATION}"
+                return false
+            end
 
             puts "    > New user '#{username}' created "<<
                 "for Sunstone and public servers operation.\n"<<

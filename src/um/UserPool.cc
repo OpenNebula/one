@@ -60,6 +60,11 @@ UserPool::UserPool(SqlDB * db,
     const char *  one_auth;
     ifstream      file;
 
+    string        var_location;
+    const char *  one_location;
+    string        filenames[3];
+    string        error_str;
+
     _session_expiration_time = __session_expiration_time;
 
     if (get(0,false) != 0)
@@ -109,26 +114,76 @@ UserPool::UserPool(SqlDB * db,
                 }
                 else
                 {
-                    string error_str;
+                    // Create the serveradmin user with a random password, and
+                    // write its authentication configuration files
 
-                    allocate(&one_uid,
-                             GroupPool::ONEADMIN_ID,
-                             one_name,
-                             GroupPool::ONEADMIN_NAME,
-                             one_pass,
-                             UserPool::CORE_AUTH,
-                             true,
-                             error_str);
+                    stringstream sstr;
+                    srand(time(0));
+                    sstr << rand();
 
-                    // Create the serveradmin user with the same password
-                    allocate(&server_uid,
-                             GroupPool::ONEADMIN_ID,
-                             SERVER_NAME,
-                             GroupPool::ONEADMIN_NAME,
-                             SSLTools::sha1_digest(one_pass),
-                             "server_cipher",
-                             true,
-                             error_str);
+                    string random = SSLTools::sha1_digest( sstr.str() );
+
+                    one_location = getenv("ONE_LOCATION");
+
+                    if (one_location == 0)
+                    {
+                        var_location = "/var/lib/one/";
+                    }
+                    else
+                    {
+                        var_location = one_location;
+                        var_location += "/var/";
+                    }
+
+                    filenames[0] = var_location + "sunstone_auth";
+                    filenames[1] = var_location + "occi_auth";
+                    filenames[2] = var_location + "ec2_auth";
+
+                    bool success = true;
+
+                    int i = 0;
+
+                    while ( i < 3 && success )
+                    {
+                        ofstream ofile;
+                        ofile.open(filenames[i].c_str(), ios::out | ios::trunc);
+
+                        if ( ofile.is_open() )
+                        {
+                            ofile << SERVER_NAME << ":" << random << endl;
+                        }
+                        else
+                        {
+                            success = false;
+
+                            oss << "Could not create configuration file "<<
+                                    filenames[i];
+                        }
+
+                        ofile.close();
+                        i++;
+                    }
+
+                    if ( success )
+                    {
+                        allocate(&one_uid,
+                                 GroupPool::ONEADMIN_ID,
+                                 one_name,
+                                 GroupPool::ONEADMIN_NAME,
+                                 one_pass,
+                                 UserPool::CORE_AUTH,
+                                 true,
+                                 error_str);
+
+                        allocate(&server_uid,
+                                 GroupPool::ONEADMIN_ID,
+                                 SERVER_NAME,
+                                 GroupPool::ONEADMIN_NAME,
+                                 SSLTools::sha1_digest(random),
+                                 "server_cipher",
+                                 true,
+                                 error_str);
+                    }
                 }
             }
             else
