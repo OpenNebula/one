@@ -812,7 +812,7 @@ function setupSaveasDialog(){
             var id = $('#vm_id',this).text();
             var disk_id = $('#vm_disk_id',this).val();
             var image_name = $('#image_name',this).val();
-            //var type = $('#image_type',this).val();
+            var type = $('#image_type',this).val();
 
             if (!id.length || !disk_id.length || !image_name.length) {
                 notifyError("Skipping VM "+id+
@@ -821,8 +821,8 @@ function setupSaveasDialog(){
             else {
                 var obj = {
                     disk_id : disk_id,
-                    image_name : image_name
-                    //type: type
+                    image_name : image_name,
+                    type: type
                 };
                 args.push(id);
                 Sunstone.runAction("VM.saveas",id,obj);
@@ -865,20 +865,15 @@ function popUpSaveasDialog(elems){
                 <label for="image_name">Image name:</label>\
                 <input type="text" id="image_name" name="image_name" value="" />\
             </div>\
-            <!-- not used anymore\
             <div>\
                 <label for="img_attr_value">Type:</label>\
                 <select id="image_type" name="image_type">\
-                    <option value="">Default</option>\
-                    <option value="disk">Disk</option>\
-                    <option value="floppy">Floppy</option>\
+                    <option value="">Default (current image type)</option>\
+                    <option value="os">OS</option>\
+                    <option value="datablock">Datablock</option>\
                     <option value="cdrom">CD-ROM</option>\
-                    <option value="swap">Swap</option>\
-                    <option value="fs">FS</option>\
-                    <option value="block">Block</option>\
                 </select>\
             </div>\
-            -->\
             </fieldset>\
         </div>';
         $('#saveas_tabs',dialog).append(tab);
