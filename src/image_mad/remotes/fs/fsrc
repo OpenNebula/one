@@ -18,12 +18,26 @@
 
 #------------------------------------------------------------------------------
 # Configuration File for File-System based Image Repositories
+#   - IMAGE_REPOSITORY: Path where the images will be stored
+#   - RESTRICTED_DIRS: Paths that can not be used to register images
+#   - SAFE_DIRS: Paths that are safe to specify image paths 
 #------------------------------------------------------------------------------
 if [ -z "${ONE_LOCATION}" ]; then
     export IMAGE_REPOSITORY_PATH=/var/lib/one/images
 else
     export IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
 fi
+
+if [ -z "${ONE_LOCATION}" ]; then
+    VAR_LOCATION=/var/lib/one/
+    ETC_LOCATION=/etc/one/
+else
+    VAR_LOCATION=$ONE_LOCATION/var/
+    ETC_LOCATION=$ONE_LOCATION/etc/
+fi
+
+export RESTRICTED_DIRS="$VAR_LOCATION $ETC_LOCATION $HOME/ /etc/"
+export SAFE_DIRS="$HOME/public/"
 
 #------------------------------------------------------------------------------
 # Function used to generate Image names, you should not need to override this
@@ -50,4 +64,18 @@ function fs_du {
 	fi
 
 	echo "$SIZE"
+}
+
+function check_restricted {
+	if [ -n "`find -L $SAFE_DIRS -path $1 2>/dev/null`" ] ; then
+		echo 0
+		return
+	fi
+
+	if [ -n "`find -L $RESTRICTED_DIRS -path $1 2>/dev/null`" ]; then	
+    	echo 1
+    	return	
+  	fi
+
+  	echo 0
 }
