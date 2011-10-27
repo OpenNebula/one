@@ -90,10 +90,8 @@ module OZones
                 @zone = zone
             end
 
-            @client = OpenNebula::Client.new(
-                                             "#{@zone.ONENAME}:#{@zone.ONEPASS}",
-                                             @zone.ENDPOINT,
-                                             false)
+            @client = OpenNebula::Client.new("#{@zone.ONENAME}:#{@zone.ONEPASS}",
+                                             @zone.ENDPOINT)
         end
 
         def to_json
@@ -115,7 +113,7 @@ module OZones
             #Create a vdc record
             @vdc = Vdc.new
 
-            vdcpass = Digest::SHA1.hexdigest(vdc_data.delete(:VDCADMINPASS))
+            vdcpass = vdc_data.delete(:VDCADMINPASS)
             @vdc.attributes = vdc_data
 
             # Create a group in the zone with the VDC name

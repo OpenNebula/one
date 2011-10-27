@@ -34,7 +34,7 @@ module OZones
 
                 zone_pool_hash = zone.to_hash["ZONE"]
 
-                client   = OpenNebula::Client.new(zone.ONENAME + ":" + zone.ONEPASS,
+                client   = OpenNebula::Client.new("#{zone.ONENAME}:#{zone.ONEPASS}",
                                                   zone.ENDPOINT)
 
                 pool = factory(client)
