@@ -542,7 +542,7 @@ function vMachineElementArray(vm_json){
     };
 
     return [
-        '<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
         vm.ID,
         vm.UNAME,
         vm.GNAME,
@@ -916,7 +916,7 @@ function saveasDisksCallback(req,response){
 //Prepares autorefresh
 function setVMAutorefresh(){
      setInterval(function(){
-         var checked = $('input:checked',dataTable_vMachines.fnGetNodes());
+         var checked = $('input.check_item:checked',dataTable_vMachines);
          var filter = $("#datatable_vmachines_filter input",
                         dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr("value");
          if (!checked.length && !filter.length){

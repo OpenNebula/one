@@ -425,14 +425,15 @@ function vNetworkElementArray(vn_json){
     var network = vn_json.VNET;
 
     return [
-        '<input type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
         network.ID,
         network.UNAME,
         network.GNAME,
         network.NAME,
         parseInt(network.TYPE) ? "FIXED" : "RANGED",
         network.BRIDGE,
-        parseInt(network.PUBLIC) ? "yes" : "no",
+        parseInt(network.PUBLIC) ? '<input class="action_cb" id="cb_public_vnet" type="checkbox" elem_id="'+network.ID+'" checked="checked"/>'
+            : '<input class="action_cb" id="cb_public_vnet" type="checkbox" elem_id="'+network.ID+'"/>',
         network.TOTAL_LEASES ];
 }
 
@@ -766,10 +767,9 @@ function setupVNetTemplateUpdateDialog(){
             var dialog = $('#vnet_template_update_dialog');
             $('#vnet_template_update_textarea',dialog).val("Loading...");
 
-            var data = getElementData(id,"#vnetwork",dataTable_vNetworks);
-            var is_public = data[7] == "yes";
+            var vnet_public = is_public_vnet(id);
 
-            if (is_public){
+            if (vnet_public){
                 $('#vnet_template_update_public',dialog).attr("checked","checked")
             } else {
                 $('#vnet_template_update_public',dialog).removeAttr("checked")
@@ -790,12 +790,11 @@ function setupVNetTemplateUpdateDialog(){
             return false;
         };
 
-        var data = getElementData(id,"#vnetwork",dataTable_vNetworks);
-        var is_public = data[7] == "yes";
+        var old_public = is_public_vnet(id);
 
         var new_public = $('#vnet_template_update_public:checked',dialog).length;
 
-        if (is_public != new_public){
+        if (old_public != new_public){
             if (new_public) Sunstone.runAction("Network.publish",id);
             else Sunstone.runAction("Network.unpublish",id);
         };
@@ -912,13 +911,30 @@ function popUpRemoveLeaseDialog() {
 
 function setVNetAutorefresh() {
     setInterval(function(){
-        var checked = $('input:checked',dataTable_vNetworks.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_vNetworks);
         var filter = $("#datatable_vnetworks_filter input",
                        dataTable_vNetworks.parents("#datatable_vnetworks_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Network.autorefresh");
         }
     },INTERVAL+someTime());
+};
+
+function is_public_vnet(id) {
+    var data = getElementData(id,"#vnetwork",dataTable_vNetworks)[7];
+    return $(data).attr("checked");
+};
+
+function setupVNetActionCheckboxes(){
+    $('input.action_cb#cb_public_vnet',dataTable_vNetworks).live("click",function(){
+        var $this = $(this)
+        var id=$this.attr("elem_id");
+        if ($this.attr("checked"))
+                Sunstone.runAction("Network.publish",id);
+        else Sunstone.runAction("Network.unpublish",id);
+
+        return true;
+    });
 }
 
 //The DOM is ready and the ready() from sunstone.js
@@ -947,6 +963,7 @@ $(document).ready(function(){
     setupCreateVNetDialog();
     setupVNetTemplateUpdateDialog();
     setupAddRemoveLeaseDialog();
+    setupVNetActionCheckboxes();
     setVNetAutorefresh();
 
     initCheckAllBoxes(dataTable_vNetworks);

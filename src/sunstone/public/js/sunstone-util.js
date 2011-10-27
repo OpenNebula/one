@@ -100,7 +100,7 @@ function recountCheckboxes(dataTable){
     var context = table.parents('form');
     var nodes = $('tr',table); //visible nodes
     var total_length = nodes.length;
-    var checked_length = $('input:checked',nodes).length;
+    var checked_length = $('input.check_item:checked',nodes).length;
     var last_action_b = $('.last_action_button',context);
 
     if (checked_length) { //at least 1 element checked
@@ -113,6 +113,8 @@ function recountCheckboxes(dataTable){
         //enable checkall box
         if (total_length == checked_length){
             $('.check_all',dataTable).attr("checked","checked");
+        } else {
+            $('.check_all',dataTable).removeAttr("checked");
         };
     } else { //no elements cheked
         //disable action buttons, uncheck checkAll
@@ -138,7 +140,7 @@ function tableCheckboxesListener(dataTable){
     $('.alwaysActive',context).button("enable");
 
     //listen to changes in the visible inputs
-    $('tbody input',dataTable).live("change",function(){
+    $('tbody input.check_item',dataTable).live("change",function(){
         var datatable = $(this).parents('table');
         recountCheckboxes(datatable);
     });
@@ -292,14 +294,14 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
 function initCheckAllBoxes(datatable){
 
     //small css hack
-    $('.check_all',datatable).css({"border":"2px"});
-    $('.check_all',datatable).change(function(){
+    $('input.check_all',datatable).css({"border":"2px"});
+    $('input.check_all',datatable).change(function(){
         var table = $(this).parents('table');
         var checked = $(this).attr("checked");
         if (checked) { //check all
-            $('tbody input:checkbox',table).attr("checked","checked");
+            $('tbody input.check_item',table).attr("checked","checked");
         } else { //uncheck all
-            $('tbody input:checkbox',table).removeAttr("checked");
+            $('tbody input.check_item',table).removeAttr("checked");
         };
         recountCheckboxes(table);
     });
@@ -465,7 +467,7 @@ function getSelectedNodes(dataTable){
     var selected_nodes = [];
     if (dataTable){
         //Which rows of the datatable are checked?
-        var nodes = $('tbody input:checked',dataTable);
+        var nodes = $('tbody input.check_item:checked',dataTable);
         $.each(nodes,function(){
             selected_nodes.push($(this).val());
         });
