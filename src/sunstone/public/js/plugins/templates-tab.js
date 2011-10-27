@@ -580,6 +580,30 @@ var create_template_tmpl = '<div id="template_create_tabs">\
         </div>\
 </div>';
 
+var update_template_tmpl =
+   '<form action="javascript:alert(\'js error!\');">\
+         <h3 style="margin-bottom:10px;">Please, choose and modify the template you want to update:</h3>\
+            <fieldset style="border-top:none;">\
+                 <label for="template_template_update_select">Select a network:</label>\
+                 <select id="template_template_update_select" name="template_template_update_select"></select>\
+                 <div class="clear"></div>\
+                 <div>\
+                   <label for="template_template_update_public">Public:</label>\
+                   <input type="checkbox" name="template_template_update_public" id="template_template_update_public" />\
+                 </div>\
+                 <label for="template_template_update_textarea">Template:</label>\
+                 <div class="clear"></div>\
+                 <textarea id="template_template_update_textarea" style="width:100%; height:14em;"></textarea>\
+            </fieldset>\
+            <fieldset>\
+                 <div class="form_buttons">\
+                    <button class="button" id="template_template_update_button" value="Template.update_template">\
+                       Update\
+                    </button>\
+                 </div>\
+            </fieldset>\
+</form>';
+
 var templates_select = "";
 var dataTable_templates;
 var $create_template_dialog;
@@ -638,14 +662,7 @@ var template_actions = {
     "Template.update_dialog" : {
         type: "custom",
         call: function() {
-            popUpTemplateUpdateDialog("Template",
-                                      makeSelectOptions(dataTable_templates,
-                                                        1,//id_col
-                                                        4,//name_col
-                                                        [],
-                                                        []//bad status col
-                                                       ),
-                                      getSelectedNodes(dataTable_templates));
+            popUpTemplateTemplateUpdateDialog();
         }
     },
 
@@ -662,7 +679,7 @@ var template_actions = {
         type: "single",
         call: OpenNebula.Template.fetch_template,
         callback: function (request,response) {
-            $('#template_update_dialog #template_update_textarea').val(response.template);
+            $('#template_template_update_dialog #template_template_update_textarea').val(response.template);
         },
         error: onError
     },
@@ -1954,7 +1971,107 @@ function setupCreateTemplateDialog(){
 
 function popUpCreateTemplateDialog(){
     $create_template_dialog.dialog('open');
-}
+};
+
+function setupTemplateTemplateUpdateDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="template_template_update_dialog" title="Update a template"></div>');
+    var dialog = $('#template_template_update_dialog',dialogs_context);
+
+    //Put HTML in place
+    dialog.html(update_template_tmpl);
+
+    //Convert into jQuery
+    dialog.dialog({
+        autoOpen:false,
+        width:700,
+        modal:true,
+        height:480,
+        resizable:false,
+    });
+
+    $('button',dialog).button();
+
+    $('#template_template_update_select',dialog).change(function(){
+        var id = $(this).val();
+        if (id && id.length){
+            var dialog = $('#template_template_update_dialog');
+            $('#template_template_update_textarea',dialog).val("Loading...");
+
+            var templ_public = is_public_template(id);
+
+            if (templ_public){
+                $('#template_template_update_public',dialog).attr("checked","checked")
+            } else {
+                $('#template_template_update_public',dialog).removeAttr("checked")
+            }
+
+            Sunstone.runAction("Template.fetch_template",id);
+        } else {
+            $('#template_template_update_textarea',dialog).val("");
+        };
+    });
+
+    $('#template_template_update_button',dialog).click(function(){
+        var dialog = $('#template_template_update_dialog');
+        var new_template = $('#template_template_update_textarea',dialog).val();
+        var id = $('#template_template_update_select',dialog).val();
+        if (!id || !id.length) {
+            dialog.dialog('close');
+            return false;
+        };
+
+        var old_public = is_public_template(id);
+
+        var new_public = $('#template_template_update_public:checked',dialog).length;
+
+        if (old_public != new_public){
+            if (new_public) Sunstone.runAction("Template.publish",id);
+            else Sunstone.runAction("Template.unpublish",id);
+        };
+
+        Sunstone.runAction("Template.update",id,new_template);
+        dialog.dialog('close');
+        return false;
+    });
+};
+
+function popUpTemplateTemplateUpdateDialog(){
+    var select = makeSelectOptions(dataTable_templates,
+                                   1,//id_col
+                                   4,//name_col
+                                   [],
+                                   []
+                                  );
+    var sel_elems = getSelectedNodes(dataTable_templates);
+
+
+    var dialog =  $('#template_template_update_dialog');
+    $('#template_template_update_select',dialog).html(select);
+    $('#template_template_update_textarea',dialog).val("");
+    $('#template_template_update_public',dialog).removeAttr("checked")
+
+    if (sel_elems.length >= 1){ //several items in the list are selected
+        //grep them
+        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        $('option','<select>'+select+'</select>').each(function(){
+            var val = $(this).val();
+            if ($.inArray(val,sel_elems) >= 0){
+                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
+            };
+        });
+        $('#template_template_update_select',dialog).html(new_select);
+        if (sel_elems.length == 1) {
+            $('#template_template_update_select option',dialog).attr("selected","selected");
+            $('#template_template_update_select',dialog).trigger("change");
+        };
+
+    };
+
+    dialog.dialog('open');
+    return false;
+
+};
 
 // Set the autorefresh interval for the datatable
 function setTemplateAutorefresh() {
@@ -2009,6 +2126,7 @@ $(document).ready(function(){
     Sunstone.runAction("Template.list");
 
     setupCreateTemplateDialog();
+    setupTemplateTemplateUpdateDialog();
     setupTemplateActionCheckboxes();
     setTemplateAutorefresh();
 
