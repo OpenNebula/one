@@ -21,7 +21,7 @@ require 'fileutils'
 require 'x509_auth'
 
 # Server authentication class. This authmethod can be used by opennebula services
-# to let access authenticated users by other means. It is based on x509 server 
+# to let access authenticated users by other means. It is based on x509 server
 # certificates
 class ServerX509Auth < X509Auth
     ###########################################################################
@@ -39,7 +39,7 @@ class ServerX509Auth < X509Auth
 
     def initialize()
         @options = SERVER_DEFAULTS
-       
+
         load_options(SERVER_AUTH_CONF_PATH)
 
         begin
@@ -52,7 +52,7 @@ class ServerX509Auth < X509Auth
         end
 
         if @options[:srv_user] == nil || @options[:srv_user].empty?
-           raise "User for x509 server not defined"  
+           raise "User for x509 server not defined"
         end
     end
 
@@ -60,11 +60,14 @@ class ServerX509Auth < X509Auth
     # Client side
     ###########################################################################
 
-    # Creates a ServerCipher for client usage
-    alias :new_client :new
+    # Creates a ServerCipher for client and driver sage
+    class << ServerX509Auth
+        alias :new_client :new
+        alias :new_driver :new
+    end
 
     # Generates a login token in the form:
-    #   - server_user:target_user:time_expires 
+    #   - server_user:target_user:time_expires
     def login_token(expire, target_user=nil)
         target_user ||= @options[:srv_user]
         token_txt   =   "#{@options[:srv_user]}:#{target_user}:#{expire}"
@@ -78,20 +81,17 @@ class ServerX509Auth < X509Auth
     ###########################################################################
     # Server side
     ###########################################################################
-    
-    # Creates a ServerCipher for driver usage
-    alias :new_driver :new
 
     # auth method for auth_mad
     def authenticate(server_user, server_pass, signed_text)
-        begin           
+        begin
             s_user, t_user, expires = decrypt(signed_text).split(':')
-   
+
             return "Server password missmatch" if server_pass != password
 
-            return "User name missmatch" if ( s_user != server_user || 
+            return "User name missmatch" if ( s_user != server_user ||
                                               s_user != @options[:srv_user] )
-           
+
             return "login token expired" if Time.now.to_i >= expires.to_i
 
             return true

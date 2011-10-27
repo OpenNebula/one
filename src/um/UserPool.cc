@@ -26,6 +26,9 @@
 
 #include <fstream>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <pwd.h>
 #include <stdlib.h>
 #include <fnmatch.h>
@@ -51,19 +54,23 @@ UserPool::UserPool(SqlDB * db,
 {
     int           one_uid    = -1;
     int           server_uid = -1;
+    int           i;
+
     ostringstream oss;
     string        one_token;
     string        one_name;
     string        one_pass;
     string        one_auth_file;
+    string        random;
 
     const char *  one_auth;
     ifstream      file;
 
-    string        var_location;
-    const char *  one_location;
     string        filenames[3];
     string        error_str;
+    stringstream  sstr;
+
+    Nebula& nd   = Nebula::instance();
 
     _session_expiration_time = __session_expiration_time;
 
@@ -90,120 +97,126 @@ UserPool::UserPool(SqlDB * db,
         }
         else
         {
-            oss << "Could not get one_auth file location";
+            goto error_no_file;
         }
     }
 
     file.open(one_auth);
 
-    if (file.good())
+    if (!file.good())
     {
-        getline(file,one_token);
+        goto error_file;
+    } 
 
-        if (file.fail())
-        {
-            oss << "Error reading file: " << one_auth;
-        }
-        else
-        {
-            if (User::split_secret(one_token,one_name,one_pass) == 0)
-            {
-                if ( one_name == SERVER_NAME )
-                {
-                    oss << "The name '" << SERVER_NAME << "' is reserved";
-                }
-                else
-                {
-                    // Create the serveradmin user with a random password, and
-                    // write its authentication configuration files
+    getline(file,one_token);
 
-                    stringstream sstr;
-                    srand(time(0));
-                    sstr << rand();
-
-                    string random = SSLTools::sha1_digest( sstr.str() );
-
-                    one_location = getenv("ONE_LOCATION");
-
-                    if (one_location == 0)
-                    {
-                        var_location = "/var/lib/one/";
-                    }
-                    else
-                    {
-                        var_location = one_location;
-                        var_location += "/var/";
-                    }
-
-                    filenames[0] = var_location + "sunstone_auth";
-                    filenames[1] = var_location + "occi_auth";
-                    filenames[2] = var_location + "ec2_auth";
-
-                    bool success = true;
-
-                    int i = 0;
-
-                    while ( i < 3 && success )
-                    {
-                        ofstream ofile;
-                        ofile.open(filenames[i].c_str(), ios::out | ios::trunc);
-
-                        if ( ofile.is_open() )
-                        {
-                            ofile << SERVER_NAME << ":" << random << endl;
-                        }
-                        else
-                        {
-                            success = false;
-
-                            oss << "Could not create configuration file "<<
-                                    filenames[i];
-                        }
-
-                        ofile.close();
-                        i++;
-                    }
-
-                    if ( success )
-                    {
-                        allocate(&one_uid,
-                                 GroupPool::ONEADMIN_ID,
-                                 one_name,
-                                 GroupPool::ONEADMIN_NAME,
-                                 one_pass,
-                                 UserPool::CORE_AUTH,
-                                 true,
-                                 error_str);
-
-                        allocate(&server_uid,
-                                 GroupPool::ONEADMIN_ID,
-                                 SERVER_NAME,
-                                 GroupPool::ONEADMIN_NAME,
-                                 SSLTools::sha1_digest(random),
-                                 "server_cipher",
-                                 true,
-                                 error_str);
-                    }
-                }
-            }
-            else
-            {
-                oss << "Wrong format must be <username>:<password>";
-            }
-        }
-    }
-    else
+    if (file.fail())
     {
-        oss << "Could not open file: " << one_auth;
+        goto error_file_read;
     }
 
     file.close();
 
-    if (one_uid != 0 || server_uid != 1)
+    if (User::split_secret(one_token,one_name,one_pass) != 0)
     {
-        NebulaLog::log("ONE",Log::ERROR,oss);
-        throw;
+        goto error_token;
     }
+
+    if ( one_name == SERVER_NAME )
+    {
+        goto error_one_name;
+    }
+
+    srand(time(0));
+    sstr << rand();
+
+    random = SSLTools::sha1_digest( sstr.str() );
+
+    filenames[0] = nd.get_var_location() + "/sunstone_auth";
+    filenames[1] = nd.get_var_location() + "/occi_auth";
+    filenames[2] = nd.get_var_location() + "/ec2_auth";
+
+    for (i=0 ; i < 3; i++)
+    {
+        int cfile = creat(filenames[i].c_str(), S_IRUSR | S_IWUSR);
+        close(cfile);
+
+        ofstream ofile;
+        ofile.open(filenames[i].c_str(), ios::out | ios::trunc);
+
+        if ( !ofile.is_open() )
+        {
+            goto error_no_open;
+        }
+
+        ofile << SERVER_NAME << ":" << random << endl;
+        ofile.close();
+    }
+
+    allocate(&one_uid,
+             GroupPool::ONEADMIN_ID,
+             one_name,
+             GroupPool::ONEADMIN_NAME,
+             one_pass,
+             UserPool::CORE_AUTH,
+             true,
+             error_str);
+
+    if ( one_uid != 0 )
+    {
+        goto error_oneadmin;
+    }
+
+    allocate(&server_uid,
+             GroupPool::ONEADMIN_ID,
+             SERVER_NAME,
+             GroupPool::ONEADMIN_NAME,
+             SSLTools::sha1_digest(random),
+             "server_cipher",
+             true,
+             error_str);
+
+    if ( server_uid != 1 )
+    {
+        goto error_serveradmin;
+    }
+
+    return;
+
+error_no_file:
+    oss << "Could not get one_auth file location";
+    goto error_common;
+
+error_file:
+    oss << "Could not open file: " << one_auth;
+    goto error_common;
+
+error_file_read:
+    oss << "Error reading file: " << one_auth;
+    goto error_common;
+
+error_token:
+    oss << "Wrong format must be <username>:<password>";
+    goto error_common;
+
+error_one_name:
+    oss << "The name '" << SERVER_NAME << "' is reserved";
+    goto error_common;
+
+error_no_open:
+    oss << "Could not create configuration file "<< filenames[i];
+    goto error_common;
+
+error_oneadmin:
+    oss << "Error creating oneadmin user: " << error_str;
+    goto error_common;
+
+error_serveradmin:
+    oss << "Error creating server_admin user: " << error_str;
+
+error_common:
+    NebulaLog::log("ONE",Log::ERROR,oss);
+    throw;
 }
 
 /* -------------------------------------------------------------------------- */

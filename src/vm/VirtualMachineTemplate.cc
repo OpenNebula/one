@@ -23,7 +23,8 @@
 const string VirtualMachineTemplate::RESTRICTED_ATTRIBUTES[] = {
 	"CONTEXT/FILES",
 	"DISK/SOURCE",
-	"NIC/MAC"	
+	"NIC/MAC",
+	"NIC/VLAN_ID"
 };
 
 const int VirtualMachineTemplate::RS_ATTRS_LENGTH = 3;

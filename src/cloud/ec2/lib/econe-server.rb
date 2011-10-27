@@ -21,17 +21,18 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION  = "/usr/lib/one/ruby"
+    VAR_LOCATION = "/var/lib/one"
     CONFIGURATION_FILE = "/etc/one/econe.conf"
     TEMPLATE_LOCATION  = "/etc/one/ec2query_templates"
-    EC2_AUTH = "/etc/one/auth/ec2_auth"
 else
     RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
+    VAR_LOCATION = ONE_LOCATION+"/var"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
     TEMPLATE_LOCATION  = ONE_LOCATION+"/etc/ec2query_templates"
-    EC2_AUTH = ONE_LOCATION + "/etc/auth/ec2_auth"
 end
 
 VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
+EC2_AUTH = VAR_LOCATION + "/ec2_auth"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
@@ -76,13 +77,13 @@ if CloudServer.is_port_open?(settings.config[:server],
     puts "Port busy, please shutdown the service or move econe server port."
     exit 1
 end
- 
-begin    
+
+begin
     ENV["ONE_CIPHER_AUTH"] = EC2_AUTH
     cloud_auth = CloudAuth.new(settings.config)
 rescue => e
     puts "Error initializing authentication system"
-    puts e.message 
+    puts e.message
     exit -1
 end
 
@@ -91,7 +92,7 @@ set :cloud_auth, cloud_auth
 econe_host = conf[:ssl_server]
 econe_host ||= conf[:server]
 econe_port = conf[:port]
-    
+
 set :econe_host, econe_host
 set :econe_port, econe_port
 

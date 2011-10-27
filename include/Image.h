@@ -183,32 +183,12 @@ public:
     }
 
     /**
-     *  Set enum type
-     *     @return 0 on success, -1 otherwise
+     * Sets the Image type.
+     *
+     * @param _type the new type. It will be transformed to upper case
+     * @return 0 on success, -1 otherwise
      */
-    int set_type(const string& _type)
-    {
-        int rc = 0;
-
-        if ( _type == "OS" )
-        {
-            type = OS;
-        }
-        else if ( _type == "CDROM" )
-        {
-            type = CDROM;
-        }
-        else if ( _type == "DATABLOCK" )
-        {
-            type = DATABLOCK;
-        }
-        else
-        {
-            rc = -1;
-        }
-
-        return rc;
-    }
+    int set_type(string& _type);
 
     /**
      *  Publish or unpublish an image

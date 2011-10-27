@@ -22,18 +22,18 @@ ONE_LOCATION = ENV["ONE_LOCATION"]
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
+    ETC_LOCATION = "/etc/one"
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    CONFIGURATION_FILE = "/etc/one/sunstone-server.conf"
-    PLUGIN_CONFIGURATION_FILE = "/etc/one/sunstone-plugins.yaml"
-    SUNSTONE_AUTH = "/var/one/sunstone_auth"
 else
-    VAR_LOCATION = ONE_LOCATION+"/var"
-    LOG_LOCATION = ONE_LOCATION+"/var"
+    VAR_LOCATION = ONE_LOCATION + "/var"
+    LOG_LOCATION = ONE_LOCATION + "/var"
+    ETC_LOCATION = ONE_LOCATION + "/etc"
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
-    CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-server.conf"
-    PLUGIN_CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-plugins.yaml"
-    SUNSTONE_AUTH = ONE_LOCATION + "/var/sunstone_auth"
 end
+
+SUNSTONE_AUTH             = VAR_LOCATION + "/sunstone_auth"
+CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
+PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
@@ -68,12 +68,12 @@ set :config, conf
 set :host, settings.config[:host]
 set :port, settings.config[:port]
 
-begin    
+begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
     cloud_auth = CloudAuth.new(settings.config)
 rescue => e
     puts "Error initializing authentication system"
-    puts e.message 
+    puts e.message
     exit -1
 end
 
@@ -154,7 +154,7 @@ end
 ##############################################################################
 get '/' do
     if !authorized?
-        if settings.config[:auth] == "x509" 
+        if settings.config[:auth] == "x509"
             templ = "login_x509.html"
         else
             templ = "login.html"
@@ -181,7 +181,7 @@ end
 
 get '/login' do
     if !authorized?
-        if settings.config[:auth] == "x509" 
+        if settings.config[:auth] == "x509"
             templ = "login_x509.html"
         else
             templ = "login.html"

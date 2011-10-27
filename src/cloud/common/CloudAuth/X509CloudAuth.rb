@@ -19,7 +19,8 @@ module X509CloudAuth
     # password:: _String_ the password
     # [return] _Hash_ with the username
     def get_username(password)
-        @oneadmin_client ||= OpenNebula::Client.new(nil, @conf[:one_xmlrpc])
+        token = @server_auth.login_token(expiration_time)
+        @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
 
         if @user_pool.nil?
             @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
@@ -32,7 +33,7 @@ module X509CloudAuth
 
         username = @user_pool["USER[PASSWORD=\"#{password}\"]/NAME"]
         return username if (username != nil)
-     
+
         # Check if the DN is part of a |-separted multi-DN password
         user_elts = Array.new
         @user_pool.each {|e| user_elts << e['PASSWORD']}
@@ -98,11 +99,6 @@ module X509CloudAuth
             raise msg
         end
 
-        auth = ServerX509Auth.new
-
-        @token = auth.login_token(username, subjectname, 300)
-        @client = Client.new(@token, @conf[:one_xmlrpc])
-
-        return nil
+        return username
     end
 end

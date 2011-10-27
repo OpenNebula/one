@@ -159,6 +159,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    chtype_desc = <<-EOT.unindent
+        Changes the Image group
+    EOT
+
+    command :chtype, chtype_desc,[:range, :imageid_list], :type do
+        helper.perform_actions(args[0],options,"Type changed") do |image|
+            image.chtype(args[1])
+        end
+    end
+
     disable_desc = <<-EOT.unindent
         Disables the given Image
     EOT

@@ -26,15 +26,17 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    VAR_LOCATION = "/var/lib/one"
     TEMPLATE_LOCATION="/etc/one/occi_templates"
     CONFIGURATION_FILE = "/etc/one/occi-server.conf"
-    OCCI_AUTH = "/etc/one/auth/occi_auth"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    VAR_LOCATION = ONE_LOCATION+"/var"
     TEMPLATE_LOCATION=ONE_LOCATION+"/etc/occi_templates"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/occi-server.conf"
-    OCCI_AUTH = ONE_LOCATION + "/etc/auth/occi_auth"
 end
+
+OCCI_AUTH = VAR_LOCATION + "/occi_auth"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud/occi"
@@ -80,15 +82,15 @@ end
 set :host, settings.config[:server]
 set :port, settings.config[:port]
 
-begin    
+begin
     ENV["ONE_CIPHER_AUTH"] = OCCI_AUTH
     cloud_auth = CloudAuth.new(settings.config)
 rescue => e
     puts "Error initializing authentication system"
-    puts e.message 
+    puts e.message
     exit -1
 end
- 
+
 set :cloud_auth, cloud_auth
 
 ##############################################################################

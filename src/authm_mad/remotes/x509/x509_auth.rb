@@ -51,11 +51,8 @@ class X509Auth
     # @option options [String] :ca_dir
     #         directory of trusted CA's. Needed for auth method, not for login.
     def initialize(options={})
-        @options={
-            :certs_pem => nil,
-            :key_pem   => nil,
-            :ca_dir    => X509_DEFAULTS[:ca_dir]
-        }.merge!(options)
+        @options ||= X509_DEFAULTS
+        @options.merge!(options)
 
         load_options(X509_AUTH_CONF_PATH)
 
@@ -65,7 +62,7 @@ class X509Auth
 
         if @options[:key_pem]
             @key  = OpenSSL::PKey::RSA.new(@options[:key_pem])
-        end            
+        end
     end
 
     ###########################################################################
@@ -73,7 +70,7 @@ class X509Auth
     ###########################################################################
 
     # Creates the login file for x509 authentication at ~/.one/one_x509.
-    # By default it is valid as long as the certificate is valid. It can 
+    # By default it is valid as long as the certificate is valid. It can
     # be changed to any number of seconds with expire parameter (sec.)
     def login(user, expire=0)
         write_login(login_token(user,expire))
@@ -95,26 +92,26 @@ class X509Auth
         else
             expires = @cert_chain[0].not_after.to_i
         end
-        
+
         text_to_sign = "#{user}:#{expires}"
         signed_text  = encrypt(text_to_sign)
 
         certs_pem = @cert_chain.collect{|cert| cert.to_pem}.join(":")
 
-        token     = "#{signed_text}:#{certs_pem}"	
+        token     = "#{signed_text}:#{certs_pem}"
         token64   = Base64::encode64(token).strip.delete("\n")
 
         login_out = "#{user}:#{token64}"
-        
+
         login_out
     end
-    
+
     ###########################################################################
     # Server side
     ###########################################################################
     # auth method for auth_mad
     def authenticate(user, pass, signed_text)
-        begin            
+        begin
             # Decryption demonstrates that the user posessed the private key.
             _user, expires = decrypt(signed_text).split(':')
 
@@ -122,17 +119,17 @@ class X509Auth
 
             return "x509 proxy expired"  if Time.now.to_i >= expires.to_i
 
-            # Some DN in the chain must match a DN in the password	    
+            # Some DN in the chain must match a DN in the password
             dn_ok = @cert_chain.each do |cert|
                 if pass.split('|').include?(cert.subject.to_s.delete("\s"))
                     break true
                 end
             end
-    
+
             unless dn_ok == true
                 return "Certificate subject missmatch"
             end
-    
+
             validate
 
             return true
@@ -142,20 +139,20 @@ class X509Auth
     end
 
 private
-    # Writes a login_txt to the login file as defined in LOGIN_PATH 
+    # Writes a login_txt to the login file as defined in LOGIN_PATH
     # constant
     def write_login(login_txt)
         # Inits login file path and creates ~/.one directory if needed
         # Set instance variables
         login_dir = File.dirname(LOGIN_PATH)
-        
+
         begin
             FileUtils.mkdir_p(login_dir)
         rescue Errno::EEXIST
         end
 
         file = File.open(LOGIN_PATH, "w")
-        file.write(login_txt)        
+        file.write(login_txt)
         file.close
 
         File.chmod(0600,LOGIN_PATH)
@@ -182,9 +179,9 @@ private
     end
 
     # Decrypts base 64 encoded data with pub_key (public key)
-    def decrypt(data)       
+    def decrypt(data)
         @cert_chain[0].public_key.public_decrypt(Base64::decode64(data))
-    end      
+    end
 
     ###########################################################################
     # Validate the user certificate
@@ -194,12 +191,12 @@ private
         failed = "Could not validate user credentials: "
 
         # Check start time and end time of certificates
-        @cert_chain.each do |cert|		
+        @cert_chain.each do |cert|
             if cert.not_before > now || cert.not_after < now
-                raise failed +  "Certificate not valid. Current time is " + 
+                raise failed +  "Certificate not valid. Current time is " +
                   now.localtime.to_s + "."
             end
-        end 
+        end
 
         begin
             # Validate the proxy certifcates
@@ -211,13 +208,13 @@ private
                     raise  failed + signee.subject.to_s + " with issuer " +
                            signee.issuer.to_s + " was not verified by " +
                            cert.subject.to_s + "."
-                end	        
+                end
                 signee = cert
             end
 
             # Validate the End Entity certificate
             if !@options[:ca_dir]
-                raise failed + "No certifcate authority directory was specified." 
+                raise failed + "No certifcate authority directory was specified."
             end
 
             begin
