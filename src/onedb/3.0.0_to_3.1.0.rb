@@ -191,21 +191,25 @@ module Migrator
             new_auth = "#{username}:#{pass}\n"
 
             begin
+                dir = "#{VAR_LOCATION}/.one"
+                if ( !File.directory?(dir) )
+                    Dir.mkdir(dir, 0700)
+                end
+
                 ["sunstone_auth", "occi_auth", "ec2_auth"].each { |name|
-                    File.open("#{VAR_LOCATION}/#{name}", 'w') {|f|
+                    File.open("#{dir}/#{name}", 'w', 0600) {|f|
                         f.write(new_auth)
                     }
                 }
             rescue
-                puts "Error trying to create new configuration files in #{VAR_LOCATION}"
+                puts "Error trying to create new configuration files in #{dir}"
                 return false
             end
 
             puts "    > New user '#{username}' created "<<
                 "for Sunstone and public servers operation.\n"<<
-                "      You will need to create some configuration files "<<
-                "before Sunstone, OCCI or EC2 are "<<
-                "started.\n      Visit\n"<<
+                "      You have three new authentication files in #{dir}.\n"<<
+                "      For more information, visit\n"<<
                 "      http://opennebula.org/documentation:rel3.2:upgrade"
         end
 

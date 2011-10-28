@@ -66,6 +66,12 @@ module OZones
             return zone_attributes
         end
 
+        def ONEPASS
+            pw = super
+            OZones.decrypt(pw)
+        end
+
+
         #######################################################################
         # Zone Data Management
         #######################################################################
@@ -79,12 +85,13 @@ module OZones
             }
 
             # Digest and check credentials
-            zone_data[:ONEPASS] = Digest::SHA1.hexdigest(zone_data[:ONEPASS])
+            name = zone_data[:ONENAME]
+            pass = zone_data[:ONEPASS]
 
-            $stderr.puts zone_data
+            zone_data[:ONEPASS] = OZones.encrypt(pass)
 
-            rc = OpenNebulaZone::check_oneadmin(zone_data[:ONENAME],
-                                                zone_data[:ONEPASS],
+            rc = OpenNebulaZone::check_oneadmin(name,
+                                                pass,
                                                 zone_data[:ENDPOINT])
 
             if OpenNebula.is_error?(rc)

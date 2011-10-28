@@ -132,9 +132,11 @@ UserPool::UserPool(SqlDB * db,
 
     random = SSLTools::sha1_digest( sstr.str() );
 
-    filenames[0] = nd.get_var_location() + "/sunstone_auth";
-    filenames[1] = nd.get_var_location() + "/occi_auth";
-    filenames[2] = nd.get_var_location() + "/ec2_auth";
+    filenames[0] = nd.get_var_location() + "/.one/sunstone_auth";
+    filenames[1] = nd.get_var_location() + "/.one/occi_auth";
+    filenames[2] = nd.get_var_location() + "/.one/ec2_auth";
+
+    mkdir(string(nd.get_var_location() + "/.one").c_str(), S_IRWXU);
 
     for (i=0 ; i < 3; i++)
     {
