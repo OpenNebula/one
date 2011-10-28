@@ -26,8 +26,8 @@ module OZones
         property :GROUP_ID,     Integer
         property :VDCADMINNAME, String, :required => true
         property :VDCADMIN_ID,  Integer
-        property :ACLS,         String
-        property :HOSTS,        String
+        property :ACLS,         Text
+        property :HOSTS,        Text
 
         belongs_to :zones
 
