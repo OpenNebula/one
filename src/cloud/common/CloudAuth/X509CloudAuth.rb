@@ -15,90 +15,34 @@
 #--------------------------------------------------------------------------- #
 
 module X509CloudAuth
-    # Gets the username associated with a password
-    # password:: _String_ the password
-    # [return] _Hash_ with the username
-    def get_username(password)
-        token = @server_auth.login_token(expiration_time)
-        @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
-
-        if @user_pool.nil?
-            @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
-
-            rc = @user_pool.info
-            if OpenNebula.is_error?(rc)
-                raise rc.message
-            end
-        end
-
-        username = @user_pool["USER[PASSWORD=\"#{password}\"]/NAME"]
-        return username if (username != nil)
-
-        # Check if the DN is part of a |-separted multi-DN password
-        user_elts = Array.new
-        @user_pool.each {|e| user_elts << e['PASSWORD']}
-        multiple_users = user_elts.select {|e| e=~ /\|/ }
-        matched = nil
-        multiple_users.each do |e|
-            e.to_s.split('|').each do |w|
-                if (w == password)
-                    matched=e
-                    break
-                end
-            end
-            break if matched
-        end
-        if matched
-            password = matched.to_s
-        end
-
-        return @user_pool["USER[PASSWORD=\"#{password}\"]/NAME"]
-    end
-
     def auth(env, params={})
-        failed = 'Authentication failed. '
         # For https, the web service should be set to include the user cert in the environment.
-        cert_line = env['HTTP_SSL_CLIENT_CERT']
-        cert_line = nil if cert_line == '(null)' # For Apache mod_ssl
+        cert_line   = env['HTTP_SSL_CLIENT_CERT']
+        cert_line   = nil if cert_line == '(null)' # For Apache mod_ssl
+        chain_index = 0
 
-        #  Use the https credentials for authentication
-        require 'server_x509_auth'
-        while cert_line
+        # Use the https credentials for authentication
+        unless cert_line.nil?
             begin
-                cert_array=cert_line.scan(/([^\s]*)\s/)
-                cert_array = cert_array[2..-2]
-                cert_array.unshift('-----BEGIN CERTIFICATE-----')
-                cert_array.push('-----END CERTIFICATE-----')
-                cert_pem = cert_array.join("\n")
-                cert = OpenSSL::X509::Certificate.new(cert_pem)
+                m      = cert_line.match(/(-+BEGIN CERTIFICATE-+)([^-]*)(-+END CERTIFICATE-+)/)
+                cert_s = "#{m[1]}#{m[2].gsub(' ',"\n")}#{m[3]}"
+                cert   = OpenSSL::X509::Certificate.new(cert_s)
             rescue
-                raise failed + "Could not create X509 certificate from " + cert_line
+                raise "Could not create X509 certificate from " + cert_line
             end
 
             # Password should be DN with whitespace removed.
-            subjectname = cert.subject.to_s.delete("\s")
-            begin
-                username = get_username(subjectname)
-            rescue
-                username = nil
-            end
+            username = get_username(cert.subject.to_s.delete("\s"))
 
-            break if username
+            return username if username
 
-            chain_dn = (!chain_dn ? "" : chain_dn) + "\n" + subjectname
-            chain_index = !chain_index ? 0 : chain_index + 1
-            cert_line = env["HTTP_SSL_CLIENT_CERT_CHAIN_#{chain_index}"]
-            cert_line = nil if cert_line == '(null)' # For Apache mod_ssl
+            cert_line   = env["HTTP_SSL_CLIENT_CERT_CHAIN_#{chain_index}"]
+            cert_line   = nil if cert_line == '(null)' # For Apache mod_ssl
+            chain_index += 1
+        else
+            raise "Username not found in certificate chain "
         end
 
-        if !cert_line
-            msg = ""
-            msg << failed
-            msg << "Username not found in certificate chain "
-            msg << chain_dn if chain_dn
-            raise msg
-        end
-
-        return username
+        return nil
     end
 end

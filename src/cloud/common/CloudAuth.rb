@@ -29,7 +29,7 @@ class CloudAuth
     AUTH_CORE_MODULES = {
        "cipher" => [ 'server_cipher_auth', 'ServerCipherAuth' ],
        "x509"   => [ 'server_x509_auth',   'ServerX509Auth' ]
-    } 
+    }
 
     # Default interval for timestamps. Tokens will be generated using the same
     # timestamp for this interval of time.
@@ -60,17 +60,20 @@ class CloudAuth
         else
             core_auth =AUTH_CORE_MODULES["cipher"]
         end
-         
+
         begin
             require core_auth[0]
             @server_auth = Kernel.const_get(core_auth[1]).new_client
+
+            token = @server_auth.login_token(expiration_time)
+            @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
         rescue => e
             raise e.message
         end
     end
 
     def client(username)
-        token = @server_auth.login_token(expiration_time,username) 
+        token = @server_auth.login_token(expiration_time,username)
         Client.new(token,@conf[:one_xmlrpc])
     end
 
@@ -86,10 +89,8 @@ class CloudAuth
         @token_expiration_time
     end
 
-    def get_password(username, non_public_user=false)
-        token = @server_auth.login_token(expiration_time)
-        @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
-
+    # If @user_pool is not defined it will retrieve it from OpenNebula
+    def get_userpool
         if @user_pool.nil?
             @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
 
@@ -99,12 +100,23 @@ class CloudAuth
             end
         end
 
+        @user_pool
+    end
+
+    def get_password(username, non_public_user=false)
         if non_public_user == true
             xp="USER[NAME=\"#{username}\" and AUTH_DRIVER!=\"public\"]/PASSWORD"
         else
             xp="USER[NAME=\"#{username}\"]/PASSWORD"
         end
 
-        return @user_pool[xp]
+        return get_userpool[xp]
+    end
+
+    # Gets the username associated with a password
+    # password:: _String_ the password
+    # [return] _Hash_ with the username
+    def get_username(password)
+        return get_userpool["USER[contains(PASSWORD, \"#{password}\")]/NAME"]
     end
 end
