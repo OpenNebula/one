@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebula'
-require 'CloudAuth'
 
 ##############################################################################
 # This class represents a generic Cloud Server using the OpenNebula Cloud
@@ -49,17 +48,7 @@ class CloudServer
     def initialize(config)
         # --- Load the Cloud Server configuration file ---
         @config = config
-        @cloud_auth = CloudAuth.new(@config)
     end
-
-    def authenticate(env, params={})
-        @cloud_auth.auth(env, params)
-    end
-
-    def client
-        @cloud_auth.client
-    end
-
     #
     # Prints the configuration of the server
     #

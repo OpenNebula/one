@@ -228,7 +228,7 @@ function zoneElementArray(zone_json){
     var zone = zone_json.ZONE;
 
     return [
-        '<input type="checkbox" id="zone_'+zone.ID+'" name="selected_items" value="'+zone.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="zone_'+zone.ID+'" name="selected_items" value="'+zone.ID+'"/>',
         zone.ID,
         zone.NAME,
         zone.ENDPOINT
@@ -580,7 +580,7 @@ function openCreateZoneDialog(){
 
 function setZoneAutorefresh() {
     setInterval(function(){
-        var checked = $('input:checked',dataTable_zones.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_zones);
         var  filter = $("#datatable_zones_filter input").attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Zone.autorefresh");

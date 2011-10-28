@@ -71,18 +71,33 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<VNET><ID>0</ID><UID>123</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+    "<VNET><ID>0</ID><UID>123</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 
-    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE><LEASES></LEASES></VNET>",
+    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE><LEASES></LEASES></VNET>",
 
-    "<VNET><ID>0</ID><UID>133</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
+    "<VNET><ID>0</ID><UID>133</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 };
 
 const string xml_dump =
-    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE></VNET></VNET_POOL>";
 
 const string xml_dump_where =
-    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE></VNET></VNET_POOL>";
+
+/* ************************************************************************* */
+/* ************************************************************************* */
+#include "NebulaTest.h"
+
+class NebulaTestVNet: public NebulaTest
+{
+public:
+    NebulaTestVNet():NebulaTest()
+    {
+        NebulaTest::the_tester = this;
+
+        need_vnet_pool = true;
+    };
+};
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -168,18 +183,18 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
+    NebulaTestVNet *tester;
+    VirtualNetworkPool *vnpool;
 
     void bootstrap(SqlDB* db)
     {
-        VirtualNetworkPool::bootstrap(db);
     };
 
     PoolSQL* create_pool(SqlDB* db)
     {
-        // VNet pool constructor needs DB, default mac prefix,
-        // and default network size
-        return new VirtualNetworkPool(db, "00:01", 126);
+        return vnpool;
     };
+
 
     int allocate(int index)
     {
@@ -204,7 +219,7 @@ protected:
         }
 //*/
 
-        CPPUNIT_ASSERT( ((VirtualNetwork*)obj)->get_uid()       == uids[index] );
+        CPPUNIT_ASSERT( ((VirtualNetwork*)obj)->get_uid() == uids[index] );
         CPPUNIT_ASSERT( xml_str == xmls[index] );
     };
 
@@ -214,6 +229,28 @@ public:
 
     ~VirtualNetworkPoolTest(){xmlCleanupParser();};
 
+    void setUp()
+    {
+        create_db();
+
+        tester = new NebulaTestVNet();
+
+        Nebula& neb = Nebula::instance();
+        neb.start();
+
+        vnpool   = neb.get_vnpool();
+
+        pool    = vnpool;
+    };
+
+    void tearDown()
+    {
+        // -----------------------------------------------------------
+
+        delete_db();
+
+        delete tester;
+    };
     /* ********************************************************************* */
     /* ********************************************************************* */
 
@@ -273,9 +310,8 @@ public:
             };
 
         string phydev_xml[] = {
-            "<VNET><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>BRIDGE and PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>br0</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[BRIDGE and PHYDEV]]></NAME><PHYDEV><![CDATA[eth0]]></PHYDEV><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
-
-            "<VNET><ID>1</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>No BRIDGE only PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>onebr1</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[onebr1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[No BRIDGE only PHYDEV]]></NAME><PHYDEV><![CDATA[eth0]]></PHYDEV><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
+            "<VNET><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>BRIDGE and PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>br0</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+            "<VNET><ID>1</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>No BRIDGE only PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>onebr1</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[onebr1]]></BRIDGE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
         };
 
         // test vm with bridge and phydev
@@ -286,6 +322,7 @@ public:
         CPPUNIT_ASSERT( vn != 0 );
 
         ((VirtualNetwork*)vn)->to_xml_extended(xml_str);
+
         CPPUNIT_ASSERT( xml_str == phydev_xml[0] );
 
         // test vm with phydev only
@@ -640,7 +677,7 @@ public:
         // Check that it is valid IP
         CPPUNIT_ASSERT( rc == 0 );
         CPPUNIT_ASSERT( ip      == "192.168.50.1" );
-        CPPUNIT_ASSERT( mac     == "00:01:c0:a8:32:01" );
+        CPPUNIT_ASSERT( mac     == "00:02:c0:a8:32:01" );
         CPPUNIT_ASSERT( bridge  == "bridge0" );
 
         // Clean the cache
@@ -697,7 +734,7 @@ public:
 
         CPPUNIT_ASSERT( rc == 0 );
         CPPUNIT_ASSERT( ip      == "192.168.50.2" );
-        CPPUNIT_ASSERT( mac     == "00:01:c0:a8:32:02" );
+        CPPUNIT_ASSERT( mac     == "00:02:c0:a8:32:02" );
         CPPUNIT_ASSERT( bridge  == "bridge0" );
     }
 

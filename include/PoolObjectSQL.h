@@ -181,7 +181,6 @@ public:
     // ------------------------------------------------------------------------
     // Template
     // ------------------------------------------------------------------------
-
     /**
      *  Gets the values of a template attribute
      *    @param name of the attribute
@@ -189,24 +188,10 @@ public:
      *    @return the number of values
      */
     int get_template_attribute(
-        string& name,
+        const char *              name,
         vector<const Attribute*>& values) const
     {
         return obj_template->get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return obj_template->get(str,values);
     };
 
     /**
@@ -216,11 +201,25 @@ public:
      *    not a single attribute
      */
     void get_template_attribute(
-        const char *    name,
-        string&         value) const
+        const char * name,
+        string&      value) const
     {
-        string str=name;
-        obj_template->get(str,value);
+        obj_template->get(name,value);
+    }
+
+    /**
+     *  Gets an removes a string based attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (a string), will be "" if not defined or
+     *    not a single attribute
+     *    @return the number of attributes erased
+     */
+    int erase_template_attribute(
+        const char * name,
+        string&      value)
+    {
+        obj_template->get(name,value);
+        return obj_template->erase(name);
     }
 
     /**
@@ -233,8 +232,7 @@ public:
         const char *    name,
         int&            value) const
     {
-        string str=name;
-        obj_template->get(str,value);
+        obj_template->get(name,value);
     }
 
     /**

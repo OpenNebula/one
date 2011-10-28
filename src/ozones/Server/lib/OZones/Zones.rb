@@ -66,6 +66,12 @@ module OZones
             return zone_attributes
         end
 
+        def ONEPASS
+            pw = super
+            OZones.decrypt(pw)
+        end
+
+
         #######################################################################
         # Zone Data Management
         #######################################################################
@@ -79,12 +85,13 @@ module OZones
             }
 
             # Digest and check credentials
-            zone_data[:ONEPASS] = Digest::SHA1.hexdigest(zone_data[:ONEPASS])
+            name = zone_data[:ONENAME]
+            pass = zone_data[:ONEPASS]
 
-            $stderr.puts zone_data
+            zone_data[:ONEPASS] = OZones.encrypt(pass)
 
-            rc = OpenNebulaZone::check_oneadmin(zone_data[:ONENAME],
-                                                zone_data[:ONEPASS],
+            rc = OpenNebulaZone::check_oneadmin(name,
+                                                pass,
                                                 zone_data[:ENDPOINT])
 
             if OpenNebula.is_error?(rc)
@@ -121,10 +128,8 @@ module OZones
                 raise "Error: Zone with id #{zoneid} not found"
             end
 
-            @client = OpenNebula::Client.new(
-                                             "#{@zone.ONENAME}:#{@zone.ONEPASS}",
-                                             @zone.ENDPOINT,
-                                             false)
+            @client = OpenNebula::Client.new("#{@zone.ONENAME}:#{@zone.ONEPASS}",
+                                             @zone.ENDPOINT)
         end
 
         def pool_to_json(pool_kind)
@@ -178,7 +183,7 @@ module OZones
 
         def self.check_oneadmin(name, pass, endpoint)
             # Create a new client to interact with the zone
-            client   = OpenNebula::Client.new("#{name}:#{pass}",endpoint,false)
+            client   = OpenNebula::Client.new("#{name}:#{pass}",endpoint)
             hostpool = OpenNebula::HostPool.new(client)
 
             return hostpool.info

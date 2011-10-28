@@ -35,6 +35,7 @@ public class VirtualNetwork extends PoolElement{
     private static final String ADDLEASES       = METHOD_PREFIX + "addleases";
     private static final String RMLEASES        = METHOD_PREFIX + "rmleases";
     private static final String CHOWN           = METHOD_PREFIX + "chown";
+    private static final String UPDATE          = METHOD_PREFIX + "update";
 
 
     /**
@@ -151,6 +152,19 @@ public class VirtualNetwork extends PoolElement{
     public static OneResponse chown(Client client, int id, int uid, int gid)
     {
         return client.call(CHOWN, id, uid, gid);
+    }
+
+    /**
+     * Replaces the VirtualNetwork template contents.
+     *
+     * @param client XML-RPC Client.
+     * @param id The user id of the target vnet we want to modify.
+     * @param new_template New template contents.
+     * @return If successful the message contains the vnet id.
+     */
+    public static OneResponse update(Client client, int id, String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
     }
 
     // =================================
@@ -289,6 +303,17 @@ public class VirtualNetwork extends PoolElement{
     public OneResponse chgrp(int gid)
     {
         return chown(-1, gid);
+    }
+
+    /**
+     * Replaces the VirtualNetwork template contents.
+     *
+     * @param new_template New template contents.
+     * @return If successful the message contains the vnet id.
+     */
+    public OneResponse update(String new_template)
+    {
+        return update(client, id, new_template);
     }
 
     // =================================

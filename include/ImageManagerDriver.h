@@ -89,7 +89,7 @@ private:
      */
     void mkfs(int           oid, 
               const string& fs, 
-              const string& size_mb) const;
+              int           size_mb) const;
     /**
      *  Sends a delete request to the MAD: "DELETE IMAGE_ID PATH"
      *    @param oid the image id.

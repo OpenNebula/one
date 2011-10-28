@@ -166,7 +166,7 @@ public:
      *    defined or not Single
      */
     virtual void get(
-        string& name,
+        const string& name,
         string& value) const;
 
     /**
@@ -178,7 +178,7 @@ public:
      *    @return True if the Single attribute was found
      */
     virtual bool get(
-        string& name,
+        const string& name,
         int&    value) const;
 
     friend ostream& operator<<(ostream& os, const Template& t);

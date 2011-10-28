@@ -21,15 +21,18 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION  = "/usr/lib/one/ruby"
+    VAR_LOCATION = "/var/lib/one"
     CONFIGURATION_FILE = "/etc/one/econe.conf"
     TEMPLATE_LOCATION  = "/etc/one/ec2query_templates"
 else
     RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
+    VAR_LOCATION = ONE_LOCATION+"/var"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
     TEMPLATE_LOCATION  = ONE_LOCATION+"/etc/ec2query_templates"
 end
 
 VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
+EC2_AUTH = VAR_LOCATION + "/.one/ec2_auth"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
@@ -43,6 +46,7 @@ require 'sinatra'
 require 'yaml'
 
 require 'EC2QueryServer'
+require 'CloudAuth'
 
 include OpenNebula
 
@@ -74,23 +78,42 @@ if CloudServer.is_port_open?(settings.config[:server],
     exit 1
 end
 
+begin
+    ENV["ONE_CIPHER_AUTH"] = EC2_AUTH
+    cloud_auth = CloudAuth.new(settings.config)
+rescue => e
+    puts "Error initializing authentication system"
+    puts e.message
+    exit -1
+end
+
+set :cloud_auth, cloud_auth
+
+econe_host = conf[:ssl_server]
+econe_host ||= conf[:server]
+econe_port = conf[:port]
+
+set :econe_host, econe_host
+set :econe_port, econe_port
+
 ##############################################################################
 # Actions
 ##############################################################################
 
 before do
-    @econe_server = EC2QueryServer.new(settings.config)
-
     begin
-        result = @econe_server.authenticate(request.env, params)
+        params[:econe_host] = settings.econe_host
+        params[:econe_port] = settings.econe_port
+        username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
-        # Add a log message
         error 500, error_xml("AuthFailure", 0)
     end
 
-    if result
-        # Add a log message
-        error 400, error_xml("AuthFailure", 0)
+    if username.nil?
+        error 401, error_xml("AuthFailure", 0)
+    else
+        client = settings.cloud_auth.client(username)
+        @econe_server = EC2QueryServer.new(client, settings.config)
     end
 end
 

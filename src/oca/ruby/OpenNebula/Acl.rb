@@ -42,6 +42,7 @@ module OpenNebula
     #                  INSTANTIATE
     #                  CHOWN
     #                  DEPLOY
+    #                  CHAUTH
     class Acl < PoolElement
 
         USERS = {
@@ -72,7 +73,8 @@ module OpenNebula
             "INFO_POOL_MINE"=> 0x40, # Auth. to view user and/or group objects
             "INSTANTIATE"   => 0x80, # Auth. to instantiate a VM from a TEMPLATE
             "CHOWN"         => 0x100,# Auth. to change ownership of an object
-            "DEPLOY"        => 0x200 # Auth. to deploy a VM in a Host
+            "DEPLOY"        => 0x200,# Auth. to deploy a VM in a Host
+            "CHAUTH"        => 0x400 # Auth. to change the auth driver of a USER
         }
 
         # Constructor

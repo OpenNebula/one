@@ -155,6 +155,19 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
 
     attribute = new SingleAttribute("DEFAULT_DEVICE_PREFIX",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+/*
+
+#*******************************************************************************
+# Auth Manager Configuration
+#*******************************************************************************
+# SESSION_EXPIRATION_TIME
+#*******************************************************************************
+*/
+    // SESSION_EXPIRATION_TIME
+    value = "0";
+
+    attribute = new SingleAttribute("SESSION_EXPIRATION_TIME",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
 }
 
 /* -------------------------------------------------------------------------- */

@@ -356,19 +356,15 @@ int ImageManager::register_image(int iid)
         return -1;
     }
 
-    img->get_template_attribute("PATH",path);
+    path = img->get_path();
 
     if ( path.empty() == true ) //NO PATH -> USE SOURCE OR MKFS FOR DATABLOCK
     {
-        string fs;
-        string size;
-
-        img->get_template_attribute("SIZE",   size);
-        img->get_template_attribute("FSTYPE", fs);
-
-        if ( img->get_type() == Image::DATABLOCK &&
-             !size.empty() && !fs.empty() )
+        if ( img->get_type() == Image::DATABLOCK)
         {
+            string fs   = img->get_fstype();
+            int    size = img->get_size();
+
             imd->mkfs(img->get_oid(), fs, size);
          
             oss << "Creating disk at " << img->get_source() << " of " 

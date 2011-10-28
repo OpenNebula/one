@@ -14,27 +14,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# OpenNebula sever contact information
-:one_xmlrpc: http://localhost:2633/RPC2
+module OCCICloudAuth
+    def auth(env, params={})
+        auth = Rack::Auth::Basic::Request.new(env)
 
-# Host and port where econe server will run
-:server: localhost
-:port: 4567
+        if auth.provided? && auth.basic?
+            username, password = auth.credentials
 
-# SSL proxy that serves the API (set if is being used)
-#:ssl_server: fqdm.of.the.server
+            one_pass = get_password(username)
 
-# Authentication driver for incomming requests
-#   ec2, default Acess key and Secret key scheme
-#   x509, for x509 certificates based authentication
-:auth: ec2
+            if one_pass && one_pass == password
+                return username
+            end
+        end
 
-# Authentication driver to communicate with OpenNebula core
-:core_auth: cipher
-# Life-time in seconds for token renewal (that used to handle OpenNebula auths)
-:token_expiration_delta: 1800
-
-# VM types allowed and its template file (inside templates directory)
-:instance_types:
-  :m1.small:
-    :template: m1.small.erb
+        return nil 
+    end 
+end

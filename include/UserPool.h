@@ -39,7 +39,8 @@ class UserPool : public PoolSQL
 {
 public:
 
-    UserPool(SqlDB * db);
+    UserPool(SqlDB * db,
+             time_t  __session_expiration_time);
 
     ~UserPool(){};
 
@@ -54,6 +55,7 @@ public:
         const string& uname,
         const string& gname,
         const string& password,
+        const string& auth,
         bool    enabled,
         string& error_str);
 
@@ -134,15 +136,81 @@ public:
         return PoolSQL::dump(oss, "USER_POOL", User::table, where);
     };
 
+    /**
+     *  Name for the OpenNebula core authentication process 
+     */
+    static const char * CORE_AUTH;
+
+    /**
+     *  Name for the OpenNebula server (delegated) authentication process 
+     */
+    static const char * SERVER_AUTH;
+
+    /**
+     *  Name for the OpenNebula public authentication process. It only
+     *  allows delegated
+     */
+    static const char * PUBLIC_AUTH;
+
+    /**
+     *  Name for the default auth driver to be used for not registered users
+     */
+    static const char * DEFAULT_AUTH;
+
+    /**
+     *  Name for the default Sunstone server user
+     */
+    static const char * SERVER_NAME;
+
 private:
+    //--------------------------------------------------------------------------
+    // Configuration Attributes for Users
+    // -------------------------------------------------------------------------
+
+    /**
+     * Authentication session expiration time
+     **/
+    static time_t _session_expiration_time;
+
+    /**
+     *  Function to authenticate internal (known) users
+     */
+    bool authenticate_internal(User *        user,
+                               const string& token,
+                               int&          user_id,
+                               int&          group_id,
+                               string&       uname,
+                               string&       gname);
+
+    /**
+     *  Function to authenticate internal users using a server driver
+     */
+    bool authenticate_server(User *        user,
+                             const string& token,
+                             int&          user_id,
+                             int&          group_id,
+                             string&       uname,
+                             string&       gname);
+
+    
+    /**
+     *  Function to authenticate external (not known) users
+     */
+    bool authenticate_external(const string& username,
+                               const string& token,
+                               int&    user_id,
+                               int&    group_id,
+                               string& uname,
+                               string& gname);
     /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User
      */
     PoolObjectSQL * create()
     {
-        return new User(-1,-1,"","","",true);
+        return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
     };
+
 };
 
 #endif /*USER_POOL_H_*/

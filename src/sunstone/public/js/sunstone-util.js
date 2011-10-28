@@ -100,7 +100,7 @@ function recountCheckboxes(dataTable){
     var context = table.parents('form');
     var nodes = $('tr',table); //visible nodes
     var total_length = nodes.length;
-    var checked_length = $('input:checked',nodes).length;
+    var checked_length = $('input.check_item:checked',nodes).length;
     var last_action_b = $('.last_action_button',context);
 
     if (checked_length) { //at least 1 element checked
@@ -113,6 +113,8 @@ function recountCheckboxes(dataTable){
         //enable checkall box
         if (total_length == checked_length){
             $('.check_all',dataTable).attr("checked","checked");
+        } else {
+            $('.check_all',dataTable).removeAttr("checked");
         };
     } else { //no elements cheked
         //disable action buttons, uncheck checkAll
@@ -138,9 +140,9 @@ function tableCheckboxesListener(dataTable){
     $('.alwaysActive',context).button("enable");
 
     //listen to changes in the visible inputs
-    $('tbody input',dataTable).live("change",function(){
+    $('tbody input.check_item',dataTable).live("change",function(){
         var datatable = $(this).parents('table');
-        recountCheckboxes(dataTable);
+        recountCheckboxes(datatable);
     });
 }
 
@@ -161,6 +163,12 @@ function updateSingleElement(element,dataTable,tag){
     var position = dataTable.fnGetPosition(tr);
     dataTable.fnUpdate(element,position,0,false);
     recountCheckboxes(dataTable);
+}
+
+function getElementData(id, resource_tag, dataTable){
+    var nodes = dataTable.fnGetNodes();
+    var tr = $(resource_tag+'_'+id,nodes).parents('tr')[0];
+    return dataTable.fnGetData(tr);
 }
 
 // Returns an string in the form key=value key=value ...
@@ -286,14 +294,14 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
 function initCheckAllBoxes(datatable){
 
     //small css hack
-    $('.check_all',datatable).css({"border":"2px"});
-    $('.check_all',datatable).change(function(){
+    $('input.check_all',datatable).css({"border":"2px"});
+    $('input.check_all',datatable).change(function(){
         var table = $(this).parents('table');
         var checked = $(this).attr("checked");
         if (checked) { //check all
-            $('tbody input:checkbox',table).attr("checked","checked");
+            $('tbody input.check_item',table).attr("checked","checked");
         } else { //uncheck all
-            $('tbody input:checkbox',table).removeAttr("checked");
+            $('tbody input.check_item',table).removeAttr("checked");
         };
         recountCheckboxes(table);
     });
@@ -459,7 +467,7 @@ function getSelectedNodes(dataTable){
     var selected_nodes = [];
     if (dataTable){
         //Which rows of the datatable are checked?
-        var nodes = $('tbody input:checked',dataTable);
+        var nodes = $('tbody input.check_item:checked',dataTable);
         $.each(nodes,function(){
             selected_nodes.push($(this).val());
         });
@@ -657,6 +665,12 @@ function setupTemplateUpdateDialog(){
         var dialog = $('#template_update_dialog');
         var new_template = $('#template_update_textarea',dialog).val();
         var id = $('#template_update_select',dialog).val();
+
+        if (!id || !id.length) {
+            dialog.dialog('close');
+            return false;
+        };
+
         var resource = $(this).val();
         Sunstone.runAction(resource+".update",id,new_template);
         dialog.dialog('close');

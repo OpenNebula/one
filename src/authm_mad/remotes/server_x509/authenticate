@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,27 +16,40 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# OpenNebula sever contact information
-:one_xmlrpc: http://localhost:2633/RPC2
+ONE_LOCATION=ENV["ONE_LOCATION"]
 
-# Host and port where econe server will run
-:server: localhost
-:port: 4567
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    ETC_LOCATION="/etc/one/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION=ONE_LOCATION+"/etc/"
+end
 
-# SSL proxy that serves the API (set if is being used)
-#:ssl_server: fqdm.of.the.server
+$: << RUBY_LIB_LOCATION
 
-# Authentication driver for incomming requests
-#   ec2, default Acess key and Secret key scheme
-#   x509, for x509 certificates based authentication
-:auth: ec2
+require 'server_x509_auth'
+require 'scripts_common'
 
-# Authentication driver to communicate with OpenNebula core
-:core_auth: cipher
-# Life-time in seconds for token renewal (that used to handle OpenNebula auths)
-:token_expiration_delta: 1800
+user   = ARGV[0] # username as registered in OpenNebula
+pass   = ARGV[1] # password for this user
+secret = ARGV[2] # Base64 encoded secret as obtained from login_token
 
-# VM types allowed and its template file (inside templates directory)
-:instance_types:
-  :m1.small:
-    :template: m1.small.erb
+#OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
+
+begin
+    server_auth = ServerX509Auth.new
+    dsecret     = Base64::decode64(secret)
+
+    rc = server_auth.authenticate(user, pass, dsecret)
+rescue => e
+    OpenNebula.error_message e.message
+    exit -1
+end
+
+if rc == true
+    exit 0
+else
+    OpenNebula.error_message rc 
+    exit -1
+end

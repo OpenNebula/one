@@ -45,15 +45,7 @@ void Client::set_one_auth(string secret)
         rc = read_oneauth(secret);
     }
 
-    if ( rc == 0 )
-    {
-        rc = split_secret(secret);
-
-        if( rc != 0 )
-        {
-            throw runtime_error("Wrong format for auth token");
-        }
-    }
+    one_auth = secret;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,37 +109,10 @@ int Client::read_oneauth(string &secret)
     if (rc != 0)
     {
         NebulaLog::log("XMLRPC",Log::ERROR,oss);
+        throw runtime_error( oss.str() );
     }
 
     return rc;
-}
-
-int Client::split_secret(const string& secret)
-{
-    size_t pos;
-
-    pos = secret.find(":");
-
-    if ( pos == string::npos )
-    {
-        return -1;
-    }
-
-    if ( secret.rfind(":") == pos )
-    {
-        string user = secret.substr(0,pos);
-        string pass = secret.substr(pos+1);
-
-        string sha1_pass = SSLTools::sha1_digest(pass);
-
-        one_auth = user + ":" + sha1_pass;
-    }
-    else
-    {
-        one_auth = secret;
-    }
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

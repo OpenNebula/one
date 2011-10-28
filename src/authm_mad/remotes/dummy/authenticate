@@ -19,7 +19,8 @@
 # $1 = username
 # $2 = "-" if user is not registered in opennebula
 # $3 = password
-echo $1 $3
+echo core $1 $3
+
 
 
 

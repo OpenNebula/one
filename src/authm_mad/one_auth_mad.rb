@@ -89,35 +89,27 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] the id for this request, used by OpenNebula core
     #        to identify the request 
     # @param [String] id of the user, "-1" if not in defined in OpenNebula
+    # @param [String] driver to be used
     # @param [Strgin] user filed of the auth string
     # @param [String] password of the user registered in OpenNebula "-" if none
     # @param [String] secret filed of the auth string
-    def authN(request_id, user_id, user, password, secret)
-        #OpenNebula.log_debug("authN: #{request_id} #{user_id} #{password} #{secret}")
+    def authN(request_id, user_id, driver, user, password, secret)
+        #OpenNebula.log_debug("authN: #{request_id} #{user_id} #{driver} #{password} #{secret}")
 
-        secret_attr = secret.split(':')
-
-        if secret_attr.length == 1 
-            protocol = "plain"
-        else
-            protocol = secret_attr[0]
-            secret_attr.shift
-        end
-
-        unless @authN_protocols.include?(protocol)
+        unless @authN_protocols.include?(driver)
             return send_message(
                 ACTION[:authN],
                 RESULT[:failure],
                 request_id,
-                "Authentication protocol '#{protocol}' not available")
+                "Authentication driver '#{driver}' not available")
         end
 
         #build path for the auth action
-        #/var/lib/one/remotes/auth/<protocol>/authenticate
-        authN_path = File.join(@local_scripts_path, protocol)
+        #/var/lib/one/remotes/auth/<driver>/authenticate
+        authN_path = File.join(@local_scripts_path, driver)
         
         command = File.join(authN_path,ACTION[:authN].downcase) 
-        command << ' ' << user << ' ' << password << ' ' << secret_attr.join(' ')
+        command << ' ' << user << ' ' << password << ' ' << secret
 
         local_action(command, request_id, ACTION[:authN])
     end

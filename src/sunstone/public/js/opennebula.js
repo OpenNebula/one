@@ -510,7 +510,17 @@ var OpenNebula = {
                                             OpenNebula.Network.resource,
                                             "rmleases",
                                             action_obj);
-        }
+        },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Network.resource,
+                                            "update",
+                                            action_obj);
+        },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Network.resource,"template");
+        },
     },
 
     "VM": {
@@ -659,7 +669,22 @@ var OpenNebula = {
             var action_obj = {"group_id": params.data.extra_param };
             OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
                                             "chgrp",action_obj);
-        }
+        },
+        "chauth" : function(params){
+            var action_obj = {"auth_driver" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
+                                            "chauth",action_obj);
+        },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.User.resource,
+                                            "update",
+                                            action_obj);
+        },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.User.resource,"template");
+        },
         // "addgroup" : function(params){
         //     var action_obj = {"group_id": params.data.extra_param };
         //     OpenNebula.Action.simple_action(params,OpenNebula.User.resource,

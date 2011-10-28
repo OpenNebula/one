@@ -23,8 +23,8 @@ class SunstoneServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_GROUP
 
-    def initialize(token, xmlrpc)
-        @client = Client.new(token, xmlrpc, false)
+    def initialize(client)
+        @client = client
     end
 
     ############################################################################

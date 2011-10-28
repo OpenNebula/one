@@ -14,22 +14,22 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef IMAGE_TEMPLATE_H_
-#define IMAGE_TEMPLATE_H_
+#ifndef USER_TEMPLATE_H_
+#define USER_TEMPLATE_H_
 
 #include "Template.h"
 
 using namespace std;
 
 /**
- *  Image Template class, it represents the attributes of an Image
+ *  User Template class, it represents the attributes of an user
  */
-class ImageTemplate : public Template
+class UserTemplate : public Template
 {
 public:
-    ImageTemplate() : Template(true,'=',"TEMPLATE"){};
+    UserTemplate() : Template(true,'=',"TEMPLATE"){};
 
-    ~ImageTemplate(){};
+    ~UserTemplate(){};
 };
     
 /* -------------------------------------------------------------------------- */

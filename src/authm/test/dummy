@@ -16,12 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-echo "MAD started" >> mad.log
+echo "MAD started" 1>&2 >> mad.log
 
 
-while read COMMAND ARG1 ARG2 ARG3 ARG4
+while read COMMAND ARG1 ARG2 ARG3 ARG4 ARG5
 do
-    echo "$COMMAND $ARG1 $ARG2 $ARG3 $ARG4" >> mad.log
+    echo "$COMMAND $ARG1 $ARG2 $ARG3 $ARG4 $ARG5" 1>&2 >> mad.log
     case $COMMAND in
         "INIT")
             echo "INIT SUCCESS"
@@ -31,12 +31,14 @@ do
             exit 0
             ;;
         "AUTHORIZE")
-            echo "AUTHORIZE FAILURE $ARG1 $ARG3 $ARG4"
+            echo "AUTHORIZE FAILURE $ARG1 $ARG3 $ARG4 $ARG5"
             ;;
         "AUTHENTICATE")
-            if [ "$ARG3" = "timeout" ] ; then
+            date  1>&2 >> mad.log
+            if [ "$ARG4" = "timeout" ] ; then
                 sleep 4
             fi
+            date  1>&2 >> mad.log
 
             echo "AUTHENTICATE SUCCESS $ARG1"
             ;;

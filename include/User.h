@@ -18,6 +18,7 @@
 #define USER_H_
 
 #include "PoolSQL.h"
+#include "UserTemplate.h"
 
 using namespace std;
 
@@ -32,9 +33,14 @@ class User : public PoolObjectSQL
 public:
 
     /**
+     *  Characters that can not be in a name
+     */
+    static const string INVALID_NAME_CHARS;
+
+    /**
      *  Characters that can not be in a password
      */
-    static const string INVALID_CHARS;
+    static const string INVALID_PASS_CHARS;
 
     /**
      * Function to print the User object into a string in XML format
@@ -54,7 +60,7 @@ public:
 
     /**
      *  Returns user password
-     *     @return username User's hostname
+     *     @return the User's password
      */
     const string& get_password() const
     {
@@ -75,36 +81,26 @@ public:
     void disable()
     {
         enabled = false;
+        invalidate_session();
     };
 
     /**
-     *  Checks if a name or password is valid, i.e. it is not empty and does not
+     *  Checks if a name is valid, i.e. it is not empty and does not
      *  contain invalid characters.
-     *    @param str Name or password to be checked
+     *    @param uname Name to be checked
      *    @param error_str Returns the error reason, if any
      *    @return true if the string is valid
      */
-    static bool is_valid(const string& str, string& error_str)
-    {
-        if ( str.empty() )
-        {
-            error_str = "cannot be empty";
-            return false;
-        }
+    static bool name_is_valid(const string& uname, string& error_str);
 
-        size_t pos = str.find_first_of(INVALID_CHARS);
-
-        if ( pos != string::npos )
-        {
-            ostringstream oss;
-            oss << "character '" << str.at(pos) << "' is not allowed";
-
-            error_str = oss.str();
-            return false;
-        }
-
-        return true;
-    }
+    /**
+     *  Checks if a password is valid, i.e. it is not empty and does not
+     *  contain invalid characters.
+     *    @param pass Password to be checked
+     *    @param error_str Returns the error reason, if any
+     *    @return true if the string is valid
+     */
+    static bool pass_is_valid(const string& pass, string& error_str);
 
     /**
      *  Sets user password. It checks that the new password does not contain
@@ -117,17 +113,41 @@ public:
     {
         int rc = 0;
 
-        if (is_valid(passwd, error_str))
+        if (pass_is_valid(passwd, error_str))
         { 
             password = passwd;
+            invalidate_session();
         }
         else
         {
-            error_str = string("Invalid password: ").append(error_str);
             rc = -1;
         }
 
         return rc;
+    };
+
+    /**
+     *  Returns user password
+     *     @return the user's auth driver
+     */
+    const string& get_auth_driver() const
+    {
+        return auth_driver;
+    };
+
+    /**
+     *  Sets the user auth driver.
+     *
+     *    @param _auth_driver the new auth. driver
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success, -1 otherwise
+     */
+    int set_auth_driver(const string& _auth_driver, string& error_str)
+    {
+        auth_driver = _auth_driver;
+        invalidate_session();
+
+        return 0;
     };
 
     /**
@@ -139,6 +159,14 @@ public:
      **/
     static int split_secret(const string secret, string& user, string& pass);
 
+    /**
+     *  Factory method for image templates
+     */
+    Template * get_new_template()
+    {
+        return new UserTemplate;
+    }
+    
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -156,9 +184,63 @@ private:
     string      password;
 
     /**
+     *  Authentication driver for this user
+     */
+    string      auth_driver;
+
+    /**
      * Flag marking user enabled/disabled
      */
     bool        enabled;
+
+    // *************************************************************************
+    // Authentication session (Private)
+    // *************************************************************************
+
+    /**
+     * Until when the session_token is valid
+     */
+    time_t session_expiration_time;
+
+    /**
+     * Last authentication token validated by the driver, can
+     * be trusted until the session_expiration_time
+     */
+    string session_token;
+
+    /**
+     * Checks if a session token is authorized and still valid
+     *
+     * @param token The authentication token
+     * @return true if the token is still valid
+     */
+    bool valid_session(const string& token)
+    {
+        return (( session_token == token ) &&
+                ( time(0) < session_expiration_time ) );
+    };
+
+    /**
+     * Resets the authentication session
+     */
+    void invalidate_session()
+    {
+        session_token.clear();
+        session_expiration_time = 0;
+    };
+
+    /**
+     * Stores the given session token for a limited time. This eliminates the
+     * need to call the external authentication driver until the time expires.
+     *
+     * @param token The authenticated token
+     * @param validity_time
+     */
+    void set_session(const string& token, time_t validity_time)
+    {
+        session_token           = token;
+        session_expiration_time = time(0) + validity_time;
+    };
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -202,13 +284,26 @@ protected:
          int           _gid, 
          const string& _uname, 
          const string& _gname,
-         const string& _password, 
+         const string& _password,
+         const string& _auth_driver,
          bool          _enabled):
         PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table),
         password(_password),
-        enabled(_enabled){};
+        auth_driver(_auth_driver),
+        enabled(_enabled),
+        session_expiration_time(0),
+        session_token("")
+    {
+        obj_template = new UserTemplate;
+    };
 
-    virtual ~User(){};
+    virtual ~User()
+    {
+        if (obj_template != 0)
+        {
+            delete obj_template;
+        }
+    };
 
     // *************************************************************************
     // DataBase implementation

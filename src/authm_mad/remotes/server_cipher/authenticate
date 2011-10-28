@@ -28,7 +28,7 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'server_auth'
+require 'server_cipher_auth'
 require 'scripts_common'
 
 user   = ARGV[0] # username as registered in OpenNebula
@@ -38,10 +38,8 @@ secret = ARGV[2] # Base64 encoded secret as obtained from login_token
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
 begin
-    server_auth = ServerAuth.new
-    dsecret     = Base64::decode64(secret)
-
-    rc = server_auth.authenticate(user, pass, dsecret)
+    server_auth = ServerCipherAuth.new_driver
+    rc = server_auth.authenticate(user, pass, secret)
 rescue => e
     OpenNebula.error_message e.message
     exit -1
@@ -50,6 +48,6 @@ end
 if rc == true
     exit 0
 else
-    OpenNebula.error_message rc 
+    OpenNebula.error_message rc
     exit -1
 end

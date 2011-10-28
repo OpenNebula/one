@@ -50,29 +50,37 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Read password from file"
     }
 
-    PLAIN={
-        :name => "plain",
-        :short => "-p",
-        :large => "--plain",
-        :description => "Store plain password"
+    SHA1={
+        :name => "sha1",
+        :large => "--sha1",
+        :description => "The password will be hashed using the sha1 algorithm"
     }
 
     SSH={
         :name => "ssh",
         :large => "--ssh",
-        :description => "SSH Auth system"
+        :description => "SSH Auth system",
+        :proc => lambda { |o, options|
+            options[:driver] = OpenNebula::User::SSH_AUTH
+        }
     }
 
     X509={
         :name => "x509",
         :large => "--x509",
-        :description => "x509 Auth system for x509 certificates"
+        :description => "x509 Auth system for x509 certificates",
+        :proc => lambda { |o, options|
+            options[:driver] = OpenNebula::User::X509_AUTH
+        }
     }
 
     X509_PROXY={
         :name => "x509_proxy",
         :large => "--x509_proxy",
-        :description => "x509 Auth system based on x509 proxy certificates"
+        :description => "x509 Auth system based on x509 proxy certificates",
+        :proc => lambda { |o, options|
+            options[:driver] = OpenNebula::User::X509_PROXY_AUTH
+        }
     }
 
     KEY={
@@ -105,7 +113,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Token duration in seconds, defaults to 3600 (1 h)"
     }
 
-    create_options = [READ_FILE, PLAIN, SSH, X509, KEY, CERT]
+    DRIVER={
+        :name => "driver",
+        :large => "--driver driver",
+        :format => String,
+        :description => "Driver to autehnticate this user"
+    }
+
+    create_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
     login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME]
 
     ########################################################################
@@ -137,7 +152,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new User
         Examples:
           oneuser create my_user my_password
-          oneuser create my_user /tmp/mypass -r
+          oneuser create my_user -r /tmp/mypass
           oneuser create my_user --ssh --key /tmp/id_rsa
           oneuser create my_user --ssh -r /tmp/public_key
           oneuser create my_user --x509 --cert /tmp/my_cert.pem
@@ -158,8 +173,23 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
         end
 
+        driver = options[:driver] || OpenNebula::User::CORE
+
         helper.create_resource(options) do |user|
-            user.allocate(args[0], pass)
+            user.allocate(args[0], pass, driver)
+        end
+    end
+
+    update_desc = <<-EOT.unindent
+        Launches the system editor to modify and update the template contents
+    EOT
+
+    command :update, update_desc, :userid do
+        helper = OneUserHelper.new
+
+        helper.perform_action(args[0],options,"modified") do |user|
+            str = OpenNebulaHelper.update_template(args[0], user)
+            user.update(str)
         end
     end
 
@@ -241,6 +271,33 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper = OneUserHelper.new
         helper.perform_actions(args[0],options,"Group changed") do |user|
             user.chgrp(args[1].to_i)
+        end
+    end
+
+    chauth_desc = <<-EOT.unindent
+        Changes the User's auth driver
+    EOT
+
+    command :chauth, chauth_desc, :userid, :auth, [:password, nil],
+            :options=>create_options do
+
+        helper = OneUserHelper.new
+
+        if args[2]
+            pass = args[2]
+        else
+            rc = helper.password(options)
+            if rc.first == 0
+                pass = rc[1]
+            else
+                pass = ""
+            end
+        end
+
+        helper.perform_action(args[0],
+                            options,
+                            "Auth driver and password changed") do |user|
+            user.chauth(args[1], pass)
         end
     end
 

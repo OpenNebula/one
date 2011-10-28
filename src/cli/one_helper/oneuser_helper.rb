@@ -37,20 +37,20 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "Can not read file: #{arg}"
             end
         else
-            if options[:plain] || options[:ssh] 
-                password = arg
-            elsif options[:x509]
-                password = arg.delete("\s")
-            else
-                password = Digest::SHA1.hexdigest(arg)
-            end
+            password = arg
+        end
+
+        if options[:sha1]
+            require 'digest/sha1'
+            password = Digest::SHA1.hexdigest(password)
         end
 
         return 0, password
     end
 
     def password(options)
-        if options[:ssh]
+        case options[:driver]
+        when OpenNebula::User::SSH_AUTH
             if !options[:key]
                 return -1, "You have to specify the --key option"
             end
@@ -58,13 +58,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             require 'ssh_auth'
 
             begin
-                sshauth = SshAuth.new(:private_key=>options[:key])
+                auth = SshAuth.new(:private_key=>options[:key])
             rescue Exception => e
                 return -1, e.message
             end
-
-            return 0, sshauth.public_key
-        elsif options[:x509]
+        when OpenNebula::User::X509_AUTH
             options[:cert] ||= ENV['X509_USER_CERT']
 
             if !options[:cert]
@@ -74,20 +72,21 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             require 'x509_auth'
 
             begin
-                cert     = [File.read(options[:cert])]
-                x509auth = X509Auth.new(:certs_pem=>cert)
+                cert = [File.read(options[:cert])]
+                auth = X509Auth.new(:certs_pem=>cert)
             rescue Exception => e
                 return -1, e.message
             end
-
-            return 0, x509auth.dn
         else
             return -1, "You have to specify an Auth method or define a password"
         end
+
+        return 0, auth.password
     end
 
     def self.login(username, options)
-        if options[:ssh]
+        case options[:driver]
+        when OpenNebula::User::SSH_AUTH
             require 'ssh_auth'
 
             options[:key]  ||= ENV['HOME']+'/.ssh/id_rsa'
@@ -97,7 +96,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
-        elsif options[:x509]
+        when OpenNebula::User::X509_AUTH
             require 'x509_auth'
 
             options[:cert] ||= ENV['X509_USER_CERT']
@@ -111,12 +110,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
-        elsif options[:x509_proxy]
+        when OpenNebula::User::X509_PROXY_AUTH
             require 'x509_auth'
 
             options[:proxy] ||= ENV['X509_PROXY_CERT']
-            
-            begin  
+
+            begin
                 proxy = File.read(options[:proxy])
 
                 certs = proxy.scan(/(-+BEGIN CERTIFICATE-+\n[^-]*\n-+END CERTIFICATE-+)/)
@@ -132,10 +131,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         else
             return -1, "You have to specify an Auth method"
         end
-        
+
         options[:time] ||= 3600
 
-        auth.login(username, options[:time])
+        auth.login(username, Time.now+options[:time])
 
         return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
     end
@@ -161,12 +160,19 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
 
         CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION")
-        puts str % ["ID",       user.id.to_s]
-        puts str % ["NAME",     user.name]
-        puts str % ["GROUP",    user.gid]
-        puts str % ["PASSWORD", user['PASSWORD']]
+        puts str % ["ID",          user.id.to_s]
+        puts str % ["NAME",        user.name]
+        puts str % ["GROUP",       user.gid]
+        puts str % ["PASSWORD",    user['PASSWORD']]
+        puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
+
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
+
+        puts
+
+        CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
+        puts user.template_str
     end
 
     def format_pool(options)
@@ -185,11 +191,15 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
+            column :AUTH, "Auth driver of the User", :left, :size=>8 do |d|
+                d["AUTH_DRIVER"]
+            end
+
             column :PASSWORD, "Password of the User", :size=>50 do |d|
                 d['PASSWORD']
             end
 
-            default :ID, :GROUP, :NAME, :PASSWORD
+            default :ID, :GROUP, :NAME, :AUTH, :PASSWORD
         end
 
         table

@@ -283,6 +283,7 @@ void AuthManager::authenticate_action(AuthRequest * ar)
 
     authm_md->authenticate(ar->id,
                            ar->uid,
+                           ar->driver,
                            ar->username,
                            ar->password,
                            ar->session);
