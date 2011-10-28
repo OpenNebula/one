@@ -102,8 +102,8 @@ set :econe_port, econe_port
 
 before do
     begin
-        params[:econe_host] = settings.econe_host
-        params[:econe_port] = settings.econe_port
+        params['econe_host'] = settings.econe_host
+        params['econe_port'] = settings.econe_port
         username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
         error 500, error_xml("AuthFailure", 0)
