@@ -108,7 +108,6 @@ module OZones
                 zone.attributes = zone_data
                 zone.save
             rescue => e
-                $stderr.puts e.backtrace
                 return OZones::Error.new(e.message)
             end
 

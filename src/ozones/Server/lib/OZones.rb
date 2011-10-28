@@ -75,7 +75,7 @@ module OZones
 
     def self.readKey
         begin
-            credentials = IO.read(ENV['OZONES_AUTH']).strip
+            credentials = File.read(ENV['OZONES_AUTH']).strip
             return Digest::SHA1.hexdigest(credentials);
         rescue
             return "";
