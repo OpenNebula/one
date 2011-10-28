@@ -40,6 +40,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             password = arg
         end
 
+        if options[:driver] == OpenNebula::User::X509_AUTH
+            password.delete!("\s")
+        end
+
         if options[:sha1]
             require 'digest/sha1'
             password = Digest::SHA1.hexdigest(password)
