@@ -36,7 +36,7 @@ else
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/occi-server.conf"
 end
 
-OCCI_AUTH = VAR_LOCATION + "/occi_auth"
+OCCI_AUTH = VAR_LOCATION + "/.one/occi_auth"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud/occi"

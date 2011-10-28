@@ -32,7 +32,7 @@ else
 end
 
 VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
-EC2_AUTH = VAR_LOCATION + "/ec2_auth"
+EC2_AUTH = VAR_LOCATION + "/.one/ec2_auth"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"

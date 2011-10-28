@@ -31,7 +31,7 @@ else
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-SUNSTONE_AUTH             = VAR_LOCATION + "/sunstone_auth"
+SUNSTONE_AUTH             = VAR_LOCATION + "/.one/sunstone_auth"
 CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
 PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
 
