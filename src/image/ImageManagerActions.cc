@@ -287,6 +287,7 @@ int ImageManager::enable_image(int iid, bool to_enable)
 int ImageManager::delete_image(int iid)
 {
     Image * img;
+    string  source;
 
     img = ipool->get(iid,true);
 
@@ -324,7 +325,25 @@ int ImageManager::delete_image(int iid)
         return -1;
     }
 
-    imd->rm(img->get_oid(),img->get_source());
+    source = img->get_source();
+
+    if (source.empty())
+    {
+        string err_str;
+        int    rc;
+        
+        rc = ipool->drop(img, err_str);
+
+        if ( rc < 0 )
+        {
+            NebulaLog::log("ImM",Log::ERROR,
+                "Image could not be removed from DB");
+        }
+    }
+    else
+    {
+        imd->rm(img->get_oid(),img->get_source());
+    }
 
     img->unlock();
 
