@@ -345,7 +345,7 @@ function hostElementArray(host_json){
 
 
     return [
-        '<input type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
+        '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
         host.ID,
         host.NAME,
         host.HOST_SHARE.RUNNING_VMS, //rvm
@@ -558,7 +558,7 @@ function popUpCreateHostDialog(){
 //Prepares the autorefresh for hosts
 function setHostAutorefresh() {
     setInterval(function(){
-        var checked = $('input:checked',dataTable_hosts.fnGetNodes());
+        var checked = $('input.check_item:checked',dataTable_hosts);
         var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Host.autorefresh");

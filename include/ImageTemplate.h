@@ -22,7 +22,7 @@
 using namespace std;
 
 /**
- *  Image Template class, it represents the attributes of a Host
+ *  Image Template class, it represents the attributes of an Image
  */
 class ImageTemplate : public Template
 {

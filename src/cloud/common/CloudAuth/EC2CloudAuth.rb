@@ -18,26 +18,22 @@ module EC2CloudAuth
     def auth(env, params={})
         username = params['AWSAccessKeyId']
         one_pass = get_password(username)
-        return "Invalid credentials" unless one_pass
+        return nil unless one_pass
 
         signature = case params['SignatureVersion']
             when "1" then signature_v1(params.clone,one_pass)
             when "2" then signature_v2(params.clone,one_pass,env,true,false)
         end
 
-        if params['Signature'] != signature
-            if params['SignatureVersion']=="2"
-                signature = signature_v2(params.clone,one_pass,env,false,false)
-                if params['Signature'] != signature
-                    return "Invalid Credentials"
-                end
-            else
-                return "Invalid Credentials"
+        if params['Signature'] == signature
+            return username
+        elsif params['SignatureVersion']=="2"
+            signature = signature_v2(params.clone,one_pass,env,false,false)
+            if params['Signature'] == signature
+                return username
             end
         end
 
-        @token = "#{username}:#{one_pass}"
-        @client = Client.new(@token, @conf[:one_xmlrpc], false)
         return nil
     end
 
@@ -46,6 +42,8 @@ module EC2CloudAuth
     # Calculates signature version 1
     def signature_v1(params, secret_key, digest='sha1')
         params.delete('Signature')
+        params.delete('econe_host')
+        params.delete('econe_port')
         req_desc = params.sort {|x,y| x[0].downcase <=> y[0].downcase}.to_s
 
         digest_generator = OpenSSL::Digest::Digest.new(digest)
@@ -59,8 +57,8 @@ module EC2CloudAuth
         params.delete('Signature')
         params.delete('file')
 
-        server_host = params.delete(:econe_host)
-        server_port = params.delete(:econe_port)
+        server_host = params.delete('econe_host')
+        server_port = params.delete('econe_port')
         if include_port
             server_str = "#{server_host}:#{server_port}"
         else

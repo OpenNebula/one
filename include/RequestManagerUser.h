@@ -38,7 +38,7 @@ protected:
         pool        = nd.get_upool();
 
         auth_object = AuthRequest::USER;
-        auth_op     = AuthRequest::MANAGE;
+
     };
 
     ~RequestManagerUser(){};
@@ -64,11 +64,36 @@ public:
     UserChangePassword():
         RequestManagerUser("UserChangePassword",
                            "Changes user's password",
-                           "A:sis"){};
+                           "A:sis")
+    {
+        auth_op = AuthRequest::MANAGE;
+    };
+
     ~UserChangePassword(){};
 
     int user_action(User *                     user, 
                     xmlrpc_c::paramList const& _paramList, 
+                    string&                    err);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserChangeAuth: public RequestManagerUser
+{
+public:
+    UserChangeAuth():
+        RequestManagerUser("UserChangeAuth",
+                           "Changes user's authentication driver",
+                           "A:siss")
+    {
+        auth_op = AuthRequest::CHAUTH;
+    };
+
+    ~UserChangeAuth(){};
+
+    int user_action(User *                     user,
+                    xmlrpc_c::paramList const& _paramList,
                     string&                    err);
 };
 

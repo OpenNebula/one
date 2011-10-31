@@ -22,8 +22,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -112,8 +110,6 @@ public class Client{
                     msg = ((Integer) result[1]).toString();
                 }
             }
-
-
         }
         catch (XmlRpcException e)
         {
@@ -134,11 +130,11 @@ public class Client{
 
     private void setOneAuth(String secret) throws ClientConfigurationException
     {
-        String oneSecret = secret;
+        oneAuth = secret;
 
         try
         {
-            if(oneSecret == null)
+            if(oneAuth == null)
             {
                 String oneAuthEnv = System.getenv("ONE_AUTH");
                 File   authFile;
@@ -152,44 +148,11 @@ public class Client{
                     authFile = new File(System.getenv("HOME")+"/.one/one_auth");
                 }
 
-                oneSecret =
+                oneAuth =
                       (new BufferedReader(new FileReader(authFile))).readLine();
             }
 
-            String[] token = oneSecret.split(":");
-
-            if ( token.length > 2 )
-            {
-                oneAuth = oneSecret;
-            }
-            else if ( token.length == 2 )
-            {
-                MessageDigest md = MessageDigest.getInstance("SHA-1");
-                byte[] digest    = md.digest(token[1].getBytes());
-
-                String hash = "";
-
-                for(byte aux : digest)
-                {
-                    int b = aux & 0xff;
-
-                    if (Integer.toHexString(b).length() == 1)
-                    {
-                        hash += "0";
-                    }
-
-                    hash += Integer.toHexString(b);
-                }
-
-                oneAuth = token[0] + ":" + hash;
-            }
-            else
-            {
-                throw new ClientConfigurationException(
-                    "Wrong format for authorization string: "
-                    + oneSecret + "\nFormat expected is user:password");
-            }
-
+            oneAuth = oneAuth.trim();
         }
         catch (FileNotFoundException e)
         {
@@ -201,13 +164,6 @@ public class Client{
             // You could have the file but for some reason the program can not
             // read it
             throw new ClientConfigurationException("ONE_AUTH file unreadable");
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            // A client application cannot recover if the SHA-1 digest
-            // algorithm cannot be initialized
-            throw new RuntimeException(
-                    "Error initializing MessageDigest with SHA-1", e);
         }
     }
 

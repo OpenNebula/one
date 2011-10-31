@@ -272,7 +272,7 @@ void Nebula::start()
         int     size;
         string  default_image_type;
         string  default_device_prefix;
-        string  scripts_remote_dir;
+        time_t  expiration_time;
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
@@ -290,7 +290,8 @@ void Nebula::start()
 
         gpool = new GroupPool(db);
 
-        upool  = new UserPool(db);
+        nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
+        upool  = new UserPool(db, expiration_time);
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",

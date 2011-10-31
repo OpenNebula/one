@@ -21,6 +21,7 @@
 
 #include "MadManager.h"
 #include "ActionManager.h"
+#include "SSLTools.h"
 
 #include "AuthManagerDriver.h"
 
@@ -68,7 +69,7 @@ public:
      */
     void trigger(
         Actions       action,
-        AuthRequest * request);
+        AuthRequest*  request);
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -286,7 +287,8 @@ public:
         INFO_POOL_MINE= 0x40LL, /**< Auth. to view user and/or group objects  */
         INSTANTIATE   = 0x80LL, /**< Auth. to instantiate a VM from a TEMPLATE*/
         CHOWN         = 0x100LL,/**< Auth. to change ownership of an object   */
-        DEPLOY        = 0x200LL /**< Auth. to deploy a VM in a Host           */
+        DEPLOY        = 0x200LL,/**< Auth. to deploy a VM in a Host           */
+        CHAUTH        = 0x400LL /**< Auth. to change the auth driver of a USER*/
     };
 
     static string Operation_to_str(Operation op)
@@ -303,6 +305,7 @@ public:
             case INSTANTIATE:       return "INSTANTIATE";
             case CHOWN:             return "CHOWN";
             case DEPLOY:            return "DEPLOY";
+            case CHAUTH:            return "CHAUTH";
             default:                return "";
         }
     };
@@ -333,6 +336,7 @@ public:
             case USER:     return "USER" ; break;
             case TEMPLATE: return "TEMPLATE" ; break;
             case GROUP:    return "GROUP" ; break;
+            case ACL:      return "ACL" ; break;
             default:       return "";
         }
     };
@@ -341,13 +345,16 @@ public:
      *  Sets the challenge to authenticate an user
      *  @param challenge a driver specific authentication challenge
      */
-    void add_authenticate(const string &_username,
+    void add_authenticate(const string &_driver,
+                          const string &_username,
                           const string &_password,
                           const string &_session)
     {
         username = _username;
         password = _password;
         session  = _session;
+        
+        driver   = _driver;
     }
 
     /**
@@ -428,14 +435,16 @@ public:
         am.loop(0,0);
     };
 
-    bool plain_authorize()
+    bool core_authorize()
     {
         return ( uid == 0 || self_authorize );
     }
 
-    bool plain_authenticate()
+    bool core_authenticate()
     {
-        return (password == session);
+        string sha1_session = SSLTools::sha1_digest(session);
+
+        return (password == sha1_session);
     }
 
     /**
@@ -496,6 +505,11 @@ private:
      *  Authentication token as sent in the XML-RPC call (user:session)
      */
     string session;
+
+    /**
+     *  Authentication driver to be used with this request
+     */
+    string driver;
 
     /**
      *  A list of authorization requests

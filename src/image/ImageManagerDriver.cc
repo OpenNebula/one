@@ -53,7 +53,7 @@ void ImageManagerDriver::mv(int           oid,
 
 void ImageManagerDriver::mkfs(int           oid, 
                               const string& fs,
-                              const string& size_mb) const
+                              int           size_mb) const
 {
     ostringstream os;
 
@@ -223,9 +223,7 @@ void ImageManagerDriver::protocol(
     {
         int    rc;
         string tmp_error;
-
-        source = image->get_source();
-            
+ 
         rc = ipool->drop(image, tmp_error);
 
         if ( rc < 0 )

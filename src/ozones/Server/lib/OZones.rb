@@ -28,7 +28,13 @@ require 'OZones/AggregatedImages'
 require 'OZones/AggregatedUsers'
 require 'OZones/AggregatedTemplates'
 
+require 'openssl'
+require 'digest/sha1'
+require 'base64'
+
 module OZones
+
+    CIPHER="aes-256-cbc"
     # -------------------------------------------------------------------------
     # The Error Class represents a generic error in the OZones
     # library. It contains a readable representation of the error.
@@ -46,7 +52,7 @@ module OZones
         def to_str
             @message
         end
-        
+
         def to_json
             message = { :message => @message }
             error_hash = { :error => message }
@@ -54,7 +60,7 @@ module OZones
             return JSON.pretty_generate error_hash
         end
     end
-    
+
     # -------------------------------------------------------------------------
     # Returns true if the object returned by a method of the OZones
     # library is an Error
@@ -62,10 +68,41 @@ module OZones
     def self.is_error?(value)
         value.class==OZones::Error
     end
-    
+
     def self.str_to_json(str)
         return JSON.pretty_generate({:message  => str})
     end
+
+    def self.readKey
+        begin
+            credentials = File.read(ENV['OZONES_AUTH']).strip
+            return Digest::SHA1.hexdigest(credentials);
+        rescue
+            return "";
+        end
+    end
+
+    def self.encrypt(plain_txt)
+        #prepare cipher object
+        cipher = OpenSSL::Cipher.new(CIPHER)
+        cipher.encrypt
+        cipher.key = OZones.readKey
+
+        enc_txt = cipher.update(plain_txt)
+        enc_txt << cipher.final
+
+        Base64::encode64(enc_txt).strip.delete("\n")
+    end
+
+    def self.decrypt(b64_txt)
+        #prepare cipher object
+        cipher = OpenSSL::Cipher.new(CIPHER)
+        cipher.decrypt
+        cipher.key = OZones.readKey
+
+        enc_txt = Base64::decode64(b64_txt)
+
+        plain_txt = cipher.update(enc_txt)
+        plain_txt << cipher.final
+    end
 end
-
-

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-require 'json'
 
 module OpenNebula 
     ############################################################################
@@ -61,10 +60,6 @@ module OpenNebula
             @conf[key.to_s.upcase]
         end
 
-        def to_json
-            JSON::generate(@conf) if @conf
-        end
-
         ########################################################################
         ########################################################################
     private
@@ -77,10 +72,7 @@ module OpenNebula
             conf_file.scan(SINGLE_VARIABLE_REG) {|m|
                 key=m[0].strip.upcase
                 value=m[1].strip
-            
-                # hack to skip multiline VM_TYPE values
-                next if %w{NAME TEMPLATE}.include? key.upcase
-            
+                        
                 add_value(key, value)
             }
         

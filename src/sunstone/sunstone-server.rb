@@ -22,16 +22,18 @@ ONE_LOCATION = ENV["ONE_LOCATION"]
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
+    ETC_LOCATION = "/etc/one"
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    CONFIGURATION_FILE = "/etc/one/sunstone-server.conf"
-    PLUGIN_CONFIGURATION_FILE = "/etc/one/sunstone-plugins.yaml"
 else
-    VAR_LOCATION = ONE_LOCATION+"/var"
-    LOG_LOCATION = ONE_LOCATION+"/var"
+    VAR_LOCATION = ONE_LOCATION + "/var"
+    LOG_LOCATION = ONE_LOCATION + "/var"
+    ETC_LOCATION = ONE_LOCATION + "/etc"
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
-    CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-server.conf"
-    PLUGIN_CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-plugins.yaml"
 end
+
+SUNSTONE_AUTH             = VAR_LOCATION + "/.one/sunstone_auth"
+CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
+PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
@@ -53,7 +55,6 @@ require 'SunstonePlugins'
 
 begin
     conf = YAML.load_file(CONFIGURATION_FILE)
-    conf[:hash_passwords] = true
 rescue Exception => e
     puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
@@ -67,6 +68,17 @@ set :config, conf
 set :host, settings.config[:host]
 set :port, settings.config[:port]
 
+begin
+    ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
+    cloud_auth = CloudAuth.new(settings.config)
+rescue => e
+    puts "Error initializing authentication system"
+    puts e.message
+    exit -1
+end
+
+set :cloud_auth, cloud_auth
+
 ##############################################################################
 # Helpers
 ##############################################################################
@@ -76,20 +88,19 @@ helpers do
     end
 
     def build_session
-        cloud_auth = CloudAuth.new(settings.config)
+        # begin
+            result = settings.cloud_auth.auth(request.env, params)
+        # rescue Exception => e
+        #     error 500, e.message
+        # end
 
-        begin
-            result = cloud_auth.auth(request.env, params)
-        rescue Exception => e
-            error 500, e.message
-        end
-
-        if result
+        if result.nil?
             return [401, ""]
         else
+            client  = settings.cloud_auth.client(result)
             user_id = OpenNebula::User::SELF
-            user    = OpenNebula::User.new_with_id(user_id, cloud_auth.client)
 
+            user    = OpenNebula::User.new_with_id(user_id, client)
             rc = user.info
             if OpenNebula.is_error?(rc)
                 # Add a log message
@@ -100,7 +111,6 @@ helpers do
             session[:user_id]    = user['ID']
             session[:user_gid]   = user['GID']
             session[:user_gname] = user['GNAME']
-            session[:token]      = cloud_auth.token
             session[:ip]         = request.ip
             session[:remember]   = params[:remember]
 
@@ -123,8 +133,7 @@ before do
         halt 401 unless authorized?
 
         @SunstoneServer = SunstoneServer.new(
-                                session[:token],
-                                settings.config[:one_xmlrpc])
+            settings.cloud_auth.client(session[:user]))
     end
 end
 
@@ -145,7 +154,12 @@ end
 ##############################################################################
 get '/' do
     if !authorized?
-        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
+        if settings.config[:auth] == "x509"
+            templ = "login_x509.html"
+        else
+            templ = "login.html"
+        end
+
         return File.read(File.dirname(__FILE__)+'/templates/'+templ)
     end
     time = Time.now + 60
@@ -167,7 +181,12 @@ end
 
 get '/login' do
     if !authorized?
-        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
+        if settings.config[:auth] == "x509"
+            templ = "login_x509.html"
+        else
+            templ = "login.html"
+        end
+
         return File.read(File.dirname(__FILE__)+'/templates/'+templ)
     end
 end

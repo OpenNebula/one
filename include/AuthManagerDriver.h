@@ -82,12 +82,14 @@ private:
      *  "AUTHENTICATE REQUEST_ID USER_ID USER_NAME PASSWORD XMLRPC_TOKEN"
      *    @param oid an id to identify the request.
      *    @param uid the user id.
+     *    @param auth_driver
      *    @param username
      *    @param password
      *    @param session token from the xml-rpc parameter
      */
     void authenticate(int           oid,
                       int           uid,
+                      const string& auth_driver,
                       const string& username,
                       const string& password,
                       const string& session) const;

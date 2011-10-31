@@ -98,6 +98,42 @@ public:
     ~HostUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    VirtualNetworkUpdateTemplate():
+        RequestManagerUpdateTemplate("VirtualNetworkUpdateTemplate",
+                                     "Updates a vnet template")
+    {    
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+        auth_object = AuthRequest::NET;
+    };
+
+    ~VirtualNetworkUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    UserUpdateTemplate():
+        RequestManagerUpdateTemplate("UserUpdateTemplate",
+                                     "Updates a user template")
+    {    
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+        auth_object = AuthRequest::USER;
+    };
+
+    ~UserUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

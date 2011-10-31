@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,40 +14,33 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
 
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    ETC_LOCATION="/etc/one/"
-else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    ETC_LOCATION=ONE_LOCATION+"/etc/"
-end
+module Zona
 
-$: << RUBY_LIB_LOCATION
+    # This class represents a set of VDCs. It allows to list the defined
+    # VDCs and iterate on them.
+    class VDCPool < OZonesPool
 
-require 'server_auth'
-require 'scripts_common'
+        # String describing the kind of this resource
+        VDC_POOL_KIND="vdc"
 
-user   = ARGV[0] # username as registered in OpenNebula
-pass   = ARGV[1] # password for this user
-secret = ARGV[2] # Base64 encoded secret as obtained from login_token
+        # Initializes a VDC Pool instance
+        # @param [Zona::Client] client OZones Client
+        def initialize(client)
+            super(:VDC_POOL, :VDC, client)
+        end
 
-#OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
+        # Produces a new VDC element with the provided description
+        # @param [String] element_json JSON string of the element
+        # @return [String] Element's name or nil
+        def factory(element_json)
+            VDC.new(element_json,@client)
+        end
 
-begin
-    server_auth = ServerAuth.new
-    dsecret     = Base64::decode64(secret)
-
-    rc = server_auth.authenticate(user, pass, dsecret)
-rescue => e
-    OpenNebula.error_message e.message
-    exit -1
-end
-
-if rc == true
-    exit 0
-else
-    OpenNebula.error_message rc 
-    exit -1
+        # Retrieves the information for this pool
+        # @return [Zona:Error] nil or Error
+        def info
+            super(VDC_POOL_KIND)
+        end
+    end
 end

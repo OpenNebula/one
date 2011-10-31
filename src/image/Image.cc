@@ -42,7 +42,9 @@ Image::Image(int             _uid,
         PoolObjectSQL(-1,"",_uid,_gid,_uname,_gname,table),
         type(OS),
         regtime(time(0)),
-        source("-"),
+        source(""),
+        path(""),
+        fs_type(""),
         size_mb(0),
         state(INIT),
         running_vms(0)
@@ -97,13 +99,11 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // ------------ NAME --------------------
 
-    get_template_attribute("NAME", name);
+    erase_template_attribute("NAME", name);
 
     // ------------ TYPE --------------------
 
-    get_template_attribute("TYPE", type_att);
-
-    TO_UPPER(type_att);
+    erase_template_attribute("TYPE", type_att);
 
     if ( type_att.empty() == true )
     {
@@ -117,9 +117,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // ------------ PUBLIC --------------------
 
-    get_template_attribute("PUBLIC", public_attr);
-
-    obj_template->erase("PUBLIC");
+    erase_template_attribute("PUBLIC", public_attr);
 
     TO_UPPER(public_attr);
 
@@ -127,9 +125,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // ------------ PERSISTENT --------------------
 
-    get_template_attribute("PERSISTENT", persistent_attr);
-
-    obj_template->erase("PERSISTENT");
+    erase_template_attribute("PERSISTENT", persistent_attr);
 
     TO_UPPER(persistent_attr);
 
@@ -156,23 +152,20 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // ------------ PATH & SOURCE --------------------
 
-    get_template_attribute("PATH", path_attr);
-    get_template_attribute("SOURCE", source_attr);
+    erase_template_attribute("PATH", path);
+    erase_template_attribute("SOURCE", source);
 
     // The template should contain PATH or SOURCE
-    if ( source_attr.empty() && path_attr.empty() )
+    if ( source.empty() && path.empty() )
     {
-        string size_attr;
-        string fstype_attr;
-
+        string        size_attr;
         istringstream iss;
-        int size_mb;
 
-        get_template_attribute("SIZE",   size_attr);
-        get_template_attribute("FSTYPE", fstype_attr);
+        erase_template_attribute("SIZE",   size_attr);
+        erase_template_attribute("FSTYPE", fs_type);
 
         // DATABLOCK image needs SIZE and FSTYPE
-        if (type != DATABLOCK || size_attr.empty() || fstype_attr.empty())
+        if (type != DATABLOCK || size_attr.empty() || fs_type.empty())
         {
             goto error_no_path;
         }
@@ -186,13 +179,9 @@ int Image::insert(SqlDB *db, string& error_str)
             goto error_size_format;
         }
     }
-    else if ( !source_attr.empty() && !path_attr.empty() )
+    else if ( !source.empty() && !path.empty() )
     {
         goto error_path_and_source;
-    }
-    else if ( !source_attr.empty() )
-    {
-        source = source_attr;
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -335,6 +324,8 @@ string& Image::to_xml(string& xml) const
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << source          << "</SOURCE>"      <<
+            "<PATH>"           << path            << "</PATH>"        <<
+            "<FSTYPE>"         << fs_type         << "</FSTYPE>"      <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
@@ -379,6 +370,10 @@ int Image::from_xml(const string& xml)
     rc += xpath(size_mb, "/IMAGE/SIZE", 0);
     rc += xpath(int_state, "/IMAGE/STATE", 0);
     rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
+    
+    //Optional image attributes
+    xpath(path,"/IMAGE/PATH", "");
+    xpath(fs_type,"/IMAGE/FSTYPE","");
 
     type  = static_cast<ImageType>(int_type);
     state = static_cast<ImageState>(int_state);
@@ -520,6 +515,35 @@ int Image::disk_attribute(  VectorAttribute * disk,
     }
 
     return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Image::set_type(string& _type)
+{
+    int rc = 0;
+
+    TO_UPPER(_type);
+
+    if ( _type == "OS" )
+    {
+        type = OS;
+    }
+    else if ( _type == "CDROM" )
+    {
+        type = CDROM;
+    }
+    else if ( _type == "DATABLOCK" )
+    {
+        type = DATABLOCK;
+    }
+    else
+    {
+        rc = -1;
+    }
+
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */

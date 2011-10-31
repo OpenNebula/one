@@ -171,4 +171,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             :options=>OpenNebulaHelper::XML do
         helper.show_resource(args[0],options)
     end
+
+    update_desc = <<-EOT.unindent
+        Launches the system editor to modify and update the template contents
+    EOT
+
+    command :update, update_desc, :vnetid do
+        helper.perform_action(args[0],options,"modified") do |vnet|
+            str = OpenNebulaHelper.update_template(args[0], vnet)
+            vnet.update(str)
+        end
+    end
 end

@@ -38,25 +38,6 @@ public class SessionTest {
 	}
 
 	@Test
-	public void wrong_token()
-	{
-	    Client oneClient = null;
-
-	    try
-	    {
-	        // The secret string should be user:password. The url is null, so it
-	        // will be set to default.
-	        oneClient = new Client("wrong_password_token",null);
-	    }
-	    catch (Exception e)
-	    {
-//            System.out.println(e.getMessage());
-	    }
-
-	    assertNull("Client should complain about the wrong token", oneClient);
-	}
-
-	@Test
 	public void wrong_url()
 	{
 	    Client oneClient = null;

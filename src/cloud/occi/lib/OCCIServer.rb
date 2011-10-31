@@ -41,7 +41,7 @@ class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
     # template:: _String_ path to the location of the templates
-    def initialize(config)
+    def initialize(client, config)
         super(config)
 
         if config[:ssl_server]
@@ -49,6 +49,8 @@ class OCCIServer < CloudServer
         else
             @base_url="http://#{config[:server]}:#{config[:port]}"
         end
+
+        @client = client
     end
 
     # Prepare the OCCI XML Response
@@ -75,7 +77,7 @@ class OCCIServer < CloudServer
         user_flag = -1
 
         vmpool = VirtualMachinePoolOCCI.new(
-                        self.client,
+                        @client,
                         user_flag)
 
         # --- Prepare XML Response ---
@@ -102,7 +104,7 @@ class OCCIServer < CloudServer
         user_flag = -1
 
         network_pool = VirtualNetworkPoolOCCI.new(
-                            self.client,
+                            @client,
                             user_flag)
 
         # --- Prepare XML Response ---
@@ -128,7 +130,7 @@ class OCCIServer < CloudServer
         user_flag = -1
 
         image_pool = ImagePoolOCCI.new(
-                            self.client,
+                            @client,
                             user_flag)
 
         # --- Prepare XML Response ---
@@ -151,7 +153,7 @@ class OCCIServer < CloudServer
     #                             status code
     def get_users(request)
         # --- Get Users Pool ---
-        user_pool = UserPoolOCCI.new(self.client)
+        user_pool = UserPoolOCCI.new(@client)
 
         # --- Prepare XML Response ---
         rc = user_pool.info
@@ -180,7 +182,7 @@ class OCCIServer < CloudServer
         # --- Create the new Instance ---
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml,
-                    self.client,
+                    @client,
                     request.body.read,
                     @config[:instance_types],
                     @config[:template_location])
@@ -205,7 +207,7 @@ class OCCIServer < CloudServer
         # --- Get the VM ---
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
-                    self.client)
+                    @client)
 
         # --- Prepare XML Response ---
         rc = vm.info
@@ -230,7 +232,7 @@ class OCCIServer < CloudServer
         # --- Get the VM ---
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
-                    self.client)
+                    @client)
 
         rc = vm.info
         return rc, 404 if OpenNebula::is_error?(rc)
@@ -250,7 +252,7 @@ class OCCIServer < CloudServer
         # --- Get the VM ---
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
-                    self.client)
+                    @client)
 
         rc = vm.info
         if OpenNebula.is_error?(rc)
@@ -278,7 +280,7 @@ class OCCIServer < CloudServer
         # --- Create the new Instance ---
         network = VirtualNetworkOCCI.new(
                         VirtualNetwork.build_xml,
-                        self.client,
+                        @client,
                         request.body,
                         @config[:bridge])
 
@@ -301,7 +303,7 @@ class OCCIServer < CloudServer
     def get_network(request, params)
         network = VirtualNetworkOCCI.new(
                         VirtualNetwork.build_xml(params[:id]),
-                        self.client)
+                        @client)
 
         # --- Prepare XML Response ---
         rc = network.info
@@ -324,7 +326,7 @@ class OCCIServer < CloudServer
     def delete_network(request, params)
         network = VirtualNetworkOCCI.new(
                         VirtualNetwork.build_xml(params[:id]),
-                        self.client)
+                        @client)
 
         rc = network.info
         return rc, 404 if OpenNebula::is_error?(rc)
@@ -346,7 +348,7 @@ class OCCIServer < CloudServer
 
         vnet = VirtualNetworkOCCI.new(
                     VirtualNetwork.build_xml(params[:id]),
-                    self.client)
+                    @client)
 
         rc = vnet.info
         return rc, 400 if OpenNebula.is_error?(rc)
@@ -386,7 +388,7 @@ class OCCIServer < CloudServer
 
         image = ImageOCCI.new(
                         Image.build_xml,
-                        self.client,
+                        @client,
                         occixml,
                         request.params['file'])
 
@@ -410,7 +412,7 @@ class OCCIServer < CloudServer
         # --- Get the Image ---
         image = ImageOCCI.new(
                         Image.build_xml(params[:id]),
-                        self.client)
+                        @client)
 
         rc = image.info
 
@@ -434,7 +436,7 @@ class OCCIServer < CloudServer
         # --- Get the Image ---
         image = ImageOCCI.new(
                         Image.build_xml(params[:id]),
-                        self.client)
+                        @client)
 
         rc = image.info
         return rc, 404 if OpenNebula::is_error?(rc)
@@ -456,7 +458,7 @@ class OCCIServer < CloudServer
 
         image = ImageOCCI.new(
                     Image.build_xml(params[:id]),
-                    self.client)
+                    @client)
 
         rc = image.info
         return rc, 400 if OpenNebula.is_error?(rc)
@@ -491,7 +493,7 @@ class OCCIServer < CloudServer
         # --- Get the USER ---
         user = UserOCCI.new(
                     User.build_xml(params[:id]),
-                    self.client)
+                    @client)
 
         # --- Prepare XML Response ---
         rc = user.info

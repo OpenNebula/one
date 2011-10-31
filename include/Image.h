@@ -75,7 +75,7 @@ public:
      *  Returns true if the image is persistent
      *     @return true if the image is persistent
      */
-    bool isPersistent()
+    bool isPersistent() const
     {
         return (persistent_img == 1);
     };
@@ -84,9 +84,36 @@ public:
      *  Returns the source path of the image
      *     @return source of image
      */
-    const string& get_source()
+    const string& get_source() const
     {
         return source;
+    }
+
+    /**
+     *  Returns the original path of the image
+     *     @return path of image
+     */
+    const string& get_path() const
+    {
+        return path;
+    }
+
+    /**
+     *  Returns the fs_type for the image (defined for datablocks)
+     *     @return fs_type
+     */
+    const string& get_fstype() const
+    {
+        return fs_type;
+    }
+
+    /**
+     *  Returns the size of the image 
+     *     @return size in mb
+     */
+    int get_size() const
+    {
+        return size_mb;
     }
 
     /**
@@ -156,32 +183,12 @@ public:
     }
 
     /**
-     *  Set enum type
-     *     @return 0 on success, -1 otherwise
+     * Sets the Image type.
+     *
+     * @param _type the new type. It will be transformed to upper case
+     * @return 0 on success, -1 otherwise
      */
-    int set_type(const string& _type)
-    {
-        int rc = 0;
-
-        if ( _type == "OS" )
-        {
-            type = OS;
-        }
-        else if ( _type == "CDROM" )
-        {
-            type = CDROM;
-        }
-        else if ( _type == "DATABLOCK" )
-        {
-            type = DATABLOCK;
-        }
-        else
-        {
-            rc = -1;
-        }
-
-        return rc;
-    }
+    int set_type(string& _type);
 
     /**
      *  Publish or unpublish an image
@@ -308,6 +315,16 @@ private:
      *  Path to the image
      */
     string       source;
+
+    /**
+     *  Original Path to the image (optional if source is given or datablock)
+     */
+    string       path;
+
+    /**
+     *  File system type for the image (mandatory for datablocks)
+     */
+    string       fs_type;
 
     /**
      *  Size of the image in MB

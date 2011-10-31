@@ -292,7 +292,22 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse savedisk(int diskId, String imageName)
     {
-        return client.call(SAVEDISK, id ,diskId, imageName);
+        return savedisk(diskId, imageName, "");
+    }
+
+    /**
+     * Sets the specified vm's disk to be saved in a new image when the
+     * VirtualMachine shutdowns.
+     *
+     * @param diskId ID of the disk to be saved.
+     * @param imageName Name of the new Image that will be created.
+     * @param imageType Type of the new image. Set to empty string to use
+     * the default type
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse savedisk(int diskId, String imageName, String imageType)
+    {
+        return client.call(SAVEDISK, id ,diskId, imageName, imageType);
     }
 
     /**

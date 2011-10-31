@@ -30,8 +30,9 @@ class RequestManagerImage: public Request
 {
 protected:
     RequestManagerImage(const string& method_name,
-                                 const string& help)
-        :Request(method_name,"A:sib",help)
+                        const string& help,
+                        const string& params)
+        :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
@@ -55,7 +56,8 @@ class ImageEnable : public RequestManagerImage
 {
 public:
     ImageEnable():
-        RequestManagerImage("ImageEnable", "Enables or disables an image"){};
+        RequestManagerImage("ImageEnable", "Enables or disables an image",
+                "A:sib"){};
 
     ~ImageEnable(){};
 
@@ -71,9 +73,27 @@ class ImagePersistent : public RequestManagerImage
 public:
     ImagePersistent():
         RequestManagerImage("ImagePersistent",
-                            "Makes an image persistent or non-persistent"){};
+                            "Makes an image persistent or non-persistent",
+                            "A:sib"){};
 
     ~ImagePersistent(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ImageChangeType : public RequestManagerImage
+{
+public:
+    ImageChangeType():
+        RequestManagerImage("ImageChangeType",
+                            "Changes the type of an image",
+                            "A:sis"){};
+
+    ~ImageChangeType(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);

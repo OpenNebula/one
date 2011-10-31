@@ -27,7 +27,8 @@
 #include "Group.h"
 
 
-const string User::INVALID_CHARS = " :\t\n\v\f\r";
+const string User::INVALID_NAME_CHARS = " :\t\n\v\f\r";
+const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
 
 /* ************************************************************************** */
 /* User :: Database Access Functions                                          */
@@ -122,18 +123,20 @@ error_username:
 string& User::to_xml(string& xml) const
 {
     ostringstream   oss;
-    string          collection_xml;
+    string          template_xml;
 
     int  enabled_int = enabled?1:0;
 
     oss <<
     "<USER>"
-         "<ID>"          << oid         <<"</ID>"      <<
-         "<GID>"         << gid         <<"</GID>"     <<
-         "<GNAME>"       << gname       <<"</GNAME>"   <<
-         "<NAME>"        << name        <<"</NAME>"    <<
-         "<PASSWORD>"    << password    <<"</PASSWORD>"<<
-         "<ENABLED>"     << enabled_int <<"</ENABLED>" <<
+         "<ID>"          << oid         <<"</ID>"         <<
+         "<GID>"         << gid         <<"</GID>"        <<
+         "<GNAME>"       << gname       <<"</GNAME>"      <<
+         "<NAME>"        << name        <<"</NAME>"       <<
+         "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
+         "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
+         "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
+        obj_template->to_xml(template_xml)                <<
     "</USER>";
 
     xml = oss.str();
@@ -153,14 +156,27 @@ int User::from_xml(const string& xml)
     // Initialize the internal XML object
     update_from_str(xml);
 
-    rc += xpath(oid,         "/USER/ID",       -1);
-    rc += xpath(gid,         "/USER/GID",      -1);
-    rc += xpath(gname,       "/USER/GNAME",    "not_found");
-    rc += xpath(name,        "/USER/NAME",     "not_found");
-    rc += xpath(password,    "/USER/PASSWORD", "not_found");
-    rc += xpath(int_enabled, "/USER/ENABLED",  0);
+    rc += xpath(oid,        "/USER/ID",          -1);
+    rc += xpath(gid,        "/USER/GID",         -1);
+    rc += xpath(gname,      "/USER/GNAME",       "not_found");
+    rc += xpath(name,       "/USER/NAME",        "not_found");
+    rc += xpath(password,   "/USER/PASSWORD",    "not_found");
+    rc += xpath(auth_driver,"/USER/AUTH_DRIVER", UserPool::CORE_AUTH);
+    rc += xpath(int_enabled,"/USER/ENABLED",     0);
 
     enabled = int_enabled;
+
+    // Get associated metadata for the user
+    ObjectXML::get_nodes("/USER/TEMPLATE", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {
@@ -190,6 +206,61 @@ int User::split_secret(const string secret, string& user, string& pass)
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool User::name_is_valid(const string& uname, string& error_str)
+{
+    if ( uname.empty() )
+    {
+        error_str = "Invalid NAME, it cannot be empty";
+        return false;
+    }
+
+    size_t pos = uname.find_first_of(INVALID_NAME_CHARS);
+
+    if ( pos != string::npos )
+    {
+        ostringstream oss;
+        oss << "Invalid NAME, character '" << uname.at(pos) << "' is not allowed";
+
+        error_str = oss.str();
+        return false;
+    }
+
+    if ( uname.length() > 128 )
+    {
+        error_str = "Invalid NAME, max length is 128 chars";
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool User::pass_is_valid(const string& pass, string& error_str)
+{
+    if ( pass.empty() )
+    {
+        error_str = "Invalid password, it cannot be empty";
+        return false;
+    }
+
+    size_t pos = pass.find_first_of(INVALID_PASS_CHARS);
+
+    if ( pos != string::npos )
+    {
+        ostringstream oss;
+        oss << "Invalid password, character '" << pass.at(pos) << "' is not allowed";
+
+        error_str = oss.str();
+        return false;
+    }
+
+    return true;
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -40,7 +40,8 @@ source_files=[
     'vm_var_parser.c',
     'vm_var_syntax.cc',
     'VirtualMachinePool.cc',
-    'VirtualMachineHook.cc'
+    'VirtualMachineHook.cc',
+    'VirtualMachineTemplate.cc'
 ]
 
 # Build library

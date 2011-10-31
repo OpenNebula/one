@@ -61,18 +61,10 @@ class EC2QueryServer < CloudServer
 
     ###########################################################################
 
-    def initialize(config)
+    def initialize(client, config)
         super(config)
-    end
-    
-    def authenticate(env, params)
-        econe_host = @config[:ssl_server]
-        econe_host ||= @config[:server]
 
-        econe_port = @config[:port]
-
-        params.merge!({:econe_host => econe_host, :econe_port => econe_port})
-        super(env, params)
+        @client = client
     end
 
     ###########################################################################
@@ -80,7 +72,7 @@ class EC2QueryServer < CloudServer
     ###########################################################################
 
     def upload_image(params)
-        image = ImageEC2.new(Image.build_xml, self.client, params['file'])
+        image = ImageEC2.new(Image.build_xml, @client, params['file'])
 
         template = image.to_one_template
         if OpenNebula.is_error?(template)
@@ -102,7 +94,7 @@ class EC2QueryServer < CloudServer
         # Get the Image ID
         tmp, img=params['ImageLocation'].split('-')
 
-        image = Image.new(Image.build_xml(img.to_i), self.client)
+        image = Image.new(Image.build_xml(img.to_i), @client)
 
         # Enable the new Image
         rc = image.info
@@ -120,7 +112,7 @@ class EC2QueryServer < CloudServer
 
     def describe_images(params)
         user_flag = OpenNebula::Pool::INFO_GROUP
-        impool = ImagePool.new(self.client, user_flag)
+        impool = ImagePool.new(@client, user_flag)
         impool.info
 
         erb_version = params['Version']
@@ -159,7 +151,7 @@ class EC2QueryServer < CloudServer
         template_text = template.result(binding)
 
         # Start the VM.
-        vm = VirtualMachine.new(VirtualMachine.build_xml, self.client)
+        vm = VirtualMachine.new(VirtualMachine.build_xml, @client)
 
         rc = vm.allocate(template_text)
         if OpenNebula::is_error?(rc)
@@ -179,7 +171,7 @@ class EC2QueryServer < CloudServer
 
     def describe_instances(params)
         user_flag = OpenNebula::Pool::INFO_MINE
-        vmpool = VirtualMachinePool.new(self.client, user_flag)
+        vmpool = VirtualMachinePool.new(@client, user_flag)
         vmpool.info
 
         erb_version = params['Version']
@@ -196,7 +188,7 @@ class EC2QueryServer < CloudServer
 
         tmp, vmid=vmid.split('-') if vmid[0]==?i
 
-        vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),self.client)
+        vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),@client)
         rc = vm.info
 
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)

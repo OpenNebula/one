@@ -1,15 +1,20 @@
 --- 
 :ID: 
-  :desc: ONE identifier for the Template
+  :desc: ONE identifier for the User
   :size: 4
 
 :NAME: 
-  :desc: Name of the Template
+  :desc: Name of the User
   :size: 15
   :left: true
 
 :GROUP: 
-  :desc: Group of the Template
+  :desc: Group of the User
+  :size: 8
+  :left: true
+
+:AUTH: 
+  :desc: Auth driver of the User
   :size: 8
   :left: true
 
@@ -21,4 +26,5 @@
 - :ID
 - :GROUP
 - :NAME
+- :AUTH
 - :PASSWORD

@@ -26,13 +26,17 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    VAR_LOCATION = "/var/lib/one"
     TEMPLATE_LOCATION="/etc/one/occi_templates"
     CONFIGURATION_FILE = "/etc/one/occi-server.conf"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    VAR_LOCATION = ONE_LOCATION+"/var"
     TEMPLATE_LOCATION=ONE_LOCATION+"/etc/occi_templates"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/occi-server.conf"
 end
+
+OCCI_AUTH = VAR_LOCATION + "/.one/occi_auth"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud/occi"
@@ -46,6 +50,7 @@ require 'sinatra'
 require 'yaml'
 
 require 'OCCIServer'
+require 'CloudAuth'
 
 include OpenNebula
 
@@ -77,20 +82,33 @@ end
 set :host, settings.config[:server]
 set :port, settings.config[:port]
 
+begin
+    ENV["ONE_CIPHER_AUTH"] = OCCI_AUTH
+    cloud_auth = CloudAuth.new(settings.config)
+rescue => e
+    puts "Error initializing authentication system"
+    puts e.message
+    exit -1
+end
+
+set :cloud_auth, cloud_auth
+
 ##############################################################################
 # Helpers
 ##############################################################################
 
 before do
-    @occi_server = OCCIServer.new(settings.config)
     begin
-        result = @occi_server.authenticate(request.env)
+        username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
         error 500, e.message
     end
 
-    if result
-        error 401, result
+    if username.nil?
+        return [401, ""]
+    else
+        client  = settings.cloud_auth.client(username)
+        @occi_server = OCCIServer.new(client, settings.config)
     end
 end
 

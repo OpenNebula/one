@@ -24,7 +24,7 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
     VAR_LOCATION="/var/lib/one"
 else
-    ETC_LOCATION=ONE_LOCATION+"/etc"    
+    ETC_LOCATION=ONE_LOCATION+"/etc"
     LIB_LOCATION=ONE_LOCATION+"/lib"
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
     VAR_LOCATION=ONE_LOCATION+"/var"
@@ -62,7 +62,7 @@ db_url = db_type + "://" + VAR_LOCATION + "/ozones.db"
 ##############################################################################
 # DB bootstrapping
 ##############################################################################
-if config[:dbdebug] 
+if config[:dbdebug]
     DataMapper::Logger.new($stdout, :debug)
 end
 
@@ -76,22 +76,22 @@ DataMapper.auto_upgrade!
 
 if Auth.all.size == 0
     if ENV['OZONES_AUTH'] && File.exist?(ENV['OZONES_AUTH'])
-         credentials = IO.read(ENV['OZONES_AUTH']).strip.split(':')
+        credentials = IO.read(ENV['OZONES_AUTH']).strip.split(':')
 
-         if credentials.length < 2
-             warn "Authorization data malformed"
-             exit -1
-         end
-         credentials[1] = Digest::SHA1.hexdigest(credentials[1])
-         @auth=Auth.create({:name => credentials[0], 
-                            :password => credentials[1]})
-         @auth.save
+        if credentials.length < 2
+            warn "Authorization data malformed"
+            exit -1
+        end
+        credentials[1] = Digest::SHA1.hexdigest(credentials[1])
+        @auth=Auth.create({:name => credentials[0],
+                              :password => credentials[1]})
+        @auth.save
     else
         warn "oZones admin credentials not set, missing OZONES_AUTH file."
         exit -1
     end
 else
-   @auth=Auth.all.first
+    @auth=Auth.all.first
 end
 
 ADMIN_NAME = @auth.name
@@ -101,7 +101,7 @@ begin
     OZones::ProxyRules.new("apache",config[:htaccess])
 rescue Exception => e
     warn e.message
-    exit -1  
+    exit -1
 end
 
 
@@ -122,12 +122,12 @@ helpers do
         if session[:ip] && session[:ip]==request.ip
             return true
         end
-        
+
         auth = Rack::Auth::Basic::Request.new(request.env)
         if auth.provided? && auth.basic? && auth.credentials
             user = auth.credentials[0]
             sha1_pass = Digest::SHA1.hexdigest(auth.credentials[1])
-            
+
             if user == ADMIN_NAME && sha1_pass == ADMIN_PASS
                 return true
             end
@@ -140,7 +140,7 @@ helpers do
         if auth.provided? && auth.basic? && auth.credentials
             user = auth.credentials[0]
             sha1_pass = Digest::SHA1.hexdigest(auth.credentials[1])
-            
+
             if user == ADMIN_NAME && sha1_pass == ADMIN_PASS
                 session[:user]     = user
                 session[:password] = sha1_pass
@@ -170,8 +170,8 @@ end
 before do
     unless request.path=='/login' || request.path=='/'
         halt 401 unless authorized?
-        
-        @OzonesServer = OzonesServer.new  
+
+        @OzonesServer = OzonesServer.new
         @pr = OZones::ProxyRules.new("apache",config[:htaccess])
     end
 end
@@ -281,5 +281,3 @@ end
 delete '/zone/:id' do
     @OzonesServer.delete_zone(params[:id], @pr)
 end
-
-

@@ -19,7 +19,7 @@ require 'cli/one_helper'
 
 class VDCHelper < OZonesHelper::OZHelper
     def initialize(kind, user=nil, pass=nil, endpoint_str=nil,
-                       timeout=nil, debug_flag=true)
+                   timeout=nil, debug_flag=true)
         @vdc_str = kind
         super(user, pass, endpoint_str, timeout, debug_flag)
     end
@@ -33,8 +33,8 @@ class VDCHelper < OZonesHelper::OZHelper
 
         rc = @client.post_resource_str(@vdc_str, tmpl_str)
 
-        if OZonesClient::is_error?(rc) 
-           [-1, rc.message] 
+        if Zona::is_error?(rc)
+            [-1, rc.message]
         else
             id = get_id(rc)
             [0, "ID: #{id}"]
@@ -48,7 +48,7 @@ class VDCHelper < OZonesHelper::OZHelper
     def show_resource(id, options)
         super(@vdc_str,id, options)
     end
-    
+
     def delete_resource(id, options)
         super(@vdc_str,id, options)
     end
@@ -56,13 +56,13 @@ class VDCHelper < OZonesHelper::OZHelper
     def addhost(id, host_array, options)
         rc = @client.get_resource(@vdc_str, id)
 
-        if OZonesClient::is_error?(rc) 
-            return [-1, rc.message] 
+        if Zona::is_error?(rc)
+            return [-1, rc.message]
         else
-            vdc = OZonesClient::parse_json(rc.body, @vdc_str.upcase)
+            vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
         end
 
-        hosts = vdc['hosts'].split(',').collect!{|x| x.to_i}
+        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
         host_array.concat(hosts).uniq!
 
         new_host = host_array.join(',')
@@ -72,37 +72,33 @@ class VDCHelper < OZonesHelper::OZHelper
             template << "FORCE=YES\n"
         end
 
-        rc = @client.put_resource(@vdc_str, id, template) 
+        rc = @client.put_resource_str(@vdc_str, id, template)
 
-        if OZonesClient::is_error?(rc) 
-            return [-1, rc.message] 
+        if Zona::is_error?(rc)
+            return [-1, rc.message]
         end
 
         [0, ""]
     end
-    
+
     def delhost(id, host_array, options)
         rc = @client.get_resource(@vdc_str, id)
-    
-        if OZonesClient::is_error?(rc) 
-            return [-1, rc.message] 
+
+        if Zona::is_error?(rc)
+            return [-1, rc.message]
         else
-            vdc = OZonesClient::parse_json(rc.body, @vdc_str.upcase)
+            vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
         end
 
-        hosts = vdc['hosts'].split(',').collect!{|x| x.to_i}
+        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
 
         new_host = (hosts - host_array).join(',')
         template = "ID=#{id}\nHOSTS=#{new_host}\n"
 
-        if options[:force]
-            template << "FORCE=YES\n"
-        end
+        rc = @client.put_resource_str(@vdc_str, id, template)
 
-        rc = @client.put_resource(@vdc_str, id, template) 
-
-        if OZonesClient::is_error?(rc) 
-            return [-1, rc.message] 
+        if Zona.is_error?(rc)
+            return [-1, rc.message]
         end
 
         [0, ""]
@@ -113,39 +109,39 @@ class VDCHelper < OZonesHelper::OZHelper
     def format_resource(vdc, options)
         str_h1="%-60s"
         str="%-10s: %-20s"
-        
+
         CLIHelper.print_header(str_h1 % ["VDC #{vdc['name']} INFORMATION"])
-    
-        puts str % ["ID ",       vdc['id'].to_s]
-        puts str % ["NAME ",     vdc['name'].to_s]
-        puts str % ["GROUP_ID ", vdc['group_id'].to_s]
-        puts str % ["ZONEID ",   vdc['zones_id'].to_s]
-        puts str % ["VDCADMIN ", vdc['vdcadminname'].to_s]        
-        puts str % ["HOST IDs ", vdc['hosts'].to_s]        
+
+        puts str % ["ID ",       vdc[:ID].to_s]
+        puts str % ["NAME ",     vdc[:NAME].to_s]
+        puts str % ["GROUP_ID ", vdc[:GROUP_ID].to_s]
+        puts str % ["ZONEID ",   vdc[:ZONES_ID].to_s]
+        puts str % ["VDCADMIN ", vdc[:VDCADMINNAME].to_s]
+        puts str % ["HOST IDs ", vdc[:HOSTS].to_s]
         puts
-        
+
         return 0
     end
 
-    def format_pool(pool, options)    
+    def format_pool(pool, options)
         st=CLIHelper::ShowTable.new(nil) do
             column :ID, "Identifier for VDC", :size=>4 do |d,e|
-                d["id"]
+                d[:ID]
             end
 
             column :NAME, "Name of the VDC", :right, :size=>15 do |d,e|
-                d["name"]
+                d[:NAME]
             end
 
-            column :ZONEID, "Id of the Zone where it belongs", 
-                             :right, :size=>40 do |d,e|
-                d["zones_id"]
+            column :ZONEID, "Id of the Zone where it belongs",
+            :right, :size=>40 do |d,e|
+                d[:ZONES_ID]
             end
-        
+
             default :ID, :NAME, :ZONEID
-        end      
-        st.show(pool[@vdc_str.upcase], options)
-        
+        end
+        st.show(pool[:VDC], options)
+
         return 0
     end
 end

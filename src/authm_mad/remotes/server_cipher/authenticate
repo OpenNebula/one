@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,27 +16,38 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-module BasicCloudAuth
-    def auth(env, params={})
-        auth = Rack::Auth::Basic::Request.new(env)
+ONE_LOCATION=ENV["ONE_LOCATION"]
 
-        if auth.provided? && auth.basic?
-            username, password = auth.credentials
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    ETC_LOCATION="/etc/one/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION=ONE_LOCATION+"/etc/"
+end
 
-            if @conf[:hash_passwords]
-                password =  Digest::SHA1.hexdigest(password)
-            end
+$: << RUBY_LIB_LOCATION
 
-            one_pass = get_password(username)
-            if one_pass && one_pass == password
-                @token = "#{username}:#{password}"
-                @client = Client.new(@token, @conf[:one_xmlrpc], false)
-                return nil
-            else
-                return "Authentication failure"
-            end
-        else
-            return "Basic auth not provided"
-        end
-    end
+require 'server_cipher_auth'
+require 'scripts_common'
+
+user   = ARGV[0] # username as registered in OpenNebula
+pass   = ARGV[1] # password for this user
+secret = ARGV[2] # Base64 encoded secret as obtained from login_token
+
+#OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
+
+begin
+    server_auth = ServerCipherAuth.new_driver
+    rc = server_auth.authenticate(user, pass, secret)
+rescue => e
+    OpenNebula.error_message e.message
+    exit -1
+end
+
+if rc == true
+    exit 0
+else
+    OpenNebula.error_message rc
+    exit -1
 end
