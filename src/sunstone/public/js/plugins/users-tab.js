@@ -50,9 +50,11 @@ var create_user_tmpl =
                 <label for="driver">Authentication:</label>\
                 <select name="driver" id="driver">\
                      <option value="core" selected="selected">Core</option>\
-                     <option value="ssh" selected="selected">SSH</option>\
-                     <option value="x509" selected="selected">x509</option>\
-                     <option value="server" selected="selected">Server</option>\
+                     <option value="ssh">SSH</option>\
+                     <option value="x509">x509</option>\
+                     <option value="server_cipher">Server (Cipher)</option>\
+                     <option value="server_x509">Server (x509)</option>\
+                     <option value="public">Public</option>\
                 </select>\
         </div>\
         </fieldset>\
@@ -256,10 +258,12 @@ var user_buttons = {
         type: "confirm_with_select",
         text: "Change authentication",
         select: function() {
-            return '<option value="core" selected="selected">Core</option>\
-                 <option value="ssh" selected="selected">SSH</option>\
-                 <option value="x509" selected="selected">x509</option>\
-                 <option value="server" selected="selected">Server</option>'
+            return   '<option value="core" selected="selected">Core</option>\
+                     <option value="ssh">SSH</option>\
+                     <option value="x509">x509</option>\
+                     <option value="server_cipher">Server (Cipher)</option>\
+                     <option value="server_x509">Server (x509)</option>\
+                     <option value="public">Public</option>'
         },
         tip: "Please choose the new type of authentication for the selected users:"
     },
