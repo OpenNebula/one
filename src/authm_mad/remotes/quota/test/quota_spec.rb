@@ -12,18 +12,18 @@ describe "Quota testing" do
 
         @uid1 = 0
         @quota1 = {
-            :cpu     => 2.4,
-            :memory  => 1024,
-            :num_vms => 4,
-            :storage => 10000
+            :CPU     => 2.4,
+            :MEMORY  => 1024,
+            :NUM_VMS => 4,
+            :STORAGE => 10000
         }
 
         @uid2 = 1
         @quota2 = {
-            :cpu     => 1.2,
-            :memory  => 512,
-            :num_vms => 2,
-            :storage => 5000
+            :CPU     => 1.2,
+            :MEMORY  => 512,
+            :NUM_VMS => 2,
+            :STORAGE => 5000
         }
 
         # Generate VM ACL request
@@ -61,29 +61,29 @@ describe "Quota testing" do
 
     it "should check default quotas" do
         quota1 = @quota.get_quota(@uid1)
-        quota1[:uid].should eql(0)
-        quota1[:num_vms].should eql(nil)
-        quota1[:cpu].should eql(nil)
-        quota1[:memory].should eql(nil)
-        quota1[:storage].should eql(nil)
+        quota1[:UID].should eql(0)
+        quota1[:NUM_VMS].should eql(nil)
+        quota1[:CPU].should eql(nil)
+        quota1[:MEMORY].should eql(nil)
+        quota1[:STORAGE].should eql(nil)
     end
 
     it "should check default usage cache" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(nil)
-        usage1cache[:cpu].should eql(nil)
-        usage1cache[:memory].should eql(nil)
-        usage1cache[:storage].should eql(nil)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(nil)
+        usage1cache[:CPU].should eql(nil)
+        usage1cache[:MEMORY].should eql(nil)
+        usage1cache[:STORAGE].should eql(nil)
     end
 
     it "should check default cache (force)" do
         usage1force = @quota.get_usage(@uid1, nil, true)
-        usage1force[:uid].should eql(0)
-        usage1force[:num_vms].should eql(0)
-        usage1force[:cpu].should eql(0)
-        usage1force[:memory].should eql(0)
-        usage1force[:storage].should eql(0)
+        usage1force[:UID].should eql(0)
+        usage1force[:NUM_VMS].should eql(0)
+        usage1force[:CPU].should eql(0)
+        usage1force[:MEMORY].should eql(0)
+        usage1force[:STORAGE].should eql(0)
     end
 
     it "should authorize the user because there is no quota defined" do
@@ -94,10 +94,10 @@ describe "Quota testing" do
 
     it "should add a new VM" do
         values = {
-            :cpu => 2,
-            :memory => 128,
-            :uid => 2,
-            :gid => 4,
+            :CPU => 2,
+            :MEMORY => 128,
+            :UID => 2,
+            :GID => 4,
         }
 
         @mock_client.add_vm(0, values)
@@ -105,36 +105,36 @@ describe "Quota testing" do
 
     it "should check the usage cache is not updated" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(0)
-        usage1cache[:cpu].should eql(0.0)
-        usage1cache[:memory].should eql(0)
-        usage1cache[:storage].should eql(0)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(0)
+        usage1cache[:CPU].should eql(0.0)
+        usage1cache[:MEMORY].should eql(0)
+        usage1cache[:STORAGE].should eql(0)
     end
 
     it "should check the cache (force)" do
         usage1force = @quota.get_usage(@uid1, nil, true)
-        usage1force[:uid].should eql(0)
-        usage1force[:num_vms].should eql(1)
-        usage1force[:cpu].should eql(2.0)
-        usage1force[:memory].should eql(128)
-        usage1force[:storage].should eql(0)
+        usage1force[:UID].should eql(0)
+        usage1force[:NUM_VMS].should eql(1)
+        usage1force[:CPU].should eql(2.0)
+        usage1force[:MEMORY].should eql(128)
+        usage1force[:STORAGE].should eql(0)
     end
 
     it "should check the usage cache is updated and contains the last usage" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(1)
-        usage1cache[:cpu].should eql(2.0)
-        usage1cache[:memory].should eql(128)
-        usage1cache[:storage].should eql(0)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(1)
+        usage1cache[:CPU].should eql(2.0)
+        usage1cache[:MEMORY].should eql(128)
+        usage1cache[:STORAGE].should eql(0)
     end
 
     it "should add a new Image" do
         values = {
-            :uid => 2,
-            :gid => 4,
-            :size => 1000
+            :UID => 2,
+            :GID => 4,
+            :SIZE => 1000
         }
 
         @mock_client.add_image(0, values)
@@ -142,37 +142,37 @@ describe "Quota testing" do
 
     it "should check the usage cache is not updated" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(1)
-        usage1cache[:cpu].should eql(2.0)
-        usage1cache[:memory].should eql(128)
-        usage1cache[:storage].should eql(0)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(1)
+        usage1cache[:CPU].should eql(2.0)
+        usage1cache[:MEMORY].should eql(128)
+        usage1cache[:STORAGE].should eql(0)
     end
 
     it "should check the cache (force)" do
         usage1force = @quota.get_usage(@uid1, nil, true)
-        usage1force[:uid].should eql(0)
-        usage1force[:num_vms].should eql(1)
-        usage1force[:cpu].should eql(2.0)
-        usage1force[:memory].should eql(128)
-        usage1force[:storage].should eql(1000)
+        usage1force[:UID].should eql(0)
+        usage1force[:NUM_VMS].should eql(1)
+        usage1force[:CPU].should eql(2.0)
+        usage1force[:MEMORY].should eql(128)
+        usage1force[:STORAGE].should eql(1000)
     end
 
     it "should check the usage cache is updated and contains the last usage" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(1)
-        usage1cache[:cpu].should eql(2.0)
-        usage1cache[:memory].should eql(128)
-        usage1cache[:storage].should eql(1000)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(1)
+        usage1cache[:CPU].should eql(2.0)
+        usage1cache[:MEMORY].should eql(128)
+        usage1cache[:STORAGE].should eql(1000)
     end
 
     it "should add a second VM" do
         values = {
-            :cpu => 2,
-            :memory => 128,
-            :uid => 2,
-            :gid => 4,
+            :CPU => 2,
+            :MEMORY => 128,
+            :UID => 2,
+            :GID => 4,
         }
 
         @mock_client.add_vm(1, values)
@@ -180,36 +180,36 @@ describe "Quota testing" do
 
     it "should check the usage cache is not updated" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(1)
-        usage1cache[:cpu].should eql(2.0)
-        usage1cache[:memory].should eql(128)
-        usage1cache[:storage].should eql(1000)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(1)
+        usage1cache[:CPU].should eql(2.0)
+        usage1cache[:MEMORY].should eql(128)
+        usage1cache[:STORAGE].should eql(1000)
     end
 
     it "should check the cache (force)" do
         usage1force = @quota.get_usage(@uid1, nil, true)
-        usage1force[:uid].should eql(0)
-        usage1force[:num_vms].should eql(1*2)
-        usage1force[:cpu].should eql(2.0*2)
-        usage1force[:memory].should eql(128*2)
-        usage1force[:storage].should eql(1000)
+        usage1force[:UID].should eql(0)
+        usage1force[:NUM_VMS].should eql(1*2)
+        usage1force[:CPU].should eql(2.0*2)
+        usage1force[:MEMORY].should eql(128*2)
+        usage1force[:STORAGE].should eql(1000)
     end
 
     it "should check the usage cache is updated and contains the last usage" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(1*2)
-        usage1cache[:cpu].should eql(2.0*2)
-        usage1cache[:memory].should eql(128*2)
-        usage1cache[:storage].should eql(1000)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(1*2)
+        usage1cache[:CPU].should eql(2.0*2)
+        usage1cache[:MEMORY].should eql(128*2)
+        usage1cache[:STORAGE].should eql(1000)
     end
 
     it "should add a second Image" do
         values = {
-            :uid => 2,
-            :gid => 4,
-            :size => 1000
+            :UID => 2,
+            :GID => 4,
+            :SIZE => 1000
         }
 
         @mock_client.add_image(1, values)
@@ -217,29 +217,29 @@ describe "Quota testing" do
 
     it "should check the usage cache is not updated" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(1*2)
-        usage1cache[:cpu].should eql(2.0*2)
-        usage1cache[:memory].should eql(128*2)
-        usage1cache[:storage].should eql(1000)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(1*2)
+        usage1cache[:CPU].should eql(2.0*2)
+        usage1cache[:MEMORY].should eql(128*2)
+        usage1cache[:STORAGE].should eql(1000)
     end
 
     it "should check the cache (force)" do
         usage1force = @quota.get_usage(@uid1, nil, true)
-        usage1force[:uid].should eql(0)
-        usage1force[:num_vms].should eql(1*2)
-        usage1force[:cpu].should eql(2.0*2)
-        usage1force[:memory].should eql(128*2)
-        usage1force[:storage].should eql(1000*2)
+        usage1force[:UID].should eql(0)
+        usage1force[:NUM_VMS].should eql(1*2)
+        usage1force[:CPU].should eql(2.0*2)
+        usage1force[:MEMORY].should eql(128*2)
+        usage1force[:STORAGE].should eql(1000*2)
     end
 
     it "should check the usage cache is updated and contains the last usage" do
         usage1cache = @quota.get_usage(@uid1)
-        usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(1*2)
-        usage1cache[:cpu].should eql(2.0*2)
-        usage1cache[:memory].should eql(128*2)
-        usage1cache[:storage].should eql(1000*2)
+        usage1cache[:UID].should eql(0)
+        usage1cache[:NUM_VMS].should eql(1*2)
+        usage1cache[:CPU].should eql(2.0*2)
+        usage1cache[:MEMORY].should eql(128*2)
+        usage1cache[:STORAGE].should eql(1000*2)
     end
 
     it "should add a new quota and check it" do
@@ -271,11 +271,11 @@ describe "Quota testing" do
     it "should list all the defined quotas" do
         quotas = @quota.get_quota
         quotas.each { |quota|
-            if quota[:uid] == @uid1
+            if quota[:UID] == @uid1
                 @quota1.each{ |key,value|
                     quota[key].should eql(value)
                 }
-            elsif quota[:uid] == @uid2
+            elsif quota[:UID] == @uid2
                 @quota2.each{ |key,value|
                     quota[key].should eql(value)
                 }
@@ -306,14 +306,14 @@ describe "Quota testing" do
 
     it "should update the first user quota and check it" do
         new_quota = {
-            :storage => 0
+            :STORAGE => 0
         }
 
         @quota.set_quota(@uid1, new_quota)
 
         quota = @quota.get_quota(@uid1)
 
-        quota[:storage].should eql(new_quota[:storage])
+        quota[:STORAGE].should eql(new_quota[:STORAGE])
     end
 
     it "should not authorize the user because the image quota is spent" do
@@ -328,11 +328,11 @@ describe "Quota testing" do
         @quota.delete_quota(@uid1)
 
         quota1 = @quota.get_quota(@uid1)
-        quota1[:uid].should eql(0)
-        quota1[:num_vms].should eql(nil)
-        quota1[:cpu].should eql(nil)
-        quota1[:memory].should eql(nil)
-        quota1[:storage].should eql(nil)
+        quota1[:UID].should eql(0)
+        quota1[:NUM_VMS].should eql(nil)
+        quota1[:CPU].should eql(nil)
+        quota1[:MEMORY].should eql(nil)
+        quota1[:STORAGE].should eql(nil)
     end
 
     it "should authorize the user because the quota was deleted" do

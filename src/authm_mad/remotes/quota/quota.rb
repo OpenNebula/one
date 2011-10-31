@@ -37,10 +37,10 @@ class Quota
     CONF = {
         :db => "sqlite://#{VAR_LOCATION}/onequota.db",
         :defaults => {
-            :cpu     => nil,
-            :memory  => nil,
-            :num_vms => nil,
-            :storage => nil
+            :CPU     => nil,
+            :MEMORY  => nil,
+            :NUM_VMS => nil,
+            :STORAGE => nil
         }
     }
 
@@ -48,10 +48,10 @@ class Quota
     # Schema for the USAGE and QUOTA tables
     ###########################################################################
     DB_QUOTA_SCHEMA = {
-        :cpu     => Float,
-        :memory  => Integer,
-        :num_vms => Integer,
-        :storage => Integer
+        :CPU     => Float,
+        :MEMORY  => Integer,
+        :NUM_VMS => Integer,
+        :STORAGE => Integer
     }
 
     QUOTA_TABLE = :quotas
@@ -61,15 +61,15 @@ class Quota
     # Usage params to calculate each quota
     ###########################################################################
     VM_USAGE = {
-        :cpu => {
+        :CPU => {
             :proc_info  => lambda {|template| template['CPU']},
             :xpath => 'TEMPLATE/CPU'
         },
-        :memory => {
+        :MEMORY => {
             :proc_info  => lambda {|template| template['MEMORY']},
             :xpath => 'TEMPLATE/MEMORY'
         },
-        :num_vms => {
+        :NUM_VMS => {
             :proc_info  => lambda {|template| 1 },
             :xpath => 'ID',
             :count => true
@@ -77,7 +77,7 @@ class Quota
     }
 
     IMAGE_USAGE = {
-        :storage => {
+        :STORAGE => {
             :proc_info  => lambda {|template| File.size(template['PATH']) },
             :xpath => 'SIZE'
         }
@@ -105,14 +105,14 @@ class Quota
     # Creates database quota table if it does not exist
     def create_table(table)
         @db.create_table?(table) do
-            Integer     :uid
+            Integer     :UID
 
             DB_QUOTA_SCHEMA.each { |key,value|
                 column key, value
             }
 
-            primary_key :uid
-            index       :uid
+            primary_key :UID
+            index       :UID
         end
     end
 
@@ -120,19 +120,19 @@ class Quota
     def set(table, uid, quota={})
         data=quota.delete_if{|key,value| !DB_QUOTA_SCHEMA.keys.include?(key)}
 
-        quotas=@db[table].filter(:uid => uid)
+        quotas=@db[table].filter(:UID => uid)
 
         if quotas.first
             quotas.update(data)
         else
-            @db[table].insert(data.merge!(:uid => uid))
+            @db[table].insert(data.merge!(:UID => uid))
         end
     end
 
     # Gets user limits
     def get(table, uid=nil)
         if uid
-            @db[table].filter(:uid => uid).first
+            @db[table].filter(:UID => uid).first
         else
             @db[table].all
         end
@@ -140,7 +140,7 @@ class Quota
 
     # Delete user limits
     def delete(table, uid)
-        quotas=@db[table].filter(:uid => uid)
+        quotas=@db[table].filter(:UID => uid)
 
         if quotas.first
             quotas.delete
@@ -169,7 +169,7 @@ class Quota
     #    }
     def get_quota(uid=nil)
         limit = get(QUOTA_TABLE, uid)
-        limit ? limit : @conf[:defaults].merge!(:uid => uid)
+        limit ? limit : @conf[:defaults].merge!(:UID => uid)
     end
 
     def delete_quota(uid)
@@ -286,11 +286,11 @@ class Quota
                 }
 
                 set(USAGE_TABLE, user_id, usage) unless usage.empty?
-                usage.merge!(:uid => user_id)
+                usage.merge!(:UID => user_id)
             }
         else
             usage = get(USAGE_TABLE, user_id)
-            usage ||= {:uid => user_id}
+            usage ||= {:UID => user_id}
         end
 
         usage

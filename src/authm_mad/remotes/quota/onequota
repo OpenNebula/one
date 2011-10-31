@@ -39,11 +39,11 @@ QUOTA_KEYS = Quota::DB_QUOTA_SCHEMA.keys
 def show_table(values, usage=nil)
     size = usage ? 12 : 8
 
-    values.sort!{|v1, v2| v1[:uid]<=>v2[:uid] }
+    values.sort!{|v1, v2| v1[:UID]<=>v2[:UID] }
 
     table=CLIHelper::ShowTable.new(nil, self) do
-        column :uid, "ONE identifier for the User", :size=>4 do |d|
-            d[:uid]
+        column :UID, "ONE identifier for the User", :size=>4 do |d|
+            d[:UID]
         end
 
         QUOTA_KEYS.each { |key|
@@ -56,7 +56,7 @@ def show_table(values, usage=nil)
             end
         }
 
-        default :uid, *QUOTA_KEYS
+        default :UID, *QUOTA_KEYS
     end
 
     table.show(values)
@@ -85,10 +85,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         arg_list = arg.split(',')
 
         rc = nil
-        arg_list.each do |elem|
-          if !QUOTA_KEYS.include?(elem.to_sym)
+        arg_list.collect! do |elem|
+          sym = elem.upcase.to_sym
+          if !QUOTA_KEYS.include?(sym)
             rc = -1, "#{elem} is not a valid quota"
+            break
           end
+          sym
         end
 
         rc ? rc : [0, arg_list]
@@ -123,7 +126,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         values_hash = Hash.new
         keys.each_with_index { |k,i|
-            values_hash[k.to_sym] = values[i]
+            values_hash[k] = values[i]
         }
 
         quota.set_quota(user_id, values_hash)
@@ -143,7 +146,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         values_hash = Hash.new
         keys.each_with_index { |k,i|
-            values_hash[k.to_sym] = 0
+            values_hash[k] = 0
         }
 
         quota.set_quota(user_id, values_hash)
