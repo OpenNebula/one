@@ -196,19 +196,19 @@ function notifySubmit(action, args, extra_param){
         msg += " >> " + extra_param;
     };
 
-    $.jGrowl(msg, {theme: "jGrowl-notify-submit"});
+    $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
 }
 
 //Notification on error
 function notifyError(msg){
     msg = "<h1>Error</h1>" + msg;
-    $.jGrowl(msg, {theme: "jGrowl-notify-error", sticky: true });
+    $.jGrowl(msg, {theme: "jGrowl-notify-error", position: "bottom-right", sticky: true });
 }
 
 //Standard notification
 function notifyMessage(msg){
     msg = "<h1>Info</h1>" + msg;
-    $.jGrowl(msg, {theme: "jGrowl-notify-submit"});
+    $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
 }
 
 // Returns an HTML string with the json keys and values
