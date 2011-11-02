@@ -95,6 +95,11 @@ var create_image_tmpl =
                  </select>\
                  <div class="tip">Type of disk device to emulate.</div>\
                  </div>\
+               <div class="img_param">\
+                  <label for="img_driver">Driver:</label>\
+                  <input type="text" name="img_driver" id="img_driver" />\
+                  <div class="tip">Specific image mapping driver. KVM: raw, qcow2 and Xen:tap:aio:, file:</div>\
+               </div>\
               </fieldset>\
               <fieldset>\
                  <div class="" id="src_path_select">\
@@ -782,6 +787,10 @@ function setupCreateImageDialog(){
 
         var bus = $('#img_bus',this).val();
         img_json["BUS"] = bus;
+
+        var driver = $('#img_driver',this).val();
+        if (driver.length)
+            img_json["DRIVER"] = driver;
 
         switch ($('#src_path_select input:checked',this).val()){
         case "path":
