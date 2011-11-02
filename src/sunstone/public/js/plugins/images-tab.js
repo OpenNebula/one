@@ -372,7 +372,19 @@ var image_actions = {
         elements: imageElements,
         error: onError,
         notify: true
+    },
+
+    "Image.chtype" : {
+        type: "single",
+        call: OpenNebula.Image.chtype,
+        callback: function (req) {
+            Sunstone.runAction("Image.show",req.request.data[0]);
+        },
+        elements: imageElements,
+        error: onError,
+        notify: true
     }
+
 }
 
 
@@ -473,13 +485,25 @@ function imageElements() {
 function imageElementArray(image_json){
     //Changing this? It may affect to the is_public() and is_persistent() functions.
     var image = image_json.IMAGE;
+
+    var type = $('<select>\
+                      <option value="OS">OS</option>\
+                      <option value="CDROM">CD-ROM</option>\
+                      <option value="DATABLOCK">Datablock</option>\
+                 </select>');
+
+    var value = OpenNebula.Helper.image_type(image.TYPE);
+    $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+value+'</option>');
+
+
+
     return [
         '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
         image.UNAME,
         image.GNAME,
         image.NAME,
-        OpenNebula.Helper.image_type(image.TYPE),
+        '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'">'+type.html()+'</select>',
         pretty_time(image.REGTIME),
         parseInt(image.PUBLIC) ? '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
             : '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'"/>',
@@ -493,7 +517,11 @@ function imageElementArray(image_json){
 // Set up the listener on the table TDs to show the info panel
 function imageInfoListener(){
     $('#tbodyimages tr',dataTable_images).live("click",function(e){
-        if ($(e.target).is('input')) {return true;}
+        var target = $(e.target);
+
+        if (target.is('input') || target.is('select') || target.is('option'))
+            return true;
+
         popDialogLoading();
         var aData = dataTable_images.fnGetData(this);
         var id = $(aData[0]).val();
@@ -970,6 +998,15 @@ function setupImageActionCheckboxes(){
 
         return true;
     });
+
+    $('select.action_cb#select_chtype_image', dataTable_images).live("change",function(){
+        var $this = $(this);
+        var value = $this.val();
+        var id = $this.attr("elem_id");
+
+        Sunstone.runAction("Image.chtype", id, value);
+    });
+
 }
 
 //The DOM is ready at this point

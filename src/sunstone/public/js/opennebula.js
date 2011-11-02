@@ -745,6 +745,13 @@ var OpenNebula = {
         },
         "nonpersistent": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"nonpersistent");
+        },
+        "chtype": function(params){
+            var action_obj = {"type" : params.data.extra_param};
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Image.resource,
+                                            "chtype",
+                                            action_obj);
         }
     },
 
