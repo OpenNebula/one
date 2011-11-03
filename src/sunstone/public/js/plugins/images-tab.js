@@ -508,7 +508,7 @@ function imageElementArray(image_json){
         image.UNAME,
         image.GNAME,
         image.NAME,
-        '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'">'+type.html()+'</select>',
+        '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'" style="width:100px">'+type.html()+'</select>',
         pretty_time(image.REGTIME),
         parseInt(image.PUBLIC) ? '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
             : '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'"/>',
@@ -1028,9 +1028,9 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,5,7,8,9] },
+            { "sWidth": "60px", "aTargets": [0,2,3,7,8,9] },
             { "sWidth": "35px", "aTargets": [1,10] },
-            { "sWidth": "100px", "aTargets": [9] },
+            { "sWidth": "100px", "aTargets": [5,9] },
             { "sWidth": "150px", "aTargets": [6] }
         ]
     });
