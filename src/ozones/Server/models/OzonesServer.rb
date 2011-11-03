@@ -20,6 +20,11 @@ require 'JSONUtils'
 class OzonesServer
     include OpenNebulaJSON::JSONUtils
 
+    def initialize(cipher)
+        #Set cipher for Zone classes
+        OZones::Zones.cipher = cipher
+    end
+
     ############################################################################
     # Get methods for the Zones and VDC interface
     ############################################################################

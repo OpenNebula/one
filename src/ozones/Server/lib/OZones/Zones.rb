@@ -68,9 +68,12 @@ module OZones
 
         def ONEPASS
             pw = super
-            OZones.decrypt(pw)
+            decrypt(pw)
+        end 
+ 
+        def ONEPASS=(plain_pw)
+            super(encrypt(plain_pw))
         end
-
 
         #######################################################################
         # Zone Data Management
@@ -87,8 +90,6 @@ module OZones
             # Digest and check credentials
             name = zone_data[:ONENAME]
             pass = zone_data[:ONEPASS]
-
-            zone_data[:ONEPASS] = OZones.encrypt(pass)
 
             rc = OpenNebulaZone::check_oneadmin(name,
                                                 pass,
@@ -112,6 +113,41 @@ module OZones
             end
 
             return zone
+        end
+         
+        ########################################################################
+        # Encryption functions for the class
+        ########################################################################
+        CIPHER   = "aes-256-cbc"
+
+        @@cipher = ""
+
+        def self.cipher=(cipher)
+            @@cipher = cipher
+        end
+
+        def encrypt(plain_txt)
+            #prepare cipher object
+            cipher = OpenSSL::Cipher.new(CIPHER)
+            cipher.encrypt
+            cipher.key = @@cipher
+
+            enc_txt = cipher.update(plain_txt)
+            enc_txt << cipher.final
+
+            Base64::encode64(enc_txt).strip.delete("\n")
+        end
+
+        def decrypt(b64_txt)
+            #prepare cipher object
+            cipher = OpenSSL::Cipher.new(CIPHER)
+            cipher.decrypt
+            cipher.key = @@cipher
+
+            enc_txt = Base64::decode64(b64_txt)
+
+            plain_txt = cipher.update(enc_txt)
+            plain_txt << cipher.final
         end
     end
 

@@ -96,6 +96,7 @@ end
 
 ADMIN_NAME = @auth.name
 ADMIN_PASS = @auth.password
+ADMIN_KEY  = Digest::SHA1.hexdigest("ADMIN_NAME:ADMIN_PASS")
 
 begin
     OZones::ProxyRules.new("apache",config[:htaccess])
@@ -171,7 +172,7 @@ before do
     unless request.path=='/login' || request.path=='/'
         halt 401 unless authorized?
 
-        @OzonesServer = OzonesServer.new
+        @OzonesServer = OzonesServer.new(ADMIN_KEY)
         @pr = OZones::ProxyRules.new("apache",config[:htaccess])
     end
 end
