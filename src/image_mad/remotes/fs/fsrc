@@ -55,7 +55,7 @@ echo "$IMAGE_REPOSITORY_PATH/`echo $CANONICAL_MD5 | cut -d ' ' -f1`"
 }
 
 function fs_du {
-	SIZE=`$(stat -c %s $1)`
+	SIZE=`stat -c %s $1`
 
 	if [ $? -ne 0 ]; then
 	    SIZE=0
