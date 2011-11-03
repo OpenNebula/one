@@ -47,32 +47,38 @@ module OZones
             zonePoolHash["ZONE_POOL"]["ZONE"] = Array.new unless self.all.empty?
 
             self.all.each{|zone|
-                zonePoolHash["ZONE_POOL"]["ZONE"] <<
-                zone.attributes.merge({:NUMBERVDCS => zone.vdcs.all.size})
+                zattr = zone.attributes.clone
+                
+                zattr[:ONE_PASS] = Zones.encrypt(zattr[:ONEPASS]) 
+                zattr.merge({:NUMBERVDCS => zone.vdcs.all.size})
+
+                zonePoolHash["ZONE_POOL"]["ZONE"] << zattr
             }
 
             return zonePoolHash
         end
 
         def to_hash
-            zone_attributes = Hash.new
-            zone_attributes["ZONE"] = attributes
-            zone_attributes["ZONE"][:VDCS] = Array.new
+            zattr = Hash.new
+
+            zattr["ZONE"]           = attributes.clone
+            zattr["ZONE"][:ONEPASS] = Zones.encrypt(zattr["ZONE"][:ONEPASS]) 
+            zattr["ZONE"][:VDCS]    = Array.new
 
             self.vdcs.all.each{|vdc|
-                zone_attributes["ZONE"][:VDCS]<< vdc.attributes
+                zattr["ZONE"][:VDCS]<< vdc.attributes.clone
             }
 
-            return zone_attributes
+            return zattr
         end
 
         def ONEPASS
             pw = super
-            decrypt(pw)
+            Zones.decrypt(pw)
         end 
  
         def ONEPASS=(plain_pw)
-            super(encrypt(plain_pw))
+            super(Zones.encrypt(plain_pw))
         end
 
         #######################################################################
@@ -126,7 +132,7 @@ module OZones
             @@cipher = cipher
         end
 
-        def encrypt(plain_txt)
+        def self.encrypt(plain_txt)
             #prepare cipher object
             cipher = OpenSSL::Cipher.new(CIPHER)
             cipher.encrypt
@@ -138,7 +144,7 @@ module OZones
             Base64::encode64(enc_txt).strip.delete("\n")
         end
 
-        def decrypt(b64_txt)
+        def self.decrypt(b64_txt)
             #prepare cipher object
             cipher = OpenSSL::Cipher.new(CIPHER)
             cipher.decrypt
