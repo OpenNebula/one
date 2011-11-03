@@ -49,7 +49,7 @@ module OZones
             self.all.each{|zone|
                 zattr = zone.attributes.clone
                 
-                zattr[:ONE_PASS] = Zones.encrypt(zattr[:ONEPASS]) 
+                zattr[:ONEPASS] = Zones.encrypt(zattr[:ONEPASS]) 
                 zattr.merge({:NUMBERVDCS => zone.vdcs.all.size})
 
                 zonePoolHash["ZONE_POOL"]["ZONE"] << zattr
