@@ -103,7 +103,7 @@ USERNAME={
     :description => "MySQL username",
     :proc => lambda { |o, options|
         options[:backend] = :mysql
-        options[:username]  = o
+        options[:user]    = o
     }
 }
 
@@ -115,7 +115,7 @@ PASSWORD={
     :description => "MySQL password. Leave unset to be prompted for it",
     :proc => lambda { |o, options|
         options[:backend] = :mysql
-        options[:password]  = o
+        options[:passwd]  = o
     }
 }
 
@@ -127,7 +127,7 @@ DBNAME={
     :description => "MySQL DB name for OpenNebula",
     :proc => lambda { |o, options|
         options[:backend] = :mysql
-        options[:dbname]  = o
+        options[:db_name] = o
     }
 }
 
