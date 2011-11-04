@@ -34,9 +34,11 @@ class OneDBBacKEnd
 
         return [version, timestamp, comment]
 
-    rescue
-        # If the DB doesn't have db_version table, it means it is empty or a 2.x
-        if !db_exists?
+    rescue Exception => e
+        if e.class == Sequel::DatabaseConnectionError
+            raise e
+        elsif !db_exists?
+            # If the DB doesn't have db_version table, it means it is empty or a 2.x
             raise "Database schema does not look to be created by " <<
                   "OpenNebula: table user_pool is missing or empty."
         end
@@ -103,12 +105,16 @@ class OneDBBacKEnd
 
     def db_exists?
         begin
+            found = false
+
             # User with ID 0 (oneadmin) always exists
-            @db.fetch("SELECT * FROM user_pool WHERE oid=0") { |row| }
-            return true
+            @db.fetch("SELECT * FROM user_pool WHERE oid=0") { |row|
+                found = true
+            }
         rescue
-            return false
         end
+
+        return found
     end
 end
 
