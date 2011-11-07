@@ -78,16 +78,20 @@ module OpenNebula
         
             conf_file.scan(ARRAY_VARIABLE_REG) {|m|
                 master_key=m[0].strip.upcase
-                    
-                pieces=m[1].split(',')
-            
-                vars=Hash.new
-                pieces.each {|p|
-                    key, value=p.split('=')
-                    vars[key.strip.upcase]=value.strip
-                }
 
-                add_value(master_key, vars)
+                # TODO: This method is only used by onedb.
+                # Temporary workaround to parse only the DB array, see Bug #961
+                if ( master_key == "DB" )
+                    pieces=m[1].split(',')
+
+                    vars=Hash.new
+                    pieces.each {|p|
+                        key, value=p.split('=')
+                        vars[key.strip.upcase]=value.strip
+                    }
+
+                    add_value(master_key, vars)
+                end
             }
 
         end
