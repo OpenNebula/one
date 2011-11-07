@@ -39,14 +39,20 @@ var create_zone_tmpl =
      <div>\
         <label for="name">Name:</label>\
         <input type="text" name="name" id="name" /><br />\
-        <label for="endpoint">End point:</label>\
-        <input type="text" name="endpoint" id="endpoint" /><br />\
+        <label for="endpoint">End point (host,port):</label>\
+        <input type="text" name="endpoint" id="endpoint" value="localhost"/> :\
+        <input type="text" name="endpoint_port" id="endpoint_port" value="2633" style="width:3em;"/>\
+        <br />\
         <label for="onename">Oneadmin user:</label>\
-        <input type="text" name="onename" id="onename" /><br />\
+        <input type="text" name="onename" id="onename" value="oneadmin"/><br />\
         <label for="onepass">Password:</label>\
-        <input type="password" name="onepass" id="onepass" />\
+        <input type="password" name="onepass" id="onepass" /><br />\
         <label for="sunsendpoint">Sunstone end point:</label>\
-        <input type="text" name="sunsendpoint" id="sunsendpoint" /><br />\
+        <input type="text" name="sunsendpoint_ptc" id="sunsendpoint_ptc" value="http" style="width:2em;"/> ://\
+        <input type="text" name="sunsendpoint" id="sunsendpoint" style="width:7em;" value="localhost"/> :\
+        <input type="text" name="sunsendpoint_port" id="sunsendpoint_port" value="9869" style="width:3em;"/> /\
+        <input type="text" name="sunsendpoint_path" id="sunsendpoint_path" value="" style="width:4em;"/>\
+        <br />\
      </div>\
    </fieldset>\
    <fieldset>\
@@ -301,7 +307,7 @@ function updateZoneInfo(req,zone_json){
                 <td class="value_td">'+zone.ENDPOINT+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">Sunstone endpoint</td>\
+            <td class="key_td">Sunstone endpoint</td>\
 <td class="value_td">'+ (zone.SUNSENDPOINT.length? '<a href="'+zone.SUNSENDPOINT+'" target="_blank">'+zone.SUNSENDPOINT+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "") +'</td>\
             </tr>\
             <tr>\
@@ -539,7 +545,7 @@ function setupCreateZoneDialog(){
     $('#create_zone_dialog').dialog({
         autoOpen: false,
         modal: true,
-        width: 500
+        width: 540
     });
 
     $('#create_zone_dialog button').button();
@@ -548,9 +554,13 @@ function setupCreateZoneDialog(){
     $('#create_zone_form').submit(function(){
         var name = $('#name', this).val();
         var endpoint = $('#endpoint',this).val();
+        var endpoint_port = $('#endpoint_port',this).val();
         var onename = $('#onename',this).val();
         var onepass = $('#onepass',this).val();
-        var sunsendpoint = $('#sunsendpoint',this).val();
+        var se = $('#sunsendpoint',this).val();
+        var se_ptc = $('#sunsendpoint_ptc',this).val();
+        var se_port = $('#sunsendpoint_port',this).val();
+        var se_path = $('#sunsendpoint_path',this).val();
 
         if (!name.length || !endpoint.length ||
             !onename.length || !onepass.length){
@@ -558,13 +568,20 @@ function setupCreateZoneDialog(){
             return false;
         }
 
+        endpoint = "http://"+
+            endpoint+":"+endpoint_port+"/RPC2"
+
+        if (se.length)
+            se = se_ptc + "://" + se + ":" + se_port +
+            "/" + se_path;
+
         var zone_json = {
             "ZONE": {
                 "NAME": name,
                 "ENDPOINT": endpoint,
                 "ONENAME": onename,
                 "ONEPASS": onepass,
-                "SUNSENDPOINT" : sunsendpoint
+                "SUNSENDPOINT" : se
             }
         };
 
