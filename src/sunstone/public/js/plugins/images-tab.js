@@ -28,6 +28,7 @@ var images_tab_content =
       <th>Owner</th>\
       <th>Group</th>\
       <th>Name</th>\
+      <th>Size</th>\
       <th>Type</th>\
       <th>Registration time</th>\
       <th>Public</th>\
@@ -508,6 +509,7 @@ function imageElementArray(image_json){
         image.UNAME,
         image.GNAME,
         image.NAME,
+        image.SIZE,
         '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'" style="width:100px">'+type.html()+'</select>',
         pretty_time(image.REGTIME),
         parseInt(image.PUBLIC) ? '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
@@ -628,11 +630,27 @@ function updateImageInfo(request,img){
            </tr>\
            <tr>\
               <td class="key_td">Source</td>\
-              <td class="value_td">'+img_info.SOURCE+'</td>\
+              <td class="value_td">'+(typeof img_info.SOURCE === "string" ? img_info.SOURCE : "--")+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Path</td>\
+              <td class="value_td">'+(typeof img_info.PATH === "string" ? img_info.PATH : "--")+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Filesystem type</td>\
+              <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Size (Mb)</td>\
+              <td class="value_td">'+img_info.SIZE+'</td>\
            </tr>\
            <tr>\
               <td class="key_td">State</td>\
               <td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Running #VMS</td>\
+              <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
            </tr>\
         </table>'
     }
@@ -1028,17 +1046,17 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,7,8,9] },
-            { "sWidth": "35px", "aTargets": [1,10] },
-            { "sWidth": "100px", "aTargets": [5,9] },
-            { "sWidth": "150px", "aTargets": [6] }
+            { "sWidth": "60px", "aTargets": [0,2,3,8,9,10] },
+            { "sWidth": "35px", "aTargets": [1,5,11] },
+            { "sWidth": "100px", "aTargets": [6] },
+            { "sWidth": "150px", "aTargets": [7] }
         ]
     });
 
     dataTable_images.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','',''],dataTable_images);
+        '','','','','','','','','','',''],dataTable_images);
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();

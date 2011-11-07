@@ -526,6 +526,10 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">Public</td>\
               <td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
             </tr>\
+            <tr>\
+              <td class="key_td">Physical device</td>\
+              <td class="value_td">'+(vn_info.PHYDEV ? vn_info.PHYDEV : "--" )+'</td>\
+            </tr>\
         </table>\
        <table id="vn_leases_info_table" class="info_table">\
             <thead>\
