@@ -67,15 +67,19 @@ function fs_du {
 }
 
 function check_restricted {
-	if [ -n "`find -L $SAFE_DIRS -path $1 2>/dev/null`" ] ; then
-		echo 0
-		return
-	fi
+	for path in $SAFE_DIRS ; do
+		if [ -n "`readlink -f $1 | grep -E "^$path"`" ] ; then
+			echo 0
+			return
+		fi
+	done
 
-	if [ -n "`find -L $RESTRICTED_DIRS -path $1 2>/dev/null`" ]; then	
-    	echo 1
-    	return	
-  	fi
+	for path in $RESTRICTED_DIRS ; do
+		if [ -n "`readlink -f $1 | grep -E "^$path"`" ] ; then
+			echo 1
+			return
+		fi
+    done
 
   	echo 0
 }
