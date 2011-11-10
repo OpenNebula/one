@@ -110,108 +110,76 @@ private:
     friend class VirtualMachineManager;
       
     /**
-     *  Sends a deploy request to the MAD: "DEPLOY    ID    HOST    CONF    -"
+     *  Sends a deploy request to the MAD: "DEPLOY ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param host the hostname
-     *    @param conf the filename of the deployment file
+     *    @param drv_msg xml data for the mad operation
      */
     void deploy (
         const int     oid,
-        const string& host,
-        const string& conf) const;
+        const string& drv_msg) const;
 
     /**
-     *  Sends a shutdown request to the MAD: "SHUTDOWN  ID    HOST    NAME    -"
+     *  Sends a shutdown request to the MAD: "SHUTDOWN ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param host the hostname
-     *    @param name of the Virtual Machine (deployment id), as returned by the
-     *    driver 
+     *    @param drv_msg xml data for the mad operation
      */
     void shutdown (
         const int     oid,
-        const string& host,
-        const string& name) const;
+        const string& drv_msg) const;
 
     /**
-     *  Sends a cancel request to the MAD: "CANCEL    ID    HOST    NAME    -"
+     *  Sends a cancel request to the MAD: "CANCEL ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param host the hostname
-     *    @param name of the Virtual Machine (deployment id), as returned by the
-     *    driver
+     *    @param drv_msg xml data for the mad operation
      */
     void cancel (
         const int     oid,
-        const string& host,
-        const string& name) const;
+        const string& drv_msg) const;
 
     /**
-     *  Sends a checkpoint request to the MAD: "CHECKPOINT ID  HOST  NAME  FILE"
+     *  Sends a checkpoint request to the MAD: "CHECKPOINT ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param host the hostname
-     *    @param name of the Virtual Machine (deployment id), as returned by the
-     *    driver
-     *    @param file the filename to generate the checkpoint file
+     *    @param drv_msg xml data for the mad operation
      */
     void checkpoint (
         const int     oid,
-        const string& host,
-        const string& name,
-        const string& file) const;
+        const string& drv_msg) const;
 
     /**
-     *  Sends a save request to the MAD: "SAVE    ID    HOST    NAME    FILE"
+     *  Sends a save request to the MAD: "SAVE ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param host the hostname
-     *    @param name of the Virtual Machine (deployment id), as returned by the
-     *    driver
-     *    @param file the filename to generate the checkpoint file
+     *    @param drv_msg xml data for the mad operation
      */
     void save (
         const int     oid,
-        const string& host,
-        const string& name,
-        const string& file) const;
+        const string& drv_msg) const;
 
     /**
-     *  Sends a save request to the MAD: "RESTORE    ID    HOST    FILE    -"
+     *  Sends a save request to the MAD: "RESTORE ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param host the hostname
-     *    @param name of the Virtual Machine (deployment id), as returned by the
-     *    driver
-     *    @param file the filename of the checkpoint file to restore the VM 
-     *    from
+     *    @param drv_msg xml data for the mad operation
      */
     void restore (
         const int     oid,
-        const string& host,
-        const string& name,
-        const string& file) const;
+        const string& drv_msg) const;
 
     /**
-     *  Sends a migrate request to the MAD: "MIGRATE    ID    HOST    NAME    DEST"
+     *  Sends a migrate request to the MAD: "MIGRATE ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param shost the original host (source)
-     *    @param name of the Virtual Machine (deployment id), as returned by the
-     *    driver
-     *    @param dhost the destination host
+     *    @param drv_msg xml data for the mad operation
      */
     void migrate (
         const int     oid,
-        const string& shost,
-        const string& name,
-        const string& dhost) const;
+        const string& drv_msg) const;
 
     /**
-     *  Sends a poll request to the MAD: "POLL    ID    HOST    NAME    -"
+     *  Sends a poll request to the MAD: "POLL ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
-     *    @param host the hostname
-     *    @param name of the Virtual Machine (deployment id), as returned by the
-     *    driver
+     *    @param drv_msg xml data for the mad operation
      */
     void poll (
         const int     oid,
-        const string& host,
-        const string& name) const;    
+        const string& drv_msg) const;
 };
 
 /* -------------------------------------------------------------------------- */
