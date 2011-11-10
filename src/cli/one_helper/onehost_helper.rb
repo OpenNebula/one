@@ -59,6 +59,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts str % ["STATE", host.state_str]
         puts str % ["IM_MAD", host['IM_MAD']]
         puts str % ["VM_MAD", host['VM_MAD']]
+        puts str % ["VN_MAD", host['VN_MAD']]
         puts str % ["TM_MAD", host['TM_MAD']]
         puts
 
