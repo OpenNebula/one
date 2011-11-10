@@ -217,6 +217,7 @@ public:
         const string& hostname,
         const string& vm_dir,
         const string& vmm_mad,
+        const string& vnm_mad,
         const string& tm_mad);
 
     /**
@@ -281,9 +282,7 @@ public:
     // const string & get_vnm_mad() const
     string get_vnm_mad() const
     {
-        string tmp = "TODO";
-        return tmp;
-        //TODO return history->vnm_mad_name;
+        return history->vnm_mad_name;
     };
 
     /**
@@ -294,9 +293,7 @@ public:
     // const string & get_previous_vnm_mad() const
     string get_previous_vnm_mad() const
     {
-        string tmp = "TODO";
-        return tmp;
-        //return previous_history->vnm_mad_name;
+        return previous_history->vnm_mad_name;
     };
 
     /**

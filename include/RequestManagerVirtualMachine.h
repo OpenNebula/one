@@ -51,13 +51,14 @@ protected:
     bool vm_authorization(int id, int hid, ImageTemplate *tmpl,
             RequestAttributes& att);
 
-    int get_host_information(int hid, string& name, string& vmm, string& tm,
-            RequestAttributes& att);
+    int get_host_information(int hid, string& name, string& vmm, string& vnm,
+            string& tm, RequestAttributes& att);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
                     const string&    hostname,
                     const string&    vmm_mad,
+                    const string&    vnm_mad,
                     const string&    tm_mad,
                     RequestAttributes& att);
 
