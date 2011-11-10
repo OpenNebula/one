@@ -185,9 +185,9 @@ private:
      *      <DOMAIN> domain_id </DOMAIN>
      *      <DEPLOYMENT_FILE> dfile </DEPLOYMENT_FILE>
      *      <CHECKPOINT_FILE> cfile </CHECKPOINT_FILE>
-     *      <VM_TEMPLATE>
+     *      <VM>
      *          VM representation in XML
-     *      </VM_TEMPLATE>
+     *      </VM>
      *  </VMM_DRIVER_ACTION_DATA>
      *
      *    @param hostname of the host to perform the action

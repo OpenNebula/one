@@ -109,7 +109,7 @@ void VirtualMachineManagerDriver::deploy (
     ostringstream os;
 
     os << "DEPLOY " << oid << " " << drv_msg << endl;
-
+    
     write(os);
 };
 

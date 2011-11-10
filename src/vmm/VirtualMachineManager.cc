@@ -268,7 +268,7 @@ string * VirtualMachineManager::format_message(
     }
     else
     {
-        oss << "</MIGR_HOST></MIGR_NET_DRV>"; 
+        oss << "<MIGR_HOST/><MIGR_NET_DRV/>"; 
     }
 
     if (!domain.empty())
@@ -277,7 +277,7 @@ string * VirtualMachineManager::format_message(
     }
     else
     {
-        oss << "</DOMAIN>";
+        oss << "<DOMAIN/>";
     }
 
     if (!dfile.empty())
@@ -286,7 +286,7 @@ string * VirtualMachineManager::format_message(
     }
     else
     {
-        oss << "</DEPLOYMENT_FILE>";
+        oss << "<DEPLOYMENT_FILE/>";
     }
 
     if (!cfile.empty())
@@ -295,10 +295,10 @@ string * VirtualMachineManager::format_message(
     }
     else
     {
-        oss << "</CHECKPOINT_FILE>";
+        oss << "<CHECKPOINT_FILE/>";
     }
 
-    oss <<   "<VM_TEMPLATE>" << tmpl  << "</VM_TEMPLATE>"
+    oss << tmpl 
         << "</VMM_DRIVER_ACTION_DATA>";
 
     return SSLTools::base64_encode(oss.str());
