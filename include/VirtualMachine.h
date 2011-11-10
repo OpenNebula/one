@@ -274,6 +274,32 @@ public:
     };
 
     /**
+     *  Returns the VNM driver name for the current host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the VMM mad name
+     */
+    // const string & get_vnm_mad() const
+    string get_vnm_mad() const
+    {
+        string tmp = "TODO";
+        return tmp;
+        //TODO return history->vnm_mad_name;
+    };
+
+    /**
+     *  Returns the VNM driver name for the previous host. The hasPreviousHistory()
+     *  function MUST be called before this one.
+     *    @return the VMM mad name
+     */
+    // const string & get_previous_vnm_mad() const
+    string get_previous_vnm_mad() const
+    {
+        string tmp = "TODO";
+        return tmp;
+        //return previous_history->vnm_mad_name;
+    };
+
+    /**
      *  Returns the TM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
      *    @return the TM mad name
