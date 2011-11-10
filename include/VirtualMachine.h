@@ -279,8 +279,7 @@ public:
      *  function MUST be called before this one.
      *    @return the VMM mad name
      */
-    // const string & get_vnm_mad() const
-    string get_vnm_mad() const
+    const string & get_vnm_mad() const
     {
         return history->vnm_mad_name;
     };
@@ -290,8 +289,7 @@ public:
      *  function MUST be called before this one.
      *    @return the VMM mad name
      */
-    // const string & get_previous_vnm_mad() const
-    string get_previous_vnm_mad() const
+    const string & get_previous_vnm_mad() const
     {
         return previous_history->vnm_mad_name;
     };
