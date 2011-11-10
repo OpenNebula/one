@@ -360,7 +360,7 @@ void VirtualMachineManager::deploy_action(int vid)
         "",
         vm->get_remote_deployment_file(),
         "",
-        vm->template_to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl));
 
     vmd->deploy(vid, *drv_msg);
 
