@@ -30,6 +30,8 @@ $: << RUBY_LIB_LOCATION
 
 require "VirtualMachineDriver"
 require "CommandManager"
+require 'base64'
+require 'rexml/document'
 
 class DummyDriver < VirtualMachineDriver
     def initialize
@@ -39,31 +41,43 @@ class DummyDriver < VirtualMachineDriver
         )
     end
 
-    def deploy(id, host, remote_dfile, not_used)
-        send_message(ACTION[:deploy],RESULT[:success],id,"dummy")
+    def decode(drv_msg)
+        message = Base64.decode64(drv_msg)
+        xml_doc = REXML::Document.new(message)
+
+        xml_doc.root
     end
 
-    def shutdown(id, host, deploy_id, not_used)
+    def deploy(id, drv_msg)
+        msg = decode(drv_msg)
+
+        host = msg.elements["HOST"].text
+        name = msg.elements["VM/NAME"].text
+
+        send_message(ACTION[:deploy],RESULT[:success],id,"#{host}:#{name}:dummy")
+    end
+
+    def shutdown(id, drv_message)
         send_message(ACTION[:shutdown],RESULT[:success],id)
     end
 
-    def cancel(id, host, deploy_id, not_used)
+    def cancel(id, drv_message)
         send_message(ACTION[:cancel],RESULT[:success],id)
     end
 
-    def save(id, host, deploy_id, file)
+    def save(id, drv_message)
         send_message(ACTION[:save],RESULT[:success],id)
     end
 
-    def restore(id, host, deploy_id , file)
+    def restore(id, drv_message)
         send_message(ACTION[:restore],RESULT[:success],id)
     end
 
-    def migrate(id, host, deploy_id, dest_host)
+    def migrate(id, drv_message)
         send_message(ACTION[:migrate],RESULT[:success],id)
     end
 
-    def poll(id, host, deploy_id, not_used)
+    def poll(id, drv_message)
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
         # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES
         monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} " \
