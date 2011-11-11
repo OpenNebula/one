@@ -17,8 +17,8 @@
 #--------------------------------------------------------------------------- #
 
 $: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
-require 'OpenNebulaNetwork'
 require 'OpenvSwitch'
 
 onevlan = OpenvSwitchVLAN.from_base64(ARGV[0])
