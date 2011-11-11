@@ -14,15 +14,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'OpenNebulaNetwork'
+
 class EbtablesVLAN < OpenNebulaNetwork
     def initialize(vm, hypervisor = nil)
         super(vm,hypervisor)
     end
 
     def ebtables(rule)
-        system("#{COMMANDS[:ebtables]} -A #{rule}")
+        exec_and_log("#{COMMANDS[:ebtables]} -A #{rule}")
     end
 
+    # Activates ebtables rules
+    #
     def activate
         process do |nic|
             tap = nic[:tap]
@@ -42,6 +46,8 @@ class EbtablesVLAN < OpenNebulaNetwork
                 ebtables(out_rule)
             end
         end
+
+        return 0
     end
 
     def deactivate
@@ -59,6 +65,8 @@ class EbtablesVLAN < OpenNebulaNetwork
             end
             remove_rules(tap)
         end
+
+        return 0
     end
 
     def rules
@@ -74,6 +82,6 @@ class EbtablesVLAN < OpenNebulaNetwork
     end
 
     def remove_rule(rule)
-        system("#{COMMANDS[:ebtables]} -D FORWARD #{rule}")
+        exec_and_log("#{COMMANDS[:ebtables]} -D FORWARD #{rule}")
     end
 end

@@ -17,13 +17,12 @@
 #--------------------------------------------------------------------------- #
 
 $: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
-require 'base64'
-require 'OpenNebulaNetwork'
-require 'OpenvSwitch'
+require 'Ebtables'
 
 template    = ARGV[0]
-vm_xml =  Base64::decode64(template)
 
-onevlan = OpenvSwitchVLAN.new(vm_xml)
-onevlan.activate
+onevlan = EbtablesVLAN.from_base64(template)
+
+exit onevlan.deactivate

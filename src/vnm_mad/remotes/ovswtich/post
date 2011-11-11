@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,27 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+$: << File.dirname(__FILE__)
+
 require 'OpenNebulaNetwork'
+require 'OpenvSwitch'
 
-class OpenvSwitchVLAN < OpenNebulaNetwork
-    def initialize(vm, hypervisor = nil)
-        super(vm,hypervisor)
-    end
-
-    def activate
-        process do |nic|
-            if nic[:vlan_id]
-                vlan = nic[:vlan_id]
-            else
-                vlan = CONF[:start_vlan] + nic[:network_id].to_i
-            end
-
-            cmd =  "#{COMMANDS[:ovs_vsctl]} set Port #{nic[:tap]} "
-            cmd << "tag=#{vlan}"
-
-            exec_and_log(cmd)
-        end
-
-        return 0
-    end
-end
+onevlan = OpenvSwitchVLAN.from_base64(ARGV[0])
+exit onevlan.activate()

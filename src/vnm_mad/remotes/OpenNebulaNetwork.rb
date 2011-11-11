@@ -20,6 +20,7 @@ $: << File.dirname(__FILE__)
 
 require 'rexml/document'
 require 'OpenNebulaNic'
+require 'base64'
 
 CONF = {
     :start_vlan => 2
@@ -97,6 +98,11 @@ end
 
 class OpenNebulaNetwork
     attr_reader :hypervisor, :vm
+
+    def self.from_base64(vm_64, hypervisor=nil)
+        vm_xml =  Base64::decode64(vm_64)
+        self.new(vm_xml, hypervisor)
+    end
 
     def initialize(vm_tpl, hypervisor=nil)
         if !hypervisor

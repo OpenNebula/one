@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'OpenNebulaNetwork'
+
 class OpenNebulaHM < OpenNebulaNetwork
     def initialize(vm, hypervisor = nil)
         super(vm,hypervisor)
@@ -48,12 +50,8 @@ class OpenNebulaHM < OpenNebulaNetwork
                 end
             end
         end
-    end
 
-    def deactivate
-        vm_id =  @vm['ID']
-        process do |nic|
-        end
+        return 0
     end
 
     def bridge_exists?(bridge)
@@ -61,7 +59,7 @@ class OpenNebulaHM < OpenNebulaNetwork
     end
 
     def create_bridge(bridge)
-        system("#{COMMANDS[:brctl]} addbr #{bridge}")
+        exec_and_log("#{COMMANDS[:brctl]} addbr #{bridge}")
     end
 
     def device_exists?(dev, vlan=nil)
@@ -70,7 +68,7 @@ class OpenNebulaHM < OpenNebulaNetwork
     end
 
     def create_dev_vlan(dev, vlan)
-        system("#{COMMANDS[:vconfig]} add #{dev} #{vlan}")
+        exec_and_log("#{COMMANDS[:vconfig]} add #{dev} #{vlan}")
     end
 
     def attached_bridge_dev?(bridge, dev, vlan=nil)
@@ -81,11 +79,11 @@ class OpenNebulaHM < OpenNebulaNetwork
 
     def attach_brigde_dev(bridge, dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        system("#{COMMANDS[:brctl]} addif #{bridge} #{dev}")
+        exec_and_log("#{COMMANDS[:brctl]} addif #{bridge} #{dev}")
     end
 
     def ifup(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        system("#{COMMANDS[:ip]} link set #{dev} up")
+        exec_and_log("#{COMMANDS[:ip]} link set #{dev} up")
     end
 end
