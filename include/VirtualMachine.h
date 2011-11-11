@@ -277,7 +277,7 @@ public:
     /**
      *  Returns the VNM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
-     *    @return the VMM mad name
+     *    @return the VNM mad name
      */
     const string & get_vnm_mad() const
     {
@@ -287,7 +287,7 @@ public:
     /**
      *  Returns the VNM driver name for the previous host. The hasPreviousHistory()
      *  function MUST be called before this one.
-     *    @return the VMM mad name
+     *    @return the VNM mad name
      */
     const string & get_previous_vnm_mad() const
     {
