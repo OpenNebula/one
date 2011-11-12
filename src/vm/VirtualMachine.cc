@@ -875,22 +875,12 @@ int VirtualMachine::get_network_leases(string& estr)
         {
             goto error_vnet; 
         }
-        else if ( rc == -3 )
-        {
-            goto error_name;
-        }
     }
 
     return 0;
 
 error_vnet:
     estr = "Could not get virtual network for VM.";
-    goto error_common;
-
-error_name:
-    estr = "NETWORK is not supported for NIC. Use NETWORK_ID instead.";
-
-error_common:
     return -1;
 }
 

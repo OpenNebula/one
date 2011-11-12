@@ -1151,17 +1151,7 @@ public:
 
         // Disk using network 0
         disk = new VectorAttribute("DISK");
-        disk->replace("NETWORK", "A net");
-
-        int rc = ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
-
-        CPPUNIT_ASSERT( rc == -3 );
-
-        delete disk;
-
-        // Disk using network 0
-        disk = new VectorAttribute("DISK");
-        disk->replace("NETWORK_ID", "0");
+        disk->replace("NETWORK", "Net 0");
 
         ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
 
