@@ -224,7 +224,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
             return -1; 
         }
 
-        img = imagem->acquire_image(source , uiid);
+        img = imagem->acquire_image(source, uiid);
 
         if ( img == 0 )
         {
@@ -275,6 +275,8 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     {
         img->disk_attribute(disk, index, img_type);
 
+        image_id = img->get_oid();
+        
         update(img);
 
         img->unlock();
