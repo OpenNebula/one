@@ -759,14 +759,6 @@ int VirtualMachine::get_disk_images(string& error_str)
         {
             goto error_image;
         }
-        else if ( rc == -3)
-        {
-            goto error_name;
-        }
-        else if ( rc != -2 ) // The only known code left
-        {
-            goto error_unknown;
-        }
     }
 
     return 0;
@@ -786,13 +778,6 @@ error_max_db:
 error_image:
     error_str = "Could not get disk image for VM.";
     goto error_common;
-
-error_name:
-    error_str = "IMAGE is not supported for DISK. Use IMAGE_ID instead.";
-    goto error_common;
-
-error_unknown:
-    error_str = "Unknown error code.";
 
 error_common:
     ImageManager *  imagem  = nd.get_imagem();
