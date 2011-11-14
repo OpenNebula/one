@@ -159,7 +159,11 @@ end
 
 before do
     unless request.path=='/login' || request.path=='/'
-        build_session unless authorized?
+        rc , msg = build_session unless authorized?
+
+        if rc == 401
+           halt 401 
+        end
 
         @OzonesServer = OzonesServer.new(session[:key])
         @pr           = OZones::ProxyRules.new("apache",config[:htaccess])
