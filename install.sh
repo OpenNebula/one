@@ -795,8 +795,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/GroupPool.rb \
                            src/oca/ruby/OpenNebula/Acl.rb \
                            src/oca/ruby/OpenNebula/AclPool.rb \
-                           src/oca/ruby/OpenNebula/XMLUtils.rb \
-                           src/oca/ruby/OpenNebula/Configuration.rb"
+                           src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files

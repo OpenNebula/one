@@ -133,14 +133,6 @@ DBNAME={
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
-        DB Connection options:
-
-        By default, onedb reads the connection data from oned.conf
-        If any of these options is set, oned.conf is ignored (i.e. if you set 
-        MySQL's port onedb won't look for the rest of the options in oned.conf)
-
-        Description:
-
         This command enables the user to manage the OpenNebula database. It 
         provides information about the DB version, means to upgrade it to the 
         latest version, and backup tools.
