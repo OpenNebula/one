@@ -223,8 +223,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/kvm \
+          $VAR_LOCATION/remotes/vnm \
+          $VAR_LOCATION/remotes/vnm/802.1Q \
+          $VAR_LOCATION/remotes/vnm/dummy \
+          $VAR_LOCATION/remotes/vnm/ebtables \
+          $VAR_LOCATION/remotes/vnm/fw \
+          $VAR_LOCATION/remotes/vnm/ovswitch \
           $VAR_LOCATION/remotes/hooks \
-          $VAR_LOCATION/remotes/hooks/vnm \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/image \
           $VAR_LOCATION/remotes/image/fs \
@@ -342,13 +347,17 @@ INSTALL_FILES=(
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
-    NETWORK_HOOK_SCRIPTS:$VAR_LOCATION/remotes/vnm
+    NETWORK_FILES:$VAR_LOCATION/remotes/vnm
+    NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
+    NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
+    NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
+    NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
+    NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
-    HOOK_NETWORK_FILES:$VAR_LOCATION/remotes/hooks/vnm
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -612,6 +621,36 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 AUTH_QUOTA_FILES="src/authm_mad/remotes/quota/authorize"
 
 #-------------------------------------------------------------------------------
+# Virtual Network Manager drivers to be installed under $REMOTES_LOCATION/vnm
+#-------------------------------------------------------------------------------
+
+NETWORK_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.rb \
+              src/vnm_mad/remotes/OpenNebulaNic.rb"
+
+NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
+                    src/vnm_mad/remotes/802.1Q/post \
+                    src/vnm_mad/remotes/802.1Q/pre \
+                    src/vnm_mad/remotes/802.1Q/HostManaged.rb"
+
+NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
+                    src/vnm_mad/remotes/dummy/post \
+                    src/vnm_mad/remotes/dummy/pre"
+
+NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
+                    src/vnm_mad/remotes/ebtables/post \
+                    src/vnm_mad/remotes/ebtables/pre \
+                    src/vnm_mad/remotes/ebtables/Ebtables.rb"
+
+NETWORK_FW_FILES="src/vnm_mad/remotes/fw/firewall \
+                    src/vnm_mad/remotes/fw/Firewall.rb"
+
+NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
+                    src/vnm_mad/remotes/ovswitch/post \
+                    src/vnm_mad/remotes/ovswitch/pre \
+                    src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+
+
+#-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
 #   - SHARED TM, $LIB_LOCATION/tm_commands/shared
 #   - SSH TM, $LIB_LOCATION/tm_commands/ssh
@@ -756,19 +795,8 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 HOOK_FT_FILES="share/hooks/host_error.rb"
 
 #-------------------------------------------------------------------------------
-# Network Hook scripts, to be installed under $VAR_LOCATION/remotes/hooks
+# Installation scripts, to be installed under $SHARE_LOCATION
 #-------------------------------------------------------------------------------
-
-HOOK_NETWORK_FILES="src/vnm_mad/hm-vlan \
-                    src/vnm_mad/ebtables-vlan \
-                    src/vnm_mad/firewall \
-                    src/vnm_mad/HostManaged.rb \
-                    src/vnm_mad/OpenNebulaNetwork.rb \
-                    src/vnm_mad/OpenNebulaNic.rb \
-                    src/vnm_mad/OpenvSwitch.rb \
-                    src/vnm_mad/openvswitch-vlan \
-                    src/vnm_mad/Firewall.rb \
-                    src/vnm_mad/Ebtables.rb"
 
 INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
