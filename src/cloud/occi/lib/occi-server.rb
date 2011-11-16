@@ -172,7 +172,7 @@ end
 ###################################################
 
 get '/compute/:id' do
-    if params[:id] == "types" # Specific BonFIRE functionality
+    if params[:id] == "types" 
         result,rc = @occi_server.get_computes_types
     else
         result,rc = @occi_server.get_compute(request, params)
