@@ -205,7 +205,8 @@ private:
         const string& m_hostname,
         const string& m_net_drv,
         const string& domain,
-        const string& dfile,
+        const string& ldfile,
+        const string& rdfile,
         const string& cfile,
         const string& tmpl);
  

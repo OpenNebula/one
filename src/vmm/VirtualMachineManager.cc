@@ -251,7 +251,8 @@ string * VirtualMachineManager::format_message(
     const string& m_hostname,
     const string& m_net_drv,
     const string& domain,
-    const string& dfile,
+    const string& ldfile,
+    const string& rdfile,
     const string& cfile,
     const string& tmpl)
 {
@@ -280,13 +281,15 @@ string * VirtualMachineManager::format_message(
         oss << "<DOMAIN/>";
     }
 
-    if (!dfile.empty())
+    if (!ldfile.empty())
     {
-        oss << "<DEPLOYMENT_FILE>" << dfile << "</DEPLOYMENT_FILE>";
+        oss << "<LOCAL_DEPLOYMENT_FILE>" << ldfile << "</LOCAL_DEPLOYMENT_FILE>";
+        oss << "<REMOTE_DEPLOYMENT_FILE>" << rdfile << "</REMOTE_DEPLOYMENT_FILE>";
     }
     else
     {
-        oss << "<DEPLOYMENT_FILE/>";
+        oss << "<LOCAL_DEPLOYMENT_FILE/>";
+        oss << "<REMOTE_DEPLOYMENT_FILE/>";
     }
 
     if (!cfile.empty())
@@ -358,6 +361,7 @@ void VirtualMachineManager::deploy_action(int vid)
         "",
         "",
         "",
+        vm->get_deployment_file(),
         vm->get_remote_deployment_file(),
         "",
         vm->to_xml(vm_tmpl));
@@ -455,6 +459,7 @@ void VirtualMachineManager::save_action(
         "",
         vm->get_deploy_id(),
         "",
+        "",
         vm->get_checkpoint_file(),
         vm->to_xml(vm_tmpl));
 
@@ -534,6 +539,7 @@ void VirtualMachineManager::shutdown_action(
         vm->get_deploy_id(),
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->shutdown(vid, *drv_msg);
@@ -606,6 +612,7 @@ void VirtualMachineManager::cancel_action(
         "",
         "",
         vm->get_deploy_id(),
+        "",
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -685,6 +692,7 @@ void VirtualMachineManager::cancel_previous_action(
         vm->get_deploy_id(),
         "",
         "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->cancel(vid, *drv_msg);
@@ -756,6 +764,7 @@ void VirtualMachineManager::migrate_action(
         vm->get_hostname(),
         vm->get_vnm_mad(),
         vm->get_deploy_id(),
+        "",
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -836,6 +845,7 @@ void VirtualMachineManager::restore_action(
         "",
         vm->get_deploy_id(),
         "",
+        "",
         vm->get_checkpoint_file(),
         vm->to_xml(vm_tmpl));
 
@@ -909,6 +919,7 @@ void VirtualMachineManager::poll_action(
         "",
         "",
         vm->get_deploy_id(),
+        "",
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -1065,6 +1076,7 @@ void VirtualMachineManager::timer_action()
             "",
             "",
             vm->get_deploy_id(),
+            "",
             "",
             "",
             vm->to_xml(vm_tmpl));
