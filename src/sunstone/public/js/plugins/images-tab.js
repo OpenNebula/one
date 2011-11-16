@@ -203,7 +203,6 @@ var update_image_tmpl =
             </fieldset>\
 </form>';
 
-var images_select = "";
 var dataTable_images;
 var $create_image_dialog;
 
@@ -537,40 +536,22 @@ function imageInfoListener(){
     });
 }
 
-//Updates the select input field with an option for each image
-function updateImageSelect(){
-    images_select =
-        makeSelectOptions(dataTable_images,
-                          1,
-                          4,
-                          [9,9,9],
-                          ["DISABLED","LOCKED","ERROR"]
-                         );
-
-    //update static selectors:
-    //in the VM section
-    $('div.vm_section#disks select#IMAGE_ID', $create_template_dialog).html(images_select);
-}
-
 // Callback to update an element in the dataTable
 function updateImageElement(request, image_json){
     var id = image_json.IMAGE.ID;
     var element = imageElementArray(image_json);
     updateSingleElement(element,dataTable_images,'#image_'+id);
-    updateImageSelect();
 }
 
 // Callback to remove an element from the dataTable
 function deleteImageElement(req){
     deleteElement(dataTable_images,'#image_'+req.request.data);
-    updateImageSelect();
 }
 
 // Callback to add an image element
 function addImageElement(request, image_json){
     var element = imageElementArray(image_json);
     addElement(element,dataTable_images);
-    updateImageSelect();
 }
 
 // Callback to refresh the list of images
@@ -582,7 +563,6 @@ function updateImagesView(request, images_list){
     });
 
     updateView(image_list_array,dataTable_images);
-    updateImageSelect();
     updateDashboard("images",images_list);
 }
 

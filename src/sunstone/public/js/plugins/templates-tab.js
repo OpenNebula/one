@@ -195,9 +195,10 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                             <div class="clear"></div>\
                             <div class="vm_param kvm xen vmware add_image">\
                                   <label for="IMAGE">Image:</label>\
-                                  <select type="text" id="IMAGE_ID" name="image_id">\
+                                  <select type="text" id="IMAGE" name="image">\
                                   </select>\
                                   <div class="tip">Name of the image to use</div>\
+                                  <input type="hidden" id="IMAGE_UNAME" name="image_uname" value=""/>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="BUS">Bus:</label>\
@@ -267,7 +268,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                         <button class="add_remove_button" id="remove_disk_button" value="remove_disk">Remove selected</button>\
                                         <div class="clear"></div>\
                                         <label style="" for="disks_box">Current disks:</label>\
-                                        <select id="disks_box" name="disks_box" style="height:100px;" multiple>\
+                                        <select id="disks_box" name="disks_box" style="height:100px;width:350px" multiple>\
                                         </select>\
                                         <div class="clear"></div>\
                                         </div>\
@@ -292,9 +293,10 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                             <div class="clear"></div>\
                             <div class="vm_param kvm xen vmware network">\
                                   <label for="NETWORK">Network:</label>\
-                                  <select type="text" id="NETWORK_ID" name="network_id">\
+                                  <select type="text" id="NETWORK" name="network">\
                                   </select>\
                                   <div class="tip">Name of the network to attach this device</div>\
+                                  <input type="hidden" id="NETWORK_UNAME" name="network_uname" value=""/>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt niccfg network">\
                                   <label for="IP">IP:</label>\
@@ -378,7 +380,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                 <button class="add_remove_button" id="remove_nic_button" value="remove_nic">Remove selected</button>\
                                 <div class="clear"></div>\
                                 <label for="nics_box">Current NICs:</label>\
-                                <select id="nics_box" name="nics_box" style="height:100px;" multiple>\
+                                <select id="nics_box" name="nics_box" style="height:100px;width:350px" multiple>\
                                 </select>\
                             </div>\
                           </fieldset>\
@@ -985,12 +987,6 @@ function setupCreateTemplateDialog(){
         $(section_inputs).hide();
         $(section_graphics).hide();
 
-        //Repopulate images select
-        $('select#IMAGE_ID',section_disks).html(images_select);
-        //Repopulate network select
-        $('select#NETWORK_ID',section_networks).html(vnetworks_select);
-
-
         switch(ui.index){
         case 0:
             enable_kvm();
@@ -1378,6 +1374,12 @@ function setupCreateTemplateDialog(){
             return false;
         });
 
+        //Auto-set IMAGE_UNAME hidden field value
+        $('#IMAGE', section_disks).change(function(){
+            var uname = getValue($(this).val(),4,2,dataTable_images);
+            $('input#IMAGE_UNAME',section_disks).val(uname);
+        });
+
         //Depending on adding a disk or a image we need to show/hide
         //different options and make then mandatory or not
         $('#image_vs_disk input',section_disks).click(function(){
@@ -1529,6 +1531,12 @@ function setupCreateTemplateDialog(){
         $('#add_networks',section_networks).click(function(){
             $('fieldset',section_networks).toggle();
             return false;
+        });
+
+        //Auto-set IMAGE_UNAME hidden field value
+        $('#NETWORK', section_networks).change(function(){
+            var uname = getValue($(this).val(),4,2,dataTable_vNetworks);
+            $('input#NETWORK_UNAME',section_networks).val(uname);
         });
 
         //Depending on adding predefined network or not we show/hide
@@ -1970,6 +1978,23 @@ function setupCreateTemplateDialog(){
 }
 
 function popUpCreateTemplateDialog(){
+    //Repopulate images select
+    var im_sel = makeSelectOptions(dataTable_images,
+                                   4, //id col - trick -> reference by name!
+                                   4, //name col
+                                   [10,10,10],
+                                   ["DISABLED","LOCKED","ERROR"]
+                                  );
+    $('div#disks select#IMAGE',$create_template_dialog).html(im_sel);
+    //Repopulate network select
+    var vn_sel = makeSelectOptions(dataTable_vNetworks,
+                                   4, //id col - trick -> reference by name!
+                                   4,
+                                   [],
+                                   []
+                                  );
+    $('div#networks select#NETWORK',$create_template_dialog).html(vn_sel);
+
     $create_template_dialog.dialog('open');
 };
 
