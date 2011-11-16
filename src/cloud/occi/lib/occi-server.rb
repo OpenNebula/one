@@ -105,7 +105,7 @@ before do
     end
 
     if username.nil?
-        return [401, ""]
+        error 401, ""
     else
         client  = settings.cloud_auth.client(username)
         @occi_server = OCCIServer.new(client, settings.config)
