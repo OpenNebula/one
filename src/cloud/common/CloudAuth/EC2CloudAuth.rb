@@ -46,6 +46,8 @@ module EC2CloudAuth
     # Calculates signature version 1
     def signature_v1(params, secret_key, digest='sha1')
         params.delete('Signature')
+        params.delete(:econe_host)
+        params.delete(:econe_port)
         req_desc = params.sort {|x,y| x[0].downcase <=> y[0].downcase}.to_s
 
         digest_generator = OpenSSL::Digest::Digest.new(digest)
