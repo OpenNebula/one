@@ -274,11 +274,11 @@ string * VirtualMachineManager::format_message(
 
     if (!domain.empty())
     {
-        oss << "<DOMAIN>" << domain << "</DOMAIN>";
+        oss << "<DEPLOY_ID>" << domain << "</DEPLOY_ID>";
     }
     else
     {
-        oss << "<DOMAIN/>";
+        oss << "<DEPLOY_ID/>";
     }
 
     if (!ldfile.empty())
