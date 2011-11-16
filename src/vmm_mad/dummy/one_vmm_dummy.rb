@@ -30,8 +30,6 @@ $: << RUBY_LIB_LOCATION
 
 require "VirtualMachineDriver"
 require "CommandManager"
-require 'base64'
-require 'rexml/document'
 
 class DummyDriver < VirtualMachineDriver
     def initialize
@@ -41,15 +39,8 @@ class DummyDriver < VirtualMachineDriver
         )
     end
 
-    def decode(drv_msg)
-        message = Base64.decode64(drv_msg)
-        xml_doc = REXML::Document.new(message)
-
-        xml_doc.root
-    end
-
-    def deploy(id, drv_msg)
-        msg = decode(drv_msg)
+    def deploy(id, drv_message)
+        msg = decode(drv_message)
 
         host = msg.elements["HOST"].text
         name = msg.elements["VM/NAME"].text

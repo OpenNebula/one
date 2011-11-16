@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 require "OpenNebulaDriver"
 require "CommandManager"
+require 'base64'
+require 'rexml/document'
 
 # Author:: dsa-research.org
 # Copyright:: (c) 2011 Universidad Computense de Madrid
@@ -85,26 +87,15 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:poll].to_sym,       method("poll"))
     end
 
-    # Converts a deployment file from its remote path to the local (front-end)
-    # path
-    def get_local_deployment_file(rfile)
-        lfile = nil
+    # Decodes the encoded XML driver message received from the core
+    #
+    # @param [String] drv_message the driver message
+    # @return [REXML::Element] the root element of the decoded XML message
+    def decode(drv_message)
+        message = Base64.decode64(drv_message)
+        xml_doc = REXML::Document.new(message)
 
-        one_location = ENV["ONE_LOCATION"]
-
-        if one_location == nil
-            var_location = "/var/lib/one/"
-        else
-            var_location = one_location + "/var/"
-        end
-
-        m = rfile.match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
-
-        lfile = "#{var_location}#{m[1]}/#{m[2]}" if m
-
-        lfile = nil if lfile and !File.exists?(lfile)
-
-        return lfile
+        xml_doc.root
     end
 
     # Execute a command associated to an action and id in a remote host.
