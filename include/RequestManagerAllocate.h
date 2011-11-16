@@ -236,7 +236,7 @@ public:
     UserAllocate():
         RequestManagerAllocate("UserAllocate",
                                "Returns user information",
-                               "A:sss",
+                               "A:ssss",
                                false)
     {    
         Nebula& nd  = Nebula::instance();

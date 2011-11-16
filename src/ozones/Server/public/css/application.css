@@ -175,7 +175,7 @@ fieldset textarea{
 	border-bottom:1px solid #ccc;
 	border-right:1px solid #ccc;*/
 	padding:1px;color:#333;
-	vertical-align: top;
+	vertical-align: middle;
 	margin: 0 2px;
 	margin-bottom: 4px;
 	}
@@ -382,7 +382,7 @@ tr.even:hover{
 
 
 .info_table td.key_td{
-	width: 100%;
+	width: 55%;
 	text-align:left;
 	font-weight:bold;
 }
@@ -395,6 +395,7 @@ tr.even:hover{
 
 .info_table td.value_td{
 	text-align:left;
+        width: 45%;
 }
 
 #dialog > div > div {

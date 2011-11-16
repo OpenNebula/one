@@ -47,30 +47,39 @@ module OZones
             zonePoolHash["ZONE_POOL"]["ZONE"] = Array.new unless self.all.empty?
 
             self.all.each{|zone|
-                zonePoolHash["ZONE_POOL"]["ZONE"] <<
-                zone.attributes.merge({:NUMBERVDCS => zone.vdcs.all.size})
+                zattr = zone.attributes.clone
+                
+                zattr[:ONEPASS]    = Zones.encrypt(zattr[:ONEPASS]) 
+                zattr[:NUMBERVDCS] = zone.vdcs.all.size
+
+                zonePoolHash["ZONE_POOL"]["ZONE"] << zattr
             }
 
             return zonePoolHash
         end
 
         def to_hash
-            zone_attributes = Hash.new
-            zone_attributes["ZONE"] = attributes
-            zone_attributes["ZONE"][:VDCS] = Array.new
+            zattr = Hash.new
+
+            zattr["ZONE"]           = attributes.clone
+            zattr["ZONE"][:ONEPASS] = Zones.encrypt(zattr["ZONE"][:ONEPASS]) 
+            zattr["ZONE"][:VDCS]    = Array.new
 
             self.vdcs.all.each{|vdc|
-                zone_attributes["ZONE"][:VDCS]<< vdc.attributes
+                zattr["ZONE"][:VDCS]<< vdc.attributes.clone
             }
 
-            return zone_attributes
+            return zattr
         end
 
         def ONEPASS
             pw = super
-            OZones.decrypt(pw)
+            Zones.decrypt(pw)
+        end 
+ 
+        def ONEPASS=(plain_pw)
+            super(Zones.encrypt(plain_pw))
         end
-
 
         #######################################################################
         # Zone Data Management
@@ -87,8 +96,6 @@ module OZones
             # Digest and check credentials
             name = zone_data[:ONENAME]
             pass = zone_data[:ONEPASS]
-
-            zone_data[:ONEPASS] = OZones.encrypt(pass)
 
             rc = OpenNebulaZone::check_oneadmin(name,
                                                 pass,
@@ -112,6 +119,41 @@ module OZones
             end
 
             return zone
+        end
+         
+        ########################################################################
+        # Encryption functions for the class
+        ########################################################################
+        CIPHER   = "aes-256-cbc"
+
+        @@cipher = ""
+
+        def self.cipher=(cipher)
+            @@cipher = cipher
+        end
+
+        def self.encrypt(plain_txt)
+            #prepare cipher object
+            cipher = OpenSSL::Cipher.new(CIPHER)
+            cipher.encrypt
+            cipher.key = @@cipher
+
+            enc_txt = cipher.update(plain_txt)
+            enc_txt << cipher.final
+
+            Base64::encode64(enc_txt).strip.delete("\n")
+        end
+
+        def self.decrypt(b64_txt)
+            #prepare cipher object
+            cipher = OpenSSL::Cipher.new(CIPHER)
+            cipher.decrypt
+            cipher.key = @@cipher
+
+            enc_txt = Base64::decode64(b64_txt)
+
+            plain_txt = cipher.update(enc_txt)
+            plain_txt << cipher.final
         end
     end
 

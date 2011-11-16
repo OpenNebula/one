@@ -28,6 +28,7 @@ var images_tab_content =
       <th>Owner</th>\
       <th>Group</th>\
       <th>Name</th>\
+      <th>Size</th>\
       <th>Type</th>\
       <th>Registration time</th>\
       <th>Public</th>\
@@ -95,6 +96,11 @@ var create_image_tmpl =
                  </select>\
                  <div class="tip">Type of disk device to emulate.</div>\
                  </div>\
+               <div class="img_param">\
+                  <label for="img_driver">Driver:</label>\
+                  <input type="text" name="img_driver" id="img_driver" />\
+                  <div class="tip">Specific image mapping driver. KVM: raw, qcow2 and Xen:tap:aio:, file:</div>\
+               </div>\
               </fieldset>\
               <fieldset>\
                  <div class="" id="src_path_select">\
@@ -372,7 +378,19 @@ var image_actions = {
         elements: imageElements,
         error: onError,
         notify: true
+    },
+
+    "Image.chtype" : {
+        type: "single",
+        call: OpenNebula.Image.chtype,
+        callback: function (req) {
+            Sunstone.runAction("Image.show",req.request.data[0]);
+        },
+        elements: imageElements,
+        error: onError,
+        notify: true
     }
+
 }
 
 
@@ -473,13 +491,26 @@ function imageElements() {
 function imageElementArray(image_json){
     //Changing this? It may affect to the is_public() and is_persistent() functions.
     var image = image_json.IMAGE;
+
+    var type = $('<select>\
+                      <option value="OS">OS</option>\
+                      <option value="CDROM">CD-ROM</option>\
+                      <option value="DATABLOCK">Datablock</option>\
+                 </select>');
+
+    var value = OpenNebula.Helper.image_type(image.TYPE);
+    $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+value+'</option>');
+
+
+
     return [
         '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
         image.UNAME,
         image.GNAME,
         image.NAME,
-        OpenNebula.Helper.image_type(image.TYPE),
+        image.SIZE,
+        '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'" style="width:100px">'+type.html()+'</select>',
         pretty_time(image.REGTIME),
         parseInt(image.PUBLIC) ? '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
             : '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'"/>',
@@ -493,7 +524,11 @@ function imageElementArray(image_json){
 // Set up the listener on the table TDs to show the info panel
 function imageInfoListener(){
     $('#tbodyimages tr',dataTable_images).live("click",function(e){
-        if ($(e.target).is('input')) {return true;}
+        var target = $(e.target);
+
+        if (target.is('input') || target.is('select') || target.is('option'))
+            return true;
+
         popDialogLoading();
         var aData = dataTable_images.fnGetData(this);
         var id = $(aData[0]).val();
@@ -595,11 +630,27 @@ function updateImageInfo(request,img){
            </tr>\
            <tr>\
               <td class="key_td">Source</td>\
-              <td class="value_td">'+img_info.SOURCE+'</td>\
+              <td class="value_td">'+(typeof img_info.SOURCE === "string" ? img_info.SOURCE : "--")+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Path</td>\
+              <td class="value_td">'+(typeof img_info.PATH === "string" ? img_info.PATH : "--")+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Filesystem type</td>\
+              <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Size (Mb)</td>\
+              <td class="value_td">'+img_info.SIZE+'</td>\
            </tr>\
            <tr>\
               <td class="key_td">State</td>\
               <td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Running #VMS</td>\
+              <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
            </tr>\
         </table>'
     }
@@ -754,6 +805,10 @@ function setupCreateImageDialog(){
 
         var bus = $('#img_bus',this).val();
         img_json["BUS"] = bus;
+
+        var driver = $('#img_driver',this).val();
+        if (driver.length)
+            img_json["DRIVER"] = driver;
 
         switch ($('#src_path_select input:checked',this).val()){
         case "path":
@@ -970,6 +1025,15 @@ function setupImageActionCheckboxes(){
 
         return true;
     });
+
+    $('select.action_cb#select_chtype_image', dataTable_images).live("change",function(){
+        var $this = $(this);
+        var value = $this.val();
+        var id = $this.attr("elem_id");
+
+        Sunstone.runAction("Image.chtype", id, value);
+    });
+
 }
 
 //The DOM is ready at this point
@@ -982,17 +1046,17 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,5,7,8,9] },
-            { "sWidth": "35px", "aTargets": [1,10] },
-            { "sWidth": "100px", "aTargets": [9] },
-            { "sWidth": "150px", "aTargets": [6] }
+            { "sWidth": "60px", "aTargets": [0,2,3,8,9,10] },
+            { "sWidth": "35px", "aTargets": [1,5,11] },
+            { "sWidth": "100px", "aTargets": [6] },
+            { "sWidth": "150px", "aTargets": [7] }
         ]
     });
 
     dataTable_images.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','',''],dataTable_images);
+        '','','','','','','','','','',''],dataTable_images);
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();

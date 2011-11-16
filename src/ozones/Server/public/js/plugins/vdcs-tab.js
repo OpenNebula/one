@@ -271,6 +271,21 @@ function updateVDCsView(req,vdc_list){
 
 function updateVDCInfo(req,vdc_json){
     var vdc = vdc_json.VDC;
+
+    var zone_endpoint = getElementData(vdc.ZONES_ID,
+                                       "#zone",
+                                       dataTable_zones)[3];
+    var zone_host = "";
+    var zone_port = "";
+    var sun_link = "";
+    var zone_match = zone_endpoint.match(/^http:\/\/(\w+):(\d+)\/RPC2$/);
+
+    if (zone_match){
+        zone_host = zone_match[1];
+        zone_port = zone_match[2];
+        sun_link = "http://" + zone_host +"/sunstone_"+ vdc.NAME;
+    };
+
     var info_tab = {
         title: "VDC Information",
         content :
@@ -307,12 +322,24 @@ function updateVDCInfo(req,vdc_json){
                 <td class="key_td">ACLs</td>\
                 <td class="value_td">'+vdc.ACLS+'</td>\
             </tr>\
+            <tr>\
+                <td class="key_td">Sunstone public link</td>\
+                <td class="value_td">'+(sun_link.length? '<a href="'+sun_link+'" target="_blank">'+sun_link+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "")+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">ONE_XMLPRC (to export for CLI access)</td>\
+                <td class="value_td"><input type="text" id="one_xmlrpc" value="'+(zone_host.length? "http://" + zone_host +"/"+ vdc.NAME: "--")+'" style="width:100%;"/></td>\
+            </tr>\
             </tbody>\
          </table>'
     };
 
     Sunstone.updateInfoPanelTab("vdc_info_panel","vdc_info_tab",info_tab);
     Sunstone.popUpInfoPanel("vdc_info_panel");
+    $('#vdc_info_panel input#one_xmlrpc').select();
+    setTimeout(function(){
+        $('#vdc_info_panel input#one_xmlrpc').select();
+    }, 700);
 }
 
 function fillHostList(req, host_list_json){

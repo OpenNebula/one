@@ -85,6 +85,14 @@ public:
      *    @return pointer to the image or 0 if could not be acquired
      */
     Image * acquire_image(int image_id);
+    
+    /**
+     *  Try to acquire an image from the repository for a VM.
+     *    @param name of the image
+     *    @param id of owner
+     *    @return pointer to the image or 0 if could not be acquired
+     */
+    Image * acquire_image(const string& name, int uid);
 
     /**
      *  Releases an image and triggers any needed operations in the repo

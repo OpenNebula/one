@@ -103,7 +103,7 @@ USERNAME={
     :description => "MySQL username",
     :proc => lambda { |o, options|
         options[:backend] = :mysql
-        options[:username]  = o
+        options[:user]    = o
     }
 }
 
@@ -115,7 +115,7 @@ PASSWORD={
     :description => "MySQL password. Leave unset to be prompted for it",
     :proc => lambda { |o, options|
         options[:backend] = :mysql
-        options[:password]  = o
+        options[:passwd]  = o
     }
 }
 
@@ -127,20 +127,12 @@ DBNAME={
     :description => "MySQL DB name for OpenNebula",
     :proc => lambda { |o, options|
         options[:backend] = :mysql
-        options[:dbname]  = o
+        options[:db_name] = o
     }
 }
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
-        DB Connection options:
-
-        By default, onedb reads the connection data from oned.conf
-        If any of these options is set, oned.conf is ignored (i.e. if you set 
-        MySQL's port onedb won't look for the rest of the options in oned.conf)
-
-        Description:
-
         This command enables the user to manage the OpenNebula database. It 
         provides information about the DB version, means to upgrade it to the 
         latest version, and backup tools.

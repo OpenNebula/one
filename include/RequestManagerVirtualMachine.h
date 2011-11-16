@@ -129,7 +129,7 @@ public:
     VirtualMachineSaveDisk():
         RequestManagerVirtualMachine("VirtualMachineSaveDisk",
                            "Saves a disk from virtual machine as a new image",
-                           "A:siis"){};
+                           "A:siiss"){};
 
     ~VirtualMachineSaveDisk(){};
 

@@ -84,7 +84,7 @@ if Auth.all.size == 0
         end
         credentials[1] = Digest::SHA1.hexdigest(credentials[1])
         @auth=Auth.create({:name => credentials[0],
-                              :password => credentials[1]})
+                           :password => credentials[1]})
         @auth.save
     else
         warn "oZones admin credentials not set, missing OZONES_AUTH file."
@@ -119,32 +119,23 @@ set :show_exceptions, false
 helpers do
 
     def authorized?
-        if session[:ip] && session[:ip]==request.ip
-            return true
-        end
-
-        auth = Rack::Auth::Basic::Request.new(request.env)
-        if auth.provided? && auth.basic? && auth.credentials
-            user = auth.credentials[0]
-            sha1_pass = Digest::SHA1.hexdigest(auth.credentials[1])
-
-            if user == ADMIN_NAME && sha1_pass == ADMIN_PASS
-                return true
-            end
-        end
-        return false
+        session[:ip] && session[:ip]==request.ip ? true : false
     end
 
     def build_session
         auth = Rack::Auth::Basic::Request.new(request.env)
+
         if auth.provided? && auth.basic? && auth.credentials
-            user = auth.credentials[0]
-            sha1_pass = Digest::SHA1.hexdigest(auth.credentials[1])
+            
+            user      = auth.credentials[0]
+            pass      = auth.credentials[1]
+            sha1_pass = Digest::SHA1.hexdigest(pass)
 
             if user == ADMIN_NAME && sha1_pass == ADMIN_PASS
-                session[:user]     = user
-                session[:password] = sha1_pass
-                session[:ip]       = request.ip
+                session[:user] = user
+                session[:ip]   = request.ip
+                session[:key]  = Digest::SHA1.hexdigest("#{user}:#{pass}")
+
                 session[:remember] = params[:remember]
 
                 if params[:remember]
@@ -164,15 +155,21 @@ helpers do
         session.clear
         return [204, ""]
     end
-
 end
 
 before do
     unless request.path=='/login' || request.path=='/'
-        halt 401 unless authorized?
 
-        @OzonesServer = OzonesServer.new
-        @pr = OZones::ProxyRules.new("apache",config[:htaccess])
+        unless authorized?
+            rc , msg = build_session
+
+            if rc == 401
+               halt 401 
+            end
+        end
+
+        @OzonesServer = OzonesServer.new(session[:key])
+        @pr           = OZones::ProxyRules.new("apache",config[:htaccess])
     end
 end
 

@@ -327,9 +327,9 @@ module WatchHelper
                 v.name  = vm['NAME']
                 v.uid   = vm['UID'].to_i
                 v.gid   = vm['GID'].to_i
-                v.mem   = vm['TEMPLATE/MEMORY'].to_i
-                v.cpu   = vm['TEMPLATE/CPU'].to_f
-                v.vcpu  = vm['TEMPLATE/VCPU'].to_i
+                v.mem   = vm['TEMPLATE']['MEMORY'].to_i
+                v.cpu   = vm['TEMPLATE']['CPU'].to_f
+                v.vcpu  = vm['TEMPLATE']['VCPU'].to_i
                 v.stime = vm['STIME'].to_i
                 v.etime = vm['ETIME'].to_i
             }

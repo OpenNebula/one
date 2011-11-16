@@ -57,7 +57,7 @@ pkill -9 -P $PID oned
 echo "All resources created, now 2.2 DB will be upgraded."
 
 # dump current DB and schema
-onedb backup results/mysqldb.3.0 -v
+onedb backup results/mysqldb.3.0 -v -S localhost -P 0 -u oneadmin -p oneadmin -d onedb_test
 if [ $? -ne 0 ]; then
     exit -1
 fi
@@ -68,13 +68,13 @@ if [ $? -ne 0 ]; then
 fi
 
 # restore 2.2
-onedb restore -v -f 2.2/mysqldb.sql
+onedb restore -v -f 2.2/mysqldb.sql -S localhost -P 0 -u oneadmin -p oneadmin -d onedb_test
 if [ $? -ne 0 ]; then
     exit -1
 fi
 
 # upgrade
-onedb upgrade -v --backup results/mysqldb.backup
+echo "ssh" | onedb upgrade -v --backup results/mysqldb.backup -S localhost -P 0 -u oneadmin -p oneadmin -d onedb_test
 if [ $? -ne 0 ]; then
     exit -1
 fi

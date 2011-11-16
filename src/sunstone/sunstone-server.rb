@@ -88,11 +88,11 @@ helpers do
     end
 
     def build_session
-        # begin
+        begin
             result = settings.cloud_auth.auth(request.env, params)
-        # rescue Exception => e
-        #     error 500, e.message
-        # end
+        rescue Exception => e
+            error 500, e.message
+        end
 
         if result.nil?
             return [401, ""]

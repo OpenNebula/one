@@ -31,6 +31,12 @@ module Migrator
         # Update table definitions
         ########################################################################
 
+        puts "    > Users need to have an authentication driver defined.\n"<<
+             "      If you have AUTH_MAD uncommented in oned.conf, enter the driver name,\n"<<
+             "      or press enter to use the default value.\n\n"
+        print "      Driver name (x509, ssh, ldap): "
+        auth_driver = gets.chomp
+
         [   [:group_pool,   "group"],
             [:host_pool,    "host"],
             [:image_pool,   "image"],
@@ -100,7 +106,17 @@ module Migrator
             # TODO: Try to guess if the password contains a DN and set the
             # driver to 'x509', or assume ssh if the password is not hex
             auth_elem      = doc.root.add_element("AUTH_DRIVER")
-            auth_elem.text = "core"
+
+            pass = ""
+            doc.root.each_element("PASSWORD") { |e|
+                pass = e.text
+            }
+
+            if ( auth_driver.empty? || pass =~ /^(\d|[a-fA-F]){40}$/ )
+                auth_elem.text = "core"
+            else
+                auth_elem.text = auth_driver
+            end
 
             doc.root.add_element("TEMPLATE")
 

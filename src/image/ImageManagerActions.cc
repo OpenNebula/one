@@ -46,6 +46,31 @@ Image * ImageManager::acquire_image(int image_id)
 
 /* -------------------------------------------------------------------------- */
 
+Image * ImageManager::acquire_image(const string& name, int uid)
+{
+    Image * img;
+    int     rc;
+
+    img = ipool->get(name,uid,true);
+
+    if ( img == 0 )
+    {
+        return 0;
+    }
+
+    rc = acquire_image(img);
+
+    if ( rc != 0 )
+    {
+        img->unlock();
+        img = 0;
+    }
+
+    return img;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int ImageManager::acquire_image(Image *img)
 {
     int rc = 0;
