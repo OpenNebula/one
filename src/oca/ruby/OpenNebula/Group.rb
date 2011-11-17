@@ -60,8 +60,6 @@ module OpenNebula
         # Class constructor
         def initialize(xml, client)
             super(xml,client)
-
-            @client = client
         end
 
         #######################################################################
@@ -75,7 +73,7 @@ module OpenNebula
             end
 
             msg = String.new
-            
+
             File.open(filename).each_line{ |l|
                 next if l.match(/^#/)
 
