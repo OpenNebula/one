@@ -49,8 +49,11 @@ class ExecDriver < VirtualMachineDriver
     end
 
     # DEPLOY action, sends the deployment file to remote host
-    def deploy(id, host, remote_dfile, not_used)
-        local_dfile = get_local_deployment_file(remote_dfile)
+    def deploy(id, drv_message)
+        data = decode(drv_message)
+
+        local_dfile = data['LOCAL_DEPLOYMENT_DATA']
+        host= data['HOST']
 
         if !local_dfile || File.zero?(local_dfile)
             send_message(ACTION[:deploy],RESULT[:failure],id,
@@ -74,27 +77,52 @@ class ExecDriver < VirtualMachineDriver
 
     # Basic Domain Management Operations
 
-    def shutdown(id, host, deploy_id, not_used)
+    def shutdown(id, drv_message)
+        data        = decode(drv_message)
+        host        = data['HOST']
+        deploy_id   = data['DEPLOY_ID']
+
         do_action("#{deploy_id} #{host}", id, host, :shutdown)
     end
 
-    def cancel(id, host, deploy_id, not_used)
+    def cancel(id, drv_message)
+        data        = decode(drv_message)
+        host        = data['HOST']
+        deploy_id   = data['DEPLOY_ID']
+
         do_action("#{deploy_id} #{host}", id, host, :cancel)
     end
 
-    def save(id, host, deploy_id, file)
+    def save(id, drv_message)
+        data        = decode(drv_message)
+        host        = data['HOST']
+        deploy_id   = data['DEPLOY_ID']
+        file        = data['CHECKPOINT_FILE']
+
         do_action("#{deploy_id} #{file} #{host}", id, host, :save)
     end
 
-    def restore(id, host, deploy_id, file)
+    def restore(id, drv_message)
+        data        = decode(drv_message)
+        host        = data['HOST']
+        file        = data['CHECKPOINT_FILE']
+
         do_action("#{file} #{host}", id, host, :restore)
     end
 
-    def migrate(id, host, deploy_id, dest_host)
+    def migrate(id, drv_message)
+        data        = decode(drv_message)
+        host        = data['HOST']
+        deploy_id   = data['DEPLOY_ID']
+
         do_action("#{deploy_id} #{dest_host} #{host}", id, host, :migrate)
     end
 
-    def poll(id, host, deploy_id, not_used)
+    def poll(id, drv_message)
+        data        = decode(drv_message)
+        host        = data['HOST']
+        deploy_id   = data['DEPLOY_ID']
+
         do_action("#{deploy_id} #{host}", id, host, :poll)
     end
 end
