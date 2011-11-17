@@ -194,7 +194,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Check template for restricted attributes
     // ------------------------------------------------------------------------
 
-    if ( gid != GroupPool::ONEADMIN_ID )
+    if ( uid != 0 && gid != GroupPool::ONEADMIN_ID )
     {
         VirtualMachineTemplate *vt = 
             static_cast<VirtualMachineTemplate *>(obj_template);
