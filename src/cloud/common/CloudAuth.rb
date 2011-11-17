@@ -83,6 +83,7 @@ class CloudAuth
         time_now = Time.now.to_i
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
+            update_userpool_cache
             @token_expiration_time = time_now + @token_expiration_delta
         end
 
@@ -91,16 +92,17 @@ class CloudAuth
 
     # If @user_pool is not defined it will retrieve it from OpenNebula
     def get_userpool
-        if @user_pool.nil?
-            @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
-
-            rc = @user_pool.info
-            if OpenNebula.is_error?(rc)
-                raise rc.message
-            end
-        end
-
+        update_userpool_cache if @user_pool.nil?
         @user_pool
+    end
+
+    def update_userpool_cache
+        @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
+
+        rc = @user_pool.info
+        if OpenNebula.is_error?(rc)
+            raise rc.message
+        end
     end
 
     def get_password(username, non_public_user=false)
