@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 module X509CloudAuth
+    X509_TOKEN_EXP_TIME = 1800 
     # Gets the username associated with a password
     # password:: _String_ the password
     # [return] _Hash_ with the username
@@ -100,7 +101,7 @@ module X509CloudAuth
 
         auth = ServerAuth.new
 
-        @token = auth.login_token(username, subjectname, 300)
+        @token = auth.login_token(username, subjectname, X509_TOKEN_EXP_TIME)
         @client = Client.new(@token, @conf[:one_xmlrpc], false)
 
         return nil
