@@ -65,7 +65,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_resource(vm)
         str_h1="%-80s"
         str="%-20s: %-20s"
-        
+
         CLIHelper.print_header(
             str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
