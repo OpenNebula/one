@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -34,6 +35,9 @@ $: << RUBY_LIB_LOCATION
 require "VirtualMachineDriver"
 require 'getoptlong'
 
+require 'ssh_stream'
+require 'pp'
+
 # The main class for the Sh driver
 class ExecDriver < VirtualMachineDriver
 
@@ -48,12 +52,60 @@ class ExecDriver < VirtualMachineDriver
         @hypervisor  = hypervisor
     end
 
+    # network script actions
+
+    def execute_network_script(action, connection, message)
+        driver=message.elements['NET_DRV'].text
+        id=message.elements['VM/ID'].text
+
+        vm_encoded=Base64.encode64(message.elements['VM'].to_s).delete("\n")
+
+        result=[false, '']
+
+        if(action_is_local?(action.to_s))
+            script_path=File.join(
+                @local_scripts_base_path,
+                'vnm',
+                driver,
+                action.to_s)
+
+            command="#{script_path} #{vm_encoded}"
+
+            command_exe = LocalCommand.run(command, log_method(id))
+
+            code=(command_exe.code==0)
+
+            result=[code, command_exe]
+        else
+            script_path=File.join(
+                @remote_scripts_base_path,
+                'vnm',
+                driver,
+                action.to_s)
+
+            command="#{script_path} #{vm_encoded}"
+
+            pp command
+
+            error_code=connection.run(command)
+
+            pp error_code
+            pp connection.stderr
+
+            code=(error_code==0)
+
+            result=[code, connection]
+        end
+    end
+
+
     # DEPLOY action, sends the deployment file to remote host
     def deploy(id, drv_message)
         data = decode(drv_message)
 
-        local_dfile = data['LOCAL_DEPLOYMENT_DATA']
-        host= data['HOST']
+        local_dfile = data.elements['LOCAL_DEPLOYMENT_FILE'].text
+        remote_dfile = data.elements['REMOTE_DEPLOYMENT_FILE'].text
+        host= data.elements['HOST'].text
 
         if !local_dfile || File.zero?(local_dfile)
             send_message(ACTION[:deploy],RESULT[:failure],id,
@@ -71,8 +123,20 @@ class ExecDriver < VirtualMachineDriver
             dfile=remote_dfile
         end
 
-        do_action("#{dfile} #{host}", id, host, :deploy,
-            :stdin => domain)
+        ssh=SshStreamCommand.new(host, log_method(id))
+
+        execute_network_script(:pre, ssh, data)
+
+        pp ssh.run("cat << EOT | #{remote_scripts_path}/deploy #{dfile} #{host}",
+                domain+"\nEOT\n")
+
+        execute_network_script(:post, ssh, data)
+
+        pp ssh.stdout
+        pp ssh.stderr
+
+        #do_action("#{dfile} #{host}", id, host, :deploy,
+        #    :stdin => domain)
     end
 
     # Basic Domain Management Operations
