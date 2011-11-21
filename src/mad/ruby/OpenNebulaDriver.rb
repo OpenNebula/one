@@ -141,20 +141,42 @@ class OpenNebulaDriver < ActionManager
     def do_action(parameters, id, host, aname, ops={})
         options={
             :stdin => nil,
-            :script_name => nil
+            :script_name => nil,
+            :respond => true
         }.merge(ops)
 
         params=parameters+" #{id} #{host}"
 
         command=action_command_line(aname, params, options[:script_name])
 
-        if action_is_local? aname
-            local_action(command, id, aname)
+        if ops[:local] || action_is_local? aname
+            execution=local_action(command, id, aname)
         else
-            remotes_action(command, id, host, aname, @remote_scripts_base_path,
-                options[:stdin])
+            execution=remotes_action(command, id, host, aname,
+                @remote_scripts_base_path, options[:stdin])
+        end
+
+        if ops[:respond]
+            send_message_from_execution(aname, id, execution)
+        else
+            execution
         end
     end
+
+    def send_message_from_execution(aname, id, command_exe)
+        if command_exe.code == 0
+            result = RESULT[:success]
+            info   = command_exe.stdout
+        else
+            result = RESULT[:failure]
+            info   = command_exe.get_error_message
+        end
+
+        info = "-" if info == nil || info.empty?
+
+        send_message(aname,result,id,info)
+    end
+
 
     # Given the action name and the parameter returns full path of the script
     # and appends its parameters. It uses @local_actions hash to know if the
@@ -213,17 +235,6 @@ class OpenNebulaDriver < ActionManager
                                          log_method(id),
                                          std_in,
                                          @retries)
-        if command_exe.code == 0
-            result = RESULT[:success]
-            info   = command_exe.stdout
-        else
-            result = RESULT[:failure]
-            info   = command_exe.get_error_message
-        end
-
-        info = "-" if info == nil || info.empty?
-
-        send_message(aname,result,id,info)
     end
 
     # Execute a command associated to an action and id on localhost
@@ -233,18 +244,6 @@ class OpenNebulaDriver < ActionManager
     # @param [String, Symbol] aname name of the action
     def local_action(command, id, aname)
         command_exe = LocalCommand.run(command, log_method(id))
-
-        if command_exe.code == 0
-            result = RESULT[:success]
-            info   = command_exe.stdout
-        else
-            result = RESULT[:failure]
-            info   = command_exe.get_error_message
-        end
-
-        info = "-" if info == nil || info.empty?
-
-        send_message(aname,result,id,info)
     end
 
     # Sends a log message to ONE. The +message+ can be multiline, it will

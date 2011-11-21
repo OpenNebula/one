@@ -111,7 +111,8 @@ class AuthDriver < OpenNebulaDriver
         command = File.join(authN_path,ACTION[:authN].downcase) 
         command << ' ' << user << ' ' << password << ' ' << secret
 
-        local_action(command, request_id, ACTION[:authN])
+        do_action(command, request_id, nil, ACTION[:authN],
+            :local => true)
     end
     
     # Authenticate a user based in a string of the form user:secret when using the 
@@ -141,7 +142,8 @@ class AuthDriver < OpenNebulaDriver
             command = @authZ_cmd.clone
             command << ' ' << user_id << ' ' << requests.join(' ')
             
-            local_action(command, request_id, ACTION[:authZ])
+            do_action(command, request_id, nil, ACTION[:authZ],
+                :local => true)
         end
     end
 end
