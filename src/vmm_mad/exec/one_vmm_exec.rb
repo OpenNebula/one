@@ -123,9 +123,12 @@ class ExecDriver < VirtualMachineDriver
             dfile=remote_dfile
         end
 
-        ssh=SshStreamCommand.new(host, log_method(id))
 
-        execute_network_script(:pre, ssh, data)
+        ssh=SshStreamCommand.new(host, log_method(id))
+        vnm=crea nuevo driver(:ssh_stream => ssh)
+
+        #execute_network_script(:pre, ssh, data)
+        vnm.action_pre(data)
 
         pp ssh.run("cat << EOT | #{remote_scripts_path}/deploy #{dfile} #{host}",
                 domain+"\nEOT\n")

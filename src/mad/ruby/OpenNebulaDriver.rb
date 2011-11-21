@@ -30,44 +30,13 @@ require "CommandManager"
 # for each action it wants to receive. The method must be associated
 # with the action name through the register_action function
 class OpenNebulaDriver < ActionManager
+    include DriverExecHelper
+     
     # @return [String] Base path for scripts
     attr_reader :local_scripts_base_path, :remote_scripts_base_path
     # @return [String] Path for scripts
     attr_reader :local_scripts_path, :remote_scripts_path
 
-    # This function parses a string with this form:
-    #
-    #   'deploy,shutdown,poll=poll_ganglia, cancel '
-    #
-    # and returns a hash:
-    #
-    #   {"POLL"=>"poll_ganglia", "DEPLOY"=>nil, "SHUTDOWN"=>nil,
-    #     "CANCEL"=>nil}
-    #
-    # @param [String] str imput string to parse
-    # @return [Hash] parsed actions
-    def self.parse_actions_list(str)
-        actions=Hash.new
-        str_splitted=str.split(/\s*,\s*/).map {|s| s.strip }
-
-        str_splitted.each do |a|
-            m=a.match(/([^=]+)(=(.*))?/)
-            next if !m
-
-            action=m[1].upcase
-
-            if m[2]
-                script=m[3]
-                script.strip! if script
-            else
-                script=nil
-            end
-
-            actions[action]=script
-        end
-
-        actions
-    end
 
     # Action result strings for messages
     RESULT = {
@@ -98,23 +67,11 @@ class OpenNebulaDriver < ActionManager
         super(@options[:concurrency], @options[:threaded])
 
         @retries       = @options[:retries]
-        @local_actions = @options[:local_actions]
 
         @send_mutex    = Mutex.new
-
-        # set default values
-        @config = read_configuration
-        @remote_scripts_base_path = @config['SCRIPTS_REMOTE_DIR']
-
-        if ENV['ONE_LOCATION'] == nil
-            @local_scripts_base_path = "/var/lib/one/remotes"
-        else
-            @local_scripts_base_path = "#{ENV['ONE_LOCATION']}/var/remotes"
-        end
-
-        # dummy paths
-        @remote_scripts_path = File.join(@remote_scripts_base_path, directory)
-        @local_scripts_path  = File.join(@local_scripts_base_path, directory)
+       
+        #Set default values
+        initialize_helper(directory, @options) 
 
         register_action(:INIT, method("init"))
     end
@@ -150,100 +107,23 @@ class OpenNebulaDriver < ActionManager
         command=action_command_line(aname, params, options[:script_name])
 
         if ops[:local] || action_is_local? aname
-            execution=local_action(command, id, aname)
+            execution = LocalCommand.run(command, log_method(id))
         else
-            execution=remotes_action(command, id, host, aname,
-                @remote_scripts_base_path, options[:stdin])
+            execution = RemotesCommand.run(command,
+                                         host,
+                                         @remote_scripts_base_path,
+                                         log_method(id),
+                                         options[:stdin],
+                                         @retries)
         end
+
+        result, info = get_info_from_execution(command_exe)
 
         if ops[:respond]
-            send_message_from_execution(aname, id, execution)
-        else
-            execution
-        end
-    end
-
-    def send_message_from_execution(aname, id, command_exe)
-        if command_exe.code == 0
-            result = RESULT[:success]
-            info   = command_exe.stdout
-        else
-            result = RESULT[:failure]
-            info   = command_exe.get_error_message
+            send_message(aname,result,id,info)
         end
 
-        info = "-" if info == nil || info.empty?
-
-        send_message(aname,result,id,info)
-    end
-
-
-    # Given the action name and the parameter returns full path of the script
-    # and appends its parameters. It uses @local_actions hash to know if the
-    # actions is remote or local. If the local actions has defined an special
-    # script name this is used, otherwise the action name in downcase is
-    # used as the script name.
-    #
-    # @param [String, Symbol] action name of the action
-    # @param [String] parameters arguments for the script
-    # @param [String, nil] default_name alternative name for the script
-    # @return [String] command line needed to execute the action
-    def action_command_line(action, parameters, default_name=nil)
-        if action_is_local? action
-            script_path=@local_scripts_path
-        else
-            script_path=@remote_scripts_path
-        end
-
-        File.join(script_path, action_script_name(action, default_name))+
-            " "+parameters
-    end
-
-    # True if the action is meant to be executed locally
-    #
-    # @param [String, Symbol] action name of the action
-    def action_is_local?(action)
-        @local_actions.include? action.to_s.upcase
-    end
-
-    # Name of the script file for the given action
-    #
-    # @param [String, Symbol] action name of the action
-    # @param [String, nil] default_name alternative name for the script
-    def action_script_name(action, default_name=nil)
-        name=@local_actions[action.to_s.upcase]
-
-        if name
-            name
-        else
-            default_name || action.to_s.downcase
-        end
-    end
-
-    # Execute a command associated to an action and id in a remote host.
-    #
-    # @param [String] command command line to execute the script
-    # @param [Number, String] id action identifier
-    # @param [String] host hostname where the action is going to be executed
-    # @param [String, Symbol] aname name of the action
-    # @param [String] remote_dir path where the remotes reside
-    # @param [String, nil] std_in input of the string from the STDIN
-    def remotes_action(command, id, host, aname, remote_dir, std_in=nil)
-        command_exe = RemotesCommand.run(command,
-                                         host,
-                                         remote_dir,
-                                         log_method(id),
-                                         std_in,
-                                         @retries)
-    end
-
-    # Execute a command associated to an action and id on localhost
-    #
-    # @param [String] command command line to execute the script
-    # @param [Number, String] id action identifier
-    # @param [String, Symbol] aname name of the action
-    def local_action(command, id, aname)
-        command_exe = LocalCommand.run(command, log_method(id))
+        [result, info]
     end
 
     # Sends a log message to ONE. The +message+ can be multiline, it will
@@ -300,6 +180,40 @@ class OpenNebulaDriver < ActionManager
         loop_thread.kill
     end
 
+    # This function parses a string with this form:
+    #
+    #   'deploy,shutdown,poll=poll_ganglia, cancel '
+    #
+    # and returns a hash:
+    #
+    #   {"POLL"=>"poll_ganglia", "DEPLOY"=>nil, "SHUTDOWN"=>nil,
+    #     "CANCEL"=>nil}
+    #
+    # @param [String] str imput string to parse
+    # @return [Hash] parsed actions
+    def self.parse_actions_list(str)
+        actions=Hash.new
+        str_splitted=str.split(/\s*,\s*/).map {|s| s.strip }
+
+        str_splitted.each do |a|
+            m=a.match(/([^=]+)(=(.*))?/)
+            next if !m
+
+            action=m[1].upcase
+
+            if m[2]
+                script=m[3]
+                script.strip! if script
+            else
+                script=nil
+            end
+
+            actions[action]=script
+        end
+
+        actions
+    end
+
 private
 
     def init
@@ -331,40 +245,6 @@ private
                 trigger_action(action,action_id,*args)
             end
         end
-    end
-
-    def read_configuration
-        one_config=nil
-
-        if ENV['ONE_LOCATION']
-            one_config=ENV['ONE_LOCATION']+'/var/config'
-        else
-            one_config='/var/lib/one/config'
-        end
-
-        config=Hash.new
-        cfg=''
-
-        begin
-            open(one_config) do |file|
-                cfg=file.read
-            end
-
-            cfg.split(/\n/).each do |line|
-                m=line.match(/^([^=]+)=(.*)$/)
-
-                if m
-                    name=m[1].strip.upcase
-                    value=m[2].strip
-                    config[name]=value
-                end
-            end
-        rescue Exception => e
-            STDERR.puts "Error reading config: #{e.inspect}"
-            STDERR.flush
-        end
-
-        config
     end
 end
 

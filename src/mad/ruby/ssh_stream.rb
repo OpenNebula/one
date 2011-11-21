@@ -108,7 +108,7 @@ class SshStreamCommand < GenericCommand
         @host=host
         super('true', logger, stdin)
 
-        @stream=SshStream.new(host)
+        @stream = SshStream.new(host)
         @stream.open
     end
 
@@ -118,18 +118,18 @@ class SshStreamCommand < GenericCommand
         @stream.exec(command)
         @stream.stdin.write(stdin) if stdin
 
-        code=@stream.wait_for_command
+        @code = @stream.wait_for_command
 
-        @stdout=@stream.out
-        @stderr=@stream.err
+        @stdout = @stream.out
+        @stderr = @stream.err
 
-        if code!=0
+        if @code != 0
             log("Command execution fail: #{command}")
         end
 
         log(@stderr)
 
-        return code
+        return @code
     end
 end
 
