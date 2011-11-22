@@ -19,21 +19,21 @@
 # OpenNebula Drivers
 
 class VirtualNetworkDriver
-	include DriverExecHelper
+    include DriverExecHelper
 
-	def initialize(directory, options={})
+    def initialize(directory, options={})
 
-		@options    = options
-	    @ssh_stream = options[:ssh_stream]
+        @options    = options
+        @ssh_stream = options[:ssh_stream]
+        @message    = options[:message]
 
+        @vm_encoded = Base64.encode64(@message.elements['VM'].to_s).delete("\n")
 
-		initialize_helper("vnet/#{directory}", options)
-	end
+        initialize_helper("vnet/#{directory}", options)
+    end
 
-	def do_action(parameters, aname)
-		vm_encoded = Base64.encode64(message.elements['VM'].to_s).delete("\n")
-
-		command = action_command_line(aname, @vm_encoded, options[:script_name])
+    def do_action(parameters, aname)
+        command = action_command_line(aname, @vm_encoded, options[:script_name])
 
         if action_is_local? aname
             execution = LocalCommand.run(command, log_method(id))
@@ -42,5 +42,6 @@ class VirtualNetworkDriver
         end
 
         result, info = get_info_from_execution(command_exe)
-	end	
+    end
 end
+
