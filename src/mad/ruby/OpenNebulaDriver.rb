@@ -88,6 +88,7 @@ class OpenNebulaDriver < ActionManager
     # @option ops [String] :stdin text to be writen to stdin
     # @option ops [String] :script_name default script name for the action,
     #   action name is used by defaults
+    # @option ops [String] :respond if defined will send result to ONE core
     def do_action(parameters, id, host, aname, ops={})
         options={
             :stdin => nil,
@@ -95,9 +96,9 @@ class OpenNebulaDriver < ActionManager
             :respond => true
         }.merge(ops)
 
-        params=parameters+" #{id} #{host}"
+        params  = parameters+" #{id} #{host}"
 
-        command=action_command_line(aname, params, options[:script_name])
+        command = action_command_line(aname, params, options[:script_name])
 
         if ops[:local] || action_is_local? aname
             execution = LocalCommand.run(command, log_method(id))
@@ -117,52 +118,6 @@ class OpenNebulaDriver < ActionManager
         end
 
         [result, info]
-    end
-
-    # Sends a log message to ONE. The +message+ can be multiline, it will
-    # be automatically splitted by lines.
-    def log(number, message)
-        in_error_message=false
-        msg=message.strip
-        msg.each_line {|line|
-            severity='I'
-
-            l=line.strip
-
-            if l=='ERROR MESSAGE --8<------'
-                in_error_message=true
-                next
-            elsif l=='ERROR MESSAGE ------>8--'
-                in_error_message=false
-                next
-            else
-                if in_error_message
-                    severity='E'
-                elsif line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
-                    line=$2
-                    case $1
-                    when 'ERROR'
-                        severity='E'
-                    when 'DEBUG'
-                        severity='D'
-                    when 'INFO'
-                        severity='I'
-                    else
-                        severity='I'
-                    end
-                end
-            end
-
-            send_message("LOG", severity, number, line.strip)
-        }
-    end
-
-    # Generates a proc with that calls log with a hardcoded number. It will
-    # be used to add loging to command actions
-    def log_method(num)
-        lambda {|message|
-            log(num, message)
-        }
     end
 
     # Start the driver. Reads from STDIN and executes methods associated with
