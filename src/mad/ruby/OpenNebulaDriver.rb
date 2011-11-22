@@ -37,13 +37,6 @@ class OpenNebulaDriver < ActionManager
     # @return [String] Path for scripts
     attr_reader :local_scripts_path, :remote_scripts_path
 
-
-    # Action result strings for messages
-    RESULT = {
-        :success => "SUCCESS",
-        :failure => "FAILURE"
-    }
-
     # Initialize OpenNebulaDriver object
     #
     # @param [String] directory path inside the remotes directory where the

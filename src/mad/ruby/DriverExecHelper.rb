@@ -16,8 +16,15 @@
 
 
 # This module provides an abstraction to generate an execution context for
-# OpenNebula Drivers
+# OpenNebula Drivers. The module has been designed to be included as part 
+# of a driver and not to be used standalone.
 module DriverExecHelper
+    # Action result strings for messages
+    RESULT = {
+        :success => "SUCCESS",
+        :failure => "FAILURE"
+    }
+
     #Initialize module variables
     def initialize_helper(directory, options)
         @config = read_configuration
@@ -78,6 +85,7 @@ module DriverExecHelper
         end
     end
 
+    #This method returns the result in terms 
     def get_info_from_execution(command_exe)
         if command_exe.code == 0
             result = RESULT[:success]
@@ -97,9 +105,9 @@ module DriverExecHelper
         one_config=nil
 
         if ENV['ONE_LOCATION']
-            one_config=ENV['ONE_LOCATION']+'/var/config'
+            one_config = ENV['ONE_LOCATION']+'/var/config'
         else
-            one_config='/var/lib/one/config'
+            one_config = '/var/lib/one/config'
         end
 
         config=Hash.new
