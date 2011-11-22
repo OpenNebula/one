@@ -65,7 +65,7 @@ class SshStream
             rc, rw, = IO.select([@stdout, @stderr],[],[])
 
             rc.each { |fd|
-                c = fd.read_nonblock(1)
+                c = fd.read_nonblock(80)
 
                 if !c
                     done = true
