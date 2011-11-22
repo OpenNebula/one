@@ -14,7 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
 # This module provides an abstraction to generate an execution context for
 # OpenNebula Drivers. The module has been designed to be included as part 
 # of a driver and not to be used standalone.

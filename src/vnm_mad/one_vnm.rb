@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require "DriverExecHelper"
 
 # This module provides an abstraction to generate an execution context for
 # OpenNebula Drivers
@@ -50,12 +51,12 @@ class VirtualNetworkDriver
 
         command = action_command_line(aname, @vm_encoded)
 
-        if action_is_local? aname
+        if action_is_local?(aname)
             execution = LocalCommand.run(command, log_method(id))
         else
             if options[:stdin]
                 command = "cat << EOT | #{command}"
-                stdin   = "#{options[:stdin]\nEOT\n}"
+                stdin   = "#{options[:stdin]}\nEOT\n"
             else
                 stdin   = nil
             end

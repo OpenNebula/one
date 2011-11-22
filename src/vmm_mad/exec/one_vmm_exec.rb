@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -17,7 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
 # Set up the environment for the driver
 
 ONE_LOCATION = ENV["ONE_LOCATION"]
@@ -33,9 +31,9 @@ end
 $: << RUBY_LIB_LOCATION
 
 require "VirtualMachineDriver"
+require 'one_vnm'
 require 'getoptlong'
 
-require 'ssh_stream'
 require 'pp'
 
 # The main class for the Sh driver

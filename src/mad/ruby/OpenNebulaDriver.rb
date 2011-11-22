@@ -17,6 +17,8 @@
 require "ActionManager"
 require "CommandManager"
 
+require "DriverExecHelper"
+
 # Author:: dsa-research.org
 # Copyright:: (c) OpenNebula Project Leads (OpenNebula.org)
 # License:: Apache License
@@ -101,12 +103,12 @@ class OpenNebulaDriver < ActionManager
         params  = parameters+" #{id} #{host}"
         command = action_command_line(aname, params, options[:script_name])
 
-        if options[:local] || action_is_local? aname
+        if options[:local] || action_is_local?(aname)
             execution = LocalCommand.run(command, log_method(id))
         elsif options[:ssh_stream]
             if options[:stdin]
                 command = "cat << EOT | #{command}"
-                stdin   = "#{options[:stdin]\nEOT\n}"
+                stdin   = "#{options[:stdin]}\nEOT\n"
             else
                 stdin   = nil
             end
