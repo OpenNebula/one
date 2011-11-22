@@ -21,6 +21,10 @@
 class VirtualNetworkDriver
     include DriverExecHelper
 
+    # Inits the VNET Driver
+    # @param [String] name of the vnet driver to use, as listed in remotes/vnet
+    # @option ops [String] :ssh_stream to be used for command execution
+    # @option ops [String] :message from ONE
     def initialize(directory, options={})
 
         @options    = options
@@ -32,16 +36,33 @@ class VirtualNetworkDriver
         initialize_helper("vnet/#{directory}", options)
     end
 
-    def do_action(parameters, aname)
-        command = action_command_line(aname, @vm_encoded, options[:script_name])
+    # Calls remotes or local action checking the action name and
+    # @local_actions. Optional arguments can be specified as a hash
+    #
+    # @param [Number, String] id action identifier
+    # @param [String, Symbol] aname name of the action
+    # @param [Hash] ops extra options for the command
+    # @option ops [String] :stdin text to be writen to stdin
+    def do_action(id, aname, ops = {})
+        options={
+            :stdin => nil,
+        }.merge(ops)
+
+        command = action_command_line(aname, @vm_encoded)
 
         if action_is_local? aname
             execution = LocalCommand.run(command, log_method(id))
         else
-            execution = @ssh_stream.run(command)
+            if options[:stdin]
+                command = "cat << EOT | #{command}"
+                stdin   = "#{options[:stdin]\nEOT\n}"
+            else
+                stdin   = nil
+            end
+
+            execution = @ssh_stream.run(command,stdin)
         end
 
-        result, info = get_info_from_execution(command_exe)
+        result, info = get_info_from_execution(execution)
     end
 end
-
