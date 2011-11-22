@@ -26,9 +26,9 @@ module OpenNebulaJSON
                 return user_hash
             end
 
-            password = Digest::SHA1.hexdigest(user_hash['password'])
-
-            self.allocate(user_hash['name'], password, user_hash['auth_driver'])
+            self.allocate(user_hash['name'],
+                          user_hash['password'],
+                          user_hash['auth_driver'])
         end
 
         def perform_action(template_json)
@@ -40,7 +40,7 @@ module OpenNebulaJSON
             rc = case action_hash['perform']
                  when "passwd"       then self.passwd(action_hash['params'])
                  when "chgrp"        then self.chgrp(action_hash['params'])
-                 when "chauth"        then self.chauth(action_hash['params'])
+                 when "chauth"       then self.chauth(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
                  when "addgroup"     then self.addgroup(action_hash['params'])
                  when "delgroup"     then self.delgroup(action_hash['params'])
@@ -52,8 +52,7 @@ module OpenNebulaJSON
         end
 
         def passwd(params=Hash.new)
-            password = Digest::SHA1.hexdigest(params['password'])
-            super(password)
+            super(params['password'])
         end
 
         def chgrp(params=Hash.new)
