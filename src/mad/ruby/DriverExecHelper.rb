@@ -25,6 +25,10 @@ module DriverExecHelper
         :failure => "FAILURE"
     }
 
+    def failed?(rc_str)
+        return rc_str == RESULT[:failure]
+    end
+    
     #Initialize module variables
     def initialize_helper(directory, options)
         @config = read_configuration

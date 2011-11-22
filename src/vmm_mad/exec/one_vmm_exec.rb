@@ -52,60 +52,14 @@ class ExecDriver < VirtualMachineDriver
         @hypervisor  = hypervisor
     end
 
-    # network script actions
-
-    def execute_network_script(action, connection, message)
-        driver=message.elements['NET_DRV'].text
-        id=message.elements['VM/ID'].text
-
-        vm_encoded=Base64.encode64(message.elements['VM'].to_s).delete("\n")
-
-        result=[false, '']
-
-        if(action_is_local?(action.to_s))
-            script_path=File.join(
-                @local_scripts_base_path,
-                'vnm',
-                driver,
-                action.to_s)
-
-            command="#{script_path} #{vm_encoded}"
-
-            command_exe = LocalCommand.run(command, log_method(id))
-
-            code=(command_exe.code==0)
-
-            result=[code, command_exe]
-        else
-            script_path=File.join(
-                @remote_scripts_base_path,
-                'vnm',
-                driver,
-                action.to_s)
-
-            command="#{script_path} #{vm_encoded}"
-
-            pp command
-
-            error_code=connection.run(command)
-
-            pp error_code
-            pp connection.stderr
-
-            code=(error_code==0)
-
-            result=[code, connection]
-        end
-    end
-
-
     # DEPLOY action, sends the deployment file to remote host
     def deploy(id, drv_message)
         data = decode(drv_message)
 
-        local_dfile = data.elements['LOCAL_DEPLOYMENT_FILE'].text
+        local_dfile  = data.elements['LOCAL_DEPLOYMENT_FILE'].text
         remote_dfile = data.elements['REMOTE_DEPLOYMENT_FILE'].text
-        host= data.elements['HOST'].text
+
+        host = data.elements['HOST'].text
 
         if !local_dfile || File.zero?(local_dfile)
             send_message(ACTION[:deploy],RESULT[:failure],id,
@@ -113,33 +67,47 @@ class ExecDriver < VirtualMachineDriver
             return
         end
 
-        tmp    = File.new(local_dfile)
-        domain = tmp.read
-        tmp.close()
+        domain = File.read(local_dfile)
 
         if action_is_local?(:deploy)
-            dfile=local_dfile
+            dfile = local_dfile
         else
-            dfile=remote_dfile
+            dfile = remote_dfile
         end
 
+        ssh = SshStreamCommand.new(host, log_method(id))
+        vnm = VirtualNetworkDriver.new(data.elements['NET_DRV'].text,
+                                     :local_actions => @options[:local_actions],
+                                     :message    => data,
+                                     :ssh_stream => ssh)
+         
+        result, info = vnm.do_action(id, :pre)
 
-        ssh=SshStreamCommand.new(host, log_method(id))
-        vnm=crea nuevo driver(:ssh_stream => ssh)
+        if failed?(result)
+            send_message(:deploy,result,id,info)
+            return
+        end
 
-        #execute_network_script(:pre, ssh, data)
-        vnm.action_pre(data)
+        result, info = do_action("#{dfile} #{host}", id, host, :deploy, 
+                                 :stdin      => domain,
+                                 :ssh_stream => ssh,
+                                 :respond    => false)
 
-        pp ssh.run("cat << EOT | #{remote_scripts_path}/deploy #{dfile} #{host}",
-                domain+"\nEOT\n")
+        if failed?(result)
+            send_message(:deploy,result,id,info)
+            return
+        end
 
-        execute_network_script(:post, ssh, data)
+        domain_id = info
 
-        pp ssh.stdout
-        pp ssh.stderr
+        result, info = vnm.do_action(id, :post)
 
-        #do_action("#{dfile} #{host}", id, host, :deploy,
-        #    :stdin => domain)
+        if failed?(result)
+            send_message(:deploy,result,id,info)
+            return
+        end
+
+        send_message(:deploy,RESULT[:success],id,domain_id)
     end
 
     # Basic Domain Management Operations
