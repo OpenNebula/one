@@ -84,30 +84,28 @@ class ExecDriver < VirtualMachineDriver
         result, info = vnm.do_action(id, :pre)
 
         if failed?(result)
-            send_message(:deploy,result,id,info)
+            send_message(ACTION[:deploy],result,id,info)
             return
         end
 
-        result, info = do_action("#{dfile} #{host}", id, host, :deploy, 
-                                 :stdin      => domain,
-                                 :ssh_stream => ssh,
-                                 :respond    => false)
-
+        result, domain_id = do_action("#{dfile} #{host}", id, host, :deploy, 
+                                      :stdin      => domain,
+                                      :ssh_stream => ssh,
+                                      :respond    => false)
         if failed?(result)
-            send_message(:deploy,result,id,info)
+            send_message(ACTION[:deploy],result,id,info)
             return
         end
-
-        domain_id = info
 
         result, info = vnm.do_action(id, :post)
 
+        #TODO: Need to rollback (VM is running) or send success and log error
         if failed?(result)
-            send_message(:deploy,result,id,info)
+            send_message(ACTION[:deploy],result,id,info)
             return
         end
 
-        send_message(:deploy,RESULT[:success],id,domain_id)
+        send_message(ACTION[:deploy],RESULT[:success],id,domain_id)
     end
 
     # Basic Domain Management Operations
