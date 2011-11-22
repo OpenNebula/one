@@ -92,17 +92,27 @@ class OpenNebulaDriver < ActionManager
     # @option ops [String] :local if defined will execute the action locally
     def do_action(parameters, id, host, aname, ops={})
         options={
-            :stdin => nil,
+            :stdin       => nil,
             :script_name => nil,
-            :respond => true
+            :respond     => true,
+            :ssh_stream  => nil
         }.merge(ops)
 
         params  = parameters+" #{id} #{host}"
-
         command = action_command_line(aname, params, options[:script_name])
 
-        if ops[:local] || action_is_local? aname
+        if options[:local] || action_is_local? aname
             execution = LocalCommand.run(command, log_method(id))
+        elsif options[:ssh_stream]
+            if options[:stdin]
+                command = "cat << EOT | #{command}"
+                stdin   = "#{options[:stdin]\nEOT\n}"
+            else
+                stdin   = nil
+            end
+
+            execution = options[:ssh_stream].run(command,stdin)
+
         else
             execution = RemotesCommand.run(command,
                                          host,
@@ -114,12 +124,13 @@ class OpenNebulaDriver < ActionManager
 
         result, info = get_info_from_execution(execution)
 
-        if ops[:respond]
+        if options[:respond]
             send_message(aname,result,id,info)
         end
 
         [result, info]
     end
+
 
     # Start the driver. Reads from STDIN and executes methods associated with
     # the messages
