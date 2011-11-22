@@ -89,6 +89,7 @@ class OpenNebulaDriver < ActionManager
     # @option ops [String] :script_name default script name for the action,
     #   action name is used by defaults
     # @option ops [String] :respond if defined will send result to ONE core
+    # @option ops [String] :local if defined will execute the action locally
     def do_action(parameters, id, host, aname, ops={})
         options={
             :stdin => nil,
@@ -111,7 +112,7 @@ class OpenNebulaDriver < ActionManager
                                          @retries)
         end
 
-        result, info = get_info_from_execution(command_exe)
+        result, info = get_info_from_execution(execution)
 
         if ops[:respond]
             send_message(aname,result,id,info)
