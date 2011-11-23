@@ -37,7 +37,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "Can not read file: #{arg}"
             end
         else
-            password = arg
+            password = arg.dup
         end
 
         if options[:driver] == OpenNebula::User::X509_AUTH
