@@ -113,11 +113,12 @@ class AuthDriver < OpenNebulaDriver
         end
 
         #build path for the auth action
+
         #/var/lib/one/remotes/auth/<protocol>/authenticate
         authN_path = File.join(@local_scripts_path, protocol)
         
         command = File.join(authN_path,ACTION[:authN].downcase) 
-        command << ' ' << user << ' ' << password << ' ' << secret_attr.join(' ')
+        command << " '" << user.gsub("'", '\'"\'"\'') << "' '" << password.gsub("'", '\'"\'"\'') << "' '" << secret_attr.join("' '") << "'"
 
         local_action(command, request_id, ACTION[:authN])
     end
