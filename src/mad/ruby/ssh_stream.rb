@@ -63,7 +63,16 @@ class SshStream
         @err = ""
 
         begin
-            @stdin.write "(#{command}); #{EOF_CMD}\n"
+            cmd="(#{command}); #{EOF_CMD}\n"
+
+            sliced=cmd.scan(/.{1,100}/)
+
+            sliced.each do |slice|
+                @stdin.write slice
+                @stdin.flush
+            end
+
+            @stdin.puts
             @stdin.flush
         rescue
 
