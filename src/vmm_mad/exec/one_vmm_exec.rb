@@ -33,6 +33,7 @@ $: << RUBY_LIB_LOCATION
 require "VirtualMachineDriver"
 require 'one_vnm'
 require 'getoptlong'
+require 'ssh_stream'
 
 require 'pp'
 

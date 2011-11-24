@@ -86,10 +86,14 @@ class SshStream
         code = -1
 
         while not (done_out and done_err)
-            rc, rw, = IO.select([@stdout, @stderr],[],[])
+            rc, rw, re= IO.select([@stdout, @stderr],[],[])
 
             rc.each { |fd|
-                c = fd.read_nonblock(80)
+                begin
+                    c = fd.read_nonblock(50)
+                rescue EOFError => e
+                    next
+                end
 
                 if !c
                     done = true
@@ -153,7 +157,7 @@ class SshStreamCommand < GenericCommand
 
         log(@stderr)
 
-        return @code
+        return self
     end
 end
 

@@ -34,7 +34,7 @@ class VirtualNetworkDriver
 
         @vm_encoded = Base64.encode64(@message.elements['VM'].to_s).delete("\n")
 
-        initialize_helper("vnet/#{directory}", options)
+        initialize_helper("vnm/#{directory}", options)
     end
 
     # Calls remotes or local action checking the action name and
@@ -61,7 +61,7 @@ class VirtualNetworkDriver
                 stdin   = nil
             end
 
-            execution = @ssh_stream.run(command,stdin)
+            execution = @ssh_stream.run(command, stdin)
         end
 
         result, info = get_info_from_execution(execution)
