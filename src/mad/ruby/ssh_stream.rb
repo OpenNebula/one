@@ -16,7 +16,7 @@
 
 require 'CommandManager'
 require 'open3'
-
+require 'scripts_common'
 
 class SshStream
     attr_reader :stream_out, :stream_err, :stdin
@@ -53,7 +53,10 @@ class SshStream
     end
 
     def close
-        @stdin.puts "\nexit"
+        begin
+            @stdin.puts "\nexit"
+        rescue #rescue from EPIPE if ssh command exited already
+        end
 
         @stdin.close  if not @stdin.closed?
         @stdout.close if not @stdout.closed?
@@ -93,15 +96,11 @@ class SshStream
             rc.each { |fd|
                 begin
                     c = fd.read_nonblock(50)
-                rescue EOFError => e
+                    next if !c
+                rescue #rescue from EOF if ssh command finishes and closes fds
                     next
                 end
-
-                if !c
-                    done = true
-                    break
-                end
-
+ 
                 if fd == @stdout
                     @out << c
                     done_out = true if @out.slice!("#{EOF_OUT}\n")
@@ -111,11 +110,14 @@ class SshStream
                     tmp = @err.scan(/^#{SSH_RC_STR}(\d+)$/)
 
                     if tmp[0]
-                        @err << "\n"
-                        @err << "ERROR MESSAGE --8<------\n"
-                        @err << "Error connecting to #{@host}\n"
-                        @err << "ERROR MESSAGE ------>8--\n"
-                        return tmp[0][0].to_i
+                        message = "Error connecting to #{@host}" 
+                        code    = tmp[0][0].to_i
+
+                        @err << OpenNebula.format_error_message(message)
+
+                        done_out = true
+                        done_err = true
+                        break
                     end
 
                     tmp = @err.scan(/^#{RC_STR}(\d*) #{EOF_ERR}\n/)
@@ -182,7 +184,7 @@ if $0 == __FILE__
 
     ssh.exec("date | tee /tmp/test.javi")
     code=ssh.wait_for_command
-
+
     puts "Code: #{code}"
     puts "output: #{ssh.out}"
 
@@ -206,10 +208,8 @@ if $0 == __FILE__
     puts "output: #{ssh.out}"
     puts "output err: #{ssh.err}"
 
-
     ssh.close
 
+    cssh = SshStreamCommand.new('no_host',lambda { |e| STDOUT.puts "error: #{e}" }, nil)
+    cssh.run('whoami')
 end
-
-
-
