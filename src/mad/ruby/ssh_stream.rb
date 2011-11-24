@@ -26,6 +26,7 @@ class SshStream
     EOF_ERR = "EOF_ERR"
     EOF_OUT = "EOF_OUT"
     RC_STR  = "ExitCode: "
+    SSH_RC_STR  = "ExitSSHCode: "
 
     EOF_CMD = "echo \"#{RC_STR}$?#{EOF_ERR}\" 1>&2; echo \"#{EOF_OUT}\""
     SSH_CMD = "ssh"
@@ -41,7 +42,7 @@ class SshStream
     end
 
     def open
-        @stdin, @stdout, @stderr=Open3::popen3("#{SSH_CMD} #{@host} bash -s")
+        @stdin, @stdout, @stderr=Open3::popen3("#{SSH_CMD} #{@host} bash -s ; echo #{SSH_RC_STR} $? 1>&2")
 
         @stream_out = ""
         @stream_err = ""
@@ -106,13 +107,23 @@ class SshStream
                 else
                     @err << c
 
-                    tmp = @err.scan(/^#{RC_STR}(\d*)#{EOF_ERR}\n/)
+                    tmp = @err.scan(/^#{SSH_RC_STR}(\d+)$/)
+
+                    if tmp[0]
+                        @err << "\n"
+                        @err << "ERROR MESSAGE --8<------\n"
+                        @err << "Error connecting to #{@host}\n"
+                        @err << "ERROR MESSAGE ------>8--\n"
+                        return tmp[0][0].to_i
+                    end
+
+                    tmp = @err.scan(/^#{RC_STR}(\d*) #{EOF_ERR}\n/)
 
                     if tmp[0]
                         code     = tmp[0][0].to_i
                         done_err = true
 
-                        @err.slice!("#{EOF_ERR}\n")
+                        @err.slice!(" #{EOF_ERR}\n")
                     end
                 end
             }
