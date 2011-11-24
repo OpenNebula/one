@@ -17,6 +17,7 @@
 require 'CommandManager'
 require 'open3'
 
+
 class SshStream
     attr_reader :stream_out, :stream_err, :stdin
     attr_reader :out, :err
@@ -28,7 +29,7 @@ class SshStream
     RC_STR  = "ExitCode: "
     SSH_RC_STR  = "ExitSSHCode: "
 
-    EOF_CMD = "echo \"#{RC_STR}$?#{EOF_ERR}\" 1>&2; echo \"#{EOF_OUT}\""
+    EOF_CMD = "echo \"#{RC_STR}$? #{EOF_ERR}\" 1>&2; echo \"#{EOF_OUT}\""
     SSH_CMD = "ssh"
     #
     #
