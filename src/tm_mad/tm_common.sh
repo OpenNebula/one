@@ -49,6 +49,20 @@ function fix_dir_slashes
     dirname "$1/file" | $SED 's/\/+/\//g'
 }
 
+function get_compare_target
+{
+    echo "$1" | $SED 's/\/+/\//g' | $SED 's/\\/images$//'
+}
+
+function full_src_and_dst_equal
+{
+    s=`get_compare_target "$SRC"`
+    d=`get_compare_target "$DST"`
+
+    [ "$s" == "$d" ]
+
+}
+
 function fix_var_slashes
 {
     ONE_LOCAL_VAR=`fix_dir_slashes "$ONE_LOCAL_VAR"`
