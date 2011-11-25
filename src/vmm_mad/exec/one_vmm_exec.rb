@@ -111,49 +111,49 @@ class ExecDriver < VirtualMachineDriver
 
     def shutdown(id, drv_message)
         data        = decode(drv_message)
-        host        = data['HOST']
-        deploy_id   = data['DEPLOY_ID']
+        host        = data.elements['HOST'].text
+        deploy_id   = data.elements['DEPLOY_ID'].text
 
         do_action("#{deploy_id} #{host}", id, host, :shutdown)
     end
 
     def cancel(id, drv_message)
         data        = decode(drv_message)
-        host        = data['HOST']
-        deploy_id   = data['DEPLOY_ID']
+        host        = data.elements['HOST'].text
+        deploy_id   = data.elements['DEPLOY_ID'].text
 
         do_action("#{deploy_id} #{host}", id, host, :cancel)
     end
 
     def save(id, drv_message)
         data        = decode(drv_message)
-        host        = data['HOST']
-        deploy_id   = data['DEPLOY_ID']
-        file        = data['CHECKPOINT_FILE']
+        host        = data.elements['HOST'].text
+        deploy_id   = data.elements['DEPLOY_ID'].text
+        file        = data.elements['CHECKPOINT_FILE'].text
 
         do_action("#{deploy_id} #{file} #{host}", id, host, :save)
     end
 
     def restore(id, drv_message)
         data        = decode(drv_message)
-        host        = data['HOST']
-        file        = data['CHECKPOINT_FILE']
+        host        = data.elements['HOST'].text
+        file        = data.elements['CHECKPOINT_FILE'].text
 
         do_action("#{file} #{host}", id, host, :restore)
     end
 
     def migrate(id, drv_message)
         data        = decode(drv_message)
-        host        = data['HOST']
-        deploy_id   = data['DEPLOY_ID']
+        host        = data.elements['HOST'].text
+        deploy_id   = data.elements['DEPLOY_ID'].text
 
         do_action("#{deploy_id} #{dest_host} #{host}", id, host, :migrate)
     end
 
     def poll(id, drv_message)
         data        = decode(drv_message)
-        host        = data['HOST']
-        deploy_id   = data['DEPLOY_ID']
+        host        = data.elements['HOST'].text
+        deploy_id   = data.elements['DEPLOY_ID'].text
 
         do_action("#{deploy_id} #{host}", id, host, :poll)
     end
