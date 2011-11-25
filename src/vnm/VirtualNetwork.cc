@@ -25,6 +25,8 @@
 
 #include "AuthManager.h"
 
+#include <cmath>
+
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
@@ -119,49 +121,16 @@ int VirtualNetwork::select_leases(SqlDB * db)
 
     string          network_address;
 
-    unsigned int default_size = VirtualNetworkPool::default_size();
     unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
 
     //Get the leases
     if (type == RANGED)
     {
-        string  nclass = "";
-        int     size = 0;
-
-        // retrieve specific information from the template
-        get_template_attribute("NETWORK_ADDRESS",network_address);
-
-        if (network_address.empty())
-        {
-            goto error_addr;
-        }
-
-        get_template_attribute("NETWORK_SIZE",nclass);
-
-        if ( nclass == "B" || nclass == "b" )
-        {
-            size = 65534;
-        }
-        else if ( nclass == "C" || nclass == "c" )
-        {
-            size = 254;
-        }
-        else if (!nclass.empty()) //Assume it's a number
-        {
-            istringstream iss(nclass);
-            iss >> size;
-        }
-
-        if (size == 0)
-        {
-            size = default_size;
-        }
-
         leases = new RangedLeases(db,
                                   oid,
-                                  size,
                                   mac_prefix,
-                                  network_address);
+                                  ip_start,
+                                  ip_end);
     }
     else if(type == FIXED)
     {
@@ -189,9 +158,6 @@ error_leases:
 error_type:
     ose << "Wrong type of Virtual Network: " << type;
     goto error_common;
-
-error_addr:
-    ose << "Network address is not defined nid: " << oid;
 
 error_common:
     NebulaLog::log("VNM", Log::ERROR, ose);
@@ -292,6 +258,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         string nclass = "";
         string naddr  = "";
         int    size   = 0;
+        unsigned int net_addr;
 
         // retrieve specific information from template
         get_template_attribute("NETWORK_ADDRESS",naddr);
@@ -311,7 +278,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         {
             size = 254;
         }
-        else if (!nclass.empty())//Assume its a number
+        else if (!nclass.empty())//Assume it's a number
         {
             istringstream iss(nclass);
 
@@ -323,11 +290,26 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
             size = default_size;
         }
 
+        Leases::Lease::ip_to_number(naddr,net_addr);
+
+        int shift;
+        shift = (int) ceil(log(size+2)/log(2));
+        size = (1 << shift) - 2;
+        unsigned int network_mask =  0xFFFFFFFF << shift;
+
+        if (net_addr != (network_mask & net_addr) )
+        {
+            // TODO: net_addr is not a valid network address, should end with 0s
+        }
+
+        ip_start = net_addr + 1;
+        ip_end   = ip_start + size -1;
+
         leases = new RangedLeases(db,
                                   oid,
-                                  size,
                                   mac_prefix,
-                                  naddr);
+                                  ip_start,
+                                  ip_end);
     }
     else // VirtualNetwork::FIXED
     {
@@ -527,6 +509,21 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         os << "<VLAN_ID>" << vlan_id << "</VLAN_ID>";
     }
 
+    if ( type == RANGED )
+    {
+        string st_ip_start;
+        string st_ip_end;
+
+        Leases::Lease::ip_to_string(ip_start, st_ip_start);
+        Leases::Lease::ip_to_string(ip_end,   st_ip_end);
+
+        os <<
+            "<RANGE>" <<
+                "<IP_START>" << st_ip_start << "</IP_START>" <<
+                "<IP_END>"   << st_ip_end   << "</IP_END>"   <<
+            "</RANGE>";
+    }
+
     os  <<  "<PUBLIC>"      << public_obj   << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
@@ -584,6 +581,19 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+
+    // Ranged Leases
+    if (type == RANGED)
+    {
+        string st_ip_start;
+        string st_ip_end;
+
+        rc += xpath(st_ip_start,    "/VNET/RANGE/IP_START", "0");
+        rc += xpath(st_ip_end,      "/VNET/RANGE/IP_END",   "0");
+
+        Leases::Lease::ip_to_number(st_ip_start, ip_start);
+        Leases::Lease::ip_to_number(st_ip_end,   ip_end);
+    }
 
     if (rc != 0)
     {

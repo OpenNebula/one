@@ -17,7 +17,6 @@
 
 #include "RangedLeases.h"
 #include "Nebula.h"
-#include <cmath>
 
 /* ************************************************************************** */
 /* Ranged Leases class                                                        */
@@ -26,21 +25,13 @@
 RangedLeases::RangedLeases(
     SqlDB *        db,
     int           _oid,
-    unsigned long _size,
     unsigned int  _mac_prefix,
-    const string& _network_address):
-        Leases(db,_oid,_size),mac_prefix(_mac_prefix),current(0)
+    unsigned int  _ip_start,
+    unsigned int  _ip_end):
+        Leases(db,_oid,0,_mac_prefix),
+        ip_start(_ip_start),ip_end(_ip_end),current(0)
 {
-    unsigned int net_addr;
-
-    Leases::Lease::ip_to_number(_network_address,net_addr);
-
-    //size is the number of hosts in the network
-    size = _size + 2;
-
-    network_address =  0xFFFFFFFF << (int) ceil(log(size)/log(2));
-
-    network_address &= net_addr;
+    size = ip_end - ip_start + 1;
 }
 
 /* ************************************************************************** */
@@ -52,9 +43,9 @@ int RangedLeases::get(int vid, string&  ip, string&  mac)
     unsigned int num_ip;
     int          rc = -1;
 
-    for (unsigned int i=0; i<size; i++, current++)
+    for ( unsigned int i=0; i<size; i++, current = (current+1)%size )
     {
-        num_ip = network_address + (current%(size-2)) + 1;
+        num_ip = ip_start + current;
 
         if (check(num_ip) == false)
         {
@@ -85,7 +76,6 @@ int RangedLeases::set(int vid, const string&  ip, string&  mac)
 {
     unsigned int num_ip;
     unsigned int num_mac[2];
-    unsigned int net;
     int          rc;
 
     rc = Leases::Lease::ip_to_number(ip,num_ip);
@@ -95,10 +85,7 @@ int RangedLeases::set(int vid, const string&  ip, string&  mac)
         return -1;
     }
 
-    net =  0xFFFFFFFF << (int) ceil(log(size)/log(2));
-    net &= num_ip;
-
-    if ( net != network_address )
+    if ( num_ip < ip_start || ip_end < num_ip )
     {
         return -1;
     }

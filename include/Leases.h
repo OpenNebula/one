@@ -40,7 +40,7 @@ public:
      * @param _oid the virtual network unique identifier
      * @param _size the max number of leases
      */
-    Leases(SqlDB * _db, int _oid, unsigned long _size):
+    Leases(SqlDB * _db, int _oid, unsigned long _size, unsigned int _mac_prefix):
         ObjectSQL(),
         oid(_oid), size(_size), n_used(0), db(_db){};
 
@@ -230,13 +230,13 @@ protected:
     // Leases fields
     // -------------------------------------------------------------------------
     /**
-    * Leases indentifier. Connects it to a Virtual Network
-    */
+     * Leases identifier. Connects it to a Virtual Network
+     */
     int            oid;
 
     /**
-    * Number of possible leases (free + asigned)
-    */
+     * Number of possible leases (free + assigned)
+     */
     unsigned int  size;
 
     /**
@@ -248,6 +248,11 @@ protected:
      * Number of used leases
      */
     int n_used;
+
+    /**
+     *  The default MAC prefix for the Leases
+     */
+    unsigned int mac_prefix;
 
     // -------------------------------------------------------------------------
     // DataBase implementation variables
@@ -286,11 +291,11 @@ protected:
     friend ostream& operator<<(ostream& os, Lease& _lease);
 
     /**
-    * Function to print the Leases object into a string in
-    * XML format
-    *  @param xml the resulting XML string
-    *  @return a reference to the generated string
-    */
+     * Function to print the Leases object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
     string& to_xml(string& xml) const;
 
 private:

@@ -44,8 +44,7 @@ public:
     FixedLeases(SqlDB *                     db,
                 int                         _oid,
                 unsigned int                _mac_prefix):
-                    Leases(db,_oid,0),
-                    mac_prefix(_mac_prefix),
+                    Leases(db,_oid,0,_mac_prefix),
                     current(leases.begin()){};
 
     ~FixedLeases(){};
@@ -111,11 +110,6 @@ public:
     }
 
 private:
-
-    /**
-     *  The default MAC prefix for the Leases
-     */
-    unsigned int mac_prefix;
 
     /**
      *  Current lease pointer

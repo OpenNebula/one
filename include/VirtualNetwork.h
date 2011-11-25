@@ -222,6 +222,9 @@ private:
      */
     Leases *    leases;
 
+    unsigned int ip_start;
+    unsigned int ip_end;
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************

@@ -30,9 +30,9 @@ public:
     // *************************************************************************
     RangedLeases(SqlDB *        db,
                  int           _oid,
-                 unsigned long _size,
                  unsigned int  _mac_prefix,
-                 const string& _network_address);
+                 unsigned int  _ip_start,
+                 unsigned int  _ip_end);
 
     ~RangedLeases(){};
 
@@ -105,15 +105,9 @@ public:
     }
 
 private:
-    /**
-     *  The default MAC prefix for the Leases
-     */
-    unsigned int mac_prefix;
 
-    /**
-     *  The Network address to generate leases
-     */
-    unsigned int network_address;
+    unsigned int ip_start;
+    unsigned int ip_end;
 
     unsigned int current;
 
