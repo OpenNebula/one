@@ -74,7 +74,10 @@ class ExecDriver < VirtualMachineDriver
             dfile = remote_dfile
         end
 
-        ssh = SshStreamCommand.new(host, log_method(id))
+        ssh = SshStreamCommand.new(host, 
+                                   @remote_scripts_base_path, 
+                                   log_method(id)) 
+
         vnm = VirtualNetworkDriver.new(data.elements['NET_DRV'].text,
                                      :local_actions => @options[:local_actions],
                                      :message    => data,

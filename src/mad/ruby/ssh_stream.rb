@@ -42,6 +42,10 @@ class SshStream
         defined?(@stdin)
     end
 
+    def alive?
+        @alive == true
+    end
+
     def open
         @stdin, @stdout, @stderr=Open3::popen3("#{SSH_CMD} #{@host} bash -s ; echo #{SSH_RC_STR} $? 1>&2")
 
@@ -50,6 +54,8 @@ class SshStream
 
         @out = ""
         @err = ""
+
+        @alive = true
     end
 
     def close
@@ -61,14 +67,18 @@ class SshStream
         @stdin.close  if not @stdin.closed?
         @stdout.close if not @stdout.closed?
         @stderr.close if not @stderr.closed?
+
+        @alive = false
     end
 
     def exec(command)
+        return if ! @alive
+
         @out = ""
         @err = ""
 
         begin
-            cmd="(#{command}); #{EOF_CMD}\n"
+            cmd="(#{command}); #{EOF_CMD}"
 
             sliced=cmd.scan(/.{1,100}/)
 
@@ -77,7 +87,7 @@ class SshStream
                 @stdin.flush
             end
 
-            @stdin.puts
+            @stdin.write "\n"
             @stdin.flush
         rescue
 
@@ -90,12 +100,12 @@ class SshStream
 
         code = -1
 
-        while not (done_out and done_err)
+        while not (done_out and done_err ) and @alive
             rc, rw, re= IO.select([@stdout, @stderr],[],[])
 
             rc.each { |fd|
                 begin
-                    c = fd.read_nonblock(50)
+                    c = fd.read_nonblock(100)
                     next if !c
                 rescue #rescue from EOF if ssh command finishes and closes fds
                     next
@@ -115,8 +125,7 @@ class SshStream
 
                         @err << OpenNebula.format_error_message(message)
 
-                        done_out = true
-                        done_err = true
+                        @alive = false
                         break
                     end
 
@@ -145,17 +154,28 @@ class SshStream
 end
 
 
-class SshStreamCommand < GenericCommand
-    def initialize(host, logger=nil, stdin=nil)
-        @host=host
-        super('true', logger, stdin)
+class SshStreamCommand < RemotesCommand
+    def initialize(host, remote_dir, logger=nil, stdin=nil)
+        super('true', host, logger, stdin)
 
-        @stream = SshStream.new(host)
+        @remote_dir = remote_dir
+        @stream     = SshStream.new(host)
+
         @stream.open
     end
 
-    def run(command, stdin=nil)
+    def run(command, stdin=nil, base_cmd = nil)
         @stream.open unless @stream.opened?
+
+        if base_cmd #Check if base command is on remote host
+            chk_cmd  = "if [ ! -x \"#{base_cmd.match(/\S*/)[0]}\" ]; \
+                          then exit #{MAGIC_RC} 1>&2; \
+                        fi"
+
+            if @stream.exec_and_wait(chk_cmd) == MAGIC_RC
+                RemotesCommand.update_remotes(@host, @remote_dir, @logger)
+            end
+        end
 
         @stream.exec(command)
         @stream.stdin.write(stdin) if stdin
@@ -184,7 +204,7 @@ if $0 == __FILE__
 
     ssh.exec("date | tee /tmp/test.javi")
     code=ssh.wait_for_command
-
+
     puts "Code: #{code}"
     puts "output: #{ssh.out}"
 
@@ -210,6 +230,9 @@ if $0 == __FILE__
 
     ssh.close
 
-    cssh = SshStreamCommand.new('no_host',lambda { |e| STDOUT.puts "error: #{e}" }, nil)
+    cssh = SshStreamCommand.new('no_host',
+                                '/tmp',
+                                lambda { |e| STDOUT.puts "error: #{e}" }, 
+                                nil)
     cssh.run('whoami')
 end

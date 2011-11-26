@@ -49,19 +49,20 @@ class VirtualNetworkDriver
             :stdin => nil,
         }.merge(ops)
 
-        command = action_command_line(aname, @vm_encoded)
+        cmd = action_command_line(aname, @vm_encoded)
 
         if action_is_local?(aname)
-            execution = LocalCommand.run(command, log_method(id))
+            execution = LocalCommand.run(cmd, log_method(id))
         else
             if options[:stdin]
-                command = "cat << EOT | #{command}"
-                stdin   = "#{options[:stdin]}\nEOT\n"
+                cmdin = "cat << EOT | #{cmd}"
+                stdin = "#{options[:stdin]}\nEOT\n"
             else
-                stdin   = nil
+                cmdin = cmd
+                stdin = nil
             end
 
-            execution = @ssh_stream.run(command, stdin)
+            execution = @ssh_stream.run(cmdin, stdin, cmd)
         end
 
         result, info = get_info_from_execution(execution)
