@@ -53,12 +53,17 @@ class ExecDriver < VirtualMachineDriver
 
     # DEPLOY action, sends the deployment file to remote host
     def deploy(id, drv_message)
+        # ----------------------------------------------------------------------
+        #  Initialization of deployment data
+        # ----------------------------------------------------------------------
+
         data = decode(drv_message)
 
         local_dfile  = data.elements['LOCAL_DEPLOYMENT_FILE'].text
         remote_dfile = data.elements['REMOTE_DEPLOYMENT_FILE'].text
 
-        host = data.elements['HOST'].text
+        host    = data.elements['HOST'].text
+        net_drv = data.elements['NET_DRV'].text
 
         if !local_dfile || File.zero?(local_dfile)
             send_message(ACTION[:deploy],RESULT[:failure],id,
@@ -78,17 +83,27 @@ class ExecDriver < VirtualMachineDriver
                                    @remote_scripts_base_path, 
                                    log_method(id)) 
 
-        vnm = VirtualNetworkDriver.new(data.elements['NET_DRV'].text,
+        vnm = VirtualNetworkDriver.new(net_drv,
                                      :local_actions => @options[:local_actions],
-                                     :message    => data,
-                                     :ssh_stream => ssh)
+                                     :message       => data,
+                                     :ssh_stream    => ssh)
          
+        # ----------------------------------------------------------------------
+        #  Execute pre-boot action of the network driver
+        # ----------------------------------------------------------------------
+
         result, info = vnm.do_action(id, :pre)
 
         if failed?(result)
             send_message(ACTION[:deploy],result,id,info)
             return
         end
+
+        log(id, "Successfully executed network driver #{net_drv} (pre-boot)")
+
+        # ----------------------------------------------------------------------
+        # Boot the VM
+        # ----------------------------------------------------------------------
 
         result, domain_id = do_action("#{dfile} #{host}", id, host, :deploy, 
                                       :stdin      => domain,
@@ -99,13 +114,27 @@ class ExecDriver < VirtualMachineDriver
             return
         end
 
+        log(id, "Successfully booted VM with id: #{domain_id}")
+
+        # ----------------------------------------------------------------------
+        #  Execute post-boot action of the network driver
+        # ----------------------------------------------------------------------
+
         result, info = vnm.do_action(id, :post)
 
-        #TODO: Need to rollback (VM is running) or send success and log error
         if failed?(result)
+            log(id, "Failed to executed network driver #{net_drv} (post-boot)")
+            log(id, "Cancelling VM with id: #{domain_id}")
+
+            do_action("#{domain_id} #{host}", id, host, :cancel, 
+                      :ssh_stream => ssh,
+                      :respond    => false)
+
             send_message(ACTION[:deploy],result,id,info)
             return
         end
+
+        log(id, "Successfully executed network driver #{net_drv} (post-boot)")
 
         send_message(ACTION[:deploy],RESULT[:success],id,domain_id)
     end
