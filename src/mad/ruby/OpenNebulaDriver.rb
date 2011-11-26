@@ -107,13 +107,14 @@ class OpenNebulaDriver < ActionManager
             execution = LocalCommand.run(command, log_method(id))
         elsif options[:ssh_stream]
             if options[:stdin]
-                command = "cat << EOT | #{command}"
-                stdin   = "#{options[:stdin]}\nEOT\n"
+                cmdin = "cat << EOT | #{command}"
+                stdin = "#{options[:stdin]}\nEOT\n"
             else
-                stdin   = nil
+                cmdin = command
+                stdin = nil
             end
 
-            execution = options[:ssh_stream].run(command,stdin)
+            execution = options[:ssh_stream].run(cmdin, stdin, command)
 
         else
             execution = RemotesCommand.run(command,
