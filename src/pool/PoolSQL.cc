@@ -198,6 +198,8 @@ PoolObjectSQL * PoolSQL::get(
     }
     else
     {
+        map<string,PoolObjectSQL *>::iterator name_index;
+
         objectsql = create();
 
         objectsql->oid = oid;
@@ -214,6 +216,19 @@ PoolObjectSQL * PoolSQL::get(
         }
 
         string okey = key(objectsql->name,objectsql->uid);
+        name_index  = name_pool.find(okey);
+
+        if ( name_index != name_pool.end() )
+        {        
+            name_index->second->lock();
+
+            PoolObjectSQL * tmp_ptr  = name_index->second;
+
+            name_pool.erase(okey);
+            pool.erase(tmp_ptr->oid);
+
+            delete tmp_ptr;
+        }
 
         pool.insert(make_pair(objectsql->oid,objectsql));
         name_pool.insert(make_pair(okey, objectsql));
