@@ -170,7 +170,10 @@ public:
         //Should be set to MAX_POOL -1
         for (int i=0 ; i < 14999 ; i++)
         {
-            create_allocate(i,"A Test object");
+            ostringstream name;
+            name << "A Test object " << i;
+
+            create_allocate(i,name.str());
 
             obj_lock = pool->get(i, true);
             CPPUNIT_ASSERT(obj_lock != 0);
@@ -178,16 +181,22 @@ public:
 
         for (int i=14999 ; i < 15200 ; i++) //Works with just 1 cache line
         {
-            create_allocate(i,"A Test object");
+            ostringstream name;
+            name << "A Test object " << i;
+
+            create_allocate(i,name.str());
         }
 
         for (int i=14999; i < 15200 ; i++)
         {
+            ostringstream name;
+            name << "A Test object " << i;
+
             obj = pool->get(i, true);
             CPPUNIT_ASSERT(obj != 0);
 
             CPPUNIT_ASSERT(obj->number == i);
-            CPPUNIT_ASSERT(obj->text   == "A Test object");
+            CPPUNIT_ASSERT(obj->text   == name.str());
             obj->unlock();
         }
 

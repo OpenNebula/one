@@ -44,7 +44,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             password.delete!("\s")
         end
 
-        if options[:sha1]
+        if options[:sha1] || options[:driver] == OpenNebula::User::CIPHER_AUTH
             require 'digest/sha1'
             password = Digest::SHA1.hexdigest(password)
         end
