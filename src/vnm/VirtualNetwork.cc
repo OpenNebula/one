@@ -255,52 +255,113 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     //--------------------------------------------------------------------------
     if (type == VirtualNetwork::RANGED)
     {
-        string nclass = "";
-        string naddr  = "";
-        int    size   = 0;
+        string st_size = "";
+        string st_addr  = "";
+        string st_mask  = "";
+
+        unsigned int size = default_size;
+        unsigned int host_bits;
+        unsigned int network_bits;
+
         unsigned int net_addr;
+        unsigned int net_mask;
+        size_t       pos;
 
         // retrieve specific information from template
-        get_template_attribute("NETWORK_ADDRESS",naddr);
 
-        if (naddr.empty())
+        erase_template_attribute("NETWORK_ADDRESS",st_addr);
+
+        if (st_addr.empty())
         {
             goto error_addr;
         }
 
-        get_template_attribute("NETWORK_SIZE",nclass);
+        // Check if the IP has a network prefix
+        pos = st_addr.find("/");
 
-        if ( nclass == "B" || nclass == "b"  )
+        if ( pos != string::npos )
         {
-            size = 65534;
+            string st_network_bits;
+
+            st_network_bits = st_addr.substr(pos+1);
+            st_addr         = st_addr.substr(0,pos);
+
+            istringstream iss(st_network_bits);
+            iss >> network_bits;
+
+            if ( network_bits > 32 )
+            {
+                // TODO wrong prefix
+            }
+
+            host_bits = 32 - network_bits;
         }
-        else if ( nclass == "C" || nclass == "c"  )
+        else
         {
-            size = 254;
+            erase_template_attribute("NETWORK_MASK", st_mask);
+
+            if ( !st_mask.empty() )
+            {
+                // st_mask is in decimal format, e.g. 255.255.0.0
+                // The number of trailing 0s is needed
+
+                Leases::Lease::ip_to_number(st_mask, net_mask);
+
+                host_bits = 0;
+
+                while ( host_bits < 32 &&
+                        ((net_mask >> host_bits) & 1) != 1 )
+                {
+                    host_bits++;
+                }
+            }
+            else
+            {
+                erase_template_attribute("NETWORK_SIZE",st_size);
+
+                if ( st_size == "C" || st_size == "c" )
+                {
+                    host_bits = 8;
+                }
+                else if ( st_size == "B" || st_size == "b" )
+                {
+                    host_bits = 16;
+                }
+                else if ( st_size == "A" || st_size == "a" )
+                {
+                    host_bits = 24;
+                }
+                else
+                {
+                    size = default_size;
+
+                    if (!st_size.empty())//Assume it's a number
+                    {
+                        istringstream iss(st_size);
+
+                        iss >> size;
+                    }
+
+                    host_bits = (int) ceil(log(size+2)/log(2));
+                }
+            }
         }
-        else if (!nclass.empty())//Assume it's a number
-        {
-            istringstream iss(nclass);
 
-            iss >> size;
-        }
+        remove_template_attribute("NETWORK_SIZE");
 
-        if (size == 0)
-        {
-            size = default_size;
-        }
+        // Set the network mask
+        net_mask = ( 0xFFFFFFFF << host_bits ) & 0xFFFFFFFF;
+        Leases::Lease::ip_to_string(net_mask, st_mask);
+        replace_template_attribute("NETWORK_MASK", st_mask);
 
-        Leases::Lease::ip_to_number(naddr,net_addr);
+        Leases::Lease::ip_to_number(st_addr,net_addr);
 
-        int shift;
-        shift = (int) ceil(log(size+2)/log(2));
-        size = (1 << shift) - 2;
-        unsigned int network_mask =  0xFFFFFFFF << shift;
-
-        if (net_addr != (network_mask & net_addr) )
+        if (net_addr != (net_mask & net_addr) )
         {
             // TODO: net_addr is not a valid network address, should end with 0s
         }
+
+        size = (1 << host_bits) - 2;
 
         ip_start = net_addr + 1;
         ip_end   = ip_start + size -1;
