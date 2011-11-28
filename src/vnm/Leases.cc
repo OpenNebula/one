@@ -66,6 +66,11 @@ int Leases::Lease::ip_to_number(const string& _ip, unsigned int& i_ip)
     {
         iss >> dec >> tmp >> ws;
 
+        if ( tmp > 255 )
+        {
+            return -1;
+        }
+
         i_ip <<= 8;
         i_ip += tmp;
     }

@@ -48,8 +48,10 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     string st_addr  = "";
     string st_mask  = "";
 
-    int default_size = VirtualNetworkPool::default_size();
-    unsigned int size = default_size;
+    string st_ip_start  = "";
+    string st_ip_end    = "";
+
+    unsigned int size = VirtualNetworkPool::default_size();
     unsigned int host_bits;
     unsigned int network_bits;
 
@@ -57,13 +59,41 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     unsigned int net_mask;
     size_t       pos;
 
-    // retrieve specific information from template
+    ip_start = 0;
+    ip_end   = 0;
 
-    vn->erase_template_attribute("NETWORK_ADDRESS",st_addr);
+    // retrieve specific information from template
+    vn->erase_template_attribute("IP_START", st_ip_start);
+    vn->erase_template_attribute("IP_END",   st_ip_end);
+
+    if ( !st_ip_start.empty() )
+    {
+        if ( Leases::Lease::ip_to_number(st_ip_start, ip_start) != 0 )
+        {
+            goto error_ip_start;
+        }
+    }
+
+    if ( !st_ip_end.empty() )
+    {
+        if ( Leases::Lease::ip_to_number(st_ip_end, ip_end) != 0 )
+        {
+            goto error_ip_end;
+        }
+    }
+
+    vn->erase_template_attribute("NETWORK_ADDRESS", st_addr);
 
     if (st_addr.empty())
     {
-        goto error_addr;
+        if ( ip_start != 0 && ip_end != 0 )
+        {
+            return 0;
+        }
+        else
+        {
+            goto error_addr;
+        }
     }
 
     // Check if the IP has a network prefix
@@ -123,8 +153,6 @@ int RangedLeases::process_template(VirtualNetwork* vn,
             }
             else
             {
-                size = default_size;
-
                 if (!st_size.empty())//Assume it's a number
                 {
                     istringstream iss(st_size);
@@ -153,10 +181,28 @@ int RangedLeases::process_template(VirtualNetwork* vn,
 
     size = (1 << host_bits) - 2;
 
-    ip_start = net_addr + 1;
-    ip_end   = ip_start + size -1;
+    // TODO: check that start < end; ip_start & ip_end are part of the network
+
+    if ( ip_start == 0 )
+    {
+        ip_start = net_addr + 1;
+    }
+
+    if ( ip_end == 0 )
+    {
+        ip_end   = net_addr + size;
+    }
 
     return 0;
+
+
+error_ip_start:
+    oss << "IP_START is not a valid IP.";
+    goto error_common;
+
+error_ip_end:
+    oss << "IP_END is not a valid IP.";
+    goto error_common;
 
 error_addr:
     oss << "No NETWORK_ADDRESS in template for Virtual Network.";
