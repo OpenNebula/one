@@ -88,6 +88,11 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     {
         if ( ip_start != 0 && ip_end != 0 )
         {
+            if ( ip_end < ip_start )
+            {
+                goto error_greater;
+            }
+
             return 0;
         }
         else
@@ -111,7 +116,7 @@ int RangedLeases::process_template(VirtualNetwork* vn,
 
         if ( network_bits > 32 )
         {
-            // TODO wrong prefix
+            goto error_prefix;
         }
 
         host_bits = 32 - network_bits;
@@ -125,7 +130,10 @@ int RangedLeases::process_template(VirtualNetwork* vn,
             // st_mask is in decimal format, e.g. 255.255.0.0
             // The number of trailing 0s is needed
 
-            Leases::Lease::ip_to_number(st_mask, net_mask);
+            if ( Leases::Lease::ip_to_number(st_mask, net_mask) != 0 )
+            {
+                goto error_netmask;
+            }
 
             host_bits = 0;
 
@@ -172,17 +180,19 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     Lease::ip_to_string(net_mask, st_mask);
     vn->replace_template_attribute("NETWORK_MASK", st_mask);
 
-    Leases::Lease::ip_to_number(st_addr,net_addr);
+    if ( Leases::Lease::ip_to_number(st_addr,net_addr) != 0 )
+    {
+        goto error_net_addr;
+    }
 
     if (net_addr != (net_mask & net_addr) )
     {
-        // TODO: net_addr is not a valid network address, should end with 0s
+        goto error_not_base_addr;
     }
 
     size = (1 << host_bits) - 2;
 
-    // TODO: check that start < end; ip_start & ip_end are part of the network
-
+    // Set IP start/end
     if ( ip_start == 0 )
     {
         ip_start = net_addr + 1;
@@ -193,20 +203,72 @@ int RangedLeases::process_template(VirtualNetwork* vn,
         ip_end   = net_addr + size;
     }
 
+    // Check range restrictions
+    if ( (ip_start & net_mask) != net_addr )
+    {
+        goto error_range_ip_start;
+    }
+
+    if ( (ip_end & net_mask) != net_addr )
+    {
+        goto error_range_ip_end;
+    }
+
+    if ( ip_end < ip_start )
+    {
+        goto error_greater;
+    }
+
     return 0;
 
 
 error_ip_start:
-    oss << "IP_START is not a valid IP.";
+    oss << "IP_START " << st_ip_start << " is not a valid IP.";
     goto error_common;
 
 error_ip_end:
-    oss << "IP_END is not a valid IP.";
+    oss << "IP_END " << st_ip_end << " is not a valid IP.";
+    goto error_common;
+
+error_not_base_addr:
+    oss << "NETWORK_ADDRESS " << st_addr
+        << " is not a base address for the network mask " << st_mask << ".";
+    goto error_common;
+
+error_net_addr:
+    oss << "NETWORK_ADDRESS " << st_addr << " is not a valid IP.";
+    goto error_common;
+
+error_netmask:
+    oss << "NETWORK_MASK " << st_mask << " is not a valid network mask.";
+    goto error_common;
+
+error_prefix:
+    oss << "A CIDR prefix of " << network_bits << " bits is not valid.";
     goto error_common;
 
 error_addr:
     oss << "No NETWORK_ADDRESS in template for Virtual Network.";
     goto error_common;
+
+error_range_ip_start:
+    oss << "IP_START " << st_ip_start << " is not part of the network "
+        << st_addr << "/" << 32-host_bits << ".";
+    goto error_common;
+
+error_range_ip_end:
+    oss << "IP_END " << st_ip_end << " is not part of the network "
+        << st_addr << "/" << 32-host_bits << ".";
+    goto error_common;
+
+error_greater:
+    Leases::Lease::ip_to_string(ip_start, st_ip_start);
+    Leases::Lease::ip_to_string(ip_end,   st_ip_end);
+
+    oss << "IP_START " << st_ip_start << " cannot be greater than the IP_END "
+        << st_ip_end << ".";
+    goto error_common;
+
 
 error_common:
     error_str = oss.str();
