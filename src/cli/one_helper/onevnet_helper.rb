@@ -66,6 +66,13 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         puts vn.template_str(false)
 
+        if vn.type_str == "RANGED"
+            puts
+            CLIHelper.print_header(str_h1 % ["RANGE"], false)
+            puts str % ["IP_START", vn['RANGE/IP_START']]
+            puts str % ["IP_END", vn['RANGE/IP_END']]
+        end
+
         leases_str = vn.template_like_str('/VNET/LEASES', false)
 
         if !leases_str.empty?
