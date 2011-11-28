@@ -71,6 +71,8 @@ CloudServer.print_configuration(conf)
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
+use Rack::Session::Pool, :key => 'occi'
+set :public, Proc.new { File.join(root, "ui/public") }
 set :config, conf
 
 if CloudServer.is_port_open?(settings.config[:server],
@@ -98,22 +100,56 @@ set :cloud_auth, cloud_auth
 ##############################################################################
 
 before do
-    begin
-        username = settings.cloud_auth.auth(request.env, params)
-    rescue Exception => e
-        error 500, e.message
-    end
+    unless request.path=='/ui/login' || request.path=='/ui'
+        if !authorized?
+            begin
+                username = settings.cloud_auth.auth(request.env, params)
+            rescue Exception => e
+                error 500, e.message
+            end
+        else
+            username = session[:user]
+        end
 
-    if username.nil?
-        error 401, ""
-    else
-        client  = settings.cloud_auth.client(username)
-        @occi_server = OCCIServer.new(client, settings.config)
+        if username.nil? #unable to authenticate
+            error 401, ""
+        else
+            client  = settings.cloud_auth.client(username)
+            @occi_server = OCCIServer.new(client, settings.config)
+        end
     end
 end
 
 # Response treatment
 helpers do
+    def authorized?
+        session[:ip] && session[:ip]==request.ip ? true : false
+    end
+
+    def build_session
+        begin
+            username = settings.cloud_auth.auth(request.env, params)
+        rescue Exception => e
+            error 500, e.message
+        end
+
+        if username.nil?
+            error 401, ""
+        else
+            client  = settings.cloud_auth.client(username)
+            @occi_server = OCCIServer.new(client, settings.config)
+            session[:ip] = request.ip
+            session[:user] = username
+            return [204, ""]
+        end
+    end
+
+    def destroy_session
+        session.clear
+        return [204, ""]
+    end
+
+
     def treat_response(result,rc)
         if OpenNebula::is_error?(result)
             halt rc, result.message
@@ -172,7 +208,7 @@ end
 ###################################################
 
 get '/compute/:id' do
-    if params[:id] == "types" 
+    if params[:id] == "types"
         result,rc = @occi_server.get_computes_types
     else
         result,rc = @occi_server.get_compute(request, params)
@@ -223,4 +259,27 @@ end
 get '/user/:id' do
     result,rc = @occi_server.get_user(request, params)
     treat_response(result,rc)
+end
+
+##############################################
+## UI
+##############################################
+
+get '/ui/login' do
+    File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
+end
+
+post '/ui/login' do
+    build_session
+end
+
+post '/ui/logout' do
+    destroy_session
+end
+
+get '/ui' do
+    if !authorized?
+        return File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
+    end
+    return File.read(File.dirname(__FILE__)+'/ui/templates/index.html')
 end
