@@ -79,15 +79,15 @@ class ExecDriver < VirtualMachineDriver
             dfile = remote_dfile
         end
 
-        ssh = SshStreamCommand.new(host, 
-                                   @remote_scripts_base_path, 
-                                   log_method(id)) 
+        ssh = SshStreamCommand.new(host,
+                                   @remote_scripts_base_path,
+                                   log_method(id))
 
         vnm = VirtualNetworkDriver.new(net_drv,
                                      :local_actions => @options[:local_actions],
                                      :message       => data,
                                      :ssh_stream    => ssh)
-         
+
         # ----------------------------------------------------------------------
         #  Execute pre-boot action of the network driver
         # ----------------------------------------------------------------------
@@ -95,7 +95,7 @@ class ExecDriver < VirtualMachineDriver
         result, info = vnm.do_action(id, :pre)
 
         if failed?(result)
-            send_message(ACTION[:deploy],result,id,info)
+            send_message(ACTION[:deploy], result, id,info)
             return
         end
 
@@ -105,16 +105,18 @@ class ExecDriver < VirtualMachineDriver
         # Boot the VM
         # ----------------------------------------------------------------------
 
-        result, domain_id = do_action("#{dfile} #{host}", id, host, :deploy, 
+        result, info = do_action("#{dfile} #{host}", id, host, :deploy, 
                                       :stdin      => domain,
                                       :ssh_stream => ssh,
                                       :respond    => false)
         if failed?(result)
-            send_message(ACTION[:deploy],result,id,info)
+            send_message(ACTION[:deploy], result, id, info)
             return
         end
 
-        log(id, "Successfully booted VM with id: #{domain_id}")
+        deploy_id = info
+
+        log(id, "Successfully booted VM with id: #{deploy_id}")
 
         # ----------------------------------------------------------------------
         #  Execute post-boot action of the network driver
@@ -124,19 +126,19 @@ class ExecDriver < VirtualMachineDriver
 
         if failed?(result)
             log(id, "Failed to executed network driver #{net_drv} (post-boot)")
-            log(id, "Cancelling VM with id: #{domain_id}")
+            log(id, "Canceling VM with id: #{deploy_id}")
 
-            do_action("#{domain_id} #{host}", id, host, :cancel, 
+            do_action("#{deploy_id} #{host}", id, host, :cancel,
                       :ssh_stream => ssh,
                       :respond    => false)
 
-            send_message(ACTION[:deploy],result,id,info)
+            send_message(ACTION[:deploy], result, id, info)
             return
         end
 
         log(id, "Successfully executed network driver #{net_drv} (post-boot)")
 
-        send_message(ACTION[:deploy],RESULT[:success],id,domain_id)
+        send_message(ACTION[:deploy], RESULT[:success], id, deploy_id)
     end
 
     # Basic Domain Management Operations
@@ -144,26 +146,130 @@ class ExecDriver < VirtualMachineDriver
     def shutdown(id, drv_message)
         data        = decode(drv_message)
         host        = data.elements['HOST'].text
+        net_drv     = data.elements['NET_DRV'].text
         deploy_id   = data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id} #{host}", id, host, :shutdown)
+        ssh = SshStreamCommand.new(host,
+                                   @remote_scripts_base_path,
+                                   log_method(id))
+
+        vnm = VirtualNetworkDriver.new(net_drv,
+                                    :local_actions => @options[:local_actions],
+                                    :message       => data,
+                                    :ssh_stream    => ssh)
+
+        result, info = do_action("#{deploy_id} #{host}", id, host, :shutdown,
+                                 :ssh_stream => ssh,
+                                 :respond    => false)
+
+        if failed?(result)
+            send_message(ACTION[:shutdown], result, id,info)
+            return
+        end
+
+        log(id, "Successfully shut down VM with id: #{deploy_id}")
+
+        # ----------------------------------------------------------------------
+        #  Execute clean action of the network driver
+        # ----------------------------------------------------------------------
+
+        result, info = vnm.do_action(id, :clean)
+
+        if failed?(result)
+            send_message(ACTION[:shutdown], result, id,info)
+            return
+        end
+
+        log(id, "Successfully executed network driver #{net_drv}" <<
+                " (clean-shutdown)")
     end
 
     def cancel(id, drv_message)
         data        = decode(drv_message)
         host        = data.elements['HOST'].text
+        net_drv     = data.elements['NET_DRV'].text
         deploy_id   = data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id} #{host}", id, host, :cancel)
+        ssh = SshStreamCommand.new(host,
+                                   @remote_scripts_base_path,
+                                   log_method(id))
+
+        vnm = VirtualNetworkDriver.new(net_drv,
+                                    :local_actions => @options[:local_actions],
+                                    :message       => data,
+                                    :ssh_stream    => ssh)
+
+        result, info = do_action("#{deploy_id} #{host}", id, host, :cancel,
+                                 :ssh_stream => ssh,
+                                 :respond    => false)
+
+        if failed?(result)
+            send_message(ACTION[:cancel], result, id,info)
+            return
+        end
+
+        log(id, "Successfully canceled VM with id: #{deploy_id}")
+
+        # ----------------------------------------------------------------------
+        #  Execute clean action of the network driver
+        # ----------------------------------------------------------------------
+
+        result, info = vnm.do_action(id, :clean)
+
+        if failed?(result)
+            send_message(ACTION[:cancel], result, id,info)
+            return
+        end
+
+        log(id, "Successfully executed network driver #{net_drv}" <<
+                " (clean-cancel)")
+
+        send_message(ACTION[:shutdown], RESULT[:success], id, domain_id)
     end
 
     def save(id, drv_message)
         data        = decode(drv_message)
         host        = data.elements['HOST'].text
+        net_drv     = data.elements['NET_DRV'].text
         deploy_id   = data.elements['DEPLOY_ID'].text
         file        = data.elements['CHECKPOINT_FILE'].text
 
-        do_action("#{deploy_id} #{file} #{host}", id, host, :save)
+        ssh = SshStreamCommand.new(host,
+                                   @remote_scripts_base_path,
+                                   log_method(id))
+
+        vnm = VirtualNetworkDriver.new(net_drv,
+                                    :local_actions => @options[:local_actions],
+                                    :message       => data,
+                                    :ssh_stream    => ssh)
+
+        result, info = do_action("#{deploy_id} #{file} #{host}", id, host,
+                                 :save,
+                                 :ssh_stream => ssh,
+                                 :respond    => false)
+
+        if failed?(result)
+            send_message(ACTION[:save], result, id,info)
+            return
+        end
+
+        log(id, "Successfully saved VM with id: #{deploy_id}")
+
+        # ----------------------------------------------------------------------
+        #  Execute clean action of the network driver
+        # ----------------------------------------------------------------------
+
+        result, info = vnm.do_action(id, :clean)
+
+        if failed?(result)
+            send_message(ACTION[:save], result, id,info)
+            return
+        end
+
+        log(id, "Successfully executed network driver #{net_drv}" <<
+                " (clean-save)")
+
+        send_message(ACTION[:save], RESULT[:success], id, domain_id)
     end
 
     def restore(id, drv_message)
@@ -171,15 +277,134 @@ class ExecDriver < VirtualMachineDriver
         host        = data.elements['HOST'].text
         file        = data.elements['CHECKPOINT_FILE'].text
 
-        do_action("#{file} #{host}", id, host, :restore)
+        ssh = SshStreamCommand.new(host,
+                                   @remote_scripts_base_path,
+                                   log_method(id))
+
+        vnm = VirtualNetworkDriver.new(net_drv,
+                                    :local_actions => @options[:local_actions],
+                                    :message       => data,
+                                    :ssh_stream    => ssh)
+
+        # ----------------------------------------------------------------------
+        #  Execute pre-boot action of the network driver
+        # ----------------------------------------------------------------------
+
+        result, info = vnm.do_action(id, :pre)
+
+        if failed?(result)
+            send_message(ACTION[:restore], result, id,info)
+            return
+        end
+
+        log(id, "Successfully executed network driver #{net_drv} (pre-restore)")
+
+        result, info = do_action("#{file} #{host}", id, host, :restore,
+                                 :save,
+                                 :ssh_stream => ssh,
+                                 :respond    => false)
+        if failed?(result)
+            send_message(ACTION[:restore], result, id, info)
+            return
+        end
+
+        log(id, "Successfully restored VM with id: #{info}")
+
+        # ----------------------------------------------------------------------
+        #  Execute post-restore action of the network driver
+        # ----------------------------------------------------------------------
+
+        result, info = vnm.do_action(id, :post)
+
+        if failed?(result)
+            log(id, "Failed to executed network driver #{net_drv} (post-restore)")
+            log(id, "Canceling VM with id: #{domain_id}")
+
+            do_action("#{domain_id} #{host}", id, host, :cancel,
+                      :ssh_stream => ssh,
+                      :respond    => false)
+
+            send_message(ACTION[:restore], result, id, info)
+            return
+        end
+
+        log(id, "Successfully executed network driver #{net_drv} (post-restore)")
+
+        send_message(ACTION[:restore], RESULT[:success], id, domain_id)
     end
 
     def migrate(id, drv_message)
         data        = decode(drv_message)
+        net_drv     = data.elements['NET_DRV'].text
         host        = data.elements['HOST'].text
         deploy_id   = data.elements['DEPLOY_ID'].text
+        dest_host   = data.elements['MIGR_HOST'].text
+        dest_driver = data.elements['MIGR_NET_DRV'].text
 
-        do_action("#{deploy_id} #{dest_host} #{host}", id, host, :migrate)
+        ssh_src = SshStreamCommand.new(host,
+                                       @remote_scripts_base_path,
+                                       log_method(id))
+
+        ssh_dst = SshStreamCommand.new(dest_host,
+                                       @remote_scripts_base_path,
+                                       log_method(id))
+
+        vnm_src = VirtualNetworkDriver.new(net_drv,
+                                    :local_actions => @options[:local_actions],
+                                    :message       => data,
+                                    :ssh_stream    => ssh_src)
+
+        vnm_dst = VirtualNetworkDriver.new(dest_driver,
+                                    :local_actions => @options[:local_actions],
+                                    :message       => data,
+                                    :ssh_stream    => ssh_dst)
+
+        # ----------------------------------------------------------------------
+        #  Execute pre-boot action of the network driver
+        # ----------------------------------------------------------------------
+
+        result, info = vnm_dst.do_action(id, :pre)
+
+        if failed?(result)
+            send_message(ACTION[:migrate], result, id,info)
+            return
+        end
+
+        log(id, "Successfully executed network driver #{net_drv} (pre-migrate)")
+
+        result, info = do_action("#{deploy_id} #{dest_host} #{host}", id, host,
+                                 :migrate,
+                                 :save,
+                                 :ssh_stream => ssh_src,
+                                 :respond    => false)
+        if failed?(result)
+            send_message(ACTION[:migrate], result, id, info)
+            return
+        end
+
+        log(id, "Successfully migrated VM with id: #{deploy_id}")
+
+        # ----------------------------------------------------------------------
+        #  Execute post-migrate action of the network driver
+        # ----------------------------------------------------------------------
+
+        result, info = vnm_dst.do_action(id, :post)
+
+        if failed?(result)
+            log(id, "Failed to executed network driver #{dest_driver} (post-migrate)")
+            log(id, "Canceling VM with id: #{deploy_id}")
+
+            do_action("#{deploy_id} #{host}", id, dest_host, :cancel,
+                      :ssh_stream => ssh_dst,
+                      :respond    => false)
+
+            send_message(ACTION[:restore], result, id, info)
+            return
+        end
+
+        log(id, "Successfully executed network driver #{net_drv} (post-restore)")
+
+        send_message(ACTION[:restore], RESULT[:success], id, deploy_id)
     end
 
     def poll(id, drv_message)
