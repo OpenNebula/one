@@ -275,11 +275,25 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     chauth_desc = <<-EOT.unindent
-        Changes the User's auth driver
+        Changes the User's auth driver and its password (optional)
+        Examples:
+          oneuser chauth my_user core
+          oneuser chauth my_user core new_password
+          oneuser chauth my_user core -r /tmp/mypass
+          oneuser chauth my_user --ssh --key /home/oneadmin/.ssh/id_rsa
+          oneuser chauth my_user --ssh -r /tmp/public_key
+          oneuser chauth my_user --x509 --cert /tmp/my_cert.pem
     EOT
 
-    command :chauth, chauth_desc, :userid, :auth, [:password, nil],
+    command :chauth, chauth_desc, :userid, [:auth, nil], [:password, nil],
             :options=>create_options do
+        if options[:driver]
+            driver = options[:driver]
+        elsif args[1]
+            driver = args[1]
+        else
+            exit_with_code 0, "An Auth driver should be specified"
+        end
 
         helper = OneUserHelper.new
 
@@ -297,7 +311,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0],
                             options,
                             "Auth driver and password changed") do |user|
-            user.chauth(args[1], pass)
+            user.chauth(driver, pass)
         end
     end
 

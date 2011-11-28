@@ -64,15 +64,16 @@ class CloudAuth
         begin
             require core_auth[0]
             @server_auth = Kernel.const_get(core_auth[1]).new_client
-
-            token = @server_auth.login_token(expiration_time)
-            @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
         rescue => e
             raise e.message
         end
     end
 
-    def client(username)
+    # Generate a new OpenNebula client for the target User, if the username
+    # is nil the Client is generated for the server_admin
+    # ussername:: _String_ Name of the User
+    # [return] _Client_
+    def client(username=nil)
         token = @server_auth.login_token(expiration_time,username)
         Client.new(token,@conf[:one_xmlrpc])
     end
@@ -97,7 +98,7 @@ class CloudAuth
     end
 
     def update_userpool_cache
-        @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
+        @user_pool = OpenNebula::UserPool.new(client)
 
         rc = @user_pool.info
         if OpenNebula.is_error?(rc)
