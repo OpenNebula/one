@@ -18,6 +18,7 @@
 #define RANGED_LEASES_H_
 
 #include "Leases.h"
+#include "VirtualNetwork.h"
 
 using namespace std;
 
@@ -35,6 +36,17 @@ public:
                  unsigned int  _ip_end);
 
     ~RangedLeases(){};
+
+    /**
+     * Reads (and clears) the necessary attributes to define a Ranged VNet
+     * @param vn Virtual Network
+     * @param ip_start First IP of the range
+     * @param ip_end Last IP of the range
+     * @param error_str Error reason, if any
+     * @return 0 on success, -1 otherwise
+     */
+    static int process_template(VirtualNetwork * vn,
+            unsigned int& ip_start, unsigned int& ip_end, string& error_str);
 
     /**
      * Returns an unused lease, which becomes used

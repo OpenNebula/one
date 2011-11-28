@@ -25,8 +25,6 @@
 
 #include "AuthManager.h"
 
-#include <cmath>
-
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
@@ -174,8 +172,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     string          pub;
     string          s_type;
+    string          ranged_error_str;
 
-    unsigned int default_size = VirtualNetworkPool::default_size();
     unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
 
     //--------------------------------------------------------------------------
@@ -255,116 +253,16 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     //--------------------------------------------------------------------------
     if (type == VirtualNetwork::RANGED)
     {
-        string st_size = "";
-        string st_addr  = "";
-        string st_mask  = "";
 
-        unsigned int size = default_size;
-        unsigned int host_bits;
-        unsigned int network_bits;
+        int rc;
 
-        unsigned int net_addr;
-        unsigned int net_mask;
-        size_t       pos;
+        rc = RangedLeases::process_template(this, ip_start, ip_end,
+                ranged_error_str);
 
-        // retrieve specific information from template
-
-        erase_template_attribute("NETWORK_ADDRESS",st_addr);
-
-        if (st_addr.empty())
+        if ( rc != 0 )
         {
-            goto error_addr;
+            goto error_ranged;
         }
-
-        // Check if the IP has a network prefix
-        pos = st_addr.find("/");
-
-        if ( pos != string::npos )
-        {
-            string st_network_bits;
-
-            st_network_bits = st_addr.substr(pos+1);
-            st_addr         = st_addr.substr(0,pos);
-
-            istringstream iss(st_network_bits);
-            iss >> network_bits;
-
-            if ( network_bits > 32 )
-            {
-                // TODO wrong prefix
-            }
-
-            host_bits = 32 - network_bits;
-        }
-        else
-        {
-            erase_template_attribute("NETWORK_MASK", st_mask);
-
-            if ( !st_mask.empty() )
-            {
-                // st_mask is in decimal format, e.g. 255.255.0.0
-                // The number of trailing 0s is needed
-
-                Leases::Lease::ip_to_number(st_mask, net_mask);
-
-                host_bits = 0;
-
-                while ( host_bits < 32 &&
-                        ((net_mask >> host_bits) & 1) != 1 )
-                {
-                    host_bits++;
-                }
-            }
-            else
-            {
-                erase_template_attribute("NETWORK_SIZE",st_size);
-
-                if ( st_size == "C" || st_size == "c" )
-                {
-                    host_bits = 8;
-                }
-                else if ( st_size == "B" || st_size == "b" )
-                {
-                    host_bits = 16;
-                }
-                else if ( st_size == "A" || st_size == "a" )
-                {
-                    host_bits = 24;
-                }
-                else
-                {
-                    size = default_size;
-
-                    if (!st_size.empty())//Assume it's a number
-                    {
-                        istringstream iss(st_size);
-
-                        iss >> size;
-                    }
-
-                    host_bits = (int) ceil(log(size+2)/log(2));
-                }
-            }
-        }
-
-        remove_template_attribute("NETWORK_SIZE");
-
-        // Set the network mask
-        net_mask = ( 0xFFFFFFFF << host_bits ) & 0xFFFFFFFF;
-        Leases::Lease::ip_to_string(net_mask, st_mask);
-        replace_template_attribute("NETWORK_MASK", st_mask);
-
-        Leases::Lease::ip_to_number(st_addr,net_addr);
-
-        if (net_addr != (net_mask & net_addr) )
-        {
-            // TODO: net_addr is not a valid network address, should end with 0s
-        }
-
-        size = (1 << host_bits) - 2;
-
-        ip_start = net_addr + 1;
-        ip_end   = ip_start + size -1;
 
         leases = new RangedLeases(db,
                                   oid,
@@ -423,8 +321,8 @@ error_update:
     ose << "Can not update Virtual Network.";
     goto error_common;
 
-error_addr:
-    ose << "No NETWORK_ADDRESS in template for Virtual Network.";
+error_ranged:
+    ose << ranged_error_str;
     goto error_common;
 
 error_null_leases:
