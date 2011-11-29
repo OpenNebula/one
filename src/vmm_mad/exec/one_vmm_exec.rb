@@ -224,7 +224,7 @@ class ExecDriver < VirtualMachineDriver
         log(id, "Successfully executed network driver #{net_drv}" <<
                 " (clean-cancel)")
 
-        send_message(ACTION[:shutdown], RESULT[:success], id, domain_id)
+        send_message(ACTION[:shutdown], RESULT[:success], id, deploy_id)
     end
 
     def save(id, drv_message)

@@ -54,12 +54,16 @@ class ImageDriver < OpenNebulaDriver
         @options={
             :concurrency => 10,
             :threaded => true,
-            :retries => 0
+            :retries => 0,
+            :local_actions => {
+                'MV' => nil,
+                'CP' => nil,
+                'RM' => nil,
+                'MKFS' => nil
+            }
         }.merge!(options)
 
-        super('', @options)
-
-        @actions_path = "#{VAR_LOCATION}/remotes/image/#{fs_type}"
+        super("image/#{fs_type}", @options)
 
         register_action(ACTION[:mv].to_sym, method("mv"))
         register_action(ACTION[:cp].to_sym, method("cp"))
@@ -69,23 +73,21 @@ class ImageDriver < OpenNebulaDriver
 
     # Image Manager Protocol Actions (generic implementation
     def mv(id, src, dst)
-        do_action("#{@actions_path}/mv #{src} #{dst} #{id}", id, nil,
-            ACTION[:mv], :local => true)
+        do_action("#{src} #{dst} #{id}", id, nil,
+            ACTION[:mv])
     end
 
     def cp(id, src)
-        do_action("#{@actions_path}/cp #{src} #{id}", id, nil, ACTION[:cp],
-            :local => true)
+        do_action("#{src} #{id}", id, nil, ACTION[:cp])
     end
 
     def rm(id, dst)
-        do_action("#{@actions_path}/rm #{dst} #{id}", id, nil, ACTION[:rm],
-            :local => true)
+        do_action("#{dst} #{id}", id, nil, ACTION[:rm])
     end
 
     def mkfs(id, fs, size)
-        do_action("#{@actions_path}/mkfs #{fs} #{size} #{id}", id, nil,
-            ACTION[:mkfs], :local => true)
+        do_action("#{fs} #{size} #{id}", id, nil,
+            ACTION[:mkfs])
     end
 end
 
