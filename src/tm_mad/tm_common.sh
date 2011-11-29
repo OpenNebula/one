@@ -51,7 +51,7 @@ function fix_dir_slashes
 
 function get_compare_target
 {
-    echo "$1" | $SED 's/\/+/\//g' | $SED 's/\\/images$//'
+    echo "$1" | $SED 's/\/+/\//g' | $SED 's/\/images$//'
 }
 
 function full_src_and_dst_equal

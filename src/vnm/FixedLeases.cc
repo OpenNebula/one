@@ -365,13 +365,17 @@ int FixedLeases::update_lease(Lease * lease)
 int FixedLeases::add_leases(vector<const Attribute*>&   vector_leases,
                             string&                     error_msg)
 {
-    const VectorAttribute * single_attr_lease;
+    const VectorAttribute * single_attr_lease = 0;
 
     int     rc = -1;
     string  _mac;
     string  _ip;
 
-    single_attr_lease = dynamic_cast<const VectorAttribute *>(vector_leases[0]);
+    if ( vector_leases.size() > 0 )
+    {
+        single_attr_lease =
+                dynamic_cast<const VectorAttribute *>(vector_leases[0]);
+    }
 
     if( single_attr_lease != 0 )
     {
@@ -400,11 +404,15 @@ int FixedLeases::add_leases(vector<const Attribute*>&   vector_leases,
 int FixedLeases::remove_leases(vector<const Attribute*>&   vector_leases,
                                string&                     error_msg)
 {
-    const VectorAttribute * single_attr_lease;
+    const VectorAttribute * single_attr_lease = 0;
     int     rc = -1;
     string  _ip;
 
-    single_attr_lease = dynamic_cast<const VectorAttribute *>(vector_leases[0]);
+    if ( vector_leases.size() > 0 )
+    {
+        single_attr_lease =
+                dynamic_cast<const VectorAttribute *>(vector_leases[0]);
+    }
 
     if( single_attr_lease != 0 )
     {
