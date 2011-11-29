@@ -484,6 +484,7 @@ INSTALL_ETC_FILES=(
 BIN_FILES="src/nebula/oned \
            src/scheduler/src/sched/mm_sched \
            src/cli/onevm \
+           src/cli/oneacct \
            src/cli/onehost \
            src/cli/onevnet \
            src/cli/oneuser \
@@ -1180,6 +1181,7 @@ ACCT_BIN_FILES="src/acct/oneacctd"
 ACCT_LIB_FILES="src/acct/monitoring.rb \
                 src/acct/accounting.rb \
                 src/acct/acctd.rb \
+                src/acct/oneacct.rb \
                 src/acct/watch_helper.rb \
                 src/acct/watch_client.rb"
 
