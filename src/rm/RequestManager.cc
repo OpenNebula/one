@@ -246,6 +246,8 @@ void RequestManager::register_xml_methods()
     // VirtualNetwork Methods
     xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
     xmlrpc_c::methodPtr vn_rmleases(new VirtualNetworkRemoveLeases());
+    xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHold());
+    xmlrpc_c::methodPtr vn_release(new VirtualNetworkRelease());
 
     // Update Template Methods
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
@@ -357,6 +359,8 @@ void RequestManager::register_xml_methods()
     /* Network related methods*/
     RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
     RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
+    RequestManagerRegistry.addMethod("one.vn.hold", vn_hold);
+    RequestManagerRegistry.addMethod("one.vn.release", vn_release);
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);   
     RequestManagerRegistry.addMethod("one.vn.publish", vn_publish);
     RequestManagerRegistry.addMethod("one.vn.update", vn_update);

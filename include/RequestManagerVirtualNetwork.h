@@ -93,6 +93,44 @@ public:
     }
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkHold : public RequestManagerVirtualNetwork
+{
+public:
+    VirtualNetworkHold():
+        RequestManagerVirtualNetwork("VirtualNetworkHold",
+                                     "Holds a virtual network Lease as used"){};
+    ~VirtualNetworkHold(){};
+
+    int leases_action(VirtualNetwork * vn,
+                      VirtualNetworkTemplate * tmpl,
+                      string& error_str)
+    {
+        return vn->hold_leases(tmpl, error_str);
+    }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkRelease : public RequestManagerVirtualNetwork
+{
+public:
+    VirtualNetworkRelease():
+        RequestManagerVirtualNetwork("VirtualNetworkRelease",
+                                     "Releases a virtual network Lease on hold"){};
+    ~VirtualNetworkRelease(){};
+
+    int leases_action(VirtualNetwork * vn,
+                      VirtualNetworkTemplate * tmpl,
+                      string& error_str)
+    {
+        return vn->free_leases(tmpl, error_str);
+    }
+};
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

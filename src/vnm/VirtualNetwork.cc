@@ -646,3 +646,29 @@ int VirtualNetwork::remove_leases(VirtualNetworkTemplate * leases_template,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
+                                string&                  error_msg)
+{
+    vector<const Attribute *> vector_leases;
+
+    leases_template->get("LEASES", vector_leases);
+
+    return leases->hold_leases(vector_leases, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
+                                  string&                  error_msg)
+{
+    vector<const Attribute *> vector_leases;
+
+    leases_template->get("LEASES", vector_leases);
+
+    return leases->free_leases(vector_leases, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

@@ -102,6 +102,26 @@ public:
     virtual int remove_leases(vector<const Attribute*>& vector_leases,
                               string&                   error_msg) = 0;
 
+    /**
+     * Holds a Lease, marking it as used
+     *  @param vector_leases vector of VectorAttribute objects. For the
+     *         moment, the vector can only contain one LEASE.
+     *  @param error_msg If the action fails, this message contains
+     *         the reason.
+     *  @return 0 on success
+     */
+    int hold_leases(vector<const Attribute*>& vector_leases, string& error_msg);
+
+    /**
+     * Releases a Lease on hold
+     *  @param vector_leases vector of VectorAttribute objects. For the
+     *         moment, the vector can only contain one LEASE.
+     *  @param error_msg If the action fails, this message contains
+     *         the reason.
+     *  @return 0 on success
+     */
+    int free_leases(vector<const Attribute*>& vector_leases, string& error_msg);
+
     // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
 
