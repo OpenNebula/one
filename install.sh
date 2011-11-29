@@ -180,14 +180,13 @@ fi
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/examples/tm"
 
-ETC_DIRS="$ETC_LOCATION/im_kvm \
-          $ETC_LOCATION/im_xen \
-          $ETC_LOCATION/im_ec2 \
+ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/tm_shared \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
+          $ETC_LOCATION/tm_vmware \
           $ETC_LOCATION/tm_lvm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
@@ -210,6 +209,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/tm_commands/ssh \
           $LIB_LOCATION/tm_commands/dummy \
           $LIB_LOCATION/tm_commands/lvm \
+          $LIB_LOCATION/tm_commands/vmware \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -220,9 +220,11 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/xen.d \
+          $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/ganglia.d \
-          $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/kvm \
+          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/vnm \
           $VAR_LOCATION/remotes/hooks/ft \
@@ -327,6 +329,7 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
+    IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
@@ -337,10 +340,13 @@ INSTALL_FILES=(
     AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota    
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     SHARED_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/shared
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
+    VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
+    VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
     NETWORK_HOOK_SCRIPTS:$VAR_LOCATION/remotes/vnm
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
@@ -446,6 +452,7 @@ INSTALL_OZONES_ETC_FILES=(
 
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
+    VMWARE_ETC_FILES:$ETC_LOCATION
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
@@ -453,6 +460,7 @@ INSTALL_ETC_FILES=(
     TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
     TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy
     TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm
+    TM_VMWARE_ETC_FILES:$ETC_LOCATION/tm_vmware
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
     ECO_ETC_FILES:$ETC_LOCATION
@@ -479,6 +487,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneacl \
            src/onedb/onedb \
            src/authm_mad/remotes/quota/onequota \
+           src/mad/utils/tty_expect \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -499,6 +508,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
                 src/mad/ruby/Ganglia.rb \
+                src/mad/ruby/vmwarelib.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
@@ -576,20 +586,35 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/shutdown"
 
 #-------------------------------------------------------------------------------
+# VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
+                         src/vmm_mad/remotes/vmware/deploy \
+                         src/vmm_mad/remotes/vmware/migrate \
+                         src/vmm_mad/remotes/vmware/restore \
+                         src/vmm_mad/remotes/vmware/save \
+                         src/vmm_mad/remotes/vmware/poll \
+                         src/vmm_mad/remotes/vmware/checkpoint \
+                         src/vmm_mad/remotes/vmware/shutdown"
+
+#-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
 
 IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 
-IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
-                    src/im_mad/remotes/xen.d/architecture.sh \
-                    src/im_mad/remotes/xen.d/cpu.sh \
-                    src/im_mad/remotes/xen.d/name.sh"
-
 IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
-                    src/im_mad/remotes/kvm.d/architecture.sh \
-                    src/im_mad/remotes/kvm.d/cpu.sh \
-                    src/im_mad/remotes/kvm.d/name.sh"
+                     src/im_mad/remotes/kvm.d/architecture.sh \
+                     src/im_mad/remotes/kvm.d/cpu.sh \
+                     src/im_mad/remotes/kvm.d/name.sh"
+
+IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
+                     src/im_mad/remotes/xen.d/architecture.sh \
+                     src/im_mad/remotes/xen.d/cpu.sh \
+                     src/im_mad/remotes/xen.d/name.sh"
+
+IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
 IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
@@ -645,8 +670,12 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
                            src/tm_mad/lvm/tm_mv.sh \
                            src/tm_mad/lvm/tm_context.sh"
 
+VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
+                             src/tm_mad/vmware/tm_ln.sh \
+                             src/tm_mad/vmware/tm_mv.sh"
+
 #-------------------------------------------------------------------------------
-# Image Repository drivers, to be installed under $REMOTES_LOCTION/image
+# Image Repository drivers, to be installed under $REMOTES_LOCATION/image
 #   - FS based Image Repository, $REMOTES_LOCATION/image/fs
 #-------------------------------------------------------------------------------
 IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
@@ -675,6 +704,8 @@ ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
            src/cli/etc/group.default"
 
+VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
+
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
 #   - ec2, $ETC_LOCATION/vmm_ec2
@@ -686,7 +717,8 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
-                  src/vmm_mad/exec/vmm_exec_xen.conf"
+                  src/vmm_mad/exec/vmm_exec_xen.conf \
+                  src/vmm_mad/exec/vmm_exec_vmware.conf"
 
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION
@@ -715,6 +747,8 @@ TM_DUMMY_ETC_FILES="src/tm_mad/dummy/tm_dummy.conf \
 
 TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
                   src/tm_mad/lvm/tm_lvmrc"
+
+TM_VMWARE_ETC_FILES="src/tm_mad/vmware/tm_vmware.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
