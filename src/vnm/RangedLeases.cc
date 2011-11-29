@@ -176,7 +176,7 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     vn->remove_template_attribute("NETWORK_SIZE");
 
     // Set the network mask
-    net_mask = ( 0xFFFFFFFF << host_bits ) & 0xFFFFFFFF;
+    net_mask = 0xFFFFFFFF << host_bits;
     Lease::ip_to_string(net_mask, st_mask);
     vn->replace_template_attribute("NETWORK_MASK", st_mask);
 

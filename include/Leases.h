@@ -42,7 +42,7 @@ public:
      */
     Leases(SqlDB * _db, int _oid, unsigned long _size, unsigned int _mac_prefix):
         ObjectSQL(),
-        oid(_oid), size(_size), n_used(0), db(_db){};
+        oid(_oid), size(_size), n_used(0), mac_prefix(_mac_prefix), db(_db){};
 
     virtual ~Leases()
     {
