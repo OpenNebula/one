@@ -250,6 +250,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
                $SUNSTONE_LOCATION/public/vendor/jQueryUI \
+               $SUNSTONE_LOCATION/public/vendor/jQueryUI/images \
                $SUNSTONE_LOCATION/public/vendor/jQuery \
                $SUNSTONE_LOCATION/public/vendor/jGrowl \
                $SUNSTONE_LOCATION/public/vendor/flot \
@@ -267,6 +268,7 @@ OZONES_DIRS="$OZONES_LOCATION/lib \
              $OZONES_LOCATION/public/vendor/jQueryLayout \
              $OZONES_LOCATION/public/vendor/dataTables \
              $OZONES_LOCATION/public/vendor/jQueryUI \
+             $OZONES_LOCATION/public/vendor/jQueryUI/images \
              $OZONES_LOCATION/public/vendor/jGrowl \
              $OZONES_LOCATION/public/js \
              $OZONES_LOCATION/public/js/plugins \
@@ -409,6 +411,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/jGrowl
     SUNSTONE_PUBLIC_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/jQuery
     SUNSTONE_PUBLIC_VENDOR_JQUERYUI:$SUNSTONE_LOCATION/public/vendor/jQueryUI
+    SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES:$SUNSTONE_LOCATION/public/vendor/jQueryUI/images
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
@@ -434,6 +437,7 @@ INSTALL_OZONES_FILES=(
     OZONES_PUBLIC_VENDOR_DATATABLES:$OZONES_LOCATION/public/vendor/dataTables
     OZONES_PUBLIC_VENDOR_JGROWL:$OZONES_LOCATION/public/vendor/jGrowl
     OZONES_PUBLIC_VENDOR_JQUERYUI:$OZONES_LOCATION/public/vendor/jQueryUI
+    OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES:$OZONES_LOCATION/public/vendor/jQueryUI/images
     OZONES_PUBLIC_VENDOR_JQUERYLAYOUT:$OZONES_LOCATION/public/vendor/jQueryLayout
     OZONES_PUBLIC_JS_FILES:$OZONES_LOCATION/public/js
     OZONES_PUBLIC_IMAGES_FILES:$OZONES_LOCATION/public/images
@@ -1020,34 +1024,36 @@ SUNSTONE_PUBLIC_VENDOR_JGROWL="\
                 src/sunstone/public/vendor/jGrowl/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/jQuery/jquery-1.4.4.min.js \
+                        src/sunstone/public/vendor/jQuery/jquery-1.7.1.min.js \
                         src/sunstone/public/vendor/jQuery/MIT-LICENSE.txt \
                         src/sunstone/public/vendor/jQuery/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYUI="\
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_dadada_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_cd0a0a_256x240.png \
-src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.css \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_aaaaaa_40x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_8f9392_40x100.png \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.css \
 src/sunstone/public/vendor/jQueryUI/MIT-LICENSE.txt \
-src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.min.js \
-src/sunstone/public/vendor/jQueryUI/ui-bg_highlight-soft_75_cccccc_1x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_95_fef1ec_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_55_fbf9ee_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_888888_256x240.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_e6e6e6_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_575c5b_40x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_65_ffffff_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_75_ffffff_40x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_2e83ff_256x240.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_454545_256x240.png \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js \
 src/sunstone/public/vendor/jQueryUI/NOTICE \
-src/sunstone/public/vendor/jQueryUI/ui-icons_222222_256x240.png \
 "
+
+SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES="\
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png  \
+"
+
 SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
             src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
-            src/sunstone/public/vendor/jQueryLayout/jquery.layout.min-1.2.0.js \
+            src/sunstone/public/vendor/jQueryLayout/jquery.layout-latest.min.js \
             src/sunstone/public/vendor/jQueryLayout/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_FLOT="\
@@ -1118,6 +1124,8 @@ OZONES_PUBLIC_VENDOR_DATATABLES=$SUNSTONE_PUBLIC_VENDOR_DATATABLES
 OZONES_PUBLIC_VENDOR_JGROWL=$SUNSTONE_PUBLIC_VENDOR_JGROWL
 
 OZONES_PUBLIC_VENDOR_JQUERYUI=$SUNSTONE_PUBLIC_VENDOR_JQUERYUI
+
+OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES=$SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES
 
 OZONES_PUBLIC_VENDOR_JQUERYLAYOUT=$SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT
                         

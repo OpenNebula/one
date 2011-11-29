@@ -75,7 +75,7 @@ $(document).ready(function () {
         applyDefaultStyles:       false
     ,   center__paneSelector:	".outer-center"
     ,	west__paneSelector:		".outer-west"
-    ,	west__size:				130
+    ,	west__size:				133
     ,	north__size:			26
     ,   south__size:            26
     ,	spacing_open:			0 // ALL panes
@@ -101,8 +101,8 @@ $(document).ready(function () {
     ,   center__paneSelector:	".inner-center"
     ,	south__paneSelector:	".inner-south"
     ,   south__size:            dialog_height
-    ,	spacing_open:			8  // ALL panes
-    ,	spacing_closed:			12 // ALL panes
+    ,	spacing_open:			5  // ALL panes
+    ,	spacing_closed:			5 // ALL panes
     });
 
 });
