@@ -73,16 +73,16 @@ const string xmls[] =
 {
     "<VNET><ID>0</ID><UID>123</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 
-    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE><LEASES></LEASES></VNET>",
+    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE><LEASES></LEASES></VNET>",
 
     "<VNET><ID>0</ID><UID>133</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 };
 
 const string xml_dump =
-    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE></VNET></VNET_POOL>";
 
 const string xml_dump_where =
-    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE></VNET></VNET_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -411,16 +411,16 @@ public:
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
             "NETWORK_SIZE    = B\n"
-            "NETWORK_ADDRESS = 192.168.1.0\n",
+            "NETWORK_ADDRESS = 192.168.0.0\n",
 
-            // Size "X", defaults to 128
+            // Size 126
             "NAME            = \"Net D\"\n"
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
-            "NETWORK_SIZE    = X\n"
+            "NETWORK_SIZE    = 126\n"
             "NETWORK_ADDRESS = 192.168.1.0\n",
 
-            // Size 32
+            // Size 30
             "NAME            = \"Net E\"\n"
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
@@ -428,7 +428,7 @@ public:
             "NETWORK_ADDRESS = 192.168.1.0\n"
         };
 
-        unsigned int    sizes[7]={1,3,256,256,65536,128,32};
+        unsigned int    sizes[7]={1,3,254,254,65534,126,30};
         int oid[7];
 
         for (int i = 0 ; i < 7 ; i++)
@@ -695,7 +695,7 @@ public:
         CPPUNIT_ASSERT( rc != 0 );
 
 
-        // Ask for two more IPs
+        // Ask for the rest of IPs
         vn->lock();
         rc = vn->get_lease(123, ip, mac, bridge);
         vn->unlock();
@@ -708,12 +708,28 @@ public:
 
         CPPUNIT_ASSERT( rc == 0 );
 
+        vn->lock();
+        rc = vn->get_lease(457, ip, mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
+
+        vn->lock();
+        rc = vn->get_lease(458, ip, mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
+
+        vn->lock();
+        rc = vn->get_lease(459, ip, mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
 
         // All IPs are now used
         vn->lock();
         rc = vn->get_lease(789, ip, mac, bridge);
         vn->unlock();
-
         CPPUNIT_ASSERT( rc != 0 );
 
         // Release one of the 3 IPs
