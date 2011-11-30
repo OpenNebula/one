@@ -24,7 +24,7 @@ module DriverExecHelper
         :failure => "FAILURE"
     }
 
-    def failed?(rc_str)
+    def self.failed?(rc_str)
         return rc_str == RESULT[:failure]
     end
     
