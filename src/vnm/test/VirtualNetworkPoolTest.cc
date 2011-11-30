@@ -180,6 +180,8 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (del_lease_nonexistent_ip);
     CPPUNIT_TEST (del_lease_used_ip);
 
+    CPPUNIT_TEST (range_definition);
+
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
@@ -1641,6 +1643,134 @@ public:
 
         CPPUNIT_ASSERT( rc != 0 );
         CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void range_definition()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
+
+        int             rc;
+        VirtualNetwork* vnet;
+
+        int             oid;
+        string          xml_str;
+        string          xpath;
+        string          err;
+
+        // All these templates should create the same range
+        string templ[] = {
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n"
+                "NETWORK_SIZE    = C\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n"
+                "NETWORK_SIZE    = 254\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n"
+                "NETWORK_MASK    = 255.255.255.0\n",
+
+
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n"
+                "IP_START        = 10.10.10.17\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n"
+                "IP_END          = 10.10.10.41\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n"
+                "IP_START        = 10.10.10.17\n"
+                "IP_END          = 10.10.10.41\n",
+
+
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "IP_START        = 10.10.10.17\n"
+                "IP_END          = 10.10.10.41\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n",
+        };
+
+        string ip_start[] = {
+                "10.10.10.1",
+                "10.10.10.1",
+                "10.10.10.1",
+                "10.10.10.1",
+
+                "10.10.10.17",
+                "10.10.10.1",
+                "10.10.10.17",
+
+                "10.10.10.17",
+
+                "10.10.10.1",
+        };
+
+        string ip_end[] = {
+                "10.10.10.254",
+                "10.10.10.254",
+                "10.10.10.254",
+                "10.10.10.254",
+
+                "10.10.10.254",
+                "10.10.10.41",
+                "10.10.10.41",
+
+                "10.10.10.41",
+
+                "10.10.10.126",
+        };
+
+
+        for (int i = 0 ; i < 9 ; i++)
+        {
+            rc = vnpool->allocate(uids[0], templ[i], &oid);
+
+            CPPUNIT_ASSERT( rc >= 0 );
+
+            vnet = vnpool->get(oid, false);
+            CPPUNIT_ASSERT( vnet != 0 );
+
+            vnet->to_xml_extended(xml_str);
+
+            ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/RANGE/IP_START" );
+            CPPUNIT_ASSERT( xpath == ip_start[i] );
+
+            ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/RANGE/IP_END" );
+            CPPUNIT_ASSERT( xpath == ip_end[i] );
+
+            vnpool->drop(vnet, err);
+        }
     }
 };
 
