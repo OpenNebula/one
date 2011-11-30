@@ -121,10 +121,6 @@ const bool AclManager::authorize(
 {
     ostringstream oss;
 
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
-
     bool auth = false;
 
     // Build masks for request
