@@ -490,7 +490,7 @@ int Leases::free_leases(vector<const Attribute*>&   vector_leases,
 
     it = leases.find(i_ip);
 
-    if ( it == leases.end() || (it->second->used && it->second->vid != -1) )
+    if ( it == leases.end() || !it->second->used || it->second->vid != -1 )
     {
         error_msg = "Lease is not on hold.";
         return -1;
