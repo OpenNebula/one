@@ -16,7 +16,6 @@
 require 'thread'
 
 =begin rdoc
-Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
 
 This class provides support to handle actions. Class methods, or actions, can be
 registered in the action manager. The manager will wait for actions to be

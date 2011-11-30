@@ -19,10 +19,6 @@ require "CommandManager"
 
 require "DriverExecHelper"
 
-# Author:: dsa-research.org
-# Copyright:: (c) OpenNebula Project Leads (OpenNebula.org)
-# License:: Apache License
-
 # This class provides basic messaging and logging functionality
 # to implement OpenNebula Drivers. A driver is a program that
 # specialize the OpenNebula behavior by interfacing with specific
