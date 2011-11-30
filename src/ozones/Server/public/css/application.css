@@ -215,6 +215,12 @@ label{
 	text-align:left;
 	}
 
+.dataTables_wrapper label {
+    float: none;
+    width: auto;
+    padding: 0 0;
+    text-align:right;
+}
 
 div.tip {
 	display: inline-block;
@@ -411,7 +417,7 @@ tr.even:hover{
 }
 
 .top_button {
-    font-size: 0.8em;
+    font-size: 0.8em!important;
     height: 25px;
     margin: 3px 2px;
     vertical-align: middle;
@@ -578,4 +584,13 @@ ul.dd_right{
 }
 ul.dd_left{
 
+}
+
+.ui-widget{
+    font: 10pt Arial, Verdana, Geneva, Helvetica, sans-serif;
+}
+
+.ui-layout-resizer-open-hover, /* hover-color to 'resize' */
+.ui-layout-resizer-dragging {
+    background: #EEE;
 }
