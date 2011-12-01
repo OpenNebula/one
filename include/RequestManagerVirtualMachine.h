@@ -108,12 +108,9 @@ class VirtualMachineMigrate : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineMigrate():
-        RequestManagerVirtualMachine("VirtualMachineDeploy",
+        RequestManagerVirtualMachine("VirtualMachineMigrate",
                                      "Migrates a virtual machine",
-                                     "A:siib")
-    {
-         auth_op = AuthRequest::DEPLOY;
-    };
+                                     "A:siib"){};
 
     ~VirtualMachineMigrate(){};
 
