@@ -686,6 +686,12 @@ function setupConfirmDialogs(){
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
         var param = $('select#confirm_select',context).val();
+
+        if (!param.length){
+            notifyError("You must select a value");
+            return false;
+        };
+
         if (!action) { notifyError("Action "+value+" not defined."); return false;};
         switch (action.type){
         case "multiple": //find the datatable

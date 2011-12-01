@@ -471,15 +471,15 @@ tr.even:hover{
     font-size: 1.2em;
 }
 
-.jGrowl-notification, .jGrowl-closer, .jGrowl-notify-submit {
+.jGrowl-notification, .jGrowl-notify-submit {
     border: 2px #444444 solid;
-    background-color: #F3F3F3;
+    background-color: #F3F3F3!important;
     color: #666666;
 }
 
 .jGrowl-notify-error {
     border: 2px #660000 solid;
-    background-color: #F39999;
+    background-color: #F39999!important;
     color: #660000;
 }
 
