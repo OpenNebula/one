@@ -59,6 +59,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["PUBLIC", OpenNebulaHelper.boolean_to_str(vn['PUBLIC'])]
         puts str % ["TYPE", vn.type_str]
         puts str % ["BRIDGE", vn["BRIDGE"]]
+        puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if vn["PHYDEV"]
+        puts str % ["VLAN ID", vn["VLAN_ID"]] if vn["VLAN_ID"]
         puts str % ["USED LEASES", vn['TOTAL_LEASES']]
 
         puts

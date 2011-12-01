@@ -1,7 +1,5 @@
-/* Licensed under the MIT license (http://www.opensource.org/licenses/mit-license.php). */
 
 div.jGrowl {
-	padding: 			10px;
 	z-index: 			9999;
 	color: 				#fff;
 	font-size: 			12px;
@@ -16,7 +14,7 @@ div.ie6.top-right {
 	right: 				auto;
 	bottom: 			auto;
 	left: 				expression( ( 0 - jGrowl.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
-  	top: 				expression( ( 0 + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+	top: 				expression( ( 0 + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
 }
 
 div.ie6.top-left {
@@ -82,9 +80,10 @@ div.center div.jGrowl-notification, div.center div.jGrowl-closer {
 }
 
 div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer {
-    opacity: 0.90;
-	-ms-filter: 			"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
-    filter: 				progid:DXImageTransform.Microsoft.Alpha(Opacity=90);
+	background-color: 		#000;
+	opacity: 				.85;
+	-ms-filter: 			"progid:DXImageTransform.Microsoft.Alpha(Opacity=85)"; 
+	filter: 				progid:DXImageTransform.Microsoft.Alpha(Opacity=85); 
 	zoom: 					1;
 	width: 					235px;
 	padding: 				10px;
@@ -99,7 +98,12 @@ div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer {
 }
 
 div.jGrowl div.jGrowl-notification {
-	min-height: 			20px;
+	min-height: 			40px;
+}
+
+div.jGrowl div.jGrowl-notification,
+div.jGrowl div.jGrowl-closer {
+	margin: 				10px;
 }
 
 div.jGrowl div.jGrowl-notification div.jGrowl-header {

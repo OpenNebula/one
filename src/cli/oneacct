@@ -1,0 +1,235 @@
+#!/usr/bin/env ruby
+
+# --------------------------------------------------------------------------
+# Copyright 2010-2011, C12G Labs S.L.
+#
+# This file is part of OpenNebula addons.
+#
+# OpenNebula addons are free software: you can redistribute it
+# and/or modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3 of
+# the License, or the hope That it will be useful, but (at your
+# option) any later version.
+#
+# OpenNebula addons are distributed in WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with OpenNebula addons. If not, see
+# <http://www.gnu.org/licenses/>
+# --------------------------------------------------------------------------
+
+
+ONE_LOCATION=ENV['ONE_LOCATION']
+
+$: << ONE_LOCATION+'/lib/ruby'
+$: << ONE_LOCATION+'/lib/ruby/cli'
+
+require 'rubygems'
+
+require 'acct/oneacct'
+require 'cli/one_helper'
+require 'cli/command_parser'
+require 'json'
+
+require 'optparse'
+require 'optparse/time'
+
+REG_DATE=/((\d{4})\/)?(\d\d?)(\/(\d\d?))?/
+REG_TIME=/(\d\d?):(\d\d?)(:(\d\d?))?/
+
+class AcctHelper
+
+    def format_vm(options=nil)
+        table = CLIHelper::ShowTable.new(nil, nil) do
+            column :VMID, "VM ID", :size=>4 do |d|
+                d[:vmid]
+            end
+
+            column :MEMORY, "Consumed memory", :right, :size=>8 do |d|
+                OpenNebulaHelper.unit_to_str(
+                    d[:slices].first[:mem]*1024,
+                    {})
+            end
+
+            column :CPU, "Group of the User", :right, :size=>8 do |d|
+                d[:slices].first[:cpu]
+            end
+
+            column :NETRX, "Group of the User", :right, :size=>10 do |d|
+                OpenNebulaHelper.unit_to_str(
+                    d[:network][:net_rx]/1024.0,
+                    {})
+            end
+
+            column :NETTX, "Group of the User", :right, :size=>10 do |d|
+                OpenNebulaHelper.unit_to_str(
+                    d[:network][:net_tx]/1024.0,
+                    {})
+            end
+
+            column :TIME, "Group of the User", :right, :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d[:time])
+            end
+
+            default :VMID, :MEMORY, :CPU, :NETRX, :NETTX, :TIME
+        end
+
+        table
+    end
+
+    def list_vms(data)
+        format_vm().show(data)
+    end
+
+    def list_users(filters)
+        a=gen_accounting(filters)
+
+        a.each do |user, data|
+
+            CLIHelper.scr_bold
+            CLIHelper.scr_underline
+            puts "# User #{user}"
+            CLIHelper.scr_restore
+            puts
+
+            vms=data[:vms].map do |k, v|
+                v
+            end
+
+            self.list_vms(vms)
+
+            puts
+            puts
+
+        end
+    end
+
+    def gen_accounting(filters)
+        acct=AcctClient.new(filters)
+        acct.account()
+    end
+
+    def gen_json(filters)
+        begin
+            require 'json'
+        rescue LoadError
+            STDERR.puts "JSON gem is needed to give the result in this format"
+            exit(-1)
+        end
+
+        acct=gen_accounting(filters)
+        acct.to_json
+    end
+
+    def xml_tag(tag, value)
+        "<#{tag}>#{value}</#{tag}>\n"
+    end
+
+    def gen_xml(filters)
+        acct=gen_accounting(filters)
+
+        xml=""
+
+        acct.each do |user, data|
+            xml<<"<user id=\"#{user}\">\n"
+
+            data[:vms].each do |vmid, vm|
+                xml<<"  <vm id=\"#{vmid}\">\n"
+
+                xml<<"    "<<xml_tag(:name, vm[:name])
+                xml<<"    "<<xml_tag(:time, vm[:time])
+                xml<<"    "<<xml_tag(:cpu, vm[:slices].first[:cpu])
+                xml<<"    "<<xml_tag(:mem, vm[:slices].first[:mem])
+                xml<<"    "<<xml_tag(:net_rx, vm[:network][:net_rx])
+                xml<<"    "<<xml_tag(:net_tx, vm[:network][:net_tx])
+
+                vm[:slices].each do |slice|
+                    xml<<"    <slice seq=\"#{slice[:seq]}\">\n"
+
+                    slice.each do |key, value|
+                        xml<<"      "<<xml_tag(key, value)
+                    end
+
+                    xml<<"    </slice>\n"
+                end
+
+                xml<<"  </vm>\n"
+            end
+
+            xml<<"</user>\n"
+        end
+
+        xml
+    end
+end
+
+
+@options=Hash.new
+
+@options[:format]=:table
+
+opts=OptionParser.new do |opts|
+    opts.on('-s', '--start TIME', Time,
+        'Start date and time to take into account') do |ext|
+            @options[:start]=ext
+    end
+
+    opts.on("-e", "--end TIME", Time,
+        "End date and time" ) do |ext|
+            @options[:end]=ext
+    end
+
+    opts.on("-u", "--user user", Integer,
+        "User id to make accounting" ) do |ext|
+            @options[:user]=ext.to_i
+    end
+
+    opts.on("-j", "--json",
+        "Output in json format" ) do |ext|
+            @options[:format]=:json
+    end
+
+    opts.on("-x", "--xml",
+        "Output in xml format" ) do |ext|
+            @options[:format]=:xml
+    end
+
+    opts.on()
+end
+
+
+begin
+    opts.parse!(ARGV)
+rescue OptionParser::ParseError => e
+    STDERR.puts "Error: " << e.message
+    exit(-1)
+end
+
+
+acct_helper=AcctHelper.new
+
+
+filters=Hash.new
+
+filters[:start]=@options[:start].to_i if @options[:start]
+filters[:end]=@options[:end].to_i if @options[:end]
+filters[:user]=@options[:user].to_i if @options[:user]
+
+
+case @options[:format]
+when :table
+    acct_helper.list_users(filters)
+when :json
+    puts acct_helper.gen_json(filters)
+when :xml
+    puts acct_helper.gen_xml(filters)
+end
+
+
+
+
+
+
