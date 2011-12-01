@@ -32,7 +32,7 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
             cmd =  "#{COMMANDS[:ovs_vsctl]} set Port #{nic[:tap]} "
             cmd << "tag=#{vlan}"
 
-            exec_and_log(cmd)
+            OpenNebula.exec_and_log(cmd)
         end
 
         return 0

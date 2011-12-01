@@ -22,7 +22,7 @@ class EbtablesVLAN < OpenNebulaNetwork
     end
 
     def ebtables(rule)
-        exec_and_log("#{COMMANDS[:ebtables]} -A #{rule}")
+        OpenNebula.exec_and_log("#{COMMANDS[:ebtables]} -A #{rule}")
     end
 
     # Activates ebtables rules
@@ -82,6 +82,6 @@ class EbtablesVLAN < OpenNebulaNetwork
     end
 
     def remove_rule(rule)
-        exec_and_log("#{COMMANDS[:ebtables]} -D FORWARD #{rule}")
+        OpenNebula.exec_and_log("#{COMMANDS[:ebtables]} -D FORWARD #{rule}")
     end
 end
