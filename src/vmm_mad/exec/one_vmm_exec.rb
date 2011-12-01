@@ -417,7 +417,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :migrate,
-                :parameters => [:deploy_id, :migr_host, :host]
+                :parameters => [:deploy_id, :dest_host, :host]
             },
             # Execute networking clean up operations
             {
