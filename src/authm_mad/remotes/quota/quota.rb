@@ -91,7 +91,15 @@ class Quota
     def initialize
         conf = YAML.load_file(CONF_FILE)
         @conf=CONF.merge(conf) {|key,h1,h2|
-            h1.merge(h2) if h1.instance_of?(Hash) && h2.instance_of?(Hash)
+            if h1.instance_of?(Hash) && h2.instance_of?(Hash)
+                h1.merge(h2)
+            else
+                if h2
+                    h2
+                else
+                    h1
+                end
+            end
         }
 
         @client = OpenNebula::Client.new
