@@ -108,7 +108,7 @@ class VmmAction
     private
 
     DRIVER_NAMES = {
-        :vmm => "virtualization driver"
+        :vmm => "virtualization driver",
         :vnm => "network driver"
     }
 
@@ -119,6 +119,8 @@ class VmmAction
     # information associated to each step (by :<action>_info). In case of
     # failure information is also in [:failed_info]
     def execute_steps(steps)
+	result = DriverExecHelper.const_get(:RESULT)[:failure]
+
         steps.each do |step|
             # Execute Step
             case step[:driver]
@@ -147,8 +149,8 @@ class VmmAction
 
                 result, info = vnm.do_action(@id, step[:action])
             else
-                result = DriverExecHelper.RESULT[:failure]
-                info   = "No driver in #{step[:action]}"}
+                result = DriverExecHelper.const_get(:RESULT)[:failure]
+                info   = "No driver in #{step[:action]}"
             end
 
             # Save the step info 
@@ -238,6 +240,8 @@ class ExecDriver < VirtualMachineDriver
     # DEPLOY action, sends the deployment file to remote host
     #
     def deploy(id, drv_message)
+        action = VmmAction.new(self, id, :deploy, drv_message)
+
         # ----------------------------------------------------------------------
         #  Initialization of deployment data
         # ----------------------------------------------------------------------
@@ -260,7 +264,6 @@ class ExecDriver < VirtualMachineDriver
         # ----------------------------------------------------------------------
         #  Deployment Steps
         # ----------------------------------------------------------------------
-        action = VmmAction.new(self, id, :deploy, drv_message)
 
         steps=[
             # Execute pre-boot networking setup
@@ -296,6 +299,7 @@ class ExecDriver < VirtualMachineDriver
     # SHUTDOWN action, graceful shutdown and network clean up
     #
     def shutdown(id, drv_message)
+
         action = VmmAction.new(self, id, :shutdown, drv_message)
 
         steps=[
@@ -310,7 +314,7 @@ class ExecDriver < VirtualMachineDriver
                 :driver   => :vnm,
                 :action   => :clean
             }
-        }
+        ]
 
         action.run(steps)
     end

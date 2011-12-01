@@ -17,10 +17,14 @@
 #--------------------------------------------------------------------------- #
 
 $: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), '..')
 
 require 'rexml/document'
 require 'OpenNebulaNic'
 require 'base64'
+
+require 'scripts_common'
+include OpenNebula
 
 CONF = {
     :start_vlan => 2
@@ -29,7 +33,7 @@ CONF = {
 COMMANDS = {
   :ebtables => "sudo /sbin/ebtables",
   :iptables => "sudo /sbin/iptables",
-  :brctl    => "sudo /usr/sbin/brctl",
+  :brctl    => "sudo /sbin/brctl",
   :ip       => "sudo /sbin/ip",
   :vconfig  => "sudo /sbin/vconfig",
   :virsh    => "virsh -c qemu:///system",
