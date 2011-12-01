@@ -93,6 +93,26 @@ public:
      */
     virtual int del_rule(int oid, string& error_str);
 
+    /**
+     * Searches what resources of type obj_type the ACL rules set allows
+     * the given user to perform the operation.
+     *
+     *    @param uid The user ID
+     *    @param gid Group ID of the user
+     *    @param obj_type The object over which the search will be performed
+     *    @param op The operation to be searched
+     *    @param all True if the user can perform the operation over any object
+     *    @param oids Set of object IDs over which the user can operate
+     *    @param gids Set of object group IDs over which the user can operate
+     */
+    void reverse_search(int                     uid,
+                        int                     gid,
+                        AuthRequest::Object     obj_type,
+                        AuthRequest::Operation  op,
+                        bool&                   all,
+                        vector<int>&            oids,
+                        vector<int>&            gids);
+
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
     /* ---------------------------------------------------------------------- */

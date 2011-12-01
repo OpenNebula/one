@@ -74,6 +74,13 @@ void RequestManagerPoolInfoFilter::request_execute(
         return;
     }
 
+    Nebula&     nd   = Nebula::instance();
+    AclManager* aclm = nd.get_aclm();
+    bool        all;
+    vector<int> oids;
+    vector<int> gids;
+
+
     switch(filter_flag)
     {
         case MINE:
@@ -83,7 +90,37 @@ void RequestManagerPoolInfoFilter::request_execute(
             break;
 
         case ALL:
-            request_op = AuthRequest::INFO_POOL;
+            if ( att.uid == 0 || att.gid == 0 )
+            {
+                all = true;
+            }
+            else
+            {
+                aclm->reverse_search(att.uid, att.gid, auth_object,
+                                    AuthRequest::INFO, all, oids, gids);
+            }
+
+            if ( !all ) // If all == true, there is not a uid or gid restriction
+            {
+                vector<int>::iterator it;
+
+                uid_filter  << "uid = " << att.uid << " OR "
+                            << "gid = " << att.gid;
+
+                for ( it=oids.begin(); it< oids.end(); it++ )
+                {
+                    uid_filter << " OR uid = " << *it;
+                }
+
+                for ( it=gids.begin(); it< gids.end(); it++ )
+                {
+                    uid_filter << " OR gid = " << *it;
+                }
+            }
+
+            // TODO: not sure if INFO_POOL or INFO_POOL_MINE
+//            request_op = AuthRequest::INFO_POOL;
+            request_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         case MINE_GROUP:

@@ -470,6 +470,110 @@ int AclManager::del_rule(int oid, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AclManager::reverse_search(int                     uid,
+                                int                     gid,
+                                AuthRequest::Object     obj_type,
+                                AuthRequest::Operation  op,
+                                bool&                   all,
+                                vector<int>&            oids,
+                                vector<int>&            gids)
+{
+    ostringstream oss;
+
+    multimap<long long, AclRule *>::iterator        it;
+    pair<multimap<long long, AclRule *>::iterator,
+         multimap<long long, AclRule *>::iterator>  index;
+
+    // Build masks for request
+    long long resource_oid_req = obj_type | AclRule::INDIVIDUAL_ID;
+    long long resource_gid_req = obj_type | AclRule::GROUP_ID;
+    long long resource_all_req = obj_type | AclRule::ALL_ID;
+    long long rights_req       = op;
+
+    long long resource_oid_mask =
+            ( obj_type | AclRule::INDIVIDUAL_ID );
+
+    long long resource_gid_mask  =
+            ( obj_type | AclRule::GROUP_ID );
+
+
+    // Create a temporal rule, to log the request
+    long long log_resource;
+
+    log_resource = resource_all_req;
+
+    AclRule log_rule(-1,
+                     AclRule::INDIVIDUAL_ID | uid,
+                     log_resource,
+                     rights_req);
+
+    oss << "Reverse search request " << log_rule.to_str();
+    NebulaLog::log("ACL",Log::DEBUG,oss);
+
+    // ---------------------------------------------------
+    // Look for the rules that match
+    // ---------------------------------------------------
+
+    long long user_reqs[] =
+    {
+        AclRule::ALL_ID,                // rules that apply to everyone
+        AclRule::INDIVIDUAL_ID | uid,   // rules that apply to the individual user id
+        AclRule::GROUP_ID | gid         // rules that apply to the user's groups
+    };
+
+    all = false;
+
+    for ( int i=0; i<3; i++ )
+    {
+        long long user_req = user_reqs[i];
+
+        lock();
+
+        index = acl_rules.equal_range( user_req );
+
+        for ( it = index.first; it != index.second; it++)
+        {
+            // Rule grants the requested rights
+            if ( ( it->second->rights & rights_req ) == rights_req )
+            {
+                oss.str("");
+                oss << "> Rule  " << it->second->to_str();
+                NebulaLog::log("ACL",Log::DEBUG,oss);
+
+                // Rule grants permission for all objects of this type
+                if ( ( it->second->resource & resource_all_req ) == resource_all_req )
+                {
+                    all = true;
+                    break;
+                }
+
+                // Rule grants permission for all objects of a group
+                if ( ( it->second->resource & resource_gid_mask ) == resource_gid_req )
+                {
+                    gids.push_back(it->second->resource_id());
+                }
+
+                // Rule grants permission for an individual object
+                else if ( ( it->second->resource & resource_oid_mask ) == resource_oid_req )
+                {
+                    oids.push_back(it->second->resource_id());
+                }
+            }
+        }
+
+        unlock();
+
+        if ( all == true )
+        {
+            oids.clear();
+            gids.clear();
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AclManager::bootstrap(SqlDB * _db)
 {
     ostringstream oss(db_bootstrap);
