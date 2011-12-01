@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 
-$: << File.dirname(__FILE__) + '/..' \
-   << './'
+$: << File.dirname(__FILE__) + '/..' 
+$: << File.dirname(__FILE__) + '/../ebtables' 
+$: << File.dirname(__FILE__) + '/../802.1Q' 
+$: << File.dirname(__FILE__) + '/../ovswitch' 
+$: << File.dirname(__FILE__) + '/../../../mad/ruby' 
+$: << './'
 
 require 'rubygems'
 require 'rspec'
