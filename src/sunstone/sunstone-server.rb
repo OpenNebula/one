@@ -89,6 +89,7 @@ helpers do
 
     def build_session
         begin
+            settings.cloud_auth.update_userpool_cache
             result = settings.cloud_auth.auth(request.env, params)
         rescue Exception => e
             error 500, e.message

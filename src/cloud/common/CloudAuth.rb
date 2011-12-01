@@ -44,8 +44,11 @@ class CloudAuth
     def initialize(conf)
         @conf = conf
 
+        # @token_expiration_delta:  Number of seconds that will be used
+        #   the same timestamp for the token generation
+        # @token_expiration_time:   Current timestamp to be used in tokens.
         @token_expiration_delta = @conf[:token_expiration_delta] || EXPIRE_DELTA
-        @token_expiration_time  = Time.now.to_i + @token_expiration_delta
+        @token_expiration_time = Time.now.to_i + @token_expiration_delta
 
         if AUTH_MODULES.include?(@conf[:auth])
             require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
@@ -78,14 +81,23 @@ class CloudAuth
         Client.new(token,@conf[:one_xmlrpc])
     end
 
+    def update_userpool_cache
+        @user_pool = OpenNebula::UserPool.new(client)
+
+        rc = @user_pool.info
+        if OpenNebula.is_error?(rc)
+            raise rc.message
+        end
+    end
+
     protected
 
     def expiration_time
         time_now = Time.now.to_i
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
-            update_userpool_cache
             @token_expiration_time = time_now + @token_expiration_delta
+            update_userpool_cache
         end
 
         @token_expiration_time
@@ -95,15 +107,6 @@ class CloudAuth
     def get_userpool
         update_userpool_cache if @user_pool.nil?
         @user_pool
-    end
-
-    def update_userpool_cache
-        @user_pool = OpenNebula::UserPool.new(client)
-
-        rc = @user_pool.info
-        if OpenNebula.is_error?(rc)
-            raise rc.message
-        end
     end
 
     def get_password(username, non_public_user=false)
