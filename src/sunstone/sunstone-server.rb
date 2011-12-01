@@ -114,6 +114,12 @@ helpers do
             session[:ip]         = request.ip
             session[:remember]   = params[:remember]
 
+            if user['TEMPLATE/LANG']
+                session[:lang] = user['TEMPLATE/LANG']
+            else
+                session[:lang] = settings.config[:lang]
+            end
+
             if params[:remember]
                 env['rack.session.options'][:expire_after] = 30*60*60*24
             end
@@ -209,12 +215,26 @@ get '/config' do
     @SunstoneServer.get_configuration(session[:user_id])
 end
 
+post '/config' do
+    begin
+        body = JSON.parse(request.body.read)
+    rescue
+        [500, OpenNebula::Error.new(msg).to_json]
+    end
+
+    body.each do | key,value |
+        case key
+        when "lang" then session[:lang]=value
+        end
+    end
+end
+
 get '/vm/:id/log' do
     @SunstoneServer.get_vm_log(params[:id])
 end
 
 ##############################################################################
-# Logs
+# Monitoring
 ##############################################################################
 
 get '/:resource/monitor' do

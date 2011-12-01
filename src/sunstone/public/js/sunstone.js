@@ -549,7 +549,7 @@ function initListButtons(){
     $('.multi_action_slct',main_tabs_context).each(function(){
         //prepare replacement buttons
         var buttonset = $('<div style="display:inline-block;" class="top_button"></div');
-        var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">Previous action</button>').button();
+        var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">'+tr('Previous action')+'</button>').button();
         button1.attr("disabled","disabled");
         var button2 = $('<button class="list_button" value="">See more</button>').button({
             text:false,
@@ -612,19 +612,19 @@ function initListButtons(){
 
 //Prepares the standard confirm dialogs
 function setupConfirmDialogs(){
-    dialogs_context.append('<div id="confirm_dialog" title="Confirmation of action"></div>');
+    dialogs_context.append('<div id="confirm_dialog" title=\"'+tr("Confirmation of action")+'\"></div>');
     var dialog = $('div#confirm_dialog',dialogs_context);
 
     //add the HTML with the standard question and buttons.
         dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
-           <div id="confirm_tip">You have to confirm this action.</div>\
+           <div id="confirm_tip">'+tr("You have to confirm this action.")+'</div>\
            <br />\
-           <div id="question">Do you want to proceed?</div>\
+           <div id="question">'+tr("Do you want to proceed?")+'</div>\
            <br />\
            <div class="form_buttons">\
-             <button id="confirm_proceed" class="action_button" value="">OK</button>\
-             <button class="confirm_cancel" value="">Cancel</button>\
+             <button id="confirm_proceed" class="action_button" value="">'+tr("OK")+'</button>\
+             <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
           </div>\
         </form>');
 
@@ -646,17 +646,17 @@ function setupConfirmDialogs(){
         return false;
     });
 
-    dialogs_context.append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
+    dialogs_context.append('<div id="confirm_with_select_dialog" title=\"'+tr("Confirmation of action")+'\"></div>');
     dialog = $('div#confirm_with_select_dialog',dialogs_context);
 
     dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
-           <div id="confirm_with_select_tip">You need to select something.</div>\
+           <div id="confirm_with_select_tip">'+tr("You need to select something.")+'</div>\
            <select style="margin: 10px 0;" id="confirm_select">\
            </select>\
            <div class="form_buttons">\
-              <button id="confirm_with_select_proceed" class="" value="">OK</button>\
-              <button class="confirm_cancel" value="">Cancel</button>\
+              <button id="confirm_with_select_proceed" class="" value="">'+tr("OK")+'</button>\
+              <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
            </div>\
          </form>');
 

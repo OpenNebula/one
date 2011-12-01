@@ -186,10 +186,12 @@ function stringJSON(json){
 function notifySubmit(action, args, extra_param){
     var action_text = action.replace(/OpenNebula\./,'').replace(/\./,' ');
 
-    var msg = "<h1>Submitted</h1>";
+    var msg = '<h1>'+tr("Submitted")+'</h1>';
     if (!args || (typeof args == 'object' && args.constructor != Array)){
+
         msg += action_text;
     } else {
+
         msg += action_text + ": " + args;
     };
     if (extra_param && extra_param.constructor != Object) {
@@ -201,13 +203,13 @@ function notifySubmit(action, args, extra_param){
 
 //Notification on error
 function notifyError(msg){
-    msg = "<h1>Error</h1>" + msg;
+    msg = "<h1>"+tr("Error")+"</h1>" + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-error", position: "bottom-right", sticky: true });
 }
 
 //Standard notification
 function notifyMessage(msg){
-    msg = "<h1>Info</h1>" + msg;
+    msg = "<h1>"+tr("Info")+"</h1>" + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
 }
 
@@ -248,7 +250,7 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
                        border-bottom:'+border_bottom+';\
                        padding-top:'+padding_top_bottom+'px;\
                        padding-bottom:'+padding_top_bottom+'px;">'
-                       +field+
+                       +tr(field)+
                  '</td>\
                   <td class="value_td" style=\
                       "border-bottom:'+border_bottom+';\
@@ -275,7 +277,7 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
                     border-bottom:'+border_bottom+';\
                     padding-top:'+padding_top_bottom+'px;\
                     padding-bottom:'+padding_top_bottom+'px">'+
-                    field+
+                    tr(field)+
                    '</td>\
                     <td class="value_td" style="\
                        border-bottom:'+border_bottom+';\
@@ -332,7 +334,7 @@ function onError(request,error_json) {
 
     if (!message){
         if (!onError.disabled){
-            notifyError("Cannot contact server: is it running and reachable?");
+            notifyError(tr("Cannot contact server: is it running and reachable?"));
             onError.disabled=true;
         }
         return false;
@@ -340,7 +342,7 @@ function onError(request,error_json) {
 
     if (message.match(/^Network is unreachable .+$/)){
         if (!onError.disabled){
-            notifyError("Network is unreachable: is OpenNebula running?");
+            notifyError(tr("Network is unreachable: is OpenNebula running?"));
             onError.disabled=true;
         };
         return false;
@@ -361,7 +363,7 @@ function onError(request,error_json) {
     } else if (m = message.match(auth_error)) {
         method = m[1];
         object     = m[3];
-        reason = "Unauthorized";
+        reason = tr("Unauthorized");
     };
 
     if (m) {
@@ -498,7 +500,7 @@ function makeSelectOptions(dataTable,
                            status_cols,
                            bad_status_values){
     var nodes = dataTable.fnGetData();
-    var select = '<option class="empty_value" value="">Please select</option>';
+    var select = '<option class="empty_value" value="">'+tr("Please select")+'</option>';
     var array;
     for (var j=0; j<nodes.length;j++){
         var elem = nodes[j];
@@ -632,23 +634,23 @@ function shortenedInfoFields(context){
 function setupTemplateUpdateDialog(){
 
     //Append to DOM
-    dialogs_context.append('<div id="template_update_dialog" title="Update template"></div>');
+    dialogs_context.append('<div id="template_update_dialog" title=\"'+tr("Update template")+'"></div>');
     var dialog = $('#template_update_dialog',dialogs_context);
 
     //Put HTML in place
     dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
-               <h3 style="margin-bottom:10px;">Please, choose and modify the template you want to update:</h3>\
+               <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the template you want to update:")+'</h3>\
                   <fieldset style="border-top:none;">\
-                        <label for="template_update_select">Select a template:</label>\
+                        <label for="template_update_select">'+tr("Select a template")+':</label>\
                         <select id="template_update_select" name="template_update_select"></select>\
                         <div class="clear"></div>\
-                        <textarea id="template_update_textarea" style="width:100%; height:14em;">Select a template</textarea>\
+                        <textarea id="template_update_textarea" style="width:100%; height:14em;">'+tr("Select a template")+'</textarea>\
                   </fieldset>\
                   <fieldset>\
                         <div class="form_buttons">\
                           <button class="button" id="template_update_button" value="">\
-                          Update\
+                          '+tr("Update")+'\
                           </button>\
                         </div>\
                   </fieldset>\
@@ -706,7 +708,7 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        var new_select= sel_elems.length > 1? '<option value="">'+tr("Please select")+'</option>' : "";
         $('option','<select>'+select_items+'</select>').each(function(){
             var val = $(this).val();
             if ($.inArray(val,sel_elems) >= 0){

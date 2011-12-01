@@ -50,24 +50,24 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>Summary of resources</h3>\
+        <h3>'+tr('Summary of resources')+'</h3>\
         <div class="panel_info">\
 \
           <table class="info_table">\
             <tr>\
-              <td class="key_td">VM Templates (total/public)</td>\
+              <td class="key_td">'+tr('VM Templates (total/public)')+'</td>\
               <td class="value_td"><span id="total_templates"></span><span id="public_templates"></span></td>\
             </tr>\
             <tr>\
-              <td class="key_td">VM Instances (total/<span class="green">running</span>/<span class="red">failed</span>)</td>\
+              <td class="key_td">'+tr('VM Instances')+' ('+tr('total')+'/<span class="green">'+tr('running')+'</span>/<span class="red">'+tr('failed')+'</span>)</td>\
               <td class="value_td"><span id="total_vms"></span><span id="running_vms" class="green"></span><span id="failed_vms" class="red"></span></td>\
             </tr>\
             <tr>\
-              <td class="key_td">Virtual Networks (total/public)</td>\
+              <td class="key_td">'+tr('Virtual Networks (total/public)')+'</td>\
               <td class="value_td"><span id="total_vnets"></span><span id="public_vnets"></span></td>\
             </tr>\
             <tr>\
-              <td class="key_td">Images (total/public)</td>\
+              <td class="key_td">'+tr('Images (total/public)')+'</td>\
               <td class="value_td"><span id="total_images"></span><span id="public_images"></span></td>\
             </tr>\
           </table>\
@@ -79,14 +79,14 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>Quickstart</h3>\
+        <h3>'+tr('Quickstart')+'</h3>\
         <form id="quickstart_form"><fieldset>\
           <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
           <label style="font-weight:bold;width:40px;height:4em;">New:</label>\
-          <input type="radio" name="quickstart" value="Template.create_dialog">VM Template</input><br />\
-          <input type="radio" name="quickstart" value="VM.create_dialog">VM Instance</input><br />\
-          <input type="radio" name="quickstart" value="Network.create_dialog">Virtual Network</input><br />\
-          <input type="radio" name="quickstart" value="Image.create_dialog">Image</input><br />\
+          <input type="radio" name="quickstart" value="Template.create_dialog">'+tr('VM Template')+'</input><br />\
+          <input type="radio" name="quickstart" value="VM.create_dialog">'+tr('VM Instance')+'</input><br />\
+          <input type="radio" name="quickstart" value="Network.create_dialog">'+tr('Virtual Network')+'</input><br />\
+          <input type="radio" name="quickstart" value="Image.create_dialog">'+tr('Image')+'</input><br />\
           </td></tr></table>\
       </div>\
     </td>\
@@ -98,19 +98,19 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>Historical monitoring information</h3>\
+        <h3>'+tr('Historical monitoring information')+'</h3>\
         <div class="panel_info">\
           <table class="info_table">\
-            <tr><td class="key_td graph_td">Total VM count</td>\
+            <tr><td class="key_td graph_td">'+tr('Total VM count')+'</td>\
                 <td class="graph_td" id="graph1_legend"></td></tr>\
             <tr><td id="graph1" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Total VM CPU</td>\
+            <tr><td class="key_td graph_td">'+tr('Total VM CPU')+'</td>\
                 <td class="graph_td" id="graph2_legend"></td></tr>\
             <tr><td id="graph2" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Total VM Memory</td>\
+            <tr><td class="key_td graph_td">'+tr('Total VM Memory')+'</td>\
                 <td class="graph_td" id="graph3_legend"></td></tr>\
             <tr><td id="graph3" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">VM Network stats</td>\
+            <tr><td class="key_td graph_td">'+tr('VM Network stats')+'</td>\
                 <td class="graph_td" id="graph4_legend"></td></tr>\
             <tr><td id="graph4" colspan="2">'+spinner+'</td></tr>\
           </table>\
@@ -123,7 +123,7 @@ var dashboard_tab_content =
 </tr></table>';
 
 var dashboard_tab = {
-    title: 'Dashboard',
+    title: tr('Dashboard'),
     content: dashboard_tab_content
 }
 

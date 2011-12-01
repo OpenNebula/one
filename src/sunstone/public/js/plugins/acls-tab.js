@@ -25,12 +25,12 @@ var acls_tab_content =
 <table id="datatable_acls" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
-      <th>ID</th>\
-      <th>Applies to</th>\
-      <th>Affected resources</th>\
-      <th>Resource ID / Owned by</th>\
-      <th>Allowed operations</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Applies to")+'</th>\
+      <th>'+tr("Affected resources")+'</th>\
+      <th>'+tr("Resource ID / Owned by")+'</th>\
+      <th>'+tr("Allowed operations")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyaclss">\
@@ -42,48 +42,48 @@ var create_acl_tmpl =
 '<form id="create_acl_form" action="">\
   <fieldset>\
         <div>\
-                <label for="applies">This rule applies to:</label>\
+                <label for="applies">'+tr("This rule applies to:")+'</label>\
                 <select name="applies" id="applies"></select>\
                 <div class="clear"></div>\
-                <label style="height:9em">Affected resources:</label>\
-                <input type="checkbox" name="res_host" class="resource_cb" value="HOST">Hosts</input><br />\
-                <input type="checkbox" name="res_vm" class="resource_cb" value="VM">Virtual Machines</input><br />\
-                <input type="checkbox" name="res_net" class="resource_cb" value="NET">Virtual Networks</input><br />\
-                <input type="checkbox" name="res_image" class="resource_cb" value="IMAGE">Images</input><br />\
-                <input type="checkbox" name="res_template" class="resource_cb" value="TEMPLATE">Templates</input><br />\
-                <input type="checkbox" name="res_user" class="resource_cb" value="USER">Users</input><br />\
-                <input type="checkbox" name="res_group" class="resource_cb" value="GROUP">Groups</input><br />\
+                <label style="height:9em">'+tr("Affected resources")+':</label>\
+                <input type="checkbox" name="res_host" class="resource_cb" value="HOST">'+tr("Hosts")+'</input><br />\
+                <input type="checkbox" name="res_vm" class="resource_cb" value="VM">'+tr("Virtual Machines")+'</input><br />\
+                <input type="checkbox" name="res_net" class="resource_cb" value="NET">'+tr("Virtual Networks")+'</input><br />\
+                <input type="checkbox" name="res_image" class="resource_cb" value="IMAGE">'+tr("Images")+'</input><br />\
+                <input type="checkbox" name="res_template" class="resource_cb" value="TEMPLATE">'+tr("Templates")+'</input><br />\
+                <input type="checkbox" name="res_user" class="resource_cb" value="USER">'+tr("Users")+'</input><br />\
+                <input type="checkbox" name="res_group" class="resource_cb" value="GROUP">'+tr("Groups")+'</input><br />\
                 <div class="clear"></div>\
-                <label for="mode_select" style="height:3em;">Resource subset:</label>\
-                <input type="radio" class="res_subgroup" name="mode_select" value="*" id="res_subgroup_all">All</input><br />\
-                <input type="radio" class="res_subgroup" name="mode_select" value="res_id" id="res_subgroup_id">Specific ID</input><br />\
-                <input type="radio" class="res_subgroup" name="mode_select" value="belonging_to" id="res_subgroup_group">Owned by group</input><br />\
+                <label for="mode_select" style="height:3em;">'+tr("Resource subset:")+'</label>\
+                <input type="radio" class="res_subgroup" name="mode_select" value="*" id="res_subgroup_all">'+tr("All")+'</input><br />\
+                <input type="radio" class="res_subgroup" name="mode_select" value="res_id" id="res_subgroup_id">'+tr("Specific ID")+'</input><br />\
+                <input type="radio" class="res_subgroup" name="mode_select" value="belonging_to" id="res_subgroup_group">'+tr("Owned by group")+'</input><br />\
                 <div class="clear"></div>\
-                <label for="res_id">Resource ID:</label>\
+                <label for="res_id">'+tr("Resource ID:")+'</label>\
                 <input type="text" name="res_id" id="res_id"></input>\
                 <div class="clear"></div>\
-                <label for="belonging_to">Group:</label>\
+                <label for="belonging_to">'+tr("Group")+':</label>\
                 <select name="belonging_to" id="belonging_to"></select>\
                 <div class="clear"></div>\
-                <label style="height:12em;">Allowed operations:</label>\
-                <input type="checkbox" name="right_create" class="right_cb" value="CREATE">Create</input><br />\
-                <input type="checkbox" name="right_delete" class="right_cb" value="DELETE">Delete</input><br />\
-                <input type="checkbox" name="right_use" class="right_cb" value="USE">Use</input><br />\
-                <input type="checkbox" name="right_manage" class="right_cb" value="MANAGE">Manage</input><br />\
-                <input type="checkbox" name="right_info" class="right_cb" value="INFO">Get Information</input><br />\
-                <input type="checkbox" name="right_info_pool" class="right_cb" value="INFO_POOL">Get Pool of resources</input><br />\
-                <input type="checkbox" name="right_info_pool_mine" class="right_cb" value="INFO_POOL_MINE">Get Pool of my/group\'s resources</input><br />\
-                <input type="checkbox" name="right_chown" class="right_cb" value="CHOWN">Change owner</input><br />\
-                <input type="checkbox" name="right_deploy" class="right_cb" value="DEPLOY">Deploy</input><br />\
+                <label style="height:12em;">'+tr("Allowed operations")+':</label>\
+                <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input><br />\
+                <input type="checkbox" name="right_delete" class="right_cb" value="DELETE">'+tr("Delete")+'</input><br />\
+                <input type="checkbox" name="right_use" class="right_cb" value="USE">'+tr("Use")+'</input><br />\
+                <input type="checkbox" name="right_manage" class="right_cb" value="MANAGE">'+tr("Manage")+'</input><br />\
+                <input type="checkbox" name="right_info" class="right_cb" value="INFO">'+tr("Get Information")+'</input><br />\
+                <input type="checkbox" name="right_info_pool" class="right_cb" value="INFO_POOL">'+tr("Get Pool of resources")+'</input><br />\
+                <input type="checkbox" name="right_info_pool_mine" class="right_cb" value="INFO_POOL_MINE">'+tr("Get Pool of my/group\'s resources")+'</input><br />\
+                <input type="checkbox" name="right_chown" class="right_cb" value="CHOWN">'+tr("Change owner")+'</input><br />\
+                <input type="checkbox" name="right_deploy" class="right_cb" value="DEPLOY">'+tr("Deploy")+'</input><br />\
                 <div class="clear"></div>\
-                <label for="acl_preview">ACL String preview:</label>\
+                <label for="acl_preview">'+tr("ACL String preview:")+'</label>\
                 <input type="text" name="acl_preview" id="acl_preview" style="width:400px;"></input>\
         </div>\
         </fieldset>\
         <fieldset>\
         <div class="form_buttons">\
-                <button class="button" id="create_acl_submit" value="Acl.create">Create</button>\
-                <button class="button" type="reset" value="reset">Reset</button>\
+                <button class="button" id="create_acl_submit" value="Acl.create">'+tr("Create")+'</button>\
+                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
 </fieldset>\
 </form>';
@@ -143,21 +143,21 @@ var acl_actions = {
 var acl_buttons = {
     "Acl.refresh" : {
         type: "image",
-        text: "Refresh list",
+        text: tr("Refresh list"),
         img: "images/Refresh-icon.png"
     },
     "Acl.create_dialog" : {
         type: "create_dialog",
-        text: "+ New"
+        text: tr("+ New")
     },
     "Acl.delete" : {
         type: "action",
-        text: "Delete"
+        text: tr("Delete")
     }
 }
 
 var acls_tab = {
-    title: "ACLs",
+    title: tr("ACLs"),
     content: acls_tab_content,
     buttons: acl_buttons
 }
@@ -179,14 +179,14 @@ function aclElements(){
 function parseUserAcl(user){
     var user_str="";
     if (user[0] == '*'){
-        user_str = "All";
+        user_str = tr("All");
     } else {
         if (user[0] == '#'){
-            user_str="User ";
+            user_str=tr("User")+" ";
             user_str+= getUserName(user.substring(1));
         }
         else if (user[0] == '@'){
-            user_str="Group ";
+            user_str=tr("Group ");
             user_str+= getGroupName(user.substring(1));
         };
     };
@@ -197,14 +197,14 @@ function parseUserAcl(user){
 function parseResourceAcl(user){
     var user_str="";
     if (user[0] == '*'){
-        user_str = "All";
+        user_str = tr("All");
     } else {
         if (user[0] == '#'){
-            user_str="ID ";
+            user_str=tr("ID")+" ";
             user_str+= user.substring(1);
         }
         else if (user[0] == '@'){
-            user_str="Group ";
+            user_str=tr("Group")+" ";
             user_str+= getGroupName(user.substring(1));
         };
     };
@@ -232,25 +232,25 @@ function parseAclString(string) {
     for (var i=0; i<resources_array.length;i++){
         switch (resources_array[i]){
         case "HOST":
-            resources_str+="Hosts, ";
+            resources_str+=tr("Hosts")+", ";
             break;
         case "VM":
-            resources_str+="Virtual Machines, ";
+            resources_str+=tr("Virtual Machines")+", ";
             break;
         case "NET":
-            resources_str+="Virtual Networks, ";
+            resources_str+=tr("Virtual Networks")+", ";
             break;
         case "IMAGE":
-            resources_str+="Images, ";
+            resources_str+=(tr("Images")+", ");
             break;
         case "TEMPLATE":
-            resources_str+="VM Templates, ";
+            resources_str+=tr("VM Templates")+", ";
             break;
         case "USER":
-            resources_str+="Users, ";
+            resources_str+=tr("Users")+", ";
             break;
         case "GROUP":
-            resources_str+="Groups, ";
+            resources_str+=tr("Groups")+", ";
             break;
         };
     };
@@ -303,7 +303,7 @@ function updateAclsView(request,list){
 }
 
 function setupCreateAclDialog(){
-    dialogs_context.append('<div title="Create ACL" id="create_acl_dialog"></div>');
+    dialogs_context.append('<div title=\"'+tr("Create ACL")+'\" id="create_acl_dialog"></div>');
     $create_acl_dialog = $('#create_acl_dialog',dialogs_context);
     var dialog = $create_acl_dialog;
     dialog.html(create_acl_tmpl);
@@ -391,13 +391,13 @@ function setupCreateAclDialog(){
     $('#create_acl_form',dialog).submit(function(){
         var user = $('#applies',this).val();
         if (!user.length) {
-            notifyError("Please specify to who this ACL applies");
+            notifyError(tr("Please specify to who this ACL applies"));
             return false;
         };
 
         var resources = $('.resource_cb:checked',this).length;
         if (!resources) {
-            notifyError("Please select at least one resource");
+            notifyError(tr("Please select at least one resource"));
             return false;
         }
 
@@ -406,7 +406,7 @@ function setupCreateAclDialog(){
         case "res_id":
             var l=$('#res_id',this).val().length;
             if (!l){
-                notifyError("Please provide a resource ID for the resource(s) in this rule");
+                notifyError(tr("Please provide a resource ID for the resource(s) in this rule"));
                 return false;
             }
             break;
@@ -441,15 +441,15 @@ function popUpCreateAclDialog(){
     var users = $('<select>'+users_select+'</select>');
     $('.empty_value',users).remove();
     $('option',users).addClass("user");
-    users.prepend('<option value="">---Users---</option>');
+    users.prepend('<option value="">---'+tr("Users")+'---</option>');
 
     var groups = $('<select>'+groups_select+'</select>');
     $('.empty_value',groups).remove();
     $('option',groups).addClass("group");
-    groups.prepend('<option value="">---Groups---</option>');
+    groups.prepend('<option value="">---'+tr("Groups")+'---</option>');
 
     var dialog =  $create_acl_dialog;
-    $('#applies',dialog).html('<option value="*">All</option>'+
+    $('#applies',dialog).html('<option value="*">'+tr("All")+'</option>'+
                                           users.html()+groups.html());
     $('#belonging_to',dialog).html(groups_select);
 
@@ -480,7 +480,11 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "35px", "aTargets": [1] }
-        ]
+        ],
+	"oLanguage": (datatable_lang != "") ?
+	    {
+		sUrl: "locale/"+lang+"/"+datatable_lang
+	    } : ""
     });
     dataTable_acls.fnClearTable();
     addElement([
