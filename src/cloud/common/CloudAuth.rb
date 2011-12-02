@@ -33,7 +33,8 @@ class CloudAuth
 
     # Default interval for timestamps. Tokens will be generated using the same
     # timestamp for this interval of time.
-    EXPIRE_DELTA = 36000
+    # THIS VALUE CANNOT BE LOWER THAN EXPIRE_MARGIN
+    EXPIRE_DELTA = 1800
 
     # Tokens will be generated if time > EXPIRE_TIME - EXPIRE_MARGIN
     EXPIRE_MARGIN = 300
@@ -44,11 +45,7 @@ class CloudAuth
     def initialize(conf)
         @conf = conf
 
-        # @token_expiration_delta:  Number of seconds that will be used
-        #   the same timestamp for the token generation
-        # @token_expiration_time:   Current timestamp to be used in tokens.
-        @token_expiration_delta = @conf[:token_expiration_delta] || EXPIRE_DELTA
-        @token_expiration_time = Time.now.to_i + @token_expiration_delta
+        @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
 
         if AUTH_MODULES.include?(@conf[:auth])
             require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
@@ -90,13 +87,24 @@ class CloudAuth
         end
     end
 
+    def auth(env, params={})
+        username = do_auth(env, params)
+
+        if username.nil?
+            update_userpool_cache
+            do_auth(env, params)
+        else
+            username
+        end
+    end
+
     protected
 
     def expiration_time
         time_now = Time.now.to_i
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
-            @token_expiration_time = time_now + @token_expiration_delta
+            @token_expiration_time = time_now + EXPIRE_DELTA
             update_userpool_cache
         end
 
