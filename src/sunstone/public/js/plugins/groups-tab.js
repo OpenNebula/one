@@ -40,7 +40,7 @@ var create_group_tmpl =
 '<form id="create_group_form" action="">\
   <fieldset style="border:none;">\
      <div>\
-        <label for="name">'+tr("Group name:")+'</label>\
+        <label for="name">'+tr("Group name")+':</label>\
         <input type="text" name="name" id="name" /><br />\
       </div>\
   </fieldset>\
@@ -259,7 +259,7 @@ function popUpCreateGroupDialog(){
 function setGroupAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_groups);
-        var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr("value");
+        var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Group.autorefresh");
         }

@@ -40,13 +40,13 @@ var hosts_tab_content =
 <table id="datatable_hosts" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr('All') + '</input></th>\
-      <th>' + tr('id') + '</th>\
-      <th>' + tr('Name') + '</th>\
-      <th>' + tr('Running VMs') + '</th>\
-      <th>' + tr('CPU Use') + '</th>\
-      <th>' + tr('Memory use') + '</th>\
-      <th>' + tr('Status') + '</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+      <th>' + tr("id") + '</th>\
+      <th>' + tr("Name") + '</th>\
+      <th>' + tr("Running VMs") + '</th>\
+      <th>' + tr("CPU Use") + '</th>\
+      <th>' + tr("Memory use") + '</th>\
+      <th>' + tr("Status") + '</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyhosts">\
@@ -57,42 +57,42 @@ var hosts_tab_content =
 var create_host_tmpl =
 '<div class="create_form"><form id="create_host_form" action="">\
   <fieldset>\
-  <legend style="display:none;">' + tr('Host parameters') + '</legend>\
-  <label for="name">' + tr('Name') + ':</label><input type="text" name="name" id="name" />\
+  <legend style="display:none;">' + tr("Host parameters") + '</legend>\
+  <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
   </fieldset>\
-  <h3>' + tr('Drivers') + '</h3>\
+  <h3>' + tr("Drivers") + '</h3>\
   <fieldset>\
     <div class="manager clear" id="vmm_mads">\
-          <label>' + tr('Virtualization Manager:') + '</label>\
+          <label>' + tr("Virtualization Manager") + ':</label>\
           <select id="vmm_mad" name="vmm">\
-                <option value="vmm_kvm">' + tr('KVM') + '</option>\
-                <option value="vmm_xen">' + tr('XEN') + '</option>\
-                <option value="vmm_ec2">' + tr('EC2') + '</option>\
-                <option value="vmm_dummy">' + tr('Dummy') + '</option>\
+                <option value="vmm_kvm">' + tr("KVM") + '</option>\
+                <option value="vmm_xen">' + tr("XEN") + '</option>\
+                <option value="vmm_ec2">' + tr("EC2") + '</option>\
+                <option value="vmm_dummy">' + tr("Dummy") + '</option>\
           </select>\
     </div>\
     <div class="manager clear" id="im_mads">\
-      <label>' + tr('Information Manager:') + '</label>\
+      <label>' + tr("Information Manager") + ':</label>\
       <select id="im_mad" name="im">\
-               <option value="im_kvm">' + tr('KVM') + '</option>\
-               <option value="im_xen">' + tr('XEN') + '</option>\
-               <option value="im_ec2">' + tr('EC2') + '</option>\
-               <option value="im_dummy">' + tr('Dummy') + '</option>\
+               <option value="im_kvm">' + tr("KVM") + '</option>\
+               <option value="im_xen">' + tr("XEN") + '</option>\
+               <option value="im_ec2">' + tr("EC2") + '</option>\
+               <option value="im_dummy">' + tr("Dummy") + '</option>\
       </select>\
     </div>\
     <div class="manager clear" id="tm_mads">\
-      <label>' + tr('Transfer Manager:') + '</label>\
+      <label>' + tr("Transfer Manager") + ':</label>\
        <select id="tm_mad" name="tm">\
-         <option value="tm_shared">' + tr('SHARED') + '</option>\
-         <option value="tm_ssh">' + tr('SSH') + '</option>\
-         <option value="tm_dummy">' + tr('Dummy') + '</option>\
+         <option value="tm_shared">' + tr("Shared") + '</option>\
+         <option value="tm_ssh">' + tr("SSH") + '</option>\
+         <option value="tm_dummy">' + tr("Dummy") + '</option>\
        </select>\
     </div>\
     </fieldset>\
     <fieldset>\
     <div class="form_buttons">\
-        <div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">' + tr('Create') + '</button>\
-        <button class="button" type="reset" value="reset">' + tr('Reset') + '</button></div>\
+        <div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
     </div>\
   </fieldset>\
 </form></div>';
@@ -286,7 +286,7 @@ var host_info_panel = {
 
 
 var hosts_tab = {
-    title: tr('Hosts'),
+    title: tr("Hosts"),
     content: hosts_tab_content,
     buttons: host_buttons
 }
@@ -424,58 +424,58 @@ function updateHostInfo(request,host){
         content :
         '<table id="info_host_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">' + tr('Host information') + ' - '+host_info.NAME+'</th></tr>\
+               <tr><th colspan="2">' + tr("Host information") + ' - '+host_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
-                <td class="key_td">' + tr('id') + '</td>\
+                <td class="key_td">' + tr("id") + '</td>\
                 <td class="value_td">'+host_info.ID+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr('State') + '</td>\
+                <td class="key_td">' + tr("State") + '</td>\
                 <td class="value_td">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr('IM MAD') + '</td>\
+                <td class="key_td">' + tr("IM MAD") + '</td>\
                 <td class="value_td">'+host_info.IM_MAD+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr('VM MAD') + '</td>\
+                <td class="key_td">' + tr("VM MAD") + '</td>\
                 <td class="value_td">'+host_info.VM_MAD+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr('TM MAD') + '</td>\
+                <td class="key_td">' + tr("TM MAD") + '</td>\
                 <td class="value_td">'+host_info.TM_MAD+'</td>\
             </tr>\
             </tbody>\
          </table>\
          <table id="host_shares_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">' + tr('Host shares') + '</th></tr>\
+               <tr><th colspan="2">' + tr("Host shares") + '</th></tr>\
             </thead>\
             <tbody>\
                <tr>\
-                  <td class="key_td">' + tr('Max Mem') + '</td>\
+                  <td class="key_td">' + tr("Max Mem") + '</td>\
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">' + tr('Used Mem (real)') + '</td>\
+                  <td class="key_td">' + tr("Used Mem (real)") + '</td>\
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">' + tr('Used Mem (allocated)') + '</td>\
+                  <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">' + tr('Used CPU (real)') + '</td>\
+                  <td class="key_td">' + tr("Used CPU (real)") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">' + tr('Used CPU (allocated)') + '</td>\
+                  <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">' + tr('Running VMs') + '</td>\
+                  <td class="key_td">' + tr("Running VMs") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
                </tr>\
             </tbody>\
@@ -487,7 +487,7 @@ function updateHostInfo(request,host){
         title : tr("Host template"),
         content :
         '<table id="host_template_table" class="info_table" style="width:80%">\
-                <thead><tr><th colspan="2">' + tr('Host template') + '</th></tr></thead>'+
+                <thead><tr><th colspan="2">' + tr("Host template") + '</th></tr></thead>'+
                 prettyPrintJSON(host_info.TEMPLATE)+
                 '</table>'
     }
@@ -559,7 +559,7 @@ function popUpCreateHostDialog(){
 function setHostAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_hosts);
-        var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr("value");
+        var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Host.autorefresh");
         }

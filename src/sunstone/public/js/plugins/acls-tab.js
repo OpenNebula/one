@@ -42,7 +42,7 @@ var create_acl_tmpl =
 '<form id="create_acl_form" action="">\
   <fieldset>\
         <div>\
-                <label for="applies">'+tr("This rule applies to:")+'</label>\
+                <label for="applies">'+tr("This rule applies to")+':</label>\
                 <select name="applies" id="applies"></select>\
                 <div class="clear"></div>\
                 <label style="height:9em">'+tr("Affected resources")+':</label>\
@@ -54,12 +54,12 @@ var create_acl_tmpl =
                 <input type="checkbox" name="res_user" class="resource_cb" value="USER">'+tr("Users")+'</input><br />\
                 <input type="checkbox" name="res_group" class="resource_cb" value="GROUP">'+tr("Groups")+'</input><br />\
                 <div class="clear"></div>\
-                <label for="mode_select" style="height:3em;">'+tr("Resource subset:")+'</label>\
+                <label for="mode_select" style="height:3em;">'+tr("Resource subset")+':</label>\
                 <input type="radio" class="res_subgroup" name="mode_select" value="*" id="res_subgroup_all">'+tr("All")+'</input><br />\
                 <input type="radio" class="res_subgroup" name="mode_select" value="res_id" id="res_subgroup_id">'+tr("Specific ID")+'</input><br />\
                 <input type="radio" class="res_subgroup" name="mode_select" value="belonging_to" id="res_subgroup_group">'+tr("Owned by group")+'</input><br />\
                 <div class="clear"></div>\
-                <label for="res_id">'+tr("Resource ID:")+'</label>\
+                <label for="res_id">'+tr("Resource ID")+':</label>\
                 <input type="text" name="res_id" id="res_id"></input>\
                 <div class="clear"></div>\
                 <label for="belonging_to">'+tr("Group")+':</label>\
@@ -76,7 +76,7 @@ var create_acl_tmpl =
                 <input type="checkbox" name="right_chown" class="right_cb" value="CHOWN">'+tr("Change owner")+'</input><br />\
                 <input type="checkbox" name="right_deploy" class="right_cb" value="DEPLOY">'+tr("Deploy")+'</input><br />\
                 <div class="clear"></div>\
-                <label for="acl_preview">'+tr("ACL String preview:")+'</label>\
+                <label for="acl_preview">'+tr("ACL String preview")+':</label>\
                 <input type="text" name="acl_preview" id="acl_preview" style="width:400px;"></input>\
         </div>\
         </fieldset>\
@@ -316,9 +316,9 @@ function setupCreateAclDialog(){
         height: height
     });
 
-    $('#res_subgroup_all',dialog).attr("checked","checked");
-    $('#res_id',dialog).attr("disabled","disabled");
-    $('#belonging_to',dialog).attr("disabled","disabled");
+    $('#res_subgroup_all',dialog).attr('checked','checked');
+    $('#res_id',dialog).attr('disabled','disabled');
+    $('#belonging_to',dialog).attr('disabled','disabled');
 
     $('button',dialog).button();
 
@@ -327,16 +327,16 @@ function setupCreateAclDialog(){
         var context = $(this).parent();
         switch (value) {
         case "*":
-            $('#res_id',context).attr("disabled","disabled");
-            $('#belonging_to',context).attr("disabled","disabled");
+            $('#res_id',context).attr('disabled','disabled');
+            $('#belonging_to',context).attr('disabled','disabled');
             break;
         case "res_id":
-            $('#res_id',context).removeAttr("disabled");
-            $('#belonging_to').attr("disabled","disabled");
+            $('#res_id',context).removeAttr('disabled');
+            $('#belonging_to').attr('disabled','disabled');
             break;
         case "belonging_to":
-            $('#res_id',context).attr("disabled","disabled");
-            $('#belonging_to',context).removeAttr("disabled");
+            $('#res_id',context).attr('disabled','disabled');
+            $('#belonging_to',context).removeAttr('disabled');
             break;
         };
     });
@@ -461,7 +461,7 @@ function popUpCreateAclDialog(){
 function setAclAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_acls);
-        var filter = $("#datatable_acls_filter input",dataTable_acls.parents("#datatable_acls_wrapper")).attr("value");
+        var filter = $("#datatable_acls_filter input",dataTable_acls.parents("#datatable_acls_wrapper")).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Acl.autorefresh");
         }

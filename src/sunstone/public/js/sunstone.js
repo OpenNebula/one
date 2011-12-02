@@ -314,7 +314,7 @@ $(document).ready(function(){
     $('.action_button').live("click",function(){
         var error = 0;
         var table = null;
-        var value = $(this).attr("value");
+        var value = $(this).attr('value');
         var action = SunstoneCfg["actions"][value];
         if (!action) {
             notifyError("Action "+value+" not defined.");
@@ -549,8 +549,8 @@ function initListButtons(){
     $('.multi_action_slct',main_tabs_context).each(function(){
         //prepare replacement buttons
         var buttonset = $('<div style="display:inline-block;" class="top_button"></div');
-        var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">'+tr('Previous action')+'</button>').button();
-        button1.attr("disabled","disabled");
+        var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">'+tr("Previous action")+'</button>').button();
+        button1.attr('disabled','disabled');
         var button2 = $('<button class="list_button" value="">See more</button>').button({
             text:false,
             icons: { primary: "ui-icon-triangle-1-s" }
@@ -563,7 +563,7 @@ function initListButtons(){
         var options = $('option', $(this));
         var list = $('<ul class="action_list"></ul>');
         $.each(options,function(){
-            var classes = $(this).attr("class");
+            var classes = $(this).attr('class');
             var item = $('<li></li>');
             var a = $('<a href="#" class="'+classes+'" value="'+$(this).val()+'">'+$(this).text()+'</a>');
             a.val($(this).val());
@@ -590,7 +590,7 @@ function initListButtons(){
         prev_action_button.removeClass("confirm_with_select_button");
         prev_action_button.removeClass("confirm_button");
         prev_action_button.removeClass("action_button");
-        prev_action_button.addClass($(this).attr("class"));
+        prev_action_button.addClass($(this).attr('class'));
         prev_action_button.button("option","label",$(this).text());
         prev_action_button.button("enable");
         $(this).parents('ul').hide("blind",100);

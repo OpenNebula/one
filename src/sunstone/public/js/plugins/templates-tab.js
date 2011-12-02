@@ -54,7 +54,9 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                 <input type="radio" id="xen" name="template_type" value="xen">XEN</input>\
                                 <div class="clear"></div>\
                                 -->\
-                                <p style="font-size:0.8em;text-align:right;"><i>'+tr("Fields marked with")+'<span style="display:inline-block;" class="ui-icon ui-icon-alert" />'+tr("are mandatory")+'</i><br />\
+                                <p style="font-size:0.8em;text-align:right;"><i>'+
+    tr("Fields marked with")+'<span style="display:inline-block;" class="ui-icon ui-icon-alert" />'+
+    tr("are mandatory")+'</i><br />\
                                 <a href="#" id="fold_unfold_vm_params"><u>'+tr("Fold / Unfold all sections")+'</u></a></p>\
                         </div>\
 \
@@ -80,7 +82,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <div class="tip">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="VCPU">'+tr("VCPU:")+'</label>\
+                                  <label for="VCPU">'+tr("VCPU")+':</label>\
                                   <input type="text" id="VCPU" name="vcpu" size="3" />\
                                   <div class="tip">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</div>\
                             </div>\
@@ -95,7 +97,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                             </div>\
                           <fieldset><legend>'+tr("OS and Boot options")+'</legend>\
                                 <div class="vm_param kvm vmware">\
-                                  <label for="ARCH">'+tr("Architecture:")+'</label>\
+                                  <label for="ARCH">'+tr("Architecture")+':</label>\
                                   <select id="ARCH" name="arch">\
                                         <option value="i686">i686</option>\
                                         <option value="x86_64">x86_64</option>\
@@ -105,41 +107,41 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                 <!--xen necesita kernel o bootloader.\
                                 Opciones de kernel son obligatorias si se activa kernel-->\
                                 <div class="" id="kernel_bootloader">\
-                                  <label>'+tr("Boot method:")+'</label>\
+                                  <label>'+tr("Boot method")+':</label>\
                                   <select id="boot_method" name="boot_method">\
                                     <option id="no_boot" name="no_boot" value=""></option>\
-                                        <option value="kernel">Kernel</option>\
-                                        <option value="bootloader">Bootloader</option>\
+                                    <option value="kernel">'+tr("Kernel")+'</option>\
+                                    <option value="bootloader">'+tr("Bootloader")+'</option>\
                                   </select>\
                                   <div class="tip">'+tr("Select boot method")+'</div>\
                                 </div>\
                             <div class="vm_param kvm_opt xen kernel">\
-                                  <label for="KERNEL">'+tr("Kernel:")+'</label>\
+                                  <label for="KERNEL">'+tr("Kernel")+':</label>\
                                   <input type="text" id="KERNEL" name="kernel" />\
                                   <div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>\
                                 </div>\
                             <div class="vm_param kvm xen kernel">\
-                                  <label for="INITRD">'+tr("Initrd:")+'</label>\
+                                  <label for="INITRD">'+tr("Initrd")+':</label>\
                                   <input type="text" id="INITRD" name="initrd"/>\
                                   <div class="tip">'+tr("Path to the initrd image")+'</div>\
                             </div>\
                             <div class="vm_param kvm xen kernel">\
-                                  <label for="ROOT">'+tr("Root:")+'</label>\
+                                  <label for="ROOT">'+tr("Root")+':</label>\
                                   <input type="text" id="ROOT" name="root"/>\
                                   <div class="tip">'+tr("Device to be mounted as root")+'</div>\
                             </div>\
                                 <div class="vm_param kvm xen kernel">\
-                                  <label for="KERNEL_CMD">'+tr("Kernel commands:")+'</label>\
+                                  <label for="KERNEL_CMD">'+tr("Kernel commands")+':</label>\
                                   <input type="text" id="KERNEL_CMD" name="kernel_cmd" />\
                                   <div class="tip">'+tr("Arguments for the booting kernel")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen bootloader">\
-                                  <label for="BOOTLOADER">'+tr("Bootloader:")+'</label>\
+                                  <label for="BOOTLOADER">'+tr("Bootloader")+':</label>\
                                   <input type="text" id="BOOTLOADER" name="bootloader" />\
                                   <div class="tip">'+tr("Path to the bootloader executable")+'</div>\
                             </div>\
                             <div class="vm_param kvm">\
-                                  <label for="BOOT">'+tr("Boot:")+'</label>\
+                                  <label for="BOOT">'+tr("Boot")+':</label>\
                                   <select id="BOOT" name="boot">\
                                   </select>\
                                   <div class="tip">'+tr("Boot device type")+'</div>\
@@ -155,7 +157,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                 </div>\
                 <fieldset><legend>'+tr("Features")+'</legend>\
                 <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                    <label for="PAE">'+tr("PAE:")+'</label>\
+                    <label for="PAE">'+tr("PAE")+':</label>\
                     <select id="PAE" name="PAE">\
                         <option value="">'+tr("Default")+'</option>\
                         <option value="yes">'+tr("Enable")+'</option>\
@@ -182,92 +184,92 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                           readonly  SEVERAL DISKS-->\
                           <div class="vm_section" id="disks">\
                                   <div class="show_hide" id="add_disks_cb">\
-<h3>'+tr('Add disks/images')+' <a id="add_disks" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+<h3>'+tr("Add disks/images")+' <a id="add_disks" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
                           </div>\
-                          <fieldset><legend>'+tr('Disks')+'</legend>\
+                          <fieldset><legend>'+tr("Disks")+'</legend>\
                              <div class="" id="image_vs_disk">\
-                                  <label>'+tr('Add disk/image')+'</label>\
-                                  <input type="radio" id="add_disk" name="image_vs_disk" value="disk">'+tr('Disk')+'</input>\
+                                  <label>'+tr("Add disk/image")+'</label>\
+                                  <input type="radio" id="add_disk" name="image_vs_disk" value="disk">'+tr("Disk")+'</input>\
                                   <!--<label for="add_disk">Add a disk</label>-->\
-                                  <input type="radio" id="add_image" name="image_vs_disk" value="image">'+tr('Image')+'</input>\
+                                  <input type="radio" id="add_image" name="image_vs_disk" value="image">'+tr("Image")+'</input>\
                                   <!--<label for="add_image">Add an image</label>-->\
                              </div>\
                             <div class="clear"></div>\
                             <div class="vm_param kvm xen vmware add_image">\
-                                  <label for="IMAGE">'+tr('Image')+':</label>\
+                                  <label for="IMAGE">'+tr("Image")+':</label>\
                                   <select type="text" id="IMAGE" name="image">\
                                   </select>\
-                                  <div class="tip">'+tr('Name of the image to use')+'</div>\
+                                  <div class="tip">'+tr("Name of the image to use")+'</div>\
                                   <input type="hidden" id="IMAGE_UNAME" name="image_uname" value=""/>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="BUS">'+tr('Bus')+':</label>\
+                                  <label for="BUS">'+tr("Bus")+':</label>\
                                   <select id="BUS" name="bus">\
                                   </select>\
-                                  <div class="tip">'+tr('Type of disk device to emulate: ide, scsi')+'</div>\
+                                  <div class="tip">'+tr("Type of disk device to emulate: ide, scsi")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware">\
-                                  <label for="TARGET">'+tr('Target')+':</label>\
+                                  <label for="TARGET">'+tr("Target")+':</label>\
                                   <input type="text" id="TARGET" name="target" />\
-                                  <div class="tip">'+tr('Device to map image disk. If set, it will overwrite the default device mapping')+'</div>\
+                                  <div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="DRIVER">'+tr('Driver')+':</label>\
+                                  <label for="DRIVER">'+tr("Driver")+':</label>\
                                   <input type="text" id="DRIVER" name="driver" />\
-                                  <div class="tip">'+tr('Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported')+'</div>\
+                                  <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="TYPE">'+tr('Type')+':</label>\
+                                  <label for="TYPE">'+tr("Type")+':</label>\
                                   <select id="TYPE" name="type">\
                                   </select>\
-                                  <div class="tip">'+tr('Disk type')+'</div>\
+                                  <div class="tip">'+tr("Disk type")+'</div>\
                             </div>\
                             <div class="vm_param kvm xen vmware add_disk">\
-                                  <label for="SOURCE">'+tr('Source')+':</label>\
+                                  <label for="SOURCE">'+tr("Source")+':</label>\
                                   <input type="text" id="SOURCE" name="source" />\
-                                  <div class="tip">'+tr('Disk file location path or URL')+'</div>\
+                                  <div class="tip">'+tr("Disk file location path or URL")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt add_disk ">\
                             <!--Mandatory for swap, fs and block images-->\
-                                  <label for="SIZE">'+tr('Size')+':</label>\
+                                  <label for="SIZE">'+tr("Size")+':</label>\
                                   <input type="text" id="SIZE" name="size" />\
-                                  <div class="tip">'+tr('Size in MB')+'</div>\
+                                  <div class="tip">'+tr("Size in MB")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt add_disk ">\
                             <!--mandatory for fs images-->\
-                                  <label for="FORMAT">'+tr('Format')+':</label>\
+                                  <label for="FORMAT">'+tr("Format")+':</label>\
                                   <input type="text" id="FORMAT" name="format" />\
-                                  <div class="tip">'+tr('Filesystem type for the fs images')+'</div>\
+                                  <div class="tip">'+tr("Filesystem type for the fs images")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="CLONE">'+tr('Clone')+':</label>\
+                                  <label for="CLONE">'+tr("Clone")+':</label>\
                                   <select id="CLONE" name="clone">\
-                                        <option value="yes">'+tr('Yes')+'</option>\
-                                        <option value="no">'+tr('No')+'</option>\
+                                        <option value="yes">'+tr("Yes")+'</option>\
+                                        <option value="no">'+tr("No")+'</option>\
                                   </select>\
-                                  <div class="tip">'+tr('Clone this image')+'</div>\
+                                  <div class="tip">'+tr("Clone this image")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="SAVE">'+tr('Save')+':</label>\
+                                  <label for="SAVE">'+tr("Save")+':</label>\
                                    <select id="SAVE" name="save">\
-                                        <option value="no">'+tr('No')+'</option>\
-                                        <option value="yes">'+tr('Yes')+'</option>\
+                                        <option value="no">'+tr("No")+'</option>\
+                                        <option value="yes">'+tr("Yes")+'</option>\
                                   </select>\
-                                  <div class="tip">'+tr('Save this image after shutting down the VM')+'</div>\
+                                  <div class="tip">'+tr("Save this image after shutting down the VM")+'</div>\
                             </div>\
                                 <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="READONLY">'+tr('Read only')+':</label>\
+                                  <label for="READONLY">'+tr("Read only")+':</label>\
                                   <select id="READONLY" name="readonly">\
-                                    <option value="no">'+tr('No')+'</option>\
-                                    <option value="yes">'+tr('Yes')+'</option>\
+                                    <option value="no">'+tr("No")+'</option>\
+                                    <option value="yes">'+tr("Yes")+'</option>\
                                   </select>\
-                                  <div class="tip">'+tr('Mount image as read-only')+'</div>\
+                                  <div class="tip">'+tr("Mount image as read-only")+'</div>\
                             </div>\
                             <div class="">\
-                                        <button class="add_remove_button add_button" id="add_disk_button" value="add_disk">'+tr('Add')+'</button>\
-                                        <button class="add_remove_button" id="remove_disk_button" value="remove_disk">'+tr('Remove selected')+'</button>\
+                                        <button class="add_remove_button add_button" id="add_disk_button" value="add_disk">'+tr("Add")+'</button>\
+                                        <button class="add_remove_button" id="remove_disk_button" value="remove_disk">'+tr("Remove selected")+'</button>\
                                         <div class="clear"></div>\
-                                        <label style="" for="disks_box">'+tr('Current disks')+':</label>\
+                                        <label style="" for="disks_box">'+tr("Current disks")+':</label>\
                                         <select id="disks_box" name="disks_box" style="height:100px;width:350px" multiple>\
                                         </select>\
                                         <div class="clear"></div>\
@@ -279,107 +281,107 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                           bridge, target,  script, model -->\
                           <div class="vm_section" id="networks">\
                             <div class="show_hide" id="add_networks_cb">\
-                              <h3>'+tr('Setup Networks')+' <a id="add_networks" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+                              <h3>'+tr("Setup Networks")+' <a id="add_networks" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
                             </div>\
-                          <fieldset><legend>'+tr('Network')+'</legend>\
+                          <fieldset><legend>'+tr("Network")+'</legend>\
                             <div class="" id="network_vs_niccfg">\
-                                  <label>'+tr('Add network')+'</label>\
-                                  <input type="radio" id="add_network" name="network_vs_niccfg" value="network">'+tr('Predefined')+'</input>\
+                                  <label>'+tr("Add network")+'</label>\
+                                  <input type="radio" id="add_network" name="network_vs_niccfg" value="network">'+tr("Predefined")+'</input>\
                                   <!--<label style="width:200px;" for="add_network">Pre-defined network</label>-->\
-                                  <input type="radio" id="add_niccfg" name="network_vs_niccfg" value="niccfg">'+tr('Manual')+'</input>\
+                                  <input type="radio" id="add_niccfg" name="network_vs_niccfg" value="niccfg">'+tr("Manual")+'</input>\
                                   <!--<label for="add_niccfg">Manual network</label>-->\
                                   <!--<div class="tip"></div>-->\
                             </div>\
                             <div class="clear"></div>\
                             <div class="vm_param kvm xen vmware network">\
-                                  <label for="NETWORK">'+tr('Network')+':</label>\
+                                  <label for="NETWORK">'+tr("Network")+':</label>\
                                   <select type="text" id="NETWORK" name="network">\
                                   </select>\
-                                  <div class="tip">'+tr('Name of the network to attach this device')+'</div>\
+                                  <div class="tip">'+tr("Name of the network to attach this device")+'</div>\
                                   <input type="hidden" id="NETWORK_UNAME" name="network_uname" value=""/>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt niccfg network">\
-                                  <label for="IP">'+tr('IP')+':</label>\
+                                  <label for="IP">'+tr("IP")+':</label>\
                                   <input type="text" id="IP" name="ip" />\
-                                  <div class="tip">'+tr('Request an specific IP from the Network')+'</div>\
+                                  <div class="tip">'+tr("Request an specific IP from the Network")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt niccfg">\
-                                  <label for="MAC">'+tr('MAC')+':</label>\
+                                  <label for="MAC">'+tr("MAC")+':</label>\
                                   <input type="text" id="MAC" name="mac" />\
-                                  <div class="tip">'+tr('HW address associated with the network interface')+'</div>\
+                                  <div class="tip">'+tr("HW address associated with the network interface")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt niccfg">\
-                                  <label for="BRIDGE">'+tr('Bridge')+'</label>\
+                                  <label for="BRIDGE">'+tr("Bridge")+'</label>\
                                   <input type="text" id="BRIDGE" name="bridge" />\
-                                  <div class="tip">'+tr('Name of the bridge the network device is going to be attached to')+'</div>\
+                                  <div class="tip">'+tr("Name of the bridge the network device is going to be attached to")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt vmware_opt niccfg">\
-                                  <label for="TARGET">'+tr('Target')+':</label>\
+                                  <label for="TARGET">'+tr("Target")+':</label>\
                                   <input type="text" id="TARGET" name="nic_target" />\
-                                  <div class="tip">'+tr('Name for the tun device created for the VM')+'</div>\
+                                  <div class="tip">'+tr("Name for the tun device created for the VM")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt vmware_opt niccfg">\
-                                  <label for="SCRIPT">'+tr('Script')+':</label>\
+                                  <label for="SCRIPT">'+tr("Script")+':</label>\
                                   <input type="text" id="SCRIPT" name="script" />\
-                                  <div class="tip">'+tr('Name of a shell script to be executed after creating the tun device for the VM')+'</div>\
+                                  <div class="tip">'+tr("Name of a shell script to be executed after creating the tun device for the VM")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt niccfg">\
-                                  <label for="MODEL">'+tr('Model')+':</label>\
+                                  <label for="MODEL">'+tr("Model")+':</label>\
                                   <input type="text" id="MODEL" name="model" />\
-                                  <div class="tip">'+tr('Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.')+'</div>\
+                                  <div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>\
                             </div>\
                             <div class="firewall_select">\
-                                  <label for="black_white_tcp">'+tr('Tcp firewall mode')+':</label>\
+                                  <label for="black_white_tcp">'+tr("Tcp firewall mode")+':</label>\
                                   <select name="black_white_tcp" id="black_white_tcp">\
-                                       <option value="">'+tr('Optional, please select')+'</option>\
-                                       <option value="whitelist">'+tr('Port whitelist')+'</option>\
-                                       <option value="blacklist">'+tr('Port blacklist')+'</option>\
+                                       <option value="">'+tr("Optional, please select")+'</option>\
+                                       <option value="whitelist">'+tr("Port whitelist")+'</option>\
+                                       <option value="blacklist">'+tr("Port blacklist")+'</option>\
                                   </select>\
                             </div>\
                             <div class="clear"></div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="white_ports_tcp">'+tr('Tcp white ports')+':</label>\
+                                  <label for="white_ports_tcp">'+tr("Tcp white ports")+':</label>\
                                   <input type="text" id="WHITE_PORTS_TCP" name="white_ports_tcp" />\
-                                  <div class="tip">'+tr('Permits access to the VM only through the specified ports in the TCP protocol')+'</div>\
+                                  <div class="tip">'+tr("Permits access to the VM only through the specified ports in the TCP protocol")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="black_ports_tcp">'+tr('Tcp black ports')+'</label>\
+                                  <label for="black_ports_tcp">'+tr("Tcp black ports")+'</label>\
                                   <input type="text" id="BLACK_PORTS_TCP" name="black_ports_tcp" />\
-                                  <div class="tip">'+tr('Disallow access to the VM through the specified ports in the TCP protocol')+'</div>\
+                                  <div class="tip">'+tr("Disallow access to the VM through the specified ports in the TCP protocol")+'</div>\
                             </div>\
                             <div class="firewall_select">\
-                                  <label for="black_white_udp">'+tr('Udp firewall mode')+':</label>\
+                                  <label for="black_white_udp">'+tr("Udp firewall mode")+':</label>\
                                   <select name="black_white_udp" id="black_white_udp">\
-                                       <option value="">'+tr('Optional, please select')+'</option>\
-                                       <option value="whitelist">'+tr('Port whitelist')+'</option>\
-                                       <option value="blacklist">'+tr('Port blacklist')+'</option>\
+                                       <option value="">'+tr("Optional, please select")+'</option>\
+                                       <option value="whitelist">'+tr("Port whitelist")+'</option>\
+                                       <option value="blacklist">'+tr("Port blacklist")+'</option>\
                                   </select>\
                             </div>\
                             <div class="clear"></div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="white_ports_udp">'+tr('Udp white ports')+':</label>\
+                                  <label for="white_ports_udp">'+tr("Udp white ports")+':</label>\
                                   <input type="text" id="WHITE_PORTS_UDP" name="white_ports_udp" />\
-                                  <div class="tip">'+tr('Permits access to the VM only through the specified ports in the UDP protocol')+'</div>\
+                                  <div class="tip">'+tr("Permits access to the VM only through the specified ports in the UDP protocol")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="black_ports_udp">'+tr('Udp black ports')+':</label>\
+                                  <label for="black_ports_udp">'+tr("Udp black ports")+':</label>\
                                   <input type="text" id="BLACK_PORTS_UDP" name="black_ports_udp" />\
-                                  <div class="tip">'+tr('Disallow access to the VM through the specified ports in the UDP protocol')+'</div>\
+                                  <div class="tip">'+tr("Disallow access to the VM through the specified ports in the UDP protocol")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt niccfg network">\
-                                  <label for="icmp">'+tr('Icmp')+':</label>\
+                                  <label for="icmp">'+tr("Icmp")+':</label>\
                                   <select name="icmp" id="ICMP">\
-                                      <option value="" selected="selected">'+tr('Accept (default)')+'</option>\
-                                      <option value="drop">'+tr('Drop')+'</option>\
+                                      <option value="" selected="selected">'+tr("Accept (default)")+'</option>\
+                                      <option value="drop">'+tr("Drop")+'</option>\
                                   </select>\
-                                  <div class="tip">'+tr('ICMP policy')+'</div>\
+                                  <div class="tip">'+tr("ICMP policy")+'</div>\
                             </div>\
                             <div class="clear"></div>\
                             <div class="">\
-                                <button class="add_remove_button add_button" id="add_nic_button" value="add_nic">'+tr('Add')+'</button>\
-                                <button class="add_remove_button" id="remove_nic_button" value="remove_nic">'+tr('Remove selected')+'</button>\
+                                <button class="add_remove_button add_button" id="add_nic_button" value="add_nic">'+tr("Add")+'</button>\
+                                <button class="add_remove_button" id="remove_nic_button" value="remove_nic">'+tr("Remove selected")+'</button>\
                                 <div class="clear"></div>\
-                                <label for="nics_box">'+tr('Current NICs')+':</label>\
+                                <label for="nics_box">'+tr("Current NICs")+':</label>\
                                 <select id="nics_box" name="nics_box" style="height:100px;width:350px" multiple>\
                                 </select>\
                             </div>\
@@ -402,7 +404,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <div class="tip"></div>\
                             </div>\
                             <div class="vm_param kvm_opt">\
-                                   <label for="BUS">'+tr("Bus:")+'</label>\
+                                   <label for="BUS">'+tr("Bus")+':</label>\
                                   <select id="BUS" name="input_bus">\
                                         <option value="usb">'+tr("USB")+'</option>\
                                         <option value="ps2">'+tr("PS2")+'</option>\
@@ -414,7 +416,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                         <button class="add_remove_button add_button" id="add_input_button" value="add_input" class="kvm_opt">'+tr("Add")+'</button>\
                                         <button class="add_remove_button" id="remove_input_button" value="remove_input" class="kvm_opt">'+tr("Remove selected")+'</button>\
                                         <div class="clear"></div>\
-                                        <label for="inputs_box">'+tr("Current inputs:")+'</label>\
+                                        <label for="inputs_box">'+tr("Current inputs")+':</label>\
                                         <select id="inputs_box" name="inputs_box" style="height:100px;" multiple>\
                                         </select>\
                                         </div>\
@@ -429,7 +431,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                             </div>\
                           <fieldset><legend>'+tr("Graphics")+'</legend>\
                             <div class="vm_param kvm_opt xen_opt">\
-                                  <label for="TYPE">'+tr("Graphics type:")+'</label>\
+                                  <label for="TYPE">'+tr("Graphics type")+':</label>\
                                   <select id="TYPE" name="">\
                     <option value="">'+tr("Please select")+'</option>\
                                         <option id="vnc" value="vnc">'+tr("VNC")+'</option>\
@@ -438,17 +440,17 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <div class="tip"></div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt">\
-                                  <label for="LISTEN">'+tr("Listen IP:")+'</label>\
+                                  <label for="LISTEN">'+tr("Listen IP")+':</label>\
                                   <input type="text" id="LISTEN" name="graphics_ip" />\
                                   <div class="tip">'+tr("IP to listen on")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt">\
-                                  <label for="PORT">'+tr("Port:")+'</label>\
+                                  <label for="PORT">'+tr("Port")+':</label>\
                                   <input type="text" id="PORT" name="port" />\
                                   <div class="tip">'+tr("Port for the VNC server")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt">\
-                                  <label for="PASSWD">'+tr("Password:")+'</label>\
+                                  <label for="PASSWD">'+tr("Password")+':</label>\
                                   <input type="text" id="PASSWD" name="graphics_pw" />\
                                   <div class="tip">'+tr("Password for the VNC server")+'</div>\
                             </div>\
@@ -473,7 +475,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                     <div class="tip">'+tr("Name for the context variable")+'</div>\
               </div>\
               <div class="vm_param kvm_opt xen_opt">\
-                    <label for="var_value">'+tr("Value:")+'</label>\
+                    <label for="var_value">'+tr("Value")+':</label>\
                     <input type="text" id="var_value" name="var_value" />\
                     <div class="tip">'+tr("Value of the context variable")+'</div>\
               </div>\
@@ -481,7 +483,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                     <button class="add_remove_button add_button" id="add_context_button" value="add_context">'+tr("Add")+'</button>\
                     <button class="add_remove_button" id="remove_context_button" value="remove_input">'+tr("Remove selected")+'</button>\
                     <div class="clear"></div>\
-                    <label for="context_box">'+tr("Current variables:")+'</label>\
+                    <label for="context_box">'+tr("Current variables")+':</label>\
                     <select id="context_box" name="context_box" style="height:100px;" multiple>\
                     </select>\
               </div>\
@@ -496,12 +498,12 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                            </div>\
                           <fieldset><legend>'+tr("Placement")+'</legend>\
                     <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="REQUIREMENTS">'+tr("Requirements:")+'</label>\
+                                  <label for="REQUIREMENTS">'+tr("Requirements")+':</label>\
                                   <input type="text" id="REQUIREMENTS" name="requirements" />\
                                   <div class="tip">'+tr("Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="RANK">'+tr("Rank:")+'</label>\
+                                  <label for="RANK">'+tr("Rank")+':</label>\
                                   <input type="text" id="RANK" name="rank" />\
                                   <div class="tip">'+tr("This field sets which attribute will be used to sort the suitable hosts for this VM. Basically, it defines which hosts are more suitable than others")+'</div>\
                             </div>\
@@ -517,7 +519,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                           <fieldset><legend>'+tr("Raw")+'</legend>\
                           <!--set TYPE to current xen/kvm -->\
                                 <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="DATA">'+tr("Data:")+'</label>\
+                                  <label for="DATA">'+tr("Data")+':</label>\
                                   <input type="hidden" id="TYPE" name="type" />\
                                   <input type="text" id="DATA" name="data" />\
                                   <div class="tip">'+tr("Raw data to be passed directly to the hypervisor")+'</div>\
@@ -529,24 +531,24 @@ var create_template_tmpl = '<div id="template_create_tabs">\
               <!--custom variables -->\
                           <div class="vm_section" id="custom_var">\
                                 <div class="show_hide" id="add_context_cb">\
-                                  <h3>'+tr('Add custom variables')+' <a id="add_custom_var" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+                                  <h3>'+tr("Add custom variables")+' <a id="add_custom_var" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
                             </div>\
-                          <fieldset><legend>'+tr('Custom variables')+'</legend>\
+                          <fieldset><legend>'+tr("Custom variables")+'</legend>\
               <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                    <label for="custom_var_name">'+tr('Name')+':</label>\
+                    <label for="custom_var_name">'+tr("Name")+':</label>\
                     <input type="text" id="custom_var_name" name="custom_var_name" />\
-                    <div class="tip">'+tr('Name for the custom variable')+'</div>\
+                    <div class="tip">'+tr("Name for the custom variable")+'</div>\
               </div>\
               <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                    <label for="custom_var_value">'+tr('Value')+':</label>\
+                    <label for="custom_var_value">'+tr("Value")+':</label>\
                     <input type="text" id="custom_var_value" name="custom_var_value" />\
-                    <div class="tip">'+tr('Value of the custom variable')+'</div>\
+                    <div class="tip">'+tr("Value of the custom variable")+'</div>\
               </div>\
               <div class="">\
-                    <button class="add_remove_button add_button" id="add_custom_var_button" value="add_custom_var">'+tr('Add')+'</button>\
-                    <button class="add_remove_button" id="remove_custom_var_button" value="remove_custom_var">'+tr('Remove selected')+'</button>\
+                    <button class="add_remove_button add_button" id="add_custom_var_button" value="add_custom_var">'+tr("Add")+'</button>\
+                    <button class="add_remove_button" id="remove_custom_var_button" value="remove_custom_var">'+tr("Remove selected")+'</button>\
                     <div class="clear"></div>\
-                    <label for="custom_var_box">'+tr('Current variables')+':</label>\
+                    <label for="custom_var_box">'+tr("Current variables")+':</label>\
                     <select id="custom_var_box" name="custom_var_box" style="height:100px;" multiple>\
                     </select>\
               </div>\
@@ -584,16 +586,16 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 
 var update_template_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr('Please, choose and modify the template you want to update')+':</h3>\
+         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the template you want to update")+':</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="template_template_update_select">'+tr('Select a network')+':</label>\
+                 <label for="template_template_update_select">'+tr("Select a network")+':</label>\
                  <select id="template_template_update_select" name="template_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
-                   <label for="template_template_update_public">'+tr('Public')+':</label>\
+                   <label for="template_template_update_public">'+tr("Public")+':</label>\
                    <input type="checkbox" name="template_template_update_public" id="template_template_update_public" />\
                  </div>\
-                 <label for="template_template_update_textarea">'+tr('Template')+':</label>\
+                 <label for="template_template_update_textarea">'+tr("Template")+':</label>\
                  <div class="clear"></div>\
                  <textarea id="template_template_update_textarea" style="width:100%; height:14em;"></textarea>\
             </fieldset>\
@@ -770,14 +772,14 @@ var template_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
-        tip: tr("Select the new owner:"),
+        tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
     "Template.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
-        tip: tr("Select the new group:"),
+        tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
     "action_list" : {
@@ -911,7 +913,8 @@ function updateTemplateInfo(request,template){
         content:
         '<table id="info_template_table" class="info_table" style="width:80%">\
            <thead>\
-             <tr><th colspan="2">'+tr("Template")+' \"'+template_info.NAME+'\" '+tr("information")+'</th></tr>\
+             <tr><th colspan="2">'+tr("Template")+' \"'+template_info.NAME+'\" '+
+            tr("information")+'</th></tr>\
            </thead>\
            <tr>\
              <td class="key_td">'+tr("ID")+'</td>\
@@ -966,7 +969,7 @@ function setupCreateTemplateDialog(){
         // ui.index   // zero-based index of the selected (clicked) tab
 
         //disable all items
-        $(items,dialog).attr("disabled","disabled");
+        $(items,dialog).attr('disabled','disabled');
         //hide all mandatory icons
         $('.vm_param .man_icon',dialog).css("display","none");
 
@@ -980,7 +983,7 @@ function setupCreateTemplateDialog(){
         $('.kernel, .bootloader', section_os_boot).hide();
         $('select#BOOT',section_os_boot).parent().hide();
         //unselect boot method
-        $('select#boot_method option',section_os_boot).removeAttr("selected");
+        $('select#boot_method option',section_os_boot).removeAttr('selected');
 
         //hide non common sections
         $(section_inputs).hide();
@@ -1030,7 +1033,7 @@ function setupCreateTemplateDialog(){
     var enable_kvm = function(){
         man_class="kvm";
         opt_class="kvm_opt";
-        $(kvm_items,dialog).removeAttr("disabled");
+        $(kvm_items,dialog).removeAttr('disabled');
         $('.kvm .man_icon',dialog).css("display","inline-block");
 
         //KVM particularities:
@@ -1079,7 +1082,7 @@ function setupCreateTemplateDialog(){
     var enable_xen = function(){
         man_class="xen";
         opt_class="xen_opt";
-        $(xen_items,dialog).removeAttr("disabled");
+        $(xen_items,dialog).removeAttr('disabled');
         $('.xen .man_icon',dialog).css("display","inline-block");
 
         // XEN particularities:
@@ -1115,7 +1118,7 @@ function setupCreateTemplateDialog(){
     var enable_vmware = function() {
         man_class="vmware";
         opt_class="vmware_opt";
-        $(vmware_items,dialog).removeAttr("disabled");
+        $(vmware_items,dialog).removeAttr('disabled');
         $('.vmware .man_icon',dialog).css("display","inline-block");
 
         //VMWARE particularities
@@ -1153,7 +1156,7 @@ function setupCreateTemplateDialog(){
         //we fail it the item is enabled and has no value
         $.each(man_items,function(){
             var item = $(this);
-            if (item.parents(".vm_param").attr("disabled") ||
+            if (item.parents(".vm_param").attr('disabled') ||
                 !(item.val().length)) {
                 r = false;
                 return false;
@@ -1184,7 +1187,7 @@ function setupCreateTemplateDialog(){
         var id = null;
         $.each(fields,function(){
             var field = $(this);
-            if (!(field.parents(".vm_param").attr("disabled")) &&
+            if (!(field.parents(".vm_param").attr('disabled')) &&
                 field.val().length){
                 //Pick up parent's ID if we do not have one
                 id = field.attr('id').length ? field.attr('id') : field.parent().attr('id');
@@ -1218,7 +1221,7 @@ function setupCreateTemplateDialog(){
 
         fields.each(function(){
             var field=$(this);
-            if (!(field.parents(".vm_param").attr("disabled"))){ //if ! disabled
+            if (!(field.parents(".vm_param").attr('disabled'))){ //if ! disabled
                 if (field.val().length){ //if has a length
                     template_json[field.attr('id')]=field.val();
                 };
@@ -1333,19 +1336,19 @@ function setupCreateTemplateDialog(){
             {
             case "kernel":
                 $('.bootloader',section_os_boot).hide();
-                $('.bootloader',section_os_boot).attr("disabled","disabled");
+                $('.bootloader',section_os_boot).attr('disabled','disabled');
                 $('.kernel',section_os_boot).show();
-                $('.kernel',section_os_boot).removeAttr("disabled");
+                $('.kernel',section_os_boot).removeAttr('disabled');
                 break;
             case "bootloader":
                 $('.kernel',section_os_boot).hide();
-                $('.kernel',section_os_boot).attr("disabled","disabled");
+                $('.kernel',section_os_boot).attr('disabled','disabled');
                 $('.bootloader',section_os_boot).show();
-                $('.bootloader',section_os_boot).removeAttr("disabled");
+                $('.bootloader',section_os_boot).removeAttr('disabled');
                 break;
             default:
                 $('.kernel, .bootloader',section_os_boot).hide();
-                $('.kernel, .bootloader',section_os_boot).attr("disabled","disabled");
+                $('.kernel, .bootloader',section_os_boot).attr('disabled','disabled');
                 $('.kernel input, .bootloader input',section_os_boot).val("");
             };
         });
@@ -1389,26 +1392,26 @@ function setupCreateTemplateDialog(){
             {
             case "disk":
                 $('.add_image',section_disks).hide();
-                $('.add_image',section_disks).attr("disabled","disabled");
+                $('.add_image',section_disks).attr('disabled','disabled');
                 $('.add_disk',section_disks).show();
-                $('.add_disk',section_disks).removeAttr("disabled");
+                $('.add_disk',section_disks).removeAttr('disabled');
                 $('#TARGET',section_disks).parent().removeClass(opt_class);
                 $('#TARGET',section_disks).parent().addClass(man_class);
                 break;
             case "image":
                 $('.add_disk',section_disks).hide();
-                $('.add_disk',section_disks).attr("disabled","disabled");
+                $('.add_disk',section_disks).attr('disabled','disabled');
                 $('.add_image',section_disks).show();
-                $('.add_image',section_disks).removeAttr("disabled");
+                $('.add_image',section_disks).removeAttr('disabled');
                 $('#TARGET',section_disks).parent().removeClass(man_class);
                 $('#TARGET',section_disks).parent().addClass(opt_class);
                 break;
             }
             $('#SIZE',section_disks).parent().hide();
-            $('#SIZE',section_disks).parent().attr("disabled","disabled");
+            $('#SIZE',section_disks).parent().attr('disabled','disabled');
             $('#FORMAT',section_disks).parent().hide();
-            $('#SIZE',section_disks).parent().attr("disabled","disabled");
-            $('#TYPE :selected',section_disks).removeAttr("selected");
+            $('#SIZE',section_disks).parent().attr('disabled','disabled');
+            $('#TYPE :selected',section_disks).removeAttr('selected');
             //hide_disabled(section_disks);
         });
 
@@ -1421,7 +1424,7 @@ function setupCreateTemplateDialog(){
             case "swap":
                 //size mandatory
                 $('#SIZE',section_disks).parent().show();
-                $('#SIZE',section_disks).parent().removeAttr("disabled");
+                $('#SIZE',section_disks).parent().removeAttr('disabled');
                 $('#SIZE',section_disks).parent().removeClass(opt_class);
                 $('#SIZE',section_disks).parent().addClass(man_class);
 
@@ -1431,17 +1434,17 @@ function setupCreateTemplateDialog(){
 
                 //format hidden
                 $('#FORMAT',section_disks).parent().hide();
-                $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                $('#FORMAT',section_disks).parent().attr('disabled','disabled');
 
                 //source hidden
                 $('#SOURCE',section_disks).parent().hide();
                 $('#SOURCE',section_disks).parent().
-                    attr("disabled","disabled");
+                    attr('disabled','disabled');
                 break;
             case "fs":
                 //size mandatory
                 $('#SIZE',section_disks).parent().show();
-                $('#SIZE',section_disks).parent().removeAttr("disabled");
+                $('#SIZE',section_disks).parent().removeAttr('disabled');
                 $('#SIZE',section_disks).parent().removeClass(opt_class);
                 $('#SIZE',section_disks).parent().addClass(man_class);
 
@@ -1451,19 +1454,19 @@ function setupCreateTemplateDialog(){
 
                 //format mandatory
                 $('#FORMAT',section_disks).parent().show();
-                $('#FORMAT',section_disks).parent().removeAttr("disabled");
+                $('#FORMAT',section_disks).parent().removeAttr('disabled');
                 $('#FORMAT',section_disks).parent().removeClass(opt_class);
                 $('#FORMAT',section_disks).parent().addClass(man_class);
 
                 //source hidden
                 $('#SOURCE',section_disks).parent().hide();
                 $('#SOURCE',section_disks).parent().
-                    attr("disabled","disabled");
+                    attr('disabled','disabled');
                 break;
             case "block":
                 //size shown and optional
                 $('#SIZE',section_disks).parent().show();
-                $('#SIZE',section_disks).parent().removeAttr("disabled");
+                $('#SIZE',section_disks).parent().removeAttr('disabled');
                 $('#SIZE',section_disks).parent().removeClass(man_class);
                 $('#SIZE',section_disks).parent().addClass(opt_class);
 
@@ -1473,12 +1476,12 @@ function setupCreateTemplateDialog(){
 
                 //format hidden
                 $('#FORMAT',section_disks).parent().hide();
-                $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                $('#FORMAT',section_disks).parent().attr('disabled','disabled');
 
                 //source hidden
                 $('#SOURCE',section_disks).parent().hide();
                 $('#SOURCE',section_disks).parent().
-                    attr("disabled","disabled");
+                    attr('disabled','disabled');
                 break;
             case "floppy":
             case "disk":
@@ -1486,7 +1489,7 @@ function setupCreateTemplateDialog(){
             default:
                 //size hidden
                 $('#SIZE',section_disks).parent().hide();
-                $('#SIZE',section_disks).parent().attr("disabled","disabled");
+                $('#SIZE',section_disks).parent().attr('disabled','disabled');
 
                 //target mandatory
                 $('#TARGET',section_disks).parent().removeClass(opt_class);
@@ -1494,12 +1497,12 @@ function setupCreateTemplateDialog(){
 
                 //format optional
                 $('#FORMAT',section_disks).parent().hide();
-                $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                $('#FORMAT',section_disks).parent().attr('disabled','disabled');
 
                 //source shown
                 $('#SOURCE',section_disks).parent().show();
                 $('#SOURCE',section_disks).parent().
-                    removeAttr("disabled");
+                    removeAttr('disabled');
             }
             //hide_disabled(section_disks);
         });
@@ -1544,23 +1547,23 @@ function setupCreateTemplateDialog(){
 
             //firewall
             $('.firewall',section_networks).hide();
-            $('.firewall',section_networks).attr("disabled","disabled");
+            $('.firewall',section_networks).attr('disabled','disabled');
             $('.firewall_select',section_networks).show();
-            $('.firewall_select select option',section_networks).removeAttr("selected");
+            $('.firewall_select select option',section_networks).removeAttr('selected');
 
             select = $('#network_vs_niccfg :checked',section_networks).val();
             switch (select) {
             case "network":
                 $('.niccfg',section_networks).hide();
-                $('.niccfg',section_networks).attr("disabled","disabled");
+                $('.niccfg',section_networks).attr('disabled','disabled');
                 $('.network',section_networks).show();
-                $('.network',section_networks).removeAttr("disabled");
+                $('.network',section_networks).removeAttr('disabled');
                 break;
             case "niccfg":
                 $('.network',section_networks).hide();
-                $('.network',section_networks).attr("disabled","disabled");
+                $('.network',section_networks).attr('disabled','disabled');
                 $('.niccfg',section_networks).show();
-                $('.niccfg',section_networks).removeAttr("disabled");
+                $('.niccfg',section_networks).removeAttr('disabled');
                 break;
             }
             //hide_disabled(section_networks);
@@ -1569,21 +1572,21 @@ function setupCreateTemplateDialog(){
         $('#black_white_tcp',section_networks).change(function(){
             switch ($(this).val()) {
             case "whitelist":
-                $('#BLACK_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_TCP',section_networks).parent().attr('disabled','disabled');
                 $('#BLACK_PORTS_TCP',section_networks).parent().hide();
-                $('#WHITE_PORTS_TCP',section_networks).parent().removeAttr("disabled");
+                $('#WHITE_PORTS_TCP',section_networks).parent().removeAttr('disabled');
                 $('#WHITE_PORTS_TCP',section_networks).parent().show();
                 break;
             case "blacklist":
-                $('#WHITE_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_TCP',section_networks).parent().attr('disabled','disabled');
                 $('#WHITE_PORTS_TCP',section_networks).parent().hide();
-                $('#BLACK_PORTS_TCP',section_networks).parent().removeAttr("disabled");
+                $('#BLACK_PORTS_TCP',section_networks).parent().removeAttr('disabled');
                 $('#BLACK_PORTS_TCP',section_networks).parent().show();
                 break;
             default:
-                $('#WHITE_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_TCP',section_networks).parent().attr('disabled','disabled');
                 $('#WHITE_PORTS_TCP',section_networks).parent().hide();
-                $('#BLACK_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_TCP',section_networks).parent().attr('disabled','disabled');
                 $('#BLACK_PORTS_TCP',section_networks).parent().hide();
             };
         });
@@ -1591,21 +1594,21 @@ function setupCreateTemplateDialog(){
         $('#black_white_udp',section_networks).change(function(){
             switch ($(this).val()) {
             case "whitelist":
-                $('#BLACK_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_UDP',section_networks).parent().attr('disabled','disabled');
                 $('#BLACK_PORTS_UDP',section_networks).parent().hide();
-                $('#WHITE_PORTS_UDP',section_networks).parent().removeAttr("disabled");
+                $('#WHITE_PORTS_UDP',section_networks).parent().removeAttr('disabled');
                 $('#WHITE_PORTS_UDP',section_networks).parent().show();
                 break;
             case "blacklist":
-                $('#WHITE_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_UDP',section_networks).parent().attr('disabled','disabled');
                 $('#WHITE_PORTS_UDP',section_networks).parent().hide();
-                $('#BLACK_PORTS_UDP',section_networks).parent().removeAttr("disabled");
+                $('#BLACK_PORTS_UDP',section_networks).parent().removeAttr('disabled');
                 $('#BLACK_PORTS_UDP',section_networks).parent().show();
                 break;
             default:
-                $('#WHITE_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_UDP',section_networks).parent().attr('disabled','disabled');
                 $('#WHITE_PORTS_UDP',section_networks).parent().hide();
-                $('#BLACK_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_UDP',section_networks).parent().attr('disabled','disabled');
                 $('#BLACK_PORTS_UDP',section_networks).parent().hide();
             };
         });
@@ -1671,18 +1674,18 @@ function setupCreateTemplateDialog(){
                 $('#PORT',section_graphics).parent().show();
                 $('#PASSWD',section_graphics).parent().show();
                 $('#KEYMAP',section_graphics).parent().show();
-                $('#PORT',section_graphics).parent().removeAttr("disabled");
-                $('#PASSWD',section_graphics).parent().removeAttr("disabled");
-                $('#KEYMAP',section_graphics).parent().removeAttr("disabled");
+                $('#PORT',section_graphics).parent().removeAttr('disabled');
+                $('#PASSWD',section_graphics).parent().removeAttr('disabled');
+                $('#KEYMAP',section_graphics).parent().removeAttr('disabled');
                 break;
             case "sdl":
                 $('#LISTEN',section_graphics).parent().show();
                 $('#PORT',section_graphics).parent().hide();
                 $('#PASSWD',section_graphics).parent().hide();
                 $('#KEYMAP',section_graphics).parent().hide();
-                $('#PORT',section_graphics).parent().attr("disabled","disabled");
-                $('#PASSWD',section_graphics).parent().attr("disabled","disabled");
-                $('#KEYMAP',section_graphics).parent().attr("disabled","disabled");
+                $('#PORT',section_graphics).parent().attr('disabled','disabled');
+                $('#PASSWD',section_graphics).parent().attr('disabled','disabled');
+                $('#KEYMAP',section_graphics).parent().attr('disabled','disabled');
                 break;
             default:
                 $('#LISTEN',section_graphics).parent().hide();
@@ -1913,7 +1916,7 @@ function setupCreateTemplateDialog(){
         scope = section_context;
         vm_json["CONTEXT"] = {};
         $('#context_box option',scope).each(function(){
-            name = $(this).attr("name");
+            name = $(this).attr('name');
             value = $(this).val();
             vm_json["CONTEXT"][name]=value;
         });
@@ -1936,7 +1939,7 @@ function setupCreateTemplateDialog(){
         //custom vars
         scope = section_custom_var;
         $('#custom_var_box option',scope).each(function(){
-            name = $(this).attr("name");
+            name = $(this).attr('name');
             value = $(this).val();
             vm_json[name]=value;
         });
@@ -1999,7 +2002,7 @@ function popUpCreateTemplateDialog(){
 
 function setupTemplateTemplateUpdateDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="template_template_update_dialog" title="'+tr('Update a template')+'"></div>');
+    dialogs_context.append('<div id="template_template_update_dialog" title="'+tr("Update a template")+'"></div>');
     var dialog = $('#template_template_update_dialog',dialogs_context);
 
     //Put HTML in place
@@ -2025,9 +2028,9 @@ function setupTemplateTemplateUpdateDialog(){
             var templ_public = is_public_template(id);
 
             if (templ_public){
-                $('#template_template_update_public',dialog).attr("checked","checked")
+                $('#template_template_update_public',dialog).attr('checked','checked')
             } else {
-                $('#template_template_update_public',dialog).removeAttr("checked")
+                $('#template_template_update_public',dialog).removeAttr('checked')
             }
 
             Sunstone.runAction("Template.fetch_template",id);
@@ -2073,7 +2076,7 @@ function popUpTemplateTemplateUpdateDialog(){
     var dialog =  $('#template_template_update_dialog');
     $('#template_template_update_select',dialog).html(select);
     $('#template_template_update_textarea',dialog).val("");
-    $('#template_template_update_public',dialog).removeAttr("checked")
+    $('#template_template_update_public',dialog).removeAttr('checked')
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
@@ -2086,7 +2089,7 @@ function popUpTemplateTemplateUpdateDialog(){
         });
         $('#template_template_update_select',dialog).html(new_select);
         if (sel_elems.length == 1) {
-            $('#template_template_update_select option',dialog).attr("selected","selected");
+            $('#template_template_update_select option',dialog).attr('selected','selected');
             $('#template_template_update_select',dialog).trigger("change");
         };
 
@@ -2102,7 +2105,7 @@ function setTemplateAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_templates);
         var filter = $("#datatable_templates_filter input",
-                       dataTable_templates.parents('#datatable_templates_wrapper')).attr("value");
+                       dataTable_templates.parents('#datatable_templates_wrapper')).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Template.autorefresh");
         }
@@ -2111,14 +2114,14 @@ function setTemplateAutorefresh() {
 
 function is_public_template(id){
     var data = getElementData(id,"#template",dataTable_templates)[6];
-    return $(data).attr("checked");
+    return $(data).attr('checked');
 };
 
 function setupTemplateActionCheckboxes(){
     $('input.action_cb#cb_public_template',dataTable_templates).live("click",function(){
         var $this = $(this)
-        var id=$this.attr("elem_id");
-        if ($this.attr("checked"))
+        var id=$this.attr('elem_id');
+        if ($this.attr('checked'))
                 Sunstone.runAction("Template.publish",id);
         else Sunstone.runAction("Template.unpublish",id);
 

@@ -27,11 +27,11 @@ var users_tab_content =
 <table id="datatable_users" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr('All')+'</input></th>\
-      <th>'+tr('ID')+'</th>\
-      <th>'+tr('Name')+'</th>\
-      <th>'+tr('Group')+'</th>\
-      <th>'+tr('Authentication driver')+'</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Group")+'</th>\
+      <th>'+tr("Authentication driver")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyusers">\
@@ -43,18 +43,18 @@ var create_user_tmpl =
 '<form id="create_user_form" action="">\
   <fieldset>\
         <div>\
-                <label for="username">'+tr('Username')+':</label>\
+                <label for="username">'+tr("Username")+':</label>\
                 <input type="text" name="username" id="username" /><br />\
-                <label for="pass">'+tr('Password')+':</label>\
+                <label for="pass">'+tr("Password")+':</label>\
                 <input type="password" name="pass" id="pass" />\
-                <label for="driver">'+tr('Authentication')+':</label>\
+                <label for="driver">'+tr("Authentication")+':</label>\
                 <select name="driver" id="driver">\
-                     <option value="core" selected="selected">'+tr('Core')+'</option>\
-                     <option value="ssh">'+tr('SSH')+'</option>\
-                     <option value="x509">'+tr('x509')+'</option>\
-                     <option value="server_cipher">'+tr('Server (Cipher)')+'</option>\
-                     <option value="server_x509">'+tr('Server (x509)')+'</option>\
-                     <option value="public">'+tr('Public')+'</option>\
+                     <option value="core" selected="selected">'+tr("Core")+'</option>\
+                     <option value="ssh">'+tr("SSH")+'</option>\
+                     <option value="x509">'+tr("x509")+'</option>\
+                     <option value="server_cipher">'+tr("Server (Cipher)")+'</option>\
+                     <option value="server_x509">'+tr("Server (x509)")+'</option>\
+                     <option value="public">'+tr("Public")+'</option>\
                 </select>\
         </div>\
         </fieldset>\
@@ -69,15 +69,15 @@ var create_user_tmpl =
 var update_pw_tmpl = '<form id="update_user_pw_form" action="">\
   <fieldset>\
         <div>\
-                <div>'+tr('This will change the password for the selected users')+':</div>\
-                <label for="new_password">'+tr('New password')+':</label>\
+                <div>'+tr("This will change the password for the selected users")+':</div>\
+                <label for="new_password">'+tr("New password")+':</label>\
                 <input type="password" name="new_password" id="new_password" />\
         </div>\
         </fieldset>\
         <fieldset>\
         <div class="form_buttons">\
-                <button class="button" id="update_pw_submit" value="User.update">'+tr('Change')+'</button>\
-                <button class="button" type="reset" value="reset">'+tr('Reset')+'</button>\
+                <button class="button" id="update_pw_submit" value="User.update">'+tr("Change")+'</button>\
+                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
 </fieldset>\
 </form>';
@@ -252,20 +252,20 @@ var user_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
-        tip: tr("This will change the main group of the selected users. Select the new group:")
+        tip: tr("This will change the main group of the selected users. Select the new group")+":"
     },
     "User.chauth" : {
         type: "confirm_with_select",
         text: tr("Change authentication"),
         select: function() {
-            return   '<option value="core" selected="selected">'+tr('Core')+'</option>\
-                     <option value="ssh">'+tr('SSH')+'</option>\
-                     <option value="x509">'+tr('x509')+'</option>\
-                     <option value="server_cipher">'+tr('Server (Cipher)')+'</option>\
-                     <option value="server_x509">'+tr('Server (x509)')+'</option>\
-                     <option value="public">'+tr('Public')+'</option>'
+            return   '<option value="core" selected="selected">'+tr("Core")+'</option>\
+                     <option value="ssh">'+tr("SSH")+'</option>\
+                     <option value="x509">'+tr("x509")+'</option>\
+                     <option value="server_cipher">'+tr("Server (Cipher)")+'</option>\
+                     <option value="server_x509">'+tr("Server (x509)")+'</option>\
+                     <option value="public">'+tr("Public")+'</option>'
         },
-        tip: tr("Please choose the new type of authentication for the selected users:")
+        tip: tr("Please choose the new type of authentication for the selected users")+":"
     },
     // "User.addgroup" : {
     //     type: "confirm_with_select",
@@ -395,7 +395,7 @@ function setupCreateUserDialog(){
 }
 
 function setupUpdatePasswordDialog(){
-    dialogs_context.append('<div title="'+tr('Change password')+'" id="update_user_pw_dialog"></div>');
+    dialogs_context.append('<div title="'+tr("Change password")+'" id="update_user_pw_dialog"></div>');
     $update_pw_dialog = $('#update_user_pw_dialog',dialogs_context);
     var dialog = $update_pw_dialog;
     dialog.html(update_pw_tmpl);
@@ -439,7 +439,7 @@ function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_users);
         var filter = $("#datatable_users_filter input",
-                       dataTable_users.parents("#datatable_users_wrapper")).attr("value");
+                       dataTable_users.parents("#datatable_users_wrapper")).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
         }

@@ -75,12 +75,12 @@ var vms_tab_content =
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
   <fieldset>\
         <div>\
-           <label for="vm_name">'+tr("VM Name:")+'</label>\
+           <label for="vm_name">'+tr("VM Name")+':</label>\
            <input type="text" name="vm_name" id="vm_name" /><br />\
-           <label for="template_id">'+tr("Select template:")+'</label>\
+           <label for="template_id">'+tr("Select template")+':</label>\
            <select id="template_id">\
            </select><br />\
-           <label for="vm_n_times">'+tr("Deploy # VMs:")+'</label>\
+           <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
            <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
         </div>\
         </fieldset>\
@@ -386,7 +386,7 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
-        tip: tr("Select the new owner:"),
+        tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
 
@@ -394,7 +394,7 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
-        tip: tr("Select the new group:"),
+        tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
 
@@ -815,8 +815,8 @@ function setupSaveasDialog(){
             var type = $('#image_type',this).val();
 
             if (!id.length || !disk_id.length || !image_name.length) {
-                notifyError(tr("Skipping VM ")+id+
-                            tr(". No disk id or image name specified"));
+                notifyError(tr("Skipping VM ")+id+". "+
+                            tr("No disk id or image name specified"));
             }
             else {
                 var obj = {
@@ -853,25 +853,25 @@ function popUpSaveasDialog(elems){
         var li = '<li><a href="#saveas_tab_'+this+'">VM '+this+'</a></li>'
         $('#saveas_tabs ul',dialog).append(li);
         var tab = '<div class="saveas_tab" id="saveas_tab_'+this+'">\
-        <div id="vm_id_text">'+tr('Saveas for VM with ID')+' <span id="vm_id">'+this+'</span></div>\
+        <div id="vm_id_text">'+tr("Saveas for VM with ID")+' <span id="vm_id">'+this+'</span></div>\
             <fieldset>\
             <div>\
-                <label for="vm_disk_id">'+tr('Select disk')+':</label>\
+                <label for="vm_disk_id">'+tr("Select disk")+':</label>\
                 <select id="vm_disk_id" name="vm_disk_id">\
-                    <option value="">'+tr('Retrieving')+'...</option>\
+                    <option value="">'+tr("Retrieving")+'...</option>\
                 </select>\
             </div>\
             <div>\
-                <label for="image_name">'+tr('Image name')+':</label>\
+                <label for="image_name">'+tr("Image name")+':</label>\
                 <input type="text" id="image_name" name="image_name" value="" />\
             </div>\
             <div>\
-                <label for="img_attr_value">'+tr('Type')+':</label>\
+                <label for="img_attr_value">'+tr("Type")+':</label>\
                 <select id="image_type" name="image_type">\
-                    <option value="">'+tr('Default (current image type)')+'</option>\
-                    <option value="os">'+tr('OS')+'</option>\
-                    <option value="datablock">'+tr('Datablock')+'</option>\
-                    <option value="cdrom">'+tr('CD-ROM')+'</option>\
+                    <option value="">'+tr("Default (current image type)")+'</option>\
+                    <option value="os">'+tr("OS")+'</option>\
+                    <option value="datablock">'+tr("Datablock")+'</option>\
+                    <option value="cdrom">'+tr("CD-ROM")+'</oqption>\
                 </select>\
             </div>\
             </fieldset>\
@@ -891,7 +891,7 @@ function saveasDisksCallback(req,response){
 
     var gen_option = function(id, name, source){
         if (name){
-            return '<option value="'+id+'">'+name+" ("+tr("(disk id")+"): "+id+')</option>';
+            return '<option value="'+id+'">'+name+" ("+tr("disk id")+"): "+id+')</option>';
         }
         else {
             return '<option value="'+id+'">'+source+" ("+tr("disk id")+"): "+id+')</option>';
@@ -918,7 +918,7 @@ function setVMAutorefresh(){
      setInterval(function(){
          var checked = $('input.check_item:checked',dataTable_vMachines);
          var filter = $("#datatable_vmachines_filter input",
-                        dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr("value");
+                        dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr('value');
          if (!checked.length && !filter.length){
              Sunstone.runAction("VM.autorefresh");
          };
@@ -996,16 +996,16 @@ function setupVNC(){
     });
 
     dialog.bind( "dialogclose", function(event, ui) {
-        var id = $vnc_dialog.attr("vm_id");
+        var id = $vnc_dialog.attr('vm_id');
         rfb.disconnect();
         Sunstone.runAction("VM.stopvnc",id);
     });
 
     $('.vnc',main_tabs_context).live("click",function(){
         //Which VM is it?
-        var id = $(this).attr("vm_id");
+        var id = $(this).attr('vm_id');
         //Set attribute to dialog
-        $vnc_dialog.attr("vm_id",id);
+        $vnc_dialog.attr('vm_id',id);
         //Request proxy server start
         Sunstone.runAction("VM.startvnc",id);
         return false;

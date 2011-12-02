@@ -112,13 +112,13 @@ function recountCheckboxes(dataTable){
         };
         //enable checkall box
         if (total_length == checked_length){
-            $('.check_all',dataTable).attr("checked","checked");
+            $('.check_all',dataTable).attr('checked','checked');
         } else {
-            $('.check_all',dataTable).removeAttr("checked");
+            $('.check_all',dataTable).removeAttr('checked');
         };
     } else { //no elements cheked
         //disable action buttons, uncheck checkAll
-        $('.check_all',dataTable).removeAttr("checked");
+        $('.check_all',dataTable).removeAttr('checked');
         $('.top_button, .list_button',context).button("disable");
         last_action_b.button("disable");
     };
@@ -299,11 +299,11 @@ function initCheckAllBoxes(datatable){
     $('input.check_all',datatable).css({"border":"2px"});
     $('input.check_all',datatable).change(function(){
         var table = $(this).parents('table');
-        var checked = $(this).attr("checked");
+        var checked = $(this).attr('checked');
         if (checked) { //check all
-            $('tbody input.check_item',table).attr("checked","checked");
+            $('tbody input.check_item',table).attr('checked','checked');
         } else { //uncheck all
-            $('tbody input.check_item',table).removeAttr("checked");
+            $('tbody input.check_item',table).removeAttr('checked');
         };
         recountCheckboxes(table);
     });
@@ -640,7 +640,7 @@ function setupTemplateUpdateDialog(){
     //Put HTML in place
     dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
-               <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the template you want to update:")+'</h3>\
+               <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the template you want to update")+':</h3>\
                   <fieldset style="border-top:none;">\
                         <label for="template_update_select">'+tr("Select a template")+':</label>\
                         <select id="template_update_select" name="template_update_select"></select>\
@@ -717,7 +717,7 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
         });
         $('#template_update_select',dialog).html(new_select);
         if (sel_elems.length == 1) {
-            $('#template_update_select option',dialog).attr("selected","selected");
+            $('#template_update_select option',dialog).attr('selected','selected');
             $('#template_update_select',dialog).trigger("change");
         }
     };

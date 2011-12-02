@@ -40,9 +40,14 @@ function refreshLang(){
 
 $(document).ready(function(){
     if (lang)
-        $('#lang_sel option[value="'+lang+'"]').attr("selected","selected");
+        $('#lang_sel option[value="'+lang+'"]').attr('selected','selected');
     $('#lang_sel').change(function(){
         setLang($(this).val());
     });
 
+    $('#doc_link').text(tr("Documentation"));
+    $('#support_link').text(tr("Support"));
+    $('#community_link').text(tr("Community"));
+    $('#welcome').text(tr("Welcome"));
+    $('#logout').text(tr("Sign out"));
 });
