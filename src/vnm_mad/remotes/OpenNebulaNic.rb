@@ -28,54 +28,6 @@ class Nics < Array
     def new_nic
         @nicClass.new
     end
-
-    # finds nics that match 'args'
-    # 'args' can be a Hash, or an array
-    #  args example:
-    #       {:mac => "02:00:C0:A8:01:01", :bridge => "br0"}
-    #       :mac,  "02:00:C0:A8:01:01"
-    #  key values may also be an array:
-    #       {:mac => "02:00:C0:A8:01:01", :bridge => ["br0","br1"]}
-    def get(*args)
-        if args.length == 2
-            dict = Hash.new
-            dict[args[0]] = args[1]
-        elsif args.length == 1
-            dict = args[0]
-        else
-            return nil
-        end
-
-        matching = Array.new
-        self.each do |e|
-            e_filter = Hash.new
-            dict.each_key{|k| e_filter[k] = e[k]}
-            if compare(e_filter,dict)
-                matching << e
-            end
-        end
-
-        if matching.empty?
-            nil
-        else
-            matching
-        end
-    end
-
-    def compare(hash1, hash2)
-        #hash1 has a single value per key
-        #hash2 may contain an array of values
-        hash1.each do |k,v|
-            return false if !hash2[k]
-            v2 = hash2[k]
-            if hash2[k].kind_of?(Array)
-                return false if !v2.include? v
-            else
-                return false if v != v2
-            end
-        end
-        true
-    end
 end
 
 
