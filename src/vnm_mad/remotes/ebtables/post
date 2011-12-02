@@ -21,10 +21,5 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'Ebtables'
 
-# Uncomment to act only on the listed bridges.
-#FILTERED_BRIDGES = ['br0']
-
 onevlan = EbtablesVLAN.from_base64(ARGV[0])
-
-onevlan.filter(:bridge => FILTERED_BRIDGES) if defined? FILTERED_BRIDGES
 exit onevlan.activate
