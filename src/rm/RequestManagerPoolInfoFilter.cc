@@ -90,6 +90,10 @@ void RequestManagerPoolInfoFilter::request_execute(
             break;
 
         case ALL:
+            request_op = AuthRequest::INFO_POOL;
+            break;
+
+        case MINE_GROUP:
             if ( att.uid == 0 || att.gid == 0 )
             {
                 all = true;
@@ -117,16 +121,6 @@ void RequestManagerPoolInfoFilter::request_execute(
                     uid_filter << " OR gid = " << *it;
                 }
             }
-
-            // TODO: not sure if INFO_POOL or INFO_POOL_MINE
-//            request_op = AuthRequest::INFO_POOL;
-            request_op = AuthRequest::INFO_POOL_MINE;
-            break;
-
-        case MINE_GROUP:
-
-            uid_filter << "uid = " << att.uid << " OR "
-                       << "gid = " << att.gid;
 
             request_op = AuthRequest::INFO_POOL_MINE;
             break;
