@@ -52,7 +52,7 @@ class VM
 
         nics = Nics.new(@hypervisor)
 
-        @vm_root.elements.each("TEMPLATE/NIC[VLAN=yes]") do |nic_element|
+        @vm_root.elements.each("TEMPLATE/NIC[VLAN=YES]") do |nic_element|
             nic =  nics.new_nic
 
             nic_element.elements.each('*') do |nic_attribute|
@@ -98,7 +98,7 @@ class OpenNebulaNetwork
 
     def initialize(vm_tpl, hypervisor=nil)
         if !hypervisor
-            @hypervisor = detect_hypervisor 
+            @hypervisor = detect_hypervisor
         else
             @hypervisor = hypervisor
         end

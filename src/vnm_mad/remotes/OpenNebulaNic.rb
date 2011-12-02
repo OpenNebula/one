@@ -31,8 +31,8 @@ class Nics < Array
 end
 
 
-# A NIC using KVM. This class implements functions to get the physical interface 
-# that the NIC is using 
+# A NIC using KVM. This class implements functions to get the physical interface
+# that the NIC is using
 class NicKVM < Hash
     def initialize
         super(nil)
@@ -70,8 +70,8 @@ class NicKVM < Hash
 end
 
 
-# A NIC using Xen. This class implements functions to get the physical interface 
-# that the NIC is using 
+# A NIC using Xen. This class implements functions to get the physical interface
+# that the NIC is using
 class NicXen < Hash
     def initialize
         super(nil)

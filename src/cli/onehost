@@ -60,10 +60,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Host
     EOT
 
-    command :create, create_desc, :hostname, :im_mad, :vmm_mad, :vnm_mad, 
-            :tm_mad do
+    command :create, create_desc, :hostname, :im_mad, :vmm_mad,  
+            :tm_mad, :vnm_mad do
         helper.create_resource(options) do |host|
-            host.allocate(args[0], args[1], args[2], args[3], args[4])
+            host.allocate(args[0], args[1], args[2], args[4], args[3])
         end
     end
 
