@@ -39,26 +39,29 @@ describe 'networking' do
         }
         onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"kvm")
         nics_expected = [{:bridge=>"br0",
-                      :ip=>"172.16.0.100",
-                      :mac=>"02:00:ac:10:00:64",
-                      :network=>"Small network",
-                      :network_id=>"0",
-                      :tap=>"vnet0"},
-                     {:bridge=>"br1",
-                      :ip=>"10.1.1.1",
-                      :mac=>"02:00:0a:01:01:01",
-                      :network=>"r1",
-                      :network_id=>"1",
-                      :tap=>"vnet1"},
-                     {:bridge=>"br2",
-                      :ip=>"10.1.2.1",
-                      :mac=>"02:00:0a:01:02:01",
-                      :network=>"r2",
-                      :network_id=>"2",
-                      :tap=>"vnet2"}]
+                          :ip=>"172.16.0.100",
+                          :mac=>"02:00:ac:10:00:64",
+                          :network=>"Small network",
+                          :network_id=>"0",
+                          :vlan=>"YES",
+                          :tap=>"vnet0"},
+                         {:bridge=>"br1",
+                          :ip=>"10.1.1.1",
+                          :mac=>"02:00:0a:01:01:01",
+                          :network=>"r1",
+                          :network_id=>"1",
+                          :vlan=>"YES",
+                          :tap=>"vnet1"},
+                         {:bridge=>"br2",
+                          :ip=>"10.1.2.1",
+                          :mac=>"02:00:0a:01:02:01",
+                          :network=>"r2",
+                          :network_id=>"2",
+                          :vlan=>"YES",
+                          :tap=>"vnet2"}]
+
         onevlan.vm.nics.should == nics_expected
     end
-
 end
 
 describe 'ebtables' do
