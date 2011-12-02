@@ -122,9 +122,9 @@ if [ -z "$ROOT" ] ; then
     elif [ "$OZONES" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
                     $ETC_LOCATION"
- 
+
         DELETE_DIRS="$MAKE_DIRS"
- 
+
         CHOWN_DIRS=""
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
@@ -162,8 +162,8 @@ else
     elif [ "$OZONES" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
                    $ETC_LOCATION"
-    
-        DELETE_DIRS="$MAKE_DIRS"  
+
+        DELETE_DIRS="$MAKE_DIRS"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION \
@@ -259,7 +259,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/templates \
                $SUNSTONE_LOCATION/views"
-               
+
 OZONES_DIRS="$OZONES_LOCATION/lib \
              $OZONES_LOCATION/lib/OZones \
              $OZONES_LOCATION/models \
@@ -338,8 +338,8 @@ INSTALL_FILES=(
     AUTH_SERVER_X509_FILES:$VAR_LOCATION/remotes/auth/server_x509
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
-    AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain    
-    AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota    
+    AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+    AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     SHARED_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/shared
@@ -628,7 +628,8 @@ AUTH_QUOTA_FILES="src/authm_mad/remotes/quota/authorize"
 #-------------------------------------------------------------------------------
 
 NETWORK_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.rb \
-              src/vnm_mad/remotes/OpenNebulaNic.rb"
+               src/vnm_mad/remotes/Firewall.rb \
+               src/vnm_mad/remotes/OpenNebulaNic.rb"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
@@ -644,8 +645,9 @@ NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
                     src/vnm_mad/remotes/ebtables/pre \
                     src/vnm_mad/remotes/ebtables/Ebtables.rb"
 
-NETWORK_FW_FILES="src/vnm_mad/remotes/fw/firewall \
-                    src/vnm_mad/remotes/fw/Firewall.rb"
+NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
+                          src/vnm_mad/remotes/fw/pre \
+                          src/vnm_mad/remotes/fw/clean"
 
 NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/post \
@@ -1066,7 +1068,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/Refresh-icon.png \
                         src/sunstone/public/images/vnc_off.png \
                         src/sunstone/public/images/vnc_on.png"
-                      
+
 #-----------------------------------------------------------------------------
 # Ozones files
 #-----------------------------------------------------------------------------
@@ -1081,10 +1083,10 @@ OZONES_ETC_FILES="src/ozones/Server/etc/ozones-server.conf"
 OZONES_MODELS_FILES="src/ozones/Server/models/OzonesServer.rb \
                      src/ozones/Server/models/Auth.rb \
                      src/sunstone/models/OpenNebulaJSON/JSONUtils.rb"
-                     
+
 OZONES_TEMPLATE_FILES="src/ozones/Server/templates/index.html \
                        src/ozones/Server/templates/login.html"
-                     
+
 OZONES_LIB_FILES="src/ozones/Server/lib/OZones.rb"
 
 OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
@@ -1098,7 +1100,7 @@ OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
                 src/ozones/Server/lib/OZones/AggregatedPool.rb \
                 src/ozones/Server/lib/OZones/AggregatedImages.rb \
                 src/ozones/Server/lib/OZones/AggregatedTemplates.rb"
-                
+
 OZONES_LIB_API_FILES="src/ozones/Client/lib/zona.rb"
 
 OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
@@ -1110,7 +1112,7 @@ OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
                 src/ozones/Client/lib/zona/ZonePool.rb"
 
 OZONES_PUBLIC_VENDOR_JQUERY=$SUNSTONE_PUBLIC_VENDOR_JQUERY
-                        
+
 OZONES_PUBLIC_VENDOR_DATATABLES=$SUNSTONE_PUBLIC_VENDOR_DATATABLES
 
 OZONES_PUBLIC_VENDOR_JGROWL=$SUNSTONE_PUBLIC_VENDOR_JGROWL
@@ -1118,18 +1120,18 @@ OZONES_PUBLIC_VENDOR_JGROWL=$SUNSTONE_PUBLIC_VENDOR_JGROWL
 OZONES_PUBLIC_VENDOR_JQUERYUI=$SUNSTONE_PUBLIC_VENDOR_JQUERYUI
 
 OZONES_PUBLIC_VENDOR_JQUERYLAYOUT=$SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT
-                        
+
 OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
                         src/ozones/Server/public/js/login.js \
                         src/ozones/Server/public/js/ozones-util.js \
                         src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js"
-                        
+
 OZONES_PUBLIC_CSS_FILES="src/ozones/Server/public/css/application.css \
                          src/ozones/Server/public/css/layout.css \
                          src/ozones/Server/public/css/login.css"
-                        
+
 OZONES_PUBLIC_IMAGES_FILES="src/ozones/Server/public/images/panel.png \
                         src/ozones/Server/public/images/login.png \
                         src/ozones/Server/public/images/login_over.png \
@@ -1143,16 +1145,16 @@ OZONES_PUBLIC_JS_PLUGINS_FILES="src/ozones/Server/public/js/plugins/zones-tab.js
                                src/ozones/Server/public/js/plugins/vdcs-tab.js \
                                src/ozones/Server/public/js/plugins/aggregated-tab.js \
                                src/ozones/Server/public/js/plugins/dashboard-tab.js"
-                
-OZONES_LIB_CLIENT_CLI_FILES="src/ozones/Client/lib/cli/ozones_helper.rb"                   
-                
+
+OZONES_LIB_CLIENT_CLI_FILES="src/ozones/Client/lib/cli/ozones_helper.rb"
+
 OZONES_LIB_CLIENT_CLI_HELPER_FILES="\
                 src/ozones/Client/lib/cli/ozones_helper/vdc_helper.rb \
-                src/ozones/Client/lib/cli/ozones_helper/zones_helper.rb"                
+                src/ozones/Client/lib/cli/ozones_helper/zones_helper.rb"
 
 OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/onevdc \
                          src/ozones/Client/bin/onezone"
-               
+
 OZONES_RUBY_LIB_FILES="src/oca/ruby/OpenNebula.rb"
 
 #-----------------------------------------------------------------------------
@@ -1229,7 +1231,7 @@ if [ "$CLIENT" = "yes" ]; then
 elif [ "$SUNSTONE" = "yes" ]; then
     INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
 elif [ "$OZONES" = "yes" ]; then
-    INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"    
+    INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} ${INSTALL_OZONES_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]}"
