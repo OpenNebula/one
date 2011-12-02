@@ -104,7 +104,7 @@ class OpenNebulaFirewall < OpenNebulaNetwork
 
     def run_rules(rules)
         rules.flatten.each do |rule|
-            system(rule)
+            OpenNebula.exec_and_log(rule)
         end
     end
 
