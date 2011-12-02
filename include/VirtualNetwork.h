@@ -227,6 +227,11 @@ private:
      */
     string  vlan_id;
 
+    /**
+     *  Whether or not to isolate this network with the vnm driver
+     */
+    int     vlan;
+
     // -------------------------------------------------------------------------
     // Virtual Network Description
     // -------------------------------------------------------------------------
