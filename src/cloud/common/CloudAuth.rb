@@ -44,8 +44,11 @@ class CloudAuth
     def initialize(conf)
         @conf = conf
 
+        # @token_expiration_delta:  Number of seconds that will be used
+        #   the same timestamp for the token generation
+        # @token_expiration_time:   Current timestamp to be used in tokens.
         @token_expiration_delta = @conf[:token_expiration_delta] || EXPIRE_DELTA
-        @token_expiration_time  = Time.now.to_i + @token_expiration_delta
+        @token_expiration_time = Time.now.to_i + @token_expiration_delta
 
         if AUTH_MODULES.include?(@conf[:auth])
             require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
@@ -64,17 +67,27 @@ class CloudAuth
         begin
             require core_auth[0]
             @server_auth = Kernel.const_get(core_auth[1]).new_client
-
-            token = @server_auth.login_token(expiration_time)
-            @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
         rescue => e
             raise e.message
         end
     end
 
-    def client(username)
+    # Generate a new OpenNebula client for the target User, if the username
+    # is nil the Client is generated for the server_admin
+    # ussername:: _String_ Name of the User
+    # [return] _Client_
+    def client(username=nil)
         token = @server_auth.login_token(expiration_time,username)
         Client.new(token,@conf[:one_xmlrpc])
+    end
+
+    def update_userpool_cache
+        @user_pool = OpenNebula::UserPool.new(client)
+
+        rc = @user_pool.info
+        if OpenNebula.is_error?(rc)
+            raise rc.message
+        end
     end
 
     protected
@@ -84,6 +97,7 @@ class CloudAuth
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
             @token_expiration_time = time_now + @token_expiration_delta
+            update_userpool_cache
         end
 
         @token_expiration_time
@@ -91,15 +105,7 @@ class CloudAuth
 
     # If @user_pool is not defined it will retrieve it from OpenNebula
     def get_userpool
-        if @user_pool.nil?
-            @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
-
-            rc = @user_pool.info
-            if OpenNebula.is_error?(rc)
-                raise rc.message
-            end
-        end
-
+        update_userpool_cache if @user_pool.nil?
         @user_pool
     end
 

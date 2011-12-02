@@ -53,6 +53,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         str="%-15s: %-20s"
         puts str % ["ID", vn.id.to_s]
+        puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
         puts str % ["PUBLIC", OpenNebulaHelper.boolean_to_str(vn['PUBLIC'])]

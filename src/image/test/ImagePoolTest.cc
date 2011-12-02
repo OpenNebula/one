@@ -149,7 +149,8 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( imagepool_disk_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
-
+    CPPUNIT_TEST ( get_using_name );
+    CPPUNIT_TEST ( wrong_get_name );
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
@@ -904,6 +905,64 @@ public:
 
     /* ********************************************************************* */
 
+    void get_using_name()
+    {
+        int oid_0, oid_1;
+        ImagePool * imp = static_cast<ImagePool *>(pool);
+
+        // Allocate two objects
+        oid_0 = allocate(0);
+        oid_1 = allocate(1);
+
+        // ---------------------------------
+        // Get first object and check its integrity
+        obj = pool->get(oid_0, false);
+        CPPUNIT_ASSERT( obj != 0 );
+        check(0, obj);
+
+        // Get using its name
+        obj = imp->get(names[1], uids[1], true);
+        CPPUNIT_ASSERT( obj != 0 );
+        obj->unlock();
+
+        check(1, obj);
+
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        pool->clean();
+
+        // Get first object and check its integrity
+        obj = imp->get(names[0], uids[0], false);
+        check(0, obj);
+
+        // Get using its name
+        obj = imp->get(oid_1, false);
+        check(1, obj);
+    };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void wrong_get_name()
+    {
+        ImagePool * imp = static_cast<ImagePool *>(pool);
+
+        // The pool is empty
+        // Non existing name
+        obj = imp->get("Wrong name", 0, true);
+        CPPUNIT_ASSERT( obj == 0 );
+
+        // Allocate an object
+        allocate(0);
+
+        // Ask again for a non-existing name
+        obj = imp->get("Non existing name",uids[0], true);
+        CPPUNIT_ASSERT( obj == 0 );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 };
 
 /* ************************************************************************* */

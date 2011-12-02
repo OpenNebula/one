@@ -37,14 +37,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "Can not read file: #{arg}"
             end
         else
-            password = arg
+            password = arg.dup
         end
 
         if options[:driver] == OpenNebula::User::X509_AUTH
             password.delete!("\s")
         end
 
-        if options[:sha1]
+        if options[:sha1] || options[:driver] == OpenNebula::User::CIPHER_AUTH
             require 'digest/sha1'
             password = Digest::SHA1.hexdigest(password)
         end
@@ -166,7 +166,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION")
         puts str % ["ID",          user.id.to_s]
         puts str % ["NAME",        user.name]
-        puts str % ["GROUP",       user.gid]
+        puts str % ["GROUP",       user['GNAME']]
         puts str % ["PASSWORD",    user['PASSWORD']]
         puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
 

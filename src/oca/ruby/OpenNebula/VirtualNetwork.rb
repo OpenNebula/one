@@ -62,8 +62,6 @@ module OpenNebula
         # Class constructor
         def initialize(xml, client)
             super(xml,client)
-
-            @client = client
         end
 
         #######################################################################
@@ -81,7 +79,7 @@ module OpenNebula
         def allocate(description)
             super(VN_METHODS[:allocate],description)
         end
-        
+
         # Replaces the template contents
         #
         # +new_template+ New template contents

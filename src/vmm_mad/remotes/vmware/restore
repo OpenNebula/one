@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2010-2011, C12G Labs S.L                                           #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+   ETC_LOCATION="/etc/one" if !defined?(ETC_LOCATION)
+else
+   ETC_LOCATION=ONE_LOCATION+"/etc" if !defined?(ETC_LOCATION)
+end
+
+file  = ARGV[0]
+@host = ARGV[1]
+
+if !@host or !file
+  exit -1
+end
+
+load ETC_LOCATION + "/vmwarerc"
+
+if USERNAME.class!=String || PASSWORD.class!=String
+    warn "Bad ESX credentials, aborting"
+    exit -1
+end
+
+# Define the VM
+deployment_file = File.dirname(File.dirname(file)) + "/deployment.0"
+
+data = perform_action("virsh -c #{LIBVIRT_URI} define #{deployment_file}")
+
+if data.class == Fixnum
+    exit data
+end
+
+domainname = ""
+success    = false
+
+data.split('\n').each{ |line|
+  domainname = line.match("Domain (.*) defined from (.*)")
+  if domainname
+     success = true
+     break
+  end
+}
+
+if !success
+  exit -1
+end
+
+domainname = domainname[1]
+
+# Revert snapshot VM
+#  Note: This assumes the checkpoint name is "checkpoint", to change this
+#        it is needed to change also
+#             $ONE_LOCATION/lib/remotes/vmm/vmware/checkpoint
+
+data = perform_action(
+       "virsh -c #{LIBVIRT_URI} snapshot-revert #{domainname} checkpoint")
+
+if data.class == Fixnum
+    exit data
+end
+
+# Delete checkpoint
+data = perform_action(
+       "virsh -c #{LIBVIRT_URI} snapshot-delete #{domainname} checkpoint")
+
+if data.class == Fixnum
+    exit data
+end
+
+
+
+

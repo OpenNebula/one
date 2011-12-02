@@ -61,7 +61,7 @@ echo "All resources created, now 2.2 DB will be upgraded."
 cp $VAR_LOCATION/one.db results/one.db.3.0
 cp 2.2/one.db results/one.db.upgraded
 
-onedb upgrade -v --sqlite results/one.db.upgraded --backup results/one.db.backup
+echo "ssh" | onedb upgrade -v --sqlite results/one.db.upgraded --backup results/one.db.backup
 
 if [ $? -ne 0 ]; then
     exit -1

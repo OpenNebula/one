@@ -18,7 +18,6 @@
 require 'rubygems'
 require 'uri'
 require 'net/https'
-require 'OpenNebula/Configuration'
 
 require 'zona/OZonesJSON'
 
@@ -122,7 +121,7 @@ EOT
         # @param [String] tmpl_str OpenNebula template string
         # @return [String, Zona::Error] Response string or Error
         def post_resource_str(kind, tmpl_str)
-            tmpl_json = Zona.to_body(kind, tmpl_str)
+            tmpl_json = Zona.parse_template(kind, tmpl_str)
             post_resource(kind, tmpl_json)
         end
 
@@ -150,7 +149,7 @@ EOT
         # @param [String] tmpl_str OpenNebula template string
         # @return [String, Zona::Error] Response string or Error
         def put_resource_str(kind, id, tmpl_str)
-            tmpl_json = Client.to_body(kind, tmpl_str)
+            tmpl_json = Zona.parse_template(kind, tmpl_str)
             put_resource(kind, id, tmpl_json)
         end
 
@@ -261,7 +260,7 @@ EOT
             else
                 if Zona.is_http_error?(value)
                     str = "Operating with #{kind} failed with HTTP error"
-                    str = " " + str + "code: #{value.code}\n"
+                    str += " code: #{value.code}\n"
                     if value.body
                         # Try to extract error message
                         begin
@@ -281,13 +280,24 @@ EOT
     end
 
 
-    # Turns a OpenNebula template string into a JSON string
+    # Parses a OpenNebula template string and turns it into a JSON string
     # @param [String] kind element kind
     # @param [String] tmpl_str template
     # @return [String, Zona::Error] JSON string or Error
-    def self.to_body(kind, tmpl_str)
-        tmpl = OpenNebula::Configuration.new(tmpl_str)
-        res  = { "#{kind.upcase}" => tmpl.conf }
+    def self.parse_template(kind, tmpl_str)
+        name_reg     =/[\w\d_-]+/
+        variable_reg =/\s*(#{name_reg})\s*=\s*/
+        single_variable_reg =/^#{variable_reg}([^\[]+?)(#.*)?$/
+
+        tmpl = Hash.new
+
+        tmpl_str.scan(single_variable_reg) do | m |
+            key = m[0].strip.upcase
+            value = m[1].strip
+            tmpl[key] = value
+        end
+
+        res  = { "#{kind.upcase}" => tmpl }
 
         return OZonesJSON.to_json(res)
     end

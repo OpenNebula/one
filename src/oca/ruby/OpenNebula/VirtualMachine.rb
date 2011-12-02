@@ -107,9 +107,6 @@ module OpenNebula
         # Class constructor
         def initialize(xml, client)
             super(xml,client)
-
-            @element_name = "VM"
-            @client       = client
         end
 
         #######################################################################

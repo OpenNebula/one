@@ -38,6 +38,9 @@ module OpenNebula
         # Driver name for default core authentication
         CORE_AUTH = "core"
 
+        # Driver name for default core authentication
+        CIPHER_AUTH = "server_cipher"
+
         # Driver name for ssh authentication
         SSH_AUTH  = "ssh"
 

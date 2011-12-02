@@ -44,19 +44,26 @@ body {
 }
 
 #header {
-    padding:0;
+    padding: 0 10px 0 10px;
     background-color: #353735;
+    border:0;
 }
 
 #footer {
-    padding:0;
+    padding-top: 9px;
+    font-size: 0.8em;
+    color: white;
+    text-align: center;
     background-color: #353735;
+    border:0;
+
 }
 
-#header {
-    padding: 0 10px 0 10px;
-    background-color: #353735;
+#footer a {
+    color: white;
+    text-decoration: underline;
 }
+
 #logo {
     padding-top: 6px;
     font-weight: bold;
@@ -87,18 +94,6 @@ body {
     color: #88C140;
 }
 
-#footer {
-    padding-top: 9px;
-    font-size: 0.8em;
-    color: white;
-    text-align: center;
-}
-
-#footer a {
-    color: white;
-    text-decoration: underline;
-}
-
 #logo-wrapper {
     float:  right;
     margin-top: 0px;
@@ -108,6 +103,7 @@ body {
 #menu {
     padding-right:  0;
     padding-left:   0;
+    border:0;
     border-right: 1px solid #353735;
     background-image: -webkit-gradient(
     linear,

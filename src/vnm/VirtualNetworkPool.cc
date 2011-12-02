@@ -15,7 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualNetworkPool.h"
+#include "UserPool.h"
 #include "NebulaLog.h"
+#include "Nebula.h"
 
 #include "AuthManager.h"
 #include <sstream>
@@ -137,35 +139,86 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic, 
+                                                     const string&     name,
+                                                     int               _uid)
+{
+    istringstream  is;
+
+    string uid_s ;
+    string uname;
+    int    uid;
+
+    if (!(uid_s = nic->vector_value("NETWORK_UID")).empty())
+    {
+        is.str(uid_s);
+        is >> uid;
+
+        if( is.fail() )
+        {
+            return 0;
+        }
+    }
+    else if (!(uname = nic->vector_value("NETWORK_UNAME")).empty())
+    {
+        User *     user;
+        Nebula&    nd    = Nebula::instance();
+        UserPool * upool = nd.get_upool();
+        
+        user = upool->get(uname,true);
+        
+        if ( user == 0 )
+        {
+            return 0;
+        }
+
+        uid = user->get_oid();
+
+        user->unlock();
+    }
+    else
+    {
+        uid = _uid;        
+    }
+
+    return get(name,uid,true);
+}
+        
+/* -------------------------------------------------------------------------- */
+
+VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s)
+{
+    istringstream  is;
+    int            id;
+
+    is.str(id_s);
+    is >> id;
+
+    if( is.fail() )
+    {
+        return 0;
+    }
+
+    return get(id,true);
+}
+
 int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
 {
     string           network;
     VirtualNetwork * vnet = 0;
 
-    istringstream is;
-    int           network_id;
-
-    network = nic->vector_value("NETWORK");
-
-    if (!network.empty())
+    if (!(network = nic->vector_value("NETWORK")).empty())
     {
-        return -3;
+        vnet = get_nic_by_name (nic, network, uid);
     }
-
-    network = nic->vector_value("NETWORK_ID");
-
-    if(network.empty())
+    else if (!(network = nic->vector_value("NETWORK_ID")).empty())
+    {
+        vnet = get_nic_by_id(network);
+    }
+    else //Not using a pre-defined network
     {
         return -2;
-    }
-
-    is.str(network);
-    is >> network_id;
-
-    if( !is.fail() )
-    {
-        vnet = get(network_id,true);
-    }
+    } 
 
     if (vnet == 0)
     {
@@ -194,23 +247,18 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
     string           network;
     VirtualNetwork * vnet = 0;
 
-    istringstream   is;
-    int             network_id;
-
-    network = nic->vector_value("NETWORK_ID");
-
-    if(network.empty())
+    if (!(network = nic->vector_value("NETWORK")).empty())
+    {
+        vnet = get_nic_by_name (nic, network, uid);
+    }
+    else if (!(network = nic->vector_value("NETWORK_ID")).empty())
+    {
+        vnet = get_nic_by_id(network);
+    }
+    else //Not using a pre-defined network
     {
         return;
-    }
-
-    is.str(network);
-    is >> network_id;
-
-    if( !is.fail() )
-    {
-        vnet = get(network_id,true);
-    }
+    } 
 
     if (vnet == 0)
     {

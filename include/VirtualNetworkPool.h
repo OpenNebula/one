@@ -94,8 +94,7 @@ public:
      *    @param vid of the VM requesting the lease
      *    @return 0 on success, 
      *            -1 error, 
-     *            -2 not using the pool,
-     *            -3 unsupported NETWORK attribute
+     *            -2 not using the pool
      */
     int nic_attribute(VectorAttribute * nic, int uid, int vid);
 
@@ -165,6 +164,19 @@ private:
     {
         return new VirtualNetwork(-1,-1,"","",0);
     };
+
+    /**
+     *  Function to get a VirtualNetwork by its name, as provided by a VM 
+     *  template
+     */
+    VirtualNetwork * get_nic_by_name(VectorAttribute * nic, 
+                                     const string&     name,
+                                     int               _uid);
+
+    /**
+     *  Function to get a VirtualNetwork by its id, as provided by a VM template
+     */
+    VirtualNetwork * get_nic_by_id(const string& id_s);
 };
 
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

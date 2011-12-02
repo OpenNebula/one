@@ -33,7 +33,6 @@ module OpenNebula
             @element_name = element.upcase
 
             @client = client
-            @hash   = nil
         end
 
         # Default Factory Method for the Pools. The factory method returns an
@@ -48,7 +47,7 @@ module OpenNebula
         #######################################################################
         # Common XML-RPC Methods for all the Pool Types
         #######################################################################
-        
+
         #Gets the pool without any filter. Host, Group and User Pools
         # xml_method:: _String_ the name of the XML-RPC method
         def info(xml_method)
@@ -66,7 +65,7 @@ module OpenNebula
         def info_group(xml_method)
             return xmlrpc_info(xml_method,INFO_GROUP,-1,-1)
         end
-    
+
         def info_filter(xml_method, who, start_id, end_id)
             return xmlrpc_info(xml_method,who, start_id, end_id)
         end
@@ -120,7 +119,6 @@ module OpenNebula
         def initialize(node, client)
             @xml    = node
             @client = client
-            @hash   = nil
 
             if self['ID']
                 @pe_id = self['ID'].to_i
