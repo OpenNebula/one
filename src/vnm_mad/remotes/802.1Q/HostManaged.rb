@@ -64,7 +64,7 @@ class OpenNebulaHM < OpenNebulaNetwork
 
     def device_exists?(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        system("#{COMMANDS[:ip]} link show #{dev}")
+        OpenNebula.exec_and_log("#{COMMANDS[:ip]} link show #{dev}")
     end
 
     def create_dev_vlan(dev, vlan)
