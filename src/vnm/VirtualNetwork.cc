@@ -521,19 +521,36 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
     {
         os << "<PHYDEV>" << phydev << "</PHYDEV>";
     }
+    else
+    {
+        os << "<PHYDEV/>";
+    }
 
     if (!vlan_id.empty())
     {
         os << "<VLAN_ID>" << vlan_id << "</VLAN_ID>";
+    }
+    else
+    {
+        os << "<VLAN_ID/>";
     }
 
     os  <<  "<PUBLIC>"      << public_obj   << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
-    if (extended && leases != 0)
+    if (extended)
     {
-        os << leases->to_xml(leases_xml);
+        if (leases != 0)
+        {
+            os <<   "<LEASES>"                  <<
+                    leases->to_xml(leases_xml)  <<
+                    "</LEASES>";
+        }
+        else
+        {
+            os << "<LEASES/>";
+        }
     }
 
     os << "</VNET>";

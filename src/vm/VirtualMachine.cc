@@ -1258,6 +1258,10 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
 
         oss << "</HISTORY_RECORDS>";
     }
+    else
+    {
+        oss << "<HISTORY_RECORDS/>";
+    }
 
     oss << "</VM>";
 

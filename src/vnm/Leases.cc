@@ -429,14 +429,10 @@ string& Leases::to_xml(string& xml) const
     ostringstream os;
     string        lease_xml;
 
-    os << "<LEASES>";
-
     for(it=leases.begin();it!=leases.end();it++)
     {
         os << it->second->to_xml(lease_xml);
     }
-
-    os << "</LEASES>";
 
     xml = os.str();
 
