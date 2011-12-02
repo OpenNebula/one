@@ -42,7 +42,7 @@ var create_vdc_tmpl =
         <label for="vdcadminname">Admin name:</label>\
         <input type="text" name="vdcadminname" id="vdcadminname" /><br />\
         <label for="vdcadminpass">Admin pass:</label>\
-        <input type="password" name="vdcadminpass" id="vdcadminpass" />\
+        <input type="password" name="vdcadminpass" id="vdcadminpass" /><br />\
         <label for="zone">Zone:</label>\
         <select id="zoneid" name="zone">\
         </select><br />\
@@ -51,12 +51,13 @@ var create_vdc_tmpl =
         <input type="checkbox" name="vdc_force_hosts" id="vdc_force_hosts" />\
         <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear greyed-out in the lists.</div>\
         <div class="clear"></div>\
-        <label style="margin-left:205px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
-        <label style="margin-left:195px;font-size:0.8em;color:#bbbbbb">Available / Selected</label>\
+        <label style="margin-left:265px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
+        <label style="margin-left:243px;font-size:0.8em;color:#bbbbbb">Available / Selected</label><br />\
+        <div class="clear"></div>\
         <label>Hosts:</label>\
-        <div id="vdc_hosts_lists" class="dd_lists">\
-          <ul id="vdc_available_hosts_list" class="dd_list dd_left"></ul>\
-          <ul id="vdc_selected_hosts_list" class="dd_list dd_right"></ul>\
+        <div id="vdc_hosts_lists" class="dd_lists" style="width:250px">\
+          <ul id="vdc_available_hosts_list" class="dd_list dd_left" style="width:115px"></ul>\
+          <ul id="vdc_selected_hosts_list" class="dd_list dd_right" style="width:115px"></ul>\
      </div>\
    </fieldset>\
    <fieldset>\
@@ -278,7 +279,7 @@ function updateVDCInfo(req,vdc_json){
     var zone_host = "";
     var zone_port = "";
     var sun_link = "";
-    var zone_match = zone_endpoint.match(/^http:\/\/(\w+):(\d+)\/RPC2$/);
+    var zone_match = zone_endpoint.match(/^https?:\/\/([\w.-]+):(\d+)\/([\W\w]+)$/);
 
     if (zone_match){
         zone_host = zone_match[1];
@@ -428,10 +429,14 @@ function setupCreateVDCDialog(){
     $('div#dialogs').append('<div title="Create VDC" id="create_vdc_dialog"></div>');
     var dialog = $('div#create_vdc_dialog');
     dialog.html(create_vdc_tmpl);
+
+    var height = Math.floor($(window).height()*0.8);
+
     dialog.dialog({
         autoOpen: false,
         modal: true,
-        width: 420
+        height: height,
+        width: 500
     });
 
     $('button',dialog).button();
