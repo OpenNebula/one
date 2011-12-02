@@ -81,8 +81,24 @@ class Quota
             :proc_info  => lambda {|template|
                 if template['TYPE'] == 'DATABLOCK'
                     template['SIZE'].to_i
-                else
+                elsif template['PATH']
                     File.size(template['PATH'])
+                elsif template['SAVED_VM_ID']
+                    vm_id   = template['SAVED_VM_ID'].to_i
+                    disk_id = template['SAVED_DISK_ID'].to_i
+
+                    client = OpenNebula::Client.new
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+                    vm.info
+
+                    im_id = vm["DISK[DISK_ID=#{disk_id}]/IMAGE_ID"].to_i
+
+                    im = OpenNebula::Image.new_with_id(im_id, client)
+                    im.info
+
+                    im['SIZE'].to_i
+                else
+                    0
                 end
             },
             :xpath => 'SIZE'
