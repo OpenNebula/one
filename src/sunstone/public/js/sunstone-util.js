@@ -420,8 +420,24 @@ function getName(id,dataTable){
         }
     });
     return name;
-}
+};
 
+//Search a datatable record matching the filter_str in the filter_col. Returns
+//the value of that record in the desired value column.
+function getValue(filter_str,filter_col,value_col,dataTable){
+    var value="";
+    if (typeof(dataTable) == "undefined") return value;
+
+    var nodes = dataTable.fnGetData();
+
+    $.each(nodes,function(){
+        if (filter_str == this[filter_col]){
+            value = this[value_col];
+            return false;
+        };
+    });
+    return value;
+};
 
 //Replaces all class"tip" divs with an information icon that
 //displays the tip information on mouseover.

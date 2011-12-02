@@ -36,12 +36,7 @@ do_start()
 {
     mkdir -p /var/run/one /var/lock/one
     chown oneadmin /var/run/one /var/lock/one
-    ONE_AUTH_FILE=/var/lib/one/auth
-    if [ ! -f $ONE_AUTH_FILE ]; then
-        PASSWORD=$(cat /dev/urandom|tr -dc 'a-zA-Z0-9'|fold -w 10|head -n1)
-        su oneadmin -s /bin/sh -c "echo oneadmin:$PASSWORD > $ONE_AUTH_FILE"
-    fi
-    ONE_AUTH=$ONE_AUTH_FILE su oneadmin -s /bin/sh -c 'one start'
+    su oneadmin -s /bin/sh -c 'one start'
 }
 
 #

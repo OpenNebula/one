@@ -136,6 +136,69 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int get_disk_uid(VectorAttribute *  disk, int _uid)
+{
+    istringstream  is;
+
+    string uid_s ;
+    string uname;
+    int    uid;
+
+    if (!(uid_s = disk->vector_value("IMAGE_UID")).empty())
+    {
+        is.str(uid_s);
+        is >> uid;
+
+        if( is.fail() )
+        {
+            return -1;
+        }
+    }
+    else if (!(uname = disk->vector_value("IMAGE_UNAME")).empty())
+    {
+        User *     user;
+        Nebula&    nd    = Nebula::instance();
+        UserPool * upool = nd.get_upool();
+        
+        user = upool->get(uname,true);
+        
+        if ( user == 0 )
+        {
+            return -1;
+        }
+
+        uid = user->get_oid();
+
+        user->unlock();
+    }
+    else
+    {
+        uid = _uid;        
+    }
+
+    return uid;
+}
+        
+/* -------------------------------------------------------------------------- */
+
+static int get_disk_id(const string& id_s)
+{
+    istringstream  is;
+    int            id;
+
+    is.str(id_s);
+    is >> id;
+
+    if( is.fail() )
+    {
+        return -1;
+    }
+
+    return id;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int                disk_id,
                               int *              index,
@@ -152,36 +215,44 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     Nebula&        nd     = Nebula::instance();
     ImageManager * imagem = nd.get_imagem();
 
-    istringstream   is;
-
-    source = disk->vector_value("IMAGE");
-
-    if (!source.empty())
+    if (!(source = disk->vector_value("IMAGE")).empty())
     {
-        return -3;
-    }
-
-    source = disk->vector_value("IMAGE_ID");
-
-    if (!source.empty())
-    {
-        is.str(source);
-        is >> image_id;
-
-        if( !is.fail() )
+        int uiid = get_disk_uid(disk,uid);
+       
+        if ( uiid == -1)
         {
-            img = imagem->acquire_image(image_id);
+            return -1; 
+        }
 
-            if (img == 0)
-            {
-                return -1;
-            }
+        img = imagem->acquire_image(source, uiid);
+
+        if ( img == 0 )
+        {
+            return -1;
         }
     }
-    
-    if (img == 0)
+    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
     {
-        string type = disk->vector_value("TYPE");
+        int iid = get_disk_id(source);
+
+        if ( iid == -1)
+        {
+            return -1; 
+        }
+
+        img = imagem->acquire_image(iid);
+
+        if ( img == 0 )
+        {
+            return -1;
+        }
+    }
+    else //Not using the image repository
+    {
+        string type;
+
+        rc   = -2;
+        type = disk->vector_value("TYPE");
 
         transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
@@ -198,13 +269,14 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
                 disk->replace("TARGET", dev_prefix);
             }
         }
-
-        rc = -2;
     }
-    else
+
+    if ( img != 0 )
     {
         img->disk_attribute(disk, index, img_type);
 
+        image_id = img->get_oid();
+        
         update(img);
 
         img->unlock();
@@ -224,22 +296,27 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
     string  source;
     Image * img = 0;
 
-    istringstream   is;
-    int             image_id;
-
-    source = disk->vector_value("IMAGE_ID");
-
-    if (source.empty())
+    if (!(source = disk->vector_value("IMAGE")).empty())
     {
-        return;
+        int uiid = get_disk_uid(disk,uid);
+       
+        if ( uiid == -1)
+        {
+            return; 
+        }
+
+        img = get(source , uiid, true);
     }
-
-    is.str(source);
-    is >> image_id;
-
-    if( !is.fail() )
+    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
     {
-        img = get(image_id,true);
+        int iid = get_disk_id(source);
+
+        if ( iid == -1)
+        {
+            return; 
+        }
+
+        img = get(iid, true);
     }
 
     if (img == 0)

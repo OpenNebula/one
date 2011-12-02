@@ -1,6 +1,8 @@
 OpenNebula Open Source Project
+--------------------------------------------------------------------------------
 Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
------------------------------------------
+Copyright 2010-2011, C12G Labs S.L. (C12G.com)
+--------------------------------------------------------------------------------
 
 You can find  more information about the project, release notes and
 documentation at www.OpenNebula.org
@@ -19,6 +21,8 @@ The following people have contributed to the development of the technology
 - Carlos Martin Sanchez (cmartin@opennebula.org)
 - Daniel Molina Aranda (dmolina@opennebula.org)
 - Hector Sanjuan Redondo (hsanjuan@opennebula.org)
+
+OpenNebula Project also acknowledges the contributions of C12G Labs developers.
 
 LICENSE
 

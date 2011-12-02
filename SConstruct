@@ -189,6 +189,7 @@ build_scripts=[
     'src/host/SConstruct',
     'src/group/SConstruct',
     'src/mad/SConstruct',
+    'src/mad/utils/SConstruct',
     'src/nebula/SConstruct',
     'src/pool/SConstruct',
     'src/vm/SConstruct',

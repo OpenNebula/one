@@ -23,17 +23,15 @@ class ImageOCCI < Image
         <STORAGE href="<%= base_url %>/storage/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
-            <% if self['TEMPLATE/TYPE'] != nil %>
-            <TYPE><%= self['TEMPLATE/TYPE'] %></TYPE>
+            <% if self['TYPE'] != nil %>
+            <TYPE><%= self['TYPE'] %></TYPE>
             <% end %>
             <% if self['TEMPLATE/DESCRIPTION'] != nil %>
             <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
             <% end %>
-            <% if size != nil %>
-            <SIZE><%= size.to_i / 1024 %></SIZE>
-            <% end %>
-            <% if fstype != nil %>
-            <FSTYPE><%= fstype %></FSTYPE>
+            <SIZE><%= self['SIZE'] %></SIZE>
+            <% if self['FSTYPE'] != nil %>
+            <FSTYPE><%= self['FSTYPE'] %></FSTYPE>
             <% end %>
             <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>
             <PERSISTENT><%= self['PERSISTENT'] == "0" ? "NO" : "YES"%></PERSISTENT>
@@ -84,25 +82,18 @@ class ImageOCCI < Image
 
     # Creates the OCCI representation of an Image
     def to_occi(base_url)
-        size = nil
-
         begin
-            if self['SOURCE'] != nil and File.exists?(self['SOURCE'])
-                size = File.stat(self['SOURCE']).size
-                size = size / 1024
-            end
-
-            fstype = self['TEMPLATE/FSTYPE'] if self['TEMPLATE/FSTYPE']
+            occi_im = ERB.new(OCCI_IMAGE)
+            occi_im_text = occi_im.result(binding)
         rescue Exception => e
             error = OpenNebula::Error.new(e.message)
             return error
         end
 
-        occi = ERB.new(OCCI_IMAGE)
-        return occi.result(binding).gsub(/\n\s*/,'')
+        return occi_im_text.gsub(/\n\s*/,'')
     end
 
-    def to_one_template()
+    def to_one_template
         if @image_info == nil
             error_msg = "Missing STORAGE section in the XML body"
             error = OpenNebula::Error.new(error_msg)

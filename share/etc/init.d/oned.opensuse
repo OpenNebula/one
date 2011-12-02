@@ -34,14 +34,8 @@ rc_reset
 
 case "$1" in
 start)
-    ONE_AUTH_FILE=/var/lib/one/auth
-    if [ ! -f $ONE_AUTH_FILE ]; then
-        PASSWORD=$(cat /dev/urandom|tr -dc 'a-zA-Z0-9'|fold -w 10|head -n1)
-        su oneadmin -s /bin/sh -c "echo oneadmin:$PASSWORD > $ONE_AUTH_FILE"
-    fi
-
     echo -n "Starting ONE "
-    ONE_AUTH=$ONE_AUTH_FILE /sbin/startproc -u oneadmin $ONE_BIN start
+    /sbin/startproc -u oneadmin $ONE_BIN start
     rc_status -v
     ;;
 

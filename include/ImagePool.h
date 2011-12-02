@@ -135,7 +135,6 @@ public:
      *    @return 0 on success, 
      *            -1 error, 
      *            -2 not using the pool, 
-     *            -3 deprecated NAME found
      */
     int disk_attribute(VectorAttribute *  disk,
                        int                disk_id,

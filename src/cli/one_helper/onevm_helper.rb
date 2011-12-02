@@ -65,7 +65,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_resource(vm)
         str_h1="%-80s"
         str="%-20s: %-20s"
-        
+
         CLIHelper.print_header(
             str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
@@ -99,9 +99,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 
-        if vm['/VM/HISTORY_RECORDS/HISTORY']
+        if vm.has_elements?("/VM/HISTORY_RECORDS/")
             puts
-
+	
+		
             CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
             format_history(vm)
         end

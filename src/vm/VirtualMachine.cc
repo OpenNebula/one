@@ -194,7 +194,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Check template for restricted attributes
     // ------------------------------------------------------------------------
 
-    if ( gid != GroupPool::ONEADMIN_ID )
+    if ( uid != 0 && gid != GroupPool::ONEADMIN_ID )
     {
         VirtualMachineTemplate *vt = 
             static_cast<VirtualMachineTemplate *>(obj_template);
@@ -762,14 +762,6 @@ int VirtualMachine::get_disk_images(string& error_str)
         {
             goto error_image;
         }
-        else if ( rc == -3)
-        {
-            goto error_name;
-        }
-        else if ( rc != -2 ) // The only known code left
-        {
-            goto error_unknown;
-        }
     }
 
     return 0;
@@ -789,13 +781,6 @@ error_max_db:
 error_image:
     error_str = "Could not get disk image for VM.";
     goto error_common;
-
-error_name:
-    error_str = "IMAGE is not supported for DISK. Use IMAGE_ID instead.";
-    goto error_common;
-
-error_unknown:
-    error_str = "Unknown error code.";
 
 error_common:
     ImageManager *  imagem  = nd.get_imagem();
@@ -893,22 +878,12 @@ int VirtualMachine::get_network_leases(string& estr)
         {
             goto error_vnet; 
         }
-        else if ( rc == -3 )
-        {
-            goto error_name;
-        }
     }
 
     return 0;
 
 error_vnet:
     estr = "Could not get virtual network for VM.";
-    goto error_common;
-
-error_name:
-    estr = "NETWORK is not supported for NIC. Use NETWORK_ID instead.";
-
-error_common:
     return -1;
 }
 

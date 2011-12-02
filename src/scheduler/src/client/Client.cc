@@ -38,11 +38,9 @@ const int Client::MESSAGE_SIZE = 51200;
 
 void Client::set_one_auth(string secret)
 {
-    int rc = 0;
-
-    if( secret == "" )
+    if (secret.empty())
     {
-        rc = read_oneauth(secret);
+        read_oneauth(secret);
     }
 
     one_auth = secret;
@@ -51,7 +49,7 @@ void Client::set_one_auth(string secret)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Client::read_oneauth(string &secret)
+void Client::read_oneauth(string &secret)
 {
     ostringstream oss;
     string        one_auth_file;
@@ -59,7 +57,7 @@ int Client::read_oneauth(string &secret)
     const char *  one_auth_env;
     ifstream      file;
 
-    bool rc = -1;
+    int rc = -1;
 
     // Read $ONE_AUTH file and copy its contents into secret.
     one_auth_env = getenv("ONE_AUTH");
@@ -111,8 +109,6 @@ int Client::read_oneauth(string &secret)
         NebulaLog::log("XMLRPC",Log::ERROR,oss);
         throw runtime_error( oss.str() );
     }
-
-    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -14,35 +14,32 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula/Configuration'
 require 'onedb_backend'
 
 class OneDB
     def initialize(ops)
-        if ops[:backend]==nil
-            from_onedconf
-        else
-            if ops[:backend] == :sqlite 
-                @backend = BackEndSQLite.new(ops[:sqlite])
-            else
-                passwd = ops[:passwd]
-                if !passwd
-                    # Hide input characters
-                    `stty -echo`
-                    print "MySQL Password: "
-                    passwd = STDIN.gets.strip
-                    `stty echo`
-                    puts ""
-                end
-
-                @backend = BackEndMySQL.new(
-                    :server  => ops[:server],
-                    :port    => ops[:port],
-                    :user    => ops[:user],
-                    :passwd  => passwd,
-                    :db_name => ops[:db_name]
-                )
+        if ops[:backend] == :sqlite
+            @backend = BackEndSQLite.new(ops[:sqlite])
+        elsif ops[:backend] == :mysql
+            passwd = ops[:passwd]
+            if !passwd
+                # Hide input characters
+                `stty -echo`
+                print "MySQL Password: "
+                passwd = STDIN.gets.strip
+                `stty echo`
+                puts ""
             end
+
+            @backend = BackEndMySQL.new(
+                :server  => ops[:server],
+                :port    => ops[:port],
+                :user    => ops[:user],
+                :passwd  => passwd,
+                :db_name => ops[:db_name]
+            )
+        else
+            raise "You need to specify the SQLite or MySQL connection options."
         end
     end
 
@@ -150,32 +147,6 @@ class OneDB
     end
 
     private
-
-    def from_onedconf()
-        config = OpenNebula::Configuration.new_from_file("#{ETC_LOCATION}/oned.conf")
-
-        if config[:db] == nil
-            raise "No DB defined."
-        end
-
-        if config[:db]["BACKEND"].upcase.include? "SQLITE"
-            sqlite_file = "#{VAR_LOCATION}/one.db"
-            @backend = BackEndSQLite.new(sqlite_file)
-        elsif config[:db]["BACKEND"].upcase.include? "MYSQL"
-            @backend = BackEndMySQL.new(
-                :server  => config[:db]["SERVER"],
-                :port    => config[:db]["PORT"],
-                :user    => config[:db]["USER"],
-                :passwd  => config[:db]["PASSWD"],
-                :db_name => config[:db]["DB_NAME"]
-            )
-        else
-            raise "Could not load DB configuration from " <<
-                  "#{ETC_LOCATION}/oned.conf"
-        end
-
-        return 0
-    end
 
     def one_not_running()
         if File.exists?(LOCK_FILE)
