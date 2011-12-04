@@ -108,11 +108,14 @@ class AuthDriver < OpenNebulaDriver
         #/var/lib/one/remotes/auth/<driver>/authenticate
         authN_path = File.join(@local_scripts_path, driver)
 
-        command = File.join(authN_path,ACTION[:authN].downcase)
+        command = File.join(authN_path, ACTION[:authN].downcase)
         command << " '" << user.gsub("'", '\'"\'"\'') << "' '" << password.gsub("'", '\'"\'"\'') << "' " << secret
 
-        do_action(command, request_id, nil, ACTION[:authN],
-            :local => true)
+        rc = LocalCommand.run(command, log_method(request_id))
+
+        result , info = get_info_from_execution(rc)
+
+        send_message(ACTION[:authN], result, request_id, info)
     end
     
     # Authenticate a user based in a string of the form user:secret when using the 
@@ -137,13 +140,16 @@ class AuthDriver < OpenNebulaDriver
                 result = RESULT[:failure]
             end
 
-            send_message(ACTION[:authZ],result,request_id,"-")
+            send_message(ACTION[:authZ], result, request_id, "-")
         else
             command = @authZ_cmd.clone
             command << ' ' << user_id << ' ' << requests.join(' ')
             
-            do_action(command, request_id, nil, ACTION[:authZ],
-                :local => true)
+            rc = LocalCommand.run(command, log_method(request_id))
+
+            result , info = get_info_from_execution(rc)
+
+            send_message(ACTION[:authZ], result, request_id, info)
         end
     end
 end
