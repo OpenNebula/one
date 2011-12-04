@@ -25,6 +25,8 @@
 
 #include "AuthManager.h"
 
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
@@ -207,6 +209,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     int             rc;
 
     string          pub;
+    string          vlan_attr;
     string          s_type;
 
     unsigned int default_size = VirtualNetworkPool::default_size();
@@ -219,7 +222,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     // ------------ TYPE ----------------------
     erase_template_attribute("TYPE",s_type);
 
-    transform(s_type.begin(),s_type.end(),s_type.begin(),(int(*)(int))toupper);
+    TO_UPPER(s_type);
 
     if (s_type == "RANGED")
     {
@@ -255,6 +258,14 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     erase_template_attribute("VLAN_ID",vlan_id);
 
+    // ------------ VLAN ----------------------
+
+    erase_template_attribute("VLAN", vlan_attr);
+
+    TO_UPPER(vlan_attr);
+
+    vlan = (vlan_attr == "YES");
+
     // ------------ BRIDGE --------------------
 
     erase_template_attribute("BRIDGE",bridge);
@@ -272,7 +283,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
             oss << "onebr" << oid;
  
             bridge = oss.str();
-            replace_template_attribute("BRIDGE",bridge);
         }
     }
 
@@ -280,7 +290,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     erase_template_attribute("PUBLIC", pub);
 
-    transform (pub.begin(), pub.end(), pub.begin(), (int(*)(int))toupper);
+    TO_UPPER(pub);
 
     public_obj = (pub == "YES");
 
@@ -515,7 +525,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<GNAME>"  << gname  << "</GNAME>" <<
             "<NAME>"   << name   << "</NAME>"  <<
             "<TYPE>"   << type   << "</TYPE>"  <<
-            "<BRIDGE>" << bridge << "</BRIDGE>";
+            "<BRIDGE>" << bridge << "</BRIDGE>"<<
+            "<VLAN>"   << vlan   << "</VLAN>";
 
     if (!phydev.empty())
     {
@@ -583,6 +594,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(int_type,   "/VNET/TYPE",   -1);
     rc += xpath(bridge,     "/VNET/BRIDGE", "not_found");
     rc += xpath(public_obj, "/VNET/PUBLIC", 0);
+    rc += xpath(vlan,       "/VNET/VLAN",   0);
     
     xpath(phydev,  "/VNET/PHYDEV", "");
     xpath(vlan_id, "/VNET/VLAN_ID","");
@@ -652,6 +664,15 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     nic->replace("BRIDGE"    ,bridge);
     nic->replace("MAC"       ,mac);
     nic->replace("IP"        ,ip);
+
+    if ( vlan == 1 )
+    {
+        nic->replace("VLAN", "YES");
+    }
+    else
+    {
+        nic->replace("VLAN", "NO");
+    }
 
     if (!phydev.empty())
     {

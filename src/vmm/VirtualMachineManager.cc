@@ -245,12 +245,80 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
 /* Manager Actions                                                            */
 /* ************************************************************************** */
 
+string * VirtualMachineManager::format_message(
+    const string& hostname,
+    const string& net_drv,
+    const string& m_hostname,
+    const string& m_net_drv,
+    const string& domain,
+    const string& ldfile,
+    const string& rdfile,
+    const string& cfile,
+    const string& tmpl)
+{
+    ostringstream oss;
+   
+    oss << "<VMM_DRIVER_ACTION_DATA>"
+        <<   "<HOST>"    << hostname << "</HOST>"
+        <<   "<NET_DRV>" << net_drv  << "</NET_DRV>";
+    
+    if (!m_hostname.empty())
+    {
+        oss << "<MIGR_HOST>"   << m_hostname << "</MIGR_HOST>"
+            << "<MIGR_NET_DRV>"<< m_net_drv  << "</MIGR_NET_DRV>";
+    }
+    else
+    {
+        oss << "<MIGR_HOST/><MIGR_NET_DRV/>"; 
+    }
+
+    if (!domain.empty())
+    {
+        oss << "<DEPLOY_ID>" << domain << "</DEPLOY_ID>";
+    }
+    else
+    {
+        oss << "<DEPLOY_ID/>";
+    }
+
+    if (!ldfile.empty())
+    {
+        oss << "<LOCAL_DEPLOYMENT_FILE>" << ldfile << "</LOCAL_DEPLOYMENT_FILE>";
+        oss << "<REMOTE_DEPLOYMENT_FILE>" << rdfile << "</REMOTE_DEPLOYMENT_FILE>";
+    }
+    else
+    {
+        oss << "<LOCAL_DEPLOYMENT_FILE/>";
+        oss << "<REMOTE_DEPLOYMENT_FILE/>";
+    }
+
+    if (!cfile.empty())
+    {
+        oss << "<CHECKPOINT_FILE>" << cfile << "</CHECKPOINT_FILE>";
+    }
+    else
+    {
+        oss << "<CHECKPOINT_FILE/>";
+    }
+
+    oss << tmpl 
+        << "</VMM_DRIVER_ACTION_DATA>";
+
+    return SSLTools::base64_encode(oss.str());
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineManager::deploy_action(int vid)
 {
-    VirtualMachine *                vm;
-    const VirtualMachineManagerDriver *   vmd;
-    int                             rc;
-    ostringstream                   os;
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+    int rc;
+
+    ostringstream os;
+    string        vm_tmpl;
+    string *      drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -287,7 +355,20 @@ void VirtualMachineManager::deploy_action(int vid)
     }
 
     // Invoke driver method
-    vmd->deploy(vid,vm->get_hostname(),vm->get_remote_deployment_file());
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        "",
+        vm->get_deployment_file(),
+        vm->get_remote_deployment_file(),
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->deploy(vid, *drv_msg);
+
+    delete drv_msg;
 
     vm->unlock();
 
@@ -326,8 +407,11 @@ void VirtualMachineManager::save_action(
 {
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
-    string                              hostname;
-    ostringstream                       os;
+
+    string        hostname, vnm_mad;
+    string        vm_tmpl;
+    string *      drv_msg;
+    ostringstream os;
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -359,20 +443,32 @@ void VirtualMachineManager::save_action(
         }
 
         hostname = vm->get_previous_hostname();
+        vnm_mad  = vm->get_previous_vnm_mad();
     }
     else
     {
-        hostname=vm->get_hostname();
+        hostname = vm->get_hostname();
+        vnm_mad  = vm->get_vnm_mad();
     }
 
     // Invoke driver method
-    vmd->save(
-        vid,
+    drv_msg = format_message(
         hostname,
+        vnm_mad,
+        "",
+        "",
         vm->get_deploy_id(),
-        vm->get_checkpoint_file());
+        "",
+        "",
+        vm->get_checkpoint_file(),
+        vm->to_xml(vm_tmpl));
+
+    vmd->save(vid, *drv_msg);
+    
+    delete drv_msg;
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -406,9 +502,12 @@ error_common:
 void VirtualMachineManager::shutdown_action(
     int vid)
 {
-    VirtualMachine *                vm;
-    const VirtualMachineManagerDriver *   vmd;
-    ostringstream                       os;
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    string        vm_tmpl;
+    string *      drv_msg; 
+    ostringstream os;
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -432,9 +531,23 @@ void VirtualMachineManager::shutdown_action(
     }
 
     // Invoke driver method
-    vmd->shutdown(vid,vm->get_hostname(),vm->get_deploy_id());
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->shutdown(vid, *drv_msg);
+
+    delete drv_msg;
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -466,6 +579,9 @@ void VirtualMachineManager::cancel_action(
     VirtualMachine * vm;
     ostringstream    os;
 
+    string   vm_tmpl;
+    string * drv_msg;
+      
     const VirtualMachineManagerDriver *   vmd;
 
     // Get the VM from the pool
@@ -490,9 +606,23 @@ void VirtualMachineManager::cancel_action(
     }
 
     // Invoke driver method
-    vmd->cancel(vid,vm->get_hostname(),vm->get_deploy_id());
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->cancel(vid, *drv_msg);
+
+    delete drv_msg;
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -527,6 +657,9 @@ void VirtualMachineManager::cancel_previous_action(
     VirtualMachine * vm;
     ostringstream    os;
 
+    string   vm_tmpl;
+    string * drv_msg;
+
     const VirtualMachineManagerDriver * vmd;
 
     // Get the VM from the pool
@@ -551,9 +684,23 @@ void VirtualMachineManager::cancel_previous_action(
     }
 
     // Invoke driver method
-    vmd->cancel(vid,vm->get_previous_hostname(),vm->get_deploy_id());
+    drv_msg = format_message(
+        vm->get_previous_hostname(),
+        vm->get_previous_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->cancel(vid, *drv_msg);
+
+    delete drv_msg;
 
     vm->unlock();
+    
     return;
 
 error_history:
@@ -579,7 +726,10 @@ void VirtualMachineManager::migrate_action(
 {
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
-    ostringstream                       os;
+
+    ostringstream os;
+    string   vm_tmpl;
+    string * drv_msg; 
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -608,10 +758,20 @@ void VirtualMachineManager::migrate_action(
     }
 
     // Invoke driver method
-    vmd->migrate(vid,
-            vm->get_previous_hostname(),
-            vm->get_deploy_id(),
-            vm->get_hostname());
+    drv_msg = format_message(
+        vm->get_previous_hostname(),
+        vm->get_previous_vnm_mad(),
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->migrate(vid, *drv_msg);
+
+    delete drv_msg;
 
     vm->unlock();
 
@@ -648,9 +808,13 @@ error_common:
 void VirtualMachineManager::restore_action(
     int vid)
 {
-    VirtualMachine *                vm;
-    const VirtualMachineManagerDriver *   vmd;
-    ostringstream                       os;
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+
+    string   vm_tmpl;
+    string * drv_msg; 
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -674,12 +838,23 @@ void VirtualMachineManager::restore_action(
     }
 
     // Invoke driver method
-    vmd->restore(vid,
-                 vm->get_hostname(),
-                 vm->get_deploy_id(),
-                 vm->get_checkpoint_file());
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        vm->get_checkpoint_file(),
+        vm->to_xml(vm_tmpl));
+
+    vmd->restore(vid, *drv_msg);
+
+    delete drv_msg;
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -708,9 +883,13 @@ error_common:
 void VirtualMachineManager::poll_action(
     int vid)
 {
-    VirtualMachine *                vm;
-    const VirtualMachineManagerDriver *   vmd;
-    ostringstream                       os;
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+
+    string   vm_tmpl;
+    string * drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -734,9 +913,23 @@ void VirtualMachineManager::poll_action(
     }
 
     // Invoke driver method
-    vmd->poll(vid,vm->get_hostname(),vm->get_deploy_id());
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->poll(vid, *drv_msg);
+
+    delete drv_msg;
 
     vm->unlock();
+    
     return;
 
 error_history:
@@ -824,6 +1017,9 @@ void VirtualMachineManager::timer_action()
 
     const VirtualMachineManagerDriver * vmd;
 
+    string   vm_tmpl;
+    string * drv_msg;
+
     mark = mark + timer_period;
 
     if ( mark >= 600 )
@@ -874,7 +1070,20 @@ void VirtualMachineManager::timer_action()
             continue;
         }
 
-        vmd->poll(*it,vm->get_hostname(),vm->get_deploy_id());
+        drv_msg = format_message(
+            vm->get_hostname(),
+            vm->get_vnm_mad(),
+            "",
+            "",
+            vm->get_deploy_id(),
+            "",
+            "",
+            "",
+            vm->to_xml(vm_tmpl));
+
+        vmd->poll(*it, *drv_msg);
+
+        delete drv_msg;
 
         vmpool->update(vm);
 

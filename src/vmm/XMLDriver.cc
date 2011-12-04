@@ -35,9 +35,7 @@ int XMLDriver::deployment_description(
         return -1;
     }
     
-    vm->template_to_xml(xml);
-    
-    file << xml ;
+    file << vm->template_to_xml(xml);
 
     file.close();
 

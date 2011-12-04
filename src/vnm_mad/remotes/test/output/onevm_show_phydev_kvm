@@ -37,6 +37,7 @@
       <MAC><![CDATA[02:00:c0:a8:00:65]]></MAC>
       <NETWORK><![CDATA[ursa-dev]]></NETWORK>
       <NETWORK_ID><![CDATA[4]]></NETWORK_ID>
+      <VLAN><![CDATA[YES]]></VLAN>
     </NIC>
     <NIC>
       <BRIDGE><![CDATA[onebr6]]></BRIDGE>
@@ -45,6 +46,7 @@
       <NETWORK><![CDATA[vlan-dev]]></NETWORK>
       <NETWORK_ID><![CDATA[6]]></NETWORK_ID>
       <PHYDEV><![CDATA[eth0]]></PHYDEV>
+      <VLAN><![CDATA[YES]]></VLAN>
     </NIC>
     <VMID><![CDATA[9]]></VMID>
   </TEMPLATE>

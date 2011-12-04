@@ -1,14 +1,15 @@
 module SystemMock
-    require 'open3'
+
     def execute_cmd(cmd)
         if $capture_commands
             $capture_commands.each do |regex, output|
                 if cmd.match(regex)
+                    Kernel.send(:`,":;exit 0")
                     return output
                 end
             end
         end
-        Open3.popen3(cmd){|stdin, stdout, stderr| stdout.read}
+        Kernel.send(:`,cmd)
     end
 
     def `(cmd)

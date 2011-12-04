@@ -16,6 +16,7 @@
 require 'thread'
 
 =begin rdoc
+
 This class provides support to handle actions. Class methods, or actions, can be
 registered in the action manager. The manager will wait for actions to be
 triggered (thread-safe), and will execute them concurrently. The action manager
