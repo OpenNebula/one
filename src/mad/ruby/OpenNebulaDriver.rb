@@ -87,7 +87,6 @@ class OpenNebulaDriver < ActionManager
     # @option ops [String] :script_name default script name for the action,
     #   action name is used by defaults
     # @option ops [String] :respond if defined will send result to ONE core
-    # @option ops [String] :local if defined will execute the action locally
     def do_action(parameters, id, host, aname, ops={})
         options={
             :stdin       => nil,
@@ -99,7 +98,7 @@ class OpenNebulaDriver < ActionManager
         params  = parameters+" #{id} #{host}"
         command = action_command_line(aname, params, options[:script_name])
 
-        if options[:local] || action_is_local?(aname)
+        if action_is_local?(aname)
             execution = LocalCommand.run(command, log_method(id))
         elsif options[:ssh_stream]
             if options[:stdin]
