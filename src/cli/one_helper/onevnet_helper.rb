@@ -69,13 +69,26 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         puts vn.template_str(false)
 
-        leases_str = vn.template_like_str('/VNET/LEASES', false)
-
-        if !leases_str.empty?
+        if vn.type_str == "RANGED"
             puts
-            CLIHelper.print_header(str_h1 % ["LEASES INFORMATION"], false)
-            puts leases_str
+            CLIHelper.print_header(str_h1 % ["RANGE"], false)
+            puts str % ["IP_START", vn['RANGE/IP_START']]
+            puts str % ["IP_END", vn['RANGE/IP_END']]
         end
+
+        lease_types = [ ["LEASES ON HOLD",  'LEASE[USED=1 and VID=-1]'],
+                        ["USED LEASES",     'LEASE[USED=1 and VID>-1]'],
+                        ["FREE LEASES",     'LEASE[USED=0]'] ]
+
+        lease_types.each { |pair|
+            leases_str = vn.template_like_str('/VNET/LEASES', false, pair[1])
+
+            if !leases_str.empty?
+                puts
+                CLIHelper.print_header(str_h1 % [pair[0]], false)
+                puts leases_str
+            end
+        }
     end
 
     def format_pool(options)

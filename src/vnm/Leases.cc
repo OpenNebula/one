@@ -66,6 +66,11 @@ int Leases::Lease::ip_to_number(const string& _ip, unsigned int& i_ip)
     {
         iss >> dec >> tmp >> ws;
 
+        if ( tmp > 255 )
+        {
+            return -1;
+        }
+
         i_ip <<= 8;
         i_ip += tmp;
     }
@@ -381,23 +386,11 @@ int Leases::update(SqlDB * db)
 
 bool Leases::check(const string& ip)
 {
-    map<unsigned int,Lease *>::iterator it;
-
     unsigned int _ip;
 
     Leases::Lease::ip_to_number(ip,_ip);
 
-
-    it=leases.find(_ip);
-
-    if (it!=leases.end())
-    {
-        return it->second->used;
-    }
-    else
-    {
-        return false;
-    }
+    return check(_ip);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -417,6 +410,95 @@ bool Leases::check(unsigned int ip)
     {
         return false;
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Leases::hold_leases(vector<const Attribute*>&   vector_leases,
+                        string&                     error_msg)
+{
+    const VectorAttribute * single_attr_lease = 0;
+
+    int     rc;
+    string  ip;
+    string  mac;
+
+    if ( vector_leases.size() > 0 )
+    {
+        single_attr_lease =
+                dynamic_cast<const VectorAttribute *>(vector_leases[0]);
+    }
+
+    if ( single_attr_lease == 0 )
+    {
+        error_msg = "Empty lease description.";
+        return -1;
+    }
+
+    ip = single_attr_lease->vector_value("IP");
+
+    if ( check(ip) )
+    {
+        error_msg = "Lease is in use.";
+        return -1;
+    }
+
+    rc = set(-1, ip, mac);
+
+    if ( rc != 0 )
+    {
+        error_msg = "Lease is not part of the NET.";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Leases::free_leases(vector<const Attribute*>&   vector_leases,
+                        string&                     error_msg)
+{
+    const VectorAttribute * single_attr_lease = 0;
+    map<unsigned int,Lease *>::iterator it;
+
+    unsigned int    i_ip;
+    string          st_ip;
+    string          mac;
+
+    if ( vector_leases.size() > 0 )
+    {
+        single_attr_lease =
+                dynamic_cast<const VectorAttribute *>(vector_leases[0]);
+    }
+
+    if ( single_attr_lease == 0 )
+    {
+        error_msg = "Empty lease description.";
+        return -1;
+    }
+
+    st_ip  = single_attr_lease->vector_value("IP");
+
+    if ( Leases::Lease::ip_to_number(st_ip,i_ip) != 0 )
+    {
+        error_msg = "Wrong Lease format.";
+        return -1;
+    }
+
+    it = leases.find(i_ip);
+
+    if ( it == leases.end() || !it->second->used || it->second->vid != -1 )
+    {
+        error_msg = "Lease is not on hold.";
+        return -1;
+    }
+
+    release(st_ip);
+
+    return 0;
 }
 
 /* ************************************************************************** */
