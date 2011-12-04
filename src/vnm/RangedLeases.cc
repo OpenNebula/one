@@ -51,7 +51,6 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     string st_ip_start  = "";
     string st_ip_end    = "";
 
-    unsigned int size = VirtualNetworkPool::default_size();
     unsigned int host_bits;
     unsigned int network_bits;
 
@@ -161,11 +160,17 @@ int RangedLeases::process_template(VirtualNetwork* vn,
             }
             else
             {
+                unsigned int size;
+                 
                 if (!st_size.empty())//Assume it's a number
                 {
                     istringstream iss(st_size);
 
                     iss >> size;
+                }
+                else
+                {
+                    size = VirtualNetworkPool::default_size();
                 }
 
                 host_bits = (int) ceil(log(size+2)/log(2));
@@ -178,6 +183,7 @@ int RangedLeases::process_template(VirtualNetwork* vn,
     // Set the network mask
     net_mask = 0xFFFFFFFF << host_bits;
     Lease::ip_to_string(net_mask, st_mask);
+    
     vn->replace_template_attribute("NETWORK_MASK", st_mask);
 
     if ( Leases::Lease::ip_to_number(st_addr,net_addr) != 0 )
@@ -190,8 +196,6 @@ int RangedLeases::process_template(VirtualNetwork* vn,
         goto error_not_base_addr;
     }
 
-    size = (1 << host_bits) - 2;
-
     // Set IP start/end
     if ( ip_start == 0 )
     {
@@ -200,7 +204,7 @@ int RangedLeases::process_template(VirtualNetwork* vn,
 
     if ( ip_end == 0 )
     {
-        ip_end   = net_addr + size;
+        ip_end   = net_addr +  (1 << host_bits) - 2;
     }
 
     // Check range restrictions
