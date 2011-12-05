@@ -301,7 +301,7 @@ int History::rebuild_attributes()
     rc += xpath(stime        , "/HISTORY/STIME",    0);
     rc += xpath(etime        , "/HISTORY/ETIME",    0);
     rc += xpath(vmm_mad_name , "/HISTORY/VMMMAD",   "not_found");
-    rc += xpath(vnm_mad_name , "/HISTORY/VNMMAD",   "not_found");
+          xpath(vnm_mad_name , "/HISTORY/VNMMAD",   "dummy");
     rc += xpath(tm_mad_name  , "/HISTORY/TMMAD",    "not_found");
     rc += xpath(prolog_stime , "/HISTORY/PSTIME",   0);
     rc += xpath(prolog_etime , "/HISTORY/PETIME",   0);
