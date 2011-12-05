@@ -152,7 +152,7 @@ void Nebula::start()
     mad_location     = nebula_location + "lib/mads/";
     etc_location     = nebula_location + "etc/";
     log_location     = nebula_location + "var/";
-    var_location     = nebula_location + "var/";
+    var_location     = nebula_location;
     hook_location    = nebula_location + "hooks/";
     remotes_location = nebula_location + "var/remotes/";
 
