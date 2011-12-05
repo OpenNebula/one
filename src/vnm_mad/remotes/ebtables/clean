@@ -20,9 +20,12 @@ $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
 require 'Ebtables'
+require 'Firewall'
 
-template    = ARGV[0]
+onevlan = EbtablesVLAN.from_base64(ARGV[0])
 
-onevlan = EbtablesVLAN.from_base64(template)
+onevlan.deactivate
 
-exit onevlan.deactivate
+fw = OpenNebulaFirewall.from_base64(ARGV[0])
+
+fw.deactivate

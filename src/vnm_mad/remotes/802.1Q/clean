@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,4 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-exit 0
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
+
+require 'OpenNebulaNetwork'
+require 'Firewall'
+
+fw = OpenNebulaFirewall.from_base64(ARGV[0])
+
+fw.deactivate
