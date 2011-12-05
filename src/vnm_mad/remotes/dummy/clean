@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,14 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-
-require 'base64'
-require 'OpenNebulaNetwork'
-require 'OpenvSwitch'
-
-template    = ARGV[0]
-vm_xml =  Base64::decode64(template)
-
-onevlan = OpenvSwitchVLAN.new(vm_xml)
-onevlan.activate
+exit 0

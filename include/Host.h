@@ -131,6 +131,15 @@ public:
     };
 
     /**
+     * Retrives VNM mad name
+     *    @return string vnm mad name
+     */
+    const string& get_vnm_mad() const
+    {
+        return vnm_mad_name;
+    };
+
+    /**
      * Retrives TM mad name
      *    @return string tm mad name
      */
@@ -311,6 +320,11 @@ private:
      */
 	string      vmm_mad_name;
 
+    /**
+     *  Name of the VN driver used to manage networking in this host
+     */
+    string      vnm_mad_name;
+
 	/**
      *  Name of the TM driver used to transfer file to and from this host
      */
@@ -338,6 +352,7 @@ private:
          const string& hostname="",
          const string& im_mad_name="",
          const string& vmm_mad_name="",
+         const string& vnm_mad_name="",
          const string& tm_mad_name="");
 
     virtual ~Host();

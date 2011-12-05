@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 require "OpenNebulaDriver"
 require "CommandManager"
+require 'base64'
+require 'rexml/document'
 
 # Author:: dsa-research.org
 # Copyright:: (c) 2011 Universidad Computense de Madrid
@@ -85,26 +87,15 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:poll].to_sym,       method("poll"))
     end
 
-    # Converts a deployment file from its remote path to the local (front-end)
-    # path
-    def get_local_deployment_file(rfile)
-        lfile = nil
+    # Decodes the encoded XML driver message received from the core
+    #
+    # @param [String] drv_message the driver message
+    # @return [REXML::Element] the root element of the decoded XML message
+    def decode(drv_message)
+        message = Base64.decode64(drv_message)
+        xml_doc = REXML::Document.new(message)
 
-        one_location = ENV["ONE_LOCATION"]
-
-        if one_location == nil
-            var_location = "/var/lib/one/"
-        else
-            var_location = one_location + "/var/"
-        end
-
-        m = rfile.match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
-
-        lfile = "#{var_location}#{m[1]}/#{m[2]}" if m
-
-        lfile = nil if lfile and !File.exists?(lfile)
-
-        return lfile
+        xml_doc.root
     end
 
     # Execute a command associated to an action and id in a remote host.
@@ -118,37 +109,37 @@ class VirtualMachineDriver < OpenNebulaDriver
     end
 
     # Virtual Machine Manager Protocol Actions (generic implementation)
-    def deploy(id, host, remote_dfile, not_used)
+    def deploy(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:deploy],RESULT[:failure],id,error)
     end
 
-    def shutdown(id, host, deploy_id, not_used)
+    def shutdown(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:shutdown],RESULT[:failure],id,error)
     end
 
-    def cancel(id, host, deploy_id, not_used)
+    def cancel(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:cancel],RESULT[:failure],id,error)
     end
 
-    def save(id, host, deploy_id, file)
+    def save(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:save],RESULT[:failure],id,error)
     end
 
-    def restore(id, host, deploy_id, file)
+    def restore(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:restore],RESULT[:failure],id,error)
     end
 
-    def migrate(id, host, deploy_id, dest_host)
+    def migrate(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:migrate],RESULT[:failure],id,error)
     end
 
-    def poll(id, host, deploy_id, not_used)
+    def poll(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:poll],RESULT[:failure],id,error)
     end

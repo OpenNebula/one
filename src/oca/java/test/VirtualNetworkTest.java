@@ -210,6 +210,54 @@ public class VirtualNetworkTest
     }
 
     @Test
+    public void holdFixed()
+    {
+        res = VirtualNetwork.allocate(client, fixed_template);
+        assertTrue( !res.isError() );
+
+        VirtualNetwork fixed_vnet =
+            new VirtualNetwork(Integer.parseInt(res.getMessage()), client);
+
+        res = fixed_vnet.hold("130.10.0.1");
+        assertTrue( !res.isError() );
+
+        res = fixed_vnet.hold("130.10.0.5");
+        assertTrue( res.isError() );
+
+        res = fixed_vnet.release("130.10.0.1");
+        assertTrue( !res.isError() );
+
+        res = fixed_vnet.release("130.10.0.1");
+        assertTrue( res.isError() );
+
+        res = fixed_vnet.release("130.10.0.5");
+        assertTrue( res.isError() );
+
+        fixed_vnet.delete();
+    }
+
+    @Test
+    public void holdRanged()
+    {
+        res = vnet.hold("192.168.0.10");
+        assertTrue( !res.isError() );
+
+        res = vnet.hold("192.168.100.1");
+        assertTrue( res.isError() );
+
+        res = vnet.release("192.168.0.10");
+        assertTrue( !res.isError() );
+
+        res = vnet.release("192.168.0.10");
+        assertTrue( res.isError() );
+
+        res = vnet.release("192.168.100.1");
+        assertTrue( res.isError() );
+
+        vnet.delete();
+    }
+
+    @Test
     public void update()
     {
         String new_template =  "ATT2 = NEW_VAL\n" +

@@ -93,8 +93,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Adds a lease to the Virtual Network
     EOT
 
-    command :addleases, 'Adds a lease to the Virtual Network', :vnetid, :ip,
-            [:mac, nil] do
+    command :addleases, addleases_desc, :vnetid, :ip, [:mac, nil] do
         helper.perform_action(args[0],options,"lease added") do |vn|
             vn.addleases(args[1], args[2])
         end
@@ -107,6 +106,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :rmleases, rmleases_desc, :vnetid, :ip do
         helper.perform_action(args[0],options,"lease removed") do |vn|
             vn.rmleases(args[1])
+        end
+    end
+
+    hold_desc = <<-EOT.unindent
+        Holds a Virtual Network lease, marking it as used
+    EOT
+
+    command :hold, hold_desc, :vnetid, :ip do
+        helper.perform_action(args[0],options,"lease on hold") do |vn|
+            vn.hold(args[1])
+        end
+    end
+
+    release_desc = <<-EOT.unindent
+        Releases a Virtual Network lease on hold
+    EOT
+
+    command :release, release_desc, :vnetid, :ip do
+        helper.perform_action(args[0],options,"lease released") do |vn|
+            vn.release(args[1])
         end
     end
 

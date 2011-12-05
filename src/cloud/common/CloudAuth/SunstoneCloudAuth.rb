@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 module SunstoneCloudAuth
-    def auth(env, params={})
+    def do_auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)
 
         if auth.provided? && auth.basic?
@@ -28,6 +28,6 @@ module SunstoneCloudAuth
             end
         end
 
-        return nil 
-    end 
+        return nil
+    end
 end

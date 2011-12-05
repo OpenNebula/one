@@ -39,31 +39,36 @@ class DummyDriver < VirtualMachineDriver
         )
     end
 
-    def deploy(id, host, remote_dfile, not_used)
-        send_message(ACTION[:deploy],RESULT[:success],id,"dummy")
+    def deploy(id, drv_message)
+        msg = decode(drv_message)
+
+        host = msg.elements["HOST"].text
+        name = msg.elements["VM/NAME"].text
+
+        send_message(ACTION[:deploy],RESULT[:success],id,"#{host}:#{name}:dummy")
     end
 
-    def shutdown(id, host, deploy_id, not_used)
+    def shutdown(id, drv_message)
         send_message(ACTION[:shutdown],RESULT[:success],id)
     end
 
-    def cancel(id, host, deploy_id, not_used)
+    def cancel(id, drv_message)
         send_message(ACTION[:cancel],RESULT[:success],id)
     end
 
-    def save(id, host, deploy_id, file)
+    def save(id, drv_message)
         send_message(ACTION[:save],RESULT[:success],id)
     end
 
-    def restore(id, host, deploy_id , file)
+    def restore(id, drv_message)
         send_message(ACTION[:restore],RESULT[:success],id)
     end
 
-    def migrate(id, host, deploy_id, dest_host)
+    def migrate(id, drv_message)
         send_message(ACTION[:migrate],RESULT[:success],id)
     end
 
-    def poll(id, host, deploy_id, not_used)
+    def poll(id, drv_message)
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
         # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES
         monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} " \

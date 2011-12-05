@@ -37,6 +37,7 @@
       <MAC><![CDATA[02:00:ac:10:00:64]]></MAC>
       <NETWORK><![CDATA[Small network]]></NETWORK>
       <NETWORK_ID><![CDATA[0]]></NETWORK_ID>
+      <VLAN><![CDATA[YES]]></VLAN>
     </NIC>
     <NIC>
       <BRIDGE><![CDATA[br1]]></BRIDGE>
@@ -44,6 +45,7 @@
       <MAC><![CDATA[02:00:0a:01:01:01]]></MAC>
       <NETWORK><![CDATA[r1]]></NETWORK>
       <NETWORK_ID><![CDATA[1]]></NETWORK_ID>
+      <VLAN><![CDATA[YES]]></VLAN>
     </NIC>
     <NIC>
       <BRIDGE><![CDATA[br2]]></BRIDGE>
@@ -51,6 +53,7 @@
       <MAC><![CDATA[02:00:0a:01:02:01]]></MAC>
       <NETWORK><![CDATA[r2]]></NETWORK>
       <NETWORK_ID><![CDATA[2]]></NETWORK_ID>
+      <VLAN><![CDATA[YES]]></VLAN>
     </NIC>
     <VMID><![CDATA[2]]></VMID>
   </TEMPLATE>

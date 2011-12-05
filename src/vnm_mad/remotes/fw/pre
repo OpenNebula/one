@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,25 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-
-require 'base64'
-require 'OpenNebulaNetwork'
-require 'Ebtables'
-
-action      = ARGV[0]
-template    = ARGV[1]
-
-# Uncomment to act only on the listed bridges.
-#FILTERED_BRIDGES = ['br0']
-
-vm_xml =  Base64::decode64(template)
-onevlan = EbtablesVLAN.new(vm_xml)
-
-case action
-when "on"
-    onevlan.filter(:bridge => FILTERED_BRIDGES) if defined? FILTERED_BRIDGES
-    onevlan.activate
-when "off"
-    onevlan.deactivate
-end
+exit 0

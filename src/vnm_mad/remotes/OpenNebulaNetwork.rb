@@ -17,9 +17,14 @@
 #--------------------------------------------------------------------------- #
 
 $: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), '..')
 
 require 'rexml/document'
 require 'OpenNebulaNic'
+require 'base64'
+
+require 'scripts_common'
+include OpenNebula
 
 CONF = {
     :start_vlan => 2
@@ -28,7 +33,7 @@ CONF = {
 COMMANDS = {
   :ebtables => "sudo /sbin/ebtables",
   :iptables => "sudo /sbin/iptables",
-  :brctl    => "sudo /usr/sbin/brctl",
+  :brctl    => "sudo /sbin/brctl",
   :ip       => "sudo /sbin/ip",
   :vconfig  => "sudo /sbin/vconfig",
   :virsh    => "virsh -c qemu:///system",
@@ -37,11 +42,8 @@ COMMANDS = {
   :lsmod    => "/sbin/lsmod"
 }
 
-#
-#
-#
 class VM
-    attr_accessor :nics, :filtered_nics, :vm_info
+    attr_accessor :nics, :vm_info
 
     def initialize(vm_root, hypervisor)
         @vm_root    = vm_root
@@ -50,7 +52,7 @@ class VM
 
         nics = Nics.new(@hypervisor)
 
-        @vm_root.elements.each("TEMPLATE/NIC") do |nic_element|
+        @vm_root.elements.each("TEMPLATE/NIC[VLAN='YES']") do |nic_element|
             nic =  nics.new_nic
 
             nic_element.elements.each('*') do |nic_attribute|
@@ -64,21 +66,12 @@ class VM
             nics << nic
         end
 
-        @nics          = nics
-        @filtered_nics = nics
-    end
-
-    def filter(*filter)
-       @filtered_nics = @nics.get(*filter)
-    end
-
-    def unfilter
-       @filtered_nics = @nics
+        @nics = nics
     end
 
     def each_nic(block)
-        if @filtered_nics != nil
-            @filtered_nics.each do |the_nic|
+        if @nics != nil
+            @nics.each do |the_nic|
                 block.call(the_nic)
             end
         end
@@ -98,24 +91,19 @@ end
 class OpenNebulaNetwork
     attr_reader :hypervisor, :vm
 
+    def self.from_base64(vm_64, hypervisor=nil)
+        vm_xml =  Base64::decode64(vm_64)
+        self.new(vm_xml, hypervisor)
+    end
+
     def initialize(vm_tpl, hypervisor=nil)
         if !hypervisor
-            @hypervisor = detect_hypervisor 
+            @hypervisor = detect_hypervisor
         else
             @hypervisor = hypervisor
         end
 
         @vm = VM.new(REXML::Document.new(vm_tpl).root, @hypervisor)
-    end
-
-    def filter(*filter)
-        @vm.filter(*filter)
-        self
-    end
-
-    def unfilter
-        @vm.unfilter
-        self
     end
 
     def process(&block)
