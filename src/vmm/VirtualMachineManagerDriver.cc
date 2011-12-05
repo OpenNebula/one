@@ -104,13 +104,12 @@ void VirtualMachineManagerDriver::get_default(
 
 void VirtualMachineManagerDriver::deploy (
     const int     oid,
-    const string& host,
-    const string& conf) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "DEPLOY " << oid << " " << host << " " << conf << " -" << endl;
-
+    os << "DEPLOY " << oid << " " << drv_msg << endl;
+    
     write(os);
 };
 
@@ -119,12 +118,11 @@ void VirtualMachineManagerDriver::deploy (
 
 void VirtualMachineManagerDriver::shutdown (
     const int     oid,
-    const string& host,
-    const string& name) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "SHUTDOWN " << oid << " " << host << " " << name << " -" << endl;
+    os << "SHUTDOWN " << oid << " " << drv_msg << endl;
 
     write(os);
 };
@@ -134,12 +132,11 @@ void VirtualMachineManagerDriver::shutdown (
 
 void VirtualMachineManagerDriver::cancel (
     const int     oid,
-    const string& host,
-    const string& name) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "CANCEL " << oid << " " << host << " " << name << " -" << endl;
+    os << "CANCEL " << oid << " " << drv_msg << endl;
 
     write(os);
 };
@@ -149,13 +146,11 @@ void VirtualMachineManagerDriver::cancel (
 
 void VirtualMachineManagerDriver::checkpoint (
     const int     oid,
-    const string& host,
-    const string& name,
-    const string& file) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os<< "CHECKPOINT " << oid<< " "<< host<< " "<< name<< " "<< file<< endl;
+    os<< "CHECKPOINT " << oid << " " << drv_msg << endl;
 
     write(os);
 };
@@ -165,13 +160,11 @@ void VirtualMachineManagerDriver::checkpoint (
 
 void VirtualMachineManagerDriver::save (
     const int     oid,
-    const string& host,
-    const string& name,
-    const string& file) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os<< "SAVE " << oid << " " << host << " " << name << " "<< file << endl;
+    os<< "SAVE " << oid << " " << drv_msg << endl;
 
     write(os);
 };
@@ -181,13 +174,11 @@ void VirtualMachineManagerDriver::save (
 
 void VirtualMachineManagerDriver::restore (
     const int     oid,
-    const string& host,
-    const string& name,
-    const string& file) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "RESTORE " << oid << " " << host << " " << name << " " << file<< endl;
+    os << "RESTORE " << oid << " " << drv_msg << endl;
 
     write(os);
 };
@@ -197,13 +188,11 @@ void VirtualMachineManagerDriver::restore (
 
 void VirtualMachineManagerDriver::migrate (
     const int     oid,
-    const string& shost,
-    const string& name,
-    const string& dhost) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os<< "MIGRATE " << oid << " "<< shost<< " "<< name<< " "<< dhost<< endl;
+    os<< "MIGRATE " << oid << " " << drv_msg << endl;
 
     write(os);
 };
@@ -213,12 +202,11 @@ void VirtualMachineManagerDriver::migrate (
 
 void VirtualMachineManagerDriver::poll (
     const int     oid,
-    const string& host,
-    const string& name) const
+    const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "POLL " << oid << " " << host << " " << name << " -" << endl;
+    os << "POLL " << oid << " " << drv_msg << endl;
 
     write(os);
 };

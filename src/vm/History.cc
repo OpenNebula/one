@@ -43,6 +43,7 @@ History::History(
         vm_dir(""),
         hid(-1),
         vmm_mad_name(""),
+        vnm_mad_name(""),
         tm_mad_name(""),
         stime(0),
         etime(0),
@@ -63,6 +64,7 @@ History::History(
     const string& _hostname,
     const string& _vm_dir,
     const string& _vmm,
+    const string& _vnm,
     const string& _tm):
         oid(_oid),
         seq(_seq),
@@ -70,6 +72,7 @@ History::History(
         vm_dir(_vm_dir),
         hid(_hid),
         vmm_mad_name(_vmm),
+        vnm_mad_name(_vnm),
         tm_mad_name(_tm),
         stime(0),
         etime(0),
@@ -267,6 +270,7 @@ string& History::to_xml(string& xml) const
           "<STIME>"   << stime         << "</STIME>" <<
           "<ETIME>"   << etime         << "</ETIME>" <<
           "<VMMMAD>"  << vmm_mad_name  << "</VMMMAD>"<<
+          "<VNMMAD>"  << vnm_mad_name  << "</VNMMAD>"<<
           "<TMMAD>"   << tm_mad_name   << "</TMMAD>" <<
           "<PSTIME>"  << prolog_stime  << "</PSTIME>"<<
           "<PETIME>"  << prolog_etime  << "</PETIME>"<<
@@ -297,6 +301,7 @@ int History::rebuild_attributes()
     rc += xpath(stime        , "/HISTORY/STIME",    0);
     rc += xpath(etime        , "/HISTORY/ETIME",    0);
     rc += xpath(vmm_mad_name , "/HISTORY/VMMMAD",   "not_found");
+    rc += xpath(vnm_mad_name , "/HISTORY/VNMMAD",   "not_found");
     rc += xpath(tm_mad_name  , "/HISTORY/TMMAD",    "not_found");
     rc += xpath(prolog_stime , "/HISTORY/PSTIME",   0);
     rc += xpath(prolog_etime , "/HISTORY/PETIME",   0);

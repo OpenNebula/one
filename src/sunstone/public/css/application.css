@@ -294,14 +294,14 @@ textarea:focus{
 }
 
 .add_remove_button {
-    font-size:0.8em;
-    height:25px;
+    font-size:0.8em !important;
+    height:25px !important;
     margin-bottom:4px;
 }
 
 .add_button {
     margin-left:148px;
-    width:74px;
+    width:58px !important;
 }
 
 .remove_button {

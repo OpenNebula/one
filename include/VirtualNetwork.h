@@ -85,7 +85,7 @@ public:
 
     /**
      * Adds Leases to the virtual network (Only implemented for FIXED networks)
-     *  @param leases_template template in the form LEASES = [IP=XX, MAC=XX].
+     *  @param leases template in the form LEASES = [IP=XX, MAC=XX].
      *         MAC is optional. The template can only contain one LEASE 
      *         definition.
      *  @param error_msg If the action fails, this message contains the reason.
@@ -96,13 +96,32 @@ public:
     /**
      * Removes Leases from the virtual network; if they are not used.(Only 
      * implemented for FIXED networks)
-     *  @param leases_template template in the form LEASES = [IP=XX].
+     *  @param leases template in the form LEASES = [IP=XX].
      *         The template can only contain one LEASE definition.
      *  @param error_msg If the action fails, this message contains
      *         the reason.
      *  @return 0 on success
      */
     int remove_leases(VirtualNetworkTemplate* leases, string& error_msg);
+
+    /**
+     * Holds a Lease, marking it as used
+     *  @param leases template in the form LEASES = [IP=XX].
+     *          The template can only contain one LEASE definition.
+     *  @param error_msg If the action fails, this message contains the reason.
+     *  @return 0 on success
+     */
+    int hold_leases(VirtualNetworkTemplate * leases, string& error_msg);
+
+    /**
+     * Releases a Lease on hold
+     *  @param leases template in the form LEASES = [IP=XX].
+     *          The template can only contain one LEASE definition.
+     *  @param error_msg If the action fails, this message contains
+     *         the reason.
+     *  @return 0 on success
+     */
+    int free_leases(VirtualNetworkTemplate* leases, string& error_msg);
 
     /**
      *    Gets a new lease for a specific VM
@@ -208,6 +227,11 @@ private:
      */
     string  vlan_id;
 
+    /**
+     *  Whether or not to isolate this network with the vnm driver
+     */
+    int     vlan;
+
     // -------------------------------------------------------------------------
     // Virtual Network Description
     // -------------------------------------------------------------------------
@@ -221,6 +245,9 @@ private:
      *  Holds information on given (and, optionally, possible) leases
      */
     Leases *    leases;
+
+    unsigned int ip_start;
+    unsigned int ip_end;
 
     // *************************************************************************
     // DataBase implementation (Private)

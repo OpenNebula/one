@@ -14,66 +14,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-class EbtablesVLAN < OpenNebulaNetwork
+require 'OpenNebulaNetwork'
+
+class OpenvSwitchVLAN < OpenNebulaNetwork
     def initialize(vm, hypervisor = nil)
         super(vm,hypervisor)
     end
 
-    def ebtables(rule)
-        system("#{COMMANDS[:ebtables]} -A #{rule}")
-    end
-
     def activate
         process do |nic|
-            tap = nic[:tap]
-            if tap
-                iface_mac = nic[:mac]
-
-                mac     = iface_mac.split(':')
-                mac[-1] = '00'
-
-                net_mac = mac.join(':')
-
-                in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 " <<
-                        "-o #{tap} -j DROP"
-                out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
-
-                ebtables(in_rule)
-                ebtables(out_rule)
+            if nic[:vlan_id]
+                vlan = nic[:vlan_id]
+            else
+                vlan = CONF[:start_vlan] + nic[:network_id].to_i
             end
+
+            cmd =  "#{COMMANDS[:ovs_vsctl]} set Port #{nic[:tap]} "
+            cmd << "tag=#{vlan}"
+
+            OpenNebula.exec_and_log(cmd)
         end
-    end
 
-    def deactivate
-        process do |nic|
-            mac = nic[:mac]
-            # remove 0-padding
-            mac = mac.split(":").collect{|e| e.hex.to_s(16)}.join(":")
-
-            tap = ""
-            rules.each do |rule|
-                if m = rule.match(/#{mac} -i (\w+)/)
-                    tap = m[1]
-                    break
-                end
-            end
-            remove_rules(tap)
-        end
-    end
-
-    def rules
-        `#{COMMANDS[:ebtables]} -L FORWARD`.split("\n")[3..-1]
-    end
-
-    def remove_rules(tap)
-        rules.each do |rule|
-            if rule.match(tap)
-                remove_rule(rule)
-            end
-        end
-    end
-
-    def remove_rule(rule)
-        system("#{COMMANDS[:ebtables]} -D FORWARD #{rule}")
+        return 0
     end
 end

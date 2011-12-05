@@ -86,9 +86,10 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RequestManagerVirtualMachine::get_host_information(int hid,
-                                                string& name,
+int RequestManagerVirtualMachine::get_host_information(int hid, 
+                                                string& name, 
                                                 string& vmm,
+                                                string& vnm,
                                                 string& tm,
                                                 RequestAttributes& att)
 {
@@ -110,6 +111,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
 
     name = host->get_name();
     vmm  = host->get_vmm_mad();
+    vnm  = host->get_vnm_mad();
     tm   = host->get_tm_mad();
 
     host->unlock();
@@ -142,6 +144,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        int              hid,
                                        const string&    hostname,
                                        const string&    vmm_mad,
+                                       const string&    vnm_mad,
                                        const string&    tm_mad,
                                        RequestAttributes& att)
 {
@@ -154,7 +157,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     nd.get_configuration_attribute("VM_DIR",vmdir);
 
-    vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
+    vm->add_history(hid,hostname,vmdir,vmm_mad,vnm_mad,tm_mad);
 
     rc = vmpool->update_history(vm);
 
@@ -273,6 +276,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     string hostname;
     string vmm_mad;
+    string vnm_mad;
     string tm_mad;
 
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
@@ -283,7 +287,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,tm_mad, att) != 0)
+    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad, att) != 0)
     {
         return;
     }
@@ -303,7 +307,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad,att) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,att) != 0)
     {
         vm->unlock();
         return;
@@ -329,6 +333,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     string hostname;
     string vmm_mad;
+    string vnm_mad;
     string tm_mad;
 
     int  id   = xmlrpc_c::value_int(paramList.getInt(1));
@@ -340,7 +345,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,tm_mad,att) != 0)
+    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad,att) != 0)
     {
         return;
     }
@@ -362,7 +367,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad,att) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,att) != 0)
     {
         vm->unlock();
         return;

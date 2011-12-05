@@ -18,6 +18,7 @@
 #define RANGED_LEASES_H_
 
 #include "Leases.h"
+#include "VirtualNetwork.h"
 
 using namespace std;
 
@@ -30,11 +31,22 @@ public:
     // *************************************************************************
     RangedLeases(SqlDB *        db,
                  int           _oid,
-                 unsigned long _size,
                  unsigned int  _mac_prefix,
-                 const string& _network_address);
+                 unsigned int  _ip_start,
+                 unsigned int  _ip_end);
 
     ~RangedLeases(){};
+
+    /**
+     * Reads (and clears) the necessary attributes to define a Ranged VNet
+     * @param vn Virtual Network
+     * @param ip_start First IP of the range
+     * @param ip_end Last IP of the range
+     * @param error_str Error reason, if any
+     * @return 0 on success, -1 otherwise
+     */
+    static int process_template(VirtualNetwork * vn,
+            unsigned int& ip_start, unsigned int& ip_end, string& error_str);
 
     /**
      * Returns an unused lease, which becomes used
@@ -105,15 +117,9 @@ public:
     }
 
 private:
-    /**
-     *  The default MAC prefix for the Leases
-     */
-    unsigned int mac_prefix;
 
-    /**
-     *  The Network address to generate leases
-     */
-    unsigned int network_address;
+    unsigned int ip_start;
+    unsigned int ip_end;
 
     unsigned int current;
 
