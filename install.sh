@@ -210,6 +210,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/tm_commands/dummy \
           $LIB_LOCATION/tm_commands/lvm \
           $LIB_LOCATION/tm_commands/vmware \
+          $LIB_LOCATION/tm_commands/vmware-ssh \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -348,6 +349,7 @@ INSTALL_FILES=(
     SHARED_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/shared
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
     VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
+    VMWARE_TM_SSH_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware-ssh
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
@@ -683,6 +685,10 @@ VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
                              src/tm_mad/vmware/tm_ln.sh \
                              src/tm_mad/vmware/tm_mv.sh"
 
+VMWARE_TM_SSH_COMMANDS_LIB_FILES="src/tm_mad/vmware-ssh/tm_clone.sh \
+                             src/tm_mad/vmware-ssh/tm_ln.sh"
+
+
 #-------------------------------------------------------------------------------
 # Image Repository drivers, to be installed under $REMOTES_LOCATION/image
 #   - FS based Image Repository, $REMOTES_LOCATION/image/fs
@@ -757,7 +763,8 @@ TM_DUMMY_ETC_FILES="src/tm_mad/dummy/tm_dummy.conf \
 TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
                   src/tm_mad/lvm/tm_lvmrc"
 
-TM_VMWARE_ETC_FILES="src/tm_mad/vmware/tm_vmware.conf"
+TM_VMWARE_ETC_FILES="src/tm_mad/vmware/tm_vmware.conf \
+                     src/tm_mad/vmware/tm_vmware_ssh.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
