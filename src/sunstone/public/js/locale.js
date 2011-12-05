@@ -1,4 +1,5 @@
 var lang=""
+var lang_tmp="";
 var locale = {};
 var datatable_lang = "";
 
@@ -22,17 +23,35 @@ function setLang(lang_str){
 
     });
 
-    var template = "LANG="+lang_str;
+    lang_tmp = lang_str;
+
+    var obj = {
+        data : {
+            id: uid,
+        },
+        success: updateUserTemplate
+    };
+    OpenNebula.User.show(obj);
+};
+
+function updateUserTemplate(request,user_json){
+    var template = user_json.USER.TEMPLATE;
+    template["LANG"] = lang_tmp;
+    var template_str="";
+    $.each(template,function(key,value){
+        template_str += (key + '=' + '"' + value + '"\n');
+    });
+
     var obj = {
         data: {
             id: uid,
-            extra_param: template
+            extra_param: template_str
         },
         error: onError
     };
     OpenNebula.User.update(obj);
-    $.post('config',JSON.stringify({lang:lang_str}),refreshLang);
-};
+    $.post('config',JSON.stringify({lang:lang_tmp}),refreshLang);
+}
 
 function refreshLang(){
     window.location.href = ".";
