@@ -39,7 +39,11 @@ class NicKVM < Hash
     end
 
     def get_info(vm)
-        deploy_id = vm['DEPLOY_ID']
+        if vm.deploy_id
+            deploy_id = vm.deploy_id
+        else
+            deploy_id = vm['DEPLOY_ID']
+        end
 
         if deploy_id and vm.vm_info[:dumpxml].nil?
             vm.vm_info[:dumpxml] = `#{COMMANDS[:virsh]} dumpxml #{deploy_id} \

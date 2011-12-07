@@ -18,8 +18,9 @@ require 'OpenNebulaNetwork'
 
 class OpenNebulaHM < OpenNebulaNetwork
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
-    def initialize(vm, hypervisor = nil)
-        super(vm,XPATH_FILTER,hypervisor)
+
+    def initialize(vm, deploy_id = nil, hypervisor = nil)
+        super(vm,XPATH_FILTER,deploy_id,hypervisor)
         @bridges = get_interfaces
     end
 

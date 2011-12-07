@@ -31,6 +31,7 @@ class VirtualNetworkDriver
         @options    = options
         @ssh_stream = options[:ssh_stream]
         @message    = options[:message]
+        @extra_data = options[:extra_data]
 
         @vm_encoded = Base64.encode64(@message.elements['VM'].to_s).delete("\n")
 
@@ -49,7 +50,9 @@ class VirtualNetworkDriver
             :stdin => nil,
         }.merge(ops)
 
-        cmd = action_command_line(aname, @vm_encoded)
+        deploy_id=@extra_data[:deploy_id] || '-'
+
+        cmd = action_command_line(aname, "#{@vm_encoded} #{deploy_id}")
 
         if action_is_local?(aname)
             execution = LocalCommand.run(cmd, log_method(id))
