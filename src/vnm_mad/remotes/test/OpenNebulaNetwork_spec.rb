@@ -43,7 +43,7 @@ describe 'networking' do
         $capture_commands = {
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml]
         }
-        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"TEMPLATE/NIC","kvm")
+        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"TEMPLATE/NIC",nil,"kvm")
         nics_expected = [{:bridge=>"br0",
                           :ip=>"172.16.0.100",
                           :mac=>"02:00:ac:10:00:64",
@@ -76,7 +76,7 @@ describe 'ebtables' do
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml],
             /ebtables/       => nil
         }
-        onevlan = EbtablesVLAN.new(OUTPUT[:onevm_show],"kvm")
+        onevlan = EbtablesVLAN.new(OUTPUT[:onevm_show],nil,"kvm")
         onevlan.activate
         ebtables_cmds = [
         "sudo /sbin/ebtables -A FORWARD -s ! 02:00:ac:10:00:00/ff:ff:ff:ff:ff:00 -o vnet0 -j DROP",
@@ -98,7 +98,7 @@ describe 'openvswitch' do
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml],
             /ovs-vsctl/      => nil
         }
-        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show],"kvm")
+        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show],nil,"kvm")
         onevlan.activate
         openvswitch_tags = [
             "sudo /usr/local/bin/ovs-vsctl set Port vnet0 tag=2",
@@ -117,7 +117,7 @@ describe 'openvswitch' do
             /brctl show/     => OUTPUT[:brctl_show],
             /ovs-vsctl/      => nil
         }
-        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show_vlan_id_kvm],"kvm")
+        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show_vlan_id_kvm],nil,"kvm")
         onevlan.activate
 
         onevlan_rules = ["sudo /usr/local/bin/ovs-vsctl set Port vnet0 tag=6",
@@ -166,7 +166,7 @@ describe 'host-managed' do
             /ip link set/    => nil,
     	    /ip link show/   => [nil,255]
         }
-        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_phydev_kvm],"kvm")
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_phydev_kvm],nil,"kvm")
         hm.activate
 
         hm_activate_rules = ["sudo /sbin/brctl addbr onebr6",
@@ -189,7 +189,7 @@ describe 'host-managed' do
             /ip link set/    => nil,
             /ip link show/   => [nil,255]
         }
-        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_vlan_id_kvm],"kvm")
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_vlan_id_kvm],nil,"kvm")
         hm.activate
 
         hm_vlan_id = ["sudo /sbin/brctl addbr onebr10",
@@ -222,7 +222,7 @@ describe 'host-managed' do
 
 
 
-        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_mixed],"kvm")
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_mixed],nil,"kvm")
         hm.activate
 
         hm_vlan_tag =  [ "sudo /sbin/brctl show",
