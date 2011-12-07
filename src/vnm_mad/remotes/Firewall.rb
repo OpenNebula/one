@@ -15,8 +15,10 @@
 #--------------------------------------------------------------------------- #
 
 class OpenNebulaFirewall < OpenNebulaNetwork
+    XPATH_FILTER =  "TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|" <<
+                    "BLACK_PORTS_TCP|BLACK_PORTS_UDP]"
     def initialize(vm, hypervisor = nil)
-        super(vm,hypervisor)
+        super(vm,XPATH_FILTER,hypervisor)
     end
     def activate
         vm_id =  @vm['ID']
