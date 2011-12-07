@@ -317,7 +317,7 @@ class OCCIServer < CloudServer
                         VirtualNetwork.build_xml,
                         @client,
                         request.body,
-                        @config[:bridge])
+                        @config[:template_location])
 
         # --- Generate the template and Allocate the new Instance ---
         template = network.to_one_template
