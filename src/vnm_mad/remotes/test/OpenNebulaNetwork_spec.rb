@@ -43,7 +43,7 @@ describe 'networking' do
         $capture_commands = {
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml]
         }
-        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"kvm")
+        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"TEMPLATE/NIC","kvm")
         nics_expected = [{:bridge=>"br0",
                           :ip=>"172.16.0.100",
                           :mac=>"02:00:ac:10:00:64",

@@ -45,14 +45,15 @@ COMMANDS = {
 class VM
     attr_accessor :nics, :vm_info
 
-    def initialize(vm_root, hypervisor)
-        @vm_root    = vm_root
-        @hypervisor = hypervisor
-        @vm_info    = Hash.new
+    def initialize(vm_root, xpath_filter, hypervisor)
+        @vm_root      = vm_root
+        @xpath_filter = xpath_filter
+        @hypervisor   = hypervisor
+        @vm_info      = Hash.new
 
         nics = Nics.new(@hypervisor)
 
-        @vm_root.elements.each("TEMPLATE/NIC[VLAN='YES']") do |nic_element|
+        @vm_root.elements.each(@xpath_filter) do |nic_element|
             nic =  nics.new_nic
 
             nic_element.elements.each('*') do |nic_attribute|
@@ -96,14 +97,14 @@ class OpenNebulaNetwork
         self.new(vm_xml, hypervisor)
     end
 
-    def initialize(vm_tpl, hypervisor=nil)
+    def initialize(vm_tpl, xpath_filter, hypervisor=nil)
         if !hypervisor
             @hypervisor = detect_hypervisor
         else
             @hypervisor = hypervisor
         end
 
-        @vm = VM.new(REXML::Document.new(vm_tpl).root, @hypervisor)
+        @vm = VM.new(REXML::Document.new(vm_tpl).root, xpath_filter, @hypervisor)
     end
 
     def process(&block)
