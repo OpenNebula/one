@@ -22,11 +22,13 @@ $: << File.join(File.dirname(__FILE__), "..")
 require 'OpenvSwitch'
 require 'Firewall'
 
+template64 = ARGV[0]
+deploy_id  = ARGV[1]
 
-onevlan = OpenvSwitchVLAN.from_base64(ARGV[0])
+onevlan = OpenvSwitchVLAN.from_base64(template64, deploy_id)
 
 onevlan.activate
 
-fw = OpenNebulaFirewall.from_base64(ARGV[0])
+fw = OpenNebulaFirewall.from_base64(template64, deploy_id)
 
 fw.activate

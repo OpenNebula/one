@@ -72,14 +72,16 @@ class VmmAction
         @vnm_src = VirtualNetworkDriver.new(@data[:net_drv],
                             :local_actions  => @vmm.options[:local_actions],
                             :message        => @xml_data,
-                            :ssh_stream     => @ssh_src)
+                            :ssh_stream     => @ssh_src,
+			                :extra_data     => @data)
 
         if @data[:dest_host] and !@data[:dest_host].empty?
             @ssh_dst = @vmm.get_ssh_stream(@data[:dest_host], @id)
             @vnm_dst = VirtualNetworkDriver.new(@data[:dest_driver],
                             :local_actions  => @vmm.options[:local_actions],
                             :message        => @xml_data,
-                            :ssh_stream     => @ssh_dst)
+                            :ssh_stream     => @ssh_dst,
+                            :extra_data     => @data)
         end
     end
 
@@ -115,7 +117,7 @@ class VmmAction
     # Executes a set of steps. If one step fails any recover action is performed
     # and the step execution breaks.
     # @param [Array] array of steps to be executed
-    # @return [String, Hash] "SUCCESS/FAILURE" for the step set, and 
+    # @return [String, Hash] "SUCCESS/FAILURE" for the step set, and
     # information associated to each step (by :<action>_info). In case of
     # failure information is also in [:failed_info]
     def execute_steps(steps)
@@ -124,7 +126,7 @@ class VmmAction
         steps.each do |step|
             # Execute Step
             case step[:driver]
-            when :vmm 
+            when :vmm
                 if step[:destination]
                     host = @data[:dest_host]
                     ssh  = @ssh_dst
@@ -134,7 +136,7 @@ class VmmAction
                 end
 
                 result, info = @vmm.do_action(get_parameters(step[:parameters]),
-                                              @id, 
+                                              @id,
                                               host,
                                               step[:action],
                                               :ssh_stream => ssh,
@@ -153,20 +155,21 @@ class VmmAction
                 info   = "No driver in #{step[:action]}"
             end
 
-            # Save the step info 
+            # Save the step info
             @data["#{step[:action]}_info".to_sym] = info
+            @data[step[:save_info_as]] = info if step[:save_info_as]
 
             # Roll back steps, store failed info and break steps
-            if DriverExecHelper.failed?(result) 
+            if DriverExecHelper.failed?(result)
                 execute_steps(@data[:fail_actions]) if @data[:fail_actions]
                 @data[:failed_info] = info
 
-                @vmm.log(@id, 
+                @vmm.log(@id,
                          "Failed to execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
                 break
             else
-                @vmm.log(@id, 
+                @vmm.log(@id,
                          "Sussecfully execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
             end
@@ -217,7 +220,7 @@ class ExecDriver < VirtualMachineDriver
         @options={
             :threaded => true
         }.merge!(options)
-        
+
         super("vmm/#{hypervisor}", @options)
 
         @hypervisor  = hypervisor
@@ -273,11 +276,12 @@ class ExecDriver < VirtualMachineDriver
             },
             # Boot the Virtual Machine
             {
-                :driver     => :vmm,
-                :action     => :deploy,
-                :parameters => [dfile, :host],
-                :stdin      => domain
-            },            
+                :driver       => :vmm,
+                :action       => :deploy,
+                :parameters   => [dfile, :host],
+                :stdin        => domain,
+                :save_info_as => :deploy_id
+            },
             # Execute post-boot networking setup
             {
                 :driver       => :vnm,
