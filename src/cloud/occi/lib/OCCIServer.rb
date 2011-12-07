@@ -40,6 +40,9 @@ require 'pp'
 
 COLLECTIONS = ["compute", "instance_type", "network", "storage"]
 
+# FLAG that will filter the elements retrieved from the Pools
+POOL_FILTER = Pool::INFO_GROUP
+
 class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
@@ -109,11 +112,9 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Pool Representation or error, status code
     def get_computes(request)
         # --- Get User's VMs ---
-        user_flag = -1
-
         vmpool = VirtualMachinePoolOCCI.new(
                         @client,
-                        user_flag)
+                        POOL_FILTER)
 
         # --- Prepare XML Response ---
         rc = vmpool.info
@@ -136,11 +137,9 @@ class OCCIServer < CloudServer
     # =>                          status code
     def get_networks(request)
         # --- Get User's VNETs ---
-        user_flag = -1
-
         network_pool = VirtualNetworkPoolOCCI.new(
                             @client,
-                            user_flag)
+                            POOL_FILTER)
 
         # --- Prepare XML Response ---
         rc = network_pool.info
@@ -162,11 +161,9 @@ class OCCIServer < CloudServer
     #                             status code
     def get_storages(request)
         # --- Get User's Images ---
-        user_flag = -1
-
         image_pool = ImagePoolOCCI.new(
                             @client,
-                            user_flag)
+                            POOL_FILTER)
 
         # --- Prepare XML Response ---
         rc = image_pool.info
