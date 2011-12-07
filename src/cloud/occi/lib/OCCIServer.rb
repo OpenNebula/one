@@ -37,6 +37,12 @@ require 'pp'
 # The OCCI Server provides an OCCI implementation based on the
 # OpenNebula Engine
 ##############################################################################
+
+COLLECTIONS = ["compute", "instance_type", "network", "storage"]
+
+# FLAG that will filter the elements retrieved from the Pools
+POOL_FILTER = Pool::INFO_GROUP
+
 class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
@@ -69,26 +75,51 @@ class OCCIServer < CloudServer
     ############################################################################
     ############################################################################
 
+    def get_collections(request)
+        xml_resp = "<COLLECTIONS>\n"
+
+        COLLECTIONS.each { |c|
+            xml_resp << "\t<#{c.upcase}_COLLECTION href=\"#{@base_url}/#{c}\">\n"
+        }
+
+        xml_resp << "</COLLECTIONS>"
+
+        return xml_resp, 200
+    end
+
+    def get_instance_types(request)
+        xml_resp = "<INSTANCE_TYPE_COLLECTION>\n"
+
+        @config[:instance_types].each { |k, v|
+            xml_resp << "\t<INSTANCE_TYPE href=\"#{@base_url}/instance_type/#{k.to_s}\">\n"
+            xml_resp << "\t\t<NAME>#{k.to_s}</NAME>\n"
+            v.each { |elem, value|
+                next if elem==:template
+                str = elem.to_s.upcase
+                xml_resp << "\t\t<#{str}>#{value}</#{str}>\n"
+            }
+            xml_resp << "\t</INSTANCE_TYPE>\n"
+        }
+
+        xml_resp << "</INSTANCE_TYPE_COLLECTION>"
+
+        return xml_resp, 200
+    end
+
+
     # Gets the pool representation of COMPUTES
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Pool Representation or error, status code
     def get_computes(request)
         # --- Get User's VMs ---
-        user_flag = -1
-
         vmpool = VirtualMachinePoolOCCI.new(
                         @client,
-                        user_flag)
+                        POOL_FILTER)
 
         # --- Prepare XML Response ---
         rc = vmpool.info
-
         if OpenNebula.is_error?(rc)
-             if rc.message.match("Error getting")
-                return rc, 404
-             else
-                return rc, 500
-             end
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         return to_occi_xml(vmpool, 200)
@@ -101,21 +132,14 @@ class OCCIServer < CloudServer
     # =>                          status code
     def get_networks(request)
         # --- Get User's VNETs ---
-        user_flag = -1
-
         network_pool = VirtualNetworkPoolOCCI.new(
                             @client,
-                            user_flag)
+                            POOL_FILTER)
 
         # --- Prepare XML Response ---
         rc = network_pool.info
-
         if OpenNebula.is_error?(rc)
-             if rc.message.match("Error getting")
-                return rc, 404
-             else
-                return rc, 500
-             end
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         return to_occi_xml(network_pool, 200)
@@ -127,21 +151,14 @@ class OCCIServer < CloudServer
     #                             status code
     def get_storages(request)
         # --- Get User's Images ---
-        user_flag = -1
-
         image_pool = ImagePoolOCCI.new(
                             @client,
-                            user_flag)
+                            POOL_FILTER)
 
         # --- Prepare XML Response ---
         rc = image_pool.info
-
         if OpenNebula.is_error?(rc)
-             if rc.message.match("Error getting")
-                return rc, 404
-             else
-                return rc, 500
-             end
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         return to_occi_xml(image_pool, 200)
@@ -157,7 +174,6 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = user_pool.info
-
         if OpenNebula.is_error?(rc)
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
@@ -192,7 +208,9 @@ class OCCIServer < CloudServer
         return template, 500 if OpenNebula.is_error?(template)
 
         rc = vm.allocate(template)
-        return rc, 500 if OpenNebula.is_error?(rc)
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
 
         # --- Prepare XML Response ---
         vm.info
@@ -211,13 +229,8 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = vm.info
-
         if OpenNebula.is_error?(rc)
-             if rc.message.match("Error getting")
-                return rc, 404
-             else
-                return rc, 500
-             end
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         return to_occi_xml(vm, 200)
@@ -234,12 +247,11 @@ class OCCIServer < CloudServer
                     VirtualMachine.build_xml(params[:id]),
                     @client)
 
-        rc = vm.info
-        return rc, 404 if OpenNebula::is_error?(rc)
-
         # --- Finalize the VM ---
         result = vm.finalize
-        return result, 500 if OpenNebula::is_error?(result)
+        if OpenNebula.is_error?(result)
+            return result, CloudServer::HTTP_ERROR_CODE[result.errno]
+        end
 
         return "", 204
     end
@@ -282,14 +294,16 @@ class OCCIServer < CloudServer
                         VirtualNetwork.build_xml,
                         @client,
                         request.body,
-                        @config[:bridge])
+                        @config[:template_location])
 
         # --- Generate the template and Allocate the new Instance ---
         template = network.to_one_template
         return template, 500 if OpenNebula.is_error?(template)
 
         rc = network.allocate(template)
-        return rc, 500 if OpenNebula.is_error?(rc)
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
 
         # --- Prepare XML Response ---
         network.info
@@ -307,13 +321,8 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = network.info
-
         if OpenNebula.is_error?(rc)
-             if rc.message.match("Error getting")
-                return rc, 404
-             else
-                return rc, 500
-             end
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         return to_occi_xml(network, 200)
@@ -328,12 +337,11 @@ class OCCIServer < CloudServer
                         VirtualNetwork.build_xml(params[:id]),
                         @client)
 
-        rc = network.info
-        return rc, 404 if OpenNebula::is_error?(rc)
-
         # --- Delete the VNET ---
         rc = network.delete
-        return rc, 500 if OpenNebula::is_error?(rc)
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
 
         return "", 204
     end
@@ -350,15 +358,15 @@ class OCCIServer < CloudServer
                     VirtualNetwork.build_xml(params[:id]),
                     @client)
 
-        rc = vnet.info
-        return rc, 400 if OpenNebula.is_error?(rc)
-
+        rc = nil
         if vnet_info['PUBLIC'] == 'YES'
             rc = vnet.publish
-            return rc, 400 if OpenNebula.is_error?(rc)
         elsif vnet_info['PUBLIC'] == 'NO'
             rc = vnet.unpublish
-            return rc, 400 if OpenNebula.is_error?(rc)
+        end
+
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         # --- Prepare XML Response ---
@@ -397,7 +405,9 @@ class OCCIServer < CloudServer
         return template, 500 if OpenNebula.is_error?(template)
 
         rc = image.allocate(template)
-        return rc, 500 if OpenNebula.is_error?(rc)
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
 
         # --- Prepare XML Response ---
         image.info
@@ -415,13 +425,8 @@ class OCCIServer < CloudServer
                         @client)
 
         rc = image.info
-
         if OpenNebula.is_error?(rc)
-             if rc.message.match("Error getting")
-                return rc, 404
-             else
-                return rc, 500
-             end
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         # --- Prepare XML Response ---
@@ -438,12 +443,11 @@ class OCCIServer < CloudServer
                         Image.build_xml(params[:id]),
                         @client)
 
-        rc = image.info
-        return rc, 404 if OpenNebula::is_error?(rc)
-
         # --- Delete the Image ---
         rc = image.delete
-        return rc, 500 if OpenNebula::is_error?(rc)
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
 
         return "", 204
     end
@@ -460,24 +464,22 @@ class OCCIServer < CloudServer
                     Image.build_xml(params[:id]),
                     @client)
 
-        rc = image.info
-        return rc, 400 if OpenNebula.is_error?(rc)
-
+        rc = nil
         if image_info['PERSISTENT'] && image_info['PUBLIC']
             error_msg = "It is not allowed more than one change per request"
             return OpenNebula::Error.new(error_msg), 400
         elsif image_info['PERSISTENT'] == 'YES'
             rc = image.persistent
-            return rc, 400 if OpenNebula.is_error?(rc)
         elsif image_info['PERSISTENT'] == 'NO'
             rc = image.nonpersistent
-            return rc, 400 if OpenNebula.is_error?(rc)
         elsif image_info['PUBLIC'] == 'YES'
             rc = image.publish
-            return rc, 400 if OpenNebula.is_error?(rc)
         elsif image_info['PUBLIC'] == 'NO'
             rc = image.unpublish
-            return rc, 400 if OpenNebula.is_error?(rc)
+        end
+
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         # --- Prepare XML Response ---
@@ -497,45 +499,10 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = user.info
-
         if OpenNebula.is_error?(rc)
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
         return to_occi_xml(user, 200)
-    end
-    
-    def get_computes_types
-        etc_location=ONE_LOCATION ? ONE_LOCATION+"/etc" : "/etc/one"
-        begin
-            xml_response = "<ALLOWED_COMPUTE_TYPES>\n"
-            
-            Dir[etc_location + "/occi_templates/**"].each{| filename |
-                next if File.basename(filename) == "common.erb"
-                xml_response += "\t<COMPUTE_TYPE>"
-                xml_response += "\t\t<NAME>#{File.basename(filename)[0..-5]}</NAME>"
-                file = File.open(filename, "r")
-                file.each_line{|line|
-                    next if line.match(/^#/)
-                    match=line.match(/^(.*)=(.*)/)
-                    next if !match 
-                    case match[1].strip
-                        when "NAME"
-                            xml_response += "\t\t<NAME>#{match[2].strip}</NAME>"                            
-                        when "CPU"
-                            xml_response += "\t\t<vCPU>#{match[2].strip}</vCPU>"
-                        when "MEMORY"
-                            xml_response += "\t\t<vMEM>#{match[2].strip}</vMEM>"  
-                    end                              
-                }
-                xml_response += "\t</COMPUTE_TYPE>"
-            }
-            
-            xml_response += "</ALLOWED_COMPUTE_TYPES>"
-
-            return xml_response, 200
-        rescue Exception  => e
-            return "Error getting the instance types. Reason: #{e.message}", 500
-        end        
     end
 end

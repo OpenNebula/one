@@ -245,7 +245,7 @@ void get_network_attribute(VirtualMachine * vm,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/*
+
 void get_user_attribute(VirtualMachine * vm,
                         const string&    attr_name,
                         string&          attr_value)
@@ -275,7 +275,7 @@ void get_user_attribute(VirtualMachine * vm,
 
     user->unlock();
 }
-*/
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -338,6 +338,19 @@ void insert_vector(VirtualMachine * vm,
         string value;
 
         get_image_attribute(vm,vname,vvar,vval,value);
+
+        if (!value.empty())
+        {
+            parsed << value;
+        }
+
+        return;
+    }
+    else if (name == "USER")
+    {
+        string value;
+
+        get_user_attribute(vm, vname, value);
 
         if (!value.empty())
         {

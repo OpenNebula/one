@@ -43,11 +43,18 @@ module OpenNebula
 
     # This function is used to pass error message to the mad
     def self.error_message(message)
-        STDERR.puts "ERROR MESSAGE --8<------"
-        STDERR.puts message
-        STDERR.puts "ERROR MESSAGE ------>8--"
+        STDERR.puts format_error_message(message)
     end
 
+    #This function formats an error message for OpenNebula Copyright    e
+    def self.format_error_message(message)
+        error_str = "ERROR MESSAGE --8<------\n"
+        error_str << message
+        error_str << "\nERROR MESSAGE ------>8--"
+        
+        return error_str
+    end
+     
     # Executes a command, if it fails returns error message and exits
     # If a second parameter is present it is used as the error message when
     # the command fails
