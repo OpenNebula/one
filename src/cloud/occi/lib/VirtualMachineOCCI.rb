@@ -100,11 +100,11 @@ class VirtualMachineOCCI < VirtualMachine
     def to_one_template()
         if @vm_info == nil
             error_msg = "Missing COMPUTE section in the XML body"
-            return OpenNebula::Error.new(error_msg), 400
+            return OpenNebula::Error.new(error_msg)
         end
 
         if @template == nil
-            return OpenNebula::Error.new("Bad instance type"), 500
+            return OpenNebula::Error.new("Bad instance type")
         end
 
         begin

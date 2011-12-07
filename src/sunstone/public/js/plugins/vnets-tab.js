@@ -87,11 +87,11 @@ var create_vn_tmpl =
                     <input type="text" name="net_address" id="net_address" /><br />\
                     <label for="net_mask">Network Mask:</label>\
                     <input type="text" name="net_mask" id="net_mask" /><br />\
-                    <label for="custom_pool" style="height:2em;">Enable pool boundaries:</label>\
+                    <label for="custom_pool" style="height:2em;">Define a subnet by IP range:</label>\
                     <input type="checkbox" name="custom_pool" id="custom_pool" style="margin-bottom:2em;" value="yes" /><br />\
-                    <label for="ip_start">Pool start:</label>\
+                    <label for="ip_start">IP start:</label>\
                     <input type="text" name="ip_start" id="ip_start" disabled="disabled" /><br />\
-                    <label for="ip_end">Pool end:</label>\
+                    <label for="ip_end">IP end:</label>\
                     <input type="text" name="ip_end" id="ip_end" disabled="disabled" />\
                  </fieldset>\
               </div>\
@@ -280,27 +280,7 @@ var vnet_actions = {
         error: onError,
         notify: false,
     },
-/*
-    "Network.modifyleases" : {
-        type: "custom",
-        call: function(action,obj){
-            nodes = getSelectedNodes(dataTable_vNetworks);
-            $.each(nodes,function(){
-                Sunstone.runAction(action,this,obj);
-            });
-        }
-    },
 
-    "Network.addleases_dialog" : {
-        type: "custom",
-        call: popUpAddLeaseDialog
-    },
-
-    "Network.rmleases_dialog" : {
-        type: "custom",
-        call: popUpRemoveLeaseDialog
-    },
-*/
     "Network.chown" : {
         type: "multiple",
         call: OpenNebula.Network.chown,
@@ -390,21 +370,7 @@ var vnet_buttons = {
         tip: "Select the new group:",
         condition: mustBeAdmin,
     },
-/*
-    "action_list" : {
-        type: "select",
-        actions: {
-            "Network.addleases_dialog" : {
-                type: "action",
-                text: "Add lease"
-            },
-            "Network.rmleases_dialog" : {
-                type: "action",
-                text: "Remove lease"
-            }
-        }
-    },
-*/
+
     "Network.delete" : {
         type: "action",
         text: "Delete"
@@ -416,10 +382,10 @@ var vnet_info_panel = {
         title: "Virtual network information",
         content: ""
     },
-    "vnet_template_tab" : {
-        title: "Virtual network template",
+    "vnet_leases_tab" : {
+        title: "Lease management",
         content: ""
-    }
+    },
 }
 
 var vnets_tab = {
@@ -547,31 +513,34 @@ function updateVNetworkInfo(request,vn){
             </tr>\
         </table>';
 
-    info_tab_content += printLeases(vn_info);
+    info_tab_content += '\
+          <table id="vn_template_table" class="info_table">\
+            <thead><tr><th colspan="2">Virtual Network template (attributes)</th></tr></thead>'+
+            prettyPrintJSON(vn_info.TEMPLATE)+
+         '</table>'
+
+
+    var leases_tab_content = printLeases(vn_info);
 
     var info_tab = {
         title: "Virtual Network information",
         content: info_tab_content
-    }
+    };
 
-    var template_tab = {
-        title: "Virtual Network template",
-        content:
-        '<table id="vn_template_table" class="info_table" style="width:80%">\
-         <thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
-            prettyPrintJSON(vn_info.TEMPLATE)+
-         '</table>'
-    }
+    var leases_tab = {
+        title: "Lease management",
+        content: leases_tab_content
+    };
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_template_tab",template_tab);
+    Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
 
     Sunstone.popUpInfoPanel("vnet_info_panel");
 
 }
 
 function printLeases(vn_info){
-    var html ='<form style="display:inline-block;" id="leases_form" vnid="'+vn_info.ID+'"><table id="vn_leases_info_table" class="info_table" style="width:100%;">\
+    var html ='<form style="display:inline-block;width:80%" id="leases_form" vnid="'+vn_info.ID+'"><table id="vn_leases_info_table" class="info_table" style="width:100%;">\
                <thead>\
                   <tr><th colspan="2">Leases information</th></tr>\
                </thead><tbody>';
@@ -1013,77 +982,6 @@ function setupLeasesOps(){
     });
 }
 
-
-/*
-function setupAddRemoveLeaseDialog() {
-    dialogs_context.append('<div title="Lease management" id="lease_vn_dialog"></div>');
-    $lease_vn_dialog = $('#lease_vn_dialog',dialogs_context)
-
-    var dialog = $lease_vn_dialog;
-
-    dialog.html(
-        '<form id="lease_vn_form" action="javascript:alert(\'js error!\');">\
-           <fieldset>\
-           <div>Please specify:</div>\
-           <label for="add_lease_ip">Lease IP:</label>\
-           <input type="text" name="add_lease_ip" id="add_lease_ip" /><br />\
-           <label id="add_lease_mac_label" for="add_lease_mac">Lease MAC:</label>\
-           <input type="text" name="add_lease_mac" id="add_lease_mac" />\
-           </select>\
-           </fieldset>\
-           <fieldset>\
-           <div class="form_buttons">\
-              <button id="lease_vn_proceed" class="" value="">OK</button>\
-              <button class="confirm_cancel" value="">Cancel</button>\
-           </div>\
-           </fieldset>\
-         </form>'
-    );
-
-    //Prepare the jquery-ui dialog. Set style options here.
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 410,
-        height: 220
-    });
-
-    $('button',dialog).button();
-
-    $('#lease_vn_form',dialog).submit(function(){
-        var ip = $('#add_lease_ip',this).val();
-        var mac = $('#add_lease_mac',this).val();
-
-        var obj = {ip: ip, mac: mac};
-
-        if (!mac.length) { delete obj.mac; };
-
-        Sunstone.runAction("Network.modifyleases",
-                           $('#lease_vn_proceed',this).val(),
-                           obj);
-        $lease_vn_dialog.dialog('close');
-        return false;
-    });
-}
-
-function popUpAddLeaseDialog() {
-    $lease_vn_dialog.dialog("option","title","Add lease");
-    $('#add_lease_mac',$lease_vn_dialog).show();
-    $('#add_lease_mac_label',$lease_vn_dialog).show();
-    $('#lease_vn_proceed',$lease_vn_dialog).val("Network.addleases");
-    $lease_vn_dialog.dialog("open");
-}
-
-function popUpRemoveLeaseDialog() {
-    $lease_vn_dialog.dialog("option","title","Remove lease");
-    $('#add_lease_mac',$lease_vn_dialog).hide();
-    $('#add_lease_mac_label',$lease_vn_dialog).hide();
-    $('#lease_vn_proceed',$lease_vn_dialog).val("Network.rmleases");
-    $lease_vn_dialog.dialog("open");
-}
-
-*/
-
 function setVNetAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_vNetworks);
@@ -1097,7 +995,7 @@ function setVNetAutorefresh() {
 
 function is_public_vnet(id) {
     var data = getElementData(id,"#vnetwork",dataTable_vNetworks)[7];
-    return $(data).attr("checked");
+    return $(data).is(":checked");
 };
 
 function setupVNetActionCheckboxes(){
