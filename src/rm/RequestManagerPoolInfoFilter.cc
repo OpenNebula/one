@@ -110,16 +110,12 @@ void RequestManagerPoolInfoFilter::request_execute(
 
                 // Default rights: Users can see and use their resources, and
                 // the public ones in their group
-                uid_filter  << "uid = " << att.uid << " OR ";
+                uid_filter  << "uid = " << att.uid;
 
-                // VMs don't have public column
-                if ( auth_object == AuthRequest::VM )
+                // VMs don't have public column, are considered private
+                if ( auth_object != AuthRequest::VM )
                 {
-                    uid_filter  << "gid = " << att.gid;
-                }
-                else
-                {
-                    uid_filter  << "(gid = " << att.gid << " AND public = 1)";
+                    uid_filter  << " OR (gid = " << att.gid << " AND public = 1)";
                 }
 
                 for ( it=oids.begin(); it< oids.end(); it++ )
