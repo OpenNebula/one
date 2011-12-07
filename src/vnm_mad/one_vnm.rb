@@ -31,7 +31,6 @@ class VirtualNetworkDriver
         @options    = options
         @ssh_stream = options[:ssh_stream]
         @message    = options[:message]
-        @extra_data = options[:extra_data]
 
         @vm_encoded = Base64.encode64(@message.elements['VM'].to_s).delete("\n")
 
@@ -45,14 +44,17 @@ class VirtualNetworkDriver
     # @param [String, Symbol] aname name of the action
     # @param [Hash] ops extra options for the command
     # @option ops [String] :stdin text to be writen to stdin
+    # @option ops [String] :parameters additional parameters for vnm action
     def do_action(id, aname, ops = {})
         options={
-            :stdin => nil,
+            :stdin      => nil,
+            :parameters => nil
         }.merge(ops)
 
-        deploy_id=@extra_data[:deploy_id] || '-'
+        cmd_params =  "#{@vm_encoded}"
+        cmd_params << " #{options[:parameters]}" if options[:parameters]
 
-        cmd = action_command_line(aname, "#{@vm_encoded} #{deploy_id}")
+        cmd = action_command_line(aname, cmd_params)
 
         if action_is_local?(aname)
             execution = LocalCommand.run(cmd, log_method(id))
