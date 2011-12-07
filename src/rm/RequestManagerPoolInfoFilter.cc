@@ -108,8 +108,19 @@ void RequestManagerPoolInfoFilter::request_execute(
             {
                 vector<int>::iterator it;
 
-                uid_filter  << "uid = " << att.uid << " OR "
-                            << "gid = " << att.gid;
+                // Default rights: Users can see and use their resources, and
+                // the public ones in their group
+                uid_filter  << "uid = " << att.uid << " OR ";
+
+                // VMs don't have public column
+                if ( auth_object == AuthRequest::VM )
+                {
+                    uid_filter  << "gid = " << att.gid;
+                }
+                else
+                {
+                    uid_filter  << "(gid = " << att.gid << " AND public = 1)";
+                }
 
                 for ( it=oids.begin(); it< oids.end(); it++ )
                 {
