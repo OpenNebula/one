@@ -2,7 +2,7 @@
 
 require 'pp'
 
-DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
+DEFAULT=%w{optional sunstone quota cloud ozones_server acct auth_ldap}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
@@ -31,7 +31,8 @@ GROUPS={
     :ozones_server_mysql => %w{json data_mapper dm-mysql-adapter mysql},
     :acct => ['sequel', SQLITE, 'mysql'],
     :acct_sqlite => ['sequel', SQLITE],
-    :acct_mysql => ['sequel', 'mysql']
+    :acct_mysql => ['sequel', 'mysql'],
+    :auth_ldap => 'net-ldap'
 }
 
 PACKAGES=GROUPS.keys
