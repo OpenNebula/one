@@ -56,7 +56,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 408 "vm_var_syntax.y"
+#line 404 "vm_var_syntax.y"
 
     char * val_str;
     int    val_int;
