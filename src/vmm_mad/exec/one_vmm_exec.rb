@@ -389,6 +389,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vnm,
                 :action       => :post,
+                :parameters   => [:deploy_id],
                 :fail_actions => [
                     {
                         :driver     => :vmm,
@@ -430,6 +431,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vnm,
                 :action       => :post,
+                :parameters   => [:deploy_id],
                 :destination  => :true
                 #TODO :fail_action what to do here? cancel VM?
             },
