@@ -100,8 +100,14 @@ def installed_gems
 end
 
 def try_library(name, error_message)
+    if GEM_TEST[name.to_s]
+        lib_test=GEM_TEST[name.to_s]
+    else
+        lib_test=name.to_s
+    end
+
     begin
-        require name.to_s
+        require lib_test
     rescue LoadError, Exception
         STDERR.puts error_message
         exit(-1)
