@@ -1,3 +1,4 @@
+//Translated by JSC "VIVOSS and OI", 2011
 //Переведено ЗАО «ВИВОСС и ОИ», 2011
 lang="ru"
 datatable_lang = "ru_datatable.txt"
