@@ -448,7 +448,7 @@ class ExecDriver < VirtualMachineDriver
         host        = data.elements['HOST'].text
         deploy_id   = data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id} #{host}", id, host, :poll)
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:poll])
     end
 end
 
