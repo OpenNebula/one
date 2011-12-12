@@ -17,8 +17,10 @@
 require 'OpenNebulaNetwork'
 
 class OpenNebulaHM < OpenNebulaNetwork
-    def initialize(vm, hypervisor = nil)
-        super(vm,hypervisor)
+    XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
+
+    def initialize(vm, deploy_id = nil, hypervisor = nil)
+        super(vm,XPATH_FILTER,deploy_id,hypervisor)
         @bridges = get_interfaces
     end
 
@@ -64,7 +66,8 @@ class OpenNebulaHM < OpenNebulaNetwork
 
     def device_exists?(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        OpenNebula.exec_and_log("#{COMMANDS[:ip]} link show #{dev}")
+        `#{COMMANDS[:ip]} link show #{dev}`
+        $?.exitstatus == 0
     end
 
     def create_dev_vlan(dev, vlan)

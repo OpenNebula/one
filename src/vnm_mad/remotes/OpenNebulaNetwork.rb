@@ -43,16 +43,20 @@ COMMANDS = {
 }
 
 class VM
-    attr_accessor :nics, :vm_info
+    attr_accessor :nics, :vm_info, :deploy_id
 
-    def initialize(vm_root, hypervisor)
-        @vm_root    = vm_root
-        @hypervisor = hypervisor
-        @vm_info    = Hash.new
+    def initialize(vm_root, xpath_filter, deploy_id, hypervisor)
+        @vm_root      = vm_root
+        @xpath_filter = xpath_filter
+        @deploy_id    = deploy_id
+        @hypervisor   = hypervisor
+        @vm_info      = Hash.new
+
+        @deploy_id = nil if deploy_id == "-"
 
         nics = Nics.new(@hypervisor)
 
-        @vm_root.elements.each("TEMPLATE/NIC[VLAN='YES']") do |nic_element|
+        @vm_root.elements.each(@xpath_filter) do |nic_element|
             nic =  nics.new_nic
 
             nic_element.elements.each('*') do |nic_attribute|
@@ -91,19 +95,19 @@ end
 class OpenNebulaNetwork
     attr_reader :hypervisor, :vm
 
-    def self.from_base64(vm_64, hypervisor=nil)
+    def self.from_base64(vm_64, deploy_id = nil, hypervisor = nil)
         vm_xml =  Base64::decode64(vm_64)
-        self.new(vm_xml, hypervisor)
+        self.new(vm_xml, deploy_id, hypervisor)
     end
 
-    def initialize(vm_tpl, hypervisor=nil)
+    def initialize(vm_tpl, xpath_filter, deploy_id = nil, hypervisor = nil)
         if !hypervisor
             @hypervisor = detect_hypervisor
         else
             @hypervisor = hypervisor
         end
-
-        @vm = VM.new(REXML::Document.new(vm_tpl).root, @hypervisor)
+        
+        @vm = VM.new(REXML::Document.new(vm_tpl).root, xpath_filter, deploy_id, @hypervisor)
     end
 
     def process(&block)

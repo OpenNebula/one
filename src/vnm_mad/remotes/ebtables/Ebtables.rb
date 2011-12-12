@@ -17,8 +17,10 @@
 require 'OpenNebulaNetwork'
 
 class EbtablesVLAN < OpenNebulaNetwork
-    def initialize(vm, hypervisor = nil)
-        super(vm,hypervisor)
+    XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
+
+    def initialize(vm, deploy_id = nil, hypervisor = nil)
+        super(vm,XPATH_FILTER,deploy_id,hypervisor)
     end
 
     def ebtables(rule)

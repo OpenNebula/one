@@ -105,7 +105,6 @@ class CloudAuth
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
             @token_expiration_time = time_now + EXPIRE_DELTA
-            update_userpool_cache
         end
 
         @token_expiration_time

@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 
-$: << File.dirname(__FILE__) + '/..' 
-$: << File.dirname(__FILE__) + '/../ebtables' 
-$: << File.dirname(__FILE__) + '/../802.1Q' 
-$: << File.dirname(__FILE__) + '/../ovswitch' 
-$: << File.dirname(__FILE__) + '/../../../mad/ruby' 
+$: << File.dirname(__FILE__) + '/..'
+$: << File.dirname(__FILE__) + '/../ebtables'
+$: << File.dirname(__FILE__) + '/../802.1Q'
+$: << File.dirname(__FILE__) + '/../ovswitch'
+$: << File.dirname(__FILE__) + '/../../../mad/ruby'
 $: << './'
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), '..')
@@ -43,7 +43,7 @@ describe 'networking' do
         $capture_commands = {
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml]
         }
-        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"kvm")
+        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"TEMPLATE/NIC",nil,"kvm")
         nics_expected = [{:bridge=>"br0",
                           :ip=>"172.16.0.100",
                           :mac=>"02:00:ac:10:00:64",
@@ -76,7 +76,7 @@ describe 'ebtables' do
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml],
             /ebtables/       => nil
         }
-        onevlan = EbtablesVLAN.new(OUTPUT[:onevm_show],"kvm")
+        onevlan = EbtablesVLAN.new(OUTPUT[:onevm_show],nil,"kvm")
         onevlan.activate
         ebtables_cmds = [
         "sudo /sbin/ebtables -A FORWARD -s ! 02:00:ac:10:00:00/ff:ff:ff:ff:ff:00 -o vnet0 -j DROP",
@@ -98,7 +98,7 @@ describe 'openvswitch' do
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml],
             /ovs-vsctl/      => nil
         }
-        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show],"kvm")
+        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show],nil,"kvm")
         onevlan.activate
         openvswitch_tags = [
             "sudo /usr/local/bin/ovs-vsctl set Port vnet0 tag=2",
@@ -117,7 +117,7 @@ describe 'openvswitch' do
             /brctl show/     => OUTPUT[:brctl_show],
             /ovs-vsctl/      => nil
         }
-        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show_vlan_id_kvm],"kvm")
+        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show_vlan_id_kvm],nil,"kvm")
         onevlan.activate
 
         onevlan_rules = ["sudo /usr/local/bin/ovs-vsctl set Port vnet0 tag=6",
@@ -159,36 +159,37 @@ end
 describe 'host-managed' do
     it "tag tun/tap devices with vlans in kvm" do
         $capture_commands = {
-            /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml_phydev],
+            /virsh.*dumpxml/ => nil,
             /brctl show/     => OUTPUT[:brctl_show],
-    	    /brctl add/    => nil,
+    	    /brctl add/      => nil,
     	    /vconfig/        => nil,
-    	    /ip link/        => nil
+            /ip link set/    => nil,
+    	    /ip link show/   => [nil,255]
         }
-        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_phydev_kvm],"kvm")
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_phydev_kvm],nil,"kvm")
         hm.activate
 
         hm_activate_rules = ["sudo /sbin/brctl addbr onebr6",
                              "sudo /sbin/ip link set onebr6 up",
-                             "sudo /sbin/ip link show eth0.8",
                              "sudo /sbin/vconfig add eth0 8",
                              "sudo /sbin/ip link set eth0.8 up",
                              "sudo /sbin/brctl addif onebr6 eth0.8"]
 
-        hm_activate_rules.map{|c| c + " 2>&1 1>/dev/null"}.each do |cmd|
-            $collector[:backtick].include?(cmd).should == true
+        hm_activate_rules.each do |cmd|
+            $collector[:backtick].grep(Regexp.new("^"+cmd)).length.should >= 1
         end
     end
 
     it "force VLAN_ID for vlans in kvm" do
         $capture_commands = {
-            /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml_vlan_id],
+            /virsh.*dumpxml/ => nil,
             /brctl show/     => OUTPUT[:brctl_show],
             /brctl add/      => nil,
             /vconfig/        => nil,
-            /ip link/        => nil
+            /ip link set/    => nil,
+            /ip link show/   => [nil,255]
         }
-        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_vlan_id_kvm],"kvm")
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_vlan_id_kvm],nil,"kvm")
         hm.activate
 
         hm_vlan_id = ["sudo /sbin/brctl addbr onebr10",
@@ -204,8 +205,36 @@ describe 'host-managed' do
                       "sudo /sbin/ip link set eth0.51 up",
                       "sudo /sbin/brctl addif specialbr eth0.51"]
 
-        hm_vlan_id.map{|c| c + " 2>&1 1>/dev/null"}.each do |cmd|
-            $collector[:backtick].include?(cmd).should == true
+        hm_vlan_id.each do |cmd|
+            $collector[:backtick].grep(Regexp.new("^"+cmd)).length.should >= 1
+        end
+    end
+
+    it "ignore interfaces that don't have vlan=yes" do
+        $capture_commands = {
+            /virsh.*dumpxml/ => nil,
+            /brctl show/     => OUTPUT[:brctl_show],
+            /brctl add/      => nil,
+            /vconfig/        => nil,
+            /ip link set/    => nil,
+            /ip link show/   => [nil,255]
+        }
+
+
+
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_mixed],nil,"kvm")
+        hm.activate
+
+        hm_vlan_tag =  [ "sudo /sbin/brctl show",
+                         "sudo /sbin/brctl addbr onebr1",
+                         "sudo /sbin/ip link set onebr1 up",
+                         "sudo /sbin/ip link show eth0.50",
+                         "sudo /sbin/vconfig add eth0 50",
+                         "sudo /sbin/ip link set eth0.50 up",
+                         "sudo /sbin/brctl addif onebr1 eth0.50" ]
+
+        hm_vlan_tag.each do |cmd|
+            $collector[:backtick].grep(Regexp.new("^"+cmd)).length.should >= 1
         end
     end
 end

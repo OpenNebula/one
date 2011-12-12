@@ -44,12 +44,17 @@ class VirtualNetworkDriver
     # @param [String, Symbol] aname name of the action
     # @param [Hash] ops extra options for the command
     # @option ops [String] :stdin text to be writen to stdin
+    # @option ops [String] :parameters additional parameters for vnm action
     def do_action(id, aname, ops = {})
         options={
-            :stdin => nil,
+            :stdin      => nil,
+            :parameters => nil
         }.merge(ops)
 
-        cmd = action_command_line(aname, @vm_encoded)
+        cmd_params =  "#{@vm_encoded}"
+        cmd_params << " #{options[:parameters]}" if options[:parameters]
+
+        cmd = action_command_line(aname, cmd_params)
 
         if action_is_local?(aname)
             execution = LocalCommand.run(cmd, log_method(id))

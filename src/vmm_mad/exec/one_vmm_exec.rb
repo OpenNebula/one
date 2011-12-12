@@ -115,7 +115,7 @@ class VmmAction
     # Executes a set of steps. If one step fails any recover action is performed
     # and the step execution breaks.
     # @param [Array] array of steps to be executed
-    # @return [String, Hash] "SUCCESS/FAILURE" for the step set, and 
+    # @return [String, Hash] "SUCCESS/FAILURE" for the step set, and
     # information associated to each step (by :<action>_info). In case of
     # failure information is also in [:failed_info]
     def execute_steps(steps)
@@ -124,7 +124,7 @@ class VmmAction
         steps.each do |step|
             # Execute Step
             case step[:driver]
-            when :vmm 
+            when :vmm
                 if step[:destination]
                     host = @data[:dest_host]
                     ssh  = @ssh_dst
@@ -134,7 +134,7 @@ class VmmAction
                 end
 
                 result, info = @vmm.do_action(get_parameters(step[:parameters]),
-                                              @id, 
+                                              @id,
                                               host,
                                               step[:action],
                                               :ssh_stream => ssh,
@@ -147,26 +147,27 @@ class VmmAction
                     vnm = @vnm_src
                 end
 
-                result, info = vnm.do_action(@id, step[:action])
+                result, info = vnm.do_action(@id, step[:action],
+                            :parameters => get_parameters(step[:parameters]))
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
                 info   = "No driver in #{step[:action]}"
             end
 
-            # Save the step info 
+            # Save the step info
             @data["#{step[:action]}_info".to_sym] = info
 
             # Roll back steps, store failed info and break steps
-            if DriverExecHelper.failed?(result) 
+            if DriverExecHelper.failed?(result)
                 execute_steps(@data[:fail_actions]) if @data[:fail_actions]
                 @data[:failed_info] = info
 
-                @vmm.log(@id, 
+                @vmm.log(@id,
                          "Failed to execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
                 break
             else
-                @vmm.log(@id, 
+                @vmm.log(@id,
                          "Sussecfully execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
             end
@@ -217,7 +218,7 @@ class ExecDriver < VirtualMachineDriver
         @options={
             :threaded => true
         }.merge!(options)
-        
+
         super("vmm/#{hypervisor}", @options)
 
         @hypervisor  = hypervisor
@@ -273,15 +274,16 @@ class ExecDriver < VirtualMachineDriver
             },
             # Boot the Virtual Machine
             {
-                :driver     => :vmm,
-                :action     => :deploy,
-                :parameters => [dfile, :host],
-                :stdin      => domain
-            },            
+                :driver       => :vmm,
+                :action       => :deploy,
+                :parameters   => [dfile, :host],
+                :stdin        => domain,
+            },
             # Execute post-boot networking setup
             {
                 :driver       => :vnm,
                 :action       => :post,
+                :parameters   => [:deploy_info],
                 :fail_actions => [
                     {
                         :driver     => :vmm,
@@ -492,5 +494,3 @@ exec_driver = ExecDriver.new(hypervisor,
                 :local_actions => local_actions)
 
 exec_driver.start_driver
-
-

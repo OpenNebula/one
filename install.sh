@@ -746,6 +746,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/2.9.85_to_2.9.90.rb \
                       src/onedb/2.9.90_to_3.0.0.rb \
                       src/onedb/3.0.0_to_3.1.0.rb \
+                      src/onedb/3.1.0_to_3.1.80.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
@@ -958,6 +959,7 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
                     src/cloud/occi/etc/templates/custom.erb \
                     src/cloud/occi/etc/templates/small.erb \
                     src/cloud/occi/etc/templates/medium.erb \
+                    src/cloud/occi/etc/templates/network.erb \
                     src/cloud/occi/etc/templates/large.erb"
 
 #-----------------------------------------------------------------------------
@@ -1111,6 +1113,9 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \
                         src/sunstone/public/images/Refresh-icon.png \
+                        src/sunstone/public/images/red_bullet.png \
+                        src/sunstone/public/images/yellow_bullet.png \
+                        src/sunstone/public/images/green_bullet.png \
                         src/sunstone/public/images/vnc_off.png \
                         src/sunstone/public/images/vnc_on.png"
 

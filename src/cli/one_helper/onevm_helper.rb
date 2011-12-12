@@ -99,10 +99,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 
-        if vm.has_elements?("/VM/HISTORY_RECORDS/")
+        if vm.has_elements?("/VM/HISTORY_RECORDS")
             puts
-	
-		
+
+
             CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
             format_history(vm)
         end
