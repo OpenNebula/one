@@ -89,9 +89,12 @@ class EC2Driver < VirtualMachineDriver
     end
 
     # DEPLOY action, also sets ports and ip if needed
-    def deploy(id, host, remote_dfile, not_used)
+    def deploy(id, drv_message)
+        msg = decode(drv_message)
 
-        local_dfile = get_local_deployment_file(remote_dfile)
+        host        = msg.elements["HOST"].text
+
+        local_dfile = msg.elements["LOCAL_DEPLOYMENT_FILE"].text
 
         if !local_dfile
             send_message(ACTION[:deploy],RESULT[:failure],id,
@@ -175,17 +178,31 @@ class EC2Driver < VirtualMachineDriver
     end
 
     # Shutdown a EC2 instance
-    def shutdown(id, host, deploy_id, not_used)
+    def shutdown(id, drv_message)
+        msg = decode(drv_message)
+
+        host      = msg.elements["HOST"].text
+        deploy_id = msg.elements["DEPLOY_ID"].text
+
         ec2_terminate(ACTION[:shutdown], id, deploy_id)
     end
 
     # Cancel a EC2 instance
-    def cancel(id, host, deploy_id, not_used)
+    def cancel(id, drv_message)
+        msg = decode(drv_message)
+
+        host      = msg.elements["HOST"].text
+        deploy_id = msg.elements["DEPLOY_ID"].text
+
         ec2_terminate(ACTION[:cancel], id, deploy_id)
     end
 
     # Get info (IP, and state) for a EC2 instance
-    def poll(id, host, deploy_id, not_used)
+    def poll(id, drv_message)
+        msg = decode(drv_message)
+
+        host      = msg.elements["HOST"].text
+        deploy_id = msg.elements["DEPLOY_ID"].text
 
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
                 "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \

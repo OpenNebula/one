@@ -54,7 +54,7 @@ if options[:group]
 end
 
 if ldap.authenticate(user_name, secret)
-    puts "#{user} #{user_name}"
+    puts "ldap #{user} #{user_name}"
     exit(0)
 else
     STDERR.puts "Bad user/password"

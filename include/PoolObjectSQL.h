@@ -259,9 +259,9 @@ public:
      *  Generates a XML string for the template of the Object
      *    @param xml the string to store the XML description.
      */
-    void template_to_xml(string &xml) const
+   string&  template_to_xml(string &xml) const
     {
-        obj_template->to_xml(xml);
+        return obj_template->to_xml(xml);
     }
 
     /**

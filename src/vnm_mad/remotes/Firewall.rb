@@ -15,9 +15,13 @@
 #--------------------------------------------------------------------------- #
 
 class OpenNebulaFirewall < OpenNebulaNetwork
-    def initialize(vm, hypervisor = nil)
-        super(vm,hypervisor)
+    XPATH_FILTER =  "TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|" <<
+                    "BLACK_PORTS_TCP|BLACK_PORTS_UDP]"
+
+    def initialize(vm, deploy_id = nil, hypervisor = nil)
+        super(vm,XPATH_FILTER,deploy_id,hypervisor)
     end
+
     def activate
         vm_id =  @vm['ID']
         process do |nic|
@@ -104,7 +108,7 @@ class OpenNebulaFirewall < OpenNebulaNetwork
 
     def run_rules(rules)
         rules.flatten.each do |rule|
-            system(rule)
+            OpenNebula.exec_and_log(rule)
         end
     end
 

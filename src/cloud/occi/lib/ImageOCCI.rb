@@ -30,7 +30,7 @@ class ImageOCCI < Image
             <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
             <% end %>
             <SIZE><%= self['SIZE'] %></SIZE>
-            <% if self['FSTYPE'] != nil %>
+            <% if self['FSTYPE'] != nil and  !self['FSTYPE'].empty? %>
             <FSTYPE><%= self['FSTYPE'] %></FSTYPE>
             <% end %>
             <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>

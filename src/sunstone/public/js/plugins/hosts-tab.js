@@ -80,6 +80,15 @@ var create_host_tmpl =
                <option value="im_dummy">' + tr("Dummy") + '</option>\
       </select>\
     </div>\
+    <div class="manager clear" id="vnm_mads">\
+      <label>Virtual Network Manager:</label>\
+       <select id="vnm_mad" name="vn">\
+         <option value="dummy">Dummy</option>\
+         <option value="etables">Etables</option>\
+         <option value="ovswitch">Open vSwitch</option>\
+         <option value="802.1Q">802.1Q</option>\
+       </select>\
+    </div>\
     <div class="manager clear" id="tm_mads">\
       <label>' + tr("Transfer Manager") + ':</label>\
        <select id="tm_mad" name="tm">\
@@ -444,7 +453,11 @@ function updateHostInfo(request,host){
                 <td class="value_td">'+host_info.VM_MAD+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">' + tr("TM MAD") + '</td>\
+                <td class="key_td">'+ tr("VN MAD") +'</td>\
+                <td class="value_td">'+host_info.VN_MAD+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">'+ tr("TM MAD") +'</td>\
                 <td class="value_td">'+host_info.TM_MAD+'</td>\
             </tr>\
             </tbody>\
@@ -537,6 +550,7 @@ function setupCreateHostDialog(){
                 "name": $('#name',this).val(),
                 "tm_mad": $('#tm_mad :selected',this).val(),
                 "vm_mad": $('#vmm_mad :selected',this).val(),
+                "vnm_mad": $('#vnm_mad :selected',this).val(),
                 "im_mad": $('#im_mad :selected',this).val()
             }
         }

@@ -43,11 +43,13 @@ module OpenNebulaJSON
 
             rc = case action_hash['perform']
                  when "addleases" then self.addleases(action_hash['params'])
-                 when "rmleases" then self.rmleases(action_hash['params'])
+                 when "rmleases"  then self.rmleases(action_hash['params'])
                  when "publish"   then self.publish
                  when "unpublish" then self.unpublish
                  when "update"    then self.update(action_hash['params'])
                  when "chown"     then self.chown(action_hash['params'])
+                 when "hold"      then self.hold(action_hash['params'])
+                 when "release"   then self.release(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -69,6 +71,14 @@ module OpenNebulaJSON
 
         def chown(params=Hash.new)
             super(params['owner_id'].to_i,params['group_id'].to_i)
+        end
+
+        def hold(params=Hash.new)
+            super(params['ip'])
+        end
+
+        def release(params=Hash.new)
+            super(params['ip'])
         end
     end
 end

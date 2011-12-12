@@ -33,7 +33,8 @@
       <MAC><![CDATA[02:00:ac:10:00:cb]]></MAC>
       <NETWORK><![CDATA[virt-net]]></NETWORK>
       <NETWORK_ID><![CDATA[3]]></NETWORK_ID>
-      <WHITE_PORTS_TCP><![CDATA[22,80]]></WHITE_PORTS_TCP>
+      <VLAN><![CDATA[YES]]></VLAN>
+      <WHITE_PORTS_TCP><![CDATA[22, 80]]></WHITE_PORTS_TCP>
     </NIC>
     <NIC>
       <BRIDGE><![CDATA[onebr2]]></BRIDGE>
@@ -42,6 +43,7 @@
       <NETWORK><![CDATA[phy]]></NETWORK>
       <NETWORK_ID><![CDATA[2]]></NETWORK_ID>
       <PHYDEV><![CDATA[eth0]]></PHYDEV>
+      <VLAN><![CDATA[YES]]></VLAN>
     </NIC>
     <OS>
       <INITRD><![CDATA[/srv/cloud/one/ttylinux-xen/initrd.gz]]></INITRD>
