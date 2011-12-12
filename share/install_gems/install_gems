@@ -37,6 +37,10 @@ GROUPS={
 
 PACKAGES=GROUPS.keys
 
+GEM_TEST={
+    'net-ldap' => 'net/ldap'
+}
+
 DISTRIBUTIONS={
     :debian => {
         :id => ['Ubuntu', 'Debian'],

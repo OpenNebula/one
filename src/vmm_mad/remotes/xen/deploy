@@ -46,7 +46,7 @@ if [ "x$?" = "x0" ]; then
     
     log_debug "Credits set to $credits"
     
-    name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' ' | tr -d "\'"`
+    name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' ' | tr -d "\'" | cut -d' ' -f1`
     
     $XM_CREDITS -d $name -w $credits
     
