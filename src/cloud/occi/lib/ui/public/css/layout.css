@@ -1,0 +1,183 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+body {
+    background: #f5f5f5;
+}
+
+.outer-center, .inner-center  {
+    padding:        0;
+}
+
+.outer-center {
+    border:         0;
+}
+
+.inner-south {
+   padding: 0;
+}
+
+#dialog div {
+    border: 0;
+}
+
+.tab {
+    padding:  5px 10px 0 10px;
+}
+
+body {
+    font-family:    Arial, Verdana, Geneva, Helvetica, sans-serif;
+    font-size:      13px;
+}
+
+#header {
+    padding: 0 10px 0 10px;
+    background-color: #353735;
+    border:0;
+}
+
+#footer {
+    padding-top: 9px;
+    font-size: 0.8em;
+    color: white;
+    text-align: center;
+    background-color: #353735;
+    border:0;
+
+}
+
+#footer a {
+    color: white;
+    text-decoration: underline;
+}
+
+
+
+#logo {
+    padding-top: 6px;
+    font-weight: bold;
+    color: white;
+    float:left;
+}
+
+#login-info {
+    padding-top: 4px;
+    float: right;
+    padding-right: 5px;
+}
+
+#links {
+    padding-top: 4px;
+    margin-right: 40px;
+    float: right;
+}
+
+#login-info, #login-info a, #links, #links a {
+    color: white;
+}
+
+#login-info, #login-info a {
+    font-weight: bold;
+}
+.sunstone-color {
+    color: #E69138;
+}
+
+#logo-wrapper {
+    float:  right;
+    margin-top: 0px;
+    margin-right: 20px;
+}
+
+#menu {
+    padding-right:  0;
+    padding-left:   0;
+    border:0;
+    border-right: 1px solid #353735;
+    background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(0.95, rgb(99,102,99)),
+    color-stop(1, rgb(53,55,53))
+);
+background-image: -moz-linear-gradient(
+    left center,
+    rgb(99,102,99) 95%,
+    rgb(53,55,53) 100%
+);
+}
+#navigation {
+    list-style:     none;
+    padding:        0;
+}
+
+#navigation li {
+    line-height:        2em;
+    text-align:         right;
+    padding-right:      10px;
+}
+
+#navigation li a {
+    color:  #ffffff;
+}
+
+#navigation li:hover, .navigation-active-li {
+    background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(0.95, #E69138),
+    color-stop(1, rgb(53,55,53))
+);
+background-image: -moz-linear-gradient(
+    left center,
+    #E69138 95%,
+    rgb(53,55,53) 100%
+);
+    /*
+    background-image: -webkit-gradient(
+        linear,
+        right top,
+        left top,
+        color-stop(0, rgb(0,152,192)),
+        color-stop(1, rgb(255,255,255))
+    );
+    background-image: -moz-linear-gradient(
+        right center,
+        rgb(0,152,192) 0%,
+        rgb(255,255,255) 100%
+    );
+    */
+}
+.navigation-active-li-a {
+    font-weight: bold;
+}
+#navigation li:hover a, .navigation-active-li-a {
+    color: #ffffff !important;
+}
+
+#language {
+    float:right;
+    margin-top:2px;
+    margin-right:25px;
+    width: 100px;
+}
+
+#language select {
+    width: 100px;
+    height: 22px;
+}
