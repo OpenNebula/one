@@ -750,20 +750,17 @@ function setupCreateVMDialog(){
         if (!template_id.length){
             notifyError("You have not selected a template");
             return false;
-        }
+        };
 
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
-        }
+        };
 
-        if (n_times_int>1){
-            if (!vm_name.length){
-                vm_name = $('#template_id option:selected',this).text();
-            }
-            for (var i=0; i< n_times_int; i++){
-                Sunstone.runAction("Template.instantiate",template_id,vm_name+"_"+i);
-            };
-        } else {
+        if (!vm_name.length){
+            vm_name = $('#template_id option:selected',this).text();
+        };
+
+        for (var i=0; i< n_times_int; i++){
             Sunstone.runAction("Template.instantiate",template_id,vm_name);
         };
 
