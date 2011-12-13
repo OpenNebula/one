@@ -78,7 +78,15 @@ class Quota
 
     IMAGE_USAGE = {
         :storage => {
-            :proc_info  => lambda {|template| File.size(template['PATH']) },
+            :proc_info  => lambda {|template|
+                if template['TYPE'] == 'DATABLOCK'
+                    template['SIZE'].to_i
+                elsif template['PATH']
+                    (File.size(template['PATH']).to_f / 2**20).round(2)
+                else
+                    0
+                end
+            },
             :xpath => 'SIZE'
         }
     }
