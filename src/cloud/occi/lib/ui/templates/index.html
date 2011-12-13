@@ -20,6 +20,13 @@
 
     <!-- End Vendor Libraries -->
 
+    <!--Languages-->
+    <script type="text/javascript" src="js/locale.js"></script>
+<%if session[:lang]%>
+    <script type="text/javascript" src="locale/<%=session[:lang]%>/<%=session[:lang]%>.js"></script>
+<%end%>
+    <!--endLanguages-->
+
     <link rel="stylesheet" type="text/css" href="css/application.css" />
     <link rel="stylesheet" type="text/css" href="css/layout.css" />
     <script type="text/javascript" src="js/layout.js"></script>
