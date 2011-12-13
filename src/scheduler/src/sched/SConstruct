@@ -21,7 +21,7 @@ import os
 
 lib_name='scheduler_sched'
 
-source_files=['Scheduler.cc']
+source_files=['Scheduler.cc' , 'SchedulerTemplate.cc']
 
 # Build library
 sched_env.StaticLibrary(lib_name, source_files)

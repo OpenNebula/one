@@ -75,7 +75,6 @@ const char * OpenNebulaTemplate::conf_name="oned.conf";
 
 void OpenNebulaTemplate::set_conf_default()
 {
-    ostringstream       os;
     SingleAttribute *   attribute;
     VectorAttribute *   vattribute;
     string              value;
