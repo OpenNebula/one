@@ -27,9 +27,10 @@ module OpenNebulaJSON
             end
 
             self.allocate(host_hash['name'],
-                        host_hash['im_mad'],
-                        host_hash['vm_mad'],
-                        host_hash['tm_mad'])
+                          host_hash['im_mad'],
+                          host_hash['vm_mad'],
+                          host_hash['vnm_mad'],
+                          host_hash['tm_mad'])
         end
 
         def delete

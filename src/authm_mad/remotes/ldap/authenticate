@@ -1,0 +1,63 @@
+#!/usr/bin/ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2010-2011, C12G Labs S.L                                           #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    ETC_LOCATION="/etc/one/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION=ONE_LOCATION+"/etc/"
+end
+
+$: << RUBY_LIB_LOCATION
+
+require 'yaml'
+require 'ldap_auth'
+
+user=ARGV[0]
+pass=ARGV[1]
+secret=ARGV[2]
+
+options=YAML.load(File.read(ETC_LOCATION+'/auth/ldap_auth.conf'))
+
+ldap=LdapAuth.new(options)
+
+user_name=ldap.find_user(user)
+
+if !user_name
+    STDERR.puts "User #{user} not found"
+    exit(-1)
+end
+
+if options[:group]
+    if !ldap.is_in_group?(user_name, options[:group])
+        STDERR.puts "User #{user} is not in group #{options[:group]}"
+        exit(-1)
+    end
+end
+
+if ldap.authenticate(user_name, secret)
+    puts "ldap #{user} #{user_name}"
+    exit(0)
+else
+    STDERR.puts "Bad user/password"
+    exit(-1)
+end
+

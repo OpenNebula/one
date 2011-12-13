@@ -25,10 +25,10 @@ var groups_tab_content =
 <table id="datatable_groups" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
-      <th>ID</th>\
-      <th>Name</th>\
-      <th>Users</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Users")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
@@ -40,14 +40,14 @@ var create_group_tmpl =
 '<form id="create_group_form" action="">\
   <fieldset style="border:none;">\
      <div>\
-        <label for="name">Group name:</label>\
+        <label for="name">'+tr("Group name")+':</label>\
         <input type="text" name="name" id="name" /><br />\
       </div>\
   </fieldset>\
   <fieldset>\
       <div class="form_buttons">\
-        <button class="button" id="create_group_submit" value="Group.create">Create</button>\
-        <button class="button" type="reset" value="reset">Reset</button>\
+        <button class="button" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
+        <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
       </div>\
   </fieldset>\
 </form>';
@@ -118,12 +118,12 @@ var group_actions = {
 var group_buttons = {
     "Group.refresh" : {
         type: "image",
-        text: "Refresh list",
+        text: tr("Refresh list"),
         img: "images/Refresh-icon.png"
     },
     "Group.create_dialog" : {
         type: "create_dialog",
-        text: "+ New Group"
+        text: tr("+ New Group")
     },
     // "Group.chown" : {
     //     type: "confirm_with_select",
@@ -135,12 +135,12 @@ var group_buttons = {
 
     "Group.delete" : {
         type: "action",
-        text: "Delete"
+        text: tr("Delete")
     }
 };
 
 var groups_tab = {
-    title: 'Groups',
+    title: tr("Groups"),
     content: groups_tab_content,
     buttons: group_buttons
 }
@@ -228,7 +228,7 @@ function updateGroupsView(request, group_list){
 
 //Prepares the dialog to create
 function setupCreateGroupDialog(){
-    dialogs_context.append('<div title="Create group" id="create_group_dialog"></div>');
+    dialogs_context.append('<div title=\"'+tr("Create group")+'\" id="create_group_dialog"></div>');
     $create_group_dialog = $('#create_group_dialog',dialogs_context);
     var dialog = $create_group_dialog;
 
@@ -259,7 +259,7 @@ function popUpCreateGroupDialog(){
 function setGroupAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_groups);
-        var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr("value");
+        var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Group.autorefresh");
         }
@@ -276,7 +276,11 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "35px", "aTargets": [1] }
-        ]
+        ],
+	"oLanguage": (datatable_lang != "") ?
+	    {
+		sUrl: "locale/"+lang+"/"+datatable_lang
+	    } : ""
     });
 
     dataTable_groups.fnClearTable();

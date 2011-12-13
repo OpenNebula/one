@@ -83,3 +83,13 @@ function check_restricted {
 
   	echo 0
 }
+
+# Change the permissions of all the files inside directoriers (= VMware disks)
+function fix_owner_perms {
+
+	find $IMAGE_REPOSITORY_PATH -type d \
+	                            -mindepth 1 \
+	                            -maxdepth 1 \
+	                            -execdir chown \
+	                            -R $SUDO_USER '{}' \;
+}

@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebula'
+require 'ipaddr'
 
 include OpenNebula
 
@@ -26,35 +27,23 @@ class VirtualNetworkOCCI < VirtualNetwork
             <% if self['TEMPLATE/DESCRIPTION'] != nil %>
             <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
             <% end %>
-            <ADDRESS><%= self['TEMPLATE/NETWORK_ADDRESS'] %></ADDRESS>
-            <% if self['TEMPLATE/NETWORK_SIZE'] %>
-            <SIZE><%= self['TEMPLATE/NETWORK_SIZE'] %></SIZE>
+            <% if network_address != nil %>
+            <ADDRESS><%= network_address %></ADDRESS>
             <% end %>
+            <% if network_size != nil %>
+            <SIZE><%= network_size %></SIZE>
+            <% end %>
+            <USED_LEASES><%= self['TOTAL_LEASES'] %></USED_LEASES>
             <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>
         </NETWORK>
     }
 
-    ONE_NETWORK = %q{
-        NAME            = "<%= @vnet_info['NAME'] %>"
-        TYPE            = RANGED
-        <% if @vnet_info['DESCRIPTION'] != nil %>
-        DESCRIPTION     = "<%= @vnet_info['DESCRIPTION'] %>"
-        <% end %>
-        <% if @vnet_info['PUBLIC'] != nil %>
-        PUBLIC     = "<%= @vnet_info['PUBLIC'] %>"
-        <% end %>
-        <% if @bridge %>
-        BRIDGE          = <%= @bridge %>
-        <% end %>
-        NETWORK_ADDRESS = <%= @vnet_info['ADDRESS'] %>
-        NETWORK_SIZE    = <%= @vnet_info['SIZE']%>
-    }.gsub(/^        /, '')
-
     # Class constructor
-    def initialize(xml, client, xml_info=nil, bridge=nil)
+    #
+    def initialize(xml, client, xml_info=nil, base=nil)
         super(xml, client)
-        @bridge    = bridge
         @vnet_info = nil
+        @common_template = base + '/network.erb' if base
 
         if xml_info != nil
             xmldoc     = XMLElement.build_xml(xml_info, 'NETWORK')
@@ -64,6 +53,18 @@ class VirtualNetworkOCCI < VirtualNetwork
 
     # Creates the OCCI representation of a Virtual Network
     def to_occi(base_url)
+        network_address = nil
+        network_size    = nil
+
+        if self['RANGE/IP_START']
+            network_address = self['RANGE/IP_START']
+
+            ip_start = IPAddr.new(network_address, Socket::AF_INET)
+            ip_end = IPAddr.new(self['RANGE/IP_END'], Socket::AF_INET)
+
+            network_size = ip_end.to_i - ip_start.to_i
+        end
+
         begin
             occi = ERB.new(OCCI_NETWORK)
             occi_text = occi.result(binding)
@@ -78,11 +79,16 @@ class VirtualNetworkOCCI < VirtualNetwork
     def to_one_template()
         if @vnet_info == nil
             error_msg = "Missing NETWORK section in the XML body"
-            error = OpenNebula::Error.new(error_msg)
+            return OpenNebula::Error.new(error_msg), 400
+        end
+
+        begin
+            template = ERB.new(File.read(@common_template)).result(binding)
+        rescue Exception => e
+            error = OpenNebula::Error.new(e.message)
             return error
         end
 
-        one = ERB.new(ONE_NETWORK)
-        return one.result(binding)
+        return template
     end
 end

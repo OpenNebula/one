@@ -36,7 +36,8 @@ public class VirtualNetwork extends PoolElement{
     private static final String RMLEASES        = METHOD_PREFIX + "rmleases";
     private static final String CHOWN           = METHOD_PREFIX + "chown";
     private static final String UPDATE          = METHOD_PREFIX + "update";
-
+    private static final String HOLD            = METHOD_PREFIX + "hold";
+    private static final String RELEASE         = METHOD_PREFIX + "release";
 
     /**
      * Creates a new virtual network representation.
@@ -138,6 +139,32 @@ public class VirtualNetwork extends PoolElement{
     public static OneResponse rmLeases(Client client, int id, String template)
     {
         return client.call(RMLEASES, id, template);
+    }
+
+    /**
+     * Holds a VirtualNetwork lease, marking it as used
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid) of the target network.
+     * @param template IP to hold, e.g. "LEASES = [ IP = 192.168.0.5 ]"
+     * @return A encapsulated response.
+     */
+    public static OneResponse hold(Client client, int id, String template)
+    {
+        return client.call(HOLD, id, template);
+    }
+
+    /**
+     * Releases a VirtualNetwork lease on hold
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid) of the target network.
+     * @param template IP to release, e.g. "LEASES = [ IP = 192.168.0.5 ]"
+     * @return A encapsulated response.
+     */
+    public static OneResponse release(Client client, int id, String template)
+    {
+        return client.call(RELEASE, id, template);
     }
 
     /**
@@ -269,6 +296,30 @@ public class VirtualNetwork extends PoolElement{
     {
         String lease_template = "LEASES = [ IP = " + ip + " ]";
         return rmLeases(client, id, lease_template);
+    }
+
+    /**
+     * Holds a VirtualNetwork lease, marking it as used
+     *
+     * @param ip IP to hold, e.g. "192.168.0.5"
+     * @return A encapsulated response.
+     */
+    public OneResponse hold(String ip)
+    {
+        String lease_template = "LEASES = [ IP = " + ip + " ]";
+        return hold(client, id, lease_template);
+    }
+
+    /**
+     * Releases a VirtualNetwork lease on hold
+     *
+     * @param ip IP to release, e.g. "192.168.0.5"
+     * @return A encapsulated response.
+     */
+    public OneResponse release(String ip)
+    {
+        String lease_template = "LEASES = [ IP = " + ip + " ]";
+        return release(client, id, lease_template);
     }
 
     /**

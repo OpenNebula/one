@@ -122,9 +122,9 @@ if [ -z "$ROOT" ] ; then
     elif [ "$OZONES" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
                     $ETC_LOCATION"
- 
+
         DELETE_DIRS="$MAKE_DIRS"
- 
+
         CHOWN_DIRS=""
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
@@ -162,8 +162,8 @@ else
     elif [ "$OZONES" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
                    $ETC_LOCATION"
-    
-        DELETE_DIRS="$MAKE_DIRS"  
+
+        DELETE_DIRS="$MAKE_DIRS"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION \
@@ -180,14 +180,13 @@ fi
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/examples/tm"
 
-ETC_DIRS="$ETC_LOCATION/im_kvm \
-          $ETC_LOCATION/im_xen \
-          $ETC_LOCATION/im_ec2 \
+ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/tm_shared \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
+          $ETC_LOCATION/tm_vmware \
           $ETC_LOCATION/tm_lvm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
@@ -210,6 +209,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/tm_commands/ssh \
           $LIB_LOCATION/tm_commands/dummy \
           $LIB_LOCATION/tm_commands/lvm \
+          $LIB_LOCATION/tm_commands/vmware \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -220,11 +220,18 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/xen.d \
+          $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/ganglia.d \
-          $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/kvm \
+          $VAR_LOCATION/remotes/vnm \
+          $VAR_LOCATION/remotes/vnm/802.1Q \
+          $VAR_LOCATION/remotes/vnm/dummy \
+          $VAR_LOCATION/remotes/vnm/ebtables \
+          $VAR_LOCATION/remotes/vnm/fw \
+          $VAR_LOCATION/remotes/vnm/ovswitch \
+          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/hooks \
-          $VAR_LOCATION/remotes/hooks/vnm \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/image \
           $VAR_LOCATION/remotes/image/fs \
@@ -232,6 +239,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
           $VAR_LOCATION/remotes/auth/x509 \
+          $VAR_LOCATION/remotes/auth/ldap \
           $VAR_LOCATION/remotes/auth/server_x509 \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/quota \
@@ -244,17 +252,21 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/js/plugins \
                $SUNSTONE_LOCATION/public/js/user-plugins \
                $SUNSTONE_LOCATION/public/css \
+               $SUNSTONE_LOCATION/public/locale \
+               $SUNSTONE_LOCATION/public/locale/en_US \
+               $SUNSTONE_LOCATION/public/locale/ru \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
                $SUNSTONE_LOCATION/public/vendor/jQueryUI \
+               $SUNSTONE_LOCATION/public/vendor/jQueryUI/images \
                $SUNSTONE_LOCATION/public/vendor/jQuery \
                $SUNSTONE_LOCATION/public/vendor/jGrowl \
                $SUNSTONE_LOCATION/public/vendor/flot \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/templates \
                $SUNSTONE_LOCATION/views"
-               
+
 OZONES_DIRS="$OZONES_LOCATION/lib \
              $OZONES_LOCATION/lib/OZones \
              $OZONES_LOCATION/models \
@@ -265,6 +277,7 @@ OZONES_DIRS="$OZONES_LOCATION/lib \
              $OZONES_LOCATION/public/vendor/jQueryLayout \
              $OZONES_LOCATION/public/vendor/dataTables \
              $OZONES_LOCATION/public/vendor/jQueryUI \
+             $OZONES_LOCATION/public/vendor/jQueryUI/images \
              $OZONES_LOCATION/public/vendor/jGrowl \
              $OZONES_LOCATION/public/js \
              $OZONES_LOCATION/public/js/plugins \
@@ -327,28 +340,36 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
+    IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
+    AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
     AUTH_SERVER_X509_FILES:$VAR_LOCATION/remotes/auth/server_x509
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
-    AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain    
-    AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota    
+    AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+    AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     SHARED_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/shared
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
+    VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
-    NETWORK_HOOK_SCRIPTS:$VAR_LOCATION/remotes/vnm
+    NETWORK_FILES:$VAR_LOCATION/remotes/vnm
+    NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
+    NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
+    NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
+    NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
+    NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
-    HOOK_NETWORK_FILES:$VAR_LOCATION/remotes/hooks/vnm
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -403,9 +424,12 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/jGrowl
     SUNSTONE_PUBLIC_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/jQuery
     SUNSTONE_PUBLIC_VENDOR_JQUERYUI:$SUNSTONE_LOCATION/public/vendor/jQueryUI
+    SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES:$SUNSTONE_LOCATION/public/vendor/jQueryUI/images
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+    SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
+    SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -428,6 +452,7 @@ INSTALL_OZONES_FILES=(
     OZONES_PUBLIC_VENDOR_DATATABLES:$OZONES_LOCATION/public/vendor/dataTables
     OZONES_PUBLIC_VENDOR_JGROWL:$OZONES_LOCATION/public/vendor/jGrowl
     OZONES_PUBLIC_VENDOR_JQUERYUI:$OZONES_LOCATION/public/vendor/jQueryUI
+    OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES:$OZONES_LOCATION/public/vendor/jQueryUI/images
     OZONES_PUBLIC_VENDOR_JQUERYLAYOUT:$OZONES_LOCATION/public/vendor/jQueryLayout
     OZONES_PUBLIC_JS_FILES:$OZONES_LOCATION/public/js
     OZONES_PUBLIC_IMAGES_FILES:$OZONES_LOCATION/public/images
@@ -446,6 +471,7 @@ INSTALL_OZONES_ETC_FILES=(
 
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
+    VMWARE_ETC_FILES:$ETC_LOCATION
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
@@ -453,6 +479,7 @@ INSTALL_ETC_FILES=(
     TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
     TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy
     TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm
+    TM_VMWARE_ETC_FILES:$ETC_LOCATION/tm_vmware
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
     ECO_ETC_FILES:$ETC_LOCATION
@@ -470,6 +497,7 @@ INSTALL_ETC_FILES=(
 BIN_FILES="src/nebula/oned \
            src/scheduler/src/sched/mm_sched \
            src/cli/onevm \
+           src/cli/oneacct \
            src/cli/onehost \
            src/cli/onevnet \
            src/cli/oneuser \
@@ -479,6 +507,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneacl \
            src/onedb/onedb \
            src/authm_mad/remotes/quota/onequota \
+           src/mad/utils/tty_expect \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -498,13 +527,18 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
+                src/mad/ruby/DriverExecHelper.rb \
+                src/mad/ruby/ssh_stream.rb \
+                src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
+                src/mad/ruby/vmwarelib.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/quota/quota.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
                 src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
+                src/authm_mad/remotes/ldap/ldap_auth.rb \
                 src/authm_mad/remotes/x509/x509_auth.rb"
 
 #-----------------------------------------------------------------------------
@@ -576,20 +610,35 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/shutdown"
 
 #-------------------------------------------------------------------------------
+# VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
+                         src/vmm_mad/remotes/vmware/deploy \
+                         src/vmm_mad/remotes/vmware/migrate \
+                         src/vmm_mad/remotes/vmware/restore \
+                         src/vmm_mad/remotes/vmware/save \
+                         src/vmm_mad/remotes/vmware/poll \
+                         src/vmm_mad/remotes/vmware/checkpoint \
+                         src/vmm_mad/remotes/vmware/shutdown"
+
+#-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
 
 IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 
-IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
-                    src/im_mad/remotes/xen.d/architecture.sh \
-                    src/im_mad/remotes/xen.d/cpu.sh \
-                    src/im_mad/remotes/xen.d/name.sh"
-
 IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
-                    src/im_mad/remotes/kvm.d/architecture.sh \
-                    src/im_mad/remotes/kvm.d/cpu.sh \
-                    src/im_mad/remotes/kvm.d/name.sh"
+                     src/im_mad/remotes/kvm.d/architecture.sh \
+                     src/im_mad/remotes/kvm.d/cpu.sh \
+                     src/im_mad/remotes/kvm.d/name.sh"
+
+IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
+                     src/im_mad/remotes/xen.d/architecture.sh \
+                     src/im_mad/remotes/xen.d/cpu.sh \
+                     src/im_mad/remotes/xen.d/name.sh"
+
+IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
 IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
@@ -603,6 +652,8 @@ AUTH_SERVER_X509_FILES="src/authm_mad/remotes/server_x509/authenticate"
 
 AUTH_X509_FILES="src/authm_mad/remotes/x509/authenticate"
 
+AUTH_LDAP_FILES="src/authm_mad/remotes/ldap/authenticate"
+
 AUTH_SSH_FILES="src/authm_mad/remotes/ssh/authenticate"
 
 AUTH_DUMMY_FILES="src/authm_mad/remotes/dummy/authenticate"
@@ -610,6 +661,38 @@ AUTH_DUMMY_FILES="src/authm_mad/remotes/dummy/authenticate"
 AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 
 AUTH_QUOTA_FILES="src/authm_mad/remotes/quota/authorize"
+
+#-------------------------------------------------------------------------------
+# Virtual Network Manager drivers to be installed under $REMOTES_LOCATION/vnm
+#-------------------------------------------------------------------------------
+
+NETWORK_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.rb \
+               src/vnm_mad/remotes/Firewall.rb \
+               src/vnm_mad/remotes/OpenNebulaNic.rb"
+
+NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
+                    src/vnm_mad/remotes/802.1Q/post \
+                    src/vnm_mad/remotes/802.1Q/pre \
+                    src/vnm_mad/remotes/802.1Q/HostManaged.rb"
+
+NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
+                    src/vnm_mad/remotes/dummy/post \
+                    src/vnm_mad/remotes/dummy/pre"
+
+NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
+                    src/vnm_mad/remotes/ebtables/post \
+                    src/vnm_mad/remotes/ebtables/pre \
+                    src/vnm_mad/remotes/ebtables/Ebtables.rb"
+
+NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
+                          src/vnm_mad/remotes/fw/pre \
+                          src/vnm_mad/remotes/fw/clean"
+
+NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
+                    src/vnm_mad/remotes/ovswitch/post \
+                    src/vnm_mad/remotes/ovswitch/pre \
+                    src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -645,8 +728,12 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
                            src/tm_mad/lvm/tm_mv.sh \
                            src/tm_mad/lvm/tm_context.sh"
 
+VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
+                             src/tm_mad/vmware/tm_ln.sh \
+                             src/tm_mad/vmware/tm_mv.sh"
+
 #-------------------------------------------------------------------------------
-# Image Repository drivers, to be installed under $REMOTES_LOCTION/image
+# Image Repository drivers, to be installed under $REMOTES_LOCATION/image
 #   - FS based Image Repository, $REMOTES_LOCATION/image/fs
 #-------------------------------------------------------------------------------
 IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
@@ -664,6 +751,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/2.9.85_to_2.9.90.rb \
                       src/onedb/2.9.90_to_3.0.0.rb \
                       src/onedb/3.0.0_to_3.1.0.rb \
+                      src/onedb/3.1.0_to_3.1.80.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
@@ -674,6 +762,8 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
            src/cli/etc/group.default"
+
+VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
@@ -686,7 +776,8 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
-                  src/vmm_mad/exec/vmm_exec_xen.conf"
+                  src/vmm_mad/exec/vmm_exec_xen.conf \
+                  src/vmm_mad/exec/vmm_exec_vmware.conf"
 
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION
@@ -716,6 +807,8 @@ TM_DUMMY_ETC_FILES="src/tm_mad/dummy/tm_dummy.conf \
 TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
                   src/tm_mad/lvm/tm_lvmrc"
 
+TM_VMWARE_ETC_FILES="src/tm_mad/vmware/tm_vmware.conf"
+
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
 #-------------------------------------------------------------------------------
@@ -728,6 +821,7 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 
 AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
                 src/authm_mad/remotes/quota/quota.conf \
+                src/authm_mad/remotes/ldap/ldap_auth.conf \
                 src/authm_mad/remotes/x509/x509_auth.conf"
 
 #-------------------------------------------------------------------------------
@@ -756,19 +850,8 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 HOOK_FT_FILES="share/hooks/host_error.rb"
 
 #-------------------------------------------------------------------------------
-# Network Hook scripts, to be installed under $VAR_LOCATION/remotes/hooks
+# Installation scripts, to be installed under $SHARE_LOCATION
 #-------------------------------------------------------------------------------
-
-HOOK_NETWORK_FILES="src/vnm_mad/hm-vlan \
-                    src/vnm_mad/ebtables-vlan \
-                    src/vnm_mad/firewall \
-                    src/vnm_mad/HostManaged.rb \
-                    src/vnm_mad/OpenNebulaNetwork.rb \
-                    src/vnm_mad/OpenNebulaNic.rb \
-                    src/vnm_mad/OpenvSwitch.rb \
-                    src/vnm_mad/openvswitch-vlan \
-                    src/vnm_mad/Firewall.rb \
-                    src/vnm_mad/Ebtables.rb"
 
 INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
@@ -881,6 +964,7 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
                     src/cloud/occi/etc/templates/custom.erb \
                     src/cloud/occi/etc/templates/small.erb \
                     src/cloud/occi/etc/templates/medium.erb \
+                    src/cloud/occi/etc/templates/network.erb \
                     src/cloud/occi/etc/templates/large.erb"
 
 #-----------------------------------------------------------------------------
@@ -956,7 +1040,8 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/login.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js \
-                        src/sunstone/public/js/opennebula.js"
+                        src/sunstone/public/js/opennebula.js \
+                        src/sunstone/public/js/locale.js"
 
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/dashboard-tab.js \
@@ -986,34 +1071,36 @@ SUNSTONE_PUBLIC_VENDOR_JGROWL="\
                 src/sunstone/public/vendor/jGrowl/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/jQuery/jquery-1.4.4.min.js \
+                        src/sunstone/public/vendor/jQuery/jquery-1.7.1.min.js \
                         src/sunstone/public/vendor/jQuery/MIT-LICENSE.txt \
                         src/sunstone/public/vendor/jQuery/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYUI="\
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_dadada_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_cd0a0a_256x240.png \
-src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.css \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_aaaaaa_40x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_8f9392_40x100.png \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.css \
 src/sunstone/public/vendor/jQueryUI/MIT-LICENSE.txt \
-src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.min.js \
-src/sunstone/public/vendor/jQueryUI/ui-bg_highlight-soft_75_cccccc_1x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_95_fef1ec_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_55_fbf9ee_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_888888_256x240.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_e6e6e6_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_575c5b_40x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_glass_65_ffffff_1x400.png \
-src/sunstone/public/vendor/jQueryUI/ui-bg_flat_75_ffffff_40x100.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_2e83ff_256x240.png \
-src/sunstone/public/vendor/jQueryUI/ui-icons_454545_256x240.png \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js \
 src/sunstone/public/vendor/jQueryUI/NOTICE \
-src/sunstone/public/vendor/jQueryUI/ui-icons_222222_256x240.png \
 "
+
+SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES="\
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png  \
+"
+
 SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
             src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
-            src/sunstone/public/vendor/jQueryLayout/jquery.layout.min-1.2.0.js \
+            src/sunstone/public/vendor/jQueryLayout/jquery.layout-latest.min.js \
             src/sunstone/public/vendor/jQueryLayout/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_FLOT="\
@@ -1032,9 +1119,22 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \
                         src/sunstone/public/images/Refresh-icon.png \
+                        src/sunstone/public/images/red_bullet.png \
+                        src/sunstone/public/images/yellow_bullet.png \
+                        src/sunstone/public/images/green_bullet.png \
                         src/sunstone/public/images/vnc_off.png \
                         src/sunstone/public/images/vnc_on.png"
                       
+SUNSTONE_PUBLIC_LOCALE_EN_US="\
+src/sunstone/public/locale/en_US/en_US.js \
+"
+
+SUNSTONE_PUBLIC_LOCALE_RU="
+src/sunstone/public/locale/ru/ru.js \
+src/sunstone/public/locale/ru/ru_datatable.txt"
+
+
+
 #-----------------------------------------------------------------------------
 # Ozones files
 #-----------------------------------------------------------------------------
@@ -1049,10 +1149,10 @@ OZONES_ETC_FILES="src/ozones/Server/etc/ozones-server.conf"
 OZONES_MODELS_FILES="src/ozones/Server/models/OzonesServer.rb \
                      src/ozones/Server/models/Auth.rb \
                      src/sunstone/models/OpenNebulaJSON/JSONUtils.rb"
-                     
+
 OZONES_TEMPLATE_FILES="src/ozones/Server/templates/index.html \
                        src/ozones/Server/templates/login.html"
-                     
+
 OZONES_LIB_FILES="src/ozones/Server/lib/OZones.rb"
 
 OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
@@ -1066,7 +1166,7 @@ OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
                 src/ozones/Server/lib/OZones/AggregatedPool.rb \
                 src/ozones/Server/lib/OZones/AggregatedImages.rb \
                 src/ozones/Server/lib/OZones/AggregatedTemplates.rb"
-                
+
 OZONES_LIB_API_FILES="src/ozones/Client/lib/zona.rb"
 
 OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
@@ -1078,26 +1178,29 @@ OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
                 src/ozones/Client/lib/zona/ZonePool.rb"
 
 OZONES_PUBLIC_VENDOR_JQUERY=$SUNSTONE_PUBLIC_VENDOR_JQUERY
-                        
+
 OZONES_PUBLIC_VENDOR_DATATABLES=$SUNSTONE_PUBLIC_VENDOR_DATATABLES
 
 OZONES_PUBLIC_VENDOR_JGROWL=$SUNSTONE_PUBLIC_VENDOR_JGROWL
 
 OZONES_PUBLIC_VENDOR_JQUERYUI=$SUNSTONE_PUBLIC_VENDOR_JQUERYUI
 
+OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES=$SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES
+
 OZONES_PUBLIC_VENDOR_JQUERYLAYOUT=$SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT
-                        
+
 OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
                         src/ozones/Server/public/js/login.js \
                         src/ozones/Server/public/js/ozones-util.js \
                         src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/sunstone.js \
-                        src/sunstone/public/js/sunstone-util.js"
+                        src/sunstone/public/js/sunstone-util.js \
+                        src/sunstone/public/js/locale.js"
                         
 OZONES_PUBLIC_CSS_FILES="src/ozones/Server/public/css/application.css \
                          src/ozones/Server/public/css/layout.css \
                          src/ozones/Server/public/css/login.css"
-                        
+
 OZONES_PUBLIC_IMAGES_FILES="src/ozones/Server/public/images/panel.png \
                         src/ozones/Server/public/images/login.png \
                         src/ozones/Server/public/images/login_over.png \
@@ -1111,16 +1214,16 @@ OZONES_PUBLIC_JS_PLUGINS_FILES="src/ozones/Server/public/js/plugins/zones-tab.js
                                src/ozones/Server/public/js/plugins/vdcs-tab.js \
                                src/ozones/Server/public/js/plugins/aggregated-tab.js \
                                src/ozones/Server/public/js/plugins/dashboard-tab.js"
-                
-OZONES_LIB_CLIENT_CLI_FILES="src/ozones/Client/lib/cli/ozones_helper.rb"                   
-                
+
+OZONES_LIB_CLIENT_CLI_FILES="src/ozones/Client/lib/cli/ozones_helper.rb"
+
 OZONES_LIB_CLIENT_CLI_HELPER_FILES="\
                 src/ozones/Client/lib/cli/ozones_helper/vdc_helper.rb \
-                src/ozones/Client/lib/cli/ozones_helper/zones_helper.rb"                
+                src/ozones/Client/lib/cli/ozones_helper/zones_helper.rb"
 
 OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/onevdc \
                          src/ozones/Client/bin/onezone"
-               
+
 OZONES_RUBY_LIB_FILES="src/oca/ruby/OpenNebula.rb"
 
 #-----------------------------------------------------------------------------
@@ -1132,6 +1235,7 @@ ACCT_BIN_FILES="src/acct/oneacctd"
 ACCT_LIB_FILES="src/acct/monitoring.rb \
                 src/acct/accounting.rb \
                 src/acct/acctd.rb \
+                src/acct/oneacct.rb \
                 src/acct/watch_helper.rb \
                 src/acct/watch_client.rb"
 
@@ -1197,7 +1301,7 @@ if [ "$CLIENT" = "yes" ]; then
 elif [ "$SUNSTONE" = "yes" ]; then
     INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
 elif [ "$OZONES" = "yes" ]; then
-    INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"    
+    INSTALL_SET="${INSTALL_OZONES_RUBY_FILES[@]} ${INSTALL_OZONES_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} ${INSTALL_OZONES_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]}"

@@ -85,7 +85,6 @@ void get_image_attribute(VirtualMachine * vm,
     ImagePool * ipool = nd.get_ipool();
     Image  *    img;
     int         iid = -1;
-    string      iid_str;
 
     int num;
     vector<const Attribute *> attrs;
@@ -93,7 +92,7 @@ void get_image_attribute(VirtualMachine * vm,
 
     attr_value.clear();
 
-    if (img_name.empty() || img_name != "IMAGE_ID")
+    if ( img_name.empty() || (img_name!="IMAGE" && img_name!="IMAGE_ID") )
     {
         return;
     }
@@ -113,11 +112,10 @@ void get_image_attribute(VirtualMachine * vm,
             continue;
         }
 
-        iid_str = disk->vector_value("IMAGE_ID");
-
-        if ( iid_str == img_value )
+        if ( disk->vector_value(img_name.c_str()) == img_value )
         {
-            istringstream iss(img_value);
+            string        iid_str = disk->vector_value("IMAGE_ID");
+            istringstream iss(iid_str);
 
             iss >> iid;
 
@@ -171,7 +169,6 @@ void get_network_attribute(VirtualMachine * vm,
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     VirtualNetwork  *    vn;
     int                  vnet_id = -1;
-    string               vnet_id_str;
 
     int num;
     vector<const Attribute *> attrs;
@@ -179,7 +176,7 @@ void get_network_attribute(VirtualMachine * vm,
 
     attr_value.clear();
 
-    if (net_name.empty() || net_name != "NETWORK_ID")
+    if ( net_name.empty() || (net_name!="NETWORK" && net_name!="NETWORK_ID") )
     {
         return;
     }
@@ -199,11 +196,10 @@ void get_network_attribute(VirtualMachine * vm,
             continue;
         }
 
-        vnet_id_str = net->vector_value("NETWORK_ID");
-
-        if ( vnet_id_str == net_value )
+        if ( net->vector_value(net_name.c_str()) == net_value )
         {
-            istringstream iss(net_value);
+            string        vnet_id_str = net->vector_value("NETWORK_ID");
+            istringstream iss(vnet_id_str);
 
             iss >> vnet_id;
 
@@ -245,7 +241,7 @@ void get_network_attribute(VirtualMachine * vm,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/*
+
 void get_user_attribute(VirtualMachine * vm,
                         const string&    attr_name,
                         string&          attr_value)
@@ -275,7 +271,7 @@ void get_user_attribute(VirtualMachine * vm,
 
     user->unlock();
 }
-*/
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -338,6 +334,19 @@ void insert_vector(VirtualMachine * vm,
         string value;
 
         get_image_attribute(vm,vname,vvar,vval,value);
+
+        if (!value.empty())
+        {
+            parsed << value;
+        }
+
+        return;
+    }
+    else if (name == "USER")
+    {
+        string value;
+
+        get_user_attribute(vm, vname, value);
 
         if (!value.empty())
         {

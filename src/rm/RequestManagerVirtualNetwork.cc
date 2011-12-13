@@ -80,7 +80,7 @@ void RequestManagerVirtualNetwork::
     if ( rc < 0 )
     {
         failure_response(INTERNAL, 
-                request_error("Error modifiying network leases",error_str),
+                request_error("Error modifying network leases",error_str),
                 att);
         
         vn->unlock();

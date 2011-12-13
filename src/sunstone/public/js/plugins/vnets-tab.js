@@ -23,15 +23,15 @@ var vnets_tab_content =
 <table id="datatable_vnetworks" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
-      <th>ID</th>\
-      <th>Owner</th>\
-      <th>Group</th>\
-      <th>Name</th>\
-      <th>Type</th>\
-      <th>Bridge</th>\
-      <th>Public</th>\
-      <th>Total Leases</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Owner")+'</th>\
+      <th>'+tr("Group")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Type")+'</th>\
+      <th>'+tr("Bridge")+'</th>\
+      <th>'+tr("Public")+'</th>\
+      <th>'+tr("Total Leases")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvnetworks">\
@@ -42,40 +42,40 @@ var vnets_tab_content =
 var create_vn_tmpl =
 '<div id="vn_tabs">\
         <ul>\
-          <li><a href="#easy">Wizard</a></li>\
-          <li><a href="#manual">Advanced mode</a></li>\
+          <li><a href="#easy">'+tr("Wizard")+'</a></li>\
+          <li><a href="#manual">'+tr("Advanced mode")+'</a></li>\
         </ul>\
         <div id="easy">\
            <form id="create_vn_form_easy" action="">\
               <fieldset>\
-                 <label for="name">Name:</label>\
+                 <label for="name">'+tr("Name")+':</label>\
                  <input type="text" name="name" id="name" /><br />\
               </fieldset>\
               <fieldset>\
-                 <label for="bridge">Bridge:</label>\
+                 <label for="bridge">'+tr("Bridge")+':</label>\
                  <input type="text" name="bridge" id="bridge" /><br />\
               </fieldset>\
               <fieldset>\
-                 <label style="height:2em;">Network type:</label>\
-                 <input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked">Fixed network</input><br />\
-                <input type="radio" name="fixed_ranged" id="ranged_check" value="ranged">Ranged network</input><br />\
+                 <label style="height:2em;">'+tr("Network type")+':</label>\
+                 <input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked">'+tr("Fixed network")+'</input><br />\
+                <input type="radio" name="fixed_ranged" id="ranged_check" value="ranged">'+tr("Ranged network")+'</input><br />\
               </fieldset>\
               <div class="clear"></div>\
               <div id="easy_tabs">\
                  <div id="fixed">\
                  <fieldset>\
-                   <label for="leaseip">Lease IP:</label>\
+                   <label for="leaseip">'+tr("Lease IP")+':</label>\
                    <input type="text" name="leaseip" id="leaseip" /><br />\
-                   <label for="leasemac">Lease MAC (opt):</label>\
+                   <label for="leasemac">'+tr("Lease MAC (opt):")+'</label>\
                    <input type="text" name="leasemac" id="leasemac" />\
                    <div class="clear"></div>\
                    <button class="add_remove_button add_button" id="add_lease" value="add/lease">\
-                     Add\
+                     '+tr("Add")+'\
                   </button>\
                   <button class="add_remove_button" id="remove_lease" value="remove/lease">\
-                     Remove selected\
+                     '+tr("Remove selected")+'\
                    </button>\
-                   <label for="leases">Current leases:</label>\
+                   <label for="leases">'+tr("Current leases")+':</label>\
                    <select id="leases" name="leases" style="height:10em;" multiple>\
                      <!-- insert leases -->\
                    </select><br />\
@@ -83,10 +83,16 @@ var create_vn_tmpl =
               </div>\
               <div id="ranged">\
                  <fieldset>\
-                    <label for="net_address">Network Address:</label>\
+                    <label for="net_address">'+tr("Network Address")+':</label>\
                     <input type="text" name="net_address" id="net_address" /><br />\
-                    <label for="net_size">Network size:</label>\
-                    <input type="text" name="net_size" id="net_size" />\
+                    <label for="net_mask">'+tr("Network Mask")+':</label>\
+                    <input type="text" name="net_mask" id="net_mask" /><br />\
+                    <label for="custom_pool" style="height:2em;">'+tr("Define a subnet by IP range")+':</label>\
+                    <input type="checkbox" name="custom_pool" id="custom_pool" style="margin-bottom:2em;" value="yes" /><br />\
+                    <label for="ip_start">'+tr("IP Start")+':</label>\
+                    <input type="text" name="ip_start" id="ip_start" disabled="disabled" /><br />\
+                    <label for="ip_end">'+tr("IP End")+':</label>\
+                    <input type="text" name="ip_end" id="ip_end" disabled="disabled" />\
                  </fieldset>\
               </div>\
             </div>\
@@ -94,14 +100,14 @@ var create_vn_tmpl =
           </fieldset>\
           <fieldset>\
               <div class="">\
-                    <label for="custom_var_vnet_name">Name:</label>\
-                    <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" />\
-                    <label for="custom_var_vnet_value">Value:</label>\
-                    <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" />\
-                    <button class="add_remove_button add_button" id="add_custom_var_vnet_button" value="add_custom_vnet_var">Add</button>\
-                    <button class="add_remove_button" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">Remove selected</button>\
+                    <label for="custom_var_vnet_name">'+tr("Name")+':</label>\
+                    <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" /><br />\
+                    <label for="custom_var_vnet_value">'+tr("Value")+':</label>\
+                    <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" /><br />\
+                    <button class="add_remove_button add_button" id="add_custom_var_vnet_button" value="add_custom_vnet_var">'+tr("Add")+'</button>\
+                    <button class="add_remove_button" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">'+tr("Remove selected")+'</button>\
                     <div class="clear"></div>\
-                    <label for="custom_var_vnet_box">Custom attributes:</label>\
+                    <label for="custom_var_vnet_box">'+tr("Custom attributes")+':</label>\
                     <select id="custom_var_vnet_box" name="custom_var_vnet_box" style="height:100px;" multiple>\
                     </select>\
               </div>\
@@ -109,16 +115,16 @@ var create_vn_tmpl =
           <fieldset>\
             <div class="form_buttons">\
               <button class="button" id="create_vn_submit_easy" value="vn/create">\
-                 Create\
+                 '+tr("Create")+'\
               </button>\
-              <button class="button" type="reset" value="reset">Reset</button>\
+              <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
             </div>\
           </fieldset>\
         </form>\
       </div>\
       <div id="manual">\
         <form id="create_vn_form_manual" action="">\
-           <h3 style="margin-bottom:10px;">Write the Virtual Network template here</h3>\
+           <h3 style="margin-bottom:10px;">'+tr("Write the Virtual Network template here")+'</h3>\
              <fieldset style="border-top:none;">\
                <textarea id="template" rows="15" style="width:100%;"></textarea>\
                <div class="clear"></div>\
@@ -126,9 +132,9 @@ var create_vn_tmpl =
              <fieldset>\
                 <div class="form_buttons">\
                 <button class="button" id="create_vn_submit_manual" value="vn/create">\
-                   Create\
+                   '+tr("Create")+'\
                 </button>\
-                <button class="button" type="reset" value="reset">Reset</button>\
+                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
               </div>\
             </fieldset>\
           </form>\
@@ -137,23 +143,23 @@ var create_vn_tmpl =
 
 var update_vnet_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">Please, choose and modify the virtual network you want to update:</h3>\
+         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the virtual network you want to update")+':</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="vnet_template_update_select">Select a network:</label>\
+                 <label for="vnet_template_update_select">'+tr("Select a network")+':</label>\
                  <select id="vnet_template_update_select" name="vnet_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
-                   <label for="vnet_template_update_public">Public:</label>\
+                   <label for="vnet_template_update_public">'+tr("Public")+':</label>\
                    <input type="checkbox" name="vnet_template_update_public" id="vnet_template_update_public" />\
                  </div>\
-                 <label for="vnet_template_update_textarea">Template:</label>\
+                 <label for="vnet_template_update_textarea">'+tr("Template")+':</label>\
                  <div class="clear"></div>\
                  <textarea id="vnet_template_update_textarea" style="width:100%; height:14em;"></textarea>\
             </fieldset>\
             <fieldset>\
                  <div class="form_buttons">\
                     <button class="button" id="vnet_template_update_button" value="Network.update_template">\
-                       Update\
+                       '+tr("Update")+'\
                     </button>\
                  </div>\
             </fieldset>\
@@ -248,7 +254,7 @@ var vnet_actions = {
         call: OpenNebula.Network.addleases,
         callback: vnShow,
         error: onError,
-        notify: true
+        notify: false,
     },
 
     "Network.rmleases" : {
@@ -256,27 +262,23 @@ var vnet_actions = {
         call: OpenNebula.Network.rmleases,
         callback: vnShow,
         error: onError,
-        notify: true
+        notify: false,
     },
 
-    "Network.modifyleases" : {
-        type: "custom",
-        call: function(action,obj){
-            nodes = getSelectedNodes(dataTable_vNetworks);
-            $.each(nodes,function(){
-                Sunstone.runAction(action,this,obj);
-            });
-        }
+    "Network.hold" : {
+        type: "single",
+        call: OpenNebula.Network.hold,
+        callback: vnShow,
+        error: onError,
+        notify: false,
     },
 
-    "Network.addleases_dialog" : {
-        type: "custom",
-        call: popUpAddLeaseDialog
-    },
-
-    "Network.rmleases_dialog" : {
-        type: "custom",
-        call: popUpRemoveLeaseDialog
+    "Network.release" : {
+        type: "single",
+        call: OpenNebula.Network.release,
+        callback: vnShow,
+        error: onError,
+        notify: false,
     },
 
     "Network.chown" : {
@@ -328,36 +330,36 @@ var vnet_actions = {
 var vnet_buttons = {
     "Network.refresh" : {
         type: "image",
-        text: "Refresh list",
+        text: tr("Refresh list"),
         img: "images/Refresh-icon.png"
     },
 
     "Network.create_dialog" : {
         type: "create_dialog",
-        text: "+ New"
+        text: tr("+ New")
     },
 
     "Network.update_dialog" : {
         type: "action",
-        text: "Update a template",
+        text: tr("Update a template"),
         alwaysActive: true
     },
 
     "Network.publish" : {
         type: "action",
-        text: "Publish"
+        text: tr("Publish")
     },
 
     "Network.unpublish" : {
         type: "action",
-        text: "Unpublish"
+        text: tr("Unpublish")
     },
 
     "Network.chown" : {
         type: "confirm_with_select",
-        text: "Change owner",
+        text: tr("Change owner"),
         select: users_sel,
-        tip: "Select the new owner:",
+        tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
 
@@ -365,43 +367,29 @@ var vnet_buttons = {
         type: "confirm_with_select",
         text: "Change group",
         select: groups_sel,
-        tip: "Select the new group:",
+        tip: tr("Select the new group")+":",
         condition: mustBeAdmin,
-    },
-
-    "action_list" : {
-        type: "select",
-        actions: {
-            "Network.addleases_dialog" : {
-                type: "action",
-                text: "Add lease"
-            },
-            "Network.rmleases_dialog" : {
-                type: "action",
-                text: "Remove lease"
-            }
-        }
     },
 
     "Network.delete" : {
         type: "action",
-        text: "Delete"
+        text: tr("Delete")
     }
 }
 
 var vnet_info_panel = {
     "vnet_info_tab" : {
-        title: "Virtual network information",
+        title: tr("Virtual network information"),
         content: ""
     },
-    "vnet_template_tab" : {
-        title: "Virtual network template",
+    "vnet_leases_tab" : {
+        title: tr("Lease management"),
         content: ""
-    }
+    },
 }
 
 var vnets_tab = {
-    title: "Virtual Networks",
+    title: tr("Virtual Networks"),
     content: vnets_tab_content,
     buttons: vnet_buttons
 }
@@ -455,6 +443,9 @@ function updateVNetworkElement(request, vn_json){
     id = vn_json.VNET.ID;
     element = vNetworkElementArray(vn_json);
     updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
+
+    //we update this too, even if it's not shown.
+    $('#leases_form').replaceWith(printLeases(vn_json.VNET));
 }
 
 //Callback to delete a vnet element from the table
@@ -466,6 +457,8 @@ function deleteVNetworkElement(req){
 function addVNetworkElement(request,vn_json){
     var element = vNetworkElementArray(vn_json);
     addElement(element,dataTable_vNetworks);
+    //we update this too, even if it's not shown.
+    $('#leases_form').replaceWith(printLeases(vn_json.VNET));
 }
 
 //updates the list of virtual networks
@@ -488,77 +481,165 @@ function updateVNetworkInfo(request,vn){
     var info_tab_content =
         '<table id="info_vn_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">Virtual Network '+vn_info.ID+' information</th></tr>\
+               <tr><th colspan="2">'+tr("Virtual Network")+' '+vn_info.ID+' '+
+        tr("information")+'</th></tr>\
             </thead>\
             <tr>\
-              <td class="key_td">ID</td>\
+              <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+vn_info.ID+'</td>\
             <tr>\
             <tr>\
-              <td class="key_td">Owner</td>\
+              <td class="key_td">'+tr("Name")+'</td>\
+              <td class="value_td">'+vn_info.NAME+'</td>\
+            <tr>\
+            <tr>\
+              <td class="key_td">'+tr("Owner")+'</td>\
               <td class="value_td">'+vn_info.UNAME+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">Group</td>\
+              <td class="key_td">'+tr("Group")+'</td>\
               <td class="value_td">'+vn_info.GNAME+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">Public</td>\
+              <td class="key_td">'+tr("Public")+'</td>\
               <td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">Physical device</td>\
-              <td class="value_td">'+(vn_info.PHYDEV ? vn_info.PHYDEV : "--" )+'</td>\
+              <td class="key_td">'+tr("Physical device")+'</td>\
+              <td class="value_td">'+ (typeof(vn_info.PHYDEV) == "object" ? "--": vn_info.PHYDEV) +'</td>\
             </tr>\
-        </table>\
-       <table id="vn_leases_info_table" class="info_table">\
-            <thead>\
-               <tr><th colspan="2">Leases information</th></tr>\
-            </thead>'+
-              printLeases(vn_info.LEASES)+
-        '</table>';;
+            <tr>\
+              <td class="key_td">'+tr("VNET ID")+'</td>\
+              <td class="value_td">'+ (typeof(vn_info.VLAN_ID) == "object" ? "--": vn_info.VLAN_ID) +'</td>\
+            </tr>\
+        </table>';
+
+    info_tab_content += '\
+          <table id="vn_template_table" class="info_table">\
+            <thead><tr><th colspan="2">'+tr("Virtual Network template (attributes)")+'</th></tr></thead>'+
+            prettyPrintJSON(vn_info.TEMPLATE)+
+         '</table>';
 
 
+    var leases_tab_content = printLeases(vn_info);
 
     var info_tab = {
-        title: "Virtual Network information",
+        title: tr("Virtual Network information"),
         content: info_tab_content
-    }
+    };
 
-    var template_tab = {
-        title: "Virtual Network template",
-        content:
-        '<table id="vn_template_table" class="info_table" style="width:80%">\
-         <thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
-            prettyPrintJSON(vn_info.TEMPLATE)+
-         '</table>'
-    }
+    var leases_tab = {
+        title: "Lease management",
+        content: leases_tab_content
+    };
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_template_tab",template_tab);
+    Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
 
     Sunstone.popUpInfoPanel("vnet_info_panel");
 
 }
 
-function printLeases(leases){
-    if (!leases.LEASE) //empty
-    {
-        return "";
+function printLeases(vn_info){
+    var html ='<form style="display:inline-block;width:80%" id="leases_form" vnid="'+vn_info.ID+'"><table id="vn_leases_info_table" class="info_table" style="width:100%;">\
+               <thead>\
+                  <tr><th colspan="2">'+tr("Leases information")+'</th></tr>\
+               </thead><tbody>';
+
+    if (vn_info.TYPE == "0"){
+        html += '<tr>\
+                   <td class="key_td">'+tr("IP Start")+'</td>\
+                   <td class="value_td">'+vn_info.RANGE.IP_START+'</td>\
+                 </tr>\
+                 <tr>\
+                   <td class="key_td">'+tr("IP End")+'</td>\
+                   <td class="value_td">'+vn_info.RANGE.IP_END+'</td>\
+                 </tr\>\
+                 <tr>\
+                   <td class="key_td">'+tr("Network mask")+'</td>\
+                   <td class="value_td">'+( vn_info.TEMPLATE.NETWORK_MASK ? vn_info.TEMPLATE.NETWORK_MASK : "--" )+'</td>\
+                 </tr\>\
+                 <tr><td class="key_td">\
+                   <label for="panel_hold_lease">'+tr("Hold lease")+':</label></td><td class="value_td"><input type="text" id="panel_hold_lease" style="width:9em;"/>\
+                  <button id="panel_hold_lease_button">'+tr("Hold")+'</button>\
+             </td></tr>';
+    } else {
+        html += '<tr><td class="key_td">\
+                 <label for="panel_add_lease">'+tr("Add lease")+':</label></td><td class="value_td"><input type="text" id="panel_add_lease" style="width:9em;"/>\
+                <button id="panel_add_lease_button">'+tr("Add")+'</button>\
+             </td></tr>';
     };
 
-    if (leases.LEASE.constructor == Array) //>1 lease
+    var leases = vn_info.LEASES.LEASE;
+
+    if (!leases) //empty
     {
-        return prettyPrintJSON(leases.LEASE);
+        html+='<tr id="no_leases_tr"><td class="key_td">\
+                   '+tr("No leases to show")+'\
+                   </td>\
+               <td class="value_td">\
+                   </td></tr>';
+        return html;
     }
-    else {//1 lease
-        return prettyPrintJSON([leases.LEASE]);
+    else if (leases.constructor != Array) //>1 lease
+    {
+        leases = [leases];
     };
+
+    var lease;
+    var state=null;
+
+    for (var i=0; i<leases.length; i++){
+        lease = leases[i];
+
+        if (lease.USED != "0" && lease.VID == "-1") { //hold
+            state = 2;
+        } else { //free
+            state = parseInt(lease.USED,10);
+        };
+
+
+        html+='<tr ip="'+lease.IP+'"><td class="key_td">';
+        html+='<img style="vertical-align:middle;margin-right:5px;" ';
+        switch (state){
+        case 0: //free
+            html += 'src="images/green_bullet.png" />';
+            break;
+        case 1: //used
+            html += 'src="images/red_bullet.png" />';
+            break;
+        case 2: //hold
+            html += 'src="images/yellow_bullet.png" />';
+            break;
+        };
+
+        html += lease.IP + '</td>';
+
+        html += '<td class="value_td">\
+                 '+lease.MAC+'&nbsp;&nbsp;&nbsp';
+
+        switch (state){
+        case 0:
+            html += '<a class="hold_lease" href="#">'+tr("hold")+'</a> | <a class="delete_lease" href="#">'+tr("delete")+'</a>';
+            break;
+        case 1:
+            html += tr("Used by VM")+' '+lease.VID;
+            break;
+        case 2:
+            html += '<a class="release_lease" href="#">'+tr("release")+'</a>';
+            break;
+        };
+        html += '</td></tr>';
+    };
+
+    html += '</tbody></table></form>';
+
+    return html;
 }
 
 //Prepares the vnet creation dialog
 function setupCreateVNetDialog() {
-    dialogs_context.append('<div title="Create Virtual Network" id="create_vn_dialog"></div>');
+    dialogs_context.append('<div title=\"'+tr("Create Virtual Network")+'\" id="create_vn_dialog"></div>');
     $create_vn_dialog = $('#create_vn_dialog',dialogs_context)
     var dialog = $create_vn_dialog;
     dialog.html(create_vn_tmpl);
@@ -597,7 +678,7 @@ function setupCreateVNetDialog() {
 
         //We don't add anything to the list if there is nothing to add
         if (lease_ip == null) {
-            notifyError("Please provide a lease IP");
+            notifyError(tr("Please provide a lease IP"));
             return false;
         };
 
@@ -620,6 +701,17 @@ function setupCreateVNetDialog() {
     $('#remove_lease', dialog).click(function(){
         $('select#leases :selected',$create_vn_dialog).remove();
         return false;
+    });
+
+    $('#custom_pool', dialog).change(function(){
+        if ($(this).is(':checked')){
+            $('#ip_start', $create_vn_dialog).removeAttr('disabled');
+            $('#ip_end', $create_vn_dialog).removeAttr('disabled');
+        }
+        else {
+            $('#ip_start', $create_vn_dialog).attr('disabled','disabled');
+            $('#ip_end', $create_vn_dialog).attr('disabled','disabled');
+        };
     });
 
 
@@ -652,7 +744,7 @@ function setupCreateVNetDialog() {
         //Fetch values
         var name = $('#name',this).val();
         if (!name.length){
-            notifyError("Virtual Network name missing!");
+            notifyError(tr("Virtual Network name missing!"));
             return false;
         }
         var bridge = $('#bridge',this).val();
@@ -681,9 +773,13 @@ function setupCreateVNetDialog() {
         else { //type ranged
 
             var network_addr = $('#net_address',this).val();
-            var network_size = $('#net_size',this).val();
+            var network_mask = $('#net_mask',this).val();
+            var custom = $('#custom_pool',this).is(':checked');
+            var ip_start = $('#ip_start',this).val();
+            var ip_end = $('#ip_end',this).val();
+
             if (!network_addr.length){
-                notifyError("Please provide a network address");
+                notifyError(tr("Please provide a network address"));
                 return false;
             };
 
@@ -692,15 +788,22 @@ function setupCreateVNetDialog() {
                 "vnet" : {
                     "type" : "RANGED",
                     "bridge" : bridge,
-                    "network_size" : network_size,
+                    "network_mask" : network_mask,
                     "network_address" : network_addr,
                     "name" : name }
+            };
+
+            if (custom){
+                if (ip_start.length)
+                    network_json["vnet"]["ip_start"] = ip_start;
+                if (ip_end.length)
+                    network_json["vnet"]["ip_start"] = ip_end;
             };
         };
 
         //Time to add custom attributes
         $('#custom_var_vnet_box option',$create_vn_dialog).each(function(){
-            var attr_name = $(this).attr("name");
+            var attr_name = $(this).attr('name');
             var attr_value = $(this).val();
             network_json["vnet"][attr_name] = attr_value;
         });
@@ -728,7 +831,7 @@ function popUpCreateVnetDialog() {
 
 function setupVNetTemplateUpdateDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="vnet_template_update_dialog" title="Update network template"></div>');
+    dialogs_context.append('<div id="vnet_template_update_dialog" title="'+tr("Update network template")+'"></div>');
     var dialog = $('#vnet_template_update_dialog',dialogs_context);
 
     //Put HTML in place
@@ -749,14 +852,14 @@ function setupVNetTemplateUpdateDialog(){
         var id = $(this).val();
         if (id && id.length){
             var dialog = $('#vnet_template_update_dialog');
-            $('#vnet_template_update_textarea',dialog).val("Loading...");
+            $('#vnet_template_update_textarea',dialog).val(tr("Loading")+"...");
 
             var vnet_public = is_public_vnet(id);
 
             if (vnet_public){
-                $('#vnet_template_update_public',dialog).attr("checked","checked")
+                $('#vnet_template_update_public',dialog).attr('checked','checked')
             } else {
-                $('#vnet_template_update_public',dialog).removeAttr("checked")
+                $('#vnet_template_update_public',dialog).removeAttr('checked')
             }
 
             Sunstone.runAction("Network.fetch_template",id);
@@ -802,7 +905,7 @@ function popUpVNetTemplateUpdateDialog(){
     var dialog =  $('#vnet_template_update_dialog');
     $('#vnet_template_update_select',dialog).html(select);
     $('#vnet_template_update_textarea',dialog).val("");
-    $('#vnet_template_update_public',dialog).removeAttr("checked")
+    $('#vnet_template_update_public',dialog).removeAttr('checked')
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
@@ -815,7 +918,7 @@ function popUpVNetTemplateUpdateDialog(){
         });
         $('#vnet_template_update_select',dialog).html(new_select);
         if (sel_elems.length == 1) {
-            $('#vnet_template_update_select option',dialog).attr("selected","selected");
+            $('#vnet_template_update_select option',dialog).attr('selected','selected');
             $('#vnet_template_update_select',dialog).trigger("change");
         }
 
@@ -826,78 +929,65 @@ function popUpVNetTemplateUpdateDialog(){
 
 }
 
-function setupAddRemoveLeaseDialog() {
-    dialogs_context.append('<div title="Lease management" id="lease_vn_dialog"></div>');
-    $lease_vn_dialog = $('#lease_vn_dialog',dialogs_context)
-
-    var dialog = $lease_vn_dialog;
-
-    dialog.html(
-        '<form id="lease_vn_form" action="javascript:alert(\'js error!\');">\
-           <fieldset>\
-           <div>Please specify:</div>\
-           <label for="add_lease_ip">Lease IP:</label>\
-           <input type="text" name="add_lease_ip" id="add_lease_ip" /><br />\
-           <label id="add_lease_mac_label" for="add_lease_mac">Lease MAC:</label>\
-           <input type="text" name="add_lease_mac" id="add_lease_mac" />\
-           </select>\
-           </fieldset>\
-           <fieldset>\
-           <div class="form_buttons">\
-              <button id="lease_vn_proceed" class="" value="">OK</button>\
-              <button class="confirm_cancel" value="">Cancel</button>\
-           </div>\
-           </fieldset>\
-         </form>'
-    );
-
-    //Prepare the jquery-ui dialog. Set style options here.
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 410,
-        height: 220
-    });
-
-    $('button',dialog).button();
-
-    $('#lease_vn_form',dialog).submit(function(){
-        var ip = $('#add_lease_ip',this).val();
-        var mac = $('#add_lease_mac',this).val();
-
-        var obj = {ip: ip, mac: mac};
-
-        if (!mac.length) { delete obj.mac; };
-
-        Sunstone.runAction("Network.modifyleases",
-                           $('#lease_vn_proceed',this).val(),
-                           obj);
-        $lease_vn_dialog.dialog('close');
+function setupLeasesOps(){
+    $('button#panel_add_lease_button').live("click",function(){
+        var lease = $(this).prev().val();
+        //var mac = $(this).previous().val();
+        var id = $(this).parents('form').attr('vnid');
+        if (lease.length){
+            var obj = {ip: lease};
+            Sunstone.runAction('Network.addleases',id,obj);
+        }
         return false;
     });
-}
 
-function popUpAddLeaseDialog() {
-    $lease_vn_dialog.dialog("option","title","Add lease");
-    $('#add_lease_mac',$lease_vn_dialog).show();
-    $('#add_lease_mac_label',$lease_vn_dialog).show();
-    $('#lease_vn_proceed',$lease_vn_dialog).val("Network.addleases");
-    $lease_vn_dialog.dialog("open");
-}
+    $('button#panel_hold_lease_button').live("click",function(){
+        var lease = $(this).prev().val();
+        //var mac = $(this).previous().val();
+        var id = $(this).parents('form').attr('vnid');
+        if (lease.length){
+            var obj = {ip: lease};
+            Sunstone.runAction('Network.hold',id,obj);
+        }
+        return false;
+    });
 
-function popUpRemoveLeaseDialog() {
-    $lease_vn_dialog.dialog("option","title","Remove lease");
-    $('#add_lease_mac',$lease_vn_dialog).hide();
-    $('#add_lease_mac_label',$lease_vn_dialog).hide();
-    $('#lease_vn_proceed',$lease_vn_dialog).val("Network.rmleases");
-    $lease_vn_dialog.dialog("open");
+    $('form#leases_form a.delete_lease').live("click",function(){
+        var lease = $(this).parents('tr').attr('ip');
+        var id = $(this).parents('form').attr('vnid');
+        var obj = { ip: lease};
+        Sunstone.runAction('Network.rmleases',id,obj);
+        //Set spinner
+        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
+        return false;
+    });
+
+    $('a.hold_lease').live("click",function(){
+        var lease = $(this).parents('tr').attr('ip');
+        var id = $(this).parents('form').attr('vnid');
+        var obj = { ip: lease};
+        Sunstone.runAction('Network.hold',id,obj);
+        //Set spinner
+        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
+        return false;
+    });
+
+    $('a.release_lease').live("click",function(){
+        var lease = $(this).parents('tr').attr('ip');
+        var id = $(this).parents('form').attr('vnid');
+        var obj = { ip: lease};
+        Sunstone.runAction('Network.release',id,obj);
+        //Set spinner
+        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
+        return false;
+    });
 }
 
 function setVNetAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_vNetworks);
         var filter = $("#datatable_vnetworks_filter input",
-                       dataTable_vNetworks.parents("#datatable_vnetworks_wrapper")).attr("value");
+                       dataTable_vNetworks.parents("#datatable_vnetworks_wrapper")).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Network.autorefresh");
         }
@@ -906,14 +996,14 @@ function setVNetAutorefresh() {
 
 function is_public_vnet(id) {
     var data = getElementData(id,"#vnetwork",dataTable_vNetworks)[7];
-    return $(data).attr("checked");
+    return $(data).is(":checked");
 };
 
 function setupVNetActionCheckboxes(){
     $('input.action_cb#cb_public_vnet',dataTable_vNetworks).live("click",function(){
         var $this = $(this)
-        var id=$this.attr("elem_id");
-        if ($this.attr("checked"))
+        var id=$this.attr('elem_id');
+        if ($this.attr('checked'))
                 Sunstone.runAction("Network.publish",id);
         else Sunstone.runAction("Network.unpublish",id);
 
@@ -935,7 +1025,11 @@ $(document).ready(function(){
             { "sWidth": "60px", "aTargets": [0,5,6,7,8] },
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "100px", "aTargets": [2,3] }
-        ]
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
     });
 
     dataTable_vNetworks.fnClearTable();
@@ -946,7 +1040,7 @@ $(document).ready(function(){
 
     setupCreateVNetDialog();
     setupVNetTemplateUpdateDialog();
-    setupAddRemoveLeaseDialog();
+    setupLeasesOps();
     setupVNetActionCheckboxes();
     setVNetAutorefresh();
 

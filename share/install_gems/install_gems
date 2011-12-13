@@ -2,16 +2,17 @@
 
 require 'pp'
 
-PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
-    ozones_server_mysql ozones_server_sqlite}
-
-DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
+DEFAULT=%w{optional sunstone quota cloud ozones_server acct auth_ldap}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
 
     # xmlparser gem is not compatible with ruby 1.9
     OPTIONAL=%w{nokogiri}
+
+    if RUBY_VERSION=='1.8.7'
+        OPTIONAL << 'xmlparser'
+    end
 else
     SQLITE='sqlite3-ruby --version 1.2.0'
     OPTIONAL=%w{nokogiri xmlparser}
@@ -21,7 +22,7 @@ GROUPS={
     :optional => OPTIONAL,
     :quota => [SQLITE, 'sequel'],
     :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
-    :cloud => %w{amazon-ec2 rack sinatra thin uuid curb},
+    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb},
     :ozones_client => %w{json},
     :ozones_server => %w{json data_mapper dm-sqlite-adapter dm-mysql-adapter}+[
         SQLITE, 'mysql'
@@ -30,8 +31,11 @@ GROUPS={
     :ozones_server_mysql => %w{json data_mapper dm-mysql-adapter mysql},
     :acct => ['sequel', SQLITE, 'mysql'],
     :acct_sqlite => ['sequel', SQLITE],
-    :acct_mysql => ['sequel', 'mysql']
+    :acct_mysql => ['sequel', 'mysql'],
+    :auth_ldap => 'net-ldap'
 }
+
+PACKAGES=GROUPS.keys
 
 DISTRIBUTIONS={
     :debian => {
@@ -82,6 +86,15 @@ class String
     end
 end
 
+def installed_gems
+    text=`gem list --no-versions --no-details`
+    if $?.exitstatus!=0
+        nil
+    else
+        text.split(/\s+/)
+    end
+end
+
 def try_library(name, error_message)
     begin
         require name.to_s
@@ -107,12 +120,14 @@ def help
     puts
     puts "If no parameters are specified then this list will be used:"
     puts DEFAULT.join(' ')
+    puts
+    puts "Use --check parameter to search for non installed libraries."
 end
 
 def get_gems(packages)
     packages.map do |package|
         GROUPS[package.to_sym]
-    end.flatten.uniq
+    end.flatten.uniq-installed_gems
 end
 
 def detect_distro
@@ -191,6 +206,88 @@ def install_dependencies(gems, distro)
     end
 end
 
+def run_command(cmd)
+    puts cmd
+    system cmd
+    #system "true"
+
+    if $?!=0
+        puts "Error executing #{cmd}"
+        exit(-1)
+    end
+end
+
+def install_gems(packages)
+    gems_list=get_gems(packages)
+
+    if gems_list.empty?
+        puts "Gems already installed"
+        exit(0)
+    end
+
+    dist=detect_distro
+
+    install_dependencies(gems_list, dist)
+
+    packages_string=gems_list.join(' ')
+
+    prefix=""
+
+    if dist && dist.last[:gem_env]
+        prefix=dist.last[:gem_env].collect do |name, value|
+            "#{name}=\"#{value}\""
+        end.join(' ')+' '
+    end
+
+    command_string = "#{prefix}gem install --no-ri --no-rdoc"
+
+    install_warning(packages)
+
+    simple_gems=gems_list.select {|g| !(g.match(/\s/)) }
+    if simple_gems and !simple_gems.empty?
+        cmd=command_string+" " << simple_gems.join(' ')
+        run_command(cmd)
+    end
+
+    special_gems=gems_list.select {|g| g.match(/\s/) }
+    special_gems.each do |gem|
+        cmd=command_string+" "<<gem
+        run_command(cmd)
+    end
+end
+
+def check_lib(lib)
+    begin
+        require lib
+        true
+    rescue LoadError, Exception
+        false
+    end
+end
+
+def check_gems(packages)
+    list=get_gems(packages).compact
+    gems=list.map {|g| g.strip.split(/\s+/).first }
+
+    not_installed=Array.new
+
+    gems.each do |lib_name|
+        if !check_lib(lib_name)
+            not_installed << lib_name
+        end
+    end
+
+    if not_installed.empty?
+        puts "All ruby libraries installed"
+        exit(0)
+    else
+        puts "These ruby libraries are not installed:"
+        puts ""
+        puts "* "+not_installed.join("\n* ")
+        exit(-1)
+    end
+end
+
 try_library :rubygems, <<-EOT.unindent
     rubygems required to use this tool
 
@@ -224,45 +321,37 @@ try_library :mkmf, <<-EOT.unindent
         * Install the ruby development package for your distro
 EOT
 
-if ARGV.include?('-h')
-    help
-    exit(0)
+
+command=''
+params=ARGV
+
+if params.include?('-h')
+    params-=['-h']
+    command='help'
+elsif params.include?('--check')
+    params-=['--check']
+    command='check'
+else
+    command='install'
 end
 
-if ARGV.length>0
-    packages=ARGV
+if params.length>0
+    packages=params
 else
     packages=DEFAULT
 end
 
-gems_list=get_gems(packages)
 
-dist=detect_distro
-
-install_dependencies(gems_list, dist)
-
-packages_string=gems_list.join(' ')
-
-prefix=""
-
-if dist && dist.last[:gem_env]
-    prefix=dist.last[:gem_env].collect do |name, value|
-        "#{name}=\"#{value}\""
-    end.join(' ')+' '
+case command
+when 'help'
+    help
+    exit(0)
+when 'check'
+    check_gems(packages)
+when 'install'
+    install_gems(packages)
 end
 
-command_string = "#{prefix}gem install --no-ri --no-rdoc"
 
-install_warning(packages)
 
-gems_list.each do |gem|
-    cmd=command_string+" "<<gem
-    puts cmd
-    system cmd
-
-    if $?!=0
-        puts "Error installing #{gem}"
-        exit(-1)
-    end
-end
 

@@ -25,22 +25,22 @@ function loadVNC(){
 loadVNC();
 
 var vm_graphs = [
-    { title : "CPU",
+    { title : tr("CPU"),
       monitor_resources : "cpu_usage",
       humanize_figures : false,
       history_length : VM_HISTORY_LENGTH
     },
-    { title : "Memory",
+    { title : tr("Memory"),
       monitor_resources : "mem_usage",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     },
-    { title : "Network transmission",
+    { title : tr("Network transmission"),
       monitor_resources : "net_tx",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     },
-    { title : "Network reception",
+    { title : tr("Network reception"),
       monitor_resources : "net_rx",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
@@ -54,17 +54,17 @@ var vms_tab_content =
 <table id="datatable_vmachines" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
-      <th>ID</th>\
-      <th>Owner</th>\
-      <th>Group</th>\
-      <th>Name</th>\
-      <th>Status</th>\
-      <th>CPU</th>\
-      <th>Memory</th>\
-      <th>Hostname</th>\
-      <th>Start Time</th>\
-      <th>VNC Access</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Owner")+'</th>\
+      <th>'+tr("Group")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Status")+'</th>\
+      <th>'+tr("CPU")+'</th>\
+      <th>'+tr("Memory")+'</th>\
+      <th>'+tr("Hostname")+'</th>\
+      <th>'+tr("Start Time")+'</th>\
+      <th>'+tr("VNC Access")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -75,19 +75,19 @@ var vms_tab_content =
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
   <fieldset>\
         <div>\
-           <label for="vm_name">VM Name:</label>\
+           <label for="vm_name">'+tr("VM Name")+':</label>\
            <input type="text" name="vm_name" id="vm_name" /><br />\
-           <label for="template_id">Select template:</label>\
+           <label for="template_id">'+tr("Select template")+':</label>\
            <select id="template_id">\
            </select><br />\
-           <label for="vm_n_times">Deploy # VMs:</label>\
+           <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
            <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
         </div>\
         </fieldset>\
         <fieldset>\
         <div class="form_buttons">\
-           <button class="button" id="create_vm_proceed" value="VM.create">Create</button>\
-           <button class="button" type="reset" value="reset">Reset</button>\
+           <button class="button" id="create_vm_proceed" value="VM.create">'+tr("Create")+'</button>\
+           <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
 </fieldset>\
 </form>';
@@ -372,36 +372,36 @@ var vm_actions = {
 var vm_buttons = {
     "VM.refresh" : {
         type: "image",
-        text: "Refresh list",
+        text: tr("Refresh list"),
         img: "images/Refresh-icon.png"
     },
 
     "VM.create_dialog" : {
         type: "action",
-        text: "+ New",
+        text: tr("+ New"),
         alwaysActive: true
     },
 
     "VM.chown" : {
         type: "confirm_with_select",
-        text: "Change owner",
+        text: tr("Change owner"),
         select: users_sel,
-        tip: "Select the new owner:",
+        tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
 
     "VM.chgrp" : {
         type: "confirm_with_select",
-        text: "Change group",
+        text: tr("Change group"),
         select: groups_sel,
-        tip: "Select the new group:",
+        tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
 
     "VM.shutdown" : {
         type: "confirm",
-        text: "Shutdown",
-        tip: "This will initiate the shutdown process in the selected VMs"
+        text: tr("Shutdown"),
+        tip: tr("This will initiate the shutdown process in the selected VMs")
     },
 
     "action_list" : {
@@ -409,97 +409,97 @@ var vm_buttons = {
         actions: {
             "VM.deploy" : {
                 type: "confirm_with_select",
-                text: "Deploy",
-                tip: "This will deploy the selected VMs on the chosen host",
+                text: tr("Deploy"),
+                tip: tr("This will deploy the selected VMs on the chosen host"),
                 select: hosts_sel,
                 condition: mustBeAdmin
             },
             "VM.migrate" : {
                 type: "confirm_with_select",
-                text: "Migrate",
-                tip: "This will migrate the selected VMs to the chosen host",
+                text: tr("Migrate"),
+                tip: tr("This will migrate the selected VMs to the chosen host"),
                 select: hosts_sel,
                 condition: mustBeAdmin
 
             },
             "VM.livemigrate" : {
                 type: "confirm_with_select",
-                text: "Live migrate",
-                tip: "This will live-migrate the selected VMs to the chosen host",
+                text: tr("Live migrate"),
+                tip: tr("This will live-migrate the selected VMs to the chosen host"),
                 select: hosts_sel,
                 condition: mustBeAdmin
             },
             "VM.hold" : {
                 type: "confirm",
-                text: "Hold",
-                tip: "This will hold selected pending VMs from being deployed"
+                text: tr("Hold"),
+                tip: tr("This will hold selected pending VMs from being deployed")
             },
             "VM.release" : {
                 type: "confirm",
-                text: "Release",
-                tip: "This will release held machines"
+                text: tr("Release"),
+                tip: tr("This will release held machines")
             },
             "VM.suspend" : {
                 type: "confirm",
-                text: "Suspend",
-                tip: "This will suspend selected machines"
+                text: tr("Suspend"),
+                tip: tr("This will suspend selected machines")
             },
             "VM.resume" : {
                 type: "confirm",
-                text: "Resume",
-                tip: "This will resume selected stopped or suspended VMs"
+                text: tr("Resume"),
+                tip: tr("This will resume selected stopped or suspended VMs")
             },
             "VM.stop" : {
                 type: "confirm",
-                text: "Stop",
+                text: tr("Stop"),
                 tip: "This will stop selected VMs"
             },
             "VM.restart" : {
                 type: "confirm",
-                text: "Restart",
-                tip: "This will redeploy selected VMs (in UNKNOWN or BOOT state)"
+                text: tr("Restart"),
+                tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
             },
             "VM.resubmit" : {
                 type: "confirm",
-                text: "Resubmit",
-                tip: "This will resubmits VMs to PENDING state"
+                text: tr("Resubmit"),
+                tip: tr("This will resubmits VMs to PENDING state")
             },
             "VM.saveasmultiple" : {
                 type: "action",
-                text: "Save as"
+                text: tr("Save as")
             },
             "VM.cancel" : {
                 type: "confirm",
-                text: "Cancel",
-                tip: "This will cancel selected VMs"
+                text: tr("Cancel"),
+                tip: tr("This will cancel selected VMs")
             }
         }
     },
 
     "VM.delete" : {
         type: "confirm",
-        text: "Delete",
-        tip: "This will delete the selected VMs from the database"
+        text: tr("Delete"),
+        tip: tr("This will delete the selected VMs from the database")
     }
 }
 
 var vm_info_panel = {
     "vm_info_tab" : {
-        title: "Virtual Machine information",
+        title: tr("Virtual Machine information"),
         content: ""
     },
     "vm_template_tab" : {
-        title: "VM template",
+        title: tr("VM template"),
         content: ""
     },
     "vm_log_tab" : {
-        title: "VM log",
+        title: tr("VM log"),
         content: ""
     }
 }
 
 var vms_tab = {
-    title: "Virtual Machines",
+    title: tr("Virtual Machines"),
     content: vms_tab_content,
     buttons: vm_buttons
 }
@@ -617,73 +617,73 @@ function updateVMInfo(request,vm){
     };
 
     var info_tab = {
-        title : "VM information",
+        title : tr("VM information"),
         content:
         '<table id="info_vm_table" class="info_table">\
             <thead>\
-              <tr><th colspan="2">Virtual Machine information - '+vm_info.NAME+'</th></tr>\
+              <tr><th colspan="2">'+tr("Virtual Machine information")+' - '+vm_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
-                 <td class="key_td">ID</td>\
+                 <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+vm_info.ID+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">Name</td>\
+                 <td class="key_td">'+tr("Name")+'</td>\
                  <td class="value_td">'+vm_info.NAME+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">Owner</td>\
+                 <td class="key_td">'+tr("Owner")+'</td>\
                  <td class="value_td">'+vm_info.UNAME+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">Group</td>\
+                 <td class="key_td">'+tr("Group")+'</td>\
                  <td class="value_td">'+vm_info.GNAME+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">State</td>\
-                 <td class="value_td">'+vm_state+'</td>\
+                 <td class="key_td">'+tr("State")+'</td>\
+                 <td class="value_td">'+tr(vm_state)+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">LCM State</td>\
-                 <td class="value_td">'+OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE)+'</td>\
+                 <td class="key_td">'+tr("LCM State")+'</td>\
+                 <td class="value_td">'+tr(OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE))+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">Hostname</td>\
+                 <td class="key_td">'+tr("Hostname")+'</td>\
               <td class="value_td">'+ hostname +'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">Start time</td>\
+                 <td class="key_td">'+tr("Start time")+'</td>\
                  <td class="value_td">'+pretty_time(vm_info.STIME)+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">Deploy ID</td>\
+                 <td class="key_td">'+tr("Deploy ID")+'</td>\
                  <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
               </tr></tbody>\
                 </table>\
                 <table id="vm_monitoring_table" class="info_table">\
                    <thead>\
-                     <tr><th colspan="2">Monitoring information</th></tr>\
+                     <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
                    </thead>\
                    <tbody>\
                       <tr>\
-                        <td class="key_td">Net_TX</td>\
+                        <td class="key_td">'+tr("Net_TX")+'</td>\
                         <td class="value_td">'+vm_info.NET_TX+'</td>\
                       </tr>\
                       <tr>\
-                        <td class="key_td">Net_RX</td>\
+                        <td class="key_td">'+tr("Net_RX")+'</td>\
                         <td class="value_td">'+vm_info.NET_RX+'</td>\
                       </tr>\
                       <tr>\
-                        <td class="key_td">Used Memory</td>\
+                        <td class="key_td">'+tr("Used Memory")+'</td>\
                         <td class="value_td">'+humanize_size(vm_info.MEMORY)+'</td>\
                       </tr>\
                       <tr>\
-                        <td class="key_td">Used CPU</td>\
+                        <td class="key_td">'+tr("Used CPU")+'</td>\
                         <td class="value_td">'+vm_info.CPU+'</td>\
                       </tr>\
                       <tr>\
-                        <td class="key_td">VNC Session</td>\
+                        <td class="key_td">'+tr("VNC Session")+'</td>\
                         <td class="value_td">'+vncIcon(vm_info)+'</td>\
                       </tr>\
                     </tbody>\
@@ -691,21 +691,21 @@ function updateVMInfo(request,vm){
     }
 
     var template_tab = {
-        title: "VM Template",
+        title: tr("VM Template"),
         content:
         '<table id="vm_template_table" class="info_table" style="width:80%">\
-               <thead><tr><th colspan="2">VM template</th></tr></thead>'+
+               <thead><tr><th colspan="2">'+tr("VM template")+'</th></tr></thead>'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>'
     }
 
     var log_tab = {
-        title: "VM log",
+        title: tr("VM log"),
         content: '<div>'+spinner+'</div>'
     }
 
     var monitoring_tab = {
-        title: "Monitoring information",
+        title: tr("Monitoring information"),
         content: generateMonitoringDivs(vm_graphs,"vm_monitor_")
     }
 
@@ -726,7 +726,7 @@ function updateVMInfo(request,vm){
 // which is a lot.
 function setupCreateVMDialog(){
 
-    dialogs_context.append('<div title="Create Virtual Machine" id="create_vm_dialog"></div>');
+    dialogs_context.append('<div title=\"'+tr("Create Virtual Machine")+'\" id="create_vm_dialog"></div>');
     //Insert HTML in place
     $create_vm_dialog = $('#create_vm_dialog')
     var dialog = $create_vm_dialog;
@@ -748,7 +748,7 @@ function setupCreateVMDialog(){
         var n_times_int=1;
 
         if (!template_id.length){
-            notifyError("You have not selected a template");
+            notifyError(tr("You have not selected a template"));
             return false;
         }
 
@@ -781,7 +781,7 @@ function popUpCreateVMDialog(){
 //Prepares a dialog to saveas a VM
 function setupSaveasDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="saveas_vm_dialog" title="VM Save As"></div>');
+    dialogs_context.append('<div id="saveas_vm_dialog" title=\"'+tr("VM Save As")+'\"></div>');
     $saveas_vm_dialog = $('#saveas_vm_dialog',dialogs_context);
     var dialog = $saveas_vm_dialog;
 
@@ -791,8 +791,8 @@ function setupSaveasDialog(){
             <div id="saveas_tabs">\
             </div>\
             <div class="form_buttons">\
-                <button id="vm_saveas_proceed" value="">OK</button>\
-                <button id="vm_saveas_cancel" value="">Cancel</button>\
+                <button id="vm_saveas_proceed" value="">'+tr("OK")+'</button>\
+                <button id="vm_saveas_cancel" value="">'+tr("Cancel")+'</button>\
             </div>\
             </fieldset>\
        </form>');
@@ -815,8 +815,8 @@ function setupSaveasDialog(){
             var type = $('#image_type',this).val();
 
             if (!id.length || !disk_id.length || !image_name.length) {
-                notifyError("Skipping VM "+id+
-                            ". No disk id or image name specified");
+                notifyError(tr("Skipping VM ")+id+". "+
+                            tr("No disk id or image name specified"));
             }
             else {
                 var obj = {
@@ -853,25 +853,25 @@ function popUpSaveasDialog(elems){
         var li = '<li><a href="#saveas_tab_'+this+'">VM '+this+'</a></li>'
         $('#saveas_tabs ul',dialog).append(li);
         var tab = '<div class="saveas_tab" id="saveas_tab_'+this+'">\
-        <div id="vm_id_text">Saveas for VM with ID <span id="vm_id">'+this+'</span></div>\
+        <div id="vm_id_text">'+tr("Saveas for VM with ID")+' <span id="vm_id">'+this+'</span></div>\
             <fieldset>\
             <div>\
-                <label for="vm_disk_id">Select disk:</label>\
+                <label for="vm_disk_id">'+tr("Select disk")+':</label>\
                 <select id="vm_disk_id" name="vm_disk_id">\
-                    <option value="">Retrieving...</option>\
+                    <option value="">'+tr("Retrieving")+'...</option>\
                 </select>\
             </div>\
             <div>\
-                <label for="image_name">Image name:</label>\
+                <label for="image_name">'+tr("Image name")+':</label>\
                 <input type="text" id="image_name" name="image_name" value="" />\
             </div>\
             <div>\
-                <label for="img_attr_value">Type:</label>\
+                <label for="img_attr_value">'+tr("Type")+':</label>\
                 <select id="image_type" name="image_type">\
-                    <option value="">Default (current image type)</option>\
-                    <option value="os">OS</option>\
-                    <option value="datablock">Datablock</option>\
-                    <option value="cdrom">CD-ROM</option>\
+                    <option value="">'+tr("Default (current image type)")+'</option>\
+                    <option value="os">'+tr("OS")+'</option>\
+                    <option value="datablock">'+tr("Datablock")+'</option>\
+                    <option value="cdrom">'+tr("CD-ROM")+'</oqption>\
                 </select>\
             </div>\
             </fieldset>\
@@ -891,15 +891,15 @@ function saveasDisksCallback(req,response){
 
     var gen_option = function(id, name, source){
         if (name){
-            return '<option value="'+id+'">'+name+' (disk id: '+id+')</option>';
+            return '<option value="'+id+'">'+name+" ("+tr("disk id")+"): "+id+')</option>';
         }
         else {
-            return '<option value="'+id+'">'+source+' (disk id: '+id+')</option>';
+            return '<option value="'+id+'">'+source+" ("+tr("disk id")+"): "+id+')</option>';
         }
     }
 
     var disks = vm_info.TEMPLATE.DISK;
-    if (!disks) { select = '<option value="">No disks defined</option>';}
+    if (!disks) { select = '<option value="">'+tr("No disks defined")+'</option>';}
     else if (disks.constructor == Array) //several disks
     {
         for (var i=0;i<disks.length;i++){
@@ -918,7 +918,7 @@ function setVMAutorefresh(){
      setInterval(function(){
          var checked = $('input.check_item:checked',dataTable_vMachines);
          var filter = $("#datatable_vmachines_filter input",
-                        dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr("value");
+                        dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr('value');
          if (!checked.length && !filter.length){
              Sunstone.runAction("VM.autorefresh");
          };
@@ -963,14 +963,14 @@ function updateVNCState(rfb, state, oldstate, msg) {
 function setupVNC(){
 
     //Append to DOM
-    dialogs_context.append('<div id="vnc_dialog" title="VNC connection"></div>');
+    dialogs_context.append('<div id="vnc_dialog" title=\"'+tr("VNC connection")+'\"></div>');
     $vnc_dialog = $('#vnc_dialog',dialogs_context);
     var dialog = $vnc_dialog;
 
     dialog.html('\
       <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">\
          <table border=0 width="100%"><tr>\
-            <td><div id="VNC_status">Loading</div></td>\
+            <td><div id="VNC_status">'+tr("Loading")+'</div></td>\
             <td width="1%"><div id="VNC_buttons">\
             <input type=button value="Send CtrlAltDel"\
                    id="sendCtrlAltDelButton">\
@@ -978,7 +978,7 @@ function setupVNC(){
           </tr></table>\
         </div>\
         <canvas id="VNC_canvas" width="640px" height="20px">\
-            Canvas not supported.\
+            '+tr("Canvas not supported.")+'\
         </canvas>\
 ');
 
@@ -996,16 +996,16 @@ function setupVNC(){
     });
 
     dialog.bind( "dialogclose", function(event, ui) {
-        var id = $vnc_dialog.attr("vm_id");
+        var id = $vnc_dialog.attr('vm_id');
         rfb.disconnect();
         Sunstone.runAction("VM.stopvnc",id);
     });
 
     $('.vnc',main_tabs_context).live("click",function(){
         //Which VM is it?
-        var id = $(this).attr("vm_id");
+        var id = $(this).attr('vm_id');
         //Set attribute to dialog
-        $vnc_dialog.attr("vm_id",id);
+        $vnc_dialog.attr('vm_id',id);
         //Request proxy server start
         Sunstone.runAction("VM.startvnc",id);
         return false;
@@ -1040,10 +1040,10 @@ function vncIcon(vm){
     var gr_icon;
     if (graphics && graphics.TYPE == "vnc" && state == "RUNNING"){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
-        gr_icon += '<img src="images/vnc_on.png" alt="Open VNC Session" /></a>';
+        gr_icon += '<img src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
     }
     else {
-        gr_icon = '<img src="images/vnc_off.png" alt="VNC Disabled" />';
+        gr_icon = '<img src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
     }
     return gr_icon;
 }
@@ -1071,7 +1071,11 @@ $(document).ready(function(){
             { "sWidth": "35px", "aTargets": [1,10] },
             { "sWidth": "150px", "aTargets": [5,9] },
             { "sWidth": "100px", "aTargets": [2,3] }
-        ]
+        ],
+	"oLanguage": (datatable_lang != "") ?
+	    {
+		sUrl: "locale/"+lang+"/"+datatable_lang
+	    } : ""
     });
 
     dataTable_vMachines.fnClearTable();

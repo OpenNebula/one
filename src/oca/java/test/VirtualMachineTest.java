@@ -80,11 +80,11 @@ public class VirtualMachineTest
 
 
         res = Host.allocate(client, "host_A",
-                            "im_dummy", "vmm_dummy", "tm_dummy");
+                            "im_dummy", "vmm_dummy", "vmm_dummy", "tm_dummy");
         hid_A = Integer.parseInt( res.getMessage() );
 
         res = Host.allocate(client, "host_B",
-                            "im_dummy", "vmm_dummy", "tm_dummy");
+                            "im_dummy", "vmm_dummy", "vmm_dummy", "tm_dummy");
         hid_B = Integer.parseInt( res.getMessage() );
     }
 

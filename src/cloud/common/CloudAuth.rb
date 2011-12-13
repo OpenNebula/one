@@ -33,7 +33,8 @@ class CloudAuth
 
     # Default interval for timestamps. Tokens will be generated using the same
     # timestamp for this interval of time.
-    EXPIRE_DELTA = 36000
+    # THIS VALUE CANNOT BE LOWER THAN EXPIRE_MARGIN
+    EXPIRE_DELTA = 1800
 
     # Tokens will be generated if time > EXPIRE_TIME - EXPIRE_MARGIN
     EXPIRE_MARGIN = 300
@@ -44,8 +45,7 @@ class CloudAuth
     def initialize(conf)
         @conf = conf
 
-        @token_expiration_delta = @conf[:token_expiration_delta] || EXPIRE_DELTA
-        @token_expiration_time  = Time.now.to_i + @token_expiration_delta
+        @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
 
         if AUTH_MODULES.include?(@conf[:auth])
             require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
@@ -64,17 +64,38 @@ class CloudAuth
         begin
             require core_auth[0]
             @server_auth = Kernel.const_get(core_auth[1]).new_client
-
-            token = @server_auth.login_token(expiration_time)
-            @oneadmin_client ||= OpenNebula::Client.new(token, @conf[:one_xmlrpc])
         rescue => e
             raise e.message
         end
     end
 
-    def client(username)
+    # Generate a new OpenNebula client for the target User, if the username
+    # is nil the Client is generated for the server_admin
+    # ussername:: _String_ Name of the User
+    # [return] _Client_
+    def client(username=nil)
         token = @server_auth.login_token(expiration_time,username)
         Client.new(token,@conf[:one_xmlrpc])
+    end
+
+    def update_userpool_cache
+        @user_pool = OpenNebula::UserPool.new(client)
+
+        rc = @user_pool.info
+        if OpenNebula.is_error?(rc)
+            raise rc.message
+        end
+    end
+
+    def auth(env, params={})
+        username = do_auth(env, params)
+
+        if username.nil?
+            update_userpool_cache
+            do_auth(env, params)
+        else
+            username
+        end
     end
 
     protected
@@ -83,8 +104,7 @@ class CloudAuth
         time_now = Time.now.to_i
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
-            update_userpool_cache
-            @token_expiration_time = time_now + @token_expiration_delta
+            @token_expiration_time = time_now + EXPIRE_DELTA
         end
 
         @token_expiration_time
@@ -94,15 +114,6 @@ class CloudAuth
     def get_userpool
         update_userpool_cache if @user_pool.nil?
         @user_pool
-    end
-
-    def update_userpool_cache
-        @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
-
-        rc = @user_pool.info
-        if OpenNebula.is_error?(rc)
-            raise rc.message
-        end
     end
 
     def get_password(username, non_public_user=false)

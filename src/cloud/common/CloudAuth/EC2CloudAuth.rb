@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 module EC2CloudAuth
-    def auth(env, params={})
+    def do_auth(env, params={})
         username = params['AWSAccessKeyId']
         one_pass = get_password(username)
         return nil unless one_pass

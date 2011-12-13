@@ -32,7 +32,9 @@ module OpenNebula
             :addleases  => "vn.addleases",
             :rmleases   => "vn.rmleases",
             :chown      => "vn.chown",
-            :update     => "vn.update"
+            :update     => "vn.update",
+            :hold       => "vn.hold",
+            :release    => "vn.release"
         }
 
         VN_TYPES=%w{RANGED FIXED}
@@ -123,6 +125,32 @@ module OpenNebula
             lease_template = "LEASES = [ IP = #{ip} ]"
 
             rc = @client.call(VN_METHODS[:rmleases], @pe_id, lease_template)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Holds a virtual network Lease as used
+        # @param ip [String] IP to hold
+        def hold(ip)
+            return Error.new('ID not defined') if !@pe_id
+
+            lease_template = "LEASES = [ IP = #{ip} ]"
+
+            rc = @client.call(VN_METHODS[:hold], @pe_id, lease_template)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Releases a virtual network Lease on hold
+        # @param ip [String] IP to release
+        def release(ip)
+            return Error.new('ID not defined') if !@pe_id
+
+            lease_template = "LEASES = [ IP = #{ip} ]"
+
+            rc = @client.call(VN_METHODS[:release], @pe_id, lease_template)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
