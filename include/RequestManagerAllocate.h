@@ -210,7 +210,7 @@ public:
     HostAllocate():
         RequestManagerAllocate("HostAllocate",
                                "Allocates a new host",
-                               "A:sssss",
+                               "A:ssssss",
                                false)
     {    
         Nebula& nd  = Nebula::instance();
