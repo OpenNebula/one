@@ -56,7 +56,7 @@ void Nebula::start()
     // Configuration
     // -----------------------------------------------------------
 
-    nebula_configuration = new NebulaTemplate(etc_location, var_location);
+    nebula_configuration = new OpenNebulaTemplate(etc_location, var_location);
 
     rc = nebula_configuration->load_configuration();
 

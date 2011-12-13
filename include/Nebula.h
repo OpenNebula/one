@@ -407,7 +407,7 @@ private:
     // Configuration
     // ---------------------------------------------------------------
 
-    NebulaTemplate *    nebula_configuration;
+    OpenNebulaTemplate *    nebula_configuration;
 
     // ---------------------------------------------------------------
     // Nebula Pools
