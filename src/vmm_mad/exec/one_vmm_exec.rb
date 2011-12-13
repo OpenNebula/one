@@ -168,7 +168,7 @@ class VmmAction
                 break
             else
                 @vmm.log(@id,
-                         "Sussecfully execute #{DRIVER_NAMES[step[:driver]]} " \
+                         "Successfully execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
             end
         end
