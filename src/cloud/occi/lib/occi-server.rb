@@ -164,9 +164,19 @@ end
 # Actions
 ##############################################################################
 
+get '/' do
+    result,rc = @occi_server.get_collections(request)
+    treat_response(result,rc)
+end
+
 ###################################################
 # Pool Resources methods
 ###################################################
+
+get '/instance_type' do
+    result,rc = @occi_server.get_instance_types(request)
+    treat_response(result,rc)
+end
 
 post '/compute' do
    result,rc = @occi_server.post_compute(request)

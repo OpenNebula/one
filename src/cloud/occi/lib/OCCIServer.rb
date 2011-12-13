@@ -37,6 +37,9 @@ require 'pp'
 # The OCCI Server provides an OCCI implementation based on the
 # OpenNebula Engine
 ##############################################################################
+
+COLLECTIONS = ["compute", "instance_type", "network", "storage"]
+
 class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
@@ -68,6 +71,38 @@ class OCCIServer < CloudServer
     #                      POOL RESOURCE METHODS
     ############################################################################
     ############################################################################
+
+    def get_collections(request)
+        xml_resp = "<COLLECTIONS>\n"
+
+        COLLECTIONS.each { |c|
+            xml_resp << "\t<#{c.upcase}_COLLECTION href=\"#{@base_url}/#{c}\">\n"
+        }
+
+        xml_resp << "</COLLECTIONS>"
+
+        return xml_resp, 200
+    end
+
+    def get_instance_types(request)
+        xml_resp = "<INSTANCE_TYPE_COLLECTION>\n"
+
+        @config[:instance_types].each { |k, v|
+            xml_resp << "\t<INSTANCE_TYPE href=\"#{@base_url}/instance_type/#{k.to_s}\">\n"
+            xml_resp << "\t\t<NAME>#{k.to_s}</NAME>\n"
+            v.each { |elem, value|
+                next if elem==:template
+                str = elem.to_s.upcase
+                xml_resp << "\t\t<#{str}>#{value}</#{str}>\n"
+            }
+            xml_resp << "\t</INSTANCE_TYPE>\n"
+        }
+
+        xml_resp << "</INSTANCE_TYPE_COLLECTION>"
+
+        return xml_resp, 200
+    end
+
 
     # Gets the pool representation of COMPUTES
     # request:: _Hash_ hash containing the data of the request
@@ -503,39 +538,5 @@ class OCCIServer < CloudServer
         end
 
         return to_occi_xml(user, 200)
-    end
-    
-    def get_computes_types
-        etc_location=ONE_LOCATION ? ONE_LOCATION+"/etc" : "/etc/one"
-        begin
-            xml_response = "<ALLOWED_COMPUTE_TYPES>\n"
-            
-            Dir[etc_location + "/occi_templates/**"].each{| filename |
-                next if File.basename(filename) == "common.erb"
-                xml_response += "\t<COMPUTE_TYPE>"
-                xml_response += "\t\t<NAME>#{File.basename(filename)[0..-5]}</NAME>"
-                file = File.open(filename, "r")
-                file.each_line{|line|
-                    next if line.match(/^#/)
-                    match=line.match(/^(.*)=(.*)/)
-                    next if !match 
-                    case match[1].strip
-                        when "NAME"
-                            xml_response += "\t\t<NAME>#{match[2].strip}</NAME>"                            
-                        when "CPU"
-                            xml_response += "\t\t<vCPU>#{match[2].strip}</vCPU>"
-                        when "MEMORY"
-                            xml_response += "\t\t<vMEM>#{match[2].strip}</vMEM>"  
-                    end                              
-                }
-                xml_response += "\t</COMPUTE_TYPE>"
-            }
-            
-            xml_response += "</ALLOWED_COMPUTE_TYPES>"
-
-            return xml_response, 200
-        rescue Exception  => e
-            return "Error getting the instance types. Reason: #{e.message}", 500
-        end        
     end
 end
