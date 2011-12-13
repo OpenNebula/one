@@ -37,7 +37,7 @@ output=`$XM_CREATE $domain`
 
 error_exit $? "Unable to create domain"
 
-domain_name=`echo $output | grep 'Started domain' | sed 's/^.*Started domain //' | tr -d '\n' | cut -d' ' -f3`
+domain_name=`echo $output | grep 'Started domain' | sed 's/^.*Started domain //' | tr -d '\n' | cut -d' ' -f1`
 
 out=`grep -e '^\#O CPU_CREDITS =' < $domain`
 
