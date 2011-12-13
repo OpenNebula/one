@@ -34,7 +34,7 @@
       <NETWORK><![CDATA[virt-net]]></NETWORK>
       <NETWORK_ID><![CDATA[3]]></NETWORK_ID>
       <VLAN><![CDATA[YES]]></VLAN>
-      <WHITE_PORTS_TCP><![CDATA[22,80]]></WHITE_PORTS_TCP>
+      <WHITE_PORTS_TCP><![CDATA[22, 80]]></WHITE_PORTS_TCP>
     </NIC>
     <NIC>
       <BRIDGE><![CDATA[onebr2]]></BRIDGE>

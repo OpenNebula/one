@@ -146,7 +146,6 @@ void get_image_attribute(VirtualMachine * vm,
     ImagePool * ipool = nd.get_ipool();
     Image  *    img;
     int         iid = -1;
-    string      iid_str;
 
     int num;
     vector<const Attribute *> attrs;
@@ -154,7 +153,7 @@ void get_image_attribute(VirtualMachine * vm,
 
     attr_value.clear();
 
-    if (img_name.empty() || img_name != "IMAGE_ID")
+    if ( img_name.empty() || (img_name!="IMAGE" && img_name!="IMAGE_ID") )
     {
         return;
     }
@@ -174,11 +173,10 @@ void get_image_attribute(VirtualMachine * vm,
             continue;
         }
 
-        iid_str = disk->vector_value("IMAGE_ID");
-
-        if ( iid_str == img_value )
+        if ( disk->vector_value(img_name.c_str()) == img_value )
         {
-            istringstream iss(img_value);
+            string        iid_str = disk->vector_value("IMAGE_ID");
+            istringstream iss(iid_str);
 
             iss >> iid;
 
@@ -232,7 +230,6 @@ void get_network_attribute(VirtualMachine * vm,
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     VirtualNetwork  *    vn;
     int                  vnet_id = -1;
-    string               vnet_id_str;
 
     int num;
     vector<const Attribute *> attrs;
@@ -240,7 +237,7 @@ void get_network_attribute(VirtualMachine * vm,
 
     attr_value.clear();
 
-    if (net_name.empty() || net_name != "NETWORK_ID")
+    if ( net_name.empty() || (net_name!="NETWORK" && net_name!="NETWORK_ID") )
     {
         return;
     }
@@ -260,11 +257,10 @@ void get_network_attribute(VirtualMachine * vm,
             continue;
         }
 
-        vnet_id_str = net->vector_value("NETWORK_ID");
-
-        if ( vnet_id_str == net_value )
+        if ( net->vector_value(net_name.c_str()) == net_value )
         {
-            istringstream iss(net_value);
+            string        vnet_id_str = net->vector_value("NETWORK_ID");
+            istringstream iss(vnet_id_str);
 
             iss >> vnet_id;
 
@@ -460,7 +456,7 @@ void insert_vector(VirtualMachine * vm,
 
 
 /* Line 268 of yacc.c  */
-#line 464 "vm_var_syntax.cc"
+#line 460 "vm_var_syntax.cc"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -506,7 +502,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 408 "vm_var_syntax.y"
+#line 404 "vm_var_syntax.y"
 
     char * val_str;
     int    val_int;
@@ -515,7 +511,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 519 "vm_var_syntax.cc"
+#line 515 "vm_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -540,7 +536,7 @@ typedef struct YYLTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 544 "vm_var_syntax.cc"
+#line 540 "vm_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -830,7 +826,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   432,   432,   433,   436,   440,   453,   468
+       0,   428,   428,   429,   432,   436,   449,   464
 };
 #endif
 
@@ -1831,7 +1827,7 @@ yyreduce:
         case 4:
 
 /* Line 1806 of yacc.c  */
-#line 437 "vm_var_syntax.y"
+#line 433 "vm_var_syntax.y"
     {
         (*parsed) << (yyvsp[(1) - (1)].val_str);
     }
@@ -1840,7 +1836,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 441 "vm_var_syntax.y"
+#line 437 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (2)].val_str));
 
@@ -1858,7 +1854,7 @@ yyreduce:
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 454 "vm_var_syntax.y"
+#line 450 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (5)].val_str));
         string vname((yyvsp[(3) - (5)].val_str));
@@ -1878,7 +1874,7 @@ yyreduce:
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 469 "vm_var_syntax.y"
+#line 465 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (9)].val_str));
         string vname((yyvsp[(3) - (9)].val_str));
@@ -1901,7 +1897,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1905 "vm_var_syntax.cc"
+#line 1901 "vm_var_syntax.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2139,7 +2135,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 487 "vm_var_syntax.y"
+#line 483 "vm_var_syntax.y"
 
 
 extern "C" void vm_var__error(

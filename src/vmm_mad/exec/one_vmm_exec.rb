@@ -72,16 +72,14 @@ class VmmAction
         @vnm_src = VirtualNetworkDriver.new(@data[:net_drv],
                             :local_actions  => @vmm.options[:local_actions],
                             :message        => @xml_data,
-                            :ssh_stream     => @ssh_src,
-			                :extra_data     => @data)
+                            :ssh_stream     => @ssh_src)
 
         if @data[:dest_host] and !@data[:dest_host].empty?
             @ssh_dst = @vmm.get_ssh_stream(@data[:dest_host], @id)
             @vnm_dst = VirtualNetworkDriver.new(@data[:dest_driver],
                             :local_actions  => @vmm.options[:local_actions],
                             :message        => @xml_data,
-                            :ssh_stream     => @ssh_dst,
-                            :extra_data     => @data)
+                            :ssh_stream     => @ssh_dst)
         end
     end
 
@@ -149,7 +147,8 @@ class VmmAction
                     vnm = @vnm_src
                 end
 
-                result, info = vnm.do_action(@id, step[:action])
+                result, info = vnm.do_action(@id, step[:action],
+                            :parameters => get_parameters(step[:parameters]))
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
                 info   = "No driver in #{step[:action]}"
@@ -157,7 +156,6 @@ class VmmAction
 
             # Save the step info
             @data["#{step[:action]}_info".to_sym] = info
-            @data[step[:save_info_as]] = info if step[:save_info_as]
 
             # Roll back steps, store failed info and break steps
             if DriverExecHelper.failed?(result)
@@ -280,12 +278,12 @@ class ExecDriver < VirtualMachineDriver
                 :action       => :deploy,
                 :parameters   => [dfile, :host],
                 :stdin        => domain,
-                :save_info_as => :deploy_id
             },
             # Execute post-boot networking setup
             {
                 :driver       => :vnm,
                 :action       => :post,
+                :parameters   => [:deploy_info],
                 :fail_actions => [
                     {
                         :driver     => :vmm,
@@ -391,6 +389,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vnm,
                 :action       => :post,
+                :parameters   => [:deploy_id],
                 :fail_actions => [
                     {
                         :driver     => :vmm,
@@ -432,6 +431,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vnm,
                 :action       => :post,
+                :parameters   => [:deploy_id],
                 :destination  => :true
                 #TODO :fail_action what to do here? cancel VM?
             },
@@ -448,7 +448,7 @@ class ExecDriver < VirtualMachineDriver
         host        = data.elements['HOST'].text
         deploy_id   = data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id} #{host}", id, host, :poll)
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:poll])
     end
 end
 
@@ -496,5 +496,3 @@ exec_driver = ExecDriver.new(hypervisor,
                 :local_actions => local_actions)
 
 exec_driver.start_driver
-
-
