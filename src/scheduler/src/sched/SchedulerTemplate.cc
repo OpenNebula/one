@@ -14,17 +14,17 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "NebulaTemplate.h"
+#include "SchedulerTemplate.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * OpenNebulaTemplate::conf_name="sched.conf";
+const char * SchedulerTemplate::conf_name="sched.conf";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OpenNebulaTemplate::set_conf_default()
+void SchedulerTemplate::set_conf_default()
 {
     SingleAttribute *   attribute;
     VectorAttribute *   vattribute;

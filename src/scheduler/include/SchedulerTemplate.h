@@ -24,7 +24,7 @@ class SchedulerTemplate : public NebulaTemplate
 {    
 public:
 
-    SchedulerTemplate(const string& etc_location, const string& _var_location):
+    SchedulerTemplate(const string& etc_location):
         NebulaTemplate(etc_location, conf_name)
         {};
     

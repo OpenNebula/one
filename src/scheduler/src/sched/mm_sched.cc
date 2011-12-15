@@ -31,16 +31,7 @@ class RankScheduler : public Scheduler
 {
 public:
 
-    RankScheduler(string       url,
-                  time_t       timer,
-                  unsigned int machines_limit,
-                  unsigned int dispatch_limit,
-                  unsigned int host_dispatch_limit
-                  ):Scheduler(url,
-                              timer,
-                              machines_limit,
-                              dispatch_limit,
-                              host_dispatch_limit),rp(0){};
+    RankScheduler():Scheduler(),rp(0){};
 
     ~RankScheduler()
     {
@@ -64,56 +55,11 @@ private:
 
 int main(int argc, char **argv)
 {
-    RankScheduler * ss;
-    int             port = 2633;
-    time_t          timer= 30;
-    unsigned int    machines_limit = 300;
-    unsigned int    dispatch_limit = 30;
-    unsigned int    host_dispatch_limit = 1;
-    char            opt;
-
-    ostringstream  oss;
-
-    while((opt = getopt(argc,argv,"p:t:m:d:h:")) != -1)
-    {
-        switch(opt)
-        {
-            case 'p':
-                port = atoi(optarg);
-                break;
-            case 't':
-                timer = atoi(optarg);
-                break;
-            case 'm':
-                machines_limit = atoi(optarg);
-                break;
-            case 'd':
-                dispatch_limit = atoi(optarg);
-                break;
-            case 'h':
-                host_dispatch_limit = atoi(optarg);
-                break;
-            default:
-                cerr << "usage: " << argv[0] << " [-p port] [-t timer] ";
-                cerr << "[-m machines limit] [-d dispatch limit] [-h host_dispatch_limit]\n";
-                exit(-1);
-                break;
-        }
-    };
-
-    /* ---------------------------------------------------------------------- */
-
-    oss << "http://localhost:" << port << "/RPC2";
-
-    ss = new RankScheduler(oss.str(),
-                           timer,
-                           machines_limit,
-                           dispatch_limit,
-                           host_dispatch_limit);
+    RankScheduler ss;
 
     try
     {
-        ss->start();
+        ss.start();
     }
     catch (exception &e)
     {
@@ -121,8 +67,6 @@ int main(int argc, char **argv)
 
         return -1;
     }
-
-    delete ss;
 
     return 0;
 }

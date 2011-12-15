@@ -59,6 +59,15 @@ public:
         
         Template::get(_name,values);   
     };
+
+    void get(const char *name, unsigned int& values) const
+    {
+        int ival;
+
+        NebulaTemplate::get(name, ival);
+
+        values = static_cast<unsigned int>(ival);
+    };
     
     void get(const char * name, time_t& values) const
     {
