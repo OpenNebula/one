@@ -756,6 +756,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
 
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
+           src/scheduler/etc/sched.conf \
            src/cli/etc/group.default"
 
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
