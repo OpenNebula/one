@@ -30,7 +30,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 extern "C" void * scheduler_action_loop(void *arg);
-
+class  SchedulerTemplate;
 /**
  *  The Scheduler class. It represents the scheduler ...
  */
@@ -41,7 +41,7 @@ public:
 
     void start();
 
-    virtual void register_policies() = 0;
+    virtual void register_policies(const SchedulerTemplate& conf) = 0;
 
 protected:
 

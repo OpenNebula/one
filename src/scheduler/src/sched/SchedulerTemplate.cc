@@ -72,11 +72,55 @@ void SchedulerTemplate::set_conf_default()
     attribute = new SingleAttribute("MAX_HOST",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
-    //DEFAULT_SCHED [0: Packing, 1: Striping, 2: Load-aware, or 3:Custom]
+    //DEFAULT_SCHED 
     map<string,string> vvalue;
-    vvalue.insert(make_pair("POLICY","packing"));
+    vvalue.insert(make_pair("POLICY","1"));
 
     vattribute = new VectorAttribute("DEFAULT_SCHED",vvalue);
     conf_default.insert(make_pair(attribute->name(),vattribute));
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string SchedulerTemplate::get_policy() const
+{
+    int    policy;
+    string rank;
+
+    istringstream iss;
+
+    vector<const Attribute *> vsched;
+    const  VectorAttribute *  sched; 
+
+    get("DEFAULT_SCHED", vsched);
+
+    sched = static_cast<const VectorAttribute *> (vsched[0]);
+
+    iss.str(sched->vector_value("POLICY"));
+    iss >> policy;
+
+    switch (policy)
+    {
+        case 0: //Packing
+            rank = "RUNNING_VMS";
+        break;
+
+        case 1: //Striping
+            rank = "- RUNNING_VMS";
+        break;
+ 
+        case 2: //Load-aware
+            rank = "FREE_CPU";
+        break;
+
+        case 3: //Custom
+            rank = sched->vector_value("RANK");
+        break;
+
+        default:
+            rank = "";
+    }
+
+    return rank;
+}

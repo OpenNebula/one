@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Scheduler.h"
+#include "SchedulerTemplate.h"
 #include "RankPolicy.h"
 #include <unistd.h>
 #include <sys/types.h>
@@ -41,9 +42,9 @@ public:
         }
     };
 
-    void register_policies()
+    void register_policies(const SchedulerTemplate& conf)
     {
-        rp = new RankPolicy(vmpool,hpool,1.0);
+        rp = new RankPolicy(vmpool, hpool, conf.get_policy(), 1.0);
 
         add_host_policy(rp);
     };

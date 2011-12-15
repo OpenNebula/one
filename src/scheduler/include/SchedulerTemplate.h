@@ -30,6 +30,8 @@ public:
     
     ~SchedulerTemplate(){};
 
+    string get_policy() const;
+
 private:
     /**
      *  Name for the configuration file, oned.conf

@@ -65,7 +65,12 @@ extern "C" void * scheduler_action_loop(void *arg)
 void Scheduler::start()
 {
     int      rc;
-    ifstream file;
+
+    ifstream      file;
+    ostringstream oss;
+
+    string etc_path;
+    int    oned_port;
 
     pthread_attr_t  pattr;
 
@@ -75,11 +80,7 @@ void Scheduler::start()
 
     try
     {
-        string log_file;
-        string etc_path;
-        int    oned_port;
-
-        ostringstream oss; 
+        string        log_file;
         const char *  nl = getenv("ONE_LOCATION");
 
         if (nl == 0) //OpenNebula installed under root directory
@@ -104,45 +105,47 @@ void Scheduler::start()
                                    log_file.c_str());
 
         NebulaLog::log("SCHED", Log::INFO, "Init Scheduler Log system");
-
-        // ---------------- Load Configuration parameters ----------------------
-
-        SchedulerTemplate conf(etc_path);
-
-        if ( conf.load_configuration() != 0 )
-        {
-            throw runtime_error("Error reading configuration file.");
-        }
-
-        conf.get("ONED_PORT", oned_port);
-
-        oss.str("");
-        oss << "http://localhost:" << oned_port << "/RPC2"; 
-        url = oss.str();
-
-        conf.get("SCHED_INTERVAL", timer);
-
-        conf.get("MAX_VM", machines_limit);
-
-        conf.get("MAX_DISPATCH", dispatch_limit);
-
-        conf.get("MAX_HOST", host_dispatch_limit);
-       
-        oss.str("");
-         
-        oss << "Starting Scheduler Daemon" << endl;
-        oss << "----------------------------------------\n";
-        oss << "     Scheduler Configuration File       \n";
-        oss << "----------------------------------------\n";
-        oss << conf;
-        oss << "----------------------------------------";
-
-        NebulaLog::log("SCHED", Log::INFO, oss);
     }
     catch(runtime_error &)
     {
         throw;
     }
+
+    // -----------------------------------------------------------
+    // Configuration File
+    // -----------------------------------------------------------
+
+    SchedulerTemplate conf(etc_path);
+
+    if ( conf.load_configuration() != 0 )
+    {
+        throw runtime_error("Error reading configuration file.");
+    }
+
+    conf.get("ONED_PORT", oned_port);
+
+    oss.str("");
+    oss << "http://localhost:" << oned_port << "/RPC2"; 
+    url = oss.str();
+
+    conf.get("SCHED_INTERVAL", timer);
+
+    conf.get("MAX_VM", machines_limit);
+
+    conf.get("MAX_DISPATCH", dispatch_limit);
+
+    conf.get("MAX_HOST", host_dispatch_limit);
+   
+    oss.str("");
+     
+    oss << "Starting Scheduler Daemon" << endl;
+    oss << "----------------------------------------\n";
+    oss << "     Scheduler Configuration File       \n";
+    oss << "----------------------------------------\n";
+    oss << conf;
+    oss << "----------------------------------------";
+
+    NebulaLog::log("SCHED", Log::INFO, oss);
 
     // -----------------------------------------------------------
     // XML-RPC Client
@@ -173,7 +176,7 @@ void Scheduler::start()
     // Load scheduler policies
     // -----------------------------------------------------------
 
-    register_policies();
+    register_policies(conf);
 
     // -----------------------------------------------------------
     // Close stds, we no longer need them
