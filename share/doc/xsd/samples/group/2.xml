@@ -1,0 +1,7 @@
+<GROUP xmlns="http://opennebula.org/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://opennebula.org/XMLSchema ../../group.xsd">
+  <ID>100</ID>
+  <NAME>new</NAME>
+  <USERS/>
+</GROUP>

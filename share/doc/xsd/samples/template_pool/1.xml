@@ -1,0 +1,35 @@
+<VMTEMPLATE_POOL xmlns="http://opennebula.org/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://opennebula.org/XMLSchema ../../template_pool.xsd">
+  <VMTEMPLATE>
+    <ID>0</ID>
+    <UID>0</UID>
+    <GID>0</GID>
+    <UNAME>oneadmin</UNAME>
+    <GNAME>oneadmin</GNAME>
+    <NAME>vm-example</NAME>
+    <PUBLIC>0</PUBLIC>
+    <REGTIME>1324050180</REGTIME>
+    <TEMPLATE>
+      <NEW_ATT><![CDATA[NEW]]></NEW_ATT>
+      <NEW_NUM><![CDATA[123]]></NEW_NUM>
+    </TEMPLATE>
+  </VMTEMPLATE>
+  <VMTEMPLATE>
+    <ID>1</ID>
+    <UID>0</UID>
+    <GID>0</GID>
+    <UNAME>oneadmin</UNAME>
+    <GNAME>oneadmin</GNAME>
+    <NAME>ONE</NAME>
+    <PUBLIC>0</PUBLIC>
+    <REGTIME>1324050461</REGTIME>
+    <TEMPLATE>
+      <DISK>
+        <IMAGE_ID><![CDATA[0]]></IMAGE_ID>
+      </DISK>
+      <NAME><![CDATA[ONE]]></NAME>
+      <TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID>
+    </TEMPLATE>
+  </VMTEMPLATE>
+</VMTEMPLATE_POOL>
