@@ -58,7 +58,7 @@ class VirtualNetworkDriver
 
         if action_is_local?(aname)
             execution = LocalCommand.run(cmd, log_method(id))
-        else
+        elsif @ssh_stream != nil
             if options[:stdin]
                 cmdin = "cat << EOT | #{cmd}"
                 stdin = "#{options[:stdin]}\nEOT\n"
@@ -68,8 +68,10 @@ class VirtualNetworkDriver
             end
 
             execution = @ssh_stream.run(cmdin, stdin, cmd)
+        else
+            return RESULT[:failure], "Network action #{aname} needs a ssh stream."
         end
 
-        result, info = get_info_from_execution(execution)
+        return get_info_from_execution(execution)
     end
 end

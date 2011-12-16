@@ -68,14 +68,14 @@ class VmmAction
         get_data(:dest_driver, :MIGR_NET_DRV)
 
         # Initialize streams and vnm
-        @ssh_src = @vmm.get_ssh_stream(@data[:host], @id)
+        @ssh_src = @vmm.get_ssh_stream(action, @data[:host], @id)
         @vnm_src = VirtualNetworkDriver.new(@data[:net_drv],
                             :local_actions  => @vmm.options[:local_actions],
                             :message        => @xml_data,
                             :ssh_stream     => @ssh_src)
 
         if @data[:dest_host] and !@data[:dest_host].empty?
-            @ssh_dst = @vmm.get_ssh_stream(@data[:dest_host], @id)
+            @ssh_dst = @vmm.get_ssh_stream(action, @data[:dest_host], @id)
             @vnm_dst = VirtualNetworkDriver.new(@data[:dest_driver],
                             :local_actions  => @vmm.options[:local_actions],
                             :message        => @xml_data,
@@ -228,10 +228,16 @@ class ExecDriver < VirtualMachineDriver
     # @param[String] the hostname of the host
     # @param[String] id of the VM to log messages
     # @return [SshStreamCommand]
-    def get_ssh_stream(host, id)
-        SshStreamCommand.new(host,
-                             @remote_scripts_base_path,
-                             log_method(id))
+    def get_ssh_stream(aname, host, id)
+        stream = nil
+         
+        if not action_is_local?(aname)
+            stream = SshStreamCommand.new(host,
+                                          @remote_scripts_base_path,
+                                          log_method(id))
+        else
+            return nil
+        end
     end
 
     #---------------------------------------------------------------------------
