@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="HOST">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ID" type="xs:integer"/>
+        <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="STATE" type="xs:integer"/>
+        <xs:element name="IM_MAD" type="xs:string"/>
+        <xs:element name="VM_MAD" type="xs:string"/>
+        <xs:element name="VN_MAD" type="xs:string"/>
+        <xs:element name="TM_MAD" type="xs:string"/>
+        <xs:element name="LAST_MON_TIME" type="xs:integer"/>
+        <xs:element name="HOST_SHARE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="DISK_USAGE" type="xs:integer"/>
+              <xs:element name="MEM_USAGE" type="xs:integer"/>
+              <xs:element name="CPU_USAGE" type="xs:integer"/>
+              <xs:element name="MAX_DISK" type="xs:integer"/>
+              <xs:element name="MAX_MEM" type="xs:integer"/>
+              <xs:element name="MAX_CPU" type="xs:integer"/>
+              <xs:element name="FREE_DISK" type="xs:integer"/>
+              <xs:element name="FREE_MEM" type="xs:integer"/>
+              <xs:element name="FREE_CPU" type="xs:integer"/>
+              <xs:element name="USED_DISK" type="xs:integer"/>
+              <xs:element name="USED_MEM" type="xs:integer"/>
+              <xs:element name="USED_CPU" type="xs:integer"/>
+              <xs:element name="RUNNING_VMS" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TEMPLATE" type="xs:anyType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+  targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:element name="VNET">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ID" type="xs:integer"/>
+        <xs:element name="UID" type="xs:integer"/>
+        <xs:element name="GID" type="xs:integer"/>
+        <xs:element name="UNAME" type="xs:string"/>
+        <xs:element name="GNAME" type="xs:string"/>
+        <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="TYPE" type="xs:integer"/>
+        <xs:element name="BRIDGE" type="xs:string"/>
+        <xs:element name="VLAN" type="xs:integer"/>
+        <xs:element name="PHYDEV" type="xs:string"/>
+        <xs:element name="VLAN_ID" type="xs:string"/>
+        <xs:element name="RANGE" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="IP_START" type="xs:string"/>
+              <xs:element name="IP_END" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PUBLIC" type="xs:integer"/>
+        <xs:element name="TOTAL_LEASES" type="xs:integer"/>
+        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="LEASES" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence minOccurs="0">
+              <xs:element name="LEASE" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="IP" type="xs:string"/>
+                    <xs:element name="MAC" type="xs:string"/>
+                    <xs:element name="USED" type="xs:integer"/>
+                    <xs:element name="VID" type="xs:integer"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
