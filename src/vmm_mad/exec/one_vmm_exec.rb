@@ -155,7 +155,7 @@ class VmmAction
             end
 
             # Save the step info
-            @data["#{step[:action]}_info".to_sym] = info
+            @data["#{step[:action]}_info".to_sym] = info.strip
 
             # Roll back steps, store failed info and break steps
             if DriverExecHelper.failed?(result)

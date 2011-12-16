@@ -44,6 +44,9 @@ module DriverExecHelper
         # dummy paths
         @remote_scripts_path = File.join(@remote_scripts_base_path, directory)
         @local_scripts_path  = File.join(@local_scripts_base_path, directory)
+
+        # mutex for logging
+        @send_mutex = Mutex.new
     end
 
     #
@@ -94,6 +97,14 @@ module DriverExecHelper
     #
     #                METHODS FOR LOGS & COMMAND OUTPUT
     #     
+    # Sends a message to the OpenNebula core through stdout
+    def send_message(action="-", result=RESULT[:failure], id="-", info="-")
+        @send_mutex.synchronize {
+            STDOUT.puts "#{action} #{result} #{id} #{info}"
+            STDOUT.flush
+        }
+    end
+
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
     def log(number, message)
