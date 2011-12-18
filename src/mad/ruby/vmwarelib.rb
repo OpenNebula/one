@@ -147,7 +147,7 @@ class VmWareDriver
 
         deploy_id = define_domain(dfile)
 
-        exit -1 if did.nil?
+        exit -1 if deploy_id.nil?
 
         # Revert snapshot VM
         # Note: This assumes the checkpoint name is "checkpoint", to change 
