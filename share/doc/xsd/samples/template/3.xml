@@ -1,0 +1,13 @@
+<VMTEMPLATE xmlns="http://opennebula.org/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://opennebula.org/XMLSchema ../../template.xsd">
+  <ID>0</ID>
+  <UID>0</UID>
+  <GID>0</GID>
+  <UNAME>oneadmin</UNAME>
+  <GNAME>oneadmin</GNAME>
+  <NAME>vm-example</NAME>
+  <PUBLIC>0</PUBLIC>
+  <REGTIME>1324050180</REGTIME>
+  <TEMPLATE/>
+</VMTEMPLATE>
