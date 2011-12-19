@@ -42,7 +42,7 @@ void RequestManagerUser::
         return;
     }
 
-    if ( user_action(user,paramList,error_str) < 0 )
+    if ( user_action(id,paramList,error_str) < 0 )
     {
         failure_response(INTERNAL, request_error(error_str,""), att);
         return;
@@ -54,14 +54,20 @@ void RequestManagerUser::
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserChangePassword::user_action(User * user, 
+int UserChangePassword::user_action(int     user_id, 
                                     xmlrpc_c::paramList const& paramList,
                                     string& error_str)
 {
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
+    User * user;
 
-    user->lock();
+    user = static_cast<User *>(pool->get(user_id,true));
+
+    if ( user == 0 )
+    {
+        return -1;
+    }
 
     if (user->get_auth_driver() == UserPool::CORE_AUTH)
     {
@@ -83,16 +89,23 @@ int UserChangePassword::user_action(User * user,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserChangeAuth::user_action(User * user,
+int UserChangeAuth::user_action(int     user_id,
                                 xmlrpc_c::paramList const& paramList,
                                 string& error_str)
 {
     string new_auth = xmlrpc_c::value_string(paramList.getString(2));
     string new_pass = xmlrpc_c::value_string(paramList.getString(3));
 
-    int rc = 0;
+    int    rc = 0;
 
-    user->lock();
+    User * user;
+
+    user = static_cast<User *>(pool->get(user_id,true));
+
+    if ( user == 0 )
+    {
+        return -1;
+    }
 
     if ( !new_pass.empty() )
     {
