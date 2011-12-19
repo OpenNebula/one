@@ -91,7 +91,11 @@ extern "C"
 
 %%
 
-template:  attribute
+template_file :
+    | template
+    ;
+
+template: attribute
     | template attribute
     ;
 
