@@ -113,12 +113,7 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // Insert the Template
     // ------------------------------------------------------------------------
 
-    rc = insert_replace(db, false);
-
-    if ( rc != 0 )
-    {
-        error_str = "Error inserting Template in DB.";
-    }
+    rc = insert_replace(db, false, error_str);
 
     return rc;
 }
@@ -126,7 +121,7 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VMTemplate::insert_replace(SqlDB *db, bool replace)
+int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
 
@@ -150,6 +145,11 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace)
     if ( sql_xml == 0 )
     {
         goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
     }
 
     if(replace)
@@ -178,9 +178,24 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace)
 
     return rc;
 
+error_xml:
+    db->free_str(sql_name);
+    db->free_str(sql_xml);
+
+    error_str = "Error transforming the Template to XML.";
+
+    goto error_common;
+
 error_body:
     db->free_str(sql_name);
+    goto error_generic;
+
 error_name:
+    goto error_generic;
+
+error_generic:
+    error_str = "Error inserting Template in DB.";
+error_common:
     return -1;
 }
 

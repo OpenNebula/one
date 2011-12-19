@@ -152,6 +152,14 @@ public:
      */
     int update_from_node(const xmlNodePtr node);
 
+    /**
+     *  Validates the xml string
+     *
+     *  @param xml_doc string to parse
+     *  @return 0 if the xml validates
+     */
+    static int validate_xml(const string &xml_doc);
+
     // ---------------------------------------------------------
     //  Lex & bison parser for requirements and rank expressions
     // ---------------------------------------------------------

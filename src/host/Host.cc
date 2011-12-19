@@ -69,36 +69,7 @@ const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::insert(SqlDB *db, string& error_str)
-{
-    int rc;
-
-    rc = insert_replace(db, false);
-
-    if ( rc != 0 )
-    {
-        error_str = "Error inserting Host in DB.";
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Host::update(SqlDB *db)
-{
-    int    rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Host::insert_replace(SqlDB *db, bool replace)
+int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
 
@@ -122,6 +93,11 @@ int Host::insert_replace(SqlDB *db, bool replace)
     if ( sql_xml == 0 )
     {
         goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
     }
 
     if(replace)
@@ -149,9 +125,24 @@ int Host::insert_replace(SqlDB *db, bool replace)
 
     return rc;
 
+error_xml:
+    db->free_str(sql_hostname);
+    db->free_str(sql_xml);
+
+    error_str = "Error transforming the Group to XML.";
+
+    goto error_common;
+
 error_body:
     db->free_str(sql_hostname);
+    goto error_generic;
+
 error_hostname:
+    goto error_generic;
+
+error_generic:
+    error_str = "Error inserting Group in DB.";
+error_common:
     return -1;
 }
 
