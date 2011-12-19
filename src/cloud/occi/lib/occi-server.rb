@@ -74,7 +74,7 @@ if CloudServer.is_port_open?(settings.config[:server],
     exit
 end
 
-set :host, settings.config[:server]
+set :bind, settings.config[:server]
 set :port, settings.config[:port]
 
 ##############################################################################

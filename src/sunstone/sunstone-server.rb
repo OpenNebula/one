@@ -64,7 +64,7 @@ end
 ##############################################################################
 use Rack::Session::Pool, :key => 'sunstone'
 set :config, conf
-set :host, settings.config[:host]
+set :bind, settings.config[:host]
 set :port, settings.config[:port]
 
 ##############################################################################
