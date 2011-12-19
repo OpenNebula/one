@@ -228,7 +228,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     TO_UPPER(vlan_attr);
 
-    vlan = (vlan_attr == "YES");
+    vlan = (vlan_attr == "YES") || (vlan_attr.empty() && !phydev.empty());
 
     // ------------ BRIDGE --------------------
 
