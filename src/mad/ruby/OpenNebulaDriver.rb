@@ -57,23 +57,15 @@ class OpenNebulaDriver < ActionManager
 
         super(@options[:concurrency], @options[:threaded])
 
-        @retries       = @options[:retries]
+        @retries = @options[:retries]       
 
-        @send_mutex    = Mutex.new
-       
         #Set default values
         initialize_helper(directory, @options) 
 
         register_action(:INIT, method("init"))
     end
 
-    # Sends a message to the OpenNebula core through stdout
-    def send_message(action="-", result=RESULT[:failure], id="-", info="-")
-        @send_mutex.synchronize {
-            STDOUT.puts "#{action} #{result} #{id} #{info}"
-            STDOUT.flush
-        }
-    end
+
 
     # Calls remotes or local action checking the action name and
     # @local_actions. Optional arguments can be specified as a hash

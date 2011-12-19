@@ -1,0 +1,21 @@
+<USER xmlns="http://opennebula.org/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://opennebula.org/XMLSchema ../../user.xsd">
+  <ID>3</ID>
+  <GID>1</GID>
+  <GNAME>users</GNAME>
+  <NAME>1234</NAME>
+  <PASSWORD>7110eda4d09e062aa5e4a390b0a572ac0d2c0220</PASSWORD>
+  <AUTH_DRIVER>core</AUTH_DRIVER>
+  <ENABLED>1</ENABLED>
+  <TEMPLATE>
+    <ATT><![CDATA[OTHER VALUE]]></ATT>
+    <COMPLEX>
+      <ATT1><![CDATA[VAL1]]></ATT1>
+      <ATT2><![CDATA[VAL2]]></ATT2>
+      <NUM3><![CDATA[3]]></NUM3>
+    </COMPLEX>
+    <EXTRA><![CDATA[VALUE]]></EXTRA>
+    <NUM><![CDATA[123]]></NUM>
+  </TEMPLATE>
+</USER>
