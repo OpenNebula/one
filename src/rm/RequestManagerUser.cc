@@ -31,7 +31,7 @@ void RequestManagerUser::
         return;
     }
 
-    user = static_cast<User *>(pool->get(id,true));
+    user = static_cast<User *>(pool->get(id,false));
 
     if ( user == 0 )
     {
@@ -61,6 +61,8 @@ int UserChangePassword::user_action(User * user,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
+    user->lock();
+
     if (user->get_auth_driver() == UserPool::CORE_AUTH)
     {
         new_pass = SSLTools::sha1_digest(new_pass);
@@ -89,6 +91,8 @@ int UserChangeAuth::user_action(User * user,
     string new_pass = xmlrpc_c::value_string(paramList.getString(3));
 
     int rc = 0;
+
+    user->lock();
 
     if ( !new_pass.empty() )
     {
