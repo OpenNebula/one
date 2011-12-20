@@ -89,8 +89,8 @@ var create_image_tmpl =
                <div class="img_param">\
                  <label for="img_bus">Bus:</label>\
                  <select name="img_bus" id="img_bus">\
-                    <option value="IDE">IDE</option>\
-                    <option value="SCSI">SCSI</option>\
+                    <option value="ide">IDE</option>\
+                    <option value="scsi">SCSI</option>\
                     <option value="virtio">Virtio (KVM)</option>\
                  </select>\
                  <div class="tip">Type of disk device to emulate.</div>\
