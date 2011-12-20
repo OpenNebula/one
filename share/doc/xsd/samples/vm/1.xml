@@ -1,0 +1,26 @@
+<VM xmlns="http://opennebula.org/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://opennebula.org/XMLSchema ../../vm.xsd">
+  <ID>0</ID>
+  <UID>0</UID>
+  <GID>0</GID>
+  <UNAME>oneadmin</UNAME>
+  <GNAME>oneadmin</GNAME>
+  <NAME>one-0</NAME>
+  <LAST_POLL>0</LAST_POLL>
+  <STATE>1</STATE>
+  <LCM_STATE>0</LCM_STATE>
+  <STIME>1324050700</STIME>
+  <ETIME>0</ETIME>
+  <DEPLOY_ID/>
+  <MEMORY>0</MEMORY>
+  <CPU>0</CPU>
+  <NET_TX>0</NET_TX>
+  <NET_RX>0</NET_RX>
+  <TEMPLATE>
+    <NAME><![CDATA[one-0]]></NAME>
+    <TEMPLATE_ID><![CDATA[2]]></TEMPLATE_ID>
+    <VMID><![CDATA[0]]></VMID>
+  </TEMPLATE>
+  <HISTORY_RECORDS/>
+</VM>

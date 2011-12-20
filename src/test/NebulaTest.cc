@@ -18,16 +18,17 @@
 
 NebulaTest* NebulaTest::the_tester;
 
-VirtualMachinePool* NebulaTest::create_vmpool(SqlDB* db, string hook_location)
+VirtualMachinePool* NebulaTest::create_vmpool(SqlDB* db, string hook_location, 
+  string vloc)
 {
     vector<const Attribute *> hooks;
-    return new VirtualMachinePool(db, hooks, hook_location);
+    return new VirtualMachinePool(db, hooks, hook_location, vloc);
 }
 
-HostPool* NebulaTest::create_hpool(SqlDB* db, string hook_location)
+HostPool* NebulaTest::create_hpool(SqlDB* db, string hook_location, string vloc)
 {
     vector<const Attribute *> hooks;
-    return new HostPool(db, hooks, hook_location);
+    return new HostPool(db, hooks, hook_location, vloc);
 }
 
 VirtualNetworkPool* NebulaTest::create_vnpool(SqlDB* db, string mac_prefix, int size)

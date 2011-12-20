@@ -44,25 +44,7 @@ const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::insert(SqlDB *db, string& error_str)
-{
-    int rc;
-
-    rc = insert_replace(db, false);
-
-    if ( rc != 0 )
-    {
-        error_str = "Error inserting User in DB.";
-        return rc;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int User::insert_replace(SqlDB *db, bool replace)
+int User::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
 
@@ -88,6 +70,11 @@ int User::insert_replace(SqlDB *db, bool replace)
         goto error_body;
     }
 
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
+    }
+
     // Construct the SQL statement to Insert or Replace
     if(replace)
     {
@@ -110,9 +97,24 @@ int User::insert_replace(SqlDB *db, bool replace)
 
     return rc;
 
+error_xml:
+    db->free_str(sql_username);
+    db->free_str(sql_xml);
+
+    error_str = "Error transforming the User to XML.";
+
+    goto error_common;
+
 error_body:
     db->free_str(sql_username);
+    goto error_generic;
+
 error_username:
+    goto error_generic;
+
+error_generic:
+    error_str = "Error inserting User in DB.";
+error_common:
     return -1;
 }
 

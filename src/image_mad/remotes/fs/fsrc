@@ -23,12 +23,6 @@
 #   - SAFE_DIRS: Paths that are safe to specify image paths 
 #------------------------------------------------------------------------------
 if [ -z "${ONE_LOCATION}" ]; then
-    export IMAGE_REPOSITORY_PATH=/var/lib/one/images
-else
-    export IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
-fi
-
-if [ -z "${ONE_LOCATION}" ]; then
     VAR_LOCATION=/var/lib/one/
     ETC_LOCATION=/etc/one/
 else
@@ -36,8 +30,23 @@ else
     ETC_LOCATION=$ONE_LOCATION/etc/
 fi
 
-export RESTRICTED_DIRS="$VAR_LOCATION $ETC_LOCATION $HOME/ /etc/"
-export SAFE_DIRS="$HOME/public/"
+CONF_FILE=$ETC_LOCATION/image/fs.conf
+
+source $CONF_FILE
+
+if [ -z "${IMAGE_REPOSITORY_PATH}" ]; then
+	if [ -z "${ONE_LOCATION}" ]; then
+	    IMAGE_REPOSITORY_PATH=/var/lib/one/images
+	else
+	    IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
+	fi
+fi
+
+RESTRICTED_DIRS="$VAR_LOCATION $ETC_LOCATION $HOME/ $RESTRICTED_DIRS"
+
+export IMAGE_REPOSITORY_PATH
+export RESTRICTED_DIRS
+export SAFE_DIRS
 
 #------------------------------------------------------------------------------
 # Function used to generate Image names, you should not need to override this
@@ -86,7 +95,6 @@ function check_restricted {
 
 # Change the permissions of all the files inside directoriers (= VMware disks)
 function fix_owner_perms {
-
 	find $IMAGE_REPOSITORY_PATH -type d \
 	                            -mindepth 1 \
 	                            -maxdepth 1 \

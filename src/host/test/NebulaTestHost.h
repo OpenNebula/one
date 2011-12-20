@@ -42,7 +42,7 @@ public:
     // Pools
     // -----------------------------------------------------------
 
-    HostPool* create_hpool(SqlDB* db, string hook_location)
+    HostPool* create_hpool(SqlDB* db, string hook_location, string var_location)
     {
         map<string,string> hook_value;
         VectorAttribute *  hook;
@@ -81,7 +81,7 @@ public:
         host_hooks.push_back(hook);
 
 
-        return new HostPool(db, host_hooks, hook_location);
+        return new HostPool(db, host_hooks, hook_location, var_location);
     }
 };
 

@@ -281,7 +281,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Insert the VM
     // ------------------------------------------------------------------------
 
-    rc = insert_replace(db, false);
+    rc = insert_replace(db, false, error_str);
 
     if ( rc != 0 )
     {
@@ -291,7 +291,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     return 0;
 
 error_update:
-    error_str = "Can not insert VM in the database.";
     goto error_rollback;
 
 error_context:
@@ -506,7 +505,7 @@ int VirtualMachine::parse_requirements(string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::insert_replace(SqlDB *db, bool replace)
+int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
     int             rc;
@@ -520,7 +519,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 
     if ( sql_deploy_id == 0 )
     {
-        goto error_deploy;
+        goto error_generic;
     }
 
     sql_name =  db->escape_str(name.c_str());
@@ -535,6 +534,11 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
     if ( sql_xml == 0 )
     {
         goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
     }
 
     if(replace)
@@ -564,12 +568,27 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 
     return rc;
 
+error_xml:
+    db->free_str(sql_deploy_id);
+    db->free_str(sql_name);
+    db->free_str(sql_xml);
+
+    error_str = "Error transforming the VM to XML.";
+
+    goto error_common;
 
 error_body:
+    db->free_str(sql_deploy_id);
     db->free_str(sql_name);
+    goto error_generic;
+
 error_name:
     db->free_str(sql_deploy_id);
-error_deploy:
+    goto error_generic;
+
+error_generic:
+    error_str = "Error inserting VM in DB.";
+error_common:
     return -1;
 }
 

@@ -1,0 +1,23 @@
+<VNET xmlns="http://opennebula.org/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://opennebula.org/XMLSchema ../../vnet.xsd">
+  <ID>3</ID>
+  <UID>0</UID>
+  <GID>0</GID>
+  <UNAME>oneadmin</UNAME>
+  <GNAME>oneadmin</GNAME>
+  <NAME>Empty</NAME>
+  <TYPE>1</TYPE>
+  <BRIDGE>vbr1</BRIDGE>
+  <VLAN>1</VLAN>
+  <PHYDEV>eth0</PHYDEV>
+  <VLAN_ID>34</VLAN_ID>
+  <PUBLIC>0</PUBLIC>
+  <TOTAL_LEASES>0</TOTAL_LEASES>
+  <TEMPLATE>
+    <DNS><![CDATA[130.10.0.1]]></DNS>
+    <GATEWAY><![CDATA[130.10.0.1]]></GATEWAY>
+    <LOAD_BALANCER><![CDATA[130.10.0.4]]></LOAD_BALANCER>
+  </TEMPLATE>
+  <LEASES/>
+</VNET>

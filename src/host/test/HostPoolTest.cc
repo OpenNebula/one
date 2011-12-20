@@ -155,7 +155,7 @@ protected:
     {
         vector<const Attribute *> hook;
 
-        return new HostPool(db,hook,"./");
+        return new HostPool(db,hook,"./", "./");
     };
 
     int allocate(int index)

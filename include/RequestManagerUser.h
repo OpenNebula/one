@@ -48,7 +48,7 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    virtual int user_action(User *                     user,
+    virtual int user_action(int                        user_id,
                             xmlrpc_c::paramList const& _paramList,
                             string&                    error_str ) = 0;
 
@@ -71,7 +71,7 @@ public:
 
     ~UserChangePassword(){};
 
-    int user_action(User *                     user, 
+    int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList, 
                     string&                    err);
 };
@@ -92,7 +92,7 @@ public:
 
     ~UserChangeAuth(){};
 
-    int user_action(User *                     user,
+    int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     string&                    err);
 };

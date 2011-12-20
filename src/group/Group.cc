@@ -34,7 +34,7 @@ const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
 /* Group :: Database Access Functions                                       */
 /* ************************************************************************ */
 
-int Group::insert_replace(SqlDB *db, bool replace)
+int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
 
@@ -60,6 +60,11 @@ int Group::insert_replace(SqlDB *db, bool replace)
         goto error_body;
     }
 
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
+    }
+
     if ( replace )
     {
         oss << "REPLACE";
@@ -83,9 +88,24 @@ int Group::insert_replace(SqlDB *db, bool replace)
 
     return rc;
 
+error_xml:
+    db->free_str(sql_name);
+    db->free_str(sql_xml);
+
+    error_str = "Error transforming the Group to XML.";
+
+    goto error_common;
+
 error_body:
     db->free_str(sql_name);
+    goto error_generic;
+
 error_name:
+    goto error_generic;
+
+error_generic:
+    error_str = "Error inserting Group in DB.";
+error_common:
     return -1;
 }
 

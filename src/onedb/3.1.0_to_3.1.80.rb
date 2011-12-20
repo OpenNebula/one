@@ -34,8 +34,8 @@ module Migrator
 
         vn_mad = ""
 
-        while !( ["802.1Q", "dummy", "ebtables", "ovswitch"].include?(vn_mad) ) do
-            print "      Driver name (802.1Q, dummy, ebtables, ovswitch): "
+        while !( ["802.1Q", "dummy", "ebtables", "ovswitch", "fw"].include?(vn_mad) ) do
+            print "      Driver name (802.1Q, dummy, ebtables, ovswitch, fw): "
             vn_mad = gets.chomp
             vn_mad = "dummy" if vn_mad.empty?
         end
