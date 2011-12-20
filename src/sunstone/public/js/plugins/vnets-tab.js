@@ -758,7 +758,12 @@ function setupCreateVNetDialog() {
 
             //for each specified lease we prepare the JSON object
             $.each(leases,function(){
-                leases_obj.push({"ip": $(this).val() });
+                var lease_str = $(this).val().split(",");
+                if (lease_str[1])
+                    leases_obj.push({"ip": lease_str[0],
+                                     "mac": lease_str[1]});
+                else
+                    leases_obj.push({"ip": lease_str[0] });
             });
 
             //and construct the final data for the request
