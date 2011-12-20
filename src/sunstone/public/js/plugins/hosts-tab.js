@@ -83,10 +83,11 @@ var create_host_tmpl =
     <div class="manager clear" id="vnm_mads">\
       <label>Virtual Network Manager:</label>\
        <select id="vnm_mad" name="vn">\
-         <option value="dummy">Dummy</option>\
-         <option value="etables">Etables</option>\
-         <option value="ovswitch">Open vSwitch</option>\
+         <option value="dummy">Default (dummy)</option>\
+         <option value="fw">Firewall</option>\
          <option value="802.1Q">802.1Q</option>\
+         <option value="ebtables">Ebtables</option>\
+         <option value="ovswitch">Open vSwitch</option>\
        </select>\
     </div>\
     <div class="manager clear" id="tm_mads">\
