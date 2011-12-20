@@ -812,7 +812,7 @@ function setupSaveasDialog(){
             var type = $('#image_type',this).val();
 
             if (!id.length || !disk_id.length || !image_name.length) {
-                notifyError("Skipping VM "+id+
+                notifyMessage("Skipping VM "+id+
                             ". No disk id or image name specified");
             }
             else {
