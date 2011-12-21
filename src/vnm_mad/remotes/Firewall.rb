@@ -123,6 +123,8 @@ class OpenNebulaFirewall < OpenNebulaNetwork
 
     def filter_ports(chain, protocol, range, policy)
         policy   = policy.to_s.upcase
+        range.gsub!(/\s+/,"")
+
         if range? range
            rule "-A #{chain} -p #{protocol} -m multiport --dports #{range} -j #{policy}"
         end
