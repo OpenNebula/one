@@ -1,0 +1,22 @@
+[Unit]
+Description=OpenNebula Multi-tenancy Web UI Server
+After=syslog.target
+After=network.target
+After=one.service
+After=one_scheduler.service
+BindTo=one.service
+!ConditionFileExists=/var/lock/one/.ozones.lock
+
+[Service]
+ExecStart=/bin/bash -c "/usr/bin/rackup /usr/lib/one/ozones/config.ru -s thin -P /var/run/one/ozones.pid > /var/log/one/ozones-server.log 2>&1"
+ExecStartPost=/usr/bin/touch /var/lock/one/.ozones.lock
+ExecStop=/bin/kill -INT $MAINPID
+PIDFile=/var/run/one/ozones.pid
+Type=simple
+
+[Exec]
+Group=cloud
+User=oneadmin
+
+[Install]
+WantedBy=multi-user.target

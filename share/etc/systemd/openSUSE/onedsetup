@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# One time setup for oned
+KILL_9_SECONDS=5
+
+LOCK_FILE=/var/lock/one/one
+LOCK_FILE_DIR=/var/lock/one
+
+ONE_PID=/var/run/one/oned.pid
+ONE_CONF=/etc/one/oned.conf
+ONE_DB=/var/lib/one/one.db
+
+ONED=/usr/bin/oned
+
+PORT=$(sed -n '/^[ \t]*PORT/s/^.*PORT\s*=\s*\([0-9]\+\)\s*.*$/\1/p' $ONE_CONF)
+
+if [ $? -ne 0 ]; then
+    echo "Can not find PORT in $ONE_CONF."
+    exit 1
+fi
+
+if [ ! -d $LOCK_FILE_DIR ]; then
+    mkdir $LOCK_FILE_DIR > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "Could not create lock file directory: $LOCK_FILE_DIR"
+        exit 1
+    fi
+fi
+
+if [ -f $LOCK_FILE ]; then
+    if [ -f  $ONE_PID ]; then
+        ONEPID=`cat $ONE_PID`
+        ps $ONEPID > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo "oned already running thus it is configured, nothing to do exiting"
+            exit 0
+        fi
+    fi
+    echo "Stale .lock detected. Erasing it."
+    rm $LOCK_FILE
+fi
+
+if [ ! -x "$ONED" ]; then
+    echo "Can not find $ONED."
+    exit 1
+fi
+
+if [ ! -f "$ONE_DB" ]; then
+    if [ ! -f "$HOME/.one/one_auth" ]; then
+        if [ -z "$ONE_AUTH" ]; then
+            echo "You should have ONE_AUTH set the first time you start"
+            echo "OpenNebula as it is used to set the credentials for"
+            echo "the administrator user."
+            exit 1
+        fi
+    fi
+fi
+
+if [ ! -d /var/lock/one ]; then
+    mkdir /var/lock/one > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Could not create necessary lock directory: /var/lock/one"
+        exit 1
+    fi
+fi
+
+# Start the one daemon
+$ONED -f 2>&1 &
+STARTED=$?
+CURPID=$!
+
+if [ $STARTED -ne 0 ]; then
+    echo "Error executing $ONED : Initial setup failed"
+    exit 1
+fi
+
+# Give oned a chance to do it's thing...
+sleep 2
+
+# OK we're all done here
+kill -TERM $CURPID > /dev/null 2>&1
+
+counter=0
+while ps $CURPID > /dev/null 2>&1; do
+    let counter=counter+1
+    if [ $counter -gt $KILL_9_SECONDS ]; then
+        kill -9 $CURPID > /dev/null 2>&1
+        break
+    fi
+    sleep 1
+done
+
+# If the lock file is left over remove it
+rm -f /var/lol/one/one
