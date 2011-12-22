@@ -56,5 +56,8 @@ for file in `find $RELATIVE_SRC_PATH/* -type f`; do
     exec_and_log "ln -sf ../$file $DST_PATH/$file_name"
 done
 
+# Put the symlink mark for tm_mv
+exec_and_log "ln -sf $RELATIVE_SRC_PATH $DST_PATH/.disk"
+
 
 
