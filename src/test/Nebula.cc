@@ -201,12 +201,12 @@ void Nebula::start()
 
         if (tester->need_vm_pool)
         {
-            vmpool = tester->create_vmpool(db,hook_location);
+            vmpool = tester->create_vmpool(db,hook_location,var_location);
         }
 
         if (tester->need_host_pool)
         {
-            hpool  = tester->create_hpool(db,hook_location);
+            hpool  = tester->create_hpool(db,hook_location,var_location);
         }
 
         if (tester->need_vnet_pool)

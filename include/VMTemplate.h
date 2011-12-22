@@ -102,9 +102,10 @@ private:
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace);
+    int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the VMTemplate
@@ -152,6 +153,7 @@ protected:
     /**
      *  Writes the VMTemplate in the database.
      *    @param db pointer to the db
+     *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
     int insert(SqlDB *db, string& error_str);
@@ -163,7 +165,8 @@ protected:
      */
     int update(SqlDB *db)
     {
-        return insert_replace(db, true);
+        string err;
+        return insert_replace(db, true, err);
     };
 };
 

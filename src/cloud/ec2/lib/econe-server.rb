@@ -69,7 +69,7 @@ CloudServer.print_configuration(conf)
 # Sinatra Configuration
 ##############################################################################
 set :config, conf
-set :host, settings.config[:server]
+set :bind, settings.config[:server]
 set :port, settings.config[:port]
 
 if CloudServer.is_port_open?(settings.config[:server],

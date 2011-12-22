@@ -180,7 +180,8 @@ fi
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/examples/tm"
 
-ETC_DIRS="$ETC_LOCATION/im_ec2 \
+ETC_DIRS="$ETC_LOCATION/image \
+          $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/tm_shared \
@@ -471,6 +472,7 @@ INSTALL_ETC_FILES=(
     VMWARE_ETC_FILES:$ETC_LOCATION
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
+    IMAGE_DRIVER_FS_ETC_FILES:$ETC_LOCATION/image/
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
     TM_SHARED_ETC_FILES:$ETC_LOCATION/tm_shared
     TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
@@ -738,6 +740,9 @@ VMWARE_TM_SSH_COMMANDS_LIB_FILES="src/tm_mad/vmware-ssh/tm_clone.sh \
 # Image Repository drivers, to be installed under $REMOTES_LOCATION/image
 #   - FS based Image Repository, $REMOTES_LOCATION/image/fs
 #-------------------------------------------------------------------------------
+
+IMAGE_DRIVER_FS_ETC_FILES="src/image_mad/remotes/fs/fs.conf"
+
 IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
                          src/image_mad/remotes/fs/mkfs \
                          src/image_mad/remotes/fs/mv \

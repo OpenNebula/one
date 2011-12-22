@@ -97,9 +97,10 @@ private:
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
      *    @return 0 one success
-    */
-    int insert_replace(SqlDB *db, bool replace);
+     */
+    int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Group
@@ -119,16 +120,7 @@ private:
      */
     int insert(SqlDB *db, string& error_str)
     {
-        int rc;
-
-        rc = insert_replace(db, false);
-
-        if ( rc != 0 )
-        {
-            error_str = "Error inserting Group in DB.";
-        }
-
-        return rc;
+        return insert_replace(db, false, error_str);
     }
 
     /**
@@ -138,7 +130,8 @@ private:
      */
     int update(SqlDB *db)
     {
-        return insert_replace(db, true);
+        string error_str;
+        return insert_replace(db, true, error_str);
     }
 };
 

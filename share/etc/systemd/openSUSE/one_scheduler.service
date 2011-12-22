@@ -1,0 +1,22 @@
+[Unit]
+Description=OpenNebula Cloud Scheduler Daemon
+After=syslog.target
+After=network.target
+After=remote_fs.target
+After=one.service
+BindTo=one.service
+!ConditionFileExists=/var/run/one/sched.pid
+
+[Service]
+EnvironmentFile=/etc/one/oned.conf
+ExecStart=/usr/bin/mm_sched -p $PORT -t 30 -m 300 -d 30 -h 1
+ExecStop=/bin/kill -TERM $MAINPID
+PIDFile=/var/run/one/sched.pid
+Type=simple
+
+[Exec]
+Group=cloud
+User=oneadmin
+
+[Install]
+WantedBy=multi-user.target

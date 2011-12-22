@@ -250,9 +250,10 @@ private:
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace);
+    int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the User
@@ -320,7 +321,10 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str)
+    {
+        return insert_replace(db, false, error_str);
+    };
 
     /**
      *  Writes/updates the User data fields in the database.
@@ -329,7 +333,8 @@ protected:
      */
     int update(SqlDB *db)
     {
-        return insert_replace(db, true);
+        string error_str;
+        return insert_replace(db, true, error_str);
     }
 };
 

@@ -280,15 +280,17 @@ void Nebula::start()
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK", host_hooks);
 
-        vmpool = new VirtualMachinePool(db, vm_hooks, hook_location);
-        hpool  = new HostPool(db, host_hooks, hook_location);
+        vmpool = new VirtualMachinePool(db, 
+                                        vm_hooks, 
+                                        hook_location, 
+                                        remotes_location);
+        hpool  = new HostPool(db, host_hooks, hook_location, remotes_location);
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
         nebula_configuration->get("NETWORK_SIZE", size);
 
         vnpool = new VirtualNetworkPool(db,mac_prefix,size);
-
-        gpool = new GroupPool(db);
+        gpool  = new GroupPool(db);
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
         upool  = new UserPool(db, expiration_time);
@@ -301,7 +303,7 @@ void Nebula::start()
                                default_image_type,
                                default_device_prefix);
 
-        tpool = new VMTemplatePool(db);
+        tpool  = new VMTemplatePool(db);
     }
     catch (exception&)
     {
