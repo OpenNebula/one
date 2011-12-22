@@ -15,6 +15,7 @@
 # ---------------------------------------------------------------------------- #
 
 require "scripts_common"
+require 'yaml'
 require "CommandManager"
 
 class VmWareDriver
@@ -27,10 +28,12 @@ class VmWareDriver
        BIN_LOCATION = "/usr/bin" 
        LIB_LOCATION = "/usr/lib/one"
        ETC_LOCATION = "/etc/one/" 
+       VAR_LOCATION = "/var/lib/one"
     else
        LIB_LOCATION = ONE_LOCATION + "/lib"
        BIN_LOCATION = ONE_LOCATION + "/bin" 
        ETC_LOCATION = ONE_LOCATION  + "/etc/"
+       VAR_LOCATION = ONE_LOCATION + "/var/"
     end
 
     CONF_FILE   = ETC_LOCATION + "/vmwarerc"
@@ -228,9 +231,9 @@ class VmWareDriver
 
     #Performs a action usgin libvirt
     def do_action(cmd)
-        rc = LocalCommand.run(esx_cmd(command))
+        rc = LocalCommand.run(esx_cmd(cmd))
 
-        if rc.code = 0
+        if rc.code == 0
             return [true, rc.stdout]
         else
             err = "Error executing: #{cmd} err: #{rc.stderr} out: #{rc.stdout}"

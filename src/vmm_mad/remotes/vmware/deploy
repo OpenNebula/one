@@ -32,7 +32,7 @@ require 'vmwarelib'
 dfile = ARGV[0]
 host  = ARGV[1]
 
-vmware_drv = VMWareDriver.new(host)
+vmware_drv = VmWareDriver.new(host)
 
 puts vmware_drv.deploy(dfile)
 
