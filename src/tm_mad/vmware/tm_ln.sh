@@ -42,7 +42,7 @@ REPO_NAME="images"
 RELATIVE_SRC_PATH="../../$REPO_NAME/$VM_FOLDER_NAME"
 
 log "Creating directory $DST_PATH"
-exec_and_log "rm -rf $DST_PATH"
+exec_and_log "rm -rf $DST"
 exec_and_log "mkdir -p $DST_PATH"
 exec_and_log "chmod a+w $DST_PATH"
 
