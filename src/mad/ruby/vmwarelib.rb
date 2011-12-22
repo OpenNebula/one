@@ -86,7 +86,7 @@ class VmWareDriver
         end
 
         # Undefine the VM
-        exit undefine_domain(deploy_id)
+        undefine_domain(deploy_id)
     end
 
     # ------------------------------------------------------------------------ #
@@ -212,6 +212,20 @@ class VmWareDriver
         end
 
         undefine_domain(deploy_id)
+    end
+
+    # ------------------------------------------------------------------------ #
+    # Poll a VMware hypervisor                                                            #
+    # ------------------------------------------------------------------------ #
+    def poll_hypervisor
+        # Destroy the VM
+        rc, info = perform_action("virsh -c #{@uri} --readonly nodeinfo")
+
+        if rc == false
+            exit info
+        end
+
+        return info
     end
 
     # ######################################################################## #

@@ -19,6 +19,28 @@
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vmwarelib'
+
+dfile = ARGV[0]
+host  = ARGV[1]
+
+vmware_drv = VMWareDriver.new(host)
+
+puts vmware_drv.deploy(dfile)
+
+exit 0
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
    ETC_LOCATION="/etc/one" if !defined?(ETC_LOCATION)
 else
    ETC_LOCATION=ONE_LOCATION+"/etc" if !defined?(ETC_LOCATION)
