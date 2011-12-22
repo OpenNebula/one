@@ -30,6 +30,7 @@ $: << RUBY_LIB_LOCATION
 
 require 'OpenNebula'
 include OpenNebula
+require 'vmwarelib'
 
 begin
     client = Client.new()
@@ -40,29 +41,24 @@ end
 
 def add_info(name, value)
     value = "0" if value.nil? or value.to_s.empty?
-    @result_str << "#{name}=#{value} "
+    result_str << "#{name}=#{value} "
 end
 
 def print_info
-    puts @result_str
+    puts result_str
 end
 
-@result_str = ""
+result_str = ""
 
-@host       = ARGV[2]
+host       = ARGV[2]
 
 if !@host
     exit -1
 end
 
-load ETC_LOCATION + "/vmwarerc"
+vmware_drv = VMWareDriver.new(host)
 
-if USERNAME.class!=String || PASSWORD.class!=String
-    warn "Bad ESX credentials, aborting"
-    exit -1
-end
-
-data = perform_action("virsh -c #{LIBVIRT_URI} --readonly nodeinfo")
+data = vmware_drv.poll_hypervisor
 
 data.split(/\n/).each{|line|
     if line.match('^CPU\(s\)')

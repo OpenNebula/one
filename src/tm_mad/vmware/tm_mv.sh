@@ -41,9 +41,11 @@ SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
 
 if [ "$SRC_PATH" = "$DST_PATH" ]; then
     log "Will not move, source and destination are equal"
+elif [ -f "$SRC_PATH/.disk" ]; then # This link was set in tm_ln.sh
+     exec_and_log "mv $SRC_PATH/.disk $DST_PATH"
 elif echo $SRC_PATH | grep -q 'disk\.[0-9]\+$'; then
-    log "Moving $SRC_PATH"
-    exec_and_log "mv $SRC_PATH $DST_PATH"
+    log "Moving $SRC_PATH"
+    exec_and_log "mv $SRC_PATH $DST_PATH"
 elif [ -d $SRC_PATH ]; then
     log "Will not move, is not saving image"
 else
