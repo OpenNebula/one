@@ -48,9 +48,9 @@ class VmWareDriver
        conf  = YAML::load(File.read(CONF_FILE))
        
        @uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
-       @user = conf[:password]
-       @pass = conf[:username]
 
+       @user = conf[:username]
+       @pass = conf[:password]
     end
 
     # ######################################################################## #
@@ -65,6 +65,8 @@ class VmWareDriver
         deploy_id = define_domain(dfile)
 
         exit -1 if deploy_id.nil?
+
+	OpenNebula.log_debug("Successfully defined domain #{deploy_id}.")
 
         # Start the VM
         rc, info = do_action("virsh -c #{@uri} start #{deploy_id}")
@@ -239,8 +241,7 @@ class VmWareDriver
 
     #Generates an ESX command using ttyexpect
     def esx_cmd(command)
-        cmd = BIN_LOCATION
-        cmd << "/tty_expect -u " << @user  << " -p " << @pass  << " " << command
+        cmd = "#{BIN_LOCATION}/tty_expect -u #{@user} -p #{@pass} #{command}"
     end
 
     #Performs a action usgin libvirt
@@ -276,7 +277,7 @@ class VmWareDriver
 
         return nil if rc == false
 
-        data.split('\n').each{ |line|
+        info.split('\n').each{ |line|
             mdata = line.match("Domain (.*) defined from (.*)")
 
             if mdata
@@ -285,6 +286,8 @@ class VmWareDriver
             end
         }
         
+	deploy_id.strip!
+
         return deploy_id
     end
 end
