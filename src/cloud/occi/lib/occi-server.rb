@@ -48,6 +48,8 @@ $: << RUBY_LIB_LOCATION+"/cloud" # For the Repository Manager
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
+require 'erb'
+require 'tempfile'
 
 require 'OCCIServer'
 require 'CloudAuth'
@@ -73,6 +75,7 @@ CloudServer.print_configuration(conf)
 ##############################################################################
 use Rack::Session::Pool, :key => 'occi'
 set :public, Proc.new { File.join(root, "ui/public") }
+set :views, settings.root + '/ui/views'
 set :config, conf
 
 if CloudServer.is_port_open?(settings.config[:server],
@@ -291,5 +294,16 @@ get '/ui' do
     if !authorized?
         return File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
     end
-    return File.read(File.dirname(__FILE__)+'/ui/templates/index.html')
+
+    erb :index
+    #return File.read(File.dirname(__FILE__)+'/ui/templates/index.html')
+end
+
+post '/ui/upload' do
+    file = Tempfile.new('uploaded_image')
+    request.params['file'] = file.path #so we can re-use occi post_storage()
+    file.write(request.env['rack.input'].read)
+    #file.close # this would allow that file is garbage-collected
+    result,rc = @occi_server.post_storage(request)
+    treat_response(result,rc)
 end

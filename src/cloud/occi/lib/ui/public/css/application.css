@@ -170,7 +170,7 @@ fieldset div{
 
 fieldset input,
 fieldset textarea{
-    width:180px;
+    width:140px;
     /*border-top:1px solid #555;
       border-left:1px solid #555;
       border-bottom:1px solid #ccc;
@@ -182,7 +182,7 @@ fieldset textarea{
 }
 
 fieldset select{
-    width:184px;
+    width:144px;
     /*border-top:1px solid #555;
       border-left:1px solid #555;
       border-bottom:1px solid #ccc;
@@ -211,7 +211,7 @@ legend{
 
 label{
     float: left;
-    width:120px;
+    width:100px;
     padding:0 1em;
     text-align:left;
 }
@@ -289,8 +289,9 @@ textarea:focus{
 }
 
 .form_buttons {
-    margin-top:25px;
-    text-align:right;
+    margin-top:6px;
+    text-align:left;
+    margin-bottom:20px;
 }
 
 .add_remove_button {
@@ -319,11 +320,13 @@ tr.odd td, tr.even td{
 }
 
 tr.odd:hover{
-    background-color: #E69138 !important;
+    background-color: #0098C3 !important;
+    color: white;
 }
 
 tr.even:hover{
-    background-color: #E69138 !important;
+    color: white;
+    background-color: #0098C3 !important;
 }
 
 .show_hide label{
@@ -367,7 +370,7 @@ tr.even:hover{
     margin: 20px;
     text-align: left;
     display: inline-block;
-    width:43%;
+    width:85%;
     vertical-align:top;
     overflow:auto;
 }
@@ -551,7 +554,7 @@ ul.action_list li a{
 
 }
 ul.action_list li a:hover{
-    color:#E69138;
+    color:#0098C3;
 
 }
 
@@ -567,4 +570,19 @@ ul.action_list li a:hover{
 .ui-layout-resizer-open-hover, /* hover-color to 'resize' */
 .ui-layout-resizer-dragging {
     background: #EEE;
+}
+
+.dashboard_img {
+    padding-left:10px;
+    border:0;
+    height:40px;
+}
+
+.dashboard_p {
+    color: #353735;
+    text-align:justify;
+}
+
+.dashboard_p p{
+    padding-top:5px;
 }

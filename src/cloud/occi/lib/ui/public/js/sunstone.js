@@ -366,6 +366,11 @@ $(document).ready(function(){
         $('.action_blocks .action_list:visible',main_tabs_context).hide();
     });
 
+    $('.close_dialog_link').live("click",function(){
+        hideDialog();
+        return false;
+    });
+
     //Start with the dashboard (supposing we have one).
     showTab('#dashboard_tab');
 

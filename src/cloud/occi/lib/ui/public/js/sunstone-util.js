@@ -498,9 +498,11 @@ function getSelectedNodes(dataTable){
 function makeSelectOptions(dataTable,
                            id_col,name_col,
                            status_cols,
-                           bad_status_values){
+                           bad_status_values,no_empty_opt){
     var nodes = dataTable.fnGetData();
-    var select = '<option class="empty_value" value="">'+tr("Please select")+'</option>';
+    var select = "";
+    if (!no_empty_opt)
+        select = '<option class="empty_value" value="">'+tr("Please select")+'</option>';
     var array;
     for (var j=0; j<nodes.length;j++){
         var elem = nodes[j];

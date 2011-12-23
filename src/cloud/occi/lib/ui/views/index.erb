@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OpenNebula OCCI</title>
+    <title>OpenNebula Self-Service</title>
     <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
     
     <!-- Vendor Libraries -->
@@ -17,6 +17,7 @@
     <script type="text/javascript" src="vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="vendor/jQueryLayout/jquery.layout-latest.min.js"></script>
     <script type="text/javascript" src="vendor/dataTables/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="vendor/fileuploader/fileuploader.js"></script>
 
     <!-- End Vendor Libraries -->
 
@@ -36,12 +37,17 @@
 
     <!--Base plugins-->
 
+    <script type="text/javascript" src="js/plugins/compute.js"></script>
+    <script type="text/javascript" src="js/plugins/storage.js"></script>
+    <script type="text/javascript" src="js/plugins/network.js"></script>
+
+
 </head>
 <body>
 <div class="outer-center">
     <div class="inner-center">
     </div>
-    <div id="dialog" class="inner-south"></div>
+    <div id="dialog" class="inner-east"></div>
 </div>
 
 <div id="menu" class="outer-west">
@@ -51,7 +57,7 @@
 
 <div id="header" class="ui-layout-north">
     <div id="logo">
-        <img src="images/opennebula-sunstone-small.png"/>
+        <img src="images/opennebula-selfservice-small.png"/>
     </div>
     <div id="login-info">
         Welcome <span id="user"></span>&nbsp;|&nbsp;<a href="#" id="logout">Sign Out</a>
@@ -62,6 +68,7 @@
         <a href="http://opennebula.org/community:community" target="_blank">Community</a>
     </div>
 </div>
+
 <div id="footer" class="ui-layout-south">
     Copyright 2002-2011 &copy; OpenNebula Project Leads (<a href="http://opennebula.org" target="_blank">OpenNebula.org</a>). All Rights Reserved. OpenNebula 3.1.0
 </div>

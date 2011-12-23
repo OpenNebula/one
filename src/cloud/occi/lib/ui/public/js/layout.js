@@ -18,12 +18,12 @@ var activeTab;
 var outerLayout, innerLayout;
 
 function hideDialog(){
-    innerLayout.close("south");
+    innerLayout.close("east");
 }
 
 function popDialog(content){
     $("#dialog").html(content);
-    innerLayout.open("south");
+    innerLayout.open("east");
 }
 
 function popDialogLoading(){
@@ -92,15 +92,16 @@ $(document).ready(function () {
     ,   west__resizable:        false
     });
 
-    var factor = 0.6;
-    var dialog_height = Math.floor($(".outer-center").height()*factor);
+    var factor = 0.45;
+    var dialog_height = Math.floor($(".outer-center").width()*factor);
 
     innerLayout = $('div.outer-center').layout({
         fxName:                 "slide"
     ,   initClosed:             true
     ,   center__paneSelector:	".inner-center"
-    ,	south__paneSelector:	".inner-south"
-    ,   south__size:            dialog_height
+    ,	east__paneSelector:	".inner-east"
+    ,   east__size:            dialog_height
+    ,   east__minSize:         400
     ,	spacing_open:			5  // ALL panes
     ,	spacing_closed:			5 // ALL panes
     });

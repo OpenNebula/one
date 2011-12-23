@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-//Simple recursion
+//Convert json into the XML that OCCI server can understand
 function json2xml(element,root_key) {
     var xml = "";
     if (!root_key) root_key="ROOT";
@@ -28,7 +28,7 @@ function json2xml(element,root_key) {
                 //do not wrap arrays in root_key
                 return xml;
 
-            } else 
+            } else
                 xml += json2xml(value,key);
         });
     } else { //its a simple value. Base condition
@@ -225,7 +225,9 @@ var OCCI = {
                 dataType: "xml ONEjson",
                 data: data,
                 success: function(response){
-                    return callback ? callback(request, response) : null;
+                    var res = {};
+                    res[resource] = response;
+                    return callback ? callback(request, res) : null;
                 },
                 error: function(response){
                     return callback_error ?
@@ -310,9 +312,9 @@ var OCCI = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-            var body = json2xml(params.data.body,resource)
+            var body = json2xml(params.data.body,resource);
 
-            var request = OCCI.Helper.request(resource,method, [id, body]);
+            var request = OCCI.Helper.request(resource,method, id);
 
             $.ajax({
                 url: resource.toLowerCase() + "/" + id,
@@ -428,35 +430,13 @@ var OCCI = {
             OCCI.Action.show(params,OCCI.Network.resource);
         },
         "publish": function(params){
-            params.data.body = { "public": "YES" }
+            params.data.body = { "PUBLIC": "YES" };
             OCCI.Action.update(params,OCCI.Network.resource,"publish");
         },
         "unpublish": function(params){
-            params.data.body = { "public": "NO" }
-            OCCI.Action.update(params,OpenNebula.Network.resource,"unpublish");
+            params.data.body = { "PUBLIC": "NO" };
+            OCCI.Action.update(params,OCCI.Network.resource,"unpublish");
         },
-/*
-        "addleases" : function(params){
-            var action_obj = params.data.extra_param;
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Network.resource,
-                                            "addleases",
-                                            action_obj);
-        },
-        "rmleases" : function(params){
-            var action_obj = params.data.extra_param;
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Network.resource,
-                                            "rmleases",
-                                            action_obj);
-        },
-        "update": function(params){
-            var action_obj = {"template_raw" : params.data.extra_param };
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Network.resource,
-                                            "update",
-                                            action_obj);
-        },*/
     },
 
     "VM": {
@@ -484,25 +464,27 @@ var OCCI = {
         },
         "cancel": function(params){
             params.data.body = { state : "CANCEL" };
-            OCCI.Action.simple_action(params,OCCI.VM.resource,"cancel");
+            OCCI.Action.update(params,OCCI.VM.resource,"cancel");
         },
         "suspend": function(params){
             params.data.body = { state : "SUSPENDED" };
-            OCCI.Action.simple_action(params,OCCI.VM.resource,"suspend");
+            OCCI.Action.update(params,OCCI.VM.resource,"suspend");
         },
         "resume": function(params){
             params.data.body = { state : "RESUME" };
-            OCCI.Action.simple_action(params,OCCI.VM.resource,"resume");
+            OCCI.Action.update(params,OCCI.VM.resource,"resume");
         },
         "done": function(params){
             params.data.body = { state : "DONE" };
-            OCCI.Action.simple_action(params,OCCI.VM.resource,"done");
+            OCCI.Action.update(params,OCCI.VM.resource,"done");
         },
-        "saveas": function(params){
-            var action_obj = params.data.extra_param;
-            OCCI.Action.simple_action(params,OCCI.VM.resource,
-                                            "saveas",action_obj);
-        },
+        "saveas" : function(params){
+            var obj = params.data.extra_param;
+            var disk_id = obj.disk_id;
+            var im_name = obj.image_name;
+            params.data.body = '<DISK id="'+disk_id+'"><SAVE_AS name="'+im_name+'" /></DISK>';
+            OCCI.Action.update(params,OCCI.VM.resource,"saveas");
+        }
 /*        "vnc" : function(params,startstop){
             var callback = params.success;
             var callback_error = params.error;
@@ -543,7 +525,26 @@ var OCCI = {
         "resource": "STORAGE",
 
         "create": function(params){
-            OCCI.Action.create(params,OCCI.Image.resource);
+            var callback = params.success;
+            var callback_error = params.error;
+            var data = {occixml : json2xml(params.data,OCCI.Image.resource)};
+            var request = OCCI.Helper.request(OCCI.Image.resource,"create", data);
+
+            $.ajax({
+                type: 'POST',
+                url: "storage",
+                data: data,
+                dataType: "xml ONEjson",
+                success: function(response){
+                    var res = {};
+                    res["STORAGE"] = response;
+                    return callback ? callback(request, res) : null;
+                },
+                error: function(response){
+                    return callback_error ?
+                        callback_error(request, OCCI.Error(response)) : null;
+                }
+            });
         },
         "delete": function(params){
             OCCI.Action.delete(params,OCCI.Image.resource);
@@ -554,41 +555,22 @@ var OCCI = {
         "show": function(params){
             OCCI.Action.show(params,OCCI.Image.resource);
         },
-        "update": function(params){
-            var action_obj = {"template_raw" : params.data.extra_param };
-            OCCI.Action.simple_action(params,
-                                            OCCI.Image.resource,
-                                            "update",
-                                            action_obj);
-        },
-        "fetch_template" : function(params){
-            OCCI.Action.show(params,OCCI.Image.resource,"template");
-        },
-        "enable": function(params){
-            OCCI.Action.simple_action(params,OCCI.Image.resource,"enable");
-        },
-        "disable": function(params){
-            OCCI.Action.simple_action(params,OCCI.Image.resource,"disable");
-        },
         "publish": function(params){
-            OCCI.Action.simple_action(params,OCCI.Image.resource,"publish");
+            params.data.body = { "PUBLIC":"YES" };
+            OCCI.Action.update(params,OCCI.Image.resource,"publish");
         },
         "unpublish": function(params){
-            OCCI.Action.simple_action(params,OCCI.Image.resource,"unpublish");
+            params.data.body = { "PUBLIC":"NO" };
+            OCCI.Action.update(params,OCCI.Image.resource,"unpublish");
         },
         "persistent": function(params){
-            OCCI.Action.simple_action(params,OCCI.Image.resource,"persistent");
+            params.data.body = { "PERSISTENT":"YES" };
+            OCCI.Action.update(params,OCCI.Image.resource,"persistent");
         },
         "nonpersistent": function(params){
-            OCCI.Action.simple_action(params,OCCI.Image.resource,"nonpersistent");
+            params.data.body = { "PERSISTENT":"NO" };
+            OCCI.Action.update(params,OCCI.Image.resource,"nonpersistent");
         },
-        "chtype": function(params){
-            var action_obj = {"type" : params.data.extra_param};
-            OCCI.Action.simple_action(params,
-                                            OCCI.Image.resource,
-                                            "chtype",
-                                            action_obj);
-        }
     },
 
     "Template" : {
@@ -637,17 +619,4 @@ var OCCI = {
         }
     },
 
-    "Acl" : {
-        "resource" : "ACL",
-
-        "create" : function(params){
-            OCCI.Action.create(params,OCCI.Acl.resource);
-        },
-        "delete" : function(params){
-            OCCI.Action.delete(params,OCCI.Acl.resource);
-        },
-        "list" : function(params){
-            OCCI.Action.list(params,OCCI.Acl.resource);
-        }
-    }
 }

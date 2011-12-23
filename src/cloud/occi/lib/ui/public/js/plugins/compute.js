@@ -18,6 +18,7 @@
 var INCLUDE_URI = "vendor/noVNC/include/";
 var VM_HISTORY_LENGTH = 40;
 
+/*
 function loadVNC(){
     var script = '<script src="vendor/noVNC/include/vnc.js"></script>';
     document.write(script);
@@ -46,6 +47,8 @@ var vm_graphs = [
       history_length : VM_HISTORY_LENGTH
     }
 ];
+*/
+
 
 var vms_tab_content =
 '<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
@@ -56,15 +59,7 @@ var vms_tab_content =
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
       <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
       <th>'+tr("Name")+'</th>\
-      <th>'+tr("Status")+'</th>\
-      <th>'+tr("CPU")+'</th>\
-      <th>'+tr("Memory")+'</th>\
-      <th>'+tr("Hostname")+'</th>\
-      <th>'+tr("Start Time")+'</th>\
-      <th>'+tr("VNC Access")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -73,26 +68,49 @@ var vms_tab_content =
 </form>';
 
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
-  <fieldset>\
-        <div>\
+        <fieldset>\
            <label for="vm_name">'+tr("VM Name")+':</label>\
            <input type="text" name="vm_name" id="vm_name" /><br />\
-           <label for="template_id">'+tr("Select template")+':</label>\
-           <select id="template_id">\
-           </select><br />\
-           <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
-           <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-        </div>\
         </fieldset>\
         <fieldset>\
-        <div class="form_buttons">\
-           <button class="button" id="create_vm_proceed" value="VM.create">'+tr("Create")+'</button>\
-           <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+           <label for="instance_type">'+tr("Instance type")+':</label>\
+           <select id="instance_type">\
+             <option value="small">'+tr("Small")+'</option>\
+             <option value="medium">'+tr("Medium")+'</option>\
+             <option value="big">'+tr("Big")+'</option>\
+           </select><br />\
+        </fieldset>\
+        <fieldset>\
+           <label for="disk">'+tr("Images")+':</label>\
+           <select type="text" id="disk_box" name="disk" multiple>\
+           </select>\
+        </fieldset>\
+        <fieldset>\
+           <label for="network">'+tr("Networks")+':</label>\
+           <select type="text" id="network_box" name="network" multiple>\
+           </select>\
+        </fieldset>\
+        <fieldset>\
+           <label for="vm_n_times">'+tr("Create # VMs")+':</label>\
+           <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+        </fieldset>\
+          <div class="form_buttons">\
+            <button class="vm_close_dialog_link"/>\
+            <button class="button" id="create_vm" value="VM.create" />\
+            <button class="button" type="reset" id="reset_vm" value="reset" />\
+          </div>\
         </div>\
-</fieldset>\
 </form>';
 
-var vmachine_list_json = {};
+var vm_dashboard = '<div class="dashboard_p">\
+<img class="dashboard_img" src="images/one-compute.png" alt="one-compute" />\
+<p>'+tr("This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking \"new\" and filling-in an easy wizard.")+'</p>\
+<p>'+tr("You can also manage compute resources and perform actions such as stop, resume, shutdown or cancel.")+'</p>\
+<p>'+tr("Additionally, you can take a \"snapshot\" of the storage attached to these resources. They will be saved as new resources, visible from the Storage view and re-usable.")+'</p>\
+<p>'+tr("There are currently")+' <b><span id="vm_dashboard_count" /></b> '+tr("virtual machines")+'.</p>\
+</div>';
+
+
 var dataTable_vMachines;
 var $create_vm_dialog;
 var $saveas_vm_dialog;
@@ -101,13 +119,11 @@ var rfb;
 
 var vm_actions = {
     "VM.create" : {
-        type: "custom",
-        call: function(id,name) {
-            Sunstone.runAction("Template.instantiate",id,name);
-            Sunstone.runAction("VM.list");
-        },
+        type: "create",
+        call: OCCI.VM.create,
         callback: addVMachineElement,
-        error: onError
+        error: onError,
+        notify: true
     },
 
     "VM.create_dialog" : {
@@ -117,21 +133,21 @@ var vm_actions = {
 
     "VM.list" : {
         type: "list",
-        call: OpenNebula.VM.list,
+        call: OCCI.VM.list,
         callback: updateVMachinesView,
         error: onError
     },
 
     "VM.show" : {
         type: "single",
-        call: OpenNebula.VM.show,
+        call: OCCI.VM.show,
         callback: updateVMachineElement,
         error: onError
     },
 
     "VM.showinfo" : {
         type: "single",
-        call: OpenNebula.VM.show,
+        call: OCCI.VM.show,
         callback: updateVMInfo,
         error: onError
     },
@@ -147,58 +163,13 @@ var vm_actions = {
     "VM.autorefresh" : {
         type: "custom",
         call : function() {
-            OpenNebula.VM.list({timeout: true, success: updateVMachinesView,error: onError});
+            OCCI.VM.list({timeout: true, success: updateVMachinesView,error: onError});
         },
-    },
-
-    "VM.deploy" : {
-        type: "multiple",
-        call: OpenNebula.VM.deploy,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
-    "VM.migrate" : {
-        type: "multiple",
-        call: OpenNebula.VM.migrate,
-        callback: vmShow,
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError,
-        notify: true
-    },
-
-    "VM.livemigrate" : {
-        type: "multiple",
-        call: OpenNebula.VM.livemigrate,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
-    "VM.hold" : {
-        type: "multiple",
-        call: OpenNebula.VM.hold,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
-    "VM.release" : {
-        type: "multiple",
-        call: OpenNebula.VM.release,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
     },
 
     "VM.suspend" : {
         type: "multiple",
-        call: OpenNebula.VM.suspend,
+        call: OCCI.VM.suspend,
         callback: vmShow,
         elements: vmElements,
         error: onError,
@@ -207,7 +178,7 @@ var vm_actions = {
 
     "VM.resume" : {
         type: "multiple",
-        call: OpenNebula.VM.resume,
+        call: OCCI.VM.resume,
         callback: vmShow,
         elements: vmElements,
         error: onError,
@@ -216,25 +187,34 @@ var vm_actions = {
 
     "VM.stop" : {
         type: "multiple",
-        call: OpenNebula.VM.stop,
+        call: OCCI.VM.stop,
         callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
     },
 
-    "VM.restart" : {
+    "VM.done" : {
         type: "multiple",
-        call: OpenNebula.VM.restart,
+        call: OCCI.VM.done,
         callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
     },
 
-    "VM.resubmit" : {
+    "VM.shutdown" : {
         type: "multiple",
-        call: OpenNebula.VM.resubmit,
+        call: OCCI.VM.shutdown,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.cancel" : {
+        type: "multiple",
+        call: OCCI.VM.cancel,
         callback: vmShow,
         elements: vmElements,
         error: onError,
@@ -251,73 +231,21 @@ var vm_actions = {
 
     "VM.saveas" : {
         type: "single",
-        call: OpenNebula.VM.saveas,
+        call: OCCI.VM.saveas,
         callback: vmShow,
         error:onError
     },
 
     "VM.saveas_disks" : {
         type: "single",
-        call: OpenNebula.VM.show,
+        call: OCCI.VM.show,
         callback: saveasDisksCallback,
         error: onError
     },
-
-    "VM.shutdown" : {
-        type: "multiple",
-        call: OpenNebula.VM.shutdown,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
-    "VM.cancel" : {
-        type: "multiple",
-        call: OpenNebula.VM.cancel,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
-    "VM.delete" : {
-        type: "multiple",
-        call: OpenNebula.VM.delete,
-        callback: deleteVMachineElement,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
-    "VM.log" : {
-        type: "single",
-        call: OpenNebula.VM.log,
-        callback: function(req,res) {
-            //after calling VM.log we process the answer
-            //update the tab and pop it up again
-            res = res['vm_log'];
-            var log_lines = res.split("\n");
-            var colored_log = '';
-            for (var i = 0; i < log_lines.length;i++){
-                var line = log_lines[i];
-                if (line.match(/\[E\]/)){
-                    line = '<span class="vm_log_error">'+line+'</span>';
-                }
-                colored_log += line + "\n";
-            }
-
-            $('#vm_log_tab').html('<pre>'+colored_log+'</pre>')
-        },
-        error: function(request,error_json){
-            $("#vm_log pre").html('');
-            onError(request,error_json);
-        }
-    },
-
+    /*
     "VM.startvnc" : {
         type: "single",
-        call: OpenNebula.VM.startvnc,
+        call: OCCI.VM.startvnc,
         callback: vncCallback,
         error: onError,
         notify: true
@@ -325,14 +253,14 @@ var vm_actions = {
 
     "VM.stopvnc" : {
         type: "single",
-        call: OpenNebula.VM.stopvnc,
+        call: OCCI.VM.stopvnc,
         error: onError,
         notify: true
     },
 
     "VM.monitor" : {
         type: "monitor",
-        call : OpenNebula.VM.monitor,
+        call : OCCI.VM.monitor,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
             plot_graph(response,'#vm_monitoring_tab',
@@ -342,32 +270,15 @@ var vm_actions = {
     },
     "VM.monitor_all" : {
         type: "monitor_global",
-        call: OpenNebula.VM.monitor_all,
+        call: OCCI.VM.monitor_all,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
             plot_global_graph(response,info);
         },
         error: onError
     },
-    "VM.chown" : {
-        type: "multiple",
-        call: OpenNebula.VM.chown,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-    "VM.chgrp" : {
-        type: "multiple",
-        call: OpenNebula.VM.chgrp,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    }
+    */
 }
-
-
 
 var vm_buttons = {
     "VM.refresh" : {
@@ -382,22 +293,6 @@ var vm_buttons = {
         alwaysActive: true
     },
 
-    "VM.chown" : {
-        type: "confirm_with_select",
-        text: tr("Change owner"),
-        select: users_sel,
-        tip: tr("Select the new owner")+":",
-        condition: mustBeAdmin
-    },
-
-    "VM.chgrp" : {
-        type: "confirm_with_select",
-        text: tr("Change group"),
-        select: groups_sel,
-        tip: tr("Select the new group")+":",
-        condition: mustBeAdmin
-    },
-
     "VM.shutdown" : {
         type: "confirm",
         text: tr("Shutdown"),
@@ -407,38 +302,6 @@ var vm_buttons = {
     "action_list" : {
         type: "select",
         actions: {
-            "VM.deploy" : {
-                type: "confirm_with_select",
-                text: tr("Deploy"),
-                tip: tr("This will deploy the selected VMs on the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-            },
-            "VM.migrate" : {
-                type: "confirm_with_select",
-                text: tr("Migrate"),
-                tip: tr("This will migrate the selected VMs to the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-
-            },
-            "VM.livemigrate" : {
-                type: "confirm_with_select",
-                text: tr("Live migrate"),
-                tip: tr("This will live-migrate the selected VMs to the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-            },
-            "VM.hold" : {
-                type: "confirm",
-                text: tr("Hold"),
-                tip: tr("This will hold selected pending VMs from being deployed")
-            },
-            "VM.release" : {
-                type: "confirm",
-                text: tr("Release"),
-                tip: tr("This will release held machines")
-            },
             "VM.suspend" : {
                 type: "confirm",
                 text: tr("Suspend"),
@@ -454,29 +317,19 @@ var vm_buttons = {
                 text: tr("Stop"),
                 tip: "This will stop selected VMs"
             },
-            "VM.restart" : {
-                type: "confirm",
-                text: tr("Restart"),
-                tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
-            },
-            "VM.resubmit" : {
-                type: "confirm",
-                text: tr("Resubmit"),
-                tip: tr("This will resubmits VMs to PENDING state")
-            },
-            "VM.saveasmultiple" : {
-                type: "action",
-                text: tr("Save as")
-            },
             "VM.cancel" : {
                 type: "confirm",
                 text: tr("Cancel"),
                 tip: tr("This will cancel selected VMs")
+            },
+            "VM.saveasmultiple" : {
+                type: "action",
+                text: tr("Save as")
             }
         }
     },
 
-    "VM.delete" : {
+    "VM.done" : {
         type: "confirm",
         text: tr("Delete"),
         tip: tr("This will delete the selected VMs from the database")
@@ -485,21 +338,20 @@ var vm_buttons = {
 
 var vm_info_panel = {
     "vm_info_tab" : {
-        title: tr("Virtual Machine information"),
+        title: tr("Compute resource information"),
         content: ""
     },
-    "vm_template_tab" : {
-        title: tr("VM template"),
-        content: ""
-    },
-    "vm_log_tab" : {
-        title: tr("VM log"),
-        content: ""
-    }
 }
 
+var vm_create_panel = {
+    "vm_create_panel" : {
+        title: tr("Create Virtual Machine"),
+        content: create_vm_tmpl
+    },
+};
+
 var vms_tab = {
-    title: tr("Virtual Machines"),
+    title: tr("Compute"),
     content: vms_tab_content,
     buttons: vm_buttons
 }
@@ -507,6 +359,7 @@ var vms_tab = {
 Sunstone.addActions(vm_actions);
 Sunstone.addMainTab('vms_tab',vms_tab);
 Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
+Sunstone.addInfoPanel('vm_create_panel',vm_create_panel);
 
 
 function vmElements() {
@@ -514,7 +367,7 @@ function vmElements() {
 }
 
 function vmShow(req) {
-    Sunstone.runAction("VM.show",req.request.data[0]);
+//    Sunstone.runAction("VM.show",req.request.data[0]);
 }
 
 // Returns a human readable running time for a VM
@@ -525,34 +378,23 @@ function str_start_time(vm){
 // Returns an array formed by the information contained in the vm_json
 // and ready to be introduced in a dataTable
 function vMachineElementArray(vm_json){
-    var vm = vm_json.VM;
-    var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
-    var hostname = "--";
+    var vm = vm_json.COMPUTE;
+    var id,name;
 
-    if (state == "ACTIVE" || state == "SUSPENDED"){
-        if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
-            hostname = vm.HISTORY_RECORDS.HISTORY[vm.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME;
-        } else {
-            hostname = vm.HISTORY_RECORDS.HISTORY.HOSTNAME;
-        };
-    };
-
-    if (state == "ACTIVE") {
-        state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    if (vm.name){
+        id = vm.href.split("/");
+        id = id[id.length-1];
+        name = vm.name;
+    }
+    else {
+        id = vm.ID;
+        name = vm.NAME;
     };
 
     return [
-        '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
-        vm.ID,
-        vm.UNAME,
-        vm.GNAME,
-        vm.NAME,
-        state,
-        vm.CPU,
-        humanize_size(vm.MEMORY),
-        hostname,
-        str_start_time(vm),
-        vncIcon(vm)
+        '<input class="check_item" type="checkbox" id="vm_'+id+'" name="selected_items" value="'+id+'"/>',
+        id,
+        name,
     ];
 }
 
@@ -572,7 +414,7 @@ function vMachineInfoListener(){
 
 // Callback to refresh a single element from the list
 function updateVMachineElement(request, vm_json){
-    var id = vm_json.VM.ID;
+    var id = vm_json.COMPUTE.ID;
     var element = vMachineElementArray(vm_json);
     updateSingleElement(element,dataTable_vMachines,'#vm_'+id)
 }
@@ -584,7 +426,7 @@ function deleteVMachineElement(request){
 
 // Callback to add an element to the list
 function addVMachineElement(request,vm_json){
-    var id = vm_json.VM.ID;
+    var id = vm_json.COMPUTE.ID;
     var element = vMachineElementArray(vm_json);
     addElement(element,dataTable_vMachines);
 }
@@ -599,22 +441,14 @@ function updateVMachinesView(request, vmachine_list){
     });
 
     updateView(vmachine_list_array,dataTable_vMachines);
-    updateDashboard("vms",vmachine_list);
+    //updateDashboard("vms",vmachine_list);
 }
 
 
 // Refreshes the information panel for a VM
 function updateVMInfo(request,vm){
-    var vm_info = vm.VM;
-    var vm_state = OpenNebula.Helper.resource_state("vm",vm_info.STATE);
-    var hostname = "--"
-    if (vm_state == "ACTIVE" || vm_state == "SUSPENDED") {
-        if (vm_info.HISTORY_RECORDS.HISTORY.constructor == Array){
-            hostname = vm_info.HISTORY_RECORDS.HISTORY[vm_info.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME
-        } else {
-            hostname = vm_info.HISTORY_RECORDS.HISTORY.HOSTNAME;
-        };
-    };
+    var vm_info = vm.COMPUTE;
+    var vm_state = OCCI.Helper.resource_state("vm",vm_info.STATE);
 
     var info_tab = {
         title : tr("VM information"),
@@ -633,124 +467,147 @@ function updateVMInfo(request,vm){
                  <td class="value_td">'+vm_info.NAME+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Owner")+'</td>\
-                 <td class="value_td">'+vm_info.UNAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Group")+'</td>\
-                 <td class="value_td">'+vm_info.GNAME+'</td>\
-              </tr>\
-              <tr>\
                  <td class="key_td">'+tr("State")+'</td>\
                  <td class="value_td">'+tr(vm_state)+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("LCM State")+'</td>\
-                 <td class="value_td">'+tr(OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE))+'</td>\
+                 <td class="key_td">'+tr("CPU")+'</td>\
+                 <td class="value_td">'+vm_info.CPU+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Hostname")+'</td>\
-              <td class="value_td">'+ hostname +'</td>\
+                 <td class="key_td">'+tr("Memory")+'</td>\
+                 <td class="value_td">'+vm_info.MEMORY+'</td>\
               </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Start time")+'</td>\
-                 <td class="value_td">'+pretty_time(vm_info.STIME)+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Deploy ID")+'</td>\
-                 <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
-              </tr></tbody>\
-                </table>\
-                <table id="vm_monitoring_table" class="info_table">\
-                   <thead>\
-                     <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_TX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_TX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Net_RX")+'</td>\
-                        <td class="value_td">'+vm_info.NET_RX+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used Memory")+'</td>\
-                        <td class="value_td">'+humanize_size(vm_info.MEMORY)+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("Used CPU")+'</td>\
-                        <td class="value_td">'+vm_info.CPU+'</td>\
-                      </tr>\
-                      <tr>\
-                        <td class="key_td">'+tr("VNC Session")+'</td>\
-                        <td class="value_td">'+vncIcon(vm_info)+'</td>\
-                      </tr>\
-                    </tbody>\
-                </table>'
+            </tbody>\
+          </table>\
+        <div class="form_buttons">\
+           <button class="vm_close_dialog_link"/></div>'
     }
 
-    var template_tab = {
-        title: tr("VM Template"),
-        content:
-        '<table id="vm_template_table" class="info_table" style="width:80%">\
-               <thead><tr><th colspan="2">'+tr("VM template")+'</th></tr></thead>'+
-                prettyPrintJSON(vm_info.TEMPLATE)+
-            '</table>'
-    }
-
-    var log_tab = {
-        title: tr("VM log"),
-        content: '<div>'+spinner+'</div>'
-    }
-
+    /*
     var monitoring_tab = {
         title: tr("Monitoring information"),
         content: generateMonitoringDivs(vm_graphs,"vm_monitor_")
     }
+    */
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
-    Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
+    //Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
 
     //Pop up the info panel and asynchronously get vm_log and stats
     Sunstone.popUpInfoPanel("vm_info_panel");
-    Sunstone.runAction("VM.log",vm_info.ID);
-    for (var i=0; i<vm_graphs.length; i++){
-        Sunstone.runAction("VM.monitor",vm_info.ID,vm_graphs[i]);
-    };
+    $('#dialog .vm_close_dialog_link').button({
+        text:false,
+        icons: { primary: "ui-icon-closethick" }
+    });
+
+//    Sunstone.runAction("VM.log",vm_info.ID);
+//    for (var i=0; i<vm_graphs.length; i++){
+//        Sunstone.runAction("VM.monitor",vm_info.ID,vm_graphs[i]);
+//    };
 }
 
-// Sets up the create-template dialog and all the processing associated to it,
-// which is a lot.
-function setupCreateVMDialog(){
-
-    dialogs_context.append('<div title=\"'+tr("Create Virtual Machine")+'\" id="create_vm_dialog"></div>');
-    //Insert HTML in place
-    $create_vm_dialog = $('#create_vm_dialog')
-    var dialog = $create_vm_dialog;
-    dialog.html(create_vm_tmpl);
-
-    //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400
-    });
+// Open creation dialog
+function popUpCreateVMDialog(){
+    Sunstone.popUpInfoPanel("vm_create_panel");
+    var dialog = $('#dialog');
+    $create_vm_dialog = dialog;
 
     $('button',dialog).button();
 
+    $('#create_vm',dialog).button({
+        icons: {
+            primary: "ui-icon-check"
+        },
+        text: false
+    });
+    $('#reset_vm',dialog).button({
+        icons: {
+            primary: "ui-icon-document"
+        },
+        text: false
+    });
+    $('.vm_close_dialog_link',dialog).button({
+        icons: {
+            primary: "ui-icon-closethick"
+        },
+        text: false
+    });
+
+    var net_select = makeSelectOptions(dataTable_vNetworks,
+                                       1,//id_col
+                                       2,//name_col
+                                       [],
+                                       [],
+                                       true
+                                  );
+
+    $('#network_box',dialog).html(net_select);
+
+    var image_select = makeSelectOptions(dataTable_images,
+                                         1,//id_col
+                                         2,//name_col
+                                         [],
+                                         [],
+                                         true);
+
+    $('#disk_box',dialog).html(image_select);
+
+    $('#network_box,#disk_box',dialog).change(function(){
+        $(this).val("");
+        return false;
+    });
+
+    $('#network_box option,#disk_box option',dialog).click(function(){
+        var bold = $(this).css("font-weight") == "700"; //bold
+        if (bold){//unbold, unmark
+            $(this).css("font-weight","400");
+            $(this).removeAttr('clicked');
+        }
+        else {//bold,mark
+            $(this).css("font-weight","700");
+            $(this).attr('clicked','clicked');
+        }
+        return false;
+    });
+
     $('#create_vm_form',dialog).submit(function(){
         var vm_name = $('#vm_name',this).val();
-        var template_id = $('#template_id',this).val();
+        var instance_type = $('#instance_type',this).val();
         var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
 
-        if (!template_id.length){
-            notifyError(tr("You have not selected a template"));
-            return false;
-        }
+        if (!vm_name.length){
+            notifyError("Please specify a name for the virtual machine");
+        };
+
+        var vm = {
+            "NAME" : vm_name,
+            "INSTANCE_TYPE" : instance_type,
+        };
+
+        var href = location.protocol + "//" + location.host;
+
+        var disks = $('#disk_box option[clicked="clicked"]');
+        if (disks.length){
+            vm["DISK"] = [];
+
+            disks.each(function(){
+                var value = $(this).val();
+                vm["DISK"].push('<STORAGE href="'+href+'/storage/'+value+'" />');
+            });
+        };
+
+        var nets = $('#network_box option[clicked="clicked"]');
+
+        if (nets.length){
+            vm["NETWORK"] = [];
+
+            nets.each(function(){
+                var value = $(this).val();
+                vm["NETWORK"].push('<NETWORK href="'+href+'/network/'+value+'" />');
+            });
+        };
 
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
@@ -761,22 +618,17 @@ function setupCreateVMDialog(){
                 vm_name = $('#template_id option:selected',this).text();
             }
             for (var i=0; i< n_times_int; i++){
-                Sunstone.runAction("Template.instantiate",template_id,vm_name+"_"+i);
+                Sunstone.runAction("VM.create",vm);
             };
         } else {
-            Sunstone.runAction("Template.instantiate",template_id,vm_name);
+            Sunstone.runAction("VM.create",vm);
         };
 
-        Sunstone.runAction("VM.list");
-        $create_vm_dialog.dialog('close');
+        popUpVMDashboard();
         return false;
     });
 }
 
-// Open creation dialog
-function popUpCreateVMDialog(){
-    $create_vm_dialog.dialog('open');
-}
 
 //Prepares a dialog to saveas a VM
 function setupSaveasDialog(){
@@ -812,7 +664,6 @@ function setupSaveasDialog(){
             var id = $('#vm_id',this).text();
             var disk_id = $('#vm_disk_id',this).val();
             var image_name = $('#image_name',this).val();
-            var type = $('#image_type',this).val();
 
             if (!id.length || !disk_id.length || !image_name.length) {
                 notifyError(tr("Skipping VM ")+id+". "+
@@ -822,7 +673,6 @@ function setupSaveasDialog(){
                 var obj = {
                     disk_id : disk_id,
                     image_name : image_name,
-                    type: type
                 };
                 args.push(id);
                 Sunstone.runAction("VM.saveas",id,obj);
@@ -865,15 +715,6 @@ function popUpSaveasDialog(elems){
                 <label for="image_name">'+tr("Image name")+':</label>\
                 <input type="text" id="image_name" name="image_name" value="" />\
             </div>\
-            <div>\
-                <label for="img_attr_value">'+tr("Type")+':</label>\
-                <select id="image_type" name="image_type">\
-                    <option value="">'+tr("Default (current image type)")+'</option>\
-                    <option value="os">'+tr("OS")+'</option>\
-                    <option value="datablock">'+tr("Datablock")+'</option>\
-                    <option value="cdrom">'+tr("CD-ROM")+'</oqption>\
-                </select>\
-            </div>\
             </fieldset>\
         </div>';
         $('#saveas_tabs',dialog).append(tab);
@@ -885,33 +726,39 @@ function popUpSaveasDialog(elems){
 }
 
 function saveasDisksCallback(req,response){
-    var vm_info = response.VM;
+    var vm_info = response.COMPUTE;
     var id=vm_info.ID;
     var select="";
 
     var gen_option = function(id, name, source){
         if (name){
-            return '<option value="'+id+'">'+name+" ("+tr("disk id")+"): "+id+')</option>';
+            return '<option value="'+id+'">'+name+" ("+tr("disk id")+": "+id+')</option>';
         }
         else {
-            return '<option value="'+id+'">'+source+" ("+tr("disk id")+"): "+id+')</option>';
+            return '<option value="'+id+'">'+source+" ("+tr("disk id")+": "+id+')</option>';
         }
     }
 
-    var disks = vm_info.TEMPLATE.DISK;
+    var disks = vm_info.DISK;
     if (!disks) { select = '<option value="">'+tr("No disks defined")+'</option>';}
     else if (disks.constructor == Array) //several disks
     {
         for (var i=0;i<disks.length;i++){
-            select += gen_option(disks[i].DISK_ID,disks[i].IMAGE,disks[i].SOURCE);
+            select += gen_option(disks[i].id,disks[i].STORAGE.name,null);
         }
     } else {
-        select+= gen_option(disks.DISK_ID,disks.IMAGE,disks.SOURCE);
+        select+= gen_option(disks.id,disks.STORAGE.name,null);
     }
     //introduce options in the right tab
     $('#saveas_tabs #saveas_tab_'+id+' #vm_disk_id',$saveas_vm_dialog).html(select);
 
 }
+
+function  popUpVMDashboard(){
+    var count = dataTable_vMachines.fnGetNodes().length;
+    popDialog(vm_dashboard);
+    $('#dialog #vm_dashboard_count').text(count);
+};
 
 //Prepares autorefresh
 function setVMAutorefresh(){
@@ -925,7 +772,7 @@ function setVMAutorefresh(){
      },INTERVAL+someTime());
 }
 
-
+/*
 function updateVNCState(rfb, state, oldstate, msg) {
     var s, sb, cad, klass;
     s = $D('VNC_status');
@@ -1036,7 +883,7 @@ function vncCallback(request,response){
 
 function vncIcon(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
-    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    var state = OCCI.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     var gr_icon;
     if (graphics && graphics.TYPE == "vnc" && state == "RUNNING"){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
@@ -1057,6 +904,8 @@ function vmMonitorError(req,error_json){
     $('#vm_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
 }
 
+*/
+
 // At this point the DOM is ready and the sunstone.js ready() has been run.
 $(document).ready(function(){
 
@@ -1067,15 +916,13 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,6,7] },
-            { "sWidth": "35px", "aTargets": [1,10] },
-            { "sWidth": "150px", "aTargets": [5,9] },
-            { "sWidth": "100px", "aTargets": [2,3] }
+            { "sWidth": "60px", "aTargets": [0] },
+            { "sWidth": "35px", "aTargets": [1] },
         ],
-	"oLanguage": (datatable_lang != "") ?
-	    {
-		sUrl: "locale/"+lang+"/"+datatable_lang
-	    } : ""
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
     });
 
     dataTable_vMachines.fnClearTable();
@@ -1084,12 +931,21 @@ $(document).ready(function(){
         '','','','','','','','','',''],dataTable_vMachines);
     Sunstone.runAction("VM.list");
 
-    setupCreateVMDialog();
+    //setupCreateVMDialog();
     setupSaveasDialog();
     setVMAutorefresh();
-    setupVNC();
+    //setupVNC();
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);
     vMachineInfoListener();
+
+    $('#li_vms_tab a').click(function(){
+        popUpVMDashboard();
+    });
+
+    $('.vm_close_dialog_link').live("click",function(){
+        popUpVMDashboard();
+        return false;
+    });
 })

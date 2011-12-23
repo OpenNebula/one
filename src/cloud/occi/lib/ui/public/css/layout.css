@@ -93,7 +93,7 @@ body {
     font-weight: bold;
 }
 .sunstone-color {
-    color: #E69138;
+    color: #0098C3;
 }
 
 #logo-wrapper {
@@ -140,12 +140,12 @@ background-image: -moz-linear-gradient(
     linear,
     left top,
     right top,
-    color-stop(0.95, #E69138),
+    color-stop(0.95, #0098C3),
     color-stop(1, rgb(53,55,53))
 );
 background-image: -moz-linear-gradient(
     left center,
-    #E69138 95%,
+    #0098C3 95%,
     rgb(53,55,53) 100%
 );
     /*
