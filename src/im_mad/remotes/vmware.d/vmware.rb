@@ -16,12 +16,18 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
-
 if !ONE_LOCATION
-   RUBY_LIB_LOCATION = "/usr/lib/one/ruby"  if !defined?(RUBY_LIB_LOCATION)
+   BIN_LOCATION = "/usr/bin" 
+   LIB_LOCATION = "/usr/lib/one"
+   ETC_LOCATION = "/etc/one/" 
+   VAR_LOCATION = "/var/lib/one"
+   RUBY_LIB_LOCATION = "/usr/lib/one/ruby"  
 else
-   RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+   LIB_LOCATION = ONE_LOCATION + "/lib"
+   BIN_LOCATION = ONE_LOCATION + "/bin" 
+   ETC_LOCATION = ONE_LOCATION  + "/etc/"
+   VAR_LOCATION = ONE_LOCATION + "/var/"
+   RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby" 
 end
 
 $: << RUBY_LIB_LOCATION
