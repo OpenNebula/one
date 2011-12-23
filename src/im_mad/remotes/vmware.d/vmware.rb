@@ -73,20 +73,20 @@ def do_action(cmd)
     end
 end
 
+@result_str = ""
+
 def add_info(name, value)
     value = "0" if value.nil? or value.to_s.empty?
-    result_str << "#{name}=#{value} "
+    @result_str << "#{name}=#{value} "
 end
 
 def print_info
-    puts result_str
+    puts @result_str
 end
 
 # ######################################################################## #
 #                          Main Procedure                                  #
 # ######################################################################## #
-
-result_str = ""
 
 host       = ARGV[2]
 
