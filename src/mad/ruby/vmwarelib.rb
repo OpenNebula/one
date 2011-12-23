@@ -18,7 +18,7 @@ require "scripts_common"
 require 'yaml'
 require "CommandManager"
 
-class VmWareDriver
+class VMwareDriver
     # -------------------------------------------------------------------------#
     # Set up the environment for the driver                                    #
     # -------------------------------------------------------------------------#
@@ -66,7 +66,7 @@ class VmWareDriver
 
         exit -1 if deploy_id.nil?
 
-	OpenNebula.log_debug("Successfully defined domain #{deploy_id}.")
+	   OpenNebula.log_debug("Successfully defined domain #{deploy_id}.")
 
         # Start the VM
         rc, info = do_action("virsh -c #{@uri} start #{deploy_id}")
@@ -90,6 +90,8 @@ class VmWareDriver
             exit info
         end
 
+        OpenNebula.log_debug("Successfully canceled domain #{deploy_id}.")
+
         # Undefine the VM
         undefine_domain(deploy_id)
     end
@@ -98,7 +100,7 @@ class VmWareDriver
     # Migrate                                                                  #
     # ------------------------------------------------------------------------ #
     def migrate
-        OpenNebula.log_error("TBD")
+        OpenNebula.log_error("Migration action is currently not supported")
         exit -1
     end
     
@@ -109,8 +111,7 @@ class VmWareDriver
         rc, info = do_action("virsh -c #{@uri} --readonly dominfo #{deploy_id}")
 
         if rc == false
-            puts "STATE=d"
-            exit 0
+            return "STATE=d"
         end
 
         state = ""
@@ -217,20 +218,6 @@ class VmWareDriver
         end
 
         undefine_domain(deploy_id)
-    end
-
-    # ------------------------------------------------------------------------ #
-    # Poll a VMware hypervisor                                                            #
-    # ------------------------------------------------------------------------ #
-    def poll_hypervisor
-        # Destroy the VM
-        rc, info = perform_action("virsh -c #{@uri} --readonly nodeinfo")
-
-        if rc == false
-            exit info
-        end
-
-        return info
     end
 
     # ######################################################################## #

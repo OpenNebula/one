@@ -19,24 +19,46 @@
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   ETC_LOCATION      = "/etc/one"  if !defined?(ETC_LOCATION)
    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"  if !defined?(RUBY_LIB_LOCATION)
 else
-   ETC_LOCATION      = ONE_LOCATION+"/etc"  if !defined?(ETC_LOCATION)
    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
 end
 
 $: << RUBY_LIB_LOCATION
 
+require "scripts_common"
+require 'yaml'
+require "CommandManager"
 require 'OpenNebula'
 include OpenNebula
-require 'vmwarelib'
 
 begin
     client = Client.new()
 rescue Exception => e
     puts "Error: #{e}"
     exit(-1)
+end
+
+# ######################################################################## #
+#                          DRIVER HELPER FUNCTIONS                         #
+# ######################################################################## #
+
+#Generates an ESX command using ttyexpect
+def esx_cmd(command)
+    cmd = "#{BIN_LOCATION}/tty_expect -u #{@user} -p #{@pass} #{command}"
+end
+
+#Performs a action usgin libvirt
+def do_action(cmd)
+    rc = LocalCommand.run(esx_cmd(cmd))
+
+    if rc.code == 0
+        return [true, rc.stdout]
+    else
+        err = "Error executing: #{cmd} err: #{rc.stderr} out: #{rc.stdout}"
+        OpenNebula.log_error(err)
+        return [false, rc.code]
+    end
 end
 
 def add_info(name, value)
@@ -48,17 +70,25 @@ def print_info
     puts result_str
 end
 
+# ######################################################################## #
+#                          Main Procedure                                  #
+# ######################################################################## #
+
 result_str = ""
 
 host       = ARGV[2]
 
-if !@host
+if !host
     exit -1
 end
 
-vmware_drv = VMWareDriver.new(host)
+# Poll the VMware hypervisor
 
-data = vmware_drv.poll_hypervisor
+rc, data = do_action("virsh -c #{@uri} --readonly nodeinfo")
+
+if rc == false
+    exit info
+end
 
 data.split(/\n/).each{|line|
     if line.match('^CPU\(s\)')
