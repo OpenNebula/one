@@ -16,6 +16,8 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
 if !ONE_LOCATION
    BIN_LOCATION = "/usr/bin" 
    LIB_LOCATION = "/usr/lib/one"
