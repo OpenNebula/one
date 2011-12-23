@@ -60,11 +60,16 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     # Deploy & define a VM based on its description file                       #
     # ------------------------------------------------------------------------ #
-    def deploy(dfile)
-        # Define the VM
-        deploy_id = define_domain(dfile)
+    def deploy(dfile, id)
+        # Define the domain if it is not already defined (e.g. from UNKNOWN)
 
-        exit -1 if deploy_id.nil?
+        if not domain_defined?(id)
+            deploy_id = define_domain(dfile)
+
+            exit -1 if deploy_id.nil?
+        else
+            deploy_id = "one-#{id}"
+        end
 
 	   OpenNebula.log_debug("Successfully defined domain #{deploy_id}.")
 
@@ -273,8 +278,14 @@ class VMwareDriver
             end
         }
         
-	deploy_id.strip!
+        deploy_id.strip!
 
         return deploy_id
+    end
+
+    def domain_defined?(one_id)
+        rc, info  = do_action("virsh -c #{@uri} dominfo one-#{one_id}")
+
+        return rc
     end
 end
