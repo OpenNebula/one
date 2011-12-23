@@ -34,6 +34,10 @@ end
 
 $: << RUBY_LIB_LOCATION
 
+CONF_FILE   = ETC_LOCATION + "/vmwarerc"
+
+ENV['LANG'] = 'C'
+
 require "scripts_common"
 require 'yaml'
 require "CommandManager"
@@ -89,6 +93,13 @@ host       = ARGV[2]
 if !host
     exit -1
 end
+
+conf  = YAML::load(File.read(CONF_FILE))
+
+@uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
+
+@user = conf[:username]
+@pass = conf[:password]
 
 # Poll the VMware hypervisor
 
