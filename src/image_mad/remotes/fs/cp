@@ -64,7 +64,7 @@ vmware://*)
     
     BASE_DISK_FILE=`ls $DST | grep -v '.*-s[0-9]*\.vmdk'`
 
-    exec_and_log "mv $DST/$BASE_DISK_FILE $DST/disk.vmdk" \
+    exec_and_log "mv -f $DST/$BASE_DISK_FILE $DST/disk.vmdk" \
         "Error renaming disk file $BASE_DISK_FILE to disk.vmdk"
 
     exec_and_log "chmod 0770 $DST"
