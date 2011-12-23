@@ -127,13 +127,13 @@ class VMwareDriver
 
         case state
             when "running","blocked","shutdown","dying"
-                state = 'a'
+                state_short = 'a'
             when "paused"
-                state = 'p'
+                state_short = 'p'
             when "crashed"
-                state = 'c'
+                state_short = 'c'
             else
-                state = 'd'
+                state_short = 'd'
         end
 
         return "STATE=#{state_short}"
