@@ -53,7 +53,9 @@ http://*)
 
 *)
     log "Moving local image $SRC to the image repository"
-    if [ \( -L $SRC \) -a \( "`$READLINK $SRC`" = "$DST" \) ] ; then
+ 
+    if [ \( -L $SRC \) -a \
+         \( "`$READLINK -f $SRC`" = "`$READLINK -f $DST`" \) ] ; then
        log "Not moving files to image repo, they are the same"
     else
        exec_and_log "mv -f $SRC $DST" "Could not move $SRC to $DST"

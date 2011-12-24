@@ -51,4 +51,4 @@ for file in `find $SRC_PATH -type f`; do
 done
 
 #Mark this disk persistent with a symlink for tm_mv and repo mv
-exec_and_log "ln -sf $REL_SRC_PATH $DST_PATH/.disk"
+exec_and_log "ln -sf ${REL_SRC_PATH#../../} $DST_PATH/.disk"
