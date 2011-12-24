@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 # ---------------------------------------------------------------------------- #
 # Copyright 2010-2011, C12G Labs S.L                                           #
@@ -39,11 +39,14 @@ fix_paths
 DST_PATH=`fix_dir_slashes "$DST_PATH"`
 SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
 
+echo $SRC_PATH | grep -q 'disk\.[0-9]\+$' > /dev/null 2>&1
+IS_DISK=$?
+
 if [ "$SRC_PATH" = "$DST_PATH" ]; then
     log "Will not move, source and destination are equal"
-elif [ -f "$SRC_PATH/.disk" ]; then # This link was set in tm_ln.sh
-     exec_and_log "mv $SRC_PATH/.disk $DST_PATH"
-elif echo $SRC_PATH | grep -q 'disk\.[0-9]\+$'; then
+elif [ -L "$SRC_PATH/.disk" ]; then # This link was set in tm_ln.sh
+    exec_and_log "mv $SRC_PATH/.disk $DST_PATH"
+elif [ IS_DISK -eq 0 ]; then
     log "Moving $SRC_PATH"
     exec_and_log "mv $SRC_PATH $DST_PATH"
 elif [ -d $SRC_PATH ]; then
