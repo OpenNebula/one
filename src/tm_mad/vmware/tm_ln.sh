@@ -26,6 +26,7 @@ else
 fi
 
 . $TMCOMMON
+. "`dirname $0`/functions.sh"
 
 get_vmdir
 
@@ -34,30 +35,20 @@ DST_PATH=`arg_path $DST`
 
 fix_dst_path
 
-DST_DIR=`dirname $DST_PATH`
+create_vmdir $DST_PATH
 
-# SRC_PATH needs to be made relative to $ONE_LOCATION/var
-VM_FOLDER_NAME=`basename $SRC_PATH`
-REPO_NAME="images"
-RELATIVE_SRC_PATH="../../$REPO_NAME/$VM_FOLDER_NAME"
-
-log "Creating directory $DST_PATH"
-exec_and_log "rm -rf $DST"
-exec_and_log "mkdir -p $DST_PATH"
-exec_and_log "chmod a+w $DST_PATH"
+# ---------------------------------------------------------------------------- #
+#  Link all files of the disk directory. Note that link paths needs to be      #
+#  relative in order to be accessible from the vSphere Data Store              #
+# ---------------------------------------------------------------------------- #
+REL_SRC_PATH=`make_relative $SRC_PATH $DST_PATH`
 
 log "Link all files in $SRC_PATH to $DST_PATH"
-IMAGE_DIR=`dirname $DST_PATH`
 
-cd $IMAGE_DIR
-
-for file in `find $RELATIVE_SRC_PATH/* -type f`; do
-    file_name=`basename $file`
-    exec_and_log "ln -sf ../$file $DST_PATH/$file_name"
+for file in `find $SRC_PATH -type f`; do
+	FNAME=`basename $file`
+	exec_and_log "ln -sf $REL_SRC_PATH/$FNAME $DST_PATH/$FNAME"
 done
 
-# Put the symlink mark for tm_mv
-exec_and_log "ln -sf $RELATIVE_SRC_PATH $DST_PATH/.disk"
-
-
-
+#Mark this disk persistent with a symlink for tm_mv and repo mv
+exec_and_log "ln -sf $REL_SRC_PATH $DST_PATH/.disk"

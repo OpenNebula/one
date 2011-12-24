@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # ---------------------------------------------------------------------------- #
 # Copyright 2010-2011, C12G Labs S.L                                           #
 #                                                                              #
@@ -16,48 +14,48 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-while (( "$#" )); do
-    if [ "$#" == "1" ]; then
-        DST=$1
-    else
-        SRC="$SRC $1"
-    fi
-    shift
-done
+#Symlinks the dst_path to dst_path.iso if it is an ISO file
+function fix_iso {
+	dst_path=$1	
 
+	if [ -f $dst_path ]; then
+	    file -b $dst_path | grep "ISO 9660" > /dev/null 2>&1
 
-if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/usr/lib/one/mads/tm_common.sh
-else
-    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
-fi
+	    if [ $? -eq 0 ]; then
+	        bname=`basename $dst_path`
+	        exec_and_log "ln -s $bname $dst_path/$bname.iso" \
+	                     "Can not link ISO file."
+	    fi
+	fi
+}
 
-. $TMCOMMON
-. "`dirname $0`/functions.sh"
+#Creates the VM dir
+function create_vmdir {
+	dst_path=$1
 
-get_vmdir
+	log "Creating directory `basename $dst_path`"
+	exec_and_log "mkdir -p $dst_path"
+	exec_and_log "chmod a+rw $dst_path"
+}
 
-DST_PATH=`arg_path $DST`
+#Makes path src ($1) relative to dst ($2)
+function make_relative {
+	src=$1
+	dst=$2
 
-fix_dst_path
+	common=$dst
 
-DST_DIR=`dirname $DST_PATH`
-ISO_DIR=$DST_DIR/isofiles
+	while [ -z "`echo $src | grep -E "^$common"`" ]; do
+	    common=`dirname $common`
+	    dots="../$dots"
+	done
 
-exec_and_log "mkdir -p $ISO_DIR"
+	echo $dots${src#$common/}
+}
 
-for f in $SRC; do
-    case $f in
-    http://*)
-        exec_and_log "$WGET -O $ISO_DIR $f"
-        ;;
+#Test if the source file is a disk (and not the image dir for the VM)
+function is_disk {
+	echo $1 | grep -q 'disk\.[0-9]\+$' > /dev/null 2>&1
+	echo $?
+}
 
-    *)
-        exec_and_log "cp -R $f $ISO_DIR"
-        ;;
-    esac
-done
-
-exec_and_log "$MKISOFS -o $DST_PATH.iso -J -R $ISO_DIR"
-
-exec_and_log "rm -rf $ISO_DIR"

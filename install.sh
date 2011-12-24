@@ -728,6 +728,7 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
 VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
                              src/tm_mad/vmware/tm_ln.sh \
                              src/tm_mad/vmware/tm_mv.sh \
+                             src/tm_mad/vmware/functions.sh \
                              src/tm_mad/vmware/tm_context.sh"
 
 #-------------------------------------------------------------------------------

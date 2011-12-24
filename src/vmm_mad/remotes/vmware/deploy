@@ -31,7 +31,7 @@ require 'vmwarelib'
 
 dfile = ARGV[0]
 host  = ARGV[1]
-id    = ARGV[3]
+id    = ARGV[2]
 
 vmware_drv = VMwareDriver.new(host, id)
 
