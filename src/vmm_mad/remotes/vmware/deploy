@@ -33,8 +33,8 @@ dfile = ARGV[0]
 host  = ARGV[1]
 id    = ARGV[2]
 
-vmware_drv = VMwareDriver.new(host, id)
+vmware_drv = VMwareDriver.new(host)
 
-puts vmware_drv.deploy(dfile)
+puts vmware_drv.deploy(dfile, id)
 
 exit 0

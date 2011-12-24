@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 # ---------------------------------------------------------------------------- #
 # Copyright 2010-2011, C12G Labs S.L                                           #
@@ -48,7 +48,7 @@ elif [ "`is_disk $SRC_PATH`" = "0" ] ; then
 	log "Moving $SRC_PATH"
     exec_and_log "mv $SRC_PATH $DST_PATH"
 elif [ -d $SRC_PATH ]; then
-    log "Will not move, is not saving a VM disk image"
+    log "Will not move, it is not saving a VM disk image"
 else
     log "Moving $SRC_PATH"
     exec_and_log "mv $SRC_PATH $DST_PATH"
