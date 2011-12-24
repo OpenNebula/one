@@ -43,7 +43,7 @@ SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
 if [ "$SRC_PATH" = "$DST_PATH" ]; then
     log "Will not move, source and destination are equal"
 elif [ -L "$SRC_PATH/.disk" ]; then 
-     exec_and_log "mv $SRC_PATH/.disk $DST_PATH"
+	exec_and_log "mv $SRC_PATH/.disk $DST_PATH"
 elif [ "`is_disk $SRC_PATH`" = "0" ] ; then
 	log "Moving $SRC_PATH"
     exec_and_log "mv $SRC_PATH $DST_PATH"
