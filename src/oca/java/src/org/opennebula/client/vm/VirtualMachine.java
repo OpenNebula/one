@@ -248,6 +248,7 @@ public class VirtualMachine extends PoolElement{
      * It is recommended to use the helper methods instead:
      * <ul>
      * <li>{@link VirtualMachine#shutdown()}</li>
+     * <li>{@link VirtualMachine#reboot()}</li>
      * <li>{@link VirtualMachine#cancel()}</li>
      * <li>{@link VirtualMachine#hold()}</li>
      * <li>{@link VirtualMachine#release()}</li>
@@ -259,7 +260,7 @@ public class VirtualMachine extends PoolElement{
      * </ul>
      *
      * @param action The action name to be performed, can be:<br/>
-     * "shutdown", "hold", "release", "stop", "cancel", "suspend",
+     * "shutdown", "reboot", "hold", "release", "stop", "cancel", "suspend",
      * "resume", "restart", "finalize".
      * @return If an error occurs the error message contains the reason.
      */
@@ -355,6 +356,15 @@ public class VirtualMachine extends PoolElement{
     public OneResponse shutdown()
     {
         return action("shutdown");
+    }
+
+    /**
+     * Reboots a running VM.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse reboot()
+    {
+        return action("reboot");
     }
 
     /**
