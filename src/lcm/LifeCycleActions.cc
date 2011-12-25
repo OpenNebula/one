@@ -427,6 +427,37 @@ void  LifeCycleManager::cancel_action(int vid)
 
     return;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::reboot_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_state() == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING)
+    {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        vmm->trigger(VirtualMachineManager::REBOOT,vid);
+    }
+    else
+    {
+        vm->log("LCM", Log::ERROR, "reboot_action, VM in a wrong state.");
+    }
+
+    vm->unlock();
+
+    return;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
