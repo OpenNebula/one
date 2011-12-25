@@ -36,6 +36,7 @@ class VirtualMachineDriver < OpenNebulaDriver
     ACTION = {
         :deploy     => "DEPLOY",
         :shutdown   => "SHUTDOWN",
+        :reboot     => "REBOOT"
         :cancel     => "CANCEL",
         :save       => "SAVE",
         :restore    => "RESTORE",
@@ -80,6 +81,7 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         register_action(ACTION[:deploy].to_sym,     method("deploy"))
         register_action(ACTION[:shutdown].to_sym,   method("shutdown"))
+        register_action(ACTION[:reboot].to_sym,     method("reboot"))
         register_action(ACTION[:cancel].to_sym,     method("cancel"))
         register_action(ACTION[:save].to_sym,       method("save"))
         register_action(ACTION[:restore].to_sym,    method("restore"))
@@ -117,6 +119,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     def shutdown(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:shutdown],RESULT[:failure],id,error)
+    end
+
+    def reboot(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:reboot],RESULT[:failure],id,error)
     end
 
     def cancel(id, drv_message)
