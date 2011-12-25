@@ -36,7 +36,7 @@ class VirtualMachineDriver < OpenNebulaDriver
     ACTION = {
         :deploy     => "DEPLOY",
         :shutdown   => "SHUTDOWN",
-        :reboot     => "REBOOT"
+        :reboot     => "REBOOT",
         :cancel     => "CANCEL",
         :save       => "SAVE",
         :restore    => "RESTORE",
