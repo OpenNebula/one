@@ -614,6 +614,7 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/deploy \
                          src/vmm_mad/remotes/vmware/migrate \
                          src/vmm_mad/remotes/vmware/restore \
+                         src/vmm_mad/remotes/vmware/reboot \
                          src/vmm_mad/remotes/vmware/save \
                          src/vmm_mad/remotes/vmware/poll \
                          src/vmm_mad/remotes/vmware/checkpoint \

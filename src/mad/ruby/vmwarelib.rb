@@ -102,6 +102,19 @@ class VMwareDriver
     end
 
     # ------------------------------------------------------------------------ #
+    # Reboots a running VM                                                     #
+    # ------------------------------------------------------------------------ #
+    def reboot(deploy_id)
+        # Destroy the VM
+        rc, info = perform_action("virsh -c #{@uri} reboot #{deploy_id}")
+
+        if rc == false
+            exit info
+        end
+
+        OpenNebula.log_debug("Domain #{deploy_id} successfully rebooted.")
+    end
+    # ------------------------------------------------------------------------ #
     # Migrate                                                                  #
     # ------------------------------------------------------------------------ #
     def migrate
