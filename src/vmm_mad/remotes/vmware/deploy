@@ -27,7 +27,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vmwarelib'
+require 'vmware_driver'
 
 dfile = ARGV[0]
 host  = ARGV[1]

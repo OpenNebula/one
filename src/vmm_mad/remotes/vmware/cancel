@@ -27,11 +27,11 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vmwarelib'
+require 'vmware_driver'
 
-dfile = ARGV[0]
-host  = ARGV[1]
+deploy_id = ARGV[0]
+host      = ARGV[1]
 
 vmware_drv = VMwareDriver.new(host)
 
-vmware_drv.cancel(dfile)
+vmware_drv.cancel(deploy_id)

@@ -528,7 +528,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/mad/ruby/vmwarelib.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
@@ -618,7 +617,8 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/save \
                          src/vmm_mad/remotes/vmware/poll \
                          src/vmm_mad/remotes/vmware/checkpoint \
-                         src/vmm_mad/remotes/vmware/shutdown"
+                         src/vmm_mad/remotes/vmware/shutdown \
+                         src/vmm_mad/remotes/vmware/vmware_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im

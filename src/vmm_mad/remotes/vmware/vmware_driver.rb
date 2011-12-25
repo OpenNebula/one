@@ -91,9 +91,7 @@ class VMwareDriver
         # Destroy the VM
         rc, info = perform_action("virsh -c #{@uri} destroy #{deploy_id}")
 
-        if rc == false
-            exit info
-        end
+        exit info if rc == false
 
         OpenNebula.log_debug("Successfully canceled domain #{deploy_id}.")
 
@@ -105,12 +103,9 @@ class VMwareDriver
     # Reboots a running VM                                                     #
     # ------------------------------------------------------------------------ #
     def reboot(deploy_id)
-        # Destroy the VM
         rc, info = perform_action("virsh -c #{@uri} reboot #{deploy_id}")
 
-        if rc == false
-            exit info
-        end
+        exit info if rc == false
 
         OpenNebula.log_debug("Domain #{deploy_id} successfully rebooted.")
     end
@@ -128,9 +123,7 @@ class VMwareDriver
     def poll(deploy_id)
         rc, info = do_action("virsh -c #{@uri} --readonly dominfo #{deploy_id}")
 
-        if rc == false
-            return "STATE=d"
-        end
+        return "STATE=d" if rc == false
 
         state = ""
 
