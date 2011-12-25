@@ -602,6 +602,7 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
+                    src/vmm_mad/remotes/xen/reboot \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/poll_ganglia \
