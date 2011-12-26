@@ -75,9 +75,7 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
         <fieldset>\
            <label for="instance_type">'+tr("Instance type")+':</label>\
            <select id="instance_type">\
-             <option value="small">'+tr("Small")+'</option>\
-             <option value="medium">'+tr("Medium")+'</option>\
-             <option value="big">'+tr("Big")+'</option>\
+             <option value="">'+tr("Loading")+'...</option>\
            </select><br />\
         </fieldset>\
         <fieldset>\
@@ -170,7 +168,7 @@ var vm_actions = {
     "VM.suspend" : {
         type: "multiple",
         call: OCCI.VM.suspend,
-        callback: vmShow,
+        //callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
@@ -179,7 +177,7 @@ var vm_actions = {
     "VM.resume" : {
         type: "multiple",
         call: OCCI.VM.resume,
-        callback: vmShow,
+        //callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
@@ -188,7 +186,7 @@ var vm_actions = {
     "VM.stop" : {
         type: "multiple",
         call: OCCI.VM.stop,
-        callback: vmShow,
+        //callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
@@ -197,7 +195,7 @@ var vm_actions = {
     "VM.done" : {
         type: "multiple",
         call: OCCI.VM.done,
-        callback: vmShow,
+        //callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
@@ -206,7 +204,7 @@ var vm_actions = {
     "VM.shutdown" : {
         type: "multiple",
         call: OCCI.VM.shutdown,
-        callback: vmShow,
+        //callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
@@ -215,7 +213,7 @@ var vm_actions = {
     "VM.cancel" : {
         type: "multiple",
         call: OCCI.VM.cancel,
-        callback: vmShow,
+        //callback: vmShow,
         elements: vmElements,
         error: onError,
         notify: true
@@ -232,7 +230,7 @@ var vm_actions = {
     "VM.saveas" : {
         type: "single",
         call: OCCI.VM.saveas,
-        callback: vmShow,
+        //callback: vmShow,
         error:onError
     },
 
@@ -242,6 +240,23 @@ var vm_actions = {
         callback: saveasDisksCallback,
         error: onError
     },
+    "VM.getInstanceTypes" : {
+        type: "list",
+        call: OCCI.Instance_type.list,
+        callback: function(request,response){
+            if (response.constructor != Array){
+                response = [response];
+            };
+            var options = "";
+            for (var i = 0; i<response.length; i++){
+                var type = response[i].INSTANCE_TYPE.NAME;
+                options += '<option value="'+type+'">'+type+'</option>';
+            };
+            $('#dialog select#instance_type').html(options);
+        },
+        error: onError
+    },
+
     /*
     "VM.startvnc" : {
         type: "single",
@@ -338,7 +353,15 @@ var vm_buttons = {
 
 var vm_info_panel = {
     "vm_info_tab" : {
-        title: tr("Compute resource information"),
+        title: tr("Compute resource"),
+        content: ""
+    },
+    "vm_disks_tab" : {
+        title: tr("Disks"),
+        content: ""
+    },
+    "vm_networks_tab" : {
+        title: tr("Networks"),
         content: ""
     },
 }
@@ -364,10 +387,6 @@ Sunstone.addInfoPanel('vm_create_panel',vm_create_panel);
 
 function vmElements() {
     return getSelectedNodes(dataTable_vMachines);
-}
-
-function vmShow(req) {
-//    Sunstone.runAction("VM.show",req.request.data[0]);
 }
 
 // Returns a human readable running time for a VM
@@ -467,8 +486,12 @@ function updateVMInfo(request,vm){
                  <td class="value_td">'+vm_info.NAME+'</td>\
               </tr>\
               <tr>\
+                 <td class="key_td">'+tr("Instance type")+'</td>\
+                 <td class="value_td">'+vm_info.INSTANCE_TYPE+'</td>\
+              </tr>\
+              <tr>\
                  <td class="key_td">'+tr("State")+'</td>\
-                 <td class="value_td">'+tr(vm_state)+'</td>\
+                 <td class="value_td">'+tr(vm_info.STATE)+'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("CPU")+'</td>\
@@ -482,7 +505,95 @@ function updateVMInfo(request,vm){
           </table>\
         <div class="form_buttons">\
            <button class="vm_close_dialog_link"/></div>'
-    }
+    };
+
+    var disks_str = '<table class="info_table">\
+<thead>\
+<tr><th colspan="2">'+tr("Disks information")+'</th></tr>\
+</thead><tbody>';
+
+    var disks = vm_info.DISK;
+    if (disks){
+        if (disks.constructor != Array) // 1lease
+            disks = [disks];
+
+        for (var i=0;i<disks.length; i++){
+            disks_str += '<tr>\
+<td class="key_td">'+tr("ID")+'</td>\
+<td class="value_td">'+disks[i].id+'</td>\
+</tr>\
+<tr>\
+<td class="key_td">'+tr("Name")+'</td>\
+<td class="value_td">'+disks[i].STORAGE.name+'</td>\
+</tr>\
+<tr>\
+<td class="key_td">'+tr("Target")+'</td>\
+<td class="value_td">'+disks[i].TARGET+'</td>\
+</tr>\
+<tr>\
+<td class="key_td">'+tr("Type")+'</td>\
+<td class="value_td">'+disks[i].TYPE+'</td>\
+</tr><tr><td></td><td></td></tr>';
+        };
+
+    } else {
+        disks_str += '<tr><td class="key_td">'+
+            tr("No disks defined")+'</td><td></td></tr>';
+    };
+
+    disks_str += '</tbody></table>\
+<div class="form_buttons">\
+<button class="vm_close_dialog_link"/></div>';
+
+    var disks_tab = {
+        title : tr("Disks"),
+        content : disks_str
+    };
+
+    var networks_str = '<table class="info_table">\
+<thead>\
+<tr><th colspan="2">'+tr("Networks information")+'</th></tr>\
+</thead><tbody>';
+
+    var networks = vm_info.NIC;
+    if (networks){
+        if (networks.constructor != Array) // 1lease
+            networks = [networks];
+
+        for (var i=0;i<networks.length; i++){
+            var net_id = networks[i].NETWORK.href;
+            net_id = net_id[net_id.length-1]
+            networks_str += '<tr>\
+<td class="key_td">'+tr("ID")+'</td>\
+<td class="value_td">'+net_id+'</td>\
+</tr>\
+<tr>\
+<td class="key_td">'+tr("Name")+'</td>\
+<td class="value_td">'+networks[i].NETWORK.name+'</td>\
+</tr>\
+<tr>\
+<td class="key_td">'+tr("IP")+'</td>\
+<td class="value_td">'+networks[i].IP+'</td>\
+</tr>\
+<tr>\
+<td class="key_td">'+tr("MAC")+'</td>\
+<td class="value_td">'+networks[i].MAC+'</td>\
+</tr><tr><td></td><td></td></tr>';
+        };
+
+    } else {
+        networks_str += '<tr><td class="key_td">'+
+            tr("No networks defined")+'</td><td></td></tr>';
+    };
+
+    networks_str += '</tbody></table>\
+<div class="form_buttons">\
+<button class="vm_close_dialog_link"/></div>';
+
+    var networks_tab = {
+        title : tr("Networks"),
+        content : networks_str
+    };
 
     /*
     var monitoring_tab = {
@@ -492,6 +603,8 @@ function updateVMInfo(request,vm){
     */
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_disks_tab",disks_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_networks_tab",networks_tab);
     //Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
 
     //Pop up the info panel and asynchronously get vm_log and stats
@@ -510,6 +623,7 @@ function updateVMInfo(request,vm){
 // Open creation dialog
 function popUpCreateVMDialog(){
     Sunstone.popUpInfoPanel("vm_create_panel");
+    Sunstone.runAction("VM.getInstanceTypes");
     var dialog = $('#dialog');
     $create_vm_dialog = dialog;
 
@@ -523,7 +637,7 @@ function popUpCreateVMDialog(){
     });
     $('#reset_vm',dialog).button({
         icons: {
-            primary: "ui-icon-document"
+            primary: "ui-icon-scissors"
         },
         text: false
     });
@@ -601,11 +715,11 @@ function popUpCreateVMDialog(){
         var nets = $('#network_box option[clicked="clicked"]');
 
         if (nets.length){
-            vm["NETWORK"] = [];
+            vm["NIC"] = [];
 
             nets.each(function(){
                 var value = $(this).val();
-                vm["NETWORK"].push('<NETWORK href="'+href+'/network/'+value+'" />');
+                vm["NIC"].push('<NETWORK href="'+href+'/network/'+value+'" />');
             });
         };
 

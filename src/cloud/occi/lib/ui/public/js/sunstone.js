@@ -366,6 +366,7 @@ $(document).ready(function(){
         $('.action_blocks .action_list:visible',main_tabs_context).hide();
     });
 
+    //Close open panel
     $('.close_dialog_link').live("click",function(){
         hideDialog();
         return false;
@@ -402,6 +403,9 @@ function setLogin(){
     case "ozones":
         username = cookie["ozones-user"];
         break;
+    case "occi":
+        username = cookie["occi-user"];
+        break;
     };
 
 
@@ -416,6 +420,9 @@ function setLogin(){
         case "ozones":
             oZones.Auth.logout({success:redirect});
             break;
+        case "occi":
+            OCCI.Auth.logout({success:function(){window.location.href = "ui";}});
+            break;
         }
         return false;
     });
@@ -424,8 +431,13 @@ function setLogin(){
 //returns whether we are Sunstone, or oZones
 //not the most elegant way, but better in its own function
 function whichUI(){
-    return (typeof(OpenNebula)!="undefined"? "sunstone" : "ozones");
-}
+    if (typeof(OpenNebula)!="undefined")
+        return "sunstone";
+    if (typeof(oZones)!="undefined")
+        return "ozones";
+    if (typeof(OCCI)!="undefined")
+        return "occi";
+};
 
 //Inserts all main tabs in the DOM
 function insertTabs(){

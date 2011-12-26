@@ -50,21 +50,11 @@ var OCCI = {
 
     "Error": function(resp)
     {
-        var error = {};
-        if (resp.responseText)
-        {
-            try {
-                error = JSON.parse(resp.responseText);
-            }
-            catch (e) {
-                error.error = {message: "It appears there was a server exception. Please check server's log."};
-            };
-        }
-        else
-        {
-            error.error = {};
-        }
-        error.error.http_status = resp.status;
+        var error = {
+            error : {
+                message: resp.responseText,
+                http_status : resp.status}
+        };
         return error;
     },
 
@@ -484,7 +474,7 @@ var OCCI = {
             var im_name = obj.image_name;
             params.data.body = '<DISK id="'+disk_id+'"><SAVE_AS name="'+im_name+'" /></DISK>';
             OCCI.Action.update(params,OCCI.VM.resource,"saveas");
-        }
+        },
 /*        "vnc" : function(params,startstop){
             var callback = params.success;
             var callback_error = params.error;
@@ -617,6 +607,13 @@ var OCCI = {
             OCCI.Action.simple_action(params,OCCI.Template.resource,
                                             "instantiate",action_obj);
         }
+    },
+
+    "Instance_type" : {
+        "resource" : "INSTANCE_TYPE",
+        "list" : function(params){
+            OCCI.Action.list(params,OCCI.Instance_type.resource);
+        },
     },
 
 }

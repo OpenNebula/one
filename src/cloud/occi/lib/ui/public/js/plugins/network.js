@@ -125,23 +125,23 @@ var vnet_actions = {
         }
     },
 
-    "Network.publish" : {
-        type: "multiple",
-        call: OCCI.Network.publish,
-        callback: vnShow,
-        elements: vnElements,
-        error: onError,
-        notify: true
-    },
+    // "Network.publish" : {
+    //     type: "multiple",
+    //     call: OCCI.Network.publish,
+    //     //callback: vnShow,
+    //     elements: vnElements,
+    //     error: onError,
+    //     notify: true
+    // },
 
-    "Network.unpublish" : {
-        type: "multiple",
-        call: OCCI.Network.unpublish,
-        callback: vnShow,
-        elements: vnElements,
-        error: onError,
-        notify: true
-    },
+    // "Network.unpublish" : {
+    //     type: "multiple",
+    //     call: OCCI.Network.unpublish,
+    //     //callback: vnShow,
+    //     elements: vnElements,
+    //     error: onError,
+    //     notify: true
+    // },
 
     "Network.delete" : {
         type: "multiple",
@@ -166,15 +166,15 @@ var vnet_buttons = {
         text: tr("+ New")
     },
 
-    "Network.publish" : {
-        type: "action",
-        text: tr("Publish")
-    },
+    // "Network.publish" : {
+    //     type: "action",
+    //     text: tr("Publish")
+    // },
 
-    "Network.unpublish" : {
-        type: "action",
-        text: tr("Unpublish")
-    },
+    // "Network.unpublish" : {
+    //     type: "action",
+    //     text: tr("Unpublish")
+    // },
 
     "Network.delete" : {
         type: "action",
@@ -211,10 +211,6 @@ Sunstone.addInfoPanel('vnet_create_panel',vnet_create_panel);
 
 function vnElements(){
     return getSelectedNodes(dataTable_vNetworks);
-}
-
-function vnShow(req){
-    //Sunstone.runAction("Network.show",req.request.data[0]);
 }
 
 //returns an array with the VNET information fetched from the JSON object
@@ -301,10 +297,6 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td">'+vn_info.NAME+'</td>\
             <tr>\
-            <tr>\
-              <td class="key_td">'+tr("Public")+'</td>\
-              <td class="value_td">'+ vn_info.PUBLIC.toLowerCase() +'</td>\
-            </tr>\
         </table>\
         <div class="form_buttons">\
            <button class="vnet_close_dialog_link"/></div>';
@@ -339,7 +331,7 @@ function popUpCreateVnetDialog() {
     });
     $('#reset_vn',dialog).button({
         icons: {
-            primary: "ui-icon-document"
+            primary: "ui-icon-scissors"
         },
         text: false
     });

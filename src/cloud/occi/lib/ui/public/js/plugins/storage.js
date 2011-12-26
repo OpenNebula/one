@@ -166,9 +166,6 @@ var image_actions = {
     "Image.persistent" : {
         type: "multiple",
         call: OCCI.Image.persistent,
-        callback: function (req) {
-            //Sunstone.runAction("Image.show",req.request.data[0]);
-        },
         elements: imageElements,
         error: onError,
         notify: true
@@ -177,35 +174,32 @@ var image_actions = {
     "Image.nonpersistent" : {
         type: "multiple",
         call: OCCI.Image.nonpersistent,
-        callback: function (req) {
-            //Sunstone.runAction("Image.show",req.request.data[0]);
-        },
         elements: imageElements,
         error: onError,
         notify: true
     },
 
-    "Image.publish" : {
-        type: "multiple",
-        call: OCCI.Image.publish,
-        callback: function (req) {
-            //Sunstone.runAction("Image.show",req.request.data[0]);
-        },
-        elements: imageElements,
-        error: onError,
-        notify: true
-    },
+    // "Image.publish" : {
+    //     type: "multiple",
+    //     call: OCCI.Image.publish,
+    //     callback: function (req) {
+    //         //Sunstone.runAction("Image.show",req.request.data[0]);
+    //     },
+    //     elements: imageElements,
+    //     error: onError,
+    //     notify: true
+    // },
 
-    "Image.unpublish" : {
-        type: "multiple",
-        call: OCCI.Image.unpublish,
-        callback: function (req) {
-            //Sunstone.runAction("Image.show",req.request.data[0]);
-        },
-        elements: imageElements,
-        error: onError,
-        notify: true
-    },
+    // "Image.unpublish" : {
+    //     type: "multiple",
+    //     call: OCCI.Image.unpublish,
+    //     callback: function (req) {
+    //         //Sunstone.runAction("Image.show",req.request.data[0]);
+    //     },
+    //     elements: imageElements,
+    //     error: onError,
+    //     notify: true
+    // },
 
     "Image.delete" : {
         type: "multiple",
@@ -228,32 +222,27 @@ var image_buttons = {
         type: "create_dialog",
         text: tr('+ New')
     },
-    "Image.update_dialog" : {
+    "Image.persistent" : {
         type: "action",
-        text: tr("Update a template"),
-        alwaysActive: true
+        text: tr("Make persistent")
     },
-    "action_list" : {
-        type: "select",
-        actions: {
-            "Image.publish" : {
-                type: "action",
-                text: tr("Publish")
-            },
-            "Image.unpublish" : {
-                type: "action",
-                text: tr("Unpublish")
-            },
-            "Image.persistent" : {
-                type: "action",
-                text: tr("Make persistent")
-            },
-            "Image.nonpersistent" : {
-                type: "action",
-                text: tr("Make non persistent")
-            }
-        }
+    "Image.nonpersistent" : {
+        type: "action",
+        text: tr("Make non persistent")
     },
+    // "action_list" : {
+    //     type: "select",
+    //     actions: {
+    //         "Image.publish" : {
+    //             type: "action",
+    //             text: tr("Publish")
+    //         },
+    //         "Image.unpublish" : {
+    //             type: "action",
+    //             text: tr("Unpublish")
+    //         },
+    //     }
+    //  },
     "Image.delete" : {
         type: "action",
         text: tr("Delete")
@@ -367,7 +356,7 @@ function updateImageInfo(request,img){
     var info_tab = {
         title: tr("Image information"),
         content:
-        '<table id="info_img_table" class="info_table" style="width:80%;">\
+        '<form><table id="info_img_table" class="info_table" style="width:80%;">\
            <thead>\
             <tr><th colspan="2">'+tr("Image")+' "'+img_info.NAME+'" '+
             tr("information")+'</th></tr>\
@@ -381,15 +370,16 @@ function updateImageInfo(request,img){
               <td class="value_td">'+img_info.NAME+'</td>\
            </tr>\
            <tr>\
+              <td class="key_td">'+tr("Name")+'</td>\
+              <td class="value_td">'+img_info.DESCRIPTION+'</td>\
+           </tr>\
+           <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td">'+OCCI.Helper.image_type(img_info.TYPE)+'</td>\
            </tr>\
-             <td class="key_td">'+tr("Public")+'</td>\
-             <td class="value_td">'+img_info.PUBLIC.toLowerCase()+'</td>\
-           </tr>\
            </tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
-             <td class="value_td">'+img_info.PERSISTENT.toLowerCase()+'</td>\
+<td class="value_td"><input type="checkbox" '+(img_info.PERSISTENT == "YES" ? 'checked="checked"' : "")+' /></td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Filesystem type")+'</td>\
@@ -399,7 +389,7 @@ function updateImageInfo(request,img){
               <td class="key_td">'+tr("Size (Mb)")+'</td>\
               <td class="value_td">'+img_info.SIZE+'</td>\
            </tr>\
-        </table>\
+        </table></form>\
         <div class="form_buttons">\
            <button class="image_close_dialog_link"/></div>'
     };
@@ -409,6 +399,12 @@ function updateImageInfo(request,img){
     $('#dialog .image_close_dialog_link').button({
         text:false,
         icons: { primary: "ui-icon-closethick" }
+    });
+    $('#dialog input').click(function(){
+        if ($(this).is(':checked'))
+            Sunstone.runAction("Image.persistent",[img_info.ID])
+        else
+            Sunstone.runAction("Image.nonpersistent",[img_info.ID])
     });
 }
 
@@ -425,7 +421,7 @@ function popUpCreateImageDialog(){
     });
     $('#reset_image',dialog).button({
         icons: {
-            primary: "ui-icon-document"
+            primary: "ui-icon-scissors"
         },
         text: false
     });
@@ -441,6 +437,7 @@ function popUpCreateImageDialog(){
     $('#img_fstype',dialog).parents('div.img_param').hide();
     $('#img_size',dialog).parents('div.img_param').hide();
 
+/*
     $('#img_public',dialog).click(function(){
         $('#img_persistent',$create_image_dialog).removeAttr('checked');
     });
@@ -448,7 +445,7 @@ function popUpCreateImageDialog(){
     $('#img_persistent',dialog).click(function(){
         $('#img_public',$create_image_dialog).removeAttr('checked');
     });
-
+*/
     $('#img_type',dialog).change(function(){
         if ($(this).val() == "DATABLOCK"){
             $('#img_fstype',$create_image_dialog).parents('div.img_param').show();
@@ -639,7 +636,7 @@ $(document).ready(function(){
     });
 
     $('.image_close_dialog_link').live("click",function(){
-        popUpVNetDashboard();
+        popUpImageDashboard();
         return false;
     });
 

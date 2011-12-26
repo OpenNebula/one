@@ -123,6 +123,18 @@ before do
     end
 end
 
+after do
+    unless request.path=='/ui/login' || request.path=='/ui'
+        unless session[:remember]
+            if params[:timeout] == true
+                env['rack.session.options'][:defer] = true
+            else
+                env['rack.session.options'][:expire_after] = 60*10
+            end
+        end
+    end
+end
+
 # Response treatment
 helpers do
     def authorized?
@@ -141,8 +153,29 @@ helpers do
         else
             client  = settings.cloud_auth.client(username)
             @occi_server = OCCIServer.new(client, settings.config)
+
+            user_id = OpenNebula::User::SELF
+            user    = OpenNebula::User.new_with_id(user_id, client)
+            rc = user.info
+            if OpenNebula.is_error?(rc)
+                # Add a log message
+                return [500, ""]
+            end
+
             session[:ip] = request.ip
             session[:user] = username
+            session[:remember] = params[:remember]
+
+            if user['TEMPLATE/LANG']
+                session[:lang] = user['TEMPLATE/LANG']
+            else
+                session[:lang] = settings.config[:lang]
+            end
+
+            if params[:remember]
+                env['rack.session.options'][:expire_after] = 30*60*60*24
+            end
+
             return [204, ""]
         end
     end
@@ -295,8 +328,12 @@ get '/ui' do
         return File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
     end
 
+    time = Time.now + 60
+    response.set_cookie("occi-user",
+                        :value=>"#{session[:user]}",
+                        :expires=>time)
+
     erb :index
-    #return File.read(File.dirname(__FILE__)+'/ui/templates/index.html')
 end
 
 post '/ui/upload' do
