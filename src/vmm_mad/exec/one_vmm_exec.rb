@@ -450,20 +450,22 @@ class ExecDriver < VirtualMachineDriver
     # POLL action, gets information of a VM
     #
     def poll(id, drv_message)
-        data        = decode(drv_message)
-        host        = data.elements['HOST'].text
+        data      = decode(drv_message)
+        host      = data.elements['HOST'].text
+        deploy_id = data.elements['DEPLOY_ID'].text
 
-        do_action("#{id} #{host}", id, host, ACTION[:poll])
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:poll])
     end
 
     #
     # REBOOT action, reboots a running VM
     #
     def reboot(id, drv_message)
-        data        = decode(drv_message)
-        host        = data.elements['HOST'].text
+        data      = decode(drv_message)
+        host      = data.elements['HOST'].text
+        deploy_id = data.elements['DEPLOY_ID'].text
 
-        do_action("#{id} #{host}", id, host, ACTION[:reboot])
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:reboot])
     end
 end
 
