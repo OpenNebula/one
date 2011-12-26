@@ -89,7 +89,7 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     def cancel(deploy_id)
         # Destroy the VM
-        rc, info = perform_action("virsh -c #{@uri} destroy #{deploy_id}")
+        rc, info = do_action("virsh -c #{@uri} destroy #{deploy_id}")
 
         exit info if rc == false
 
@@ -103,7 +103,7 @@ class VMwareDriver
     # Reboots a running VM                                                     #
     # ------------------------------------------------------------------------ #
     def reboot(deploy_id)
-        rc, info = perform_action("virsh -c #{@uri} reboot #{deploy_id}")
+        rc, info = do_action("virsh -c #{@uri} reboot #{deploy_id}")
 
         exit info if rc == false
 
