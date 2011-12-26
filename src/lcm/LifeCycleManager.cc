@@ -165,6 +165,10 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "RESTART";
         break;
 
+    case REBOOT:
+        aname = "REBOOT";
+        break;
+
     case DELETE:
         aname = "DELETE";
         break;
@@ -297,6 +301,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "RESTART")
     {
         restart_action(vid);
+    }
+    else if (action == "REBOOT")
+    {
+        reboot_action(vid);
     }
     else if (action == "DELETE")
     {

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,18 +16,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-export LANG=C
+source $(dirname $0)/xenrc
+source $(dirname $0)/../../scripts_common.sh
 
-export XM_PATH="/usr/sbin/xm"
-export XM_CANCEL="sudo $XM_PATH destroy"
-export XM_CREATE="sudo $XM_PATH create"
-export XM_CREDITS="sudo $XM_PATH sched-cred"
-export XM_MIGRATE="sudo $XM_PATH migrate -l"
-export XM_SAVE="sudo $XM_PATH save"
-export XM_REBOOT="sudo $XM_PATH reboot"
-export XM_RESTORE="sudo $XM_PATH restore"
-export XM_LIST="sudo $XM_PATH list"
-export XM_SHUTDOWN="sudo $XM_PATH shutdown"
-export XM_POLL="sudo /usr/sbin/xentop -bi2"
+deploy_id=$1
 
-
+exec_and_log "$XM_REBOOT $deploy_id" "Could not reboot domain $deploy_id"

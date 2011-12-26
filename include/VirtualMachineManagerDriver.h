@@ -128,6 +128,15 @@ private:
         const string& drv_msg) const;
 
     /**
+     *  Sends a reboot request to the MAD: "REBOOT ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void reboot (
+        const int     oid,
+        const string& drv_msg) const;
+
+    /**
      *  Sends a cancel request to the MAD: "CANCEL ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
