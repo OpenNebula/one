@@ -45,4 +45,4 @@ log "Cloning $SRC_PATH"
 exec_and_log "cp -r $SRC_PATH/* $DST_PATH" \
              "Error copying $SRC to $DST"
 
-fix_iso_file $DST_PATH
+fix_iso $DST_PATH

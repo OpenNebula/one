@@ -65,7 +65,6 @@ esac
 
 if [ -d $DST ]; then
     exec_and_log "chmod 0770 $DST"
-    fix_owner_perms 
 else
     exec_and_log "chmod 0660 $DST"
 fi
