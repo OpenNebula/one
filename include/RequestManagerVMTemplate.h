@@ -59,7 +59,7 @@ public:
                                  "Instantiates a new virtual machine using a template",
                                  "A:sis")
     {
-        auth_op = AuthRequest::INSTANTIATE;
+        auth_op = AuthRequest::USE;
     };
 
     ~VMTemplateInstantiate(){};

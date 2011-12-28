@@ -34,9 +34,7 @@ protected:
                                  const string& help,
                                  const string& signature)
         :Request(method_name,signature,help)
-    {
-        auth_op = AuthRequest::INFO_POOL;
-    };
+    {};
 
     ~RequestManagerPoolInfoFilter(){};
 
@@ -47,9 +45,6 @@ protected:
 
     /** Specify user's objects in the pool (-3) */
     static const int MINE;
-
-    /** Specify users + group objects (-1) */
-    static const int MINE_GROUP;
 
     /* -------------------------------------------------------------------- */
 

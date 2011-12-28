@@ -201,7 +201,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "wrong [rights], it cannot be 0";
     }
 
-    if ( rights > 0x4FFLL )
+    if ( rights > 0xFLL )
     {
         if ( error )
         {
@@ -209,7 +209,7 @@ bool AclRule::malformed(string& error_str) const
         }
 
         error = true;
-        oss << "wrong [rights], it cannot be bigger than 0x4FF";
+        oss << "wrong [rights], it cannot be bigger than 0xF";
     }
 
     if ( error )
@@ -296,22 +296,15 @@ void AclRule::build_str()
 
 
     AuthRequest::Operation operations[] = {
-            AuthRequest::CREATE,
-            AuthRequest::DELETE,
             AuthRequest::USE,
             AuthRequest::MANAGE,
-            AuthRequest::INFO,
-            AuthRequest::INFO_POOL,
-            AuthRequest::INFO_POOL_MINE,
-            AuthRequest::INSTANTIATE,
-            AuthRequest::CHOWN,
-            AuthRequest::DEPLOY,
-            AuthRequest::CHAUTH
+            AuthRequest::ADMIN,
+            AuthRequest::CREATE
     };
 
     prefix = false;
 
-    for ( int i = 0; i < 11; i++ )
+    for ( int i = 0; i < 4; i++ )
     {
         if ( (rights & operations[i]) != 0 )
         {

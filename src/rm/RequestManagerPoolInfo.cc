@@ -28,11 +28,14 @@ void RequestManagerPoolInfo::request_execute(
     ostringstream oss;
     int rc;
 
+    // TODO: Authorization is not required, but results must be filtered to
+    // return only the objects this user has USE rights
+/*
     if ( basic_authorization(-1, att) == false )
     {
         return;
     }
-
+*/
     // Call the template pool dump
     rc = pool->dump(oss,"");
 

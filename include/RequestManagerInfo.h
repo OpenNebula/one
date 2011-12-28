@@ -33,7 +33,7 @@ protected:
                        const string& help)
         :Request(method_name,"A:si",help)
     {
-        auth_op = AuthRequest::INFO;
+        auth_op = AuthRequest::USE;
     };
 
     ~RequestManagerInfo(){};

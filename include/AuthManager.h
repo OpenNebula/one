@@ -278,34 +278,20 @@ public:
      */
     enum Operation
     {
-        CREATE        = 0x1LL,  /**< Auth. to create an object                */
-        DELETE        = 0x2LL,  /**< Auth. to delete an object                */
-        USE           = 0x4LL,  /**< Auth. to use an object                   */
-        MANAGE        = 0x8LL,  /**< Auth. to manage an object                */
-        INFO          = 0x10LL, /**< Auth. to view an object                  */
-        INFO_POOL     = 0x20LL, /**< Auth. to view any object in the pool     */
-        INFO_POOL_MINE= 0x40LL, /**< Auth. to view user and/or group objects  */
-        INSTANTIATE   = 0x80LL, /**< Auth. to instantiate a VM from a TEMPLATE*/
-        CHOWN         = 0x100LL,/**< Auth. to change ownership of an object   */
-        DEPLOY        = 0x200LL,/**< Auth. to deploy a VM in a Host           */
-        CHAUTH        = 0x400LL /**< Auth. to change the auth driver of a USER*/
+        USE           = 0x1LL,  /**< Auth. to use an object                   */
+        MANAGE        = 0x2LL,  /**< Auth. to perform management actions      */
+        ADMIN         = 0x4LL,  /**< Auth. to perform administrative actions  */
+        CREATE        = 0x8LL   /**< Auth. to create an object                */
     };
 
     static string Operation_to_str(Operation op)
     {
         switch (op)
         {
-            case CREATE:            return "CREATE";
-            case DELETE:            return "DELETE";
             case USE:               return "USE";
             case MANAGE:            return "MANAGE";
-            case INFO:              return "INFO";
-            case INFO_POOL:         return "INFO_POOL";
-            case INFO_POOL_MINE:    return "INFO_POOL_MINE";
-            case INSTANTIATE:       return "INSTANTIATE";
-            case CHOWN:             return "CHOWN";
-            case DEPLOY:            return "DEPLOY";
-            case CHAUTH:            return "CHAUTH";
+            case ADMIN:             return "ADMIN";
+            case CREATE:            return "CREATE";
             default:                return "";
         }
     };

@@ -33,9 +33,7 @@ protected:
     RequestManagerDelete(const string& method_name,
                          const string& help)
         :Request(method_name,"A:si",help)
-    {
-        auth_op = AuthRequest::DELETE;
-    }
+    {};
 
     ~RequestManagerDelete(){};
 
@@ -67,10 +65,11 @@ public:
     TemplateDelete():
         RequestManagerDelete("TemplateDelete",
                              "Deletes a virtual machine template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = AuthRequest::TEMPLATE;
+        auth_op     = AuthRequest::MANAGE;
     };
 
     ~TemplateDelete(){};
@@ -89,6 +88,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = AuthRequest::NET;
+        auth_op     = AuthRequest::MANAGE;
     };
 
     ~VirtualNetworkDelete(){};
@@ -106,6 +106,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = AuthRequest::IMAGE;
+        auth_op     = AuthRequest::MANAGE;
     };
 
     ~ImageDelete(){};
@@ -128,6 +129,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = AuthRequest::HOST;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~HostDelete(){};
@@ -146,6 +148,7 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = AuthRequest::GROUP;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~GroupDelete(){};
@@ -163,6 +166,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = AuthRequest::USER;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~UserDelete(){};

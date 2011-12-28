@@ -91,7 +91,7 @@ public:
                                      "Deploys a virtual machine",
                                      "A:sii")
     {
-         auth_op = AuthRequest::DEPLOY;
+         auth_op = AuthRequest::ADMIN;
     };
 
     ~VirtualMachineDeploy(){};
@@ -111,7 +111,7 @@ public:
                                      "Migrates a virtual machine",
                                      "A:siib")
     {
-         auth_op = AuthRequest::DEPLOY;
+         auth_op = AuthRequest::ADMIN;
     };
 
     ~VirtualMachineMigrate(){};

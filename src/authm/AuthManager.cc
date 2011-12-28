@@ -44,7 +44,11 @@ void AuthRequest::add_auth(Object        ob,
 
     oss << Object_to_str(ob) << ":";
 
-    if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template
+    /* TODO: a one.template.instantiate is now a USE Operation,
+     * the same as one.template.info . Instead of the Operation, we need another
+     * way to detect when to use an ID or an encoded template
+     */
+    if (op == CREATE) //encode the ob_id, it is a template
     {
         string * encoded_id = SSLTools::base64_encode(ob_id);
 
@@ -79,7 +83,10 @@ void AuthRequest::add_auth(Object        ob,
     if (
         // User is oneadmin, or is in the oneadmin group
         uid == 0 ||
-        gid == GroupPool::ONEADMIN_ID ||
+        gid == GroupPool::ONEADMIN_ID
+
+        // TODO: delete default rules and check the object's permissions
+        /*||
 
         // User is the owner of the object, for certain operations
         ( owner == uid &&
@@ -100,6 +107,7 @@ void AuthRequest::add_auth(Object        ob,
 
         // Users can show their group information
         ( ob == GROUP && gid == ob_id_int && op == INFO )
+*/
     )
     {
         auth = true;

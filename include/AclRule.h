@@ -182,7 +182,7 @@ private:
      *
      *                      64 bits
      *  +-----------------------------------------------+
-     *  | Actions (MANAGE, CREATE, USE, DELETE...       |
+     *  | Actions (MANAGE, CREATE, USE...               |
      *  +-----------------------------------------------+
      */
     long long rights;

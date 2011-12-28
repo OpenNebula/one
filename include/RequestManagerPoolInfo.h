@@ -33,9 +33,7 @@ protected:
     RequestManagerPoolInfo(const string& method_name,
                            const string& help)
         :Request(method_name,"A:s",help)
-    {
-        auth_op = AuthRequest::INFO_POOL;
-    };
+    {};
 
     ~RequestManagerPoolInfo(){};
 
@@ -57,7 +55,6 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
-        auth_object = AuthRequest::HOST;
     };
 
     ~HostPoolInfo(){};
@@ -75,7 +72,6 @@ public:
     {    
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
-        auth_object = AuthRequest::GROUP;
     };
 
     ~GroupPoolInfo(){};
@@ -93,7 +89,6 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
-        auth_object = AuthRequest::USER;
     };
 
     ~UserPoolInfo(){};

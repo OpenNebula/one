@@ -34,7 +34,7 @@ protected:
                         const string& params = "A:siii")
         :Request(method_name,params,help)
     {
-        auth_op = AuthRequest::CHOWN;
+        auth_op = AuthRequest::ADMIN;
 
         Nebula& nd = Nebula::instance();
         gpool = nd.get_gpool();

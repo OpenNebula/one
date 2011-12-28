@@ -59,7 +59,7 @@ public:
                             "Enables or disables a host",
                             "A:sib")
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~HostEnable(){};

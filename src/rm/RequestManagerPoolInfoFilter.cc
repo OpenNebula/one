@@ -21,11 +21,9 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-const int RequestManagerPoolInfoFilter::ALL = -2;
+const int RequestManagerPoolInfoFilter::ALL  = -2;
 
 const int RequestManagerPoolInfoFilter::MINE = -3;      
-
-const int RequestManagerPoolInfoFilter::MINE_GROUP = -1; 
 
 /* ------------------------------------------------------------------------- */
 
@@ -60,8 +58,6 @@ void RequestManagerPoolInfoFilter::request_execute(
 
     int rc;
 
-    AuthRequest::Operation request_op;
-
     // ------------------------------------------ 
     //              User ID filter              
     // ------------------------------------------ 
@@ -84,16 +80,10 @@ void RequestManagerPoolInfoFilter::request_execute(
     switch(filter_flag)
     {
         case MINE:
-            uid_filter << "uid = " << att.uid;
-
-            request_op = AuthRequest::INFO_POOL_MINE;
+            uid_filter << "uid = " << att.uid;  // TODO: add owner_USE restriction
             break;
 
         case ALL:
-            request_op = AuthRequest::INFO_POOL;
-            break;
-
-        case MINE_GROUP:
             if ( att.uid == 0 || att.gid == 0 )
             {
                 all = true;
@@ -101,7 +91,7 @@ void RequestManagerPoolInfoFilter::request_execute(
             else
             {
                 aclm->reverse_search(att.uid, att.gid, auth_object,
-                                    AuthRequest::INFO, all, oids, gids);
+                                    AuthRequest::USE, all, oids, gids);
             }
 
             if ( !all ) // If all == true, there is not a uid or gid restriction
@@ -110,11 +100,12 @@ void RequestManagerPoolInfoFilter::request_execute(
 
                 // Default rights: Users can see and use their resources, and
                 // the public ones in their group
-                uid_filter  << "uid = " << att.uid;
+                uid_filter  << "uid = " << att.uid; // TODO: add owner_USE restriction
 
                 // VMs don't have public column, are considered private
                 if ( auth_object != AuthRequest::VM )
                 {
+                    // TODO add group, other permission restrictions
                     uid_filter  << " OR (gid = " << att.gid << " AND public = 1)";
                 }
 
@@ -129,13 +120,12 @@ void RequestManagerPoolInfoFilter::request_execute(
                 }
             }
 
-            request_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         default:
+            // TODO: add authorization check, user can MANAGE User with ID filter_flag
             uid_filter << "uid = " << filter_flag;
 
-            request_op = AuthRequest::INFO_POOL;
             break;
     }
 
@@ -224,11 +214,6 @@ void RequestManagerPoolInfoFilter::request_execute(
     // ------------------------------------------ 
     //           Authorize & get the pool
     // ------------------------------------------ 
-
-    if ( basic_authorization(-1, request_op, att) == false )
-    {
-        return;
-    }
     
     rc = pool->dump(oss,where_string.str());
 
