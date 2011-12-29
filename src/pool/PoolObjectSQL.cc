@@ -199,3 +199,48 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string& PoolObjectSQL::perms_to_xml(string& xml) const
+{
+    ostringstream   oss;
+
+    oss <<
+        "<PERMISSIONS>" <<
+            "<OWNER_U>" << owner_u << "</OWNER_U>"  <<
+            "<OWNER_M>" << owner_m << "</OWNER_M>"  <<
+            "<OWNER_A>" << owner_a << "</OWNER_A>"  <<
+            "<GROUP_U>" << group_u << "</GROUP_U>"  <<
+            "<GROUP_M>" << group_m << "</GROUP_M>"  <<
+            "<GROUP_A>" << group_a << "</GROUP_A>"  <<
+            "<OTHER_U>" << other_u << "</OTHER_U>"  <<
+            "<OTHER_M>" << other_m << "</OTHER_M>"  <<
+            "<OTHER_A>" << other_a << "</OTHER_A>"  <<
+        "</PERMISSIONS>";
+
+    xml = oss.str();
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int PoolObjectSQL::perms_from_xml()
+{
+    int rc = 0;
+
+    rc += xpath(owner_u, "/*/PERMISSIONS/OWNER_U", 0);
+    rc += xpath(owner_m, "/*/PERMISSIONS/OWNER_M", 0);
+    rc += xpath(owner_a, "/*/PERMISSIONS/OWNER_A", 0);
+
+    rc += xpath(group_u, "/*/PERMISSIONS/GROUP_U", 0);
+    rc += xpath(group_m, "/*/PERMISSIONS/GROUP_M", 0);
+    rc += xpath(group_a, "/*/PERMISSIONS/GROUP_A", 0);
+
+    rc += xpath(other_u, "/*/PERMISSIONS/OTHER_U", 0);
+    rc += xpath(other_m, "/*/PERMISSIONS/OTHER_M", 0);
+    rc += xpath(other_a, "/*/PERMISSIONS/OTHER_A", 0);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

@@ -191,7 +191,7 @@ error_name:
 string& VMTemplate::to_xml(string& xml) const
 {
     ostringstream   oss;
-    string          template_xml;
+    string          aux_str;
 
     oss << "<VMTEMPLATE>"
             << "<ID>"       << oid        << "</ID>"
@@ -200,9 +200,10 @@ string& VMTemplate::to_xml(string& xml) const
             << "<UNAME>"    << uname      << "</UNAME>" 
             << "<GNAME>"    << gname      << "</GNAME>" 
             << "<NAME>"     << name       << "</NAME>"
+            << perms_to_xml(aux_str)
             << "<PUBLIC>"   << public_obj << "</PUBLIC>"
             << "<REGTIME>"  << regtime    << "</REGTIME>"
-            << obj_template->to_xml(template_xml)
+            << obj_template->to_xml(aux_str)
         << "</VMTEMPLATE>";
 
     xml = oss.str();
@@ -230,6 +231,9 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
     rc += xpath(public_obj, "/VMTEMPLATE/PUBLIC",  0);
     rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);
+
+    // Permissions
+    rc += perms_from_xml();
 
     // Get associated classes
     ObjectXML::get_nodes("/VMTEMPLATE/TEMPLATE", content);

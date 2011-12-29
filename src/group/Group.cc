@@ -126,6 +126,12 @@ int Group::from_xml(const string& xml)
     rc += xpath(oid, "/GROUP/ID",   -1);
     rc += xpath(name,"/GROUP/NAME", "not_found");
 
+    // Set oneadmin as the owner
+    set_user(0,"");
+
+    // Set the Group ID as the group it belongs to
+    set_group(oid, name);
+
     // Get associated classes
     ObjectXML::get_nodes("/GROUP/USERS", content);
 

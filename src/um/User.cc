@@ -166,6 +166,9 @@ int User::from_xml(const string& xml)
 
     enabled = int_enabled;
 
+    // Set itself as the owner
+    set_user(oid, name);
+
     // Get associated metadata for the user
     ObjectXML::get_nodes("/USER/TEMPLATE", content);
 

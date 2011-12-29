@@ -53,6 +53,15 @@ public:
              gname(_gname),
              valid(true),
              public_obj(0),
+             owner_u(1),
+             owner_m(1),
+             owner_a(0),
+             group_u(0),
+             group_m(0),
+             group_a(0),
+             other_u(0),
+             other_m(0),
+             other_a(0),
              obj_template(0),
              table(_table)
     {
@@ -357,6 +366,21 @@ protected:
     };
 
     /**
+     * Prints the permissions into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& perms_to_xml(string& xml) const;
+
+    /**
+     *  Rebuilds the object permissions from the xml. ObjectXML::update_from_str
+     *  must be called before this method
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int perms_from_xml();
+
+    /**
      *  The object's unique ID
      */
     int     oid;
@@ -395,6 +419,27 @@ protected:
      *  Set if the object is public
      */
     int     public_obj;
+
+    /**
+     *  Permissions for the owner user
+     */
+    int     owner_u;
+    int     owner_m;
+    int     owner_a;
+
+    /**
+     *  Permissions for users in the object's group
+     */
+    int     group_u;
+    int     group_m;
+    int     group_a;
+
+    /**
+     *  Permissions for the rest
+     */
+    int     other_u;
+    int     other_m;
+    int     other_a;
 
     /**
      *  Template for this object, will be allocated if needed

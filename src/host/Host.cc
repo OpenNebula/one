@@ -237,6 +237,10 @@ int Host::from_xml(const string& xml)
 
     state = static_cast<HostState>( int_state );
 
+    // Set the owner and group to oneadmin
+    set_user(0, "");
+    set_group(0, "");
+
     // Get associated classes
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
 

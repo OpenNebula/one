@@ -493,10 +493,8 @@ string& VirtualNetwork::to_xml_extended(string& xml) const
 
 string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 {
-    ostringstream os;
-
-    string template_xml;
-    string leases_xml;
+    ostringstream   os;
+    string          aux_str;
 
     // Total leases is the number of used leases.
     int total_leases = 0;
@@ -514,6 +512,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<UNAME>"  << uname  << "</UNAME>" << 
             "<GNAME>"  << gname  << "</GNAME>" <<
             "<NAME>"   << name   << "</NAME>"  <<
+            perms_to_xml(aux_str)              <<
             "<TYPE>"   << type   << "</TYPE>"  <<
             "<BRIDGE>" << bridge << "</BRIDGE>";
 
@@ -529,11 +528,11 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     os  <<  "<PUBLIC>"      << public_obj   << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
-            obj_template->to_xml(template_xml);
+            obj_template->to_xml(aux_str);
 
     if (extended && leases != 0)
     {
-        os << leases->to_xml(leases_xml);
+        os << leases->to_xml(aux_str);
     }
 
     os << "</VNET>";
@@ -566,7 +565,10 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(int_type,   "/VNET/TYPE",   -1);
     rc += xpath(bridge,     "/VNET/BRIDGE", "not_found");
     rc += xpath(public_obj, "/VNET/PUBLIC", 0);
-    
+
+    // Permissions
+    rc += perms_from_xml();
+
     xpath(phydev,  "/VNET/PHYDEV", "");
     xpath(vlan_id, "/VNET/VLAN_ID","");
 

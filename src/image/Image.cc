@@ -308,7 +308,7 @@ error_name:
 
 string& Image::to_xml(string& xml) const
 {
-    string template_xml;
+    string          aux_str;
     ostringstream   oss;
 
     oss <<
@@ -319,6 +319,7 @@ string& Image::to_xml(string& xml) const
             "<UNAME>"          << uname           << "</UNAME>"       << 
             "<GNAME>"          << gname           << "</GNAME>"       <<
             "<NAME>"           << name            << "</NAME>"        <<
+            perms_to_xml(aux_str)                                     <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<PUBLIC>"         << public_obj      << "</PUBLIC>"      <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
@@ -329,7 +330,7 @@ string& Image::to_xml(string& xml) const
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
-            obj_template->to_xml(template_xml)                        <<
+            obj_template->to_xml(aux_str)                        <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -370,7 +371,10 @@ int Image::from_xml(const string& xml)
     rc += xpath(size_mb, "/IMAGE/SIZE", 0);
     rc += xpath(int_state, "/IMAGE/STATE", 0);
     rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
-    
+
+    // Permissions
+    rc += perms_from_xml();
+
     //Optional image attributes
     xpath(path,"/IMAGE/PATH", "");
     xpath(fs_type,"/IMAGE/FSTYPE","");
