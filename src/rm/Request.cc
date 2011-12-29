@@ -56,11 +56,8 @@ bool Request::basic_authorization(int oid,
                                   AuthRequest::Operation op,
                                   RequestAttributes& att)
 {
-    PoolObjectSQL * object;
-
-    bool pub    = false;
-    int  ouid   = 0;
-    int  ogid   = -1;
+    PoolObjectSQL *             object;
+    PoolObjectSQL::Permissions  perms;
 
     if ( att.uid == 0 )
     {
@@ -79,16 +76,14 @@ bool Request::basic_authorization(int oid,
             return false;
         }
 
-        ouid = object->get_uid();
-        ogid = object->get_gid();
-        pub  = object->isPublic();
+        perms = object->get_permissions();
 
         object->unlock();
     }
 
     AuthRequest ar(att.uid, att.gid);
 
-    ar.add_auth(auth_object, oid, ogid, op, ouid, pub);
+    ar.add_auth(auth_object, op, perms);
 
     if (UserPool::authorize(ar) == -1)
     {

@@ -56,17 +56,16 @@ public:
      *    @param uid The user ID requesting to be authorized
      *    @param gid Group ID of the user
      *    @param obj_type The object over which the operation will be performed
-     *    @param obj_id The object ID
-     *    @param obj_gid The object's group ID
+     *    @param obj_perms The object's permission attributes
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
-    const bool authorize(int                    uid, 
-                         int                    gid,
-                         AuthRequest::Object    obj_type, 
-                         int                    obj_id, 
-                         int                    obj_gid,
-                         AuthRequest::Operation op);
+    const bool authorize(int                        uid,
+                         int                        gid,
+                         AuthRequest::Object        obj_type,
+                         PoolObjectSQL::Permissions obj_perms,
+                         AuthRequest::Operation     op);
+
     /**
      *  Adds a new rule to the ACL rule set
      *

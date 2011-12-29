@@ -112,12 +112,11 @@ AclManager::~AclManager()
 /* -------------------------------------------------------------------------- */
 
 const bool AclManager::authorize(
-        int                    uid, 
-        int                    gid,
-        AuthRequest::Object    obj_type, 
-        int                    obj_id, 
-        int                    obj_gid,
-        AuthRequest::Operation op)
+        int                         uid,
+        int                         gid,
+        AuthRequest::Object         obj_type,
+        PoolObjectSQL::Permissions  obj_perms,
+        AuthRequest::Operation      op)
 {
     ostringstream oss;
 
@@ -127,9 +126,9 @@ const bool AclManager::authorize(
     long long user_req;
     long long resource_oid_req;
 
-    if ( obj_id >= 0 )
+    if ( obj_perms.oid >= 0 )
     {
-        resource_oid_req  = obj_type | AclRule::INDIVIDUAL_ID | obj_id;
+        resource_oid_req  = obj_type | AclRule::INDIVIDUAL_ID | obj_perms.oid;
     }
     else
     {
@@ -138,9 +137,9 @@ const bool AclManager::authorize(
 
     long long resource_gid_req;
 
-    if ( obj_gid >= 0 )
+    if ( obj_perms.gid >= 0 )
     {
-        resource_gid_req  = obj_type | AclRule::GROUP_ID | obj_gid;
+        resource_gid_req  = obj_type | AclRule::GROUP_ID | obj_perms.gid;
     }
     else
     {
@@ -160,11 +159,11 @@ const bool AclManager::authorize(
     // Create a temporal rule, to log the request
     long long log_resource;
 
-    if ( obj_id >= 0 )
+    if ( obj_perms.oid >= 0 )
     {
         log_resource = resource_oid_req;
     }
-    else if ( obj_gid >= 0 )
+    else if ( obj_perms.gid >= 0 )
     {
         log_resource = resource_gid_req;
     }
@@ -180,6 +179,12 @@ const bool AclManager::authorize(
 
     oss << "Request " << log_rule.to_str();
     NebulaLog::log("ACL",Log::DEBUG,oss);
+
+    // TODO: create and match these three rules from the
+    // object permission attributes:
+    //    #uid  ob_type/#oid  user_rights
+    //    @gid  ob_type/#oid  group_rights
+    //    *     ob_type/#oid  others_rights
 
     // ---------------------------------------------------
     // Look for rules that apply to everyone

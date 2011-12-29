@@ -24,6 +24,7 @@
 #include "SSLTools.h"
 
 #include "AuthManagerDriver.h"
+#include "PoolObjectSQL.h"
 
 using namespace std;
 
@@ -348,35 +349,33 @@ public:
      *
      *        OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
      *
-     *    @param ob the object over which the operation will be performed
-     *    @param ob_id the object unique id
-     *    @param op the operation to be authorized
-     *    @param owner id of user that owns the object. For creates MUST equals
-          uid, hosts owner is uid=0
-     *    @param pub public attribute
+     * @param ob the object over which the operation will be performed
+     * @param op the operation to be authorized
+     * @param ob_perms object's permission attributes
      */
-    void add_auth(Object        ob,
-                  const string& ob_id,
-                  int           ob_gid,
-                  Operation     op,
-                  int           owner,
-                  bool          pub);
+    void add_auth(Object                        ob,
+                  Operation                     op,
+                  PoolObjectSQL::Permissions    ob_perms)
+    {
+        return add_auth(ob, op, ob_perms, "");
+    }
 
     /**
-     *  Adds a new authorization item to this requests
+     *  Adds a new authorization item to this request, with a template for
+     *  a new object
+     *
+     *        OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
+     *
+     * @param ob the object over which the operation will be performed
+     * @param op the operation to be authorized
+     * @param ob_perms object's permission attributes
+     * @param ob_template new object's template. If it is empty,
+     * it will be ignored
      */
-    void add_auth(Object        ob,
-                  int           ob_id,
-                  int           ob_gid,
-                  Operation     op,
-                  int           owner,
-                  bool          pub)
-    {
-        ostringstream oss;
-        oss << ob_id;
-
-        add_auth(ob,oss.str(),ob_gid,op,owner,pub);
-    };
+    void add_auth(Object                        ob,
+                  Operation                     op,
+                  PoolObjectSQL::Permissions    ob_perms,
+                  string                        ob_template);
 
     /**
      *  Gets the authorization requests in a single string

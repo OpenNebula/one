@@ -30,27 +30,23 @@ const char * AuthManager::auth_driver_name = "auth_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthRequest::add_auth(Object        ob,
-                           const string& ob_id,
-                           int           ob_gid,
-                           Operation     op,
-                           int           owner,
-                           bool          pub)
+void AuthRequest::add_auth(Object                        ob,
+                           Operation                     op,
+                           PoolObjectSQL::Permissions    ob_perms,
+                           string                        ob_template)
 {
+    // TODO: object's public flag is not used, it will disappear
+    bool pub = false;
+
+
     ostringstream oss;
     bool          auth;
 
-    int ob_id_int = -1;
-
     oss << Object_to_str(ob) << ":";
 
-    /* TODO: a one.template.instantiate is now a USE Operation,
-     * the same as one.template.info . Instead of the Operation, we need another
-     * way to detect when to use an ID or an encoded template
-     */
-    if (op == CREATE) //encode the ob_id, it is a template
+    if ( !ob_template.empty() )
     {
-        string * encoded_id = SSLTools::base64_encode(ob_id);
+        string * encoded_id = SSLTools::base64_encode(ob_template);
 
         if (encoded_id != 0)
         {
@@ -61,54 +57,25 @@ void AuthRequest::add_auth(Object        ob,
         {
             oss << "-:";
         }
+
+        ob_perms.oid = -1;
     }
     else
     {
-        oss << ob_id << ":";
-
-        istringstream iss(ob_id);
-        iss >> ob_id_int;
+        oss << ob_perms.oid << ":";
     }
 
     oss << Operation_to_str(op) << ":";
 
-    oss << owner << ":" << pub << ":";
+    oss << ob_perms.uid << ":" << pub << ":";
 
     // -------------------------------------------------------------------------
     // Authorize the request for self authorization
     // -------------------------------------------------------------------------
 
-    // There are some default conditions that grant permission without
-    // consulting the ACL manager
-    if (
-        // User is oneadmin, or is in the oneadmin group
-        uid == 0 ||
-        gid == GroupPool::ONEADMIN_ID
-
-        // TODO: delete default rules and check the object's permissions
-        /*||
-
-        // User is the owner of the object, for certain operations
-        ( owner == uid &&
-           ( op == DELETE || op == USE || op == MANAGE ||
-             op == INFO   || op == INSTANTIATE )
-        ) ||
-
-        // Object is public and user is in its group, for certain operations
-        ( pub && ( gid == ob_gid ) &&
-           ( op == USE || op == INSTANTIATE || op == INFO ) &&
-           ( ob == NET || ob == IMAGE || ob == TEMPLATE)
-        ) ||
-
-        // User can show and MANAGE (change passwd) their own information
-        ( uid == ob_id_int && ob == USER &&
-           ( op == INFO || op == MANAGE )  
-        ) ||
-
-        // Users can show their group information
-        ( ob == GROUP && gid == ob_id_int && op == INFO )
-*/
-    )
+    // Default conditions that grants permission :
+    // User is oneadmin, or is in the oneadmin group
+    if ( uid == 0 || gid == GroupPool::ONEADMIN_ID )
     {
         auth = true;
     }
@@ -117,7 +84,7 @@ void AuthRequest::add_auth(Object        ob,
         Nebula&     nd   = Nebula::instance();
         AclManager* aclm = nd.get_aclm();
 
-        auth = aclm->authorize(uid, gid, ob, ob_id_int, ob_gid, op);
+        auth = aclm->authorize(uid, gid, ob, ob_perms, op);
     }
 
     oss << auth; // Store the ACL authorization result in the request
@@ -140,9 +107,9 @@ void AuthRequest::add_auth(Object        ob,
         oss << "Not authorized to perform " << Operation_to_str(op)
             << " " << Object_to_str(ob);
 
-        if ( ob_id_int != -1 )
+        if ( ob_perms.oid != -1 )
         {
-            oss << " [" << ob_id << "]";
+            oss << " [" << ob_perms.oid << "]";
         }
 
         message = oss.str();

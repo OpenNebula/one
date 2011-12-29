@@ -265,12 +265,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
         return;
     }
 
-    ar->add_auth(AuthRequest::NET,
-                 vnet->get_oid(),
-                 vnet->get_gid(),
-                 AuthRequest::USE,
-                 vnet->get_uid(),
-                 vnet->isPublic());
+    ar->add_auth(AuthRequest::NET, AuthRequest::USE, vnet->get_permissions());
 
     vnet->unlock();
 }

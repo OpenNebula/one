@@ -343,11 +343,13 @@ void Scheduler::match()
             }
             else
             {
+                PoolObjectSQL::Permissions host_perms;
+                host_perms.oid = host->get_hid();
+
                 matched = acls->authorize(uid, 
                                           gid,
                                           AuthRequest::HOST, 
-                                          host->get_hid(), 
-                                          -1,
+                                          host_perms,
                                           AuthRequest::USE); 
             }
 
