@@ -572,12 +572,6 @@ ul.action_list li a:hover{
     background: #EEE;
 }
 
-.dashboard_img {
-    padding-left:10px;
-    border:0;
-    height:40px;
-}
-
 .dashboard_p {
     color: #353735;
     text-align:justify;
@@ -586,3 +580,10 @@ ul.action_list li a:hover{
 .dashboard_p p{
     padding-top:5px;
 }
+
+.dashboard_p img {
+    padding-left:10px;
+    padding-right: 10px;
+    border:0;
+}
+

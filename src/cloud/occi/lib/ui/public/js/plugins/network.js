@@ -63,7 +63,7 @@ var create_vn_tmpl =
 
 
 var vnet_dashboard = '<div class="dashboard_p">\
-<img class="dashboard_img" src="images/one-network.png" alt="one-network" />\
+<img src="images/one-network.png" alt="one-network" />\
 <p>'+tr("In this view you can easily manage OpenNebula Network resources. You can add, remove, publish or unpublish virtual networks.")+'</p>\
 <p>'+tr("Compute resources can be attached to these networks at creation time. Virtual machines will be provided with an IP and the correct parameters to ensure connectivity.")+'</p>\
 <p>'+tr("There are currently")+' <b><span id="vnet_dashboard_count" /></b> '+tr("networks")+'.</p>\
@@ -276,7 +276,7 @@ function updateVNetworksView(request, network_list){
 
     updateView(network_list_array,dataTable_vNetworks);
     //dependency with dashboard
-    //updateDashboard("vnets",network_list);
+    updateDashboard("vnets",network_list);
 
 }
 
