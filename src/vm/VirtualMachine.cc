@@ -1237,7 +1237,9 @@ string& VirtualMachine::to_xml_extended(string& xml) const
 
 string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
 {
-    string          aux_str;
+    string template_xml;
+    string history_xml;
+    string perm_xml;
     ostringstream	oss;
 
     oss << "<VM>"
@@ -1247,7 +1249,7 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<UNAME>"     << uname     << "</UNAME>" 
         << "<GNAME>"     << gname     << "</GNAME>" 
         << "<NAME>"      << name      << "</NAME>"
-        << perms_to_xml(aux_str)
+        << perms_to_xml(perm_xml)
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
         << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
@@ -1258,7 +1260,7 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << obj_template->to_xml(aux_str);
+        << obj_template->to_xml(template_xml);
 
     if ( hasHistory() )
     {
@@ -1268,12 +1270,12 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         {
             for (unsigned int i=0; i < history_records.size(); i++)
             {
-                oss << history_records[i]->to_xml(aux_str);
+                oss << history_records[i]->to_xml(history_xml);
             }
         }
         else
         {
-            oss << history->to_xml(aux_str);
+            oss << history->to_xml(history_xml);
         }
 
         oss << "</HISTORY_RECORDS>";

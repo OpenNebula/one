@@ -324,7 +324,8 @@ error_common:
 
 string& Image::to_xml(string& xml) const
 {
-    string          aux_str;
+    string          template_xml;
+    string          perms_xml;
     ostringstream   oss;
 
     oss <<
@@ -335,7 +336,7 @@ string& Image::to_xml(string& xml) const
             "<UNAME>"          << uname           << "</UNAME>"       << 
             "<GNAME>"          << gname           << "</GNAME>"       <<
             "<NAME>"           << name            << "</NAME>"        <<
-            perms_to_xml(aux_str)                                     <<
+            perms_to_xml(perms_xml)                                   <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<PUBLIC>"         << public_obj      << "</PUBLIC>"      <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
@@ -346,7 +347,7 @@ string& Image::to_xml(string& xml) const
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
-            obj_template->to_xml(aux_str)                        <<
+            obj_template->to_xml(template_xml)                        <<
         "</IMAGE>";
 
     xml = oss.str();

@@ -206,7 +206,8 @@ error_common:
 string& VMTemplate::to_xml(string& xml) const
 {
     ostringstream   oss;
-    string          aux_str;
+    string          template_xml;
+    string          perm_str;
 
     oss << "<VMTEMPLATE>"
             << "<ID>"       << oid        << "</ID>"
@@ -215,10 +216,10 @@ string& VMTemplate::to_xml(string& xml) const
             << "<UNAME>"    << uname      << "</UNAME>" 
             << "<GNAME>"    << gname      << "</GNAME>" 
             << "<NAME>"     << name       << "</NAME>"
-            << perms_to_xml(aux_str)
+            << perms_to_xml(perm_str)
             << "<PUBLIC>"   << public_obj << "</PUBLIC>"
             << "<REGTIME>"  << regtime    << "</REGTIME>"
-            << obj_template->to_xml(aux_str)
+            << obj_template->to_xml(template_xml)
         << "</VMTEMPLATE>";
 
     xml = oss.str();

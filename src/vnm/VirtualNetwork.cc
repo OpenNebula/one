@@ -464,7 +464,10 @@ string& VirtualNetwork::to_xml_extended(string& xml) const
 string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 {
     ostringstream   os;
-    string          aux_str;
+
+    string template_xml;
+    string leases_xml;
+    string perm_str;
 
     // Total leases is the number of used leases.
     int total_leases = 0;
@@ -482,7 +485,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<UNAME>"  << uname  << "</UNAME>" << 
             "<GNAME>"  << gname  << "</GNAME>" <<
             "<NAME>"   << name   << "</NAME>"  <<
-            perms_to_xml(aux_str)              <<
+            perms_to_xml(perm_str)              <<
             "<TYPE>"   << type   << "</TYPE>"  <<
             "<BRIDGE>" << bridge << "</BRIDGE>"<<
             "<VLAN>"   << vlan   << "</VLAN>";
@@ -522,14 +525,14 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     os  <<  "<PUBLIC>"      << public_obj   << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
-            obj_template->to_xml(aux_str);
+            obj_template->to_xml(template_xml);
 
     if (extended)
     {
         if (leases != 0)
         {
             os <<   "<LEASES>"                  <<
-                    leases->to_xml(aux_str)     <<
+                    leases->to_xml(leases_xml)     <<
                     "</LEASES>";
         }
         else
