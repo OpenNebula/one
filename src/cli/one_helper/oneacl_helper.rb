@@ -69,32 +69,18 @@ private
 
     # TODO check that @content[:resources_str]  is valid
     def self.right_mask(str)
-        mask = "-----------"
+        mask = "----"
 
         str.split("+").each{|type|
             case type
-                when "CREATE"
-                    mask[0] = "C"
-                when "DELETE"
-                    mask[1] = "D"
                 when "USE"
-                    mask[2] = "U"
+                    mask[0] = "U"
                 when "MANAGE"
-                    mask[3] = "M"
-                when "INFO"
-                    mask[4] = "I"
-                when "INFO_POOL"
-                    mask[5] = "P"
-                when "INFO_POOL_MINE"
-                    mask[6] = "p"
-                when "INSTANTIATE"
-                    mask[7] = "T"
-                when "CHOWN"
-                    mask[8] = "W"
-                when "DEPLOY"
-                    mask[9] = "Y"
-                when "CHAUTH"
-                    mask[10] = "A"
+                    mask[1] = "M"
+                when "ADMIN"
+                    mask[2] = "A"
+                when "CREATE"
+                    mask[3] = "C"
             end
         }
 
@@ -124,12 +110,12 @@ private
                 d['STRING'].split(" ")[1].split("/")[1]
             end
 
-            column :OPE_CDUMIPpTWYA,
-                    "Operation to which the rule applies", :size =>15 do |d|
+            column :OPE_UMAC,
+                    "Operation to which the rule applies", :size =>8 do |d|
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
-            default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_CDUMIPpTWYA
+            default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_UMAC
         end
 
         table
