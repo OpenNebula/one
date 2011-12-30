@@ -158,7 +158,8 @@ private:
      *    @param resource_all_req 64 bit request, ob. type and all flag
      *    @param rights_req Requested rights
      *    @param individual_obj_type Mask with ob. type and individual flags
-     *    @param group_obj_type Mask with ob. type and gropu flags
+     *    @param group_obj_type Mask with ob. type and group flags
+     *    @param rules ACL rules to match
      *
      *    @return true if any rule grants permission
      */
@@ -169,7 +170,33 @@ private:
             long long resource_all_req,
             long long rights_req,
             long long individual_obj_type,
-            long long group_obj_type);
+            long long group_obj_type,
+            multimap<long long, AclRule*> &rules);
+
+    /**
+     *  Wrapper for match_rules. It will check if any rules in the temporary
+     *  multimap or in the internal one grants permission.
+     *
+     *    @param user_req user/group id and flags
+     *    @param resource_oid_req 64 bit request, ob. type and individual oid
+     *    @param resource_gid_req 64 bit request, ob. type and group id
+     *    @param resource_all_req 64 bit request, ob. type and all flag
+     *    @param rights_req Requested rights
+     *    @param individual_obj_type Mask with ob. type and individual flags
+     *    @param group_obj_type Mask with ob. type and group flags
+     *    @param tmp_rules Temporary map group of ACL rules
+     *
+     *    @return true if any rule grants permission
+     */
+    bool match_rules_wrapper(
+            long long user_req,
+            long long resource_oid_req,
+            long long resource_gid_req,
+            long long resource_all_req,
+            long long rights_req,
+            long long individual_obj_type,
+            long long group_obj_type,
+            multimap<long long, AclRule*> &tmp_rules);
 
     // ----------------------------------------
     // Mutex synchronization

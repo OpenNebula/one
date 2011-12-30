@@ -180,27 +180,94 @@ const bool AclManager::authorize(
     oss << "Request " << log_rule.to_str();
     NebulaLog::log("ACL",Log::DEBUG,oss);
 
-    // TODO: create and match these three rules from the
-    // object permission attributes:
-    //    #uid  ob_type/#oid  user_rights
-    //    @gid  ob_type/#oid  group_rights
-    //    *     ob_type/#oid  others_rights
+    // ---------------------------------------------------
+    // Create temporary rules from the object permissions
+    // ---------------------------------------------------
+
+    multimap<long long, AclRule*> tmp_rules;
+    long long perm_user, perm_resource, perm_rights;
+    AclRule * tmp_rule;
+
+    perm_resource   = obj_type | AclRule::INDIVIDUAL_ID | obj_perms.oid;
+
+    // Rule     "#uid  ob_type/#oid  user_rights"
+    perm_user       = AclRule::INDIVIDUAL_ID | obj_perms.uid;
+    perm_rights     = 0;
+    if ( obj_perms.owner_u == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::USE;
+    }
+    if ( obj_perms.owner_m == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::MANAGE;
+    }
+    if ( obj_perms.owner_a == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::ADMIN;
+    }
+
+    tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
+
+    tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
+
+    // Rule     "@gid  ob_type/#oid  group_rights"
+    perm_user       = AclRule::GROUP_ID | obj_perms.gid;
+    perm_rights     = 0;
+
+    if ( obj_perms.group_u == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::USE;
+    }
+    if ( obj_perms.group_m == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::MANAGE;
+    }
+    if ( obj_perms.group_a == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::ADMIN;
+    }
+
+    tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
+
+    tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
+
+    // Rule     "*     ob_type/#oid  others_rights"
+    perm_user       = AclRule::ALL_ID;
+    perm_rights     = 0;
+
+    if ( obj_perms.other_u == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::USE;
+    }
+    if ( obj_perms.other_m == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::MANAGE;
+    }
+    if ( obj_perms.other_a == 1 )
+    {
+        perm_rights = perm_rights | AuthRequest::ADMIN;
+    }
+
+    tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
+
+    tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
 
     // ---------------------------------------------------
     // Look for rules that apply to everyone
     // ---------------------------------------------------
 
     user_req = AclRule::ALL_ID;
-    auth     = match_rules(user_req, 
-                           resource_oid_req, 
-                           resource_gid_req,
-                           resource_all_req, 
-                           rights_req, 
-                           resource_oid_mask, 
-                           resource_gid_mask);
+    auth     = match_rules_wrapper(user_req,
+                                   resource_oid_req,
+                                   resource_gid_req,
+                                   resource_all_req,
+                                   rights_req,
+                                   resource_oid_mask,
+                                   resource_gid_mask,
+                                   tmp_rules);
     if ( auth == true )
     {
-        return true;
+        goto clean_return;
     }
 
     // ---------------------------------------------------
@@ -208,39 +275,99 @@ const bool AclManager::authorize(
     // ---------------------------------------------------
 
     user_req = AclRule::INDIVIDUAL_ID | uid;
-    auth     = match_rules(user_req, 
-                           resource_oid_req, 
-                           resource_gid_req,
-                           resource_all_req, 
-                           rights_req, 
-                           resource_oid_mask, 
-                           resource_gid_mask);
+    auth     = match_rules_wrapper(user_req,
+                                   resource_oid_req,
+                                   resource_gid_req,
+                                   resource_all_req,
+                                   rights_req,
+                                   resource_oid_mask,
+                                   resource_gid_mask,
+                                   tmp_rules);
     if ( auth == true )
     {
-        return true;
+        goto clean_return;
     }
 
     // ----------------------------------------------------------
-    // Look for rules that apply to each one of the user's groups
+    // Look for rules that apply to the user's group
     // ----------------------------------------------------------
 
     user_req = AclRule::GROUP_ID | gid;
-    auth     = match_rules(user_req, 
-                           resource_oid_req, 
-                           resource_gid_req,
-                           resource_all_req, 
-                           rights_req, 
-                           resource_oid_mask,
-                           resource_gid_mask);
+    auth     = match_rules_wrapper(user_req,
+                                   resource_oid_req,
+                                   resource_gid_req,
+                                   resource_all_req,
+                                   rights_req,
+                                   resource_oid_mask,
+                                   resource_gid_mask,
+                                   tmp_rules);
     if ( auth == true )
     {
-        return true;
+        goto clean_return;
     }
 
     oss.str("No more rules, permission not granted ");
     NebulaLog::log("ACL",Log::DEBUG,oss);
 
-    return false;
+    goto clean_return;
+
+clean_return:
+    multimap<long long, AclRule *>::iterator  it;
+    for ( it = tmp_rules.begin(); it != tmp_rules.end(); it++ )
+    {
+        delete it->second;
+    }
+
+    return auth;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool AclManager::match_rules_wrapper(
+        long long user_req,
+        long long resource_oid_req,
+        long long resource_gid_req,
+        long long resource_all_req,
+        long long rights_req,
+        long long individual_obj_type,
+        long long group_obj_type,
+        multimap<long long, AclRule*> &tmp_rules)
+{
+    bool auth = false;
+
+    // Match against the tmp rules
+    auth = match_rules(
+            user_req,
+            resource_oid_req,
+            resource_gid_req,
+            resource_all_req,
+            rights_req,
+            individual_obj_type,
+            group_obj_type,
+            tmp_rules);
+
+    if ( auth == true )
+    {
+        return true;
+    }
+
+    // Match against the internal rules
+    lock();
+
+    auth = match_rules(
+            user_req,
+            resource_oid_req,
+            resource_gid_req,
+            resource_all_req,
+            rights_req,
+            individual_obj_type,
+            group_obj_type,
+            acl_rules);
+
+    unlock();
+
+    return auth;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -253,7 +380,8 @@ bool AclManager::match_rules(
         long long resource_all_req,
         long long rights_req,
         long long resource_oid_mask,
-        long long resource_gid_mask)
+        long long resource_gid_mask,
+        multimap<long long, AclRule*> &rules)
 
 {
     bool auth = false;
@@ -264,9 +392,7 @@ bool AclManager::match_rules(
     pair<multimap<long long, AclRule *>::iterator,
          multimap<long long, AclRule *>::iterator>  index;
 
-    lock();
-
-    index = acl_rules.equal_range( user_req );
+    index = rules.equal_range( user_req );
 
     for ( it = index.first; it != index.second; it++)
     {
@@ -297,8 +423,6 @@ bool AclManager::match_rules(
             break;
         }
     }
-
-    unlock();
 
     return auth;
 }
