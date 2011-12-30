@@ -101,7 +101,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
 
     db->free_str(sql_name);
 
-    if ((rc != 0) || (_name != name) || (_uid != uid))
+    if ((rc != 0) || (_name != name) || (_uid != -1 && _uid != uid))
     {
         return -1;
     }
