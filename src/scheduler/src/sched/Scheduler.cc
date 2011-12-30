@@ -350,15 +350,17 @@ void Scheduler::match()
                                           gid,
                                           AuthRequest::HOST, 
                                           host_perms,
-                                          AuthRequest::USE); 
+                                          AuthRequest::MANAGE);
             }
 
             if ( matched == false )
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid() << 
-                    " filtered out. User is not authorized to use it.";
+                oss << "Host " << host->get_hid()
+                    << " filtered out. User is not authorized to "
+                    << AuthRequest::Operation_to_str(AuthRequest::MANAGE)
+                    << " it.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
