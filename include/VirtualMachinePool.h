@@ -34,7 +34,8 @@ public:
 
     VirtualMachinePool(SqlDB * db,
                        vector<const Attribute *> hook_mads,
-                       const string& hook_location);
+                       const string& hook_location,
+                       const string& remotes_location);
 
     ~VirtualMachinePool(){};
 

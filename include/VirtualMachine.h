@@ -217,6 +217,7 @@ public:
         const string& hostname,
         const string& vm_dir,
         const string& vmm_mad,
+        const string& vnm_mad,
         const string& tm_mad);
 
     /**
@@ -271,6 +272,26 @@ public:
     const string & get_previous_vmm_mad() const
     {
         return previous_history->vmm_mad_name;
+    };
+
+    /**
+     *  Returns the VNM driver name for the current host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the VNM mad name
+     */
+    const string & get_vnm_mad() const
+    {
+        return history->vnm_mad_name;
+    };
+
+    /**
+     *  Returns the VNM driver name for the previous host. The hasPreviousHistory()
+     *  function MUST be called before this one.
+     *    @return the VNM mad name
+     */
+    const string & get_previous_vnm_mad() const
+    {
+        return previous_history->vnm_mad_name;
     };
 
     /**
@@ -813,9 +834,10 @@ private:
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
      *    @return 0 one success
-    */
-    int insert_replace(SqlDB *db, bool replace);
+     */
+    int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
      *  Updates the VM history record
@@ -933,7 +955,8 @@ protected:
      */
     int update(SqlDB * db)
     {
-        return insert_replace(db, true);
+        string error_str;
+        return insert_replace(db, true, error_str);
     }
 
     /**

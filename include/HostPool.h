@@ -37,7 +37,8 @@ class HostPool : public PoolSQL
 public:
     HostPool(SqlDB *                   db,
              vector<const Attribute *> hook_mads,
-             const string&             hook_location);
+             const string&             hook_location,
+             const string&             remotes_location);
 
     ~HostPool(){};
 
@@ -51,6 +52,7 @@ public:
         const string& hostname,
         const string& im_mad_name,
         const string& vmm_mad_name,
+        const string& vnm_mad_name,
         const string& tm_mad_name,
         string& error_str);
 

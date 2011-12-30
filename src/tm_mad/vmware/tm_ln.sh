@@ -42,7 +42,7 @@ REPO_NAME="images"
 RELATIVE_SRC_PATH="../../$REPO_NAME/$VM_FOLDER_NAME"
 
 log "Creating directory $DST_PATH"
-exec_and_log "rm -rf $DST_PATH"
+exec_and_log "rm -rf $DST"
 exec_and_log "mkdir -p $DST_PATH"
 exec_and_log "chmod a+w $DST_PATH"
 
@@ -55,6 +55,9 @@ for file in `find $RELATIVE_SRC_PATH/* -type f`; do
     file_name=`basename $file`
     exec_and_log "ln -sf ../$file $DST_PATH/$file_name"
 done
+
+# Put the symlink mark for tm_mv
+exec_and_log "ln -sf $RELATIVE_SRC_PATH $DST_PATH/.disk"
 
 
 

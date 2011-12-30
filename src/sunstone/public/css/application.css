@@ -294,14 +294,14 @@ textarea:focus{
 }
 
 .add_remove_button {
-    font-size:0.8em;
-    height:25px;
+    font-size:0.8em !important;
+    height:25px !important;
     margin-bottom:4px;
 }
 
 .add_button {
     margin-left:148px;
-    width:74px;
+    width:58px !important;
 }
 
 .remove_button {
@@ -478,15 +478,15 @@ tr.even:hover{
     font-size: 1.2em;
 }
 
-.jGrowl-notification, .jGrowl-closer, .jGrowl-notify-submit {
+.jGrowl-notification, .jGrowl-notify-submit {
     border: 2px #444444 solid;
-    background-color: #F3F3F3;
+    background-color: #F3F3F3!important;
     color: #666666;
 }
 
 .jGrowl-notify-error {
     border: 2px #660000 solid;
-    background-color: #F39999;
+    background-color: #F39999!important;
     color: #660000;
 }
 

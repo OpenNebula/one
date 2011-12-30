@@ -109,7 +109,7 @@ end
 # Sinatra Configuration
 ##############################################################################
 use Rack::Session::Pool, :key => 'ozones'
-set :host, config[:host]
+set :bind, config[:host]
 set :port, config[:port]
 set :show_exceptions, false
 

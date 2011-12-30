@@ -88,9 +88,10 @@ public:
     // Pools
     // ------------------------------------------------------------------------
 
-    virtual VirtualMachinePool* create_vmpool(SqlDB* db, string hook_location);
+    virtual VirtualMachinePool* create_vmpool(SqlDB* db, 
+        string hook_location, string vloc);
 
-    virtual HostPool* create_hpool(SqlDB* db, string hook_location);
+    virtual HostPool* create_hpool(SqlDB* db, string hook_location, string vloc);
 
     virtual VirtualNetworkPool* create_vnpool(SqlDB* db,
                                                string mac_prefix, 

@@ -98,7 +98,10 @@ int LibVirtDriver::deployment_description_kvm(
     // Starting XML document
     // ------------------------------------------------------------------------
 
-    file << "<domain type='" << emulator << "'>" << endl;
+    file << "<domain type='"
+         << emulator
+         << "' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>"
+         << endl;
 
     // ------------------------------------------------------------------------
     // Domain name
@@ -505,7 +508,7 @@ int LibVirtDriver::deployment_description_kvm(
             if (!filter.empty())
             {
                 the_filter = &filter;
-            } 
+            }
             else if (!default_filter.empty())
             {
                 the_filter = &default_filter;
@@ -514,9 +517,9 @@ int LibVirtDriver::deployment_description_kvm(
             if ( the_filter != 0 )
             {
                 file <<"\t\t\t<filterref filter='"<< *the_filter <<"'>"<<endl;
-                file << "\t\t\t\t<parameter name='IP' value='" 
+                file << "\t\t\t\t<parameter name='IP' value='"
                      << ip << "'/>" << endl;
-                file << "\t\t\t</filterref>" << endl; 
+                file << "\t\t\t</filterref>" << endl;
             }
         }
 

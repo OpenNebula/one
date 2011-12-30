@@ -188,7 +188,7 @@ Configs=[
 # Compiles test code with given arguments
 def compile(file, args)
     logfile="#{file}.log"
-    command="g++ #{file} -o #{file}.out #{ENV['LDFLAGS']} #{args} 1>>#{logfile} 2>&1"
+    command="g++ #{file} -o #{file}.out #{ENV['LDFLAGS']} -pthread #{args} 1>>#{logfile} 2>&1"
     
     open(logfile, "a") {|f|
         f.write(command+"\n")

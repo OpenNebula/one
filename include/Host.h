@@ -131,6 +131,15 @@ public:
     };
 
     /**
+     * Retrives VNM mad name
+     *    @return string vnm mad name
+     */
+    const string& get_vnm_mad() const
+    {
+        return vnm_mad_name;
+    };
+
+    /**
      * Retrives TM mad name
      *    @return string tm mad name
      */
@@ -311,6 +320,11 @@ private:
      */
 	string      vmm_mad_name;
 
+    /**
+     *  Name of the VN driver used to manage networking in this host
+     */
+    string      vnm_mad_name;
+
 	/**
      *  Name of the TM driver used to transfer file to and from this host
      */
@@ -338,6 +352,7 @@ private:
          const string& hostname="",
          const string& im_mad_name="",
          const string& vmm_mad_name="",
+         const string& vnm_mad_name="",
          const string& tm_mad_name="");
 
     virtual ~Host();
@@ -356,9 +371,10 @@ private:
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
      *    @return 0 one success
-    */
-    int insert_replace(SqlDB *db, bool replace);
+     */
+    int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Host
@@ -376,14 +392,21 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str)
+    {
+        return insert_replace(db, false, error_str);
+    };
 
     /**
      *  Writes/updates the Hosts data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db);
+    int update(SqlDB *db)
+    {
+        string error_str;
+        return insert_replace(db, true, error_str);
+    };
 };
 
 #endif /*HOST_H_*/

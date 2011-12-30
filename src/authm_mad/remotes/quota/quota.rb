@@ -81,8 +81,24 @@ class Quota
             :proc_info  => lambda {|template|
                 if template['TYPE'] == 'DATABLOCK'
                     template['SIZE'].to_i
+                elsif template['PATH']
+                    (File.size(template['PATH']).to_f / 2**20).round(2)
+                elsif template['SAVED_VM_ID']
+                    vm_id   = template['SAVED_VM_ID'].to_i
+                    disk_id = template['SAVED_DISK_ID'].to_i
+
+                    client = OpenNebula::Client.new
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+                    vm.info
+
+                    im_id = vm["DISK[DISK_ID=#{disk_id}]/IMAGE_ID"].to_i
+
+                    im = OpenNebula::Image.new_with_id(im_id, client)
+                    im.info
+
+                    im['SIZE'].to_i
                 else
-                    File.size(template['PATH'])
+                    0
                 end
             },
             :xpath => 'SIZE'
@@ -97,7 +113,15 @@ class Quota
     def initialize
         conf = YAML.load_file(CONF_FILE)
         @conf=CONF.merge(conf) {|key,h1,h2|
-            h1.merge(h2) if h1.instance_of?(Hash) && h2.instance_of?(Hash)
+            if h1.instance_of?(Hash) && h2.instance_of?(Hash)
+                h1.merge(h2)
+            else
+                if h2
+                    h2
+                else
+                    h1
+                end
+            end
         }
 
         @client = OpenNebula::Client.new

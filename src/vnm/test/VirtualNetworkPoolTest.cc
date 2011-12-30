@@ -71,18 +71,18 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<VNET><ID>0</ID><UID>123</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+    "<VNET><ID>0</ID><UID>123</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 
-    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE><LEASES></LEASES></VNET>",
+    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE><LEASES></LEASES></VNET>",
 
-    "<VNET><ID>0</ID><UID>133</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+    "<VNET><ID>0</ID><UID>133</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 };
 
 const string xml_dump =
-    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE></VNET></VNET_POOL>";
 
 const string xml_dump_where =
-    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE></VNET></VNET_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -179,6 +179,8 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (del_lease_wrong_ip);
     CPPUNIT_TEST (del_lease_nonexistent_ip);
     CPPUNIT_TEST (del_lease_used_ip);
+
+    CPPUNIT_TEST (range_definition);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -310,8 +312,8 @@ public:
             };
 
         string phydev_xml[] = {
-            "<VNET><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>BRIDGE and PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>br0</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
-            "<VNET><ID>1</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>No BRIDGE only PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>onebr1</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[onebr1]]></BRIDGE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
+            "<VNET><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>BRIDGE and PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>br0</BRIDGE><VLAN>0</VLAN><PHYDEV>eth0</PHYDEV><VLAN_ID/><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+            "<VNET><ID>1</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>No BRIDGE only PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>onebr1</BRIDGE><VLAN>0</VLAN><PHYDEV>eth0</PHYDEV><VLAN_ID/><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
         };
 
         // test vm with bridge and phydev
@@ -411,16 +413,16 @@ public:
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
             "NETWORK_SIZE    = B\n"
-            "NETWORK_ADDRESS = 192.168.1.0\n",
+            "NETWORK_ADDRESS = 192.168.0.0\n",
 
-            // Size "X", defaults to 128
+            // Size 126
             "NAME            = \"Net D\"\n"
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
-            "NETWORK_SIZE    = X\n"
+            "NETWORK_SIZE    = 126\n"
             "NETWORK_ADDRESS = 192.168.1.0\n",
 
-            // Size 32
+            // Size 30
             "NAME            = \"Net E\"\n"
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
@@ -428,7 +430,7 @@ public:
             "NETWORK_ADDRESS = 192.168.1.0\n"
         };
 
-        unsigned int    sizes[7]={1,3,256,256,65536,128,32};
+        unsigned int    sizes[7]={1,3,254,254,65534,126,30};
         int oid[7];
 
         for (int i = 0 ; i < 7 ; i++)
@@ -695,7 +697,7 @@ public:
         CPPUNIT_ASSERT( rc != 0 );
 
 
-        // Ask for two more IPs
+        // Ask for the rest of IPs
         vn->lock();
         rc = vn->get_lease(123, ip, mac, bridge);
         vn->unlock();
@@ -708,12 +710,28 @@ public:
 
         CPPUNIT_ASSERT( rc == 0 );
 
+        vn->lock();
+        rc = vn->get_lease(457, ip, mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
+
+        vn->lock();
+        rc = vn->get_lease(458, ip, mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
+
+        vn->lock();
+        rc = vn->get_lease(459, ip, mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
 
         // All IPs are now used
         vn->lock();
         rc = vn->get_lease(789, ip, mac, bridge);
         vn->unlock();
-
         CPPUNIT_ASSERT( rc != 0 );
 
         // Release one of the 3 IPs
@@ -1625,6 +1643,134 @@ public:
 
         CPPUNIT_ASSERT( rc != 0 );
         CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void range_definition()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
+
+        int             rc;
+        VirtualNetwork* vnet;
+
+        int             oid;
+        string          xml_str;
+        string          xpath;
+        string          err;
+
+        // All these templates should create the same range
+        string templ[] = {
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n"
+                "NETWORK_SIZE    = C\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n"
+                "NETWORK_SIZE    = 254\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n"
+                "NETWORK_MASK    = 255.255.255.0\n",
+
+
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n"
+                "IP_START        = 10.10.10.17\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n"
+                "IP_END          = 10.10.10.41\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0/24\n"
+                "IP_START        = 10.10.10.17\n"
+                "IP_END          = 10.10.10.41\n",
+
+
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "IP_START        = 10.10.10.17\n"
+                "IP_END          = 10.10.10.41\n",
+
+                "NAME            = R\n"
+                "TYPE            = RANGED\n"
+                "BRIDGE          = vbr0\n"
+                "NETWORK_ADDRESS = 10.10.10.0\n",
+        };
+
+        string ip_start[] = {
+                "10.10.10.1",
+                "10.10.10.1",
+                "10.10.10.1",
+                "10.10.10.1",
+
+                "10.10.10.17",
+                "10.10.10.1",
+                "10.10.10.17",
+
+                "10.10.10.17",
+
+                "10.10.10.1",
+        };
+
+        string ip_end[] = {
+                "10.10.10.254",
+                "10.10.10.254",
+                "10.10.10.254",
+                "10.10.10.254",
+
+                "10.10.10.254",
+                "10.10.10.41",
+                "10.10.10.41",
+
+                "10.10.10.41",
+
+                "10.10.10.126",
+        };
+
+
+        for (int i = 0 ; i < 9 ; i++)
+        {
+            rc = vnpool->allocate(uids[0], templ[i], &oid);
+
+            CPPUNIT_ASSERT( rc >= 0 );
+
+            vnet = vnpool->get(oid, false);
+            CPPUNIT_ASSERT( vnet != 0 );
+
+            vnet->to_xml_extended(xml_str);
+
+            ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/RANGE/IP_START" );
+            CPPUNIT_ASSERT( xpath == ip_start[i] );
+
+            ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/RANGE/IP_END" );
+            CPPUNIT_ASSERT( xpath == ip_end[i] );
+
+            vnpool->drop(vnet, err);
+        }
     }
 };
 

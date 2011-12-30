@@ -33,11 +33,13 @@ Host::Host(
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,
+    const string& _vnm_mad_name,
     const string& _tm_mad_name):
         PoolObjectSQL(id,_hostname,-1,-1,"","",table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
+        vnm_mad_name(_vnm_mad_name),
         tm_mad_name(_tm_mad_name),
         last_monitored(0)
 {
@@ -67,36 +69,7 @@ const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::insert(SqlDB *db, string& error_str)
-{
-    int rc;
-
-    rc = insert_replace(db, false);
-
-    if ( rc != 0 )
-    {
-        error_str = "Error inserting Host in DB.";
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Host::update(SqlDB *db)
-{
-    int    rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Host::insert_replace(SqlDB *db, bool replace)
+int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
 
@@ -120,6 +93,11 @@ int Host::insert_replace(SqlDB *db, bool replace)
     if ( sql_xml == 0 )
     {
         goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
     }
 
     if(replace)
@@ -147,9 +125,24 @@ int Host::insert_replace(SqlDB *db, bool replace)
 
     return rc;
 
+error_xml:
+    db->free_str(sql_hostname);
+    db->free_str(sql_xml);
+
+    error_str = "Error transforming the Group to XML.";
+
+    goto error_common;
+
 error_body:
     db->free_str(sql_hostname);
+    goto error_generic;
+
 error_hostname:
+    goto error_generic;
+
+error_generic:
+    error_str = "Error inserting Group in DB.";
+error_common:
     return -1;
 }
 
@@ -200,6 +193,7 @@ string& Host::to_xml(string& xml) const
        "<STATE>"         << state          << "</STATE>"         <<
        "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        <<
        "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
+       "<VN_MAD>"        << vnm_mad_name   << "</VN_MAD>"        <<
        "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        <<
        "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
        host_share.to_xml(share_xml)  <<
@@ -231,6 +225,7 @@ int Host::from_xml(const string& xml)
 
     rc += xpath(im_mad_name, "/HOST/IM_MAD", "not_found");
     rc += xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
+    rc += xpath(vnm_mad_name, "/HOST/VN_MAD", "not_found");
     rc += xpath(tm_mad_name, "/HOST/TM_MAD", "not_found");
 
     rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);

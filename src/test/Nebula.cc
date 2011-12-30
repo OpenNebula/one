@@ -152,7 +152,7 @@ void Nebula::start()
     mad_location     = nebula_location + "lib/mads/";
     etc_location     = nebula_location + "etc/";
     log_location     = nebula_location + "var/";
-    var_location     = nebula_location + "var/";
+    var_location     = nebula_location;
     hook_location    = nebula_location + "hooks/";
     remotes_location = nebula_location + "var/remotes/";
 
@@ -201,12 +201,12 @@ void Nebula::start()
 
         if (tester->need_vm_pool)
         {
-            vmpool = tester->create_vmpool(db,hook_location);
+            vmpool = tester->create_vmpool(db,hook_location,var_location);
         }
 
         if (tester->need_host_pool)
         {
-            hpool  = tester->create_hpool(db,hook_location);
+            hpool  = tester->create_hpool(db,hook_location,var_location);
         }
 
         if (tester->need_vnet_pool)

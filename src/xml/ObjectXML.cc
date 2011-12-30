@@ -378,6 +378,24 @@ int ObjectXML::update_from_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ObjectXML::validate_xml(const string &xml_doc)
+{
+    xmlDocPtr tmp_xml = 0;
+    tmp_xml = xmlParseMemory (xml_doc.c_str(),xml_doc.length());
+
+    if (tmp_xml == 0)
+    {
+        return -1;
+    }
+
+    xmlFreeDoc(tmp_xml);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ObjectXML::xml_parse(const string &xml_doc)
 {
     xml = xmlParseMemory (xml_doc.c_str(),xml_doc.length());

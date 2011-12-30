@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 module X509CloudAuth
-    def auth(env, params={})
+    def do_auth(env, params={})
         # For https, the web service should be set to include the user cert in the environment.
         cert_line   = env['HTTP_SSL_CLIENT_CERT']
         cert_line   = nil if cert_line == '(null)' # For Apache mod_ssl

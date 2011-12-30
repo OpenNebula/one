@@ -190,12 +190,7 @@ int Image::insert(SqlDB *db, string& error_str)
     // Insert the Image
     //--------------------------------------------------------------------------
 
-    rc = insert_replace(db, false);
-
-    if ( rc == -1 )
-    {
-        error_str = "Error inserting Image in DB.";
-    }
+    rc = insert_replace(db, false, error_str);
 
     return rc;
 
@@ -237,13 +232,14 @@ error_common:
 
 int Image::update(SqlDB *db)
 {
-    return insert_replace(db, true);;
+    string error_str;
+    return insert_replace(db, true, error_str);
 }
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::insert_replace(SqlDB *db, bool replace)
+int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
 
@@ -268,6 +264,11 @@ int Image::insert_replace(SqlDB *db, bool replace)
     if ( sql_xml == 0 )
     {
         goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
     }
 
     if(replace)
@@ -296,9 +297,24 @@ int Image::insert_replace(SqlDB *db, bool replace)
 
     return rc;
 
+error_xml:
+    db->free_str(sql_name);
+    db->free_str(sql_xml);
+
+    error_str = "Error transforming the Image to XML.";
+
+    goto error_common;
+
 error_body:
     db->free_str(sql_name);
+    goto error_generic;
+
 error_name:
+    goto error_generic;
+
+error_generic:
+    error_str = "Error inserting Image in DB.";
+error_common:
     return -1;
 }
 

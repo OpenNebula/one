@@ -19,6 +19,7 @@
 /* ************************************************************************** */
 
 #include <stdexcept>
+#include <sstream>
 
 #include "HostPool.h"
 #include "HostHook.h"
@@ -30,7 +31,8 @@
 
 HostPool::HostPool(SqlDB*                    db,
                    vector<const Attribute *> hook_mads,
-                   const string&             hook_location)
+                   const string&             hook_location,
+                   const string&             remotes_location)
                         : PoolSQL(db,Host::table)
 {
     // ------------------ Initialize Hooks fot the pool ----------------------
@@ -88,8 +90,19 @@ HostPool::HostPool(SqlDB*                    db,
 
         if (cmd[0] != '/')
         {
-            cmd = hook_location + cmd;
-        }
+            ostringstream cmd_os;
+
+            if ( remote )
+            {
+                cmd_os << hook_location << "/" << cmd;     
+            }
+            else
+            {
+                cmd_os << remotes_location << "/hooks/" << cmd;
+            } 
+
+            cmd = cmd_os.str();
+        } 
 
         if ( on == "CREATE" )
         {
@@ -139,6 +152,7 @@ int HostPool::allocate (
     const string& hostname,
     const string& im_mad_name,
     const string& vmm_mad_name,
+    const string& vnm_mad_name,
     const string& tm_mad_name,
     string& error_str)
 {
@@ -165,6 +179,11 @@ int HostPool::allocate (
         goto error_vmm;
     }
 
+    if ( vnm_mad_name.empty() )
+    {
+        goto error_vnm;
+    }
+
     if ( tm_mad_name.empty() )
     {
         goto error_tm;
@@ -179,7 +198,8 @@ int HostPool::allocate (
 
     // Build a new Host object
 
-    host = new Host(-1, hostname, im_mad_name, vmm_mad_name, tm_mad_name);
+    host = new Host(-1, hostname, im_mad_name, vmm_mad_name, vnm_mad_name,
+            tm_mad_name);
 
     // Insert the Object in the pool
 
@@ -202,6 +222,10 @@ error_im:
 
 error_vmm:
     oss << "VMM_MAD_NAME cannot be empty.";
+    goto error_common;
+
+error_vnm:
+    oss << "VNM_MAD_NAME cannot be empty.";
     goto error_common;
 
 error_tm:

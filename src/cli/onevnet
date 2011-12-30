@@ -93,8 +93,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Adds a lease to the Virtual Network
     EOT
 
-    command :addleases, 'Adds a lease to the Virtual Network', :vnetid, :ip,
-            [:mac, nil] do
+    command :addleases, addleases_desc, :vnetid, :ip, [:mac, nil] do
         helper.perform_action(args[0],options,"lease added") do |vn|
             vn.addleases(args[1], args[2])
         end
@@ -107,6 +106,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :rmleases, rmleases_desc, :vnetid, :ip do
         helper.perform_action(args[0],options,"lease removed") do |vn|
             vn.rmleases(args[1])
+        end
+    end
+
+    hold_desc = <<-EOT.unindent
+        Holds a Virtual Network lease, marking it as used
+    EOT
+
+    command :hold, hold_desc, :vnetid, :ip do
+        helper.perform_action(args[0],options,"lease on hold") do |vn|
+            vn.hold(args[1])
+        end
+    end
+
+    release_desc = <<-EOT.unindent
+        Releases a Virtual Network lease on hold
+    EOT
+
+    command :release, release_desc, :vnetid, :ip do
+        helper.perform_action(args[0],options,"lease released") do |vn|
+            vn.release(args[1])
         end
     end
 
@@ -136,7 +155,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Virtual Network group
     EOT
 
-    command :chgrp, chgrp_desc,[:range, :vnid_list], :groupid do
+    command :chgrp, chgrp_desc,[:range, :vnetid_list], :groupid do
         helper.perform_actions(args[0],options,"Group changed") do |vn|
             vn.chown(-1, args[1].to_i)
         end
@@ -146,7 +165,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Virtual Network owner and group
     EOT
 
-    command :chown, chown_desc, [:range, :vnid_list], :userid,
+    command :chown, chown_desc, [:range, :vnetid_list], :userid,
             [:groupid,nil] do
         gid = args[2].nil? ? -1 : args[2].to_i
         helper.perform_actions(args[0],options,"Owner/Group changed") do |vn|

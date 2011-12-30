@@ -1,0 +1,23 @@
+[Unit]
+Description=OpenNebula Web UI Server
+After=syslog.target
+After=network.target
+After=one.service
+After=one_scheduler.service
+BindTo=one.service
+!ConditionFileExists=/var/lock/one/.sunstone.lock
+
+[Service]
+ExecStart=/bin/bash -c "/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb > /var/log/one/sunstone.log 2>&1"
+ExecStop=/bin/kill -INT $MAINPID
+PIDFile=/var/run/one/sunstone.pid
+Type=simple
+
+[Exec]
+Group=cloud
+User=oneadmin
+
+[Install]
+WantedBy=multi-user.target
+
+

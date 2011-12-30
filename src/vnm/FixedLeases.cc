@@ -25,7 +25,7 @@ FixedLeases::FixedLeases(
         int                         _oid,
         unsigned int                _mac_prefix,
         vector<const Attribute*>&   vector_leases):
-            Leases(db,_oid,0),mac_prefix(_mac_prefix),current(leases.begin())
+            Leases(db,_oid,0,_mac_prefix),current(leases.begin())
 {
     const VectorAttribute *	single_attr_lease;
     string _mac;

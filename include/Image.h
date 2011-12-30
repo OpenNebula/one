@@ -349,9 +349,10 @@ private:
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
      *    @return 0 on success
-    */
-    int insert_replace(SqlDB *db, bool replace);
+     */
+    int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Image

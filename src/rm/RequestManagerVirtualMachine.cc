@@ -89,7 +89,8 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
 int RequestManagerVirtualMachine::get_host_information(int hid, 
                                                 string& name, 
-                                                string& vmm, 
+                                                string& vmm,
+                                                string& vnm,
                                                 string& tm,
                                                 RequestAttributes& att)
 {
@@ -111,6 +112,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
 
     name = host->get_name();
     vmm  = host->get_vmm_mad();
+    vnm  = host->get_vnm_mad();
     tm   = host->get_tm_mad();
 
     host->unlock();
@@ -143,6 +145,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        int              hid,
                                        const string&    hostname,
                                        const string&    vmm_mad,
+                                       const string&    vnm_mad,
                                        const string&    tm_mad,
                                        RequestAttributes& att)
 {
@@ -155,13 +158,13 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     nd.get_configuration_attribute("VM_DIR",vmdir);
 
-    vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
+    vm->add_history(hid,hostname,vmdir,vmm_mad,vnm_mad,tm_mad);
 
     rc = vmpool->update_history(vm);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, 
+        failure_response(INTERNAL,
                 request_error("Can not update virtual machine history",""),
                 att);
 
@@ -171,7 +174,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
     vmpool->update(vm);
 
     return 0;
-}  
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -233,7 +236,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     switch (rc)
-    { 
+    {
         case 0:
             success_response(id, att);
             break;
@@ -248,7 +251,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                      att);
              break;
         case -3:
-            failure_response(ACTION, 
+            failure_response(ACTION,
                     request_error("Virtual machine action not supported",""),
                     att);
             break;
@@ -274,6 +277,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     string hostname;
     string vmm_mad;
+    string vnm_mad;
     string tm_mad;
 
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
@@ -284,7 +288,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,tm_mad, att) != 0)
+    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad, att) != 0)
     {
         return;
     }
@@ -296,7 +300,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( vm->get_state() != VirtualMachine::PENDING )
     {
-        failure_response(ACTION, 
+        failure_response(ACTION,
                 request_error("Wrong state to perform action",""),
                 att);
 
@@ -304,7 +308,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad,att) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,att) != 0)
     {
         vm->unlock();
         return;
@@ -330,6 +334,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     string hostname;
     string vmm_mad;
+    string vnm_mad;
     string tm_mad;
 
     int  id   = xmlrpc_c::value_int(paramList.getInt(1));
@@ -341,7 +346,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,tm_mad,att) != 0)
+    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad,att) != 0)
     {
         return;
     }
@@ -355,7 +360,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
        (vm->get_lcm_state() != VirtualMachine::RUNNING) ||
        (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
-        failure_response(ACTION, 
+        failure_response(ACTION,
                 request_error("Wrong state to perform action",""),
                 att);
 
@@ -363,7 +368,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad,att) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,att) != 0)
     {
         vm->unlock();
         return;
@@ -413,6 +418,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     oss << "NAME= \"" << img_name << "\"" << endl;
     oss << "PUBLIC = NO " << endl;
     oss << "SOURCE = - " << endl;
+    oss << "SAVED_DISK_ID = " << disk_id << endl;
+    oss << "SAVED_VM_ID = " <<  id << endl;
 
     if ( img_type != "" )
     {
@@ -441,7 +448,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                 allocate_error(AuthRequest::IMAGE, error_str), att);
         return;
     }
- 
+
     // ------------------ Store image id to save the disk ------------------
 
     if ( (vm = get_vm(id, att)) == 0 )
@@ -480,7 +487,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
             img->unlock();
         }
 
-        failure_response(INTERNAL, 
+        failure_response(INTERNAL,
                 request_error("Can not save_as disk",error_str),
                 att);
         return;

@@ -26,7 +26,7 @@ class VirtualMachineOCCI < VirtualMachine
             <MEMORY><%= self['TEMPLATE/MEMORY'] %></MEMORY>
             <NAME><%= self.name%></NAME>
             <% if self['TEMPLATE/INSTANCE_TYPE'] %>
-            <INSTANCE_TYPE><%= self['TEMPLATE/INSTANCE_TYPE'] %></INSTANCE_TYPE>
+            <INSTANCE_TYPE href="<%= base_url %>/instance_type/<%= self['TEMPLATE/INSTANCE_TYPE'] %>"><%= self['TEMPLATE/INSTANCE_TYPE'] %></INSTANCE_TYPE>
             <% end %>
             <STATE><%= self.state_str %></STATE>
             <% self.each('TEMPLATE/DISK') do |disk| %>
@@ -84,10 +84,14 @@ class VirtualMachineOCCI < VirtualMachine
         end
 
         if @vm_info != nil
-            itype = @vm_info['INSTANCE_TYPE']
+            if href = @vm_info.attr('INSTANCE_TYPE','href')
+                @itype = href.split('/').last
+            else
+                @itype = @vm_info['INSTANCE_TYPE']
+            end
 
-            if itype != nil and types[itype.to_sym] != nil
-                @template = base + "/#{types[itype.to_sym][:template]}"
+            if @itype != nil and types[@itype.to_sym] != nil
+                @template = base + "/#{types[@itype.to_sym][:template]}"
             end
         end
 
@@ -96,11 +100,11 @@ class VirtualMachineOCCI < VirtualMachine
     def to_one_template()
         if @vm_info == nil
             error_msg = "Missing COMPUTE section in the XML body"
-            return OpenNebula::Error.new(error_msg), 400
+            return OpenNebula::Error.new(error_msg)
         end
 
         if @template == nil
-            return OpenNebula::Error.new("Bad instance type"), 500
+            return OpenNebula::Error.new("Bad instance type")
         end
 
         begin

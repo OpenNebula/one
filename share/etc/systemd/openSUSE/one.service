@@ -1,0 +1,25 @@
+[Unit]
+Description=OpenNebula Cloud Controller Daemon
+After=syslog.target
+After=network.target
+After=remote_fs.target
+Before=one_scheduler.service
+# Do not start if the scheduler does not exist
+ConditionFileIsExecutable=/usr/bin/mm_sched
+!ConditionFileExists=/var/run/one/oned.pid
+
+[Service]
+ExecStart=/usr/bin/oned
+# Log file location must exist
+ExecStartPre=/bin/mkdir -p /var/log/one
+ExecStartPre=/bin/chown oneadmin:cloud /var/log/one
+ExecStop=/bin/kill -TERM $MAINPID
+PIDFile=/var/run/one/oned.pid
+Type=forking
+
+[Exec]
+Group=cloud
+User=oneadmin
+
+[Install]
+WantedBy=multi-user.target
