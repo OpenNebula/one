@@ -1053,7 +1053,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/users-tab.js \
                         src/sunstone/public/js/plugins/vms-tab.js \
                         src/sunstone/public/js/plugins/acls-tab.js \
-                        src/sunstone/public/js/plugins/vnets-tab.js"
+                        src/sunstone/public/js/plugins/vnets-tab.js \
+                        src/sunstone/public/js/plugins/config-tab.js"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
                            src/sunstone/public/css/layout.css \
