@@ -63,8 +63,20 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if vn["PHYDEV"]
         puts str % ["VLAN ID", vn["VLAN_ID"]] if vn["VLAN_ID"]
         puts str % ["USED LEASES", vn['TOTAL_LEASES']]
-
         puts
+
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "U" if vn["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "M" if vn["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "A" if vn["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
+        puts
+
         CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false)
 
         puts vn.template_str(false)

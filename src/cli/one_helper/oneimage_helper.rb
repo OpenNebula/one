@@ -76,6 +76,18 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
         puts
 
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "U" if image["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "M" if image["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "A" if image["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
+        puts
+
         CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
         puts image.template_str
     end

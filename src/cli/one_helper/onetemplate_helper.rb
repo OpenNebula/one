@@ -72,6 +72,18 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.boolean_to_str(template['PUBLIC'])]
         puts
 
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "U" if template["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "M" if template["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "A" if template["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
+        puts
+
         CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
         puts template.template_str
     end
