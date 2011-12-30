@@ -57,8 +57,6 @@ void AuthRequest::add_auth(Object                        ob,
         {
             oss << "-:";
         }
-
-        ob_perms.oid = -1;
     }
     else
     {

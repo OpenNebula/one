@@ -188,75 +188,78 @@ const bool AclManager::authorize(
     // ---------------------------------------------------
     // Create temporary rules from the object permissions
     // ---------------------------------------------------
-
     multimap<long long, AclRule*> tmp_rules;
-    long long perm_user, perm_resource, perm_rights;
-    AclRule * tmp_rule;
 
-    perm_resource   = obj_type | AclRule::INDIVIDUAL_ID | obj_perms.oid;
-
-    // Rule     "#uid  ob_type/#oid  user_rights"
-    perm_user       = AclRule::INDIVIDUAL_ID | obj_perms.uid;
-    perm_rights     = 0;
-    if ( obj_perms.owner_u == 1 )
+    if ( obj_perms.oid >= 0 )   // If oid is -1, this is a new obj. creation
     {
-        perm_rights = perm_rights | AuthRequest::USE;
+        long long perm_user, perm_resource, perm_rights;
+        AclRule * tmp_rule;
+
+        perm_resource   = obj_type | AclRule::INDIVIDUAL_ID | obj_perms.oid;
+
+        // Rule     "#uid  ob_type/#oid  user_rights"
+
+        perm_user       = AclRule::INDIVIDUAL_ID | obj_perms.uid;
+        perm_rights     = 0;
+        if ( obj_perms.owner_u == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::USE;
+        }
+        if ( obj_perms.owner_m == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::MANAGE;
+        }
+        if ( obj_perms.owner_a == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::ADMIN;
+        }
+
+        tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
+
+        tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
+
+        // Rule     "@gid  ob_type/#oid  group_rights"
+        perm_user       = AclRule::GROUP_ID | obj_perms.gid;
+        perm_rights     = 0;
+
+        if ( obj_perms.group_u == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::USE;
+        }
+        if ( obj_perms.group_m == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::MANAGE;
+        }
+        if ( obj_perms.group_a == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::ADMIN;
+        }
+
+        tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
+
+        tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
+
+        // Rule     "*     ob_type/#oid  others_rights"
+        perm_user       = AclRule::ALL_ID;
+        perm_rights     = 0;
+
+        if ( obj_perms.other_u == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::USE;
+        }
+        if ( obj_perms.other_m == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::MANAGE;
+        }
+        if ( obj_perms.other_a == 1 )
+        {
+            perm_rights = perm_rights | AuthRequest::ADMIN;
+        }
+
+        tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
+
+        tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
     }
-    if ( obj_perms.owner_m == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::MANAGE;
-    }
-    if ( obj_perms.owner_a == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::ADMIN;
-    }
-
-    tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
-
-    tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
-
-    // Rule     "@gid  ob_type/#oid  group_rights"
-    perm_user       = AclRule::GROUP_ID | obj_perms.gid;
-    perm_rights     = 0;
-
-    if ( obj_perms.group_u == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::USE;
-    }
-    if ( obj_perms.group_m == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::MANAGE;
-    }
-    if ( obj_perms.group_a == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::ADMIN;
-    }
-
-    tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
-
-    tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
-
-    // Rule     "*     ob_type/#oid  others_rights"
-    perm_user       = AclRule::ALL_ID;
-    perm_rights     = 0;
-
-    if ( obj_perms.other_u == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::USE;
-    }
-    if ( obj_perms.other_m == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::MANAGE;
-    }
-    if ( obj_perms.other_a == 1 )
-    {
-        perm_rights = perm_rights | AuthRequest::ADMIN;
-    }
-
-    tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
-
-    tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
-
     // ---------------------------------------------------
     // Look for rules that apply to everyone
     // ---------------------------------------------------
