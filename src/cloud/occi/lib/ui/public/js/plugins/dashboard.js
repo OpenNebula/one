@@ -22,11 +22,11 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>' + tr("Welcome to OpenNebula Self-Service") + '</h3>\
+        <h3>' + dashboard_welcome_title + '</h3>\
         <div class="panel_info dashboard_p">\
-<p><img style="float:left;width:100px;" src="images/opennebula-selfservice-icon.png" />'+tr("OpenNebula Self-Service is a simplified user interface to manage OpenNebula compute, storage and network resources. It is focused on easiness and usability and features a limited set of operations directed towards end-users.")+'</p>\
-<p>'+tr("Additionally, OpenNebula Self-Service allows easy customization of the interface (e.g. this text) and brings multi-language support.")+'</p>\
-<p>'+tr("Have a cloudy experience!")+'</p>\
+<img style="float:left;width:100px;" src="'+
+    dashboard_welcome_image+'" />'+
+    dashboard_welcome_html+'\
         </div>\
       </div>\
     </td>\
@@ -40,15 +40,15 @@ var dashboard_tab_content =
           <table class="info_table">\
             <tr>\
               <td class="key_td">'+tr("Compute")+'</td>\
-              <td class="value_td"><span id="total_vms"></span></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">' + tr("Network") + '</td>\
-              <td class="value_td"><span id="total_vnets"></span></td>\
+              <td class="value_td">'+$vm_count+'</span></td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Storage") + '</td>\
-              <td class="value_td"><span id="total_images"></span></td>\
+              <td class="value_td">'+$storage_count+'</span></td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Network") + '</td>\
+              <td class="value_td">'+$network_count+'</span></td>\
             </tr>\
           </table>\
 \
@@ -60,10 +60,8 @@ var dashboard_tab_content =
     <td>\
       <div class="panel">\
         <h3>' + tr("Useful links") + '</h3>\
-        <div class="panel_info dashboard_p">\
-        <ul><li><a href="http://opennebula.org/documentation:documentation" target="_blank">Documentation</a></li>\
-            <li><a href="http://opennebula.org/support:support" target="_blank">Support</a></li>\
-            <li><a href="http://opennebula.org/community:community" target="_blank">Community</a></li></ul>\
+        <div class="panel_info dashboard_p">'+
+    generateDashboardLinks() +'\
         </div>\
       </div>\
     </td>\
@@ -75,10 +73,12 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>' + tr("Compute") + '</h3>\
+        <h3>' + compute_box_title + '</h3>\
         <div class="panel_info dashboard_p">\
-<p><img style="float:right;width:100px;" src="images/server_icon.png" />'+tr("Compute resources are Virtual Machines attached to storage and network resources. OpenNebula Self-Service allows you to easily create, remove and manage them, including the possibility of pausing a Virtual Machine or taking a snapshot of one of their disks.")+'</p>\
-<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vms_tab" action="VM.create_dialog">Create new compute resource</a><br />\
+<img style="float:right;width:100px;" src="'+ 
+    compute_box_image + '" />'+ 
+    compute_box_html +
+    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vms_tab" action="VM.create_dialog">Create new compute resource</a><br />\
 <span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#vms_tab">See more</a></p>\
         </div>\
       </div>\
@@ -87,10 +87,12 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>' + tr("Storage") + '</h3>\
+        <h3>' + storage_box_title + '</h3>\
         <div class="panel_info dashboard_p">\
-<p><img style="float:right;width:100px;" src="images/storage_icon.png" />'+tr("Storage pool is formed by several images. These images can contain from full operating systems to be used as base for compute resources, to simple data. OpenNebula Self-Service offers you the possibility to create or upload your own images.")+'</p>\
-<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#images_tab" action="Image.create_dialog">Create new storage resource</a><br />\
+<img style="float:right;width:100px;" src="'+
+    storage_box_image +'" />' + 
+    storage_box_html +
+    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#images_tab" action="Image.create_dialog">Create new storage resource</a><br />\
 <span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#images_tab">See more</a></p>\
         </div>\
       </div>\
@@ -99,10 +101,12 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>' + tr("Network") + '</h3>\
+        <h3>' + network_box_title + '</h3>\
         <div class="panel_info dashboard_p">\
-<p><img style="float:right;width:100px;" src="images/network_icon.png" />'+tr("Your compute resources connectivity is performed using pre-defined virtual networks. You can create and manage these networks using OpenNebula Self-Service.")+'</p>\
-<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vnets_tab" action="Network.create_dialog">Create new network resource</a><br />\
+<p><img style="float:right;width:100px;" src="' +
+    network_box_image +'" />' +
+    network_box_html +
+    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vnets_tab" action="Network.create_dialog">Create new network resource</a><br />\
 <span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#vnets_tab">See more</a><br /></p>\
         </div>\
       </div>\
@@ -124,7 +128,17 @@ function quickstart_setup(){
     $('#dashboard_table #quickstart_form input',main_tabs_context).click(function(){
         Sunstone.runAction($(this).val());
     });
-}
+};
+
+function generateDashboardLinks(){
+    var links="<ul>";
+    for (var i=0; i<dashboard_links.length;i++){
+        links+='<li><a href="'+dashboard_links[i].href+'" target="_blank">'+dashboard_links[i].text+'</a></li>';
+    };
+    links+="</ul>";
+    return links;
+};
+
 
 $(document).ready(function(){
     //Dashboard link listener
@@ -172,15 +186,15 @@ function updateDashboard(what,json_info){
     switch (what){
     case "vms":
         var total_vms=json_info.length;
-        $('#total_vms',db).html(total_vms);
+        $('.vm_count',db).html(total_vms);
         break;
     case "vnets":
         var total_vnets=json_info.length;
-        $('#total_vnets',db).html(total_vnets);
+        $('.network_count',db).html(total_vnets);
         break;
     case "images":
         var total_images=json_info.length;
-        $('#total_images',db).html(total_images);
+        $('.storage_count',db).html(total_images);
         break;
     }
 }

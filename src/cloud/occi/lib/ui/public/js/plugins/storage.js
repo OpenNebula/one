@@ -102,12 +102,9 @@ var create_image_tmpl =
 </div>';
 
 var image_dashboard = '<div class="dashboard_p">\
-<img src="images/one-storage.png" alt="one-storage" />\
-<p>'+tr("The Storage view offers you an overview of your current images. Storage elements are attached to compute resources at creation time. They can also be extracted from running virtual machines by taking an snapshot.")+'</p>\
-<p>'+tr("You can add new storages by clicking \"new\". Image files will be uploaded to OpenNebula and set ready to be used.")+'</p>\
-<p>'+tr("Additionally, you can run several operations on defined storages, such as defining their persistance. Persistent images can only be used by 1 virtual machine, and the changes made by it have effect on the base image. Non-persistent images are cloned before being used in a Virtual Machine, therefore changes are lost unless a snapshot is taken prior to Virtual Machine shutdown.")+'</p>\
-<p>'+tr("There are currently")+' <b><span id="image_dashboard_count" /></b> '+tr("images")+'.</p>\
-</div>';
+<img src="'+storage_dashboard_image+'" alt="one-storage" />'+
+    storage_dashboard_html +
+    '</div>';
 
 var dataTable_images;
 var $create_image_dialog;
@@ -572,7 +569,7 @@ function popUpCreateImageDialog(){
 function popUpImageDashboard(){
     var count = dataTable_images.fnGetNodes().length;
     popDialog(image_dashboard);
-    $('#dialog #image_dashboard_count').text(count);
+    $('#dialog .storage_count').text(count);
 };
 
 // Set the autorefresh interval for the datatable

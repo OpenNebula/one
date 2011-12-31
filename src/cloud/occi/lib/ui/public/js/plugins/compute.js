@@ -101,12 +101,9 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
 </form>';
 
 var vm_dashboard = '<div class="dashboard_p">\
-<img src="images/one-compute.png" alt="one-compute" />\
-<p>'+tr("This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking \"new\" and filling-in an easy wizard.")+'</p>\
-<p>'+tr("You can also manage compute resources and perform actions such as stop, resume, shutdown or cancel.")+'</p>\
-<p>'+tr("Additionally, you can take a \"snapshot\" of the storage attached to these resources. They will be saved as new resources, visible from the Storage view and re-usable.")+'</p>\
-<p>'+tr("There are currently")+' <b><span id="vm_dashboard_count" /></b> '+tr("virtual machines")+'.</p>\
-</div>';
+<img src="images/one-compute.png" alt="one-compute" />'
++ compute_dashboard_html +
+'</div>';
 
 
 var dataTable_vMachines;
@@ -871,7 +868,7 @@ function saveasDisksCallback(req,response){
 function  popUpVMDashboard(){
     var count = dataTable_vMachines.fnGetNodes().length;
     popDialog(vm_dashboard);
-    $('#dialog #vm_dashboard_count').text(count);
+    $('#dialog .vm_count').text(count);
 };
 
 //Prepares autorefresh

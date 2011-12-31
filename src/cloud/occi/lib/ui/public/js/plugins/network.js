@@ -63,11 +63,9 @@ var create_vn_tmpl =
 
 
 var vnet_dashboard = '<div class="dashboard_p">\
-<img src="images/one-network.png" alt="one-network" />\
-<p>'+tr("In this view you can easily manage OpenNebula Network resources. You can add, remove, publish or unpublish virtual networks.")+'</p>\
-<p>'+tr("Compute resources can be attached to these networks at creation time. Virtual machines will be provided with an IP and the correct parameters to ensure connectivity.")+'</p>\
-<p>'+tr("There are currently")+' <b><span id="vnet_dashboard_count" /></b> '+tr("networks")+'.</p>\
-</div>';
+<img src="images/one-network.png" alt="one-network" />' +
+network_dashboard_html +
+'</div>';
 
 var dataTable_vNetworks;
 var $create_vn_dialog;
@@ -379,7 +377,7 @@ function popUpCreateVnetDialog() {
 function popUpVNetDashboard(){
     var count = dataTable_vNetworks.fnGetNodes().length;
     popDialog(vnet_dashboard);
-    $('#dialog #vnet_dashboard_count').text(count);
+    $('#dialog .network_count').text(count);
 }
 
 function setVNetAutorefresh() {
