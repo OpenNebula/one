@@ -31,7 +31,7 @@ function tr(str){
 //Updates template and session configuration and reloads the view.
 function setLang(lang_str){
     var lang_tmp="";
-    var dialog = $('<div title="Changing language">Loading new language... please wait '+spinner+'</div>').dialog({
+    var dialog = $('<div title="'+tr("Changing language")+'">'+tr("Loading new language... please wait")+' '+spinner+'</div>').dialog({
         draggable:false,
         modal:true,
         resizable:false,
@@ -79,12 +79,6 @@ function setLang(lang_str){
 };
 
 $(document).ready(function(){
-    if (lang)
-        $('#lang_sel option[value="'+lang+'"]').attr('selected','selected');
-    $('#lang_sel').change(function(){
-        setLang($(this).val());
-    });
-
     //Update static translations
     $('#doc_link').text(tr("Documentation"));
     $('#support_link').text(tr("Support"));
