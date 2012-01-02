@@ -94,7 +94,8 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] password of the user registered in OpenNebula "-" if none
     # @param [String] secret filed of the auth string
     def authN(request_id, user_id, driver, user, password, secret)
-        OpenNebula.log_debug("authN: #{request_id} #{user_id} #{driver} #{password} #{secret}")
+
+        #OpenNebula.log_debug("authN: #{request_id} #{user_id} #{driver} #{password} #{secret}")
 
         unless @authN_protocols.include?(driver)
             return send_message(
