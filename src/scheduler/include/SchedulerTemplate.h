@@ -14,60 +14,34 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Scheduler.h"
-#include "SchedulerTemplate.h"
-#include "RankPolicy.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#ifndef SCHEDULER_TEMPLATE_H_
+#define SCHEDULER_TEMPLATE_H_
 
-#include <iostream>
-#include <sstream>
+#include "NebulaTemplate.h"
 
 
-using namespace std;
-
-class RankScheduler : public Scheduler
-{
+class SchedulerTemplate : public NebulaTemplate
+{    
 public:
 
-    RankScheduler():Scheduler(),rp(0){};
+    SchedulerTemplate(const string& etc_location):
+        NebulaTemplate(etc_location, conf_name)
+        {};
+    
+    ~SchedulerTemplate(){};
 
-    ~RankScheduler()
-    {
-        if ( rp != 0 )
-        {
-            delete rp;
-        }
-    };
-
-    void register_policies(const SchedulerTemplate& conf)
-    {
-        rp = new RankPolicy(vmpool, hpool, conf.get_policy(), 1.0);
-
-        add_host_policy(rp);
-    };
+    string get_policy() const;
 
 private:
-    RankPolicy * rp;
-
+    /**
+     *  Name for the configuration file, oned.conf
+     */
+    static const char * conf_name;
+    
+    /**
+     *  Sets the defaults value for the template
+     */
+    void set_conf_default();
 };
 
-int main(int argc, char **argv)
-{
-    RankScheduler ss;
-
-    try
-    {
-        ss.start();
-    }
-    catch (exception &e)
-    {
-        cout << e.what() << endl;
-
-        return -1;
-    }
-
-    return 0;
-}
+#endif /*SCHEDULER_TEMPLATE_H_*/

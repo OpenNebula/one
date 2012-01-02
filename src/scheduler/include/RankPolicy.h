@@ -29,11 +29,15 @@ public:
     RankPolicy(
         VirtualMachinePoolXML *   vmpool,
         HostPoolXML *             hpool,
-        float w=1.0):SchedulerHostPolicy(vmpool,hpool,w){};
+        const string&             dr,
+        float                     w = 1.0)
+            :SchedulerHostPolicy(vmpool,hpool,w), default_rank(dr){};
 
     ~RankPolicy(){};
 
 private:
+
+    string default_rank;
 
     void policy(
         VirtualMachineXML * vm)
@@ -53,10 +57,10 @@ private:
 
         srank = vm->get_rank();
 
-        if (srank == "")
+        if (srank.empty())
         {
-            NebulaLog::log("RANK",Log::WARNING,"No rank defined for VM");
-        }
+            srank = default_rank;
+        } 
 
         for (i=0;i<hids.size();i++)
         {
