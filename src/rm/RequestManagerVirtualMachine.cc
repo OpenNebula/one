@@ -21,9 +21,9 @@
 /* -------------------------------------------------------------------------- */
 
 bool RequestManagerVirtualMachine::vm_authorization(int oid,
-                                                    int hid,
                                                     ImageTemplate *tmpl,
-                                                    RequestAttributes& att)
+                                                    RequestAttributes& att,
+                                                    PoolObjectAuth * host_perm)
 {
     PoolObjectSQL * object;
     PoolObjectAuth *   vm_perms;
@@ -54,12 +54,8 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
     delete vm_perms;
 
-    if (hid != -1)
+    if (host_perm != 0)
     {
-        PoolObjectAuth * host_perm = new PoolObjectAuth();
-        host_perm->oid = hid;
-        host_perm->obj_type = AuthRequest::HOST;
-
         ar.add_auth(AuthRequest::MANAGE, host_perm);
 
         delete host_perm;
@@ -97,7 +93,8 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
                                                 string& vmm,
                                                 string& vnm,
                                                 string& tm,
-                                                RequestAttributes& att)
+                                                RequestAttributes& att,
+                                                PoolObjectAuth* host_perms)
 {
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
@@ -119,6 +116,8 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     vmm  = host->get_vmm_mad();
     vnm  = host->get_vnm_mad();
     tm   = host->get_tm_mad();
+
+    host_perms = host->get_permissions();
 
     host->unlock();
 
@@ -194,7 +193,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    if ( vm_authorization(id,-1,0,att) == false )
+    if ( vm_authorization(id,0,att,0) == false )
     {
         return;
     }
@@ -279,6 +278,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager *   dm = nd.get_dm();
 
     VirtualMachine * vm;
+    PoolObjectAuth * host_perms = 0;
 
     string hostname;
     string vmm_mad;
@@ -288,12 +288,17 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
     int hid = xmlrpc_c::value_int(paramList.getInt(2));
 
-    if ( vm_authorization(id,hid,0,att) == false )
+    bool auth = false;
+
+    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad, att, host_perms) != 0)
     {
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad, att) != 0)
+    auth = vm_authorization(id,0,att,host_perms);
+    delete host_perms;
+
+    if ( auth == false )
     {
         return;
     }
@@ -336,6 +341,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     DispatchManager *   dm = nd.get_dm();
 
     VirtualMachine * vm;
+    PoolObjectAuth * host_perms = 0;
 
     string hostname;
     string vmm_mad;
@@ -346,12 +352,17 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     int  hid  = xmlrpc_c::value_int(paramList.getInt(2));
     bool live = xmlrpc_c::value_boolean(paramList.getBoolean(3));
 
-    if ( vm_authorization(id,hid,0,att) == false )
+    bool auth = false;
+
+    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad, att, host_perms) != 0)
     {
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,tm_mad,att) != 0)
+    auth = vm_authorization(id,0,att,host_perms);
+    delete host_perms;
+
+    if ( auth == false )
     {
         return;
     }
@@ -437,7 +448,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // ------------------ Authorize the operation ------------------
 
-    if ( vm_authorization(id,-1,itemplate,att) == false )
+    if ( vm_authorization(id,itemplate,att,0) == false )
     {
         return;
     }

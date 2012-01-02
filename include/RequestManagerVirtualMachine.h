@@ -48,11 +48,11 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) = 0;
 
-    bool vm_authorization(int id, int hid, ImageTemplate *tmpl,
-            RequestAttributes& att);
+    bool vm_authorization(int id, ImageTemplate *tmpl,
+            RequestAttributes& att, PoolObjectAuth* host_perms);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
-            string& tm, RequestAttributes& att);
+            string& tm, RequestAttributes& att, PoolObjectAuth* host_perms);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
