@@ -269,7 +269,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
     perm = vnet->get_permissions();
     vnet->unlock();
 
-    ar->add_auth(AuthRequest::NET, AuthRequest::USE, perm);
+    ar->add_auth(AuthRequest::USE, perm);
 
     delete perm;
 }

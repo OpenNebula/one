@@ -288,7 +288,7 @@ protected:
          const string& _password,
          const string& _auth_driver,
          bool          _enabled):
-        PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table),
+        PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table,AuthRequest::USER),
         password(_password),
         auth_driver(_auth_driver),
         enabled(_enabled),

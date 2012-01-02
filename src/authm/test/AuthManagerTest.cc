@@ -188,34 +188,34 @@ public:
         PoolObjectAuth perm;
         perm.gid = 0;
         perm.uid = -1;
+        perm.obj_type = AuthRequest::VM;
 
-        ar.add_auth(AuthRequest::VM,
-                    AuthRequest::CREATE,
+        ar.add_auth(AuthRequest::CREATE,
                     &perm,
                     "This is a template\n");
 
         perm.oid = 2;
         perm.gid = 0;
         perm.uid = 3;
+        perm.obj_type = AuthRequest::IMAGE;
 
-        ar.add_auth(AuthRequest::IMAGE,
-                    AuthRequest::USE,
+        ar.add_auth(AuthRequest::USE,
                     &perm);
 
         perm.oid = 4;
         perm.gid = 0;
         perm.uid = 5;
+        perm.obj_type = AuthRequest::NET;
 
-        ar.add_auth(AuthRequest::NET,
-                    AuthRequest::MANAGE,
+        ar.add_auth(AuthRequest::MANAGE,
                     &perm);
 
         perm.oid = 6;
         perm.gid = 0;
         perm.uid = 7;
+        perm.obj_type = AuthRequest::HOST;
 
-        ar.add_auth(AuthRequest::HOST,
-                    AuthRequest::MANAGE,
+        ar.add_auth(AuthRequest::MANAGE,
                     &perm);
 
         am->trigger(AuthManager::AUTHORIZE,&ar);
@@ -242,9 +242,9 @@ public:
         perm.oid = -1;
         perm.gid = 0;
         perm.uid = -1;
+        perm.obj_type = AuthRequest::VM;
 
-        ar1.add_auth(AuthRequest::VM,
-                     AuthRequest::CREATE,
+        ar1.add_auth(AuthRequest::CREATE,
                      &perm,
                      "This is a template\n");
 
@@ -306,18 +306,21 @@ public:
         perm.oid = -1;
         perm.gid = -1;
         perm.uid = 2;
-        ar.add_auth(AuthRequest::VM,AuthRequest::CREATE,&perm,"dGhpcy");
+        perm.obj_type = AuthRequest::VM;
+        ar.add_auth(AuthRequest::CREATE,&perm,"dGhpcy");
 
         perm.oid = 2;
         perm.gid = 1;
         perm.uid = 2;
-        ar.add_auth(AuthRequest::NET,AuthRequest::USE,&perm);
+        perm.obj_type = AuthRequest::NET;
+        ar.add_auth(AuthRequest::USE,&perm);
 
         perm.oid = 3;
         perm.gid = 1;
         perm.uid = 4;
         perm.group_u = 1;
-        ar.add_auth(AuthRequest::IMAGE,AuthRequest::USE,&perm);
+        perm.obj_type = AuthRequest::IMAGE;
+        ar.add_auth(AuthRequest::USE,&perm);
 
         CPPUNIT_ASSERT(ar.core_authorize() == true);
 
@@ -326,48 +329,56 @@ public:
         perm.oid = -1;
         perm.gid = -1;
         perm.uid = 2;
-        ar1.add_auth(AuthRequest::VM,AuthRequest::CREATE,&perm,"dGhpcy");
+        perm.obj_type = AuthRequest::VM;
+        ar1.add_auth(AuthRequest::CREATE,&perm,"dGhpcy");
 
         perm.oid = 2;
         perm.gid = 1;
         perm.uid = 2;
-        ar1.add_auth(AuthRequest::NET,AuthRequest::USE,&perm);
+        perm.obj_type = AuthRequest::NET;
+        ar1.add_auth(AuthRequest::USE,&perm);
 
         perm.oid = 3;
         perm.gid = 1;
         perm.uid = 4;
-        ar1.add_auth(AuthRequest::IMAGE,AuthRequest::USE,&perm);
+        perm.obj_type = AuthRequest::IMAGE;
+        ar1.add_auth(AuthRequest::USE,&perm);
 
         CPPUNIT_ASSERT(ar1.core_authorize() == false);
 
         perm.oid = -1;
         perm.gid = -1;
         perm.uid = 0;
-        ar2.add_auth(AuthRequest::HOST,AuthRequest::CREATE,&perm,"dGhpcy");
+        perm.obj_type = AuthRequest::HOST;
+        ar2.add_auth(AuthRequest::CREATE,&perm,"dGhpcy");
         CPPUNIT_ASSERT(ar2.core_authorize() == false);
 
         perm.oid = 5;
         perm.gid = 1;
         perm.uid = 2;
-        ar3.add_auth(AuthRequest::VM,AuthRequest::MANAGE,&perm);
+        perm.obj_type = AuthRequest::VM;
+        ar3.add_auth(AuthRequest::MANAGE,&perm);
         CPPUNIT_ASSERT(ar3.core_authorize() == false);
 
         perm.oid = 4;
         perm.gid = 1;
         perm.uid = 2;
-        ar4.add_auth(AuthRequest::VM,AuthRequest::MANAGE,&perm);
+        perm.obj_type = AuthRequest::VM;
+        ar4.add_auth(AuthRequest::MANAGE,&perm);
         CPPUNIT_ASSERT(ar4.core_authorize() == true);
 
         perm.oid = 4;
         perm.gid = -1;
         perm.uid = 0;
-        ar5.add_auth(AuthRequest::HOST,AuthRequest::MANAGE,&perm);
+        perm.obj_type = AuthRequest::HOST;
+        ar5.add_auth(AuthRequest::MANAGE,&perm);
         CPPUNIT_ASSERT(ar5.core_authorize() == true);
 
         perm.oid = 4;
         perm.gid = -1;
         perm.uid = 0;
-        ar6.add_auth(AuthRequest::HOST,AuthRequest::CREATE,&perm);
+        perm.obj_type = AuthRequest::HOST;
+        ar6.add_auth(AuthRequest::CREATE,&perm);
         CPPUNIT_ASSERT(ar6.core_authorize() == true);
     }
 

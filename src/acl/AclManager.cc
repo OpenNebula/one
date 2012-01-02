@@ -119,7 +119,6 @@ AclManager::~AclManager()
 const bool AclManager::authorize(
         int                     uid,
         int                     gid,
-        AuthRequest::Object     obj_type,
         PoolObjectAuth *        obj_perms,
         AuthRequest::Operation  op)
 {
@@ -133,7 +132,7 @@ const bool AclManager::authorize(
 
     if ( obj_perms->oid >= 0 )
     {
-        resource_oid_req  = obj_type | AclRule::INDIVIDUAL_ID | obj_perms->oid;
+        resource_oid_req  = obj_perms->obj_type | AclRule::INDIVIDUAL_ID | obj_perms->oid;
     }
     else
     {
@@ -144,21 +143,21 @@ const bool AclManager::authorize(
 
     if ( obj_perms->gid >= 0 )
     {
-        resource_gid_req  = obj_type | AclRule::GROUP_ID | obj_perms->gid;
+        resource_gid_req  = obj_perms->obj_type | AclRule::GROUP_ID | obj_perms->gid;
     }
     else
     {
         resource_gid_req = AclRule::NONE_ID;
     }
 
-    long long resource_all_req = obj_type | AclRule::ALL_ID;
+    long long resource_all_req = obj_perms->obj_type | AclRule::ALL_ID;
     long long rights_req       = op;
 
     long long resource_oid_mask =
-            ( obj_type | AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL );
+            ( obj_perms->obj_type | AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL );
 
     long long resource_gid_mask  =
-            ( obj_type | AclRule::GROUP_ID | 0x00000000FFFFFFFFLL );
+            ( obj_perms->obj_type | AclRule::GROUP_ID | 0x00000000FFFFFFFFLL );
 
 
     // Create a temporal rule, to log the request

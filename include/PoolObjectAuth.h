@@ -26,6 +26,8 @@ class PoolObjectAuth
 public:
     PoolObjectAuth(PoolObjectSQL* obj)
     {
+        obj_type = obj->obj_type;
+
         oid     = obj->oid;
         uid     = obj->uid;
         gid     = obj->gid;

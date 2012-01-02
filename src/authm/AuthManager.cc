@@ -30,8 +30,7 @@ const char * AuthManager::auth_driver_name = "auth_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthRequest::add_auth(Object           ob,
-                           Operation        op,
+void AuthRequest::add_auth(Operation        op,
                            PoolObjectAuth * ob_perms,
                            string           ob_template)
 {
@@ -42,7 +41,7 @@ void AuthRequest::add_auth(Object           ob,
     ostringstream oss;
     bool          auth;
 
-    oss << Object_to_str(ob) << ":";
+    oss << Object_to_str(ob_perms->obj_type) << ":";
 
     if ( !ob_template.empty() )
     {
@@ -82,7 +81,7 @@ void AuthRequest::add_auth(Object           ob,
         Nebula&     nd   = Nebula::instance();
         AclManager* aclm = nd.get_aclm();
 
-        auth = aclm->authorize(uid, gid, ob, ob_perms, op);
+        auth = aclm->authorize(uid, gid, ob_perms, op);
     }
 
     oss << auth; // Store the ACL authorization result in the request
@@ -103,7 +102,7 @@ void AuthRequest::add_auth(Object           ob,
         }
 
         oss << "Not authorized to perform " << Operation_to_str(op)
-            << " " << Object_to_str(ob);
+            << " " << Object_to_str(ob_perms->obj_type);
 
         if ( ob_perms->oid != -1 )
         {

@@ -346,10 +346,10 @@ void Scheduler::match()
             {
                 PoolObjectAuth * host_perms = new PoolObjectAuth();
                 host_perms->oid = host->get_hid();
+                host_perms->obj_type = AuthRequest::HOST;
 
                 matched = acls->authorize(uid, 
                                           gid,
-                                          AuthRequest::HOST, 
                                           host_perms,
                                           AuthRequest::MANAGE);
 

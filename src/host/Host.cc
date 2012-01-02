@@ -35,7 +35,7 @@ Host::Host(
     const string& _vmm_mad_name,
     const string& _vnm_mad_name,
     const string& _tm_mad_name):
-        PoolObjectSQL(id,_hostname,-1,-1,"","",table),
+        PoolObjectSQL(id,_hostname,-1,-1,"","",table,AuthRequest::HOST),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),

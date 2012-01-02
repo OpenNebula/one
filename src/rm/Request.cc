@@ -83,7 +83,7 @@ bool Request::basic_authorization(int oid,
 
     AuthRequest ar(att.uid, att.gid);
 
-    ar.add_auth(auth_object, op, perms);
+    ar.add_auth(op, perms);
 
     if ( perms != 0 )
     {

@@ -50,7 +50,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
     AuthRequest ar(att.uid, att.gid);
 
-    ar.add_auth(auth_object, auth_op, vm_perms);
+    ar.add_auth(auth_op, vm_perms);
 
     delete vm_perms;
 
@@ -58,8 +58,9 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
     {
         PoolObjectAuth * host_perm = new PoolObjectAuth();
         host_perm->oid = hid;
+        host_perm->obj_type = AuthRequest::HOST;
 
-        ar.add_auth(AuthRequest::HOST, AuthRequest::MANAGE, host_perm);
+        ar.add_auth(AuthRequest::MANAGE, host_perm);
 
         delete host_perm;
     }
@@ -67,13 +68,11 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
     {
         PoolObjectAuth * image_perm = new PoolObjectAuth();
         image_perm->uid = att.uid;
+        image_perm->obj_type = AuthRequest::IMAGE;
 
         string t64;
 
-        ar.add_auth(AuthRequest::IMAGE,
-                    AuthRequest::CREATE,
-                    image_perm,
-                    tmpl->to_xml(t64));
+        ar.add_auth(AuthRequest::CREATE, image_perm, tmpl->to_xml(t64));
 
         delete image_perm;
     }

@@ -329,7 +329,7 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
     perm = img->get_permissions();
     img->unlock();
 
-    ar->add_auth(AuthRequest::IMAGE, AuthRequest::USE, perm);
+    ar->add_auth(AuthRequest::USE, perm);
 
     delete perm;
 }

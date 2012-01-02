@@ -63,7 +63,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         AuthRequest ar(att.uid, att.gid);
         string      tmpl_txt;
 
-        ar.add_auth(auth_object, auth_op, perms, tmpl->to_xml(tmpl_txt));
+        ar.add_auth(auth_op, perms, tmpl->to_xml(tmpl_txt));
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 

@@ -36,10 +36,10 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                const string&            _uname,
                                const string&            _gname,
                                VirtualNetworkTemplate * _vn_template):
-                PoolObjectSQL(-1,"",_uid,_gid,_uname,_gname,table),
-                bridge(""),
-                type(UNINITIALIZED),
-                leases(0)
+            PoolObjectSQL(-1,"",_uid,_gid,_uname,_gname,table,AuthRequest::NET),
+            bridge(""),
+            type(UNINITIALIZED),
+            leases(0)
 {
     if (_vn_template != 0)
     {

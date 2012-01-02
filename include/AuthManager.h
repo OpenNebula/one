@@ -349,15 +349,13 @@ public:
      *
      *        OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
      *
-     * @param ob the object over which the operation will be performed
      * @param op the operation to be authorized
      * @param ob_perms object's permission attributes
      */
-    void add_auth(Object            ob,
-                  Operation         op,
+    void add_auth(Operation         op,
                   PoolObjectAuth *  ob_perms)
     {
-        add_auth(ob, op, ob_perms, "");
+        add_auth(op, ob_perms, "");
     }
 
     /**
@@ -366,14 +364,12 @@ public:
      *
      *        OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
      *
-     * @param ob the object over which the operation will be performed
      * @param op the operation to be authorized
      * @param ob_perms object's permission attributes
      * @param ob_template new object's template. If it is empty,
      * it will be ignored
      */
-    void add_auth(Object            ob,
-                  Operation         op,
+    void add_auth(Operation         op,
                   PoolObjectAuth *  ob_perms,
                   string            ob_template);
 

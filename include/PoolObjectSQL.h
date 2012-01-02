@@ -20,6 +20,7 @@
 #include "ObjectSQL.h"
 #include "ObjectXML.h"
 #include "Template.h"
+#include "AuthManager.h"
 
 #include <pthread.h>
 #include <string.h>
@@ -39,13 +40,14 @@ class PoolObjectAuth;
 class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
-    PoolObjectSQL(int           id,
-                  const string& _name, 
-                  int           _uid,
-                  int           _gid, 
-                  const string& _uname, 
-                  const string& _gname,
-                  const char *  _table)
+    PoolObjectSQL(int                   id,
+                  const string&         _name,
+                  int                   _uid,
+                  int                   _gid,
+                  const string&         _uname,
+                  const string&         _gname,
+                  const char *          _table,
+                  AuthRequest::Object   _obj_type)
             :ObjectSQL(),
              ObjectXML(),
              oid(id),
@@ -66,6 +68,7 @@ public:
              other_m(0),
              other_a(0),
              obj_template(0),
+             obj_type(_obj_type),
              table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -454,6 +457,8 @@ protected:
      *  Template for this object, will be allocated if needed
      */
     Template * obj_template;
+
+    AuthRequest::Object obj_type;
 
 private:
 
