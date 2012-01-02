@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # ---------------------------------------------------------------------------- #
 # Copyright 2010-2011, C12G Labs S.L                                           #
@@ -16,25 +16,48 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+while (( "$#" )); do
+    if [ "$#" == "1" ]; then
+        DST=$1
+    else
+        SRC="$SRC $1"
+    fi
+    shift
+done
 
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/usr/lib/one/mads/tm_common.sh
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-end
+    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+fi
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+. $TMCOMMON
+. "`dirname $0`/functions.sh"
 
-require 'vmware_driver'
+get_vmdir
 
-dfile = ARGV[0]
-host  = ARGV[1]
-id    = ARGV[2]
+DST_PATH=`arg_path $DST`
 
-vmware_drv = VMwareDriver.new(host)
+fix_dst_path
 
-puts vmware_drv.deploy(dfile, id)
+DST_DIR=`dirname $DST_PATH`
+ISO_DIR=$DST_DIR/isofiles
 
-exit 0
+exec_and_log "mkdir -p $ISO_DIR"
+
+for f in $SRC; do
+    case $f in
+    http://*)
+        exec_and_log "$WGET -O $ISO_DIR $f"
+        ;;
+
+    *)
+        exec_and_log "cp -R $f $ISO_DIR"
+        ;;
+    esac
+done
+
+exec_and_log "$MKISOFS -o $DST_PATH.iso -J -R $ISO_DIR"
+
+exec_and_log "rm -rf $ISO_DIR"

@@ -19,44 +19,19 @@
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   ETC_LOCATION="/etc/one" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
 else
-   ETC_LOCATION=ONE_LOCATION+"/etc" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
 end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vmware_driver'
 
 deploy_id = ARGV[0]
-@host     = ARGV[1]
+host      = ARGV[1]
 
-if !@host or !deploy_id
-    exit -1
-end
+vmware_drv = VMwareDriver.new(host)
 
-load ETC_LOCATION + "/vmwarerc"
-
-if USERNAME.class!=String || PASSWORD.class!=String
-    warn "Bad ESX credentials, aborting"
-    exit -1
-end
-
-data = perform_action("virsh -c #{LIBVIRT_URI} shutdown #{deploy_id}")
-
-if data.class == Fixnum
-    exit data
-end
-
-begin
-    data = perform_action("virsh -c #{LIBVIRT_URI} list")
-    if data.class == Fixnum
-        exit data
-    end
-    sleep 2
-end while data.match(deploy_id)
-
-data = perform_action("virsh -c #{LIBVIRT_URI} undefine #{deploy_id}")
-
-if data.class == Fixnum
-    exit data
-end
-
-
-
+vmware_drv.shutdown(deploy_id)

@@ -528,7 +528,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/mad/ruby/vmwarelib.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
@@ -616,10 +615,12 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/deploy \
                          src/vmm_mad/remotes/vmware/migrate \
                          src/vmm_mad/remotes/vmware/restore \
+                         src/vmm_mad/remotes/vmware/reboot \
                          src/vmm_mad/remotes/vmware/save \
                          src/vmm_mad/remotes/vmware/poll \
                          src/vmm_mad/remotes/vmware/checkpoint \
-                         src/vmm_mad/remotes/vmware/shutdown"
+                         src/vmm_mad/remotes/vmware/shutdown \
+                         src/vmm_mad/remotes/vmware/vmware_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
@@ -729,7 +730,9 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
 
 VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
                              src/tm_mad/vmware/tm_ln.sh \
-                             src/tm_mad/vmware/tm_mv.sh"
+                             src/tm_mad/vmware/tm_mv.sh \
+                             src/tm_mad/vmware/functions.sh \
+                             src/tm_mad/vmware/tm_context.sh"
 
 #-------------------------------------------------------------------------------
 # Image Repository drivers, to be installed under $REMOTES_LOCATION/image

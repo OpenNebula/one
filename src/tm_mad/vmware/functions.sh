@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # ---------------------------------------------------------------------------- #
 # Copyright 2010-2011, C12G Labs S.L                                           #
 #                                                                              #
@@ -16,25 +14,48 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+#Symlinks the dst_path to dst_path.iso if it is an ISO file
+function fix_iso {
+	dst_path=$1	
 
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-end
+	if [ -f $dst_path ]; then
+	    file -b $dst_path | grep "ISO 9660" > /dev/null 2>&1
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+	    if [ $? -eq 0 ]; then
+	        bname=`basename $dst_path`
+	        exec_and_log "ln -s $bname $dst_path/$bname.iso" \
+	                     "Can not link ISO file."
+	    fi
+	fi
+}
 
-require 'vmware_driver'
+#Creates the VM dir
+function create_vmdir {
+	dst_path=$1
 
-dfile = ARGV[0]
-host  = ARGV[1]
-id    = ARGV[2]
+	log "Creating directory `basename $dst_path`"
+	exec_and_log "mkdir -p $dst_path"
+	exec_and_log "chmod a+rw $dst_path"
+}
 
-vmware_drv = VMwareDriver.new(host)
+#Makes path src ($1) relative to dst ($2)
+function make_relative {
+	src=$1
+	dst=$2
 
-puts vmware_drv.deploy(dfile, id)
+	common=$dst
 
-exit 0
+	while [ -z "`echo $src | grep -E "^$common"`" ]; do
+	    common=`dirname $common`
+	    dots="../$dots"
+	done
+
+	echo $dots${src#$common/}
+}
+
+#Test if the source file is a disk (and not the image dir for the VM)
+function is_disk {
+	echo $1 | grep -q 'disk\.[0-9]\+$' > /dev/null 2>&1
+	echo $?
+}
+

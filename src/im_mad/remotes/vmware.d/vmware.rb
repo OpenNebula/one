@@ -16,18 +16,31 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-   ETC_LOCATION      = "/etc/one"  if !defined?(ETC_LOCATION)
-   RUBY_LIB_LOCATION = "/usr/lib/one/ruby"  if !defined?(RUBY_LIB_LOCATION)
+   BIN_LOCATION = "/usr/bin" 
+   LIB_LOCATION = "/usr/lib/one"
+   ETC_LOCATION = "/etc/one/" 
+   VAR_LOCATION = "/var/lib/one"
+   RUBY_LIB_LOCATION = "/usr/lib/one/ruby"  
 else
-   ETC_LOCATION      = ONE_LOCATION+"/etc"  if !defined?(ETC_LOCATION)
-   RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+   LIB_LOCATION = ONE_LOCATION + "/lib"
+   BIN_LOCATION = ONE_LOCATION + "/bin" 
+   ETC_LOCATION = ONE_LOCATION  + "/etc/"
+   VAR_LOCATION = ONE_LOCATION + "/var/"
+   RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby" 
 end
 
 $: << RUBY_LIB_LOCATION
 
+CONF_FILE   = ETC_LOCATION + "/vmwarerc"
+
+ENV['LANG'] = 'C'
+
+require "scripts_common"
+require 'yaml'
+require "CommandManager"
 require 'OpenNebula'
 include OpenNebula
 
@@ -38,6 +51,30 @@ rescue Exception => e
     exit(-1)
 end
 
+# ######################################################################## #
+#                          DRIVER HELPER FUNCTIONS                         #
+# ######################################################################## #
+
+#Generates an ESX command using ttyexpect
+def esx_cmd(command)
+    cmd = "#{BIN_LOCATION}/tty_expect -u #{@user} -p #{@pass} #{command}"
+end
+
+#Performs a action usgin libvirt
+def do_action(cmd)
+    rc = LocalCommand.run(esx_cmd(cmd))
+
+    if rc.code == 0
+        return [true, rc.stdout]
+    else
+        err = "Error executing: #{cmd} err: #{rc.stderr} out: #{rc.stdout}"
+        OpenNebula.log_error(err)
+        return [false, rc.code]
+    end
+end
+
+@result_str = ""
+
 def add_info(name, value)
     value = "0" if value.nil? or value.to_s.empty?
     @result_str << "#{name}=#{value} "
@@ -47,22 +84,30 @@ def print_info
     puts @result_str
 end
 
-@result_str = ""
+# ######################################################################## #
+#                          Main Procedure                                  #
+# ######################################################################## #
 
-@host       = ARGV[2]
+host       = ARGV[2]
 
-if !@host
+if !host
     exit -1
 end
 
-load ETC_LOCATION + "/vmwarerc"
+conf  = YAML::load(File.read(CONF_FILE))
 
-if USERNAME.class!=String || PASSWORD.class!=String
-    warn "Bad ESX credentials, aborting"
-    exit -1
+@uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
+
+@user = conf[:username]
+@pass = conf[:password]
+
+# Poll the VMware hypervisor
+
+rc, data = do_action("virsh -c #{@uri} --readonly nodeinfo")
+
+if rc == false
+    exit info
 end
-
-data = perform_action("virsh -c #{LIBVIRT_URI} --readonly nodeinfo")
 
 data.split(/\n/).each{|line|
     if line.match('^CPU\(s\)')

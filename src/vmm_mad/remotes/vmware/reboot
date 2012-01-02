@@ -29,12 +29,9 @@ $: << File.dirname(__FILE__)
 
 require 'vmware_driver'
 
-dfile = ARGV[0]
-host  = ARGV[1]
-id    = ARGV[2]
+deploy_id = ARGV[0]
+host      = ARGV[1]
 
 vmware_drv = VMwareDriver.new(host)
 
-puts vmware_drv.deploy(dfile, id)
-
-exit 0
+vmware_drv.reboot(deploy_id)
