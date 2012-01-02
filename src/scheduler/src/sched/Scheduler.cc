@@ -32,6 +32,7 @@
 #include "Scheduler.h"
 #include "RankPolicy.h"
 #include "NebulaLog.h"
+#include "PoolObjectSQL.h"
 
 using namespace std;
 
@@ -343,14 +344,16 @@ void Scheduler::match()
             }
             else
             {
-                PoolObjectSQL::Permissions host_perms;
-                host_perms.oid = host->get_hid();
+                Permissions * host_perms = new Permissions();
+                host_perms->oid = host->get_hid();
 
                 matched = acls->authorize(uid, 
                                           gid,
                                           AuthRequest::HOST, 
                                           host_perms,
                                           AuthRequest::MANAGE);
+
+                delete host_perms;
             }
 
             if ( matched == false )

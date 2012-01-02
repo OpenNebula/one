@@ -246,10 +246,9 @@ int PoolObjectSQL::perms_from_xml()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolObjectSQL::Permissions PoolObjectSQL::get_permissions()
+Permissions* PoolObjectSQL::get_permissions()
 {
-    Permissions perm(this);
-    return perm;
+    return new Permissions(this);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -26,6 +26,8 @@
 
 using namespace std;
 
+class Permissions;
+
 /**
  * PoolObject class. Provides a SQL backend interface for Pool components. Each
  * object is identified with and unique OID
@@ -311,61 +313,7 @@ public:
     // Permissions
     // ------------------------------------------------------------------------
 
-    class Permissions
-    {
-    public:
-        Permissions(PoolObjectSQL* obj)
-        {
-            oid     = obj->oid;
-            uid     = obj->uid;
-            gid     = obj->gid;
-
-            owner_u = obj->owner_u;
-            owner_m = obj->owner_m;
-            owner_a = obj->owner_a;
-
-            group_u = obj->group_u;
-            group_m = obj->group_m;
-            group_a = obj->group_a;
-
-            other_u = obj->other_u;
-            other_m = obj->other_m;
-            other_a = obj->other_a;
-        };
-
-        Permissions():
-            oid(-1),
-            uid(-1),
-            gid(-1),
-            owner_u(1),
-            owner_m(1),
-            owner_a(0),
-            group_u(0),
-            group_m(0),
-            group_a(0),
-            other_u(0),
-            other_m(0),
-            other_a(0)
-        {};
-
-        int oid;
-        int uid;
-        int gid;
-
-        int owner_u;
-        int owner_m;
-        int owner_a;
-
-        int group_u;
-        int group_m;
-        int group_a;
-
-        int other_u;
-        int other_m;
-        int other_a;
-    };
-
-    Permissions get_permissions();
+    Permissions* get_permissions();
 
 protected:
 
@@ -514,6 +462,8 @@ private:
      */
     friend class PoolSQL;
 
+    friend class Permissions;
+
     /**
      * The mutex for the PoolObject. This implementation assumes that the mutex
      * IS LOCKED when the class destructor is called.
@@ -529,6 +479,62 @@ private:
      *  Name for the error messages attribute
      */
     static const char * error_attribute_name;
+};
+
+class Permissions
+{
+public:
+    Permissions(PoolObjectSQL* obj)
+    {
+        oid     = obj->oid;
+        uid     = obj->uid;
+        gid     = obj->gid;
+
+        owner_u = obj->owner_u;
+        owner_m = obj->owner_m;
+        owner_a = obj->owner_a;
+
+        group_u = obj->group_u;
+        group_m = obj->group_m;
+        group_a = obj->group_a;
+
+        other_u = obj->other_u;
+        other_m = obj->other_m;
+        other_a = obj->other_a;
+    };
+
+    Permissions():
+        oid(-1),
+        uid(-1),
+        gid(-1),
+        owner_u(1),
+        owner_m(1),
+        owner_a(0),
+        group_u(0),
+        group_m(0),
+        group_a(0),
+        other_u(0),
+        other_m(0),
+        other_a(0)
+    {};
+
+//    AuthRequest::Object obj_type;
+
+    int oid;
+    int uid;
+    int gid;
+
+    int owner_u;
+    int owner_m;
+    int owner_a;
+
+    int group_u;
+    int group_m;
+    int group_a;
+
+    int other_u;
+    int other_m;
+    int other_a;
 };
 
 #endif /*POOL_OBJECT_SQL_H_*/

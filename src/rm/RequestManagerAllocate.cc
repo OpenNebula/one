@@ -31,8 +31,8 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    PoolObjectSQL::Permissions perms;
-    perms.uid = att.uid;
+    Permissions * perms = new Permissions();
+    perms->uid = att.uid;
 
     AuthRequest ar(att.uid, att.gid);
 
@@ -46,8 +46,10 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
         ar.add_auth(auth_object, auth_op, perms, tmpl->to_xml(t64));
     }
 
-   if (UserPool::authorize(ar) == -1)
-   {
+    delete perms;
+
+    if (UserPool::authorize(ar) == -1)
+    {
         failure_response(AUTHORIZATION,
                 authorization_error(ar.message, att),
                 att);
@@ -69,8 +71,8 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    PoolObjectSQL::Permissions perms;
-    perms.uid = att.uid;
+    Permissions * perms = new Permissions;
+    perms->uid = att.uid;
 
     AuthRequest ar(att.uid, att.gid);
 
@@ -79,6 +81,8 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     ar.add_auth(auth_object, auth_op, perms, tmpl->to_xml(t64));
+
+    delete perms;
 
     VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
 

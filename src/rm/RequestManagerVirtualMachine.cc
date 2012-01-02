@@ -25,8 +25,8 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
                                                     ImageTemplate *tmpl,
                                                     RequestAttributes& att)
 {
-    PoolObjectSQL *             object;
-    PoolObjectSQL::Permissions  vm_perms;
+    PoolObjectSQL * object;
+    Permissions *   vm_perms;
 
     if ( att.uid == 0 )
     {
@@ -52,17 +52,21 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
     ar.add_auth(auth_object, auth_op, vm_perms);
 
+    delete vm_perms;
+
     if (hid != -1)
     {
-        PoolObjectSQL::Permissions host_perm;
-        host_perm.oid = hid;
+        Permissions * host_perm = new Permissions();
+        host_perm->oid = hid;
 
         ar.add_auth(AuthRequest::HOST, AuthRequest::MANAGE, host_perm);
+
+        delete host_perm;
     }
     else if (tmpl != 0)
     {
-        PoolObjectSQL::Permissions image_perm;
-        image_perm.uid = att.uid;
+        Permissions * image_perm;
+        image_perm->uid = att.uid;
 
         string t64;
 
@@ -70,6 +74,8 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
                     AuthRequest::CREATE,
                     image_perm,
                     tmpl->to_xml(t64));
+
+        delete image_perm;
     }
 
     if (UserPool::authorize(ar) == -1)

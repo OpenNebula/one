@@ -60,11 +60,11 @@ public:
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
-    const bool authorize(int                        uid,
-                         int                        gid,
-                         AuthRequest::Object        obj_type,
-                         PoolObjectSQL::Permissions obj_perms,
-                         AuthRequest::Operation     op);
+    const bool authorize(int                    uid,
+                         int                    gid,
+                         AuthRequest::Object    obj_type,
+                         Permissions *          obj_perms,
+                         AuthRequest::Operation op);
 
     /**
      *  Adds a new rule to the ACL rule set

@@ -18,7 +18,7 @@
 
 #include "AclManager.h"
 #include "NebulaLog.h"
-#include "GroupPool.h"
+#include "PoolObjectSQL.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -117,11 +117,11 @@ AclManager::~AclManager()
 /* -------------------------------------------------------------------------- */
 
 const bool AclManager::authorize(
-        int                         uid,
-        int                         gid,
-        AuthRequest::Object         obj_type,
-        PoolObjectSQL::Permissions  obj_perms,
-        AuthRequest::Operation      op)
+        int                     uid,
+        int                     gid,
+        AuthRequest::Object     obj_type,
+        Permissions *           obj_perms,
+        AuthRequest::Operation  op)
 {
     ostringstream oss;
 
@@ -131,9 +131,9 @@ const bool AclManager::authorize(
     long long user_req;
     long long resource_oid_req;
 
-    if ( obj_perms.oid >= 0 )
+    if ( obj_perms->oid >= 0 )
     {
-        resource_oid_req  = obj_type | AclRule::INDIVIDUAL_ID | obj_perms.oid;
+        resource_oid_req  = obj_type | AclRule::INDIVIDUAL_ID | obj_perms->oid;
     }
     else
     {
@@ -142,9 +142,9 @@ const bool AclManager::authorize(
 
     long long resource_gid_req;
 
-    if ( obj_perms.gid >= 0 )
+    if ( obj_perms->gid >= 0 )
     {
-        resource_gid_req  = obj_type | AclRule::GROUP_ID | obj_perms.gid;
+        resource_gid_req  = obj_type | AclRule::GROUP_ID | obj_perms->gid;
     }
     else
     {
@@ -164,11 +164,11 @@ const bool AclManager::authorize(
     // Create a temporal rule, to log the request
     long long log_resource;
 
-    if ( obj_perms.oid >= 0 )
+    if ( obj_perms->oid >= 0 )
     {
         log_resource = resource_oid_req;
     }
-    else if ( obj_perms.gid >= 0 )
+    else if ( obj_perms->gid >= 0 )
     {
         log_resource = resource_gid_req;
     }
@@ -190,26 +190,26 @@ const bool AclManager::authorize(
     // ---------------------------------------------------
     multimap<long long, AclRule*> tmp_rules;
 
-    if ( obj_perms.oid >= 0 )   // If oid is -1, this is a new obj. creation
+    if ( obj_perms->oid >= 0 )   // If oid is -1, this is a new obj. creation
     {
         long long perm_user, perm_resource, perm_rights;
         AclRule * tmp_rule;
 
-        perm_resource   = obj_type | AclRule::INDIVIDUAL_ID | obj_perms.oid;
+        perm_resource   = obj_type | AclRule::INDIVIDUAL_ID | obj_perms->oid;
 
         // Rule     "#uid  ob_type/#oid  user_rights"
 
-        perm_user       = AclRule::INDIVIDUAL_ID | obj_perms.uid;
+        perm_user       = AclRule::INDIVIDUAL_ID | obj_perms->uid;
         perm_rights     = 0;
-        if ( obj_perms.owner_u == 1 )
+        if ( obj_perms->owner_u == 1 )
         {
             perm_rights = perm_rights | AuthRequest::USE;
         }
-        if ( obj_perms.owner_m == 1 )
+        if ( obj_perms->owner_m == 1 )
         {
             perm_rights = perm_rights | AuthRequest::MANAGE;
         }
-        if ( obj_perms.owner_a == 1 )
+        if ( obj_perms->owner_a == 1 )
         {
             perm_rights = perm_rights | AuthRequest::ADMIN;
         }
@@ -219,18 +219,18 @@ const bool AclManager::authorize(
         tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
 
         // Rule     "@gid  ob_type/#oid  group_rights"
-        perm_user       = AclRule::GROUP_ID | obj_perms.gid;
+        perm_user       = AclRule::GROUP_ID | obj_perms->gid;
         perm_rights     = 0;
 
-        if ( obj_perms.group_u == 1 )
+        if ( obj_perms->group_u == 1 )
         {
             perm_rights = perm_rights | AuthRequest::USE;
         }
-        if ( obj_perms.group_m == 1 )
+        if ( obj_perms->group_m == 1 )
         {
             perm_rights = perm_rights | AuthRequest::MANAGE;
         }
-        if ( obj_perms.group_a == 1 )
+        if ( obj_perms->group_a == 1 )
         {
             perm_rights = perm_rights | AuthRequest::ADMIN;
         }
@@ -243,15 +243,15 @@ const bool AclManager::authorize(
         perm_user       = AclRule::ALL_ID;
         perm_rights     = 0;
 
-        if ( obj_perms.other_u == 1 )
+        if ( obj_perms->other_u == 1 )
         {
             perm_rights = perm_rights | AuthRequest::USE;
         }
-        if ( obj_perms.other_m == 1 )
+        if ( obj_perms->other_m == 1 )
         {
             perm_rights = perm_rights | AuthRequest::MANAGE;
         }
-        if ( obj_perms.other_a == 1 )
+        if ( obj_perms->other_a == 1 )
         {
             perm_rights = perm_rights | AuthRequest::ADMIN;
         }

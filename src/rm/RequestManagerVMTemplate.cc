@@ -28,7 +28,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     int rc, vid;
 
-    PoolObjectSQL::Permissions perms;
+    Permissions * perms;
 
     Nebula& nd = Nebula::instance();
     VirtualMachinePool* vmpool = nd.get_vmpool();
@@ -73,10 +73,13 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                     authorization_error(ar.message, att),
                     att);
 
+            delete perms;
             delete tmpl;
             return;
         }
     }
+
+    delete perms;
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
             error_str, false);

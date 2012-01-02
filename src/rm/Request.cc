@@ -56,8 +56,8 @@ bool Request::basic_authorization(int oid,
                                   AuthRequest::Operation op,
                                   RequestAttributes& att)
 {
-    PoolObjectSQL *             object;
-    PoolObjectSQL::Permissions  perms;
+    PoolObjectSQL * object;
+    Permissions *   perms = 0;
 
     if ( att.uid == 0 )
     {
@@ -84,6 +84,11 @@ bool Request::basic_authorization(int oid,
     AuthRequest ar(att.uid, att.gid);
 
     ar.add_auth(auth_object, op, perms);
+
+    if ( perms != 0 )
+    {
+        delete perms;
+    }
 
     if (UserPool::authorize(ar) == -1)
     {

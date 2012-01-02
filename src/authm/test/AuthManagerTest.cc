@@ -184,13 +184,13 @@ public:
                       "NET:4:MANAGE:5:1:0 "
                       "HOST:6:MANAGE:7:1:0 0";
 
-        PoolObjectSQL::Permissions perm;
+        Permissions perm;
         perm.gid = 0;
         perm.uid = -1;
 
         ar.add_auth(AuthRequest::VM,
                     AuthRequest::CREATE,
-                    perm,
+                    &perm,
                     "This is a template\n");
 
         perm.oid = 2;
@@ -199,7 +199,7 @@ public:
 
         ar.add_auth(AuthRequest::IMAGE,
                     AuthRequest::USE,
-                    perm);
+                    &perm);
 
         perm.oid = 4;
         perm.gid = 0;
@@ -207,7 +207,7 @@ public:
 
         ar.add_auth(AuthRequest::NET,
                     AuthRequest::MANAGE,
-                    perm);
+                    &perm);
 
         perm.oid = 6;
         perm.gid = 0;
@@ -215,7 +215,7 @@ public:
 
         ar.add_auth(AuthRequest::HOST,
                     AuthRequest::MANAGE,
-                    perm);
+                    &perm);
 
         am->trigger(AuthManager::AUTHORIZE,&ar);
         ar.wait();
@@ -244,7 +244,7 @@ public:
 
         ar1.add_auth(AuthRequest::VM,
                      AuthRequest::CREATE,
-                     perm,
+                     &perm,
                      "This is a template\n");
 
         am->trigger(AuthManager::AUTHORIZE,&ar1);
@@ -300,73 +300,73 @@ public:
         AuthRequest ar5(0, 1);
         AuthRequest ar6(0, 1);
 
-        PoolObjectSQL::Permissions perm;
+        Permissions perm;
 
         perm.oid = -1;
         perm.gid = -1;
         perm.uid = 2;
-        ar.add_auth(AuthRequest::VM,AuthRequest::CREATE,perm,"dGhpcy");
+        ar.add_auth(AuthRequest::VM,AuthRequest::CREATE,&perm,"dGhpcy");
 
         perm.oid = 2;
         perm.gid = 1;
         perm.uid = 2;
-        ar.add_auth(AuthRequest::NET,AuthRequest::USE,perm);
+        ar.add_auth(AuthRequest::NET,AuthRequest::USE,&perm);
 
         perm.oid = 3;
         perm.gid = 1;
         perm.uid = 4;
         perm.group_u = 1;
-        ar.add_auth(AuthRequest::IMAGE,AuthRequest::USE,perm);
+        ar.add_auth(AuthRequest::IMAGE,AuthRequest::USE,&perm);
 
         CPPUNIT_ASSERT(ar.core_authorize() == true);
 
-        perm = PoolObjectSQL::Permissions();
+        perm = Permissions();
 
         perm.oid = -1;
         perm.gid = -1;
         perm.uid = 2;
-        ar1.add_auth(AuthRequest::VM,AuthRequest::CREATE,perm,"dGhpcy");
+        ar1.add_auth(AuthRequest::VM,AuthRequest::CREATE,&perm,"dGhpcy");
 
         perm.oid = 2;
         perm.gid = 1;
         perm.uid = 2;
-        ar1.add_auth(AuthRequest::NET,AuthRequest::USE,perm);
+        ar1.add_auth(AuthRequest::NET,AuthRequest::USE,&perm);
 
         perm.oid = 3;
         perm.gid = 1;
         perm.uid = 4;
-        ar1.add_auth(AuthRequest::IMAGE,AuthRequest::USE,perm);
+        ar1.add_auth(AuthRequest::IMAGE,AuthRequest::USE,&perm);
 
         CPPUNIT_ASSERT(ar1.core_authorize() == false);
 
         perm.oid = -1;
         perm.gid = -1;
         perm.uid = 0;
-        ar2.add_auth(AuthRequest::HOST,AuthRequest::CREATE,perm,"dGhpcy");
+        ar2.add_auth(AuthRequest::HOST,AuthRequest::CREATE,&perm,"dGhpcy");
         CPPUNIT_ASSERT(ar2.core_authorize() == false);
 
         perm.oid = 5;
         perm.gid = 1;
         perm.uid = 2;
-        ar3.add_auth(AuthRequest::VM,AuthRequest::MANAGE,perm);
+        ar3.add_auth(AuthRequest::VM,AuthRequest::MANAGE,&perm);
         CPPUNIT_ASSERT(ar3.core_authorize() == false);
 
         perm.oid = 4;
         perm.gid = 1;
         perm.uid = 2;
-        ar4.add_auth(AuthRequest::VM,AuthRequest::MANAGE,perm);
+        ar4.add_auth(AuthRequest::VM,AuthRequest::MANAGE,&perm);
         CPPUNIT_ASSERT(ar4.core_authorize() == true);
 
         perm.oid = 4;
         perm.gid = -1;
         perm.uid = 0;
-        ar5.add_auth(AuthRequest::HOST,AuthRequest::MANAGE,perm);
+        ar5.add_auth(AuthRequest::HOST,AuthRequest::MANAGE,&perm);
         CPPUNIT_ASSERT(ar5.core_authorize() == true);
 
         perm.oid = 4;
         perm.gid = -1;
         perm.uid = 0;
-        ar6.add_auth(AuthRequest::HOST,AuthRequest::CREATE,perm);
+        ar6.add_auth(AuthRequest::HOST,AuthRequest::CREATE,&perm);
         CPPUNIT_ASSERT(ar6.core_authorize() == true);
     }
 

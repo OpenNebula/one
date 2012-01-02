@@ -17,7 +17,7 @@
 #include "AuthManager.h"
 #include "NebulaLog.h"
 #include "SSLTools.h"
-
+#include "PoolObjectSQL.h"
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -30,10 +30,10 @@ const char * AuthManager::auth_driver_name = "auth_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthRequest::add_auth(Object                        ob,
-                           Operation                     op,
-                           PoolObjectSQL::Permissions    ob_perms,
-                           string                        ob_template)
+void AuthRequest::add_auth(Object       ob,
+                           Operation    op,
+                           Permissions* ob_perms,
+                           string       ob_template)
 {
     // TODO: object's public flag is not used, it will disappear
     bool pub = false;
@@ -60,12 +60,12 @@ void AuthRequest::add_auth(Object                        ob,
     }
     else
     {
-        oss << ob_perms.oid << ":";
+        oss << ob_perms->oid << ":";
     }
 
     oss << Operation_to_str(op) << ":";
 
-    oss << ob_perms.uid << ":" << pub << ":";
+    oss << ob_perms->uid << ":" << pub << ":";
 
     // -------------------------------------------------------------------------
     // Authorize the request for self authorization
@@ -105,9 +105,9 @@ void AuthRequest::add_auth(Object                        ob,
         oss << "Not authorized to perform " << Operation_to_str(op)
             << " " << Object_to_str(ob);
 
-        if ( ob_perms.oid != -1 )
+        if ( ob_perms->oid != -1 )
         {
-            oss << " [" << ob_perms.oid << "]";
+            oss << " [" << ob_perms->oid << "]";
         }
 
         message = oss.str();
