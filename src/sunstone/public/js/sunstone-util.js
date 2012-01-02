@@ -297,7 +297,7 @@ function initCheckAllBoxes(datatable){
 
     //small css hack
     $('input.check_all',datatable).css({"border":"2px"});
-    $('input.check_all',datatable).change(function(){
+    $('input.check_all',datatable).live("change",function(){
         var table = $(this).parents('table');
         var checked = $(this).attr('checked');
         if (checked) { //check all

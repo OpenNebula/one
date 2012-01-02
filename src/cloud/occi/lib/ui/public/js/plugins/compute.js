@@ -59,7 +59,7 @@ var vms_tab_content =
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
       <th>'+tr("ID")+'</th>\
-      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Name")+' / '+tr("State")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -147,6 +147,13 @@ var vm_actions = {
         error: onError
     },
 
+    "VM.showstate" : {
+        type: "single",
+        call: OCCI.VM.show,
+        callback: updateVMStateCB,
+        error: onError
+    },
+
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -165,7 +172,7 @@ var vm_actions = {
     "VM.suspend" : {
         type: "multiple",
         call: OCCI.VM.suspend,
-        //callback: vmShow,
+        callback: updateVMStateCB,
         elements: vmElements,
         error: onError,
         notify: true
@@ -174,7 +181,7 @@ var vm_actions = {
     "VM.resume" : {
         type: "multiple",
         call: OCCI.VM.resume,
-        //callback: vmShow,
+        callback: updateVMStateCB,
         elements: vmElements,
         error: onError,
         notify: true
@@ -183,7 +190,7 @@ var vm_actions = {
     "VM.stop" : {
         type: "multiple",
         call: OCCI.VM.stop,
-        //callback: vmShow,
+        callback: updateVMStateCB,
         elements: vmElements,
         error: onError,
         notify: true
@@ -192,7 +199,7 @@ var vm_actions = {
     "VM.done" : {
         type: "multiple",
         call: OCCI.VM.done,
-        //callback: vmShow,
+        callback: deleteVMachineElement,
         elements: vmElements,
         error: onError,
         notify: true
@@ -201,7 +208,7 @@ var vm_actions = {
     "VM.shutdown" : {
         type: "multiple",
         call: OCCI.VM.shutdown,
-        //callback: vmShow,
+        callback: updateVMStateCB,
         elements: vmElements,
         error: onError,
         notify: true
@@ -210,7 +217,7 @@ var vm_actions = {
     "VM.cancel" : {
         type: "multiple",
         call: OCCI.VM.cancel,
-        //callback: vmShow,
+        callback: updateVMStateCB,
         elements: vmElements,
         error: onError,
         notify: true
@@ -227,7 +234,7 @@ var vm_actions = {
     "VM.saveas" : {
         type: "single",
         call: OCCI.VM.saveas,
-        //callback: vmShow,
+        callback: updateVMStateCB,
         error:onError
     },
 
@@ -410,7 +417,7 @@ function vMachineElementArray(vm_json){
     return [
         '<input class="check_item" type="checkbox" id="vm_'+id+'" name="selected_items" value="'+id+'"/>',
         id,
-        name,
+        name
     ];
 }
 
@@ -445,26 +452,55 @@ function addVMachineElement(request,vm_json){
     var id = vm_json.COMPUTE.ID;
     var element = vMachineElementArray(vm_json);
     addElement(element,dataTable_vMachines);
+    Sunstone.runAction("VM.showstate",id);
 }
 
 
 // Callback to refresh the list of Virtual Machines
 function updateVMachinesView(request, vmachine_list){
     var vmachine_list_array = [];
+    var el_array;
 
     $.each(vmachine_list,function(){
-        vmachine_list_array.push( vMachineElementArray(this));
+        el_array = vMachineElementArray(this);
+        vmachine_list_array.push(el_array);
+        Sunstone.runAction("VM.showstate",el_array[1]);
     });
 
     updateView(vmachine_list_array,dataTable_vMachines);
     updateDashboard("vms",vmachine_list);
-}
+};
+
+function updateVMStateCB(request,vm){
+    var vm_state = vm.COMPUTE.STATE;
+    var state_html = vm_state;
+    switch (vm_state) {
+    case "INIT":
+    case "PENDING":
+    case "HOLD":
+    case "STOPPED":
+    case "SUSPENDED":
+        state_html = '<img style="display:inline-block;margin-right:5px;;" src="images/yellow_bullet.png" alt="'+vm_state+'" title="'+vm_state+'" />';
+        break;
+    case "ACTIVE":
+    case "DONE":
+        state_html = '<img style="display:inline-block;margin-right:5px;" src="images/green_bullet.png" alt="'+vm_state+'" title="'+vm_state+'"/>';
+        break;
+    case "FAILED":
+        state_html = '<img style="display:inline-block;margin-right:5px;" src="images/red_bullet.png" alt="'+vm_state+'" title="'+vm_state+'"/>';
+        break;
+    };
+
+    var tag = 'input#vm_'+vm.COMPUTE.ID;
+    var array = vMachineElementArray(vm);
+    array[2] = state_html + array[2];
+    updateSingleElement(array,dataTable_vMachines,tag);
+};
 
 
 // Refreshes the information panel for a VM
 function updateVMInfo(request,vm){
     var vm_info = vm.COMPUTE;
-    var vm_state = OCCI.Helper.resource_state("vm",vm_info.STATE);
 
     var info_tab = {
         title : tr("VM information"),
@@ -1039,7 +1075,7 @@ $(document).ready(function(){
     dataTable_vMachines.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','',''],dataTable_vMachines);
+        '',''],dataTable_vMachines);
     Sunstone.runAction("VM.list");
 
     //setupCreateVMDialog();

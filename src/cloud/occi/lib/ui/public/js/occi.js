@@ -310,8 +310,11 @@ var OCCI = {
                 url: resource.toLowerCase() + "/" + id,
                 type: "PUT",
                 data: body,
-                success: function(){
-                   return callback ? callback(request) : null;
+                dataType: "xml ONEjson",
+                success: function(response){
+                    var res = {};
+                    res[resource] = response;
+                    return callback ? callback(request,res) : null;
                 },
                 error: function(response){
                     return callback_error ?
