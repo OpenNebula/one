@@ -15,8 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 /*Virtual Machines tab plugin*/
-var INCLUDE_URI = "vendor/noVNC/include/";
-var VM_HISTORY_LENGTH = 40;
+//var INCLUDE_URI = "vendor/noVNC/include/";
+//var VM_HISTORY_LENGTH = 40;
 
 /*
 function loadVNC(){
@@ -670,13 +670,13 @@ function popUpCreateVMDialog(){
     });
 
     $('#network_box option,#disk_box option',dialog).click(function(){
-        var bold = $(this).css("font-weight") == "700"; //bold
-        if (bold){//unbold, unmark
-            $(this).css("font-weight","400");
+        var clicked = $(this).attr("clicked");
+        if (clicked){//unbold, unmark
+            $(this).text($(this).text().replace(/\*/g,''));
             $(this).removeAttr('clicked');
         }
         else {//bold,mark
-            $(this).css("font-weight","700");
+            $(this).text("*"+$(this).text()+"*");
             $(this).attr('clicked','clicked');
         }
         return false;
