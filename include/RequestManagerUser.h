@@ -87,7 +87,7 @@ public:
                            "Changes user's authentication driver",
                            "A:siss")
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~UserChangeAuth(){};
