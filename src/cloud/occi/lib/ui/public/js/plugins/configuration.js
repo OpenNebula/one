@@ -14,43 +14,49 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var lang=""
-var locale = {};
-var datatable_lang = "";
+var config_tab_content =
+'<form>\
+<table id="config_table" style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+<h3>' + tr("Self-Service UI Configuration") + '</h3>\
+        <div class="panel_info">\
+\
+          <table class="info_table">\
+            <tr>\
+              <td class="key_td">' + tr("Language") + '</td>\
+              <td class="value_td">\
+                   <select id="lang_sel" style="width:20em;">\
+                       <option value="en_US">'+tr("English")+'</option>\
+                       <option value="es_ES">'+tr("Spanish")+'</option>\
+                   </select>\
+              </td>\
+            </tr>\
+          </table>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+</table></form>';
 
-function tr(str){
-    var tmp = locale[str];
-    if ( tmp == null || tmp == "" ) {
-        //console.debug("Missing translation: "+str);
-        tmp = str;
-    }
-    return tmp;
-};
+var config_tab = {
+    title: tr("Configuration"),
+    content: config_tab_content
+}
 
-//Pops up loading new language dialog. Retrieves the user template, updates the LANG variable.
-//Updates template and session configuration and reloads the view.
-function setLang(lang_str){
-    var dialog = $('<div title="'+tr("Changing language")+'">'+tr("Loading new language... please wait")+' '+spinner+'</div>').dialog({
-        draggable:false,
-        modal:true,
-        resizable:false,
-        buttons:{},
-        width: 460,
-        minHeight: 50
-
-    });
-    
-    if (('localStorage' in window) && (window['localStorage'] !== null)){
-        localStorage['lang']=lang_str;
-    };
-    $.post('config',JSON.stringify({lang:lang_str}),function(){window.location.href = "./ui"});
-};
+Sunstone.addMainTab('config_tab',config_tab);
 
 $(document).ready(function(){
-    //Update static translations
-    $('#doc_link').text(tr("Documentation"));
-    $('#support_link').text(tr("Support"));
-    $('#community_link').text(tr("Community"));
-    $('#welcome').text(tr("Welcome"));
-    $('#logout').text(tr("Sign out"));
+    if (lang)
+        $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
+    $('table#config_table #lang_sel').change(function(){
+        setLang($(this).val());
+    });
+
+    $('#li_config_tab a').click(function(){
+        hideDialog();
+    });
+
 });

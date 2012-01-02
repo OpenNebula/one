@@ -359,6 +359,7 @@ var OCCI = {
             var username = params.data.username;
             var password = params.data.password;
             var remember = params.remember;
+            var lang = params.lang;
 
             var resource = OCCI.Auth.resource;
             var request = OCCI.Helper.request(resource,"login");
@@ -366,7 +367,7 @@ var OCCI = {
             $.ajax({
                 url: "ui/login",
                 type: "POST",
-                data: {remember: remember},
+                data: {remember: remember, lang: lang},
                 beforeSend : function(req) {
                     req.setRequestHeader( "Authorization",
                                         "Basic " + btoa(username + ":" + password)

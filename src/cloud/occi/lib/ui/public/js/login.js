@@ -37,16 +37,21 @@ function auth_error(req, error){
 function authenticate(){
     var username = $("#username").val();
     var password = $("#password").val();
+    password = Crypto.SHA1(password);
     var remember = $("#check_remember").is(":checked");
 
-    password = Crypto.SHA1(password);
+    var obj = { data: {username: username,
+                       password: password},
+                remember: remember,
+                success: auth_success,
+                error: auth_error
+              };
 
-    OCCI.Auth.login({ data: {username: username
-                                    , password: password}
-                            , remember: remember
-                            , success: auth_success
-                            , error: auth_error
-                        });
+    if (('localStorage' in window) && (window['localStorage'] !== null) && (localStorage['lang'])){
+        obj['lang'] = localStorage['lang'];
+    };
+
+    OCCI.Auth.login(obj);
 }
 
 $(document).ready(function(){

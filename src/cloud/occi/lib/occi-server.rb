@@ -50,6 +50,7 @@ require 'sinatra'
 require 'yaml'
 require 'erb'
 require 'tempfile'
+require 'json'
 
 require 'OCCIServer'
 require 'CloudAuth'
@@ -166,14 +167,14 @@ helpers do
             session[:user] = username
             session[:remember] = params[:remember]
 
-            if user['TEMPLATE/LANG']
-                session[:lang] = user['TEMPLATE/LANG']
-            else
-                session[:lang] = settings.config[:lang]
-            end
-
             if params[:remember]
                 env['rack.session.options'][:expire_after] = 30*60*60*24
+            end
+
+            if params[:lang]
+                session[:lang] = params[:lang]
+            else
+                session[:lang] = settings.config[:lang]
             end
 
             return [204, ""]
@@ -310,6 +311,20 @@ end
 ##############################################
 ## UI
 ##############################################
+
+post '/config' do
+    begin
+        body = JSON.parse(request.body.read)
+    rescue
+        [500, "POST Config: Error parsing configuration JSON"]
+    end
+
+    body.each do | key,value |
+        case key
+        when "lang" then session[:lang]=value
+        end
+    end
+end
 
 get '/ui/login' do
     File.read(File.dirname(__FILE__)+'/ui/templates/login.html')

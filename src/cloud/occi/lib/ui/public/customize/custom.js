@@ -78,24 +78,28 @@ var network_box_html = '<p>'+tr("Your compute resources connectivity is performe
 //Compute tab
 ///////////////////////////////////////////////////////////
 var compute_dashboard_image = "images/one-compute.png";
-var compute_dashboard_html = '<p>' + tr("This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking \"new\" and filling-in an easy wizard.")+'</p>\
+var compute_dashboard_html = '<p>' + tr("This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking \'new\' and filling-in an easy wizard.")+'</p>\
 <p>'+tr("You can also manage compute resources and perform actions such as stop, resume, shutdown or cancel.")+'</p>\
-<p>'+tr("Additionally, you can take a \"snapshot\" of the storage attached to these resources. They will be saved as new resources, visible from the Storage view and re-usable.")+'</p>\
-<p>'+tr("There are currently")+' <b>'+$vm_count+'</b> '+tr("virtual machines")+'.</p>';
+<p>'+tr("Additionally, you can take a \'snapshot\' of the storage attached to these resources. They will be saved as new resources, visible from the Storage view and re-usable.")+'</p>\
+<p>'+tr("There are currently")+' <b>'+$vm_count+'</b> '+
+    tr("virtual machines")+'.</p>';
 
 ///////////////////////////////////////////////////////////
 //Storage tab
 ///////////////////////////////////////////////////////////
 var storage_dashboard_image = "images/one-storage.png";
 var storage_dashboard_html = '<p>'+tr("The Storage view offers you an overview of your current images. Storage elements are attached to compute resources at creation time. They can also be extracted from running virtual machines by taking an snapshot.")+'</p>\
-<p>'+tr("You can add new storages by clicking \"new\". Image files will be uploaded to OpenNebula and set ready to be used.")+'</p>\
+<p>'+tr("You can add new storages by clicking \'new\'. Image files will be uploaded to OpenNebula and set ready to be used.")+'</p>\
 <p>'+tr("Additionally, you can run several operations on defined storages, such as defining their persistance. Persistent images can only be used by 1 virtual machine, and the changes made by it have effect on the base image. Non-persistent images are cloned before being used in a Virtual Machine, therefore changes are lost unless a snapshot is taken prior to Virtual Machine shutdown.")+'</p>\
-<p>'+tr("There are currently")+' <b>'+$storage_count+'</b> '+tr("images")+'.</p>';
+<p>'+tr("There are currently")+' <b>'+$storage_count+'</b> '+
+    tr("images")+'.</p>';
 
 ///////////////////////////////////////////////////////////
 //Network tab
 ///////////////////////////////////////////////////////////
 var network_dashboard_image = "image/one-network.png";
-var network_dashboard_html = '<p>'+tr("In this view you can easily manage OpenNebula Network resources. You can add, remove, publish or unpublish virtual networks.")+'</p>\
+var network_dashboard_html = '<p>'+tr("In this view you can easily manage OpenNebula Network resources. You can add or remove virtual networks.")+'</p>\
 <p>'+tr("Compute resources can be attached to these networks at creation time. Virtual machines will be provided with an IP and the correct parameters to ensure connectivity.")+'</p>\
-<p>'+tr("There are currently")+' <b>'+$network_count+'</b> '+tr("networks")+'.</p>';
+<p>'+
+    tr("There are currently")+' <b>'+$network_count+'</b> '+ 
+    tr("networks")+'.</p>';

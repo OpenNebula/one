@@ -44,12 +44,12 @@ var create_image_tmpl =
                <div class="img_param">\
                <label for="img_name">'+tr("Name")+':</label>\
                <input type="text" name="img_name" id="img_name" />\
-               <div class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
+               <div class="tip">'+tr("Name that the Image will get.")+'</div>\
                </div>\
                <div class="img_param">\
                  <label for="img_desc">'+tr("Description")+':</label>\
                  <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
-               <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
+               <div class="tip">'+tr("Human readable description of the image.")+'</div>\
                </div>\
              </fieldset>\
              <fieldset>\
@@ -60,7 +60,7 @@ var create_image_tmpl =
                       <option value="CDROM">'+tr("CD-ROM")+'</option>\
                       <option value="DATABLOCK">'+tr("Datablock")+'</option>\
                  </select>\
-                 <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
+                 <div class="tip">'+tr("Type of the image")+'</div>\
                </div>\
                <div class="img_param">\
                     <label for="img_size">'+tr("Size")+':</label>\

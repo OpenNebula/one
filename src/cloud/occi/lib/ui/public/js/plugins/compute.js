@@ -308,7 +308,7 @@ var vm_buttons = {
     "VM.shutdown" : {
         type: "confirm",
         text: tr("Shutdown"),
-        tip: tr("This will initiate the shutdown process in the selected VMs")
+        tip: tr("This will shutdown the selected VMs")
     },
 
     "action_list" : {
@@ -317,12 +317,12 @@ var vm_buttons = {
             "VM.suspend" : {
                 type: "confirm",
                 text: tr("Suspend"),
-                tip: tr("This will suspend selected machines")
+                tip: tr("This will suspend the selected VMs")
             },
             "VM.resume" : {
                 type: "confirm",
                 text: tr("Resume"),
-                tip: tr("This will resume selected stopped or suspended VMs")
+                tip: tr("This will resume the selected VMs in stopped or suspended states")
             },
             "VM.stop" : {
                 type: "confirm",
@@ -336,7 +336,7 @@ var vm_buttons = {
             },
             "VM.saveasmultiple" : {
                 type: "action",
-                text: tr("Save as")
+                text: tr("Take snapshot")
             }
         }
     },
@@ -744,7 +744,7 @@ function popUpCreateVMDialog(){
 //Prepares a dialog to saveas a VM
 function setupSaveasDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="saveas_vm_dialog" title=\"'+tr("VM Save As")+'\"></div>');
+    dialogs_context.append('<div id="saveas_vm_dialog" title=\"'+tr("Take snapshot")+'\"></div>');
     $saveas_vm_dialog = $('#saveas_vm_dialog',dialogs_context);
     var dialog = $saveas_vm_dialog;
 

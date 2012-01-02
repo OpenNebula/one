@@ -78,8 +78,8 @@ var dashboard_tab_content =
 <img style="float:right;width:100px;" src="'+ 
     compute_box_image + '" />'+ 
     compute_box_html +
-    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vms_tab" action="VM.create_dialog">Create new compute resource</a><br />\
-<span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#vms_tab">See more</a></p>\
+    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vms_tab" action="VM.create_dialog">'+tr("Create new compute resource")+'</a><br />\
+<span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#vms_tab">'+tr("See more")+'</a></p>\
         </div>\
       </div>\
     </td>\
@@ -92,8 +92,8 @@ var dashboard_tab_content =
 <img style="float:right;width:100px;" src="'+
     storage_box_image +'" />' + 
     storage_box_html +
-    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#images_tab" action="Image.create_dialog">Create new storage resource</a><br />\
-<span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#images_tab">See more</a></p>\
+    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#images_tab" action="Image.create_dialog">'+tr("Create new storage resource")+'</a><br />\
+<span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#images_tab">'+tr("See more")+'</a></p>\
         </div>\
       </div>\
     </td>\
@@ -106,8 +106,8 @@ var dashboard_tab_content =
 <p><img style="float:right;width:100px;" src="' +
     network_box_image +'" />' +
     network_box_html +
-    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vnets_tab" action="Network.create_dialog">Create new network resource</a><br />\
-<span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#vnets_tab">See more</a><br /></p>\
+    '<p><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="action_link" href="#vnets_tab" action="Network.create_dialog">'+tr("Create new network resource")+'</a><br />\
+<span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;vertical-align:middle;"/><a class="tab_link" href="#vnets_tab">'+tr("See more")+'</a><br /></p>\
         </div>\
       </div>\
     </td>\

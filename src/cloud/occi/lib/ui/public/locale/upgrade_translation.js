@@ -1,3 +1,4 @@
+#!/usr/bin/js
 /* -------------------------------------------------------------------------- */
 /* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
@@ -14,43 +15,38 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var lang=""
-var locale = {};
-var datatable_lang = "";
-
-function tr(str){
-    var tmp = locale[str];
-    if ( tmp == null || tmp == "" ) {
-        //console.debug("Missing translation: "+str);
-        tmp = str;
-    }
-    return tmp;
+if (!arguments[0] || !arguments[1]){
+    print("Usage: upgrade_translation.js <old_translation> <empty_template> > <new_translation>");
+    quit();
 };
 
-//Pops up loading new language dialog. Retrieves the user template, updates the LANG variable.
-//Updates template and session configuration and reloads the view.
-function setLang(lang_str){
-    var dialog = $('<div title="'+tr("Changing language")+'">'+tr("Loading new language... please wait")+' '+spinner+'</div>').dialog({
-        draggable:false,
-        modal:true,
-        resizable:false,
-        buttons:{},
-        width: 460,
-        minHeight: 50
+var from = arguments[0];
+var to = arguments[1];
 
-    });
-    
-    if (('localStorage' in window) && (window['localStorage'] !== null)){
-        localStorage['lang']=lang_str;
+load(from);
+var tr="";
+var locale_old= {};
+for (tr in locale){
+    locale_old[tr] = locale[tr];
+};
+
+var lang_old = lang;
+var dt_lang_old = datatable_lang
+
+load(to);
+for (tr in locale){
+    if (locale_old[tr]){
+        locale[tr] = locale_old[tr]
     };
-    $.post('config',JSON.stringify({lang:lang_str}),function(){window.location.href = "./ui"});
 };
 
-$(document).ready(function(){
-    //Update static translations
-    $('#doc_link').text(tr("Documentation"));
-    $('#support_link').text(tr("Support"));
-    $('#community_link').text(tr("Community"));
-    $('#welcome').text(tr("Welcome"));
-    $('#logout').text(tr("Sign out"));
-});
+print("//Translated by");
+print('lang="'+lang_old+'"');
+print('datatable_lang="'+dt_lang_old+'"');
+print("locale={");
+
+for (tr in locale){
+    print('    "'+tr+'":"'+locale[tr]+'",');
+};
+
+print("};");
