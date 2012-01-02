@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
-    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
     <!-- Vendor Libraries -->
     <link rel="stylesheet" type="text/css" href="vendor/dataTables/demo_table_jui.css" />
@@ -19,6 +19,13 @@
     <script language="javascript" type="text/javascript" src="vendor/flot/jquery.flot.min.js"></script>
 
     <!-- End Vendor Libraries -->
+
+    <!--Languages-->
+    <script type="text/javascript" src="js/locale.js"></script>
+<%if session[:lang]%>
+    <script type="text/javascript" src="locale/<%=session[:lang]%>/<%=session[:lang]%>.js"></script>
+<%end%>
+    <!--endLanguages-->
 
     <link rel="stylesheet" type="text/css" href="css/application.css" />
     <link rel="stylesheet" type="text/css" href="css/layout.css" />
@@ -42,6 +49,7 @@
 
 </head>
 <body>
+
 <div class="outer-center">
     <div class="inner-center">
     </div>
@@ -58,12 +66,12 @@
         <img src="images/opennebula-sunstone-small.png"/>
     </div>
     <div id="login-info">
-        Welcome <span id="user"></span>&nbsp;|&nbsp;<a href="#" id="logout">Sign Out</a>
+        <span id="welcome">Welcome</span>&nbsp;<span id="user"></span>&nbsp;|&nbsp;<a href="#" id="logout">Sign Out</a>
     </div>
     <div id="links">
-        <a href="http://opennebula.org/documentation:documentation" target="_blank">Documentation</a>&nbsp;|&nbsp;
-        <a href="http://opennebula.org/support:support" target="_blank">Support</a>&nbsp;|&nbsp;
-        <a href="http://opennebula.org/community:community" target="_blank">Community</a>
+        <a href="http://opennebula.org/documentation:documentation" target="_blank" id="doc_link">Documentation</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/support:support" target="_blank" id="support_link">Support</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/community:community" target="_blank" id="community_link">Community</a>
     </div>
 </div>
 <div id="footer" class="ui-layout-south">

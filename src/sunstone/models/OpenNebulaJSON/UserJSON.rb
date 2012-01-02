@@ -64,7 +64,7 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            super(params['raw_template'])
+            super(params['template_raw'])
         end
 
         def addgroup(params=Hash.new)

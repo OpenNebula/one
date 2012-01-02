@@ -253,6 +253,9 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/js/plugins \
                $SUNSTONE_LOCATION/public/js/user-plugins \
                $SUNSTONE_LOCATION/public/css \
+               $SUNSTONE_LOCATION/public/locale \
+               $SUNSTONE_LOCATION/public/locale/en_US \
+               $SUNSTONE_LOCATION/public/locale/ru \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
@@ -426,6 +429,8 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+    SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
+    SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -1046,7 +1051,8 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/login.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js \
-                        src/sunstone/public/js/opennebula.js"
+                        src/sunstone/public/js/opennebula.js \
+                        src/sunstone/public/js/locale.js"
 
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/dashboard-tab.js \
@@ -1058,7 +1064,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/users-tab.js \
                         src/sunstone/public/js/plugins/vms-tab.js \
                         src/sunstone/public/js/plugins/acls-tab.js \
-                        src/sunstone/public/js/plugins/vnets-tab.js"
+                        src/sunstone/public/js/plugins/vnets-tab.js \
+                        src/sunstone/public/js/plugins/config-tab.js"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
                            src/sunstone/public/css/layout.css \
@@ -1129,6 +1136,16 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/green_bullet.png \
                         src/sunstone/public/images/vnc_off.png \
                         src/sunstone/public/images/vnc_on.png"
+                      
+SUNSTONE_PUBLIC_LOCALE_EN_US="\
+src/sunstone/public/locale/en_US/en_US.js \
+"
+
+SUNSTONE_PUBLIC_LOCALE_RU="
+src/sunstone/public/locale/ru/ru.js \
+src/sunstone/public/locale/ru/ru_datatable.txt"
+
+
 
 #-----------------------------------------------------------------------------
 # Ozones files
@@ -1189,8 +1206,9 @@ OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
                         src/ozones/Server/public/js/ozones-util.js \
                         src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/sunstone.js \
-                        src/sunstone/public/js/sunstone-util.js"
-
+                        src/sunstone/public/js/sunstone-util.js \
+                        src/sunstone/public/js/locale.js"
+                        
 OZONES_PUBLIC_CSS_FILES="src/ozones/Server/public/css/application.css \
                          src/ozones/Server/public/css/layout.css \
                          src/ozones/Server/public/css/login.css"

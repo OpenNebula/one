@@ -19,13 +19,13 @@
 var HOST_HISTORY_LENGTH = 40;
 var host_graphs = [
     {
-        title : "CPU Monitoring information",
+        title : tr("CPU Monitoring information"),
         monitor_resources : "cpu_usage,used_cpu,max_cpu",
         humanize_figures : false,
         history_length : HOST_HISTORY_LENGTH
     },
     {
-        title: "Memory monitoring information",
+        title: tr("Memory monitoring information"),
         monitor_resources : "mem_usage,used_mem,max_mem",
         humanize_figures : true,
         history_length : HOST_HISTORY_LENGTH
@@ -40,13 +40,13 @@ var hosts_tab_content =
 <table id="datatable_hosts" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
-      <th>ID</th>\
-      <th>Name</th>\
-      <th>Running VMs</th>\
-      <th>CPU Use</th>\
-      <th>Memory use</th>\
-      <th>Status</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+      <th>' + tr("id") + '</th>\
+      <th>' + tr("Name") + '</th>\
+      <th>' + tr("Running VMs") + '</th>\
+      <th>' + tr("CPU Use") + '</th>\
+      <th>' + tr("Memory use") + '</th>\
+      <th>' + tr("Status") + '</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyhosts">\
@@ -57,27 +57,27 @@ var hosts_tab_content =
 var create_host_tmpl =
 '<div class="create_form"><form id="create_host_form" action="">\
   <fieldset>\
-  <legend style="display:none;">Host parameters</legend>\
-  <label for="name">Name: </label><input type="text" name="name" id="name" />\
+  <legend style="display:none;">' + tr("Host parameters") + '</legend>\
+  <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
   </fieldset>\
-  <h3>Drivers</h3>\
+  <h3>' + tr("Drivers") + '</h3>\
   <fieldset>\
     <div class="manager clear" id="vmm_mads">\
-          <label>Virtualization Manager:</label>\
+          <label>' + tr("Virtualization Manager") + ':</label>\
           <select id="vmm_mad" name="vmm">\
-                <option value="vmm_kvm">KVM</option>\
-                <option value="vmm_xen">XEN</option>\
-                <option value="vmm_ec2">EC2</option>\
-                <option value="vmm_dummy">Dummy</option>\
+                <option value="vmm_kvm">' + tr("KVM") + '</option>\
+                <option value="vmm_xen">' + tr("XEN") + '</option>\
+                <option value="vmm_ec2">' + tr("EC2") + '</option>\
+                <option value="vmm_dummy">' + tr("Dummy") + '</option>\
           </select>\
     </div>\
     <div class="manager clear" id="im_mads">\
-      <label>Information Manager:</label>\
+      <label>' + tr("Information Manager") + ':</label>\
       <select id="im_mad" name="im">\
-               <option value="im_kvm">KVM</option>\
-               <option value="im_xen">XEN</option>\
-               <option value="im_ec2">EC2</option>\
-               <option value="im_dummy">Dummy</option>\
+               <option value="im_kvm">' + tr("KVM") + '</option>\
+               <option value="im_xen">' + tr("XEN") + '</option>\
+               <option value="im_ec2">' + tr("EC2") + '</option>\
+               <option value="im_dummy">' + tr("Dummy") + '</option>\
       </select>\
     </div>\
     <div class="manager clear" id="vnm_mads">\
@@ -91,18 +91,18 @@ var create_host_tmpl =
        </select>\
     </div>\
     <div class="manager clear" id="tm_mads">\
-      <label>Transfer Manager:</label>\
+      <label>' + tr("Transfer Manager") + ':</label>\
        <select id="tm_mad" name="tm">\
-         <option value="tm_shared">Shared</option>\
-         <option value="tm_ssh">SSH</option>\
-         <option value="tm_dummy">Dummy</option>\
+         <option value="tm_shared">' + tr("Shared") + '</option>\
+         <option value="tm_ssh">' + tr("SSH") + '</option>\
+         <option value="tm_dummy">' + tr("Dummy") + '</option>\
        </select>\
     </div>\
     </fieldset>\
     <fieldset>\
     <div class="form_buttons">\
-        <div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">Create</button>\
-        <button class="button" type="reset" value="reset">Reset</button></div>\
+        <div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+        <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
     </div>\
   </fieldset>\
 </form></div>';
@@ -243,7 +243,7 @@ var host_actions = {
         type: "single",
         call: OpenNebula.Host.update,
         callback: function() {
-            notifyMessage("Template updated correctly");
+            notifyMessage(tr("Template updated correctly"));
         },
         error: onError
     }
@@ -252,51 +252,51 @@ var host_actions = {
 var host_buttons = {
     "Host.refresh" : {
         type: "image",
-        text: "Refresh list",
+        text: tr("Refresh list"),
         img: "images/Refresh-icon.png"
         },
     "Host.create_dialog" : {
         type: "create_dialog",
-        text: "+ New"
+        text: tr("+ New")
     },
     "Host.update_dialog" : {
         type: "action",
-        text: "Update a template",
+        text: tr("Update a template"),
         alwaysActive: true
     },
     "Host.enable" : {
         type: "action",
-        text: "Enable"
+        text: tr("Enable")
     },
     "Host.disable" : {
         type: "action",
-        text: "Disable"
+        text: tr("Disable")
     },
     "Host.delete" : {
         type: "action",
-        text: "Delete host"
+        text: tr("Delete host")
     }
 };
 
 var host_info_panel = {
     "host_info_tab" : {
-        title: "Host information",
+        title: tr("Host information"),
         content:""
     },
 
     "host_template_tab" : {
-        title: "Host template",
+        title: tr("Host template"),
         content: ""
     },
     "host_monitoring_tab": {
-        title: "Monitoring information",
+        title: tr("Monitoring information"),
         content: ""
     }
 };
 
 
 var hosts_tab = {
-    title: 'Hosts',
+    title: tr("Hosts"),
     content: hosts_tab_content,
     buttons: host_buttons
 }
@@ -430,66 +430,66 @@ function updateHostInfo(request,host){
 
     //Information tab
     var info_tab = {
-        title : "Host information",
+        title : tr("Host information"),
         content :
         '<table id="info_host_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">Host information - '+host_info.NAME+'</th></tr>\
+               <tr><th colspan="2">' + tr("Host information") + ' - '+host_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
-                <td class="key_td">ID</td>\
+                <td class="key_td">' + tr("id") + '</td>\
                 <td class="value_td">'+host_info.ID+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">State</td>\
-                <td class="value_td">'+OpenNebula.Helper.resource_state("host",host_info.STATE)+'</td>\
+                <td class="key_td">' + tr("State") + '</td>\
+                <td class="value_td">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">IM MAD</td>\
+                <td class="key_td">' + tr("IM MAD") + '</td>\
                 <td class="value_td">'+host_info.IM_MAD+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">VM MAD</td>\
+                <td class="key_td">' + tr("VM MAD") + '</td>\
                 <td class="value_td">'+host_info.VM_MAD+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">VN MAD</td>\
+                <td class="key_td">'+ tr("VN MAD") +'</td>\
                 <td class="value_td">'+host_info.VN_MAD+'</td>\
             </tr>\
             <tr>\
-                <td class="key_td">TM MAD</td>\
+                <td class="key_td">'+ tr("TM MAD") +'</td>\
                 <td class="value_td">'+host_info.TM_MAD+'</td>\
             </tr>\
             </tbody>\
          </table>\
          <table id="host_shares_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">Host shares</th></tr>\
+               <tr><th colspan="2">' + tr("Host shares") + '</th></tr>\
             </thead>\
             <tbody>\
                <tr>\
-                  <td class="key_td">Max Mem</td>\
+                  <td class="key_td">' + tr("Max Mem") + '</td>\
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">Used Mem (real)</td>\
+                  <td class="key_td">' + tr("Used Mem (real)") + '</td>\
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">Used Mem (allocated)</td>\
+                  <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">Used CPU (real)</td>\
+                  <td class="key_td">' + tr("Used CPU (real)") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">Used CPU (allocated)</td>\
+                  <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">Running VMs</td>\
+                  <td class="key_td">' + tr("Running VMs") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
                </tr>\
             </tbody>\
@@ -498,16 +498,16 @@ function updateHostInfo(request,host){
 
     //Template tab
     var template_tab = {
-        title : "Host template",
+        title : tr("Host template"),
         content :
         '<table id="host_template_table" class="info_table" style="width:80%">\
-                <thead><tr><th colspan="2">Host template</th></tr></thead>'+
+                <thead><tr><th colspan="2">' + tr("Host template") + '</th></tr></thead>'+
                 prettyPrintJSON(host_info.TEMPLATE)+
                 '</table>'
     }
 
     var monitor_tab = {
-        title: "Monitoring information",
+        title: tr("Monitoring information"),
         content : generateMonitoringDivs(host_graphs,"host_monitor_")
     }
 
@@ -527,7 +527,7 @@ function updateHostInfo(request,host){
 
 //Prepares the host creation dialog
 function setupCreateHostDialog(){
-    dialogs_context.append('<div title="Create host" id="create_host_dialog"></div>');
+    dialogs_context.append('<div title=\"'+tr("Create host")+'\" id="create_host_dialog"></div>');
     $create_host_dialog = $('div#create_host_dialog');
     var dialog = $create_host_dialog;
 
@@ -543,7 +543,7 @@ function setupCreateHostDialog(){
     //Handle the form submission
     $('#create_host_form',dialog).submit(function(){
         if (!($('#name',this).val().length)){
-            notifyError("Host name missing!");
+            notifyError(tr("Host name missing!"));
             return false;
         }
         var host_json = {
@@ -574,7 +574,7 @@ function popUpCreateHostDialog(){
 function setHostAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_hosts);
-        var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr("value");
+        var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Host.autorefresh");
         }
@@ -611,7 +611,11 @@ $(document).ready(function(){
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "100px", "aTargets": [6] },
             { "sWidth": "200px", "aTargets": [4,5] }
-        ]
+        ],
+	"oLanguage": (datatable_lang != "") ?
+	    {
+		sUrl: "locale/"+lang+"/"+datatable_lang
+	    } : ""
     });
 
     //preload it
