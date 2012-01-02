@@ -30,7 +30,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 extern "C" void * scheduler_action_loop(void *arg);
-
+class  SchedulerTemplate;
 /**
  *  The Scheduler class. It represents the scheduler ...
  */
@@ -41,20 +41,19 @@ public:
 
     void start();
 
-    virtual void register_policies() = 0;
+    virtual void register_policies(const SchedulerTemplate& conf) = 0;
 
 protected:
 
-    Scheduler(string& _url, time_t _timer,
-              int _machines_limit, int _dispatch_limit, int _host_dispatch_limit):
+    Scheduler():
         hpool(0),
         vmpool(0),
         acls(0),
-        timer(_timer),
-        url(_url),
-        machines_limit(_machines_limit),
-        dispatch_limit(_dispatch_limit),
-        host_dispatch_limit(_host_dispatch_limit),
+        timer(0),
+        url(""),
+        machines_limit(0),
+        dispatch_limit(0),
+        host_dispatch_limit(0),
         threshold(0.9),
         client(0)
     {

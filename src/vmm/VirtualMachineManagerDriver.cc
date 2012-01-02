@@ -211,6 +211,20 @@ void VirtualMachineManagerDriver::poll (
     write(os);
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManagerDriver::reboot (
+    const int     oid,
+    const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "REBOOT " << oid << " " << drv_msg << endl;
+
+    write(os);
+};
+
 /* ************************************************************************** */
 /* MAD Interface                                                              */
 /* ************************************************************************** */
@@ -422,6 +436,18 @@ void VirtualMachineManagerDriver::protocol(
             vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
+        }
+    }
+    else if ( action == "REBOOT" )
+    {
+        if (result == "SUCCESS")
+        {
+            vm->log("VMM",Log::ERROR,"VM Successfully rebooted.");
+        }
+        else
+        {
+            log_error(vm,os,is,"Error rebooting VM, assume it's still running");
+            vmpool->update(vm);
         }
     }
     else if ( action == "POLL" )

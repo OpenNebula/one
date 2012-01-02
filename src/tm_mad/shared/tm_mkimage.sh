@@ -36,11 +36,13 @@ fix_dst_path
 
 DST_DIR=`dirname $DST_PATH`
 
+MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE`
+
 exec_and_log "mkdir -p $DST_DIR" \
     "Error creating directory $DST_DIR"
 exec_and_log "$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M" \
     "Could not create image $DST_PATH"
-exec_and_log "$MKFS -t $FSTYPE -F $DST_PATH" \
+exec_and_log "$MKFS_CMD" \
     "Unable to create filesystem $FSTYPE in $DST_PATH"
 exec_and_log "chmod a+rw $DST_PATH"
 

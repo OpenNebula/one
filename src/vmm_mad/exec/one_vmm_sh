@@ -22,4 +22,4 @@ else
     MAD_LOCATION=$ONE_LOCATION/lib/mads
 fi
 
-exec $MAD_LOCATION/one_vmm_exec -l deploy,shutdown,cancel,save,restore,migrate,poll,pre,post,clean $*
+exec $MAD_LOCATION/one_vmm_exec -l deploy,shutdown,reboot,cancel,save,restore,migrate,poll,pre,post,clean $*

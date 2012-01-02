@@ -253,6 +253,9 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/js/plugins \
                $SUNSTONE_LOCATION/public/js/user-plugins \
                $SUNSTONE_LOCATION/public/css \
+               $SUNSTONE_LOCATION/public/locale \
+               $SUNSTONE_LOCATION/public/locale/en_US \
+               $SUNSTONE_LOCATION/public/locale/ru \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
@@ -426,6 +429,8 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+    SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
+    SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -528,7 +533,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/mad/ruby/vmwarelib.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
@@ -587,6 +591,7 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/migrate \
                     src/vmm_mad/remotes/kvm/migrate_local \
                     src/vmm_mad/remotes/kvm/restore \
+                    src/vmm_mad/remotes/kvm/reboot \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/poll_ganglia \
@@ -601,6 +606,7 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
+                    src/vmm_mad/remotes/xen/reboot \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/poll_ganglia \
@@ -614,10 +620,12 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/deploy \
                          src/vmm_mad/remotes/vmware/migrate \
                          src/vmm_mad/remotes/vmware/restore \
+                         src/vmm_mad/remotes/vmware/reboot \
                          src/vmm_mad/remotes/vmware/save \
                          src/vmm_mad/remotes/vmware/poll \
                          src/vmm_mad/remotes/vmware/checkpoint \
-                         src/vmm_mad/remotes/vmware/shutdown"
+                         src/vmm_mad/remotes/vmware/shutdown \
+                         src/vmm_mad/remotes/vmware/vmware_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
@@ -727,7 +735,9 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
 
 VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
                              src/tm_mad/vmware/tm_ln.sh \
-                             src/tm_mad/vmware/tm_mv.sh"
+                             src/tm_mad/vmware/tm_mv.sh \
+                             src/tm_mad/vmware/functions.sh \
+                             src/tm_mad/vmware/tm_context.sh"
 
 #-------------------------------------------------------------------------------
 # Image Repository drivers, to be installed under $REMOTES_LOCATION/image
@@ -761,6 +771,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
 
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
+           src/scheduler/etc/sched.conf \
            src/cli/etc/group.default"
 
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
@@ -1040,7 +1051,8 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/login.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js \
-                        src/sunstone/public/js/opennebula.js"
+                        src/sunstone/public/js/opennebula.js \
+                        src/sunstone/public/js/locale.js"
 
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/dashboard-tab.js \
@@ -1052,7 +1064,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/users-tab.js \
                         src/sunstone/public/js/plugins/vms-tab.js \
                         src/sunstone/public/js/plugins/acls-tab.js \
-                        src/sunstone/public/js/plugins/vnets-tab.js"
+                        src/sunstone/public/js/plugins/vnets-tab.js \
+                        src/sunstone/public/js/plugins/config-tab.js"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
                            src/sunstone/public/css/layout.css \
@@ -1123,6 +1136,16 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/green_bullet.png \
                         src/sunstone/public/images/vnc_off.png \
                         src/sunstone/public/images/vnc_on.png"
+                      
+SUNSTONE_PUBLIC_LOCALE_EN_US="\
+src/sunstone/public/locale/en_US/en_US.js \
+"
+
+SUNSTONE_PUBLIC_LOCALE_RU="
+src/sunstone/public/locale/ru/ru.js \
+src/sunstone/public/locale/ru/ru_datatable.txt"
+
+
 
 #-----------------------------------------------------------------------------
 # Ozones files
@@ -1183,8 +1206,9 @@ OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
                         src/ozones/Server/public/js/ozones-util.js \
                         src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/sunstone.js \
-                        src/sunstone/public/js/sunstone-util.js"
-
+                        src/sunstone/public/js/sunstone-util.js \
+                        src/sunstone/public/js/locale.js"
+                        
 OZONES_PUBLIC_CSS_FILES="src/ozones/Server/public/css/application.css \
                          src/ozones/Server/public/css/layout.css \
                          src/ozones/Server/public/css/login.css"

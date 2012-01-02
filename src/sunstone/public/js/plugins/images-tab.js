@@ -23,18 +23,18 @@ var images_tab_content =
 <table id="datatable_images" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
-      <th>ID</th>\
-      <th>Owner</th>\
-      <th>Group</th>\
-      <th>Name</th>\
-      <th>Size</th>\
-      <th>Type</th>\
-      <th>Registration time</th>\
-      <th>Public</th>\
-      <th>Persistent</th>\
-      <th>Status</th>\
-      <th>#VMS</th>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Owner")+'</th>\
+      <th>'+tr("Group")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Size")+'</th>\
+      <th>'+tr("Type")+'</th>\
+      <th>'+tr("Registration time")+'</th>\
+      <th>'+tr("Public")+'</th>\
+      <th>'+tr("Persistent")+'</th>\
+      <th>'+tr("Status")+'</th>\
+      <th>'+tr("#VMS")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyimages">\
@@ -44,114 +44,116 @@ var images_tab_content =
 
 var create_image_tmpl =
 '<div id="img_tabs">\
-        <ul><li><a href="#img_easy">Wizard</a></li>\
-                <li><a href="#img_manual">Advanced mode</a></li>\
+        <ul><li><a href="#img_easy">'+tr("Wizard")+'</a></li>\
+                <li><a href="#img_manual">'+tr("Advanced mode")+'</a></li>\
         </ul>\
         <div id="img_easy">\
            <form id="create_image_form_easy" action="">\
-             <p style="font-size:0.8em;text-align:right;"><i>Fields marked with <span style="display:inline-block;" class="ui-icon ui-icon-alert" /> are mandatory</i><br />\
+             <p style="font-size:0.8em;text-align:right;"><i>'+
+    tr("Fields marked with")+' <span style="display:inline-block;" class="ui-icon ui-icon-alert" /> '+
+    tr("are mandatory")+'</i><br />\
              <fieldset>\
                <div class="img_param img_man">\
-               <label for="img_name">Name:</label>\
+               <label for="img_name">'+tr("Name")+':</label>\
                <input type="text" name="img_name" id="img_name" />\
-               <div class="tip">Name that the Image will get. Every image must have a unique name.</div>\
+               <div class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
                </div>\
                <div class="img_param">\
-                 <label for="img_desc">Description:</label>\
+                 <label for="img_desc">'+tr("Description")+':</label>\
                  <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
-               <div class="tip">Human readable description of the image for other users.</div>\
+               <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
                </div>\
              </fieldset>\
              <fieldset>\
                <div class="img_param">\
-                 <label for="img_type">Type:</label>\
+                 <label for="img_type">'+tr("Type")+':</label>\
                  <select name="img_type" id="img_type">\
-                      <option value="OS">OS</option>\
-                      <option value="CDROM">CD-ROM</option>\
-                      <option value="DATABLOCK">Datablock</option>\
+                      <option value="OS">'+tr("OS")+'</option>\
+                      <option value="CDROM">'+tr("CD-ROM")+'</option>\
+                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
                  </select>\
-                 <div class="tip">Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).</div>\
+                 <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
                </div>\
                <div class="img_param">\
-                 <label for="img_public">Public:</label>\
+                 <label for="img_public">'+tr("Public")+':</label>\
                  <input type="checkbox" id="img_public" name="img_public" value="YES" />\
-                 <div class="tip">Public scope of the image</div>\
+                 <div class="tip">'+tr("Public scope of the image")+'</div>\
                </div>\
                <div class="img_param">\
-                 <label for="img_persistent">Persistent:</label>\
+                 <label for="img_persistent">'+tr("Persistent")+':</label>\
                  <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
-                 <div class="tip">Persistence of the image</div>\
+                 <div class="tip">'+tr("Persistence of the image")+'</div>\
                </div>\
                <div class="img_param">\
-                  <label for="img_dev_prefix">Device prefix:</label>\
+                  <label for="img_dev_prefix">'+tr("Device prefix")+':</label>\
                   <input type="text" name="img_dev_prefix" id="img_dev_prefix" />\
-                  <div class="tip">Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).</div>\
+                  <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</div>\
                </div>\
                <div class="img_param">\
-                 <label for="img_bus">Bus:</label>\
+                 <label for="img_bus">'+tr("Bus")+':</label>\
                  <select name="img_bus" id="img_bus">\
-                    <option value="ide">IDE</option>\
-                    <option value="scsi">SCSI</option>\
-                    <option value="virtio">Virtio (KVM)</option>\
+                    <option value="ide">'+tr("IDE")+'</option>\
+                    <option value="scsi">'+tr("SCSI")+'</option>\
+                    <option value="virtio">'+tr("Virtio (KVM)")+'</option>\
                  </select>\
-                 <div class="tip">Type of disk device to emulate.</div>\
+                 <div class="tip">'+tr("Type of disk device to emulate.")+'</div>\
                  </div>\
                <div class="img_param">\
-                  <label for="img_driver">Driver:</label>\
+                  <label for="img_driver">'+tr("Driver")+':</label>\
                   <input type="text" name="img_driver" id="img_driver" />\
-                  <div class="tip">Specific image mapping driver. KVM: raw, qcow2 and Xen:tap:aio:, file:</div>\
+                  <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
                </div>\
               </fieldset>\
               <fieldset>\
                  <div class="" id="src_path_select">\
-                   <label style="height:3em;">Path vs. source:</label>\
+                   <label style="height:3em;">'+tr("Path vs. source")+':</label>\
                    <input type="radio" name="src_path" id="path_img" value="path" />\
-                   <label style="float:none">Provide a path</label><br />\
+                   <label style="float:none">'+tr("Provide a path")+'</label><br />\
                    <input type="radio" name="src_path" id="source_img" value="source" />\
-                   <label style="float:none">Provide a source</label><br />\
+                   <label style="float:none">'+tr("Provide a source")+'</label><br />\
                    <input type="radio" name="src_path" id="datablock_img" value="datablock" />\
-                   <label style="float:none;vertical-align:top">Create an empty datablock</label>\
-                   <div class="tip">Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.</div><br />\
+                   <label style="float:none;vertical-align:top">'+tr("Create an empty datablock")+'</label>\
+                   <div class="tip">'+tr("Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.")+'</div><br />\
                  </div>\
                  <div class="img_param">\
-                    <label for="img_path">Path:</label>\
+                    <label for="img_path">'+tr("Path")+':</label>\
                     <input type="text" name="img_path" id="img_path" />\
-                    <div class="tip">Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.</div>\
+                    <div class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</div>\
                  </div>\
                  <div class="img_param">\
-                    <label for="img_source">Source:</label>\
+                    <label for="img_source">'+tr("Source")+':</label>\
                     <input type="text" name="img_source" id="img_source" />\
-                    <div class="tip">Source to be used in the DISK attribute. Useful for not file-based images.</div>\
+                    <div class="tip">'+tr("Source to be used in the DISK attribute. Useful for not file-based images.")+'</div>\
                  </div>\
                  <div class="img_size">\
-                    <label for="img_size">Size:</label>\
+                    <label for="img_size">'+tr("Size")+':</label>\
                      <input type="text" name="img_size" id="img_size" />\
-                      <div class="tip">Size of the datablock in MB.</div>\
+                      <div class="tip">'+tr("Size of the datablock in MB.")+'</div>\
                       </div>\
                  <div class="img_param">\
-                    <label for="img_fstype">FS type:</label>\
+                    <label for="img_fstype">'+tr("FS type")+':</label>\
                     <input type="text" name="img_fstype" id="img_fstype" />\
-                    <div class="tip">Type of file system to be built. This can be any value understood by mkfs unix command.</div>\
+                    <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
                  </div>\
                </fieldset>\
                <fieldset>\
                   <div class="">\
-                    <label for="custom_var_image_name">Name:</label>\
+                    <label for="custom_var_image_name">'+tr("Name")+':</label>\
                     <input type="text" id="custom_var_image_name" name="custom_var_image_name" />\
-                    <label for="custom_var_image_value">Value:</label>\
+                    <label for="custom_var_image_value">'+tr("Value")+':</label>\
                     <input type="text" id="custom_var_image_value" name="custom_var_image_value" />\
-                    <button class="add_remove_button add_button" id="add_custom_var_image_button" value="add_custom_image_var">Add</button>\
-                    <button class="add_remove_button" id="remove_custom_var_image_button" value="remove_custom_image_var">Remove selected</button>\
+                    <button class="add_remove_button add_button" id="add_custom_var_image_button" value="add_custom_image_var">'+tr("Add")+'</button>\
+                    <button class="add_remove_button" id="remove_custom_var_image_button" value="remove_custom_image_var">'+tr("Remove selected")+'</button>\
                     <div class="clear"></div>\
-                    <label for="custom_var_image_box">Custom attributes:</label>\
+                    <label for="custom_var_image_box">'+tr("Custom attributes")+':</label>\
                     <select id="custom_var_image_box" name="custom_var_image_box" style="height:100px;" multiple>\
                     </select>\
                  </div>\
                </fieldset>\
                <fieldset>\
                   <div class="form_buttons">\
-                    <button class="button" id="create_image_submit" value="user/create">Create</button>\
-                    <button class="button" type="reset" value="reset">Reset</button>\
+                    <button class="button" id="create_image_submit" value="user/create">'+tr("Create")+'</button>\
+                    <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
                     </div>\
                     </fieldset>\
             </form>\
@@ -159,16 +161,16 @@ var create_image_tmpl =
         <div id="img_manual">\
             <form id="create_image_form_manual" action="">\
                <fieldset style="border-top:none;">\
-                 <h3 style="margin-bottom:10px;">Write the image template here</h3>\
+                 <h3 style="margin-bottom:10px;">'+tr("Write the image template here")+'</h3>\
                  <textarea id="template" rows="15" style="width:100%;">\
                  </textarea>\
                </fieldset>\
                <fieldset>\
                <div class="form_buttons">\
                  <button class="button" id="create_vn_submit_manual" value="vn/create">\
-                    Create\
+                    '+tr("Create")+'\
                  </button>\
-                 <button class="button" type="reset" value="reset">Reset</button>\
+                 <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
                </div>\
              </fieldset>\
            </form>\
@@ -177,27 +179,26 @@ var create_image_tmpl =
 
 var update_image_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">Please, choose and modify the image you want to update:</h3>\
+         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the image you want to update")+':</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="image_template_update_select">Select an image:</label>\
+                 <label for="image_template_update_select">'+tr("Select an image")+':</label>\
                  <select id="image_template_update_select" name="image_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
-                   <label for="image_template_update_public">Public:</label>\
+                   <label for="image_template_update_public">'+tr("Public")+':</label>\
                    <input type="checkbox" name="image_template_update_public" id="image_template_update_public" />\
                  </div>\
                  <div>\
-                   <label for="image_template_update_public">Persistent:</label>\
+                   <label for="image_template_update_public">'+tr("Persistent")+':</label>\
                    <input type="checkbox" name="image_template_update_persistent" id="image_template_update_persistent" />\
                  </div>\
-                 <label for="image_template_update_textarea">Template:</label>\
+                 <label for="image_template_update_textarea">'+tr("Template")+':</label>\
                  <div class="clear"></div>\
                  <textarea id="image_template_update_textarea" style="width:100%; height:14em;"></textarea>\
             </fieldset>\
             <fieldset>\
                  <div class="form_buttons">\
-                    <button class="button" id="image_template_update_button" value="Image.update_template">\
-                       Update\
+                    <button class="button" id="image_template_update_button" value="Image.update_template">'+tr("Update")+'\
                     </button>\
                  </div>\
             </fieldset>\
@@ -277,7 +278,7 @@ var image_actions = {
         type: "single",
         call: OpenNebula.Image.update,
         callback: function() {
-            notifyMessage("Template updated correctly");
+            notifyMessage(tr("Template updated correctly"));
         },
         error: onError
     },
@@ -396,30 +397,30 @@ var image_actions = {
 var image_buttons = {
     "Image.refresh" : {
         type: "image",
-        text: "Refresh list",
+        text: tr("Refresh list"),
         img: "images/Refresh-icon.png"
     },
     "Image.create_dialog" : {
         type: "create_dialog",
-        text: "+ New"
+        text: tr('+ New')
     },
     "Image.update_dialog" : {
         type: "action",
-        text: "Update a template",
+        text: tr("Update a template"),
         alwaysActive: true
     },
     "Image.chown" : {
         type: "confirm_with_select",
-        text: "Change owner",
+        text: tr("Change owner"),
         select: users_sel,
-        tip: "Select the new owner:",
+        tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
     "Image.chgrp" : {
         type: "confirm_with_select",
-        text: "Change group",
+        text: tr("Change group"),
         select: groups_sel,
-        tip: "Select the new group:",
+        tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
     "action_list" : {
@@ -427,51 +428,51 @@ var image_buttons = {
         actions: {
             "Image.enable" : {
                 type: "action",
-                text: "Enable"
+                text: tr("Enable")
             },
             "Image.disable" : {
                 type: "action",
-                text: "Disable"
+                text: tr("Disable")
             },
             "Image.publish" : {
                 type: "action",
-                text: "Publish"
+                text: tr("Publish")
             },
             "Image.unpublish" : {
                 type: "action",
-                text: "Unpublish"
+                text: tr("Unpublish")
             },
             "Image.persistent" : {
                 type: "action",
-                text: "Make persistent"
+                text: tr("Make persistent")
             },
             "Image.nonpersistent" : {
                 type: "action",
-                text: "Make non persistent"
+                text: tr("Make non persistent")
             }
         }
     },
     "Image.delete" : {
         type: "action",
-        text: "Delete"
+        text: tr("Delete")
     }
 }
 
 var image_info_panel = {
     "image_info_tab" : {
-        title: "Image information",
+        title: tr("Image information"),
         content: ""
     },
 
     "image_template_tab" : {
-        title: "Image template",
+        title: tr("Image template"),
         content: ""
     }
 
 }
 
 var images_tab = {
-    title: "Images",
+    title: tr("Images"),
     content: images_tab_content,
     buttons: image_buttons
 }
@@ -492,13 +493,13 @@ function imageElementArray(image_json){
     var image = image_json.IMAGE;
 
     var type = $('<select>\
-                      <option value="OS">OS</option>\
-                      <option value="CDROM">CD-ROM</option>\
-                      <option value="DATABLOCK">Datablock</option>\
+                      <option value="OS">'+tr("OS")+'</option>\
+                      <option value="CDROM">'+tr("CD-ROM")+'</option>\
+                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
                  </select>');
 
     var value = OpenNebula.Helper.image_type(image.TYPE);
-    $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+value+'</option>');
+    $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+tr(value)+'</option>');
 
 
 
@@ -570,75 +571,76 @@ function updateImagesView(request, images_list){
 function updateImageInfo(request,img){
     var img_info = img.IMAGE;
     var info_tab = {
-        title: "Image information",
+        title: tr("Image information"),
         content:
         '<table id="info_img_table" class="info_table" style="width:80%;">\
            <thead>\
-            <tr><th colspan="2">Image "'+img_info.NAME+'" information</th></tr>\
+            <tr><th colspan="2">'+tr("Image")+' "'+img_info.NAME+'" '+
+            tr("information")+'</th></tr>\
            </thead>\
            <tr>\
-              <td class="key_td">ID</td>\
+              <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+img_info.ID+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Name</td>\
+              <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td">'+img_info.NAME+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Owner</td>\
+              <td class="key_td">'+tr("Owner")+'</td>\
               <td class="value_td">'+img_info.UNAME+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Group</td>\
+              <td class="key_td">'+tr("Group")+'</td>\
               <td class="value_td">'+img_info.GNAME+'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">Type</td>\
+             <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">Register time</td>\
+             <td class="key_td">'+tr("Register time")+'</td>\
              <td class="value_td">'+pretty_time(img_info.REGTIME)+'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">Public</td>\
-             <td class="value_td">'+(parseInt(img_info.PUBLIC) ? "yes" : "no")+'</td>\
+             <td class="key_td">'+tr("Public")+'</td>\
+             <td class="value_td">'+(parseInt(img_info.PUBLIC) ? tr("yes") : tr("no"))+'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">Persistent</td>\
-             <td class="value_td">'+(parseInt(img_info.PERSISTENT) ? "yes" : "no")+'</td>\
+             <td class="key_td">'+tr("Persistent")+'</td>\
+             <td class="value_td">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Source</td>\
+              <td class="key_td">'+tr("Source")+'</td>\
               <td class="value_td">'+(typeof img_info.SOURCE === "string" ? img_info.SOURCE : "--")+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Path</td>\
+              <td class="key_td">'+tr("Path")+'</td>\
               <td class="value_td">'+(typeof img_info.PATH === "string" ? img_info.PATH : "--")+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Filesystem type</td>\
+              <td class="key_td">'+tr("Filesystem type")+'</td>\
               <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Size (Mb)</td>\
+              <td class="key_td">'+tr("Size (Mb)")+'</td>\
               <td class="value_td">'+img_info.SIZE+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">State</td>\
+              <td class="key_td">'+tr("State")+'</td>\
               <td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">Running #VMS</td>\
+              <td class="key_td">'+tr("Running #VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
            </tr>\
         </table>'
     }
 
     var template_tab = {
-        title: "Image template",
+        title: tr("Image template"),
         content: '<table id="img_template_table" class="info_table" style="width:80%;">\
-            <thead><tr><th colspan="2">Image template</th></tr></thead>'+
+            <thead><tr><th colspan="2">'+tr("Image template")+'</th></tr></thead>'+
             prettyPrintJSON(img_info.TEMPLATE)+
             '</table>'
     }
@@ -652,7 +654,7 @@ function updateImageInfo(request,img){
 
 // Prepare the image creation dialog
 function setupCreateImageDialog(){
-    dialogs_context.append('<div title="Create Image" id="create_image_dialog"></div>');
+    dialogs_context.append('<div title="'+tr("Create Image")+'" id="create_image_dialog"></div>');
     $create_image_dialog =  $('#create_image_dialog',dialogs_context);
     var dialog = $create_image_dialog;
     dialog.html(create_image_tmpl);
@@ -669,8 +671,8 @@ function setupCreateImageDialog(){
 
     $('#img_tabs',dialog).tabs();
     $('button',dialog).button();
-    $('#img_type option',dialog).first().attr("selected","selected");
-    $('#datablock_img',dialog).attr("disabled","disabled");
+    $('#img_type option',dialog).first().attr('selected','selected');
+    $('#datablock_img',dialog).attr('disabled','disabled');
 
     $('select#img_type',dialog).change(function(){
         var value = $(this).val();
@@ -680,23 +682,23 @@ function setupCreateImageDialog(){
             $('#datablock_img',context).removeAttr("disabled");
             break;
         default:
-            $('#datablock_img',context).attr("disabled","disabled");
-            $('#path_img',context).attr("checked","checked");
+            $('#datablock_img',context).attr('disabled','disabled');
+            $('#path_img',context).attr('checked','checked');
             $('#img_source,#img_fstype,#img_size',context).parent().hide();
             $('#img_path',context).parent().show();
         }
     });
 
     $('#img_source,#img_fstype,#img_size',dialog).parent().hide();
-    $('#path_img',dialog).attr("checked","checked");
+    $('#path_img',dialog).attr('checked','checked');
     $('#img_path',dialog).parent().addClass("img_man");
 
     $('#img_public',dialog).click(function(){
-        $('#img_persistent',$create_image_dialog).removeAttr("checked");
+        $('#img_persistent',$create_image_dialog).removeAttr('checked');
     });
 
     $('#img_persistent',dialog).click(function(){
-        $('#img_public',$create_image_dialog).removeAttr("checked");
+        $('#img_public',$create_image_dialog).removeAttr('checked');
     });
 
 
@@ -732,7 +734,7 @@ function setupCreateImageDialog(){
             var name = $('#custom_var_image_name',$create_image_dialog).val();
             var value = $('#custom_var_image_value',$create_image_dialog).val();
             if (!name.length || !value.length) {
-                notifyError("Custom attribute name and value must be filled in");
+                notifyError(tr("Custom attribute name and value must be filled in"));
                 return false;
             }
             option= '<option value=\''+value+'\' name=\''+name+'\'>'+
@@ -755,7 +757,7 @@ function setupCreateImageDialog(){
         var exit = false;
         $('.img_man',this).each(function(){
             if (!$('input',this).val().length){
-                notifyError("There are mandatory parameters missing");
+                notifyError(tr("There are mandatory parameters missing"));
                 exit = true;
                 return false;
             }
@@ -799,7 +801,7 @@ function setupCreateImageDialog(){
             source = $('#img_source',this).val();
             img_json["SOURCE"] = source;
             break;
-            case "datablock":
+        case "datablock":
             size = $('#img_size',this).val();
             fstype = $('#img_fstype',this).val();
             img_json["SIZE"] = size;
@@ -809,7 +811,7 @@ function setupCreateImageDialog(){
 
         //Time to add custom attributes
         $('#custom_var_image_box option',$create_image_dialog).each(function(){
-            var attr_name = $(this).attr("name");
+            var attr_name = $(this).attr('name');
             var attr_value = $(this).val();
             img_json[attr_name] = attr_value;
         });
@@ -839,7 +841,7 @@ function popUpCreateImageDialog(){
 function setupImageTemplateUpdateDialog(){
 
     //Append to DOM
-    dialogs_context.append('<div id="image_template_update_dialog" title="Update image template"></div>');
+    dialogs_context.append('<div id="image_template_update_dialog" title="'+tr("Update image template")+'"></div>');
     var dialog = $('#image_template_update_dialog',dialogs_context);
 
     //Put HTML in place
@@ -860,21 +862,22 @@ function setupImageTemplateUpdateDialog(){
         var id = $(this).val();
         if (id && id.length){
             var dialog = $('#image_template_update_dialog');
-            $('#image_template_update_textarea',dialog).val("Loading...");
+            $('#image_template_update_textarea',dialog).val(tr("Loading")+
+                                                            "...");
 
             var img_public = is_public_image(id);
             var img_persistent = is_persistent_image(id)
 
             if (img_public){
-                $('#image_template_update_public',dialog).attr("checked","checked")
+                $('#image_template_update_public',dialog).attr('checked','checked')
             } else {
-                $('#image_template_update_public',dialog).removeAttr("checked")
+                $('#image_template_update_public',dialog).removeAttr('checked')
             }
 
             if (img_persistent){
-                $('#image_template_update_persistent',dialog).attr("checked","checked")
+                $('#image_template_update_persistent',dialog).attr('checked','checked')
             } else {
-                $('#image_template_update_persistent',dialog).removeAttr("checked")
+                $('#image_template_update_persistent',dialog).removeAttr('checked')
             }
 
             Sunstone.runAction("Image.fetch_template",id);
@@ -928,12 +931,12 @@ function popUpImageTemplateUpdateDialog(){
     var dialog =  $('#image_template_update_dialog');
     $('#image_template_update_select',dialog).html(select);
     $('#image_template_update_textarea',dialog).val("");
-    $('#image_template_update_public',dialog).removeAttr("checked")
-    $('#image_template_update_persistent',dialog).removeAttr("checked")
+    $('#image_template_update_public',dialog).removeAttr('checked')
+    $('#image_template_update_persistent',dialog).removeAttr('checked')
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        var new_select= sel_elems.length > 1? '<option value="">'+tr("Please select")+'</option>' : "";
         $('option','<select>'+select+'</select>').each(function(){
             var val = $(this).val();
             if ($.inArray(val,sel_elems) >= 0){
@@ -942,7 +945,7 @@ function popUpImageTemplateUpdateDialog(){
         });
         $('#image_template_update_select',dialog).html(new_select);
         if (sel_elems.length == 1) {
-            $('#image_template_update_select option',dialog).attr("selected","selected");
+            $('#image_template_update_select option',dialog).attr('selected','selected');
             $('#image_template_update_select',dialog).trigger("change");
         }
 
@@ -958,7 +961,7 @@ function setImageAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_images);
         var filter = $("#datatable_images_filter input",
-                       dataTable_images.parents("#datatable_images_wrapper")).attr("value");
+                       dataTable_images.parents("#datatable_images_wrapper")).attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Image.autorefresh");
         }
@@ -967,23 +970,23 @@ function setImageAutorefresh() {
 
 function is_public_image(id){
     var data = getElementData(id,"#image",dataTable_images)[7];
-    return $(data).attr("checked");
+    return $(data).attr('checked');
 };
 
 function is_persistent_image(id){
     var data = getElementData(id,"#image",dataTable_images)[8];
-    return $(data).attr("checked");
+    return $(data).attr('checked');
 };
 
 function setupImageActionCheckboxes(){
     $('input.action_cb#cb_public_image',dataTable_images).live("click",function(){
         var $this = $(this)
-        var id=$this.attr("elem_id");
-        if ($this.attr("checked")){
+        var id=$this.attr('elem_id');
+        if ($this.attr('checked')){
             if (!is_persistent_image(id))
                 Sunstone.runAction("Image.publish",id);
             else {
-                notifyError("Image cannot be public and persistent");
+                notifyError(tr("Image cannot be public and persistent"));
                 return false;
             };
         } else Sunstone.runAction("Image.unpublish",id);
@@ -993,12 +996,12 @@ function setupImageActionCheckboxes(){
 
     $('input.action_cb#cb_persistent_image',dataTable_images).live("click",function(){
         var $this = $(this)
-        var id=$this.attr("elem_id");
-        if ($this.attr("checked")){
+        var id=$this.attr('elem_id');
+        if ($this.attr('checked')){
             if (!is_public_image(id))
                 Sunstone.runAction("Image.persistent",id);
             else {
-                notifyError("Image cannot be public and persistent");
+                notifyError(tr("Image cannot be public and persistent"));
                 return false;
             };
         } else Sunstone.runAction("Image.nonpersistent",id);
@@ -1009,7 +1012,7 @@ function setupImageActionCheckboxes(){
     $('select.action_cb#select_chtype_image', dataTable_images).live("change",function(){
         var $this = $(this);
         var value = $this.val();
-        var id = $this.attr("elem_id");
+        var id = $this.attr('elem_id');
 
         Sunstone.runAction("Image.chtype", id, value);
     });
@@ -1030,7 +1033,11 @@ $(document).ready(function(){
             { "sWidth": "35px", "aTargets": [1,5,11] },
             { "sWidth": "100px", "aTargets": [6] },
             { "sWidth": "150px", "aTargets": [7] }
-        ]
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+		sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
     });
 
     dataTable_images.fnClearTable();
@@ -1048,4 +1055,6 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_images);
     tableCheckboxesListener(dataTable_images);
     imageInfoListener();
+
+
 })

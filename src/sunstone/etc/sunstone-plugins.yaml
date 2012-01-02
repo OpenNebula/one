@@ -45,3 +45,7 @@
     :user:
     :group:
         oneadmin: true
+- plugins/config-tab.js:
+    :ALL: true
+    :user:
+    :group:

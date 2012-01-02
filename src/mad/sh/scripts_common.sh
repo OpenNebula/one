@@ -148,3 +148,30 @@ function timeout_exec_and_log
         exit $CMD_CODE
     fi
 }
+
+# This function will return a command that upon execution will format a
+# filesystem with its proper parameters based on the filesystem type
+function mkfs_command {
+    DST=$1
+    FSTYPE=${2:-ext3}
+
+    # Specific options for different FS
+    case "$FSTYPE" in
+        "ext2"|"ext3"|"ext4"|"ntfs")
+            OPTS="-F"
+            ;;
+
+        "reiserfs")
+            OPTS="-f -q"
+            ;;
+
+        "jfs")
+            OPTS="-q"
+            ;;
+        *)
+            OPTS=""
+            ;;
+    esac
+
+    echo "$MKFS -t $FSTYPE $OPTS $DST"
+}

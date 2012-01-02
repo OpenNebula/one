@@ -51,9 +51,9 @@ exit(-1) if $?.exitstatus != 0
 top_text.gsub!(/^top.*^top.*?$/m, "") # Strip first top output
 
 top_text.split(/\n/).each{|line|
-    if line.match('^Cpu')
+    if line.match('^%?Cpu')
         line[7..-1].split(",").each{|elemento|
-            temp = elemento.strip.split("%")
+            temp = elemento.strip.split(/[% ]/)
             if temp[1]=="id"
             idle = temp[0]
             $free_cpu = idle.to_f * $total_cpu.to_f / 100

@@ -1,0 +1,11 @@
+RUNDIR=/var/run/one
+if ! [ -d $RUNDIR ]; then
+  mkdir -p -m 770 $RUNDIR
+  chown oneadmin:cloud $RUNDIR
+fi
+
+LOCKDIR=/var/lock/one
+if ! [ -d $LOCKDIR ]; then
+  mkdir -p -m 770 $LOCKDIR
+  chown oneadmin:cloud $LOCKDIR
+fi

@@ -46,7 +46,7 @@ module OpenNebula
         STDERR.puts format_error_message(message)
     end
 
-    #This function formats an error message for OpenNebula Copyright    e
+    #This function formats an error message for OpenNebula
     def self.format_error_message(message)
         error_str = "ERROR MESSAGE --8<------\n"
         error_str << message

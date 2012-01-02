@@ -15,33 +15,75 @@
 /* -------------------------------------------------------------------------- */
 
 #include "NebulaTemplate.h"
-#include "Nebula.h"
 
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * NebulaTemplate::conf_name="oned.conf";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
+int NebulaTemplate::load_configuration()
 {
-    ostringstream       os;
+    char * error = 0;
+    int    rc;
+
+    string      aname;
+    Attribute * attr;
+
+    map<string, Attribute *>::iterator  iter, j;
+
+    set_conf_default();
+
+    rc = parse(conf_file.c_str(), &error);
+
+    if ( rc != 0 && error != 0)
+    {
+        cout << "\nError while parsing configuration file:\n" << error << endl;
+
+        free(error);
+
+        return -1;
+    }
+
+    for(iter=conf_default.begin();iter!=conf_default.end();)
+    {
+        aname = iter->first;
+        attr  = iter->second;
+
+        j = attributes.find(aname);
+
+        if ( j == attributes.end() )
+        {
+            attributes.insert(make_pair(aname,attr));
+            iter++;
+        }
+        else
+        {
+            delete iter->second;
+            conf_default.erase(iter++);
+        }
+    }
+
+    return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const char * OpenNebulaTemplate::conf_name="oned.conf";
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_default()
+{
     SingleAttribute *   attribute;
     VectorAttribute *   vattribute;
     string              value;
-
-    conf_file = etc_location + conf_name;
 
     // MANAGER_TIMER
     value = "15";
 
     attribute = new SingleAttribute("MANAGER_TIMER",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
-
 /*
 #*******************************************************************************
 # Daemon configuration attributes
@@ -170,49 +212,3 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
     conf_default.insert(make_pair(attribute->name(),attribute));
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-
-int NebulaTemplate::load_configuration()
-{
-    char *                              error = 0;
-    map<string, Attribute *>::iterator  iter, j;
-    int                                 rc;
-
-    string      aname;
-    Attribute * attr;
-
-    rc = parse(conf_file.c_str(), &error);
-
-    if ( rc != 0 && error != 0)
-    {
-
-        cout << "\nError while parsing configuration file:\n" << error << endl;
-
-        free(error);
-
-        return -1;
-    }
-
-    for(iter=conf_default.begin();iter!=conf_default.end();)
-    {
-        aname = iter->first;
-        attr  = iter->second;
-
-        j = attributes.find(aname);
-
-        if ( j == attributes.end() )
-        {
-            attributes.insert(make_pair(aname,attr));
-            iter++;
-        }
-        else
-        {
-            delete iter->second;
-            conf_default.erase(iter++);
-        }
-    }
-
-    return 0;
-}

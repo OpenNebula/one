@@ -16,62 +16,23 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
+
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   ETC_LOCATION="/etc/one" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
 else
-   ETC_LOCATION=ONE_LOCATION+"/etc" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
 end
 
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vmware_driver'
 
 deploy_id = ARGV[0]
-@host     = ARGV[1]
+host      = ARGV[1]
 
-if !@host or !deploy_id
-    exit -1
-end
+vmware_drv = VMwareDriver.new(host)
 
-load ETC_LOCATION + "/vmwarerc"
-
-if USERNAME.class!=String || PASSWORD.class!=String
-    warn "Bad ESX credentials, aborting"
-    exit -1
-end
-
-data = perform_action(
-         "virsh -c #{LIBVIRT_URI} --readonly dominfo #{deploy_id}")
-
- if data.class == Fixnum
-     puts "STATE=d"
-     exit 0
- end
-
-state = ""
-
-data.split('\n').each{ |line|
-  state = line.match("^State: (.*)")
-
-  if state
-     state = state[1].strip
-     break
-  end
-}
-
-state_short = ""
-
-case state
-    when "running","blocked","shutdown","dying"
-        state_short = 'a'
-    when "paused"
-        state_short = 'p'
-    when "crashed"
-        state_short = 'c'
-    else
-        state_short = 'd'
-end
-
-puts "STATE=#{state_short}"
-
-
-
+puts vmware_drv.poll(deploy_id)
