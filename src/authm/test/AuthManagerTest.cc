@@ -26,6 +26,7 @@
 #include "AuthManager.h"
 #include "Template.h"
 #include "NebulaLog.h"
+#include "PoolObjectAuth.h"
 
 #include <openssl/evp.h>
 #include <openssl/bio.h>
@@ -184,7 +185,7 @@ public:
                       "NET:4:MANAGE:5:1:0 "
                       "HOST:6:MANAGE:7:1:0 0";
 
-        Permissions perm;
+        PoolObjectAuth perm;
         perm.gid = 0;
         perm.uid = -1;
 
@@ -300,7 +301,7 @@ public:
         AuthRequest ar5(0, 1);
         AuthRequest ar6(0, 1);
 
-        Permissions perm;
+        PoolObjectAuth perm;
 
         perm.oid = -1;
         perm.gid = -1;
@@ -320,7 +321,7 @@ public:
 
         CPPUNIT_ASSERT(ar.core_authorize() == true);
 
-        perm = Permissions();
+        perm = PoolObjectAuth();
 
         perm.oid = -1;
         perm.gid = -1;

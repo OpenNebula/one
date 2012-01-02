@@ -63,7 +63,7 @@ public:
     const bool authorize(int                    uid,
                          int                    gid,
                          AuthRequest::Object    obj_type,
-                         Permissions *          obj_perms,
+                         PoolObjectAuth *       obj_perms,
                          AuthRequest::Operation op);
 
     /**

@@ -28,7 +28,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     int rc, vid;
 
-    Permissions * perms;
+    PoolObjectAuth * perms;
 
     Nebula& nd = Nebula::instance();
     VirtualMachinePool* vmpool = nd.get_vmpool();

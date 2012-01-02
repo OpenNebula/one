@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "PoolObjectSQL.h"
-#include "AuthManager.h"
+#include "PoolObjectAuth.h"
 #include "SSLTools.h"
 
 /* -------------------------------------------------------------------------- */
@@ -246,9 +246,9 @@ int PoolObjectSQL::perms_from_xml()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Permissions* PoolObjectSQL::get_permissions()
+PoolObjectAuth* PoolObjectSQL::get_permissions()
 {
-    return new Permissions(this);
+    return new PoolObjectAuth(this);
 }
 
 /* -------------------------------------------------------------------------- */

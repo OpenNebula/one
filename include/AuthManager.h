@@ -29,7 +29,7 @@ using namespace std;
 
 //Forward definitions
 class AuthRequest;
-class Permissions;
+class PoolObjectAuth;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -353,9 +353,9 @@ public:
      * @param op the operation to be authorized
      * @param ob_perms object's permission attributes
      */
-    void add_auth(Object        ob,
-                  Operation     op,
-                  Permissions*  ob_perms)
+    void add_auth(Object            ob,
+                  Operation         op,
+                  PoolObjectAuth *  ob_perms)
     {
         add_auth(ob, op, ob_perms, "");
     }
@@ -372,10 +372,10 @@ public:
      * @param ob_template new object's template. If it is empty,
      * it will be ignored
      */
-    void add_auth(Object        ob,
-                  Operation     op,
-                  Permissions*  ob_perms,
-                  string        ob_template);
+    void add_auth(Object            ob,
+                  Operation         op,
+                  PoolObjectAuth *  ob_perms,
+                  string            ob_template);
 
     /**
      *  Gets the authorization requests in a single string

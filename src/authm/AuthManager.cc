@@ -17,7 +17,7 @@
 #include "AuthManager.h"
 #include "NebulaLog.h"
 #include "SSLTools.h"
-#include "PoolObjectSQL.h"
+#include "PoolObjectAuth.h"
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -30,10 +30,10 @@ const char * AuthManager::auth_driver_name = "auth_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthRequest::add_auth(Object       ob,
-                           Operation    op,
-                           Permissions* ob_perms,
-                           string       ob_template)
+void AuthRequest::add_auth(Object           ob,
+                           Operation        op,
+                           PoolObjectAuth * ob_perms,
+                           string           ob_template)
 {
     // TODO: object's public flag is not used, it will disappear
     bool pub = false;

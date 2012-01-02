@@ -22,6 +22,7 @@
 
 #include "RequestManager.h"
 #include "AuthManager.h"
+#include "PoolObjectAuth.h"
 
 using namespace std;
 

@@ -31,7 +31,7 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    Permissions * perms = new Permissions();
+    PoolObjectAuth * perms = new PoolObjectAuth();
     perms->uid = att.uid;
 
     AuthRequest ar(att.uid, att.gid);
@@ -71,7 +71,7 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    Permissions * perms = new Permissions;
+    PoolObjectAuth * perms = new PoolObjectAuth;
     perms->uid = att.uid;
 
     AuthRequest ar(att.uid, att.gid);

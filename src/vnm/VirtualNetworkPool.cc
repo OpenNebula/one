@@ -18,7 +18,7 @@
 #include "UserPool.h"
 #include "NebulaLog.h"
 #include "Nebula.h"
-
+#include "PoolObjectAuth.h"
 #include "AuthManager.h"
 #include <sstream>
 #include <ctype.h>
@@ -246,6 +246,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
 {
     string           network;
     VirtualNetwork * vnet = 0;
+    PoolObjectAuth *    perm = 0;
 
     if (!(network = nic->vector_value("NETWORK")).empty())
     {
@@ -265,7 +266,10 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
         return;
     }
 
-    ar->add_auth(AuthRequest::NET, AuthRequest::USE, vnet->get_permissions());
-
+    perm = vnet->get_permissions();
     vnet->unlock();
+
+    ar->add_auth(AuthRequest::NET, AuthRequest::USE, perm);
+
+    delete perm;
 }

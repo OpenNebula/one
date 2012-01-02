@@ -26,7 +26,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
                                                     RequestAttributes& att)
 {
     PoolObjectSQL * object;
-    Permissions *   vm_perms;
+    PoolObjectAuth *   vm_perms;
 
     if ( att.uid == 0 )
     {
@@ -56,7 +56,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
     if (hid != -1)
     {
-        Permissions * host_perm = new Permissions();
+        PoolObjectAuth * host_perm = new PoolObjectAuth();
         host_perm->oid = hid;
 
         ar.add_auth(AuthRequest::HOST, AuthRequest::MANAGE, host_perm);
@@ -65,7 +65,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
     }
     else if (tmpl != 0)
     {
-        Permissions * image_perm;
+        PoolObjectAuth * image_perm = new PoolObjectAuth();
         image_perm->uid = att.uid;
 
         string t64;

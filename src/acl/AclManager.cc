@@ -18,7 +18,7 @@
 
 #include "AclManager.h"
 #include "NebulaLog.h"
-#include "PoolObjectSQL.h"
+#include "PoolObjectAuth.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -120,7 +120,7 @@ const bool AclManager::authorize(
         int                     uid,
         int                     gid,
         AuthRequest::Object     obj_type,
-        Permissions *           obj_perms,
+        PoolObjectAuth *        obj_perms,
         AuthRequest::Operation  op)
 {
     ostringstream oss;
@@ -188,78 +188,18 @@ const bool AclManager::authorize(
     // ---------------------------------------------------
     // Create temporary rules from the object permissions
     // ---------------------------------------------------
+
+    AclRule * owner_rule = 0;
+    AclRule * group_rule = 0;
+    AclRule * other_rule = 0;
     multimap<long long, AclRule*> tmp_rules;
 
-    if ( obj_perms->oid >= 0 )   // If oid is -1, this is a new obj. creation
-    {
-        long long perm_user, perm_resource, perm_rights;
-        AclRule * tmp_rule;
+    obj_perms->get_acl_rules(owner_rule, group_rule, other_rule);
 
-        perm_resource   = obj_type | AclRule::INDIVIDUAL_ID | obj_perms->oid;
+    tmp_rules.insert( make_pair(owner_rule->user, owner_rule) );
+    tmp_rules.insert( make_pair(group_rule->user, group_rule) );
+    tmp_rules.insert( make_pair(other_rule->user, other_rule) );
 
-        // Rule     "#uid  ob_type/#oid  user_rights"
-
-        perm_user       = AclRule::INDIVIDUAL_ID | obj_perms->uid;
-        perm_rights     = 0;
-        if ( obj_perms->owner_u == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::USE;
-        }
-        if ( obj_perms->owner_m == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::MANAGE;
-        }
-        if ( obj_perms->owner_a == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::ADMIN;
-        }
-
-        tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
-
-        tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
-
-        // Rule     "@gid  ob_type/#oid  group_rights"
-        perm_user       = AclRule::GROUP_ID | obj_perms->gid;
-        perm_rights     = 0;
-
-        if ( obj_perms->group_u == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::USE;
-        }
-        if ( obj_perms->group_m == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::MANAGE;
-        }
-        if ( obj_perms->group_a == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::ADMIN;
-        }
-
-        tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
-
-        tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
-
-        // Rule     "*     ob_type/#oid  others_rights"
-        perm_user       = AclRule::ALL_ID;
-        perm_rights     = 0;
-
-        if ( obj_perms->other_u == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::USE;
-        }
-        if ( obj_perms->other_m == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::MANAGE;
-        }
-        if ( obj_perms->other_a == 1 )
-        {
-            perm_rights = perm_rights | AuthRequest::ADMIN;
-        }
-
-        tmp_rule = new AclRule(0, perm_user, perm_resource, perm_rights);
-
-        tmp_rules.insert( make_pair(tmp_rule->user, tmp_rule) );
-    }
     // ---------------------------------------------------
     // Look for rules that apply to everyone
     // ---------------------------------------------------

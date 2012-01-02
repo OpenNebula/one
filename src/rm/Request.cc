@@ -57,7 +57,7 @@ bool Request::basic_authorization(int oid,
                                   RequestAttributes& att)
 {
     PoolObjectSQL * object;
-    Permissions *   perms = 0;
+    PoolObjectAuth *   perms = 0;
 
     if ( att.uid == 0 )
     {

@@ -21,6 +21,7 @@
 #include "ImagePool.h"
 #include "AuthManager.h"
 #include "Nebula.h"
+#include "PoolObjectAuth.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -293,8 +294,9 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
 void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 {
-    string  source;
-    Image * img = 0;
+    string          source;
+    Image *         img  = 0;
+    PoolObjectAuth *   perm = 0;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
@@ -324,10 +326,10 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
         return;
     }
 
-    Permissions* perm = img->get_permissions();
+    perm = img->get_permissions();
+    img->unlock();
 
     ar->add_auth(AuthRequest::IMAGE, AuthRequest::USE, perm);
 
-    img->unlock();
     delete perm;
 }
