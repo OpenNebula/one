@@ -52,6 +52,7 @@ class EC2Driver < VirtualMachineDriver
         :terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
         :describe  => "#{EC2_LOCATION}/bin/ec2-describe-instances",
         :associate => "#{EC2_LOCATION}/bin/ec2-associate-address",
+        :reboot    => "#{EC2_LOCATION}/bin/ec2-reboot-instances",
         :authorize => "#{EC2_LOCATION}/bin/ec2-authorize"
     }
 
@@ -185,6 +186,20 @@ class EC2Driver < VirtualMachineDriver
         deploy_id = msg.elements["DEPLOY_ID"].text
 
         ec2_terminate(ACTION[:shutdown], id, deploy_id)
+    end
+   
+    # Reboot a EC2 instance 
+    def reboot(id, drv_message)
+        cmd = "#{EC2_LOCATION}/bin/ec2-reboot-instances #{deploy_id}"
+        exe = LocalCommand.run(cmd, log_method(id))
+
+        if exe.code != 0
+            result = RESULT[:failure]
+        else
+            result = RESULT[:success]
+        end
+
+        send_message(action,result,id)
     end
 
     # Cancel a EC2 instance

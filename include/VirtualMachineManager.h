@@ -51,6 +51,7 @@ public:
         CANCEL_PREVIOUS,
         MIGRATE,
         RESTORE,
+        REBOOT,
         POLL,
         TIMER,
         DRIVER_CANCEL,
@@ -260,6 +261,13 @@ private:
      *    @param vid the id of the VM.
      */
     void restore_action(
+        int vid);
+
+    /**
+     *  Reboots a running VM.
+     *    @param vid the id of the VM.
+     */
+    void reboot_action(
         int vid);
 
     /**
