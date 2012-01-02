@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenNebula Self-Service</title>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+
+    <!-- Vendor Libraries -->
+    <link rel="stylesheet" type="text/css" href="vendor/dataTables/demo_table_jui.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/jQueryUI/jquery-ui-1.8.16.custom.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/jGrowl/jquery.jgrowl.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/jQueryLayout/layout-default-latest.css" />
+
+    <script type="text/javascript" src="vendor/jQuery/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="vendor/xml2json/jquery.xml2json.pack.js"></script>
+    <script type="text/javascript" src="vendor/jGrowl/jquery.jgrowl_minimized.js"></script>
+    <script type="text/javascript" src="vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="vendor/jQueryLayout/jquery.layout-latest.min.js"></script>
+    <script type="text/javascript" src="vendor/dataTables/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="vendor/fileuploader/fileuploader.js"></script>
+
+    <!-- End Vendor Libraries -->
+
+    <!--Languages-->
+    <script type="text/javascript" src="js/locale.js"></script>
+<%if session[:lang]%>
+    <script type="text/javascript" src="locale/<%=session[:lang]%>/<%=session[:lang]%>.js"></script>
+<%end%>
+    <!--endLanguages-->
+
+    <link rel="stylesheet" type="text/css" href="css/application.css" />
+    <link rel="stylesheet" type="text/css" href="css/layout.css" />
+    <script type="text/javascript" src="js/layout.js"></script>
+    <script type="text/javascript" src="js/occi.js"></script>
+    <script type="text/javascript" src="js/sunstone.js"></script>
+    <script type="text/javascript" src="js/sunstone-util.js"></script>
+    <script type="text/javascript" src="customize/custom.js"></script>
+
+    <!--Base plugins-->
+
+    <script type="text/javascript" src="js/plugins/dashboard.js"></script>
+    <script type="text/javascript" src="js/plugins/compute.js"></script>
+    <script type="text/javascript" src="js/plugins/storage.js"></script>
+    <script type="text/javascript" src="js/plugins/network.js"></script>
+    <script type="text/javascript" src="js/plugins/configuration.js"></script>
+
+
+
+</head>
+<body>
+<div class="outer-center">
+    <div class="inner-center">
+    </div>
+    <div id="dialog" class="inner-east"></div>
+</div>
+
+<div id="menu" class="outer-west">
+  <ul id="navigation" class="navigation">
+  </ul>
+</div>
+
+<div id="header" class="ui-layout-north">
+    <div id="logo">
+        <img src="images/opennebula-selfservice-small.png"/>
+    </div>
+    <div id="login-info">
+        <span id="welcome">Welcome</span> <span id="user"></span>&nbsp;|&nbsp;<a href="#" id="logout">Sign Out</a>
+    </div>
+<!--
+    <div id="links">
+        <a href="http://opennebula.org/documentation:documentation" target="_blank">Documentation</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/support:support" target="_blank">Support</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/community:community" target="_blank">Community</a>
+    </div>
+-->
+</div>
+
+<div id="footer" class="ui-layout-south">
+    Copyright 2002-2011 &copy; OpenNebula Project Leads (<a href="http://opennebula.org" target="_blank">OpenNebula.org</a>). All Rights Reserved. OpenNebula 3.1.0
+</div>
+
+
+<div id="dialogs">
+
+</div>
+<div id="plots">
+
+</div>
+<div id="info_panels"></div>
+</body>
+</html>

@@ -1,3 +1,6 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,43 +17,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# OpenNebula sever contact information
-:one_xmlrpc: http://localhost:2633/RPC2
+tr_strings = `grep -h -o -R -e 'tr("[[:print:]]*")' ../js/* ../customize/* | cut -d'"' -f 2 | sort -u`
 
-# Host and port where OCCI server will run
-:server: localhost
-:port: 4567
+puts "//Translated by"
+puts 'lang="en_US"'
+puts 'datatable_lang=""'
+puts "locale={"
 
-# SSL proxy that serves the API (set if is being used)
-#:ssl_server: fqdm.of.the.server
+tr_strings.each_line do | line |
+    puts "    \"#{line.chomp}\":\"\","
+end
 
-# Authentication driver for incomming requests
-#   occi, for OpenNebula's user-password scheme
-#   x509, for x509 certificates based authentication
-:auth: occi
-
-# Authentication driver to communicate with OpenNebula core
-#   cipher, for symmetric cipher encryption of tokens
-#   x509, for x509 certificate encryption of tokens
-:core_auth: cipher
-
-# Life-time in seconds for token renewal (that used to handle OpenNebula auths)
-:token_expiration_delta: 1800
-
-# VM types allowed and its template file (inside templates directory)
-:instance_types:
-  :small:
-    :template: small.erb
-    :cpu: 1
-    :memory: 1024
-  :medium:
-    :template: medium.erb
-    :cpu: 4
-    :memory: 4096
-  :large:
-    :template: large.erb
-    :cpu: 8
-    :memory: 8192
-
-# Default language setting for Self-Service UI
-:lang: en_US
+puts "};"
