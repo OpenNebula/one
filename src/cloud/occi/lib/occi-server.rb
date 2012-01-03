@@ -48,6 +48,9 @@ $: << RUBY_LIB_LOCATION+"/cloud" # For the Repository Manager
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
+require 'erb'
+require 'tempfile'
+require 'json'
 
 require 'OCCIServer'
 require 'CloudAuth'
@@ -71,6 +74,9 @@ CloudServer.print_configuration(conf)
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
+use Rack::Session::Pool, :key => 'occi'
+set :public, Proc.new { File.join(root, "ui/public") }
+set :views, settings.root + '/ui/views'
 set :config, conf
 
 if CloudServer.is_port_open?(settings.config[:server],
@@ -98,22 +104,89 @@ set :cloud_auth, cloud_auth
 ##############################################################################
 
 before do
-    begin
-        username = settings.cloud_auth.auth(request.env, params)
-    rescue Exception => e
-        error 500, e.message
-    end
+    unless request.path=='/ui/login' || request.path=='/ui'
+        if !authorized?
+            begin
+                username = settings.cloud_auth.auth(request.env, params)
+            rescue Exception => e
+                error 500, e.message
+            end
+        else
+            username = session[:user]
+        end
 
-    if username.nil?
-        error 401, ""
-    else
-        client  = settings.cloud_auth.client(username)
-        @occi_server = OCCIServer.new(client, settings.config)
+        if username.nil? #unable to authenticate
+            error 401, ""
+        else
+            client  = settings.cloud_auth.client(username)
+            @occi_server = OCCIServer.new(client, settings.config)
+        end
+    end
+end
+
+after do
+    unless request.path=='/ui/login' || request.path=='/ui'
+        unless session[:remember]
+            if params[:timeout] == true
+                env['rack.session.options'][:defer] = true
+            else
+                env['rack.session.options'][:expire_after] = 60*10
+            end
+        end
     end
 end
 
 # Response treatment
 helpers do
+    def authorized?
+        session[:ip] && session[:ip]==request.ip ? true : false
+    end
+
+    def build_session
+        begin
+            username = settings.cloud_auth.auth(request.env, params)
+        rescue Exception => e
+            error 500, e.message
+        end
+
+        if username.nil?
+            error 401, ""
+        else
+            client  = settings.cloud_auth.client(username)
+            @occi_server = OCCIServer.new(client, settings.config)
+
+            user_id = OpenNebula::User::SELF
+            user    = OpenNebula::User.new_with_id(user_id, client)
+            rc = user.info
+            if OpenNebula.is_error?(rc)
+                # Add a log message
+                return [500, ""]
+            end
+
+            session[:ip] = request.ip
+            session[:user] = username
+            session[:remember] = params[:remember]
+
+            if params[:remember]
+                env['rack.session.options'][:expire_after] = 30*60*60*24
+            end
+
+            if params[:lang]
+                session[:lang] = params[:lang]
+            else
+                session[:lang] = settings.config[:lang]
+            end
+
+            return [204, ""]
+        end
+    end
+
+    def destroy_session
+        session.clear
+        return [204, ""]
+    end
+
+
     def treat_response(result,rc)
         if OpenNebula::is_error?(result)
             halt rc, result.message
@@ -232,5 +305,57 @@ end
 
 get '/user/:id' do
     result,rc = @occi_server.get_user(request, params)
+    treat_response(result,rc)
+end
+
+##############################################
+## UI
+##############################################
+
+post '/config' do
+    begin
+        body = JSON.parse(request.body.read)
+    rescue
+        [500, "POST Config: Error parsing configuration JSON"]
+    end
+
+    body.each do | key,value |
+        case key
+        when "lang" then session[:lang]=value
+        end
+    end
+end
+
+get '/ui/login' do
+    File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
+end
+
+post '/ui/login' do
+    build_session
+end
+
+post '/ui/logout' do
+    destroy_session
+end
+
+get '/ui' do
+    if !authorized?
+        return File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
+    end
+
+    time = Time.now + 60
+    response.set_cookie("occi-user",
+                        :value=>"#{session[:user]}",
+                        :expires=>time)
+
+    erb :index
+end
+
+post '/ui/upload' do
+    file = Tempfile.new('uploaded_image')
+    request.params['file'] = file.path #so we can re-use occi post_storage()
+    file.write(request.env['rack.input'].read)
+    #file.close # this would allow that file is garbage-collected
+    result,rc = @occi_server.post_storage(request)
     treat_response(result,rc)
 end
