@@ -17,7 +17,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-tr_strings = `grep -h -o -R -e 'tr("[[:print:]]*")' ../js/* ../customize/* | cut -d'"' -f 2 | sort -u`
+tr_strings = `grep -h -o -R -e 'tr("[[:print:]]*")' ../js/* ../customize/* ../../../../../../sunstone/public/js/sunstone.js ../../../../../../sunstone/public/js/sunstone-util.js | cut -d'"' -f 2 | sort -u`
 
 puts "//Translated by"
 puts 'lang="en_US"'

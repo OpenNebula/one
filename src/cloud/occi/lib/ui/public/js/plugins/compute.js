@@ -93,9 +93,9 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
            <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
         </fieldset>\
           <div class="form_buttons">\
-            <button class="vm_close_dialog_link"/>\
-            <button class="button" id="create_vm" value="VM.create" />\
-            <button class="button" type="reset" id="reset_vm" value="reset" />\
+            <button class="vm_close_dialog_link">'+tr("Close")+'</button>\
+            <button class="button" id="create_vm" value="VM.create">'+tr("Create")+'</button>\
+            <!--<button class="button" type="reset" id="reset_vm" value="reset">Reset</button>-->\
           </div>\
         </div>\
 </form>';
@@ -666,19 +666,21 @@ function popUpCreateVMDialog(){
         icons: {
             primary: "ui-icon-check"
         },
-        text: false
+        text: true
     });
+/*
     $('#reset_vm',dialog).button({
         icons: {
             primary: "ui-icon-scissors"
         },
-        text: false
+        text: true
     });
+*/
     $('.vm_close_dialog_link',dialog).button({
         icons: {
             primary: "ui-icon-closethick"
         },
-        text: false
+        text: true
     });
 
     var net_select = makeSelectOptions(dataTable_vNetworks,
@@ -706,7 +708,7 @@ function popUpCreateVMDialog(){
     });
 
     $('#network_box option,#disk_box option',dialog).click(function(){
-        var clicked = $(this).attr("clicked");
+        var clicked = $(this).attr('clicked');
         if (clicked){//unbold, unmark
             $(this).text($(this).text().replace(/\*/g,''));
             $(this).removeAttr('clicked');
