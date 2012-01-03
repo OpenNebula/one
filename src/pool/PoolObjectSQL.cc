@@ -258,13 +258,13 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     auth.owner_m = owner_m;
     auth.owner_a = owner_a;
 
-    group_u = auth.group_u;
-    group_m = auth.group_m;
-    group_a = auth.group_a;
+    auth.group_u = group_u;
+    auth.group_m = group_m;
+    auth.group_a = group_a;
 
-    other_u = auth.other_u;
-    other_m = auth.other_m;
-    other_a = auth.other_a;
+    auth.other_u = other_u;
+    auth.other_m = other_m;
+    auth.other_a = other_a;
 }
 
 /* -------------------------------------------------------------------------- */
