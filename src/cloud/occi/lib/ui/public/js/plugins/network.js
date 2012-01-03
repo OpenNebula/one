@@ -53,9 +53,9 @@ var create_vn_tmpl =
             <div class="clear"></div>\
           </fieldset>\
           <div class="form_buttons">\
-            <button class="vnet_close_dialog_link"/>\
-            <button class="button" id="create_vn" value="vn/create" />\
-            <button class="button" type="reset" id="reset_vn" value="reset" />\
+            <button class="vnet_close_dialog_link">'+tr("Close")+'</button>\
+            <button class="button" id="create_vn" value="Network.create">'+tr("Create")+'</button>\
+            <!--<button class="button" type="reset" id="reset_vn" value="reset" />-->\
           </div>\
         </form>\
       </div>\
@@ -325,19 +325,21 @@ function popUpCreateVnetDialog() {
         icons: {
             primary: "ui-icon-check"
         },
-        text: false
+        text: true
     });
+/*
     $('#reset_vn',dialog).button({
         icons: {
             primary: "ui-icon-scissors"
         },
         text: false
     });
+*/
     $('.vnet_close_dialog_link',dialog).button({
         icons: {
             primary: "ui-icon-closethick"
         },
-        text: false
+        text: true
     });
 
     $('#create_vn_form_easy',dialog).submit(function(){
