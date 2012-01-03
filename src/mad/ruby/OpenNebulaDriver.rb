@@ -87,7 +87,7 @@ class OpenNebulaDriver < ActionManager
             :ssh_stream  => nil
         }.merge(ops)
 
-        params  = parameters+" #{id} #{host}"
+        params  = parameters + " #{id} #{host}"
         command = action_command_line(aname, params, options[:script_name])
 
         if action_is_local?(aname)

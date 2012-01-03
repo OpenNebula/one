@@ -314,7 +314,7 @@ $(document).ready(function(){
     $('.action_button').live("click",function(){
         var error = 0;
         var table = null;
-        var value = $(this).attr("value");
+        var value = $(this).attr('value');
         var action = SunstoneCfg["actions"][value];
         if (!action) {
             notifyError("Action "+value+" not defined.");
@@ -366,6 +366,12 @@ $(document).ready(function(){
         $('.action_blocks .action_list:visible',main_tabs_context).hide();
     });
 
+    //Close open panel
+    $('.close_dialog_link').live("click",function(){
+        hideDialog();
+        return false;
+    });
+
     //Start with the dashboard (supposing we have one).
     showTab('#dashboard_tab');
 
@@ -397,6 +403,9 @@ function setLogin(){
     case "ozones":
         username = cookie["ozones-user"];
         break;
+    case "occi":
+        username = cookie["occi-user"];
+        break;
     };
 
 
@@ -411,6 +420,9 @@ function setLogin(){
         case "ozones":
             oZones.Auth.logout({success:redirect});
             break;
+        case "occi":
+            OCCI.Auth.logout({success:function(){window.location.href = "ui";}});
+            break;
         }
         return false;
     });
@@ -419,8 +431,13 @@ function setLogin(){
 //returns whether we are Sunstone, or oZones
 //not the most elegant way, but better in its own function
 function whichUI(){
-    return (typeof(OpenNebula)!="undefined"? "sunstone" : "ozones");
-}
+    if (typeof(OpenNebula)!="undefined")
+        return "sunstone";
+    if (typeof(oZones)!="undefined")
+        return "ozones";
+    if (typeof(OCCI)!="undefined")
+        return "occi";
+};
 
 //Inserts all main tabs in the DOM
 function insertTabs(){
@@ -549,8 +566,8 @@ function initListButtons(){
     $('.multi_action_slct',main_tabs_context).each(function(){
         //prepare replacement buttons
         var buttonset = $('<div style="display:inline-block;" class="top_button"></div');
-        var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">Previous action</button>').button();
-        button1.attr("disabled","disabled");
+        var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">'+tr("Previous action")+'</button>').button();
+        button1.attr('disabled','disabled');
         var button2 = $('<button class="list_button" value="">See more</button>').button({
             text:false,
             icons: { primary: "ui-icon-triangle-1-s" }
@@ -563,7 +580,7 @@ function initListButtons(){
         var options = $('option', $(this));
         var list = $('<ul class="action_list"></ul>');
         $.each(options,function(){
-            var classes = $(this).attr("class");
+            var classes = $(this).attr('class');
             var item = $('<li></li>');
             var a = $('<a href="#" class="'+classes+'" value="'+$(this).val()+'">'+$(this).text()+'</a>');
             a.val($(this).val());
@@ -590,7 +607,7 @@ function initListButtons(){
         prev_action_button.removeClass("confirm_with_select_button");
         prev_action_button.removeClass("confirm_button");
         prev_action_button.removeClass("action_button");
-        prev_action_button.addClass($(this).attr("class"));
+        prev_action_button.addClass($(this).attr('class'));
         prev_action_button.button("option","label",$(this).text());
         prev_action_button.button("enable");
         $(this).parents('ul').hide("blind",100);
@@ -612,19 +629,19 @@ function initListButtons(){
 
 //Prepares the standard confirm dialogs
 function setupConfirmDialogs(){
-    dialogs_context.append('<div id="confirm_dialog" title="Confirmation of action"></div>');
+    dialogs_context.append('<div id="confirm_dialog" title=\"'+tr("Confirmation of action")+'\"></div>');
     var dialog = $('div#confirm_dialog',dialogs_context);
 
     //add the HTML with the standard question and buttons.
         dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
-           <div id="confirm_tip">You have to confirm this action.</div>\
+           <div id="confirm_tip">'+tr("You have to confirm this action.")+'</div>\
            <br />\
-           <div id="question">Do you want to proceed?</div>\
+           <div id="question">'+tr("Do you want to proceed?")+'</div>\
            <br />\
            <div class="form_buttons">\
-             <button id="confirm_proceed" class="action_button" value="">OK</button>\
-             <button class="confirm_cancel" value="">Cancel</button>\
+             <button id="confirm_proceed" class="action_button" value="">'+tr("OK")+'</button>\
+             <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
           </div>\
         </form>');
 
@@ -646,17 +663,17 @@ function setupConfirmDialogs(){
         return false;
     });
 
-    dialogs_context.append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
+    dialogs_context.append('<div id="confirm_with_select_dialog" title=\"'+tr("Confirmation of action")+'\"></div>');
     dialog = $('div#confirm_with_select_dialog',dialogs_context);
 
     dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
-           <div id="confirm_with_select_tip">You need to select something.</div>\
+           <div id="confirm_with_select_tip">'+tr("You need to select something.")+'</div>\
            <select style="margin: 10px 0;" id="confirm_select">\
            </select>\
            <div class="form_buttons">\
-              <button id="confirm_with_select_proceed" class="" value="">OK</button>\
-              <button class="confirm_cancel" value="">Cancel</button>\
+              <button id="confirm_with_select_proceed" class="" value="">'+tr("OK")+'</button>\
+              <button class="confirm_cancel" value="">'+tr("Cancel")+'</button>\
            </div>\
          </form>');
 

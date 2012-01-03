@@ -52,6 +52,10 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:shutdown],RESULT[:success],id)
     end
 
+    def reboot(id, drv_message)
+        send_message(ACTION[:reboot],RESULT[:success],id)
+    end
+
     def cancel(id, drv_message)
         send_message(ACTION[:cancel],RESULT[:success],id)
     end

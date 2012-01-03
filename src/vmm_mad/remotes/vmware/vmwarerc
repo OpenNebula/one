@@ -14,28 +14,11 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-# User configurable variables (Ruby syntax)
-LIBVIRT_URI   = "esx://@HOST@/?no_verify=1"
-QEMU_PROTOCOL = "qemu"
+# Libvirt configuration
+	
+:libvirt_uri: "esx://@HOST@/?no_verify=1"
+:qemu_protocol: "qemu"
 
 # Username and password of the VMware hypervisor
-USERNAME      = "oneadmin"
-PASSWORD      =
-
-# Loading the vmware library for mads
-# Please leave this uncommented
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
-
-if !ONE_LOCATION
-   LIB_LOCATION = "/usr/lib/one"  if !defined?(LIB_LOCATION)
-else
-   LIB_LOCATION = ONE_LOCATION+"/lib" if !defined?(LIB_LOCATION)
-end
-
-load LIB_LOCATION + "/ruby/vmwarelib.rb"
-
-ENV['LANG']='C'
-
-
-
-
+:username: "oneadmin"
+:password:

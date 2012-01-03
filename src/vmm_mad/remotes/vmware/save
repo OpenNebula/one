@@ -19,50 +19,20 @@
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   ETC_LOCATION = "/etc/one" if !defined?(ETC_LOCATION)
-   VAR_LOCATION = "/var/lib/one" if !defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
 else
-   ETC_LOCATION = ONE_LOCATION + "/etc" if !defined?(ETC_LOCATION)
-   VAR_LOCATION = ONE_LOCATION + "/var" if !defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
 end
 
-deploy_id  = ARGV[0]
-file       = ARGV[1]
-@host      = ARGV[2]
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
 
-if !@host or !deploy_id or !file
-    exit -1
-end
+require 'vmware_driver'
 
-load ETC_LOCATION + "/vmwarerc"
+deploy_id = ARGV[0]
+file      = ARGV[1]
+host      = ARGV[2]
 
-if USERNAME.class!=String || PASSWORD.class!=String
-    warn "Bad ESX credentials, aborting"
-    exit -1
-end
+vmware_drv = VMwareDriver.new(host)
 
-# Create snapshot
-checkpoint_xml_file = VAR_LOCATION + "/remotes/vmm/vmware/checkpoint"
-
-data = perform_action(
-  "virsh -c #{LIBVIRT_URI} snapshot-create #{deploy_id} #{checkpoint_xml_file}")
-
-if data.class == Fixnum
-    exit data
-end
-
-# Suspend VM
-data = perform_action("virsh -c #{LIBVIRT_URI} suspend #{deploy_id}")
-
-if data.class == Fixnum
-    exit data
-end
-
-# Undefine VM
-data = perform_action("virsh -c #{LIBVIRT_URI} undefine #{deploy_id}")
-
-if data.class == Fixnum
-    exit data
-end
-
-
+vmware_drv.save(deploy_id)

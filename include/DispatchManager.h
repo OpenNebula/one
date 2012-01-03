@@ -210,6 +210,15 @@ public:
     int resubmit(
         int vid);
 
+    /**
+     *  Reboots a VM preserving any resource and RUNNING state
+     *    @param vid VirtualMachine identification
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
+    int reboot(
+        int vid);
+
 private:
     /**
      *  Thread id for the Dispatch Manager

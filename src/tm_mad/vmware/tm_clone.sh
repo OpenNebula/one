@@ -26,6 +26,7 @@ else
 fi
 
 . $TMCOMMON
+. "`dirname $0`/functions.sh"
 
 get_vmdir
 
@@ -37,34 +38,11 @@ fix_paths
 log_debug "$1 $2"
 log_debug "DST: $DST_PATH"
 
-DST_DIR=`dirname $DST_PATH`
+create_vmdir $DST_PATH
 
-log "Creating directory $DST_DIR"
-exec_and_log "rm -rf $DST_DIR"
-exec_and_log "mkdir -p $DST_PATH"
-exec_and_log "chmod a+w $DST_PATH"
+log "Cloning $SRC_PATH"
 
-case $SRC in
-http://*)
-    log "Downloading $SRC"
-    exec_and_log "$WGET -O $DST_PATH $SRC" \
-        "Error downloading $SRC"
-    ;;
+exec_and_log "cp -r $SRC_PATH/* $DST_PATH" \
+             "Error copying $SRC to $DST"
 
-*)
-    log "Cloning $SRC_PATH"
-    exec_and_log "cp -r $SRC_PATH/* $DST_PATH" \
-        "Error copying $SRC to $DST"
-    ;;
-esac
-
-SRC_FILE_SUFFIX=`echo ${SRC_PATH##*.}`
-
-if [ "x$SRC_FILE_SUFFIX" == "xiso" ]; then
-	cd $DST_DIR	
-        DISK_NAME = `basename $DST_PATH`
-	ln -s $DISK_NAME $DISK_NAME.iso
-fi
-
-exec_and_log "chmod a+rw $DST_PATH"
-
+fix_iso $DST_PATH

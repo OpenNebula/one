@@ -182,6 +182,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    reboot_desc = <<-EOT.unindent
+        Reboots the given VM, this is equivalent to execute the reboot command
+        from the VM console.
+
+        States: RUNNING
+    EOT
+
+    command :reboot, reboot_desc, [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"rebooting") do |vm|
+            vm.reboot
+        end
+    end
+
     deploy_desc = <<-EOT.unindent
         Deploys the given VM in the specified Host. This command forces the
         deployment, in a standard installation the Scheduler is in charge

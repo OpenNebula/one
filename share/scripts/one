@@ -43,18 +43,10 @@ fi
 KILL_9_SECONDS=5
 
 #------------------------------------------------------------------------------
-# Function that checks for running daemons and gets PORT from conf
+# Function that checks for running daemons 
 #------------------------------------------------------------------------------
 setup()
 {
-    PORT=$(sed -n '/^[ \t]*PORT/s/^.*PORT\s*=\s*\([0-9]\+\)\s*.*$/\1/p' \
-            $ONE_CONF)
-
-    if [ $? -ne 0 ]; then
-        echo "Can not find PORT in $ONE_CONF."
-        exit 1
-    fi
-
     if [ -f $LOCK_FILE ]; then
         if [ -f  $ONE_PID ]; then
             ONEPID=`cat $ONE_PID`
@@ -150,17 +142,7 @@ start()
     fi
 
     # Start the scheduler
-        # The following command line arguments are supported by mm_shed:
-        #  [-p port]           to connect to oned - default: 2633
-        #  [-t timer]          seconds between two scheduling actions - default: 30
-        #  [-m machines limit] max number of VMs managed in each scheduling action
-        #                      - default: 300
-        #  [-d dispatch limit] max number of VMs dispatched in each scheduling action
-        #                      - default: 30
-        #  [-h host dispatch]  max number of VMs dispatched to a given host in each
-        #                      scheduling action - default: 1
-
-    $ONE_SCHEDULER -p $PORT -t 30 -m 300 -d 30 -h 1&
+    $ONE_SCHEDULER&
 
     LASTRC=$?
     LASTPID=$!

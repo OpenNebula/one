@@ -20,16 +20,25 @@
 #include "Template.h"
 #include <map>
 
+/** 
+ * This class provides the basic abstraction for OpenNebula configuration files
+ */
 class NebulaTemplate : public Template
-{    
+{
 public:
+    // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
 
-    NebulaTemplate(string& etc_location, string& var_location);
+    NebulaTemplate(const string& etc_location, const char * _conf_name)
+    {
+        conf_file = etc_location + _conf_name;
+    }
     
-    ~NebulaTemplate(){};
+    virtual ~NebulaTemplate(){};
 
-    static const char * conf_name;
-    
+    // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+
     int get(const char * name, vector<const Attribute*>& values) const
     {
         string _name(name);
@@ -50,41 +59,95 @@ public:
         
         Template::get(_name,values);   
     };
+
+    void get(const char *name, unsigned int& values) const
+    {
+        int ival;
+
+        NebulaTemplate::get(name, ival);
+
+        values = static_cast<unsigned int>(ival);
+    };
     
     void get(const char * name, time_t& values) const
     {
-        const SingleAttribute *		sattr;
-        vector<const Attribute *>	attr;
+        const SingleAttribute *   sattr;
+        vector<const Attribute *> attr;
         
-        string 						_name(name);
+        string _name(name);
                 
         if ( Template::get(_name,attr) == 0 )
         {
-        	values = 0;
-        	return;
+            values = 0;
+            return;
         }
                        
         sattr = dynamic_cast<const SingleAttribute *>(attr[0]);
         
         if ( sattr != 0 )
         {
-        	istringstream	is;
-        	
-        	is.str(sattr->value());
-        	is >> values;
+            istringstream   is;
+            
+            is.str(sattr->value());
+            is >> values;
         }
         else
-        	values = 0;        
+            values = 0;        
     };    
 
-private:
-    friend class Nebula;
-    
+    // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+
+    /**
+     *  Parse and loads the configuration in the template
+     */
+    int load_configuration();
+
+protected:
+    /**
+     *  Full path to the configuration file 
+     */
     string                  conf_file;
     
+    /**
+     *  Defaults for the configuration file
+     */
     map<string, Attribute*> conf_default;
+
+    /**
+     *  Sets the defaults value for the template
+     */
+    virtual void set_conf_default() = 0;
+};
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+class OpenNebulaTemplate : public NebulaTemplate
+{    
+public:
+
+    OpenNebulaTemplate(const string& etc_location, const string& _var_location):
+        NebulaTemplate(etc_location, conf_name), var_location(_var_location)
+        {};
     
-    int load_configuration();
+    ~OpenNebulaTemplate(){};
+
+private:
+    /**
+     *  Name for the configuration file, oned.conf
+     */
+    static const char * conf_name;
+
+    /**
+     *  Path for the var directory, for defaults
+     */
+    string var_location;
+    
+    /**
+     *  Sets the defaults value for the template
+     */
+    void set_conf_default();
 };
 
 

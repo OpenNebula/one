@@ -19,71 +19,19 @@
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   ETC_LOCATION="/etc/one" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
 else
-   ETC_LOCATION=ONE_LOCATION+"/etc" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
 end
 
-file  = ARGV[0]
-@host = ARGV[1]
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
 
-if !@host or !file
-  exit -1
-end
+require 'vmware_driver'
 
-load ETC_LOCATION + "/vmwarerc"
+checkpoint_file = ARGV[0]
+host            = ARGV[1]
 
-if USERNAME.class!=String || PASSWORD.class!=String
-    warn "Bad ESX credentials, aborting"
-    exit -1
-end
+vmware_drv = VMwareDriver.new(host)
 
-# Define the VM
-deployment_file = File.dirname(File.dirname(file)) + "/deployment.0"
-
-data = perform_action("virsh -c #{LIBVIRT_URI} define #{deployment_file}")
-
-if data.class == Fixnum
-    exit data
-end
-
-domainname = ""
-success    = false
-
-data.split('\n').each{ |line|
-  domainname = line.match("Domain (.*) defined from (.*)")
-  if domainname
-     success = true
-     break
-  end
-}
-
-if !success
-  exit -1
-end
-
-domainname = domainname[1]
-
-# Revert snapshot VM
-#  Note: This assumes the checkpoint name is "checkpoint", to change this
-#        it is needed to change also
-#             $ONE_LOCATION/lib/remotes/vmm/vmware/checkpoint
-
-data = perform_action(
-       "virsh -c #{LIBVIRT_URI} snapshot-revert #{domainname} checkpoint")
-
-if data.class == Fixnum
-    exit data
-end
-
-# Delete checkpoint
-data = perform_action(
-       "virsh -c #{LIBVIRT_URI} snapshot-delete #{domainname} checkpoint")
-
-if data.class == Fixnum
-    exit data
-end
-
-
-
-
+vmware_drv.restore(checkpoint_file)

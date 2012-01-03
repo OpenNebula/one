@@ -143,6 +143,11 @@ module OpenNebula
             action('shutdown')
         end
 
+        # Shutdowns an already deployed VM
+        def reboot
+            action('reboot')
+        end
+
         # Cancels a running VM
         def cancel
             action('cancel')

@@ -539,6 +539,50 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int DispatchManager::reboot(int vid)
+{
+    VirtualMachine *    vm;
+    ostringstream       oss;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    oss << "Rebooting VM " << vid;
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        Nebula&             nd  = Nebula::instance();
+        LifeCycleManager *  lcm = nd.get_lcm();
+
+        lcm->trigger(LifeCycleManager::REBOOT,vid);
+    }
+    else
+    {
+        goto error;
+    }
+
+    vm->unlock();
+
+    return 0;
+
+error:
+    oss.str("");
+    oss << "Could not reboot VM " << vid << ", wrong state.";
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    vm->unlock();
+
+    return -2;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int DispatchManager::finalize(
     int vid)
 {

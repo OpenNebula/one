@@ -229,6 +229,10 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         rc = dm->resubmit(id);
     }
+    else if (action == "reboot")
+    {
+        rc = dm->reboot(id);
+    }
 
     switch (rc)
     {
