@@ -234,7 +234,7 @@ int Host::from_xml(const string& xml)
 
     // Set the owner and group to oneadmin
     set_user(0, "");
-    set_group(0, "");
+    set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
     // Get associated classes
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);

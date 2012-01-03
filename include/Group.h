@@ -79,7 +79,11 @@ private:
 
     Group(int id, const string& name):
         PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
-        ObjectCollection("USERS"){};
+        ObjectCollection("USERS")
+    {
+        // Allow users in this group to see it
+        group_u = 1;
+    };
 
     virtual ~Group(){};
 
