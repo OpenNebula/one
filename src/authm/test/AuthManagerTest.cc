@@ -186,37 +186,30 @@ public:
                       "HOST:6:MANAGE:7:1:0 0";
 
         PoolObjectAuth perm;
-        perm.gid = 0;
-        perm.uid = -1;
-        perm.obj_type = AuthRequest::VM;
 
-        ar.add_auth(AuthRequest::CREATE,
-                    &perm,
-                    "This is a template\n");
+
+        ar.add_create_auth(PoolObjectSQL::VM, "This is a template\n");
 
         perm.oid = 2;
         perm.gid = 0;
         perm.uid = 3;
-        perm.obj_type = AuthRequest::IMAGE;
+        perm.obj_type = PoolObjectSQL::IMAGE;
 
-        ar.add_auth(AuthRequest::USE,
-                    &perm);
+        ar.add_auth(AuthRequest::USE,perm);
 
         perm.oid = 4;
         perm.gid = 0;
         perm.uid = 5;
-        perm.obj_type = AuthRequest::NET;
+        perm.obj_type = PoolObjectSQL::NET;
 
-        ar.add_auth(AuthRequest::MANAGE,
-                    &perm);
+        ar.add_auth(AuthRequest::MANAGE,perm);
 
         perm.oid = 6;
         perm.gid = 0;
         perm.uid = 7;
-        perm.obj_type = AuthRequest::HOST;
+        perm.obj_type = PoolObjectSQL::HOST;
 
-        ar.add_auth(AuthRequest::MANAGE,
-                    &perm);
+        ar.add_auth(AuthRequest::MANAGE,perm);
 
         am->trigger(AuthManager::AUTHORIZE,&ar);
         ar.wait();
@@ -239,14 +232,7 @@ public:
 
         string astr1= "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0:0 0";
 
-        perm.oid = -1;
-        perm.gid = 0;
-        perm.uid = -1;
-        perm.obj_type = AuthRequest::VM;
-
-        ar1.add_auth(AuthRequest::CREATE,
-                     &perm,
-                     "This is a template\n");
+        ar1.add_create_auth(PoolObjectSQL::VM, "This is a template\n");
 
         am->trigger(AuthManager::AUTHORIZE,&ar1);
         ar1.wait();
@@ -303,82 +289,66 @@ public:
 
         PoolObjectAuth perm;
 
-        perm.oid = -1;
-        perm.gid = -1;
-        perm.uid = 2;
-        perm.obj_type = AuthRequest::VM;
-        ar.add_auth(AuthRequest::CREATE,&perm,"dGhpcy");
+        ar.add_create_auth(PoolObjectSQL::VM,"dGhpcy");
 
         perm.oid = 2;
         perm.gid = 1;
         perm.uid = 2;
-        perm.obj_type = AuthRequest::NET;
-        ar.add_auth(AuthRequest::USE,&perm);
+        perm.obj_type = PoolObjectSQL::NET;
+        ar.add_auth(AuthRequest::USE,perm);
 
         perm.oid = 3;
         perm.gid = 1;
         perm.uid = 4;
         perm.group_u = 1;
-        perm.obj_type = AuthRequest::IMAGE;
-        ar.add_auth(AuthRequest::USE,&perm);
+        perm.obj_type = PoolObjectSQL::IMAGE;
+        ar.add_auth(AuthRequest::USE,perm);
 
         CPPUNIT_ASSERT(ar.core_authorize() == true);
 
         perm = PoolObjectAuth();
 
-        perm.oid = -1;
-        perm.gid = -1;
-        perm.uid = 2;
-        perm.obj_type = AuthRequest::VM;
-        ar1.add_auth(AuthRequest::CREATE,&perm,"dGhpcy");
+        ar1.add_create_auth(PoolObjectSQL::VM,"dGhpcy");
 
         perm.oid = 2;
         perm.gid = 1;
         perm.uid = 2;
-        perm.obj_type = AuthRequest::NET;
-        ar1.add_auth(AuthRequest::USE,&perm);
+        perm.obj_type = PoolObjectSQL::NET;
+        ar1.add_auth(AuthRequest::USE,perm);
 
         perm.oid = 3;
         perm.gid = 1;
         perm.uid = 4;
-        perm.obj_type = AuthRequest::IMAGE;
-        ar1.add_auth(AuthRequest::USE,&perm);
+        perm.obj_type = PoolObjectSQL::IMAGE;
+        ar1.add_auth(AuthRequest::USE,perm);
 
         CPPUNIT_ASSERT(ar1.core_authorize() == false);
 
-        perm.oid = -1;
-        perm.gid = -1;
-        perm.uid = 0;
-        perm.obj_type = AuthRequest::HOST;
-        ar2.add_auth(AuthRequest::CREATE,&perm,"dGhpcy");
+        ar2.add_create_auth(PoolObjectSQL::HOST,"");
         CPPUNIT_ASSERT(ar2.core_authorize() == false);
 
         perm.oid = 5;
         perm.gid = 1;
         perm.uid = 2;
-        perm.obj_type = AuthRequest::VM;
-        ar3.add_auth(AuthRequest::MANAGE,&perm);
+        perm.obj_type = PoolObjectSQL::VM;
+        ar3.add_auth(AuthRequest::MANAGE,perm);
         CPPUNIT_ASSERT(ar3.core_authorize() == false);
 
         perm.oid = 4;
         perm.gid = 1;
         perm.uid = 2;
-        perm.obj_type = AuthRequest::VM;
-        ar4.add_auth(AuthRequest::MANAGE,&perm);
+        perm.obj_type = PoolObjectSQL::VM;
+        ar4.add_auth(AuthRequest::MANAGE,perm);
         CPPUNIT_ASSERT(ar4.core_authorize() == true);
 
         perm.oid = 4;
         perm.gid = -1;
         perm.uid = 0;
-        perm.obj_type = AuthRequest::HOST;
-        ar5.add_auth(AuthRequest::MANAGE,&perm);
+        perm.obj_type = PoolObjectSQL::HOST;
+        ar5.add_auth(AuthRequest::MANAGE,perm);
         CPPUNIT_ASSERT(ar5.core_authorize() == true);
 
-        perm.oid = 4;
-        perm.gid = -1;
-        perm.uid = 0;
-        perm.obj_type = AuthRequest::HOST;
-        ar6.add_auth(AuthRequest::CREATE,&perm);
+        ar6.add_create_auth(PoolObjectSQL::HOST,"");
         CPPUNIT_ASSERT(ar6.core_authorize() == true);
     }
 

@@ -19,7 +19,7 @@
 #include "AclRule.h"
 
 void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
-                      			   AclRule& group_rule,
+                                   AclRule& group_rule,
                                    AclRule& other_rule) const
 {
     long long perm_user, perm_resource, perm_rights;
