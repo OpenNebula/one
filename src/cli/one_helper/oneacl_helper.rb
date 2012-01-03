@@ -74,13 +74,13 @@ private
         str.split("+").each{|type|
             case type
                 when "USE"
-                    mask[0] = "U"
+                    mask[0] = "u"
                 when "MANAGE"
-                    mask[1] = "M"
+                    mask[1] = "m"
                 when "ADMIN"
-                    mask[2] = "A"
+                    mask[2] = "a"
                 when "CREATE"
-                    mask[3] = "C"
+                    mask[3] = "c"
             end
         }
 

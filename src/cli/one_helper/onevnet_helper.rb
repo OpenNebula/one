@@ -69,9 +69,9 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
-            mask[0] = "U" if vn["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "M" if vn["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "A" if vn["PERMISSIONS/#{e}_A"] == "1"
+            mask[0] = "u" if vn["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if vn["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if vn["PERMISSIONS/#{e}_A"] == "1"
 
             puts str % [e,  mask]
         }

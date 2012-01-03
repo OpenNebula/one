@@ -76,9 +76,9 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
-            mask[0] = "U" if template["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "M" if template["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "A" if template["PERMISSIONS/#{e}_A"] == "1"
+            mask[0] = "u" if template["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if template["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if template["PERMISSIONS/#{e}_A"] == "1"
 
             puts str % [e,  mask]
         }
