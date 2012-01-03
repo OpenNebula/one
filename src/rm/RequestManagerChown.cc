@@ -33,18 +33,85 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     string ngname;
 
     PoolObjectSQL * object;
+    User *          user;
+    Group *         group;
 
-    if ( basic_authorization(oid, att) == false )
+    PoolObjectAuth  obj_perms;
+    PoolObjectAuth  user_perms;
+    PoolObjectAuth  group_perms;
+
+    if ( att.uid != 0 )
     {
-        return;
+        object = pool->get(oid,true);
+
+        if ( object == 0 )
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(auth_object),oid),
+                    att);
+            return;
+        }
+
+        object->get_permissions(obj_perms);
+
+        object->unlock();
+
+        AuthRequest ar(att.uid, att.gid);
+
+        ar.add_auth(auth_op, obj_perms);    // MANAGE OBJECT
+
+        if ( noid > -1  )
+        {
+            user = upool->get(noid,true);
+
+            if ( user == 0 )
+            {
+                failure_response(NO_EXISTS,
+                        get_error(object_name(PoolObjectSQL::USER),noid),
+                        att);
+                return;
+            }
+
+            user->get_permissions(user_perms);
+
+            user->unlock();
+
+            ar.add_auth(AuthRequest::MANAGE, user_perms);    // MANAGE USER
+        }
+
+        if ( ngid > -1  )
+        {
+            group = gpool->get(ngid,true);
+
+            if ( group == 0 )
+            {
+                failure_response(NO_EXISTS,
+                        get_error(object_name(PoolObjectSQL::GROUP),ngid),
+                        att);
+                return;
+            }
+
+            group->get_permissions(group_perms);
+
+            group->unlock();
+
+            ar.add_auth(AuthRequest::USE, group_perms);    // USE GROUP
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
     }
 
     // ------------- Check new user and group id's ---------------------
 
     if ( noid > -1  )
     {
-        User * user;
-
         if ((user = upool->get(noid,true)) == 0)
         {
             failure_response(NO_EXISTS,
@@ -60,8 +127,6 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( ngid > -1  )
     {
-        Group * group;
-        
         if ((group = gpool->get(ngid,true)) == 0)
         {
             failure_response(NO_EXISTS, 
@@ -121,18 +186,62 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     User *  user;
     Group * group;
 
-    if ( basic_authorization(oid, att) == false )
-    {
-        return;
-    }
-
-    // ------------- Check new primary group id for user ---------------------
+    PoolObjectAuth  user_perms;
+    PoolObjectAuth  group_perms;
 
     if ( ngid < 0 )
     {
         failure_response(XML_RPC_API,request_error("Wrong group ID",""), att);
         return;
     }
+
+    if ( att.uid != 0 )
+    {
+        user = upool->get(oid,true);
+
+        if ( user == 0 )
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(PoolObjectSQL::USER),oid),
+                    att);
+            return;
+        }
+
+        user->get_permissions(user_perms);
+
+        user->unlock();
+
+        group = gpool->get(ngid,true);
+
+        if ( group == 0 )
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(PoolObjectSQL::GROUP),ngid),
+                    att);
+            return;
+        }
+
+        group->get_permissions(group_perms);
+
+        group->unlock();
+
+        AuthRequest ar(att.uid, att.gid);
+
+        ar.add_auth(auth_op, user_perms);           // MANAGE USER
+        ar.add_auth(AuthRequest::USE, group_perms); // USE    GROUP
+
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
+
+    // ------------- Check new primary group id for user ---------------------
 
     if ( (group = gpool->get(ngid,true)) == 0 )
     {
