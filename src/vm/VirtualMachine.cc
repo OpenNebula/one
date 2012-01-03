@@ -43,7 +43,7 @@ VirtualMachine::VirtualMachine(int           id,
                                const string& _uname,
                                const string& _gname,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",_uid,_gid,_uname,_gname,table,AuthRequest::VM),
+        PoolObjectSQL(id,VM,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),

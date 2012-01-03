@@ -15,18 +15,19 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerVirtualMachine.h"
+#include "PoolObjectAuth.h"
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 bool RequestManagerVirtualMachine::vm_authorization(int oid,
-                                                    ImageTemplate *tmpl,
+                                                    ImageTemplate *    tmpl,
                                                     RequestAttributes& att,
-                                                    PoolObjectAuth * host_perm)
+                                                    PoolObjectAuth *   host_perm)
 {
     PoolObjectSQL * object;
-    PoolObjectAuth *   vm_perms;
+    PoolObjectAuth vm_perms;
 
     if ( att.uid == 0 )
     {
@@ -44,7 +45,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
         return false;
     }
 
-    vm_perms = object->get_permissions();
+    object->get_permissions(vm_perms);
 
     object->unlock();
 
@@ -52,25 +53,15 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
     ar.add_auth(auth_op, vm_perms);
 
-    delete vm_perms;
-
     if (host_perm != 0)
     {
-        ar.add_auth(AuthRequest::MANAGE, host_perm);
-
-        delete host_perm;
+        ar.add_auth(AuthRequest::MANAGE, *host_perm);
     }
     else if (tmpl != 0)
     {
-        PoolObjectAuth * image_perm = new PoolObjectAuth();
-        image_perm->uid = att.uid;
-        image_perm->obj_type = AuthRequest::IMAGE;
+        string t_xml;
 
-        string t64;
-
-        ar.add_auth(AuthRequest::CREATE, image_perm, tmpl->to_xml(t64));
-
-        delete image_perm;
+        ar.add_create_auth(PoolObjectSQL::IMAGE, tmpl->to_xml(t_xml));
     }
 
     if (UserPool::authorize(ar) == -1)
@@ -94,7 +85,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
                                                 string& vnm,
                                                 string& tm,
                                                 RequestAttributes& att,
-                                                PoolObjectAuth* host_perms)
+                                                PoolObjectAuth&    host_perms)
 {
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
@@ -106,7 +97,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     if ( host == 0 )
     {
         failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::HOST),hid),
+                get_error(object_name(PoolObjectSQL::HOST),hid),
                 att);
 
         return -1;
@@ -117,7 +108,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     vnm  = host->get_vnm_mad();
     tm   = host->get_tm_mad();
 
-    host_perms = host->get_permissions();
+    host->get_permissions(host_perms);
 
     host->unlock();
 
@@ -278,7 +269,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager *   dm = nd.get_dm();
 
     VirtualMachine * vm;
-    PoolObjectAuth * host_perms = 0;
+    PoolObjectAuth host_perms;
 
     string hostname;
     string vmm_mad;
@@ -295,8 +286,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    auth = vm_authorization(id,0,att,host_perms);
-    delete host_perms;
+    auth = vm_authorization(id,0,att,&host_perms);
 
     if ( auth == false )
     {
@@ -341,7 +331,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     DispatchManager *   dm = nd.get_dm();
 
     VirtualMachine * vm;
-    PoolObjectAuth * host_perms = 0;
+    PoolObjectAuth host_perms;
 
     string hostname;
     string vmm_mad;
@@ -359,8 +349,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    auth = vm_authorization(id,0,att,host_perms);
-    delete host_perms;
+    auth = vm_authorization(id,0,att,&host_perms);
 
     if ( auth == false )
     {
@@ -461,7 +450,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     if (rc < 0)
     {
         failure_response(INTERNAL,
-                allocate_error(AuthRequest::IMAGE, error_str), att);
+                allocate_error(PoolObjectSQL::IMAGE, error_str), att);
         return;
     }
 

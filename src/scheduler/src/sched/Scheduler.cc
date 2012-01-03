@@ -344,16 +344,15 @@ void Scheduler::match()
             }
             else
             {
-                PoolObjectAuth * host_perms = new PoolObjectAuth();
-                host_perms->oid = host->get_hid();
-                host_perms->obj_type = AuthRequest::HOST;
+                PoolObjectAuth host_perms;
+
+                host_perms.oid      = host->get_hid();
+                host_perms.obj_type = PoolObjectSQL::HOST;
 
                 matched = acls->authorize(uid, 
                                           gid,
                                           host_perms,
                                           AuthRequest::MANAGE);
-
-                delete host_perms;
             }
 
             if ( matched == false )
@@ -362,7 +361,7 @@ void Scheduler::match()
 
                 oss << "Host " << host->get_hid()
                     << " filtered out. User is not authorized to "
-                    << AuthRequest::Operation_to_str(AuthRequest::MANAGE)
+                    << AuthRequest::operation_to_str(AuthRequest::MANAGE)
                     << " it.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);

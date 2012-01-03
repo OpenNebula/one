@@ -246,9 +246,25 @@ int PoolObjectSQL::perms_from_xml()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolObjectAuth* PoolObjectSQL::get_permissions()
+void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 {
-    return new PoolObjectAuth(this);
+    auth.obj_type = obj_type;
+
+    auth.oid = oid;
+    auth.uid = uid;
+    auth.gid = gid;
+
+    auth.owner_u = owner_u;
+    auth.owner_m = owner_m;
+    auth.owner_a = owner_a;
+
+    group_u = auth.group_u;
+    group_m = auth.group_m;
+    group_a = auth.group_a;
+
+    other_u = auth.other_u;
+    other_m = auth.other_m;
+    other_a = auth.other_a;
 }
 
 /* -------------------------------------------------------------------------- */

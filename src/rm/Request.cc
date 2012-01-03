@@ -17,6 +17,8 @@
 #include "Request.h"
 #include "Nebula.h"
 
+#include "PoolObjectAuth.h"
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -57,7 +59,7 @@ bool Request::basic_authorization(int oid,
                                   RequestAttributes& att)
 {
     PoolObjectSQL * object;
-    PoolObjectAuth *   perms = 0;
+    PoolObjectAuth  perms;
 
     if ( att.uid == 0 )
     {
@@ -76,7 +78,7 @@ bool Request::basic_authorization(int oid,
             return false;
         }
 
-        perms = object->get_permissions();
+        object->get_permissions(perms);
 
         object->unlock();
     }
@@ -84,11 +86,6 @@ bool Request::basic_authorization(int oid,
     AuthRequest ar(att.uid, att.gid);
 
     ar.add_auth(op, perms);
-
-    if ( perms != 0 )
-    {
-        delete perms;
-    }
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -156,25 +153,25 @@ void Request::success_response(const string& val, RequestAttributes& att)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Request::object_name(AuthRequest::Object ob)
+string Request::object_name(PoolObjectSQL::ObjectType ob)
 {
     switch (ob)
     {
-        case AuthRequest::VM:
+        case PoolObjectSQL::VM:
             return "virtual machine";
-        case AuthRequest::HOST:
+        case PoolObjectSQL::HOST:
             return "host";
-        case AuthRequest::NET:
+        case PoolObjectSQL::NET:
             return "virtual network";
-        case AuthRequest::IMAGE:
+        case PoolObjectSQL::IMAGE:
             return "image";
-        case AuthRequest::USER:
+        case PoolObjectSQL::USER:
             return "user";
-        case AuthRequest::TEMPLATE:
+        case PoolObjectSQL::TEMPLATE:
             return "virtual machine template";
-        case AuthRequest::GROUP:
+        case PoolObjectSQL::GROUP:
             return "group";
-        case AuthRequest::ACL:
+        case PoolObjectSQL::ACL:
             return "ACL";
         default:
             return "-";
@@ -256,7 +253,8 @@ string Request::request_error (const string &err_desc, const string &err_detail)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Request::allocate_error (AuthRequest::Object obj, const string& error)
+string Request::allocate_error(PoolObjectSQL::ObjectType obj, 
+                               const string&             error)
 {
     ostringstream oss;
 

@@ -29,7 +29,7 @@ VMTemplate::VMTemplate(int id,
                        const string& _uname,
                        const string& _gname,
                        VirtualMachineTemplate * _template_contents):
-        PoolObjectSQL(id,"",_uid,_gid,_uname,_gname,table,AuthRequest::TEMPLATE),
+        PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,table),
         regtime(time(0))
 {
     if (_template_contents != 0)

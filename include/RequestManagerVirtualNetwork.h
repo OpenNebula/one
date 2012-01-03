@@ -36,7 +36,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
 
-        auth_object = AuthRequest::NET;
+        auth_object = PoolObjectSQL::NET;
         auth_op     = AuthRequest::MANAGE;
     };
 

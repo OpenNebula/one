@@ -31,23 +31,16 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    PoolObjectAuth * perms = new PoolObjectAuth();
-    perms->uid = att.uid;
-    perms->obj_type = auth_object;
+    string tmpl_str = "";
 
     AuthRequest ar(att.uid, att.gid);
 
-    if ( tmpl == 0 )
+    if ( tmpl != 0 )
     {
-        ar.add_auth(auth_op, perms);
-    }
-    else
-    {
-        string t64;
-        ar.add_auth(auth_op, perms, tmpl->to_xml(t64));
+        tmpl->to_xml(tmpl_str);
     }
 
-    delete perms;
+    ar.add_create_auth(auth_object, tmpl_str);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -72,19 +65,12 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    PoolObjectAuth * perms = new PoolObjectAuth;
-    perms->uid = att.uid;
-    perms->obj_type = auth_object;
-
     AuthRequest ar(att.uid, att.gid);
-
     string      t64;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
-    ar.add_auth(auth_op, perms, tmpl->to_xml(t64));
-
-    delete perms;
+    ar.add_create_auth(auth_object, tmpl->to_xml(t64));
 
     VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
 

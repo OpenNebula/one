@@ -37,7 +37,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
 
-        auth_object = AuthRequest::VM;
+        auth_object = PoolObjectSQL::VM;
         auth_op = AuthRequest::MANAGE;
     };
 
@@ -52,7 +52,7 @@ protected:
             RequestAttributes& att, PoolObjectAuth* host_perms);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
-            string& tm, RequestAttributes& att, PoolObjectAuth* host_perms);
+            string& tm, RequestAttributes& att, PoolObjectAuth& host_perms);
 
     int add_history(VirtualMachine * vm,
                     int              hid,

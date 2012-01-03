@@ -37,7 +37,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
 
-        auth_object = AuthRequest::HOST;
+        auth_object = PoolObjectSQL::HOST;
     };
 
     ~RequestManagerHost(){};

@@ -20,7 +20,6 @@
 #include "ObjectSQL.h"
 #include "ObjectXML.h"
 #include "Template.h"
-#include "AuthManager.h"
 
 #include <pthread.h>
 #include <string.h>
@@ -40,17 +39,56 @@ class PoolObjectAuth;
 class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
-    PoolObjectSQL(int                   id,
-                  const string&         _name,
-                  int                   _uid,
-                  int                   _gid,
-                  const string&         _uname,
-                  const string&         _gname,
-                  const char *          _table,
-                  AuthRequest::Object   _obj_type)
+    /* ---------------------------------------------------------------------- */
+    /* Class Constructors & Constants                                         */
+    /* ---------------------------------------------------------------------- */
+
+    /**
+     *  OpenNebula objects. This definitions are used by other core components
+     *  like the AuthZ/AuthN module
+     */
+    enum ObjectType
+    {
+        VM       = 0x0000001000000000LL,
+        HOST     = 0x0000002000000000LL,
+        NET      = 0x0000004000000000LL,
+        IMAGE    = 0x0000008000000000LL,
+        USER     = 0x0000010000000000LL,
+        TEMPLATE = 0x0000020000000000LL,
+        GROUP    = 0x0000040000000000LL,
+        ACL      = 0x0000080000000000LL
+    };
+
+    static string type_to_str(ObjectType ob)
+    {
+        switch (ob)
+        {
+            case VM:       return "VM" ; break;
+            case HOST:     return "HOST" ; break;
+            case NET:      return "NET" ; break;
+            case IMAGE:    return "IMAGE" ; break;
+            case USER:     return "USER" ; break;
+            case TEMPLATE: return "TEMPLATE" ; break;
+            case GROUP:    return "GROUP" ; break;
+            case ACL:      return "ACL" ; break;
+            default:       return "";
+        }
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    PoolObjectSQL(int            id,
+                  ObjectType    _obj_type,
+                  const string& _name,
+                  int           _uid,
+                  int           _gid,
+                  const string& _uname,
+                  const string& _gname,
+                  const char *  _table)
             :ObjectSQL(),
              ObjectXML(),
              oid(id),
+             obj_type(_obj_type),
              name(_name),
              uid(_uid),
              gid(_gid),
@@ -67,8 +105,7 @@ public:
              other_u(0),
              other_m(0),
              other_a(0),
-             obj_template(0),
-             obj_type(_obj_type),
+             obj_template(0), 
              table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -312,11 +349,13 @@ public:
      */
     int replace_template(const string& tmpl_str, string& error);
 
-    // ------------------------------------------------------------------------
-    // Permissions
-    // ------------------------------------------------------------------------
 
-    PoolObjectAuth* get_permissions();
+    /**
+     *  Fills a auth class to perform an authZ/authN request based on the object
+     *  attributes
+     *    @param auths to be filled
+     */
+    void get_permissions(PoolObjectAuth& auths);
 
 protected:
 
@@ -398,6 +437,11 @@ protected:
     int     oid;
 
     /**
+     *  The object type
+     */
+    ObjectType obj_type;
+
+    /**
      *  The object's name
      */
     string  name;
@@ -458,16 +502,12 @@ protected:
      */
     Template * obj_template;
 
-    AuthRequest::Object obj_type;
-
 private:
 
     /**
      *  The PoolSQL, friend to easily manipulate its Objects
      */
     friend class PoolSQL;
-
-    friend class PoolObjectAuth;
 
     /**
      * The mutex for the PoolObject. This implementation assumes that the mutex

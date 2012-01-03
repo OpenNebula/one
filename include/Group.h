@@ -78,7 +78,7 @@ private:
     // *************************************************************************
 
     Group(int id, const string& name):
-        PoolObjectSQL(id,name,-1,-1,"","",table,AuthRequest::GROUP),
+        PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
         ObjectCollection("USERS"){};
 
     virtual ~Group(){};

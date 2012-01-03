@@ -18,11 +18,14 @@
 #define ACL_MANAGER_H_
 
 #include "AuthManager.h"
+#include "PoolObjectSQL.h"
 #include "AclRule.h"
 
 #include "SqlDB.h"
 
 using namespace std;
+
+class PoolObjectAuth;
 
 /**
  *  This class manages the ACL rules and the authorization engine
@@ -61,7 +64,7 @@ public:
      */
     const bool authorize(int                    uid,
                          int                    gid,
-                         PoolObjectAuth *       obj_perms,
+                         const PoolObjectAuth&  obj_perms,
                          AuthRequest::Operation op);
 
     /**
@@ -102,13 +105,13 @@ public:
      *    @param oids Set of object IDs over which the user can operate
      *    @param gids Set of object group IDs over which the user can operate
      */
-    void reverse_search(int                     uid,
-                        int                     gid,
-                        AuthRequest::Object     obj_type,
-                        AuthRequest::Operation  op,
-                        bool&                   all,
-                        vector<int>&            oids,
-                        vector<int>&            gids);
+    void reverse_search(int                       uid,
+                        int                       gid,
+                        PoolObjectSQL::ObjectType obj_type,
+                        AuthRequest::Operation    op,
+                        bool&                     all,
+                        vector<int>&              oids,
+                        vector<int>&              gids);
 
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */

@@ -103,7 +103,7 @@ void RequestManagerPoolInfoFilter::request_execute(
                 uid_filter  << "uid = " << att.uid; // TODO: add owner_USE restriction
 
                 // VMs don't have public column, are considered private
-                if ( auth_object != AuthRequest::VM )
+                if ( auth_object != PoolObjectSQL::VM )
                 {
                     // TODO add group, other permission restrictions
                     uid_filter  << " OR (gid = " << att.gid << " AND public = 1)";
@@ -149,7 +149,7 @@ void RequestManagerPoolInfoFilter::request_execute(
     id_str = id_filter.str();
 
     // ------------ State filter for VM -------------- 
-    if  ( auth_object == AuthRequest::VM )
+    if  ( auth_object == PoolObjectSQL::VM )
     {
         int state = xmlrpc_c::value_int(paramList.getInt(4));
 

@@ -246,7 +246,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
 {
     string           network;
     VirtualNetwork * vnet = 0;
-    PoolObjectAuth *    perm = 0;
+    PoolObjectAuth   perm;
 
     if (!(network = nic->vector_value("NETWORK")).empty())
     {
@@ -266,10 +266,9 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
         return;
     }
 
-    perm = vnet->get_permissions();
+    vnet->get_permissions(perm);
+
     vnet->unlock();
 
     ar->add_auth(AuthRequest::USE, perm);
-
-    delete perm;
 }

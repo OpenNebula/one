@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerVMTemplate.h"
+#include "PoolObjectAuth.h"
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -28,7 +29,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     int rc, vid;
 
-    PoolObjectAuth * perms;
+    PoolObjectAuth perms;
 
     Nebula& nd = Nebula::instance();
     VirtualMachinePool* vmpool = nd.get_vmpool();
@@ -51,7 +52,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     tmpl  = rtmpl->clone_template();
-    perms = rtmpl->get_permissions();
+
+    rtmpl->get_permissions(perms);
 
     rtmpl->unlock();
 
@@ -63,7 +65,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         AuthRequest ar(att.uid, att.gid);
         string      tmpl_txt;
 
-        ar.add_auth(auth_op, perms, tmpl->to_xml(tmpl_txt));
+        ar.add_auth(auth_op, perms); //USE TEMPLATE
+        ar.add_create_auth(PoolObjectSQL::VM,tmpl->to_xml(tmpl_txt));//CREATE VM
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
@@ -73,13 +76,10 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                     authorization_error(ar.message, att),
                     att);
 
-            delete perms;
             delete tmpl;
             return;
         }
     }
-
-    delete perms;
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
             error_str, false);
@@ -87,7 +87,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     if ( rc < 0 )
     {
         failure_response(INTERNAL,
-                allocate_error(AuthRequest::VM,error_str),
+                allocate_error(PoolObjectSQL::VM,error_str),
                 att);
 
         return;

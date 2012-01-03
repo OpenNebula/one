@@ -16,7 +16,8 @@
 
 #include "AclRule.h"
 #include "AuthManager.h"
-
+#include "PoolObjectSQL.h"
+    
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -245,14 +246,14 @@ void AclRule::build_str()
 
     oss << " ";
 
-    AuthRequest::Object objects[] = {
-            AuthRequest::VM,
-            AuthRequest::HOST,
-            AuthRequest::NET,
-            AuthRequest::IMAGE,
-            AuthRequest::USER,
-            AuthRequest::TEMPLATE,
-            AuthRequest::GROUP
+    PoolObjectSQL::ObjectType objects[] = {
+            PoolObjectSQL::VM,
+            PoolObjectSQL::HOST,
+            PoolObjectSQL::NET,
+            PoolObjectSQL::IMAGE,
+            PoolObjectSQL::USER,
+            PoolObjectSQL::TEMPLATE,
+            PoolObjectSQL::GROUP
     };
 
     bool prefix = false;
@@ -266,7 +267,7 @@ void AclRule::build_str()
                 oss << "+";
             }
 
-            oss << AuthRequest::Object_to_str( objects[i] );
+            oss << PoolObjectSQL::type_to_str( objects[i] );
             prefix = true;
         }
     }
@@ -312,7 +313,7 @@ void AclRule::build_str()
                 oss << "+";
             }
 
-            oss << AuthRequest::Operation_to_str( operations[i] );
+            oss << AuthRequest::operation_to_str( operations[i] );
             prefix = true;
         }
     }

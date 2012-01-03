@@ -69,18 +69,22 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
 
         // Users in group USERS can create standard resources
         // @1 VM+NET+IMAGE+TEMPLATE/* CREATE
-        add_rule(AclRule::GROUP_ID | 1,
-
-                AclRule::ALL_ID | AuthRequest::VM | AuthRequest::NET |
-                AuthRequest::IMAGE | AuthRequest::TEMPLATE,
-
-                AuthRequest::CREATE,
-                error_str);
+        add_rule(AclRule::GROUP_ID | 
+                    1,
+                 AclRule::ALL_ID | 
+                    PoolObjectSQL::VM | 
+                    PoolObjectSQL::NET |
+                    PoolObjectSQL::IMAGE | 
+                    PoolObjectSQL::TEMPLATE,
+                 AuthRequest::CREATE,
+                 error_str);
 
         // Users in USERS can deploy VMs in any HOST
         // @1 HOST/* MANAGE
-        add_rule(AclRule::GROUP_ID | 1,
-                 AclRule::ALL_ID | AuthRequest::HOST,
+        add_rule(AclRule::GROUP_ID | 
+                    1,
+                 AclRule::ALL_ID | 
+                    PoolObjectSQL::HOST,
                  AuthRequest::MANAGE,
                  error_str);
     }
@@ -119,7 +123,7 @@ AclManager::~AclManager()
 const bool AclManager::authorize(
         int                     uid,
         int                     gid,
-        PoolObjectAuth *        obj_perms,
+        const PoolObjectAuth&   obj_perms,
         AuthRequest::Operation  op)
 {
     ostringstream oss;
@@ -130,9 +134,11 @@ const bool AclManager::authorize(
     long long user_req;
     long long resource_oid_req;
 
-    if ( obj_perms->oid >= 0 )
+    if ( obj_perms.oid >= 0 )
     {
-        resource_oid_req  = obj_perms->obj_type | AclRule::INDIVIDUAL_ID | obj_perms->oid;
+        resource_oid_req = obj_perms.obj_type | 
+                           AclRule::INDIVIDUAL_ID | 
+                           obj_perms.oid;
     }
     else
     {
@@ -141,33 +147,36 @@ const bool AclManager::authorize(
 
     long long resource_gid_req;
 
-    if ( obj_perms->gid >= 0 )
+    if ( obj_perms.gid >= 0 )
     {
-        resource_gid_req  = obj_perms->obj_type | AclRule::GROUP_ID | obj_perms->gid;
+        resource_gid_req = obj_perms.obj_type | 
+                           AclRule::GROUP_ID | 
+                           obj_perms.gid;
     }
     else
     {
         resource_gid_req = AclRule::NONE_ID;
     }
 
-    long long resource_all_req = obj_perms->obj_type | AclRule::ALL_ID;
-    long long rights_req       = op;
+    long long resource_all_req  = obj_perms.obj_type | AclRule::ALL_ID;
+    long long rights_req        = op;
 
-    long long resource_oid_mask =
-            ( obj_perms->obj_type | AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL );
+    long long resource_oid_mask = obj_perms.obj_type | 
+                                  AclRule::INDIVIDUAL_ID | 
+                                  0x00000000FFFFFFFFLL;
 
-    long long resource_gid_mask  =
-            ( obj_perms->obj_type | AclRule::GROUP_ID | 0x00000000FFFFFFFFLL );
-
+    long long resource_gid_mask = obj_perms.obj_type | 
+                                  AclRule::GROUP_ID | 
+                                  0x00000000FFFFFFFFLL;
 
     // Create a temporal rule, to log the request
     long long log_resource;
 
-    if ( obj_perms->oid >= 0 )
+    if ( obj_perms.oid >= 0 )
     {
         log_resource = resource_oid_req;
     }
-    else if ( obj_perms->gid >= 0 )
+    else if ( obj_perms.gid >= 0 )
     {
         log_resource = resource_gid_req;
     }
@@ -184,24 +193,24 @@ const bool AclManager::authorize(
     oss << "Request " << log_rule.to_str();
     NebulaLog::log("ACL",Log::DEBUG,oss);
 
-    // ---------------------------------------------------
+    // -------------------------------------------------------------------------
     // Create temporary rules from the object permissions
-    // ---------------------------------------------------
+    // -------------------------------------------------------------------------
 
-    AclRule * owner_rule = 0;
-    AclRule * group_rule = 0;
-    AclRule * other_rule = 0;
-    multimap<long long, AclRule*> tmp_rules;
+    AclRule owner_rule;
+    AclRule group_rule;
+    AclRule other_rule;
+    multimap<long long, AclRule *> tmp_rules;
 
-    obj_perms->get_acl_rules(owner_rule, group_rule, other_rule);
+    obj_perms.get_acl_rules(owner_rule, group_rule, other_rule);
 
-    tmp_rules.insert( make_pair(owner_rule->user, owner_rule) );
-    tmp_rules.insert( make_pair(group_rule->user, group_rule) );
-    tmp_rules.insert( make_pair(other_rule->user, other_rule) );
+    tmp_rules.insert( make_pair(owner_rule.user, &owner_rule) );
+    tmp_rules.insert( make_pair(group_rule.user, &group_rule) );
+    tmp_rules.insert( make_pair(other_rule.user, &other_rule) );
 
-    // ---------------------------------------------------
+    // -------------------------------------------------------------------------
     // Look for rules that apply to everyone
-    // ---------------------------------------------------
+    // -------------------------------------------------------------------------
 
     user_req = AclRule::ALL_ID;
     auth     = match_rules_wrapper(user_req,
@@ -214,12 +223,12 @@ const bool AclManager::authorize(
                                    tmp_rules);
     if ( auth == true )
     {
-        goto clean_return;
+        return true;
     }
 
-    // ---------------------------------------------------
+    // -------------------------------------------------------------------------
     // Look for rules that apply to the individual user id
-    // ---------------------------------------------------
+    // -------------------------------------------------------------------------
 
     user_req = AclRule::INDIVIDUAL_ID | uid;
     auth     = match_rules_wrapper(user_req,
@@ -232,7 +241,7 @@ const bool AclManager::authorize(
                                    tmp_rules);
     if ( auth == true )
     {
-        goto clean_return;
+        return true;
     }
 
     // ----------------------------------------------------------
@@ -250,22 +259,13 @@ const bool AclManager::authorize(
                                    tmp_rules);
     if ( auth == true )
     {
-        goto clean_return;
+        return true;
     }
 
     oss.str("No more rules, permission not granted ");
     NebulaLog::log("ACL",Log::DEBUG,oss);
 
-    goto clean_return;
-
-clean_return:
-    multimap<long long, AclRule *>::iterator  it;
-    for ( it = tmp_rules.begin(); it != tmp_rules.end(); it++ )
-    {
-        delete it->second;
-    }
-
-    return auth;
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -546,13 +546,13 @@ int AclManager::del_rule(int oid, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AclManager::reverse_search(int                     uid,
-                                int                     gid,
-                                AuthRequest::Object     obj_type,
-                                AuthRequest::Operation  op,
-                                bool&                   all,
-                                vector<int>&            oids,
-                                vector<int>&            gids)
+void AclManager::reverse_search(int                       uid,
+                                int                       gid,
+                                PoolObjectSQL::ObjectType obj_type,
+                                AuthRequest::Operation    op,
+                                bool&                     all,
+                                vector<int>&              oids,
+                                vector<int>&              gids)
 {
     ostringstream oss;
 

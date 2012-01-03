@@ -48,7 +48,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         if ((user = upool->get(noid,true)) == 0)
         {
             failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::USER),noid),
+                get_error(object_name(PoolObjectSQL::USER),noid),
                 att);
             return;
         }
@@ -65,7 +65,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         if ((group = gpool->get(ngid,true)) == 0)
         {
             failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid),
+                get_error(object_name(PoolObjectSQL::GROUP),ngid),
                 att);
             return;
         }
@@ -137,7 +137,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if ( (group = gpool->get(ngid,true)) == 0 )
     {
         failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid),
+                get_error(object_name(PoolObjectSQL::GROUP),ngid),
                 att);
         return;
     }
@@ -153,7 +153,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if ( user == 0 )                             
     {                                            
         failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::USER),oid),
+                get_error(object_name(PoolObjectSQL::USER),oid),
                 att);
         return;
     }    
@@ -178,7 +178,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if( group == 0 )
     {
         failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid),
+                get_error(object_name(PoolObjectSQL::GROUP),ngid),
                 att);//TODO Rollback
         return;
     }

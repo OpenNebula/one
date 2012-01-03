@@ -295,8 +295,9 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 {
     string          source;
-    Image *         img  = 0;
-    PoolObjectAuth *   perm = 0;
+    Image *         img = 0;
+    
+    PoolObjectAuth  perm;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
@@ -326,10 +327,9 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
         return;
     }
 
-    perm = img->get_permissions();
+    img->get_permissions(perm);
+
     img->unlock();
 
     ar->add_auth(AuthRequest::USE, perm);
-
-    delete perm;
 }

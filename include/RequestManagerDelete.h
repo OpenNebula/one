@@ -68,7 +68,7 @@ public:
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
-        auth_object = AuthRequest::TEMPLATE;
+        auth_object = PoolObjectSQL::TEMPLATE;
         auth_op     = AuthRequest::MANAGE;
     };
 
@@ -87,7 +87,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
-        auth_object = AuthRequest::NET;
+        auth_object = PoolObjectSQL::NET;
         auth_op     = AuthRequest::MANAGE;
     };
 
@@ -105,7 +105,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
-        auth_object = AuthRequest::IMAGE;
+        auth_object = PoolObjectSQL::IMAGE;
         auth_op     = AuthRequest::MANAGE;
     };
 
@@ -128,7 +128,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
-        auth_object = AuthRequest::HOST;
+        auth_object = PoolObjectSQL::HOST;
         auth_op     = AuthRequest::ADMIN;
     };
 
@@ -147,7 +147,7 @@ public:
     {    
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
-        auth_object = AuthRequest::GROUP;
+        auth_object = PoolObjectSQL::GROUP;
         auth_op     = AuthRequest::ADMIN;
     };
 
@@ -165,7 +165,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
-        auth_object = AuthRequest::USER;
+        auth_object = PoolObjectSQL::USER;
         auth_op     = AuthRequest::ADMIN;
     };
 
