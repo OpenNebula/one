@@ -229,13 +229,12 @@ module OZones
             rule_str = Array.new
 
             # Grant permissions to the group
-            rule_str << "@#{@vdc.GROUP_ID} VM+NET+IMAGE+TEMPLATE/* " \
-            "CREATE+INFO_POOL_MINE"
+            rule_str << "@#{@vdc.GROUP_ID} VM+NET+IMAGE+TEMPLATE/* CREATE"
 
             # Grant permissions to the vdc admin
             rule_str << "##{@vdc.VDCADMIN_ID} USER/* CREATE"
             rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} " \
-            "MANAGE+DELETE+INFO"
+            "USE+MANAGE+ADMIN"
 
             ###############################################################
             #When more rules are added the class constant HOST_ACL_FIRST_ID
@@ -254,7 +253,7 @@ module OZones
 
             # Grant permissions to use the vdc hosts
             host_list.split(',').each{|hostid|
-                rule_str << "@#{@vdc.GROUP_ID} HOST/##{hostid} USE"
+                rule_str << "@#{@vdc.GROUP_ID} HOST/##{hostid} MANAGE"
             }
 
             return rule_str
