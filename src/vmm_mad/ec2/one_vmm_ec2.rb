@@ -52,8 +52,8 @@ class EC2Driver < VirtualMachineDriver
         :terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
         :describe  => "#{EC2_LOCATION}/bin/ec2-describe-instances",
         :associate => "#{EC2_LOCATION}/bin/ec2-associate-address",
-        :reboot    => "#{EC2_LOCATION}/bin/ec2-reboot-instances",
-        :authorize => "#{EC2_LOCATION}/bin/ec2-authorize"
+        :authorize => "#{EC2_LOCATION}/bin/ec2-authorize",
+        :tags      => "#{EC2_LOCATION}/bin/ec2-create-tags"
     }
 
     # EC2 constructor, loads defaults for the EC2Driver
@@ -134,11 +134,36 @@ class EC2Driver < VirtualMachineDriver
             end
         end
 
-        ami     = ec2_value(ec2,"AMI")
-        keypair = ec2_value(ec2,"KEYPAIR")
-        eip     = ec2_value(ec2,"ELASTICIP")
-        ports   = ec2_value(ec2,"AUTHORIZEDPORTS")
-        type    = ec2_value(ec2,"INSTANCETYPE")
+        aki          = ec2_value(ec2,"AKI")
+        ami          = ec2_value(ec2,"AMI")
+        ports        = ec2_value(ec2,"AUTHORIZEDPORTS")
+        blockmapping = ec2_value(ec2,"BLOCKDEVICEMAPPING")
+        clienttoken  = ec2_value(ec2,"CLIENTTOKEN")
+        ec2region    = host_info("deploy",host,"EC2REGION")
+        eip          = ec2_value(ec2,"ELASTICIP")
+        type         = ec2_value(ec2,"INSTANCETYPE")
+        keypair      = ec2_value(ec2,"KEYPAIR")
+        licensepool  = ec2_value(ec2,"LICENSEPOOL")
+        clustergroup = ec2_value(ec2,"PLACEMENTGROUP")
+        privateip    = ec2_value(ec2,"PRIVATEIP")
+        ramdisk      = ec2_value(ec2,"RAMDISK")
+        secgroup     = ec2_value(ec2,"SECURITYGROUPS")
+        subnetid     = ec2_value(ec2,"SUBNETID")
+        tags         = ec2_value(ec2,"TAGS")
+        tenancy      = ec2_value(ec2,"TENANCY")
+        vpcid        = ec2_value(ec2,"VPCID")
+        waitb4eip    = ec2_value(ec2,"WAITFORINSTANCE")
+        ec2context    = ""
+
+        # get context data, if any
+        all_context_elements = xml.root.get_elements("CONTEXT")
+        context_root = all_context_elements[0]
+        if context_root
+            context_ud  = ec2_value(context_root,"USERDATA")
+            context_udf = ec2_value(context_root,"USERDATAFILE")
+            ec2context << " -d '#{context_ud}'" if context_ud
+            ec2context << " -f #{context_udf}" if context_udf
+        end
 
         if !ami
             send_message(ACTION[:deploy],RESULT[:failure],id,
@@ -146,9 +171,26 @@ class EC2Driver < VirtualMachineDriver
             return
         end
 
-        deploy_cmd = "#{EC2[:run]} #{ami}"
+        deploy_cmd = "#{EC2[:run]} --region #{ec2region} #{ec2context}"
+        deploy_cmd << " #{ami}"
+        deploy_cmd << " --kernel #{aki}" if aki
+        deploy_cmd << " -b #{blockmapping}" if blockmapping
+        deploy_cmd << " --client-token #{clienttoken}" if clienttoken
         deploy_cmd << " -k #{keypair}" if keypair
+        deploy_cmd << " --license-pool #{licensepool}" if licensepool
         deploy_cmd << " -t #{type}" if type
+        deploy_cmd << " --ramdisk #{ramdisk}" if ramdisk
+        deploy_cmd << " --placement-group #{clustergroup}" if clustergroup
+        if subnetid
+            deploy_cmd << " -s #{subnetid}"
+            deploy_cmd << " --private-ip-address #{privateip}" if privateip
+            deploy_cmd << " --tenancy #{tenancy}" if tenancy
+        end
+        if secgroup
+            for grouptok in secgroup.split(',')
+                deploy_cmd << " -g #{grouptok}"
+            end
+        end
 
         deploy_exe = LocalCommand.run(deploy_cmd, log_method(id))
 
@@ -165,14 +207,69 @@ class EC2Driver < VirtualMachineDriver
 
         deploy_id = $1
 
-        if eip
-            ip_cmd = "#{EC2[:associate]} #{eip} -i #{deploy_id}"
-            ip_exe = LocalCommand.run(ip_cmd, log_method(id))
+        if ports
+            ports_cmd = "#{EC2[:authorize]} --region #{ec2region} default -p #{ports}"
+            ports_exe = LocalCommand.run(ports_cmd, log_method(id))
         end
 
-        if ports
-            ports_cmd = "#{EC2[:authorize]} default -p #{ports}"
-            ports_exe = LocalCommand.run(ports_cmd, log_method(id))
+        # adding EC2 tags if any are defined in the EC2 section.
+        # Tags should be defined as a TAG=VAL comma seperated string like
+        #   TAGS="Tag1=Val1, Tag2=Val2, ..."
+        #
+        # Notes:
+        #   - If 'Value' starts with a '$', the code will try to resolve it as
+        #     a variable name. For example the special tag 'Name' can be use
+        #     to define the name of the instance visible in the AWS Console
+        #     with the following tag definition
+        #     TAGS="Name=$NAME, tag2=val2, ..."
+        #
+        #     To resolve the variables, the instance's deployment.0 file
+        #     is parsed as follow:
+        #      -> try to find an element corresponding to the variable name at
+        #         the root of the xml tree
+        #      -> if none is found, another search if tried at second level of
+        #         the tree
+        #      -> In both cases, the first match will be used so you know what
+        #         to look at if you don't get what you expect... might be
+        #         fixed in the future if needed.
+        if tags
+            tags_cmd = "#{EC2[:tags]} --region #{ec2region} #{deploy_id}"
+            for tag in tags.split(',')
+                token = tag.split('=')
+                t_regex = /^(.{1})(.*)$/
+                t_match = t_regex.match(token[1])
+                if t_match[1] == "$"
+                    value = ""
+                    element = xml.root.elements[t_match[2]]
+                    element = xml.root.elements["*/" << t_match[2]] unless element
+                    value = element.text.strip if element && element.text
+                    tag = token[0].strip << "=" << value.chomp
+                end
+                tags_cmd << " -t #{tag}"
+            end
+            tags_exe = LocalCommand.run(tags_cmd, log_method(id))
+        end
+
+        if eip
+            if subnetid
+                ip_cmd = "#{EC2[:associate]} --region #{ec2region} -a #{eip} -i #{deploy_id}"
+            else
+                ip_cmd = "#{EC2[:associate]} --region #{ec2region} #{eip} -i #{deploy_id}"
+            end
+
+            # Make sure instance is running state before assigning Elastic IP
+            if waitb4eip
+                pos=2
+                pos=1 if subnetid
+                wait4instance(ec2region,id,deploy_id,pos,"running")
+            end
+
+            ip_exe = LocalCommand.run(ip_cmd, log_method(id))
+            if !ip_exe.stdout.match(/^ADDRESS\s*(.+?)\s/)
+                send_message(ACTION[:deploy],RESULT[:failure],id,
+                    "Could not associate Elastic IP. Check template definition.")
+                return
+            end
         end
 
         send_message(ACTION[:deploy],RESULT[:success],id,deploy_id)
@@ -185,12 +282,14 @@ class EC2Driver < VirtualMachineDriver
         host      = msg.elements["HOST"].text
         deploy_id = msg.elements["DEPLOY_ID"].text
 
-        ec2_terminate(ACTION[:shutdown], id, deploy_id)
+        ec2_terminate(ACTION[:shutdown], id, deploy_id, host)
     end
-   
-    # Reboot a EC2 instance 
+
+    # Reboot a EC2 instance
     def reboot(id, drv_message)
-        cmd = "#{EC2_LOCATION}/bin/ec2-reboot-instances #{deploy_id}"
+        ec2region = host_info("reboot",host,"EC2REGION")
+
+        cmd = "#{EC2_LOCATION}/bin/ec2-reboot-instances --region #{ec2region} #{deploy_id}"
         exe = LocalCommand.run(cmd, log_method(id))
 
         if exe.code != 0
@@ -209,7 +308,7 @@ class EC2Driver < VirtualMachineDriver
         host      = msg.elements["HOST"].text
         deploy_id = msg.elements["DEPLOY_ID"].text
 
-        ec2_terminate(ACTION[:cancel], id, deploy_id)
+        ec2_terminate(ACTION[:cancel], id, deploy_id, host)
     end
 
     # Get info (IP, and state) for a EC2 instance
@@ -218,13 +317,14 @@ class EC2Driver < VirtualMachineDriver
 
         host      = msg.elements["HOST"].text
         deploy_id = msg.elements["DEPLOY_ID"].text
+        ec2region = host_info("poll",host,"EC2REGION")
 
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
                 "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
                 "#{POLL_ATTRIBUTE[:nettx]}=0 " \
                 "#{POLL_ATTRIBUTE[:netrx]}=0"
 
-        cmd  = "#{EC2[:describe]} #{deploy_id}"
+        cmd  = "#{EC2[:describe]} --region #{ec2region} --hide-tags #{deploy_id}"
         exe  = LocalCommand.run(cmd, log_method(id))
 
         if exe.code != 0
@@ -255,8 +355,10 @@ class EC2Driver < VirtualMachineDriver
 
 private
 
-    def ec2_terminate(action, id, deploy_id)
-        cmd = "#{EC2_LOCATION}/bin/ec2-terminate-instances #{deploy_id}"
+    def ec2_terminate(action, id, deploy_id, host)
+        ec2region = host_info("terminate",host,"EC2REGION")
+
+        cmd = "#{EC2_LOCATION}/bin/ec2-terminate-instances --region #{ec2region} #{deploy_id}"
         exe = LocalCommand.run(cmd, log_method(id))
 
         if exe.code != 0
@@ -278,6 +380,48 @@ private
         end
 
         return value
+    end
+    def host_info(action,host,key)
+        # get EC2REGION parameter from the selected host
+        query_cmd = "#{ONE_LOCATION}/bin/onehost show #{host}"
+        query_exe = LocalCommand.run(query_cmd, log_method(id))
+
+        if query_exe.code != 0
+            send_message(action,RESULT[:failure],host)
+            return
+        end
+
+        if !query_exe.stdout.match(/^#{key}=(.+?)\s/)
+            send_message(action,RESULT[:failure],host,
+                "Could not find #{param} parameter for host #{host}. Use onehost update #{host} to define this paramete first")
+            return
+        end
+
+        return $1
+    end
+    def wait4instance(region,id,deploy_id,pos,value)
+        found = 0
+        while found == 0 do
+            poll_cmd  = "#{EC2[:describe]} --region #{region} --hide-tags #{deploy_id}"
+            poll_exe  = LocalCommand.run(poll_cmd, log_method(id))
+
+            if poll_exe.code != 0
+                send_message(ACTION[:deploy],RESULT[:failure],id,
+                   "Error polling instance.")
+                return
+            end
+
+            poll_exe.stdout.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
+
+            if !$1
+                send_message(ACTION[:deploy],RESULT[:failure],id,
+                    "ERROR: Instance not found and should have been created.")
+                return
+            else
+                monitor_data = $1.split(/\s+/)
+                found = 1 if monitor_data[pos] == value
+            end
+        end
     end
 end
 
