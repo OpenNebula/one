@@ -59,4 +59,6 @@ $(document).ready(function(){
         hideDialog();
     });
 
+    $('div#logo img').attr('src',logo_small);
+
 });

@@ -55,6 +55,8 @@ function authenticate(){
 }
 
 $(document).ready(function(){
+    $('div#logo_selfservice').css("background","url("+logo_big+") no-repeat center");
+
     $("#login_form").submit(function (){
         authenticate();
         return false;
@@ -62,7 +64,7 @@ $(document).ready(function(){
 
     //compact login elements according to screen height
     if (screen.height <= 600){
-        $('div#logo_sunstone').css("top","15px");
+        $('div#logo_selfservice').css("top","15px");
         $('div#login').css("top","10px");
         $('.error_message').css("top","10px");
     };
