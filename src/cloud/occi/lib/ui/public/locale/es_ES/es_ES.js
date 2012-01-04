@@ -1,4 +1,4 @@
-//Translated by
+//Translated by Hector Sanjuan
 lang="es_ES"
 datatable_lang="es_datatable.txt"
 locale={
@@ -100,6 +100,7 @@ locale={
     "See more":"Ver más",
     "Select a template":"Seleccione una plantilla",
     "Select disk":"Seleccione un disco",
+    "Select image to upload":"Seleccione una imagen para subir",
     "Self-Service UI Configuration":"Configuración de la interfaz Self-Service",
     "Shutdown":"Apagar",
     "Sign out":"Desconectar",
@@ -134,8 +135,6 @@ locale={
     "Unpublish":"Despublicar",
     "Update":"Actualizar",
     "Update template":"Actualizar plantilla",
-    "Upload image":"Subir imagen",
-    "Upload progress":"Progreso se subida",
     "Useful links":"Enlances útiles",
     "Virtual Machine information":"Información de máquina virtual",
     "virtual machines":"máquinas virtuales",
