@@ -59,23 +59,6 @@ public:
     // *************************************************************************
 
     /**
-     *  Publish or unpublish a virtual network
-     *    @param pub true to publish the image
-     *    @return 0 on success
-     */
-    void publish(bool pub)
-    {
-        if (pub == true)
-        {
-            public_obj = 1;
-        }
-        else
-        {
-            public_obj = 0;
-        }
-    }
-
-    /**
      *  Factory method for virtual network templates
      */
     Template * get_new_template()

@@ -191,32 +191,6 @@ public:
     int set_type(string& _type);
 
     /**
-     *  Publish or unpublish an image
-     *    @param pub true to publish the image
-     *    @return 0 on success
-     */
-    int publish(bool pub)
-    {
-        int rc = -1;
-
-        if (pub == true)
-        {
-            if (!isPersistent())
-            {
-                public_obj  = 1;
-                rc          = 0;
-            }
-        }
-        else
-        {
-            public_obj  = 0;
-            rc          = 0;
-        }
-
-        return rc;
-    }
-
-    /**
      *  Set/Unset an image as persistent
      *    @param persistent true to make an image persistent
      *    @param error_str Returns the error reason, if any
@@ -232,11 +206,13 @@ public:
 
         if (persis == true)
         {
+            // TODO
+            /*
             if ( isPublic() )
             {
                 goto error_public;
             }
-
+            */
             persistent_img = 1;
         }
         else
@@ -249,11 +225,11 @@ public:
     error_vms:
         error_str = "Image cannot be in 'used' state.";
         goto error_common;
-
+/*
     error_public:
         error_str = "Image cannot be public and persistent.";
         goto error_common;
-
+*/
     error_common:
         return -1;
 

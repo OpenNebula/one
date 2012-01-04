@@ -59,11 +59,11 @@ VMTemplate::~VMTemplate()
 
 const char * VMTemplate::table = "template_pool";
 
-const char * VMTemplate::db_names = "oid, name, body, uid, gid, public";
+const char * VMTemplate::db_names = "oid, name, body, uid, gid";
 
 const char * VMTemplate::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, public INTEGER)";
+    "name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER)";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -72,8 +72,6 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
 {
     int             rc;
     ostringstream   oss;
-    string          public_attr;
-
 
     // ---------------------------------------------------------------------
     // Check default attributes
@@ -97,17 +95,6 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
         error_str = "NAME is too long; max length is 128 chars.";
         return -1;
     }
-
-
-    // ------------ PUBLIC --------------------
-
-    get_template_attribute("PUBLIC", public_attr);
-
-    obj_template->erase("PUBLIC");
-
-    TO_UPPER(public_attr);
-
-    public_obj = (public_attr == "YES");
 
     // ------------------------------------------------------------------------
     // Insert the Template
@@ -168,8 +155,7 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
         << "'"     << sql_name   << "',"
         << "'"     << sql_xml    << "',"
         <<            uid        << ","
-        <<            gid        << ","
-        <<            public_obj << ")";
+        <<            gid        << ")";
 
     rc = db->exec(oss);
 
@@ -217,7 +203,6 @@ string& VMTemplate::to_xml(string& xml) const
             << "<GNAME>"    << gname      << "</GNAME>" 
             << "<NAME>"     << name       << "</NAME>"
             << perms_to_xml(perm_str)
-            << "<PUBLIC>"   << public_obj << "</PUBLIC>"
             << "<REGTIME>"  << regtime    << "</REGTIME>"
             << obj_template->to_xml(template_xml)
         << "</VMTEMPLATE>";
@@ -245,7 +230,6 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(uname,      "/VMTEMPLATE/UNAME",   "not_found");
     rc += xpath(gname,      "/VMTEMPLATE/GNAME",   "not_found");
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
-    rc += xpath(public_obj, "/VMTEMPLATE/PUBLIC",  0);
     rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);
 
     // Permissions

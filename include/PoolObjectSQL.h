@@ -95,7 +95,6 @@ public:
              uname(_uname),
              gname(_gname),
              valid(true),
-             public_obj(0),
              owner_u(1),
              owner_m(1),
              owner_a(0),
@@ -128,15 +127,6 @@ public:
     const string& get_name() const
     {
         return name;
-    };
-
-    /**
-     *  Returns true if the image is public
-     *     @return true if the image is public
-     */
-    bool isPublic()
-    {
-        return (public_obj == 1);
     };
 
     int get_uid()
@@ -470,11 +460,6 @@ protected:
      *  The contents of this object are valid
      */
     bool    valid;
-
-    /**
-     *  Set if the object is public
-     */
-    int     public_obj;
 
     /**
      *  Permissions for the owner user

@@ -73,11 +73,11 @@ Image::~Image()
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "oid, name, body, uid, gid, public";
+const char * Image::db_names = "oid, name, body, uid, gid";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
-    "gid INTEGER, public INTEGER, UNIQUE(name,uid) )";
+    "gid INTEGER, UNIQUE(name,uid) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -88,7 +88,6 @@ int Image::insert(SqlDB *db, string& error_str)
 
     string path_attr;
     string type_att;
-    string public_attr;
     string persistent_attr;
     string dev_prefix;
     string source_attr;
@@ -115,14 +114,6 @@ int Image::insert(SqlDB *db, string& error_str)
         goto error_type;
     }
 
-    // ------------ PUBLIC --------------------
-
-    erase_template_attribute("PUBLIC", public_attr);
-
-    TO_UPPER(public_attr);
-
-    public_obj = (public_attr == "YES");
-
     // ------------ PERSISTENT --------------------
 
     erase_template_attribute("PERSISTENT", persistent_attr);
@@ -131,13 +122,14 @@ int Image::insert(SqlDB *db, string& error_str)
 
     persistent_img = (persistent_attr == "YES");
 
+    // TODO
     // An image cannot be public and persistent simultaneously
-
+/*
     if ( public_obj && persistent_img )
     {
         goto error_public_and_persistent;
     }
-
+*/
     // ------------ PREFIX --------------------
 
     get_template_attribute("DEV_PREFIX", dev_prefix);
@@ -197,11 +189,11 @@ int Image::insert(SqlDB *db, string& error_str)
 error_type:
     error_str = "Incorrect TYPE in template.";
     goto error_common;
-
+/*
 error_public_and_persistent:
     error_str = "Image cannot be public and persistent.";
     goto error_common;
-
+*/
 error_no_path:
     if ( type == DATABLOCK )
     {
@@ -287,8 +279,7 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
         << "'" <<   sql_name        << "',"
         << "'" <<   sql_xml         << "',"
         <<          uid             << ","
-        <<          gid             << ","
-        <<          public_obj      << ")";
+        <<          gid             << ")";
 
     rc = db->exec(oss);
 
@@ -338,7 +329,6 @@ string& Image::to_xml(string& xml) const
             "<NAME>"           << name            << "</NAME>"        <<
             perms_to_xml(perms_xml)                                   <<
             "<TYPE>"           << type            << "</TYPE>"        <<
-            "<PUBLIC>"         << public_obj      << "</PUBLIC>"      <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << source          << "</SOURCE>"      <<
@@ -380,7 +370,6 @@ int Image::from_xml(const string& xml)
     rc += xpath(name, "/IMAGE/NAME", "not_found");
 
     rc += xpath(int_type, "/IMAGE/TYPE", 0);
-    rc += xpath(public_obj, "/IMAGE/PUBLIC", 0);
     rc += xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
     rc += xpath(regtime, "/IMAGE/REGTIME", 0);
 
