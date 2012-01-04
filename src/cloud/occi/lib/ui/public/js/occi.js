@@ -235,7 +235,6 @@ var OCCI = {
             $.ajax({
                 url: resource.toLowerCase() + "/" + id,
                 type: "DELETE",
-                dataType: "xml ONEjson",
                 success: function(){
                     return callback ? callback(request) : null;
                 },
