@@ -25,6 +25,7 @@
 #include "RequestManagerAllocate.h"
 #include "RequestManagerUpdateTemplate.h"
 #include "RequestManagerChown.h"
+#include "RequestManagerChmod.h"
 
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
@@ -307,6 +308,12 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_chown(new ImageChown());
     xmlrpc_c::methodPtr user_chown(new UserChown());
 
+    // Chmod Methods
+    xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
+    xmlrpc_c::methodPtr template_chmod(new TemplateChmod());
+    xmlrpc_c::methodPtr vn_chmod(new VirtualNetworkChmod());
+    xmlrpc_c::methodPtr image_chmod(new ImageChmod());
+
     // ACL Methods
     xmlrpc_c::methodPtr acl_addrule(new AclAddRule());
     xmlrpc_c::methodPtr acl_delrule(new AclDelRule());
@@ -320,6 +327,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
+    RequestManagerRegistry.addMethod("one.vm.chmod", vm_chmod);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
 
@@ -330,6 +338,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.delete", template_delete);
     RequestManagerRegistry.addMethod("one.template.info", template_info);
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
+    RequestManagerRegistry.addMethod("one.template.chmod", template_chmod);
 
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
@@ -359,6 +368,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.delete", vn_delete);
     RequestManagerRegistry.addMethod("one.vn.info", vn_info); 
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
+    RequestManagerRegistry.addMethod("one.vn.chmod", vn_chmod);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info); 
     
@@ -381,6 +391,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.delete", image_delete);
     RequestManagerRegistry.addMethod("one.image.info", image_info);
     RequestManagerRegistry.addMethod("one.image.chown", image_chown);
+    RequestManagerRegistry.addMethod("one.image.chmod", image_chmod);
     RequestManagerRegistry.addMethod("one.image.chtype", image_chtype);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);

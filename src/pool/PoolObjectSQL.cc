@@ -269,3 +269,44 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int PoolObjectSQL::set_permissions( int _owner_u,
+                                    int _owner_m,
+                                    int _owner_a,
+                                    int _group_u,
+                                    int _group_m,
+                                    int _group_a,
+                                    int _other_u,
+                                    int _other_m,
+                                    int _other_a,
+                                    string& error_str)
+{
+    if ( _owner_u < -1 || _owner_u > 1 ) goto error_value;
+    if ( _owner_m < -1 || _owner_m > 1 ) goto error_value;
+    if ( _owner_a < -1 || _owner_a > 1 ) goto error_value;
+    if ( _group_u < -1 || _group_u > 1 ) goto error_value;
+    if ( _group_m < -1 || _group_m > 1 ) goto error_value;
+    if ( _group_a < -1 || _group_a > 1 ) goto error_value;
+    if ( _other_u < -1 || _other_u > 1 ) goto error_value;
+    if ( _other_m < -1 || _other_m > 1 ) goto error_value;
+    if ( _other_a < -1 || _other_a > 1 ) goto error_value;
+
+    set_perm(owner_u, _owner_u);
+    set_perm(owner_m, _owner_m);
+    set_perm(owner_a, _owner_a);
+    set_perm(group_u, _group_u);
+    set_perm(group_m, _group_m);
+    set_perm(group_a, _group_a);
+    set_perm(other_u, _other_u);
+    set_perm(other_m, _other_m);
+    set_perm(other_a, _other_a);
+
+    return 0;
+
+error_value:
+    error_str = "New permission values must be -1, 0 or 1";
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

@@ -161,6 +161,33 @@ public:
         gname = _gname;
     };
 
+    /**
+     * Changes the object's permissions
+     *
+     * @param _owner_u New permission: 1 allow, 0 deny, -1 do not change
+     * @param _owner_m New permission: 1 allow, 0 deny, -1 do not change
+     * @param _owner_a New permission: 1 allow, 0 deny, -1 do not change
+     * @param _group_u New permission: 1 allow, 0 deny, -1 do not change
+     * @param _group_m New permission: 1 allow, 0 deny, -1 do not change
+     * @param _group_a New permission: 1 allow, 0 deny, -1 do not change
+     * @param _other_u New permission: 1 allow, 0 deny, -1 do not change
+     * @param _other_m New permission: 1 allow, 0 deny, -1 do not change
+     * @param _other_a New permission: 1 allow, 0 deny, -1 do not change
+     * @param error_str Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int set_permissions(int _owner_u,
+                        int _owner_m,
+                        int _owner_a,
+                        int _group_u,
+                        int _group_m,
+                        int _group_a,
+                        int _other_u,
+                        int _other_m,
+                        int _other_a,
+                        string& error_str);
+
     /* --------------------------------------------------------------------- */
 
     /**
@@ -420,6 +447,22 @@ protected:
      *    @return 0 on success, -1 otherwise
      */
     int perms_from_xml();
+
+    /**
+     * Sets the permission attribute to the new_perm value, if it is different
+     * from -1
+     *
+     *   @param perm the permissions attribute, must be -1, 0 or 1, its value
+     *   must be checked before
+     *   @param new_perm the new value. If it is -1, it will be ignored
+     */
+    void set_perm(int &perm, const int &new_perm)
+    {
+        if ( new_perm != -1 )
+        {
+            perm = new_perm;
+        }
+    };
 
     /**
      *  The object's unique ID
