@@ -367,14 +367,14 @@ function updateImageInfo(request,img){
               <td class="value_td">'+img_info.NAME+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Name")+'</td>\
+              <td class="key_td">'+tr("Description")+'</td>\
               <td class="value_td">'+img_info.DESCRIPTION+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td">'+OCCI.Helper.image_type(img_info.TYPE)+'</td>\
            </tr>\
-           </tr>\
+           <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
 <td class="value_td"><input type="checkbox" '+(img_info.PERSISTENT == "YES" ? 'checked="checked"' : "")+' /></td>\
            </tr>\

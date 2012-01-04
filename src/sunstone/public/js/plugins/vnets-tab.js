@@ -487,11 +487,11 @@ function updateVNetworkInfo(request,vn){
             <tr>\
               <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+vn_info.ID+'</td>\
-            <tr>\
+            </tr>\
             <tr>\
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td">'+vn_info.NAME+'</td>\
-            <tr>\
+            </tr>\
             <tr>\
               <td class="key_td">'+tr("Owner")+'</td>\
               <td class="value_td">'+vn_info.UNAME+'</td>\
