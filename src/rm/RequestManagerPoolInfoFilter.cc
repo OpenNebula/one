@@ -77,56 +77,60 @@ void RequestManagerPoolInfoFilter::request_execute(
     vector<int> gids;
 
 
-    switch(filter_flag)
+
+    if ( att.uid == 0 || att.gid == 0 )
     {
-        case MINE:
-            uid_filter << "uid = " << att.uid;  // TODO: add owner_USE restriction
-            break;
+        all = true;
+    }
+    else
+    {
+        aclm->reverse_search(att.uid, att.gid, auth_object,
+                            AuthRequest::USE, all, oids, gids);
+    }
 
-        case ALL:
-            if ( att.uid == 0 || att.gid == 0 )
-            {
-                all = true;
-            }
-            else
-            {
-                aclm->reverse_search(att.uid, att.gid, auth_object,
-                                    AuthRequest::USE, all, oids, gids);
-            }
+    if ( filter_flag != ALL )
+    {
+        int uid;
 
-            if ( !all ) // If all == true, there is not a uid or gid restriction
-            {
-                vector<int>::iterator it;
+        if ( filter_flag == MINE )
+        {
+            uid = att.uid;
+        }
+        else
+        {
+            uid = filter_flag;
+        }
 
-                // Default rights: Users can see and use their resources, and
-                // the public ones in their group
-                uid_filter  << "uid = " << att.uid; // TODO: add owner_USE restriction
+        uid_filter << "uid = " << uid;
+    }
 
-                // VMs don't have public column, are considered private
-                if ( auth_object != PoolObjectSQL::VM )
-                {
-                    // TODO add group, other permission restrictions
-                    uid_filter  << " OR (gid = " << att.gid << " AND public = 1)";
-                }
+    if ( !all ) // If all == true, there is not a uid or gid restriction
+    {
+        vector<int>::iterator it;
 
-                for ( it=oids.begin(); it< oids.end(); it++ )
-                {
-                    uid_filter << " OR uid = " << *it;
-                }
+        if ( filter_flag != ALL )
+        {
+            uid_filter << " AND ";
+        }
 
-                for ( it=gids.begin(); it< gids.end(); it++ )
-                {
-                    uid_filter << " OR gid = " << *it;
-                }
-            }
+        // Permissions included in the resources
+        uid_filter
+            << "("
+                << "(uid = " << att.uid << " AND owner_u = 1) OR "
+                << "(gid = " << att.gid << " AND group_u = 1) OR "
+                << "other_u = 1";
 
-            break;
+        for ( it=oids.begin(); it< oids.end(); it++ )
+        {
+            uid_filter << " OR oid = " << *it;
+        }
 
-        default:
-            // TODO: add authorization check, user can MANAGE User with ID filter_flag
-            uid_filter << "uid = " << filter_flag;
+        for ( it=gids.begin(); it< gids.end(); it++ )
+        {
+            uid_filter << " OR gid = " << *it;
+        }
 
-            break;
+        uid_filter << ")";
     }
 
     uid_str = uid_filter.str();

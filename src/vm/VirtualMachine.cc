@@ -93,11 +93,13 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "oid, name, body, uid, gid, last_poll, state, lcm_state";
+    "oid, name, body, uid, gid, last_poll, state, lcm_state, "
+    "owner_u, group_u, other_u";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
-        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
+        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -112,7 +114,7 @@ int VirtualMachine::select(SqlDB * db)
 
     Nebula&         nd = Nebula::instance();
 
-    // Rebuld the VirtualMachine object
+    // Rebuild the VirtualMachine object
     rc = PoolObjectSQL::select(db);
 
     if( rc != 0 )
@@ -558,7 +560,10 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid             << ","
         <<          last_poll       << ","
         <<          state           << ","
-        <<          lcm_state       << ")";
+        <<          lcm_state       << ","
+        <<          owner_u         << ","
+        <<          group_u         << ","
+        <<          other_u         << ")";
 
     db->free_str(sql_deploy_id);
     db->free_str(sql_name);

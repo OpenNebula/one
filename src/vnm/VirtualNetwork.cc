@@ -73,11 +73,13 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     = "oid, name, body, uid, gid";
+const char * VirtualNetwork::db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body TEXT, uid INTEGER, gid INTEGER, UNIQUE(name,uid))";
+    " body TEXT, uid INTEGER, gid INTEGER, "
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -384,7 +386,10 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
         << "'" <<   sql_name    << "',"
         << "'" <<   sql_xml     << "',"
         <<          uid         << ","
-        <<          gid         << ")";
+        <<          gid         << ","
+        <<          owner_u     << ","
+        <<          group_u     << ","
+        <<          other_u     << ")";
 
     rc = db->exec(oss);
 

@@ -59,11 +59,13 @@ VMTemplate::~VMTemplate()
 
 const char * VMTemplate::table = "template_pool";
 
-const char * VMTemplate::db_names = "oid, name, body, uid, gid";
+const char * VMTemplate::db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u";
 
 const char * VMTemplate::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER)";
+    "name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, "
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -155,7 +157,10 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
         << "'"     << sql_name   << "',"
         << "'"     << sql_xml    << "',"
         <<            uid        << ","
-        <<            gid        << ")";
+        <<            gid        << ","
+        <<            owner_u    << ","
+        <<            group_u    << ","
+        <<            other_u    << ")";
 
     rc = db->exec(oss);
 
