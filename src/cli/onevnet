@@ -173,6 +173,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    chmod_desc = <<-EOT.unindent
+        Changes the Virtual Network permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :vnetid_list], :octet do
+        helper.perform_actions(args[0],options, "Permissions changed") do |vn|
+            vn.chmod_octet(args[1])
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Virtual Networks in the pool
     EOT

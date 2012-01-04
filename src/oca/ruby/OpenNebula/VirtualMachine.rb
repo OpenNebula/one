@@ -31,7 +31,8 @@ module OpenNebula
             :migrate  => "vm.migrate",
             :deploy   => "vm.deploy",
             :savedisk => "vm.savedisk",
-            :chown    => "vm.chown"
+            :chown    => "vm.chown",
+            :chmod    => "vm.chmod",
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED}
@@ -242,6 +243,26 @@ module OpenNebula
         # [return] nil in case of success or an Error object
         def chown(uid, gid)
             super(VM_METHODS[:chown], uid, gid)
+        end
+
+        # Changes the permissions.
+        #
+        # @param octet [String] Permissions octed , e.g. 640
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod_octet(octet)
+            super(VM_METHODS[:chmod], octet)
+        end
+
+        # Changes the permissions.
+        # Each [Integer] argument must be 1 to allow, 0 deny, -1 do not change
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
+                other_m, other_a)
+            super(VM_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
+                group_m, group_a, other_u, other_m, other_a)
         end
 
         #######################################################################

@@ -169,6 +169,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    chmod_desc = <<-EOT.unindent
+        Changes the Template permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :templateid_list], :octet do
+        helper.perform_actions(args[0],options, "Permissions changed") do |t|
+            t.chmod_octet(args[1])
+        end
+    end
+
     update_desc = <<-EOT.unindent
         Launches the system editor to modify and update the template contents
     EOT

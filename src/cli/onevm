@@ -333,7 +333,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     chown_desc = <<-EOT.unindent
-        Changes the Image owner and group
+        Changes the VM owner and group
     EOT
 
     command :chown, chown_desc, [:range, :vmid_list], :userid,
@@ -341,6 +341,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         gid = args[2].nil? ? -1 : args[2].to_i
         helper.perform_actions(args[0],options,"Owner/Group changed") do |vm|
             vm.chown(args[1].to_i, gid)
+        end
+    end
+
+    chmod_desc = <<-EOT.unindent
+        Changes the VM permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :vmid_list], :octet do
+        helper.perform_actions(args[0],options, "Permissions changed") do |vm|
+            vm.chmod_octet(args[1])
         end
     end
 

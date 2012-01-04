@@ -212,6 +212,47 @@ module OpenNebula
             return rc
         end
 
+        # Calls to the corresponding chmod method to modify
+        # the object's permission bits
+        #
+        # @param xml_method [String] the name of the XML-RPC method
+        # @param octet [String] Permissions octed , e.g. 640
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod_octet(xml_method, octet)
+            owner_u = octet[0..0].to_i & 4 != 0 ? 1 : 0
+            owner_m = octet[0..0].to_i & 2 != 0 ? 1 : 0
+            owner_a = octet[0..0].to_i & 1 != 0 ? 1 : 0
+            group_u = octet[1..1].to_i & 4 != 0 ? 1 : 0
+            group_m = octet[1..1].to_i & 2 != 0 ? 1 : 0
+            group_a = octet[1..1].to_i & 1 != 0 ? 1 : 0
+            other_u = octet[2..2].to_i & 4 != 0 ? 1 : 0
+            other_m = octet[2..2].to_i & 2 != 0 ? 1 : 0
+            other_a = octet[2..2].to_i & 1 != 0 ? 1 : 0
+
+            chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
+                other_m, other_a)
+        end
+
+        # Calls to the corresponding chmod method to modify
+        # the object's permission bits
+        # Each [Integer] parameter must be 1 to allow, 0 deny, -1 do not change
+        #
+        # @param xml_method [String] the name of the XML-RPC method
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod(xml_method, owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
+                other_m, other_a)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(xml_method, @pe_id, owner_u, owner_m,
+                            owner_a, group_u, group_m, group_a, other_u,
+                            other_m, other_a)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
     public
 
         # Creates new element specifying its id

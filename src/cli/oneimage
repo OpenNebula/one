@@ -202,6 +202,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    chmod_desc = <<-EOT.unindent
+        Changes the Image permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :imageid_list], :octet do
+        helper.perform_actions(args[0],options,
+                "Permissions changed") do |image|
+            image.chmod_octet(args[1])
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Images in the pool
     EOT
