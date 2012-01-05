@@ -56,10 +56,9 @@ class OpenNebulaVMware < OpenNebulaNetwork
         vm_id =  @vm['ID']
         hostname = @vm['HISTORY_RECORDS/HISTORY/HOSTNAME']
         process do |nic|
-
             switch     = nic[:bridge]
             network_id = nic[:network_id]
-            pg         = "one-#{network_id}"
+            pg         = "one-pg-#{network_id}"
 
             if nic[:vlan] == "YES"
                 if nic[:vlan_id]
