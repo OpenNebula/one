@@ -230,6 +230,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
+          $VAR_LOCATION/remotes/vnm/vmware \
           $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/hooks \
@@ -391,6 +392,7 @@ INSTALL_FILES=(
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
+    NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
@@ -744,6 +746,11 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/post \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+
+NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
+                    src/vnm_mad/remotes/vmware/post \
+                    src/vnm_mad/remotes/vmware/pre \
+                    src/vnm_mad/remotes/vmware/VMware.rb"
 
 
 #-------------------------------------------------------------------------------
@@ -1196,7 +1203,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/green_bullet.png \
                         src/sunstone/public/images/vnc_off.png \
                         src/sunstone/public/images/vnc_on.png"
-                      
+
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
 src/sunstone/public/locale/en_US/en_US.js \
 "
@@ -1268,7 +1275,7 @@ OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js \
                         src/sunstone/public/js/locale.js"
-                        
+
 OZONES_PUBLIC_CSS_FILES="src/ozones/Server/public/css/application.css \
                          src/ozones/Server/public/css/layout.css \
                          src/ozones/Server/public/css/login.css"
@@ -1322,7 +1329,7 @@ SELF_SERVICE_PUBLIC_CSS_FILES="src/cloud/occi/lib/ui/public/css/application.css 
                     src/cloud/occi/lib/ui/public/css/layout.css \
                     src/cloud/occi/lib/ui/public/css/login.css"
 
-SELF_SERVICE_PUBLIC_CUSTOMIZE_FILES="src/cloud/occi/lib/ui/public/customize/custom.js" 
+SELF_SERVICE_PUBLIC_CUSTOMIZE_FILES="src/cloud/occi/lib/ui/public/customize/custom.js"
 
 
 SELF_SERVICE_PUBLIC_VENDOR_DATATABLES=$SUNSTONE_PUBLIC_VENDOR_DATATABLES

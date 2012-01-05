@@ -24,6 +24,7 @@ require 'OpenNebulaNic'
 require 'base64'
 
 require 'scripts_common'
+require 'CommandManager'
 include OpenNebula
 
 CONF = {
@@ -84,7 +85,7 @@ class VM
     def [](element)
         if @vm_root
             val = @vm_root.elements[element]
-            if val.text
+            if !val.nil? and val.text
                 return val.text
             end
         end
@@ -106,7 +107,7 @@ class OpenNebulaNetwork
         else
             @hypervisor = hypervisor
         end
-        
+
         @vm = VM.new(REXML::Document.new(vm_tpl).root, xpath_filter, deploy_id, @hypervisor)
     end
 
