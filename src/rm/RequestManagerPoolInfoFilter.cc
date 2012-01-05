@@ -25,6 +25,8 @@ const int RequestManagerPoolInfoFilter::ALL  = -2;
 
 const int RequestManagerPoolInfoFilter::MINE = -3;      
 
+const int RequestManagerPoolInfoFilter::MINE_GROUP = -1;
+
 /* ------------------------------------------------------------------------- */
 
 const int VirtualMachinePoolInfo::ALL_VM   = -2;
@@ -170,20 +172,19 @@ void RequestManagerPoolInfoFilter::dump(
                             AuthRequest::USE, all, oids, gids);
     }
 
-    if ( filter_flag != ALL )
+    switch ( filter_flag )
     {
-        int uid;
-
-        if ( filter_flag == MINE )
-        {
-            uid = att.uid;
-        }
-        else
-        {
-            uid = filter_flag;
-        }
-
-        uid_filter << "uid = " << uid;
+        case MINE:
+            uid_filter << "uid = " << att.uid;
+            break;
+        case MINE_GROUP:
+            uid_filter << "uid = " << att.uid << " OR gid = " << att.gid;
+            break;
+        case ALL:
+            break;
+        default:
+            uid_filter << "uid = " << filter_flag;
+            break;
     }
 
     if ( !all ) // If all == true, there is not a uid or gid restriction

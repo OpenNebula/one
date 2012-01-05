@@ -40,11 +40,14 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    /** Specify all objects the user has right to view (-2) */
+    /** Specify all objects the user has right to USE (-2) */
     static const int ALL;
 
     /** Specify user's objects in the pool (-3) */
     static const int MINE;
+
+    /** Specify user's + group objects (-1)     */
+    static const int MINE_GROUP;
 
     /* -------------------------------------------------------------------- */
 
