@@ -33,7 +33,9 @@ protected:
     RequestManagerDelete(const string& method_name,
                          const string& help)
         :Request(method_name,"A:si",help)
-    {};
+    {
+        auth_op = AuthRequest::MANAGE;
+    };
 
     ~RequestManagerDelete(){};
 
@@ -42,6 +44,9 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
+    bool delete_authorization(int                oid,
+                              RequestAttributes& att);
+                              
     /* -------------------------------------------------------------------- */
 
     virtual int drop(int oid, PoolObjectSQL * object, string& error_msg)
@@ -69,7 +74,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
-        auth_op     = AuthRequest::MANAGE;
     };
 
     ~TemplateDelete(){};
@@ -88,7 +92,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
-        auth_op     = AuthRequest::MANAGE;
     };
 
     ~VirtualNetworkDelete(){};
@@ -106,7 +109,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
-        auth_op     = AuthRequest::MANAGE;
     };
 
     ~ImageDelete(){};
@@ -129,7 +131,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
-        auth_op     = AuthRequest::ADMIN;
     };
 
     ~HostDelete(){};
@@ -148,7 +149,6 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
-        auth_op     = AuthRequest::ADMIN;
     };
 
     ~GroupDelete(){};
@@ -166,7 +166,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
-        auth_op     = AuthRequest::ADMIN;
     };
 
     ~UserDelete(){};

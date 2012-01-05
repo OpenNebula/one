@@ -18,6 +18,55 @@
 
 using namespace std;
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool RequestManagerDelete::delete_authorization(int                oid,
+                                                RequestAttributes& att)
+{
+    PoolObjectSQL * object;
+    PoolObjectAuth  perms;
+
+    if ( att.uid == 0 )
+    {
+        return true;
+    }
+
+    if ( oid >= 0 )
+    {
+        object = pool->get(oid,true);
+
+        if ( object == 0 )
+        {
+            failure_response(NO_EXISTS,
+                             get_error(object_name(auth_object),oid),
+                             att);
+            return false;
+        }
+
+        object->get_permissions(perms);
+
+        object->unlock();
+    }
+
+    AuthRequest ar(att.uid, att.gid);
+
+    ar.add_create_auth(auth_object, "");
+
+    ar.add_auth(auth_op, perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        failure_response(AUTHORIZATION,
+                authorization_error(ar.message, att),
+                att);
+
+        return false;
+    }
+
+    return true;
+}
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
@@ -28,7 +77,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectSQL * object;
     string          error_msg;
 
-    if ( basic_authorization(oid, att) == false )
+    if ( delete_authorization(oid, att) == false )
     {
         return;
     }
