@@ -585,6 +585,9 @@ var OpenNebula = {
         "resubmit": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resubmit");
         },
+        "reboot" : function(params){
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"reboot");
+        },
 
         "log": function(params){
             OpenNebula.Action.show(params,OpenNebula.VM.resource,"log");

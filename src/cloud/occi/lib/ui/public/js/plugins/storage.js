@@ -92,9 +92,9 @@ var create_image_tmpl =
                <div class="img_param">\
 -->\
                <div class="form_buttons">\
-                 <button class="image_close_dialog_link"/>\
-                 <button class="button" id="create_image" value="Image.create" />\
-                 <button class="button" type="reset" id="reset_image" value="reset" />\
+                 <button class="image_close_dialog_link">'+tr("Close")+'</button>\
+                 <button class="button" id="create_image" value="Image.create">'+tr("Create")+'</button>\
+                 <!--<button class="button" type="reset" id="reset_image" value="reset"-->\
                </div>\
            </form>\
         </div>\
@@ -413,19 +413,21 @@ function popUpCreateImageDialog(){
         icons: {
             primary: "ui-icon-check"
         },
-        text: false
+        text: true
     });
+/*
     $('#reset_image',dialog).button({
         icons: {
             primary: "ui-icon-scissors"
         },
         text: false
     });
+*/
     $('.image_close_dialog_link',dialog).button({
         icons: {
             primary: "ui-icon-closethick"
         },
-        text: false
+        text: true
     });
 
     setupTips(dialog);
