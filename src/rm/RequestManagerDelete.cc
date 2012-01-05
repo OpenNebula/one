@@ -32,22 +32,19 @@ bool RequestManagerDelete::delete_authorization(int                oid,
         return true;
     }
 
-    if ( oid >= 0 )
+    object = pool->get(oid,true);
+
+    if ( object == 0 )
     {
-        object = pool->get(oid,true);
-
-        if ( object == 0 )
-        {
-            failure_response(NO_EXISTS,
-                             get_error(object_name(auth_object),oid),
-                             att);
-            return false;
-        }
-
-        object->get_permissions(perms);
-
-        object->unlock();
+        failure_response(NO_EXISTS,
+                         get_error(object_name(auth_object),oid),
+                         att);
+        return false;
     }
+
+    object->get_permissions(perms);
+
+    object->unlock();
 
     AuthRequest ar(att.uid, att.gid);
 
