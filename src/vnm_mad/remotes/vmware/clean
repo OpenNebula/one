@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #

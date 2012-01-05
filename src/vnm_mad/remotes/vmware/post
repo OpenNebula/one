@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -15,4 +15,5 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
 exit 0
