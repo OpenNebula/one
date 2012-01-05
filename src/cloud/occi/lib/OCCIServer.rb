@@ -41,7 +41,7 @@ require 'pp'
 COLLECTIONS = ["compute", "instance_type", "network", "storage"]
 
 # FLAG that will filter the elements retrieved from the Pools
-POOL_FILTER = Pool::INFO_GROUP
+POOL_FILTER = Pool::INFO_ALL
 
 class OCCIServer < CloudServer
     # Server initializer
