@@ -19,7 +19,6 @@
 #include <cerrno>
 
 #include "RequestManagerPoolInfoFilter.h"
-#include "RequestManagerPoolInfo.h"
 #include "RequestManagerInfo.h"
 #include "RequestManagerDelete.h"
 #include "RequestManagerAllocate.h"

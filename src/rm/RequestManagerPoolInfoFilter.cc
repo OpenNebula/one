@@ -42,6 +42,91 @@ void RequestManagerPoolInfoFilter::request_execute(
     int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
     int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
 
+    dump(att, filter_flag, start_id, end_id, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
+    int state       = xmlrpc_c::value_int(paramList.getInt(4));
+
+    ostringstream state_filter;
+
+    if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
+        ( state > VirtualMachine::FAILED ))
+    {
+        failure_response(XML_RPC_API,
+                         request_error("Incorrect filter_flag, state",""),
+                         att);
+
+        return;
+    }
+
+    switch(state)
+    {
+        case VirtualMachinePoolInfo::ALL_VM:
+            break;
+
+        case VirtualMachinePoolInfo::NOT_DONE:
+            state_filter << "state <> " << VirtualMachine::DONE;
+            break;
+
+        default:
+            state_filter << "state = " << state;
+            break;
+    }
+
+    dump(att, filter_flag, start_id, end_id, state_filter.str(), "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void HostPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void GroupPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void UserPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void RequestManagerPoolInfoFilter::dump(
+        RequestAttributes& att,
+        int     filter_flag,
+        int     start_id,
+        int     end_id,
+        string  and_clause,
+        string  or_clause)
+{
     set<int>::iterator it;
 
     ostringstream oss;
@@ -49,11 +134,9 @@ void RequestManagerPoolInfoFilter::request_execute(
     ostringstream where_string;
 
     ostringstream uid_filter;
-    ostringstream state_filter;
     ostringstream id_filter;
 
     string uid_str;
-    string state_str;
     string id_str;
 
     int rc;
@@ -75,7 +158,6 @@ void RequestManagerPoolInfoFilter::request_execute(
     bool        all;
     vector<int> oids;
     vector<int> gids;
-
 
 
     if ( att.uid == 0 || att.gid == 0 )
@@ -135,7 +217,6 @@ void RequestManagerPoolInfoFilter::request_execute(
 
     uid_str = uid_filter.str();
 
-
     // ------------------------------------------ 
     //              Resource ID filter 
     // ------------------------------------------ 
@@ -152,71 +233,51 @@ void RequestManagerPoolInfoFilter::request_execute(
 
     id_str = id_filter.str();
 
-    // ------------ State filter for VM -------------- 
-    if  ( auth_object == PoolObjectSQL::VM )
-    {
-        int state = xmlrpc_c::value_int(paramList.getInt(4));
-
-        if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
-            ( state > VirtualMachine::FAILED ))
-        {
-            failure_response(XML_RPC_API, 
-                             request_error("Incorrect filter_flag, state",""),
-                             att);
-
-            return;
-        }
-
-        switch(state)
-        {
-            case VirtualMachinePoolInfo::ALL_VM:
-                break;
-
-            case VirtualMachinePoolInfo::NOT_DONE:
-                state_filter << "state <> " << VirtualMachine::DONE;
-                break;
-
-            default:
-                state_filter << "state = " << state;
-                break;
-        }
-    }
-    
-    state_str = state_filter.str();
-
     // ------------------------------------------ 
     //           Compound WHERE clause 
     // ------------------------------------------ 
 
+    // WHERE ( id_str ) AND ( uid_str ) AND ( and_clause ) OR ( or_clause )
+
+    if (!id_str.empty())
+    {
+        where_string << "(" << id_str << ")" ;
+        empty = false;
+    }
+
     if (!uid_str.empty())
     {
-        where_string << "(" << uid_str << ")" ;
+        if (!empty)
+        {
+            where_string << " AND ";
+        }
+
+        where_string << "(" << uid_str << ")";
         empty = false;
     }
 
-    if (!id_str.empty()) 
+    if (!and_clause.empty())
     {
         if (!empty)
         {
             where_string << " AND ";
         }
 
-        where_string << "(" << id_str << ")";
-        empty = false;
+        where_string << "(" << and_clause << ")";
     }
 
-    if (!state_str.empty())
+    if (!or_clause.empty())
     {
         if (!empty)
         {
-            where_string << " AND ";
+            where_string << " OR ";
         }
 
-        where_string << "(" << state_str << ")";
+        where_string << "(" << or_clause << ")";
     }
 
     // ------------------------------------------ 
-    //           Authorize & get the pool
+    //           Get the pool
     // ------------------------------------------ 
     
     rc = pool->dump(oss,where_string.str());

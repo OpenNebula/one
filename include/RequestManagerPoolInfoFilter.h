@@ -48,8 +48,14 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+    virtual void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    /* -------------------------------------------------------------------- */
+
+    void dump(RequestAttributes& att, int filter_flag,
+            int start_id, int end_id,
+            string and_clause, string or_clause);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -76,6 +82,12 @@ public:
     };
 
     ~VirtualMachinePoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
 };
 
 /* ------------------------------------------------------------------------- */
@@ -133,6 +145,78 @@ public:
     };
 
     ~ImagePoolInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HostPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    HostPoolInfo():
+        RequestManagerPoolInfoFilter("HostPoolInfo",
+                                     "Returns the host pool",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hpool();
+        auth_object = PoolObjectSQL::HOST;
+    };
+
+    ~HostPoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class GroupPoolInfo: public RequestManagerPoolInfoFilter
+{
+public:
+    GroupPoolInfo():
+        RequestManagerPoolInfoFilter("GroupPoolInfo",
+                                     "Returns the group pool",
+                                     "A:s")
+    {
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_gpool();
+        auth_object = PoolObjectSQL::GROUP;
+    };
+
+    ~GroupPoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserPoolInfo: public RequestManagerPoolInfoFilter
+{
+public:
+    UserPoolInfo():
+        RequestManagerPoolInfoFilter("UserPoolInfo",
+                                     "Returns the user pool",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+        auth_object = PoolObjectSQL::USER;
+    };
+
+    ~UserPoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */
