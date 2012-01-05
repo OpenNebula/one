@@ -802,7 +802,7 @@ function setupCreateVNetDialog() {
                 if (ip_start.length)
                     network_json["vnet"]["ip_start"] = ip_start;
                 if (ip_end.length)
-                    network_json["vnet"]["ip_start"] = ip_end;
+                    network_json["vnet"]["ip_end"] = ip_end;
             };
         };
 
