@@ -124,17 +124,22 @@ public:
         return oid;
     };
 
+    ObjectType get_type() const
+    {
+        return obj_type;
+    };
+
     const string& get_name() const
     {
         return name;
     };
 
-    int get_uid()
+    int get_uid() const
     {
         return uid;
     };
 
-    int get_gid()
+    int get_gid() const
     {
         return gid;
     };
