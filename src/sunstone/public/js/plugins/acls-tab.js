@@ -65,16 +65,11 @@ var create_acl_tmpl =
                 <label for="belonging_to">'+tr("Group")+':</label>\
                 <select name="belonging_to" id="belonging_to"></select>\
                 <div class="clear"></div>\
-                <label style="height:12em;">'+tr("Allowed operations")+':</label>\
+                <label style="height:5em;">'+tr("Allowed operations")+':</label>\
                 <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input><br />\
-                <input type="checkbox" name="right_delete" class="right_cb" value="DELETE">'+tr("Delete")+'</input><br />\
-                <input type="checkbox" name="right_use" class="right_cb" value="USE">'+tr("Use")+'</input><br />\
-                <input type="checkbox" name="right_manage" class="right_cb" value="MANAGE">'+tr("Manage")+'</input><br />\
-                <input type="checkbox" name="right_info" class="right_cb" value="INFO">'+tr("Get Information")+'</input><br />\
-                <input type="checkbox" name="right_info_pool" class="right_cb" value="INFO_POOL">'+tr("Get Pool of resources")+'</input><br />\
-                <input type="checkbox" name="right_info_pool_mine" class="right_cb" value="INFO_POOL_MINE">'+tr("Get Pool of my/group\'s resources")+'</input><br />\
-                <input type="checkbox" name="right_chown" class="right_cb" value="CHOWN">'+tr("Change owner")+'</input><br />\
-                <input type="checkbox" name="right_deploy" class="right_cb" value="DEPLOY">'+tr("Deploy")+'</input><br />\
+                <input type="checkbox" name="right_delete" class="right_cb" value="USE">'+tr("Use")+'</input><br />\
+                <input type="checkbox" name="right_use" class="right_cb" value="MANAGE">'+tr("Manage")+'</input><br />\
+                <input type="checkbox" name="right_manage" class="right_cb" value="ADMIN">'+tr("Administrate")+'</input><br />\
                 <div class="clear"></div>\
                 <label for="acl_preview">'+tr("ACL String preview")+':</label>\
                 <input type="text" name="acl_preview" id="acl_preview" style="width:400px;"></input>\
