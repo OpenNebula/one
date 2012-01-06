@@ -123,11 +123,11 @@ void UserPoolInfo::request_execute(
 
 void RequestManagerPoolInfoFilter::dump(
         RequestAttributes& att,
-        int     filter_flag,
-        int     start_id,
-        int     end_id,
-        string  and_clause,
-        string  or_clause)
+        int                filter_flag,
+        int                start_id,
+        int                end_id,
+        const string&      and_clause,
+        const string&      or_clause)
 {
     set<int>::iterator it;
 
@@ -143,9 +143,9 @@ void RequestManagerPoolInfoFilter::dump(
 
     int rc;
 
-    // ------------------------------------------ 
-    //              User ID filter              
-    // ------------------------------------------ 
+    // -------------------------------------------------------------------------
+    //                             User ID filter              
+    // ------------------------------------------------------------------------- 
 
     if ( filter_flag < MINE )
     {
@@ -168,8 +168,13 @@ void RequestManagerPoolInfoFilter::dump(
     }
     else
     {
-        aclm->reverse_search(att.uid, att.gid, auth_object,
-                            AuthRequest::USE, all, oids, gids);
+        aclm->reverse_search(att.uid, 
+                             att.gid, 
+                             auth_object,
+                             AuthRequest::USE, 
+                             all, 
+                             oids, 
+                             gids);
     }
 
     switch ( filter_flag )
@@ -177,43 +182,45 @@ void RequestManagerPoolInfoFilter::dump(
         case MINE:
             uid_filter << "uid = " << att.uid;
             break;
+
         case MINE_GROUP:
-            uid_filter << "uid = " << att.uid << " OR gid = " << att.gid;
+            uid_filter << " uid = " << att.uid 
+                       << " OR ( gid = " << att.gid
+                       << " AND group_u = 1 )";
             break;
+
         case ALL:
+            if (!all)
+            {
+                vector<int>::iterator it;   
+
+                uid_filter << " uid = " << att.uid 
+                           << " OR ( gid = " << att.gid
+                           << " AND group_u = 1 ) ";
+
+                for ( it=oids.begin(); it< oids.end(); it++ )
+                {
+                    uid_filter << " OR oid = " << *it;
+                }
+
+                for ( it=gids.begin(); it< gids.end(); it++ )
+                {
+                    uid_filter << " OR gid = " << *it;
+                }
+            }
             break;
+
         default:
             uid_filter << "uid = " << filter_flag;
+
+            if ( filter_flag != att.uid && !all )
+            {
+                uid_filter << " AND ("
+                           << " ( gid = " << att.gid << " AND group_u = 1) OR "
+                           << " other_u = 1"    
+                           << ")";
+            }
             break;
-    }
-
-    if ( !all ) // If all == true, there is not a uid or gid restriction
-    {
-        vector<int>::iterator it;
-
-        if ( filter_flag != ALL )
-        {
-            uid_filter << " AND ";
-        }
-
-        // Permissions included in the resources
-        uid_filter
-            << "("
-                << "(uid = " << att.uid << " AND owner_u = 1) OR "
-                << "(gid = " << att.gid << " AND group_u = 1) OR "
-                << "other_u = 1";
-
-        for ( it=oids.begin(); it< oids.end(); it++ )
-        {
-            uid_filter << " OR oid = " << *it;
-        }
-
-        for ( it=gids.begin(); it< gids.end(); it++ )
-        {
-            uid_filter << " OR gid = " << *it;
-        }
-
-        uid_filter << ")";
     }
 
     uid_str = uid_filter.str();
@@ -265,6 +272,7 @@ void RequestManagerPoolInfoFilter::dump(
         }
 
         where_string << "(" << and_clause << ")";
+        empty = false;
     }
 
     if (!or_clause.empty())

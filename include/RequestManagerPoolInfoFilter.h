@@ -56,9 +56,12 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void dump(RequestAttributes& att, int filter_flag,
-            int start_id, int end_id,
-            string and_clause, string or_clause);
+    void dump(RequestAttributes& att, 
+              int                filter_flag,
+              int                start_id, 
+              int                end_id,
+              const string&      and_clause, 
+              const string&      or_clause);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -90,7 +93,6 @@ public:
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
-
 };
 
 /* ------------------------------------------------------------------------- */
