@@ -191,6 +191,43 @@ public:
     int set_type(string& _type);
 
     /**
+     *  Check if the image can be used by other users
+     *  @return true if group or others can access the image
+     */
+    bool isPublic()
+    {
+       return (group_u == 1 || other_u == 1); 
+    }
+
+    /**
+     *  Set permissions for the Image. Extends the PoolSQLObject method
+     *  by checking the persistent state of the image.
+     */
+    int set_permissions(int _owner_u,
+                        int _owner_m,
+                        int _owner_a,
+                        int _group_u,
+                        int _group_m,
+                        int _group_a,
+                        int _other_u,
+                        int _other_m,
+                        int _other_a,
+                        string& error_str)
+    {
+        if ( isPersistent() && (_group_u == 1 || _other_u == 1) )
+        {
+            error_str = "Image cannot be public and persistent.";
+
+            return -1;
+        } 
+
+        return PoolObjectSQL::set_permissions(_owner_u, _owner_m, _owner_a,
+                                              _group_u, _group_m, _group_a,
+                                              _other_u, _other_m, _other_a,
+                                              error_str);
+    };
+
+    /**
      *  Set/Unset an image as persistent
      *    @param persistent true to make an image persistent
      *    @param error_str Returns the error reason, if any
@@ -206,13 +243,12 @@ public:
 
         if (persis == true)
         {
-            // TODO
-            /*
+            
             if ( isPublic() )
             {
                 goto error_public;
             }
-            */
+            
             persistent_img = 1;
         }
         else
@@ -225,11 +261,11 @@ public:
     error_vms:
         error_str = "Image cannot be in 'used' state.";
         goto error_common;
-/*
+
     error_public:
         error_str = "Image cannot be public and persistent.";
         goto error_common;
-*/
+
     error_common:
         return -1;
 

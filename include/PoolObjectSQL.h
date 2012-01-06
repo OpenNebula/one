@@ -182,16 +182,16 @@ public:
      *
      * @return 0 on success
      */
-    int set_permissions(int _owner_u,
-                        int _owner_m,
-                        int _owner_a,
-                        int _group_u,
-                        int _group_m,
-                        int _group_a,
-                        int _other_u,
-                        int _other_m,
-                        int _other_a,
-                        string& error_str);
+    virtual int set_permissions(int _owner_u,
+                                int _owner_m,
+                                int _owner_a,
+                                int _group_u,
+                                int _group_m,
+                                int _group_a,
+                                int _other_u,
+                                int _other_m,
+                                int _other_a,
+                                string& error_str);
 
     /* --------------------------------------------------------------------- */
 

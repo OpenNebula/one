@@ -124,14 +124,6 @@ int Image::insert(SqlDB *db, string& error_str)
 
     persistent_img = (persistent_attr == "YES");
 
-    // TODO
-    // An image cannot be public and persistent simultaneously
-/*
-    if ( public_obj && persistent_img )
-    {
-        goto error_public_and_persistent;
-    }
-*/
     // ------------ PREFIX --------------------
 
     get_template_attribute("DEV_PREFIX", dev_prefix);
@@ -191,11 +183,7 @@ int Image::insert(SqlDB *db, string& error_str)
 error_type:
     error_str = "Incorrect TYPE in template.";
     goto error_common;
-/*
-error_public_and_persistent:
-    error_str = "Image cannot be public and persistent.";
-    goto error_common;
-*/
+    
 error_no_path:
     if ( type == DATABLOCK )
     {
