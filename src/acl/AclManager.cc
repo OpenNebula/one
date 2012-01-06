@@ -191,7 +191,7 @@ const bool AclManager::authorize(
                      rights_req);
 
     oss << "Request " << log_rule.to_str();
-    NebulaLog::log("ACL",Log::DEBUG,oss);
+    NebulaLog::log("ACL",Log::DDEBUG,oss);
 
     // -------------------------------------------------------------------------
     // Create temporary rules from the object permissions
@@ -263,7 +263,7 @@ const bool AclManager::authorize(
     }
 
     oss.str("No more rules, permission not granted ");
-    NebulaLog::log("ACL",Log::DEBUG,oss);
+    NebulaLog::log("ACL",Log::DDEBUG,oss);
 
     return false;
 }
@@ -345,7 +345,7 @@ bool AclManager::match_rules(
     {
         oss.str("");
         oss << "> Rule  " << it->second->to_str();
-        NebulaLog::log("ACL",Log::DEBUG,oss);
+        NebulaLog::log("ACL",Log::DDEBUG,oss);
 
         auth =
           // Rule grants the requested rights
@@ -365,7 +365,7 @@ bool AclManager::match_rules(
         if ( auth == true )
         {
             oss.str("Permission granted");
-            NebulaLog::log("ACL",Log::DEBUG,oss);
+            NebulaLog::log("ACL",Log::DDEBUG,oss);
 
             break;
         }
@@ -584,7 +584,7 @@ void AclManager::reverse_search(int                       uid,
                      rights_req);
 
     oss << "Reverse search request " << log_rule.to_str();
-    NebulaLog::log("ACL",Log::DEBUG,oss);
+    NebulaLog::log("ACL",Log::DDEBUG,oss);
 
     // ---------------------------------------------------
     // Look for the rules that match
@@ -614,7 +614,7 @@ void AclManager::reverse_search(int                       uid,
             {
                 oss.str("");
                 oss << "> Rule  " << it->second->to_str();
-                NebulaLog::log("ACL",Log::DEBUG,oss);
+                NebulaLog::log("ACL",Log::DDEBUG,oss);
 
                 // Rule grants permission for all objects of this type
                 if ( ( it->second->resource & resource_all_req ) == resource_all_req )
