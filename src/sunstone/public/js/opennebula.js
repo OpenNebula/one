@@ -491,6 +491,13 @@ var OpenNebula = {
         "chgrp" : function(params){
             OpenNebula.Action.chgrp(params,OpenNebula.Network.resource);
         },
+        "chmod" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Network.resource,
+                                            "chmod",
+                                            action_obj);
+        },
         "publish": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Network.resource,"publish");
         },

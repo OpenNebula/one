@@ -30,7 +30,6 @@ var vnets_tab_content =
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Type")+'</th>\
       <th>'+tr("Bridge")+'</th>\
-      <th>'+tr("Public")+'</th>\
       <th>'+tr("Total Leases")+'</th>\
     </tr>\
   </thead>\
@@ -149,8 +148,31 @@ var update_vnet_tmpl =
                  <select id="vnet_template_update_select" name="vnet_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
-                   <label for="vnet_template_update_public">'+tr("Public")+':</label>\
-                   <input type="checkbox" name="vnet_template_update_public" id="vnet_template_update_public" />\
+                   <table class="permissions_table" style="padding:0 10px;">\
+                     <thead><tr>\
+                         <td style="width:130px">'+tr("Permissions")+':</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="owner_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="group_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Other")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="other_a" /></td>\
+                     </tr>\
+                   </table>\
                  </div>\
                  <label for="vnet_template_update_textarea">'+tr("Template")+':</label>\
                  <div class="clear"></div>\
@@ -299,6 +321,14 @@ var vnet_actions = {
         notify: true
     },
 
+    "Network.chmod" : {
+        type: "multiple",
+        call: OpenNebula.Network.chmod,
+//        callback
+        error: onError,
+        notify: true
+    },
+
     "Network.fetch_template" : {
         type: "single",
         call: OpenNebula.Network.fetch_template,
@@ -308,11 +338,20 @@ var vnet_actions = {
         error: onError
     },
 
+    "Network.fetch_permissions" : {
+        type: "single",
+        call: OpenNebula.Network.show,
+        callback: function(request,vnet_json){
+            var dialog = $('#vnet_template_update_dialog form');
+            var vnet = vnet_json.VNET;
+            setPermissionsTable(vnet,dialog);
+        },
+        error: onError
+    },
+
     "Network.update_dialog" : {
         type: "custom",
-        call: function() {
-            popUpVNetTemplateUpdateDialog();
-        }
+        call: popUpVNetTemplateUpdateDialog
     },
 
     "Network.update" : {
@@ -341,18 +380,8 @@ var vnet_buttons = {
 
     "Network.update_dialog" : {
         type: "action",
-        text: tr("Update a template"),
+        text: tr("Update properties"),
         alwaysActive: true
-    },
-
-    "Network.publish" : {
-        type: "action",
-        text: tr("Publish")
-    },
-
-    "Network.unpublish" : {
-        type: "action",
-        text: tr("Unpublish")
     },
 
     "Network.chown" : {
@@ -419,8 +448,6 @@ function vNetworkElementArray(vn_json){
         network.NAME,
         parseInt(network.TYPE) ? "FIXED" : "RANGED",
         network.BRIDGE,
-        parseInt(network.PUBLIC) ? '<input class="action_cb" id="cb_public_vnet" type="checkbox" elem_id="'+network.ID+'" checked="checked"/>'
-            : '<input class="action_cb" id="cb_public_vnet" type="checkbox" elem_id="'+network.ID+'"/>',
         network.TOTAL_LEASES ];
 }
 
@@ -501,16 +528,25 @@ function updateVNetworkInfo(request,vn){
               <td class="value_td">'+vn_info.GNAME+'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">'+tr("Public")+'</td>\
-              <td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
-            </tr>\
-            <tr>\
               <td class="key_td">'+tr("Physical device")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.PHYDEV) == "object" ? "--": vn_info.PHYDEV) +'</td>\
             </tr>\
             <tr>\
               <td class="key_td">'+tr("VNET ID")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.VLAN_ID) == "object" ? "--": vn_info.VLAN_ID) +'</td>\
+            </tr>\
+            <tr><td></td><td></td></tr>\
+            <tr>\
+              <td class="key_td">'+tr("Owner permissions")+'</td>\
+              <td class="value_td">'+ownerPermStr(vn_info)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Group permissions")+'</td>\
+              <td class="value_td">'+groupPermStr(vn_info)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Other permissions")+'</td>\
+              <td class="value_td">'+otherPermStr(vn_info)+'</td>\
             </tr>\
         </table>';
 
@@ -842,13 +878,15 @@ function setupVNetTemplateUpdateDialog(){
     //Put HTML in place
     dialog.html(update_vnet_tmpl);
 
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+
     //Convert into jQuery
     dialog.dialog({
         autoOpen:false,
         width:700,
         modal:true,
-        height:480,
-        resizable:false,
+        height:height,
+        resizable:true,
     });
 
     $('button',dialog).button();
@@ -857,24 +895,22 @@ function setupVNetTemplateUpdateDialog(){
         var id = $(this).val();
         if (id && id.length){
             var dialog = $('#vnet_template_update_dialog');
+            $('.permissions_table input',dialog).removeAttr('checked')
             $('#vnet_template_update_textarea',dialog).val(tr("Loading")+"...");
 
-            var vnet_public = is_public_vnet(id);
-
-            if (vnet_public){
-                $('#vnet_template_update_public',dialog).attr('checked','checked')
-            } else {
-                $('#vnet_template_update_public',dialog).removeAttr('checked')
-            }
-
+            Sunstone.runAction("Network.fetch_permissions",id);
             Sunstone.runAction("Network.fetch_template",id);
         } else {
             $('#vnet_template_update_textarea',dialog).val("");
         };
     });
 
-    $('#vnet_template_update_button',dialog).click(function(){
-        var dialog = $('#vnet_template_update_dialog');
+    $('.permissions_table input',dialog).change(function(){
+        $(this).parents('table').attr('update','update');
+    });
+
+    $('form',dialog).submit(function(){
+        var dialog = $(this);
         var new_template = $('#vnet_template_update_textarea',dialog).val();
         var id = $('#vnet_template_update_select',dialog).val();
         if (!id || !id.length) {
@@ -882,17 +918,16 @@ function setupVNetTemplateUpdateDialog(){
             return false;
         };
 
-        var old_public = is_public_vnet(id);
-
-        var new_public = $('#vnet_template_update_public:checked',dialog).length;
-
-        if (old_public != new_public){
-            if (new_public) Sunstone.runAction("Network.publish",id);
-            else Sunstone.runAction("Network.unpublish",id);
+        var permissions = $('.permissions_table');
+        if (permissions.attr('update')){
+            var perms = {
+                octet : buildOctet(permissions)
+            };
+            Sunstone.runAction("Network.chmod",id,perms);
         };
 
         Sunstone.runAction("Network.update",id,new_template);
-        dialog.dialog('close');
+        $(this).parents('#vnet_template_update_dialog').dialog('close');
         return false;
     });
 };
@@ -910,7 +945,7 @@ function popUpVNetTemplateUpdateDialog(){
     var dialog =  $('#vnet_template_update_dialog');
     $('#vnet_template_update_select',dialog).html(select);
     $('#vnet_template_update_textarea',dialog).val("");
-    $('#vnet_template_update_public',dialog).removeAttr('checked')
+    $('.permissions_table input',dialog).removeAttr('checked')
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
@@ -999,23 +1034,6 @@ function setVNetAutorefresh() {
     },INTERVAL+someTime());
 };
 
-function is_public_vnet(id) {
-    var data = getElementData(id,"#vnetwork",dataTable_vNetworks)[7];
-    return $(data).is(":checked");
-};
-
-function setupVNetActionCheckboxes(){
-    $('input.action_cb#cb_public_vnet',dataTable_vNetworks).live("click",function(){
-        var $this = $(this)
-        var id=$this.attr('elem_id');
-        if ($this.attr('checked'))
-                Sunstone.runAction("Network.publish",id);
-        else Sunstone.runAction("Network.unpublish",id);
-
-        return true;
-    });
-}
-
 //The DOM is ready and the ready() from sunstone.js
 //has been executed at this point.
 $(document).ready(function(){
@@ -1027,7 +1045,7 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,5,6,7,8] },
+            { "sWidth": "60px", "aTargets": [0,5,6,7] },
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "100px", "aTargets": [2,3] }
         ],
@@ -1040,13 +1058,12 @@ $(document).ready(function(){
     dataTable_vNetworks.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','',''],dataTable_vNetworks);
+        '','','','','','',''],dataTable_vNetworks);
     Sunstone.runAction("Network.list");
 
     setupCreateVNetDialog();
     setupVNetTemplateUpdateDialog();
     setupLeasesOps();
-    setupVNetActionCheckboxes();
     setVNetAutorefresh();
 
     initCheckAllBoxes(dataTable_vNetworks);
