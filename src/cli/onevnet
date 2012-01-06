@@ -130,8 +130,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     publish_desc = <<-EOT.unindent
-        Publishes the given Virtual Network. A public Virtual Network can be
-        seen and used by other Users in the Virtual Network's group
+        DEPRECATED, use chmod instead. Publishes the given Virtual Network. 
+        A public Virtual Network can be seen and used by other users in the 
+        Virtual Network's group.
     EOT
 
     command :publish, publish_desc, [:range,:vnetid_list] do
@@ -141,8 +142,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     unpublish_desc = <<-EOT.unindent
-        Unpublishes the given Virtual Network. A private Virtual Network
-        can't be used by any other User
+        DEPRECATED, use chmod instead. Unpublishes the given Virtual Network. A 
+        private Virtual Network can't be used by any other user.
     EOT
 
     command :unpublish, unpublish_desc, [:range,:vnetid_list] do

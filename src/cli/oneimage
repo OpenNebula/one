@@ -94,8 +94,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     publish_desc = <<-EOT.unindent
-        Publishes the given Image. A public Image can be seen and used by other
-        Users in the Image's group
+        DEPRECATED, use chmod instead. Publishes the given Image. A public Image
+        can be seen and used by other users in the Image's group.
     EOT
 
     command :publish, publish_desc, [:range,:imageid_list] do
@@ -105,8 +105,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     unpublish_desc = <<-EOT.unindent
-        Unpublishes the given Image. A private Image can't be used by any other
-        User
+        DEPRECATED, use chmod instead. Unpublishes the given Image. A private 
+        Image can't be used by any other user.
     EOT
 
     command :unpublish, unpublish_desc, [:range,:imageid_list] do
