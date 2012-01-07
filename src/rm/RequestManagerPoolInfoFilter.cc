@@ -157,7 +157,7 @@ void RequestManagerPoolInfoFilter::dump(
     bool        all;
     vector<int> oids;
     vector<int> gids;
-    
+
     // -------------------------------------------------------------------------
     //                             User ID filter              
     // ------------------------------------------------------------------------- 
@@ -200,8 +200,7 @@ void RequestManagerPoolInfoFilter::dump(
 
         case MINE_GROUP:
             uid_filter << " uid = " << att.uid 
-                       << " OR ( gid = " << att.gid
-                       << " AND group_u = 1 )";
+                       << " OR ( gid = " << att.gid << " AND group_u = 1 )";
             break;
 
         case ALL:
