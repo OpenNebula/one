@@ -46,7 +46,7 @@ module OpenNebulaJSON
                  when "unpublish"   then self.unpublish
                  when "update"      then self.update(action_hash['params'])
                  when "chown"       then self.chown(action_hash['params'])
-                 when "chmod"       then self.chmod_octet(action_hash['octet'])
+                 when "chmod"       then self.chmod_octet(action_hash['params'])
                  when "instantiate" then self.instantiate(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<

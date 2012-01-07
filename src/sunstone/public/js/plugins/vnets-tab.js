@@ -322,7 +322,7 @@ var vnet_actions = {
     },
 
     "Network.chmod" : {
-        type: "multiple",
+        type: "single",
         call: OpenNebula.Network.chmod,
 //        callback
         error: onError,

@@ -297,9 +297,7 @@ var image_actions = {
 
     "Image.update_dialog" : {
         type: "custom",
-        call: function() {
-            popUpImageTemplateUpdateDialog();
-        }
+        call: popUpImageTemplateUpdateDialog,
     },
 
     "Image.update" : {
@@ -387,7 +385,7 @@ var image_actions = {
     },
 
     "Image.chmod" : {
-        type: "multiple",
+        type: "single",
         call: OpenNebula.Image.chmod,
 //        callback
         error: onError,

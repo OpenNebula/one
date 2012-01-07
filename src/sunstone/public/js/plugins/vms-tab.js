@@ -443,7 +443,7 @@ var vm_actions = {
         error: onError,
         notify: true
     },
-}
+};
 
 
 
