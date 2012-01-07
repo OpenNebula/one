@@ -139,13 +139,10 @@ void RequestManagerPoolInfoFilter::dump(
     ostringstream id_filter;
 
     string uid_str;
+    string acl_str;
     string id_str;
 
     int rc;
-
-    // -------------------------------------------------------------------------
-    //                             User ID filter              
-    // ------------------------------------------------------------------------- 
 
     if ( filter_flag < MINE )
     {
@@ -160,7 +157,10 @@ void RequestManagerPoolInfoFilter::dump(
     bool        all;
     vector<int> oids;
     vector<int> gids;
-
+    
+    // -------------------------------------------------------------------------
+    //                             User ID filter              
+    // ------------------------------------------------------------------------- 
 
     if ( att.uid == 0 || att.gid == 0 )
     {
@@ -168,6 +168,9 @@ void RequestManagerPoolInfoFilter::dump(
     }
     else
     {
+        ostringstream         acl_filter;
+        vector<int>::iterator it;   
+
         aclm->reverse_search(att.uid, 
                              att.gid, 
                              auth_object,
@@ -175,6 +178,18 @@ void RequestManagerPoolInfoFilter::dump(
                              all, 
                              oids, 
                              gids);
+
+        for ( it = oids.begin(); it < oids.end(); it++ )
+        {
+            acl_filter << " OR oid = " << *it;
+        }
+
+        for ( it = gids.begin(); it < gids.end(); it++ )
+        {
+            acl_filter << " OR gid = " << *it;
+        }
+
+        acl_str = acl_filter.str();
     }
 
     switch ( filter_flag )
@@ -192,21 +207,10 @@ void RequestManagerPoolInfoFilter::dump(
         case ALL:
             if (!all)
             {
-                vector<int>::iterator it;   
-
                 uid_filter << " uid = " << att.uid 
-                           << " OR ( gid = " << att.gid
-                           << " AND group_u = 1 ) ";
-
-                for ( it=oids.begin(); it< oids.end(); it++ )
-                {
-                    uid_filter << " OR oid = " << *it;
-                }
-
-                for ( it=gids.begin(); it< gids.end(); it++ )
-                {
-                    uid_filter << " OR gid = " << *it;
-                }
+                           << " OR ( gid = " << att.gid << " AND group_u = 1 )"
+                           << " OR other_u = 1"
+                           << acl_str;
             }
             break;
 
@@ -216,8 +220,9 @@ void RequestManagerPoolInfoFilter::dump(
             if ( filter_flag != att.uid && !all )
             {
                 uid_filter << " AND ("
-                           << " ( gid = " << att.gid << " AND group_u = 1) OR "
-                           << " other_u = 1"    
+                           << " ( gid = " << att.gid << " AND group_u = 1)"
+                           << " OR other_u = 1"
+                           << acl_str
                            << ")";
             }
             break;
