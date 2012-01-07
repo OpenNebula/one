@@ -872,7 +872,7 @@ function popUpCreateVnetDialog() {
 
 function setupVNetTemplateUpdateDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="vnet_template_update_dialog" title="'+tr("Update network template")+'"></div>');
+    dialogs_context.append('<div id="vnet_template_update_dialog" title="'+tr("Update network properties")+'"></div>');
     var dialog = $('#vnet_template_update_dialog',dialogs_context);
 
     //Put HTML in place
@@ -893,9 +893,10 @@ function setupVNetTemplateUpdateDialog(){
 
     $('#vnet_template_update_select',dialog).change(function(){
         var id = $(this).val();
+        $('.permissions_table input',dialog).removeAttr('checked')
+        $('.permissions_table',dialog).removeAttr('update');
         if (id && id.length){
             var dialog = $('#vnet_template_update_dialog');
-            $('.permissions_table input',dialog).removeAttr('checked')
             $('#vnet_template_update_textarea',dialog).val(tr("Loading")+"...");
 
             Sunstone.runAction("Network.fetch_permissions",id);
@@ -914,11 +915,11 @@ function setupVNetTemplateUpdateDialog(){
         var new_template = $('#vnet_template_update_textarea',dialog).val();
         var id = $('#vnet_template_update_select',dialog).val();
         if (!id || !id.length) {
-            dialog.dialog('close');
+            $(this).parents('#vnet_template_update_dialog').dialog('close');            
             return false;
         };
 
-        var permissions = $('.permissions_table');
+        var permissions = $('.permissions_table',dialog);
         if (permissions.attr('update')){
             var perms = {
                 octet : buildOctet(permissions)
@@ -945,7 +946,8 @@ function popUpVNetTemplateUpdateDialog(){
     var dialog =  $('#vnet_template_update_dialog');
     $('#vnet_template_update_select',dialog).html(select);
     $('#vnet_template_update_textarea',dialog).val("");
-    $('.permissions_table input',dialog).removeAttr('checked')
+    $('.permissions_table input',dialog).removeAttr('checked');
+    $('.permissions_table',dialog).removeAttr('update');
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
@@ -960,8 +962,7 @@ function popUpVNetTemplateUpdateDialog(){
         if (sel_elems.length == 1) {
             $('#vnet_template_update_select option',dialog).attr('selected','selected');
             $('#vnet_template_update_select',dialog).trigger("change");
-        }
-
+        };
     };
 
     dialog.dialog('open');
