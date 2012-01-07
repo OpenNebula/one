@@ -772,12 +772,6 @@ var OpenNebula = {
         "disable": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"disable");
         },
-        "publish": function(params){
-            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"publish");
-        },
-        "unpublish": function(params){
-            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"unpublish");
-        },
         "persistent": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"persistent");
         },

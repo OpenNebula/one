@@ -915,7 +915,7 @@ function setupVNetTemplateUpdateDialog(){
         var new_template = $('#vnet_template_update_textarea',dialog).val();
         var id = $('#vnet_template_update_select',dialog).val();
         if (!id || !id.length) {
-            $(this).parents('#vnet_template_update_dialog').dialog('close');            
+            $(this).parents('#vnet_template_update_dialog').dialog('close');
             return false;
         };
 
