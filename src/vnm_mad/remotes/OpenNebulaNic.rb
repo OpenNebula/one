@@ -22,6 +22,8 @@ class Nics < Array
             @nicClass = NicKVM
         when "xen"
             @nicClass = NicXen
+        when "vmware"
+            @nicClass = NicVMware
         end
     end
 
@@ -29,7 +31,6 @@ class Nics < Array
         @nicClass.new
     end
 end
-
 
 # A NIC using KVM. This class implements functions to get the physical interface
 # that the NIC is using
@@ -111,6 +112,21 @@ class NicXen < Hash
                 end
             end
         end
+        self
+    end
+end
+
+# A NIC using VMware. This class implements functions to get the physical interface
+# that the NIC is using
+class NicVMware < Hash
+    def initialize
+        super(nil)
+    end
+
+    def get_info(vm)
+    end
+
+    def get_tap(vm)
         self
     end
 end

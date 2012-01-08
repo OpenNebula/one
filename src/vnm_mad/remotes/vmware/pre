@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,16 +15,16 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+# $stdout = $stderr
 
-tr_strings = `grep -h -o -R -e 'tr("[[:print:]]*")' ../js/* ../customize/* ../../../../../../sunstone/public/js/sunstone.js ../../../../../../sunstone/public/js/sunstone-util.js | cut -d'"' -f 2 | sort -u`
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
-puts "//Translated by"
-puts 'lang="en_US"'
-puts 'datatable_lang=""'
-puts "locale={"
+require 'VMware'
 
-tr_strings.each_line do | line |
-    puts "    \"#{line.chomp}\":\"\","
-end
+deploy_id  = nil
+hypervisor = "vmware"
+vm_64      = ARGV[0]
 
-puts "};"
+vmware = OpenNebulaVMware.from_base64(vm_64, deploy_id, hypervisor)
+exit vmware.activate

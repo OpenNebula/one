@@ -23,9 +23,9 @@ var $network_count = '<span class="network_count" />';
 
 
 
-//Login logo 591x43px - not implemented
+//Login logo 591x43px
 var logo_big = "images/opennebula-selfservice-big.png";
-//Top left logo 179x14px - not implemented
+//Top left logo 179x14px
 var logo_small = "images/opennebula-selfservice-small.png";
 
 

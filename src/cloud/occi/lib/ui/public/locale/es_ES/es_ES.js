@@ -1,4 +1,4 @@
-//Translated by
+//Translated by Hector Sanjuan
 lang="es_ES"
 datatable_lang="es_datatable.txt"
 locale={
@@ -13,6 +13,7 @@ locale={
     "Canvas not supported.":"Canvas no soportado",
     "CD-ROM":"CD-ROM",
     "Changing language":"Cambiando el lenguaje",
+    "Close":"Cerrar",
     "Community":"Comunidad",
     "Compute":"Máquinas Virtuales",
     "Compute resource":"máquina virtual",
@@ -21,6 +22,7 @@ locale={
     "Configuration":"Configuración",
     "Confirmation of action":"Confirmar operación",
     "CPU":"CPU",
+    "Create":"Crear",
     "Create network":"Crear red",
     "Create new compute resource":"Crear nueva máquina virtual",
     "Create new network resource":"Crear nueva red",
@@ -89,7 +91,7 @@ locale={
     "Please select":"Por favor escoja",
     "Previous action":"Acción anterior",
     "Public":"Público",
-    "Public scope of the image":"",
+    "Public scope of the image":"Imagen pública",
     "Publish":"Publicar",
     "Refresh list":"Refrescar lista",
     "Resume":"Reanudar",
@@ -98,6 +100,7 @@ locale={
     "See more":"Ver más",
     "Select a template":"Seleccione una plantilla",
     "Select disk":"Seleccione un disco",
+    "Select image to upload":"Seleccione una imagen para subir",
     "Self-Service UI Configuration":"Configuración de la interfaz Self-Service",
     "Shutdown":"Apagar",
     "Sign out":"Desconectar",
@@ -132,8 +135,6 @@ locale={
     "Unpublish":"Despublicar",
     "Update":"Actualizar",
     "Update template":"Actualizar plantilla",
-    "Upload image":"Subir imagen",
-    "Upload progress":"Progreso se subida",
     "Useful links":"Enlances útiles",
     "Virtual Machine information":"Información de máquina virtual",
     "virtual machines":"máquinas virtuales",

@@ -73,11 +73,10 @@ var create_image_tmpl =
                     <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
                </div>\
                <div class="img_param" id="upload_div">\
-                 <label for="file-uploader" style="width: 60px">'+tr("Upload image")+':</label>\
-                 <div id="file-uploader">\
+                 <label for="file-uploader" style="width:300px;height:2em;">'+tr("Select image to upload")+':</label><br /><div class="clear"/>\
+                 <div id="file-uploader" style="padding:0 1em;">\
                  </div><div class="clear" />\
-                 <label for="upload-progress">'+tr("Upload progress")+':</label>\
-                 <div id="upload-progress"></div>\
+                 <div id="upload-progress" style="margin-left:1em;"></div>\
                </div>\
 <!--\
                <div class="img_param">\
@@ -93,9 +92,9 @@ var create_image_tmpl =
                <div class="img_param">\
 -->\
                <div class="form_buttons">\
-                 <button class="image_close_dialog_link"/>\
-                 <button class="button" id="create_image" value="Image.create" />\
-                 <button class="button" type="reset" id="reset_image" value="reset" />\
+                 <button class="image_close_dialog_link">'+tr("Close")+'</button>\
+                 <button class="button" id="create_image" value="Image.create">'+tr("Create")+'</button>\
+                 <!--<button class="button" type="reset" id="reset_image" value="reset"-->\
                </div>\
            </form>\
         </div>\
@@ -414,19 +413,21 @@ function popUpCreateImageDialog(){
         icons: {
             primary: "ui-icon-check"
         },
-        text: false
+        text: true
     });
+/*
     $('#reset_image',dialog).button({
         icons: {
             primary: "ui-icon-scissors"
         },
         text: false
     });
+*/
     $('.image_close_dialog_link',dialog).button({
         icons: {
             primary: "ui-icon-closethick"
         },
-        text: false
+        text: true
     });
 
     setupTips(dialog);
@@ -460,7 +461,7 @@ function popUpCreateImageDialog(){
         border: "1px solid #AAAAAA",
         position: "relative",
 //        bottom: "29px",
-        width: "210px",
+        width: "258px",
 //        left: "133px",
         height: "15px",
         display: "inline-block",
@@ -506,6 +507,7 @@ function popUpCreateImageDialog(){
     };
 
     $('#file-uploader input').removeAttr("style");
+    $('#file-uploader input').attr('style','margin:0;width:256px!important');
 
     var processCreateImageForm = function(){
         var dialog = $create_image_dialog;

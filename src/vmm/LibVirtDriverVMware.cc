@@ -52,6 +52,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     const VectorAttribute * nic;
 
+    string  network_id = "";
     string  mac        = "";
     string  bridge     = "";
     string  script     = "";
@@ -163,7 +164,7 @@ int LibVirtDriver::deployment_description_vmware(
     // ------------------------------------------------------------------------
 
     file << "\t<devices>" << endl;
-    
+
     get_default("DISK","DRIVER",default_driver);
 
     num = vm->get_template_attribute("DISK",attrs);
@@ -221,7 +222,7 @@ int LibVirtDriver::deployment_description_vmware(
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
             file << "\t\t\t<source file=[" <<  datastore << "] " << vm->get_oid()
-                << "/images/disk."  << i << ".iso'/>"  << endl;    
+                << "/images/disk."  << i << ".iso'/>"  << endl;
         }
         else
         {
@@ -249,8 +250,8 @@ int LibVirtDriver::deployment_description_vmware(
         {
             if (!default_driver.empty())
             {
-                file << "\t\t\t<driver name='" << 
-                        default_driver << "'/>" << endl;            
+                file << "\t\t\t<driver name='" <<
+                        default_driver << "'/>" << endl;
             }
         }
 
@@ -306,21 +307,17 @@ int LibVirtDriver::deployment_description_vmware(
             continue;
         }
 
-        bridge = nic->vector_value("BRIDGE");
-        mac    = nic->vector_value("MAC");
-        target = nic->vector_value("TARGET");
-        script = nic->vector_value("SCRIPT");
-        model  = nic->vector_value("MODEL");
+        network_id = nic->vector_value("NETWORK_ID");
+        mac        = nic->vector_value("MAC");
+        target     = nic->vector_value("TARGET");
+        script     = nic->vector_value("SCRIPT");
+        model      = nic->vector_value("MODEL");
 
-        if ( bridge.empty() )
-        {
-            file << "\t\t<interface type='ethernet'>" << endl;
-        }
-        else
-        {
-            file << "\t\t<interface type='bridge'>" << endl;
-            file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
-        }
+        bridge     = "one-pg-";
+        bridge.append(network_id);
+
+        file << "\t\t<interface type='bridge'>" << endl;
+        file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
 
         if( !mac.empty() )
         {

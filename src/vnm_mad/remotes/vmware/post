@@ -1,5 +1,4 @@
-#!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -17,15 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-tr_strings = `grep -h -o -R -e 'tr("[[:print:]]*")' ../js/* ../customize/* ../../../../../../sunstone/public/js/sunstone.js ../../../../../../sunstone/public/js/sunstone-util.js | cut -d'"' -f 2 | sort -u`
-
-puts "//Translated by"
-puts 'lang="en_US"'
-puts 'datatable_lang=""'
-puts "locale={"
-
-tr_strings.each_line do | line |
-    puts "    \"#{line.chomp}\":\"\","
-end
-
-puts "};"
+exit 0
