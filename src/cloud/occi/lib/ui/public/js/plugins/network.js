@@ -290,11 +290,28 @@ function updateVNetworkInfo(request,vn){
             <tr>\
               <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+vn_info.ID+'</td>\
-            <tr>\
+            </tr>\
             <tr>\
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td">'+vn_info.NAME+'</td>\
+            </tr>\
             <tr>\
+              <td class="key_td">'+tr("Used leases")+'</td>\
+              <td class="value_td">'+vn_info.USED_LEASES+'</td>\
+            </tr>';
+
+    if (vn_info.ADDRESS){
+        info_tab_content += '\
+            <tr>\
+              <td class="key_td">'+tr("Address")+'</td>\
+              <td class="value_td">'+vn_info.ADDRESS+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Size")+'</td>\
+              <td class="value_td">'+vn_info.SIZE+'</td>\
+            </tr>';
+    };
+    info_tab_content += '\
         </table>\
         <div class="form_buttons">\
            <button class="vnet_close_dialog_link"/></div>';

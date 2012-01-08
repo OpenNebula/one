@@ -31,7 +31,6 @@ var images_tab_content =
       <th>'+tr("Size")+'</th>\
       <th>'+tr("Type")+'</th>\
       <th>'+tr("Registration time")+'</th>\
-      <th>'+tr("Public")+'</th>\
       <th>'+tr("Persistent")+'</th>\
       <th>'+tr("Status")+'</th>\
       <th>'+tr("#VMS")+'</th>\
@@ -73,11 +72,6 @@ var create_image_tmpl =
                       <option value="DATABLOCK">'+tr("Datablock")+'</option>\
                  </select>\
                  <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
-               </div>\
-               <div class="img_param">\
-                 <label for="img_public">'+tr("Public")+':</label>\
-                 <input type="checkbox" id="img_public" name="img_public" value="YES" />\
-                 <div class="tip">'+tr("Public scope of the image")+'</div>\
                </div>\
                <div class="img_param">\
                  <label for="img_persistent">'+tr("Persistent")+':</label>\
@@ -185,12 +179,35 @@ var update_image_tmpl =
                  <select id="image_template_update_select" name="image_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
-                   <label for="image_template_update_public">'+tr("Public")+':</label>\
-                   <input type="checkbox" name="image_template_update_public" id="image_template_update_public" />\
+                   <label for="image_template_update_persistent">'+tr("Persistent")+':</label>\
+                   <input type="checkbox" name="image_template_update_persistent" id="image_template_update_persistent" />\
                  </div>\
                  <div>\
-                   <label for="image_template_update_public">'+tr("Persistent")+':</label>\
-                   <input type="checkbox" name="image_template_update_persistent" id="image_template_update_persistent" />\
+                   <table class="permissions_table" style="padding:0 10px;">\
+                     <thead><tr>\
+                         <td style="width:130px">'+tr("Permissions")+':</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="owner_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="group_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Other")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="other_a" /></td>\
+                     </tr>\
+                   </table>\
                  </div>\
                  <label for="image_template_update_textarea">'+tr("Template")+':</label>\
                  <div class="clear"></div>\
@@ -267,11 +284,20 @@ var image_actions = {
         error: onError
     },
 
+    "Image.fetch_permissions" : {
+        type: "single",
+        call: OpenNebula.Image.show,
+        callback: function(request,image_json){
+            var dialog = $('#image_template_update_dialog form');
+            var image = image_json.IMAGE;
+            setPermissionsTable(image,dialog);
+        },
+        error: onError
+    },
+
     "Image.update_dialog" : {
         type: "custom",
-        call: function() {
-            popUpImageTemplateUpdateDialog();
-        }
+        call: popUpImageTemplateUpdateDialog,
     },
 
     "Image.update" : {
@@ -327,28 +353,6 @@ var image_actions = {
         notify: true
     },
 
-    "Image.publish" : {
-        type: "multiple",
-        call: OpenNebula.Image.publish,
-        callback: function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0]);
-        },
-        elements: imageElements,
-        error: onError,
-        notify: true
-    },
-
-    "Image.unpublish" : {
-        type: "multiple",
-        call: OpenNebula.Image.unpublish,
-        callback: function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0]);
-        },
-        elements: imageElements,
-        error: onError,
-        notify: true
-    },
-
     "Image.delete" : {
         type: "multiple",
         call: OpenNebula.Image.delete,
@@ -380,6 +384,14 @@ var image_actions = {
         notify: true
     },
 
+    "Image.chmod" : {
+        type: "single",
+        call: OpenNebula.Image.chmod,
+//        callback
+        error: onError,
+        notify: true
+    },
+
     "Image.chtype" : {
         type: "single",
         call: OpenNebula.Image.chtype,
@@ -390,8 +402,7 @@ var image_actions = {
         error: onError,
         notify: true
     }
-
-}
+};
 
 
 var image_buttons = {
@@ -406,7 +417,7 @@ var image_buttons = {
     },
     "Image.update_dialog" : {
         type: "action",
-        text: tr("Update a template"),
+        text: tr("Update properties"),
         alwaysActive: true
     },
     "Image.chown" : {
@@ -433,14 +444,6 @@ var image_buttons = {
             "Image.disable" : {
                 type: "action",
                 text: tr("Disable")
-            },
-            "Image.publish" : {
-                type: "action",
-                text: tr("Publish")
-            },
-            "Image.unpublish" : {
-                type: "action",
-                text: tr("Unpublish")
             },
             "Image.persistent" : {
                 type: "action",
@@ -489,7 +492,7 @@ function imageElements() {
 // Returns an array containing the values of the image_json and ready
 // to be inserted in the dataTable
 function imageElementArray(image_json){
-    //Changing this? It may affect to the is_public() and is_persistent() functions.
+    //Changing this? It may affect to the is_persistent() functions.
     var image = image_json.IMAGE;
 
     var type = $('<select>\
@@ -501,8 +504,6 @@ function imageElementArray(image_json){
     var value = OpenNebula.Helper.image_type(image.TYPE);
     $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+tr(value)+'</option>');
 
-
-
     return [
         '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
@@ -512,8 +513,6 @@ function imageElementArray(image_json){
         image.SIZE,
         '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'" style="width:100px">'+type.html()+'</select>',
         pretty_time(image.REGTIME),
-        parseInt(image.PUBLIC) ? '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
-            : '<input class="action_cb" id="cb_public_image" type="checkbox" elem_id="'+image.ID+'"/>',
         parseInt(image.PERSISTENT) ? '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
             : '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'"/>',
         OpenNebula.Helper.resource_state("image",image.STATE),
@@ -603,10 +602,6 @@ function updateImageInfo(request,img){
              <td class="value_td">'+pretty_time(img_info.REGTIME)+'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">'+tr("Public")+'</td>\
-             <td class="value_td">'+(parseInt(img_info.PUBLIC) ? tr("yes") : tr("no"))+'</td>\
-           </tr>\
-           <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
              <td class="value_td">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
            </tr>\
@@ -634,6 +629,19 @@ function updateImageInfo(request,img){
               <td class="key_td">'+tr("Running #VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
            </tr>\
+            <tr><td></td><td></td></tr>\
+            <tr>\
+              <td class="key_td">'+tr("Owner permissions")+'</td>\
+              <td class="value_td">'+ownerPermStr(img_info)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Group permissions")+'</td>\
+              <td class="value_td">'+groupPermStr(img_info)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Other permissions")+'</td>\
+              <td class="value_td">'+otherPermStr(img_info)+'</td>\
+            </tr>\
         </table>'
     }
 
@@ -692,16 +700,6 @@ function setupCreateImageDialog(){
     $('#img_source,#img_fstype,#img_size',dialog).parent().hide();
     $('#path_img',dialog).attr('checked','checked');
     $('#img_path',dialog).parent().addClass("img_man");
-
-    $('#img_public',dialog).click(function(){
-        $('#img_persistent',$create_image_dialog).removeAttr('checked');
-    });
-
-    $('#img_persistent',dialog).click(function(){
-        $('#img_public',$create_image_dialog).removeAttr('checked');
-    });
-
-
 
     $('#src_path_select input').click(function(){
         var context = $create_image_dialog;
@@ -776,8 +774,6 @@ function setupCreateImageDialog(){
         var type = $('#img_type',this).val();
         img_json["TYPE"]= type;
 
-        img_json["PUBLIC"] = $('#img_public:checked',this).length ? "YES" : "NO";
-
         img_json["PERSISTENT"] = $('#img_persistent:checked',this).length ? "YES" : "NO";
 
         var dev_prefix = $('#img_dev_prefix',this).val();
@@ -841,18 +837,19 @@ function popUpCreateImageDialog(){
 function setupImageTemplateUpdateDialog(){
 
     //Append to DOM
-    dialogs_context.append('<div id="image_template_update_dialog" title="'+tr("Update image template")+'"></div>');
+    dialogs_context.append('<div id="image_template_update_dialog" title="'+tr("Update image properties")+'"></div>');
     var dialog = $('#image_template_update_dialog',dialogs_context);
 
     //Put HTML in place
     dialog.html(update_image_tmpl);
 
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
     //Convert into jQuery
     dialog.dialog({
         autoOpen:false,
         width:700,
         modal:true,
-        height:480,
+        height:height,
         resizable:false,
     });
 
@@ -860,62 +857,61 @@ function setupImageTemplateUpdateDialog(){
 
     $('#image_template_update_select',dialog).change(function(){
         var id = $(this).val();
+        $('.permissions_table input',dialog).removeAttr('checked')
+        $('.permissions_table',dialog).removeAttr('update');
         if (id && id.length){
             var dialog = $('#image_template_update_dialog');
             $('#image_template_update_textarea',dialog).val(tr("Loading")+
                                                             "...");
 
-            var img_public = is_public_image(id);
-            var img_persistent = is_persistent_image(id)
-
-            if (img_public){
-                $('#image_template_update_public',dialog).attr('checked','checked')
-            } else {
-                $('#image_template_update_public',dialog).removeAttr('checked')
-            }
+            var img_persistent = is_persistent_image(id);
 
             if (img_persistent){
                 $('#image_template_update_persistent',dialog).attr('checked','checked')
             } else {
                 $('#image_template_update_persistent',dialog).removeAttr('checked')
-            }
+            };
 
+            Sunstone.runAction("Image.fetch_permissions",id);
             Sunstone.runAction("Image.fetch_template",id);
         } else {
             $('#image_template_update_textarea',dialog).val("");
         };
     });
 
-    $('#image_template_update_button',dialog).click(function(){
-        var dialog = $('#image_template_update_dialog');
+    $('.permissions_table input',dialog).change(function(){
+        $(this).parents('table').attr('update','update');
+    });
+
+    $('form',dialog).submit(function(){
+        var dialog = $(this);
         var new_template = $('#image_template_update_textarea',dialog).val();
         var id = $('#image_template_update_select',dialog).val();
         if (!id || !id.length) {
-            dialog.dialog('close');
+            $(this).parents('#image_template_update_dialog').dialog('close');
             return false;
         };
 
-        var old_public = is_public_image(id)
         var old_persistent = is_persistent_image(id);
-
-        var new_public = $('#image_template_update_public:checked',dialog).length;
-        var new_persistent = $('#image_template_update_persistent:checked',dialog).length;
-
-        if (old_public != new_public){
-            if (new_public) Sunstone.runAction("Image.publish",id);
-            else Sunstone.runAction("Image.unpublish",id);
-        };
-
+        var new_persistent = $('#image_template_update_persistent',dialog).is(':checked');
         if (old_persistent != new_persistent){
             if (new_persistent) Sunstone.runAction("Image.persistent",id);
             else Sunstone.runAction("Image.nonpersistent",id);
         };
 
+        var permissions = $('.permissions_table',dialog);
+        if (permissions.attr('update')){
+            var perms = {
+                octet : buildOctet(permissions)
+            };
+            Sunstone.runAction("Image.chmod",id,perms);
+        };
+
         Sunstone.runAction("Image.update",id,new_template);
-        dialog.dialog('close');
+        $(this).parents('#image_template_update_dialog').dialog('close');
         return false;
     });
-}
+};
 
 
 function popUpImageTemplateUpdateDialog(){
@@ -931,8 +927,10 @@ function popUpImageTemplateUpdateDialog(){
     var dialog =  $('#image_template_update_dialog');
     $('#image_template_update_select',dialog).html(select);
     $('#image_template_update_textarea',dialog).val("");
-    $('#image_template_update_public',dialog).removeAttr('checked')
-    $('#image_template_update_persistent',dialog).removeAttr('checked')
+    $('#image_template_update_persistent',dialog).removeAttr('checked');
+    $('.permissions_table input',dialog).removeAttr('checked');
+    $('.permissions_table',dialog).removeAttr('update');
+
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
@@ -947,14 +945,12 @@ function popUpImageTemplateUpdateDialog(){
         if (sel_elems.length == 1) {
             $('#image_template_update_select option',dialog).attr('selected','selected');
             $('#image_template_update_select',dialog).trigger("change");
-        }
-
+        };
     };
 
     dialog.dialog('open');
     return false;
-
-}
+};
 
 // Set the autorefresh interval for the datatable
 function setImageAutorefresh() {
@@ -968,43 +964,19 @@ function setImageAutorefresh() {
     },INTERVAL+someTime());
 };
 
-function is_public_image(id){
-    var data = getElementData(id,"#image",dataTable_images)[7];
-    return $(data).attr('checked');
-};
-
 function is_persistent_image(id){
     var data = getElementData(id,"#image",dataTable_images)[8];
-    return $(data).attr('checked');
+    return $(data).is(':checked');
 };
 
 function setupImageActionCheckboxes(){
-    $('input.action_cb#cb_public_image',dataTable_images).live("click",function(){
-        var $this = $(this)
-        var id=$this.attr('elem_id');
-        if ($this.attr('checked')){
-            if (!is_persistent_image(id))
-                Sunstone.runAction("Image.publish",id);
-            else {
-                notifyError(tr("Image cannot be public and persistent"));
-                return false;
-            };
-        } else Sunstone.runAction("Image.unpublish",id);
-
-        return true;
-    });
-
     $('input.action_cb#cb_persistent_image',dataTable_images).live("click",function(){
         var $this = $(this)
         var id=$this.attr('elem_id');
-        if ($this.attr('checked')){
-            if (!is_public_image(id))
-                Sunstone.runAction("Image.persistent",id);
-            else {
-                notifyError(tr("Image cannot be public and persistent"));
-                return false;
-            };
-        } else Sunstone.runAction("Image.nonpersistent",id);
+        if ($this.attr('checked'))
+            Sunstone.runAction("Image.persistent",id);
+        else
+            Sunstone.runAction("Image.nonpersistent",id);
 
         return true;
     });
@@ -1029,21 +1001,21 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,8,9,10] },
-            { "sWidth": "35px", "aTargets": [1,5,11] },
+            { "sWidth": "60px", "aTargets": [0,2,3,8,9] },
+            { "sWidth": "35px", "aTargets": [1,5,10] },
             { "sWidth": "100px", "aTargets": [6] },
             { "sWidth": "150px", "aTargets": [7] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
-		sUrl: "locale/"+lang+"/"+datatable_lang
+                sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
 
     dataTable_images.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','','',''],dataTable_images);
+        '','','','','','','','','',''],dataTable_images);
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
@@ -1055,6 +1027,4 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_images);
     tableCheckboxesListener(dataTable_images);
     imageInfoListener();
-
-
-})
+});

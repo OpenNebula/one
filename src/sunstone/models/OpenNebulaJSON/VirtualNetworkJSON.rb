@@ -48,6 +48,7 @@ module OpenNebulaJSON
                  when "unpublish" then self.unpublish
                  when "update"    then self.update(action_hash['params'])
                  when "chown"     then self.chown(action_hash['params'])
+                 when "chmod"     then self.chmod_octet(action_hash['params'])
                  when "hold"      then self.hold(action_hash['params'])
                  when "release"   then self.release(action_hash['params'])
                  else
@@ -71,6 +72,10 @@ module OpenNebulaJSON
 
         def chown(params=Hash.new)
             super(params['owner_id'].to_i,params['group_id'].to_i)
+        end
+
+        def chmod_octet(params=Hash.new)
+            super(params['octet'])
         end
 
         def hold(params=Hash.new)

@@ -16,7 +16,7 @@
 
 
 /* Some useful functions for Sunstone default plugins */
-var INTERVAL=60000; //milisecs
+var INTERVAL=300000; //milisecs
 
 function someTime(){
     return Math.floor(Math.random()*30000);
@@ -743,3 +743,126 @@ function groups_sel(){
 function hosts_sel(){
     return hosts_select;
 }
+
+function ownerUse(resource){
+    return parseInt(resource.PERMISSIONS.OWNER_U);
+};
+function ownerManage(resource){
+    return parseInt(resource.PERMISSIONS.OWNER_M);
+};
+function ownerAdmin(resource){
+    return parseInt(resource.PERMISSIONS.OWNER_A);
+};
+
+function groupUse(resource){
+    return parseInt(resource.PERMISSIONS.GROUP_U);
+};
+function groupManage(resource){
+    return parseInt(resource.PERMISSIONS.GROUP_M);
+};
+function groupAdmin(resource){
+    return parseInt(resource.PERMISSIONS.GROUP_A);
+};
+
+function otherUse(resource){
+    return parseInt(resource.PERMISSIONS.OTHER_U);
+};
+function otherManage(resource){
+    return parseInt(resource.PERMISSIONS.OTHER_M);
+};
+function otherAdmin(resource){
+    return parseInt(resource.PERMISSIONS.OTHER_A);
+};
+
+
+function ownerPermStr(resource){
+    var result = "";
+    if (ownerUse(resource))
+        result += tr("Use")+", ";
+    if (ownerManage(resource))
+        result += tr("Manage")+", ";
+    if (ownerAdmin(resource))
+        result += tr("Administrate")+", ";
+
+    //Remove ", " from end
+    result = result.substring(0,result.length-2);
+    return result;
+};
+
+function groupPermStr(resource){
+    var result = "";
+    if (groupUse(resource))
+        result += tr("Use")+", ";
+    if (groupManage(resource))
+        result += tr("Manage")+", ";
+    if (groupAdmin(resource))
+        result += tr("Administrate")+", ";
+
+    //Remove ", " from end
+    result = result.substring(0,result.length-2);
+    return result;
+};
+
+function otherPermStr(resource){
+    var result = "";
+    if (otherUse(resource))
+        result += tr("Use")+", ";
+    if (otherManage(resource))
+        result += tr("Manage")+", ";
+    if (otherAdmin(resource))
+        result += tr("Administrate")+", ";
+
+    //Remove ", " from end
+    result = result.substring(0,result.length-2);
+    return result;
+};
+
+function setPermissionsTable(resource,context){
+    if (ownerUse(resource))
+        $('.owner_u',context).attr('checked','checked');
+    if (ownerManage(resource))
+        $('.owner_m',context).attr('checked','checked');
+    if (ownerAdmin(resource))
+        $('.owner_a',context).attr('checked','checked');
+    if (groupUse(resource))
+        $('.group_u',context).attr('checked','checked');
+    if (groupManage(resource))
+        $('.group_m',context).attr('checked','checked');
+    if (groupAdmin(resource))
+        $('.group_a',context).attr('checked','checked');
+    if (otherUse(resource))
+        $('.other_u',context).attr('checked','checked');
+    if (otherManage(resource))
+        $('.other_m',context).attr('checked','checked');
+    if (otherAdmin(resource))
+        $('.other_a',context).attr('checked','checked');
+};
+
+function buildOctet(permTable){
+    var owner=0;
+    var group=0;
+    var other=0;
+
+    if ($('.owner_u',permTable).is(':checked'))
+        owner+=4;
+    if ($('.owner_m',permTable).is(':checked'))
+        owner+=2;
+    if ($('.owner_a',permTable).is(':checked'))
+        owner+=1;
+
+    if ($('.group_u',permTable).is(':checked'))
+        group+=4;
+    if ($('.group_m',permTable).is(':checked'))
+        group+=2;
+    if ($('.group_a',permTable).is(':checked'))
+        group+=1;
+
+    if ($('.other_u',permTable).is(':checked'))
+        other+=4;
+    if ($('.other_m',permTable).is(':checked'))
+        other+=2;
+    if ($('.other_a',permTable).is(':checked'))
+        other+=1;
+
+    return ""+owner+group+other;
+};
