@@ -16,16 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-end
-
-$: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), '..')
 
@@ -34,7 +24,7 @@ require 'OpenNebulaNic'
 require 'base64'
 
 require 'scripts_common'
-require 'CommandManager'
+
 include OpenNebula
 
 CONF = {
