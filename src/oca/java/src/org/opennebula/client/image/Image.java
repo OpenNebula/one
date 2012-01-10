@@ -33,8 +33,8 @@ public class Image extends PoolElement
     private static final String DELETE   = METHOD_PREFIX + "delete";
     private static final String UPDATE   = METHOD_PREFIX + "update";
     private static final String ENABLE   = METHOD_PREFIX + "enable";
-    private static final String PUBLISH  = METHOD_PREFIX + "publish";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
+    private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String CHTYPE   = METHOD_PREFIX + "chtype";
 
     private static final String[] IMAGE_STATES =
@@ -146,7 +146,9 @@ public class Image extends PoolElement
      */
     public static OneResponse publish(Client client, int id, boolean publish)
     {
-        return client.call(PUBLISH, id, publish);
+        int group_u = publish ? 1 : 0;
+
+        return chmod(client, id, -1, -1, -1, group_u, -1, -1, -1, -1, -1);
     }
 
     /**
@@ -161,6 +163,33 @@ public class Image extends PoolElement
     public static OneResponse chown(Client client, int id, int uid, int gid)
     {
         return client.call(CHOWN, id, uid, gid);
+    }
+
+    /**
+     * Changes the Image permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The image id of the target image we want to modify.
+     * @param owner_u 1 to allow, 0 deny, -1 do not change
+     * @param owner_m 1 to allow, 0 deny, -1 do not change
+     * @param owner_a 1 to allow, 0 deny, -1 do not change
+     * @param group_u 1 to allow, 0 deny, -1 do not change
+     * @param group_m 1 to allow, 0 deny, -1 do not change
+     * @param group_a 1 to allow, 0 deny, -1 do not change
+     * @param other_u 1 to allow, 0 deny, -1 do not change
+     * @param other_m 1 to allow, 0 deny, -1 do not change
+     * @param other_a 1 to allow, 0 deny, -1 do not change
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id,
+                                    int owner_u, int owner_m, int owner_a,
+                                    int group_u, int group_m, int group_a,
+                                    int other_u, int other_m, int other_a)
+    {
+        return chmod(client, CHMOD, id,
+                owner_u, owner_m, owner_a,
+                group_u, group_m, group_a,
+                other_u, other_m, other_a);
     }
 
     /**
@@ -289,6 +318,30 @@ public class Image extends PoolElement
     }
 
     /**
+     * Changes the Image permissions
+     * 
+     * @param owner_u 1 to allow, 0 deny, -1 do not change
+     * @param owner_m 1 to allow, 0 deny, -1 do not change
+     * @param owner_a 1 to allow, 0 deny, -1 do not change
+     * @param group_u 1 to allow, 0 deny, -1 do not change
+     * @param group_m 1 to allow, 0 deny, -1 do not change
+     * @param group_a 1 to allow, 0 deny, -1 do not change
+     * @param other_u 1 to allow, 0 deny, -1 do not change
+     * @param other_m 1 to allow, 0 deny, -1 do not change
+     * @param other_a 1 to allow, 0 deny, -1 do not change
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(int owner_u, int owner_m, int owner_a,
+                             int group_u, int group_m, int group_a,
+                             int other_u, int other_m, int other_a)
+    {
+        return chmod(client, id,
+                    owner_u, owner_m, owner_a,
+                    group_u, group_m, group_a,
+                    other_u, other_m, other_a);
+    }
+
+    /**
      * Changes the owner
      * 
      * @param uid The new owner user ID.
@@ -392,16 +445,5 @@ public class Image extends PoolElement
     public boolean isEnabled()
     {
         return state() != 3;
-    }
-
-    /**
-     * Returns true if the image is public.
-     * 
-     * @return True if the image is public.
-     */
-    public boolean isPublic()
-    {
-        String isPub = xpath("PUBLIC"); 
-        return isPub != null && isPub.equals("1");
     }
 }

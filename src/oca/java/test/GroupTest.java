@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-import static org.junit.Assert.*;
-
-import java.util.Hashtable;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -24,8 +22,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
-import org.opennebula.client.group.*;
-import org.opennebula.client.user.User;
+import org.opennebula.client.group.Group;
+import org.opennebula.client.group.GroupPool;
 
 public class GroupTest
 {

@@ -88,7 +88,7 @@ public class AclTest
     public void hexAllocate()
     {
         // Allocate rule "#1 VM+HOST/@1 INFO+CREATE"
-        res = Acl.allocate(client, "0x100000001", "0x3200000001", "0x11");
+        res = Acl.allocate(client, "0x100000001", "0x3200000001", "0x8");
         assertTrue( !res.isError() );
 
         aclPool.info();
@@ -99,15 +99,15 @@ public class AclTest
         assertEquals(res.getIntMessage(),   acl.id());
         assertEquals(0x100000001L,          acl.user());
         assertEquals(0x3200000001L,         acl.resource());
-        assertEquals(0x11L,                 acl.rights());
-        assertEquals("#1 VM+HOST/@1 CREATE+INFO", acl.toString());
+        assertEquals(0x8L,                  acl.rights());
+        assertEquals("#1 VM+HOST/@1 CREATE",acl.toString());
     }
 
     @Test
     public void numericAllocate()
     {
-        // Allocate rule "#1 VM+HOST/@1 INFO+CREATE"
-        res = Acl.allocate(client, 0x100000001L, 214748364801L, 0x11L);
+        // Allocate rule "#1 VM+HOST/@1 USE"
+        res = Acl.allocate(client, 0x100000001L, 214748364801L, 0x1L);
         assertTrue( !res.isError() );
 
         aclPool.info();
@@ -118,8 +118,8 @@ public class AclTest
         assertEquals(res.getIntMessage(),   acl.id());
         assertEquals(0x100000001L,          acl.user());
         assertEquals(0x3200000001L,         acl.resource());
-        assertEquals(0x11L,                 acl.rights());
-        assertEquals("#1 VM+HOST/@1 CREATE+INFO", acl.toString());
+        assertEquals(0x1L,                  acl.rights());
+        assertEquals("#1 VM+HOST/@1 USE",   acl.toString());
     }
 
     @Test
@@ -127,7 +127,7 @@ public class AclTest
     {
         try
         {
-            res = Acl.allocate(client, "@507 IMAGE/#456 CREATE");
+            res = Acl.allocate(client, "@507 IMAGE/#456 MANAGE");
             assertTrue( !res.isError() );
 
             aclPool.info();
@@ -138,8 +138,8 @@ public class AclTest
             assertEquals(res.getIntMessage(),   acl.id());
             assertEquals(0x2000001fbL,          acl.user());
             assertEquals(0x81000001c8L,         acl.resource());
-            assertEquals(0x1L,                 acl.rights());
-            assertEquals("@507 IMAGE/#456 CREATE", acl.toString());
+            assertEquals(0x2L,                  acl.rights());
+            assertEquals("@507 IMAGE/#456 MANAGE", acl.toString());
         }
         catch (RuleParseException e)
         {
@@ -151,12 +151,12 @@ public class AclTest
     public void parseRules()
     {
         String[] rules = {
-            "#3 TEMPLATE/#0 INFO",
-            "#2 IMAGE/#0 INFO",
-            "@107 IMAGE+TEMPLATE/@100 INFO",
-            "* VM+IMAGE+TEMPLATE/@100 CREATE+INFO+INFO_POOL",
-            "#2345 VM+IMAGE+TEMPLATE/* CREATE+INFO+INFO_POOL+INFO_POOL_MINE+INSTANTIATE",
-            "@7 HOST/@100 INFO+INFO_POOL+USE+DEPLOY",
+            "#3 TEMPLATE/#0 USE",
+            "#2 IMAGE/#0 USE",
+            "@107 IMAGE+TEMPLATE/@100 USE",
+            "* VM+IMAGE+TEMPLATE/@100 CREATE+USE",
+            "#2345 VM+IMAGE+TEMPLATE/* CREATE+USE",
+            "@7 HOST/@100 USE+MANAGE",
         };
 
         long[] users = {
@@ -178,12 +178,12 @@ public class AclTest
         };
 
         long[] rights = {
-            0x10L,
-            0x10L,
-            0x10L,
-            0x31L,
-            0xf1L,
-            0x234L
+            0x1L,
+            0x1L,
+            0x1L,
+            0x9L,
+            0x9L,
+            0x3L
         };
 
         for( int i = 0; i < rules.length; i++ )
@@ -219,7 +219,7 @@ public class AclTest
     {
         try
         {
-            res = Acl.allocate(client, "#1 HOST/@2 INFO_POOL");
+            res = Acl.allocate(client, "#1 HOST/@2 USE");
             assertTrue( !res.isError() );
 
             aclPool.info();
@@ -244,30 +244,30 @@ public class AclTest
     public void wrongRules()
     {
         String[] rules = {
-                "#-3 TEMPLATE/#0 INFO",
-                "#+3 TEMPLATE/#0 INFO",
-                "@3+ TEMPLATE/#0 INFO",
-                "*3 TEMPLATE/#0 INFO",
-                "# TEMPLATE/#0 INFO",
-                "@@ TEMPLATE/#0 INFO",
-                "@#3 TEMPLATE/#0 INFO",
-                "#3 TEMPLATE+HOS/#0 INFO",
-                "#3 /#0 INFO",
-                "#3 TEMPLATE/# INFO",
-                "#3 TEMPLATE/#5 INFO CREATE",
+                "#-3 TEMPLATE/#0 USE",
+                "#+3 TEMPLATE/#0 USE",
+                "@3+ TEMPLATE/#0 USE",
+                "*3 TEMPLATE/#0 USE",
+                "# TEMPLATE/#0 USE",
+                "@@ TEMPLATE/#0 USE",
+                "@#3 TEMPLATE/#0 USE",
+                "#3 TEMPLATE+HOS/#0 USE",
+                "#3 /#0 USE",
+                "#3 TEMPLATE/# USE",
+                "#3 TEMPLATE/#5 USE CREATE",
                 "#3 TEMPLATE/#5",
                 "#3     ",
                 "",
-                "#2 IMAGE @10654 INFO",
-                "#2 IMAGE/ INFO",
-                "#2 IMAGE#0 INFO",
-                "#2 IMAGE/# INFO",
-                "#2 IMAGE/@- INFO",
-                "#2 IMAGE/#0/#0 INFO",
-                "#2 IMAGE/#0/INFO CREATE",
-                "#2 IMAGE/#0/INFO+CREATE",
+                "#2 IMAGE @10654 USE",
+                "#2 IMAGE/ USE",
+                "#2 IMAGE#0 USE",
+                "#2 IMAGE/# USE",
+                "#2 IMAGE/@- USE",
+                "#2 IMAGE/#0/#0 USE",
+                "#2 IMAGE/#0/USE CREATE",
+                "#2 IMAGE/#0/USE+CREATE",
                 "#2 IMAGE/#0 IFO",
-                "#2 IMAGE/#0 INFO+CREAT",
+                "#2 IMAGE/#0 USE+CREAT",
             };
 
             for( int i = 0; i < rules.length; i++ )
