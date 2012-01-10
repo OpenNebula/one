@@ -82,6 +82,10 @@ bool Request::basic_authorization(int oid,
 
         object->unlock();
     }
+    else
+    {
+        perms.obj_type = auth_object;
+    }
 
     AuthRequest ar(att.uid, att.gid);
 
