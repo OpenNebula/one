@@ -30,10 +30,6 @@
   :desc: Bridge associated to the Virtual Network
   :size: 6
 
-:PUBLIC: 
-  :desc: Whether the Virtual Network is public or not
-  :size: 3
-
 :LEASES: 
   :desc: Number of this Virtual Networks given leases
   :size: 7
@@ -45,5 +41,4 @@
 - :NAME
 - :TYPE
 - :BRIDGE
-- :PUBLIC
 - :LEASES

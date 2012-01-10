@@ -64,8 +64,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(image['REGTIME'])]
-        puts str % ["PUBLIC",
-            OpenNebulaHelper.boolean_to_str(image['PUBLIC'])]
         puts str % ["PERSISTENT",
             OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
         puts str % ["SOURCE",image['SOURCE']]
@@ -123,11 +121,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
 
-            column :PUBLIC, "Whether the Image is public or not",
-                    :size=>3 do |d|
-                OpenNebulaHelper.boolean_to_str(d["PUBLIC"])
-            end
-
             column :PERSISTENT, "Whether the Image is persistent or not",
                     :size=>3 do |d|
                 OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])
@@ -147,7 +140,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d['SIZE'].to_i,options,"M")
             end
 
-            default :ID, :USER, :GROUP, :NAME, :SIZE, :TYPE, :REGTIME, :PUBLIC,
+            default :ID, :USER, :GROUP, :NAME, :SIZE, :TYPE, :REGTIME,
                 :PERSISTENT , :STAT, :RVMS
         end
 

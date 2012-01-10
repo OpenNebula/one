@@ -68,8 +68,6 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
         puts str % ["GROUP", template['GNAME']]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(template['REGTIME'])]
-        puts str % ["PUBLIC",
-            OpenNebulaHelper.boolean_to_str(template['PUBLIC'])]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
@@ -114,12 +112,7 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
 
-            column :PUBLIC, "Whether the Template is public or not",
-                :size=>3 do |d|
-                OpenNebulaHelper.boolean_to_str(d["PUBLIC"])
-            end
-
-            default :ID, :USER, :GROUP, :NAME, :REGTIME, :PUBLIC
+            default :ID, :USER, :GROUP, :NAME, :REGTIME
         end
 
         table
