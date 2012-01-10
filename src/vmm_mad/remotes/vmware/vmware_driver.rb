@@ -51,6 +51,9 @@ class VMwareDriver
 
        @user = conf[:username]
        @pass = conf[:password]
+
+       @datacenter = conf[:datacenter]
+       @vcenter    = conf[:vcenter]
     end
 
     # ######################################################################## #
@@ -112,9 +115,15 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     # Migrate                                                                  #
     # ------------------------------------------------------------------------ #
-    def migrate
-        OpenNebula.log_error("Migration action is currently not supported")
-        exit -1
+    def migrate(deploy_id, dst_host, src_host)
+        src_url  = "vpx://#{@vcenter}/#{@datacenter}/#{src_host}/?no_verify=1"
+        dst_url  = "vpx://#{@vcenter}/#{@datacenter}/#{dst_host}/?no_verify=1"
+         
+        mgr_cmd  = "-r virsh -c #{src_url} migrate #{deploy_id} #{dst_url}"
+
+        rc, info = do_action(mgr_cmd)
+
+        exit info if rc == false
     end
     
     # ------------------------------------------------------------------------ #

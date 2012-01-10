@@ -16,6 +16,23 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-# Action not supported
-exit -1
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vmware_driver'
+
+deploy_id = ARGV[0]
+dst_host  = ARGV[1]
+src_host  = ARGV[2]
+
+vmware_drv = VMwareDriver.new(src_host)
+
+vmware_drv.migrate(deploy_id, dst_host, src_host)

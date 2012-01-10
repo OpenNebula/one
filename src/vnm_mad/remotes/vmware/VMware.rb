@@ -14,20 +14,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# -------------------------------------------------------------------------#
-# Set up the environment for the driver                                    #
-# -------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------#
+# Set up the environment for the driver                                      #
+# ---------------------------------------------------------------------------#
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-   ETC_LOCATION = "/etc/one/"
+   ETC_LOCATION      = "/etc/one/"
+   RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
-   ETC_LOCATION = ONE_LOCATION + "/etc/"
+   ETC_LOCATION      = ONE_LOCATION + "/etc/"
+   RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
 end
 
-CONF_FILE   = ETC_LOCATION + "/vmwarerc"
+CONF_FILE = ETC_LOCATION + "/vmwarerc"
+
+$: << RUBY_LIB_LOCATION
+# ---------------------------------------------------------------------------#
 
 require 'yaml'
+require 'CommandManager'
 require 'OpenNebulaNetwork'
 
 class OpenNebulaVMware < OpenNebulaNetwork
