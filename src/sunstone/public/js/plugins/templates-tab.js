@@ -605,15 +605,15 @@ var update_template_tmpl =
                      </tr>\
                      <tr>\
                          <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="group_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="group_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="other_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="other_a" /></td>\
                      </tr>\
                    </table>\
                  </div>\
@@ -953,19 +953,19 @@ function updateTemplateInfo(request,template){
              <td class="key_td">'+tr("Register time")+'</td>\
              <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
            </tr>\
-           <tr><td></td><td></td></tr>\
-            <tr>\
-              <td class="key_td">'+tr("Owner permissions")+'</td>\
-              <td class="value_td">'+ownerPermStr(template_info)+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">'+tr("Group permissions")+'</td>\
-              <td class="value_td">'+groupPermStr(template_info)+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">'+tr("Other permissions")+'</td>\
-              <td class="value_td">'+otherPermStr(template_info)+'</td>\
-            </tr>\
+           <tr><td class="key_td">Permissions</td><td></td></tr>\
+           <tr>\
+             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+ownerPermStr(template_info)+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+groupPermStr(template_info)+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+otherPermStr(template_info)+'</td>\
+           </tr>\
          </table>'
     };
     var template_tab = {

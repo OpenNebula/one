@@ -66,10 +66,10 @@ var create_acl_tmpl =
                 <select name="belonging_to" id="belonging_to"></select>\
                 <div class="clear"></div>\
                 <label style="height:5em;">'+tr("Allowed operations")+':</label>\
-                <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input><br />\
                 <input type="checkbox" name="right_delete" class="right_cb" value="USE">'+tr("Use")+'</input><br />\
                 <input type="checkbox" name="right_use" class="right_cb" value="MANAGE">'+tr("Manage")+'</input><br />\
                 <input type="checkbox" name="right_manage" class="right_cb" value="ADMIN">'+tr("Administrate")+'</input><br />\
+                <input type="checkbox" name="right_create" class="right_cb" value="CREATE">'+tr("Create")+'</input><br />\
                 <div class="clear"></div>\
                 <label for="acl_preview">'+tr("ACL String preview")+':</label>\
                 <input type="text" name="acl_preview" id="acl_preview" style="width:400px;"></input>\

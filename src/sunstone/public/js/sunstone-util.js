@@ -777,43 +777,25 @@ function otherAdmin(resource){
 
 function ownerPermStr(resource){
     var result = "";
-    if (ownerUse(resource))
-        result += tr("Use")+", ";
-    if (ownerManage(resource))
-        result += tr("Manage")+", ";
-    if (ownerAdmin(resource))
-        result += tr("Administrate")+", ";
-
-    //Remove ", " from end
-    result = result.substring(0,result.length-2);
+    result += ownerUse(resource) ? "u" : "-";
+    result += ownerManage(resource) ? "m" : "-";
+    result += ownerAdmin(resource) ? "a" : "-";
     return result;
 };
 
 function groupPermStr(resource){
     var result = "";
-    if (groupUse(resource))
-        result += tr("Use")+", ";
-    if (groupManage(resource))
-        result += tr("Manage")+", ";
-    if (groupAdmin(resource))
-        result += tr("Administrate")+", ";
-
-    //Remove ", " from end
-    result = result.substring(0,result.length-2);
+    result += groupUse(resource) ? "u" : "-";
+    result += groupManage(resource) ? "m" : "-";
+    result += groupAdmin(resource) ? "a" : "-";
     return result;
 };
 
 function otherPermStr(resource){
     var result = "";
-    if (otherUse(resource))
-        result += tr("Use")+", ";
-    if (otherManage(resource))
-        result += tr("Manage")+", ";
-    if (otherAdmin(resource))
-        result += tr("Administrate")+", ";
-
-    //Remove ", " from end
-    result = result.substring(0,result.length-2);
+    result += otherUse(resource) ? "u" : "-";
+    result += otherManage(resource) ? "m" : "-";
+    result += otherAdmin(resource) ? "a" : "-";
     return result;
 };
 
