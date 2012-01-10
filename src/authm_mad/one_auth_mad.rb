@@ -127,7 +127,7 @@ class AuthDriver < OpenNebulaDriver
     # @param [Array] of auth strings, last element is the ACL evaluation of 
     #        the overall request (0 = denied, 1 = granted). Each request is in
     #        the form:
-    #        OBJECT:<TEMPLATE_64|OBJECT_ID>:OPERATION:OWNER:PUBLIC:ACL_EVAL
+    #        OBJECT:<TEMPLATE_64|OBJECT_ID>:OPERATION:OWNER:ACL_EVAL
     def authZ(request_id, user_id, *requests)
         
         requests.flatten!
