@@ -34,9 +34,6 @@ void AuthRequest::add_auth(Operation             op,
                            const PoolObjectAuth& ob_perms,
                            string                ob_template)
 {
-    // TODO: object's public flag is not used, it will disappear
-    bool pub = false;
-
     ostringstream oss;
     bool          auth;
 
@@ -63,7 +60,7 @@ void AuthRequest::add_auth(Operation             op,
 
     oss << operation_to_str(op) << ":";
 
-    oss << ob_perms.uid << ":" << pub << ":";
+    oss << ob_perms.uid << ":";
 
     // -------------------------------------------------------------------------
     // Authorize the request for self authorization

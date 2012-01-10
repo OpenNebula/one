@@ -319,7 +319,7 @@ public:
     /**
      *  Adds a CREATE authorization request.
      * 
-     *        OBJECT:<-1|OBJECT_TMPL_XML64>:CREATE:UID
+     *        OBJECT:<-1|OBJECT_TMPL_XML64>:CREATE:UID:AUTH
      *      
      *    @param type of the object to be created
      *    @param template (base64 encoded) of the new object
@@ -337,7 +337,7 @@ public:
     /**
      *  Adds a new authorization item to this request
      *
-     *        OBJECT:OBJECT_ID:ACTION:OWNER
+     *        OBJECT:OBJECT_ID:ACTION:OWNER:AUTH
      *
      * @param op the operation to be authorized
      * @param ob_perms object's permission attributes
@@ -486,7 +486,7 @@ private:
      *  Adds a new authorization item to this request, with a template for
      *  a new object
      *
-     *        OBJECT:<OBJECT_ID|OBJECT_TMPL_XML64>:ACTION:OWNER
+     *        OBJECT:<OBJECT_ID|OBJECT_TMPL_XML64>:ACTION:OWNER:AUTH
      *
      * @param op the operation to be authorized
      * @param ob_perms object's permission attributes
