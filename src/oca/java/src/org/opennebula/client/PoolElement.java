@@ -157,7 +157,7 @@ public abstract class PoolElement {
     }
 
     /**
-     * Changes the template permissions
+     * Changes the permissions
      * 
      * @param client XML-RPC Client.
      * @param method XML-RPC method.

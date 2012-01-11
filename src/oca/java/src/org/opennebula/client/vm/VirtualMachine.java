@@ -241,6 +241,32 @@ public class VirtualMachine extends PoolElement{
                 other_u, other_m, other_a);
     }
 
+    /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, String octet)
+    {
+        return chmod(client, CHMOD, id, octet);
+    }
+
+    /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, int octet)
+    {
+        return chmod(client, CHMOD, id, octet);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -396,6 +422,28 @@ public class VirtualMachine extends PoolElement{
                     owner_u, owner_m, owner_a,
                     group_u, group_m, group_a,
                     other_u, other_m, other_a);
+    }
+
+    /**
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(String octet)
+    {
+        return chmod(client, id, octet);
+    }
+
+    /**
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(int octet)
+    {
+        return chmod(client, id, octet);
     }
 
     // =================================

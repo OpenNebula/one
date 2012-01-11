@@ -41,7 +41,7 @@ PID=$$
 
 oned -f &
 
-sleep 4s;
+sleep 10s;
 
 java -cp ../lib/*:../jar/*:$JUNIT_JAR:. org.junit.runner.JUnitCore $1
 

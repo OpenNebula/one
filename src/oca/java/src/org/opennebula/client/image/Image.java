@@ -193,6 +193,32 @@ public class Image extends PoolElement
     }
 
     /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, String octet)
+    {
+        return chmod(client, CHMOD, id, octet);
+    }
+
+    /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, int octet)
+    {
+        return chmod(client, CHMOD, id, octet);
+    }
+
+    /**
      * Changes the Image type
      * 
      * @param client XML-RPC Client.
@@ -318,6 +344,28 @@ public class Image extends PoolElement
     }
 
     /**
+     * Changes the owner
+     * 
+     * @param uid The new owner user ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chown(int uid)
+    {
+        return chown(uid, -1);
+    }
+
+    /**
+     * Changes the group
+     * 
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chgrp(int gid)
+    {
+        return chown(-1, gid);
+    }
+
+    /**
      * Changes the Image permissions
      * 
      * @param owner_u 1 to allow, 0 deny, -1 do not change
@@ -342,25 +390,25 @@ public class Image extends PoolElement
     }
 
     /**
-     * Changes the owner
-     * 
-     * @param uid The new owner user ID.
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse chown(int uid)
+    public OneResponse chmod(String octet)
     {
-        return chown(uid, -1);
+        return chmod(client, id, octet);
     }
 
     /**
-     * Changes the group
-     * 
-     * @param gid The new group ID.
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse chgrp(int gid)
+    public OneResponse chmod(int octet)
     {
-        return chown(-1, gid);
+        return chmod(client, id, octet);
     }
 
     /**

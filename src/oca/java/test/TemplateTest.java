@@ -187,6 +187,45 @@ public class TemplateTest
         assertTrue( template.xpath("PERMISSIONS/OTHER_M").equals("1") );
         assertTrue( template.xpath("PERMISSIONS/OTHER_A").equals("0") );
     }
+
+    @Test
+    public void chmod_octet()
+    {
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        res = template.chmod(640);
+        assertTrue( !res.isError() );
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.xpath("PERMISSIONS/OWNER_U").equals("1") );
+        assertTrue( template.xpath("PERMISSIONS/OWNER_M").equals("1") );
+        assertTrue( template.xpath("PERMISSIONS/OWNER_A").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/GROUP_U").equals("1") );
+        assertTrue( template.xpath("PERMISSIONS/GROUP_M").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/GROUP_A").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/OTHER_U").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/OTHER_M").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/OTHER_A").equals("0") );
+
+        res = template.chmod("147");
+        assertTrue( !res.isError() );
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.xpath("PERMISSIONS/OWNER_U").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/OWNER_M").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/OWNER_A").equals("1") );
+        assertTrue( template.xpath("PERMISSIONS/GROUP_U").equals("1") );
+        assertTrue( template.xpath("PERMISSIONS/GROUP_M").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/GROUP_A").equals("0") );
+        assertTrue( template.xpath("PERMISSIONS/OTHER_U").equals("1") );
+        assertTrue( template.xpath("PERMISSIONS/OTHER_M").equals("1") );
+        assertTrue( template.xpath("PERMISSIONS/OTHER_A").equals("1") );
+    }
     
     @Test
     public void attributes()
