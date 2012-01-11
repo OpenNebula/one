@@ -29,7 +29,6 @@ var templates_tab_content =
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Registration time")+'</th>\
-      <th>'+tr("Public")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodytemplates">\
@@ -592,8 +591,31 @@ var update_template_tmpl =
                  <select id="template_template_update_select" name="template_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
-                   <label for="template_template_update_public">'+tr("Public")+':</label>\
-                   <input type="checkbox" name="template_template_update_public" id="template_template_update_public" />\
+                   <table class="permissions_table" style="padding:0 10px;">\
+                     <thead><tr>\
+                         <td style="width:130px">'+tr("Permissions")+':</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="owner_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="group_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Other")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="other_a" /></td>\
+                     </tr>\
+                   </table>\
                  </div>\
                  <label for="template_template_update_textarea">'+tr("Template")+':</label>\
                  <div class="clear"></div>\
@@ -664,9 +686,7 @@ var template_actions = {
 
     "Template.update_dialog" : {
         type: "custom",
-        call: function() {
-            popUpTemplateTemplateUpdateDialog();
-        }
+        call: popUpTemplateTemplateUpdateDialog
     },
 
     "Template.update" : {
@@ -687,32 +707,25 @@ var template_actions = {
         error: onError
     },
 
-    "Template.publish" : {
+    "Template.fetch_permissions" : {
+        type: "single",
+        call: OpenNebula.Template.show,
+        callback: function(request,template_json){
+            var dialog = $('#template_template_update_dialog form');
+            var template = template_json.VMTEMPLATE;
+            setPermissionsTable(template,dialog);
+        },
+        error: onError
+    },
+
+    "Template.delete" : {
         type: "multiple",
-        call: OpenNebula.Template.publish,
-        callback: templateShow,
+        call: OpenNebula.Template.delete,
+        callback: deleteTemplateElement,
         elements: templateElements,
         error: onError,
         notify: true
-     },
-
-     "Template.unpublish" : {
-         type: "multiple",
-         call: OpenNebula.Template.unpublish,
-         callback: templateShow,
-         elements: templateElements,
-         error: onError,
-         notify: true
-     },
-
-     "Template.delete" : {
-         type: "multiple",
-         call: OpenNebula.Template.delete,
-         callback: deleteTemplateElement,
-         elements: templateElements,
-         error: onError,
-         notify: true
-     },
+    },
 
     "Template.instantiate" : {
         type: "single",
@@ -746,7 +759,13 @@ var template_actions = {
         elements: templateElements,
         error:onError,
         notify: true
-    }
+    },
+    "Template.chmod" : {
+        type: "single",
+        call: OpenNebula.Template.chmod,
+        error: onError,
+        notify: true
+    },
 }
 
 var template_buttons = {
@@ -761,7 +780,7 @@ var template_buttons = {
     },
     "Template.update_dialog" : {
         type: "action",
-        text: tr("Update a template"),
+        text: tr("Update properties"),
         alwaysActive: true
     },
     "Template.instantiate_vms" : {
@@ -838,10 +857,8 @@ function templateElementArray(template_json){
         template.UNAME,
         template.GNAME,
         template.NAME,
-        pretty_time(template.REGTIME),
-        parseInt(template.PUBLIC) ? '<input class="action_cb" id="cb_public_template" type="checkbox" elem_id="'+template.ID+'" checked="checked"/>'
-            : '<input class="action_cb" id="cb_public_template" type="checkbox" elem_id="'+template.ID+'"/>'
-        ];
+        pretty_time(template.REGTIME)
+    ];
 }
 
 // Set up the listener on the table TDs to show the info panel
@@ -936,9 +953,18 @@ function updateTemplateInfo(request,template){
              <td class="key_td">'+tr("Register time")+'</td>\
              <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
            </tr>\
+           <tr><td class="key_td">Permissions</td><td></td></tr>\
            <tr>\
-             <td class="key_td">'+tr("Public")+'</td>\
-             <td class="value_td">'+(parseInt(template_info.PUBLIC) ? tr("yes") : tr("no"))+'</td>\
+             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+ownerPermStr(template_info)+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+groupPermStr(template_info)+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+otherPermStr(template_info)+'</td>\
            </tr>\
          </table>'
     };
@@ -2002,18 +2028,20 @@ function popUpCreateTemplateDialog(){
 
 function setupTemplateTemplateUpdateDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="template_template_update_dialog" title="'+tr("Update a template")+'"></div>');
+    dialogs_context.append('<div id="template_template_update_dialog" title="'+tr("Update template properties")+'"></div>');
     var dialog = $('#template_template_update_dialog',dialogs_context);
 
     //Put HTML in place
     dialog.html(update_template_tmpl);
+
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Convert into jQuery
     dialog.dialog({
         autoOpen:false,
         width:700,
         modal:true,
-        height:480,
+        height:height,
         resizable:false,
     });
 
@@ -2021,43 +2049,42 @@ function setupTemplateTemplateUpdateDialog(){
 
     $('#template_template_update_select',dialog).change(function(){
         var id = $(this).val();
+        $('.permissions_table input',dialog).removeAttr('checked')
+        $('.permissions_table',dialog).removeAttr('update');
         if (id && id.length){
             var dialog = $('#template_template_update_dialog');
             $('#template_template_update_textarea',dialog).val(tr("Loading")+"...");
 
-            var templ_public = is_public_template(id);
-
-            if (templ_public){
-                $('#template_template_update_public',dialog).attr('checked','checked')
-            } else {
-                $('#template_template_update_public',dialog).removeAttr('checked')
-            }
-
+            Sunstone.runAction("Template.fetch_permissions",id);
             Sunstone.runAction("Template.fetch_template",id);
         } else {
             $('#template_template_update_textarea',dialog).val("");
         };
     });
 
-    $('#template_template_update_button',dialog).click(function(){
-        var dialog = $('#template_template_update_dialog');
+    $('.permissions_table input',dialog).change(function(){
+        $(this).parents('table').attr('update','update');
+    });
+
+    $('form',dialog).submit(function(){
+        var dialog = $(this);
         var new_template = $('#template_template_update_textarea',dialog).val();
         var id = $('#template_template_update_select',dialog).val();
         if (!id || !id.length) {
-            dialog.dialog('close');
+            $(this).parents('#template_template_update_dialog').dialog('close');
             return false;
         };
 
-        var old_public = is_public_template(id);
-
-        var new_public = $('#template_template_update_public:checked',dialog).length;
-
-        if (old_public != new_public){
-            if (new_public) Sunstone.runAction("Template.publish",id);
-            else Sunstone.runAction("Template.unpublish",id);
+        var permissions = $('.permissions_table',dialog);
+        if (permissions.attr('update')){
+            var perms = {
+                octet : buildOctet(permissions)
+            };
+            Sunstone.runAction("Template.chmod",id,perms);
         };
 
         Sunstone.runAction("Template.update",id,new_template);
+        $(this).parents('#template_template_update_dialog').dialog('close');
         dialog.dialog('close');
         return false;
     });
@@ -2076,7 +2103,8 @@ function popUpTemplateTemplateUpdateDialog(){
     var dialog =  $('#template_template_update_dialog');
     $('#template_template_update_select',dialog).html(select);
     $('#template_template_update_textarea',dialog).val("");
-    $('#template_template_update_public',dialog).removeAttr('checked')
+    $('.permissions_table input',dialog).removeAttr('checked');
+    $('.permissions_table',dialog).removeAttr('update');
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
@@ -2092,7 +2120,6 @@ function popUpTemplateTemplateUpdateDialog(){
             $('#template_template_update_select option',dialog).attr('selected','selected');
             $('#template_template_update_select',dialog).trigger("change");
         };
-
     };
 
     dialog.dialog('open');
@@ -2110,24 +2137,7 @@ function setTemplateAutorefresh() {
             Sunstone.runAction("Template.autorefresh");
         }
     },INTERVAL+someTime());
-}
-
-function is_public_template(id){
-    var data = getElementData(id,"#template",dataTable_templates)[6];
-    return $(data).attr('checked');
 };
-
-function setupTemplateActionCheckboxes(){
-    $('input.action_cb#cb_public_template',dataTable_templates).live("click",function(){
-        var $this = $(this)
-        var id=$this.attr('elem_id');
-        if ($this.attr('checked'))
-                Sunstone.runAction("Template.publish",id);
-        else Sunstone.runAction("Template.unpublish",id);
-
-        return true;
-    });
-}
 
 //The DOM is ready at this point
 $(document).ready(function(){
@@ -2139,29 +2149,28 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,6] },
+            { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "150px", "aTargets": [5] },
             { "sWidth": "100px", "aTargets": [2,3] }
         ],
-	"oLanguage": (datatable_lang != "") ?
-	    {
-		sUrl: "locale/"+lang+"/"+datatable_lang
-	    } : ""
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
     });
 
     dataTable_templates.fnClearTable();
     addElement([
         spinner,
-        '','','','','',''],dataTable_templates);
+        '','','','',''],dataTable_templates);
     Sunstone.runAction("Template.list");
 
     setupCreateTemplateDialog();
     setupTemplateTemplateUpdateDialog();
-    setupTemplateActionCheckboxes();
     setTemplateAutorefresh();
 
     initCheckAllBoxes(dataTable_templates);
     tableCheckboxesListener(dataTable_templates);
     templateInfoListener();
-})
+});

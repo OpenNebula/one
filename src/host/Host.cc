@@ -35,7 +35,7 @@ Host::Host(
     const string& _vmm_mad_name,
     const string& _vnm_mad_name,
     const string& _tm_mad_name):
-        PoolObjectSQL(id,_hostname,-1,-1,"","",table),
+        PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -60,11 +60,13 @@ Host::~Host()
 
 const char * Host::table = "host_pool";
 
-const char * Host::db_names = "oid, name, body, state, last_mon_time";
+const char * Host::db_names =
+    "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, state INTEGER, "
-    "last_mon_time INTEGER, UNIQUE(name))";
+    "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
+    "group_u INTEGER, other_u INTEGER, UNIQUE(name))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -78,6 +80,10 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     char * sql_hostname;
     char * sql_xml;
+
+    // Set the owner and group to oneadmin
+    set_user(0, "");
+    set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
    // Update the Host
 
@@ -116,7 +122,12 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         << "'" <<   sql_hostname        << "',"
         << "'" <<   sql_xml             << "',"
         <<          state               << ","
-        <<          last_monitored      << ")";
+        <<          last_monitored      << ","
+        <<          uid                 << ","
+        <<          gid                 << ","
+        <<          owner_u             << ","
+        <<          group_u             << ","
+        <<          other_u             << ")";
 
     rc = db->exec(oss);
 
@@ -231,6 +242,10 @@ int Host::from_xml(const string& xml)
     rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
 
     state = static_cast<HostState>( int_state );
+
+    // Set the owner and group to oneadmin
+    set_user(0, "");
+    set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
     // Get associated classes
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);

@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "PoolObjectSQL.h"
+#include "PoolObjectAuth.h"
 #include "SSLTools.h"
 
 /* -------------------------------------------------------------------------- */
@@ -100,7 +101,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
 
     db->free_str(sql_name);
 
-    if ((rc != 0) || (_name != name) || (_uid != uid))
+    if ((rc != 0) || (_name != name) || (_uid != -1 && _uid != uid))
     {
         return -1;
     }
@@ -199,3 +200,113 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string& PoolObjectSQL::perms_to_xml(string& xml) const
+{
+    ostringstream   oss;
+
+    oss <<
+        "<PERMISSIONS>" <<
+            "<OWNER_U>" << owner_u << "</OWNER_U>"  <<
+            "<OWNER_M>" << owner_m << "</OWNER_M>"  <<
+            "<OWNER_A>" << owner_a << "</OWNER_A>"  <<
+            "<GROUP_U>" << group_u << "</GROUP_U>"  <<
+            "<GROUP_M>" << group_m << "</GROUP_M>"  <<
+            "<GROUP_A>" << group_a << "</GROUP_A>"  <<
+            "<OTHER_U>" << other_u << "</OTHER_U>"  <<
+            "<OTHER_M>" << other_m << "</OTHER_M>"  <<
+            "<OTHER_A>" << other_a << "</OTHER_A>"  <<
+        "</PERMISSIONS>";
+
+    xml = oss.str();
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int PoolObjectSQL::perms_from_xml()
+{
+    int rc = 0;
+
+    rc += xpath(owner_u, "/*/PERMISSIONS/OWNER_U", 0);
+    rc += xpath(owner_m, "/*/PERMISSIONS/OWNER_M", 0);
+    rc += xpath(owner_a, "/*/PERMISSIONS/OWNER_A", 0);
+
+    rc += xpath(group_u, "/*/PERMISSIONS/GROUP_U", 0);
+    rc += xpath(group_m, "/*/PERMISSIONS/GROUP_M", 0);
+    rc += xpath(group_a, "/*/PERMISSIONS/GROUP_A", 0);
+
+    rc += xpath(other_u, "/*/PERMISSIONS/OTHER_U", 0);
+    rc += xpath(other_m, "/*/PERMISSIONS/OTHER_M", 0);
+    rc += xpath(other_a, "/*/PERMISSIONS/OTHER_A", 0);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
+{
+    auth.obj_type = obj_type;
+
+    auth.oid = oid;
+    auth.uid = uid;
+    auth.gid = gid;
+
+    auth.owner_u = owner_u;
+    auth.owner_m = owner_m;
+    auth.owner_a = owner_a;
+
+    auth.group_u = group_u;
+    auth.group_m = group_m;
+    auth.group_a = group_a;
+
+    auth.other_u = other_u;
+    auth.other_m = other_m;
+    auth.other_a = other_a;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int PoolObjectSQL::set_permissions( int _owner_u,
+                                    int _owner_m,
+                                    int _owner_a,
+                                    int _group_u,
+                                    int _group_m,
+                                    int _group_a,
+                                    int _other_u,
+                                    int _other_m,
+                                    int _other_a,
+                                    string& error_str)
+{
+    if ( _owner_u < -1 || _owner_u > 1 ) goto error_value;
+    if ( _owner_m < -1 || _owner_m > 1 ) goto error_value;
+    if ( _owner_a < -1 || _owner_a > 1 ) goto error_value;
+    if ( _group_u < -1 || _group_u > 1 ) goto error_value;
+    if ( _group_m < -1 || _group_m > 1 ) goto error_value;
+    if ( _group_a < -1 || _group_a > 1 ) goto error_value;
+    if ( _other_u < -1 || _other_u > 1 ) goto error_value;
+    if ( _other_m < -1 || _other_m > 1 ) goto error_value;
+    if ( _other_a < -1 || _other_a > 1 ) goto error_value;
+
+    set_perm(owner_u, _owner_u);
+    set_perm(owner_m, _owner_m);
+    set_perm(owner_a, _owner_a);
+    set_perm(group_u, _group_u);
+    set_perm(group_m, _group_m);
+    set_perm(group_a, _group_a);
+    set_perm(other_u, _other_u);
+    set_perm(other_m, _other_m);
+    set_perm(other_a, _other_a);
+
+    return 0;
+
+error_value:
+    error_str = "New permission values must be -1, 0 or 1";
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

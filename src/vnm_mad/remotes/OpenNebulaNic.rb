@@ -83,7 +83,11 @@ class NicXen < Hash
     end
 
     def get_info(vm)
-        deploy_id = vm['DEPLOY_ID']
+        if vm.deploy_id
+            deploy_id = vm.deploy_id
+        else
+            deploy_id = vm['DEPLOY_ID']
+        end
 
         if deploy_id and (vm.vm_info[:domid].nil? or vm.vm_info[:networks].nil?)
             vm.vm_info[:domid]    =`#{COMMANDS[:xm]} domid #{deploy_id}`.strip

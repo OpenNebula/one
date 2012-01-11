@@ -24,7 +24,7 @@ require 'OpenNebulaNic'
 require 'base64'
 
 require 'scripts_common'
-require 'CommandManager'
+
 include OpenNebula
 
 CONF = {
@@ -116,13 +116,16 @@ class OpenNebulaNetwork
     end
 
     def detect_hypervisor
-        uname_a = `uname -a`
-        lsmod   = `#{COMMANDS[:lsmod]}`
+        lsmod       = `#{COMMANDS[:lsmod]}`
+        xen_file    = "/proc/xen/capabilities"
+        xen_content = "control_d"
 
-        if uname_a.match(/xen/i)
+        if File.readable?(xen_file) and File.read(xen_file).strip == xen_content
             "xen"
         elsif lsmod.match(/kvm/)
             "kvm"
+        else
+            nil
         end
     end
 

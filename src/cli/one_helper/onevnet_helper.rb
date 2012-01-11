@@ -56,15 +56,26 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
-        puts str % ["PUBLIC", OpenNebulaHelper.boolean_to_str(vn['PUBLIC'])]
         puts str % ["TYPE", vn.type_str]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if vn["PHYDEV"]
         puts str % ["VLAN ID", vn["VLAN_ID"]] if vn["VLAN_ID"]
         puts str % ["USED LEASES", vn['TOTAL_LEASES']]
-
         puts
+
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "u" if vn["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if vn["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if vn["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
+        puts
+
         CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false)
 
         puts vn.template_str(false)
@@ -127,17 +138,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["BRIDGE"]
             end
 
-            column :PUBLIC, "Whether the Virtual Network is public or not",
-                    :size=>1 do |d|
-                OpenNebulaHelper.boolean_to_str(d['PUBLIC'])
-            end
-
             column :LEASES, "Number of this Virtual Network's given leases",
                     :size=>7 do |d|
                 d["TOTAL_LEASES"]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :TYPE, :BRIDGE, :PUBLIC, :LEASES
+            default :ID, :USER, :GROUP, :NAME, :TYPE, :BRIDGE, :LEASES
         end
 
         table

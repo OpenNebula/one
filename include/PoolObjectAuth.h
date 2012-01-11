@@ -14,55 +14,64 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManagerPublish.h"
+#ifndef POOL_OBJECT_AUTH_H_
+#define POOL_OBJECT_AUTH_H_
 
-using namespace std;
+#include "PoolObjectSQL.h"
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
+class AclRule;
 
-void RequestManagerPublish::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
+/**
+ *  This class abstracts the authorization attributes of a PoolObject. It is
+ *  used to check permissions and access rights of requests
+ */
+class PoolObjectAuth
 {
-    int             oid   = xmlrpc_c::value_int(paramList.getInt(1));
-    bool            pflag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
-    PoolObjectSQL * object;
+public:
+    /* ------------------- Constructor and Methods -------------------------- */
 
-    if ( basic_authorization(oid, att) == false )
+    PoolObjectAuth():
+        oid(-1),
+        uid(-1),
+        gid(-1),
+        owner_u(1),
+        owner_m(1),
+        owner_a(0),
+        group_u(0),
+        group_m(0),
+        group_a(0),
+        other_u(0),
+        other_m(0),
+        other_a(0) {};
+
+    void get_acl_rules(AclRule& owner_rule,
+                       AclRule& group_rule,
+                       AclRule& other_rule) const;
+
+    string type_to_str() const
     {
-        return;
-    }
+        return PoolObjectSQL::type_to_str(obj_type);    
+    };
 
-    object = pool->get(oid,true);
+    /* --------------------------- Attributes ------------------------------- */
 
-    if ( object == 0 )                             
-    {                                            
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+    PoolObjectSQL::ObjectType obj_type;
 
-        return;
-    }    
+    int oid;
+    int uid;
+    int gid;
 
-    int rc = publish(object,pflag);
-    
-    if ( rc != 0 )
-    {
-        failure_response(INTERNAL,
-                request_error("Can not publish/unpublish resource",""),
-                att);
+    int owner_u;
+    int owner_m;
+    int owner_a;
 
-        object->unlock();
-        return;
-    }
+    int group_u;
+    int group_m;
+    int group_a;
 
-    pool->update(object);
+    int other_u;
+    int other_m;
+    int other_a;
+};
 
-    object->unlock();
-
-    success_response(oid, att);
-
-    return;
-}
-
+#endif /*POOL_OBJECT_AUTH_H_*/

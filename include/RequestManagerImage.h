@@ -37,7 +37,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
 
-        auth_object = AuthRequest::IMAGE;
+        auth_object = PoolObjectSQL::IMAGE;
         auth_op     = AuthRequest::MANAGE;
     };
 

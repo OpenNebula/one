@@ -22,6 +22,7 @@
 
 #include "RequestManager.h"
 #include "AuthManager.h"
+#include "PoolObjectSQL.h"
 
 using namespace std;
 
@@ -78,11 +79,11 @@ protected:
 
     /* -------- Static (shared among request of the same method) -------- */
 
-    PoolSQL *           pool;           /**< Pool of objects */
-    string              method_name;    /**< The name of the XML-RPC method */
+    PoolSQL * pool;           /**< Pool of objects */
+    string    method_name;    /**< The name of the XML-RPC method */
 
-    AuthRequest::Object    auth_object; /**< Auth object for the request */
-    AuthRequest::Operation auth_op;     /**< Auth operation for the request */
+    PoolObjectSQL::ObjectType auth_object;/**< Auth object for the request */
+    AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
 
     /* -------------------- Constructors ---------------------------------- */
 
@@ -172,7 +173,7 @@ protected:
      *    @param ob object for the auth operation
      *    @return string equivalent of the object
      */
-    static string object_name(AuthRequest::Object ob);
+    static string object_name(PoolObjectSQL::ObjectType ob);
 
     /**
      *  Logs authorization errors
@@ -217,7 +218,7 @@ protected:
      *    @param message with the allocate error details
      *    @return string for logging
      */
-    string allocate_error (AuthRequest::Object obj, const string& error);
+    string allocate_error (PoolObjectSQL::ObjectType obj, const string& error);
 
     /**
      *  Logs allocate errors

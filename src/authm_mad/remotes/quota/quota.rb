@@ -210,7 +210,7 @@ class Quota
     # Authorization
     ###########################################################################
     def authorize(user_id, request)
-        obj, template_or_id, op, owner, pub, acl_eval = request.split(':')
+        obj, template_or_id, op, owner, acl_eval = request.split(':')
 
         if acl_eval.to_i == 0
             return "ACL evaluation denied"

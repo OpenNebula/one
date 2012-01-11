@@ -39,6 +39,14 @@ public:
     static const long long ALL_ID;
     // ------------------------------------------------------------------------
 
+    /**
+     *  Creates an empty ACL rule
+     */
+    AclRule():oid(0), user(0), resource(0), rights(0), str("") {};
+
+    /**
+     *  Main ACL rule constructor
+     */
     AclRule(int       _oid, 
             long long _user, 
             long long _resource, 
@@ -48,6 +56,26 @@ public:
         build_str();
     };
 
+    /**
+     *  Set the fields of the ACL, and updates its representation
+     */
+
+     void set(int       _oid,
+              long long _user, 
+              long long _resource, 
+              long long _rights)
+    {
+        oid      = _oid;
+        user     = _user;
+        resource = _resource;
+        rights   = _rights;
+
+        build_str();
+    };
+
+    /**
+     *  Compares two ACL rules
+     */
     bool operator ==(const AclRule& other) const
     {
         return (user     == other.user &&
@@ -182,7 +210,7 @@ private:
      *
      *                      64 bits
      *  +-----------------------------------------------+
-     *  | Actions (MANAGE, CREATE, USE, DELETE...       |
+     *  | Actions (MANAGE, CREATE, USE...               |
      *  +-----------------------------------------------+
      */
     long long rights;

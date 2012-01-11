@@ -24,10 +24,12 @@
 
 const char * Group::table = "group_pool";
 
-const char * Group::db_names = "oid, name, body";
+const char * Group::db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u";
 
 const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, "
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
+    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
 /* ************************************************************************ */
@@ -43,6 +45,12 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     char * sql_name;
     char * sql_xml;
+
+    // Set oneadmin as the owner
+    set_user(0,"");
+
+    // Set the Group ID as the group it belongs to
+    set_group(oid, name);
 
     // Update the Group
 
@@ -79,7 +87,13 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
     oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
         <<          oid                 << ","
         << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "')";
+        << "'" <<   sql_xml             << "',"
+        <<          uid                 << ","
+        <<          gid                 << ","
+        <<          owner_u             << ","
+        <<          group_u             << ","
+        <<          other_u             << ")";
+
 
     rc = db->exec(oss);
 
@@ -145,6 +159,12 @@ int Group::from_xml(const string& xml)
     // Get class base attributes
     rc += xpath(oid, "/GROUP/ID",   -1);
     rc += xpath(name,"/GROUP/NAME", "not_found");
+
+    // Set oneadmin as the owner
+    set_user(0,"");
+
+    // Set the Group ID as the group it belongs to
+    set_group(oid, name);
 
     // Get associated classes
     ObjectXML::get_nodes("/GROUP/USERS", content);

@@ -144,8 +144,8 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( wrong_templates );
     CPPUNIT_TEST ( target_generation );
     CPPUNIT_TEST ( bus_source_assignment );
-    CPPUNIT_TEST ( public_attribute );
-    CPPUNIT_TEST ( persistence );
+//    CPPUNIT_TEST ( public_attribute );
+//    CPPUNIT_TEST ( persistence );
     CPPUNIT_TEST ( imagepool_disk_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
@@ -655,7 +655,7 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
+/*
     void public_attribute()
     {
         int oid;
@@ -745,10 +745,10 @@ public:
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == true );
     }
-
+*/
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
+/*
     void persistence()
     {
         int     oid;
@@ -838,7 +838,7 @@ public:
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == true );
     }
-
+*/
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -36,10 +36,10 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                const string&            _uname,
                                const string&            _gname,
                                VirtualNetworkTemplate * _vn_template):
-                PoolObjectSQL(-1,"",_uid,_gid,_uname,_gname,table),
-                bridge(""),
-                type(UNINITIALIZED),
-                leases(0)
+            PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
+            bridge(""),
+            type(UNINITIALIZED),
+            leases(0)
 {
     if (_vn_template != 0)
     {
@@ -73,11 +73,13 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     = "oid, name, body, uid, gid, public";
+const char * VirtualNetwork::db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid))";
+    " body TEXT, uid INTEGER, gid INTEGER, "
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -172,7 +174,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     ostringstream   ose;
     int             rc;
 
-    string          pub;
     string          vlan_attr;
     string          s_type;
     string          ranged_error_str;
@@ -249,14 +250,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
             bridge = oss.str();
         }
     }
-
-    // ------------ PUBLIC --------------------
-
-    erase_template_attribute("PUBLIC", pub);
-
-    TO_UPPER(pub);
-
-    public_obj = (pub == "YES");
 
     //--------------------------------------------------------------------------
     // Get the leases
@@ -394,7 +387,9 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
         << "'" <<   sql_xml     << "',"
         <<          uid         << ","
         <<          gid         << ","
-        <<          public_obj << ")";
+        <<          owner_u     << ","
+        <<          group_u     << ","
+        <<          other_u     << ")";
 
     rc = db->exec(oss);
 
@@ -463,10 +458,11 @@ string& VirtualNetwork::to_xml_extended(string& xml) const
 
 string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 {
-    ostringstream os;
+    ostringstream   os;
 
     string template_xml;
     string leases_xml;
+    string perm_str;
 
     // Total leases is the number of used leases.
     int total_leases = 0;
@@ -484,6 +480,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<UNAME>"  << uname  << "</UNAME>" << 
             "<GNAME>"  << gname  << "</GNAME>" <<
             "<NAME>"   << name   << "</NAME>"  <<
+            perms_to_xml(perm_str)              <<
             "<TYPE>"   << type   << "</TYPE>"  <<
             "<BRIDGE>" << bridge << "</BRIDGE>"<<
             "<VLAN>"   << vlan   << "</VLAN>";
@@ -521,8 +518,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "</RANGE>";
     }
 
-    os  <<  "<PUBLIC>"      << public_obj   << "</PUBLIC>"      <<
-            "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
+    os  <<  "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
     if (extended)
@@ -530,7 +526,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         if (leases != 0)
         {
             os <<   "<LEASES>"                  <<
-                    leases->to_xml(leases_xml)  <<
+                    leases->to_xml(leases_xml)     <<
                     "</LEASES>";
         }
         else
@@ -568,9 +564,11 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(name,       "/VNET/NAME",   "not_found");
     rc += xpath(int_type,   "/VNET/TYPE",   -1);
     rc += xpath(bridge,     "/VNET/BRIDGE", "not_found");
-    rc += xpath(public_obj, "/VNET/PUBLIC", 0);
     rc += xpath(vlan,       "/VNET/VLAN",   0);
-    
+
+    // Permissions
+    rc += perms_from_xml();
+
     xpath(phydev,  "/VNET/PHYDEV", "");
     xpath(vlan_id, "/VNET/VLAN_ID","");
 

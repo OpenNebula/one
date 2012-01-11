@@ -61,11 +61,13 @@ vmware://*)
 
     exec_and_log "cp -rf $SRC $DST" \
         "Error copying $SRC to $DST"
-    
-    BASE_DISK_FILE=`ls $DST | grep -v '.*-s[0-9]*\.vmdk'`
 
-    exec_and_log "mv -f $DST/$BASE_DISK_FILE $DST/disk.vmdk" \
-        "Error renaming disk file $BASE_DISK_FILE to disk.vmdk"
+    if [ ! -f $DST/disk.vmdk ]; then
+        BASE_DISK_FILE=`ls $DST | grep -v '.*-s[0-9]*\.vmdk'`
+
+        exec_and_log "mv -f $DST/$BASE_DISK_FILE $DST/disk.vmdk" \
+            "Error renaming disk file $BASE_DISK_FILE to disk.vmdk"
+    fi
 
     exec_and_log "chmod 0770 $DST"
     ;;

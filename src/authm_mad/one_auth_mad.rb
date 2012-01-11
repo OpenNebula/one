@@ -94,6 +94,7 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] password of the user registered in OpenNebula "-" if none
     # @param [String] secret filed of the auth string
     def authN(request_id, user_id, driver, user, password, secret)
+
         #OpenNebula.log_debug("authN: #{request_id} #{user_id} #{driver} #{password} #{secret}")
 
         unless @authN_protocols.include?(driver)
@@ -126,7 +127,7 @@ class AuthDriver < OpenNebulaDriver
     # @param [Array] of auth strings, last element is the ACL evaluation of 
     #        the overall request (0 = denied, 1 = granted). Each request is in
     #        the form:
-    #        OBJECT:<TEMPLATE_64|OBJECT_ID>:OPERATION:OWNER:PUBLIC:ACL_EVAL
+    #        OBJECT:<TEMPLATE_64|OBJECT_ID>:OPERATION:OWNER:ACL_EVAL
     def authZ(request_id, user_id, *requests)
         
         requests.flatten!

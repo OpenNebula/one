@@ -36,10 +36,13 @@ const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
 
 const char * User::table = "user_pool";
 
-const char * User::db_names = "oid,name,body";
+const char * User::db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u";
 
 const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, UNIQUE(name))";
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
+    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+    "UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -53,6 +56,9 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     char * sql_username;
     char * sql_xml;
+
+    // Set itself as the owner
+    set_user(oid, name);
 
     // Update the User
 
@@ -88,7 +94,13 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         <<          oid             << ","
         << "'" <<   sql_username    << "',"
-        << "'" <<   sql_xml         << "')";
+        << "'" <<   sql_xml         << "',"
+        <<          uid             << ","
+        <<          gid             << ","
+        <<          owner_u         << ","
+        <<          group_u         << ","
+        <<          other_u         << ")";
+
 
     rc = db->exec(oss);
 
@@ -167,6 +179,9 @@ int User::from_xml(const string& xml)
     rc += xpath(int_enabled,"/USER/ENABLED",     0);
 
     enabled = int_enabled;
+
+    // Set itself as the owner
+    set_user(oid, name);
 
     // Get associated metadata for the user
     ObjectXML::get_nodes("/USER/TEMPLATE", content);

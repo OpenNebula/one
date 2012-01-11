@@ -126,8 +126,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     publish_desc = <<-EOT.unindent
-        Publishes the given Template. A public Template can be seen and
-        instantiated by other Users in the Template's group
+        DEPRECATED, use chmod instead. Publishes the given Template. A public 
+        Template can be seen and instantiated by other users in the Template's 
+        group.
     EOT
 
     command :publish, publish_desc, [:range,:templateid_list] do
@@ -137,8 +138,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     unpublish_desc = <<-EOT.unindent
-        Unpublishes the given Template. A private Template can't be
-        instantiated by any other User
+        DEPRECATED, use chmod instead. Unpublishes the given Template. A private
+        Template can't be instantiated by any other user.
     EOT
 
     command :unpublish, unpublish_desc, [:range,:templateid_list] do
@@ -166,6 +167,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         gid = args[2].nil? ? -1 : args[2].to_i
         helper.perform_actions(args[0],options,"Owner/Group changed") do |t|
             t.chown(args[1].to_i, gid)
+        end
+    end
+
+    chmod_desc = <<-EOT.unindent
+        Changes the Template permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :templateid_list], :octet do
+        helper.perform_actions(args[0],options, "Permissions changed") do |t|
+            t.chmod_octet(args[1])
         end
     end
 

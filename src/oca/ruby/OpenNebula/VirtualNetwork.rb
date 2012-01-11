@@ -32,6 +32,7 @@ module OpenNebula
             :addleases  => "vn.addleases",
             :rmleases   => "vn.rmleases",
             :chown      => "vn.chown",
+            :chmod      => "vn.chmod",
             :update     => "vn.update",
             :hold       => "vn.hold",
             :release    => "vn.release"
@@ -164,6 +165,26 @@ module OpenNebula
             super(VN_METHODS[:chown], uid, gid)
         end
 
+        # Changes the virtual network permissions.
+        #
+        # @param octet [String] Permissions octed , e.g. 640
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod_octet(octet)
+            super(VN_METHODS[:chmod], octet)
+        end
+
+        # Changes the virtual network permissions.
+        # Each [Integer] argument must be 1 to allow, 0 deny, -1 do not change
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
+                other_m, other_a)
+            super(VN_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
+                group_m, group_a, other_u, other_m, other_a)
+        end
+
         #######################################################################
         # Helpers to get VirtualNetwork information
         #######################################################################
@@ -191,12 +212,9 @@ module OpenNebula
 
     private
         def set_publish(published)
-            return Error.new('ID not defined') if !@pe_id
+            group_u = published ? 1 : 0
 
-            rc = @client.call(VN_METHODS[:publish], @pe_id, published)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+            chmod(-1, -1, -1, group_u, -1, -1, -1, -1, -1)
         end
 
     end

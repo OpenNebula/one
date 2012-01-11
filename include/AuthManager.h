@@ -24,11 +24,14 @@
 #include "SSLTools.h"
 
 #include "AuthManagerDriver.h"
+#include "PoolObjectSQL.h"
+#include "PoolObjectAuth.h"
 
 using namespace std;
 
-//Forward definition of the AuthRequest
+//Forward definitions
 class AuthRequest;
+class PoolObjectAuth;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -278,68 +281,24 @@ public:
      */
     enum Operation
     {
-        CREATE        = 0x1LL,  /**< Auth. to create an object                */
-        DELETE        = 0x2LL,  /**< Auth. to delete an object                */
-        USE           = 0x4LL,  /**< Auth. to use an object                   */
-        MANAGE        = 0x8LL,  /**< Auth. to manage an object                */
-        INFO          = 0x10LL, /**< Auth. to view an object                  */
-        INFO_POOL     = 0x20LL, /**< Auth. to view any object in the pool     */
-        INFO_POOL_MINE= 0x40LL, /**< Auth. to view user and/or group objects  */
-        INSTANTIATE   = 0x80LL, /**< Auth. to instantiate a VM from a TEMPLATE*/
-        CHOWN         = 0x100LL,/**< Auth. to change ownership of an object   */
-        DEPLOY        = 0x200LL,/**< Auth. to deploy a VM in a Host           */
-        CHAUTH        = 0x400LL /**< Auth. to change the auth driver of a USER*/
+        USE    = 0x1LL,  /**< Auth. to use an object                   */
+        MANAGE = 0x2LL,  /**< Auth. to perform management actions      */
+        ADMIN  = 0x4LL,  /**< Auth. to perform administrative actions  */
+        CREATE = 0x8LL   /**< Auth. to create an object                */
     };
 
-    static string Operation_to_str(Operation op)
+    static string operation_to_str(Operation op)
     {
         switch (op)
         {
-            case CREATE:            return "CREATE";
-            case DELETE:            return "DELETE";
-            case USE:               return "USE";
-            case MANAGE:            return "MANAGE";
-            case INFO:              return "INFO";
-            case INFO_POOL:         return "INFO_POOL";
-            case INFO_POOL_MINE:    return "INFO_POOL_MINE";
-            case INSTANTIATE:       return "INSTANTIATE";
-            case CHOWN:             return "CHOWN";
-            case DEPLOY:            return "DEPLOY";
-            case CHAUTH:            return "CHAUTH";
-            default:                return "";
+            case USE:    return "USE";
+            case MANAGE: return "MANAGE";
+            case ADMIN:  return "ADMIN";
+            case CREATE: return "CREATE";
+            default:     return "";
         }
     };
 
-    /**
-     *  OpenNebula objects to perform an Operation
-     */
-    enum Object
-    {
-        VM         = 0x0000001000000000LL,
-        HOST       = 0x0000002000000000LL,
-        NET        = 0x0000004000000000LL,
-        IMAGE      = 0x0000008000000000LL,
-        USER       = 0x0000010000000000LL,
-        TEMPLATE   = 0x0000020000000000LL,
-        GROUP      = 0x0000040000000000LL,
-        ACL        = 0x0000080000000000LL
-    };
-
-    static string Object_to_str(Object ob)
-    {
-        switch (ob)
-        {
-            case VM:       return "VM" ; break;
-            case HOST:     return "HOST" ; break;
-            case NET:      return "NET" ; break;
-            case IMAGE:    return "IMAGE" ; break;
-            case USER:     return "USER" ; break;
-            case TEMPLATE: return "TEMPLATE" ; break;
-            case GROUP:    return "GROUP" ; break;
-            case ACL:      return "ACL" ; break;
-            default:       return "";
-        }
-    };
 
     /**
      *  Sets the challenge to authenticate an user
@@ -358,39 +317,36 @@ public:
     }
 
     /**
-     *  Adds a new authorization item to this request
-     *
-     *        OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
-     *
-     *    @param ob the object over which the operation will be performed
-     *    @param ob_id the object unique id
-     *    @param op the operation to be authorized
-     *    @param owner id of user that owns the object. For creates MUST equals
-          uid, hosts owner is uid=0
-     *    @param pub public attribute
+     *  Adds a CREATE authorization request.
+     * 
+     *        OBJECT:<-1|OBJECT_TMPL_XML64>:CREATE:UID:AUTH
+     *      
+     *    @param type of the object to be created
+     *    @param template (base64 encoded) of the new object
      */
-    void add_auth(Object        ob,
-                  const string& ob_id,
-                  int           ob_gid,
-                  Operation     op,
-                  int           owner,
-                  bool          pub);
+     void add_create_auth(PoolObjectSQL::ObjectType type, const string& txml_64)
+     {
+         PoolObjectAuth perms; //oid & gid set to -1
+         
+         perms.uid      = uid;
+         perms.obj_type = type;
+
+         add_auth(AuthRequest::CREATE, perms, txml_64);
+     }
 
     /**
-     *  Adds a new authorization item to this requests
+     *  Adds a new authorization item to this request
+     *
+     *        OBJECT:OBJECT_ID:ACTION:OWNER:AUTH
+     *
+     * @param op the operation to be authorized
+     * @param ob_perms object's permission attributes
      */
-    void add_auth(Object        ob,
-                  int           ob_id,
-                  int           ob_gid,
-                  Operation     op,
-                  int           owner,
-                  bool          pub)
+    void add_auth(Operation             op,
+                  const PoolObjectAuth& ob_perms)
     {
-        ostringstream oss;
-        oss << ob_id;
-
-        add_auth(ob,oss.str(),ob_gid,op,owner,pub);
-    };
+        add_auth(op, ob_perms, "");
+    }
 
     /**
      *  Gets the authorization requests in a single string
@@ -526,7 +482,20 @@ private:
      */
     void do_action(const string &name, void *args){};
 
-
+    /**
+     *  Adds a new authorization item to this request, with a template for
+     *  a new object
+     *
+     *        OBJECT:<OBJECT_ID|OBJECT_TMPL_XML64>:ACTION:OWNER:AUTH
+     *
+     * @param op the operation to be authorized
+     * @param ob_perms object's permission attributes
+     * @param ob_template new object's template. If it is empty,
+     * it will be ignored
+     */
+    void add_auth(Operation             op,
+                  const PoolObjectAuth& ob_perms,
+                  string                ob_template);
 };
 
 #endif /*AUTH_MANAGER_H*/

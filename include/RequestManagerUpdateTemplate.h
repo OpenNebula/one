@@ -56,7 +56,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
-        auth_object = AuthRequest::TEMPLATE;
+        auth_object = PoolObjectSQL::TEMPLATE;
     };
 
     ~TemplateUpdateTemplate(){};
@@ -74,7 +74,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
-        auth_object = AuthRequest::IMAGE;
+        auth_object = PoolObjectSQL::IMAGE;
     };
 
     ~ImageUpdateTemplate(){};
@@ -92,7 +92,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
-        auth_object = AuthRequest::HOST;
+        auth_object = PoolObjectSQL::HOST;
     };
 
     ~HostUpdateTemplate(){};
@@ -110,7 +110,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
-        auth_object = AuthRequest::NET;
+        auth_object = PoolObjectSQL::NET;
     };
 
     ~VirtualNetworkUpdateTemplate(){};
@@ -128,7 +128,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
-        auth_object = AuthRequest::USER;
+        auth_object = PoolObjectSQL::USER;
     };
 
     ~UserUpdateTemplate(){};

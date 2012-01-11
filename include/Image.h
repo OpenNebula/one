@@ -191,30 +191,41 @@ public:
     int set_type(string& _type);
 
     /**
-     *  Publish or unpublish an image
-     *    @param pub true to publish the image
-     *    @return 0 on success
+     *  Check if the image can be used by other users
+     *  @return true if group or others can access the image
      */
-    int publish(bool pub)
+    bool isPublic()
     {
-        int rc = -1;
-
-        if (pub == true)
-        {
-            if (!isPersistent())
-            {
-                public_obj  = 1;
-                rc          = 0;
-            }
-        }
-        else
-        {
-            public_obj  = 0;
-            rc          = 0;
-        }
-
-        return rc;
+       return (group_u == 1 || other_u == 1); 
     }
+
+    /**
+     *  Set permissions for the Image. Extends the PoolSQLObject method
+     *  by checking the persistent state of the image.
+     */
+    int set_permissions(int _owner_u,
+                        int _owner_m,
+                        int _owner_a,
+                        int _group_u,
+                        int _group_m,
+                        int _group_a,
+                        int _other_u,
+                        int _other_m,
+                        int _other_a,
+                        string& error_str)
+    {
+        if ( isPersistent() && (_group_u == 1 || _other_u == 1) )
+        {
+            error_str = "Image cannot be public and persistent.";
+
+            return -1;
+        } 
+
+        return PoolObjectSQL::set_permissions(_owner_u, _owner_m, _owner_a,
+                                              _group_u, _group_m, _group_a,
+                                              _other_u, _other_m, _other_a,
+                                              error_str);
+    };
 
     /**
      *  Set/Unset an image as persistent
@@ -232,11 +243,12 @@ public:
 
         if (persis == true)
         {
+            
             if ( isPublic() )
             {
                 goto error_public;
             }
-
+            
             persistent_img = 1;
         }
         else

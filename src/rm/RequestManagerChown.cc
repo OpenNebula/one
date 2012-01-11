@@ -15,9 +15,37 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerChown.h"
+#include "PoolObjectSQL.h"
 
 #include "NebulaLog.h"
 #include "Nebula.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int RequestManagerChown::get_info (PoolSQL *                 pool,
+                                   int                       id,
+                                   PoolObjectSQL::ObjectType type,
+                                   RequestAttributes&        att,
+                                   PoolObjectAuth&           perms, 
+                                   string&                   name)
+{
+    PoolObjectSQL * ob;
+
+    if ((ob = pool->get(id,true)) == 0 )
+    {
+        failure_response(NO_EXISTS, get_error(object_name(type), id), att);
+        return -1;
+    }
+
+    ob->get_permissions(perms);
+
+    name = ob->get_name();
+
+    ob->unlock();
+
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -29,61 +57,82 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     int noid = xmlrpc_c::value_int(paramList.getInt(2));
     int ngid = xmlrpc_c::value_int(paramList.getInt(3));
 
+    int rc;
+   
+    string oname;
     string nuname;
     string ngname;
 
-    PoolObjectSQL * object;
+    PoolObjectAuth  operms;
+    PoolObjectAuth  nuperms;
+    PoolObjectAuth  ngperms;
 
-    if ( basic_authorization(oid, att) == false )
-    {
-        return;
-    }
+    PoolObjectSQL * object;
 
     // ------------- Check new user and group id's ---------------------
 
     if ( noid > -1  )
     {
-        User * user;
+        rc = get_info(upool, noid, PoolObjectSQL::USER, att, nuperms, nuname);
 
-        if ((user = upool->get(noid,true)) == 0)
+        if ( rc == -1 )
         {
-            failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::USER),noid),
-                att);
             return;
         }
-        
-        nuname = user->get_name();
-
-        user->unlock();
     }
-
+    
     if ( ngid > -1  )
     {
-        Group * group;
+        rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname);
         
-        if ((group = gpool->get(ngid,true)) == 0)
+        if ( rc == -1 )
         {
-            failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid),
-                att);
+            return;
+        }
+    }
+
+    // ------------- Set authorization request for non-oneadmin's --------------
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.gid);
+
+        rc = get_info(pool, oid, auth_object, att, operms, oname);
+
+        if ( rc == -1 )
+        {
             return;
         }
 
-        ngname = group->get_name();
+        ar.add_auth(auth_op, operms); // MANAGE OBJECT
 
-        group->unlock();
+        if ( noid > -1  )
+        {
+            ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
+        }
+
+        if ( ngid > -1  )
+        {
+            ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
     }
 
     // ------------- Update the object ---------------------
 
     object = pool->get(oid,true);
 
-    if ( object == 0 )                             
+    if ( object == 0 ) 
     {                                            
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+        failure_response(NO_EXISTS,get_error(object_name(auth_object),oid),att);
         return;
     }    
 
@@ -116,17 +165,16 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     int ngid = xmlrpc_c::value_int(paramList.getInt(2));
     int old_gid;
 
-    string  ngname;
+    int rc;
+
+    string ngname;
+    string uname;
 
     User *  user;
     Group * group;
 
-    if ( basic_authorization(oid, att) == false )
-    {
-        return;
-    }
-
-    // ------------- Check new primary group id for user ---------------------
+    PoolObjectAuth uperms;
+    PoolObjectAuth ngperms;
 
     if ( ngid < 0 )
     {
@@ -134,17 +182,36 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( (group = gpool->get(ngid,true)) == 0 )
+    rc = get_info(upool, oid, PoolObjectSQL::USER, att, uperms, uname);
+
+    if ( rc == -1 )
     {
-        failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid),
-                att);
         return;
     }
 
-    ngname = group->get_name();
+    rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname);
 
-    group->unlock();
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.gid);
+
+        ar.add_auth(auth_op, uperms);           // MANAGE USER
+        ar.add_auth(AuthRequest::USE, ngperms); // USE    GROUP
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
 
     // ------------- Change users primary group ---------------------
 
@@ -153,7 +220,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if ( user == 0 )                             
     {                                            
         failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::USER),oid),
+                get_error(object_name(PoolObjectSQL::USER),oid),
                 att);
         return;
     }    
@@ -178,7 +245,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if( group == 0 )
     {
         failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid),
+                get_error(object_name(PoolObjectSQL::GROUP),ngid),
                 att);//TODO Rollback
         return;
     }
@@ -206,3 +273,4 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     return;
 }
+    

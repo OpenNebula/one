@@ -165,7 +165,7 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (overlapping_leases_rf);
     CPPUNIT_TEST (overlapping_leases_rr);
     CPPUNIT_TEST (drop_leases);
-    CPPUNIT_TEST (public_attribute);
+//    CPPUNIT_TEST (public_attribute);
     CPPUNIT_TEST (vnpool_nic_attribute);
 
     CPPUNIT_TEST (add_lease_fixed);
@@ -1041,7 +1041,7 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
+/*
     void public_attribute()
     {
         int oid;
@@ -1135,7 +1135,7 @@ public:
             i++;
         }
     }
-
+*/
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

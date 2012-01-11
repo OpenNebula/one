@@ -21,7 +21,7 @@ require 'acct/watch_client'
 
 class SunstoneServer
     # FLAG that will filter the elements retrieved from the Pools
-    POOL_FILTER = Pool::INFO_GROUP
+    POOL_FILTER = Pool::INFO_ALL
 
     def initialize(client)
         @client = client

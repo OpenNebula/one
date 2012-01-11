@@ -16,8 +16,8 @@
 
 #include "AclRule.h"
 #include "AuthManager.h"
-#include "ObjectXML.h"
-
+#include "PoolObjectSQL.h"
+    
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -201,7 +201,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "wrong [rights], it cannot be 0";
     }
 
-    if ( rights > 0x4FFLL )
+    if ( rights > 0xFLL )
     {
         if ( error )
         {
@@ -209,7 +209,7 @@ bool AclRule::malformed(string& error_str) const
         }
 
         error = true;
-        oss << "wrong [rights], it cannot be bigger than 0x4FF";
+        oss << "wrong [rights], it cannot be bigger than 0xF";
     }
 
     if ( error )
@@ -246,14 +246,14 @@ void AclRule::build_str()
 
     oss << " ";
 
-    AuthRequest::Object objects[] = {
-            AuthRequest::VM,
-            AuthRequest::HOST,
-            AuthRequest::NET,
-            AuthRequest::IMAGE,
-            AuthRequest::USER,
-            AuthRequest::TEMPLATE,
-            AuthRequest::GROUP
+    PoolObjectSQL::ObjectType objects[] = {
+            PoolObjectSQL::VM,
+            PoolObjectSQL::HOST,
+            PoolObjectSQL::NET,
+            PoolObjectSQL::IMAGE,
+            PoolObjectSQL::USER,
+            PoolObjectSQL::TEMPLATE,
+            PoolObjectSQL::GROUP
     };
 
     bool prefix = false;
@@ -267,7 +267,7 @@ void AclRule::build_str()
                 oss << "+";
             }
 
-            oss << AuthRequest::Object_to_str( objects[i] );
+            oss << PoolObjectSQL::type_to_str( objects[i] );
             prefix = true;
         }
     }
@@ -296,22 +296,15 @@ void AclRule::build_str()
 
 
     AuthRequest::Operation operations[] = {
-            AuthRequest::CREATE,
-            AuthRequest::DELETE,
             AuthRequest::USE,
             AuthRequest::MANAGE,
-            AuthRequest::INFO,
-            AuthRequest::INFO_POOL,
-            AuthRequest::INFO_POOL_MINE,
-            AuthRequest::INSTANTIATE,
-            AuthRequest::CHOWN,
-            AuthRequest::DEPLOY,
-            AuthRequest::CHAUTH
+            AuthRequest::ADMIN,
+            AuthRequest::CREATE
     };
 
     prefix = false;
 
-    for ( int i = 0; i < 11; i++ )
+    for ( int i = 0; i < 4; i++ )
     {
         if ( (rights & operations[i]) != 0 )
         {
@@ -320,7 +313,7 @@ void AclRule::build_str()
                 oss << "+";
             }
 
-            oss << AuthRequest::Operation_to_str( operations[i] );
+            oss << AuthRequest::operation_to_str( operations[i] );
             prefix = true;
         }
     }

@@ -18,7 +18,7 @@
 #include "NebulaLog.h"
 
 #include "Nebula.h"
-
+#include "PoolObjectSQL.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -31,21 +31,19 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
+    string tmpl_str = "";
+
     AuthRequest ar(att.uid, att.gid);
 
-    if ( tmpl == 0 )
-    { 
-        ar.add_auth(auth_object,-1,-1,auth_op,att.uid,false);
-    }
-    else
+    if ( tmpl != 0 )
     {
-        string t64;
-
-        ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,att.uid,false);
+        tmpl->to_xml(tmpl_str);
     }
 
-   if (UserPool::authorize(ar) == -1)
-   {
+    ar.add_create_auth(auth_object, tmpl_str);
+
+    if (UserPool::authorize(ar) == -1)
+    {
         failure_response(AUTHORIZATION,
                 authorization_error(ar.message, att),
                 att);
@@ -68,17 +66,16 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
     }
 
     AuthRequest ar(att.uid, att.gid);
-
     string      t64;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
-    ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,att.uid,false);
+    ar.add_create_auth(auth_object, tmpl->to_xml(t64));
 
     VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
 
-   if (UserPool::authorize(ar) == -1)
-   {
+    if (UserPool::authorize(ar) == -1)
+    {
         failure_response(AUTHORIZATION,
                 authorization_error(ar.message, att),
                 att);

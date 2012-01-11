@@ -108,7 +108,7 @@ class VMTemplatePoolTest : public PoolTest
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
     CPPUNIT_TEST ( duplicates );
-    CPPUNIT_TEST ( public_attribute );
+//    CPPUNIT_TEST ( public_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
 
@@ -386,7 +386,7 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
+/*
     void public_attribute()
     {
         int oid;
@@ -467,7 +467,7 @@ public:
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( temp->isPublic() == true );
     }
-
+*/
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

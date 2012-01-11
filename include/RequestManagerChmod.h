@@ -14,12 +14,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef REQUEST_MANAGER_POOL_INFO_H_
-#define REQUEST_MANAGER_POOL_INFO_H_
+#ifndef REQUEST_MANAGER_CHMOD_H_
+#define REQUEST_MANAGER_CHMOD_H_
 
 #include "Request.h"
 #include "Nebula.h"
-#include "AuthManager.h"
 
 using namespace std;
 
@@ -27,78 +26,96 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerPoolInfo: public Request
+class RequestManagerChmod : public Request
 {
 protected:
-    RequestManagerPoolInfo(const string& method_name,
-                           const string& help)
-        :Request(method_name,"A:s",help)
-    {
-        auth_op = AuthRequest::INFO_POOL;
-    };
+    RequestManagerChmod(const string& method_name,
+                        const string& help,
+                        const string& params = "A:siii")
+        :Request(method_name,params,help){};
 
-    ~RequestManagerPoolInfo(){};
+    ~RequestManagerChmod(){};
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+                                 RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class HostPoolInfo : public RequestManagerPoolInfo
+class VirtualMachineChmod : public RequestManagerChmod
 {
 public:
-    HostPoolInfo():
-        RequestManagerPoolInfo("HostPoolInfo",
-                               "Returns the host pool")
+    VirtualMachineChmod():
+        RequestManagerChmod("VirtualMachineChmod",
+                            "Changes ownership of a virtual machine")
     {    
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_hpool();
-        auth_object = AuthRequest::HOST;
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
     };
 
-    ~HostPoolInfo(){};
+    ~VirtualMachineChmod(){};
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class GroupPoolInfo: public RequestManagerPoolInfo
+class TemplateChmod : public RequestManagerChmod
 {
 public:
-    GroupPoolInfo():
-        RequestManagerPoolInfo("GroupPoolInfo",
-                               "Returns the group pool")
-    {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_gpool();
-        auth_object = AuthRequest::GROUP;
-    };
-
-    ~GroupPoolInfo(){};
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-class UserPoolInfo: public RequestManagerPoolInfo
-{
-public:
-    UserPoolInfo():
-        RequestManagerPoolInfo("UserPoolInfo",
-                               "Returns the user pool")
+    TemplateChmod():
+        RequestManagerChmod("TemplateChmod",
+                            "Changes ownership of a virtual machine template")
     {    
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_upool();
-        auth_object = AuthRequest::USER;
+        pool        = nd.get_tpool();
+        auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~UserPoolInfo(){};
+    ~TemplateChmod(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+
+class VirtualNetworkChmod: public RequestManagerChmod
+{
+public:
+    VirtualNetworkChmod():
+        RequestManagerChmod("VirtualNetworkChmod",
+                           "Changes ownership of a virtual network")
+    {    
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+        auth_object = PoolObjectSQL::NET;
+    };
+
+    ~VirtualNetworkChmod(){};
+
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ImageChmod: public RequestManagerChmod
+{
+public:
+    ImageChmod():
+        RequestManagerChmod("ImageChmod",
+                            "Changes ownership of an image")
+    {    
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_ipool();
+        auth_object = PoolObjectSQL::IMAGE;
+    };
+
+    ~ImageChmod(){};
+
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

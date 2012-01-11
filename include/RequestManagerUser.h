@@ -37,7 +37,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
 
-        auth_object = AuthRequest::USER;
+        auth_object = PoolObjectSQL::USER;
 
     };
 
@@ -87,7 +87,7 @@ public:
                            "Changes user's authentication driver",
                            "A:siss")
     {
-        auth_op = AuthRequest::CHAUTH;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~UserChangeAuth(){};

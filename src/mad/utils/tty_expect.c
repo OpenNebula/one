@@ -103,8 +103,9 @@ int main (int argc, char **argv)
     char expect = ':';
 
     int opt, pty, pid, rc;
+    int times = 1;
 
-    while((opt = getopt(argc,argv,"+hp:u:")) != -1)
+    while((opt = getopt(argc,argv,"+hrp:u:")) != -1)
         switch(opt)
         {
             case 'h':
@@ -116,6 +117,9 @@ int main (int argc, char **argv)
                 break;
             case 'u':
                 username = strdup(optarg);
+                break;
+            case 'r':
+                times = 2;
                 break;
             default:
                 fprintf(stderr,"Wrong option. Check usage\n");
@@ -153,12 +157,17 @@ int main (int argc, char **argv)
        perror("fork\n");
     }
 
-    expect_char(pty,&expect,1);
-    sleep(1);
-    write_answer(pty,username);
-    expect_char(pty,&expect,1);
-    sleep(1);
-    write_answer(pty,password);
+    while ( times > 0 )
+    {
+        expect_char(pty,&expect,1);
+        sleep(1);
+        write_answer(pty,username);
+        expect_char(pty,&expect,1);
+        sleep(1);
+        write_answer(pty,password);
+
+        times = times - 1;
+    }
 
     expect_char(pty,0,0);
 

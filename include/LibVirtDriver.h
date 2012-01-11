@@ -40,6 +40,8 @@ public:
     ~LibVirtDriver(){};
 
 private:
+    static const char * vmware_vnm_name;
+    
     int deployment_description(
         const VirtualMachine *  vm,
         const string&           file_name) const

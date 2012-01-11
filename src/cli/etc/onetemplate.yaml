@@ -22,14 +22,9 @@
   :desc: Registration time of the Template
   :size: 20
 
-:PUBLIC: 
-  :desc: Whether the Template is public or not
-  :size: 3
-
 :default:
 - :ID
 - :USER
 - :GROUP
 - :NAME
 - :REGTIME
-- :PUBLIC

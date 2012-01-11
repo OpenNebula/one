@@ -25,10 +25,8 @@ source_files=[
     'Request.cc',
     'RequestManager.cc',
     'RequestManagerInfo.cc',
-    'RequestManagerPoolInfo.cc',
     'RequestManagerPoolInfoFilter.cc',
     'RequestManagerDelete.cc',
-    'RequestManagerPublish.cc',
     'RequestManagerAllocate.cc',
     'RequestManagerVirtualNetwork.cc',
     'RequestManagerVirtualMachine.cc',
@@ -39,6 +37,7 @@ source_files=[
     'RequestManagerImage.cc',
     'RequestManagerChown.cc',
     'RequestManagerAcl.cc',
+    'RequestManagerChmod.cc',
 ]
 
 # Build library

@@ -101,6 +101,77 @@ public abstract class PoolElement {
     }
 
     /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param method XML-RPC method.
+     * @param id The id of the target object.
+     * @param owner_u 1 to allow, 0 deny, -1 do not change
+     * @param owner_m 1 to allow, 0 deny, -1 do not change
+     * @param owner_a 1 to allow, 0 deny, -1 do not change
+     * @param group_u 1 to allow, 0 deny, -1 do not change
+     * @param group_m 1 to allow, 0 deny, -1 do not change
+     * @param group_a 1 to allow, 0 deny, -1 do not change
+     * @param other_u 1 to allow, 0 deny, -1 do not change
+     * @param other_m 1 to allow, 0 deny, -1 do not change
+     * @param other_a 1 to allow, 0 deny, -1 do not change
+     * @return If an error occurs the error message contains the reason.
+     */
+    protected static OneResponse chmod(Client client, String method, int id,
+                                    int owner_u, int owner_m, int owner_a,
+                                    int group_u, int group_m, int group_a,
+                                    int other_u, int other_m, int other_a)
+    {
+        return client.call(method, id,
+                            owner_u, owner_m, owner_a,
+                            group_u, group_m, group_a,
+                            other_u, other_m, other_a);
+    }
+
+    /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param method XML-RPC method.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    protected static OneResponse chmod(Client client, String method, int id,
+                                        String octet)
+    {
+        int owner_u = (Integer.parseInt(octet.substring(0, 1)) & 4) != 0 ? 1 : 0;
+        int owner_m = (Integer.parseInt(octet.substring(0, 1)) & 2) != 0 ? 1 : 0;
+        int owner_a = (Integer.parseInt(octet.substring(0, 1)) & 1) != 0 ? 1 : 0;
+        int group_u = (Integer.parseInt(octet.substring(1, 2)) & 4) != 0 ? 1 : 0;
+        int group_m = (Integer.parseInt(octet.substring(1, 2)) & 2) != 0 ? 1 : 0;
+        int group_a = (Integer.parseInt(octet.substring(1, 2)) & 1) != 0 ? 1 : 0;
+        int other_u = (Integer.parseInt(octet.substring(2, 3)) & 4) != 0 ? 1 : 0;
+        int other_m = (Integer.parseInt(octet.substring(2, 3)) & 2) != 0 ? 1 : 0;
+        int other_a = (Integer.parseInt(octet.substring(2, 3)) & 1) != 0 ? 1 : 0;
+
+        return chmod(client, method, id,
+                owner_u, owner_m, owner_a,
+                group_u, group_m, group_a,
+                other_u, other_m, other_a);
+    }
+
+    /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param method XML-RPC method.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    protected static OneResponse chmod(Client client, String method, int id,
+                                        int octet)
+    {
+        return chmod(client, method, id, Integer.toString(octet));
+    }
+
+    /**
      * Returns the element's ID.
      * @return the element's ID.
      */

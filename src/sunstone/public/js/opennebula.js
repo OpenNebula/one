@@ -491,6 +491,13 @@ var OpenNebula = {
         "chgrp" : function(params){
             OpenNebula.Action.chgrp(params,OpenNebula.Network.resource);
         },
+        "chmod" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Network.resource,
+                                            "chmod",
+                                            action_obj);
+        },
         "publish": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Network.resource,"publish");
         },
@@ -557,6 +564,13 @@ var OpenNebula = {
         },
         "chgrp" : function(params){
             OpenNebula.Action.chgrp(params,OpenNebula.VM.resource);
+        },
+        "chmod" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.VM.resource,
+                                            "chmod",
+                                            action_obj);
         },
         "shutdown": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"shutdown");
@@ -735,6 +749,13 @@ var OpenNebula = {
         "chgrp" : function(params){
             OpenNebula.Action.chgrp(params,OpenNebula.Image.resource);
         },
+        "chmod" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Image.resource,
+                                            "chmod",
+                                            action_obj);
+        },
         "update": function(params){
             var action_obj = {"template_raw" : params.data.extra_param };
             OpenNebula.Action.simple_action(params,
@@ -750,12 +771,6 @@ var OpenNebula = {
         },
         "disable": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"disable");
-        },
-        "publish": function(params){
-            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"publish");
-        },
-        "unpublish": function(params){
-            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"unpublish");
         },
         "persistent": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"persistent");
@@ -792,6 +807,13 @@ var OpenNebula = {
         },
         "chgrp" : function(params){
             OpenNebula.Action.chgrp(params,OpenNebula.Template.resource);
+        },
+        "chmod" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Template.resource,
+                                            "chmod",
+                                            action_obj);
         },
         "update" : function(params){
             var action_obj = {"template_raw" : params.data.extra_param };

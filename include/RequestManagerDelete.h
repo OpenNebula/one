@@ -34,8 +34,8 @@ protected:
                          const string& help)
         :Request(method_name,"A:si",help)
     {
-        auth_op = AuthRequest::DELETE;
-    }
+        auth_op = AuthRequest::MANAGE;
+    };
 
     ~RequestManagerDelete(){};
 
@@ -44,6 +44,9 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
+    bool delete_authorization(int                oid,
+                              RequestAttributes& att);
+                              
     /* -------------------------------------------------------------------- */
 
     virtual int drop(int oid, PoolObjectSQL * object, string& error_msg)
@@ -67,10 +70,10 @@ public:
     TemplateDelete():
         RequestManagerDelete("TemplateDelete",
                              "Deletes a virtual machine template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
-        auth_object = AuthRequest::TEMPLATE;
+        auth_object = PoolObjectSQL::TEMPLATE;
     };
 
     ~TemplateDelete(){};
@@ -88,7 +91,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
-        auth_object = AuthRequest::NET;
+        auth_object = PoolObjectSQL::NET;
     };
 
     ~VirtualNetworkDelete(){};
@@ -105,7 +108,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
-        auth_object = AuthRequest::IMAGE;
+        auth_object = PoolObjectSQL::IMAGE;
     };
 
     ~ImageDelete(){};
@@ -127,7 +130,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
-        auth_object = AuthRequest::HOST;
+        auth_object = PoolObjectSQL::HOST;
     };
 
     ~HostDelete(){};
@@ -145,7 +148,7 @@ public:
     {    
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
-        auth_object = AuthRequest::GROUP;
+        auth_object = PoolObjectSQL::GROUP;
     };
 
     ~GroupDelete(){};
@@ -162,7 +165,7 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
-        auth_object = AuthRequest::USER;
+        auth_object = PoolObjectSQL::USER;
     };
 
     ~UserDelete(){};

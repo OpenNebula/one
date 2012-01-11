@@ -37,25 +37,6 @@ public:
      */
     string& to_xml(string& xml) const;
 
-    /**
-     *  Publish or unpublish an object
-     *    @param pub true to publish the object
-     *    @return 0 on success
-     */
-    int publish(bool pub)
-    {
-        if (pub == true)
-        {
-            public_obj = 1;
-        }
-        else
-        {
-            public_obj = 0;
-        }
-
-        return 0;
-    };
-
     // ------------------------------------------------------------------------
     // Template Contents
     // ------------------------------------------------------------------------

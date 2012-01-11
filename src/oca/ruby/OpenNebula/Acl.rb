@@ -32,17 +32,10 @@ module OpenNebula
     #                  GROUP
     #                  ACL
     #     RIGHTS    -> + separated list
-    #                  CREATE
-    #                  DELETE
     #                  USE
     #                  MANAGE
-    #                  INFO
-    #                  INFO_POOL
-    #                  INFO_POOL_MINE
-    #                  INSTANTIATE
-    #                  CHOWN
-    #                  DEPLOY
-    #                  CHAUTH
+    #                  ADMIN
+    #                  CREATE
     class Acl < PoolElement
 
         USERS = {
@@ -64,17 +57,10 @@ module OpenNebula
 
         RIGHTS =
         {
-            "CREATE"        => 0x1,  # Auth. to create an object
-            "DELETE"        => 0x2,  # Auth. to delete an object
-            "USE"           => 0x4,  # Auth. to use an object
-            "MANAGE"        => 0x8,  # Auth. to manage an object
-            "INFO"          => 0x10, # Auth. to view an object
-            "INFO_POOL"     => 0x20, # Auth. to view any object in the pool
-            "INFO_POOL_MINE"=> 0x40, # Auth. to view user and/or group objects
-            "INSTANTIATE"   => 0x80, # Auth. to instantiate a VM from a TEMPLATE
-            "CHOWN"         => 0x100,# Auth. to change ownership of an object
-            "DEPLOY"        => 0x200,# Auth. to deploy a VM in a Host
-            "CHAUTH"        => 0x400 # Auth. to change the auth driver of a USER
+            "USE"           => 0x1,  # Auth. to use an object
+            "MANAGE"        => 0x2,  # Auth. to perform management actions
+            "ADMIN"         => 0x4,  # Auth. to perform administrative actions
+            "CREATE"        => 0x8   # Auth. to create an object
         }
 
         # Constructor

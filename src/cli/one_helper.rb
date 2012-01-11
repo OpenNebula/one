@@ -88,7 +88,7 @@ EOT
         end
 
         def list_pool(options, top=false, filter_flag=nil)
-            filter_flag ||= OpenNebula::Pool::INFO_GROUP
+            filter_flag ||= OpenNebula::Pool::INFO_ALL
 
             pool = factory_pool(filter_flag)
 
@@ -312,14 +312,8 @@ EOT
 
             rc = pool.info
             if OpenNebula.is_error?(rc)
-                user_flag = OpenNebula::Pool::INFO_GROUP
-                pool = factory_pool(user_flag)
-
-                rc = pool.info
-                if OpenNebula.is_error?(rc)
-                    return -1, "OpenNebula #{self.class.rname} name not " <<
-                               "found, use the ID instead"
-                end
+                return -1, "OpenNebula #{self.class.rname} name not " <<
+                           "found, use the ID instead"
             end
 
             return 0, pool

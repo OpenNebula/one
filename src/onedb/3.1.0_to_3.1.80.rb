@@ -204,6 +204,9 @@ module Migrator
 
             if !found
                 doc.root.add_element("HISTORY_RECORDS")
+
+                @db[:vm_pool].filter(:oid=>row[:oid]).update(
+                     :body   => doc.root.to_s)
             end
         end
 
