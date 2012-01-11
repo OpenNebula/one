@@ -19,6 +19,8 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -98,6 +100,8 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
             Nebula::instance().get_configuration_attribute(
                     "ENABLE_OTHER_PERMISSIONS", enable_other);
 
+            TO_UPPER(enable_other);
+            
             if ( enable_other != "YES" )
             {
                 failure_response(AUTHORIZATION,
