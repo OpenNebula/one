@@ -115,7 +115,9 @@ EOT
 
         def show_resource(id, options)
             resource = retrieve_resource(id)
-            return -1, resource.message if OpenNebula.is_error?(resource)
+
+            rc = resource.info
+            return -1, rc.message if OpenNebula.is_error?(rc)
 
             if options[:xml]
                 return 0, resource.to_xml(true)
@@ -127,7 +129,6 @@ EOT
 
         def perform_action(id, options, verbose, &block)
             resource = retrieve_resource(id)
-            return -1, resource.message if OpenNebula.is_error?(resource)
 
             rc = block.call(resource)
             if OpenNebula.is_error?(rc)
@@ -282,10 +283,7 @@ EOT
         private
 
         def retrieve_resource(id)
-            resource = factory(id)
-
-            rc = resource.info
-            OpenNebula.is_error?(rc) ? rc : resource
+            factory(id)
         end
 
         def pool_to_array(pool)
