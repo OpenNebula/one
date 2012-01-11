@@ -147,7 +147,8 @@ public class VirtualNetworkTest
         res = vnet.info();
         assertTrue( res.isError() );
     }
-
+// TODO
+/*
     @Test
     public void publish()
     {
@@ -169,7 +170,7 @@ public class VirtualNetworkTest
         res = vnet.info();
         assertTrue( !vnet.isPublic() );
     }
-
+*/
     @Test
     public void addLeases()
     {

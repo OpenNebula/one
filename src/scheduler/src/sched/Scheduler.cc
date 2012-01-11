@@ -33,6 +33,7 @@
 #include "SchedulerTemplate.h"
 #include "RankPolicy.h"
 #include "NebulaLog.h"
+#include "PoolObjectAuth.h"
 
 using namespace std;
 
@@ -391,20 +392,25 @@ void Scheduler::match()
             }
             else
             {
+                PoolObjectAuth host_perms;
+
+                host_perms.oid      = host->get_hid();
+                host_perms.obj_type = PoolObjectSQL::HOST;
+
                 matched = acls->authorize(uid, 
                                           gid,
-                                          AuthRequest::HOST, 
-                                          host->get_hid(), 
-                                          -1,
-                                          AuthRequest::USE); 
+                                          host_perms,
+                                          AuthRequest::MANAGE);
             }
 
             if ( matched == false )
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid() << 
-                    " filtered out. User is not authorized to use it.";
+                oss << "Host " << host->get_hid()
+                    << " filtered out. User is not authorized to "
+                    << AuthRequest::operation_to_str(AuthRequest::MANAGE)
+                    << " it.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;

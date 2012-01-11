@@ -64,8 +64,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(image['REGTIME'])]
-        puts str % ["PUBLIC",
-            OpenNebulaHelper.boolean_to_str(image['PUBLIC'])]
         puts str % ["PERSISTENT",
             OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
         puts str % ["SOURCE",image['SOURCE']]
@@ -74,6 +72,18 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["SIZE",  image['SIZE']]
         puts str % ["STATE", image.short_state_str]
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
+        puts
+
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "u" if image["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if image["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if image["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
         puts
 
         CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
@@ -111,11 +121,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
 
-            column :PUBLIC, "Whether the Image is public or not",
-                    :size=>3 do |d|
-                OpenNebulaHelper.boolean_to_str(d["PUBLIC"])
-            end
-
             column :PERSISTENT, "Whether the Image is persistent or not",
                     :size=>3 do |d|
                 OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])
@@ -135,7 +140,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d['SIZE'].to_i,options,"M")
             end
 
-            default :ID, :USER, :GROUP, :NAME, :SIZE, :TYPE, :REGTIME, :PUBLIC,
+            default :ID, :USER, :GROUP, :NAME, :SIZE, :TYPE, :REGTIME,
                 :PERSISTENT , :STAT, :RVMS
         end
 

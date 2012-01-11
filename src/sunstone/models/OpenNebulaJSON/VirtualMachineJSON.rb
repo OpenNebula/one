@@ -65,6 +65,7 @@ module OpenNebulaJSON
                  when "reboot"       then self.reboot
                  when "resubmit"     then self.resubmit
                  when "chown"        then self.chown(action_hash['params'])
+                 when "chmod"        then self.chmod_octet(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -94,6 +95,10 @@ module OpenNebulaJSON
 
         def chown(params=Hash.new)
             super(params['owner_id'].to_i,params['group_id'].to_i)
+        end
+
+        def chmod_octet(params=Hash.new)
+            super(params['octet'])
         end
     end
 end

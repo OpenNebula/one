@@ -37,7 +37,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
 
-        auth_object = AuthRequest::TEMPLATE;
+        auth_object = PoolObjectSQL::TEMPLATE;
     };
 
     ~RequestManagerVMTemplate(){};
@@ -59,7 +59,7 @@ public:
                                  "Instantiates a new virtual machine using a template",
                                  "A:sis")
     {
-        auth_op = AuthRequest::INSTANTIATE;
+        auth_op = AuthRequest::USE;
     };
 
     ~VMTemplateInstantiate(){};

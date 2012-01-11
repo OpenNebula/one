@@ -24,7 +24,8 @@ lib_name='nebula_pool'
 source_files=[
     'PoolSQL.cc',
     'PoolObjectSQL.cc',
-    'ObjectCollection.cc'
+    'ObjectCollection.cc',
+    'PoolObjectAuth.cc'
 ]
 
 # Build library

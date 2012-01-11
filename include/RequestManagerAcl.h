@@ -34,7 +34,7 @@ protected:
                        const string& params)
         :Request(method_name,params,help)
     {
-        auth_object = AuthRequest::ACL;
+        auth_object = PoolObjectSQL::ACL;
         auth_op     = AuthRequest::MANAGE;
 
         Nebula& nd  = Nebula::instance();

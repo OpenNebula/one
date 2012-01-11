@@ -69,17 +69,10 @@ public class Acl extends PoolElement{
 
         HashMap<String, Long> tmpRights = new HashMap<String, Long>();
 
-        tmpRights.put("CREATE"        , 0x1L);
-        tmpRights.put("DELETE"        , 0x2L);
-        tmpRights.put("USE"           , 0x4L);
-        tmpRights.put("MANAGE"        , 0x8L);
-        tmpRights.put("INFO"          , 0x10L);
-        tmpRights.put("INFO_POOL"     , 0x20L);
-        tmpRights.put("INFO_POOL_MINE", 0x40L);
-        tmpRights.put("INSTANTIATE"   , 0x80L);
-        tmpRights.put("CHOWN"         , 0x100L);
-        tmpRights.put("DEPLOY"        , 0x200L);
-        tmpRights.put("CHAUTH"        , 0x400L);
+        tmpRights.put("USE"     , 0x1L);
+        tmpRights.put("MANAGE"  , 0x2L);
+        tmpRights.put("ADMIN"   , 0x4L);
+        tmpRights.put("CREATE"  , 0x8L);
 
         RIGHTS = Collections.unmodifiableMap(tmpRights);
     }
@@ -328,7 +321,7 @@ public class Acl extends PoolElement{
                         + "' does not exist");
             }
 
-            ret += RIGHTS.get(right);
+            ret = ret | RIGHTS.get(right);
         }
 
         return Long.toHexString(ret);

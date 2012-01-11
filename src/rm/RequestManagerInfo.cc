@@ -30,11 +30,11 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( oid == -1 )
     {
-        if ( auth_object == AuthRequest::USER )
+        if ( auth_object == PoolObjectSQL::USER )
         {
             oid = att.uid;
         }
-        else if ( auth_object == AuthRequest::GROUP )
+        else if ( auth_object == PoolObjectSQL::GROUP )
         {
             oid = att.gid;
         }

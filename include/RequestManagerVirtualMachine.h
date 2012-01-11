@@ -37,7 +37,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
 
-        auth_object = AuthRequest::VM;
+        auth_object = PoolObjectSQL::VM;
         auth_op = AuthRequest::MANAGE;
     };
 
@@ -48,11 +48,11 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) = 0;
 
-    bool vm_authorization(int id, int hid, ImageTemplate *tmpl,
-            RequestAttributes& att);
+    bool vm_authorization(int id, ImageTemplate *tmpl,
+            RequestAttributes& att, PoolObjectAuth* host_perms);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
-            string& tm, RequestAttributes& att);
+            string& tm, RequestAttributes& att, PoolObjectAuth& host_perms);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
@@ -92,7 +92,7 @@ public:
                                      "Deploys a virtual machine",
                                      "A:sii")
     {
-         auth_op = AuthRequest::DEPLOY;
+         auth_op = AuthRequest::ADMIN;
     };
 
     ~VirtualMachineDeploy(){};
@@ -110,7 +110,10 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("VirtualMachineMigrate",
                                      "Migrates a virtual machine",
-                                     "A:siib"){};
+                                     "A:siib")
+    {
+         auth_op = AuthRequest::ADMIN;
+    };
 
     ~VirtualMachineMigrate(){};
 

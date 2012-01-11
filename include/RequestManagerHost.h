@@ -37,7 +37,7 @@ protected:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
 
-        auth_object = AuthRequest::HOST;
+        auth_object = PoolObjectSQL::HOST;
     };
 
     ~RequestManagerHost(){};
@@ -59,7 +59,7 @@ public:
                             "Enables or disables a host",
                             "A:sib")
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~HostEnable(){};

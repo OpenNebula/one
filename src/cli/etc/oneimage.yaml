@@ -30,10 +30,6 @@
   :desc: Registration time of the Image
   :size: 16
 
-:PUBLIC: 
-  :desc: Whether the Image is public or not
-  :size: 3
-
 :PERSISTENT: 
   :desc: Whether the Image is persistent or not
   :size: 3
@@ -54,7 +50,6 @@
 - :SIZE
 - :TYPE
 - :REGTIME
-- :PUBLIC
 - :PERSISTENT
 - :STAT
 - :RVMS

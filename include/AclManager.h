@@ -18,11 +18,14 @@
 #define ACL_MANAGER_H_
 
 #include "AuthManager.h"
+#include "PoolObjectSQL.h"
 #include "AclRule.h"
 
 #include "SqlDB.h"
 
 using namespace std;
+
+class PoolObjectAuth;
 
 /**
  *  This class manages the ACL rules and the authorization engine
@@ -55,18 +58,15 @@ public:
      *
      *    @param uid The user ID requesting to be authorized
      *    @param gid Group ID of the user
-     *    @param obj_type The object over which the operation will be performed
-     *    @param obj_id The object ID
-     *    @param obj_gid The object's group ID
+     *    @param obj_perms The object's permission attributes
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
-    const bool authorize(int                    uid, 
+    const bool authorize(int                    uid,
                          int                    gid,
-                         AuthRequest::Object    obj_type, 
-                         int                    obj_id, 
-                         int                    obj_gid,
+                         const PoolObjectAuth&  obj_perms,
                          AuthRequest::Operation op);
+
     /**
      *  Adds a new rule to the ACL rule set
      *
@@ -92,6 +92,26 @@ public:
      *    @return 0 on success
      */
     virtual int del_rule(int oid, string& error_str);
+
+    /**
+     * Searches what resources of type obj_type the ACL rules set allows
+     * the given user to perform the operation.
+     *
+     *    @param uid The user ID
+     *    @param gid Group ID of the user
+     *    @param obj_type The object over which the search will be performed
+     *    @param op The operation to be searched
+     *    @param all True if the user can perform the operation over any object
+     *    @param oids Set of object IDs over which the user can operate
+     *    @param gids Set of object group IDs over which the user can operate
+     */
+    void reverse_search(int                       uid,
+                        int                       gid,
+                        PoolObjectSQL::ObjectType obj_type,
+                        AuthRequest::Operation    op,
+                        bool&                     all,
+                        vector<int>&              oids,
+                        vector<int>&              gids);
 
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
@@ -139,7 +159,8 @@ private:
      *    @param resource_all_req 64 bit request, ob. type and all flag
      *    @param rights_req Requested rights
      *    @param individual_obj_type Mask with ob. type and individual flags
-     *    @param group_obj_type Mask with ob. type and gropu flags
+     *    @param group_obj_type Mask with ob. type and group flags
+     *    @param rules ACL rules to match
      *
      *    @return true if any rule grants permission
      */
@@ -150,7 +171,33 @@ private:
             long long resource_all_req,
             long long rights_req,
             long long individual_obj_type,
-            long long group_obj_type);
+            long long group_obj_type,
+            multimap<long long, AclRule*> &rules);
+
+    /**
+     *  Wrapper for match_rules. It will check if any rules in the temporary
+     *  multimap or in the internal one grants permission.
+     *
+     *    @param user_req user/group id and flags
+     *    @param resource_oid_req 64 bit request, ob. type and individual oid
+     *    @param resource_gid_req 64 bit request, ob. type and group id
+     *    @param resource_all_req 64 bit request, ob. type and all flag
+     *    @param rights_req Requested rights
+     *    @param individual_obj_type Mask with ob. type and individual flags
+     *    @param group_obj_type Mask with ob. type and group flags
+     *    @param tmp_rules Temporary map group of ACL rules
+     *
+     *    @return true if any rule grants permission
+     */
+    bool match_rules_wrapper(
+            long long user_req,
+            long long resource_oid_req,
+            long long resource_gid_req,
+            long long resource_all_req,
+            long long rights_req,
+            long long individual_obj_type,
+            long long group_obj_type,
+            multimap<long long, AclRule*> &tmp_rules);
 
     // ----------------------------------------
     // Mutex synchronization

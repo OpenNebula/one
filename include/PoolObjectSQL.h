@@ -20,10 +20,13 @@
 #include "ObjectSQL.h"
 #include "ObjectXML.h"
 #include "Template.h"
+
 #include <pthread.h>
 #include <string.h>
 
 using namespace std;
+
+class PoolObjectAuth;
 
 /**
  * PoolObject class. Provides a SQL backend interface for Pool components. Each
@@ -36,24 +39,72 @@ using namespace std;
 class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
-    PoolObjectSQL(int           id,
-                  const string& _name, 
+    /* ---------------------------------------------------------------------- */
+    /* Class Constructors & Constants                                         */
+    /* ---------------------------------------------------------------------- */
+
+    /**
+     *  OpenNebula objects. This definitions are used by other core components
+     *  like the AuthZ/AuthN module
+     */
+    enum ObjectType
+    {
+        VM       = 0x0000001000000000LL,
+        HOST     = 0x0000002000000000LL,
+        NET      = 0x0000004000000000LL,
+        IMAGE    = 0x0000008000000000LL,
+        USER     = 0x0000010000000000LL,
+        TEMPLATE = 0x0000020000000000LL,
+        GROUP    = 0x0000040000000000LL,
+        ACL      = 0x0000080000000000LL
+    };
+
+    static string type_to_str(ObjectType ob)
+    {
+        switch (ob)
+        {
+            case VM:       return "VM" ; break;
+            case HOST:     return "HOST" ; break;
+            case NET:      return "NET" ; break;
+            case IMAGE:    return "IMAGE" ; break;
+            case USER:     return "USER" ; break;
+            case TEMPLATE: return "TEMPLATE" ; break;
+            case GROUP:    return "GROUP" ; break;
+            case ACL:      return "ACL" ; break;
+            default:       return "";
+        }
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    PoolObjectSQL(int            id,
+                  ObjectType    _obj_type,
+                  const string& _name,
                   int           _uid,
-                  int           _gid, 
-                  const string& _uname, 
+                  int           _gid,
+                  const string& _uname,
                   const string& _gname,
                   const char *  _table)
             :ObjectSQL(),
              ObjectXML(),
              oid(id),
+             obj_type(_obj_type),
              name(_name),
              uid(_uid),
              gid(_gid),
              uname(_uname),
              gname(_gname),
              valid(true),
-             public_obj(0),
-             obj_template(0),
+             owner_u(1),
+             owner_m(1),
+             owner_a(0),
+             group_u(0),
+             group_m(0),
+             group_a(0),
+             other_u(0),
+             other_m(0),
+             other_a(0),
+             obj_template(0), 
              table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -73,26 +124,22 @@ public:
         return oid;
     };
 
+    ObjectType get_type() const
+    {
+        return obj_type;
+    };
+
     const string& get_name() const
     {
         return name;
     };
 
-    /**
-     *  Returns true if the image is public
-     *     @return true if the image is public
-     */
-    bool isPublic()
-    {
-        return (public_obj == 1);
-    };
-
-    int get_uid()
+    int get_uid() const
     {
         return uid;
     };
 
-    int get_gid()
+    int get_gid() const
     {
         return gid;
     };
@@ -118,6 +165,33 @@ public:
         gid   = _gid;
         gname = _gname;
     };
+
+    /**
+     * Changes the object's permissions
+     *
+     * @param _owner_u New permission: 1 allow, 0 deny, -1 do not change
+     * @param _owner_m New permission: 1 allow, 0 deny, -1 do not change
+     * @param _owner_a New permission: 1 allow, 0 deny, -1 do not change
+     * @param _group_u New permission: 1 allow, 0 deny, -1 do not change
+     * @param _group_m New permission: 1 allow, 0 deny, -1 do not change
+     * @param _group_a New permission: 1 allow, 0 deny, -1 do not change
+     * @param _other_u New permission: 1 allow, 0 deny, -1 do not change
+     * @param _other_m New permission: 1 allow, 0 deny, -1 do not change
+     * @param _other_a New permission: 1 allow, 0 deny, -1 do not change
+     * @param error_str Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    virtual int set_permissions(int _owner_u,
+                                int _owner_m,
+                                int _owner_a,
+                                int _group_u,
+                                int _group_m,
+                                int _group_a,
+                                int _other_u,
+                                int _other_m,
+                                int _other_a,
+                                string& error_str);
 
     /* --------------------------------------------------------------------- */
 
@@ -297,6 +371,14 @@ public:
      */
     int replace_template(const string& tmpl_str, string& error);
 
+
+    /**
+     *  Fills a auth class to perform an authZ/authN request based on the object
+     *  attributes
+     *    @param auths to be filled
+     */
+    void get_permissions(PoolObjectAuth& auths);
+
 protected:
 
     /**
@@ -357,9 +439,45 @@ protected:
     };
 
     /**
+     * Prints the permissions into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& perms_to_xml(string& xml) const;
+
+    /**
+     *  Rebuilds the object permissions from the xml. ObjectXML::update_from_str
+     *  must be called before this method
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int perms_from_xml();
+
+    /**
+     * Sets the permission attribute to the new_perm value, if it is different
+     * from -1
+     *
+     *   @param perm the permissions attribute, must be -1, 0 or 1, its value
+     *   must be checked before
+     *   @param new_perm the new value. If it is -1, it will be ignored
+     */
+    void set_perm(int &perm, const int &new_perm)
+    {
+        if ( new_perm != -1 )
+        {
+            perm = new_perm;
+        }
+    };
+
+    /**
      *  The object's unique ID
      */
     int     oid;
+
+    /**
+     *  The object type
+     */
+    ObjectType obj_type;
 
     /**
      *  The object's name
@@ -392,9 +510,25 @@ protected:
     bool    valid;
 
     /**
-     *  Set if the object is public
+     *  Permissions for the owner user
      */
-    int     public_obj;
+    int     owner_u;
+    int     owner_m;
+    int     owner_a;
+
+    /**
+     *  Permissions for users in the object's group
+     */
+    int     group_u;
+    int     group_m;
+    int     group_a;
+
+    /**
+     *  Permissions for the rest
+     */
+    int     other_u;
+    int     other_m;
+    int     other_a;
 
     /**
      *  Template for this object, will be allocated if needed

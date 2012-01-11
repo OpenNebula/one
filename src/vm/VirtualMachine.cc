@@ -43,7 +43,7 @@ VirtualMachine::VirtualMachine(int           id,
                                const string& _uname,
                                const string& _gname,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",_uid,_gid,_uname,_gname,table),
+        PoolObjectSQL(id,VM,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
@@ -93,11 +93,13 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "oid, name, body, uid, gid, last_poll, state, lcm_state";
+    "oid, name, body, uid, gid, last_poll, state, lcm_state, "
+    "owner_u, group_u, other_u";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
-        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
+        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -112,7 +114,7 @@ int VirtualMachine::select(SqlDB * db)
 
     Nebula&         nd = Nebula::instance();
 
-    // Rebuld the VirtualMachine object
+    // Rebuild the VirtualMachine object
     rc = PoolObjectSQL::select(db);
 
     if( rc != 0 )
@@ -558,7 +560,10 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid             << ","
         <<          last_poll       << ","
         <<          state           << ","
-        <<          lcm_state       << ")";
+        <<          lcm_state       << ","
+        <<          owner_u         << ","
+        <<          group_u         << ","
+        <<          other_u         << ")";
 
     db->free_str(sql_deploy_id);
     db->free_str(sql_name);
@@ -1237,10 +1242,9 @@ string& VirtualMachine::to_xml_extended(string& xml) const
 
 string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
 {
-
     string template_xml;
     string history_xml;
-
+    string perm_xml;
     ostringstream	oss;
 
     oss << "<VM>"
@@ -1250,6 +1254,7 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<UNAME>"     << uname     << "</UNAME>" 
         << "<GNAME>"     << gname     << "</GNAME>" 
         << "<NAME>"      << name      << "</NAME>"
+        << perms_to_xml(perm_xml)
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
         << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
@@ -1328,6 +1333,9 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(cpu,       "/VM/CPU",      0);
     rc += xpath(net_tx,    "/VM/NET_TX",   0);
     rc += xpath(net_rx,    "/VM/NET_RX",   0);
+
+    // Permissions
+    rc += perms_from_xml();
 
     state     = static_cast<VmState>(istate);
     lcm_state = static_cast<LcmState>(ilcmstate);

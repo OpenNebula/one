@@ -31,10 +31,10 @@ public class VirtualNetwork extends PoolElement{
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
-    private static final String PUBLISH         = METHOD_PREFIX + "publish";
     private static final String ADDLEASES       = METHOD_PREFIX + "addleases";
     private static final String RMLEASES        = METHOD_PREFIX + "rmleases";
     private static final String CHOWN           = METHOD_PREFIX + "chown";
+    private static final String CHMOD           = METHOD_PREFIX + "chmod";
     private static final String UPDATE          = METHOD_PREFIX + "update";
     private static final String HOLD            = METHOD_PREFIX + "hold";
     private static final String RELEASE         = METHOD_PREFIX + "release";
@@ -112,7 +112,9 @@ public class VirtualNetwork extends PoolElement{
      */
     public static OneResponse publish(Client client, int id, boolean publish)
     {
-        return client.call(PUBLISH, id, publish);
+        int group_u = publish ? 1 : 0;
+
+        return chmod(client, id, -1, -1, -1, group_u, -1, -1, -1, -1, -1);
     }
 
     /**
@@ -179,6 +181,59 @@ public class VirtualNetwork extends PoolElement{
     public static OneResponse chown(Client client, int id, int uid, int gid)
     {
         return client.call(CHOWN, id, uid, gid);
+    }
+
+    /**
+     * Changes the VirtualNetwork permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid) of the target network.
+     * @param owner_u 1 to allow, 0 deny, -1 do not change
+     * @param owner_m 1 to allow, 0 deny, -1 do not change
+     * @param owner_a 1 to allow, 0 deny, -1 do not change
+     * @param group_u 1 to allow, 0 deny, -1 do not change
+     * @param group_m 1 to allow, 0 deny, -1 do not change
+     * @param group_a 1 to allow, 0 deny, -1 do not change
+     * @param other_u 1 to allow, 0 deny, -1 do not change
+     * @param other_m 1 to allow, 0 deny, -1 do not change
+     * @param other_a 1 to allow, 0 deny, -1 do not change
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id,
+                                    int owner_u, int owner_m, int owner_a,
+                                    int group_u, int group_m, int group_a,
+                                    int other_u, int other_m, int other_a)
+    {
+        return chmod(client, CHMOD, id,
+                owner_u, owner_m, owner_a,
+                group_u, group_m, group_a,
+                other_u, other_m, other_a);
+    }
+
+    /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, String octet)
+    {
+        return chmod(client, CHMOD, id, octet);
+    }
+
+    /**
+     * Changes the permissions
+     * 
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, int octet)
+    {
+        return chmod(client, CHMOD, id, octet);
     }
 
     /**
@@ -357,6 +412,52 @@ public class VirtualNetwork extends PoolElement{
     }
 
     /**
+     * Changes the VirtualNetwork permissions
+     * 
+     * @param owner_u 1 to allow, 0 deny, -1 do not change
+     * @param owner_m 1 to allow, 0 deny, -1 do not change
+     * @param owner_a 1 to allow, 0 deny, -1 do not change
+     * @param group_u 1 to allow, 0 deny, -1 do not change
+     * @param group_m 1 to allow, 0 deny, -1 do not change
+     * @param group_a 1 to allow, 0 deny, -1 do not change
+     * @param other_u 1 to allow, 0 deny, -1 do not change
+     * @param other_m 1 to allow, 0 deny, -1 do not change
+     * @param other_a 1 to allow, 0 deny, -1 do not change
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(int owner_u, int owner_m, int owner_a,
+                             int group_u, int group_m, int group_a,
+                             int other_u, int other_m, int other_a)
+    {
+        return chmod(client, id,
+                    owner_u, owner_m, owner_a,
+                    group_u, group_m, group_a,
+                    other_u, other_m, other_a);
+    }
+
+    /**
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(String octet)
+    {
+        return chmod(client, id, octet);
+    }
+
+    /**
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(int octet)
+    {
+        return chmod(client, id, octet);
+    }
+
+    /**
      * Replaces the VirtualNetwork template contents.
      *
      * @param new_template New template contents.
@@ -371,14 +472,4 @@ public class VirtualNetwork extends PoolElement{
     // Helpers
     // =================================
 
-    /**
-     * Returns true if the Virtual Network is public.
-     * 
-     * @return True if the Virtual Network is public.
-     */
-    public boolean isPublic()
-    {
-        String isPub = xpath("PUBLIC"); 
-        return isPub != null && isPub.equals("1");
-    }
 }

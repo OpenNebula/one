@@ -96,6 +96,18 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         poll_attrs.each { |k,v| puts str % [k,vm[v]] }
         puts
 
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "u" if vm["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if vm["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if vm["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
+        puts
+
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 

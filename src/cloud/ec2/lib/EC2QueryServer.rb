@@ -111,7 +111,7 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_images(params)
-        user_flag = OpenNebula::Pool::INFO_GROUP
+        user_flag = OpenNebula::Pool::INFO_ALL
         impool = ImagePool.new(@client, user_flag)
         impool.info
 
@@ -170,7 +170,7 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_instances(params)
-        user_flag = OpenNebula::Pool::INFO_MINE
+        user_flag = OpenNebula::Pool::INFO_ALL
         vmpool = VirtualMachinePool.new(@client, user_flag)
         vmpool.info
 
