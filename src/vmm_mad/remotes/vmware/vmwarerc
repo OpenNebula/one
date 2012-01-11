@@ -23,5 +23,5 @@
 :password:
 
 # VMotion configuration attributes
-:datacenter:
+:datacenter: "ha-datacenter"
 :vcenter:

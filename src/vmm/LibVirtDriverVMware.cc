@@ -21,6 +21,12 @@
 #include <fstream>
 #include <libgen.h>
 
+/* ************************************************************************** */
+/* Virtual Network :: Database Access Functions                               */
+/* ************************************************************************** */
+
+const char * LibVirtDriver::vmware_vnm_name = "vmware";
+
 int LibVirtDriver::deployment_description_vmware(
         const VirtualMachine *  vm,
         const string&           file_name) const
