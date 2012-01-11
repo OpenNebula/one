@@ -319,8 +319,15 @@ int LibVirtDriver::deployment_description_vmware(
         script     = nic->vector_value("SCRIPT");
         model      = nic->vector_value("MODEL");
 
-        bridge     = "one-pg-";
-        bridge.append(network_id);
+        if (vm->get_vnm_mad() == LibVirtDriver::vmware_vnm_name)
+        {
+            bridge = "one-pg-";
+            bridge.append(network_id);
+        }
+        else
+        {
+            bridge = nic->vector_value("BRIDGE");
+        }
 
         file << "\t\t<interface type='bridge'>" << endl;
         file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
