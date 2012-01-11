@@ -394,7 +394,7 @@ var vnet_buttons = {
 
     "Network.chgrp" : {
         type: "confirm_with_select",
-        text: "Change group",
+        text: tr("Change group"),
         select: groups_sel,
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin,

@@ -30,16 +30,18 @@ function tr(str){
 //Pops up loading new language dialog. Retrieves the user template, updates the LANG variable.
 //Updates template and session configuration and reloads the view.
 function setLang(lang_str){
-    var dialog = $('<div title="'+tr("Changing language")+'">'+tr("Loading new language... please wait")+' '+spinner+'</div>').dialog({
-        draggable:false,
-        modal:true,
-        resizable:false,
-        buttons:{},
-        width: 460,
-        minHeight: 50
+    var dialog = $('<div title="'+
+                   tr("Changing language")+'">'+
+                   tr("Loading new language... please wait")+
+                   ' '+spinner+'</div>').dialog({
+                       draggable:false,
+                       modal:true,
+                       resizable:false,
+                       buttons:{},
+                       width: 460,
+                       minHeight: 50
+                   });
 
-    });
-    
     if (('localStorage' in window) && (window['localStorage'] !== null)){
         localStorage['lang']=lang_str;
     };

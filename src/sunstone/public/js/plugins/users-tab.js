@@ -60,8 +60,8 @@ var create_user_tmpl =
         </fieldset>\
         <fieldset>\
         <div class="form_buttons">\
-                <button class="button" id="create_user_submit" value="user/create">Create</button>\
-                <button class="button" type="reset" value="reset">Reset</button>\
+                <button class="button" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
+                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
 </fieldset>\
 </form>';
@@ -283,7 +283,7 @@ var user_buttons = {
     // },
     "User.delete" : {
         type: "action",
-        text: "Delete"
+        text: tr("Delete")
     }
 }
 

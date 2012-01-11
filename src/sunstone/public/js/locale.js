@@ -31,15 +31,17 @@ function tr(str){
 //Updates template and session configuration and reloads the view.
 function setLang(lang_str){
     var lang_tmp="";
-    var dialog = $('<div title="'+tr("Changing language")+'">'+tr("Loading new language... please wait")+' '+spinner+'</div>').dialog({
-        draggable:false,
-        modal:true,
-        resizable:false,
-        buttons:{},
-        width: 460,
-        minHeight: 50
-
-    });
+    var dialog = $('<div title="'+
+                   tr("Changing language")+'">'+
+                   tr("Loading new language... please wait")+
+                   ' '+spinner+'</div>').dialog({
+                       draggable:false,
+                       modal:true,
+                       resizable:false,
+                       buttons:{},
+                       width: 460,
+                       minHeight: 50
+                   });
 
     var updateUserTemplate = function(request,user_json){
         var template = user_json.USER.TEMPLATE;
