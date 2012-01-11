@@ -33,7 +33,7 @@ class ImageOCCI < Image
             <% if self['FSTYPE'] != nil and  !self['FSTYPE'].empty? %>
             <FSTYPE><%= self['FSTYPE'] %></FSTYPE>
             <% end %>
-            <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>
+            <PUBLIC><%= pub %></PUBLIC>
             <PERSISTENT><%= self['PERSISTENT'] == "0" ? "NO" : "YES"%></PERSISTENT>
         </STORAGE>
     }
@@ -82,6 +82,12 @@ class ImageOCCI < Image
 
     # Creates the OCCI representation of an Image
     def to_occi(base_url)
+        if self['PERMISSIONS/GROUP_U'] == "1" || self['PERMISSIONS/OTHER_U'] == "1"
+            pub = "YES"
+        else
+            pub = "NO"
+        end
+
         begin
             occi_im = ERB.new(OCCI_IMAGE)
             occi_im_text = occi_im.result(binding)
