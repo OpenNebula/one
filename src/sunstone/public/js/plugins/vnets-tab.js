@@ -365,7 +365,7 @@ var vnet_buttons = {
 
     "Network.chgrp" : {
         type: "confirm_with_select",
-        text: "Change group",
+        text: tr("Change group"),
         select: groups_sel,
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin,
@@ -502,7 +502,7 @@ function updateVNetworkInfo(request,vn){
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Public")+'</td>\
-              <td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
+              <td class="value_td">'+(parseInt(vn_info.PUBLIC) ? tr("yes") : tr("no") )+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Physical device")+'</td>\

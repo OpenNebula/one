@@ -882,7 +882,7 @@ function popUpSaveasDialog(elems){
                     <option value="">'+tr("Default (current image type)")+'</option>\
                     <option value="os">'+tr("OS")+'</option>\
                     <option value="datablock">'+tr("Datablock")+'</option>\
-                    <option value="cdrom">'+tr("CD-ROM")+'</oqption>\
+                    <option value="cdrom">'+tr("CD-ROM")+'</option>\
                 </select>\
             </div>\
             </fieldset>\
