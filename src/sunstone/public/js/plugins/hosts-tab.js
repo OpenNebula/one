@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -273,7 +273,7 @@ var host_buttons = {
         text: tr("Disable")
     },
     "Host.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete host")
     }
 };
@@ -369,9 +369,12 @@ function hostInfoListener(){
     $('#tbodyhosts tr',dataTable_hosts).live("click",function(e){
         //do nothing if we are clicking a checkbox!
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_hosts.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Host.showinfo",id);
         return false;
     });

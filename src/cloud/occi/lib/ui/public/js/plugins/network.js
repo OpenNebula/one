@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -237,10 +237,13 @@ function vNetworkElementArray(vn_json){
 function vNetworkInfoListener(){
 
     $('#tbodyvnetworks tr',dataTable_vNetworks).live("click", function(e){
-        if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+        if ($(e.target).is('input')) {return true;};
+
         var aData = dataTable_vNetworks.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Network.showinfo",id);
         return false;
     });

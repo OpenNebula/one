@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -203,12 +203,19 @@ void OpenNebulaTemplate::set_conf_default()
 # Auth Manager Configuration
 #*******************************************************************************
 # SESSION_EXPIRATION_TIME
+# ENABLE_OTHER_PERMISSIONS
 #*******************************************************************************
 */
     // SESSION_EXPIRATION_TIME
     value = "0";
 
     attribute = new SingleAttribute("SESSION_EXPIRATION_TIME",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // ENABLE_OTHER_PERMISSIONS
+    value = "YES";
+
+    attribute = new SingleAttribute("ENABLE_OTHER_PERMISSIONS",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 }
 

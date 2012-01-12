@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -67,8 +67,9 @@ class VirtualMachineOCCI < VirtualMachine
         "SUSPENDED" => { :from => ["ACTIVE"], :action => :suspend},
         "RESUME"    => { :from => ["STOPPED", "SUSPENDED"], :action => :resume},
         "CANCEL"    => { :from => ["ACTIVE"], :action => :cancel},
+        "REBOOT"    => { :from => ["ACTIVE"], :action => :reboot},
         "SHUTDOWN"  => { :from => ["ACTIVE"], :action => :shutdown},
-        "DONE"      => { :from => VM_STATE, :action => :finalize},
+        "DONE"      => { :from => VM_STATE, :action => :finalize}
     }
 
     # Class constructor

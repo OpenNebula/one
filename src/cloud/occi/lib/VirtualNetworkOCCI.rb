@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,7 +34,7 @@ class VirtualNetworkOCCI < VirtualNetwork
             <SIZE><%= network_size %></SIZE>
             <% end %>
             <USED_LEASES><%= self['TOTAL_LEASES'] %></USED_LEASES>
-            <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>
+            <PUBLIC><%= self.public? ? "YES" : "NO" %></PUBLIC>
         </NETWORK>
     }
 
@@ -63,6 +63,12 @@ class VirtualNetworkOCCI < VirtualNetwork
             ip_end = IPAddr.new(self['RANGE/IP_END'], Socket::AF_INET)
 
             network_size = ip_end.to_i - ip_start.to_i
+        end
+
+        if self['PERMISSIONS/GROUP_U'] == "1" || self['PERMISSIONS/OTHER_U'] == "1"
+            pub = "YES"
+        else
+            pub = "NO"
         end
 
         begin

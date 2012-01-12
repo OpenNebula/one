@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OCCI.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OCCI.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -308,9 +308,11 @@ function imageInfoListener(){
         if (target.is('input') || target.is('select') || target.is('option'))
             return true;
 
-        popDialogLoading();
         var aData = dataTable_images.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Image.showinfo",id);
         return false;
     });

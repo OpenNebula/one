@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,8 @@
 
 #include "NebulaLog.h"
 #include "Nebula.h"
+
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -42,7 +44,7 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectSQL * object;
     string          error_str;
 
-    if ( att.uid != 0 )
+    if ( att.uid != 0 && att.gid != 0)
     {
         AuthRequest::Operation op = AuthRequest::MANAGE;
         PoolObjectAuth  perms;
@@ -71,6 +73,16 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
             group_a = -1;
         }
 
+        if ( other_u == perms.other_u )
+        {
+            other_u = -1;
+        }
+
+        if ( other_m == perms.other_m )
+        {
+            other_m = -1;
+        }
+
         if ( other_a == perms.other_a )
         {
             other_a = -1;
@@ -79,6 +91,25 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
         if ( owner_a != -1 || group_a != -1 || other_a != -1 )
         {
             op = AuthRequest::ADMIN;
+        }
+
+        if ( other_u != -1 || other_m != -1 || other_a != -1 )
+        {
+            string enable_other;
+
+            Nebula::instance().get_configuration_attribute(
+                    "ENABLE_OTHER_PERMISSIONS", enable_other);
+
+            TO_UPPER(enable_other);
+            
+            if ( enable_other != "YES" )
+            {
+                failure_response(AUTHORIZATION,
+                         "Management of 'other' permissions is disabled in oned.conf",
+                         att);
+
+                return;
+            }
         }
 
         AuthRequest ar(att.uid, att.gid);

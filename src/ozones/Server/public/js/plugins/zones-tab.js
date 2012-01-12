@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -244,9 +244,12 @@ function zoneElementArray(zone_json){
 function zoneInfoListener(){
     $("#tbodyzones tr").live("click", function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_zones.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Zone.showinfo",id);
         return false;
     });

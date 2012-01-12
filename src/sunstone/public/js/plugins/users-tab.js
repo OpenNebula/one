@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -60,8 +60,8 @@ var create_user_tmpl =
         </fieldset>\
         <fieldset>\
         <div class="form_buttons">\
-                <button class="button" id="create_user_submit" value="user/create">Create</button>\
-                <button class="button" type="reset" value="reset">Reset</button>\
+                <button class="button" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
+                <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
 </fieldset>\
 </form>';
@@ -282,8 +282,8 @@ var user_buttons = {
     //     condition: True
     // },
     "User.delete" : {
-        type: "action",
-        text: "Delete"
+        type: "confirm",
+        text: tr("Delete")
     }
 }
 

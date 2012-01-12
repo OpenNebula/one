@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -50,6 +50,7 @@ require 'sinatra'
 require 'yaml'
 require 'erb'
 require 'tempfile'
+require 'fileutils'
 require 'json'
 
 require 'OCCIServer'
@@ -255,11 +256,7 @@ end
 ###################################################
 
 get '/compute/:id' do
-    if params[:id] == "types"
-        result,rc = @occi_server.get_computes_types
-    else
-        result,rc = @occi_server.get_compute(request, params)
-    end
+    result,rc = @occi_server.get_compute(request, params)
     treat_response(result,rc)
 end
 
@@ -353,9 +350,8 @@ end
 
 post '/ui/upload' do
     file = Tempfile.new('uploaded_image')
+    FileUtils.cp(request.env['rack.input'].path,file.path)
     request.params['file'] = file.path #so we can re-use occi post_storage()
-    file.write(request.env['rack.input'].read)
-    #file.close # this would allow that file is garbage-collected
     result,rc = @occi_server.post_storage(request)
     treat_response(result,rc)
 end

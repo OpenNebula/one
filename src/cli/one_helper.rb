@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,8 +21,8 @@ include OpenNebula
 
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
-OpenNebula 3.1.80
-Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
+OpenNebula 3.2.0
+Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
@@ -115,7 +115,9 @@ EOT
 
         def show_resource(id, options)
             resource = retrieve_resource(id)
-            return -1, resource.message if OpenNebula.is_error?(resource)
+
+            rc = resource.info
+            return -1, rc.message if OpenNebula.is_error?(rc)
 
             if options[:xml]
                 return 0, resource.to_xml(true)
@@ -127,7 +129,6 @@ EOT
 
         def perform_action(id, options, verbose, &block)
             resource = retrieve_resource(id)
-            return -1, resource.message if OpenNebula.is_error?(resource)
 
             rc = block.call(resource)
             if OpenNebula.is_error?(rc)
@@ -282,10 +283,7 @@ EOT
         private
 
         def retrieve_resource(id)
-            resource = factory(id)
-
-            rc = resource.info
-            OpenNebula.is_error?(rc) ? rc : resource
+            factory(id)
         end
 
         def pool_to_array(pool)
@@ -386,6 +384,13 @@ EOT
 
         tmp  = Tempfile.new(id.to_s)
         path = tmp.path
+
+        rc = resource.info
+
+        if OpenNebula.is_error?(rc)
+            puts rc.message 
+            exit -1
+        end
 
         tmp << resource.template_str
         tmp.flush

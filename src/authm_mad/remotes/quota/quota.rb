@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -219,10 +219,20 @@ class Quota
         # Check if this op needs to check the quota
         return false unless with_quota?(obj, op)
 
-        # If the object is a template the info should be retrived from the
-        # VM pool.
-        obj = "VM" if obj == "TEMPLATE"
-        template = Base64::decode64(template_or_id)
+        template = ""
+
+        if ( obj == "TEMPLATE" )
+            obj = "VM"
+
+            vm_template = OpenNebula::Template.new_with_id(template_or_id, @client)
+            vm_template.info
+
+            vm_template.each("TEMPLATE") { |xml_elem|
+                template = xml_elem.to_xml
+            }
+        else
+            template = Base64::decode64(template_or_id)
+        end
 
         check_quotas(user_id.to_i, obj, template)
     end
@@ -267,7 +277,7 @@ class Quota
     def with_quota?(obj, op)
         return (obj == "VM"       && op == "CREATE") ||
                (obj == "IMAGE"    && op == "CREATE") ||
-               (obj == "TEMPLATE" && op == "INSTANTIATE")
+               (obj == "TEMPLATE" && op == "USE")
     end
 
     ###########################################################################

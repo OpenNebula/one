@@ -197,6 +197,7 @@ locale={
     "Listen IP":"",
     "Live migrate":"",
     "Loading":"",
+    "Loading new language... please wait":"",
     "MAC":"",
     "Make non persistent":"",
     "Make persistent":"",

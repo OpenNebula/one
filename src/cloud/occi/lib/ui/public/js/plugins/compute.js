@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -427,9 +427,12 @@ function vMachineInfoListener(){
 
     $('#tbodyvmachines tr',dataTable_vMachines).live("click", function(e){
         if ($(e.target).is('input') || $(e.target).is('a img')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_vMachines.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("VM.showinfo",id);
         return false;
     });

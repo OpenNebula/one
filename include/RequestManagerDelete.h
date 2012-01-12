@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -131,6 +131,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~HostDelete(){};
@@ -149,6 +150,7 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~GroupDelete(){};
@@ -166,6 +168,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~UserDelete(){};

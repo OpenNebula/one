@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -394,14 +394,14 @@ var vnet_buttons = {
 
     "Network.chgrp" : {
         type: "confirm_with_select",
-        text: "Change group",
+        text: tr("Change group"),
         select: groups_sel,
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin,
     },
 
     "Network.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }
@@ -457,9 +457,12 @@ function vNetworkInfoListener(){
 
     $('#tbodyvnetworks tr',dataTable_vNetworks).live("click", function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_vNetworks.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Network.showinfo",id);
         return false;
     });
