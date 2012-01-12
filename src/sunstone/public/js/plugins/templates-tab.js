@@ -865,9 +865,12 @@ function templateElementArray(template_json){
 function templateInfoListener(){
     $('#tbodytemplates tr',dataTable_templates).live("click",function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_templates.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Template.showinfo",id);
         return false;
     });

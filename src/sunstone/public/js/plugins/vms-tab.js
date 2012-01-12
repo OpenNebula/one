@@ -651,9 +651,12 @@ function vMachineInfoListener(){
 
     $('#tbodyvmachines tr',dataTable_vMachines).live("click", function(e){
         if ($(e.target).is('input') || $(e.target).is('a img')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_vMachines.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("VM.showinfo",id);
         return false;
     });
