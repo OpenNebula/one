@@ -75,6 +75,9 @@ digraph OpenNebula {
     unknown     -> boot [label="restart"];
     boot        -> boot [label="restart"];
 
+#   reboot
+    running     -> running [label="reboot"];
+
 #   resubmit
     "ANY \\ {suspended,done}" -> pending [label="resubmit"];
 
