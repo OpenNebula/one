@@ -219,6 +219,14 @@ module OpenNebula
             self['GID'].to_i
         end
 
+        def public?
+            if self['PERMISSIONS/GROUP_U'] == "1" || self['PERMISSIONS/OTHER_U'] == "1"
+                true
+            else
+                false
+            end
+        end
+
     private
 
         def set_enabled(enabled)
