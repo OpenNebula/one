@@ -118,9 +118,8 @@ class OpenNebulaNetwork
     def detect_hypervisor
         lsmod       = `#{COMMANDS[:lsmod]}`
         xen_file    = "/proc/xen/capabilities"
-        xen_content = "control_d"
 
-        if File.readable?(xen_file) and File.read(xen_file).strip == xen_content
+        if File.exists?(xen_file)
             "xen"
         elsif lsmod.match(/kvm/)
             "kvm"
