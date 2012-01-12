@@ -50,6 +50,7 @@ require 'sinatra'
 require 'yaml'
 require 'erb'
 require 'tempfile'
+require 'fileutils'
 require 'json'
 
 require 'OCCIServer'
@@ -353,9 +354,8 @@ end
 
 post '/ui/upload' do
     file = Tempfile.new('uploaded_image')
+    FileUtils.cp(request.env['rack.input'].path,file.path)
     request.params['file'] = file.path #so we can re-use occi post_storage()
-    file.write(request.env['rack.input'].read)
-    #file.close # this would allow that file is garbage-collected
     result,rc = @occi_server.post_storage(request)
     treat_response(result,rc)
 end
