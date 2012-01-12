@@ -16,7 +16,7 @@
 
 
 /* Some useful functions for Sunstone default plugins */
-var INTERVAL=300000; //milisecs
+var INTERVAL=60000; //milisecs
 
 function someTime(){
     return Math.floor(Math.random()*30000);
