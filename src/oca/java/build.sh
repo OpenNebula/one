@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -83,7 +83,7 @@ do_documentation()
       -doctitle 'OpenNebula Cloud API Specification' \
       -header '<b>OpenNebula</b><br><font size="-1">Cloud API</font>' \
       -bottom 'Visit <a
-href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2011 &copy;
+href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2012 &copy;
 OpenNebula Project Leads (OpenNebula.org).'
 }
 
