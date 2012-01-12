@@ -233,7 +233,8 @@ module OZones
 
             # Grant permissions to the vdc admin
             rule_str << "##{@vdc.VDCADMIN_ID} USER/* CREATE"
-            rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} USE+MANAGE"
+            rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} " \
+            "USE+MANAGE+ADMIN"
 
             ###############################################################
             #When more rules are added the class constant HOST_ACL_FIRST_ID

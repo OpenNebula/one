@@ -210,6 +210,14 @@ module OpenNebula
             SHORT_VN_TYPES[type_str]
         end
 
+        def public?
+            if self['PERMISSIONS/GROUP_U'] == "1" || self['PERMISSIONS/OTHER_U'] == "1"
+                true
+            else
+                false
+            end
+        end
+
     private
         def set_publish(published)
             group_u = published ? 1 : 0

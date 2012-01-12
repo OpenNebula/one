@@ -385,6 +385,13 @@ EOT
         tmp  = Tempfile.new(id.to_s)
         path = tmp.path
 
+        rc = resource.info
+
+        if OpenNebula.is_error?(rc)
+            puts rc.message 
+            exit -1
+        end
+
         tmp << resource.template_str
         tmp.flush
 

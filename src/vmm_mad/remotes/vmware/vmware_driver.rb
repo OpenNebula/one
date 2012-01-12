@@ -252,14 +252,14 @@ class VMwareDriver
     end
 
     #Performs a action usgin libvirt
-    def do_action(cmd)
+    def do_action(cmd, log=true)
         rc = LocalCommand.run(esx_cmd(cmd))
 
         if rc.code == 0
             return [true, rc.stdout]
         else
             err = "Error executing: #{cmd} err: #{rc.stderr} out: #{rc.stdout}"
-            OpenNebula.log_error(err)
+            OpenNebula.log_error(err) if log
             return [false, rc.code]
         end
     end
@@ -299,7 +299,7 @@ class VMwareDriver
     end
 
     def domain_defined?(one_id)
-        rc, info  = do_action("virsh -c #{@uri} dominfo one-#{one_id}")
+        rc, info  = do_action("virsh -c #{@uri} dominfo one-#{one_id}", false)
 
         return rc
     end

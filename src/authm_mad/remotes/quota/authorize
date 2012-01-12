@@ -50,7 +50,13 @@ quota = Quota.new
 #OpenNebula.log_debug("quotas: #{quota.get(1)}")
 
 ARGV.each {|request|
-    rc = quota.authorize(user_id, request)
+    obj, template_or_id, op, owner, acl_eval = request.split(':')
+
+    if ( obj == "TEMPLATE" && op == "USE" && ARGV.size == 1 )
+        rc = false
+    else
+        rc = quota.authorize(user_id, request)
+    end
     
     if rc
         OpenNebula.error_message rc
