@@ -146,7 +146,7 @@ var acl_buttons = {
         text: tr("+ New")
     },
     "Acl.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }

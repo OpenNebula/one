@@ -401,7 +401,7 @@ var vnet_buttons = {
     },
 
     "Network.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }

@@ -282,7 +282,7 @@ var user_buttons = {
     //     condition: True
     // },
     "User.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }

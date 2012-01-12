@@ -273,7 +273,7 @@ var host_buttons = {
         text: tr("Disable")
     },
     "Host.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete host")
     }
 };

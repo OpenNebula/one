@@ -134,7 +134,7 @@ var group_buttons = {
     // },
 
     "Group.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 };
