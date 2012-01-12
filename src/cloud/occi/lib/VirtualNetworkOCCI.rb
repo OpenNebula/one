@@ -34,7 +34,7 @@ class VirtualNetworkOCCI < VirtualNetwork
             <SIZE><%= network_size %></SIZE>
             <% end %>
             <USED_LEASES><%= self['TOTAL_LEASES'] %></USED_LEASES>
-            <PUBLIC><%= pub %></PUBLIC>
+            <PUBLIC><%= self.public? ? "YES" : "NO" %></PUBLIC>
         </NETWORK>
     }
 

@@ -255,11 +255,7 @@ end
 ###################################################
 
 get '/compute/:id' do
-    if params[:id] == "types"
-        result,rc = @occi_server.get_computes_types
-    else
-        result,rc = @occi_server.get_compute(request, params)
-    end
+    result,rc = @occi_server.get_compute(request, params)
     treat_response(result,rc)
 end
 
