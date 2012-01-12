@@ -48,9 +48,7 @@ bool RequestManagerDelete::delete_authorization(int                oid,
 
     AuthRequest ar(att.uid, att.gid);
 
-    ar.add_create_auth(auth_object, "");
-
-    ar.add_auth(auth_op, perms);
+    ar.add_auth(auth_op, perms);    // <MANAGE|ADMIN> OBJECT
 
     if (UserPool::authorize(ar) == -1)
     {
