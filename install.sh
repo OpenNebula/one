@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -816,7 +816,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/2.9.90_to_3.0.0.rb \
                       src/onedb/3.0.0_to_3.1.0.rb \
                       src/onedb/3.1.0_to_3.1.80.rb \
-                      src/onedb/3.1.80_to_3.1.85.rb \
+                      src/onedb/3.1.80_to_3.2.0.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 

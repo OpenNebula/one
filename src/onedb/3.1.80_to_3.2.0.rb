@@ -18,11 +18,11 @@ include REXML
 
 module Migrator
     def db_version
-        "3.1.85"
+        "3.2.0"
     end
 
     def one_version
-        "OpenNebula 3.1.85"
+        "OpenNebula 3.2.0"
     end
 
     HOST_RIGHTS =
@@ -38,6 +38,21 @@ module Migrator
 #       0x100                 "CHOWN"
 #       0x200                 "DEPLOY"
 #       0x400                 "CHAUTH"
+    }
+
+    USER_GROUP_RIGHTS =
+    {
+        0x1      => 0x8,    # "CREATE"        => "CREATE"
+        0x2      => 0x4,    # "DELETE"        => "ADMIN"
+        0x4      => 0x1,    # "USE"           => "USE"
+        0x8      => 0x2,    # "MANAGE"        => "MANAGE"
+        0x10     => 0x1,    # "INFO"          => "USE"
+#       0x20                  "INFO_POOL"
+#       0x40                  "INFO_POOL_MINE"
+        0x80     => 0x1,    # "INSTANTIATE"   => "USE"
+        0x100    => 0x2,    # "CHOWN"         => "MANAGE"
+        0x200    => 0x4,    # "DEPLOY"        => "ADMIN"
+        0x400    => 0x4     # "CHAUTH"        => "ADMIN"
     }
 
     RIGHTS =
@@ -74,6 +89,8 @@ module Migrator
 
             if ( row[:resource] & 0x2000000000 != 0 ) # Resource contains HOST
                 rights_hash = HOST_RIGHTS
+            elsif ( row[:resource] & 0x0000050000000000 != 0 ) # Resource contains USER or GROUP
+                rights_hash = USER_GROUP_RIGHTS
             else
                 rights_hash = RIGHTS
             end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -48,9 +48,7 @@ bool RequestManagerDelete::delete_authorization(int                oid,
 
     AuthRequest ar(att.uid, att.gid);
 
-    ar.add_create_auth(auth_object, "");
-
-    ar.add_auth(auth_op, perms);
+    ar.add_auth(auth_op, perms);    // <MANAGE|ADMIN> OBJECT
 
     if (UserPool::authorize(ar) == -1)
     {

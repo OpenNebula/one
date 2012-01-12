@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -233,7 +233,8 @@ module OZones
 
             # Grant permissions to the vdc admin
             rule_str << "##{@vdc.VDCADMIN_ID} USER/* CREATE"
-            rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} USE+MANAGE"
+            rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} " \
+            "USE+MANAGE+ADMIN"
 
             ###############################################################
             #When more rules are added the class constant HOST_ACL_FIRST_ID
