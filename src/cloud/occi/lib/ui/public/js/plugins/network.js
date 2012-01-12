@@ -237,10 +237,13 @@ function vNetworkElementArray(vn_json){
 function vNetworkInfoListener(){
 
     $('#tbodyvnetworks tr',dataTable_vNetworks).live("click", function(e){
-        if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+        if ($(e.target).is('input')) {return true;};
+
         var aData = dataTable_vNetworks.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Network.showinfo",id);
         return false;
     });
