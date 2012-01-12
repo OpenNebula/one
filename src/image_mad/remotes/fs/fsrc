@@ -75,7 +75,7 @@ function fs_du {
 	if [ $error -ne 0 ]; then
 		SIZE=0
 	else
-		SIZE=$(($SIZE/1024))
+		SIZE=$(($SIZE/1048576))
 	fi
 
 	echo "$SIZE"
