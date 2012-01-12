@@ -369,9 +369,12 @@ function hostInfoListener(){
     $('#tbodyhosts tr',dataTable_hosts).live("click",function(e){
         //do nothing if we are clicking a checkbox!
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_hosts.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Host.showinfo",id);
         return false;
     });
