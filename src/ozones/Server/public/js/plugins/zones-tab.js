@@ -244,9 +244,12 @@ function zoneElementArray(zone_json){
 function zoneInfoListener(){
     $("#tbodyzones tr").live("click", function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_zones.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Zone.showinfo",id);
         return false;
     });

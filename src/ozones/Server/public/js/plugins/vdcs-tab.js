@@ -234,11 +234,14 @@ function vdcElementArray(vdc_json){
 }
 
 function vdcInfoListener() {
-   $("#tbodyvdcs tr").live("click", function(e){
+    $("#tbodyvdcs tr").live("click", function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_vdcs.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("VDC.showinfo",id);
         return false;
     });
