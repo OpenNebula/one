@@ -456,7 +456,7 @@ var image_buttons = {
         }
     },
     "Image.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }

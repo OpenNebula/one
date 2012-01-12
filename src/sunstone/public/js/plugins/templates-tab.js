@@ -815,7 +815,7 @@ var template_buttons = {
         }
     },
     "Template.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }
