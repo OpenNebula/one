@@ -443,6 +443,8 @@ int PoolSQL::dump(ostringstream& oss,
         cmd << " WHERE " << where;
     }
 
+    cmd << " ORDER BY oid";
+
     rc = db->exec(cmd, this);
 
     oss << "</" << elem_name << ">";
