@@ -159,7 +159,7 @@ class VmmAction
 
             # Roll back steps, store failed info and break steps
             if DriverExecHelper.failed?(result)
-                execute_steps(@data[:fail_actions]) if @data[:fail_actions]
+                execute_steps(step[:fail_actions]) if step[:fail_actions]
                 @data[:failed_info] = info
 
                 @vmm.log(@id,
