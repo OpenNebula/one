@@ -287,7 +287,7 @@ function updateVDCInfo(req,vdc_json){
     if (zone_match){
         zone_host = zone_match[1];
         zone_port = zone_match[2];
-        sun_link = "http://" + zone_host +"/sunstone_"+ vdc.NAME;
+        sun_link = "http://" + zone_host +"/sunstone_"+ vdc.NAME+"/";
     };
 
     var info_tab = {
