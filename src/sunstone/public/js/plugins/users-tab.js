@@ -241,7 +241,7 @@ var user_buttons = {
     },
     "User.update_dialog" : {
         type: "action",
-        text: tr("Update a template"),
+        text: tr("Update properties"),
         alwaysActive: true
     },
     "User.update_password" : {

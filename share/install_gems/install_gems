@@ -22,7 +22,7 @@ GROUPS={
     :optional => OPTIONAL,
     :quota => [SQLITE, 'sequel'],
     :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
-    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb},
+    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
     :ozones_client => %w{json},
     :ozones_server => %w{json data_mapper dm-sqlite-adapter dm-mysql-adapter}+[
         SQLITE, 'mysql'
