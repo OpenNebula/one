@@ -53,8 +53,8 @@ var create_vn_tmpl =
             <div class="clear"></div>\
           </fieldset>\
           <div class="form_buttons">\
-            <button class="vnet_close_dialog_link">'+tr("Close")+'</button>\
-            <button class="button" id="create_vn" value="Network.create">'+tr("Create")+'</button>\
+            <button type="button" class="vnet_close_dialog_link">'+tr("Close")+'</button>\
+            <button type="submit" class="button" id="create_vn" value="Network.create">'+tr("Create")+'</button>\
             <!--<button class="button" type="reset" id="reset_vn" value="reset" />-->\
           </div>\
         </form>\
