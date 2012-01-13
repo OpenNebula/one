@@ -9,7 +9,21 @@
         <xs:element name="UNAME" type="xs:string"/>
         <xs:element name="GNAME" type="xs:string"/>
         <xs:element name="NAME" type="xs:string"/>
-        <xs:element name="PUBLIC" type="xs:integer"/>
+        <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="OWNER_U" type="xs:integer"/>
+              <xs:element name="OWNER_M" type="xs:integer"/>
+              <xs:element name="OWNER_A" type="xs:integer"/>
+              <xs:element name="GROUP_U" type="xs:integer"/>
+              <xs:element name="GROUP_M" type="xs:integer"/>
+              <xs:element name="GROUP_A" type="xs:integer"/>
+              <xs:element name="OTHER_U" type="xs:integer"/>
+              <xs:element name="OTHER_M" type="xs:integer"/>
+              <xs:element name="OTHER_A" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="REGTIME" type="xs:integer"/>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
       </xs:sequence>

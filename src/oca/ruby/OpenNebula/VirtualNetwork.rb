@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -208,6 +208,14 @@ module OpenNebula
         # Returns the state of the Virtual Network (string value)
         def short_type_str
             SHORT_VN_TYPES[type_str]
+        end
+
+        def public?
+            if self['PERMISSIONS/GROUP_U'] == "1" || self['PERMISSIONS/OTHER_U'] == "1"
+                true
+            else
+                false
+            end
         end
 
     private

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -50,7 +50,13 @@ quota = Quota.new
 #OpenNebula.log_debug("quotas: #{quota.get(1)}")
 
 ARGV.each {|request|
-    rc = quota.authorize(user_id, request)
+    obj, template_or_id, op, owner, acl_eval = request.split(':')
+
+    if ( obj == "TEMPLATE" && op == "USE" && ARGV.size == 1 )
+        rc = false
+    else
+        rc = quota.authorize(user_id, request)
+    end
     
     if rc
         OpenNebula.error_message rc

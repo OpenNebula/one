@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -159,7 +159,7 @@ class VmmAction
 
             # Roll back steps, store failed info and break steps
             if DriverExecHelper.failed?(result)
-                execute_steps(@data[:fail_actions]) if @data[:fail_actions]
+                execute_steps(step[:fail_actions]) if step[:fail_actions]
                 @data[:failed_info] = info
 
                 @vmm.log(@id,

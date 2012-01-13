@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "December 2011" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "January 2012" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR
@@ -122,6 +122,23 @@ shutdown \fIrange|vmid_list\fR
 .nf
 
 Shuts down the given VM\.
+
+States: RUNNING
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+reboot \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Reboots the given VM, this is equivalent to execute the reboot command
+from the VM console\.
 
 States: RUNNING
 .
@@ -305,7 +322,21 @@ chown \fIrange|vmid_list\fR \fIuserid\fR [\fIgroupid\fR]
 .
 .nf
 
-Changes the Image owner and group
+Changes the VM owner and group
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+chmod \fIrange|vmid_list\fR \fIoctet\fR
+.
+.IP "" 4
+.
+.nf
+
+Changes the VM permissions
 .
 .fi
 .
@@ -495,7 +526,7 @@ user         VM of the user identified by the username
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.1\.80 Copyright 2002\-2011, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.2\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

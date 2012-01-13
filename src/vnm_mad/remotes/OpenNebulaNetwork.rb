@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -118,9 +118,8 @@ class OpenNebulaNetwork
     def detect_hypervisor
         lsmod       = `#{COMMANDS[:lsmod]}`
         xen_file    = "/proc/xen/capabilities"
-        xen_content = "control_d"
 
-        if File.readable?(xen_file) and File.read(xen_file).strip == xen_content
+        if File.exists?(xen_file)
             "xen"
         elsif lsmod.match(/kvm/)
             "kvm"
