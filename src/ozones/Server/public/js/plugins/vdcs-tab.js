@@ -517,6 +517,7 @@ function setupCreateVDCDialog(){
 function openCreateVDCDialog(){
     var dialog = $('div#create_vdc_dialog')
     $('select#zoneid',dialog).html(zones_select);
+    $('select#zoneid',dialog).trigger("change");
     $('#vdc_available_hosts_list',dialog).empty();
     $('#vdc_selected_hosts_list',dialog).empty();
     dialog.dialog('open');
