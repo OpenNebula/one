@@ -234,11 +234,14 @@ function vdcElementArray(vdc_json){
 }
 
 function vdcInfoListener() {
-   $("#tbodyvdcs tr").live("click", function(e){
+    $("#tbodyvdcs tr").live("click", function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_vdcs.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("VDC.showinfo",id);
         return false;
     });
@@ -284,7 +287,7 @@ function updateVDCInfo(req,vdc_json){
     if (zone_match){
         zone_host = zone_match[1];
         zone_port = zone_match[2];
-        sun_link = "http://" + zone_host +"/sunstone_"+ vdc.NAME;
+        sun_link = "http://" + zone_host +"/sunstone_"+ vdc.NAME+"/";
     };
 
     var info_tab = {
@@ -514,6 +517,7 @@ function setupCreateVDCDialog(){
 function openCreateVDCDialog(){
     var dialog = $('div#create_vdc_dialog')
     $('select#zoneid',dialog).html(zones_select);
+    $('select#zoneid',dialog).trigger("change");
     $('#vdc_available_hosts_list',dialog).empty();
     $('#vdc_selected_hosts_list',dialog).empty();
     dialog.dialog('open');

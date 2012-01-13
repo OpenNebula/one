@@ -401,7 +401,7 @@ var vnet_buttons = {
     },
 
     "Network.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }
@@ -457,9 +457,12 @@ function vNetworkInfoListener(){
 
     $('#tbodyvnetworks tr',dataTable_vNetworks).live("click", function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_vNetworks.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Network.showinfo",id);
         return false;
     });

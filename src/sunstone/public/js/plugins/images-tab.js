@@ -456,7 +456,7 @@ var image_buttons = {
         }
     },
     "Image.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }
@@ -528,9 +528,11 @@ function imageInfoListener(){
         if (target.is('input') || target.is('select') || target.is('option'))
             return true;
 
-        popDialogLoading();
         var aData = dataTable_images.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Image.showinfo",id);
         return false;
     });

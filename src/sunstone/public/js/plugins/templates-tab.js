@@ -587,7 +587,7 @@ var update_template_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
          <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the template you want to update")+':</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="template_template_update_select">'+tr("Select a network")+':</label>\
+                 <label for="template_template_update_select">'+tr("Select a template")+':</label>\
                  <select id="template_template_update_select" name="template_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
@@ -815,7 +815,7 @@ var template_buttons = {
         }
     },
     "Template.delete" : {
-        type: "action",
+        type: "confirm",
         text: tr("Delete")
     }
 }
@@ -865,9 +865,12 @@ function templateElementArray(template_json){
 function templateInfoListener(){
     $('#tbodytemplates tr',dataTable_templates).live("click",function(e){
         if ($(e.target).is('input')) {return true;}
-        popDialogLoading();
+
         var aData = dataTable_templates.fnGetData(this);
         var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
         Sunstone.runAction("Template.showinfo",id);
         return false;
     });
