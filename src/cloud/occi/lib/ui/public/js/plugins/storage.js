@@ -92,8 +92,8 @@ var create_image_tmpl =
                <div class="img_param">\
 -->\
                <div class="form_buttons">\
-                 <button class="image_close_dialog_link">'+tr("Close")+'</button>\
-                 <button class="button" id="create_image" value="Image.create">'+tr("Create")+'</button>\
+                 <button type="button" class="image_close_dialog_link">'+tr("Close")+'</button>\
+                 <button type="submit" class="button" id="create_image" value="Image.create">'+tr("Create")+'</button>\
                  <!--<button class="button" type="reset" id="reset_image" value="reset"-->\
                </div>\
            </form>\
@@ -369,7 +369,7 @@ function updateImageInfo(request,img){
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Description")+'</td>\
-              <td class="value_td">'+img_info.DESCRIPTION+'</td>\
+              <td class="value_td">'+(img_info.DESCRIPTION ? img_info.DESCRIPTION : "--")+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\

@@ -93,8 +93,8 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
            <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
         </fieldset>\
           <div class="form_buttons">\
-            <button class="vm_close_dialog_link">'+tr("Close")+'</button>\
-            <button class="button" id="create_vm" value="VM.create">'+tr("Create")+'</button>\
+            <button type="button" class="vm_close_dialog_link">'+tr("Close")+'</button>\
+            <button type="submit" class="button" id="create_vm" value="VM.create">'+tr("Create")+'</button>\
             <!--<button class="button" type="reset" id="reset_vm" value="reset">Reset</button>-->\
           </div>\
         </div>\
@@ -695,6 +695,10 @@ function popUpCreateVMDialog(){
                                   );
 
     $('#network_box',dialog).html(net_select);
+    $('#network_box option',dialog).each(function(){
+        $(this).text('☐ '+$(this).text()+' (id:'+$(this).val()+')');
+    });
+
 
     var image_select = makeSelectOptions(dataTable_images,
                                          1,//id_col
@@ -704,6 +708,10 @@ function popUpCreateVMDialog(){
                                          true);
 
     $('#disk_box',dialog).html(image_select);
+    $('#disk_box option',dialog).each(function(){
+        $(this).text('☐ '+$(this).text()+' (id:'+$(this).val()+')');
+    });
+
 
     $('#network_box,#disk_box',dialog).change(function(){
         $(this).val("");
@@ -713,11 +721,11 @@ function popUpCreateVMDialog(){
     $('#network_box option,#disk_box option',dialog).click(function(){
         var clicked = $(this).attr('clicked');
         if (clicked){//unbold, unmark
-            $(this).text($(this).text().replace(/✓/g,''));
+            $(this).text($(this).text().replace(/☒/g,'☐'));
             $(this).removeAttr('clicked');
         }
         else {//bold,mark
-            $(this).text("✓"+$(this).text());
+            $(this).text($(this).text().replace(/☐/g,'☒'));
             $(this).attr('clicked','clicked');
         }
         return false;
