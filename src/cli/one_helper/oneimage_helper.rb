@@ -67,8 +67,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["PERSISTENT",
             OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
         puts str % ["SOURCE",image['SOURCE']]
-        puts str % ["PATH",image['PATH']] if !image['PATH'].empty?
-        puts str % ["FSTYPE",image['FSTYPE']] if !image['FSTYPE'].empty?
+        puts str % ["PATH",image['PATH']] if image['PATH'] && !image['PATH'].empty?
+        puts str % ["FSTYPE",image['FSTYPE']] if image['FSTYPE'] && !image['FSTYPE'].empty?
         puts str % ["SIZE",  image['SIZE']]
         puts str % ["STATE", image.short_state_str]
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]

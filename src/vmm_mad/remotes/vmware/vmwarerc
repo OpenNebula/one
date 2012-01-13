@@ -16,7 +16,6 @@
 
 # Libvirt configuration
 :libvirt_uri: "esx://@HOST@/?no_verify=1"
-:qemu_protocol: "qemu"
 
 # Username and password of the VMware hypervisor
 :username: "oneadmin"
