@@ -186,6 +186,13 @@ var user_actions = {
         error: onError
     },
 
+    "User.showinfo" : {
+        type: "single",
+        call: OpenNebula.User.show,
+        callback: updateUserInfo,
+        error: onError
+    },
+
     "User.delete" : {
         type: "multiple",
         call: OpenNebula.User.delete,
@@ -285,7 +292,14 @@ var user_buttons = {
         type: "confirm",
         text: tr("Delete")
     }
-}
+};
+
+var user_info_panel = {
+    "user_info_tab" : {
+        title: tr("User information"),
+        content:""
+    },
+};
 
 var users_tab = {
     title: tr("Users"),
@@ -295,6 +309,7 @@ var users_tab = {
 
 Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users_tab',users_tab);
+Sunstone.addInfoPanel("user_info_panel",user_info_panel);
 
 function userElements(){
     return getSelectedNodes(dataTable_users);
@@ -312,8 +327,21 @@ function userElementArray(user_json){
         user.GNAME,
         user.AUTH_DRIVER
     ]
-}
+};
 
+function userInfoListener(){
+    $('#tbodyusers tr',dataTable_users).live("click",function(e){
+        //do nothing if we are clicking a checkbox!
+        if ($(e.target).is('input')) return true;
+        var aData = dataTable_users.fnGetData(this);
+        var id = $(aData[0]).val();
+        if (!id) return true;
+
+        popDialogLoading();
+        Sunstone.runAction("User.showinfo",id);
+        return false;
+    });
+};
 
 function updateUserSelect(){
     users_select = makeSelectOptions(dataTable_users,
@@ -354,7 +382,42 @@ function updateUsersView(request,users_list){
     updateView(user_list_array,dataTable_users);
     updateDashboard("users",users_list);
     updateUserSelect();
-}
+};
+
+function updateUserInfo(request,user){
+    var user_info = user.USER;
+
+    var info_tab = {
+        title : tr("User information"),
+        content :
+        '<table id="info_user_table" class="info_table">\
+            <thead>\
+               <tr><th colspan="2">' + tr("User information") + ' - '+user_info.NAME+'</th></tr>\
+            </thead>\
+            <tbody>\
+            <tr>\
+                <td class="key_td">' + tr("id") + '</td>\
+                <td class="value_td">'+user_info.ID+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">' + tr("Group") + '</td>\
+                <td class="value_td">'+user_info.GNAME+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">' + tr("Authentication driver") + '</td>\
+                <td class="value_td">'+user_info.AUTH_DRIVER+'</td>\
+            </tr>\
+            </tbody>\
+         </table>\
+        <table id="user_template_table" class="info_table">\
+                <thead><tr><th colspan="2">' + tr("User template") + '</th></tr></thead>'+
+            prettyPrintJSON(user_info.TEMPLATE)+
+        '</table>'
+    };
+
+    Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
+    Sunstone.popUpInfoPanel("user_info_panel");
+};
 
 // Prepare the user creation dialog
 function setupCreateUserDialog(){
@@ -461,7 +524,7 @@ $(document).ready(function(){
         ],
         "oLanguage": (datatable_lang != "") ?
             {
-		sUrl: "locale/"+lang+"/"+datatable_lang
+                sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
     dataTable_users.fnClearTable();
@@ -478,5 +541,5 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_users);
     tableCheckboxesListener(dataTable_users);
     //shortenedInfoFields('#datatable_users');
-
-})
+    userInfoListener();
+});
