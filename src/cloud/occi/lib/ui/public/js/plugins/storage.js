@@ -373,7 +373,7 @@ function updateImageInfo(request,img){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
-             <td class="value_td">'+OCCI.Helper.image_type(img_info.TYPE)+'</td>\
+             <td class="value_td">'+img_info.TYPE+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\

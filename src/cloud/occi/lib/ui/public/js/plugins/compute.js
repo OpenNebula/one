@@ -523,7 +523,7 @@ function updateVMInfo(request,vm){
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Instance type")+'</td>\
-                 <td class="value_td">'+vm_info.INSTANCE_TYPE+'</td>\
+                 <td class="value_td">'+(vm_info.INSTANCE_TYPE ? vm_info.INSTANCE_TYPE : "--")+'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("State")+'</td>\
@@ -739,6 +739,7 @@ function popUpCreateVMDialog(){
 
         if (!vm_name.length){
             notifyError("Please specify a name for the virtual machine");
+            return false;
         };
 
         var vm = {
@@ -1043,7 +1044,7 @@ function vncCallback(request,response){
 
 function vncIcon(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
-    var state = OCCI.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    var state = vm.STATE;
     var gr_icon;
     if (graphics && graphics.TYPE == "vnc" && state == "RUNNING"){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
