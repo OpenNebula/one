@@ -28,7 +28,7 @@ const string VirtualMachineTemplate::RESTRICTED_ATTRIBUTES[] = {
 	"RANK"
 };
 
-const int VirtualMachineTemplate::RS_ATTRS_LENGTH = 3;
+const int VirtualMachineTemplate::RS_ATTRS_LENGTH = 5;
 	
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
