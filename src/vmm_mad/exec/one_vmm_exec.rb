@@ -94,6 +94,9 @@ class VmmAction
     def run(steps, info_on_success = nil)
         result = execute_steps(steps)
 
+        @ssh_src.close if @ssh_src
+        @ssh_dst.close if @ssh_dst
+
         #Prepare the info for the OpenNebula core
         if DriverExecHelper.failed?(result)
             info = @data[:failed_info]
