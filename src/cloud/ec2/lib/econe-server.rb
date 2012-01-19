@@ -90,7 +90,6 @@ end
 
 set :cloud_auth, cloud_auth
 
-if conf
 if conf[:ssl_server]
     uri = URI.parse(conf[:ssl_server])
     econe_host = uri.host
