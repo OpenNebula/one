@@ -88,7 +88,7 @@ void AuthRequest::add_auth(Operation             op,
 
     if ( auth == false )
     {
-        ostringstream oss;
+        oss.str("");
 
         oss << message;
 
