@@ -362,7 +362,7 @@ public:
         // by" is a dirty fix (SQL injection, actually) because MySQL orders the
         // results by user_name
         ostringstream oss;
-        ((UserPool*)pool)->dump(oss, "name LIKE 'a%' ORDER BY oid");
+        ((UserPool*)pool)->dump(oss, "name LIKE 'a%'");
 
 //*
         if( oss.str() != dump_where_result )

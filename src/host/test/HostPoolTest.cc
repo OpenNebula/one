@@ -181,7 +181,7 @@ protected:
         host->to_xml(xml_str);
 
 //  A little help for debugging
-/*
+//*
         if( xml_str != xmls[index] )
         {
             cout << endl << xml_str << endl << "========"
@@ -284,7 +284,7 @@ public:
         string result = oss.str();
 
 //  A little help for debugging
-/*
+//*
         if( result != xml_dump )
         {
             cout << endl << result << endl << "========"
@@ -311,14 +311,14 @@ public:
 
 
         ostringstream oss;
-        rc = ((HostPool*)pool)->dump(oss, "name LIKE 'a%' ORDER BY oid");
+        rc = ((HostPool*)pool)->dump(oss, "name LIKE 'a%'");
         CPPUNIT_ASSERT(rc == 0);
 
 
         string result = oss.str();
 
 //  A little help for debugging
-/*
+//*
         if( result != xml_dump_like_a )
         {
             cout << endl << result << endl << "========"
