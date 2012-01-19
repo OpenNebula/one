@@ -45,9 +45,9 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>",
+    "<VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>",
 
-    "<VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>",
+    "<VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>",
 
     "<VMTEMPLATE><ID>2</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Third Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME><TEMPLATE_ID><![CDATA[2]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>"
 };
@@ -55,9 +55,9 @@ const string xmls[] =
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>2</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Third Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME><TEMPLATE_ID><![CDATA[2]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
+    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>2</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Third Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME><TEMPLATE_ID><![CDATA[2]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
 const string xml_dump_where =
-    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
+    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
 
 class VMTemplatePoolFriend : public VMTemplatePool
 {
@@ -108,7 +108,6 @@ class VMTemplatePoolTest : public PoolTest
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
     CPPUNIT_TEST ( duplicates );
-//    CPPUNIT_TEST ( public_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
 
@@ -146,7 +145,7 @@ protected:
         ((VMTemplate*)obj)->to_xml(xml_str);
         fix_regtimes( xml_str );
 
-/*
+//*
         if( xml_str != xmls[index] )
         {
             cout << endl << xml_str << endl << xmls[index] << endl;
@@ -386,90 +385,6 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/*
-    void public_attribute()
-    {
-        int oid;
-        VMTemplatePoolFriend *  tpool = static_cast<VMTemplatePoolFriend *>(pool);
-        VMTemplate *            temp;
-
-        string templates[] =
-        {
-            // false
-            "NAME           = \"name A\"\n",
-
-            // true
-            "NAME           = \"name B\"\n"
-            "PUBLIC         = YES",
-
-            // false
-            "NAME           = \"name C\"\n"
-            "PUBLIC         = NO",
-
-            // false
-            "NAME           = \"name D\"\n"
-            "PUBLIC         = 1",
-
-            // true
-            "NAME           = \"name E\"\n"
-            "PUBLIC         = Yes",
-
-            // false
-            "NAME           = \"name F\"\n"
-            "PUBLIC         = TRUE",
-
-            // true
-            "NAME           = \"name G\"\n"
-            "PUBLIC         = yes",
-
-            // false
-            "NAME           = \"name H\"\n"
-            "PUBLIC         = 'YES'",
-
-            // true
-            "NAME           = \"name I\"\n"
-            "PUBLIC         = \"YES\"",
-
-            "END"
-        };
-
-        bool results[] = {  false, true, false, false,
-                            true, false, true, false, true };
-
-        int i = 0;
-        while( templates[i] != "END" )
-        {
-
-            tpool->allocate(0, templates[i], &oid);
-
-            CPPUNIT_ASSERT( oid >= 0 );
-
-            temp = tpool->get( oid, false );
-            CPPUNIT_ASSERT( temp != 0 );
-//cout << endl << i << " : exp. " << results[i] << " got " << temp->is_public();
-
-            CPPUNIT_ASSERT( temp->isPublic() == results[i] );
-
-            i++;
-        }
-
-        int success;
-
-        // temp 0 is not public.
-        temp = tpool->get( 0, false );
-        CPPUNIT_ASSERT( temp != 0 );
-
-        success = temp->publish(false);
-        CPPUNIT_ASSERT( success == 0 );
-        CPPUNIT_ASSERT( temp->isPublic() == false );
-
-        success = temp->publish(true);
-        CPPUNIT_ASSERT( success == 0 );
-        CPPUNIT_ASSERT( temp->isPublic() == true );
-    }
-*/
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
     void dump()
     {
@@ -489,7 +404,7 @@ public:
         string result = oss.str();
         fix_regtimes(result);
 
-/*
+//*
         if( result != xml_dump )
         {
             cout << endl << result << endl << xml_dump << endl;
@@ -522,7 +437,7 @@ public:
         string result = oss.str();
         fix_regtimes(result);
 
-/*
+//*
         if( result != xml_dump_where )
         {
             cout << endl << result << endl << xml_dump_where << endl;

@@ -180,10 +180,11 @@ public:
 
         //OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC:CORE_RESULT
 
-        string astr = "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0:0 "
-                      "IMAGE:2:USE:3:0:0 "
-                      "NET:4:MANAGE:5:1:0 "
-                      "HOST:6:MANAGE:7:1:0 0";
+        string astr = "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:2:0 "
+                      "IMAGE:2:USE:3:0 "
+                      "NET:4:MANAGE:5:0 "
+                      "HOST:6:MANAGE:7:0 "
+                      "0";
 
         PoolObjectAuth perm;
 
@@ -230,7 +231,7 @@ public:
 
         AuthRequest ar1(2, 2);
 
-        string astr1= "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0:0 0";
+        string astr1= "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:2:0 0";
 
         ar1.add_create_auth(PoolObjectSQL::VM, "This is a template\n");
 
@@ -259,15 +260,15 @@ public:
         am->trigger(AuthManager::AUTHORIZE,&ar2);
         ar2.wait();
 //*
-        if ( ar1.result != false )
+        if ( ar2.result != false )
         {
-            cout << endl << "ar.result: " << ar1.result << endl;
+            cout << endl << "ar2.result: " << ar2.result << endl;
         }
 
-        if ( ar1.message != astr1 )
+        if ( ar2.message != astr2 )
         {
-            cout << endl << "ar.message: " << ar1.message;
-            cout << endl << "expected:   " << astr1 << endl;
+            cout << endl << "ar2.message: " << ar2.message;
+            cout << endl << "expected:   " << astr2 << endl;
         }
 //*/
         CPPUNIT_ASSERT(ar2.result==false);
