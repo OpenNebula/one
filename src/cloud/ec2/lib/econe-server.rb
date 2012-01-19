@@ -44,6 +44,7 @@ $: << RUBY_LIB_LOCATION+"/cloud/econe"
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
+require 'uri'
 
 require 'EC2QueryServer'
 require 'CloudAuth'
@@ -89,12 +90,21 @@ end
 
 set :cloud_auth, cloud_auth
 
-econe_host = conf[:ssl_server]
-econe_host ||= conf[:server]
-econe_port = conf[:port]
+if conf
+if conf[:ssl_server]
+    uri = URI.parse(conf[:ssl_server])
+    econe_host = uri.host
+    econe_port = uri.port
+    econe_path = uri.path
+else
+    econe_host = conf[:server]
+    econe_port = conf[:port]
+    econe_path = '/'
+end
 
 set :econe_host, econe_host
 set :econe_port, econe_port
+set :econe_path, econe_path
 
 ##############################################################################
 # Actions
@@ -104,6 +114,7 @@ before do
     begin
         params['econe_host'] = settings.econe_host
         params['econe_port'] = settings.econe_port
+        params['econe_path'] = settings.econe_path
         username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
         error 500, error_xml("AuthFailure", 0)

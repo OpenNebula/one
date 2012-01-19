@@ -44,6 +44,7 @@ module EC2CloudAuth
         params.delete('Signature')
         params.delete('econe_host')
         params.delete('econe_port')
+        params.delete('econe_path')
         req_desc = params.sort {|x,y| x[0].downcase <=> y[0].downcase}.to_s
 
         digest_generator = OpenSSL::Digest::Digest.new(digest)
@@ -59,6 +60,7 @@ module EC2CloudAuth
 
         server_host = params.delete('econe_host')
         server_port = params.delete('econe_port')
+        server_path = params.delete('econe_path') || '/'
         if include_port
             server_str = "#{server_host}:#{server_port}"
         else
@@ -68,7 +70,8 @@ module EC2CloudAuth
         canonical_str = AWS.canonical_string(
                                 params,
                                 server_str,
-                                env['REQUEST_METHOD'])
+                                env['REQUEST_METHOD'],
+                                server_path)
 
         # Use the correct signature strength
         sha_strength = case params['SignatureMethod']
