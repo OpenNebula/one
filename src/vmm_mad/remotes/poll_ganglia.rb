@@ -50,9 +50,8 @@ GANGLIA_PORT=8649
 
 
 domain=ARGV[0]
-dom_id=ARGV[1]
-host=ARGV[2]
-
+dom_id=ARGV[2]
+host=ARGV[1]
 
 # Gets monitoring data from ganglia or file
 begin
