@@ -30,6 +30,20 @@ public:
     ImageTemplate() : Template(true,'=',"TEMPLATE"){};
 
     ~ImageTemplate(){};
+
+    /**
+     *  Checks the template for RESTRICTED ATTRIBUTES
+     *    @param rs_attr the first restricted attribute found if any
+     *    @return true if a restricted attribute is found in the template
+     */
+    bool check(string& rs_attr)
+    {
+        vector<string> restricted_attributes;
+
+        restricted_attributes.push_back("SOURCE");
+
+        return Template::check(rs_attr, restricted_attributes);
+    };
 };
     
 /* -------------------------------------------------------------------------- */

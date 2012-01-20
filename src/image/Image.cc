@@ -93,6 +93,23 @@ int Image::insert(SqlDB *db, string& error_str)
     string persistent_attr;
     string dev_prefix;
     string source_attr;
+    string aname;
+
+    ostringstream oss;
+
+    // ------------------------------------------------------------------------
+    // Check template for restricted attributes
+    // ------------------------------------------------------------------------
+
+    if ( uid != 0 && gid != GroupPool::ONEADMIN_ID )
+    {
+        ImageTemplate *img_template = static_cast<ImageTemplate *>(obj_template);
+
+        if (img_template->check(aname))
+        {
+            goto error_restricted;
+        }
+    }
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -202,6 +219,11 @@ error_size_format:
 
 error_path_and_source:
     error_str = "Template malformed, PATH and SOURCE are mutually exclusive.";
+    goto error_common;
+
+error_restricted:
+    oss << "Template includes a restricted attribute " << aname << ".";
+    error_str = oss.str();
     goto error_common;
 
 error_common:
