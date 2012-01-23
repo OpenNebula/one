@@ -33,10 +33,12 @@ string ImagePool::_default_dev_prefix;
 
 ImagePool::ImagePool(SqlDB *       db,
                      const string& __default_type,
-                     const string& __default_dev_prefix):
+                     const string& __default_dev_prefix,
+                     vector<const Attribute *> restricted_attrs):
                         PoolSQL(db,Image::table)
 {
     ostringstream sql;
+    const SingleAttribute * sattr;
 
     // Init static defaults
     _default_type       = __default_type;
@@ -49,6 +51,17 @@ ImagePool::ImagePool(SqlDB *       db,
     {
         NebulaLog::log("IMG", Log::ERROR, "Bad default for type, setting OS");
         _default_type = "OS";
+    }
+
+    // Set restricted attributes
+    for (unsigned int i = 0 ; i < restricted_attrs.size() ; i++ )
+    {
+        sattr = static_cast<const SingleAttribute *>(restricted_attrs[i]);
+
+        string attr = sattr->value();
+        transform (attr.begin(),attr.end(),attr.begin(),(int(*)(int))toupper);
+
+        ImageTemplate::add_restricted_attribute(attr);
     }
 }
 

@@ -539,7 +539,7 @@ bool Template::check(string& rs_attr, const vector<string> &restricted_attribute
     string avector, vattr;
     vector<const Attribute *> values;
 
-    for (uint i=0; i < restricted_attributes.size(); i++)
+    for (unsigned int i=0; i < restricted_attributes.size(); i++)
     {
         pos = restricted_attributes[i].find("/");
 
@@ -573,7 +573,7 @@ bool Template::check(string& rs_attr, const vector<string> &restricted_attribute
         }
         else //Single Attribute
         {
-            if (get(avector,values) > 0 )
+            if (get(restricted_attributes[i],values) > 0 )
             {
                 rs_attr = restricted_attributes[i];
                 return true;
