@@ -74,7 +74,7 @@ bool VirtualMachineTemplate::check(string& rs_attr)
 	    }
 	    else //Single Attribute
 	    {
-			if (get(avector,values) > 0 )
+			if (get(RESTRICTED_ATTRIBUTES[i],values) > 0 )
 			{
 				rs_attr = RESTRICTED_ATTRIBUTES[i];
 				return true;
