@@ -70,15 +70,15 @@ function updateVMsList(req,list,tag,zone_id,zone_name){
                 state,
                 vm.CPU,
                 humanize_size(vm.MEMORY),
-                vm.HISTORY_RECORDS ? vm.HISTORY_RECORDS.HISTORY.HOSTNAME : "--",
+                hostname,
                 pretty_time(vm.STIME)
             ]);
         };
     });
 
-    updateView(vms_array,vmsDataTable);
-
-}
+    vmsDataTable.fnAddData(vms_array);
+    vmsDataTable.fnDraw(false);
+};
 
 function updateVNsList(req,list,tag,zone_id,zone_name){
     var vnDataTable = $(tag).dataTable();
@@ -103,7 +103,6 @@ function updateVNsList(req,list,tag,zone_id,zone_name){
                 network.NAME,
                 parseInt(network.TYPE) ? "FIXED" : "RANGED",
                 network.BRIDGE,
-                parseInt(network.PUBLIC) ? "yes" : "no",
                 total_leases
             ]);
         } else {
@@ -114,14 +113,14 @@ function updateVNsList(req,list,tag,zone_id,zone_name){
                 network.NAME,
                 parseInt(network.TYPE) ? "FIXED" : "RANGED",
                 network.BRIDGE,
-                parseInt(network.PUBLIC) ? "yes" : "no",
                 total_leases
             ]);
         }
     });
 
-    updateView(vn_array,vnDataTable);
-}
+    vnDataTable.fnAddData(vn_array);
+    vnDataTable.fnDraw(false);
+};
 
 function updateTemplatesList(req,list,tag,zone_id,zone_name){
     var templateDataTable = $(tag).dataTable();
@@ -138,7 +137,6 @@ function updateTemplatesList(req,list,tag,zone_id,zone_name){
                 template.GNAME,
                 template.NAME,
                 pretty_time(template.REGTIME),
-                parseInt(template.PUBLIC) ? "yes" : "no"
             ]);
         } else {
             template_array.push([
@@ -147,11 +145,11 @@ function updateTemplatesList(req,list,tag,zone_id,zone_name){
                 template.GNAME,
                 template.NAME,
                 pretty_time(template.REGTIME),
-                parseInt(template.PUBLIC) ? "yes" : "no"
            ]);
         };
     });
-    updateView(template_array,templateDataTable);
+    templateDataTable.fnAddData(template_array);
+    templateDataTable.fnDraw(false);
 }
 
 function updateUsersList(req,list,tag, zone_id,zone_name){
@@ -186,8 +184,9 @@ function updateUsersList(req,list,tag, zone_id,zone_name){
         }
 
     });
-    updateView(user_array,userDataTable);
-}
+    userDataTable.fnAddData(user_array);
+    userDataTable.fnDraw(false);
+};
 
 function updateImagesList(req,list,tag,zone_id,zone_name){
     var imageDataTable = $(tag).dataTable();
@@ -206,7 +205,6 @@ function updateImagesList(req,list,tag,zone_id,zone_name){
                 image.NAME,
                 oZones.Helper.image_type(image.TYPE),
                 pretty_time(image.REGTIME),
-                parseInt(image.PUBLIC) ? "yes" : "no",
                 parseInt(image.PERSISTENT) ? "yes" : "no",
                 oZones.Helper.resource_state("image",image.STATE),
                 image.RUNNING_VMS
@@ -219,15 +217,15 @@ function updateImagesList(req,list,tag,zone_id,zone_name){
                 image.NAME,
                 oZones.Helper.image_type(image.TYPE),
                 pretty_time(image.REGTIME),
-                parseInt(image.PUBLIC) ? "yes" : "no",
                 parseInt(image.PERSISTENT) ? "yes" : "no",
                 oZones.Helper.resource_state("image",image.STATE),
                 image.RUNNING_VMS
             ]);
         };
     });
-    updateView(image_array,imageDataTable);
-}
+    imageDataTable.fnAddData(image_array);
+    imageDataTable.fnDraw(false);
+};
 
 
 function hostElementArray(host,zone_id,zone_name){
