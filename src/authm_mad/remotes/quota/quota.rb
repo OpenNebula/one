@@ -82,7 +82,7 @@ class Quota
                 if template['TYPE'] == 'DATABLOCK'
                     template['SIZE'].to_i
                 elsif template['PATH']
-                    (File.size(template['PATH']).to_f / 2**20).round(2)
+                    (File.size(template['PATH']).to_f / 2**20).round
                 elsif template['SAVED_VM_ID']
                     vm_id   = template['SAVED_VM_ID'].to_i
                     disk_id = template['SAVED_DISK_ID'].to_i
