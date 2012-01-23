@@ -41,7 +41,7 @@ public:
     ImagePool(SqlDB *       db,
               const string& _default_type,
               const string& _default_dev_prefix,
-              vector<const Attribute *> restricted_attrs);
+              vector<const Attribute *>& restricted_attrs);
 
     ~ImagePool(){};
 

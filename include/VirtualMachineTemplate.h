@@ -52,7 +52,7 @@ private:
 
     static vector<string> restricted_attributes;
 
-    static void add_restricted_attribute(string& attr);
+    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
 };
 
 /* -------------------------------------------------------------------------- */

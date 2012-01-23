@@ -24,9 +24,20 @@ vector<string> ImageTemplate::restricted_attributes;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageTemplate::add_restricted_attribute(string& attr)
+void ImageTemplate::set_restricted_attributes(vector<const Attribute *>& rattrs)
 {
-    restricted_attributes.push_back(attr);
+    const SingleAttribute * sattr;
+	string attr;
+
+    for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
+    {
+        sattr = static_cast<const SingleAttribute *>(rattrs[i]);
+
+        attr = sattr->value();
+        transform (attr.begin(),attr.end(),attr.begin(),(int(*)(int))toupper);
+
+    	restricted_attributes.push_back(attr);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
