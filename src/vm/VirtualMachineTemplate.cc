@@ -14,48 +14,20 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef VIRTUAL_MACHINE_TEMPLATE_H_
-#define VIRTUAL_MACHINE_TEMPLATE_H_
+#include "VirtualMachineTemplate.h"
 
-#include "Template.h"
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-#include <string.h>
+vector<string> VirtualMachineTemplate::restricted_attributes;
 
-using namespace std;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-/**
- *  Virtual Machine Template class, it represents a VM configuration file.
- */
-class VirtualMachineTemplate : public Template
+void VirtualMachineTemplate::add_restricted_attribute(string& attr)
 {
-public:
-    VirtualMachineTemplate():
-        Template(false,'=',"TEMPLATE"){};
-
-    ~VirtualMachineTemplate(){};
-
-    VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};
-
-    /**
-     *  Checks the template for RESTRICTED ATTRIBUTES
-     *    @param rs_attr the first restricted attribute found if any
-     *    @return true if a restricted attribute is found in the template
-     */
-    bool check(string& rs_attr)
-    {
-        return Template::check(rs_attr, restricted_attributes);
-    };
-    
-private:
-
-    friend class VirtualMachinePool;
-
-    static vector<string> restricted_attributes;
-
-    static void add_restricted_attribute(string& attr);
-};
+    restricted_attributes.push_back(attr);
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-#endif /*VIRTUAL_MACHINE_TEMPLATE_H_*/

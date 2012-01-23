@@ -276,14 +276,20 @@ void Nebula::start()
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
+        vector<const Attribute *> vm_restricted_attrs;
+        vector<const Attribute *> img_restricted_attrs;
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK", host_hooks);
 
+        nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
+        nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
+
         vmpool = new VirtualMachinePool(db, 
                                         vm_hooks, 
                                         hook_location, 
-                                        remotes_location);
+                                        remotes_location,
+                                        vm_restricted_attrs);
         hpool  = new HostPool(db, host_hooks, hook_location, remotes_location);
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
@@ -301,7 +307,8 @@ void Nebula::start()
 
         ipool  = new ImagePool(db,
                                default_image_type,
-                               default_device_prefix);
+                               default_device_prefix,
+                               img_restricted_attrs);
 
         tpool  = new VMTemplatePool(db);
     }

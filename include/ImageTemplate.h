@@ -38,12 +38,15 @@ public:
      */
     bool check(string& rs_attr)
     {
-        vector<string> restricted_attributes;
-
-        restricted_attributes.push_back("SOURCE");
-
         return Template::check(rs_attr, restricted_attributes);
     };
+
+private:
+    friend class ImagePool;
+
+    static vector<string> restricted_attributes;
+
+    static void add_restricted_attribute(string& attr);
 };
     
 /* -------------------------------------------------------------------------- */
