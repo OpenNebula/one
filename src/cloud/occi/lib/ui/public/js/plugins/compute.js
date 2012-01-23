@@ -1101,7 +1101,7 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_vMachines);
     vMachineInfoListener();
 
-    $('#li_vms_tab a').click(function(){
+    $('#li_vms_tab').click(function(){
         popUpVMDashboard();
     });
 
