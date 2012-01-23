@@ -352,7 +352,6 @@ function updateZoneInfo(req,zone_json){
       <th>Group</th>\
       <th>Name</th>\
       <th>Registration time</th>\
-      <th>Public</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -396,7 +395,6 @@ function updateZoneInfo(req,zone_json){
       <th>Name</th>\
       <th>Type</th>\
       <th>Bridge</th>\
-      <th>Public?</th>\
       <th>Total Leases</th>\
     </tr>\
   </thead>\
@@ -418,7 +416,6 @@ function updateZoneInfo(req,zone_json){
       <th>Name</th>\
       <th>Type</th>\
       <th>Registration time</th>\
-      <th>Public</th>\
       <th>Persistent</th>\
       <th>State</th>\
       <th>#VMS</th>\
@@ -490,7 +487,7 @@ function updateZoneInfo(req,zone_json){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [4,5,6,7] },
+            { "sWidth": "60px", "aTargets": [4,5,6] },
             { "sWidth": "35px", "aTargets": [0] },
             { "sWidth": "100px", "aTargets": [1,2] }
         ]
@@ -502,8 +499,8 @@ function updateZoneInfo(req,zone_json){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [8] },
-            { "sWidth": "35px", "aTargets": [0,6,7,9] },
+            { "sWidth": "60px", "aTargets": [7] },
+            { "sWidth": "35px", "aTargets": [0,6,8] },
             { "sWidth": "100px", "aTargets": [1,2,4,5] }
         ]
     });
@@ -514,7 +511,7 @@ function updateZoneInfo(req,zone_json){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,5] },
+            { "sWidth": "35px", "aTargets": [0] },
             { "sWidth": "100px", "aTargets": [1,2,4] }
         ]
     });
