@@ -70,7 +70,6 @@ var aggregated_vns_tab_content =
       <th>Name</th>\
       <th>Type</th>\
       <th>Bridge</th>\
-      <th>Public?</th>\
       <th>Total Leases</th>\
     </tr>\
   </thead>\
@@ -91,7 +90,6 @@ var aggregated_images_tab_content =
       <th>Name</th>\
       <th>Type</th>\
       <th>Registration time</th>\
-      <th>Public</th>\
       <th>Persistent</th>\
       <th>State</th>\
       <th>#VMS</th>\
@@ -129,7 +127,6 @@ var aggregated_templates_tab_content =
       <th>Group</th>\
       <th>Name</th>\
       <th>Registration time</th>\
-      <th>Public</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -410,80 +407,98 @@ Sunstone.addMainTab("agg_templates_tab",templates_tab);
 
 function hostsListCB(req,list){
     dataTable_agg_hosts.fnClearTable();
+    var total_hosts = [];
     $.each(list,function(){
         if (this.ZONE.error){
             notifyError(this.ZONE.error.message);
             return;
         };
         var host_json = oZones.Helper.pool("HOST",this.ZONE);
+        total_hosts = total_hosts.concat(host_json);
         updateHostsList(req, host_json,'#datatable_agg_hosts',this.ZONE.ID,this.ZONE.NAME);
-        updateZonesDashboard("hosts",host_json);
     });
+
+    updateZonesDashboard("hosts",total_hosts);
 }
 
 function vmsListCB(req,list){
     dataTable_agg_vms.fnClearTable();
+    var total_vms = [];
     $.each(list,function(){
         if (this.ZONE.error){
             notifyError(this.ZONE.error.message);
             return;
         };
         var vms_json = oZones.Helper.pool("VM",this.ZONE);
+        total_vms = total_vms.concat(vms_json);
         updateVMsList(req, vms_json,'#datatable_agg_vms',this.ZONE.ID,this.ZONE.NAME);
-        updateZonesDashboard("vms",vms_json);
     });
+
+    updateZonesDashboard("vms",total_vms);
 }
 
 function vnsListCB(req,list){
     dataTable_agg_vns.fnClearTable();
+    var total_vns = [];
     $.each(list,function(){
         if (this.ZONE.error){
             notifyError(this.ZONE.error.message);
             return;
         };
         var vn_json = oZones.Helper.pool("VNET",this.ZONE);
+        total_vns = total_vns.concat(vn_json);
         updateVNsList(req, vn_json,'#datatable_agg_vnets',this.ZONE.ID,this.ZONE.NAME);
-        updateZonesDashboard("vnets",vn_json);
     });
+
+    updateZonesDashboard("vnets",total_vns);
 }
 
 function imagesListCB(req,list){
     dataTable_agg_images.fnClearTable();
+    total_images = [];
     $.each(list,function(){
         if (this.ZONE.error){
             notifyError(this.ZONE.error.message);
             return;
         };
         var image_json = oZones.Helper.pool("IMAGE",this.ZONE);
+        total_images = total_images.concat(image_json);
         updateImagesList(req,image_json,'#datatable_agg_images',this.ZONE.ID,this.ZONE.NAME);
-        updateZonesDashboard("images",image_json);
     });
+
+    updateZonesDashboard("images",total_images);
 }
 
 function usersListCB(req,list){
     dataTable_agg_users.fnClearTable();
+    var total_users = [];
     $.each(list,function(){
         if (this.ZONE.error){
             notifyError(this.ZONE.error.message);
             return;
         };
         var user_json = oZones.Helper.pool("USER",this.ZONE);
+        total_users = total_users.concat(user_json);
         updateUsersList(req,user_json,'#datatable_agg_users',this.ZONE.ID,this.ZONE.NAME);
-        updateZonesDashboard("users",user_json);
     });
+
+    updateZonesDashboard("users",total_users);
 }
 
 function templatesListCB(req,list){
     dataTable_agg_templates.fnClearTable();
+    var total_templates = [];
     $.each(list,function(){
         if (this.ZONE.error){
             notifyError(this.ZONE.error.message);
             return;
         };
         var template_json = oZones.Helper.pool("VMTEMPLATE",this.ZONE);
+        total_templates = total_templates.concat(template_json);
         updateTemplatesList(req,template_json,'#datatable_agg_templates',this.ZONE.ID,this.ZONE.NAME);
-        updateZonesDashboard("templates",template_json);
     });
+
+    updateZonesDashboard("templates",total_templates);
 }
 
 function setAutorefreshes(){
@@ -566,7 +581,7 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [6,7,8,9] },
+            { "sWidth": "60px", "aTargets": [6,7,8] },
             { "sWidth": "35px", "aTargets": [0,2] },
             { "sWidth": "100px", "aTargets": [1,3,4] }
         ]
@@ -578,8 +593,8 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [10] },
-            { "sWidth": "35px", "aTargets": [0,2,8,9,11] },
+            { "sWidth": "60px", "aTargets": [9] },
+            { "sWidth": "35px", "aTargets": [0,2,8,10] },
             { "sWidth": "100px", "aTargets": [1,3,4,6,7] }
         ]
     });
@@ -590,7 +605,7 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,2,7] },
+            { "sWidth": "35px", "aTargets": [0,2] },
             { "sWidth": "100px", "aTargets": [1,3,4,6] }
         ]
     });

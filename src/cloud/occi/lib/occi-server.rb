@@ -324,7 +324,7 @@ post '/config' do
 end
 
 get '/ui/login' do
-    File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
+    redirect to('ui')
 end
 
 post '/ui/login' do
