@@ -46,7 +46,15 @@ private:
 
     static vector<string> restricted_attributes;
 
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
+    /**
+     * Stores the attributes as restricted, these attributes will be used in
+     * ImageTemplate::check
+     * @param rattrs Attributes to restrict
+     */
+    static void set_restricted_attributes(vector<const Attribute *>& rattrs)
+    {
+        Template::set_restricted_attributes(rattrs, restricted_attributes);
+    };
 };
     
 /* -------------------------------------------------------------------------- */

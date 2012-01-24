@@ -23,23 +23,3 @@ vector<string> VirtualMachineTemplate::restricted_attributes;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-void VirtualMachineTemplate::set_restricted_attributes(
-									vector<const Attribute *>& rattrs)
-{
-    const SingleAttribute * sattr;
-	string attr;
-
-    for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
-    {
-        sattr = static_cast<const SingleAttribute *>(rattrs[i]);
-
-        attr = sattr->value();
-        transform (attr.begin(),attr.end(),attr.begin(),(int(*)(int))toupper);
-
-    	restricted_attributes.push_back(attr);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

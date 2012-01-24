@@ -533,6 +533,26 @@ void Template::rebuild_attributes(const xmlNode * root_element)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Template::set_restricted_attributes( vector<const Attribute *>& rattrs,
+                                vector<string>& restricted_attributes)
+{
+    const SingleAttribute * sattr;
+    string attr;
+
+    for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
+    {
+        sattr = static_cast<const SingleAttribute *>(rattrs[i]);
+
+        attr = sattr->value();
+        transform (attr.begin(),attr.end(),attr.begin(),(int(*)(int))toupper);
+
+        restricted_attributes.push_back(attr);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool Template::check(string& rs_attr, const vector<string> &restricted_attributes)
 {
     size_t pos;
