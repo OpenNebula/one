@@ -15,72 +15,31 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachineTemplate.h"
-#include <vector>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const string VirtualMachineTemplate::RESTRICTED_ATTRIBUTES[] = {
-	"CONTEXT/FILES",
-	"DISK/SOURCE",
-	"NIC/MAC",
-	"NIC/VLAN_ID",
-	"RANK"
-};
+vector<string> VirtualMachineTemplate::restricted_attributes;
 
-const int VirtualMachineTemplate::RS_ATTRS_LENGTH = 3;
-	
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachineTemplate::check(string& rs_attr)
+void VirtualMachineTemplate::set_restricted_attributes(
+									vector<const Attribute *>& rattrs)
 {
-	size_t pos;
-	string avector, vattr;
-    vector<const Attribute *> values;
+    const SingleAttribute * sattr;
+	string attr;
 
-	for (int i=0; i < RS_ATTRS_LENGTH ;i++)
-	{
-	    pos = RESTRICTED_ATTRIBUTES[i].find("/");
+    for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
+    {
+        sattr = static_cast<const SingleAttribute *>(rattrs[i]);
 
-	    if (pos != string::npos) //Vector Attribute
-	    {
-		    int num;
+        attr = sattr->value();
+        transform (attr.begin(),attr.end(),attr.begin(),(int(*)(int))toupper);
 
-	        avector = RESTRICTED_ATTRIBUTES[i].substr(0,pos);
-	        vattr   = RESTRICTED_ATTRIBUTES[i].substr(pos+1);
-
-	        if ((num = get(avector,values)) > 0 ) //Template contains the attr
-	        {
-	        	const VectorAttribute * attr;
-
-	        	for (int j=0; j<num ; j++ )
-	        	{
-		        	attr = dynamic_cast<const VectorAttribute *>(values[j]);
-	        	
-	        		if (attr == 0)
-	        		{
-	        			continue;
-	        		}
-
-	        		if ( !attr->vector_value(vattr.c_str()).empty() )
-	        		{
-	        			rs_attr = RESTRICTED_ATTRIBUTES[i];
-	        			return true;
-	        		}
-	        	}
-
-	        }
-	    }
-	    else //Single Attribute
-	    {
-			if (get(avector,values) > 0 )
-			{
-				rs_attr = RESTRICTED_ATTRIBUTES[i];
-				return true;
-			}	    	
-	    }
-	}
-
-	return false;
+    	restricted_attributes.push_back(attr);
+    }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

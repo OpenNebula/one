@@ -445,7 +445,7 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_vNetworks);
     vNetworkInfoListener();
 
-    $('#li_vnets_tab a').click(function(){
+    $('#li_vnets_tab').click(function(){
         popUpVNetDashboard();
         //return false;
     });

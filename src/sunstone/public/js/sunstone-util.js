@@ -326,7 +326,14 @@ function onError(request,error_json) {
 
     //redirect to login if unauthenticated
     if (error_json.error.http_status=="401") {
-        window.location.href = "login";
+        switch (whichUI()){
+        case "selfservice":
+            window.location.href = "ui";
+            break;
+        default:
+            window.location.href = "login";
+        };
+
         onError.disabled=false;
         return false;
     };

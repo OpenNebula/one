@@ -93,29 +93,30 @@ module OneWatch
             last_register = vm_sql.registers.last
             seq = last_register ? last_register.seq : 0
 
-            if hr = vm['HISTORY_RECORDS']
-                unless hr['HISTORY'].instance_of?(Array)
-                    if hr['HISTORY']['SEQ'] == seq
-                        # The VM has not moved from the Host
-                        insert_register(vm_sql, last_register, hr['HISTORY'])
-                        return
-                    else
+            hr = vm['HISTORY_RECORDS']
+            if hr and !hr.empty?
+                if hr['HISTORY']['SEQ'] == seq
+                    # The VM has not moved from the Host
+                    insert_register(vm_sql, last_register, hr['HISTORY'])
+                    return
+                else
+                    unless hr['HISTORY'].instance_of?(Array)
                         # Get the full HISTORY
                         vm = OpenNebula::VirtualMachine.new_with_id(vm['ID'], @client)
                         vm.info
 
                         vm_hash = vm.to_hash['VM']
                         hr = vm_hash['HISTORY_RECORDS']
-
-                        # Insert a new entry for each new history record
-                        [hr['HISTORY']].flatten.each { |history|
-                            if history['SEQ'].to_i < seq
-                                next
-                            else
-                                insert_register(vm_sql, last_register, history)
-                            end
-                        }
                     end
+
+                    # Insert a new entry for each new history record
+                    [hr['HISTORY']].flatten.each { |history|
+                        if history['SEQ'].to_i < seq
+                            next
+                        else
+                            insert_register(vm_sql, last_register, history)
+                        end
+                    }
                 end
             end
         end

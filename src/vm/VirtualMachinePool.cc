@@ -27,7 +27,8 @@
 VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
                                        vector<const Attribute *> hook_mads,
                                        const string& hook_location,
-                                       const string& remotes_location)
+                                       const string& remotes_location,
+                                       vector<const Attribute *>& restricted_attrs)
     : PoolSQL(db,VirtualMachine::table)
 {
     const VectorAttribute * vattr;
@@ -182,6 +183,9 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 
         add_hook(hook);
     }
+
+    // Set restricted attributes
+    VirtualMachineTemplate::set_restricted_attributes(restricted_attrs);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -31,7 +31,7 @@ class RequestManagerChmod : public Request
 protected:
     RequestManagerChmod(const string& method_name,
                         const string& help,
-                        const string& params = "A:siii")
+                        const string& params = "A:siiiiiiiiii")
         :Request(method_name,params,help){};
 
     ~RequestManagerChmod(){};
@@ -50,7 +50,7 @@ class VirtualMachineChmod : public RequestManagerChmod
 public:
     VirtualMachineChmod():
         RequestManagerChmod("VirtualMachineChmod",
-                            "Changes ownership of a virtual machine")
+                            "Changes permission bits of a virtual machine")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -68,7 +68,7 @@ class TemplateChmod : public RequestManagerChmod
 public:
     TemplateChmod():
         RequestManagerChmod("TemplateChmod",
-                            "Changes ownership of a virtual machine template")
+                            "Changes permission bits of a virtual machine template")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -87,7 +87,7 @@ class VirtualNetworkChmod: public RequestManagerChmod
 public:
     VirtualNetworkChmod():
         RequestManagerChmod("VirtualNetworkChmod",
-                           "Changes ownership of a virtual network")
+                           "Changes permission bits of a virtual network")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
@@ -106,7 +106,7 @@ class ImageChmod: public RequestManagerChmod
 public:
     ImageChmod():
         RequestManagerChmod("ImageChmod",
-                            "Changes ownership of an image")
+                            "Changes permission bits of an image")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();

@@ -81,10 +81,6 @@ var dashboard_tab_content =
                     <td class="key_td">Total</td>\
                     <td class="value_td"><span id="total_templates"></span></td>\
                 </tr>\
-                <tr>\
-                    <td class="key_td">Public</td>\
-                    <td class="value_td"><span id="public_templates"></span></td>\
-                </tr>\
             </table>\
         </div>\
       </div>\
@@ -124,10 +120,6 @@ var dashboard_tab_content =
                     <td class="key_td">Total</td>\
                     <td class="value_td"><span id="total_vnets"></span></td>\
                 </tr>\
-                <tr>\
-                    <td class="key_td">Public</td>\
-                    <td class="value_td"><span id="public_vnets"></span></td>\
-                </tr>\
             </table>\
         </div>\
       </div>\
@@ -145,10 +137,6 @@ var dashboard_tab_content =
                 <tr>\
                     <td class="key_td">Total</td>\
                     <td class="value_td"><span id="total_images"></span></td>\
-                </tr>\
-                <tr>\
-                    <td class="key_td">Public</td>\
-                    <td class="value_td"><span id="public_images"></span></td>\
                 </tr>\
             </table>\
         </div>\
@@ -180,7 +168,6 @@ var dashboard_tab = {
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 $(document).ready(function(){
-    //Dashboard link listener
     $("#dashboard_table h3 a").live("click", function (){
         var tab = $(this).attr('href');
         showTab(tab);
@@ -220,15 +207,7 @@ function updateZonesDashboard(what,json_info){
         break;
     case "templates":
         var total_templates=json_info.length;
-        var public_templates=0;
-        $.each(json_info,function(){
-            if (parseInt(this.VMTEMPLATE.PUBLIC)){
-                public_templates++;
-            };
-        });
-
         $('#total_templates',db).html(total_templates);
-        $('#public_templates',db).html(public_templates);
         break;
     case "vms":
         var total_vms=json_info.length;
@@ -248,14 +227,8 @@ function updateZonesDashboard(what,json_info){
         $('#failed_vms',db).html(failed_vms);
         break;
     case "vnets":
-        var public_vnets=0;
         var total_vnets=json_info.length;
-        $.each(json_info,function(){
-            if (parseInt(this.VNET.PUBLIC)){
-                public_vnets++;}
-        });
         $('#total_vnets',db).html(total_vnets);
-        $('#public_vnets',db).html(public_vnets);
         break;
     case "users":
         var total_users=json_info.length;
@@ -263,13 +236,7 @@ function updateZonesDashboard(what,json_info){
         break;
     case "images":
         var total_images=json_info.length;
-        var public_images=0;
-        $.each(json_info,function(){
-            if (parseInt(this.IMAGE.PUBLIC)){
-                public_images++;}
-        });
         $('#total_images',db).html(total_images);
-        $('#public_images',db).html(public_images);
         break;
     }
 }

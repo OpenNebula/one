@@ -403,7 +403,7 @@ function setLogin(){
     case "ozones":
         username = cookie["ozones-user"];
         break;
-    case "occi":
+    case "selfservice":
         username = cookie["occi-user"];
         break;
     };
@@ -420,7 +420,7 @@ function setLogin(){
         case "ozones":
             oZones.Auth.logout({success:redirect});
             break;
-        case "occi":
+        case "selfservice":
             OCCI.Auth.logout({success:function(){window.location.href = "ui";}});
             break;
         }
@@ -436,7 +436,7 @@ function whichUI(){
     if (typeof(oZones)!="undefined")
         return "ozones";
     if (typeof(OCCI)!="undefined")
-        return "occi";
+        return "selfservice";
 };
 
 //Inserts all main tabs in the DOM

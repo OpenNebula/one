@@ -55,7 +55,7 @@ $(document).ready(function(){
         setLang($(this).val());
     });
 
-    $('#li_config_tab a').click(function(){
+    $('#li_config_tab').click(function(){
         hideDialog();
     });
 

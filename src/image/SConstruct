@@ -26,7 +26,8 @@ source_files=[
     'ImagePool.cc',
     'ImageManagerDriver.cc',
     'ImageManager.cc',
-    'ImageManagerActions.cc'
+    'ImageManagerActions.cc',
+    'ImageTemplate.cc'
 ]
 
 # Build library

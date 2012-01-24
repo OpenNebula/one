@@ -631,7 +631,7 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_images);
     imageInfoListener();
 
-    $('#li_images_tab a').click(function(){
+    $('#li_images_tab').click(function(){
         popUpImageDashboard();
         //return false;
     });

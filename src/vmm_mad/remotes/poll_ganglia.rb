@@ -50,9 +50,8 @@ GANGLIA_PORT=8649
 
 
 domain=ARGV[0]
-dom_id=ARGV[1]
-host=ARGV[2]
-
+dom_id=ARGV[2]
+host=ARGV[1]
 
 # Gets monitoring data from ganglia or file
 begin
@@ -68,6 +67,12 @@ end
 
 doms_info=ganglia.get_vms_information
 dom_id=domain.split('-').last
+
+# Unknown state when the VM is not found
+if !doms_info || !(doms_info[domain] || doms_info[dom_id])
+    puts "STATE=d"
+    exit(0)
+end
 
 # Get key one-<vmid> or <vmid> key from the hash
 dom_info=doms_info[domain]

@@ -14,42 +14,31 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef IMAGE_TEMPLATE_H_
-#define IMAGE_TEMPLATE_H_
+#include "ImageTemplate.h"
 
-#include "Template.h"
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-using namespace std;
+vector<string> ImageTemplate::restricted_attributes;
 
-/**
- *  Image Template class, it represents the attributes of an Image
- */
-class ImageTemplate : public Template
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImageTemplate::set_restricted_attributes(vector<const Attribute *>& rattrs)
 {
-public:
-    ImageTemplate() : Template(true,'=',"TEMPLATE"){};
+    const SingleAttribute * sattr;
+	string attr;
 
-    ~ImageTemplate(){};
-
-    /**
-     *  Checks the template for RESTRICTED ATTRIBUTES
-     *    @param rs_attr the first restricted attribute found if any
-     *    @return true if a restricted attribute is found in the template
-     */
-    bool check(string& rs_attr)
+    for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
     {
-        return Template::check(rs_attr, restricted_attributes);
-    };
+        sattr = static_cast<const SingleAttribute *>(rattrs[i]);
 
-private:
-    friend class ImagePool;
+        attr = sattr->value();
+        transform (attr.begin(),attr.end(),attr.begin(),(int(*)(int))toupper);
 
-    static vector<string> restricted_attributes;
+    	restricted_attributes.push_back(attr);
+    }
+}
 
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
-};
-    
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-#endif /*IMAGE_TEMPLATE_H_*/

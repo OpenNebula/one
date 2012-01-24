@@ -22,7 +22,8 @@ class ImageOCCI < Image
     OCCI_IMAGE = %q{
         <STORAGE href="<%= base_url %>/storage/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
-            <NAME><%= self.name %></NAME>
+            <NAME><%= self.name %></NAME
+            <STATE><%= self.state_str %></STATE>
             <% if self['TYPE'] != nil %>
             <TYPE><%= self.type_str %></TYPE>
             <% end %>

@@ -221,6 +221,13 @@ protected:
      */
     Attribute* vector_xml_att(const xmlNode * node);
 
+    /**
+     *  Checks the template for RESTRICTED ATTRIBUTES
+     *    @param rs_attr the first restricted attribute found if any
+     *    @return true if a restricted attribute is found in the template
+     */
+    bool check(string& rs_attr, const vector<string> &restricted_attributes);
+
 private:
 
     bool                            replace_mode;

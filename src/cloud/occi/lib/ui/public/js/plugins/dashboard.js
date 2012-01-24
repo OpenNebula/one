@@ -169,7 +169,7 @@ $(document).ready(function(){
 
     quickstart_setup();
 
-    $('#li_dashboard_tab a').click(function(){
+    $('#li_dashboard_tab').click(function(){
         hideDialog();
     });
 

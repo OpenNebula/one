@@ -193,6 +193,10 @@ class SshStreamCommand < RemotesCommand
 
         return self
     end
+
+    def close
+        @stream.close
+    end
 end
 
 

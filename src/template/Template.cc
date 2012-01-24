@@ -533,3 +533,57 @@ void Template::rebuild_attributes(const xmlNode * root_element)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool Template::check(string& rs_attr, const vector<string> &restricted_attributes)
+{
+    size_t pos;
+    string avector, vattr;
+    vector<const Attribute *> values;
+
+    for (unsigned int i=0; i < restricted_attributes.size(); i++)
+    {
+        pos = restricted_attributes[i].find("/");
+
+        if (pos != string::npos) //Vector Attribute
+        {
+            int num;
+
+            avector = restricted_attributes[i].substr(0,pos);
+            vattr   = restricted_attributes[i].substr(pos+1);
+
+            if ((num = get(avector,values)) > 0 ) //Template contains the attr
+            {
+                const VectorAttribute * attr;
+
+                for (int j=0; j<num ; j++ )
+                {
+                    attr = dynamic_cast<const VectorAttribute *>(values[j]);
+
+                    if (attr == 0)
+                    {
+                        continue;
+                    }
+
+                    if ( !attr->vector_value(vattr.c_str()).empty() )
+                    {
+                        rs_attr = restricted_attributes[i];
+                        return true;
+                    }
+                }
+            }
+        }
+        else //Single Attribute
+        {
+            if (get(restricted_attributes[i],values) > 0 )
+            {
+                rs_attr = restricted_attributes[i];
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
