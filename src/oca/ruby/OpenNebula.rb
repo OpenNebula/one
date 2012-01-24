@@ -79,6 +79,30 @@ module OpenNebula
         value.class==OpenNebula::Error
     end
 
+
+    if OpenNebula::NOKOGIRI
+        class NokogiriStreamParser < XMLRPC::XMLParser::AbstractStreamParser
+            def initialize
+                @parser_class = NokogiriParser
+            end
+
+            class NokogiriParser < Nokogiri::XML::SAX::Document
+                include XMLRPC::XMLParser::StreamParserMixin
+
+                alias :cdata_block :character
+                alias :characters :character
+                alias :end_element :endElement
+                alias :start_element :startElement
+
+                def parse(str)
+                    parser = Nokogiri::XML::SAX::Parser.new(self)
+                    parser.parse(str)
+                end
+            end
+        end
+    end
+
+
     # The client class, represents the connection with the core and handles the
     # xml-rpc calls.
     class Client
@@ -113,14 +137,15 @@ module OpenNebula
             end
 
             @server = XMLRPC::Client.new2(@one_endpoint)
+
+            if OpenNebula::NOKOGIRI
+                @server.set_parser(NokogiriStreamParser.new)
+            elsif XMLPARSER
+                @server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
+            end
         end
 
         def call(action, *args)
-
-            if XMLPARSER
-                @server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
-            end
-
             begin
                 response = @server.call_async("one."+action, @one_auth, *args)
 
