@@ -89,8 +89,11 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
            </select>\
         </fieldset>\
         <fieldset>\
-           <label for="vm_n_times">'+tr("Create # VMs")+':</label>\
-           <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+           <div>\
+             <label for="vm_n_times">'+tr("Create # VMs")+':</label>\
+             <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+             <div class="tip">'+tr("You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them")+'.</div>\
+           </div>\
         </fieldset>\
           <div class="form_buttons">\
             <button type="button" class="vm_close_dialog_link">'+tr("Close")+'</button>\
@@ -686,6 +689,8 @@ function popUpCreateVMDialog(){
         text: true
     });
 
+    setupTips(dialog);
+
     var net_select = makeSelectOptions(dataTable_vNetworks,
                                        1,//id_col
                                        2,//name_col
@@ -772,17 +777,19 @@ function popUpCreateVMDialog(){
 
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
-        }
+        };
 
-        if (n_times_int>1){
-            if (!vm_name.length){
-                vm_name = $('#template_id option:selected',this).text();
-            }
+        if (vm_name.indexOf("%i") == -1){ //no wildcard
             for (var i=0; i< n_times_int; i++){
                 Sunstone.runAction("VM.create",vm);
             };
-        } else {
-            Sunstone.runAction("VM.create",vm);
+        } else { //wildcard present: replace wildcard
+            var name = "";
+            for (var i=0; i< n_times_int; i++){
+                name = vm_name.replace(/%i/gi,i);
+                vm["NAME"] = name;
+                Sunstone.runAction("VM.create",vm);
+            };
         };
 
         popUpVMDashboard();
