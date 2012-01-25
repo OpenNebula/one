@@ -273,7 +273,7 @@ private:
      *    
      *    @return the key, a string
      */
-    string key(const string& name, int uid)
+    virtual string key(const string& name, int uid)
     {
         ostringstream key;
 

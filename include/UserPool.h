@@ -80,7 +80,21 @@ public:
      */
     User * get(string name, bool lock)
     {
+        // The owner is set to -1, because it is not used in the key() method
         return static_cast<User *>(PoolSQL::get(name,-1,lock));
+    };
+
+    /**
+     *  Generate an index key for the object
+     *    @param name of the object
+     *    @param uid owner of the object, only used if needed
+     *
+     *    @return the key, a string
+     */
+    string key(const string& name, int uid)
+    {
+        // Name is enough key because Users can't repeat names.
+        return name;
     };
 
     /** Update a particular User
