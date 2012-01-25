@@ -190,6 +190,23 @@ EOT
             return Client.parse_error(res, kind)
         end
 
+        # Retrieves a pool belonging to a specific resource
+        # @param [String] Kind resource kind: vdc, zone...
+        # @param [#to_i] id resource id
+        # @param [String] Kind of pool: image, vm, host, etc
+        # @return [String, Zona::Error] Response string or Error
+        def get_resource_pool(kind, id, pool)
+            url = URI.parse("#{@endpoint}/#{kind}/#{id}/#{pool}")
+            req = Net::HTTP::Get.new(url.path)
+
+            req.basic_auth @ozonesauth[0], @ozonesauth[1]
+
+            res = Client.http_start(url, @timeout) {|http|
+                http.request(req)
+            }
+            return Client.parse_error(res, kind)
+        end
+
         # Deletes a resource
         # @param [String] kind resource kind: vdc, zone...
         # @param [#to_i] id resource id

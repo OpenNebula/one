@@ -61,6 +61,16 @@ module OZonesHelper
             end
         end
 
+        def get_resource_pool(kind, id, pool)
+            rc = @client.get_resource_pool(kind, id, pool)
+
+            if Zona::is_error?(rc)
+                [-1, rc.message]
+            else
+                [0 , Zona::OZonesJSON.parse_json(rc.body, pool.upcase+"_POOL")[pool.upcase.to_sym]]
+            end
+        end
+
         def delete_resource(kind, id, options)
             rc = @client.delete_resource(kind, id)
 

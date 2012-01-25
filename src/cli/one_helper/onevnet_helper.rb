@@ -31,6 +31,53 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         return VirtualNetwork::SHORT_VN_TYPES[type_str]
     end
 
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, "ONE identifier for Virtual Network", :size=>4 do |d|
+                d["ID"]
+            end
+
+            column :NAME, "Name of the Virtual Network", :left,
+                    :size=>15 do |d|
+                d["NAME"]
+            end
+
+            column :USER, "Username of the Virtual Network owner", :left,
+                    :size=>8 do |d|
+                helper.user_name(d, options)
+            end
+
+            column :GROUP, "Group of the Virtual Network", :left,
+                    :size=>8 do |d|
+                helper.group_name(d, options)
+            end
+
+            column :TYPE, "Type of Virtual Network", :size=>6 do |d|
+                OneVNetHelper.type_to_str(d["TYPE"])
+            end
+
+            column :SIZE, "Size of the Virtual Network", :size=>6 do |d|
+                d["SIZE"]
+            end
+
+            column :BRIDGE, "Bridge associated to the Virtual Network",
+                    :size=>6 do |d|
+                d["BRIDGE"]
+            end
+
+            column :LEASES, "Number of this Virtual Network's given leases",
+                    :size=>7 do |d|
+                d["TOTAL_LEASES"]
+            end
+
+            default :ID, :USER, :GROUP, :NAME, :TYPE, :BRIDGE, :LEASES
+        end
+
+        table
+    end
+
     private
 
     def factory(id=nil)
@@ -100,52 +147,5 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 puts leases_str
             end
         }
-    end
-
-    def format_pool(options)
-        config_file = self.class.table_conf
-
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for Virtual Network", :size=>4 do |d|
-                d["ID"]
-            end
-
-            column :NAME, "Name of the Virtual Network", :left,
-                    :size=>15 do |d|
-                d["NAME"]
-            end
-
-            column :USER, "Username of the Virtual Network owner", :left,
-                    :size=>8 do |d|
-                helper.user_name(d, options)
-            end
-
-            column :GROUP, "Group of the Virtual Network", :left,
-                    :size=>8 do |d|
-                helper.group_name(d, options)
-            end
-
-            column :TYPE, "Type of Virtual Network", :size=>6 do |d|
-                OneVNetHelper.type_to_str(d["TYPE"])
-            end
-
-            column :SIZE, "Size of the Virtual Network", :size=>6 do |d|
-                d["SIZE"]
-            end
-
-            column :BRIDGE, "Bridge associated to the Virtual Network",
-                    :size=>6 do |d|
-                d["BRIDGE"]
-            end
-
-            column :LEASES, "Number of this Virtual Network's given leases",
-                    :size=>7 do |d|
-                d["TOTAL_LEASES"]
-            end
-
-            default :ID, :USER, :GROUP, :NAME, :TYPE, :BRIDGE, :LEASES
-        end
-
-        table
     end
 end

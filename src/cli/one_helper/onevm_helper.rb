@@ -47,6 +47,68 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         return short_state_str
     end
 
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
+                d["ID"]
+            end
+
+            column :NAME, "Name of the Virtual Machine", :left,
+                    :size=>15 do |d|
+                d["NAME"]
+            end
+
+            column :USER, "Username of the Virtual Machine owner", :left,
+                    :size=>8 do |d|
+                helper.user_name(d, options)
+            end
+
+            column :GROUP, "Group of the Virtual Machine", :left,
+                    :size=>8 do |d|
+                helper.group_name(d, options)
+            end
+
+            column :STAT, "Actual status", :size=>4 do |d,e|
+                OneVMHelper.state_to_str(d["STATE"], d["LCM_STATE"])
+            end
+
+            column :CPU, "CPU percentage used by the VM", :size=>3 do |d|
+                d["CPU"]
+            end
+
+            column :MEM, "Memory used by the VM", :size=>7 do |d|
+                OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
+            end
+
+            column :HOSTNAME, "Host where the VM is running", :size=>15 do |d|
+                if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
+                    state_str = VirtualMachine::VM_STATE[d['STATE'].to_i]
+                    if %w{ACTIVE SUSPENDED}.include? state_str
+                        d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
+                    end
+                end
+            end
+
+            column :TIME, "Time since the VM was submitted", :size=>11 do |d|
+                stime = Time.at(d["STIME"].to_i)
+                etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
+                dtime = Time.at(etime-stime).getgm
+                "%02d %02d:%02d:%02d" % [
+                    dtime.yday-1,
+                    dtime.hour,
+                    dtime.min,
+                    dtime.sec]
+            end
+
+            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME,
+                :TIME
+        end
+
+        table
+    end
+
     private
 
     def factory(id=nil)
@@ -118,68 +180,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
             format_history(vm)
         end
-    end
-
-    def format_pool(options)
-        config_file = self.class.table_conf
-
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
-                d["ID"]
-            end
-
-            column :NAME, "Name of the Virtual Machine", :left,
-                    :size=>15 do |d|
-                d["NAME"]
-            end
-
-            column :USER, "Username of the Virtual Machine owner", :left,
-                    :size=>8 do |d|
-                helper.user_name(d, options)
-            end
-
-            column :GROUP, "Group of the Virtual Machine", :left,
-                    :size=>8 do |d|
-                helper.group_name(d, options)
-            end
-
-            column :STAT, "Actual status", :size=>4 do |d,e|
-                OneVMHelper.state_to_str(d["STATE"], d["LCM_STATE"])
-            end
-
-            column :CPU, "CPU percentage used by the VM", :size=>3 do |d|
-                d["CPU"]
-            end
-
-            column :MEM, "Memory used by the VM", :size=>7 do |d|
-                OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
-            end
-
-            column :HOSTNAME, "Host where the VM is running", :size=>15 do |d|
-                if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
-                    state_str = VirtualMachine::VM_STATE[d['STATE'].to_i]
-                    if %w{ACTIVE SUSPENDED}.include? state_str
-                        d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
-                    end
-                end
-            end
-
-            column :TIME, "Time since the VM was submitted", :size=>11 do |d|
-                stime = Time.at(d["STIME"].to_i)
-                etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
-                dtime = Time.at(etime-stime).getgm
-                "%02d %02d:%02d:%02d" % [
-                    dtime.yday-1,
-                    dtime.hour,
-                    dtime.min,
-                    dtime.sec]
-            end
-
-            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME,
-                :TIME
-        end
-
-        table
     end
 
     def format_history(vm)

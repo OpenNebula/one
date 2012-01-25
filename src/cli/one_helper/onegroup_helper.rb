@@ -44,6 +44,24 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         exit_code
     end
 
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, "ONE identifier for the Group", :size=>4 do |d|
+                d["ID"]
+            end
+
+            column :NAME, "Name of the Group", :left, :size=>15 do |d|
+                d["NAME"]
+            end
+
+            default :ID, :NAME
+        end
+
+        table
+    end
+
     private
 
     def factory(id=nil)
@@ -74,23 +92,5 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         group.user_ids.each do |uid|
             puts "%-15s" % [uid]
         end
-    end
-
-    def format_pool(options)
-        config_file = self.class.table_conf
-
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the Group", :size=>4 do |d|
-                d["ID"]
-            end
-
-            column :NAME, "Name of the Group", :left, :size=>15 do |d|
-                d["NAME"]
-            end
-
-            default :ID, :NAME
-        end
-
-        table
     end
 end

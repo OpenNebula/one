@@ -36,60 +36,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         type_str = Image::IMAGE_TYPES[id]
         return Image::SHORT_IMAGE_TYPES[type_str]
     end
-
-    private
-
-    def factory(id=nil)
-        if id
-            OpenNebula::Image.new_with_id(id, @client)
-        else
-            xml=OpenNebula::Image.build_xml
-            OpenNebula::Image.new(xml, @client)
-        end
-    end
-
-    def factory_pool(user_flag=-2)
-        OpenNebula::ImagePool.new(@client, user_flag)
-    end
-
-    def format_resource(image)
-        str="%-15s: %-20s"
-        str_h1="%-80s"
-
-        CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
-        puts str % ["ID",   image.id.to_s]
-        puts str % ["NAME", image.name]
-        puts str % ["USER", image['UNAME']]
-        puts str % ["GROUP",image['GNAME']]
-        puts str % ["TYPE", image.type_str]
-        puts str % ["REGISTER TIME",
-            OpenNebulaHelper.time_to_str(image['REGTIME'])]
-        puts str % ["PERSISTENT",
-            OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
-        puts str % ["SOURCE",image['SOURCE']]
-        puts str % ["PATH",image['PATH']] if image['PATH'] && !image['PATH'].empty?
-        puts str % ["FSTYPE",image['FSTYPE']] if image['FSTYPE'] && !image['FSTYPE'].empty?
-        puts str % ["SIZE",  image['SIZE']]
-        puts str % ["STATE", image.short_state_str]
-        puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
-        puts
-
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
-
-        ["OWNER", "GROUP", "OTHER"].each { |e|
-            mask = "---"
-            mask[0] = "u" if image["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "m" if image["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "a" if image["PERMISSIONS/#{e}_A"] == "1"
-
-            puts str % [e,  mask]
-        }
-        puts
-
-        CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
-        puts image.template_str
-    end
-
+    
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -145,5 +92,58 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+    private
+
+    def factory(id=nil)
+        if id
+            OpenNebula::Image.new_with_id(id, @client)
+        else
+            xml=OpenNebula::Image.build_xml
+            OpenNebula::Image.new(xml, @client)
+        end
+    end
+
+    def factory_pool(user_flag=-2)
+        OpenNebula::ImagePool.new(@client, user_flag)
+    end
+
+    def format_resource(image)
+        str="%-15s: %-20s"
+        str_h1="%-80s"
+
+        CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
+        puts str % ["ID",   image.id.to_s]
+        puts str % ["NAME", image.name]
+        puts str % ["USER", image['UNAME']]
+        puts str % ["GROUP",image['GNAME']]
+        puts str % ["TYPE", image.type_str]
+        puts str % ["REGISTER TIME",
+            OpenNebulaHelper.time_to_str(image['REGTIME'])]
+        puts str % ["PERSISTENT",
+            OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
+        puts str % ["SOURCE",image['SOURCE']]
+        puts str % ["PATH",image['PATH']] if image['PATH'] && !image['PATH'].empty?
+        puts str % ["FSTYPE",image['FSTYPE']] if image['FSTYPE'] && !image['FSTYPE'].empty?
+        puts str % ["SIZE",  image['SIZE']]
+        puts str % ["STATE", image.short_state_str]
+        puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
+        puts
+
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "u" if image["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if image["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if image["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
+        puts
+
+        CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
+        puts image.template_str
     end
 end
