@@ -143,6 +143,36 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
     end
 
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, "ONE identifier for the User", :size=>4 do |d|
+                d["ID"]
+            end
+
+            column :NAME, "Name of the User", :left, :size=>15 do |d|
+                d["NAME"]
+            end
+
+            column :GROUP, "Group of the User", :left, :size=>8 do |d|
+                helper.group_name(d, options)
+            end
+
+            column :AUTH, "Auth driver of the User", :left, :size=>8 do |d|
+                d["AUTH_DRIVER"]
+            end
+
+            column :PASSWORD, "Password of the User", :size=>50 do |d|
+                d['PASSWORD']
+            end
+
+            default :ID, :GROUP, :NAME, :AUTH, :PASSWORD
+        end
+
+        table
+    end
+
     private
 
     def factory(id=nil)
@@ -177,35 +207,5 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
         puts user.template_str
-    end
-
-    def format_pool(options)
-        config_file = self.class.table_conf
-
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the User", :size=>4 do |d|
-                d["ID"]
-            end
-
-            column :NAME, "Name of the User", :left, :size=>15 do |d|
-                d["NAME"]
-            end
-
-            column :GROUP, "Group of the User", :left, :size=>8 do |d|
-                helper.group_name(d, options)
-            end
-
-            column :AUTH, "Auth driver of the User", :left, :size=>8 do |d|
-                d["AUTH_DRIVER"]
-            end
-
-            column :PASSWORD, "Password of the User", :size=>50 do |d|
-                d['PASSWORD']
-            end
-
-            default :ID, :GROUP, :NAME, :AUTH, :PASSWORD
-        end
-
-        table
     end
 end

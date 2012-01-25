@@ -41,6 +41,38 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
         "onetemplate.yaml"
     end
 
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, "ONE identifier for the Template", :size=>4 do |d|
+                d["ID"]
+            end
+
+            column :NAME, "Name of the Template", :left, :size=>15 do |d|
+                d["NAME"]
+            end
+
+            column :USER, "Username of the Template owner", :left,
+                    :size=>8 do |d|
+                helper.user_name(d, options)
+            end
+
+            column :GROUP, "Group of the Template", :left, :size=>8 do |d|
+                helper.group_name(d, options)
+            end
+
+            column :REGTIME, "Registration time of the Template",
+                    :size=>20 do |d|
+                OpenNebulaHelper.time_to_str(d["REGTIME"])
+            end
+
+            default :ID, :USER, :GROUP, :NAME, :REGTIME
+        end
+
+        table
+    end
+
     private
 
     def factory(id=nil)
@@ -84,37 +116,5 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
         puts template.template_str
-    end
-
-    def format_pool(options)
-        config_file = self.class.table_conf
-
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the Template", :size=>4 do |d|
-                d["ID"]
-            end
-
-            column :NAME, "Name of the Template", :left, :size=>15 do |d|
-                d["NAME"]
-            end
-
-            column :USER, "Username of the Template owner", :left,
-                    :size=>8 do |d|
-                helper.user_name(d, options)
-            end
-
-            column :GROUP, "Group of the Template", :left, :size=>8 do |d|
-                helper.group_name(d, options)
-            end
-
-            column :REGTIME, "Registration time of the Template",
-                    :size=>20 do |d|
-                OpenNebulaHelper.time_to_str(d["REGTIME"])
-            end
-
-            default :ID, :USER, :GROUP, :NAME, :REGTIME
-        end
-
-        table
     end
 end

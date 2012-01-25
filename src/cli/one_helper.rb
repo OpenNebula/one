@@ -287,7 +287,12 @@ EOT
         end
 
         def pool_to_array(pool)
-            phash = pool.to_hash
+    	    if !pool.instance_of?(Hash)
+                phash = pool.to_hash 
+            else
+                phash = pool
+            end
+            
             rname = self.class.rname
 
             if phash["#{rname}_POOL"] &&

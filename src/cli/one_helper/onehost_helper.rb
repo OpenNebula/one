@@ -31,58 +31,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         return Host::SHORT_HOST_STATES[state_str]
     end
 
-    private
-
-    def factory(id=nil)
-        if id
-            OpenNebula::Host.new_with_id(id, @client)
-        else
-            xml=OpenNebula::Host.build_xml
-            OpenNebula::Host.new(xml, @client)
-        end
-    end
-
-    def factory_pool(user_flag=-2)
-        #TBD OpenNebula::HostPool.new(@client, user_flag)
-        OpenNebula::HostPool.new(@client)
-    end
-
-    def format_resource(host)
-        str    = "%-22s: %-20s"
-        str_h1 = "%-80s"
-
-        CLIHelper.print_header(
-            str_h1 % "HOST #{host.id.to_s} INFORMATION", true)
-
-        puts str % ["ID", host.id.to_s]
-        puts str % ["NAME", host.name]
-        puts str % ["STATE", host.state_str]
-        puts str % ["IM_MAD", host['IM_MAD']]
-        puts str % ["VM_MAD", host['VM_MAD']]
-        puts str % ["VN_MAD", host['VN_MAD']]
-        puts str % ["TM_MAD", host['TM_MAD']]
-        puts str % ["LAST MONITORING TIME", host['LAST_MON_TIME']]
-        puts
-
-        CLIHelper.print_header(str_h1 % "HOST SHARES", false)
-
-        puts str % ["MAX MEM", host['HOST_SHARE/MAX_MEM']]
-        puts str % ["USED MEM (REAL)", host['HOST_SHARE/USED_MEM']]
-        puts str % ["USED MEM (ALLOCATED)", host['HOST_SHARE/MEM_USAGE']]
-        puts str % ["MAX CPU", host['HOST_SHARE/MAX_CPU']]
-        puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
-        puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
-        puts str % ["MAX DISK", host['HOST_SHARE/MAX_DISK']]
-        puts str % ["USED DISK (REAL)", host['HOST_SHARE/USED_DISK']]
-        puts str % ["USED DISK (ALLOCATED)", host['HOST_SHARE/DISK_USAGE']]
-        puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
-        puts
-
-        CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
-
-        puts host.template_str
-    end
-
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -143,5 +91,57 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+    private
+
+    def factory(id=nil)
+        if id
+            OpenNebula::Host.new_with_id(id, @client)
+        else
+            xml=OpenNebula::Host.build_xml
+            OpenNebula::Host.new(xml, @client)
+        end
+    end
+
+    def factory_pool(user_flag=-2)
+        #TBD OpenNebula::HostPool.new(@client, user_flag)
+        OpenNebula::HostPool.new(@client)
+    end
+
+    def format_resource(host)
+        str    = "%-22s: %-20s"
+        str_h1 = "%-80s"
+
+        CLIHelper.print_header(
+            str_h1 % "HOST #{host.id.to_s} INFORMATION", true)
+
+        puts str % ["ID", host.id.to_s]
+        puts str % ["NAME", host.name]
+        puts str % ["STATE", host.state_str]
+        puts str % ["IM_MAD", host['IM_MAD']]
+        puts str % ["VM_MAD", host['VM_MAD']]
+        puts str % ["VN_MAD", host['VN_MAD']]
+        puts str % ["TM_MAD", host['TM_MAD']]
+        puts str % ["LAST MONITORING TIME", host['LAST_MON_TIME']]
+        puts
+
+        CLIHelper.print_header(str_h1 % "HOST SHARES", false)
+
+        puts str % ["MAX MEM", host['HOST_SHARE/MAX_MEM']]
+        puts str % ["USED MEM (REAL)", host['HOST_SHARE/USED_MEM']]
+        puts str % ["USED MEM (ALLOCATED)", host['HOST_SHARE/MEM_USAGE']]
+        puts str % ["MAX CPU", host['HOST_SHARE/MAX_CPU']]
+        puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
+        puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
+        puts str % ["MAX DISK", host['HOST_SHARE/MAX_DISK']]
+        puts str % ["USED DISK (REAL)", host['HOST_SHARE/USED_DISK']]
+        puts str % ["USED DISK (ALLOCATED)", host['HOST_SHARE/DISK_USAGE']]
+        puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
+        puts
+
+        CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
+
+        puts host.template_str
     end
 end
