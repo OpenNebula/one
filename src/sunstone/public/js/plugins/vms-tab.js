@@ -75,13 +75,21 @@ var vms_tab_content =
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
   <fieldset>\
         <div>\
-           <label for="vm_name">'+tr("VM Name")+':</label>\
-           <input type="text" name="vm_name" id="vm_name" /><br />\
-           <label for="template_id">'+tr("Select template")+':</label>\
-           <select id="template_id">\
-           </select><br />\
-           <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
-           <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+           <div>\
+             <label for="vm_name">'+tr("VM Name")+':</label>\
+             <input type="text" name="vm_name" id="vm_name" />\
+             <div class="tip">'+tr("Defaults to template name when emtpy")+'.</div>\
+           </div>\
+           <div>\
+             <label for="template_id">'+tr("Select template")+':</label>\
+             <select id="template_id">\
+             </select>\
+           </div>\
+           <div>\
+             <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
+             <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+             <div class="tip">'+tr("You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them")+'.</div>\
+           </div>\
         </div>\
         </fieldset>\
         <fieldset>\
@@ -846,6 +854,7 @@ function setupCreateVMDialog(){
     });
 
     $('button',dialog).button();
+    setupTips(dialog);
 
     $('#create_vm_form',dialog).submit(function(){
         var vm_name = $('#vm_name',this).val();
@@ -866,8 +875,16 @@ function setupCreateVMDialog(){
             vm_name = $('#template_id option:selected',this).text();
         };
 
-        for (var i=0; i< n_times_int; i++){
-            Sunstone.runAction("Template.instantiate",template_id,vm_name);
+        if (vm_name.indexOf("%i") == -1){ //no wildcard
+            for (var i=0; i< n_times_int; i++){
+                Sunstone.runAction("Template.instantiate",template_id,vm_name);
+            };
+        } else { //wildcard present: replace wildcard
+            var name = "";
+            for (var i=0; i< n_times_int; i++){
+                name = vm_name.replace(/%i/gi,i);
+                Sunstone.runAction("Template.instantiate",template_id,name);
+            };
         };
 
         Sunstone.runAction("VM.list");
@@ -1285,6 +1302,7 @@ $(document).ready(function(){
     setupSaveasDialog();
     setVMAutorefresh();
     setupVNC();
+    setupTips
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);
