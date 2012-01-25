@@ -93,6 +93,23 @@ int Image::insert(SqlDB *db, string& error_str)
     string persistent_attr;
     string dev_prefix;
     string source_attr;
+    string aname;
+
+    ostringstream oss;
+
+    // ------------------------------------------------------------------------
+    // Check template for restricted attributes
+    // ------------------------------------------------------------------------
+
+    if ( uid != 0 && gid != GroupPool::ONEADMIN_ID )
+    {
+        ImageTemplate *img_tmpl = static_cast<ImageTemplate *>(obj_template);
+
+        if (img_tmpl->check(aname))
+        {
+            goto error_restricted;
+        }
+    }
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -179,6 +196,11 @@ int Image::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
+
+error_restricted:
+    oss << "Template includes a restricted attribute " << aname << ".";
+    error_str = oss.str();
+    goto error_common;
 
 error_type:
     error_str = "Incorrect TYPE in template.";
