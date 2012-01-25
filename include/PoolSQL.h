@@ -83,6 +83,20 @@ public:
     PoolObjectSQL * get(const string& name, int uid, bool lock);
 
     /**
+     * Updates the cache name index. Must be called when the owner of an object
+     * is changed
+     *
+     * @param old_name Object's name before the change
+     * @param old_uid Object's owner ID before the change
+     * @param new_name Object's name after the change
+     * @param new_uid Object's owner ID after the change
+     */
+    void update_cache_index(string& old_name,
+                            int     old_uid,
+                            string& new_name,
+                            int     new_uid);
+
+    /**
      *  Finds a set objects that satisfies a given condition
      *   @param oids a vector with the oids of the objects.
      *   @param the name of the DB table.
