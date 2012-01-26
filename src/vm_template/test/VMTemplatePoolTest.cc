@@ -110,6 +110,7 @@ class VMTemplatePoolTest : public PoolTest
     CPPUNIT_TEST ( duplicates );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
+    CPPUNIT_TEST ( name_index );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -447,6 +448,71 @@ public:
         CPPUNIT_ASSERT( result == xml_dump_where );
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void name_index()
+    {
+        VMTemplatePool  *tpool = static_cast<VMTemplatePool*>(pool);
+        VMTemplate      *vnet_oid, *vnet_name;
+        int             oid_0;
+        int             uid_0;
+        string          name_0;
+
+        oid_0 = allocate(0);
+
+        CPPUNIT_ASSERT(oid_0 != -1);
+
+
+        // ---------------------------------
+        // Get by oid
+        vnet_oid = tpool->get(oid_0, true);
+        CPPUNIT_ASSERT(vnet_oid != 0);
+
+        name_0 = vnet_oid->get_name();
+        uid_0  = vnet_oid->get_uid();
+
+        vnet_oid->unlock();
+
+        // Get by name and check it is the same object
+        vnet_name = tpool->get(name_0, uid_0, true);
+        CPPUNIT_ASSERT(vnet_name != 0);
+        vnet_name->unlock();
+
+        CPPUNIT_ASSERT(vnet_oid == vnet_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        tpool->clean();
+
+        // Get by oid
+        vnet_oid = tpool->get(oid_0, true);
+        CPPUNIT_ASSERT(vnet_oid != 0);
+        vnet_oid->unlock();
+
+        // Get by name and check it is the same object
+        vnet_name = tpool->get(name_0, uid_0, true);
+        CPPUNIT_ASSERT(vnet_name != 0);
+        vnet_name->unlock();
+
+        CPPUNIT_ASSERT(vnet_oid == vnet_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        tpool->clean();
+
+        // Get by name
+        vnet_name = tpool->get(name_0, uid_0, true);
+        CPPUNIT_ASSERT(vnet_name != 0);
+        vnet_name->unlock();
+
+        // Get by oid and check it is the same object
+        vnet_oid = tpool->get(oid_0, true);
+        CPPUNIT_ASSERT(vnet_oid != 0);
+        vnet_oid->unlock();
+
+        CPPUNIT_ASSERT(vnet_oid == vnet_name);
+    }
     /* ********************************************************************* */
 
 };

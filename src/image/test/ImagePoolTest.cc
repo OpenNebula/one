@@ -150,6 +150,8 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( dump_where );
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
+    CPPUNIT_TEST ( name_index );
+
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
@@ -962,6 +964,68 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+    void name_index()
+    {
+        Image   *img_oid, *img_name;
+        int     oid_0;
+        int     uid_0;
+        string  name_0;
+
+        oid_0 = allocate(0);
+
+        CPPUNIT_ASSERT(oid_0 != -1);
+
+
+        // ---------------------------------
+        // Get by oid
+        img_oid = ipool->get(oid_0, true);
+        CPPUNIT_ASSERT(img_oid != 0);
+
+        name_0 = img_oid->get_name();
+        uid_0  = img_oid->get_uid();
+
+        img_oid->unlock();
+
+        // Get by name and check it is the same object
+        img_name = ipool->get(name_0, uid_0, true);
+        CPPUNIT_ASSERT(img_name != 0);
+        img_name->unlock();
+
+        CPPUNIT_ASSERT(img_oid == img_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        ipool->clean();
+
+        // Get by oid
+        img_oid = ipool->get(oid_0, true);
+        CPPUNIT_ASSERT(img_oid != 0);
+        img_oid->unlock();
+
+        // Get by name and check it is the same object
+        img_name = ipool->get(name_0, uid_0, true);
+        CPPUNIT_ASSERT(img_name != 0);
+        img_name->unlock();
+
+        CPPUNIT_ASSERT(img_oid == img_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        ipool->clean();
+
+        // Get by name
+        img_name = ipool->get(name_0, uid_0, true);
+        CPPUNIT_ASSERT(img_name != 0);
+        img_name->unlock();
+
+        // Get by oid and check it is the same object
+        img_oid = ipool->get(oid_0, true);
+        CPPUNIT_ASSERT(img_oid != 0);
+        img_oid->unlock();
+
+        CPPUNIT_ASSERT(img_oid == img_name);
+    }
 };
 
 /* ************************************************************************* */
