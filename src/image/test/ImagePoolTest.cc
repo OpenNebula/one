@@ -143,8 +143,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( wrong_templates );
     CPPUNIT_TEST ( target_generation );
     CPPUNIT_TEST ( bus_source_assignment );
-//    CPPUNIT_TEST ( public_attribute );
-//    CPPUNIT_TEST ( persistence );
+    CPPUNIT_TEST ( persistence );
     CPPUNIT_TEST ( imagepool_disk_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
@@ -656,100 +655,7 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/*
-    void public_attribute()
-    {
-        int oid;
-        ImagePoolFriend * imp = static_cast<ImagePoolFriend *>(pool);
-        Image *     img;
 
-        string templates[] =
-        {
-            // false
-            "NAME           = \"name A\"\n"
-            "PATH  = \"/tmp/nothing\"\n",
-
-            // true
-            "NAME           = \"name B\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = YES",
-
-            // false
-            "NAME           = \"name C\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = NO",
-
-            // false
-            "NAME           = \"name D\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = 1",
-
-            // true
-            "NAME           = \"name E\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = Yes",
-
-            // false
-            "NAME           = \"name F\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = TRUE",
-
-            // true
-            "NAME           = \"name G\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = yes",
-
-            // false
-            "NAME           = \"name H\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = 'YES'",
-
-            // true
-            "NAME           = \"name I\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = \"YES\"",
-
-            "END"
-        };
-
-        bool results[] = {  false, true, false, false,
-                            true, false, true, false, true };
-
-        int i = 0;
-        while( templates[i] != "END" )
-        {
-
-            imp->allocate(0, templates[i], &oid);
-
-            CPPUNIT_ASSERT( oid >= 0 );
-
-            img = imp->get( oid, false );
-            CPPUNIT_ASSERT( img != 0 );
-//cout << endl << i << " : exp. " << results[i] << " got " << img->is_public();
-
-            CPPUNIT_ASSERT( img->isPublic() == results[i] );
-
-            i++;
-        }
-
-        int success;
-
-        // img 0 is not public.
-        img = imp->get( 0, false );
-        CPPUNIT_ASSERT( img != 0 );
-
-        success = img->publish(false);
-        CPPUNIT_ASSERT( success == 0 );
-        CPPUNIT_ASSERT( img->isPublic() == false );
-
-        success = img->publish(true);
-        CPPUNIT_ASSERT( success == 0 );
-        CPPUNIT_ASSERT( img->isPublic() == true );
-    }
-*/
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/*
     void persistence()
     {
         int     oid;
@@ -762,44 +668,32 @@ public:
         {
             "NAME       = \"Image 1\"\n"
             "PERSISTENT = NO\n"
-            "PUBLIC     = NO\n"
             "PATH       = /dev/null\n",
 
             "NAME       = \"Image 2\"\n"
             "PERSISTENT = NO\n"
-            "PUBLIC     = YES\n"
             "PATH       = /dev/null\n",
 
             "NAME       = \"Image 3\"\n"
             "PERSISTENT = YES\n"
-            "PUBLIC     = NO\n"
-            "PATH       = /dev/null\n",
-
-            "NAME       = \"Image 4\"\n"
-            "PERSISTENT = YES\n"
-            "PUBLIC     = YES\n"
             "PATH       = /dev/null\n",
 
             "END"
         };
 
-        bool results[]      = { true, true, true, false };
         bool persistent[]   = { false, false, true };
 
         int i = 0;
         while( templates[i] != "END" )
         {
             imp->allocate(0, templates[i], &oid);
-//cout << endl << i << " : exp. " << results[i] << " got " << (oid >= 0);
-            CPPUNIT_ASSERT( (oid >= 0) == results[i] );
 
-            if( oid >= 0 )
-            {
-                img = imp->get( oid, false );
-                CPPUNIT_ASSERT( img != 0 );
+            CPPUNIT_ASSERT( oid >= 0 );
 
-                CPPUNIT_ASSERT( img->isPersistent() == persistent[i] );
-            }
+            img = imp->get( oid, false );
+            CPPUNIT_ASSERT( img != 0 );
+
+            CPPUNIT_ASSERT( img->isPersistent() == persistent[i] );
 
             i++;
         }
@@ -814,12 +708,12 @@ public:
         CPPUNIT_ASSERT( img->isPersistent() == true );
 
         // it isn't public, try to unpublish
-        success = img->publish(false);
+        success = img->set_permissions(1,1,0, 0,0,0, 0,0,0, error_msg);
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == false );
 
         // try to publish, should fail because it is persistent
-        success = img->publish(true);
+        success = img->set_permissions(1,1,0, 1,0,0, 0,0,0, error_msg);
         CPPUNIT_ASSERT( success == -1 );
         CPPUNIT_ASSERT( img->isPublic() == false );
 
@@ -830,16 +724,16 @@ public:
         CPPUNIT_ASSERT( img->isPersistent() == false );
 
         // it isn't public, try to unpublish
-        success = img->publish(false);
+        success = img->set_permissions(1,1,0, 0,0,0, 0,0,0, error_msg);
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == false );
 
         // try to publish, now it should be possible
-        success = img->publish(true);
+        success = img->set_permissions(1,1,0, 1,0,0, 0,0,0, error_msg);
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == true );
     }
-*/
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
