@@ -76,7 +76,8 @@ module EC2QueryClient
                 :secret_access_key => @access_key_secret,
                 :server            => @uri.host,
                 :port              => @uri.port,
-                :use_ssl           => @uri.scheme == 'https')
+                :use_ssl           => @uri.scheme == 'https',
+                :path              => @uri.path)
         end
 
 
