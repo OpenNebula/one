@@ -87,13 +87,15 @@ public:
 class ImagePoolFriend : public ImagePool
 {
 public:
-    ImagePoolFriend(SqlDB * db,
-                    const string&   _default_type,
-                    const string&   _default_dev_prefix):
+    ImagePoolFriend(SqlDB *                     db,
+                    const string&               _default_type,
+                    const string&               _default_dev_prefix,
+                    vector<const Attribute *>   _restricted_attrs):
 
                     ImagePool(  db,
                                 _default_type,
-                                _default_dev_prefix){};
+                                _default_dev_prefix,
+                                _restricted_attrs){};
 
 
     int allocate(const int& uid, const std::string& stemplate, int* oid)
@@ -251,7 +253,8 @@ public:
 
         // Create a new pool, using the same DB. This new pool should read the
         // allocated images.
-        imp = new ImagePool(db,"OS", "hd");
+        vector<const Attribute *> restricted_attrs;
+        imp = new ImagePool(db,"OS", "hd", restricted_attrs);
 
         img = imp->get(0, false);
         CPPUNIT_ASSERT( img != 0 );
@@ -654,99 +657,6 @@ public:
         delete disk;
     }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/*
-    void public_attribute()
-    {
-        int oid;
-        ImagePoolFriend * imp = static_cast<ImagePoolFriend *>(pool);
-        Image *     img;
-
-        string templates[] =
-        {
-            // false
-            "NAME           = \"name A\"\n"
-            "PATH  = \"/tmp/nothing\"\n",
-
-            // true
-            "NAME           = \"name B\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = YES",
-
-            // false
-            "NAME           = \"name C\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = NO",
-
-            // false
-            "NAME           = \"name D\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = 1",
-
-            // true
-            "NAME           = \"name E\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = Yes",
-
-            // false
-            "NAME           = \"name F\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = TRUE",
-
-            // true
-            "NAME           = \"name G\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = yes",
-
-            // false
-            "NAME           = \"name H\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = 'YES'",
-
-            // true
-            "NAME           = \"name I\"\n"
-            "PATH  = \"/tmp/nothing\"\n"
-            "PUBLIC         = \"YES\"",
-
-            "END"
-        };
-
-        bool results[] = {  false, true, false, false,
-                            true, false, true, false, true };
-
-        int i = 0;
-        while( templates[i] != "END" )
-        {
-
-            imp->allocate(0, templates[i], &oid);
-
-            CPPUNIT_ASSERT( oid >= 0 );
-
-            img = imp->get( oid, false );
-            CPPUNIT_ASSERT( img != 0 );
-//cout << endl << i << " : exp. " << results[i] << " got " << img->is_public();
-
-            CPPUNIT_ASSERT( img->isPublic() == results[i] );
-
-            i++;
-        }
-
-        int success;
-
-        // img 0 is not public.
-        img = imp->get( 0, false );
-        CPPUNIT_ASSERT( img != 0 );
-
-        success = img->publish(false);
-        CPPUNIT_ASSERT( success == 0 );
-        CPPUNIT_ASSERT( img->isPublic() == false );
-
-        success = img->publish(true);
-        CPPUNIT_ASSERT( success == 0 );
-        CPPUNIT_ASSERT( img->isPublic() == true );
-    }
-*/
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /*
