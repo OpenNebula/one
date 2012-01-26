@@ -150,6 +150,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
     CPPUNIT_TEST ( name_index );
+    CPPUNIT_TEST ( chown_name_index );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -917,6 +918,70 @@ public:
         img_oid = ipool->get(oid_0, true);
         CPPUNIT_ASSERT(img_oid != 0);
         img_oid->unlock();
+
+        CPPUNIT_ASSERT(img_oid == img_name);
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void chown_name_index()
+    {
+        Image   *img_oid, *img_name;
+        int     oid;
+        int     old_uid;
+        int     new_uid = 3456;
+        string  name;
+
+        oid = allocate(0);
+
+        CPPUNIT_ASSERT(oid != -1);
+
+
+        // ---------------------------------
+        // Get by oid
+        img_oid = ipool->get(oid, true);
+        CPPUNIT_ASSERT(img_oid != 0);
+
+        name = img_oid->get_name();
+        old_uid  = img_oid->get_uid();
+
+        // Change owner and update cache index
+        img_oid->set_user(new_uid, "new_username");
+        ipool->update(img_oid);
+        img_oid->unlock();
+
+        ipool->update_cache_index(name, old_uid, name, new_uid);
+
+        // Get by name, new_uid and check it is the same object
+        img_name = ipool->get(name, new_uid, true);
+        CPPUNIT_ASSERT(img_name != 0);
+        img_name->unlock();
+
+        CPPUNIT_ASSERT(img_oid == img_name);
+
+        // Get by name, old_uid and check it does not exist
+        img_name = ipool->get(name, old_uid, true);
+        CPPUNIT_ASSERT(img_name == 0);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        ipool->clean();
+
+
+        // Get by name, old_uid and check it does not exist
+        img_name = ipool->get(name, old_uid, true);
+        CPPUNIT_ASSERT(img_name == 0);
+
+        // Get by oid
+        img_oid = ipool->get(oid, true);
+        CPPUNIT_ASSERT(img_oid != 0);
+        img_oid->unlock();
+
+        // Get by name, new_uid and check it is the same object
+        img_name = ipool->get(name, new_uid, true);
+        CPPUNIT_ASSERT(img_name != 0);
+        img_name->unlock();
 
         CPPUNIT_ASSERT(img_oid == img_name);
     }

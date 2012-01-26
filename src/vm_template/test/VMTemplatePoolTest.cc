@@ -111,6 +111,7 @@ class VMTemplatePoolTest : public PoolTest
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
     CPPUNIT_TEST ( name_index );
+    CPPUNIT_TEST ( chown_name_index );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -513,6 +514,72 @@ public:
 
         CPPUNIT_ASSERT(vnet_oid == vnet_name);
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void chown_name_index()
+    {
+        VMTemplatePool  *tpool = static_cast<VMTemplatePool*>(pool);
+        VMTemplate      *obj_oid, *obj_name;
+        int     oid;
+        int     old_uid;
+        int     new_uid = 3456;
+        string  name;
+
+        oid = allocate(0);
+
+        CPPUNIT_ASSERT(oid != -1);
+
+
+        // ---------------------------------
+        // Get by oid
+        obj_oid = tpool->get(oid, true);
+        CPPUNIT_ASSERT(obj_oid != 0);
+
+        name = obj_oid->get_name();
+        old_uid  = obj_oid->get_uid();
+
+        // Change owner and update cache index
+        obj_oid->set_user(new_uid, "new_username");
+        tpool->update(obj_oid);
+        obj_oid->unlock();
+
+        tpool->update_cache_index(name, old_uid, name, new_uid);
+
+        // Get by name, new_uid and check it is the same object
+        obj_name = tpool->get(name, new_uid, true);
+        CPPUNIT_ASSERT(obj_name != 0);
+        obj_name->unlock();
+
+        CPPUNIT_ASSERT(obj_oid == obj_name);
+
+        // Get by name, old_uid and check it does not exist
+        obj_name = tpool->get(name, old_uid, true);
+        CPPUNIT_ASSERT(obj_name == 0);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        tpool->clean();
+
+
+        // Get by name, old_uid and check it does not exist
+        obj_name = tpool->get(name, old_uid, true);
+        CPPUNIT_ASSERT(obj_name == 0);
+
+        // Get by oid
+        obj_oid = tpool->get(oid, true);
+        CPPUNIT_ASSERT(obj_oid != 0);
+        obj_oid->unlock();
+
+        // Get by name, new_uid and check it is the same object
+        obj_name = tpool->get(name, new_uid, true);
+        CPPUNIT_ASSERT(obj_name != 0);
+        obj_name->unlock();
+
+        CPPUNIT_ASSERT(obj_oid == obj_name);
+    }
+
     /* ********************************************************************* */
 
 };
