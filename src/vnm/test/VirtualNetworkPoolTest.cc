@@ -181,6 +181,7 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (range_definition);
 
     CPPUNIT_TEST (name_index);
+    CPPUNIT_TEST (chown_name_index);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -1754,6 +1755,70 @@ public:
         vnet_oid = vnpool->get(oid_0, true);
         CPPUNIT_ASSERT(vnet_oid != 0);
         vnet_oid->unlock();
+
+        CPPUNIT_ASSERT(vnet_oid == vnet_name);
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void chown_name_index()
+    {
+        VirtualNetwork      *vnet_oid, *vnet_name;
+        int     oid;
+        int     old_uid;
+        int     new_uid = 3456;
+        string  name;
+
+        oid = allocate(0);
+
+        CPPUNIT_ASSERT(oid != -1);
+
+
+        // ---------------------------------
+        // Get by oid
+        vnet_oid = vnpool->get(oid, true);
+        CPPUNIT_ASSERT(vnet_oid != 0);
+
+        name = vnet_oid->get_name();
+        old_uid  = vnet_oid->get_uid();
+
+        // Change owner and update cache index
+        vnet_oid->set_user(new_uid, "new_username");
+        vnpool->update(vnet_oid);
+        vnet_oid->unlock();
+
+        vnpool->update_cache_index(name, old_uid, name, new_uid);
+
+        // Get by name, new_uid and check it is the same object
+        vnet_name = vnpool->get(name, new_uid, true);
+        CPPUNIT_ASSERT(vnet_name != 0);
+        vnet_name->unlock();
+
+        CPPUNIT_ASSERT(vnet_oid == vnet_name);
+
+        // Get by name, old_uid and check it does not exist
+        vnet_name = vnpool->get(name, old_uid, true);
+        CPPUNIT_ASSERT(vnet_name == 0);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        vnpool->clean();
+
+
+        // Get by name, old_uid and check it does not exist
+        vnet_name = vnpool->get(name, old_uid, true);
+        CPPUNIT_ASSERT(vnet_name == 0);
+
+        // Get by oid
+        vnet_oid = vnpool->get(oid, true);
+        CPPUNIT_ASSERT(vnet_oid != 0);
+        vnet_oid->unlock();
+
+        // Get by name, new_uid and check it is the same object
+        vnet_name = vnpool->get(name, new_uid, true);
+        CPPUNIT_ASSERT(vnet_name != 0);
+        vnet_name->unlock();
 
         CPPUNIT_ASSERT(vnet_oid == vnet_name);
     }
