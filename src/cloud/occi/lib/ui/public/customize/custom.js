@@ -50,7 +50,7 @@ var dashboard_links = [
     { href: "http://opennebula.org/documentation:documentation",
       text: tr("Documentation")
     },
-    { href: "http://opennebula.org/support:support",
+    { href: "http://opennebula.org/support:SU",
       text: tr("Support")
     },
     { href: "http://opennebula.org/community:community",
