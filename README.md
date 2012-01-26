@@ -9,7 +9,7 @@ distributed data center infrastructures.
 
 Complete documentation can be found at
 
-  http://opennebula.org/documentation:rel3.0
+  http://opennebula.org/documentation:documentation
 
 ## INSTALLATION
 
@@ -42,7 +42,7 @@ include a handy script to install them and the requirements. It is located at
 `share/install_gems/install_gems` and you should use it to install the
 required gems. You have more information at:
 
-  http://opennebula.org/documentation:rel3.0:compile
+  http://opennebula.org/documentation:documentation:compile
 
 ### OPTIONAL PACKAGES
 
@@ -122,7 +122,7 @@ where **install_options** can be one or more of:
 ## CONFIGURATION
 
 Information on how to configure OpenNebula is located at
-http://opennebula.org/documentation:rel3.0:cg
+http://opennebula.org/documentation:documentation:cg
 
 
 ## CONTACT
