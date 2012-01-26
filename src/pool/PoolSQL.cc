@@ -339,6 +339,32 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void PoolSQL::update_cache_index(string& old_name,
+                                 int     old_uid,
+                                 string& new_name,
+                                 int     new_uid)
+{
+    map<string,PoolObjectSQL *>::iterator  index;
+
+    lock();
+
+    string old_key  = key(old_name, old_uid);
+    string new_key  = key(new_name, new_uid);
+
+    index = name_pool.find(old_key);
+
+    if ( index != name_pool.end() )
+    {
+        name_pool.erase(old_key);
+        name_pool.insert(make_pair(new_key, index->second));
+    }
+
+    unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void PoolSQL::replace()
 {
     bool removed = false;

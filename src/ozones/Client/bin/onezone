@@ -30,6 +30,15 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'ozones_helper/zones_helper.rb'
 
+
+class Hash
+  def self.transform_keys_to_strings(value)
+    return value if not value.is_a?(Hash)
+    hash = value.inject({}){|memo,(k,v)| memo[k.to_s] = Hash.transform_keys_to_strings(v); memo}
+    return hash
+  end
+end
+
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onezone` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
@@ -56,7 +65,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     show_desc = <<-EOT.unindent
         Show information of a particular Zone
-        Available resources: host, vm, image, vn, template, user
+        Available resources: host, vm, image, vnet, vmtemplate, user
         Examples:
           onezone show 4
           onezone show 4 host
@@ -67,50 +76,42 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         case args[1]
         when "host"
-            aux_helper  = OneHostHelper.new(
-                              zone[:ONENAME] + ":" + zone[:ONEPASS],
-                              zone[:ENDPOINT],
-                              false)
-
-            aux_helper.list_pool(options)
+            aux_helper  = OneHostHelper.new
         when "vm"
-            aux_helper  = OneVMHelper.new(
-                              zone[:ONENAME] + ":" + zone[:ONEPASS],
-                              zone[:ENDPOINT],
-                              false)
-
-            aux_helper.list_pool(options)
+            aux_helper  = OneVMHelper.new
         when "image"
-            aux_helper  = OneImageHelper.new(
-                              zone[:ONENAME] + ":" + zone[:ONEPASS],
-                              zone[:ENDPOINT],
-                              false)
-
-            aux_helper.list_pool(options)
-        when "vn"
-            aux_helper  = OneVNetHelper.new(
-                              zone[:ONENAME] + ":" + zone[:ONEPASS],
-                              zone[:ENDPOINT],
-                              false)
-
-            aux_helper.list_pool(options)
-
-        when "template"
-            aux_helper  = OneTemplateHelper.new(
-                              zone[:ONENAME] + ":" + zone[:ONEPASS],
-                              zone[:ENDPOINT],
-                              false)
-
-            aux_helper.list_pool(options)
-
+            aux_helper  = OneImageHelper.new
+        when "vnet"
+            aux_helper  = OneVNetHelper.new
+        when "vmtemplate"
+            aux_helper  = OneTemplateHelper.new
         when "user"
-            aux_helper  = OneUserHelper.new(
-                              zone[:ONENAME] + ":" + zone[:ONEPASS],
-                              zone[:ENDPOINT],
-                              false)
-
-            aux_helper.list_pool(options)
+            aux_helper  = OneUserHelper.new
+	else
+	    puts "\n:!: Pool #{args[1]} doesn't exist or is not supported\n\n"
+	    next 0
         end
+
+        pool_hash_data = helper.get_resource_pool("zone", zone[:ID], args[1])
+
+	if pool_hash_data[0] != 0
+   	    puts "\nError retrieving information for pool #{args[1]}. Reason: " + pool_hash_data[1] + "\n\n"
+            next 0
+	end
+
+	if !pool_hash_data[1]
+	    next 0
+        end
+
+        if pool_hash_data[1].is_a?(Hash)
+            pool_hash_data[1]=[Hash.transform_keys_to_strings(pool_hash_data[1])]
+	else
+    	    pool_hash_data[1].each{|hash| hash.replace(Hash.transform_keys_to_strings(hash))}
+        end
+
+        table = aux_helper.format_pool(options)
+        table.show(pool_hash_data[1]) 
+
         0
     end
 

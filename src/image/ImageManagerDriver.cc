@@ -228,13 +228,12 @@ void ImageManagerDriver::protocol(
 
         if ( rc < 0 )
         {
-            image->unlock();
             NebulaLog::log("ImM",Log::ERROR,"Image could not be removed from DB");
         }
 
         if ( result == "SUCCESS" )
         {
-            NebulaLog::log("ImM",Log::ERROR,"Image successfully removed.");
+            NebulaLog::log("ImM",Log::INFO,"Image successfully removed.");
         }
         else
         {
@@ -267,9 +266,22 @@ error_mkfs:
     goto error_common;
 
 error_rm:
+    image->unlock();
+
     os.str("");
     os << "Error removing image from repository. Remove file " << source
        << "  to completely delete image.";
+
+    getline(is,info);
+
+    if (!info.empty() && (info[0] != '-'))
+    {
+        os << ": " << info;
+    }
+
+    NebulaLog::log("ImM", Log::ERROR, os);
+
+    return;
 
 error_common:
     getline(is,info);

@@ -222,6 +222,16 @@ protected:
     Attribute* vector_xml_att(const xmlNode * node);
 
     /**
+     * Stores the attributes as restricted, these attributes will be used in
+     * Template::check
+     * @param rattrs Attributes to restrict
+     * @param restricted_attributes The attributes will be stored here
+     */
+    static void set_restricted_attributes(
+            vector<const Attribute *>& rattrs,
+            vector<string>& restricted_attributes);
+
+    /**
      *  Checks the template for RESTRICTED ATTRIBUTES
      *    @param rs_attr the first restricted attribute found if any
      *    @return true if a restricted attribute is found in the template

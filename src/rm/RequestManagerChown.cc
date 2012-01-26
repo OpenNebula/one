@@ -134,11 +134,16 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     {                                            
         failure_response(NO_EXISTS,get_error(object_name(auth_object),oid),att);
         return;
-    }    
+    }
 
     if ( noid != -1 )    
     {
+        string  obj_name = object->get_name();
+        int     old_uid  = object->get_uid();
+
         object->set_user(noid,nuname);
+
+        pool->update_cache_index(obj_name, old_uid, obj_name, noid);
     }
 
     if ( ngid != -1 )
@@ -273,4 +278,3 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     return;
 }
-    
