@@ -77,6 +77,7 @@ class UserPoolTest : public PoolTest
     CPPUNIT_TEST (duplicates);
     //CPPUNIT_TEST (dump);
     CPPUNIT_TEST (dump_where);
+    CPPUNIT_TEST (name_index);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -373,6 +374,67 @@ public:
 //*/
 
         CPPUNIT_ASSERT( oss.str() == dump_where_result );
+    }
+
+    void name_index()
+    {
+        User        *user_oid, *user_name;
+        int         oid_0;
+        int         uid_0;
+        string      name_0;
+
+        oid_0 = allocate(0);
+
+        CPPUNIT_ASSERT(oid_0 != -1);
+
+        // ---------------------------------
+        // Get by oid
+        user_oid = upool->get(oid_0, true);
+        CPPUNIT_ASSERT(user_oid != 0);
+
+        name_0 = user_oid->get_name();
+        uid_0  = user_oid->get_uid();
+
+        user_oid->unlock();
+
+        // Get by name and check it is the same object
+        user_name = upool->get(name_0, true);
+        CPPUNIT_ASSERT(user_name != 0);
+        user_name->unlock();
+
+        CPPUNIT_ASSERT(user_oid == user_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        upool->clean();
+
+        // Get by oid
+        user_oid = upool->get(oid_0, true);
+        CPPUNIT_ASSERT(user_oid != 0);
+        user_oid->unlock();
+
+        // Get by name and check it is the same object
+        user_name = upool->get(name_0, true);
+        CPPUNIT_ASSERT(user_name != 0);
+        user_name->unlock();
+
+        CPPUNIT_ASSERT(user_oid == user_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        upool->clean();
+
+        // Get by name
+        user_name = upool->get(name_0, true);
+        CPPUNIT_ASSERT(user_name != 0);
+        user_name->unlock();
+
+        // Get by oid and check it is the same object
+        user_oid = upool->get(oid_0, true);
+        CPPUNIT_ASSERT(user_oid != 0);
+        user_oid->unlock();
+
+        CPPUNIT_ASSERT(user_oid == user_name);
     }
 };
 
