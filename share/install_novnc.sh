@@ -1,6 +1,7 @@
 #!/bin/bash
 
 NOVNC_TMP=/tmp/one/novnc-$(date "+%Y%m%d%H%M%S")
+PROXY_PATH=noVNC/utils/websockify
 
 if [ -z "$ONE_LOCATION" ]; then
     ONE_SHARE=/usr/share/one
@@ -34,7 +35,7 @@ mv $ONE_SHARE/$dir $ONE_SHARE/noVNC
 mkdir -p $ONE_PUBLIC_SUNSTONE/vendor/noVNC
 mv $ONE_SHARE/noVNC/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 
-sed -i.bck "s%^\(:novnc_path: \).*$%\1$ONE_SHARE/noVNC%" $SUNSTONE_CONF
+sed -i.bck "s%^\(:vnc_proxy_path: \).*$%\1$ONE_SHARE/$PROXY_PATH%" $SUNSTONE_CONF
 
 #Update file permissions
 chmod +x $ONE_SHARE/noVNC/utils/launch.sh
