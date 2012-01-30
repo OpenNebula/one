@@ -22,10 +22,16 @@
 # --------------------------------------------------------------------------
 
 
-ONE_LOCATION=ENV['ONE_LOCATION']
+ONE_LOCATION=ENV["ONE_LOCATION"]
 
-$: << ONE_LOCATION+'/lib/ruby'
-$: << ONE_LOCATION+'/lib/ruby/cli'
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
 
 require 'rubygems'
 
