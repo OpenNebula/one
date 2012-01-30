@@ -293,22 +293,3 @@ string Request::allocate_error (const string& error)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-string Request::allocate_error (char *error)
-{
-    ostringstream oss;
-
-    oss << "Parse error";
-
-    if ( error != 0 )
-    {
-        oss << ": " << error;
-        free(error);
-    }
-    else
-    {
-        oss << ".";
-    }
-
-    return allocate_error(oss.str());
-}

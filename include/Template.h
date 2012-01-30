@@ -70,7 +70,7 @@ public:
      *  Parse a string representing the template, each attribute is inserted
      *  in the template class.
      *    @param parse_str string with template attributes
-     *    @param error_msg error string, must be freed by the calling funtion.
+     *    @param error_msg error string, must be freed by the calling function.
      *    This string is null if no error occurred.
      *    @return 0 on success.
      */
@@ -79,11 +79,22 @@ public:
     /**
      *  Parse a template file.
      *    @param filename of the template file
-     *    @param error_msg error string, must be freed by the calling funtion.
+     *    @param error_msg error string, must be freed by the calling function.
      *    This string is null if no error occurred.
      *    @return 0 on success.
      */
     int parse(const char * filename, char **error_msg);
+
+    /**
+     *  Parse a string representing the template, automatically detecting if
+     *  it is the default syntax, or an XML template. Each attribute is inserted
+     *  in the template class.
+     *    @param parse_str string with template attributes, or XML template
+     *    @param error_msg error string, must be freed by the calling function.
+     *    This string is null if no error occurred.
+     *    @return 0 on success.
+     */
+    int parse_str_or_xml(const string &parse_str, string& error_msg);
 
     /**
      *  Marshall a template. This function generates a single string with the

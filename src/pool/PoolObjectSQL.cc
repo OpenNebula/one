@@ -166,7 +166,6 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
 {
     Template * new_tmpl  = get_new_template();
-    char *     error_msg = 0;
 
     if ( new_tmpl == 0 )
     {
@@ -174,19 +173,8 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
         return -1;
     }
     
-    if ( new_tmpl->parse(tmpl_str, &error_msg) != 0 )
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        ostringstream oss;
-        
-        oss << "Parse error";
-         
-        if (error_msg != 0)
-        {
-            oss << ": " << error_msg;
-        }
-        
-        error = oss.str();
-
         return -1;
     }
 

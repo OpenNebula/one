@@ -135,6 +135,52 @@ error_yy:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
+{
+    int     rc;
+
+    if ( parse_str[0] == '<' )
+    {
+        rc = from_xml(parse_str);
+
+        if ( rc != 0 )
+        {
+            error_msg = "Parse error: XML Template malformed.";
+        }
+    }
+    else
+    {
+        char * error_char = 0;
+
+        rc = parse(parse_str, &error_char);
+
+        if ( rc != 0 )
+        {
+            ostringstream oss;
+
+            oss << "Parse error";
+
+            if (error_char != 0)
+            {
+                oss << ": " << error_char;
+            }
+            else
+            {
+                oss << ".";
+            }
+
+            error_msg = oss.str();
+
+            free(error_char);
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Template::marshall(string &str, const char delim)
 {
     multimap<string,Attribute *>::iterator  it;
