@@ -183,6 +183,8 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
         if (error_msg != 0)
         {
             oss << ": " << error_msg;
+
+            free(error_msg);
         }
         
         error = oss.str();
