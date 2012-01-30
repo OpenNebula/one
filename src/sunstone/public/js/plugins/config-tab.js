@@ -33,6 +33,12 @@ var config_tab_content =
                    </select>\
               </td>\
             </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Secure websockets connection") + '</td>\
+              <td class="value_td">\
+                   <input id="wss_checkbox" type="checkbox" value="yes" />\
+              </td>\
+            </tr>\
           </table>\
 \
         </div>\
@@ -48,6 +54,34 @@ var config_tab = {
 
 Sunstone.addMainTab('config_tab',config_tab);
 
+function updateWss(){
+    var user_info_req = {
+        data : {
+            id: uid,
+        },
+        success: function(req,user_json) {
+            var template = user_json.USER.TEMPLATE;
+            var template_str="";
+            template['VNC_WSS']=
+                $('#config_table #wss_checkbox').is(':checked') ? "yes" : "no";
+            //convert json to ONE template format - simple conversion
+            $.each(template,function(key,value){
+                template_str += (key + '=' + '"' + value + '"\n');
+            });
+
+            var request = {
+                data: {
+                    id: uid,
+                    extra_param: template_str
+                },
+                error: onError
+            };
+            OpenNebula.User.update(request);
+        },
+    };
+    OpenNebula.User.show(user_info_req);
+};
+
 $(document).ready(function(){
     if (lang)
         $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
@@ -55,4 +89,10 @@ $(document).ready(function(){
         setLang($(this).val());
     });
 
+    $('table#config_table #wss_checkbox').change(updateWss);
+
+    $.get('config/wss',function(response){
+        if (response != "no")
+            $('table#config_table input#wss_checkbox').attr('checked','checked');
+    });
 });

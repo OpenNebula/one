@@ -1077,7 +1077,8 @@ ETC_CLIENT_FILES="src/cli/etc/group.default"
 #-----------------------------------------------------------------------------
 
 SUNSTONE_FILES="src/sunstone/config.ru \
-                src/sunstone/sunstone-server.rb"
+                src/sunstone/sunstone-server.rb \
+                src/sunstone/OpenNebulaVNC.rb"
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
 
