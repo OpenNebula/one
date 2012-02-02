@@ -340,7 +340,7 @@ get '/ui' do
         return File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
     end
 
-    time = Time.now + 60
+    time = Time.now + 60*10
     response.set_cookie("occi-user",
                         :value=>"#{session[:user]}",
                         :expires=>time)

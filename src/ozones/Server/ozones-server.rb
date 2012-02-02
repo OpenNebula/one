@@ -192,7 +192,7 @@ get '/' do
     return  File.read(File.dirname(__FILE__)+
                       '/templates/login.html') unless authorized?
 
-    time = Time.now + 60
+    time = Time.now + 60*10
     response.set_cookie("ozones-user",
                         :value=>"#{session[:user]}",
                         :expires=>time)
