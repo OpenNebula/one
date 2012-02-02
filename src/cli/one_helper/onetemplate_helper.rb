@@ -22,7 +22,11 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
         :short => "-n vm_name",
         :large => "--name vm_name",
         :format => String,
-        :description => "Name of the new Virtual Machine"
+        :description =>  <<-EOT
+Name of the new Virtual Machine. When instantiating
+                               multiple VMs you can use the\"%i\" wildcard to produce
+                               different names such as vm-0, vm-1...
+EOT
     }
 
     MULTIPLE={
