@@ -185,7 +185,7 @@ get '/' do
 
         return File.read(File.dirname(__FILE__)+'/templates/'+templ)
     end
-    time = Time.now + 60
+    time = Time.now + 60*10
     response.set_cookie("one-user",
                         :value=>"#{session[:user]}",
                         :expires=>time)
