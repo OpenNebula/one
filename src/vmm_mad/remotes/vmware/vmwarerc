@@ -15,7 +15,7 @@
 # ---------------------------------------------------------------------------- #
 
 # Libvirt congfiguration
-:libvirt_uri: "esx://@HOST@/?no_verify=1&auto_answer=1"
+:libvirt_uri: "'esx://@HOST@/?no_verify=1&auto_answer=1'"
 
 # Username and password of the VMware hypervisor
 :username: "oneadmin"
