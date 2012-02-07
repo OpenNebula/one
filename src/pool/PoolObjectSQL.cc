@@ -155,8 +155,11 @@ void PoolObjectSQL::set_template_error_message(const string& message)
     error_value.insert(make_pair("TIMESTAMP",str));
     error_value.insert(make_pair("MESSAGE",message));
 
+    //Replace previous error message and insert the new one
+
     attr = new VectorAttribute(error_attribute_name,error_value);
 
+    obj_template->erase(error_attribute_name);
     obj_template->set(attr);
 }
 
