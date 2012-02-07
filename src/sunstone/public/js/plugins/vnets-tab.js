@@ -822,8 +822,8 @@ function setupCreateVNetDialog() {
             var ip_start = $('#ip_start',this).val();
             var ip_end = $('#ip_end',this).val();
 
-            if (!network_addr.length){
-                notifyError(tr("Please provide a network address"));
+            if (!(ip_start.length && ip_end.length) && !network_addr.length){
+                notifyError(tr("There are missing network parameters"));
                 return false;
             };
 
@@ -832,10 +832,14 @@ function setupCreateVNetDialog() {
                 "vnet" : {
                     "type" : "RANGED",
                     "bridge" : bridge,
-                    "network_mask" : network_mask,
-                    "network_address" : network_addr,
                     "name" : name }
             };
+
+            if (network_addr.length)
+                network_json["vnet"]["network_address"]=network_addr;
+
+            if (network_mask.length)
+                network_json["vnet"]["network_mask"]=network_mask;
 
             if (custom){
                 if (ip_start.length)
