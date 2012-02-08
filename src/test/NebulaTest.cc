@@ -22,7 +22,9 @@ VirtualMachinePool* NebulaTest::create_vmpool(SqlDB* db, string hook_location,
   string vloc)
 {
     vector<const Attribute *> hooks;
-    return new VirtualMachinePool(db, hooks, hook_location, vloc);
+    vector<const Attribute *> restricted_attrs;
+
+    return new VirtualMachinePool(db, hooks, hook_location, vloc, restricted_attrs);
 }
 
 HostPool* NebulaTest::create_hpool(SqlDB* db, string hook_location, string vloc)
@@ -45,7 +47,9 @@ ImagePool* NebulaTest::create_ipool( SqlDB* db,
                                 string default_image_type,
                                 string default_device_prefix)
 {
-    return new ImagePool(db,default_image_type,default_device_prefix);
+    vector<const Attribute *> restricted_attrs;
+
+    return new ImagePool(db, default_image_type, default_device_prefix, restricted_attrs);
 }
 
 VMTemplatePool* NebulaTest::create_tpool(SqlDB* db)

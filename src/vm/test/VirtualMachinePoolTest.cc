@@ -74,8 +74,11 @@ const string xml_history_dump =
 class VirtualMachinePoolFriend : public VirtualMachinePool
 {
 public:
-    VirtualMachinePoolFriend(SqlDB * db, vector<const Attribute *> hook_mads):
-            VirtualMachinePool(db, hook_mads, "./", "./")
+    VirtualMachinePoolFriend(
+            SqlDB * db,
+            vector<const Attribute *> hook_mads,
+            vector<const Attribute *> restricted_attrs):
+                VirtualMachinePool(db, hook_mads, "./", "./", restricted_attrs)
         {};
 
 
@@ -138,7 +141,9 @@ protected:
     {
         // The VM pool needs a vector containing the vm hooks
         vector<const Attribute *> vm_hooks;
-        return new VirtualMachinePoolFriend(db, vm_hooks);
+        vector<const Attribute *> restricted_attrs;
+
+        return new VirtualMachinePoolFriend(db, vm_hooks, restricted_attrs);
     };
 
     int allocate(int index)

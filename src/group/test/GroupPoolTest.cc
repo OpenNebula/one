@@ -67,6 +67,8 @@ class GroupPoolTest : public PoolTest
     CPPUNIT_TEST (duplicates);
     CPPUNIT_TEST (dump);
 
+    CPPUNIT_TEST (name_index);
+
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
@@ -221,6 +223,69 @@ public:
 //*/
         CPPUNIT_ASSERT( oss.str() == group_xml_dump );
 
+    }
+
+    /* ********************************************************************* */
+
+    void name_index()
+    {
+        Group       *group_oid, *group_name;
+        int         oid_0;
+        int         uid_0;
+        string      name_0;
+
+        oid_0 = allocate(0);
+
+        CPPUNIT_ASSERT(oid_0 != -1);
+
+        // ---------------------------------
+        // Get by oid
+        group_oid = gpool->get(oid_0, true);
+        CPPUNIT_ASSERT(group_oid != 0);
+
+        name_0 = group_oid->get_name();
+        uid_0  = group_oid->get_uid();
+
+        group_oid->unlock();
+
+        // Get by name and check it is the same object
+        group_name = gpool->get(name_0, true);
+        CPPUNIT_ASSERT(group_name != 0);
+        group_name->unlock();
+
+        CPPUNIT_ASSERT(group_oid == group_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        gpool->clean();
+
+        // Get by oid
+        group_oid = gpool->get(oid_0, true);
+        CPPUNIT_ASSERT(group_oid != 0);
+        group_oid->unlock();
+
+        // Get by name and check it is the same object
+        group_name = gpool->get(name_0, true);
+        CPPUNIT_ASSERT(group_name != 0);
+        group_name->unlock();
+
+        CPPUNIT_ASSERT(group_oid == group_name);
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        gpool->clean();
+
+        // Get by name
+        group_name = gpool->get(name_0, true);
+        CPPUNIT_ASSERT(group_name != 0);
+        group_name->unlock();
+
+        // Get by oid and check it is the same object
+        group_oid = gpool->get(oid_0, true);
+        CPPUNIT_ASSERT(group_oid != 0);
+        group_oid->unlock();
+
+        CPPUNIT_ASSERT(group_oid == group_name);
     }
 };
 

@@ -356,7 +356,11 @@ void PoolSQL::update_cache_index(string& old_name,
     if ( index != name_pool.end() )
     {
         name_pool.erase(old_key);
-        name_pool.insert(make_pair(new_key, index->second));
+        
+        if ( name_pool.find(new_key) == name_pool.end())
+        { 
+            name_pool.insert(make_pair(new_key, index->second));
+        }
     }
 
     unlock();
