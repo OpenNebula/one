@@ -219,13 +219,6 @@ protected:
      *    @return string for logging
      */
     string allocate_error (PoolObjectSQL::ObjectType obj, const string& error);
-
-    /**
-     *  Logs allocate errors
-     *    @param message with the allocate error details (parsing)
-     *    @return string for logging
-     */
-    string allocate_error (char *error);
 };
 
 /* -------------------------------------------------------------------------- */

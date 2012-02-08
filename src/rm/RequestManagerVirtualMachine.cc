@@ -420,7 +420,6 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     int           rc;
     ostringstream oss;
     string        error_str;
-    char *        error_char;
 
     // ------------------ Template for the new image ------------------
 
@@ -437,7 +436,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     itemplate = new ImageTemplate;
 
-    itemplate->parse(oss.str(), &error_char);
+    itemplate->parse_str_or_xml(oss.str(), error_str);
 
     // ------------------ Authorize the operation ------------------
 

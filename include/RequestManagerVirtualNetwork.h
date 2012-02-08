@@ -52,7 +52,7 @@ protected:
                               string& error_str) = 0;
     /* -------------------------------------------------------------------- */
 
-    string leases_error (char * error);
+    string leases_error (const string& error);
 };
 
 /* ------------------------------------------------------------------------- */
