@@ -163,6 +163,8 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
             if (error_char != 0)
             {
                 oss << ": " << error_char;
+
+                free(error_char);
             }
             else
             {
@@ -170,8 +172,6 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
             }
 
             error_msg = oss.str();
-
-            free(error_char);
         }
     }
 
