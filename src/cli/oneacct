@@ -66,13 +66,13 @@ class AcctHelper
 
             column :NETRX, "Group of the User", :right, :size=>10 do |d|
                 OpenNebulaHelper.unit_to_str(
-                    d[:network][:net_rx]/1024.0,
+                    d[:network][:net_rx].to_i/1024.0,
                     {})
             end
 
             column :NETTX, "Group of the User", :right, :size=>10 do |d|
                 OpenNebulaHelper.unit_to_str(
-                    d[:network][:net_tx]/1024.0,
+                    d[:network][:net_tx].to_i/1024.0,
                     {})
             end
 
