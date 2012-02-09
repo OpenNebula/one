@@ -54,8 +54,8 @@ class EC2QueryServer < CloudServer
         'save' => :pending,
         'epil' => :shutdown,
         'shut' => :shutdown,
+        'clea' => :shutdown,
         'fail' => :terminated,
-        'dele' => :terminated,
         'unkn' => :terminated
     }
 
@@ -211,7 +211,8 @@ class EC2QueryServer < CloudServer
     # Helper functions
     ###########################################################################
     def render_state(vm)
-        ec2_state = EC2_STATES[ONE_STATES[vm.status]]
+        one_state = ONE_STATES[vm.status]
+        ec2_state = EC2_STATES[one_state||:pending]
 
         return "<code>#{ec2_state[:code]}</code>
         <name>#{ec2_state[:name]}</name>"
