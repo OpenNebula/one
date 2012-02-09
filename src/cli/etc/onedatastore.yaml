@@ -1,0 +1,14 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the Datastore
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Datastore
+  :size: 15
+  :left: true
+
+:default:
+- :ID
+- :NAME
+
