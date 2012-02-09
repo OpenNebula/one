@@ -203,7 +203,7 @@ class DatastoreInfo: public RequestManagerInfo
 {
 public:
     DatastoreInfo():
-        RequestManagerInfo("UserInfo",
+        RequestManagerInfo("DatastoreInfo",
                            "Returns datastore information")
     {
         Nebula& nd  = Nebula::instance();
