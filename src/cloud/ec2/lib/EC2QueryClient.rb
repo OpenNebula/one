@@ -70,6 +70,7 @@ module EC2QueryClient
             end
 
             @uri = URI.parse(endpoint)
+            path = @uri.path.empty? ? '/' : @uri.path
 
             @ec2_connection = AWS::EC2::Base.new(
                 :access_key_id     => @access_key_id,
@@ -77,7 +78,7 @@ module EC2QueryClient
                 :server            => @uri.host,
                 :port              => @uri.port,
                 :use_ssl           => @uri.scheme == 'https',
-                :path              => @uri.path)
+                :path              => path)
         end
 
 
