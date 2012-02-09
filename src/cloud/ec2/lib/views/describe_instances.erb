@@ -12,7 +12,6 @@
       </groupSet> 
       <instancesSet> 
         <% vmpool.each do |vm| %>
-        <% vm.info %>
         <item> 
           <instanceId>i-<%= vm.id %></instanceId> 
           <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 
