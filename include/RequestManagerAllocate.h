@@ -279,6 +279,32 @@ public:
                       RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreAllocate: public RequestManagerAllocate
+{
+public:
+    DatastoreAllocate():
+        RequestManagerAllocate("DatastoreAllocate",
+                               "Allocates a new Datastore",
+                               "A:ss",
+                               false)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreAllocate(){};
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template * tmpl,
+                      int& id,
+                      string& error_str,
+                      RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

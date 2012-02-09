@@ -14,55 +14,35 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef GROUP_POOL_H_
-#define GROUP_POOL_H_
+#ifndef DATASTORE_POOL_H_
+#define DATASTORE_POOL_H_
 
-#include "Group.h"
+#include "Datastore.h"
 #include "SqlDB.h"
 
 using namespace std;
 
 
-class GroupPool : public PoolSQL
+class DatastorePool : public PoolSQL
 {
 public:
-    GroupPool(SqlDB * db);
+    DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table){};
 
-    ~GroupPool(){};
+    ~DatastorePool(){};
 
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
     /* ---------------------------------------------------------------------- */
-
-    /**
-     *  Default name for the oneadmin group
-     */
-    static const string ONEADMIN_NAME;
-
-    /**
-     *  Identifier for the oneadmin group
-     */
-    static const int ONEADMIN_ID;
-
-    /**
-     *  Default name for the users group
-     */
-    static const string USERS_NAME;
-
-    /**
-     *  Identifier for the user group
-     */
-    static const int USERS_ID;
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */
 
     /**
-     *  Allocates a new group, writting it in the pool database. No memory is
+     *  Allocates a new Datastore, writing it in the pool database. No memory is
      *  allocated for the object.
-     *    @param name Group name
-     *    @param oid the id assigned to the Group
+     *    @param name Datastore name
+     *    @param oid the id assigned to the Datastore
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the object, -1 in case of failure
@@ -72,15 +52,15 @@ public:
                  string&                  error_str);
 
     /**
-     *  Function to get a group from the pool, if the object is not in memory
+     *  Function to get a Datastore from the pool, if the object is not in memory
      *  it is loaded from the DB
-     *    @param oid group unique id
-     *    @param lock locks the group mutex
-     *    @return a pointer to the group, 0 if the group could not be loaded
+     *    @param oid Datastore unique id
+     *    @param lock locks the Datastore mutex
+     *    @return a pointer to the Datastore, 0 if the Datastore could not be loaded
      */
-    Group * get(int oid, bool lock)
+    Datastore * get(int oid, bool lock)
     {
-        return static_cast<Group *>(PoolSQL::get(oid,lock));
+        return static_cast<Datastore *>(PoolSQL::get(oid,lock));
     };
 
     /**
@@ -91,10 +71,10 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    Group * get(const string& name, bool lock)
+    Datastore * get(const string& name, bool lock)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Group *>(PoolSQL::get(name,-1,lock));
+        return static_cast<Datastore *>(PoolSQL::get(name,-1,lock));
     };
 
     /**
@@ -106,42 +86,40 @@ public:
      */
     string key(const string& name, int uid)
     {
-        // Name is enough key because Groups can't repeat names.
+        // Name is enough key because Datastores can't repeat names.
         return name;
     };
 
-    /** Update a particular Group
-     *    @param user pointer to Group
+    /** Update a particular Datastore
+     *    @param user pointer to Datastore
      *    @return 0 on success
      */
-    int update(Group * group)
+    int update(Datastore * datastore)
     {
-        return group->update(db);
+        return datastore->update(db);
     };
 
     /**
-     *  Drops the Group from the data base. The object mutex SHOULD be
+     *  Drops the Datastore data in the data base. The object mutex SHOULD be
      *  locked.
-     * @param objsql a pointer to a Group object
-     * @param error_msg Error reason, if any
-     * @return  0 on success,
-     *          -1 DB error,
-     *          -2 object is a system group (ID < 100)
-     *          -3 Group's User IDs set is not empty
+     *    @param objsql a pointer to the Datastore object
+     *    @param error_msg Error reason, if any
+     *    @return 0 on success, -1 DB error
+     *            -3 Datastore's Image IDs set is not empty
      */
     int drop(PoolObjectSQL * objsql, string& error_msg);
 
     /**
-     *  Bootstraps the database table(s) associated to the Group pool
+     *  Bootstraps the database table(s) associated to the Datastore pool
      *    @return 0 on success
      */
     static int bootstrap(SqlDB * _db)
     {
-        return Group::bootstrap(_db);
+        return Datastore::bootstrap(_db);
     };
 
     /**
-     *  Dumps the Group pool in XML format. A filter can be also added to the
+     *  Dumps the Datastore pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
@@ -150,7 +128,7 @@ public:
      */
     int dump(ostringstream& oss, const string& where)
     {
-        return PoolSQL::dump(oss, "GROUP_POOL", Group::table, where);
+        return PoolSQL::dump(oss, "DATASTORE_POOL", Datastore::table, where);
     };
 
 private:
@@ -161,8 +139,8 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Group(-1,"");
+        return new Datastore(-1,"");
     };
 };
 
-#endif /*GROUP_POOL_H_*/
+#endif /*DATASTORE_POOL_H_*/

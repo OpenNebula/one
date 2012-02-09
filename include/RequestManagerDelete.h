@@ -178,6 +178,24 @@ public:
     int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreDelete: public RequestManagerDelete
+{
+public:
+    DatastoreDelete():
+        RequestManagerDelete("DatastoreDelete", "Deletes a datastore")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+        auth_object = PoolObjectSQL::DATASTORE;
+        auth_op     = AuthRequest::ADMIN;
+    };
+
+    ~DatastoreDelete(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

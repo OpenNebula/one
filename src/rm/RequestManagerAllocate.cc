@@ -265,3 +265,19 @@ int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     return gpool->allocate(gname, &id, error_str);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DatastoreAllocate::pool_allocate(
+        xmlrpc_c::paramList const& paramList,
+        Template * tmpl,
+        int& id,
+        string& error_str,
+        RequestAttributes& att)
+{
+    string name = xmlrpc_c::value_string(paramList.getString(1));
+
+    DatastorePool * dspool = static_cast<DatastorePool *>(pool);
+
+    return dspool->allocate(name, &id, error_str);
+}

@@ -27,6 +27,7 @@
 #include "UserPool.h"
 #include "VMTemplatePool.h"
 #include "GroupPool.h"
+#include "DatastorePool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -89,6 +90,11 @@ public:
     VMTemplatePool * get_tpool()
     {
         return tpool;
+    };
+
+    DatastorePool * get_dspool()
+    {
+        return dspool;
     };
 
     // --------------------------------------------------------------
@@ -421,6 +427,7 @@ private:
     ImagePool          * ipool;
     GroupPool          * gpool;
     VMTemplatePool     * tpool;
+    DatastorePool      * dspool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

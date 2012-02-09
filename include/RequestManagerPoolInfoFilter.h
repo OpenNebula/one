@@ -224,6 +224,30 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastorePoolInfo: public RequestManagerPoolInfoFilter
+{
+public:
+    DatastorePoolInfo():
+        RequestManagerPoolInfoFilter("DatastorePoolInfo",
+                                     "Returns the datastore pool",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastorePoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

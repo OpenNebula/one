@@ -196,6 +196,24 @@ public:
     ~UserInfo(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreInfo: public RequestManagerInfo
+{
+public:
+    DatastoreInfo():
+        RequestManagerInfo("UserInfo",
+                           "Returns datastore information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreInfo(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

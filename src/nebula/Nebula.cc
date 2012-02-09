@@ -311,6 +311,8 @@ void Nebula::start()
                                img_restricted_attrs);
 
         tpool  = new VMTemplatePool(db);
+
+        dspool = new DatastorePool(db);
     }
     catch (exception&)
     {

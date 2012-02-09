@@ -1,4 +1,4 @@
-# SConstruct for src/nebula
+# SConstruct for src/datastore
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,52 +16,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-import os
 Import('env')
 
-lib_name='nebula_core'
+lib_name='nebula_datastore'
 
 # Sources to generate the library
 source_files=[
-    'Nebula.cc',
-    'NebulaTemplate.cc',
+    'DatastorePool.cc',
+    'Datastore.cc'
 ]
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
-
-# Build daemon
-env.Prepend(LIBS=[
-    'nebula_core',
-    'nebula_vmm',
-    'nebula_lcm',
-    'nebula_im',
-    'nebula_hm',
-    'nebula_rm',
-    'nebula_dm',
-    'nebula_tm',
-    'nebula_um',
-    'nebula_datastore',
-    'nebula_group',
-    'nebula_authm',
-    'nebula_acl',
-    'nebula_mad',
-    'nebula_template',
-    'nebula_image',
-    'nebula_pool',
-    'nebula_host',
-    'nebula_vnm',
-    'nebula_vm',
-    'nebula_vmtemplate',
-    'nebula_common',
-    'nebula_sql',
-    'nebula_log',
-    'nebula_xml',
-    'crypto'
-])
-
-if not env.GetOption('clean'):
-    env.ParseConfig(("LDFLAGS='%s' ../../share/scons/get_xmlrpc_config"+
-        " server") % (os.environ['LDFLAGS'],))
-
-env.Program('oned.cc')

@@ -121,6 +121,16 @@ void UserPoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void DatastorePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void RequestManagerPoolInfoFilter::dump(
         RequestAttributes& att,
         int                filter_flag,

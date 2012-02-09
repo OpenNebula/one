@@ -35,7 +35,7 @@ HostPool::HostPool(SqlDB*                    db,
                    const string&             remotes_location)
                         : PoolSQL(db,Host::table)
 {
-    // ------------------ Initialize Hooks fot the pool ----------------------
+    // ------------------ Initialize Hooks for the pool ----------------------
 
     const VectorAttribute * vattr;
 

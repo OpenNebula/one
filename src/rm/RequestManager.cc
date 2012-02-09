@@ -263,6 +263,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_allocate(new TemplateAllocate());
     xmlrpc_c::methodPtr host_allocate(new HostAllocate());
     xmlrpc_c::methodPtr user_allocate(new  UserAllocate());
+    xmlrpc_c::methodPtr datastore_allocate(new DatastoreAllocate());
 
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
@@ -271,6 +272,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_delete(new VirtualNetworkDelete());
     xmlrpc_c::methodPtr user_delete(new UserDelete());
     xmlrpc_c::methodPtr image_delete(new ImageDelete());
+    xmlrpc_c::methodPtr datastore_delete(new DatastoreDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -280,13 +282,13 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_info(new VirtualNetworkInfo());
     xmlrpc_c::methodPtr user_info(new UserInfo());
     xmlrpc_c::methodPtr image_info(new ImageInfo());
+    xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
 
     // PoolInfo Methods 
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
     xmlrpc_c::methodPtr grouppool_info(new GroupPoolInfo());
     xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
-
-    // PoolInfo Methods with Filtering
+    xmlrpc_c::methodPtr datastorepool_info(new DatastorePoolInfo());
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
     xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
@@ -399,6 +401,14 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.acl.addrule", acl_addrule);
     RequestManagerRegistry.addMethod("one.acl.delrule", acl_delrule);
     RequestManagerRegistry.addMethod("one.acl.info",    acl_info);
+
+    /* Datastore related methods */
+    RequestManagerRegistry.addMethod("one.datastore.allocate",datastore_allocate);
+    RequestManagerRegistry.addMethod("one.datastore.delete",  datastore_delete);
+    RequestManagerRegistry.addMethod("one.datastore.info",    datastore_info);
+
+    RequestManagerRegistry.addMethod("one.datastorepool.info",datastorepool_info);
+
 };
 
 /* -------------------------------------------------------------------------- */
