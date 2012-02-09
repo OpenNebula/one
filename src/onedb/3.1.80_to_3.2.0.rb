@@ -162,12 +162,19 @@ module Migrator
         @db.run "CREATE TABLE IF NOT EXISTS user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * FROM old_user_pool") do |row|
+            doc = Document.new(row[:body])
+
+            gid = "1"
+            doc.root.each_element("GID") { |e|
+                gid = e.text
+            }
+
             @db[:user_pool].insert(
                 :oid        => row[:oid],
                 :name       => row[:name],
                 :body       => row[:body],
-                :uid        => "0",
-                :gid        => row[:oid],
+                :uid        => row[:oid],
+                :gid        => gid,
                 :owner_u    => "1",
                 :group_u    => "0",
                 :other_u    => "0")
