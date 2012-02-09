@@ -110,7 +110,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         number = options[:multiple] || 1
         number.times do |i|
             exit_code=helper.perform_action(args[0],options,"instantiated") do |t|
-                name = options[:vm_name].gsub("%i",i.to_s)
+                name = options[:vm_name]
+                name = name.gsub("%i",i.to_s) if name
                 res = t.instantiate(name)
 
                 if !OpenNebula.is_error?(res)
