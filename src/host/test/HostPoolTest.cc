@@ -501,7 +501,7 @@ public:
         HostPool *  hp = static_cast<HostPool *>(pool);
         Host        *host_oid, *host_name;
         int         oid_0;
-        int         uid_0;
+        //int         uid_0;
         string      name_0;
 
         oid_0 = allocate(0);
@@ -514,7 +514,7 @@ public:
         CPPUNIT_ASSERT(host_oid != 0);
 
         name_0 = host_oid->get_name();
-        uid_0  = host_oid->get_uid();
+        //uid_0  = host_oid->get_uid();
 
         host_oid->unlock();
 

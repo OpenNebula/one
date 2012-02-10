@@ -231,7 +231,7 @@ public:
     {
         Group       *group_oid, *group_name;
         int         oid_0;
-        int         uid_0;
+        //int         uid_0;
         string      name_0;
 
         oid_0 = allocate(0);
@@ -244,7 +244,7 @@ public:
         CPPUNIT_ASSERT(group_oid != 0);
 
         name_0 = group_oid->get_name();
-        uid_0  = group_oid->get_uid();
+        //uid_0  = group_oid->get_uid();
 
         group_oid->unlock();
 
