@@ -188,7 +188,7 @@ public:
         RequestManagerDelete("DatastoreDelete", "Deletes a datastore")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_upool();
+        pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
         auth_op     = AuthRequest::ADMIN;
     };
