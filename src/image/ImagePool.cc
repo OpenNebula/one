@@ -71,7 +71,12 @@ int ImagePool::allocate (
     Image *         img;
     Image *         img_aux = 0;
     string          name;
+    int             ds_id;
     ostringstream   oss;
+    Datastore *     ds;
+    DatastorePool * dspool;
+
+    Nebula& nd = Nebula::instance();
 
     img = new Image(uid, gid, uname, gname, img_template);
 
@@ -95,6 +100,32 @@ int ImagePool::allocate (
     {
         goto error_duplicated;
     }
+
+    // Check datastore exists
+
+    // TODO: get datastore by name, and replace datastore name from it
+
+    img->get_template_attribute("DATASTORE_ID", ds_id);
+
+    // TODO how to check if "DATASTORE_ID" exists?
+    // get_template_attribute returns 0 if the attribute does not exist...
+    // but it can exist and have value 0
+    if ( false )
+    {
+        goto error_common;  // TODO error
+    }
+
+    dspool  = nd.get_dspool();
+    ds      = dspool->get(ds_id, true);
+
+    if( ds == 0 )
+    {
+        goto error_common;  // TODO error
+    }
+
+    img->replace_template_attribute("DATASTORE", ds->get_name());
+
+    ds->unlock();
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository

@@ -17,6 +17,8 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
+#include "DatastorePool.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -370,7 +372,24 @@ int ImageManager::delete_image(int iid)
         imd->rm(img->get_oid(),img->get_source());
     }
 
+    int ds_id = img->get_ds_id();
     img->unlock();
+
+
+    Datastore *     ds;
+    DatastorePool * dspool;
+    Nebula& nd = Nebula::instance();
+
+    dspool  = nd.get_dspool();
+    ds      = dspool->get(ds_id, true);
+
+    // TODO check ds != 0
+
+    ds->del_image(iid);
+
+    dspool->update(ds);
+
+    ds->unlock();
 
     return 0;
 }
@@ -392,6 +411,35 @@ int ImageManager::register_image(int iid)
                 "Could not get driver to update repository");
         return -1;
     }
+
+    img = ipool->get(iid,true);
+
+    if (img == 0)
+    {
+        return -1;
+    }
+
+    // Add the image to its datastore
+    int ds_id = img->get_ds_id();
+
+    img->unlock();
+
+    Datastore *     ds;
+    DatastorePool * dspool;
+    Nebula& nd = Nebula::instance();
+
+    dspool  = nd.get_dspool();
+    ds      = dspool->get(ds_id, true);
+
+    // TODO check ds != 0
+
+    ds->add_image(iid);
+
+    dspool->update(ds);
+
+    ds->unlock();
+
+
 
     img = ipool->get(iid,true);
 

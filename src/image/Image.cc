@@ -47,7 +47,9 @@ Image::Image(int             _uid,
         fs_type(""),
         size_mb(0),
         state(INIT),
-        running_vms(0)
+        running_vms(0),
+        ds_id(-1),
+        ds_name("")
 {
     if (_image_template != 0)
     {
@@ -91,11 +93,14 @@ int Image::insert(SqlDB *db, string& error_str)
     string path_attr;
     string type_att;
     string persistent_attr;
+    string datastore_attr;
     string dev_prefix;
     string source_attr;
     string aname;
 
     ostringstream oss;
+    istringstream iss;
+    string        ds_id_str;
 
     // ------------------------------------------------------------------------
     // Check template for restricted attributes
@@ -132,6 +137,15 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         goto error_type;
     }
+
+    // ------------ DATASTORE --------------------
+
+    erase_template_attribute("DATASTORE_ID", ds_id_str);
+
+    iss.str(ds_id_str);
+    iss >> ds_id;
+
+    erase_template_attribute("DATASTORE",    ds_name);
 
     // ------------ PERSISTENT --------------------
 
@@ -352,6 +366,8 @@ string& Image::to_xml(string& xml) const
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
+            "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
+            "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             obj_template->to_xml(template_xml)                        <<
         "</IMAGE>";
 
@@ -392,6 +408,9 @@ int Image::from_xml(const string& xml)
     rc += xpath(size_mb, "/IMAGE/SIZE", 0);
     rc += xpath(int_state, "/IMAGE/STATE", 0);
     rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
+
+    rc += xpath(ds_id,  "/IMAGE/DATASTORE_ID", -1);
+    rc += xpath(ds_name,"/IMAGE/DATASTORE", "not_found");
 
     // Permissions
     rc += perms_from_xml();

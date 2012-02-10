@@ -296,6 +296,14 @@ public:
         return new ImageTemplate;
     }
 
+    /**
+     * Returns the Datastore ID
+     */
+    int get_ds_id()
+    {
+        return ds_id;
+    };
+
 private:
 
     // -------------------------------------------------------------------------
@@ -352,6 +360,16 @@ private:
      * Number of VMs using the image
      */
     int running_vms;
+
+    /**
+     * Datastore ID
+     */
+    int ds_id;
+
+    /**
+     * Datastore name
+     */
+    string ds_name;
 
     // *************************************************************************
     // DataBase implementation (Private)
