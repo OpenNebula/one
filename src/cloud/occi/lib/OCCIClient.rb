@@ -20,7 +20,7 @@ require 'rubygems'
 require 'rexml/document'
 require 'uri'
 
-require 'CloudClient'
+require 'deltacloud/drivers/opennebula/cloud_client'
 
 
 module OCCIClient
@@ -30,11 +30,13 @@ module OCCIClient
     #####################################################################
     class Client
 
+        attr_accessor :endpoint
+
         ######################################################################
         # Initialize client library
         ######################################################################
         def initialize(endpoint_str=nil, user=nil, pass=nil,
-                       timeout=nil, debug_flag=true)
+            timeout=nil, debug_flag=true)
             @debug   = debug_flag
             @timeout = timeout
 
@@ -65,50 +67,30 @@ module OCCIClient
         # Pool Resource Request Methods #
         #################################
 
+        def get_root
+            get('/')
+        end
+
+        ######################################################################
+        # Retieves the available Instance types
+        ######################################################################
+        def get_instance_types
+            get('/instance_type')
+        end
+
         ######################################################################
         # Post a new VM to the VM Pool
-        # :instance_type
         # :xmlfile
         ######################################################################
         def post_vms(xmlfile)
-            xml=File.read(xmlfile)
-
-            url = URI.parse(@endpoint+"/compute")
-
-            req = Net::HTTP::Post.new(url.path)
-            req.body=xml
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) do |http|
-                http.request(req)
-            end
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            post('/compute', xmlfile)
         end
 
         ######################################################################
         # Retieves the pool of Virtual Machines
         ######################################################################
         def get_vms
-            url = URI.parse(@endpoint+"/compute")
-            req = Net::HTTP::Get.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            get('/compute')
         end
 
         ######################################################################
@@ -116,44 +98,14 @@ module OCCIClient
         # :xmlfile xml description of the Virtual Network
         ######################################################################
         def post_network(xmlfile)
-            xml=File.read(xmlfile)
-
-            url = URI.parse(@endpoint+"/network")
-
-            req = Net::HTTP::Post.new(url.path)
-            req.body=xml
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) do |http|
-                http.request(req)
-            end
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            post('/network', xmlfile)
         end
 
         ######################################################################
         # Retieves the pool of Virtual Networks
         ######################################################################
         def get_networks
-            url = URI.parse(@endpoint+"/network")
-            req = Net::HTTP::Get.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            get('/network')
         end
 
         ######################################################################
@@ -251,21 +203,9 @@ module OCCIClient
         # Retieves the pool of Images owned by the user
         ######################################################################
         def get_images
-            url = URI.parse(@endpoint+"/storage")
-            req = Net::HTTP::Get.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            get('/storage')
         end
+
 
         ####################################
         # Entity Resource Request Methods  #
@@ -275,20 +215,7 @@ module OCCIClient
         # :id VM identifier
         ######################################################################
         def get_vm(id)
-            url = URI.parse(@endpoint+"/compute/" + id.to_s)
-            req = Net::HTTP::Get.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            get('/compute/'+id.to_s)
         end
 
         ######################################################################
@@ -296,57 +223,14 @@ module OCCIClient
         # :xmlfile Compute OCCI xml representation
         ######################################################################
         def put_vm(xmlfile)
-            xml     = File.read(xmlfile)
-
-            begin
-                vm_info = REXML::Document.new(xml).root
-            rescue Exception => e
-                error = CloudClient::Error.new(e.message)
-                return error
-            end
-
-            if vm_info.elements['ID'] == nil
-                return CloudClient::Error.new("Can not find COMPUTE_ID")
-            end
-
-            vm_id = vm_info.elements['ID'].text
-
-            url = URI.parse(@endpoint+'/compute/' + vm_id)
-
-            req = Net::HTTP::Put.new(url.path)
-            req.body = xml
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) do |http|
-                http.request(req)
-            end
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            put('/compute/', xmlfile)
         end
 
         ####################################################################
         # :id Compute identifier
         ####################################################################
         def delete_vm(id)
-            url = URI.parse(@endpoint+"/compute/" + id.to_s)
-            req = Net::HTTP::Delete.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            delete('/compute/'+id.to_s)
         end
 
         ######################################################################
@@ -354,20 +238,7 @@ module OCCIClient
         # :id Virtual Network identifier
         ######################################################################
         def get_network(id)
-            url = URI.parse(@endpoint+"/network/" + id.to_s)
-            req = Net::HTTP::Get.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            get('/network/'+id.to_s)
         end
 
         ######################################################################
@@ -375,78 +246,22 @@ module OCCIClient
         # :xmlfile Network OCCI xml representation
         ######################################################################
         def put_network(xmlfile)
-            xml     = File.read(xmlfile)
-
-            begin
-                vnet_info = REXML::Document.new(xml).root
-            rescue Exception => e
-                error = CloudClient::Error.new(e.message)
-                return error
-            end
-
-            if vnet_info.elements['ID'] == nil
-                return CloudClient::Error.new("Can not find NETWORK_ID")
-            end
-
-            vnet_id = vnet_info.elements['ID'].text
-
-            url = URI.parse(@endpoint+'/network/' + vnet_id)
-
-            req = Net::HTTP::Put.new(url.path)
-            req.body = xml
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) do |http|
-                http.request(req)
-            end
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            put('/network/', xmlfile)
         end
         
         ######################################################################
         # :id VM identifier
         ######################################################################
         def delete_network(id)
-            url = URI.parse(@endpoint+"/network/" + id.to_s)
-            req = Net::HTTP::Delete.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+            delete('/network/'+id.to_s)
         end
 
-       #######################################################################
+         #######################################################################
         # Retieves an Image
         # :image_uuid Image identifier
         ######################################################################
-        def get_image(image_uuid)
-            url = URI.parse(@endpoint+"/storage/"+image_uuid)
-            req = Net::HTTP::Get.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
+        def get_image(id)
+            get('/storage/'+id.to_s)
         end
 
         ######################################################################
@@ -454,51 +269,72 @@ module OCCIClient
         # :xmlfile Storage OCCI xml representation
         ######################################################################
         def put_image(xmlfile)
-            xml     = File.read(xmlfile)
-            
+            put('/storage/', xmlfile)
+        end
+
+        ######################################################################
+        # :id VM identifier
+        ######################################################################
+        def delete_image(id)
+            delete('/storage/'+id.to_s)
+        end
+
+        private
+
+        def get(path)
+            url = URI.parse(@endpoint+path)
+            req = Net::HTTP::Get.new(url.path)
+
+            do_request(url, req)
+        end
+
+        def post(path, xmlfile)
+            url = URI.parse(@endpoint+path)
+            req = Net::HTTP::Post.new(url.path)
+
+            req.body=File.read(xmlfile)
+
+            do_request(url, req)
+        end
+
+        def delete(path, xmlfile)
+            url = URI.parse(@endpoint+path)
+            req = Net::HTTP::Delete.new(url.path)
+
+            do_request(url, req)
+        end
+
+        def put(path, xmlfile)
+            xml = File.read(xmlfile)
+
+            # Get ID from XML
             begin
-                image_info = REXML::Document.new(xml).root
+                info = REXML::Document.new(xml).root
             rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
+                error = CloudClient::Error.new(e.message)
                 return error
             end
-            
-            if image_info.elements['ID'] == nil
-                return CloudClient::Error.new("Can not find STORAGE_ID")
+
+            if info.elements['ID'] == nil
+                return CloudClient::Error.new("Can not find RESOURCE ID")
             end
 
-            image_id = image_info.elements['ID'].text
+            resource_id = info.elements['ID'].text
 
-            url = URI.parse(@endpoint+'/storage/' + image_id)
-
+            url = URI.parse(@endpoint+path + resource_id)
             req = Net::HTTP::Put.new(url.path)
+
             req.body = xml
 
+            do_request(url, req)
+        end
+
+        def do_request(url, req)
             req.basic_auth @occiauth[0], @occiauth[1]
 
             res = CloudClient::http_start(url, @timeout) do |http|
                 http.request(req)
             end
-
-            if CloudClient::is_error?(res)
-                return res
-            else
-                return res.body
-            end
-        end
-        
-        ######################################################################
-        # :id VM identifier
-        ######################################################################
-        def delete_image(id)
-            url = URI.parse(@endpoint+"/storage/" + id.to_s)
-            req = Net::HTTP::Delete.new(url.path)
-
-            req.basic_auth @occiauth[0], @occiauth[1]
-
-            res = CloudClient::http_start(url, @timeout) {|http|
-                http.request(req)
-            }
 
             if CloudClient::is_error?(res)
                 return res
