@@ -329,6 +329,11 @@ private:
             delete tpool;
         }
 
+        if ( dspool != 0)
+        {
+            delete tpool;
+        }
+        
         if ( vmm != 0)
         {
             delete vmm;
