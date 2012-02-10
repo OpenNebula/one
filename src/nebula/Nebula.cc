@@ -248,6 +248,7 @@ void Nebula::start()
             rc += ImagePool::bootstrap(db);
             rc += VMTemplatePool::bootstrap(db);
             rc += AclManager::bootstrap(db);
+            rc += DatastorePool::bootstrap(db);
 
             // Create the versioning table only if bootstrap went well
             if ( rc == 0 )
