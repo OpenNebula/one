@@ -64,15 +64,16 @@ public:
     {
         switch (ob)
         {
-            case VM:       return "VM" ; break;
-            case HOST:     return "HOST" ; break;
-            case NET:      return "NET" ; break;
-            case IMAGE:    return "IMAGE" ; break;
-            case USER:     return "USER" ; break;
-            case TEMPLATE: return "TEMPLATE" ; break;
-            case GROUP:    return "GROUP" ; break;
-            case ACL:      return "ACL" ; break;
-            default:       return "";
+            case VM:        return "VM" ; break;
+            case HOST:      return "HOST" ; break;
+            case NET:       return "NET" ; break;
+            case IMAGE:     return "IMAGE" ; break;
+            case USER:      return "USER" ; break;
+            case TEMPLATE:  return "TEMPLATE" ; break;
+            case GROUP:     return "GROUP" ; break;
+            case ACL:       return "ACL" ; break;
+            case DATASTORE: return "DATASTORE" ; break;
+            default:        return "";
         }
     };
 
