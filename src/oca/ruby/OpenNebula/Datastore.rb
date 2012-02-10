@@ -86,10 +86,10 @@ module OpenNebula
         end
 
         # Returns an array with the numeric image ids
-        def user_ids
+        def img_ids
             array = Array.new
 
-            self.each("DATASTORE/ID") do |id|
+            self.each("IMAGES/ID") do |id|
                 array << id.text.to_i
             end
 

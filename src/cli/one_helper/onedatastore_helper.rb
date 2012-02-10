@@ -70,7 +70,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "IMAGES", false)
         CLIHelper.print_header("%-15s" % ["ID"])
-        datastore.user_ids.each do |id|
+        datastore.img_ids.each do |id|
             puts "%-15s" % [id]
         end
     end
