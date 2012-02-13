@@ -364,6 +364,15 @@ EOT
         end
     end
 
+    def OpenNebulaHelper.period_to_str(time)
+        seconds=time.to_i
+        minutes, seconds=seconds.divmod(60)
+        hours, minutes=minutes.divmod(60)
+        days, hours=hours.divmod(24)
+
+        "%4dd %02d:%02d:%02d" % [days, hours, minutes, seconds]
+    end
+
     BinarySufix = ["K", "M", "G", "T" ]
 
     def OpenNebulaHelper.unit_to_str(value, options, unit="K")
