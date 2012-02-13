@@ -306,19 +306,22 @@ get '/user/:id' do
 end
 
 ##############################################
-## UI
+## OCCI UI (Self-Service)
 ##############################################
 
-get '/ui/config/:opt' do
-    case params[:opt]
-    when "lang" then session[:lang]
-    when "wss"
-        wss = settings.config[:vnc_proxy_support_wss]
-        wss = (wss == true || wss == "yes" || wss == "only" ? "yes" : "no")
-        return wss
-    when "vnc" then settings.config[:vnc_enable] ? "yes" : "no"
-    else [404, "Unknown configuration option"]
-    end
+get '/ui/config' do
+    wss = settings.config[:vnc_proxy_support_wss]
+    wss = (wss == true || wss == "yes" || wss == "only" ? "yes" : "no")
+
+    vnc = settings.config[:vnc_enable] ? "yes" : "no"
+
+    config =  "<UI_CONFIGURARION>"
+    config << "  <LANG>#{session[:lang]}</LANG>"
+    congig << "  <WSS>#{wss}</WSS>"
+    congig << "  <VNC>#{vnc}</VNC>"
+    config << "</UI_CONFIGURARION>"
+
+    return [200, config]
 end
 
 post '/ui/config' do
@@ -333,6 +336,7 @@ post '/ui/config' do
         when "lang" then session[:lang]=value
         end
     end
+
     return 200
 end
 
@@ -374,12 +378,11 @@ post '/ui/startvnc/:id' do
         return [403, "VNC sessions are disabled"]
     end
 
-    vm_id = params[:id]
-
+    vm_id    = params[:id]
     vnc_hash = session['vnc']
 
     if !vnc_hash
-        session['vnc']= {}
+        session['vnc'] = {}
     elsif vnc_hash[vm_id]
         #return existing information
         info = vnc_hash[vm_id].clone
@@ -395,10 +398,10 @@ post '/ui/startvnc/:id' do
         session['vnc'][vm_id] = info.clone
         info.delete(:pipe)
 
-        [200, info.to_json]
-    else
-        rc
+        rc = [200, info.to_json]
     end
+
+    return rc
 end
 
 post '/ui/stopvnc/:id' do
@@ -406,12 +409,11 @@ post '/ui/stopvnc/:id' do
         return [403, "VNC sessions are disabled"]
     end
 
-    vm_id = params[:id]
+    vm_id    = params[:id]
     vnc_hash = session['vnc']
 
     if !vnc_hash || !vnc_hash[vm_id]
-        msg = "It seems there is no VNC proxy running for this machine"
-        return [403, msg]
+        return [403, "It seems there is no VNC proxy running for this machine"]
     end
 
     rc = @occi_server.stopvnc(vnc_hash[vm_id][:pipe])
@@ -420,5 +422,5 @@ post '/ui/stopvnc/:id' do
         session['vnc'].delete(vm_id)
     end
 
-    rc
+    return rc
 end
