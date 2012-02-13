@@ -227,18 +227,18 @@ post '/logout' do
 end
 
 ##############################################################################
-# Config and Logs
+# User configuration and VM logs
 ##############################################################################
-#get '/config' do
-#    @SunstoneServer.get_configuration(session[:user_id])
-#end
 
-get '/config/:opt' do
-    case params[:opt]
-    when "lang" then session[:lang]
-    when "wss" then session[:wss]
-    else "unknown"
-    end
+get '/config' do
+    uconf = { 
+        :user_config => {
+            :lang => session[:lang]
+            :wss  => session[:wss] 
+        }
+    } 
+
+    [200, uconf.json]
 end
 
 post '/config' do
@@ -250,8 +250,8 @@ post '/config' do
 
     body.each do | key,value |
         case key
-        when "lang" then session[:lang]=value
-        when "wss" then session[:wss]=value
+            when "lang" then session[:lang]= value
+            when "wss"  then session[:wss] = value
         end
     end
 end

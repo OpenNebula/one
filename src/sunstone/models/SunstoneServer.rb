@@ -148,37 +148,6 @@ class SunstoneServer
     end
 
     ############################################################################
-    # Unused
-    ############################################################################
-    # def get_configuration(user_id)
-    #     if user_id != "0"
-    #         return [401, ""]
-    #     end
-
-    #     one_config = VAR_LOCATION + "/config"
-    #     config = Hash.new
-
-    #     begin
-    #         cfg = File.read(one_config)
-    #     rescue Exception => e
-    #         error = Error.new("Error reading config: #{e.inspect}")
-    #         return [500, error.to_json]
-    #     end
-
-    #     cfg.lines do |line|
-    #         m=line.match(/^([^=]+)=(.*)$/)
-
-    #         if m
-    #             name=m[1].strip.upcase
-    #             value=m[2].strip
-    #             config[name]=value
-    #         end
-    #     end
-
-    #     return [200, config.to_json]
-    # end
-
-    ############################################################################
     #
     ############################################################################
     def get_vm_log(id)
@@ -201,7 +170,6 @@ class SunstoneServer
             return [200, {:vm_log => log}.to_json]
         end
     end
-
 
     ########################################################################
     # VNC
@@ -233,7 +201,6 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-
     def get_monitoring(id, resource, monitor_resources, gid)
         watch_client = case resource
             when "vm","VM"
@@ -262,18 +229,11 @@ class SunstoneServer
         return [200, rc.to_json]
     end
 
-    ############################################################################
-    #
-    ############################################################################
-
-    ############################################################################
-    #
-    ############################################################################
-
-
-
     private
 
+    ############################################################################
+    #
+    ############################################################################
     def retrieve_resource(kind, id)
         resource = case kind
             when "group"    then GroupJSON.new_with_id(id, @client)

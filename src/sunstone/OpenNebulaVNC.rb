@@ -14,31 +14,38 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
-#This file provides support for launching and stopping a websockify proxy
-
 require 'json'
+require 'OpenNebula'
 
+#
+# This class provides support for launching and stopping a websockify proxy
+#
 class OpenNebulaVNC
-    def initialize(config,opt={:json_errors => true})
-        @proxy_path = config[:vnc_proxy_path]
+    def initialize(config, opt={:json_errors => true})
+        @proxy_path      = config[:vnc_proxy_path]
         @proxy_base_port = config[:vnc_proxy_base_port].to_i
+
         @wss = config[:vnc_proxy_support_wss]
-        @enable_wss = (@wss == "yes") || (@wss == "only") || (@wss == true)
-        @cert = @enable_wss? config[:vnc_proxy_cert] : nil
-        @key = @enable_wss? config[:vnc_proxy_key] : nil
-        @options=opt
-    end
 
-    def error(code, msg)
-        if @options[:json_errors]
-            return [code,OpenNebula::Error.new(msg).to_json]
+        if (@wss == "yes") || (@wss == "only") || (@wss == true)
+            @enable_wss = true
+            @cert       = config[:vnc_proxy_cert]
+            @key        = config[:vnc_proxy_key]
         else
-            return [code,msg]
+            @enable_wss = false
         end
+
+        @options = opt
     end
 
+    # Start a VNC proxy
     def start(vm_resource)
+        # Check configurations and VM attributes
+         
+        if @proxy_path == nil || @proxy_path.empty?
+            return error(403,"VNC proxy not configured")
+        end
+
         if vm_resource['LCM_STATE'] != "3"
             return error(403,"VM is not running")
         end
@@ -47,43 +54,50 @@ class OpenNebulaVNC
             return error(403,"VM has no VNC configured")
         end
 
-        # The VM host and its VNC port
-        host = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+        # Proxy data
+        host     = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
         vnc_port = vm_resource['TEMPLATE/GRAPHICS/PORT']
-        # The port on which the proxy will listen
-        proxy_port = @proxy_base_port + vnc_port.to_i
 
-        if !@proxy_path || @proxy_path.size == 0
-            return error(403,"VNC proxy not configured")
-        end
+        proxy_port = @proxy_base_port + vnc_port.to_i
 
         proxy_options = ""
 
         if @enable_wss
-            proxy_options += " --cert #{@cert}"
-            proxy_options += " --key #{@key}" if @key && @key.size > 0
-            proxy_options += " --ssl-only" if @wss == "only"
+            proxy_options << " --cert #{@cert}"
+            proxy_options << " --key #{@key}" if @key && @key.size > 0
+            proxy_options << " --ssl-only" if @wss == "only"
         end
 
-        proxy_cmd = "#{@proxy_path} #{proxy_options} #{proxy_port} #{host}:#{vnc_port}"
+        cmd ="#{@proxy_path} #{proxy_options} #{proxy_port} #{host}:#{vnc_port}"
 
         begin
             $stderr.puts("Starting vnc proxy: #{proxy_cmd}")
-            pipe = IO.popen(proxy_cmd)
+            pipe = IO.popen(cmd)
         rescue Exception => e
-            error = Error.new(e.message)
-            return [500, error.to_json]
+            return [500, OpenNebula::Error.new(e.message).to_json]
         end
 
         vnc_pw = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+        info   = {:pipe => pipe, :port => proxy_port, :password => vnc_pw}
 
-        info = {:pipe => pipe, :port => proxy_port, :password => vnc_pw}
         return [200, info]
     end
 
-    #handle exceptions outside
+    # Stop a VNC proxy handle exceptions outside
     def self.stop(pipe)
         Process.kill('KILL',pipe.pid)
         pipe.close
     end
+
+    private
+
+    def error(code, msg)
+        if @options[:json_errors]
+            return [code,OpenNebula::Error.new(msg).to_json]
+        else
+            return [code,msg]
+        end
+    end
+    
+
 end
