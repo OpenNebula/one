@@ -15,16 +15,19 @@
 /* -------------------------------------------------------------------------- */
 
 /*Virtual Machines tab plugin*/
-//var INCLUDE_URI = "vendor/noVNC/include/";
+var INCLUDE_URI = "vendor/noVNC/include/";
 //var VM_HISTORY_LENGTH = 40;
 
-/*
+
 function loadVNC(){
     var script = '<script src="vendor/noVNC/include/vnc.js"></script>';
     document.write(script);
 }
 loadVNC();
+var vnc_enable=false;
+var use_wss=false;
 
+/*
 var vm_graphs = [
     { title : tr("CPU"),
       monitor_resources : "cpu_usage",
@@ -264,7 +267,6 @@ var vm_actions = {
         error: onError
     },
 
-    /*
     "VM.startvnc" : {
         type: "single",
         call: OCCI.VM.startvnc,
@@ -280,6 +282,7 @@ var vm_actions = {
         notify: true
     },
 
+/*
     "VM.monitor" : {
         type: "monitor",
         call : OCCI.VM.monitor,
@@ -539,6 +542,10 @@ function updateVMInfo(request,vm){
               <tr>\
                  <td class="key_td">'+tr("Memory")+'</td>\
                  <td class="value_td">'+vm_info.MEMORY+'</td>\
+              </tr>\
+              <tr>\
+                 <td class="key_td">'+tr("Launch VNC session")+'</td>\
+                 <td class="value_td">'+vncIcon(vm_info)+'</td>\
               </tr>\
             </tbody>\
           </table>\
@@ -940,7 +947,7 @@ function setVMAutorefresh(){
      },INTERVAL+someTime());
 }
 
-/*
+
 function updateVNCState(rfb, state, oldstate, msg) {
     var s, sb, cad, klass;
     s = $D('VNC_status');
@@ -1016,7 +1023,7 @@ function setupVNC(){
         Sunstone.runAction("VM.stopvnc",id);
     });
 
-    $('.vnc',main_tabs_context).live("click",function(){
+    $('.vnc').live("click",function(){
         //Which VM is it?
         var id = $(this).attr('vm_id');
         //Set attribute to dialog
@@ -1029,7 +1036,7 @@ function setupVNC(){
 
 function vncCallback(request,response){
     rfb = new RFB({'target':       $D('VNC_canvas'),
-                   'encrypt':      false,
+                   'encrypt':      use_wss,
                    'true_color':   true,
                    'local_cursor': true,
                    'shared':       true,
@@ -1050,6 +1057,20 @@ function vncCallback(request,response){
 }
 
 function vncIcon(vm){
+    var gr_icon;
+    if (vnc_enable){
+        gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
+        gr_icon += '<img src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
+    }
+    else {
+        gr_icon = '<img src="images/vnc_off.png" alt=\"'+tr("VNC Disabled")+'\" />';
+    }
+    return gr_icon;
+}
+
+/*
+
+function vncIcon(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
     var state = vm.STATE;
     var gr_icon;
@@ -1063,6 +1084,9 @@ function vncIcon(vm){
     return gr_icon;
 }
 
+*/
+
+/*
 function vmMonitorError(req,error_json){
     var message = error_json.error.message;
     var info = req.request.data[0].monitor;
@@ -1070,9 +1094,9 @@ function vmMonitorError(req,error_json){
     var id_suffix = labels.replace(/,/g,'_');
     var id = '#vm_monitor_'+id_suffix;
     $('#vm_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
-}
+}*/
 
-*/
+
 
 // At this point the DOM is ready and the sunstone.js ready() has been run.
 $(document).ready(function(){
@@ -1102,7 +1126,7 @@ $(document).ready(function(){
     //setupCreateVMDialog();
     setupSaveasDialog();
     setVMAutorefresh();
-    //setupVNC();
+    setupVNC();
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

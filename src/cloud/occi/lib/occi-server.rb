@@ -309,7 +309,19 @@ end
 ## UI
 ##############################################
 
-post '/config' do
+get '/ui/config/:opt' do
+    case params[:opt]
+    when "lang" then session[:lang]
+    when "wss"
+        wss = settings.config[:vnc_proxy_support_wss]
+        wss = (wss == true || wss == "yes" || wss == "only" ? "yes" : "no")
+        return wss
+    when "vnc" then settings.config[:vnc_enable] ? "yes" : "no"
+    else [404, "Unknown configuration option"]
+    end
+end
+
+post '/ui/config' do
     begin
         body = JSON.parse(request.body.read)
     rescue
@@ -321,6 +333,7 @@ post '/config' do
         when "lang" then session[:lang]=value
         end
     end
+    return 200
 end
 
 get '/ui/login' do
@@ -354,4 +367,58 @@ post '/ui/upload' do
     request.params['file'] = file.path #so we can re-use occi post_storage()
     result,rc = @occi_server.post_storage(request)
     treat_response(result,rc)
+end
+
+post '/ui/startvnc/:id' do
+    if !settings.config[:vnc_enable]
+        return [403, "VNC sessions are disabled"]
+    end
+
+    vm_id = params[:id]
+
+    vnc_hash = session['vnc']
+
+    if !vnc_hash
+        session['vnc']= {}
+    elsif vnc_hash[vm_id]
+        #return existing information
+        info = vnc_hash[vm_id].clone
+        info.delete(:pipe)
+
+        return [200, info.to_json]
+    end
+
+    rc = @occi_server.startvnc(vm_id, settings.config)
+
+    if rc[0] == 200
+        info = rc[1]
+        session['vnc'][vm_id] = info.clone
+        info.delete(:pipe)
+
+        [200, info.to_json]
+    else
+        rc
+    end
+end
+
+post '/ui/stopvnc/:id' do
+    if !settings.config[:vnc_enable]
+        return [403, "VNC sessions are disabled"]
+    end
+
+    vm_id = params[:id]
+    vnc_hash = session['vnc']
+
+    if !vnc_hash || !vnc_hash[vm_id]
+        msg = "It seems there is no VNC proxy running for this machine"
+        return [403, msg]
+    end
+
+    rc = @occi_server.stopvnc(vnc_hash[vm_id][:pipe])
+
+    if rc[0] == 200
+        session['vnc'].delete(vm_id)
+    end
+
+    rc
 end
