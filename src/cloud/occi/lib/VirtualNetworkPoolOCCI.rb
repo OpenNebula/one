@@ -14,15 +14,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
-
-include OpenNebula
+require 'VirtualNetworkOCCI'
 
 class VirtualNetworkPoolOCCI < VirtualNetworkPool
     OCCI_NETWORK_POOL = %q{
         <NETWORK_COLLECTION>
-            <% self.each{ |vn|  %>  
+            <% self.each{ |vn|  %>
+            <% if verbose %>
+            <%= vn.to_occi(base_url) %>
+            <% else %>
             <NETWORK href="<%= base_url %>/network/<%= vn.id.to_s  %>" name="<%= vn.name  %>"/>
+            <% end %>
             <% } %>
         </NETWORK_COLLECTION>       
     }
@@ -38,5 +40,9 @@ class VirtualNetworkPoolOCCI < VirtualNetworkPool
         end
 
         return occi_text.gsub(/\n\s*/,'')
+    end
+
+    def factory(element_xml)
+        VirtualNetworkOCCI.new(element_xml,@client)
     end
 end

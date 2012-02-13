@@ -99,16 +99,15 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( do_template == true )
     {
-        char * error_msg = 0;
         string str_tmpl  = xmlrpc_c::value_string(params.getString(1));
 
         tmpl = get_object_template();
 
-        rc   = tmpl->parse(str_tmpl, &error_msg);
+        rc   = tmpl->parse_str_or_xml(str_tmpl, error_str);
 
         if ( rc != 0 )
         {
-            failure_response(INTERNAL, allocate_error(error_msg), att);
+            failure_response(INTERNAL, allocate_error(error_str), att);
             delete tmpl;
 
             return;

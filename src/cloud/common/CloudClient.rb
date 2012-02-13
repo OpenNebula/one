@@ -61,7 +61,7 @@ module CloudClient
     # #########################################################################
     def self.get_one_auth
         if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
-           File.file?(ENV["ONE_AUTH"])
+            File.file?(ENV["ONE_AUTH"])
             one_auth=File.read(ENV["ONE_AUTH"]).strip.split(':')
         elsif File.file?(DEFAULT_AUTH_FILE)
             one_auth=File.read(DEFAULT_AUTH_FILE).strip.split(':')
@@ -91,24 +91,30 @@ module CloudClient
         end
 
         begin
-            http.start do |connection|
+            res = http.start do |connection|
                 block.call(connection)
             end
         rescue Errno::ECONNREFUSED => e
             str =  "Error connecting to server (#{e.to_s}).\n"
             str << "Server: #{url.host}:#{url.port}"
 
-            return CloudClient::Error.new(str)
+            return CloudClient::Error.new(str,"503")
         rescue Errno::ETIMEDOUT => e
             str =  "Error timeout connecting to server (#{e.to_s}).\n"
             str << "Server: #{url.host}:#{url.port}"
 
-            return CloudClient::Error.new(str)
+            return CloudClient::Error.new(str,"504")
         rescue Timeout::Error => e
             str =  "Error timeout while connected to server (#{e.to_s}).\n"
             str << "Server: #{url.host}:#{url.port}"
 
-            return CloudClient::Error.new(str)
+            return CloudClient::Error.new(str,"504")
+        end
+
+        if res.is_a?(Net::HTTPSuccess)
+            res
+        else
+            CloudClient::Error.new(res.body, res.code)
         end
     end
 
@@ -118,10 +124,12 @@ module CloudClient
     # #########################################################################
     class Error
         attr_reader :message
+        attr_reader :code
 
         # +message+ a description of the error
-        def initialize(message=nil)
+        def initialize(message=nil, code="500")
             @message=message
+            @code=code
         end
 
         def to_s()
@@ -140,7 +148,7 @@ end
 
 # Command line help functions
 module CloudCLI
-    def print_xml(xml_text)
+   	def print_xml(xml_text)
         begin
             doc = REXML::Document.new(xml_text)
         rescue REXML::ParseException => e

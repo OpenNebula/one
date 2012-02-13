@@ -22,19 +22,9 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string RequestManagerVirtualNetwork::leases_error (char *error)
+string RequestManagerVirtualNetwork::leases_error (const string& error)
 {
-    ostringstream oss;
-
-    oss << "Parse error.";
-
-    if ( error != 0 )
-    {
-        oss << " " << error;
-        free(error);
-    }
-
-    return request_error("Error modifying network leases",oss.str());
+    return request_error("Error modifying network leases",error);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -50,7 +40,6 @@ void RequestManagerVirtualNetwork::
     VirtualNetworkTemplate tmpl;
     VirtualNetwork *       vn;
 
-    char * error_msg = 0;
     string error_str;
     int    rc;
 
@@ -59,11 +48,11 @@ void RequestManagerVirtualNetwork::
         return;
     }
 
-    rc = tmpl.parse(str_tmpl, &error_msg);
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, leases_error(error_msg), att);
+        failure_response(INTERNAL, leases_error(error_str), att);
         return;
     }
 

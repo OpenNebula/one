@@ -330,7 +330,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->log("LCM", Log::INFO, "Fail to life migrate VM."
+        vm->log("LCM", Log::INFO, "Fail to live migrate VM."
                 " Assuming that the VM is still RUNNING (will poll VM).");
 
         //----------------------------------------------------
