@@ -235,8 +235,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
-          $VAR_LOCATION/remotes/image \
-          $VAR_LOCATION/remotes/image/fs \
+          $VAR_LOCATION/remotes/datastore \
+          $VAR_LOCATION/remotes/datastore/fs \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -385,7 +385,7 @@ INSTALL_FILES=(
     VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
-    IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
+    IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy

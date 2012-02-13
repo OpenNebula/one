@@ -50,20 +50,30 @@ class ImageDriver < OpenNebulaDriver
     }
 
     # Register default actions for the protocol
-    def initialize(fs_type, options={})
+    def initialize(ds_type, options={})
         @options={
             :concurrency => 10,
             :threaded => true,
             :retries => 0,
             :local_actions => {
-                'MV' => nil,
-                'CP' => nil,
-                'RM' => nil,
-                'MKFS' => nil
+                ACTION[:mv]   => nil,
+                ACTION[:cp]   => nil,
+                ACTION[:rm]   => nil,
+                ACTION[:mkfs] => nil
             }
         }.merge!(options)
 
-        super("image/#{fs_type}", @options)
+        super("datastore/", @options)
+
+        if ds_type == nil
+            @types = Dir["#{@local_scripts_path}/*/"].map do |d|
+                d.split('/')[-1]
+            end
+        elsif ds_type.class == String
+            @types = [ds_type]
+        else
+            @types = ds_type
+        end
 
         register_action(ACTION[:mv].to_sym, method("mv"))
         register_action(ACTION[:cp].to_sym, method("cp"))
@@ -72,22 +82,47 @@ class ImageDriver < OpenNebulaDriver
     end
 
     # Image Manager Protocol Actions (generic implementation
-    def mv(id, src, dst)
-        do_action("#{src} #{dst} #{id}", id, nil,
-            ACTION[:mv])
+    def mv(id, ds, src, dst)
+        do_image_action(id, ds, :mv, "'#{src}' '#{dst}' '#{id}'")
     end
 
-    def cp(id, src)
-        do_action("#{src} #{id}", id, nil, ACTION[:cp])
+    def cp(id, ds, src)
+        do_image_action(id, ds, :cp, "'#{src}' '#{id}'")
     end
 
-    def rm(id, dst)
-        do_action("#{dst} #{id}", id, nil, ACTION[:rm])
+    def rm(id, ds, dst)
+        do_image_action(id, ds, :rm, "'#{dst}' '#{id}'")
     end
 
-    def mkfs(id, fs, size)
-        do_action("#{fs} #{size} #{id}", id, nil,
-            ACTION[:mkfs])
+    def mkfs(id, ds, fs, size)
+        do_image_action(id, ds, :mkfs, "'#{fs}' '#{size}' '#{id}'")
+    end
+
+    private
+
+    def is_available?(ds, id, action)
+        if @types.include?(ds)
+            return true
+        else
+            send_message(ACTION[action], RESULT[:failure], id, 
+                "Datastore driver '#{ds}' not available")
+            return false
+        end
+    end
+
+    def do_image_action(id, ds, action, arguments)
+        return if not is_available?(ds,id,:mv)
+
+        path = File.join(@local_scripts_path, ds)
+        cmd  = File.join(path, ACTION[action].downcase)
+
+        cmd << " " << arguments
+
+        rc = LocalCommand.run(cmd, log_method(id))
+
+        result, info = get_info_from_execution(rc)
+
+        send_message(ACTION[action], result, id, info)
     end
 end
 
@@ -95,28 +130,25 @@ end
 # ImageDriver Main program
 
 opts = GetoptLong.new(
-    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--threads',  '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--ds-types', '-d', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
-fs_type    = ''
-threads    = 15
+ds_type = nil
+threads = 15
 
 begin
     opts.each do |opt, arg|
         case opt
             when '--threads'
-                threads   = arg.to_i
+                threads = arg.to_i
+            when '--ds-types'
+                ds_type = arg.split(',').map {|a| a.strip }
         end
     end
 rescue Exception => e
     exit(-1)
 end
 
-if ARGV.length >= 1
-    fs_type = ARGV.shift
-else
-    exit(-1)
-end
-
-image_driver = ImageDriver.new(fs_type, :concurrency => threads)
+image_driver = ImageDriver.new(ds_type, :concurrency => threads)
 image_driver.start_driver
