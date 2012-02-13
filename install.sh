@@ -1013,7 +1013,8 @@ OCCI_LIB_FILES="src/cloud/occi/lib/OCCIServer.rb \
                 src/cloud/occi/lib/UserOCCI.rb \
                 src/cloud/occi/lib/UserPoolOCCI.rb \
                 src/cloud/occi/lib/ImageOCCI.rb \
-                src/cloud/occi/lib/ImagePoolOCCI.rb"
+                src/cloud/occi/lib/ImagePoolOCCI.rb \
+                src/sunstone/OpenNebulaVNC.rb"
 
 OCCI_LIB_CLIENT_FILES="src/cloud/occi/lib/OCCIClient.rb"
 

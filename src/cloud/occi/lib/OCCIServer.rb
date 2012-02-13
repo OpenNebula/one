@@ -30,6 +30,8 @@ require 'ImagePoolOCCI'
 require 'UserOCCI'
 require 'UserPoolOCCI'
 
+require 'OpenNebulaVNC'
+
 require 'pp'
 
 
@@ -235,7 +237,6 @@ class OCCIServer < CloudServer
 
         return to_occi_xml(vm, :status=>200)
     end
-
 
     # Deletes a COMPUTE resource
     # request:: _Hash_ hash containing the data of the request
@@ -504,5 +505,34 @@ class OCCIServer < CloudServer
         end
 
         return to_occi_xml(user, :status=>200)
+    end
+
+    ############################################################################
+    # VNC Methods
+    ############################################################################
+
+    def startvnc(id,config)
+        vm = VirtualMachineOCCI.new(
+                                    VirtualMachine.build_xml(id),
+                                    @client)
+
+        rc = vm.info
+        if OpenNebula.is_error?(rc)
+            error = "Error starting VNC session, "
+            error += "could not retrieve Virtual Machine"
+            return [404,error]
+        end
+
+        vnc_proxy = OpenNebulaVNC.new(config,{:json_errors => false})
+        return vnc_proxy.start(vm)
+    end
+
+    def stopvnc(pipe)
+        begin
+            OpenNebulaVNC.stop(pipe)
+        rescue Exception => e
+            return [500, e.message]
+        end
+        return [200,nil]
     end
 end

@@ -49,16 +49,29 @@ var config_tab = {
 Sunstone.addMainTab('config_tab',config_tab);
 
 $(document).ready(function(){
-    if (lang)
-        $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
-    $('table#config_table #lang_sel').change(function(){
-        setLang($(this).val());
-    });
-
     $('#li_config_tab').click(function(){
         hideDialog();
     });
 
+    //Set lang to the right value
+    if (lang)
+        $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
+
+    //Listen to changes in language
+    $('table#config_table #lang_sel').change(function(){
+        setLang($(this).val());
+    });
+
+    //Vendor customization, change small logo
     $('div#logo img').attr('src',logo_small);
 
+    $.get('ui/config/vnc',function(response){
+        if (response == "true" || response == "yes")
+            vnc_enable=true; //defined in compute.js
+    });
+
+    $.get('ui/config/wss', function(response){
+        if (response == "true" || response == "yes")
+            use_wss=true; //defined in compute.js
+    });
 });
