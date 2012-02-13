@@ -77,7 +77,7 @@ class AcctHelper
             end
 
             column :TIME, "Group of the User", :right, :size=>15 do |d|
-                OpenNebulaHelper.time_to_str(d[:time])
+                OpenNebulaHelper.period_to_str(d[:time])
             end
 
             default :VMID, :MEMORY, :CPU, :NETRX, :NETTX, :TIME
