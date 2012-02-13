@@ -24,6 +24,8 @@ class VirtualNetworkOCCI < VirtualNetwork
         <NETWORK href="<%= base_url %>/network/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
+            <USER href="<%= base_url %>/user/<%= self['UID'] %>" name="<%= self['UNAME'] %>"/>
+            <GROUP><%= self['GNAME'] %></GROUP>
             <% if self['TEMPLATE/DESCRIPTION'] != nil %>
             <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
             <% end %>

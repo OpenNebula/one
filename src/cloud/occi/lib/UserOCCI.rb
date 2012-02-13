@@ -27,6 +27,7 @@ class UserOCCI < User
         <USER href="<%= base_url %>/user/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
+            <GROUP><%= self['GNAME'] %></GROUP>
             <QUOTA>
             <% user_quota.each { |key,value|
                 key_s = key.to_s.upcase

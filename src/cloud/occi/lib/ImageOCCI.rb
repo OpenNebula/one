@@ -23,6 +23,8 @@ class ImageOCCI < Image
         <STORAGE href="<%= base_url %>/storage/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
+            <USER href="<%= base_url %>/user/<%= self['UID'] %>" name="<%= self['UNAME'] %>"/>
+            <GROUP><%= self['GNAME'] %></GROUP>
             <STATE><%= self.state_str %></STATE>
             <% if self['TYPE'] != nil %>
             <TYPE><%= self.type_str %></TYPE>
