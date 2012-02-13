@@ -80,6 +80,7 @@ function updateWss(){
         },
     };
     OpenNebula.User.show(user_info_req);
+    $.post('config',JSON.stringify({wss : ($('#config_table #wss_checkbox').is(':checked') ? "yes" : "no")}));
 };
 
 $(document).ready(function(){

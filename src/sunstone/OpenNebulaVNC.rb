@@ -24,8 +24,7 @@ class OpenNebulaVNC
         @proxy_path = config[:vnc_proxy_path]
         @proxy_base_port = config[:vnc_proxy_base_port].to_i
         @wss = config[:vnc_proxy_support_wss]
-        $stderr.puts "wss #{@wss}"
-        @enable_wss = (@wss == "yes") || (@wss == "only")
+        @enable_wss = (@wss == "yes") || (@wss == "only") || (@wss == true)
         @cert = @enable_wss? config[:vnc_proxy_cert] : nil
         @key = @enable_wss? config[:vnc_proxy_key] : nil
         @options=opt

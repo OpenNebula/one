@@ -130,9 +130,10 @@ helpers do
             if user['TEMPLATE/VNC_WSS']
                 session[:wss] = user['TEMPLATE/VNC_WSS']
             else
-                session[:wss] = settings.config[:vnc_proxy_support_wss]
+                wss = settings.config[:vnc_proxy_support_wss]
                 #limit to yes,no options
-                session[:wss] = (session[:wss] != "no" ? "yes" : "no")
+                session[:wss] = (wss == true || wss == "yes" || wss == "only" ? 
+                                 "yes" : "no")
             end
 
             #end user options
