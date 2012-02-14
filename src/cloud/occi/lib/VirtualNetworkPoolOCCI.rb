@@ -31,7 +31,8 @@ class VirtualNetworkPoolOCCI < VirtualNetworkPool
     
     
     # Creates the OCCI representation of a Virtual Machine Pool
-    def to_occi(base_url)begin
+    def to_occi(base_url, verbose=false)
+        begin
             occi = ERB.new(OCCI_NETWORK_POOL)
             occi_text = occi.result(binding) 
         rescue Exception => e
