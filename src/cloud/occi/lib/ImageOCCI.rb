@@ -84,7 +84,7 @@ class ImageOCCI < Image
     end
 
     # Creates the OCCI representation of an Image
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         begin
             occi_im = ERB.new(OCCI_IMAGE)
             occi_im_text = occi_im.result(binding)

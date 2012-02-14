@@ -122,7 +122,7 @@ class VirtualMachineOCCI < VirtualMachine
     end
 
     # Creates the VMI representation of a Virtual Machine
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         begin
             occi_vm = ERB.new(OCCI_VM)
             occi_vm_text = occi_vm.result(binding)

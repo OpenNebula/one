@@ -30,7 +30,7 @@ class UserPoolOCCI < UserPool
     }
 
     # Creates the OCCI representation of a User Pool
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         begin
             occi = ERB.new(OCCI_USER_POOL)
             occi_text = occi.result(binding)
