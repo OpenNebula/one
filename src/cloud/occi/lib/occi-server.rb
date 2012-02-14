@@ -367,9 +367,12 @@ end
 
 post '/ui/upload' do
     file = Tempfile.new('uploaded_image')
-    FileUtils.cp(request.env['rack.input'].path,file.path)
-    request.params['file'] = file.path #so we can re-use occi post_storage()
+    FileUtils.cp(request.env['rack.input'].path, file.path)
+
+    #so we can re-use occi post_storage()
+    request.params['file'] = {:tempfile => file} 
     result,rc = @occi_server.post_storage(request)
+    
     treat_response(result,rc)
 end
 
