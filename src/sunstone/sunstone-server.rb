@@ -39,6 +39,7 @@ SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cloud'
+$: << SUNSTONE_ROOT_DIR
 $: << SUNSTONE_ROOT_DIR+'/models'
 
 ##############################################################################
@@ -115,11 +116,27 @@ helpers do
             session[:ip]         = request.ip
             session[:remember]   = params[:remember]
 
+            #User IU options initialization
+            #Load options either from user settings or default config.
+            # - LANG
+            # - WSS CONECTION
+
             if user['TEMPLATE/LANG']
                 session[:lang] = user['TEMPLATE/LANG']
             else
                 session[:lang] = settings.config[:lang]
             end
+
+            if user['TEMPLATE/VNC_WSS']
+                session[:wss] = user['TEMPLATE/VNC_WSS']
+            else
+                wss = settings.config[:vnc_proxy_support_wss]
+                #limit to yes,no options
+                session[:wss] = (wss == true || wss == "yes" || wss == "only" ?
+                                 "yes" : "no")
+            end
+
+            #end user options
 
             if params[:remember]
                 env['rack.session.options'][:expire_after] = 30*60*60*24
@@ -210,10 +227,18 @@ post '/logout' do
 end
 
 ##############################################################################
-# Config and Logs
+# User configuration and VM logs
 ##############################################################################
+
 get '/config' do
-    @SunstoneServer.get_configuration(session[:user_id])
+    uconf = {
+        :user_config => {
+            :lang => session[:lang],
+            :wss  => session[:wss]
+        }
+    }
+
+    [200, uconf.to_json]
 end
 
 post '/config' do
@@ -225,7 +250,8 @@ post '/config' do
 
     body.each do | key,value |
         case key
-        when "lang" then session[:lang]=value
+            when "lang" then session[:lang]= value
+            when "wss"  then session[:wss] = value
         end
     end
 end
@@ -301,7 +327,8 @@ post '/vm/:id/stopvnc' do
         return [403, OpenNebula::Error.new(msg).to_json]
     end
 
-    rc = @SunstoneServer.stopvnc(vm_id, vnc_hash[vm_id][:pipe])
+    rc = @SunstoneServer.stopvnc(vnc_hash[vm_id][:pipe])
+
     if rc[0] == 200
         session['vnc'].delete(vm_id)
     end
@@ -327,7 +354,8 @@ post '/vm/:id/startvnc' do
         return [200, info.to_json]
     end
 
-    rc = @SunstoneServer.startvnc(vm_id, settings.config)
+    rc = @SunstoneServer.startvnc(vm_id,settings.config)
+
     if rc[0] == 200
         info = rc[1]
         session['vnc'][vm_id] = info.clone

@@ -18,6 +18,7 @@ require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
 require 'acct/watch_client'
+require 'OpenNebulaVNC'
 
 class SunstoneServer
     # FLAG that will filter the elements retrieved from the Pools
@@ -149,37 +150,6 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-    def get_configuration(user_id)
-        if user_id != "0"
-            return [401, ""]
-        end
-
-        one_config = VAR_LOCATION + "/config"
-        config = Hash.new
-
-        begin
-            cfg = File.read(one_config)
-        rescue Exception => e
-            error = Error.new("Error reading config: #{e.inspect}")
-            return [500, error.to_json]
-        end
-
-        cfg.lines do |line|
-            m=line.match(/^([^=]+)=(.*)$/)
-
-            if m
-                name=m[1].strip.upcase
-                value=m[2].strip
-                config[name]=value
-            end
-        end
-
-        return [200, config.to_json]
-    end
-
-    ############################################################################
-    #
-    ############################################################################
     def get_vm_log(id)
         resource = retrieve_resource("vm", id)
         if OpenNebula.is_error?(resource)
@@ -201,7 +171,6 @@ class SunstoneServer
         end
     end
 
-
     ########################################################################
     # VNC
     ########################################################################
@@ -211,50 +180,16 @@ class SunstoneServer
             return [404, resource.to_json]
         end
 
-        if resource['LCM_STATE'] != "3"
-            error = OpenNebula::Error.new("VM is not running")
-            return [403, error.to_json]
-        end
-
-        if resource['TEMPLATE/GRAPHICS/TYPE'] != "vnc"
-            error = OpenNebula::Error.new("VM has no VNC configured")
-            return [403, error.to_json]
-        end
-
-        # The VM host and its VNC port
-        host = resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
-        vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
-        # The noVNC proxy_port
-        proxy_port = config[:vnc_proxy_base_port].to_i + vnc_port.to_i
-
-        begin
-            novnc_cmd = "#{config[:novnc_path]}/utils/wsproxy.py"
-            novnc_exec = "#{novnc_cmd} #{proxy_port} #{host}:#{vnc_port}"
-            $stderr.puts("Starting vnc proxy: #{novnc_exec}")
-            pipe = IO.popen(novnc_exec)
-        rescue Exception => e
-            error = Error.new(e.message)
-            return [500, error.to_json]
-        end
-
-        vnc_pw = resource['TEMPLATE/GRAPHICS/PASSWD']
-
-        info = {:pipe => pipe, :port => proxy_port, :password => vnc_pw}
-        return [200, info]
+        vnc_proxy = OpenNebulaVNC.new(config)
+        return vnc_proxy.start(resource)
     end
 
     ############################################################################
     #
     ############################################################################
-    def stopvnc(id,pipe)
-        resource = retrieve_resource("vm", id)
-        if OpenNebula.is_error?(resource)
-            return [404, resource.to_json]
-        end
-
+    def stopvnc(pipe)
         begin
-            Process.kill('KILL',pipe.pid)
-            pipe.close
+            OpenNebulaVNC.stop(pipe)
         rescue Exception => e
             error = Error.new(e.message)
             return [500, error.to_json]
@@ -266,7 +201,6 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-
     def get_monitoring(id, resource, monitor_resources, gid)
         watch_client = case resource
             when "vm","VM"
@@ -295,18 +229,11 @@ class SunstoneServer
         return [200, rc.to_json]
     end
 
-    ############################################################################
-    #
-    ############################################################################
-
-    ############################################################################
-    #
-    ############################################################################
-
-
-
     private
 
+    ############################################################################
+    #
+    ############################################################################
     def retrieve_resource(kind, id)
         resource = case kind
             when "group"    then GroupJSON.new_with_id(id, @client)

@@ -33,6 +33,12 @@ var config_tab_content =
                    </select>\
               </td>\
             </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Secure websockets connection") + '</td>\
+              <td class="value_td">\
+                   <input id="wss_checkbox" type="checkbox" value="yes" />\
+              </td>\
+            </tr>\
           </table>\
 \
         </div>\
@@ -41,18 +47,74 @@ var config_tab_content =
   </tr>\
 </table></form>';
 
+var config_actions = {
+    "Config.list" : {
+        type: "list",
+        call: OpenNebula.Config.list,
+        callback: updateConfig,
+        error: onError
+    },
+};
+
 var config_tab = {
     title: tr("Configuration"),
     content: config_tab_content
 }
 
+Sunstone.addActions(config_actions);
 Sunstone.addMainTab('config_tab',config_tab);
 
+
+function updateConfig(request,response){
+    var config = response['user_config'];
+
+    //Set wss checkbox to correct value
+    if (config["wss"] == "yes"){
+        $('table#config_table input#wss_checkbox').attr('checked','checked');
+    };
+};
+
+function updateWss(){
+    var user_info_req = {
+        data : {
+            id: uid,
+        },
+        success: function(req,user_json) {
+            var template = user_json.USER.TEMPLATE;
+            var template_str="";
+            template['VNC_WSS']=
+                $('#config_table #wss_checkbox').is(':checked') ? "yes" : "no";
+            //convert json to ONE template format - simple conversion
+            $.each(template,function(key,value){
+                template_str += (key + '=' + '"' + value + '"\n');
+            });
+
+            var request = {
+                data: {
+                    id: uid,
+                    extra_param: template_str
+                },
+                error: onError
+            };
+            OpenNebula.User.update(request);
+        },
+    };
+    OpenNebula.User.show(user_info_req);
+    $.post('config',JSON.stringify({wss : ($('#config_table #wss_checkbox').is(':checked') ? "yes" : "no")}));
+};
+
 $(document).ready(function(){
+    Sunstone.runAction('Config.list');
+
+    //Set the language select to correct value
     if (lang)
         $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
+
+    //Listener to change language
     $('table#config_table #lang_sel').change(function(){
         setLang($(this).val());
     });
 
+    //Listener to wss change
+    $('table#config_table #wss_checkbox').change(updateWss);
 });

@@ -1013,7 +1013,8 @@ OCCI_LIB_FILES="src/cloud/occi/lib/OCCIServer.rb \
                 src/cloud/occi/lib/UserOCCI.rb \
                 src/cloud/occi/lib/UserPoolOCCI.rb \
                 src/cloud/occi/lib/ImageOCCI.rb \
-                src/cloud/occi/lib/ImagePoolOCCI.rb"
+                src/cloud/occi/lib/ImagePoolOCCI.rb \
+                src/sunstone/OpenNebulaVNC.rb"
 
 OCCI_LIB_CLIENT_FILES="src/cloud/occi/lib/OCCIClient.rb"
 
@@ -1077,7 +1078,8 @@ ETC_CLIENT_FILES="src/cli/etc/group.default"
 #-----------------------------------------------------------------------------
 
 SUNSTONE_FILES="src/sunstone/config.ru \
-                src/sunstone/sunstone-server.rb"
+                src/sunstone/sunstone-server.rb \
+                src/sunstone/OpenNebulaVNC.rb"
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
 

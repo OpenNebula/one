@@ -1227,7 +1227,7 @@ function setupVNC(){
 
 function vncCallback(request,response){
     rfb = new RFB({'target':       $D('VNC_canvas'),
-                   'encrypt':      false,
+                   'encrypt':      $('#config_table #wss_checkbox').is(':checked'),
                    'true_color':   true,
                    'local_cursor': true,
                    'shared':       true,

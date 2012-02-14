@@ -45,7 +45,7 @@ function setLang(lang_str){
     if (('localStorage' in window) && (window['localStorage'] !== null)){
         localStorage['lang']=lang_str;
     };
-    $.post('config',JSON.stringify({lang:lang_str}),function(){window.location.href = "./ui"});
+    $.post('ui/config',JSON.stringify({lang:lang_str}),function(){window.location.href = "./ui"});
 };
 
 $(document).ready(function(){
