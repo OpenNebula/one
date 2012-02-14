@@ -47,12 +47,32 @@ var config_tab_content =
   </tr>\
 </table></form>';
 
+var config_actions = {
+    "Config.list" : {
+        type: "list",
+        call: OpenNebula.Config.list,
+        callback: updateConfig,
+        error: onError
+    },
+};
+
 var config_tab = {
     title: tr("Configuration"),
     content: config_tab_content
 }
 
+Sunstone.addActions(config_actions);
 Sunstone.addMainTab('config_tab',config_tab);
+
+
+function updateConfig(request,response){
+    var config = response['user_config'];
+
+    //Set wss checkbox to correct value
+    if (config["wss"] == "yes"){
+        $('table#config_table input#wss_checkbox').attr('checked','checked');
+    };
+};
 
 function updateWss(){
     var user_info_req = {
@@ -84,16 +104,17 @@ function updateWss(){
 };
 
 $(document).ready(function(){
+    Sunstone.runAction('Config.list');
+
+    //Set the language select to correct value
     if (lang)
         $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
+
+    //Listener to change language
     $('table#config_table #lang_sel').change(function(){
         setLang($(this).val());
     });
 
+    //Listener to wss change
     $('table#config_table #wss_checkbox').change(updateWss);
-
-    $.get('config/wss',function(response){
-        if (response != "no")
-            $('table#config_table input#wss_checkbox').attr('checked','checked');
-    });
 });

@@ -41,7 +41,7 @@ class OpenNebulaVNC
     # Start a VNC proxy
     def start(vm_resource)
         # Check configurations and VM attributes
-         
+
         if @proxy_path == nil || @proxy_path.empty?
             return error(403,"VNC proxy not configured")
         end
@@ -98,6 +98,6 @@ class OpenNebulaVNC
             return [code,msg]
         end
     end
-    
+
 
 end

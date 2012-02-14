@@ -132,7 +132,7 @@ helpers do
             else
                 wss = settings.config[:vnc_proxy_support_wss]
                 #limit to yes,no options
-                session[:wss] = (wss == true || wss == "yes" || wss == "only" ? 
+                session[:wss] = (wss == true || wss == "yes" || wss == "only" ?
                                  "yes" : "no")
             end
 
@@ -231,14 +231,14 @@ end
 ##############################################################################
 
 get '/config' do
-    uconf = { 
+    uconf = {
         :user_config => {
-            :lang => session[:lang]
-            :wss  => session[:wss] 
+            :lang => session[:lang],
+            :wss  => session[:wss]
         }
-    } 
+    }
 
-    [200, uconf.json]
+    [200, uconf.to_json]
 end
 
 post '/config' do
