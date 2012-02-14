@@ -54,7 +54,7 @@ class VirtualNetworkOCCI < VirtualNetwork
     end
 
     # Creates the OCCI representation of a Virtual Network
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         network_address = nil
         network_size    = nil
 

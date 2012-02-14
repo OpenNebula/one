@@ -512,15 +512,13 @@ class OCCIServer < CloudServer
     ############################################################################
 
     def startvnc(id,config)
-        vm = VirtualMachineOCCI.new(
-                                    VirtualMachine.build_xml(id),
-                                    @client)
-
+        vm = VirtualMachineOCCI.new(VirtualMachine.build_xml(id), @client)
         rc = vm.info
+
         if OpenNebula.is_error?(rc)
-            error = "Error starting VNC session, "
-            error += "could not retrieve Virtual Machine"
-            return [404,error]
+            error =  "Error starting VNC session, "
+            error << "could not retrieve Virtual Machine"
+            return [404, error]
         end
 
         vnc_proxy = OpenNebulaVNC.new(config,{:json_errors => false})
@@ -533,6 +531,7 @@ class OCCIServer < CloudServer
         rescue Exception => e
             return [500, e.message]
         end
+        
         return [200,nil]
     end
 end
