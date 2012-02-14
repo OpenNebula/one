@@ -71,7 +71,7 @@ class OpenNebulaVNC
         cmd ="#{@proxy_path} #{proxy_options} #{proxy_port} #{host}:#{vnc_port}"
 
         begin
-            $stderr.puts("Starting vnc proxy: #{proxy_cmd}")
+            $stderr.puts("Starting vnc proxy: #{cmd}")
             pipe = IO.popen(cmd)
         rescue Exception => e
             return [500, OpenNebula::Error.new(e.message).to_json]
