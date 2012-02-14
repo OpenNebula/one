@@ -68,19 +68,27 @@ int ImagePool::allocate (
         int *          oid,
         string&        error_str)
 {
-    Image *         img;
-    Image *         img_aux = 0;
-    string          name;
-    int             ds_id;
-    ostringstream   oss;
-    Datastore *     ds;
-    DatastorePool * dspool;
+    Image * img;
+    Image * img_aux = 0;
 
-    Nebula& nd = Nebula::instance();
+    ostringstream oss;
+    istringstream iss;
+
+    string  name, ds_id_str, ds_data;
+    int     ds_id;
+
+    Datastore *     ds = 0;
+
+    Nebula&         nd     = Nebula::instance();
+
+    DatastorePool * dspool = nd.get_dspool();
+    ImageManager *  imagem = nd.get_imagem();
 
     img = new Image(uid, gid, uname, gname, img_template);
 
-    // Check name
+    // -------------------------------------------------------------------------
+    // Check name & duplicates
+    // -------------------------------------------------------------------------
     img->get_template_attribute("NAME", name);
 
     if ( name.empty() )
@@ -93,7 +101,6 @@ int ImagePool::allocate (
         goto error_name_length;
     }
 
-    // Check for duplicates
     img_aux = get(name,uid,false);
 
     if( img_aux != 0 )
@@ -101,29 +108,39 @@ int ImagePool::allocate (
         goto error_duplicated;
     }
 
-    // Check datastore exists
+    // -------------------------------------------------------------------------
+    // Check that the datastore exists
+    // -------------------------------------------------------------------------
+    img->erase_template_attribute("DATASTORE", name);
+    img->erase_template_attribute("DATASTORE_ID", ds_id_str);
 
-    // TODO: get datastore by name, and replace datastore name from it
-
-    img->get_template_attribute("DATASTORE_ID", ds_id);
-
-    // TODO how to check if "DATASTORE_ID" exists?
-    // get_template_attribute returns 0 if the attribute does not exist...
-    // but it can exist and have value 0
-    if ( false )
+    if ( name.empty() )
     {
-        goto error_common;  // TODO error
+        iss.str(ds_id_str);
+        iss >> ds_id;
+
+        if (ds_id == 0)
+        {
+            goto error_ds_system;
+        }
+
+        ds = dspool->get(ds_id, true);
+    }
+    else
+    {
+        ds = dspool->get(name, true);
     }
 
-    dspool  = nd.get_dspool();
-    ds      = dspool->get(ds_id, true);
-
-    if( ds == 0 )
+    if ( ds == 0 ) 
     {
-        goto error_common;  // TODO error
+        goto error_no_ds;
     }
 
-    img->replace_template_attribute("DATASTORE", ds->get_name());
+    img->ds_name = ds->get_name();
+    img->ds_id   = ds->get_oid();
+    ds_id        = ds->get_oid();
+
+    ds->to_xml(ds_data);
 
     ds->unlock();
 
@@ -134,10 +151,20 @@ int ImagePool::allocate (
     
     if ( *oid != -1 )
     {
-        Nebula&        nd     = Nebula::instance();
-        ImageManager * imagem = nd.get_imagem();
+        ds = dspool->get(ds_id, true);
+        
+        if ( ds == 0 )
+        {
+            goto error_ds_deleted;
+        }   
 
-        if ( imagem->register_image(*oid) == -1 )
+        ds->add_image(*oid);
+
+        dspool->update(ds);
+
+        ds->unlock();
+
+        if ( imagem->register_image(*oid, ds_data) == -1 )
         {
             error_str = "Failed to copy image to repository. "
                         "Image left in ERROR state.";
@@ -149,7 +176,6 @@ int ImagePool::allocate (
 
 error_name:
     oss << "NAME cannot be empty.";
-
     goto error_common;
 
 error_name_length:
@@ -159,6 +185,19 @@ error_name_length:
 error_duplicated:
     oss << "NAME is already taken by IMAGE "
         << img_aux->get_oid() << ".";
+    goto error_common;
+
+error_ds_system:
+    oss << "System or non datastore in image template.";
+    goto error_common;
+
+error_ds_deleted:
+    oss << "Datastore was deleted while registering image."
+        << "Image left in LOCKED state.";
+    return -1; 
+
+error_no_ds:
+    oss << "No datastore specify to register image.";
 
 error_common:
     delete img;

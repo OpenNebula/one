@@ -146,17 +146,18 @@ public:
 
     /**
      *  Adds a new image to the repository copying or creating it as needed
-     *    @param iid id of image
+     *    @param img pointer to the image
+     *    @param ds_data data of the associated datastore in XML format
      *    @return 0 on success
      */
-    int register_image(int iid);
+    int register_image(int iid, const string& ds_data);
 
     /**
      *  Deletes an image from the repository and the DB
      *    @param iid id of image
      *    @return 0 on success
      */
-    int delete_image(int iid);
+    int delete_image(int iid, const string& ds_data);
 
 private:
     /**

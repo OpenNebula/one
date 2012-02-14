@@ -106,10 +106,47 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
     Nebula&         nd     = Nebula::instance();
-    ImageManager *  imagem = nd.get_imagem();
 
-    object->unlock();
-    int rc = imagem->delete_image(oid);
+    ImageManager *  imagem = nd.get_imagem();
+    DatastorePool * dspool = nd.get_dspool();
+
+    Datastore * ds;
+    Image *     img;
+
+    int    ds_id, rc;
+    string ds_data;
+
+    img   = static_cast<Image *>(object);
+    ds_id = img->get_ds_id();
+
+    img->unlock();
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+       error_msg = "Datastore no longer exists can not remove image";
+       return -1; 
+    }
+
+    ds->to_xml(ds_data);
+
+    ds->unlock();
+
+    rc = imagem->delete_image(oid, ds_data);
+
+    if ( rc == 0 )
+    {
+        ds = dspool->get(ds_id, true);
+
+        if ( ds != 0 )
+        {
+            ds->del_image(oid);
+            dspool->update(ds);
+
+            ds->unlock();
+        }
+    }
 
     return rc;
 }

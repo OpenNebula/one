@@ -93,14 +93,11 @@ int Image::insert(SqlDB *db, string& error_str)
     string path_attr;
     string type_att;
     string persistent_attr;
-    string datastore_attr;
     string dev_prefix;
     string source_attr;
     string aname;
 
     ostringstream oss;
-    istringstream iss;
-    string        ds_id_str;
 
     // ------------------------------------------------------------------------
     // Check template for restricted attributes
@@ -138,15 +135,6 @@ int Image::insert(SqlDB *db, string& error_str)
         goto error_type;
     }
 
-    // ------------ DATASTORE --------------------
-
-    erase_template_attribute("DATASTORE_ID", ds_id_str);
-
-    iss.str(ds_id_str);
-    iss >> ds_id;
-
-    erase_template_attribute("DATASTORE",    ds_name);
-
     // ------------ PERSISTENT --------------------
 
     erase_template_attribute("PERSISTENT", persistent_attr);
@@ -163,7 +151,6 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
-
         obj_template->set(dev_att);
     }
 
