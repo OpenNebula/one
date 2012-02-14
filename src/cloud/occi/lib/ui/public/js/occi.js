@@ -342,6 +342,31 @@ var OCCI = {
         }
     },
 
+    "Config": {
+        "resource": "CONFIG",
+
+        "list": function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+
+            var resource = OCCI.Config.resource;
+            var request = OCCI.Helper.request(resource,"list");
+
+            $.ajax({
+                url: "ui/config",
+                type: "GET",
+                dataType: "xml ONEjson",
+                success: function(response){
+                    return callback ? callback(request, response) : null;
+                },
+                error: function(response){
+                    return callback_error ?
+                        callback_error(request, OCCI.Error(response)) : null;
+                }
+            });
+        }
+    },
+
     "Network": {
         "resource": "NETWORK",
 

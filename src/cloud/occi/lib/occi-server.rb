@@ -317,8 +317,8 @@ get '/ui/config' do
 
     config =  "<UI_CONFIGURARION>"
     config << "  <LANG>#{session[:lang]}</LANG>"
-    congig << "  <WSS>#{wss}</WSS>"
-    congig << "  <VNC>#{vnc}</VNC>"
+    config << "  <WSS>#{wss}</WSS>"
+    config << "  <VNC>#{vnc}</VNC>"
     config << "</UI_CONFIGURARION>"
 
     return [200, config]
