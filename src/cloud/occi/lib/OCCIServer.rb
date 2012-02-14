@@ -45,6 +45,9 @@ COLLECTIONS = ["compute", "instance_type", "network", "storage"]
 # FLAG that will filter the elements retrieved from the Pools
 POOL_FILTER = Pool::INFO_ALL
 
+# Secs to sleep between checks to see if image upload&copy to repo is finished
+IMAGE_POLL_SLEEP_TIME = 1
+
 class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
@@ -410,8 +413,14 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        # --- Prepare XML Response ---
         image.info
+        #wait until image is ready to return
+        while (image.state_str == 'LOCKED') && (image['RUNNING_VMS'] == '0') do
+            sleep IMAGE_POLL_SLEEP_TIME
+            image.info
+        end
+
+        # --- Prepare XML Response ---
         return to_occi_xml(image, :status=>201)
     end
 
