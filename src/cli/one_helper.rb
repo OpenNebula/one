@@ -329,9 +329,10 @@ EOT
         client = OpenNebula::Client.new
 
         pool = case poolname
-        when "HOST"  then OpenNebula::HostPool.new(client)
-        when "GROUP" then OpenNebula::GroupPool.new(client)
-        when "USER"  then OpenNebula::UserPool.new(client)
+        when "HOST"      then OpenNebula::HostPool.new(client)
+        when "GROUP"     then OpenNebula::GroupPool.new(client)
+        when "USER"      then OpenNebula::UserPool.new(client)
+        when "DATASTORE" then OpenNebula::DatastorePool.new(client)
         end
 
         rc = pool.info

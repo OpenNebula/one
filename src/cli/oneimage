@@ -56,6 +56,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OpenNebulaHelper.rname_to_id(arg, "USER")
     end
 
+    set :format, :datastoreid, OpenNebulaHelper.rname_to_id_desc("DATASTORE") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "DATASTORE")
+    end
+
     set :format, :imageid, OneImageHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
@@ -76,10 +80,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Image from the given template file
     EOT
 
-    command :create, create_desc, :file do
+    command :create, create_desc, :file, :datastoreid do
         helper.create_resource(options) do |image|
             template=File.read(args[0])
-            image.allocate(template)
+            image.allocate(template, args[1])
         end
     end
 
