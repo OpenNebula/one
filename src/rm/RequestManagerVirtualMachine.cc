@@ -447,8 +447,13 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // ------------------ Create the image ------------------
 
+    // TODO: get values from source image DS
+    int    ds_id    = 0;
+    string ds_name  = "";
+    string ds_data  = "";
+
     rc = ipool->allocate(att.uid, att.gid, att.uname, att.gname, itemplate,
-            &iid, error_str);
+            ds_id, ds_name, ds_data, &iid, error_str);
 
     if (rc < 0)
     {

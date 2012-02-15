@@ -46,7 +46,7 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
     virtual bool allocate_authorization(Template * obj_template,
@@ -60,7 +60,11 @@ protected:
                               Template * tmpl,
                               int& id, 
                               string& error_str,
-                              RequestAttributes& att) = 0;
+                              RequestAttributes& att)
+    {
+        return -1;
+    };
+
 private:
 
     bool do_template;
@@ -146,7 +150,7 @@ public:
                                "Allocates a new image",
                                "A:ss",
                                true)
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
@@ -156,16 +160,8 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() 
-    { 
-        return new ImageTemplate; 
-    };
-
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
-                      Template * tmpl,
-                      int& id, 
-                      string& error_str,
-                      RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

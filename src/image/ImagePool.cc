@@ -65,24 +65,16 @@ int ImagePool::allocate (
         const string&  uname,
         const string&  gname,
         ImageTemplate* img_template,
+        int            ds_id,
+        const string&  ds_name,
+        const string&  ds_data,
         int *          oid,
         string&        error_str)
 {
-    Image * img;
-    Image * img_aux = 0;
-
-    ostringstream oss;
-    istringstream iss;
-
-    string  name, ds_id_str, ds_data;
-    int     ds_id;
-
-    Datastore *     ds = 0;
-
-    Nebula&         nd     = Nebula::instance();
-
-    DatastorePool * dspool = nd.get_dspool();
-    ImageManager *  imagem = nd.get_imagem();
+    Image *         img;
+    Image *         img_aux = 0;
+    string          name;
+    ostringstream   oss;
 
     img = new Image(uid, gid, uname, gname, img_template);
 
@@ -108,41 +100,8 @@ int ImagePool::allocate (
         goto error_duplicated;
     }
 
-    // -------------------------------------------------------------------------
-    // Check that the datastore exists
-    // -------------------------------------------------------------------------
-    img->erase_template_attribute("DATASTORE", name);
-    img->erase_template_attribute("DATASTORE_ID", ds_id_str);
-
-    if ( name.empty() )
-    {
-        iss.str(ds_id_str);
-        iss >> ds_id;
-
-        if (ds_id == 0)
-        {
-            goto error_ds_system;
-        }
-
-        ds = dspool->get(ds_id, true);
-    }
-    else
-    {
-        ds = dspool->get(name, true);
-    }
-
-    if ( ds == 0 ) 
-    {
-        goto error_no_ds;
-    }
-
-    img->ds_name = ds->get_name();
-    img->ds_id   = ds->get_oid();
-    ds_id        = ds->get_oid();
-
-    ds->to_xml(ds_data);
-
-    ds->unlock();
+    img->ds_name = ds_name;
+    img->ds_id   = ds_id;
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository
@@ -151,18 +110,8 @@ int ImagePool::allocate (
     
     if ( *oid != -1 )
     {
-        ds = dspool->get(ds_id, true);
-        
-        if ( ds == 0 )
-        {
-            goto error_ds_deleted;
-        }   
-
-        ds->add_image(*oid);
-
-        dspool->update(ds);
-
-        ds->unlock();
+        Nebula&        nd     = Nebula::instance();
+        ImageManager * imagem = nd.get_imagem();
 
         if ( imagem->register_image(*oid, ds_data) == -1 )
         {
@@ -186,18 +135,6 @@ error_duplicated:
     oss << "NAME is already taken by IMAGE "
         << img_aux->get_oid() << ".";
     goto error_common;
-
-error_ds_system:
-    oss << "System or non datastore in image template.";
-    goto error_common;
-
-error_ds_deleted:
-    oss << "Datastore was deleted while registering image."
-        << "Image left in LOCKED state.";
-    return -1; 
-
-error_no_ds:
-    oss << "No datastore specify to register image.";
 
 error_common:
     delete img;

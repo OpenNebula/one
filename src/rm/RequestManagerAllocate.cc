@@ -166,17 +166,108 @@ int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
-                                 Template * tmpl,
-                                 int& id, 
-                                 string& error_str,
-                                 RequestAttributes& att)
+void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
+                                             RequestAttributes& att)
 {
-    ImagePool * ipool = static_cast<ImagePool *>(pool);
-    ImageTemplate * itmpl = static_cast<ImageTemplate *>(tmpl);
+    ImageTemplate * tmpl = 0;
 
-    return ipool->allocate(att.uid, att.gid, att.uname, att.gname, itmpl, &id,
+    string error_str;
+    string ds_name;
+    string ds_data;
+    int    rc, id;
+
+    PoolObjectAuth ds_perms;
+
+    string str_tmpl = xmlrpc_c::value_string(params.getString(1));
+    int    ds_id    = xmlrpc_c::value_int(params.getInt(2));
+
+    tmpl = new ImageTemplate;
+
+    rc   = tmpl->parse_str_or_xml(str_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, allocate_error(error_str), att);
+        delete tmpl;
+
+        return;
+    }
+
+    // ------------- Check Datastore exists -----------------------------------
+
+    Nebula&         nd     = Nebula::instance();
+
+    Datastore *     ds;
+    DatastorePool * dspool = nd.get_dspool();
+
+    if ((ds = dspool->get(ds_id,true)) == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
+                att);
+
+        return;
+    }
+
+    ds->get_permissions(ds_perms);
+
+    ds_name = ds->get_name();
+
+    ds->to_xml(ds_data);
+
+    ds->unlock();
+
+
+    // ------------- Set authorization request for non-oneadmin's --------------
+
+    if ( att.uid != 0 )
+    {
+        string tmpl_str = "";
+
+        AuthRequest ar(att.uid, att.gid);
+
+        if ( tmpl != 0 )
+        {
+            tmpl->to_xml(tmpl_str);
+        }
+
+        ar.add_create_auth(auth_object, tmpl_str); // CREATE IMAGE
+
+        ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            return;
+        }
+    }
+
+    ImagePool * ipool = static_cast<ImagePool *>(pool);
+
+    rc = ipool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, ds_id, ds_name, ds_data, &id,
             error_str);
+
+    if ( rc < 0 )
+    {
+        failure_response(INTERNAL, allocate_error(error_str), att);
+        return;
+    }
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds != 0 )  // TODO: error otherwise?
+    {
+        ds->add_image(id);
+
+        dspool->update(ds);
+
+        ds->unlock();
+    }
+
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
