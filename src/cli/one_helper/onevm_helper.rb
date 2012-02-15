@@ -92,14 +92,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :TIME, "Time since the VM was submitted", :size=>11 do |d|
-                stime = Time.at(d["STIME"].to_i)
-                etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
-                dtime = Time.at(etime-stime).getgm
-                "%02d %02d:%02d:%02d" % [
-                    dtime.yday-1,
-                    dtime.hour,
-                    dtime.min,
-                    dtime.sec]
+                stime = d["STIME"].to_i
+                etime = d["ETIME"]=="0" ? Time.now.to_i : d["ETIME"].to_i
+                dtime = etime-stime
+                OpenNebulaHelper.period_to_str(dtime)
             end
 
             default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME,
@@ -201,24 +197,21 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :TIME, "Total time in this state", :size=>11 do |d|
-                stime = Time.at(d["STIME"].to_i)
-                etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
-                dtime = Time.at(etime-stime).getgm
-                "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour,
-                    dtime.min, dtime.sec]
+                stime = d["STIME"].to_i
+                etime = d["ETIME"]=="0" ? Time.now.to_i : d["ETIME"].to_i
+                dtime = etime-stime
+                OpenNebulaHelper.period_to_str(dtime)
             end
 
             column :PTIME, "Prolog time for this state", :size=>11 do |d|
-                stime = Time.at(d["PSTIME"].to_i)
+                stime = d["PSTIME"].to_i
                 if d["PSTIME"]=="0"
-                    etime=Time.at(0)
+                    etime=0
                 else
-                    etime = d["PETIME"]=="0" ? Time.now :
-                        Time.at(d["PETIME"].to_i)
+                    etime = d["PETIME"]=="0" ? Time.now.to_i: d["PETIME"].to_i
                 end
-                dtime = Time.at(etime-stime).getgm
-                "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour,
-                    dtime.min, dtime.sec]
+                dtime = etime-stime
+                OpenNebulaHelper.period_to_str(dtime)
             end
 
             default :SEQ, :HOSTNAME, :REASON, :START, :TIME, :PTIME
