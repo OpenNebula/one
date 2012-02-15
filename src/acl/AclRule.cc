@@ -166,7 +166,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "when using the ALL bit, [resource] ID must be 0";
     }
 
-    if ( (resource & 0xFF000000000LL) == 0 )
+    if ( (resource & 0xFFF000000000LL) == 0 )
     {
         if ( error )
         {
@@ -177,7 +177,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "[resource] type is missing";
     }
 
-    if ( (resource & 0xFFFFF00000000000LL) != 0 )
+    if ( (resource & 0xFFFF000000000000LL) != 0 )
     {
         if ( error )
         {
@@ -253,12 +253,13 @@ void AclRule::build_str()
             PoolObjectSQL::IMAGE,
             PoolObjectSQL::USER,
             PoolObjectSQL::TEMPLATE,
-            PoolObjectSQL::GROUP
+            PoolObjectSQL::GROUP,
+            PoolObjectSQL::DATASTORE
     };
 
     bool prefix = false;
 
-    for ( int i = 0; i < 7; i++ )
+    for ( int i = 0; i < 8; i++ )
     {
         if ( (resource & objects[i]) != 0 )
         {
