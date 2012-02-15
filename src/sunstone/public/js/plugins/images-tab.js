@@ -100,14 +100,21 @@ var create_image_tmpl =
               </fieldset>\
               <fieldset>\
                  <div class="" id="src_path_select">\
-                   <label style="height:3em;">'+tr("Path vs. source")+':</label>\
+                   <label style="height:4em;">'+tr("Image location")+':</label>\
+\
                    <input type="radio" name="src_path" id="path_img" value="path" />\
                    <label style="float:none">'+tr("Provide a path")+'</label><br />\
+\
                    <input type="radio" name="src_path" id="source_img" value="source" />\
                    <label style="float:none">'+tr("Provide a source")+'</label><br />\
+\
+                   <input type="radio" name="src_path" id="upload_img" value="upload" />\
+                   <label style="float:none">'+tr("Upload")+'</label><br />\
+\
                    <input type="radio" name="src_path" id="datablock_img" value="datablock" />\
                    <label style="float:none;vertical-align:top">'+tr("Create an empty datablock")+'</label>\
                    <div class="tip">'+tr("Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.")+'</div><br />\
+\
                  </div>\
                  <div class="img_param">\
                     <label for="img_path">'+tr("Path")+':</label>\
@@ -128,6 +135,11 @@ var create_image_tmpl =
                     <label for="img_fstype">'+tr("FS type")+':</label>\
                     <input type="text" name="img_fstype" id="img_fstype" />\
                     <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
+                 </div>\
+                 <div class="img_param" id="upload_div">\
+                   <label for="file-uploader" >'+tr("Upload file")+':</label>\
+                   <div id="file-uploader">\
+                   </div><div class="clear" />\
                  </div>\
                </fieldset>\
                <fieldset>\
@@ -666,6 +678,7 @@ function updateImageInfo(request,img){
 function setupCreateImageDialog(){
     dialogs_context.append('<div title="'+tr("Create Image")+'" id="create_image_dialog"></div>');
     $create_image_dialog =  $('#create_image_dialog',dialogs_context);
+
     var dialog = $create_image_dialog;
     dialog.html(create_image_tmpl);
 
@@ -694,12 +707,12 @@ function setupCreateImageDialog(){
         default:
             $('#datablock_img',context).attr('disabled','disabled');
             $('#path_img',context).attr('checked','checked');
-            $('#img_source,#img_fstype,#img_size',context).parent().hide();
+            $('#img_source,#img_fstype,#img_size,#file-uploader',context).parent().hide();
             $('#img_path',context).parent().show();
         }
     });
 
-    $('#img_source,#img_fstype,#img_size',dialog).parent().hide();
+    $('#img_source,#img_fstype,#img_size,#file-uploader',dialog).parent().hide();
     $('#path_img',dialog).attr('checked','checked');
     $('#img_path',dialog).parent().addClass("img_man");
 
@@ -708,24 +721,30 @@ function setupCreateImageDialog(){
         var value = $(this).val();
         switch (value){
         case "path":
-            $('#img_source,#img_fstype,#img_size',context).parent().hide();
-            $('#img_source,#img_fstype,#img_size',context).parent().removeClass("img_man");
+            $('#img_source,#img_fstype,#img_size,#file-uploader',context).parent().hide();
+            $('#img_source,#img_fstype,#img_size,#file-uploader',context).parent().removeClass("img_man");
             $('#img_path',context).parent().show();
             $('#img_path',context).parent().addClass("img_man");
             break;
         case "source":
-            $('#img_path,#img_fstype,#img_size',context).parent().hide();
-            $('#img_path,#img_fstype,#img_size',context).parent().removeClass("img_man");
+            $('#img_path,#img_fstype,#img_size,#file-uploader',context).parent().hide();
+            $('#img_path,#img_fstype,#img_size,#file-uploader',context).parent().removeClass("img_man");
             $('#img_source',context).parent().show();
             $('#img_source',context).parent().addClass("img_man");
             break;
         case "datablock":
-            $('#img_source,#img_path',context).parent().hide();
-            $('#img_source,#img_path',context).parent().removeClass("img_man");
+            $('#img_source,#img_path,#file-uploader',context).parent().hide();
+            $('#img_source,#img_path,#file-uploader',context).parent().removeClass("img_man");
             $('#img_fstype,#img_size',context).parent().show();
             $('#img_fstype,#img_size',context).parent().addClass("img_man");
             break;
-        }
+        case "upload":
+            $('#img_path,#img_source,#img_fstype,#img_size',context).parent().hide();
+            $('#img_path,#img_source,#img_fstype,#img_size',context).parent().removeClass("img_man");
+            $('#file-uploader',context).parent().show();
+            $('#file-uploader',context).parent().addClass("img_man");
+            break;
+        };
     });
 
 
@@ -752,9 +771,70 @@ function setupCreateImageDialog(){
         }
     );
 
+    $('#upload-progress',dialog).css({
+        border: "1px solid #AAAAAA",
+        position: "relative",
+//        bottom: "29px",
+        width: "258px",
+//        left: "133px",
+        height: "15px",
+        display: "inline-block",
+    });
+    $('#upload-progress div',dialog).css("border","1px solid #AAAAAA");
+
+    var img_obj;
+
+    var uploader = new qq.FileUploaderBasic({
+        button: $('#file-uploader',$create_image_dialog)[0],
+        action: 'upload',
+        multiple: false,
+        params: {},
+        showMessage: function(message){
+            //notifyMessage(message);
+        },
+        onSubmit: function(id, fileName){
+            uploader.setParams({
+                img : JSON.stringify(img_obj),
+                file: fileName
+            });
+            var pos_top = $(window).height() - 120;
+            var pos_left = 140;
+            var pb_dialog = $('<div id="pb_dialog" title="'+
+                              tr("Uploading...")+'">'+
+                              '<div id="upload-progress"></div>'+
+                              '</div>').dialog({
+                                  draggable:true,
+                                  modal:false,
+                                  resizable:false,
+                                  buttons:{},
+                                  width: 460,
+                                  minHeight: 50,
+                                  position: [pos_left, pos_top]
+                              });
+
+            $('#upload-progress',pb_dialog).progressbar({value:0});
+        },
+        onProgress: function(id, fileName, loaded, total){
+            $('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
+        },
+        onComplete: function(id, fileName, responseJSON){
+            notifyMessage("Image uploaded correctly");
+            $('div#pb_dialog').dialog('destroy');
+            Sunstone.runAction("Image.list");
+            return false;
+        },
+        onCancel: function(id, fileName){
+        },
+    });
+
+    var file_input = false;
+    uploader._button._options.onChange = function(input) {
+        file_input = input;  return false;
+    };
 
     $('#create_image_form_easy',dialog).submit(function(){
         var exit = false;
+        var upload = false;
         $('.img_man',this).each(function(){
             if (!$('input',this).val().length){
                 notifyError(tr("There are mandatory parameters missing"));
@@ -805,6 +885,9 @@ function setupCreateImageDialog(){
             img_json["SIZE"] = size;
             img_json["FSTYPE"] = fstype;
             break;
+        case "upload":
+            upload=true;
+            break;
         }
 
         //Time to add custom attributes
@@ -815,8 +898,13 @@ function setupCreateImageDialog(){
         });
 
 
-        var obj = { "image" : img_json };
-        Sunstone.runAction("Image.create", obj);
+        img_obj = { "image" : img_json };
+
+        if (upload){
+            uploader._onInputChange(file_input);
+        } else {
+            Sunstone.runAction("Image.create", img_obj);
+        };
 
         $create_image_dialog.dialog('close');
         return false;
@@ -831,6 +919,9 @@ function setupCreateImageDialog(){
 }
 
 function popUpCreateImageDialog(){
+    $('#file-uploader input',$create_image_dialog).removeAttr("style");
+    $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
+
     $create_image_dialog.dialog('open');
 }
 
