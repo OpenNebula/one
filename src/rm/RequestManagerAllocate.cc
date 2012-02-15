@@ -116,6 +116,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( allocate_authorization(tmpl, att) == false )
     {
+        delete tmpl;
         return;
     }
 
@@ -169,7 +170,6 @@ int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                                              RequestAttributes& att)
 {
-    ImageTemplate * tmpl = 0;
 
     string error_str;
     string ds_name;
@@ -181,24 +181,27 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string str_tmpl = xmlrpc_c::value_string(params.getString(1));
     int    ds_id    = xmlrpc_c::value_int(params.getInt(2));
 
-    tmpl = new ImageTemplate;
+    Nebula&  nd  = Nebula::instance();
 
-    rc   = tmpl->parse_str_or_xml(str_tmpl, error_str);
+    DatastorePool * dspool = nd.get_dspool();
+    ImagePool * ipool      = static_cast<ImagePool *>(pool);
+
+    ImageTemplate * tmpl = new ImageTemplate;
+    Datastore *     ds;
+
+    // ------------------------- Prase image template --------------------------
+
+    rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
 
     if ( rc != 0 )
     {
         failure_response(INTERNAL, allocate_error(error_str), att);
-        delete tmpl;
 
+        delete tmpl;
         return;
     }
 
-    // ------------- Check Datastore exists -----------------------------------
-
-    Nebula&         nd     = Nebula::instance();
-
-    Datastore *     ds;
-    DatastorePool * dspool = nd.get_dspool();
+    // ------------------------- Check Datastore exists ------------------------
 
     if ((ds = dspool->get(ds_id,true)) == 0 )
     {
@@ -206,6 +209,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                 get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
                 att);
 
+        delete tmpl;
         return;
     }
 
@@ -217,19 +221,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds->unlock();
 
-
     // ------------- Set authorization request for non-oneadmin's --------------
 
     if ( att.uid != 0 )
     {
-        string tmpl_str = "";
-
         AuthRequest ar(att.uid, att.gid);
+        string      tmpl_str = "";
 
-        if ( tmpl != 0 )
-        {
-            tmpl->to_xml(tmpl_str);
-        }
+        tmpl->to_xml(tmpl_str);
 
         ar.add_create_auth(auth_object, tmpl_str); // CREATE IMAGE
 
@@ -241,15 +240,21 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                     authorization_error(ar.message, att),
                     att);
 
+            delete tmpl;
             return;
         }
     }
 
-    ImagePool * ipool = static_cast<ImagePool *>(pool);
-
-    rc = ipool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, ds_id, ds_name, ds_data, &id,
-            error_str);
-
+    rc = ipool->allocate(att.uid, 
+                         att.gid, 
+                         att.uname, 
+                         att.gname, 
+                         tmpl, 
+                         ds_id, 
+                         ds_name, 
+                         ds_data, 
+                         &id,
+                         error_str);
     if ( rc < 0 )
     {
         failure_response(INTERNAL, allocate_error(error_str), att);
@@ -258,7 +263,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds = dspool->get(ds_id, true);
 
-    if ( ds != 0 )  // TODO: error otherwise?
+    if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
     {
         ds->add_image(id);
 

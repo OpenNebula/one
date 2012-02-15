@@ -442,6 +442,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( vm_authorization(id,itemplate,att,0) == false )
     {
+        delete itemplate;
         return;
     }
 
