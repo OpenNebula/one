@@ -125,6 +125,14 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     int rc;
 
+    // Return error if the datastore is a default one.
+    if( datastore->get_oid() < 100 )
+    {
+        error_msg = "System Datastores (ID < 100) cannot be deleted.";
+        NebulaLog::log("DATASTORE", Log::ERROR, error_msg);
+        return -2;
+    }
+
     if( datastore->get_collection_size() > 0 )
     {
         ostringstream oss;
