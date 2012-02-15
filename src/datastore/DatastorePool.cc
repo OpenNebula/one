@@ -26,7 +26,7 @@
 /* from ID 100                                                                */
 /* -------------------------------------------------------------------------- */
 
-const string DatastorePool::SYSTEM_DS_NAME = "default";
+const string DatastorePool::SYSTEM_DS_NAME = "system";
 const int    DatastorePool::SYSTEM_DS_ID   = 0;
 
 /* -------------------------------------------------------------------------- */
