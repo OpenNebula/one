@@ -19,10 +19,15 @@ include OpenNebulaJSON
 
 require 'acct/watch_client'
 require 'OpenNebulaVNC'
+require 'OpenNebulaJSON/JSONUtils'
+include JSONUtils
 
 class SunstoneServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_ALL
+
+    # Secs to sleep between checks to see if image upload to repo is finished
+    IMAGE_POLL_SLEEP_TIME = 5
 
     def initialize(client)
         @client = client
@@ -111,6 +116,31 @@ class SunstoneServer
             resource.info
             return [201, resource.to_json]
         end
+    end
+
+    ############################################################################
+    #
+    ############################################################################
+    def upload(template, file_path)
+        image_hash = parse_json(template, 'image')
+        image_hash['PATH'] = file_path
+
+        new_template = {:image => image_hash}.to_json
+        image = ImageJSON.new(Image.build_xml, @client)
+
+        rc = image.create(new_template)
+
+        if OpenNebula.is_error?(rc)
+            return [500, rc.to_json]
+        end
+
+        image.info
+        #wait until image is ready to return
+        while (image.state_str == 'LOCKED') && (image['RUNNING_VMS'] == '0') do
+            sleep IMAGE_POLL_SLEEP_TIME
+            image.info
+        end
+        return [201, image.to_json]
     end
 
     ############################################################################
