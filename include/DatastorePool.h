@@ -26,13 +26,23 @@ using namespace std;
 class DatastorePool : public PoolSQL
 {
 public:
-    DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table){};
+    DatastorePool(SqlDB * db);
 
     ~DatastorePool(){};
 
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
     /* ---------------------------------------------------------------------- */
+
+    /**
+     *  Default name for the oneadmin group
+     */
+    static const string SYSTEM_DS_NAME;
+
+    /**
+     *  Identifier for the oneadmin group
+     */
+    static const int SYSTEM_DS_ID;
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */

@@ -21,6 +21,50 @@
 #include <stdexcept>
 
 /* -------------------------------------------------------------------------- */
+/* There is a default datastore boostrapped by the core:                      */
+/* The first 100 IDs are reserved for system datastores. Regular ones start   */
+/* from ID 100                                                                */
+/* -------------------------------------------------------------------------- */
+
+const string DatastorePool::SYSTEM_DS_NAME = "default";
+const int    DatastorePool::SYSTEM_DS_ID   = 0;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+DatastorePool::DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table)
+{
+    ostringstream oss;
+    string        error_str;
+
+    if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
+    {
+        int         rc;
+        Datastore * ds;
+
+        // Build the default datastore
+        ds = new Datastore(SYSTEM_DS_ID, SYSTEM_DS_NAME);
+
+        rc = PoolSQL::allocate(ds, error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
+        set_update_lastOID(99);
+    }
+
+    return;
+
+error_bootstrap:
+    oss << "Error trying to create default datastore: " << error_str;
+    NebulaLog::log("DATASTORE",Log::ERROR,oss);
+
+    throw runtime_error(oss.str());
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int DatastorePool::allocate(string name, int * oid, string& error_str)
