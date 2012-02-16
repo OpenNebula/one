@@ -32,7 +32,10 @@ const int    DatastorePool::SYSTEM_DS_ID   = 0;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-DatastorePool::DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table)
+DatastorePool::DatastorePool(SqlDB * db,
+                            const string& base_path,
+                            const string& type):
+                        PoolSQL(db, Datastore::table)
 {
     ostringstream oss;
     string        error_str;
@@ -43,9 +46,20 @@ DatastorePool::DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table)
         Datastore * ds;
 
         // Build the default datastore
-        // TODO: create template with default name, type and base path
-/*
-        ds = new Datastore(SYSTEM_DS_ID, SYSTEM_DS_NAME);
+
+        oss << "NAME        = " << SYSTEM_DS_ID << endl
+            << "BASE_PATH   = " << base_path    << endl
+            << "TYPE        = " << type;
+
+        DatastoreTemplate * ds_tmpl = new DatastoreTemplate;
+        rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
+        ds = new Datastore(-1, ds_tmpl);
 
         rc = PoolSQL::allocate(ds, error_str);
 
@@ -53,7 +67,7 @@ DatastorePool::DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table)
         {
             goto error_bootstrap;
         }
-*/
+
         set_update_lastOID(99);
     }
 

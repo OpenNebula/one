@@ -275,6 +275,10 @@ void Nebula::start()
         string  default_device_prefix;
         time_t  expiration_time;
 
+        vector<const Attribute *> system_ds;
+        string  ds_base_path;
+        string  ds_type;
+
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
         vector<const Attribute *> vm_restricted_attrs;
@@ -313,7 +317,23 @@ void Nebula::start()
 
         tpool  = new VMTemplatePool(db);
 
-        dspool = new DatastorePool(db);
+        rc = nebula_configuration->get("SYSTEM_DS", system_ds);
+
+        if ( rc != 0 )
+        {
+            string value;
+            const  VectorAttribute * ds_conf =
+                    static_cast<const VectorAttribute *>(system_ds[0]);
+
+            ds_base_path = ds_conf->vector_value("BASE_PATH");
+            ds_type      = ds_conf->vector_value("TYPE");
+        }
+        else
+        {
+            throw runtime_error("Missing SYSTEM_DS configuration from oned.conf");
+        }
+
+        dspool = new DatastorePool(db, ds_base_path, ds_type);
     }
     catch (exception&)
     {

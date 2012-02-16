@@ -14,12 +14,6 @@
 /* limitations under the License.                                           */
 /* ------------------------------------------------------------------------ */
 
-#include <limits.h>
-#include <string.h>
-
-#include <iostream>
-#include <sstream>
-
 #include "Datastore.h"
 #include "GroupPool.h"
 #include "NebulaLog.h"
