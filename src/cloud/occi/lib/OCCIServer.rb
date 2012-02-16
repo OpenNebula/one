@@ -46,7 +46,7 @@ COLLECTIONS = ["compute", "instance_type", "network", "storage"]
 POOL_FILTER = Pool::INFO_ALL
 
 # Secs to sleep between checks to see if image upload&copy to repo is finished
-IMAGE_POLL_SLEEP_TIME = 1
+IMAGE_POLL_SLEEP_TIME = 5
 
 class OCCIServer < CloudServer
     # Server initializer
