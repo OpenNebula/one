@@ -83,7 +83,7 @@ module OpenNebula
         # @param vmm [String] Name of the vmm_driver
         # @param tm [String] Name of the tm_driver
         #
-        # @return [Integer, OpenNebula::Error] the new VM ID in case of
+        # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise
         def allocate(hostname,im,vmm,vnm,tm)
             super(HOST_METHODS[:allocate],hostname,im,vmm,vnm,tm)

@@ -22,6 +22,7 @@
 
 #include "Datastore.h"
 #include "GroupPool.h"
+#include "NebulaLog.h"
 
 const char * Datastore::table = "datastore_pool";
 
@@ -35,8 +36,82 @@ const char * Datastore::db_bootstrap =
     "UNIQUE(name))";
 
 /* ************************************************************************ */
-/* Datastore :: Database Access Functions                                       */
+/* Datastore :: Constructor/Destructor                                      */
 /* ************************************************************************ */
+
+Datastore::Datastore(int                id,
+                     DatastoreTemplate* ds_template):
+                PoolObjectSQL(id,DATASTORE,"",-1,-1,"","",table),
+                ObjectCollection("IMAGES"),
+                type(""),
+                base_path("")
+{
+    if (ds_template != 0)
+    {
+        obj_template = ds_template;
+    }
+    else
+    {
+        obj_template = new DatastoreTemplate;
+    }
+}
+
+/* ************************************************************************ */
+/* Datastore :: Database Access Functions                                   */
+/* ************************************************************************ */
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Datastore::insert(SqlDB *db, string& error_str)
+{
+    int rc;
+
+    // ---------------------------------------------------------------------
+    // Check default datastore attributes
+    // ---------------------------------------------------------------------
+
+
+    erase_template_attribute("NAME", name);
+    // NAME is checked in DatastorePool::allocate
+
+    erase_template_attribute("TYPE", type);
+
+    if ( type.empty() == true )
+    {
+        goto error_type;
+    }
+
+    erase_template_attribute("BASE_PATH", base_path);
+
+    if ( base_path.empty() == true )
+    {
+        goto error_base_path;
+    }
+
+    //--------------------------------------------------------------------------
+    // Insert the Datastore
+    //--------------------------------------------------------------------------
+
+    rc = insert_replace(db, false, error_str);
+
+    return rc;
+
+error_type:
+    error_str = "No NAME in template.";
+    goto error_common;
+
+error_base_path:
+    error_str = "No BASE_PATH in template.";
+    goto error_common;
+
+error_common:
+    NebulaLog::log("DATASTORE", Log::ERROR, error_str);
+    return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
@@ -135,8 +210,10 @@ string& Datastore::to_xml(string& xml) const
 
     oss <<
     "<DATASTORE>"    <<
-        "<ID>"   << oid  << "</ID>"   <<
-        "<NAME>" << name << "</NAME>" <<
+        "<ID>"          << oid          << "</ID>"   <<
+        "<NAME>"        << name         << "</NAME>" <<
+        "<TYPE>"        << type         << "</TYPE>" <<
+        "<BASE_PATH>"   << base_path    << "</BASE_PATH>" <<
         collection_xml <<
     "</DATASTORE>";
 
@@ -157,8 +234,10 @@ int Datastore::from_xml(const string& xml)
     update_from_str(xml);
 
     // Get class base attributes
-    rc += xpath(oid, "/DATASTORE/ID",   -1);
-    rc += xpath(name,"/DATASTORE/NAME", "not_found");
+    rc += xpath(oid,        "/DATASTORE/ID",        -1);
+    rc += xpath(name,       "/DATASTORE/NAME",      "not_found");
+    rc += xpath(type,       "/DATASTORE/TYPE",      "not_found");
+    rc += xpath(base_path,  "/DATASTORE/BASE_PATH", "not_found");
 
     // Set the owner and group to oneadmin
     set_user(0, "");

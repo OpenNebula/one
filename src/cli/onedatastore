@@ -61,12 +61,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new Datastore
+        Creates a new Datastore from the given template file
     EOT
 
-    command :create, create_desc, :name do
+    command :create, create_desc, :file do
         helper.create_resource(options) do |datastore|
-            datastore.allocate(args[0])
+            template=File.read(args[0])
+            datastore.allocate(template)
         end
     end
 

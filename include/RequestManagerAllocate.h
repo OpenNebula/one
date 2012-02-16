@@ -23,6 +23,7 @@
 #include "VirtualNetworkTemplate.h"
 #include "ImageTemplate.h"
 #include "VirtualMachineTemplate.h"
+#include "DatastoreTemplate.h"
 
 using namespace std;
 
@@ -285,7 +286,7 @@ public:
         RequestManagerAllocate("DatastoreAllocate",
                                "Allocates a new Datastore",
                                "A:ss",
-                               false)
+                               true)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
@@ -293,6 +294,13 @@ public:
     };
 
     ~DatastoreAllocate(){};
+
+    /* -------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new DatastoreTemplate;
+    };
 
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,

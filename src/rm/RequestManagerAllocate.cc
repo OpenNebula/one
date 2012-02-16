@@ -371,9 +371,9 @@ int DatastoreAllocate::pool_allocate(
         string& error_str,
         RequestAttributes& att)
 {
-    string name = xmlrpc_c::value_string(paramList.getString(1));
-
     DatastorePool * dspool = static_cast<DatastorePool *>(pool);
 
-    return dspool->allocate(name, &id, error_str);
+    DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
+
+    return dspool->allocate(ds_tmpl, &id, error_str);
 }

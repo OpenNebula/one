@@ -19,9 +19,7 @@
 
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
-//#include "Image.h"
-
-//using namespace std;
+#include "DatastoreTemplate.h"
 
 /**
  *  The Datastore class.
@@ -74,12 +72,24 @@ private:
     friend class DatastorePool;
 
     // *************************************************************************
+    // Datastore Private Attributes
+    // *************************************************************************
+
+    /**
+     * Type of driver
+     */
+    string type;
+
+    /**
+     * Base path for the storage
+     */
+    string base_path;
+
+    // *************************************************************************
     // Constructor
     // *************************************************************************
 
-    Datastore(int id, const string& name):
-        PoolObjectSQL(id,DATASTORE,name,-1,-1,"","",table),
-        ObjectCollection("IMAGES"){};
+    Datastore(int id, DatastoreTemplate* ds_template);
 
     virtual ~Datastore(){};
 
@@ -118,10 +128,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
-    {
-        return insert_replace(db, false, error_str);
-    }
+    int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the Datastore's data fields in the database.

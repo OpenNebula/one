@@ -51,15 +51,15 @@ public:
     /**
      *  Allocates a new Datastore, writing it in the pool database. No memory is
      *  allocated for the object.
-     *    @param name Datastore name
+     *    @param ds_template Datastore definition template
      *    @param oid the id assigned to the Datastore
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(string                   name,
-                 int *                    oid,
-                 string&                  error_str);
+    int allocate(DatastoreTemplate *    ds_template,
+                 int *                  oid,
+                 string&                error_str);
 
     /**
      *  Function to get a Datastore from the pool, if the object is not in memory
@@ -149,7 +149,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Datastore(-1,"");
+        return new Datastore(-1, 0);
     };
 };
 

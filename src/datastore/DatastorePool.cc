@@ -43,6 +43,8 @@ DatastorePool::DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table)
         Datastore * ds;
 
         // Build the default datastore
+        // TODO: create template with default name, type and base path
+/*
         ds = new Datastore(SYSTEM_DS_ID, SYSTEM_DS_NAME);
 
         rc = PoolSQL::allocate(ds, error_str);
@@ -51,7 +53,7 @@ DatastorePool::DatastorePool(SqlDB * db):PoolSQL(db, Datastore::table)
         {
             goto error_bootstrap;
         }
-
+*/
         set_update_lastOID(99);
     }
 
@@ -67,10 +69,22 @@ error_bootstrap:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DatastorePool::allocate(string name, int * oid, string& error_str)
+int DatastorePool::allocate(DatastoreTemplate * ds_template,
+                            int *               oid,
+                            string&             error_str)
 {
-    Datastore *         datastore;
+    Datastore *     ds;
+    Datastore *     ds_aux = 0;
+    string          name;
     ostringstream   oss;
+
+    ds = new Datastore(-1, ds_template);
+
+    // -------------------------------------------------------------------------
+    // Check name & duplicates
+    // -------------------------------------------------------------------------
+
+    ds->get_template_attribute("NAME", name);
 
     if ( name.empty() )
     {
@@ -82,19 +96,14 @@ int DatastorePool::allocate(string name, int * oid, string& error_str)
         goto error_name_length;
     }
 
-    // Check for duplicates
-    datastore = get(name, false);
+    ds_aux = get(name,false);
 
-    if( datastore != 0 )
+    if( ds_aux != 0 )
     {
         goto error_duplicated;
     }
 
-    // Build a new Datastore object
-    datastore = new Datastore(-1, name);
-
-    // Insert the Object in the pool
-    *oid = PoolSQL::allocate(datastore, error_str);
+    *oid = PoolSQL::allocate(ds, error_str);
 
     return *oid;
 
@@ -107,9 +116,11 @@ error_name_length:
     goto error_common;
 
 error_duplicated:
-    oss << "NAME is already taken by DATASTORE " << datastore->get_oid() << ".";
+    oss << "NAME is already taken by DATASTORE " << ds_aux->get_oid() << ".";
 
 error_common:
+    delete ds;
+
     *oid = -1;
     error_str = oss.str();
 
