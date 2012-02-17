@@ -269,7 +269,8 @@ get '/:resource/monitor' do
         nil,
         params[:resource],
         params[:monitor_resources],
-        session[:user_gid])
+        :uid => session[:user_id],
+        :gid => session[:user_gid])
 end
 
 get '/:resource/:id/monitor' do
@@ -277,7 +278,8 @@ get '/:resource/:id/monitor' do
         params[:id],
         params[:resource],
         params[:monitor_resources],
-        session[:user_gid])
+        :uid => session[:user_id],
+        :gid => session[:user_gid])
 end
 
 
