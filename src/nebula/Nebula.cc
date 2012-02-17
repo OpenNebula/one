@@ -317,21 +317,13 @@ void Nebula::start()
 
         tpool  = new VMTemplatePool(db);
 
-        rc = nebula_configuration->get("SYSTEM_DS", system_ds);
+        nebula_configuration->get("SYSTEM_DS", system_ds);
 
-        if ( rc != 0 )
-        {
-            string value;
-            const  VectorAttribute * ds_conf =
+         const VectorAttribute * ds_conf =
                     static_cast<const VectorAttribute *>(system_ds[0]);
 
-            ds_base_path = ds_conf->vector_value("BASE_PATH");
-            ds_type      = ds_conf->vector_value("TYPE");
-        }
-        else
-        {
-            throw runtime_error("Missing SYSTEM_DS configuration from oned.conf");
-        }
+        ds_base_path = ds_conf->vector_value("BASE_PATH");
+        ds_type      = ds_conf->vector_value("TYPE");
 
         dspool = new DatastorePool(db, ds_base_path, ds_type);
     }
