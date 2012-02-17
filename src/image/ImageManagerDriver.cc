@@ -27,11 +27,11 @@
 /* ************************************************************************** */
 
 void ImageManagerDriver::cp(int           oid, 
-                            const string& source) const
+                            const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "CP " << oid << " " << source << endl;
+    os << "CP " << oid << " " << drv_msg << endl;
 
     write(os);
 }
@@ -63,11 +63,11 @@ void ImageManagerDriver::mkfs(int           oid,
 
 /* -------------------------------------------------------------------------- */
 
-void ImageManagerDriver::rm(int oid, const string& destination) const
+void ImageManagerDriver::rm(int oid, const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "RM " << oid << " " << destination << endl;
+    os << "RM " << oid << " " << drv_msg << endl;
 
     write(os);
 }

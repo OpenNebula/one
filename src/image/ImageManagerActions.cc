@@ -17,6 +17,7 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
+#include "SSLTools.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -311,8 +312,10 @@ int ImageManager::enable_image(int iid, bool to_enable)
 
 int ImageManager::delete_image(int iid, const string& ds_data)
 {
-    Image * img;
-    string  source;
+    Image *     img;
+    string      source;
+    string      img_tmpl;
+    string *    drv_msg;
 
     img = ipool->get(iid,true);
 
@@ -350,6 +353,8 @@ int ImageManager::delete_image(int iid, const string& ds_data)
         return -1;
     }
 
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+
     source = img->get_source();
 
     if (source.empty())
@@ -367,10 +372,12 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     }
     else
     {
-        imd->rm(img->get_oid(),img->get_source());
+        imd->rm(img->get_oid(), *drv_msg);
     }
 
     img->unlock();
+
+    delete drv_msg;
 
     return 0;
 }
@@ -384,8 +391,11 @@ int ImageManager::register_image(int iid, const string& ds_data)
 
     ostringstream oss;
     Image *       img;
-    
-    string path;
+
+    string        path;
+    string        img_tmpl;
+    string *      drv_msg;
+
 
     if ( imd == 0 )
     {
@@ -399,6 +409,8 @@ int ImageManager::register_image(int iid, const string& ds_data)
     {
         return -1;
     }
+
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
 
     path = img->get_path();
 
@@ -430,7 +442,7 @@ int ImageManager::register_image(int iid, const string& ds_data)
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
     {
-        imd->cp(img->get_oid(), path);
+        imd->cp(img->get_oid(), *drv_msg);
         oss << "Copying " << path <<" to repository for image "<<img->get_oid();
     }
     
@@ -438,7 +450,26 @@ int ImageManager::register_image(int iid, const string& ds_data)
 
     img->unlock();
 
+    delete drv_msg;
+
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string * ImageManager::format_message(
+    const string& img_data,
+    const string& ds_data)
+{
+    ostringstream oss;
+
+    oss << "<DS_DRIVER_ACTION_DATA>"
+        << img_data
+        << ds_data
+        << "</DS_DRIVER_ACTION_DATA>";
+
+    return SSLTools::base64_encode(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

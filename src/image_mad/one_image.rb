@@ -33,6 +33,8 @@ $: << RUBY_LIB_LOCATION
 
 require "OpenNebulaDriver"
 require 'getoptlong'
+require 'base64'
+require 'rexml/document'
 
 # This class provides basic messaging and logging functionality
 # to implement Image Repository Drivers. A image repository driver
@@ -86,11 +88,23 @@ class ImageDriver < OpenNebulaDriver
         do_image_action(id, ds, :mv, "'#{src}' '#{dst}' '#{id}'")
     end
 
-    def cp(id, ds, src)
+    def cp(id, drv_message)
+        data    = decode(drv_message)
+#       TODO
+#        ds      = data.elements['DATASTORE/DRIVER'].text
+        ds      = "fs"
+        src     = data.elements['IMAGE/PATH'].text
+
         do_image_action(id, ds, :cp, "'#{src}' '#{id}'")
     end
 
-    def rm(id, ds, dst)
+    def rm(id, drv_message)
+        data    = decode(drv_message)
+#       TODO
+#        ds      = data.elements['DATASTORE/DRIVER'].text
+        ds      = "fs"
+        dst     = data.elements['IMAGE/SOURCE'].text
+
         do_image_action(id, ds, :rm, "'#{dst}' '#{id}'")
     end
 
@@ -123,6 +137,20 @@ class ImageDriver < OpenNebulaDriver
         result, info = get_info_from_execution(rc)
 
         send_message(ACTION[action], result, id, info)
+    end
+
+    # TODO: Move decode to OpenNebulaDriver ?
+
+    # Decodes the encoded XML driver message received from the core
+    #
+    # @param [String] drv_message the driver message
+    # @return [REXML::Element] the root element of the decoded XML message
+    def decode(drv_message)
+        message = Base64.decode64(drv_message)
+
+        xml_doc = REXML::Document.new(message)
+
+        xml_doc.root
     end
 end
 

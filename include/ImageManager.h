@@ -220,6 +220,17 @@ private:
      *    @param source path of the disk file 
      */
     void move_image(Image *img, const string& source);
+
+    /**
+     * Formats an XML message for the MAD
+     *
+     *    @param img_data Image XML representation
+     *    @param ds_data Datastore XML representation
+     *    @return the XML message
+     */
+    string * format_message(
+        const string& img_data,
+        const string& ds_data);
 };
 
 #endif /*IMAGE_MANAGER_H*/
