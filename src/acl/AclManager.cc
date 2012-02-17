@@ -87,6 +87,15 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
                     PoolObjectSQL::HOST,
                  AuthRequest::MANAGE,
                  error_str);
+
+        // Users in USERS can use any DATASTORE
+        // @1 DATASTORE/* USE
+        add_rule(AclRule::GROUP_ID |
+                    1,
+                 AclRule::ALL_ID |
+                    PoolObjectSQL::DATASTORE,
+                 AuthRequest::USE,
+                 error_str);
     }
 }
 
