@@ -138,7 +138,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.insert(make_pair("BACKEND","sqlite"));
 
     vattribute = new VectorAttribute("DB",vvalue);
-    conf_default.insert(make_pair(attribute->name(),vattribute));
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 
     //VNC_BASE_PORT
     value = "5900";
