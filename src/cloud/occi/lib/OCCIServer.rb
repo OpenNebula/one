@@ -40,7 +40,7 @@ require 'pp'
 # OpenNebula Engine
 ##############################################################################
 
-COLLECTIONS = ["compute", "instance_type", "network", "storage"]
+COLLECTIONS = ["compute", "instance_type", "network", "storage", "user"]
 
 # FLAG that will filter the elements retrieved from the Pools
 POOL_FILTER = Pool::INFO_ALL
@@ -92,18 +92,36 @@ class OCCIServer < CloudServer
         return xml_resp, 200
     end
 
+
+    INSTANCE_TYPE = %q{
+        <INSTANCE_TYPE href="<%= @base_url %>/instance_type/<%=name%>" name="<%= name %>">
+            <ID><%= name.to_s %></ID>
+            <NAME><%= name.to_s %></NAME>
+        <% opts.each { |elem, value|
+            next if elem==:template
+            str = elem.to_s.upcase %>
+            <<%= str %>><%= value %></<%= str %>>
+        <% } %>
+        </INSTANCE_TYPE>
+    }
+
     def get_instance_types(request)
         xml_resp = "<INSTANCE_TYPE_COLLECTION>\n"
 
-        @config[:instance_types].each { |k, v|
-            xml_resp << "\t<INSTANCE_TYPE href=\"#{@base_url}/instance_type/#{k.to_s}\">\n"
-            xml_resp << "\t\t<NAME>#{k.to_s}</NAME>\n"
-            v.each { |elem, value|
-                next if elem==:template
-                str = elem.to_s.upcase
-                xml_resp << "\t\t<#{str}>#{value}</#{str}>\n"
-            }
-            xml_resp << "\t</INSTANCE_TYPE>\n"
+        @config[:instance_types].each { |name, opts|
+            if request.params['verbose']
+                begin
+                    occi_it = ERB.new(INSTANCE_TYPE)
+                    occi_it = occi_it.result(binding)
+                rescue Exception => e
+                    error = OpenNebula::Error.new(e.message)
+                    return error, CloudServer::HTTP_ERROR_CODE[error.errno]
+                end
+
+                xml_resp << occi_it.gsub(/\n\s*/,'')
+            else
+                xml_resp << "\t<INSTANCE_TYPE href=\"#{@base_url}/instance_type/#{name.to_s}\"  name=\"#{name}\">\n"
+            end
         }
 
         xml_resp << "</INSTANCE_TYPE_COLLECTION>"
@@ -111,6 +129,24 @@ class OCCIServer < CloudServer
         return xml_resp, 200
     end
 
+    def get_instance_type(request, params)
+        name = params[:id].to_sym
+        unless @config[:instance_types].keys.include?(name)
+            error = OpenNebula::Error.new("INSTANCE_TYPE #{name} not found")
+            return error, 404
+        else
+            opts = @config[:instance_types][name]
+            begin
+                occi_it = ERB.new(INSTANCE_TYPE)
+                occi_it = occi_it.result(binding)
+            rescue Exception => e
+                error = OpenNebula::Error.new(e.message)
+                return error, CloudServer::HTTP_ERROR_CODE[error.errno]
+            end
+
+            return occi_it.gsub(/\n\s*/,''), 200
+        end
+    end
 
     # Gets the pool representation of COMPUTES
     # request:: _Hash_ hash containing the data of the request
