@@ -47,8 +47,8 @@ DatastorePool::DatastorePool(SqlDB * db,
 
         // Build the default datastore
 
-        oss << "NAME        = " << SYSTEM_DS_ID << endl
-            << "BASE_PATH   = " << base_path    << endl
+        oss << "NAME        = " << SYSTEM_DS_NAME << endl
+            << "BASE_PATH   = " << base_path      << endl
             << "TYPE        = " << type;
 
         DatastoreTemplate * ds_tmpl = new DatastoreTemplate;

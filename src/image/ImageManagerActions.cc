@@ -411,8 +411,7 @@ int ImageManager::register_image(int iid, const string& ds_data)
     }
 
     drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
-
-    path = img->get_path();
+    path    = img->get_path();
 
     if ( path.empty() == true ) //NO PATH -> USE SOURCE OR MKFS FOR DATABLOCK
     {
@@ -421,7 +420,7 @@ int ImageManager::register_image(int iid, const string& ds_data)
             string fs   = img->get_fstype();
             int    size = img->get_size();
 
-            imd->mkfs(img->get_oid(), fs, size);
+            imd->mkfs(img->get_oid(), *drv_msg);
          
             oss << "Creating disk at " << img->get_source() << " of " 
                 << size << "Mb with format " << fs;

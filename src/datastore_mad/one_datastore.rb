@@ -37,10 +37,10 @@ require 'base64'
 require 'rexml/document'
 
 # This class provides basic messaging and logging functionality
-# to implement Image Repository Drivers. A image repository driver
+# to implement Datastore Drivers. A datastore driver
 # is a program (or a set of) that  specialize the OpenNebula behavior
 # by interfacing with specific infrastructure storage solutions.
-class ImageDriver < OpenNebulaDriver
+class DatastoreDriver < OpenNebulaDriver
 
     # Image Driver Protocol constants
     ACTION = {
@@ -77,39 +77,33 @@ class ImageDriver < OpenNebulaDriver
             @types = ds_type
         end
 
-        register_action(ACTION[:mv].to_sym, method("mv"))
+#        register_action(ACTION[:mv].to_sym, method("mv"))
         register_action(ACTION[:cp].to_sym, method("cp"))
         register_action(ACTION[:rm].to_sym, method("rm"))
         register_action(ACTION[:mkfs].to_sym, method("mkfs"))
     end
 
-    # Image Manager Protocol Actions (generic implementation
-    def mv(id, ds, src, dst)
-        do_image_action(id, ds, :mv, "'#{src}' '#{dst}' '#{id}'")
-    end
+    ############################################################################ 
+    # Image Manager Protocol Actions (generic implementation)
+    ############################################################################ 
+# TODO: Integrate this with TM
+#    def mv(id, ds, src, dst)
+#        do_image_action(id, ds, :mv, "'#{src}' '#{dst}' '#{id}'")
+#    end
 
     def cp(id, drv_message)
-        data    = decode(drv_message)
-#       TODO
-#        ds      = data.elements['DATASTORE/DRIVER'].text
-        ds      = "fs"
-        src     = data.elements['IMAGE/PATH'].text
-
-        do_image_action(id, ds, :cp, "'#{src}' '#{id}'")
+        ds = get_ds_type(drv_message)
+        do_image_action(id, ds, :cp, "#{drv_message} #{id}")
     end
 
     def rm(id, drv_message)
-        data    = decode(drv_message)
-#       TODO
-#        ds      = data.elements['DATASTORE/DRIVER'].text
-        ds      = "fs"
-        dst     = data.elements['IMAGE/SOURCE'].text
-
-        do_image_action(id, ds, :rm, "'#{dst}' '#{id}'")
+        ds = get_ds_type(drv_message)
+        do_image_action(id, ds, :rm, "#{drv_message} #{id}")
     end
 
-    def mkfs(id, ds, fs, size)
-        do_image_action(id, ds, :mkfs, "'#{fs}' '#{size}' '#{id}'")
+    def mkfs(id, drv_message)
+        ds = get_ds_type(drv_message)
+        do_image_action(id, ds, :mkfs, "#{drv_message} #{id}")
     end
 
     private
@@ -139,23 +133,22 @@ class ImageDriver < OpenNebulaDriver
         send_message(ACTION[action], result, id, info)
     end
 
-    # TODO: Move decode to OpenNebulaDriver ?
-
-    # Decodes the encoded XML driver message received from the core
-    #
-    # @param [String] drv_message the driver message
-    # @return [REXML::Element] the root element of the decoded XML message
-    def decode(drv_message)
+    def get_ds_type(drv_message)
         message = Base64.decode64(drv_message)
-
         xml_doc = REXML::Document.new(message)
 
-        xml_doc.root
+        dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TYPE']
+        dstxt = dsxml.text if dsxml
+
+        return dstxt
     end
 end
 
-
-# ImageDriver Main program
+################################################################################
+################################################################################
+# DatastoreDriver Main program
+################################################################################
+################################################################################
 
 opts = GetoptLong.new(
     [ '--threads',  '-t', GetoptLong::OPTIONAL_ARGUMENT ],
@@ -178,5 +171,5 @@ rescue Exception => e
     exit(-1)
 end
 
-image_driver = ImageDriver.new(ds_type, :concurrency => threads)
-image_driver.start_driver
+ds_driver = DatastoreDriver.new(ds_type, :concurrency => threads)
+ds_driver.start_driver

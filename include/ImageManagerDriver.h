@@ -89,12 +89,9 @@ private:
     /**
      *  Sends a make filesystem request to the MAD: "MKFS IMAGE_ID PATH SIZE_MB"
      *    @param oid the image id.
-     *    @param fs type
-     *    @param size_mb of the image to be created
+     *    @param drv_msg xml data for the mad operation.
      */
-    void mkfs(int           oid, 
-              const string& fs, 
-              int           size_mb) const;
+    void mkfs(int oid, const string& drv_msg) const;
     /**
      *  Sends a delete request to the MAD: "DELETE IMAGE_ID PATH"
      *    @param oid the image id.

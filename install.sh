@@ -99,7 +99,7 @@ if [ -z "$ROOT" ] ; then
     VAR_LOCATION="/var/lib/one"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
-    IMAGES_LOCATION="$VAR_LOCATION/images"
+    SYSTEM_DS_LOCATION="$VAR_LOCATION/system_ds"
     RUN_LOCATION="/var/run/one"
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
@@ -130,7 +130,7 @@ if [ -z "$ROOT" ] ; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
-                   $IMAGES_LOCATION $MAN_LOCATION"
+                   $SYSTEM_DS_LOCATION $MAN_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -145,7 +145,7 @@ else
     VAR_LOCATION="$ROOT/var"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
-    IMAGES_LOCATION="$VAR_LOCATION/images"
+    SYSTEM_DS_LOCATION="$VAR_LOCATION/system_ds"
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
     MAN_LOCATION="$ROOT/share/man/man1"
@@ -166,7 +166,7 @@ else
         DELETE_DIRS="$MAKE_DIRS"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
-                   $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION \
+                   $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $MAN_LOCATION $OZONES_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
@@ -180,7 +180,7 @@ fi
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/examples/tm"
 
-ETC_DIRS="$ETC_LOCATION/image \
+ETC_DIRS="$ETC_LOCATION/datastore \
           $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
@@ -385,7 +385,8 @@ INSTALL_FILES=(
     VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
-    IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
+    DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
+    DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
@@ -524,7 +525,7 @@ INSTALL_ETC_FILES=(
     VMWARE_ETC_FILES:$ETC_LOCATION
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
-    IMAGE_DRIVER_FS_ETC_FILES:$ETC_LOCATION/image/
+    DATASTORE_DRIVER_FS_ETC_FILES:$ETC_LOCATION/datastore/
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
     TM_SHARED_ETC_FILES:$ETC_LOCATION/tm_shared
     TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
@@ -628,8 +629,8 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/hm_mad/one_hm \
               src/authm_mad/one_auth_mad.rb \
               src/authm_mad/one_auth_mad \
-              src/image_mad/one_image.rb \
-              src/image_mad/one_image"
+              src/datastore_mad/one_datastore.rb \
+              src/datastore_mad/one_datastore"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
@@ -795,18 +796,19 @@ VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
                              src/tm_mad/vmware/tm_context.sh"
 
 #-------------------------------------------------------------------------------
-# Image Repository drivers, to be installed under $REMOTES_LOCATION/image
-#   - FS based Image Repository, $REMOTES_LOCATION/image/fs
+# Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
+#   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
 #-------------------------------------------------------------------------------
 
-IMAGE_DRIVER_FS_ETC_FILES="src/image_mad/remotes/fs/fs.conf"
+DATASTORE_DRIVER_FS_ETC_FILES="src/datastore_mad/remotes/fs/fs.conf"
 
-IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
-                         src/image_mad/remotes/fs/mkfs \
-                         src/image_mad/remotes/fs/mv \
-                         src/image_mad/remotes/fs/fsrc \
-                         src/image_mad/remotes/fs/rm"
+DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
+                             src/datastore_mad/remotes/libfs.sh"
 
+DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
+                         src/datastore_mad/remotes/fs/mkfs \
+                         src/datastore_mad/remotes/fs/mv \
+                         src/datastore_mad/remotes/fs/rm"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
@@ -1505,12 +1507,6 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
-
-    # --- Set correct permissions for Image Repository ---
-
-    if [ -d "$DESTDIR$IMAGES_LOCATION" ]; then
-        chmod 3770 $DESTDIR$IMAGES_LOCATION
-    fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d

@@ -52,12 +52,12 @@ void ImageManagerDriver::mv(int           oid,
 /* -------------------------------------------------------------------------- */
 
 void ImageManagerDriver::mkfs(int           oid, 
-                              const string& fs,
-                              int           size_mb) const
+                              const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "MKFS " << oid << " " << fs << " " << size_mb << endl;
+    os << "MKFS " << oid << " " << drv_msg << endl;
+    
     write(os);
 }
 

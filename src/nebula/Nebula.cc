@@ -561,7 +561,7 @@ void Nebula::start()
     {
         vector<const Attribute *> image_mads;
 
-        nebula_configuration->get("IMAGE_MAD", image_mads);
+        nebula_configuration->get("DATASTORE_MAD", image_mads);
 
         imagem = new ImageManager(ipool,image_mads);
     }
