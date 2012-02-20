@@ -92,7 +92,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
     return rc;
 
 error_type:
-    error_str = "No NAME in template.";
+    error_str = "No TYPE in template.";
     goto error_common;
 
 error_base_path:
