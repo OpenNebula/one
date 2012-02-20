@@ -237,6 +237,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/fs \
+          $VAR_LOCATION/remotes/datastore/vmware \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -387,6 +388,7 @@ INSTALL_FILES=(
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
+    DATASTORE_DRIVER_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmware
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
@@ -526,6 +528,7 @@ INSTALL_ETC_FILES=(
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     DATASTORE_DRIVER_FS_ETC_FILES:$ETC_LOCATION/datastore/
+    DATASTORE_DRIVER_VMWARE_ETC_FILES:$ETC_LOCATION/datastore/
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
     TM_SHARED_ETC_FILES:$ETC_LOCATION/tm_shared
     TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
@@ -798,9 +801,12 @@ VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
+#   - VMware based Image Repository, $REMOTES_LOCATION/datastore/vmware
 #-------------------------------------------------------------------------------
 
 DATASTORE_DRIVER_FS_ETC_FILES="src/datastore_mad/remotes/fs/fs.conf"
+
+DATASTORE_DRIVER_VMWARE_ETC_FILES="src/datastore_mad/remotes/vmware/vmware.conf"
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/libfs.sh"
@@ -809,6 +815,11 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
                          src/datastore_mad/remotes/fs/mv \
                          src/datastore_mad/remotes/fs/rm"
+
+DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
+                         src/datastore_mad/remotes/vmware/mkfs \
+                         src/datastore_mad/remotes/vmware/mv \
+                         src/datastore_mad/remotes/vmware/rm"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
