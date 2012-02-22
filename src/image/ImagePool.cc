@@ -221,11 +221,14 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     string  source;
     Image * img = 0;
     int     rc  = 0;
+    int     datastore_id;
 
     ostringstream oss;
 
-    Nebula&        nd     = Nebula::instance();
-    ImageManager * imagem = nd.get_imagem();
+    Nebula&         nd      = Nebula::instance();
+    ImageManager *  imagem  = nd.get_imagem();
+    DatastorePool * ds_pool = nd.get_dspool();
+    Datastore *     ds      = 0;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
@@ -287,11 +290,23 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     {
         img->disk_attribute(disk, index, img_type);
 
-        image_id = img->get_oid();
-        
+        image_id     = img->get_oid();
+        datastore_id = img->get_ds_id();
+
         update(img);
 
         img->unlock();
+
+        ds = ds_pool->get(datastore_id, true);
+
+        if ( ds == 0 )
+        {
+            return -1;
+        }
+
+        ds->disk_attribute(disk);
+
+        ds->unlock();
     }
 
     oss << disk_id;

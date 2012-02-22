@@ -38,6 +38,7 @@ Datastore::Datastore(int                id,
                 PoolObjectSQL(id,DATASTORE,"",-1,-1,"","",table),
                 ObjectCollection("IMAGES"),
                 type(""),
+                tm_mad(""),
                 base_path("")
 {
     if (ds_template != 0)
@@ -48,6 +49,22 @@ Datastore::Datastore(int                id,
     {
         obj_template = new DatastoreTemplate;
     }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Datastore::disk_attribute(VectorAttribute * disk)
+{
+    ostringstream oss;
+
+    oss << oid;
+
+    disk->replace("DATASTORE",      get_name());
+    disk->replace("DATASTORE_ID",   oss.str());
+    disk->replace("TM_MAD",         get_tm_mad());
+
+    return 0;
 }
 
 /* ************************************************************************ */
@@ -65,7 +82,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
     // Check default datastore attributes
     // ---------------------------------------------------------------------
 
-
     erase_template_attribute("NAME", name);
     // NAME is checked in DatastorePool::allocate
 
@@ -74,6 +90,13 @@ int Datastore::insert(SqlDB *db, string& error_str)
     if ( type.empty() == true )
     {
         goto error_type;
+    }
+
+    erase_template_attribute("TM_MAD", tm_mad);
+
+    if ( tm_mad.empty() == true )
+    {
+        goto error_tm;
     }
 
     erase_template_attribute("BASE_PATH", base_path);
@@ -93,6 +116,10 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
 error_type:
     error_str = "No TYPE in template.";
+    goto error_common;
+
+error_tm:
+    error_str = "No TM_MAD in template.";
     goto error_common;
 
 error_base_path:
@@ -207,6 +234,7 @@ string& Datastore::to_xml(string& xml) const
         "<ID>"          << oid          << "</ID>"   <<
         "<NAME>"        << name         << "</NAME>" <<
         "<TYPE>"        << type         << "</TYPE>" <<
+        "<TM_MAD>"      << tm_mad       << "</TM_MAD>" <<
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>" <<
         collection_xml <<
     "</DATASTORE>";
@@ -231,6 +259,7 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(oid,        "/DATASTORE/ID",        -1);
     rc += xpath(name,       "/DATASTORE/NAME",      "not_found");
     rc += xpath(type,       "/DATASTORE/TYPE",      "not_found");
+    rc += xpath(tm_mad,     "/DATASTORE/TM_MAD",    "not_found");
     rc += xpath(base_path,  "/DATASTORE/BASE_PATH", "not_found");
 
     // Set the owner and group to oneadmin

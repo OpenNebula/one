@@ -38,8 +38,10 @@ const int    DatastorePool::DEFAULT_DS_ID   = 1;
 DatastorePool::DatastorePool(SqlDB * db,
                             const string& system_base_path,
                             const string& system_type,
+                            const string& system_tm_mad,
                             const string& default_base_path,
-                            const string& default_type):
+                            const string& default_type,
+                            const string& default_tm_mad):
                         PoolSQL(db, Datastore::table)
 {
     ostringstream oss;
@@ -55,7 +57,8 @@ DatastorePool::DatastorePool(SqlDB * db,
 
         oss << "NAME        = " << SYSTEM_DS_NAME   << endl
             << "BASE_PATH   = " << system_base_path << endl
-            << "TYPE        = " << system_type;
+            << "TYPE        = " << system_type      << endl
+            << "TM_MAD      = " << system_tm_mad;
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -78,7 +81,8 @@ DatastorePool::DatastorePool(SqlDB * db,
 
         oss << "NAME        = " << DEFAULT_DS_NAME      << endl
             << "BASE_PATH   = " << default_base_path    << endl
-            << "TYPE        = " << default_type;
+            << "TYPE        = " << default_type         << endl
+            << "TM_MAD      = " << default_tm_mad;
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -103,6 +107,7 @@ DatastorePool::DatastorePool(SqlDB * db,
     return;
 
 error_bootstrap:
+    oss.str("");
     oss << "Error trying to create default datastore: " << error_str;
     NebulaLog::log("DATASTORE",Log::ERROR,oss);
 

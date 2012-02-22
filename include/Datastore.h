@@ -51,7 +51,7 @@ public:
     int add_image(int id)
     {
         return add_collection_id(id);
-    }
+    };
 
     /**
      *  Deletes this image's ID from the set.
@@ -61,7 +61,25 @@ public:
     int del_image(int id)
     {
         return del_collection_id(id);
-    }
+    };
+
+    /**
+     *  Retrieves TM mad name
+     *    @return string tm mad name
+     */
+    const string& get_tm_mad() const
+    {
+        return tm_mad;
+    };
+
+    /**
+     * Modifies the given VM disk attribute adding the relevant datastore
+     * attributes
+     *
+     * @param disk
+     * @return 0 on success
+     */
+    int disk_attribute(VectorAttribute * disk);
 
 private:
 
@@ -79,6 +97,11 @@ private:
      * Type of driver
      */
     string type;
+
+    /**
+     *  Name of the TM driver used to transfer file to and from the hosts
+     */
+    string tm_mad;
 
     /**
      * Base path for the storage
