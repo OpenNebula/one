@@ -1,0 +1,11 @@
+<NETWORK href="http://localhost:4567/network/0">
+  <ID>0</ID>
+  <NAME>Network</NAME>
+  <USER href="http://localhost:4567/user/2" name="my_first_occi_user"/>
+  <GROUP>oneadmin</GROUP>
+  <DESCRIPTION>Network of the user my_first_occi_user</DESCRIPTION>
+  <ADDRESS>192.168.1.1</ADDRESS>
+  <SIZE>125</SIZE>
+  <USED_LEASES>0</USED_LEASES>
+  <PUBLIC>NO</PUBLIC>
+</NETWORK>
