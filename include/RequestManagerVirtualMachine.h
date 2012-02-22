@@ -52,14 +52,13 @@ protected:
             RequestAttributes& att, PoolObjectAuth* host_perms);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
-            string& tm, RequestAttributes& att, PoolObjectAuth& host_perms);
+            RequestAttributes& att, PoolObjectAuth& host_perms);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
                     const string&    hostname,
                     const string&    vmm_mad,
                     const string&    vnm_mad,
-                    const string&    tm_mad,
                     RequestAttributes& att);
 
     VirtualMachine * get_vm(int id, RequestAttributes& att);

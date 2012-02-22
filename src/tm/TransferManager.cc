@@ -236,7 +236,9 @@ void TransferManager::prolog_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {
@@ -416,7 +418,8 @@ error_file:
 
 error_driver:
     os.str("");
-    os << "prolog, error getting driver " << vm->get_tm_mad();
+    // TODO
+//    os << "prolog, error getting driver " << vm->get_tm_mad();
     goto error_common;
 
 error_empty_disk:
@@ -463,7 +466,9 @@ void TransferManager::prolog_migr_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {
@@ -506,7 +511,8 @@ error_file:
 
 error_driver:
     os.str("");
-    os << "prolog_migr, error getting driver " << vm->get_tm_mad();
+    // TODO
+//    os << "prolog_migr, error getting driver " << vm->get_tm_mad();
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
@@ -547,7 +553,9 @@ void TransferManager::prolog_resume_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {
@@ -590,7 +598,8 @@ error_file:
 
 error_driver:
     os.str("");
-    os << "prolog_resume, error getting driver " << vm->get_tm_mad();
+    // TODO
+//    os << "prolog_resume, error getting driver " << vm->get_tm_mad();
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
@@ -637,7 +646,9 @@ void TransferManager::epilog_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {
@@ -748,7 +759,9 @@ void TransferManager::epilog_stop_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {
@@ -791,7 +804,8 @@ error_file:
 
 error_driver:
     os.str("");
-    os << "epilog_stop, error getting driver " << vm->get_tm_mad();
+    // TODO
+//    os << "epilog_stop, error getting driver " << vm->get_tm_mad();
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
@@ -831,7 +845,9 @@ void TransferManager::epilog_delete_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {
@@ -914,7 +930,9 @@ void TransferManager::epilog_delete_previous_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_previous_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_previous_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {
@@ -998,7 +1016,9 @@ void TransferManager::driver_cancel_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_tm_mad());
+    // TODO: get tm_md from somewhere...
+//    tm_md = get(vm->get_tm_mad());
+    tm_md = 0;
 
     if ( tm_md == 0 )
     {

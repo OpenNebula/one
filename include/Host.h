@@ -140,15 +140,6 @@ public:
     };
 
     /**
-     * Retrives TM mad name
-     *    @return string tm mad name
-     */
-    const string& get_tm_mad() const
-    {
-        return tm_mad_name;
-    };
-
-    /**
      * Retrives IM mad name
      *    @return string im mad name
      */

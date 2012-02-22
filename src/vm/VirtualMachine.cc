@@ -605,8 +605,7 @@ void VirtualMachine::add_history(
     const string& hostname,
     const string& vm_dir,
     const string& vmm_mad,
-    const string& vnm_mad,
-    const string& tm_mad)
+    const string& vnm_mad)
 {
     ostringstream os;
     int           seq;
@@ -622,7 +621,7 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
-    history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,vnm_mad,tm_mad);
+    history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,vnm_mad);
 
     history_records.push_back(history);
 };
@@ -645,8 +644,7 @@ void VirtualMachine::cp_history()
                        history->hostname,
                        history->vm_dir,
                        history->vmm_mad_name,
-                       history->vnm_mad_name,
-                       history->tm_mad_name);
+                       history->vnm_mad_name);
 
 
     previous_history = history;
@@ -673,8 +671,7 @@ void VirtualMachine::cp_previous_history()
                        previous_history->hostname,
                        previous_history->vm_dir,
                        previous_history->vmm_mad_name,
-                       previous_history->vnm_mad_name,
-                       previous_history->tm_mad_name);
+                       previous_history->vnm_mad_name);
 
     previous_history = history;
     history          = htmp;
