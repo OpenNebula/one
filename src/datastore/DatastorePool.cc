@@ -29,12 +29,17 @@
 const string DatastorePool::SYSTEM_DS_NAME = "system";
 const int    DatastorePool::SYSTEM_DS_ID   = 0;
 
+const string DatastorePool::DEFAULT_DS_NAME = "default";
+const int    DatastorePool::DEFAULT_DS_ID   = 1;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 DatastorePool::DatastorePool(SqlDB * db,
-                            const string& base_path,
-                            const string& type):
+                            const string& system_base_path,
+                            const string& system_type,
+                            const string& default_base_path,
+                            const string& default_type):
                         PoolSQL(db, Datastore::table)
 {
     ostringstream oss;
@@ -44,14 +49,38 @@ DatastorePool::DatastorePool(SqlDB * db,
     {
         int         rc;
         Datastore * ds;
+        DatastoreTemplate * ds_tmpl;
 
-        // Build the default datastore
+        // Build the default datastores
 
-        oss << "NAME        = " << SYSTEM_DS_NAME << endl
-            << "BASE_PATH   = " << base_path      << endl
-            << "TYPE        = " << type;
+        oss << "NAME        = " << SYSTEM_DS_NAME   << endl
+            << "BASE_PATH   = " << system_base_path << endl
+            << "TYPE        = " << system_type;
 
-        DatastoreTemplate * ds_tmpl = new DatastoreTemplate;
+        ds_tmpl = new DatastoreTemplate;
+        rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
+        ds = new Datastore(-1, ds_tmpl);
+
+        rc = PoolSQL::allocate(ds, error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
+        oss.str("");
+
+        oss << "NAME        = " << DEFAULT_DS_NAME      << endl
+            << "BASE_PATH   = " << default_base_path    << endl
+            << "TYPE        = " << default_type;
+
+        ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
 
         if( rc < 0 )

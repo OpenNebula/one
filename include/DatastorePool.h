@@ -27,8 +27,10 @@ class DatastorePool : public PoolSQL
 {
 public:
     DatastorePool(SqlDB * db,
-            const string& base_path,
-            const string& type);
+            const string& system_base_path,
+            const string& system_type,
+            const string& default_base_path,
+            const string& default_type);
 
     ~DatastorePool(){};
 
@@ -37,14 +39,24 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     *  Default name for the oneadmin group
+     *  Name for the system datastore
      */
     static const string SYSTEM_DS_NAME;
 
     /**
-     *  Identifier for the oneadmin group
+     *  Identifier for the system datastore
      */
     static const int SYSTEM_DS_ID;
+
+    /**
+     *  Name for the default datastore
+     */
+    static const string DEFAULT_DS_NAME;
+
+    /**
+     *  Identifier for the default datastore
+     */
+    static const int DEFAULT_DS_ID;
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */

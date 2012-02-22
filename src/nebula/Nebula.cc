@@ -276,8 +276,12 @@ void Nebula::start()
         time_t  expiration_time;
 
         vector<const Attribute *> system_ds;
-        string  ds_base_path;
-        string  ds_type;
+        string  system_ds_base_path;
+        string  system_ds_type;
+
+        vector<const Attribute *> default_ds;
+        string  default_ds_base_path;
+        string  default_ds_type;
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
@@ -319,13 +323,22 @@ void Nebula::start()
 
         nebula_configuration->get("SYSTEM_DS", system_ds);
 
-         const VectorAttribute * ds_conf =
+        const VectorAttribute * ds_conf =
                     static_cast<const VectorAttribute *>(system_ds[0]);
 
-        ds_base_path = ds_conf->vector_value("BASE_PATH");
-        ds_type      = ds_conf->vector_value("TYPE");
+        system_ds_base_path = ds_conf->vector_value("BASE_PATH");
+        system_ds_type      = ds_conf->vector_value("TYPE");
 
-        dspool = new DatastorePool(db, ds_base_path, ds_type);
+        nebula_configuration->get("DEFAULT_DS", default_ds);
+
+        ds_conf = static_cast<const VectorAttribute *>(default_ds[0]);
+
+        default_ds_base_path = ds_conf->vector_value("BASE_PATH");
+        default_ds_type      = ds_conf->vector_value("TYPE");
+
+        dspool = new DatastorePool(db,
+                system_ds_base_path, system_ds_type,
+                default_ds_base_path, default_ds_type);
     }
     catch (exception&)
     {

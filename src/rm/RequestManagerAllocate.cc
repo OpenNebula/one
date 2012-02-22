@@ -189,7 +189,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     ImageTemplate * tmpl = new ImageTemplate;
     Datastore *     ds;
 
-    // ------------------------- Prase image template --------------------------
+    // ------------------------- Parse image template --------------------------
 
     rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
 
@@ -202,6 +202,18 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     }
 
     // ------------------------- Check Datastore exists ------------------------
+
+    if ( ds_id == DatastorePool::SYSTEM_DS_ID )
+    {
+        ostringstream oss;
+
+        oss << "New Images cannot be allocated in the system "
+            << object_name(PoolObjectSQL::DATASTORE) << " [" << ds_id << "].";
+        failure_response(INTERNAL, allocate_error(oss.str()), att);
+
+        delete tmpl;
+        return;
+    }
 
     if ((ds = dspool->get(ds_id,true)) == 0 )
     {
