@@ -186,24 +186,6 @@ void OpenNebulaTemplate::set_conf_default()
 #  DEFAULT_DEVICE_PREFIX
 #*******************************************************************************
 */
-    //SYSTEM_DS
-    vvalue.clear();
-    vvalue.insert(make_pair("BASE_PATH","/var/lib/one/system_ds"));
-    vvalue.insert(make_pair("TYPE",     "fs"));
-    vvalue.insert(make_pair("TM_MAD",   "tm_shared"));
-
-    vattribute = new VectorAttribute("SYSTEM_DS",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
-
-    //DEFAULT_DS
-    vvalue.clear();
-    vvalue.insert(make_pair("BASE_PATH","/var/lib/one/images"));
-    vvalue.insert(make_pair("TYPE",     "fs"));
-    vvalue.insert(make_pair("TM_MAD",   "tm_shared"));
-
-    vattribute = new VectorAttribute("DEFAULT_DS",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
-
     //DEFAULT_IMAGE_TYPE
     value = "OS";
 

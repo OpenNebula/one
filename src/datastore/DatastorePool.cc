@@ -35,13 +35,7 @@ const int    DatastorePool::DEFAULT_DS_ID   = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-DatastorePool::DatastorePool(SqlDB * db,
-                            const string& system_base_path,
-                            const string& system_type,
-                            const string& system_tm_mad,
-                            const string& default_base_path,
-                            const string& default_type,
-                            const string& default_tm_mad):
+DatastorePool::DatastorePool(SqlDB * db):
                         PoolSQL(db, Datastore::table)
 {
     ostringstream oss;
@@ -55,10 +49,10 @@ DatastorePool::DatastorePool(SqlDB * db,
 
         // Build the default datastores
 
-        oss << "NAME        = " << SYSTEM_DS_NAME   << endl
-            << "BASE_PATH   = " << system_base_path << endl
-            << "TYPE        = " << system_type      << endl
-            << "TM_MAD      = " << system_tm_mad;
+        oss << "NAME        = " << SYSTEM_DS_NAME       << endl
+            << "BASE_PATH   = /var/lib/one/system_ds"   << endl
+            << "TYPE        = fs"                       << endl
+            << "TM_MAD      = tm_shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -80,9 +74,9 @@ DatastorePool::DatastorePool(SqlDB * db,
         oss.str("");
 
         oss << "NAME        = " << DEFAULT_DS_NAME      << endl
-            << "BASE_PATH   = " << default_base_path    << endl
-            << "TYPE        = " << default_type         << endl
-            << "TM_MAD      = " << default_tm_mad;
+            << "BASE_PATH   = /var/lib/one/images"      << endl
+            << "TYPE        = fs"                       << endl
+            << "TM_MAD      = tm_shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);

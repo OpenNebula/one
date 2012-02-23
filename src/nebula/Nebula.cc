@@ -275,16 +275,6 @@ void Nebula::start()
         string  default_device_prefix;
         time_t  expiration_time;
 
-        vector<const Attribute *> system_ds;
-        string  system_ds_base_path;
-        string  system_ds_type;
-        string  system_tm_mad;
-
-        vector<const Attribute *> default_ds;
-        string  default_ds_base_path;
-        string  default_ds_type;
-        string  default_tm_mad;
-
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
         vector<const Attribute *> vm_restricted_attrs;
@@ -323,26 +313,7 @@ void Nebula::start()
 
         tpool  = new VMTemplatePool(db);
 
-        nebula_configuration->get("SYSTEM_DS", system_ds);
-
-        const VectorAttribute * ds_conf =
-                    static_cast<const VectorAttribute *>(system_ds[0]);
-
-        system_ds_base_path = ds_conf->vector_value("BASE_PATH");
-        system_ds_type      = ds_conf->vector_value("TYPE");
-        system_tm_mad       = ds_conf->vector_value("TM_MAD");
-
-        nebula_configuration->get("DEFAULT_DS", default_ds);
-
-        ds_conf = static_cast<const VectorAttribute *>(default_ds[0]);
-
-        default_ds_base_path = ds_conf->vector_value("BASE_PATH");
-        default_ds_type      = ds_conf->vector_value("TYPE");
-        default_tm_mad       = ds_conf->vector_value("TM_MAD");
-
-        dspool = new DatastorePool(db,
-                system_ds_base_path, system_ds_type, system_tm_mad,
-                default_ds_base_path, default_ds_type, default_tm_mad);
+        dspool = new DatastorePool(db);
     }
     catch (exception&)
     {

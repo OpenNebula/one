@@ -26,13 +26,7 @@ using namespace std;
 class DatastorePool : public PoolSQL
 {
 public:
-    DatastorePool(SqlDB * db,
-            const string& system_base_path,
-            const string& system_type,
-            const string& system_tm_mad,
-            const string& default_base_path,
-            const string& default_type,
-            const string& default_tm_mad);
+    DatastorePool(SqlDB * db);
 
     ~DatastorePool(){};
 
