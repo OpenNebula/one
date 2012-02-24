@@ -207,8 +207,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         ostringstream oss;
 
-        oss << "New Images cannot be allocated in the system "
-            << object_name(PoolObjectSQL::DATASTORE) << " [" << ds_id << "].";
+        oss << "New images cannot be allocated in the system datastore.";
         failure_response(INTERNAL, allocate_error(oss.str()), att);
 
         delete tmpl;
