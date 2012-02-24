@@ -61,9 +61,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, create_desc, :hostname, :im_mad, :vmm_mad,  
-            :tm_mad, :vnm_mad do
+            :vnm_mad do
         helper.create_resource(options) do |host|
-            host.allocate(args[0], args[1], args[2], args[4], args[3])
+            host.allocate(args[0], args[1], args[2], args[3])
         end
     end
 

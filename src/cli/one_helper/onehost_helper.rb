@@ -122,7 +122,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts str % ["IM_MAD", host['IM_MAD']]
         puts str % ["VM_MAD", host['VM_MAD']]
         puts str % ["VN_MAD", host['VN_MAD']]
-        puts str % ["TM_MAD", host['TM_MAD']]
         puts str % ["LAST MONITORING TIME", host['LAST_MON_TIME']]
         puts
 
