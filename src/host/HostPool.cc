@@ -153,7 +153,6 @@ int HostPool::allocate (
     const string& im_mad_name,
     const string& vmm_mad_name,
     const string& vnm_mad_name,
-    const string& tm_mad_name,
     string& error_str)
 {
     Host *        host;
@@ -184,11 +183,6 @@ int HostPool::allocate (
         goto error_vnm;
     }
 
-    if ( tm_mad_name.empty() )
-    {
-        goto error_tm;
-    }
-
     host = get(hostname,false);
 
     if ( host !=0)
@@ -198,8 +192,7 @@ int HostPool::allocate (
 
     // Build a new Host object
 
-    host = new Host(-1, hostname, im_mad_name, vmm_mad_name, vnm_mad_name,
-            tm_mad_name);
+    host = new Host(-1, hostname, im_mad_name, vmm_mad_name, vnm_mad_name);
 
     // Insert the Object in the pool
 
@@ -226,10 +219,6 @@ error_vmm:
 
 error_vnm:
     oss << "VNM_MAD_NAME cannot be empty.";
-    goto error_common;
-
-error_tm:
-    oss << "TM_MAD_NAME cannot be empty.";
     goto error_common;
 
 error_duplicated:

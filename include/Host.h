@@ -317,11 +317,6 @@ private:
     string      vnm_mad_name;
 
 	/**
-     *  Name of the TM driver used to transfer file to and from this host
-     */
-	string      tm_mad_name;
-
-	/**
      *  If Host State= MONITORED  last time it got fully monitored or 1 Jan 1970
      *     Host State = MONITORING last time it got a signal to be monitored
      */
@@ -343,8 +338,7 @@ private:
          const string& hostname="",
          const string& im_mad_name="",
          const string& vmm_mad_name="",
-         const string& vnm_mad_name="",
-         const string& tm_mad_name="");
+         const string& vnm_mad_name="");
 
     virtual ~Host();
 

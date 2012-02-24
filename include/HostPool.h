@@ -53,7 +53,6 @@ public:
         const string& im_mad_name,
         const string& vmm_mad_name,
         const string& vnm_mad_name,
-        const string& tm_mad_name,
         string& error_str);
 
     /**
