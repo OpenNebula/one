@@ -260,7 +260,6 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
         if ( img == 0 )
         {
-            error_str = "Cannot acquire image, it does not exists or in use.";
             return -1;
         }
     }
