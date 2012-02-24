@@ -38,6 +38,7 @@ source_files=[
     'RequestManagerChown.cc',
     'RequestManagerAcl.cc',
     'RequestManagerChmod.cc',
+    'RequestManagerCluster.cc'
 ]
 
 # Build library

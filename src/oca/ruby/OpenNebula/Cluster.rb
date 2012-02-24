@@ -26,7 +26,8 @@ module OpenNebula
         CLUSTER_METHODS = {
             :info       => "cluster.info",
             :allocate   => "cluster.allocate",
-            :delete     => "cluster.delete"
+            :delete     => "cluster.delete",
+            :addhost    => "cluster.addhost"
         }
 
         # Creates a Cluster description with just its identifier
@@ -70,6 +71,17 @@ module OpenNebula
         # Deletes the Cluster
         def delete()
             super(CLUSTER_METHODS[:delete])
+        end
+
+        # Adds a Host to this Cluster
+        # @param hid [Integer] Host ID
+        def addhost(hid)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(CLUSTER_METHODS[:addhost], @pe_id, hid)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         # ---------------------------------------------------------------------

@@ -96,4 +96,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.show_resource(args[0],options)
     end
 
+    addhost_desc = <<-EOT.unindent
+        Adds a Host to the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :hostid_list]
+    command :addhost, addhost_desc,:clusterid, :hostid do
+        helper.perform_actions(args[0],options,"updated") do |cluster|
+            cluster.addhost(args[1].to_i)
+        end
+    end
+
 end

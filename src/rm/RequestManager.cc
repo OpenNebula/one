@@ -33,6 +33,7 @@
 #include "RequestManagerImage.h"
 #include "RequestManagerUser.h"
 #include "RequestManagerAcl.h"
+#include "RequestManagerCluster.h"
 
 #include <sys/signal.h>
 #include <sys/socket.h>
@@ -324,6 +325,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr acl_delrule(new AclDelRule());
     xmlrpc_c::methodPtr acl_info(new AclInfo());
 
+    // Cluster Methods
+    xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
+
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
@@ -417,6 +421,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.allocate",cluster_allocate);
     RequestManagerRegistry.addMethod("one.cluster.delete",  cluster_delete);
     RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
+    RequestManagerRegistry.addMethod("one.cluster.addhost", cluster_addhost);
 
     RequestManagerRegistry.addMethod("one.clusterpool.info",clusterpool_info);
 };
