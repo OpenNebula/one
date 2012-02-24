@@ -386,3 +386,19 @@ int DatastoreAllocate::pool_allocate(
 
     return dspool->allocate(ds_tmpl, &id, error_str);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ClusterAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
+                                    Template * tmpl,
+                                    int& id,
+                                    string& error_str,
+                                    RequestAttributes& att)
+{
+    string name = xmlrpc_c::value_string(paramList.getString(1));
+
+    ClusterPool * clpool = static_cast<ClusterPool *>(pool);
+
+    return clpool->allocate(name, &id, error_str);
+}

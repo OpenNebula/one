@@ -1,0 +1,14 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the Cluster
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Cluster
+  :size: 15
+  :left: true
+
+:default:
+- :ID
+- :NAME
+

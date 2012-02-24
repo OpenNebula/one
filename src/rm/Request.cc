@@ -179,6 +179,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "ACL";
         case PoolObjectSQL::DATASTORE:
             return "datastore";
+        case PoolObjectSQL::CLUSTER:
+            return "cluster";
         default:
             return "-";
       }

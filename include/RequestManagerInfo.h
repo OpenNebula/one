@@ -162,7 +162,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-
 class GroupInfo: public RequestManagerInfo
 {
 public:
@@ -212,6 +211,24 @@ public:
     };
 
     ~DatastoreInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterInfo: public RequestManagerInfo
+{
+public:
+    ClusterInfo():
+        RequestManagerInfo("ClusterInfo",
+                           "Returns cluster information")
+    {
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_clpool();
+        auth_object = PoolObjectSQL::CLUSTER;
+    };
+
+    ~ClusterInfo(){};
 };
 
 /* -------------------------------------------------------------------------- */

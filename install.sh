@@ -563,6 +563,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onetemplate \
            src/cli/oneacl \
            src/cli/onedatastore \
+           src/cli/onecluster \
            src/onedb/onedb \
            src/authm_mad/remotes/quota/onequota \
            src/mad/utils/tty_expect \
@@ -963,6 +964,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/AclPool.rb \
                            src/oca/ruby/OpenNebula/Datastore.rb \
                            src/oca/ruby/OpenNebula/DatastorePool.rb \
+                           src/oca/ruby/OpenNebula/Cluster.rb \
+                           src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
@@ -1068,7 +1071,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevm_helper.rb \
                    src/cli/one_helper/onevnet_helper.rb \
                    src/cli/one_helper/oneacl_helper.rb \
-                   src/cli/one_helper/onedatastore_helper.rb"
+                   src/cli/one_helper/onedatastore_helper.rb \
+                   src/cli/one_helper/onecluster_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1078,7 +1082,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onetemplate \
                src/cli/onegroup \
                src/cli/oneacl \
-               src/cli/onedatastore"
+               src/cli/onedatastore \
+               src/cli/onecluster"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1088,7 +1093,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevm.yaml \
                 src/cli/etc/onevnet.yaml \
                 src/cli/etc/oneacl.yaml \
-                src/cli/etc/onedatastore.yaml"
+                src/cli/etc/onedatastore.yaml \
+                src/cli/etc/onecluster.yaml"
 
 ETC_CLIENT_FILES="src/cli/etc/group.default"
 
@@ -1423,6 +1429,7 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/onegroup.1.gz \
         share/man/onedb.1.gz \
         share/man/onedatastore.1.gz \
+        share/man/onecluster.1.gz \
         share/man/econe-describe-images.1.gz \
         share/man/econe-describe-instances.1.gz \
         share/man/econe-register.1.gz \

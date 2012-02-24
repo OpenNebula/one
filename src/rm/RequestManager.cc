@@ -264,6 +264,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_allocate(new HostAllocate());
     xmlrpc_c::methodPtr user_allocate(new  UserAllocate());
     xmlrpc_c::methodPtr datastore_allocate(new DatastoreAllocate());
+    xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
 
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
@@ -273,6 +274,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_delete(new UserDelete());
     xmlrpc_c::methodPtr image_delete(new ImageDelete());
     xmlrpc_c::methodPtr datastore_delete(new DatastoreDelete());
+    xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -283,6 +285,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_info(new UserInfo());
     xmlrpc_c::methodPtr image_info(new ImageInfo());
     xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
+    xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
 
     // PoolInfo Methods 
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -293,6 +296,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
+    xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -409,6 +413,12 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.datastorepool.info",datastorepool_info);
 
+    /* Cluster related methods */
+    RequestManagerRegistry.addMethod("one.cluster.allocate",cluster_allocate);
+    RequestManagerRegistry.addMethod("one.cluster.delete",  cluster_delete);
+    RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
+
+    RequestManagerRegistry.addMethod("one.clusterpool.info",clusterpool_info);
 };
 
 /* -------------------------------------------------------------------------- */
