@@ -73,6 +73,15 @@ public:
     };
 
     /**
+     *  Retrieves the base path
+     *    @return base path string
+     */
+    const string& get_base_path() const
+    {
+        return base_path;
+    };
+
+    /**
      * Modifies the given VM disk attribute adding the relevant datastore
      * attributes
      *

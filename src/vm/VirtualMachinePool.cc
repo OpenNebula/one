@@ -216,7 +216,7 @@ int VirtualMachinePool::allocate (
     {
         vm->state = VirtualMachine::PENDING;
     }
-
+    
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------

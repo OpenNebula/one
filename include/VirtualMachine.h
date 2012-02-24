@@ -760,14 +760,13 @@ private:
      */
     History *   previous_history;
 
-
     /**
      *  Complete set of history records for the VM
      */
     vector<History *> history_records;
 
     // -------------------------------------------------------------------------
-    // Logging
+    // Logging & Dirs
     // -------------------------------------------------------------------------
 
     /**
@@ -776,7 +775,13 @@ private:
      *  or, in case that OpenNebula is installed in root
      *          /var/log/one/$VM_ID.log
      */
-    FileLog *       _log;
+    FileLog * _log;
+
+    /**
+     *  Directory for the VM in the System DS (system_ds_path/$VID). Defaults to
+     *  $ONE_LOCATION/var/system_ds/$VID or /var/log/one/system_ds/$VID
+     */
+     string   system_dir;
 
     // *************************************************************************
     // DataBase implementation (Private)

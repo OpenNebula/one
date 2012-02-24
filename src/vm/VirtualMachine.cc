@@ -56,7 +56,8 @@ VirtualMachine::VirtualMachine(int           id,
         net_rx(0),
         history(0),
         previous_history(0),
-        _log(0)
+        _log(0),
+        system_dir("")
 {
     if (_vm_template != 0)
     {
@@ -148,14 +149,28 @@ int VirtualMachine::select(SqlDB * db)
         }
     }
 
-    //Create support directory for this VM
+    if ( state == DONE ) //Do not recreate dirs. They may be deleted
+    {
+        _log = 0;
+        
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+    //Create support directories for this VM
+    //--------------------------------------------------------------------------
     oss.str("");
     oss << nd.get_var_location() << oid;
 
-    mkdir(oss.str().c_str(), 0777);
-    chmod(oss.str().c_str(), 0777);
+    mkdir(oss.str().c_str(), 0700);
+    chmod(oss.str().c_str(), 0700);
 
+    mkdir(system_dir.c_str(), 0700);
+    chmod(system_dir.c_str(), 0700);
+
+    //--------------------------------------------------------------------------
     //Create Log support for this VM
+    //--------------------------------------------------------------------------
     try
     {
         _log = new FileLog(nd.get_vm_log_filename(oid),Log::DEBUG);
@@ -191,6 +206,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string              value;
     ostringstream       oss;
 
+    Nebula& nd = Nebula::instance();
 
     // ------------------------------------------------------------------------
     // Check template for restricted attributes
@@ -278,6 +294,15 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     parse_graphics();
+
+    // ------------------------------------------------------------------------
+    // Set the System DataStore Path for the VM
+    // ------------------------------------------------------------------------
+
+    oss.str("");
+    oss << nd.get_system_ds_path() << "/" << oid;
+
+    system_dir = oss.str();
 
     // ------------------------------------------------------------------------
     // Insert the VM
@@ -1259,6 +1284,7 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
+        << "<SYSTEM_DIR>"<< system_dir<< "</SYSTEM_DIR>"
         << obj_template->to_xml(template_xml);
 
     if ( hasHistory() )
@@ -1327,6 +1353,8 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(cpu,       "/VM/CPU",      0);
     rc += xpath(net_tx,    "/VM/NET_TX",   0);
     rc += xpath(net_rx,    "/VM/NET_RX",   0);
+
+    rc += xpath(system_dir,"/VM/SYSTEM_DIR","not_found");
 
     // Permissions
     rc += perms_from_xml();

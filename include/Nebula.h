@@ -199,14 +199,33 @@ public:
     };
 
     /**
-     *  Returns the path where the OpenNebula DB and the VM local directories
-     *  are stored. When ONE_LOCATION is defined this path points to
-     *  $ONE_LOCATION/var, otherwise it is /var/lib/one.
+     *  Returns the default var location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
      *  	@return the log location.
      */
     const string& get_var_location()
     {
     	return var_location;
+    };
+
+    /**
+     *  Returns the base for the system datastore (for tmp VM images). When 
+     *  ONE_LOCATION is defined this path points to $ONE_LOCATION/var/system_ds, 
+     *  otherwise it is /var/lib/one/system_ds.
+     *      @return the log location.
+     */
+    string get_system_ds_path()
+    {
+        Datastore * ds;
+        string      system_ds_path;
+
+        ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
+
+        system_ds_path = ds->get_base_path();
+
+        ds->unlock();
+
+        return system_ds_path;
     };
 
     /**
