@@ -166,6 +166,28 @@ public:
         return last_monitored;
     };
 
+    /**
+     * Changes the cluster this host belongs to
+     *
+     * @param _cluster_id Id of the new cluster
+     * @param _cluster Name of the new cluter
+     */
+    void set_cluster(int _cluster_id, const string& _cluster)
+    {
+        cluster_id  = _cluster_id;
+        cluster     = _cluster;
+    };
+
+    /**
+     * Returns the cluster ID
+     *
+     * @return The cluster ID
+     */
+    int get_cluster_id()
+    {
+        return cluster_id;
+    };
+
     // ------------------------------------------------------------------------
     // Share functions
     // ------------------------------------------------------------------------
@@ -322,6 +344,12 @@ private:
      */
     time_t      last_monitored;
 
+    int         cluster_id;
+    /**
+     *  Name of the cluster this host belongs to.
+     */
+    string      cluster;
+
     // -------------------------------------------------------------------------
     //  Host Attributes
     // -------------------------------------------------------------------------
@@ -334,11 +362,13 @@ private:
     // Constructor
     // *************************************************************************
 
-    Host(int           id=-1,
-         const string& hostname="",
-         const string& im_mad_name="",
-         const string& vmm_mad_name="",
-         const string& vnm_mad_name="");
+    Host(int           id,
+         const string& hostname,
+         const string& im_mad_name,
+         const string& vmm_mad_name,
+         const string& vnm_mad_name,
+         int           cluster_id,
+         const string& cluster_name);
 
     virtual ~Host();
 

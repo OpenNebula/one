@@ -25,6 +25,7 @@
 #include "HostHook.h"
 #include "NebulaLog.h"
 #include "GroupPool.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -153,10 +154,17 @@ int HostPool::allocate (
     const string& im_mad_name,
     const string& vmm_mad_name,
     const string& vnm_mad_name,
+    int           cluster_id,
+    const string& cluster_name,
     string& error_str)
 {
+    Nebula&       nd = Nebula::instance();
+
     Host *        host;
     ostringstream oss;
+
+    ClusterPool * clpool;
+    Cluster *     cluster;
 
     if ( hostname.empty() )
     {
@@ -192,11 +200,38 @@ int HostPool::allocate (
 
     // Build a new Host object
 
-    host = new Host(-1, hostname, im_mad_name, vmm_mad_name, vnm_mad_name);
+    host = new Host(
+            -1,
+            hostname,
+            im_mad_name,
+            vmm_mad_name,
+            vnm_mad_name,
+            cluster_id,
+            cluster_name);
 
     // Insert the Object in the pool
 
     *oid = PoolSQL::allocate(host, error_str);
+
+    if ( *oid < 0 )
+    {
+        return *oid;
+    }
+
+    // Add Host to Cluster
+    clpool = nd.get_clpool();
+    cluster = clpool->get(cluster_id, true);
+
+    if( cluster == 0 )
+    {
+        return -1;
+    }
+
+    cluster->add_host(*oid);
+
+    clpool->update(cluster);
+
+    cluster->unlock();
 
     return *oid;
 

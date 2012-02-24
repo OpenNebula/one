@@ -317,9 +317,16 @@ int HostAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     string vmm_mad = xmlrpc_c::value_string(paramList.getString(3));
     string vnm_mad = xmlrpc_c::value_string(paramList.getString(4));
 
+    int rc;
+
+    // TODO: include another int parameter for the cluster?
+    int     cluster_id   = ClusterPool::DEFAULT_CLUSTER_ID;
+    string  cluster_name = ClusterPool::DEFAULT_CLUSTER_NAME;
+
     HostPool * hpool = static_cast<HostPool *>(pool);
 
-    return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad, error_str);
+    return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
+                            cluster_id, cluster_name, error_str);
 }
 
 /* -------------------------------------------------------------------------- */

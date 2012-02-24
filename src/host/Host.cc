@@ -33,13 +33,17 @@ Host::Host(
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,
-    const string& _vnm_mad_name):
+    const string& _vnm_mad_name,
+    int           _cluster_id,
+    const string& _cluster_name):
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         vnm_mad_name(_vnm_mad_name),
-        last_monitored(0)
+        last_monitored(0),
+        cluster_id(_cluster_id),
+        cluster(_cluster_name)
 {
     obj_template = new HostTemplate;        
 }
@@ -204,6 +208,8 @@ string& Host::to_xml(string& xml) const
        "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
        "<VN_MAD>"        << vnm_mad_name   << "</VN_MAD>"        <<
        "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
+       "<CLUSTER_ID>"    << cluster_id     << "</CLUSTER_ID>"    <<
+       "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
        host_share.to_xml(share_xml)  <<
        obj_template->to_xml(template_xml) <<
     "</HOST>";
@@ -236,6 +242,9 @@ int Host::from_xml(const string& xml)
     rc += xpath(vnm_mad_name, "/HOST/VN_MAD", "not_found");
 
     rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
+
+    rc += xpath(cluster_id, "/HOST/CLUSTER_ID", -1);
+    rc += xpath(cluster,    "/HOST/CLUSTER",    "not_found");
 
     state = static_cast<HostState>( int_state );
 
