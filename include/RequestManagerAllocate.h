@@ -309,6 +309,32 @@ public:
                       RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterAllocate: public RequestManagerAllocate
+{
+public:
+    ClusterAllocate():
+        RequestManagerAllocate("ClusterAllocate",
+                               "Allocates a new cluster",
+                               "A:ss",
+                               false)
+    {
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_clpool();
+        auth_object = PoolObjectSQL::CLUSTER;
+    };
+
+    ~ClusterAllocate(){};
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template * tmpl,
+                      int& id,
+                      string& error_str,
+                      RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

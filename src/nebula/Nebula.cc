@@ -249,6 +249,7 @@ void Nebula::start()
             rc += VMTemplatePool::bootstrap(db);
             rc += AclManager::bootstrap(db);
             rc += DatastorePool::bootstrap(db);
+            rc += ClusterPool::bootstrap(db);
 
             // Create the versioning table only if bootstrap went well
             if ( rc == 0 )
@@ -314,6 +315,8 @@ void Nebula::start()
         tpool  = new VMTemplatePool(db);
 
         dspool = new DatastorePool(db);
+
+        clpool  = new ClusterPool(db);
     }
     catch (exception&)
     {

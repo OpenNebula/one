@@ -140,7 +140,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-
 class GroupDelete: public RequestManagerDelete
 {
 public:
@@ -194,6 +193,24 @@ public:
     };
 
     ~DatastoreDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterDelete: public RequestManagerDelete
+{
+public:
+    ClusterDelete():
+        RequestManagerDelete("ClusterDelete", "Deletes a cluster")
+    {
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_clpool();
+        auth_object = PoolObjectSQL::CLUSTER;
+        auth_op     = AuthRequest::ADMIN;
+    };
+
+    ~ClusterDelete(){};
 };
 
 /* -------------------------------------------------------------------------- */
