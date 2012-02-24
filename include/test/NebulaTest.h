@@ -26,6 +26,7 @@
 #include "HostPool.h"
 #include "UserPool.h"
 #include "VMTemplatePool.h"
+#include "DatastorePool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -67,6 +68,7 @@ public:
     bool need_user_pool;
     bool need_template_pool;
     bool need_group_pool;
+    bool need_datastore_pool;
 
     bool need_vmm;
     bool need_im;
@@ -106,6 +108,8 @@ public:
     virtual VMTemplatePool* create_tpool(SqlDB* db);
 
     virtual GroupPool* create_gpool(SqlDB* db);
+
+    virtual DatastorePool* create_dspool(SqlDB* db);
 
     // ------------------------------------------------------------------------
     // Managers

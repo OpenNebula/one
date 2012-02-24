@@ -62,6 +62,11 @@ GroupPool* NebulaTest::create_gpool(SqlDB* db)
     return new GroupPool(db);
 }
 
+DatastorePool* NebulaTest::create_dspool(SqlDB* db)
+{
+    return new DatastorePool(db);
+}
+
 // -----------------------------------------------------------
 // Managers
 // -----------------------------------------------------------

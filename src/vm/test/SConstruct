@@ -28,6 +28,7 @@ env.Prepend(LIBS=[
     'nebula_pool',
     'nebula_xml',
     'nebula_image',
+    'nebula_datastore',
     'nebula_mad',
     'nebula_common',
     'nebula_log',

@@ -26,14 +26,13 @@ using namespace std;
 const string im_mad  = "im_mad";
 const string vmm_mad = "vmm_mad";
 const string vnm_mad = "vnm_mad";
-const string tm_mad  = "tm_mad";
 
 const string names[] = {"Host one", "Second host"};
 
 const string xmls[] =
 {
     "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE>"
-    "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD>"
+    "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD>"
     "<LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU>"
@@ -42,7 +41,7 @@ const string xmls[] =
     "<RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>",
 
     "<HOST><ID>1</ID><NAME>Second host</NAME><STATE>0</STATE>"
-    "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD>"
+    "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD>"
     "<LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU>"
@@ -54,35 +53,35 @@ const string xmls[] =
 // This xml dump result has the LAST_MON_TIMEs modified to 0000000000
 const string xml_dump =
     "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
-    "M_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0"
+    "M_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0"
     "</LAST_MON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM"
     "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
     ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
     "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
     "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST>"
     "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
-    "D>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_M"
+    "D>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_M"
     "ON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
     "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
     "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
     "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
     "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>2</ID><N"
     "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOS"
+    "M_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOS"
     "T_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
     "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
     "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
     "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
     "NING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>3</ID><NAME>another "
     "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHAR"
+    "<VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHAR"
     "E><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
     ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
     "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
     "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
     "MS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>4</ID><NAME>host</NAME><ST"
-    "ATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad"
-    "</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE>"
+    "ATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD>"
+    "<LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0"
     "</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED"
@@ -91,28 +90,28 @@ const string xml_dump =
 
 const string xml_dump_like_a =
     "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
-    "M_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0"
+    "M_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0"
     "</LAST_MON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM"
     "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
     ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
     "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
     "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST>"
     "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
-    "D>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_M"
+    "D>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_M"
     "ON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
     "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
     "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
     "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
     "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>2</ID><N"
     "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOS"
+    "M_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOS"
     "T_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
     "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
     "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
     "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
     "NING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>3</ID><NAME>another "
     "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHAR"
+    "<VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHAR"
     "E><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
     ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
     "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
@@ -120,10 +119,10 @@ const string xml_dump_like_a =
     "MS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST></HOST_POOL>";
 
 const string host0_updated =
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE><ATT_A><![CDATA[VALUE_A]]></ATT_A><ATT_B><![CDATA[VALUE_B]]></ATT_B></TEMPLATE></HOST>";
+    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE><ATT_A><![CDATA[VALUE_A]]></ATT_A><ATT_B><![CDATA[VALUE_B]]></ATT_B></TEMPLATE></HOST>";
 
 const string host_0_cluster =
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>cluster_a</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>";
+    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>cluster_a</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>";
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -164,7 +163,7 @@ protected:
         int    oid;
         string err;
         return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
-                                           vmm_mad, vnm_mad, tm_mad, err);
+                                           vmm_mad, vnm_mad, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -239,28 +238,28 @@ public:
         Host * host;
         string err;
 
-        string tm_mad_2 = "another_tm_mad";
+        string im_mad_2 = "another_im_mad";
 
 
         // If we try to allocate two hosts with the same name and drivers,
         // should fail
-        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, vnm_mad, tm_mad, err);
+        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, vnm_mad, err);
         CPPUNIT_ASSERT( oid_0 == 0 );
         CPPUNIT_ASSERT( rc    == oid_0 );
 
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, vnm_mad, tm_mad, err);
+        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, vnm_mad, err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
         // the hostname can not be repeated if the drivers change
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, vnm_mad, tm_mad_2, err);
+        rc = hp->allocate(&oid_1, names[0], im_mad_2, vmm_mad, vnm_mad, err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
         // Get the hosts and check them
         host = hp->get(oid_0, false);
         CPPUNIT_ASSERT( host != 0 );
-        CPPUNIT_ASSERT( host->get_tm_mad() == tm_mad );
+        CPPUNIT_ASSERT( host->get_im_mad() == im_mad );
     }
 
     /* ********************************************************************* */
@@ -274,7 +273,7 @@ public:
         for(int i=0; i<5; i++)
         {
             ((HostPool*)pool)->allocate(&oid, names[i],
-                                        im_mad, vmm_mad, vnm_mad, tm_mad, err);
+                                        im_mad, vmm_mad, vnm_mad, err);
         }
 
         ostringstream oss;
@@ -285,13 +284,13 @@ public:
         string result = oss.str();
 
 //  A little help for debugging
-//*
+/*
         if( result != xml_dump )
         {
             cout << endl << result << endl << "========"
                  << endl << xml_dump << endl;
         }
-//*/
+*/
 
         CPPUNIT_ASSERT( result == xml_dump );
     }
@@ -307,25 +306,23 @@ public:
         for(int i=0; i<5; i++)
         {
             ((HostPool*)pool)->allocate(&oid, names[i],
-                                        im_mad, vmm_mad, vnm_mad, tm_mad, err);
+                                        im_mad, vmm_mad, vnm_mad, err);
         }
-
 
         ostringstream oss;
         rc = ((HostPool*)pool)->dump(oss, "name LIKE 'a%'");
         CPPUNIT_ASSERT(rc == 0);
 
-
         string result = oss.str();
 
 //  A little help for debugging
-//*
+/*
         if( result != xml_dump_like_a )
         {
             cout << endl << result << endl << "========"
                  << endl << xml_dump_like_a << endl;
         }
-//*/
+*/
 
         CPPUNIT_ASSERT( result == xml_dump_like_a );
     }
@@ -348,7 +345,7 @@ public:
         {
             oss << "host" << i;
 
-            hp->allocate(&oid, oss.str().c_str(), im_mad, vmm_mad, vnm_mad, tm_mad, err);
+            hp->allocate(&oid, oss.str().c_str(),im_mad, vmm_mad, vnm_mad, err);
             CPPUNIT_ASSERT(oid == i);
 
             if (i >=8 )
@@ -406,7 +403,7 @@ public:
             {
                 oss << "host" << j;
 
-                hp->allocate(&oid, oss.str().c_str(),im_mad,vmm_mad,vnm_mad,tm_mad,err);
+                hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,vnm_mad,err);
             }
 
             the_time2 = time(0) - the_time;
@@ -435,7 +432,7 @@ public:
         for (i=10000,oss.str(""); i<30000 ; i++,oss.str(""))
         {
             oss << "host" << i;
-            hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,vnm_mad,tm_mad,err);
+            hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,vnm_mad,err);
 
             host = hp->get(oid, false);
 

@@ -87,6 +87,11 @@ void Nebula::start()
         delete gpool;
     }
 
+    if ( dspool != 0)
+    {
+        delete dspool;
+    }
+
     if ( vmm != 0)
     {
         delete vmm;
@@ -184,6 +189,7 @@ void Nebula::start()
         VMTemplatePool::bootstrap(db);
         GroupPool::bootstrap(db);
         AclManager::bootstrap(db);
+        DatastorePool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -234,6 +240,11 @@ void Nebula::start()
         if (tester->need_template_pool)
         {
             tpool  = tester->create_tpool(db);
+        }
+
+        if (tester->need_datastore_pool)
+        {
+            dspool  = tester->create_dspool(db);
         }
     }
     catch (exception&)
