@@ -743,8 +743,13 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, i, &index, &img_type, uid, image_id);
-
+        rc = ipool->disk_attribute(disk, 
+                                   i, 
+                                   &index, 
+                                   &img_type, 
+                                   uid, 
+                                   image_id, 
+                                   error_str);
         if (rc == 0 )
         {
             acquired_images.push_back(image_id);
@@ -781,7 +786,7 @@ int VirtualMachine::get_disk_images(string& error_str)
         }
         else if ( rc == -1 )
         {
-            goto error_image;
+            goto error_common;
         }
     }
 
@@ -797,10 +802,6 @@ error_max_cd:
 
 error_max_db:
     error_str = "VM can not use more than 10 DATABLOCK images.";
-    goto error_common;
-
-error_image:
-    error_str = "Could not get disk image for VM.";
     goto error_common;
 
 error_common:
@@ -893,19 +894,15 @@ int VirtualMachine::get_network_leases(string& estr)
             continue;
         }
 
-        rc = vnpool->nic_attribute(nic, uid, oid);
+        rc = vnpool->nic_attribute(nic, uid, oid, estr);
 
         if (rc == -1)
         {
-            goto error_vnet; 
+            return -1;
         }
     }
 
     return 0;
-
-error_vnet:
-    estr = "Could not get virtual network for VM.";
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

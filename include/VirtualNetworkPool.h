@@ -92,11 +92,12 @@ public:
      *  metadata
      *    @param nic the nic attribute to be generated
      *    @param vid of the VM requesting the lease
+     *    @param error_str string describing the error
      *    @return 0 on success, 
      *            -1 error, 
      *            -2 not using the pool
      */
-    int nic_attribute(VectorAttribute * nic, int uid, int vid);
+    int nic_attribute(VectorAttribute * nic, int uid, int vid, string& error_str);
 
     /**
      *  Generates an Authorization token for a NIC attribute
@@ -171,12 +172,13 @@ private:
      */
     VirtualNetwork * get_nic_by_name(VectorAttribute * nic, 
                                      const string&     name,
-                                     int               _uid);
+                                     int               _uidi,
+                                     string&           error);
 
     /**
      *  Function to get a VirtualNetwork by its id, as provided by a VM template
      */
-    VirtualNetwork * get_nic_by_id(const string& id_s);
+    VirtualNetwork * get_nic_by_id(const string& id_s, string& error);
 };
 
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

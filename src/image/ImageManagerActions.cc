@@ -22,7 +22,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(int image_id)
+Image * ImageManager::acquire_image(int image_id, string& error)
 {
     Image * img;
     int     rc;
@@ -31,10 +31,14 @@ Image * ImageManager::acquire_image(int image_id)
 
     if ( img == 0 )
     {
+        ostringstream oss;
+        oss << "Image with ID: " << image_id  << " does not exists";
+
+        error = oss.str();
         return 0;
     }
 
-    rc = acquire_image(img);
+    rc = acquire_image(img, error);
 
     if ( rc != 0 )
     {
@@ -47,7 +51,7 @@ Image * ImageManager::acquire_image(int image_id)
 
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(const string& name, int uid)
+Image * ImageManager::acquire_image(const string& name, int uid, string& error)
 {
     Image * img;
     int     rc;
@@ -56,10 +60,14 @@ Image * ImageManager::acquire_image(const string& name, int uid)
 
     if ( img == 0 )
     {
+        ostringstream oss;
+        oss << "Image " << name << " does not exists for user " << uid;
+
+        error = oss.str();
         return 0;
     }
 
-    rc = acquire_image(img);
+    rc = acquire_image(img, error);
 
     if ( rc != 0 )
     {
@@ -72,7 +80,7 @@ Image * ImageManager::acquire_image(const string& name, int uid)
 
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::acquire_image(Image *img)
+int ImageManager::acquire_image(Image *img, string& error)
 {
     int rc = 0;
 
@@ -87,7 +95,8 @@ int ImageManager::acquire_image(Image *img)
         case Image::USED:
              if (img->isPersistent())
              {
-                 rc = -1;
+                 error = "Cannot aquire persistent image, it is already in use";
+                 rc    = -1;
              }
              else
              {
@@ -97,10 +106,19 @@ int ImageManager::acquire_image(Image *img)
         break;
 
         case Image::DISABLED:
+             error = "Cannot aquire image, it is disabled";
+             rc    = -1;
+        break;
         case Image::LOCKED:
+             error = "Cannot aquire image, it is locked";
+             rc    = -1;
+        break;
         case Image::ERROR:
+             error = "Cannot aquire image, it is in an error state";
+             rc    = -1;
+        break;
         default:
-           rc = -1;
+           rc    = -1;
         break;
     }
 

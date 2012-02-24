@@ -620,8 +620,8 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
 
     ostringstream  vnid;
 
-    ip      = nic->vector_value("IP");
-    vnid   << oid;
+    ip    = nic->vector_value("IP");
+    vnid << oid;
 
     //--------------------------------------------------------------------------
     //                       GET NETWORK LEASE

@@ -216,7 +216,8 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int *              index,
                               Image::ImageType * img_type,
                               int                uid,
-                              int&               image_id)
+                              int&               image_id,
+                              string&            error_str)
 {
     string  source;
     Image * img = 0;
@@ -227,8 +228,6 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
     Nebula&         nd      = Nebula::instance();
     ImageManager *  imagem  = nd.get_imagem();
-    DatastorePool * ds_pool = nd.get_dspool();
-    Datastore *     ds      = 0;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
@@ -236,10 +235,11 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
        
         if ( uiid == -1)
         {
+            error_str = "Cannot get user set in IMAGE_UID or IMAGE_UNAME.";
             return -1; 
         }
 
-        img = imagem->acquire_image(source, uiid);
+        img = imagem->acquire_image(source, uiid, error_str);
 
         if ( img == 0 )
         {
@@ -252,13 +252,15 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
         if ( iid == -1)
         {
+            error_str = "Wrong ID set in IMAGE_ID";
             return -1; 
         }
 
-        img = imagem->acquire_image(iid);
+        img = imagem->acquire_image(iid, error_str);
 
         if ( img == 0 )
         {
+            error_str = "Cannot acquire image, it does not exists or in use.";
             return -1;
         }
     }
@@ -288,6 +290,9 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
     if ( img != 0 )
     {
+        DatastorePool * ds_pool = nd.get_dspool();
+        Datastore *     ds;
+
         img->disk_attribute(disk, index, img_type);
 
         image_id     = img->get_oid();
@@ -301,6 +306,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
         if ( ds == 0 )
         {
+            error_str = "Associated datastore for the image does not exist";
             return -1;
         }
 
