@@ -163,7 +163,9 @@ protected:
         int    oid;
         string err;
         return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
-                                           vmm_mad, vnm_mad, err);
+                     vmm_mad, vnm_mad, 
+                     ClusterPool::DEFAULT_CLUSTER_ID, 
+                     ClusterPool::DEFAULT_CLUSTER_NAME,err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -243,16 +245,37 @@ public:
 
         // If we try to allocate two hosts with the same name and drivers,
         // should fail
-        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, vnm_mad, err);
+        rc = hp->allocate(&oid_0, 
+                          names[0], 
+                          im_mad, 
+                          vmm_mad, 
+                          vnm_mad, 
+                          ClusterPool::DEFAULT_CLUSTER_ID,
+                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          err);
         CPPUNIT_ASSERT( oid_0 == 0 );
         CPPUNIT_ASSERT( rc    == oid_0 );
 
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, vnm_mad, err);
+        rc = hp->allocate(&oid_1, 
+                          names[0], 
+                          im_mad, 
+                          vmm_mad, 
+                          vnm_mad, 
+                          ClusterPool::DEFAULT_CLUSTER_ID,
+                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
         // the hostname can not be repeated if the drivers change
-        rc = hp->allocate(&oid_1, names[0], im_mad_2, vmm_mad, vnm_mad, err);
+        rc = hp->allocate(&oid_1, 
+                          names[0], 
+                          im_mad_2, 
+                          vmm_mad, 
+                          vnm_mad, 
+                          ClusterPool::DEFAULT_CLUSTER_ID,
+                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
@@ -272,8 +295,14 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i],
-                                        im_mad, vmm_mad, vnm_mad, err);
+            ((HostPool*)pool)->allocate(&oid, 
+                          names[i], 
+                          im_mad, 
+                          vmm_mad, 
+                          vnm_mad, 
+                          ClusterPool::DEFAULT_CLUSTER_ID,
+                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          err);
         }
 
         ostringstream oss;
@@ -305,8 +334,14 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i],
-                                        im_mad, vmm_mad, vnm_mad, err);
+            ((HostPool*)pool)->allocate(&oid, 
+                          names[i], 
+                          im_mad, 
+                          vmm_mad, 
+                          vnm_mad, 
+                          ClusterPool::DEFAULT_CLUSTER_ID,
+                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          err);
         }
 
         ostringstream oss;
@@ -345,7 +380,14 @@ public:
         {
             oss << "host" << i;
 
-            hp->allocate(&oid, oss.str().c_str(),im_mad, vmm_mad, vnm_mad, err);
+            hp->allocate(&oid, 
+                         oss.str(), 
+                         im_mad, 
+                         vmm_mad, 
+                         vnm_mad, 
+                         ClusterPool::DEFAULT_CLUSTER_ID,
+                         ClusterPool::DEFAULT_CLUSTER_NAME,
+                         err);
             CPPUNIT_ASSERT(oid == i);
 
             if (i >=8 )
@@ -403,7 +445,14 @@ public:
             {
                 oss << "host" << j;
 
-                hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,vnm_mad,err);
+                hp->allocate(&oid, 
+                         oss.str(), 
+                         im_mad, 
+                         vmm_mad, 
+                         vnm_mad, 
+                         ClusterPool::DEFAULT_CLUSTER_ID,
+                         ClusterPool::DEFAULT_CLUSTER_NAME,
+                         err);
             }
 
             the_time2 = time(0) - the_time;
@@ -432,7 +481,14 @@ public:
         for (i=10000,oss.str(""); i<30000 ; i++,oss.str(""))
         {
             oss << "host" << i;
-            hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,vnm_mad,err);
+            hp->allocate(&oid, 
+                         oss.str(), 
+                         im_mad, 
+                         vmm_mad, 
+                         vnm_mad, 
+                         ClusterPool::DEFAULT_CLUSTER_ID,
+                         ClusterPool::DEFAULT_CLUSTER_NAME,
+                         err);
 
             host = hp->get(oid, false);
 

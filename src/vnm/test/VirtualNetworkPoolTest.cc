@@ -1067,7 +1067,7 @@ public:
 
         VectorAttribute *   disk;
         int                 oid_0, oid_1;
-        string              value;
+        string              value, error;
 
         // ---------------------------------------------------------------------
         // Allocate 2 vnets
@@ -1092,9 +1092,9 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("NETWORK", "Net 0");
 
-        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0, error);
 
-        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0, error);
 
         value = "";
         value = disk->vector_value("NETWORK");
@@ -1123,7 +1123,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("NETWORK_ID", "1");
 
-        ((VirtualNetworkPool*)vnp)->nic_attribute(disk,0, 0);
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk,0, 0, error);
 
         value = "";
         value = disk->vector_value("NETWORK");
