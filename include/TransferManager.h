@@ -116,6 +116,11 @@ private:
     ActionManager   		am;
 
     /**
+     *  Generic name for the TransferManager driver
+     */
+     static const char *  transfer_driver_name;
+
+    /**
      *  Returns a pointer to a Transfer Manager driver.
      *    @param name of an attribute of the driver (e.g. its type)
      *    @param value of the attribute
@@ -145,6 +150,18 @@ private:
                (MadManager::get(0,_name,name));
     };
         
+    /**
+     *  Returns a pointer to a Transfer Manager driver. The driver is 
+     *  searched by its name.
+     *    @return the TM driver for the Transfer Manager
+     */
+    const TransferManagerDriver * get()
+    {
+        string _name("NAME");
+        return static_cast<const TransferManagerDriver *>
+               (MadManager::get(0,_name,transfer_driver_name));
+    };
+
     /**
      *  Function to execute the Manager action loop method within a new pthread 
      * (requires C linkage)

@@ -22,6 +22,11 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const char * TransferManager::transfer_driver_name = "transfer_exe";
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 extern "C" void * tm_action_loop(void *arg)
 {
     TransferManager *  tm;
@@ -209,6 +214,7 @@ void TransferManager::prolog_action(int vid)
     string files;
     string size;
     string format;
+    string tm_mad;
 
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
@@ -236,9 +242,7 @@ void TransferManager::prolog_action(int vid)
         goto error_history;
     }
 
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -268,6 +272,13 @@ void TransferManager::prolog_action(int vid)
             continue;
         }
 
+        tm_mad = disk->vector_value("TM_MAD");
+
+        if ( tm_mad.empty() )
+        {
+            tm_mad = "default";
+        }
+
         type = disk->vector_value("TYPE");
 
         if ( type.empty() == false)
@@ -289,7 +300,11 @@ void TransferManager::prolog_action(int vid)
                 continue;
             }
 
-            xfr << "MKSWAP " << size << " " << vm->get_hostname() << ":"
+            //MKSWAP tm_mad size hostname:system_ds_remote_path/disk.i
+            xfr << "MKSWAP " 
+                << tm_mad << " "
+                << size   << " " 
+                << vm->get_hostname() << ":"
                 << vm->get_remote_dir() << "/disk." << i << endl;
         }
         else if ( type == "FS" )
@@ -418,8 +433,7 @@ error_file:
 
 error_driver:
     os.str("");
-    // TODO
-//    os << "prolog, error getting driver " << vm->get_tm_mad();
+    os << "prolog, error getting Transfer Manager driver.";
     goto error_common;
 
 error_empty_disk:
@@ -466,9 +480,7 @@ void TransferManager::prolog_migr_action(int vid)
         goto error_history;
     }
 
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -511,8 +523,7 @@ error_file:
 
 error_driver:
     os.str("");
-    // TODO
-//    os << "prolog_migr, error getting driver " << vm->get_tm_mad();
+    os << "prolog_migr, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
@@ -553,9 +564,7 @@ void TransferManager::prolog_resume_action(int vid)
         goto error_history;
     }
 
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -598,8 +607,7 @@ error_file:
 
 error_driver:
     os.str("");
-    // TODO
-//    os << "prolog_resume, error getting driver " << vm->get_tm_mad();
+    os << "prolog_resume, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
@@ -646,9 +654,7 @@ void TransferManager::epilog_action(int vid)
         goto error_history;
     }
 
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -718,7 +724,7 @@ error_file:
 
 error_driver:
     os.str("");
-    os << "epilog, error getting driver " << vm->get_vmm_mad();
+    os << "epilog, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
@@ -742,11 +748,9 @@ void TransferManager::epilog_stop_action(int vid)
 
     const TransferManagerDriver * tm_md;
 
-
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -759,9 +763,7 @@ void TransferManager::epilog_stop_action(int vid)
         goto error_history;
     }
 
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -804,8 +806,7 @@ error_file:
 
 error_driver:
     os.str("");
-    // TODO
-//    os << "epilog_stop, error getting driver " << vm->get_tm_mad();
+    os << "epilog_stop, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
@@ -845,9 +846,7 @@ void TransferManager::epilog_delete_action(int vid)
         goto error_history;
     }
 
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -890,7 +889,7 @@ error_file:
 
 error_driver:
     os.str("");
-    os << "epilog_delete, error getting driver " << vm->get_vmm_mad();
+    os << "epilog_delete, error getting driver Transfer Manager driver.";
     os << ". You may need to manually clean " << vm->get_hostname() 
        << ":" << vm->get_remote_dir();
 
@@ -930,9 +929,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
         goto error_history;
     }
 
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_previous_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -976,7 +973,7 @@ error_file:
 
 error_driver:
     os.str("");
-    os << "epilog_delete, error getting driver " << vm->get_vmm_mad();
+    os << "epilog_delete, error getting driver Transfer Manager driver.";
     os << ". You may need to manually clean " << vm->get_previous_hostname() 
        << ":" << vm->get_remote_dir();
 
@@ -1011,14 +1008,7 @@ void TransferManager::driver_cancel_action(int vid)
         return;
     }
 
-    if (!vm->hasHistory())
-    {
-        goto error_history;
-    }
-
-    // TODO: get tm_md from somewhere...
-//    tm_md = get(vm->get_tm_mad());
-    tm_md = 0;
+    tm_md = get();
 
     if ( tm_md == 0 )
     {
@@ -1035,16 +1025,10 @@ void TransferManager::driver_cancel_action(int vid)
 
     return;
 
-error_history:
-    os.str("");
-    os << "driver_cancel, VM " << vid << " has no history";
-    goto error_common;
-
 error_driver:
     os.str("");
-    os << "driver_cancel, error getting driver " << vm->get_vmm_mad();
+    os << "driver_cancel, error getting driver Transfer Manager driver.";
 
-error_common:
     vm->log("TM", Log::ERROR, os);
     vm->unlock();
 
@@ -1065,43 +1049,41 @@ void TransferManager::checkpoint_action(int vid)
 
 void TransferManager::load_mads(int uid)
 {
-    unsigned int                    i;
-    ostringstream                   oss;
-    const VectorAttribute *         vattr;
-    int                             rc;
-    string                          name;
-    TransferManagerDriver *         tm_driver = 0;
+    ostringstream oss;
 
-    oss << "Loading Transfer Manager drivers.";
+    int    rc;
+    string name;
+
+    const VectorAttribute * vattr;
+    TransferManagerDriver * tm_driver = 0;
+
+    oss << "Loading Transfer Manager driver.";
 
     NebulaLog::log("TM",Log::INFO,oss);
 
-    for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""),tm_driver=0)
+    vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+
+    if ( vattr == 0 )
     {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
+        NebulaLog::log("TM",Log::ERROR,"Failed to load Transfer Manager driver.");
+        return;
+    }
 
-        name  = vattr->vector_value("NAME");
+    VectorAttribute tm_conf("TM_MAD",vattr->value());
 
-        oss << "\tLoading driver: " << name;
-        NebulaLog::log("VMM", Log::INFO, oss);
+    tm_conf.replace("NAME",transfer_driver_name);
 
-        tm_driver = new TransferManagerDriver(
-                uid,
-                vattr->value(),
-                (uid != 0),
-                vmpool);
+    tm_driver = new TransferManagerDriver(uid,
+                                          tm_conf.value(),
+                                          (uid != 0),
+                                          vmpool);
+    rc = add(tm_driver);
 
-        if ( tm_driver == 0 )
-            continue;
+    if ( rc == 0 )
+    {
+        oss.str("");
+        oss << "\tTransfer manager driver loaded";
 
-        rc = add(tm_driver);
-
-        if ( rc == 0 )
-        {
-            oss.str("");
-            oss << "\tDriver " << name << " loaded.";
-
-            NebulaLog::log("TM",Log::INFO,oss);
-        }
+        NebulaLog::log("TM",Log::INFO,oss);
     }
 }
