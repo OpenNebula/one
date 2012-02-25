@@ -26,10 +26,10 @@
 /* from ID 100                                                                */
 /* -------------------------------------------------------------------------- */
 
-const string DatastorePool::SYSTEM_DS_NAME = "system";
+const string DatastorePool::SYSTEM_DS_NAME = "system_ds";
 const int    DatastorePool::SYSTEM_DS_ID   = 0;
 
-const string DatastorePool::DEFAULT_DS_NAME = "default";
+const string DatastorePool::DEFAULT_DS_NAME = "default_ds";
 const int    DatastorePool::DEFAULT_DS_ID   = 1;
 
 /* -------------------------------------------------------------------------- */
@@ -47,7 +47,9 @@ DatastorePool::DatastorePool(SqlDB * db):
         Datastore * ds;
         DatastoreTemplate * ds_tmpl;
 
-        // Build the default datastores
+        // ---------------------------------------------------------------------
+        // Create the system datastore 
+        // ---------------------------------------------------------------------
 
         oss << "NAME        = " << SYSTEM_DS_NAME       << endl
             << "BASE_PATH   = /var/lib/one/system_ds"   << endl
@@ -71,10 +73,13 @@ DatastorePool::DatastorePool(SqlDB * db):
             goto error_bootstrap;
         }
 
+        // ---------------------------------------------------------------------
+        // Create the default datastore 
+        // ---------------------------------------------------------------------
         oss.str("");
 
         oss << "NAME        = " << DEFAULT_DS_NAME      << endl
-            << "BASE_PATH   = /var/lib/one/images"      << endl
+            << "BASE_PATH   = /var/lib/one/default_ds"      << endl
             << "TYPE        = fs"                       << endl
             << "TM_MAD      = tm_shared";
 
