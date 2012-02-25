@@ -91,8 +91,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  HOST_MONITORING_INTERVAL
 #  HOST_PER_INTERVAL
 #  VM_POLLING_INTERVAL
-#  VM_PER_INTERVAL
-#  VM_DIR
+#  VM_PER_INTERVAL 
 #  PORT
 #  DB
 #  VNC_BASE_PORT
@@ -121,10 +120,6 @@ void OpenNebulaTemplate::set_conf_default()
     value = "5";
 
     attribute = new SingleAttribute("VM_PER_INTERVAL",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //VM_DIR
-    attribute = new SingleAttribute("VM_DIR",var_location);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //XML-RPC Server PORT
@@ -180,12 +175,18 @@ void OpenNebulaTemplate::set_conf_default()
 
 /*
 #*******************************************************************************
-# Image Repository Configuration
+# Datastore Configuration
 #*******************************************************************************
+#  DATASTORE_LOCATION
 #  DEFAULT_IMAGE_TYPE
 #  DEFAULT_DEVICE_PREFIX
 #*******************************************************************************
 */
+    //DATASTORE_LOCATION
+    attribute = new SingleAttribute("DATASTORE_LOCATION",
+                                     var_location + "/datastores");
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     //DEFAULT_IMAGE_TYPE
     value = "OS";
 
@@ -198,7 +199,6 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("DEFAULT_DEVICE_PREFIX",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 /*
-
 #*******************************************************************************
 # Auth Manager Configuration
 #*******************************************************************************
