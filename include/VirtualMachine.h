@@ -783,6 +783,12 @@ private:
      */
      string   system_dir;
 
+    /**
+     *  Directory for the VM in hosts, the System DS (system_ds_path/$VID). Defaults to
+     *  $ONE_LOCATION/var/system_ds/$VID or /var/log/one/system_ds/$VID
+     */
+     string   remote_system_dir;
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************

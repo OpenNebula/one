@@ -57,7 +57,8 @@ VirtualMachine::VirtualMachine(int           id,
         history(0),
         previous_history(0),
         _log(0),
-        system_dir("")
+        system_dir(""),
+        remote_system_dir("")
 {
     if (_vm_template != 0)
     {
@@ -152,7 +153,7 @@ int VirtualMachine::select(SqlDB * db)
     if ( state == DONE ) //Do not recreate dirs. They may be deleted
     {
         _log = 0;
-        
+
         return 0;
     }
 
@@ -204,6 +205,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     SingleAttribute *   attr;
     string              aname;
     string              value;
+    string              ds_location;
+
     ostringstream       oss;
 
     Nebula& nd = Nebula::instance();
@@ -296,13 +299,19 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     parse_graphics();
 
     // ------------------------------------------------------------------------
-    // Set the System DataStore Path for the VM
+    // Set the System DataStore Paths for the VM
     // ------------------------------------------------------------------------
-
     oss.str("");
     oss << nd.get_system_ds_path() << "/" << oid;
 
     system_dir = oss.str();
+
+    oss.str("");
+
+    nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
+    oss << ds_location << "/" << DatastorePool::SYSTEM_DS_NAME << "/" << oid;
+
+    remote_system_dir = oss.str();
 
     // ------------------------------------------------------------------------
     // Insert the VM
@@ -1284,7 +1293,8 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << "<SYSTEM_DIR>"<< system_dir<< "</SYSTEM_DIR>"
+        << "<SYSTEM_DIR>"        << system_dir        << "</SYSTEM_DIR>"
+        << "<REMOTE_SYSTEM_DIR>" << remote_system_dir << "</REMOTE_SYSTEM_DIR>"
         << obj_template->to_xml(template_xml);
 
     if ( hasHistory() )
@@ -1355,6 +1365,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(net_rx,    "/VM/NET_RX",   0);
 
     rc += xpath(system_dir,"/VM/SYSTEM_DIR","not_found");
+    rc += xpath(remote_system_dir,"/VM/REMOTE_SYSTEM_DIR","not_found");
 
     // Permissions
     rc += perms_from_xml();
