@@ -40,7 +40,7 @@ History::History(
         oid(_oid),
         seq(_seq),
         hostname(""),
-        vm_dir(""),
+        remote_system_dir(""),
         hid(-1),
         vmm_mad_name(""),
         vnm_mad_name(""),
@@ -61,13 +61,13 @@ History::History(
     int	_seq,
     int	_hid,
     const string& _hostname,
-    const string& _vm_dir,
+    const string& _remote_system_dir,
     const string& _vmm,
     const string& _vnm):
         oid(_oid),
         seq(_seq),
         hostname(_hostname),
-        vm_dir(_vm_dir),
+        remote_system_dir(_remote_system_dir),
         hid(_hid),
         vmm_mad_name(_vmm),
         vnm_mad_name(_vnm),
@@ -89,8 +89,10 @@ History::History(
 
 void History::non_persistent_data()
 {
-    ostringstream   os;
-    Nebula& 		nd = Nebula::instance();
+    ostringstream os;
+    string        vm_lhome;
+    string        vm_rhome;
+    Nebula&       nd = Nebula::instance();
 
     // ----------- Local Locations ------------
     os.str("");
@@ -113,17 +115,11 @@ void History::non_persistent_data()
     context_file = os.str();
 
     // ----------- Remote Locations ------------
-    os.str("");
-    os << vm_dir << "/" << oid << "/images";
 
-    vm_rhome = os.str();
-
-    os << "/checkpoint";
-
-    checkpoint_file = os.str();
+    checkpoint_file = remote_system_dir + "/checkpoint";
 
     os.str("");
-    os << vm_rhome << "/deployment." << seq;
+    os << remote_system_dir << "/deployment." << seq;
 
     rdeployment_file = os.str();
 }
@@ -260,21 +256,21 @@ string& History::to_xml(string& xml) const
 
     oss <<
         "<HISTORY>" <<
-          "<SEQ>"     << seq           << "</SEQ>"   <<
-          "<HOSTNAME>"<< hostname      << "</HOSTNAME>"<<
-          "<VM_DIR>"  << vm_dir        << "</VM_DIR>"<<
-          "<HID>"     << hid           << "</HID>"   <<
-          "<STIME>"   << stime         << "</STIME>" <<
-          "<ETIME>"   << etime         << "</ETIME>" <<
-          "<VMMMAD>"  << vmm_mad_name  << "</VMMMAD>"<<
-          "<VNMMAD>"  << vnm_mad_name  << "</VNMMAD>"<<
-          "<PSTIME>"  << prolog_stime  << "</PSTIME>"<<
-          "<PETIME>"  << prolog_etime  << "</PETIME>"<<
-          "<RSTIME>"  << running_stime << "</RSTIME>"<<
-          "<RETIME>"  << running_etime << "</RETIME>"<<
-          "<ESTIME>"  << epilog_stime  << "</ESTIME>"<<
-          "<EETIME>"  << epilog_etime  << "</EETIME>"<<
-          "<REASON>"  << reason        << "</REASON>"<<
+          "<SEQ>"               << seq               << "</SEQ>"   <<
+          "<HOSTNAME>"          << hostname          << "</HOSTNAME>"<<
+          "<REMOTE_SYSTEM_DIR>" << remote_system_dir << "</REMOTE_SYSTEM_DIR>"<<
+          "<HID>"               << hid               << "</HID>"   <<
+          "<STIME>"             << stime             << "</STIME>" <<
+          "<ETIME>"             << etime             << "</ETIME>" <<
+          "<VMMMAD>"            << vmm_mad_name      << "</VMMMAD>"<<
+          "<VNMMAD>"            << vnm_mad_name      << "</VNMMAD>"<<
+          "<PSTIME>"            << prolog_stime      << "</PSTIME>"<<
+          "<PETIME>"            << prolog_etime      << "</PETIME>"<<
+          "<RSTIME>"            << running_stime     << "</RSTIME>"<<
+          "<RETIME>"            << running_etime     << "</RETIME>"<<
+          "<ESTIME>"            << epilog_stime      << "</ESTIME>"<<
+          "<EETIME>"            << epilog_etime      << "</EETIME>"<<
+          "<REASON>"            << reason            << "</REASON>"<<
         "</HISTORY>";
 
    xml = oss.str();
@@ -290,21 +286,21 @@ int History::rebuild_attributes()
     int int_reason;
     int rc = 0;
 
-    rc += xpath(seq          , "/HISTORY/SEQ",      -1);
-    rc += xpath(hostname     , "/HISTORY/HOSTNAME", "not_found");
-    rc += xpath(vm_dir       , "/HISTORY/VM_DIR",   "not_found");
-    rc += xpath(hid          , "/HISTORY/HID",      -1);
-    rc += xpath(stime        , "/HISTORY/STIME",    0);
-    rc += xpath(etime        , "/HISTORY/ETIME",    0);
-    rc += xpath(vmm_mad_name , "/HISTORY/VMMMAD",   "not_found");
-          xpath(vnm_mad_name , "/HISTORY/VNMMAD",   "dummy");
-    rc += xpath(prolog_stime , "/HISTORY/PSTIME",   0);
-    rc += xpath(prolog_etime , "/HISTORY/PETIME",   0);
-    rc += xpath(running_stime, "/HISTORY/RSTIME",   0);
-    rc += xpath(running_etime, "/HISTORY/RETIME",   0);
-    rc += xpath(epilog_stime , "/HISTORY/ESTIME",   0);
-    rc += xpath(epilog_etime , "/HISTORY/EETIME",   0);
-    rc += xpath(int_reason   , "/HISTORY/REASON",   0);
+    rc += xpath(seq              , "/HISTORY/SEQ",      -1);
+    rc += xpath(hostname         , "/HISTORY/HOSTNAME", "not_found");
+    rc += xpath(remote_system_dir, "/HISTORY/REMOTE_SYSTEM_DIR", "not_found");
+    rc += xpath(hid              , "/HISTORY/HID",      -1);
+    rc += xpath(stime            , "/HISTORY/STIME",    0);
+    rc += xpath(etime            , "/HISTORY/ETIME",    0);
+    rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",   "not_found");
+          xpath(vnm_mad_name     , "/HISTORY/VNMMAD",   "dummy");
+    rc += xpath(prolog_stime     , "/HISTORY/PSTIME",   0);
+    rc += xpath(prolog_etime     , "/HISTORY/PETIME",   0);
+    rc += xpath(running_stime    , "/HISTORY/RSTIME",   0);
+    rc += xpath(running_etime    , "/HISTORY/RETIME",   0);
+    rc += xpath(epilog_stime     , "/HISTORY/ESTIME",   0);
+    rc += xpath(epilog_etime     , "/HISTORY/EETIME",   0);
+    rc += xpath(int_reason       , "/HISTORY/REASON",   0);
 
     reason = static_cast<MigrationReason>(int_reason);
 

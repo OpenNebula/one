@@ -44,7 +44,7 @@ public:
         int seq,
         int hid,
         const string& hostname,
-        const string& vm_dir,
+        const string& remote_system_dir,
         const string& vmm,
         const string& vnm);
 
@@ -86,7 +86,7 @@ private:
     int     seq;
 
     string  hostname;
-    string  vm_dir;
+    string  remote_system_dir;
 
     int     hid;
 
@@ -107,13 +107,15 @@ private:
 
     MigrationReason reason;
 
-    //Non-persistent history fields
-    string  vm_lhome;
+    // -------------------------------------------------------------------------
+    // Non-persistent history fields
+    // -------------------------------------------------------------------------
+    // Local paths
     string  transfer_file;
     string  deployment_file;
     string  context_file;
 
-    string  vm_rhome;
+    // Remote paths
     string  checkpoint_file;
     string  rdeployment_file;
 

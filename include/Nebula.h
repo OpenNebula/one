@@ -212,7 +212,7 @@ public:
      *  Returns the base for the system datastore (for tmp VM images). When 
      *  ONE_LOCATION is defined this path points to $ONE_LOCATION/var/system_ds, 
      *  otherwise it is /var/lib/one/system_ds.
-     *      @return the system datastore path location.
+     *      @return the system datastore pa location.
      */
     string get_system_ds_path()
     {
@@ -230,7 +230,7 @@ public:
 
     /**
      *  Returns the Transfer Manager for the system datastore
-     *      @return the tm_mad name.
+     *      @return the tm name.
      */
     string get_system_ds_tm_mad()
     {
@@ -244,6 +244,24 @@ public:
         ds->unlock();
 
         return tm_mad;
+    };
+
+    /**
+     *  Returns the name for the system datastore
+     *      @return the datastore name.
+     */
+    string get_system_ds_name()
+    {
+        Datastore * ds;
+        string      name;
+
+        ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
+
+        name = ds->get_name();
+
+        ds->unlock();
+
+        return name;
     };
     /**
      *  Returns the path of the log file for a VM, depending where OpenNebula is

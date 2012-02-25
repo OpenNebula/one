@@ -207,6 +207,30 @@ public:
     };
 
     // ------------------------------------------------------------------------
+    // Access to VM locations
+    // ------------------------------------------------------------------------
+    /**
+     *  Returns the remote VM directory. The VM remote dir is in the form:
+     *  $DATASTORE_LOCATION/$SYSTEM_DS_NAME/$VM_ID. The remote system_dir stores
+     *  disks for a running VM in the target host.
+     *    @return the remote system directory for the VM
+     */
+    const string & get_remote_system_dir() const
+    {
+        return remote_system_dir;
+    };
+
+    /**
+     *  Returns the local VM directory. The VM local dir is in the form:
+     *  $SYSTEM_DS_BASE_PATH/$VM_ID. Temporary stores VM disks.
+     *    @return the system directory for the VM
+     */
+    const string & get_system_dir() const
+    {
+        return system_dir;
+    };
+
+    // ------------------------------------------------------------------------
     // History
     // ------------------------------------------------------------------------
     /**
@@ -215,7 +239,6 @@ public:
     void add_history(
         int     hid,
         const string& hostname,
-        const string& vm_dir,
         const string& vmm_mad,
         const string& vnm_mad);
 
@@ -353,30 +376,6 @@ public:
     const string & get_checkpoint_file() const
     {
         return history->checkpoint_file;
-    };
-
-    /**
-     *  Returns the remote VM directory. The VM remote dir is in the form:
-     *          $VM_DIR/$VM_ID/
-     *  or, in case that OpenNebula is installed in root
-     *          /var/lib/one/$VM_ID/
-     *  The hasHistory() function MUST be called before this one.
-     *    @return the remote directory
-     */
-    const string & get_remote_dir() const
-    {
-        return history->vm_rhome;
-    };
-
-    /**
-     *  Returns the local VM directory. The VM local dir is in the form:
-     *          $ONE_LOCATION/var/$VM_ID/
-     *  The hasHistory() function MUST be called before this one.
-     *    @return the remote directory
-     */
-    const string & get_local_dir() const
-    {
-        return history->vm_lhome;
     };
 
     /**

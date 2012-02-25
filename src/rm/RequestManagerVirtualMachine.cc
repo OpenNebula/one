@@ -141,16 +141,12 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        const string&    vnm_mad,
                                        RequestAttributes& att)
 {
-    Nebula& nd = Nebula::instance();
     string  vmdir;
-
     int     rc;
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
-    nd.get_configuration_attribute("VM_DIR",vmdir);
-
-    vm->add_history(hid,hostname,vmdir,vmm_mad,vnm_mad);
+    vm->add_history(hid,hostname,vmm_mad,vnm_mad);
 
     rc = vmpool->update_history(vm);
 

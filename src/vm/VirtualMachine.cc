@@ -202,12 +202,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    rc;
     string name;
 
-    SingleAttribute *   attr;
-    string              aname;
-    string              value;
-    string              ds_location;
+    SingleAttribute * attr;
+    string            aname;
+    string            value;
+    string            ds_location;
 
-    ostringstream       oss;
+    ostringstream     oss;
 
     Nebula& nd = Nebula::instance();
 
@@ -309,7 +309,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     oss.str("");
 
     nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
-    oss << ds_location << "/" << DatastorePool::SYSTEM_DS_NAME << "/" << oid;
+    oss << ds_location << "/" << nd.get_system_ds_name() << "/" << oid;
 
     remote_system_dir = oss.str();
 
@@ -637,7 +637,6 @@ error_common:
 void VirtualMachine::add_history(
     int   hid,
     const string& hostname,
-    const string& vm_dir,
     const string& vmm_mad,
     const string& vnm_mad)
 {
@@ -655,7 +654,13 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
-    history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,vnm_mad);
+    history = new History(oid,
+                          seq,
+                          hid,
+                          hostname,
+                          remote_system_dir,
+                          vmm_mad,
+                          vnm_mad);
 
     history_records.push_back(history);
 };
@@ -676,7 +681,7 @@ void VirtualMachine::cp_history()
                        history->seq + 1,
                        history->hid,
                        history->hostname,
-                       history->vm_dir,
+                       remote_system_dir,
                        history->vmm_mad_name,
                        history->vnm_mad_name);
 
@@ -703,7 +708,7 @@ void VirtualMachine::cp_previous_history()
                        history->seq + 1,
                        previous_history->hid,
                        previous_history->hostname,
-                       previous_history->vm_dir,
+                       remote_system_dir,
                        previous_history->vmm_mad_name,
                        previous_history->vnm_mad_name);
 
@@ -874,7 +879,9 @@ void VirtualMachine::release_disk_images()
 
     if (hasHistory() != 0)
     {
+        /*
         disk_base_path = get_local_dir();
+        */
     }
 
     for(int i=0; i<num_disks; i++)
