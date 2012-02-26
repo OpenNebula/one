@@ -298,7 +298,6 @@ public:
         VirtualMachine*      vm;
 
         string hostnames[] = {"A_hostname", "B_hostname", "C_hostname"};
-        string vm_dirs[]   = {"A_vm_dir", "B_vm_dir", "C_vm_dir"};
         string vmm_mads[]  = {"A_vmm_mad", "B_vmm_mad", "C_vmm_mad"};
         string vnm_mads[]  = {"A_vnm_mad", "B_vnm_mad", "C_vnm_mad"};
 
@@ -322,7 +321,7 @@ public:
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
-        vm->add_history(0, hostnames[0], vm_dirs[0], vmm_mads[0], vnm_mads[0]);
+        vm->add_history(0, hostnames[0], vmm_mads[0], vnm_mads[0]);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -340,7 +339,7 @@ public:
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
-        vm->add_history(1, hostnames[1], vm_dirs[1], vmm_mads[1], vnm_mads[1]);
+        vm->add_history(1, hostnames[1], vmm_mads[1], vnm_mads[1]);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -349,7 +348,7 @@ public:
         CPPUNIT_ASSERT( rc == 0 );
 
         // Add another history item
-        vm->add_history(2, hostnames[2], vm_dirs[2], vmm_mads[2], vnm_mads[2]);
+        vm->add_history(2, hostnames[2], vmm_mads[2], vnm_mads[2]);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -404,7 +403,6 @@ public:
 
         string hostname     = "hostname";
         string new_hostname = "new_hostname";
-        string vm_dir       = "vm_dir";
         string vmm_mad      = "vm_mad";
         string vnm_mad      = "vn_mad";
 
@@ -416,7 +414,7 @@ public:
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
-        vm->add_history(0, hostname, vm_dir, vmm_mad, vnm_mad);
+        vm->add_history(0, hostname, vmm_mad, vnm_mad);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -424,7 +422,7 @@ public:
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
-        vm->add_history(0, new_hostname, vm_dir, vmm_mad, vnm_mad);
+        vm->add_history(0, new_hostname, vmm_mad, vnm_mad);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
