@@ -217,9 +217,15 @@ public:
     string get_system_ds_path()
     {
         Datastore * ds;
-        string      system_ds_path;
+        string      system_ds_path = "";
 
         ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
+
+        if ( ds == 0 )
+        {
+            NebulaLog::log("DaS", Log::ERROR, "Can not get system datastore");
+            return system_ds_path;
+        }
 
         system_ds_path = ds->get_base_path();
 
@@ -235,9 +241,15 @@ public:
     string get_system_ds_tm_mad()
     {
         Datastore * ds;
-        string      tm_mad;
+        string      tm_mad = "";
 
         ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
+
+        if ( ds == 0 )
+        {
+            NebulaLog::log("DaS", Log::ERROR, "Can not get system datastore");
+            return tm_mad;
+        }
 
         tm_mad = ds->get_tm_mad();
 
@@ -253,9 +265,15 @@ public:
     string get_system_ds_name()
     {
         Datastore * ds;
-        string      name;
+        string      name = "";
 
         ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
+
+        if ( ds == 0 )
+        {
+            NebulaLog::log("DaS", Log::ERROR, "Can not get system datastore");
+            return name;
+        }
 
         name = ds->get_name();
 
@@ -263,6 +281,7 @@ public:
 
         return name;
     };
+    
     /**
      *  Returns the path of the log file for a VM, depending where OpenNebula is
      *  installed,

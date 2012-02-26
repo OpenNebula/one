@@ -91,7 +91,6 @@ void History::non_persistent_data()
 {
     ostringstream os;
     string        vm_lhome;
-    string        vm_rhome;
     Nebula&       nd = Nebula::instance();
 
     // ----------- Local Locations ------------
