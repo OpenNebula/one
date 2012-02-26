@@ -214,7 +214,7 @@ void TransferManager::prolog_action(int vid)
     string files;
     string size;
     string format;
-    string tm_mad;
+    string tm_mad, system_tm_mad;
 
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
@@ -229,6 +229,8 @@ void TransferManager::prolog_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+
+    system_tm_mad = nd.get_system_ds_tm_mad();
 
     vm = vmpool->get(vid,true);
 
@@ -272,13 +274,6 @@ void TransferManager::prolog_action(int vid)
             continue;
         }
 
-        tm_mad = disk->vector_value("TM_MAD");
-
-        if ( tm_mad.empty() )
-        {
-            tm_mad = "default";
-        }
-
         type = disk->vector_value("TYPE");
 
         if ( type.empty() == false)
@@ -302,7 +297,7 @@ void TransferManager::prolog_action(int vid)
 
             //MKSWAP tm_mad size hostname:remote_system_dir/disk.i
             xfr << "MKSWAP " 
-                << tm_mad << " "
+                << system_tm_mad << " "
                 << size   << " " 
                 << vm->get_hostname() << ":"
                 << vm->get_remote_system_dir() << "/disk." << i << endl;
@@ -323,7 +318,7 @@ void TransferManager::prolog_action(int vid)
             }
             //MKIMAGE tm_mad size format hostname:remote_system_dir/disk.i
             xfr << "MKIMAGE " 
-                << tm_mad << " "
+                << system_tm_mad << " "
                 << size   << " " 
                 << format << " "
                 << vm->get_hostname() << ":" 
@@ -331,6 +326,13 @@ void TransferManager::prolog_action(int vid)
         }
         else
         {
+            tm_mad = disk->vector_value("TM_MAD");
+
+            if ( tm_mad.empty() )
+            {
+                goto error_tm_mad;
+            }
+
             // -----------------------------------------------------------------
             // CLONE or LINK disk images
             // -----------------------------------------------------------------
@@ -403,8 +405,10 @@ void TransferManager::prolog_action(int vid)
 
     if ( context_result )
     {
-        //CONTEXT files hostname:remote_system_dir/disk.i
-        xfr << "CONTEXT " << vm->get_context_file() << " ";
+        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i
+        xfr << "CONTEXT " 
+            << system_tm_mad << " "
+            << vm->get_context_file() << " ";
 
         if (!files.empty())
         {
@@ -444,6 +448,11 @@ error_driver:
     os << "prolog, error getting Transfer Manager driver.";
     goto error_common;
 
+error_tm_mad:
+    os.str("");
+    os << "prolog, undefined TM_MAD for disk image in VM template";
+    xfr.close();
+
 error_empty_disk:
     os.str("");
     os << "prolog, undefined source disk image in VM template";
@@ -465,16 +474,18 @@ void TransferManager::prolog_migr_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
+    string          system_tm_mad;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
 
-
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+
+    system_tm_mad = nd.get_system_ds_tm_mad();
 
     vm = vmpool->get(vid,true);
 
@@ -507,12 +518,12 @@ void TransferManager::prolog_migr_action(int vid)
     // Move image directory
     // ------------------------------------------------------------------------
 
-    //MV prev_hostname:remote_system_dir hostname:remote_system_dir
-    /*
-    xfr << "MV ";
-    xfr << vm->get_previous_hostname() << ":" << vm->get_remote_dir() << " ";
-    xfr << vm->get_hostname() << ":" << vm->get_remote_dir() << endl;
-    */
+    //MV tm_mad prev_hostname:remote_system_dir hostname:remote_system_dir
+    xfr << "MV "
+        << system_tm_mad << " "
+        << vm->get_previous_hostname() << ":" << vm->get_remote_system_dir() << " "
+        << vm->get_hostname() << ":" << vm->get_remote_system_dir() << endl;
+
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -551,16 +562,18 @@ void TransferManager::prolog_resume_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
+    string          system_tm_mad;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
 
-
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+
+    system_tm_mad = nd.get_system_ds_tm_mad();
 
     vm = vmpool->get(vid,true);
 
@@ -593,12 +606,12 @@ void TransferManager::prolog_resume_action(int vid)
     // Move image directory
     // ------------------------------------------------------------------------
 
-    //MV fe:system_dir hostname:remote_system_dir
-    /*
-    xfr << "MV ";
-    xfr << nd.get_nebula_hostname() << ":" << vm->get_local_dir() << "/images ";
-    xfr << vm->get_hostname() << ":" << vm->get_remote_dir() << endl;
-    */
+    //MV tm_mad fe:system_dir hostname:remote_system_dir 
+    xfr << "MV "
+        << system_tm_mad << " "
+        << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
+        << vm->get_hostname() << ":" << vm->get_remote_system_dir() << endl;
+   
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -638,6 +651,8 @@ void TransferManager::epilog_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
+    string          system_tm_mad;
+    string          tm_mad;
 
     const VectorAttribute * disk;
     string          save;
@@ -653,6 +668,8 @@ void TransferManager::epilog_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+
+    system_tm_mad = nd.get_system_ds_tm_mad();
 
     vm = vmpool->get(vid,true);
 
@@ -707,20 +724,49 @@ void TransferManager::epilog_action(int vid)
 
         if ( save == "YES" )
         {
-            //MV hostname:remote_system_dir/disk.0 fe:SOURCE?
-            /*
-            xfr << "MV " << vm->get_hostname() << ":" << vm->get_remote_dir()
-                << "/disk." << i << " "
-                << nd.get_nebula_hostname() << ":" << vm->get_local_dir()
-                << "/disk." << i << endl;
-            */
+            ostringstream tsource;
+            string        source;
+
+            tm_mad = disk->vector_value("TM_MAD");
+
+            if (tm_mad.empty())//No TM_MAD, keep going to delete and save others
+            {
+                tm_mad = "error";
+                vm->log("TM", Log::ERROR, "No TM_MAD for disk image");
+            }
+
+            source = disk->vector_value("SOURCE");
+
+            if ( source.empty() )
+            {
+                vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
+                continue;
+            }
+
+            if ( source.find(":") == string::npos ) //Regular file
+            {
+                tsource << nd.get_nebula_hostname() << ":" << source << " ";
+            }
+            else //TM Plugin specific protocol
+            {
+                tsource << source << " ";
+            }
+
+            //MV tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE>
+            xfr << "MV " 
+                << tm_mad << " "
+                << vm->get_hostname() << ":" 
+                << vm->get_remote_system_dir() << "/disk." << i << " "
+                << tsource.str() << endl;
         }
     }
 
-    //DELETE hostname:remote_system_dir
-    /*
-    xfr << "DELETE " << vm->get_hostname() <<":"<< vm->get_remote_dir() << endl;
-    */
+    //TODO DELETE SHOULD HOOK ON TM'S
+    //DELETE system_tm_mad hostname:remote_system_dir
+    xfr << "DELETE " 
+        << system_tm_mad << " "
+        << vm->get_hostname() << ":" << vm->get_remote_system_dir() << endl;
+    
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -759,6 +805,7 @@ void TransferManager::epilog_stop_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
+    string          system_tm_mad;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
@@ -768,6 +815,8 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+    system_tm_mad = nd.get_system_ds_tm_mad();
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -798,13 +847,12 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     // Move image directory
     // ------------------------------------------------------------------------
+    //MV system_tm_mad hostname:remote_system_dir fe:system_dir
+    xfr << "MV "
+        << system_tm_mad << " "
+        << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
+        << nd.get_nebula_hostname() << ":" << vm->get_system_dir() << endl;
 
-    //MV hostname:remote_system_dir fe:system_dir
-    /*
-    xfr << "MV ";
-    xfr << vm->get_hostname() << ":" << vm->get_remote_dir() << " ";
-    xfr << nd.get_nebula_hostname() << ":" << vm->get_local_dir() << endl;
-    */
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -844,14 +892,17 @@ void TransferManager::epilog_delete_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
+    string          system_tm_mad;
 
     VirtualMachine *    vm;
+    Nebula&             nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+    system_tm_mad = nd.get_system_ds_tm_mad();
 
     vm = vmpool->get(vid,true);
 
@@ -880,13 +931,15 @@ void TransferManager::epilog_delete_action(int vid)
         goto error_file;
     }
 
-    // ------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Delete the remote VM Directory
-    // ------------------------------------------------------------------------
-    // DELETE hostname:remote_system_dir
-    /* 
-    xfr << "DELETE " << vm->get_hostname() <<":"<< vm->get_remote_dir() << endl;
-    */
+    // -------------------------------------------------------------------------
+    //TODO DELETE SHOULD HOOK ON TM'S
+    //DELETE system_tm_mad hostname:remote_system_dir
+    xfr << "DELETE " 
+        << system_tm_mad << " "
+        << vm->get_hostname() <<":"<< vm->get_remote_system_dir() << endl;
+
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -903,19 +956,15 @@ error_history:
 error_file:
     os.str("");
     os << "epilog_delete, could not open file: " << xfr_name;
-    /*
     os << ". You may need to manually clean " << vm->get_hostname() 
-       << ":" << vm->get_remote_dir();
-    */
+       << ":" << vm->get_remote_system_dir();
     goto error_common;
 
 error_driver:
     os.str("");
     os << "epilog_delete, error getting driver Transfer Manager driver.";
-    /*
     os << ". You may need to manually clean " << vm->get_hostname() 
-       << ":" << vm->get_remote_dir();
-    */
+       << ":" << vm->get_remote_system_dir();
 
 error_common:
     vm->log("TM", Log::ERROR, os);
@@ -932,14 +981,18 @@ void TransferManager::epilog_delete_previous_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
+    string          system_tm_mad;
 
     VirtualMachine *    vm;
+    Nebula&             nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+
+    system_tm_mad = nd.get_system_ds_tm_mad();
 
     vm = vmpool->get(vid,true);
 
@@ -971,11 +1024,12 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     // Delete the remote VM Directory
     // ------------------------------------------------------------------------
-    //DELTE prev_hostname:remote_system_dir
-    /*
-    xfr << "DELETE " << vm->get_previous_hostname() <<":"<< vm->get_remote_dir()
+    //DELTE system_tm_mad prev_hostname:remote_system_dir
+    xfr << "DELETE " 
+        << system_tm_mad << " "
+        << vm->get_previous_hostname() <<":"<< vm->get_remote_system_dir()
         << endl;
-    */
+    
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -992,19 +1046,15 @@ error_history:
 error_file:
     os.str("");
     os << "epilog_delete, could not open file: " << xfr_name;
-    /*
     os << ". You may need to manually clean " << vm->get_previous_hostname() 
-       << ":" << vm->get_remote_dir();
-    */
+       << ":" << vm->get_remote_system_dir();
     goto error_common;
 
 error_driver:
     os.str("");
     os << "epilog_delete, error getting driver Transfer Manager driver.";
-    /*
     os << ". You may need to manually clean " << vm->get_previous_hostname() 
-       << ":" << vm->get_remote_dir();
-    */
+       << ":" << vm->get_remote_system_dir();
 
 error_common:
     vm->log("TM", Log::ERROR, os);
