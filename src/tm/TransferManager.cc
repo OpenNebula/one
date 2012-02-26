@@ -301,13 +301,11 @@ void TransferManager::prolog_action(int vid)
             }
 
             //MKSWAP tm_mad size hostname:remote_system_dir/disk.i
-            /*
             xfr << "MKSWAP " 
                 << tm_mad << " "
                 << size   << " " 
                 << vm->get_hostname() << ":"
-                << vm->get_remote_dir() << "/disk." << i << endl;
-            */
+                << vm->get_remote_system_dir() << "/disk." << i << endl;
         }
         else if ( type == "FS" )
         {
@@ -324,11 +322,12 @@ void TransferManager::prolog_action(int vid)
                 continue;
             }
             //MKIMAGE tm_mad size format hostname:remote_system_dir/disk.i
-            /*
-            xfr << "MKIMAGE " << size << " " << format << " "
-                << vm->get_hostname() << ":" << vm->get_remote_dir()
-                << "/disk." << i << endl;
-            */
+            xfr << "MKIMAGE " 
+                << tm_mad << " "
+                << size   << " " 
+                << format << " "
+                << vm->get_hostname() << ":" 
+                << vm->get_remote_system_dir() << "/disk." << i << endl;
         }
         else
         {
@@ -358,6 +357,8 @@ void TransferManager::prolog_action(int vid)
                 xfr << "LN ";
             }
 
+            xfr << tm_mad << " ";
+
             // -----------------------------------------------------------------
             // Get the disk image, and set source URL
             // -----------------------------------------------------------------
@@ -376,10 +377,9 @@ void TransferManager::prolog_action(int vid)
             {
                 xfr << source << " ";
             }
-            /*
-            xfr << vm->get_hostname() << ":" << vm->get_remote_dir()
-                << "/disk." << i;
-            */
+            
+            xfr << vm->get_hostname() << ":" 
+                << vm->get_remote_system_dir() << "/disk." << i;
 
             if (!size.empty()) //Add size for dev based disks
             {
@@ -404,7 +404,6 @@ void TransferManager::prolog_action(int vid)
     if ( context_result )
     {
         //CONTEXT files hostname:remote_system_dir/disk.i
-        /*
         xfr << "CONTEXT " << vm->get_context_file() << " ";
 
         if (!files.empty())
@@ -412,9 +411,9 @@ void TransferManager::prolog_action(int vid)
             xfr << files << " ";
         }
 
-        xfr <<  vm->get_hostname() << ":" << vm->get_remote_dir()
-            << "/disk." << num << endl;
-        */
+        xfr << vm->get_hostname() << ":" 
+            << vm->get_remote_system_dir() << "/disk." << num 
+            << endl;
     }
 
     xfr.close();
