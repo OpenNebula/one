@@ -321,6 +321,8 @@ int HostAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     int     cluster_id   = ClusterPool::DEFAULT_CLUSTER_ID;
     string  cluster_name = ClusterPool::DEFAULT_CLUSTER_NAME;
 
+    // TODO: Add to auth request CLUSTER MANAGE or ADMIN
+
     HostPool * hpool = static_cast<HostPool *>(pool);
 
     return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,

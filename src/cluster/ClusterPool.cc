@@ -53,7 +53,7 @@ ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table)
 
         set_update_lastOID(99);
     }
-    
+
     return;
 
 error_bootstrap:
@@ -68,7 +68,7 @@ error_bootstrap:
 
 int ClusterPool::allocate(string name, int * oid, string& error_str)
 {
-    Cluster *         cluster;
+    Cluster *       cluster;
     ostringstream   oss;
 
     if ( name.empty() )
@@ -132,11 +132,8 @@ int ClusterPool::drop(PoolObjectSQL * objsql, string& error_msg)
         return -2;
     }
 
-    if( cluster->get_collection_size() > 0 )
+    if ( cluster->check_drop(error_msg) < 0 )
     {
-        ostringstream oss;
-        oss << "Cluster " << cluster->get_oid() << " is not empty.";
-        error_msg = oss.str();
         NebulaLog::log("CLUSTER", Log::ERROR, error_msg);
 
         return -3;

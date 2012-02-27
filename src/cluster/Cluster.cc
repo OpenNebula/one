@@ -33,6 +33,26 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Cluster::check_drop(string& error_msg)
+{
+    ostringstream oss;
+
+    if ( hosts.get_collection_size() > 0 )
+    {
+        oss << "Cluster " << oid << " is not empty, it contains "
+            << hosts.get_collection_size() << " hosts.";
+
+        error_msg = oss.str();
+
+        return -1;
+    }
+
+    return 0;
+}
+
 /* ************************************************************************ */
 /* Cluster :: Database Access Functions                                     */
 /* ************************************************************************ */
@@ -130,13 +150,11 @@ string& Cluster::to_xml(string& xml) const
     ostringstream   oss;
     string          collection_xml;
 
-    ObjectCollection::to_xml(collection_xml);
-
     oss <<
-    "<CLUSTER>"    <<
+    "<CLUSTER>"  <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
-        collection_xml <<
+        hosts.to_xml(collection_xml)  <<
     "</CLUSTER>";
 
     xml = oss.str();
@@ -174,7 +192,7 @@ int Cluster::from_xml(const string& xml)
     }
 
     // Set of IDs
-    rc += ObjectCollection::from_xml_node(content[0]);
+    rc += hosts.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 

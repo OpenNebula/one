@@ -25,7 +25,7 @@ using namespace std;
 /**
  *  The Cluster class.
  */
-class Cluster : public PoolObjectSQL, ObjectCollection
+class Cluster : public PoolObjectSQL
 {
 public:
 
@@ -45,13 +45,22 @@ public:
     int from_xml(const string &xml_str);
 
     /**
+     * Checks if all the collections are empty, and therefore this cluster
+     * can be dropped.
+     *
+     * @param error_msg Error message, if any.
+     * @return 0 if cluster can be dropped, -1 otherwise
+     */
+    int check_drop(string& error_msg);
+
+    /**
      *  Adds this user's ID to the set. 
      *    @param id of the user to be added to the cluster
      *    @return 0 on success
      */
     int add_host(int id)
     {
-        return add_collection_id(id);
+        return hosts.add_collection_id(id);
     }
 
     /**
@@ -61,7 +70,7 @@ public:
      */
     int del_host(int id)
     {
-        return del_collection_id(id);
+        return hosts.del_collection_id(id);
     }
 
 private:
@@ -78,9 +87,19 @@ private:
 
     Cluster(int id, const string& name):
         PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
-        ObjectCollection("HOSTS"){};
+        hosts("HOSTS"),
+        images("DATASTORES"),
+        vnets("VNETS"){};
 
     virtual ~Cluster(){};
+
+    // *************************************************************************
+    // Object Collections (Private)
+    // *************************************************************************
+
+    ObjectCollection hosts;
+    ObjectCollection images;
+    ObjectCollection vnets;
 
     // *************************************************************************
     // DataBase implementation (Private)
