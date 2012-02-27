@@ -591,7 +591,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/OpenNebula.rb \
-                src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/quota/quota.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
