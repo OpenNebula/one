@@ -227,7 +227,10 @@ int HostPool::allocate (
         return -1;
     }
 
-    cluster->add_host(*oid);
+    if ( cluster->add_host(*oid, error_str) < 0 )
+    {
+        return -1;
+    }
 
     clpool->update(cluster);
 

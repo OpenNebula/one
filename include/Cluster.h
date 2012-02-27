@@ -29,6 +29,122 @@ class Cluster : public PoolObjectSQL
 {
 public:
 
+    // *************************************************************************
+    // Object Collections (Public)
+    // *************************************************************************
+
+    /**
+     *  Adds this host ID to the set.
+     *    @param id to be added to the cluster
+     *    @param error_msg Error message, if any
+     *    @return 0 on success
+     */
+    int add_host(int id, string& error_msg)
+    {
+        int rc = hosts.add_collection_id(id);
+
+        if ( rc < 0 )
+        {
+            error_msg = "ID is already in the set.";
+        }
+
+        return rc;
+    }
+
+    /**
+     *  Deletes this host ID from the set.
+     *    @param id to be deleted from the cluster
+     *    @param error_msg Error message, if any
+     *    @return 0 on success
+     */
+    int del_host(int id, string& error_msg)
+    {
+        int rc = hosts.del_collection_id(id);
+
+        if ( rc < 0 )
+        {
+            error_msg = "ID is not part of the set.";
+        }
+
+        return rc;
+    }
+
+    /**
+     *  Adds this datastore ID to the set.
+     *    @param id to be added to the cluster
+     *    @param error_msg Error message, if any
+     *    @return 0 on success
+     */
+    int add_datastore(int id, string& error_msg)
+    {
+        int rc = datastores.add_collection_id(id);
+
+        if ( rc < 0 )
+        {
+            error_msg = "ID is already in the set.";
+        }
+
+        return rc;
+    }
+
+    /**
+     *  Deletes this datastore ID from the set.
+     *    @param id to be deleted from the cluster
+     *    @param error_msg Error message, if any
+     *    @return 0 on success
+     */
+    int del_datastore(int id, string& error_msg)
+    {
+        int rc = datastores.del_collection_id(id);
+
+        if ( rc < 0 )
+        {
+            error_msg = "ID is not part of the set.";
+        }
+
+        return rc;
+    }
+
+    /**
+     *  Adds this vnet ID to the set.
+     *    @param id to be added to the cluster
+     *    @param error_msg Error message, if any
+     *    @return 0 on success
+     */
+    int add_vnet(int id, string& error_msg)
+    {
+        int rc = vnets.add_collection_id(id);
+
+        if ( rc < 0 )
+        {
+            error_msg = "ID is already in the set.";
+        }
+
+        return rc;
+    }
+
+    /**
+     *  Deletes this vnet ID from the set.
+     *    @param id to be deleted from the cluster
+     *    @param error_msg Error message, if any
+     *    @return 0 on success
+     */
+    int del_vnet(int id, string& error_msg)
+    {
+        int rc = vnets.del_collection_id(id);
+
+        if ( rc < 0 )
+        {
+            error_msg = "ID is not part of the set.";
+        }
+
+        return rc;
+    }
+
+    // *************************************************************************
+    // DataBase implementation (Public)
+    // *************************************************************************
+
     /**
      * Function to print the Cluster object into a string in XML format
      *  @param xml the resulting XML string
@@ -43,35 +159,6 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const string &xml_str);
-
-    /**
-     * Checks if all the collections are empty, and therefore this cluster
-     * can be dropped.
-     *
-     * @param error_msg Error message, if any.
-     * @return 0 if cluster can be dropped, -1 otherwise
-     */
-    int check_drop(string& error_msg);
-
-    /**
-     *  Adds this user's ID to the set. 
-     *    @param id of the user to be added to the cluster
-     *    @return 0 on success
-     */
-    int add_host(int id)
-    {
-        return hosts.add_collection_id(id);
-    }
-
-    /**
-     *  Deletes this users's ID from the set.
-     *    @param id of the user to be deleted from the cluster
-     *    @return 0 on success
-     */
-    int del_host(int id)
-    {
-        return hosts.del_collection_id(id);
-    }
 
 private:
 
@@ -88,7 +175,7 @@ private:
     Cluster(int id, const string& name):
         PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
         hosts("HOSTS"),
-        images("DATASTORES"),
+        datastores("DATASTORES"),
         vnets("VNETS"){};
 
     virtual ~Cluster(){};
@@ -98,7 +185,7 @@ private:
     // *************************************************************************
 
     ObjectCollection hosts;
-    ObjectCollection images;
+    ObjectCollection datastores;
     ObjectCollection vnets;
 
     // *************************************************************************
@@ -151,6 +238,15 @@ private:
         string error_str;
         return insert_replace(db, true, error_str);
     }
+
+    /**
+     * Checks if all the collections are empty, and therefore this cluster
+     * can be dropped.
+     *
+     * @param error_msg Error message, if any.
+     * @return 0 if cluster can be dropped, -1 otherwise
+     */
+    int check_drop(string& error_msg);
 };
 
 #endif /*CLUSTER_H_*/

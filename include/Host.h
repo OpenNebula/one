@@ -188,6 +188,16 @@ public:
         return cluster_id;
     };
 
+    /**
+     * Returns the cluster name
+     *
+     * @return The cluster name
+     */
+    string get_cluster_name()
+    {
+        return cluster;
+    };
+
     // ------------------------------------------------------------------------
     // Share functions
     // ------------------------------------------------------------------------

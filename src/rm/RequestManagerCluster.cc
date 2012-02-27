@@ -56,18 +56,21 @@ void ClusterAddHost::request_execute(
 {
     int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
     int host_id     = xmlrpc_c::value_int(paramList.getInt(2));
-    int old_cluster_id;
 
     int rc;
 
     string cluster_name;
     string host_name;
+    string err_msg;
 
     Cluster * cluster;
     Host *    host;
 
     PoolObjectAuth c_perms;
     PoolObjectAuth h_perms;
+
+    int     old_cluster_id;
+    string  old_cluster_name;
 
     rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms, cluster_name);
 
@@ -100,24 +103,6 @@ void ClusterAddHost::request_execute(
         }
     }
 
-    // ------------- Add host to new cluster ---------------------
-
-    cluster = clpool->get(cluster_id, true);
-
-    if ( cluster == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
-                att);
-        return;
-    }
-
-    cluster->add_host(host_id);
-
-    clpool->update(cluster);
-
-    cluster->unlock();
-
     // ------------- Set new cluster id in host ---------------------
 
     host = hpool->get(host_id, true);
@@ -128,14 +113,11 @@ void ClusterAddHost::request_execute(
                 get_error(object_name(PoolObjectSQL::HOST), host_id),
                 att);
 
-        // TODO: rollback
-        // clpool->get (cluster_id)
-        // cluster->del_host(host_id);
-
         return;
     }
 
-    old_cluster_id = host->get_cluster_id();
+    old_cluster_id   = host->get_cluster_id();
+    old_cluster_name = host->get_cluster_name();
 
     if ( old_cluster_id == cluster_id )
     {
@@ -150,6 +132,46 @@ void ClusterAddHost::request_execute(
 
     host->unlock();
 
+    // ------------- Add host to new cluster ---------------------
+
+    cluster = clpool->get(cluster_id, true);
+
+    if ( cluster == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
+                att);
+
+        // Rollback
+        host = hpool->get(host_id, true);
+
+        if ( host != 0 )
+        {
+            host->set_cluster(old_cluster_id, old_cluster_name);
+
+            hpool->update(host);
+
+            host->unlock();
+        }
+
+        return;
+    }
+
+    if ( cluster->add_host(host_id, err_msg) < 0 )
+    {
+        cluster->unlock();
+
+        failure_response(INTERNAL,
+                request_error("Cannot add host to cluster", err_msg),
+                att);
+
+        return;
+    }
+
+    clpool->update(cluster);
+
+    cluster->unlock();
+
     // ------------- Remove host from old cluster ---------------------
 
     cluster = clpool->get(old_cluster_id, true);
@@ -163,7 +185,16 @@ void ClusterAddHost::request_execute(
         return;
     }
 
-    cluster->del_host(host_id);
+    if ( cluster->del_host(host_id, err_msg) < 0 )
+    {
+        cluster->unlock();
+
+        failure_response(INTERNAL,
+                request_error("Cannot remove host from cluster", err_msg),
+                att);
+
+        return;
+    }
 
     clpool->update(cluster);
 

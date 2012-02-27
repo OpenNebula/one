@@ -45,12 +45,31 @@ int Cluster::check_drop(string& error_msg)
         oss << "Cluster " << oid << " is not empty, it contains "
             << hosts.get_collection_size() << " hosts.";
 
-        error_msg = oss.str();
+        goto error_common;
+    }
 
-        return -1;
+    if ( datastores.get_collection_size() > 0 )
+    {
+        oss << "Cluster " << oid << " is not empty, it contains "
+            << datastores.get_collection_size() << " datastores.";
+
+        goto error_common;
+    }
+
+    if ( vnets.get_collection_size() > 0 )
+    {
+        oss << "Cluster " << oid << " is not empty, it contains "
+            << vnets.get_collection_size() << " vnets.";
+
+        goto error_common;
     }
 
     return 0;
+
+error_common:
+    error_msg = oss.str();
+
+    return -1;
 }
 
 /* ************************************************************************ */
@@ -148,13 +167,19 @@ error_common:
 string& Cluster::to_xml(string& xml) const
 {
     ostringstream   oss;
-    string          collection_xml;
+    string          host_collection_xml;
+    string          ds_collection_xml;
+    string          vnet_collection_xml;
 
     oss <<
     "<CLUSTER>"  <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
-        hosts.to_xml(collection_xml)  <<
+
+        hosts.to_xml(host_collection_xml)    <<
+        datastores.to_xml(ds_collection_xml) <<
+        vnets.to_xml(vnet_collection_xml)    <<
+
     "</CLUSTER>";
 
     xml = oss.str();
@@ -183,7 +208,9 @@ int Cluster::from_xml(const string& xml)
     // Set the Cluster ID as the cluster it belongs to
     set_group(oid, name);
 
-    // Get associated classes
+    // -------------------------------------------------------------------------
+    // Get associated hosts
+    // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/CLUSTER/HOSTS", content);
 
     if (content.empty())
@@ -195,6 +222,39 @@ int Cluster::from_xml(const string& xml)
     rc += hosts.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+    content.clear();
+
+    // -------------------------------------------------------------------------
+    // Get associated datastores
+    // -------------------------------------------------------------------------
+    ObjectXML::get_nodes("/CLUSTER/DATASTORES", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    // Set of IDs
+    rc += datastores.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // -------------------------------------------------------------------------
+    // Get associated vnets
+    // -------------------------------------------------------------------------
+    ObjectXML::get_nodes("/CLUSTER/VNETS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    // Set of IDs
+    rc += vnets.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
 
     if (rc != 0)
     {
