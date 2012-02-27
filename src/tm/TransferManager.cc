@@ -265,7 +265,7 @@ void TransferManager::prolog_action(int vid)
 
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0; i < num ;i++,source="",type="",clon="")
+    for (int i=0; i < num ;i++, source="", type="", clon="", tm_mad="")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -295,7 +295,7 @@ void TransferManager::prolog_action(int vid)
                 continue;
             }
 
-            //MKSWAP tm_mad size hostname:remote_system_dir/disk.i
+            //MKSWAP tm_mad size host:remote_system_dir/disk.i
             xfr << "MKSWAP " 
                 << system_tm_mad << " "
                 << size   << " " 
@@ -316,7 +316,7 @@ void TransferManager::prolog_action(int vid)
                         " skipping");
                 continue;
             }
-            //MKIMAGE tm_mad size format hostname:remote_system_dir/disk.i
+            //MKIMAGE tm_mad size format host:remote_system_dir/disk.i
             xfr << "MKIMAGE " 
                 << system_tm_mad << " "
                 << size   << " " 
@@ -349,7 +349,7 @@ void TransferManager::prolog_action(int vid)
                     (int(*)(int))toupper);
             }
 
-            // <CLONE|LN> tm_mad fe:SOURCE hostname:remote_system_ds/disk.i size
+            // <CLONE|LN> tm_mad fe:SOURCE host:remote_system_ds/disk.i size
             if (clon == "YES")
             {
                 xfr << "CLONE ";
@@ -474,7 +474,13 @@ void TransferManager::prolog_migr_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
-    string          system_tm_mad;
+
+    const VectorAttribute * disk;
+    string tm_mad;
+    string system_tm_mad;
+
+    vector<const Attribute *> attrs;
+    int                       num;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
@@ -515,14 +521,43 @@ void TransferManager::prolog_migr_action(int vid)
     }
 
     // ------------------------------------------------------------------------
-    // Move image directory
+    // Move system directory and disks
     // ------------------------------------------------------------------------
 
-    //MV tm_mad prev_hostname:remote_system_dir hostname:remote_system_dir
+    num = vm->get_template_attribute("DISK",attrs);
+
+    for (int i=0 ; i < num ; i++, tm_mad="")
+    {
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        tm_mad = disk->vector_value("TM_MAD");
+
+        if ( tm_mad.empty() )
+        {
+            continue;
+        }
+
+        //MVDISK tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i
+        xfr << "MVDISK "
+            << tm_mad << " "
+            << vm->get_previous_hostname() << ":" 
+            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << i << endl;
+    }
+
+    //MV tm_mad prev_host:remote_system_dir host:remote_system_dir
     xfr << "MV "
         << system_tm_mad << " "
-        << vm->get_previous_hostname() << ":" << vm->get_remote_system_dir() << " "
-        << vm->get_hostname() << ":" << vm->get_remote_system_dir() << endl;
+        << vm->get_previous_hostname() << ":" 
+        << vm->get_remote_system_dir() << " "
+        << vm->get_hostname() << ":" 
+        << vm->get_remote_system_dir() << endl;
 
     xfr.close();
 
@@ -562,7 +597,13 @@ void TransferManager::prolog_resume_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
-    string          system_tm_mad;
+
+    const VectorAttribute * disk;
+    string tm_mad;
+    string system_tm_mad;
+
+    vector<const Attribute *> attrs;
+    int                       num;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
@@ -603,10 +644,36 @@ void TransferManager::prolog_resume_action(int vid)
     }
 
     // ------------------------------------------------------------------------
-    // Move image directory
+    // Move system directory and disks
     // ------------------------------------------------------------------------
+    num = vm->get_template_attribute("DISK",attrs);
 
-    //MV tm_mad fe:system_dir hostname:remote_system_dir 
+    for (int i=0 ; i < num ; i++, tm_mad="")
+    {
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        tm_mad = disk->vector_value("TM_MAD");
+
+        if ( tm_mad.empty() )
+        {
+            continue;
+        }
+
+        //MVDISK tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i
+        xfr << "MVDISK "
+            << tm_mad << " "
+            << nd.get_nebula_hostname() << ":" 
+            << vm->get_system_dir() << "/disk." << i << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << i << endl;
+    }
+
+    //MV tm_mad fe:system_dir host:remote_system_dir 
     xfr << "MV "
         << system_tm_mad << " "
         << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
@@ -641,7 +708,6 @@ error_common:
     vm->unlock();
     return;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -722,18 +788,12 @@ void TransferManager::epilog_action(int vid)
 
         transform(save.begin(),save.end(),save.begin(),(int(*)(int))toupper);
 
+        tm_mad = disk->vector_value("TM_MAD");
+
         if ( save == "YES" )
         {
             ostringstream tsource;
             string        source;
-
-            tm_mad = disk->vector_value("TM_MAD");
-
-            if (tm_mad.empty())//No TM_MAD, keep going to delete and save others
-            {
-                tm_mad = "error";
-                vm->log("TM", Log::ERROR, "No TM_MAD for disk image");
-            }
 
             source = disk->vector_value("SOURCE");
 
@@ -759,9 +819,16 @@ void TransferManager::epilog_action(int vid)
                 << vm->get_remote_system_dir() << "/disk." << i << " "
                 << tsource.str() << endl;
         }
+        else if ( !tm_mad.empty() ) //No saving disk and no system_ds disk
+        {
+            //DELETEDISK tm_mad hostname:remote_system_dir/disk.i
+            xfr << "DELETEDISK "
+                << tm_mad << " "
+                << vm->get_hostname() << ":"
+                << vm->get_remote_system_dir() << "/disk." << i << endl;
+        }
     }
 
-    //TODO DELETE SHOULD HOOK ON TM'S
     //DELETE system_tm_mad hostname:remote_system_dir
     xfr << "DELETE " 
         << system_tm_mad << " "
@@ -802,15 +869,20 @@ error_common:
 
 void TransferManager::epilog_stop_action(int vid)
 {
-    ofstream        xfr;
-    ostringstream   os;
-    string          xfr_name;
-    string          system_tm_mad;
+    ofstream      xfr;
+    ostringstream os;
+    string        xfr_name;
+    string        tm_mad;
+    string        system_tm_mad;
 
-    VirtualMachine *    vm;
-    Nebula&             nd = Nebula::instance();
+    VirtualMachine * vm;
+    Nebula&          nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
+
+    vector<const Attribute *> attrs;
+    const VectorAttribute *   disk;
+    int                       num;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -845,8 +917,35 @@ void TransferManager::epilog_stop_action(int vid)
     }
 
     // ------------------------------------------------------------------------
-    // Move image directory
+    // Move system directory and disks
     // ------------------------------------------------------------------------
+    num = vm->get_template_attribute("DISK",attrs);
+
+    for (int i=0 ; i < num ; i++, tm_mad="")
+    {
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        tm_mad = disk->vector_value("TM_MAD");
+
+        if ( tm_mad.empty() )
+        {
+            continue;
+        }
+
+        //MVDISK tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i
+        xfr << "MVDISK "
+            << tm_mad << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << nd.get_nebula_hostname() << ":" 
+            << vm->get_system_dir() << "/disk." << i  << endl;
+    }
+
     //MV system_tm_mad hostname:remote_system_dir fe:system_dir
     xfr << "MV "
         << system_tm_mad << " "
@@ -889,15 +988,20 @@ error_common:
 
 void TransferManager::epilog_delete_action(int vid)
 {
-    ofstream        xfr;
-    ostringstream   os;
-    string          xfr_name;
-    string          system_tm_mad;
+    ofstream      xfr;
+    ostringstream os;
+    string        xfr_name;
+    string        system_tm_mad;
+    string        tm_mad;
 
-    VirtualMachine *    vm;
-    Nebula&             nd = Nebula::instance();
+    VirtualMachine * vm;
+    Nebula&          nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
+
+    const VectorAttribute *   disk;
+    vector<const Attribute *> attrs;
+    int                       num;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -932,9 +1036,33 @@ void TransferManager::epilog_delete_action(int vid)
     }
 
     // -------------------------------------------------------------------------
-    // Delete the remote VM Directory
+    // Delete disk images and the remote system Directory
     // -------------------------------------------------------------------------
-    //TODO DELETE SHOULD HOOK ON TM'S
+    num = vm->get_template_attribute("DISK",attrs);
+
+    for (int i=0 ; i < num ; i++, tm_mad="")
+    {
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        tm_mad = disk->vector_value("TM_MAD");
+
+        if ( tm_mad.empty() )
+        {
+            continue;
+        }
+
+        //DELETEDISK tm_mad host:remote_system_dir/disk.i
+        xfr << "DELETEDISK "
+            << tm_mad << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << i << endl;
+    }
+
     //DELETE system_tm_mad hostname:remote_system_dir
     xfr << "DELETE " 
         << system_tm_mad << " "
@@ -978,15 +1106,20 @@ error_common:
 
 void TransferManager::epilog_delete_previous_action(int vid)
 {
-    ofstream        xfr;
-    ostringstream   os;
-    string          xfr_name;
-    string          system_tm_mad;
+    ofstream      xfr;
+    ostringstream os;
+    string        xfr_name;
+    string        system_tm_mad;
+    string        tm_mad;
 
-    VirtualMachine *    vm;
-    Nebula&             nd = Nebula::instance();
+    VirtualMachine * vm;
+    Nebula&          nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
+
+    const VectorAttribute *   disk;
+    vector<const Attribute *> attrs;
+    int                       num;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -1024,7 +1157,32 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     // Delete the remote VM Directory
     // ------------------------------------------------------------------------
-    //DELTE system_tm_mad prev_hostname:remote_system_dir
+    num = vm->get_template_attribute("DISK",attrs);
+
+    for (int i=0 ; i < num ; i++, tm_mad="")
+    {
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        tm_mad = disk->vector_value("TM_MAD");
+
+        if ( tm_mad.empty() )
+        {
+            continue;
+        }
+
+        //DELETEDISK tm_mad prev_host:remote_system_dir/disk.i
+        xfr << "DELETEDISK "
+            << tm_mad << " "
+            << vm->get_previous_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << i << endl;
+    }
+
+    //DELTE system_tm_mad prev_host:remote_system_dir
     xfr << "DELETE " 
         << system_tm_mad << " "
         << vm->get_previous_hostname() <<":"<< vm->get_remote_system_dir()
