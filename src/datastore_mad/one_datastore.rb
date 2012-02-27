@@ -119,7 +119,7 @@ class DatastoreDriver < OpenNebulaDriver
     end
 
     def do_image_action(id, ds, action, arguments)
-        return if not is_available?(ds,id,:mv)
+        return if not is_available?(ds,id,action)
 
         path = File.join(@local_scripts_path, ds)
         cmd  = File.join(path, ACTION[action].downcase)
