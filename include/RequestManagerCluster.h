@@ -54,6 +54,18 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att) = 0;
 
+    void add_generic(
+            xmlrpc_c::paramList const&  _paramList,
+            RequestAttributes&          att,
+            PoolSQL *                   pool,
+            PoolObjectSQL::ObjectType   type);
+
+    virtual int add_object(Cluster* cluster, int id, string& error_msg) = 0;
+
+    virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
+
+    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj) = 0;
+
     int get_info (PoolSQL *                 pool,
                   int                       id,
                   PoolObjectSQL::ObjectType type,
@@ -76,7 +88,28 @@ public:
     ~ClusterAddHost(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att)
+    {
+        return add_generic(_paramList, att, hpool, PoolObjectSQL::HOST);
+    }
+
+    virtual int add_object(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->add_host(id, error_msg);
+    };
+
+    virtual int del_object(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->del_host(id, error_msg);
+    };
+
+    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    {
+        Host * host = hpool->get(oid, lock);
+
+        *object      = static_cast<PoolObjectSQL *>(host);
+        *cluster_obj = static_cast<Clusterable *>(host);
+    };
 };
 
 /* -------------------------------------------------------------------------- */

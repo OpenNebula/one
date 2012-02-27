@@ -37,13 +37,12 @@ Host::Host(
     int           _cluster_id,
     const string& _cluster_name):
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
+        Clusterable(_cluster_id, _cluster_name),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         vnm_mad_name(_vnm_mad_name),
-        last_monitored(0),
-        cluster_id(_cluster_id),
-        cluster(_cluster_name)
+        last_monitored(0)
 {
     obj_template = new HostTemplate;        
 }

@@ -20,13 +20,14 @@
 #include "PoolSQL.h"
 #include "HostTemplate.h"
 #include "HostShare.h"
+#include "Clusterable.h"
 
 using namespace std;
 
 /**
  *  The Host class.
  */
-class Host : public PoolObjectSQL
+class Host : public PoolObjectSQL, public Clusterable
 {
 public:
 
@@ -164,38 +165,6 @@ public:
     time_t get_last_monitored() const
     {
         return last_monitored;
-    };
-
-    /**
-     * Changes the cluster this host belongs to
-     *
-     * @param _cluster_id Id of the new cluster
-     * @param _cluster Name of the new cluter
-     */
-    void set_cluster(int _cluster_id, const string& _cluster)
-    {
-        cluster_id  = _cluster_id;
-        cluster     = _cluster;
-    };
-
-    /**
-     * Returns the cluster ID
-     *
-     * @return The cluster ID
-     */
-    int get_cluster_id()
-    {
-        return cluster_id;
-    };
-
-    /**
-     * Returns the cluster name
-     *
-     * @return The cluster name
-     */
-    string get_cluster_name()
-    {
-        return cluster;
     };
 
     // ------------------------------------------------------------------------
@@ -353,12 +322,6 @@ private:
      *     Host State = MONITORING last time it got a signal to be monitored
      */
     time_t      last_monitored;
-
-    int         cluster_id;
-    /**
-     *  Name of the cluster this host belongs to.
-     */
-    string      cluster;
 
     // -------------------------------------------------------------------------
     //  Host Attributes

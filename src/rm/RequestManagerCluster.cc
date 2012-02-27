@@ -50,24 +50,28 @@ int RequestManagerCluster::get_info (PoolSQL *                 pool,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void ClusterAddHost::request_execute(
+void RequestManagerCluster::add_generic(
         xmlrpc_c::paramList const&  paramList,
-        RequestAttributes&          att)
+        RequestAttributes&          att,
+        PoolSQL *                   pool,
+        PoolObjectSQL::ObjectType   type)
 {
     int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
-    int host_id     = xmlrpc_c::value_int(paramList.getInt(2));
+    int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
     int rc;
 
     string cluster_name;
-    string host_name;
+    string obj_name;
     string err_msg;
 
-    Cluster * cluster;
-    Host *    host;
+    Cluster *       cluster;
+    Clusterable *   cluster_obj = 0;
+    PoolObjectSQL * object = 0;
+
 
     PoolObjectAuth c_perms;
-    PoolObjectAuth h_perms;
+    PoolObjectAuth obj_perms;
 
     int     old_cluster_id;
     string  old_cluster_name;
@@ -79,7 +83,7 @@ void ClusterAddHost::request_execute(
         return;
     }
 
-    rc = get_info(hpool, host_id, PoolObjectSQL::HOST, att, h_perms, host_name);
+    rc = get_info(pool, object_id, type, att, obj_perms, obj_name);
 
     if ( rc == -1 )
     {
@@ -91,7 +95,7 @@ void ClusterAddHost::request_execute(
         AuthRequest ar(att.uid, att.gid);
 
         ar.add_auth(auth_op, c_perms);              // MANAGE CLUSTER
-        ar.add_auth(AuthRequest::ADMIN, h_perms);   // ADMIN  HOST
+        ar.add_auth(AuthRequest::ADMIN, obj_perms); // ADMIN  OBJECT
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -103,36 +107,35 @@ void ClusterAddHost::request_execute(
         }
     }
 
-    // ------------- Set new cluster id in host ---------------------
+    // ------------- Set new cluster id in object ---------------------
+    get(object_id, true, &object, &cluster_obj);
 
-    host = hpool->get(host_id, true);
-
-    if ( host == 0 )
+    if ( object == 0 )
     {
         failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::HOST), host_id),
+                get_error(object_name(type), object_id),
                 att);
 
         return;
     }
 
-    old_cluster_id   = host->get_cluster_id();
-    old_cluster_name = host->get_cluster_name();
+    old_cluster_id   = cluster_obj->get_cluster_id();
+    old_cluster_name = cluster_obj->get_cluster_name();
 
     if ( old_cluster_id == cluster_id )
     {
-        host->unlock();
+        object->unlock();
         success_response(cluster_id, att);
         return;
     }
 
-    host->set_cluster(cluster_id, cluster_name);
+    cluster_obj->set_cluster(cluster_id, cluster_name);
 
-    hpool->update(host);
+    pool->update(object);
 
-    host->unlock();
+    object->unlock();
 
-    // ------------- Add host to new cluster ---------------------
+    // ------------- Add object to new cluster ---------------------
 
     cluster = clpool->get(cluster_id, true);
 
@@ -143,21 +146,21 @@ void ClusterAddHost::request_execute(
                 att);
 
         // Rollback
-        host = hpool->get(host_id, true);
+        get(object_id, true, &object, &cluster_obj);
 
-        if ( host != 0 )
+        if ( object != 0 )
         {
-            host->set_cluster(old_cluster_id, old_cluster_name);
+            cluster_obj->set_cluster(old_cluster_id, old_cluster_name);
 
-            hpool->update(host);
+            pool->update(object);
 
-            host->unlock();
+            object->unlock();
         }
 
         return;
     }
 
-    if ( cluster->add_host(host_id, err_msg) < 0 )
+    if ( add_object(cluster, object_id, err_msg) < 0 )
     {
         cluster->unlock();
 
@@ -185,7 +188,7 @@ void ClusterAddHost::request_execute(
         return;
     }
 
-    if ( cluster->del_host(host_id, err_msg) < 0 )
+    if ( del_object(cluster, object_id, err_msg) < 0 )
     {
         cluster->unlock();
 
