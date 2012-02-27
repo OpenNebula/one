@@ -37,6 +37,7 @@ else
 end
 
 OCCI_AUTH = VAR_LOCATION + "/.one/occi_auth"
+OCCI_LOG  = VAR_LOCATION + "/occi-server.log"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud/occi"
@@ -59,42 +60,55 @@ require 'CloudAuth'
 include OpenNebula
 
 ##############################################################################
-# Parse Configuration file
+# Configuration
 ##############################################################################
+# Set Configuration settings
 begin
     conf = YAML.load_file(CONFIGURATION_FILE)
 rescue Exception => e
-    puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
 
 conf[:template_location] = TEMPLATE_LOCATION
+conf[:debug_level] ||= 3
 
 CloudServer.print_configuration(conf)
 
-##############################################################################
-# Sinatra Configuration
-##############################################################################
+set :config, conf
+
+
+# Enable Logger
+include CloudLogger
+enable_logging OCCI_LOG, settings.config[:debug_level].to_i
+
+
+# Set Sinatra configuration
 use Rack::Session::Pool, :key => 'occi'
+
 set :public, Proc.new { File.join(root, "ui/public") }
 set :views, settings.root + '/ui/views'
-set :config, conf
 
 if CloudServer.is_port_open?(settings.config[:server],
                              settings.config[:port])
-    puts "Port busy, please shutdown the service or move occi server port."
-    exit
+    settings.logger.error {
+        "Port #{settings.config[:port]} busy, please shutdown " <<
+        "the service or move occi server port."
+    }
+    exit -1
 end
 
 set :bind, settings.config[:server]
 set :port, settings.config[:port]
 
+
+# Create CloudAuth
 begin
     ENV["ONE_CIPHER_AUTH"] = OCCI_AUTH
-    cloud_auth = CloudAuth.new(settings.config)
+    cloud_auth = CloudAuth.new(settings.config, settings.logger)
 rescue => e
-    puts "Error initializing authentication system"
-    puts e.message
+    settings.logger.error {"Error initializing authentication system"}
+    settings.logger.error {e.message}
     exit -1
 end
 
@@ -110,17 +124,19 @@ before do
             begin
                 username = settings.cloud_auth.auth(request.env, params)
             rescue Exception => e
-                error 500, e.message
+                logger.error {e.message}
+                error 500, ""
             end
         else
             username = session[:user]
         end
 
         if username.nil? #unable to authenticate
+            logger.error {"User not authorized"}
             error 401, ""
         else
             client  = settings.cloud_auth.client(username)
-            @occi_server = OCCIServer.new(client, settings.config)
+            @occi_server = OCCIServer.new(client, settings.config, settings.logger)
         end
     end
 end
@@ -147,20 +163,22 @@ helpers do
         begin
             username = settings.cloud_auth.auth(request.env, params)
         rescue Exception => e
-            error 500, e.message
+            logger.error {e.message}
+            error 500, ""
         end
 
         if username.nil?
+            logger.error {"User not authorized"}
             error 401, ""
         else
             client  = settings.cloud_auth.client(username)
-            @occi_server = OCCIServer.new(client, settings.config)
+            @occi_server = OCCIServer.new(client, settings.config, settings.logger)
 
             user_id = OpenNebula::User::SELF
             user    = OpenNebula::User.new_with_id(user_id, client)
             rc = user.info
             if OpenNebula.is_error?(rc)
-                # Add a log message
+                logger.error {rc.message}
                 return [500, ""]
             end
 
@@ -190,6 +208,7 @@ helpers do
 
     def treat_response(result,rc)
         if OpenNebula::is_error?(result)
+            logger.error {result.message}
             halt rc, result.message
         end
 

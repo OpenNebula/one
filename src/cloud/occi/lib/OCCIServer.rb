@@ -52,8 +52,8 @@ class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
     # template:: _String_ path to the location of the templates
-    def initialize(client, config)
-        super(config)
+    def initialize(client, config, logger)
+        super(config, logger)
 
         if config[:ssl_server]
             @base_url=config[:ssl_server]
