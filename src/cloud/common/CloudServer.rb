@@ -37,7 +37,7 @@ class CloudServer
     ##########################################################################
     # Public attributes
     ##########################################################################
-    attr_reader :config
+    attr_reader :config, :logger
 
     # Initializes the Cloud server based on a config file
     # config_file:: _String_ for the server. MUST include the following
@@ -45,9 +45,10 @@ class CloudServer
     #   AUTH
     #   VM_TYPE
     #   XMLRPC
-    def initialize(config)
+    def initialize(config, logger=nil)
         # --- Load the Cloud Server configuration file ---
         @config = config
+        @logger = logger
     end
     #
     # Prints the configuration of the server
@@ -80,5 +81,53 @@ class CloudServer
       end
 
       return false
+    end
+end
+
+module CloudLogger
+    require 'logger'
+
+    DEBUG_LEVEL = [
+        Logger::ERROR, # 0
+        Logger::WARN,  # 1
+        Logger::INFO,  # 2
+        Logger::DEBUG  # 3
+    ]
+
+    # Mon Feb 27 06:02:30 2012 [Clo] [E]: Error message example
+    MSG_FORMAT  = %{%s [Clo] [%s]: %s\n}
+
+    # Mon Feb 27 06:02:30 2012
+    DATE_FORMAT = "%a %b %d %H:%M:%S %Y"
+
+    # Patch logger class to be compatible with Rack::CommonLogger
+    class ::Logger
+        def write(msg)
+            info msg.chop
+        end
+    end
+
+    def enable_logging(path=nil, debug_level=3)
+        path ||= $stdout
+        logger = ::Logger.new(path)
+        logger.level = DEBUG_LEVEL[debug_level]
+        logger.formatter = proc do |severity, datetime, progname, msg|
+            MSG_FORMAT % [
+                datetime.strftime(DATE_FORMAT),
+                severity[0..0],
+                msg ]
+        end
+
+        # Add the logger instance to the Sinatra settings
+        set :logger, logger
+
+        # Use the logger instance in the Rack  methods
+        use Rack::CommonLogger, logger
+
+        helpers do
+            def logger
+                settings.logger
+            end
+        end
     end
 end
