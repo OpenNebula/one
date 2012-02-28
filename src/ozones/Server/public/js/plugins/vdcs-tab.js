@@ -516,6 +516,10 @@ function setupCreateVDCDialog(){
 
 function openCreateVDCDialog(){
     var dialog = $('div#create_vdc_dialog')
+    if (!zones_select){
+        notifyError(tr("No zones defined: You need to create at least 1 zone before creating an VDC"));
+        return false;
+    };
     $('select#zoneid',dialog).html(zones_select);
     $('select#zoneid',dialog).trigger("change");
     $('#vdc_available_hosts_list',dialog).empty();
