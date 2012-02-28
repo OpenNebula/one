@@ -52,13 +52,6 @@ protected:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
-
-    int get_info (PoolSQL *                 pool,
-                  int                       id,
-                  PoolObjectSQL::ObjectType type,
-                  RequestAttributes&        att,
-                  PoolObjectAuth&           perms, 
-                  string&                   name);
 };
 
 /* ------------------------------------------------------------------------- */

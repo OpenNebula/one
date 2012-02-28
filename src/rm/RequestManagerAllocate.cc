@@ -328,24 +328,10 @@ void HostAllocate::request_execute(
     ClusterPool *   clpool = nd.get_clpool();
     HostPool *      hpool  = static_cast<HostPool *>(pool);
 
-    Cluster *       cluster;
-
     // ------------------------- Check Cluster exists ------------------------
 
-    if ((cluster = clpool->get(cluster_id,true)) == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id),
-                att);
-
-        return;
-    }
-
-    cluster->get_permissions(cluster_perms);
-
-    cluster_name = cluster->get_name();
-
-    cluster->unlock();
+    get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att,
+            cluster_perms, cluster_name);
 
     // ------------- Set authorization request for non-oneadmin's -------------
 
