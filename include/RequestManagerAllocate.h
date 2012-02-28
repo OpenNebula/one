@@ -207,7 +207,7 @@ public:
     HostAllocate():
         RequestManagerAllocate("HostAllocate",
                                "Allocates a new host",
-                               "A:sssss",
+                               "A:sssssi",
                                false)
     {    
         Nebula& nd  = Nebula::instance();
@@ -217,11 +217,10 @@ public:
 
     ~HostAllocate(){};
 
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
-                      Template * tmpl,
-                      int& id, 
-                      string& error_str,
-                      RequestAttributes& att);
+    /* --------------------------------------------------------------------- */
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+                         RequestAttributes&         att);
 };
 
 /* ------------------------------------------------------------------------- */

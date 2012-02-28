@@ -23,6 +23,8 @@ module OpenNebula
         # Constants and Class attribute accessors
         #######################################################################
 
+        DEFAULT_CLUSTER_ID   = 0
+
         CLUSTER_POOL_METHODS = {
             :info => "clusterpool.info"
         }

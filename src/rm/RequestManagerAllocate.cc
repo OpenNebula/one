@@ -306,27 +306,80 @@ int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
-                                Template * tmpl,
-                                int& id, 
-                                string& error_str,
-                                RequestAttributes& att)
+void HostAllocate::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
 {
+    string error_str;
+    string cluster_name;
+    string ds_data;
+    int    rc, id;
+
+    PoolObjectAuth cluster_perms;
+
     string host    = xmlrpc_c::value_string(paramList.getString(1));
     string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
     string vmm_mad = xmlrpc_c::value_string(paramList.getString(3));
     string vnm_mad = xmlrpc_c::value_string(paramList.getString(4));
+    int cluster_id = xmlrpc_c::value_int(paramList.getInt(5));
 
-    // TODO: include another int parameter for the cluster?
-    int     cluster_id   = ClusterPool::DEFAULT_CLUSTER_ID;
-    string  cluster_name = ClusterPool::DEFAULT_CLUSTER_NAME;
+    Nebula&  nd  = Nebula::instance();
 
-    // TODO: Add to auth request CLUSTER MANAGE or ADMIN
+    ClusterPool *   clpool = nd.get_clpool();
+    HostPool *      hpool  = static_cast<HostPool *>(pool);
 
-    HostPool * hpool = static_cast<HostPool *>(pool);
+    Cluster *       cluster;
 
-    return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
-                            cluster_id, cluster_name, error_str);
+    // ------------------------- Check Cluster exists ------------------------
+
+    if ((cluster = clpool->get(cluster_id,true)) == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id),
+                att);
+
+        return;
+    }
+
+    cluster->get_permissions(cluster_perms);
+
+    cluster_name = cluster->get_name();
+
+    cluster->unlock();
+
+    // ------------- Set authorization request for non-oneadmin's -------------
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.gid);
+        string      tmpl_str = "";
+
+        ar.add_create_auth(auth_object, tmpl_str);      // CREATE HOST
+
+        ar.add_auth(AuthRequest::ADMIN, cluster_perms); // ADMIN CLUSTER
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            return;
+        }
+    }
+
+    // ------------- Allocate Host --------------------------------------------
+
+    rc =  hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
+                           cluster_id, cluster_name, error_str);
+
+    if ( rc < 0 )
+    {
+        failure_response(INTERNAL, allocate_error(error_str), att);
+        return;
+    }
+
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
