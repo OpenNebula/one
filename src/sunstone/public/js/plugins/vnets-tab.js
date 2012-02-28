@@ -51,8 +51,25 @@ var create_vn_tmpl =
                  <input type="text" name="name" id="name" /><br />\
               </fieldset>\
               <fieldset>\
+                 <label for="network_mode">'+tr("Network mode")+':</label>\
+                 <select name="network_mode" id="network_mode">\
+                    <option value="default">'+tr("Default")+'</option>\
+                    <option value="802.1Q">'+tr("802.1Q")+'</option>\
+                    <option value="etables">'+tr("Etables")+'</option>\
+                    <option value="openvswitch">'+tr("Open vSwitch")+'</option>\
+                    <option value="vmware">'+tr("VMware")+'</option>\
+                 </select><br />\
                  <label for="bridge">'+tr("Bridge")+':</label>\
                  <input type="text" name="bridge" id="bridge" /><br />\
+                 <label for="phydev">'+tr("Physical device")+':</label>\
+                 <input type="text" name="phydev" id="phydev" />\
+                 <label for="vlan">'+tr("VLAN")+':</label>\
+                 <select name="vlan" id="vlan">\
+                    <option value="YES">'+tr("Yes")+'</option>\
+                    <option value="NO">'+tr("No")+'</option>\
+                 </select><br />\
+                 <label for="vlan_id">'+tr("VLAN ID")+':</label>\
+                 <input type="text" name="vlan_id" id="vlan_id" /><br />\
               </fieldset>\
               <fieldset>\
                  <label style="height:2em;">'+tr("Network type")+':</label>\
@@ -531,11 +548,19 @@ function updateVNetworkInfo(request,vn){
               <td class="value_td">'+vn_info.GNAME+'</td>\
             </tr>\
             <tr>\
+              <td class="key_td">'+tr("Bridge")+'</td>\
+              <td class="value_td">'+ (typeof(vn_info.BRIDGE) == "object" ? "--": vn_info.BRIDGE) +'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">'+tr("VLAN")+'</td>\
+              <td class="value_td">'+ (vn_info.VLAN == "0" ? "no" : "yes") +'</td>\
+            </tr>\
+            <tr>\
               <td class="key_td">'+tr("Physical device")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.PHYDEV) == "object" ? "--": vn_info.PHYDEV) +'</td>\
             </tr>\
             <tr>\
-              <td class="key_td">'+tr("VNET ID")+'</td>\
+              <td class="key_td">'+tr("VLAN ID")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.VLAN_ID) == "object" ? "--": vn_info.VLAN_ID) +'</td>\
             </tr>\
             <tr><td class="key_td">Permissions</td><td></td></tr>\
@@ -704,6 +729,36 @@ function setupCreateVNetDialog() {
         $('div#fixed',$create_vn_dialog).hide();
         $('div#ranged',$create_vn_dialog).show();
     });
+
+    $('#network_mode',dialog).change(function(){
+        $('input,select#vlan,label[for!="network_mode"]', $(this).parent()).hide();
+        $('input', $(this).parent()).val("");
+        switch ($(this).val()) {
+        case "default":
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
+            $('input#phydev,label[for="phydev"]',$create_vn_dialog).show();
+            break;
+        case "802.1Q":
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
+            $('input#phydev,label[for="phydev"]',$create_vn_dialog).show();
+            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
+            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
+            break;
+        case "etables":
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
+            break;
+        case "openvswitch":
+        case "vmware":
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
+            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
+            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
+            break;
+        };
+    });
+
+    //Initialize shown options
+    $('#network_mode',dialog).trigger("change");
+
     $('button',dialog).button();
 
 
@@ -786,12 +841,60 @@ function setupCreateVNetDialog() {
             notifyError(tr("Virtual Network name missing!"));
             return false;
         }
-        var bridge = $('#bridge',this).val();
-        var type = $('input:checked',this).val();
 
+        var network_json = {"name" : name};
+
+        var network_mode = $('select#network_mode',this).val();
+        var bridge = $('#bridge',this).val();
+        var phydev = $('#phydev',this).val();
+        var vlan = $('#vlan',this).val();
+        var vlan_id = $('#vlan_id',this).val();
+        switch (network_mode) {
+        case "default":
+            if (!bridge && !phydev){
+                notifyError("Bridge or physical device must be specified");
+                return false;
+            };
+            if (bridge) network_json['bridge']=bridge;
+            if (phydev) network_json['phydev']=phydev;
+            break;
+        case "802.1Q":
+            if (!phydev){
+                notifyError("Physical device must be specified");
+                return false;
+            };
+            network_json['phydev']=phydev;
+            if (bridge) network_json['bridge']=bridge;
+            if (vlan_id) {
+                network_json['vlan']=vlan;
+                network_json['vlan_id']=vlan_id;
+            };
+            break;
+        case "etables":
+            if (!bridge){
+                notifyError("Bridge must be specified");
+                return false;
+            };
+            network_json['bridge']=bridge;
+            break;
+        case "openvswitch":
+        case "vmware":
+            if (!bridge){
+                notifyError("Bridge must be specified");
+                return false;
+            };
+            network_json['bridge']=bridge;
+            if (vlan_id) {
+                network_json['vlan']=vlan;
+                network_json['vlan_id']=vlan_id;
+            };
+            break;
+        };
+
+        var type = $('input:checked',this).val();
+        network_json['type']=type;
         //TODO: Name and bridge provided?!
 
-        var network_json = null;
         if (type == "fixed") {
             var leases = $('#leases option', this);
             var leases_obj=[];
@@ -807,12 +910,7 @@ function setupCreateVNetDialog() {
             });
 
             //and construct the final data for the request
-            network_json = {
-                "vnet" : {
-                    "type" : "FIXED",
-                    "leases" : leases_obj,
-                    "bridge" : bridge,
-                    "name" : name }};
+            network_json["leases"] = leases_obj;
         }
         else { //type ranged
 
@@ -827,25 +925,17 @@ function setupCreateVNetDialog() {
                 return false;
             };
 
-            //we form the object for the request
-            network_json = {
-                "vnet" : {
-                    "type" : "RANGED",
-                    "bridge" : bridge,
-                    "name" : name }
-            };
-
             if (network_addr.length)
-                network_json["vnet"]["network_address"]=network_addr;
+                network_json["network_address"]=network_addr;
 
             if (network_mask.length)
-                network_json["vnet"]["network_mask"]=network_mask;
+                network_json["network_mask"]=network_mask;
 
             if (custom){
                 if (ip_start.length)
-                    network_json["vnet"]["ip_start"] = ip_start;
+                    network_json["ip_start"] = ip_start;
                 if (ip_end.length)
-                    network_json["vnet"]["ip_end"] = ip_end;
+                    network_json["ip_end"] = ip_end;
             };
         };
 
@@ -853,10 +943,12 @@ function setupCreateVNetDialog() {
         $('#custom_var_vnet_box option',$create_vn_dialog).each(function(){
             var attr_name = $(this).attr('name');
             var attr_value = $(this).val();
-            network_json["vnet"][attr_name] = attr_value;
+            network_json[attr_name] = attr_value;
         });
 
         //Create the VNetwork.
+
+        network_json = {"vnet" : network_json};
 
         Sunstone.runAction("Network.create",network_json);
         $create_vn_dialog.dialog('close');

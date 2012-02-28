@@ -305,11 +305,31 @@ get '/user/:id' do
     treat_response(result,rc)
 end
 
+get '/instance_type/:id' do
+    result,rc = @occi_server.get_instance_type(request, params)
+    treat_response(result,rc)
+end
+
 ##############################################
-## UI
+## OCCI UI (Self-Service)
 ##############################################
 
-post '/config' do
+get '/ui/config' do
+    wss = settings.config[:vnc_proxy_support_wss]
+    wss = (wss == true || wss == "yes" || wss == "only" ? "yes" : "no")
+
+    vnc = settings.config[:vnc_enable] ? "yes" : "no"
+
+    config =  "<UI_CONFIGURARION>"
+    config << "  <LANG>#{session[:lang]}</LANG>"
+    config << "  <WSS>#{wss}</WSS>"
+    config << "  <VNC>#{vnc}</VNC>"
+    config << "</UI_CONFIGURARION>"
+
+    return [200, config]
+end
+
+post '/ui/config' do
     begin
         body = JSON.parse(request.body.read)
     rescue
@@ -321,6 +341,8 @@ post '/config' do
         when "lang" then session[:lang]=value
         end
     end
+
+    return 200
 end
 
 get '/ui/login' do
@@ -349,9 +371,60 @@ get '/ui' do
 end
 
 post '/ui/upload' do
-    file = Tempfile.new('uploaded_image')
-    FileUtils.cp(request.env['rack.input'].path,file.path)
-    request.params['file'] = file.path #so we can re-use occi post_storage()
+    #so we can re-use occi post_storage()
+    request.params['file'] = {:tempfile => request.env['rack.input']}
     result,rc = @occi_server.post_storage(request)
     treat_response(result,rc)
+end
+
+post '/ui/startvnc/:id' do
+    if !settings.config[:vnc_enable]
+        return [403, "VNC sessions are disabled"]
+    end
+
+    vm_id    = params[:id]
+    vnc_hash = session['vnc']
+
+    if !vnc_hash
+        session['vnc'] = {}
+    elsif vnc_hash[vm_id]
+        #return existing information
+        info = vnc_hash[vm_id].clone
+        info.delete(:pipe)
+
+        return [200, info.to_json]
+    end
+
+    rc = @occi_server.startvnc(vm_id, settings.config)
+
+    if rc[0] == 200
+        info = rc[1]
+        session['vnc'][vm_id] = info.clone
+        info.delete(:pipe)
+
+        rc = [200, info.to_json]
+    end
+
+    return rc
+end
+
+post '/ui/stopvnc/:id' do
+    if !settings.config[:vnc_enable]
+        return [403, "VNC sessions are disabled"]
+    end
+
+    vm_id    = params[:id]
+    vnc_hash = session['vnc']
+
+    if !vnc_hash || !vnc_hash[vm_id]
+        return [403, "It seems there is no VNC proxy running for this machine"]
+    end
+
+    rc = @occi_server.stopvnc(vnc_hash[vm_id][:pipe])
+
+    if rc[0] == 200
+        session['vnc'].delete(vm_id)
+    end
+
+    return rc
 end

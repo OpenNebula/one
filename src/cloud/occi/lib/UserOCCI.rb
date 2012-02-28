@@ -27,6 +27,7 @@ class UserOCCI < User
         <USER href="<%= base_url %>/user/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
+            <GROUP><%= self['GNAME'] %></GROUP>
             <QUOTA>
             <% user_quota.each { |key,value|
                 key_s = key.to_s.upcase
@@ -50,7 +51,7 @@ class UserOCCI < User
     end
 
     # Creates the OCCI representation of a User
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         quota = Quota.new
         user_usage = quota.get_usage(self.id, nil, FORCE_USAGE)
         user_usage.delete(:uid)

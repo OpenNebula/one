@@ -342,6 +342,31 @@ var OCCI = {
         }
     },
 
+    "Config": {
+        "resource": "CONFIG",
+
+        "list": function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+
+            var resource = OCCI.Config.resource;
+            var request = OCCI.Helper.request(resource,"list");
+
+            $.ajax({
+                url: "ui/config",
+                type: "GET",
+                dataType: "xml ONEjson",
+                success: function(response){
+                    return callback ? callback(request, response) : null;
+                },
+                error: function(response){
+                    return callback_error ?
+                        callback_error(request, OCCI.Error(response)) : null;
+                }
+            });
+        }
+    },
+
     "Network": {
         "resource": "NETWORK",
 
@@ -413,7 +438,7 @@ var OCCI = {
             params.data.body = '<DISK id="'+disk_id+'"><SAVE_AS name="'+im_name+'" /></DISK>';
             OCCI.Action.update(params,OCCI.VM.resource,"saveas");
         },
-/*        "vnc" : function(params,startstop){
+        "vnc" : function(params,startstop){
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
@@ -423,7 +448,7 @@ var OCCI = {
             var action = OCCI.Helper.action(method);
             var request = OCCI.Helper.request(resource,method, id);
             $.ajax({
-                url: "vm/" + id + "/" + method,
+                url: "ui/" + method + "/" + id,
                 type: "POST",
                 dataType: "json",
                 success: function(response){
@@ -440,13 +465,16 @@ var OCCI = {
         },
         "stopvnc" : function(params){
             OCCI.VM.vnc(params,"stopvnc");
+
         },
+/*
         "monitor" : function(params){
             OCCI.Action.monitor(params,OCCI.VM.resource,false);
         },
         "monitor_all" : function(params){
             OCCI.Action.monitor(params,OCCI.VM.resource,true);
-        }*/
+        }
+*/
     },
 
     "Image": {

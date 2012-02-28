@@ -14,22 +14,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
-
-include OpenNebula
+require 'VirtualMachineOCCI'
 
 class VirtualMachinePoolOCCI < VirtualMachinePool
     OCCI_VM_POOL = %q{
         <COMPUTE_COLLECTION>
-            <% self.each{ |vm|  %>  
+            <% self.each{ |vm|  %>
+            <% if verbose %>
+            <%= vm.to_occi(base_url) %>
+            <% else %>
             <COMPUTE href="<%= base_url %>/compute/<%= vm.id.to_s  %>" name="<%= vm.name  %>"/>
+            <% end %>
             <% } %>
         </COMPUTE_COLLECTION>       
     }
     
     
     # Creates the OCCI representation of a Virtual Machine Pool
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         begin
             occi = ERB.new(OCCI_VM_POOL)
             occi_text = occi.result(binding) 
@@ -39,6 +41,10 @@ class VirtualMachinePoolOCCI < VirtualMachinePool
         end    
 
         return occi_text.gsub(/\n\s*/,'')
+    end
+
+    def factory(element_xml)
+        VirtualMachineOCCI.new(element_xml,@client)
     end
 end
 

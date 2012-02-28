@@ -41,24 +41,46 @@ var config_tab_content =
   </tr>\
 </table></form>';
 
+var config_actions = {
+    "Config.list" : {
+        type : 'list',
+        call : OCCI.Config.list,
+        callback : updateConfig,
+        error : onError
+    },
+};
+
 var config_tab = {
     title: tr("Configuration"),
     content: config_tab_content
 }
 
+Sunstone.addActions(config_actions);
 Sunstone.addMainTab('config_tab',config_tab);
 
+function updateConfig(request, response){
+    var config = response;
+    //These two variables defined in compute.js
+    vnc_enable = config['VNC'] == 'true' || config['VNC'] == 'yes' ? true : false;
+    use_wss = config['WSS'] == 'true' || config['WSS'] == 'yes'? true : false;
+};
+
 $(document).ready(function(){
-    if (lang)
-        $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
-    $('table#config_table #lang_sel').change(function(){
-        setLang($(this).val());
-    });
+    Sunstone.runAction('Config.list');
 
     $('#li_config_tab').click(function(){
         hideDialog();
     });
 
-    $('div#logo img').attr('src',logo_small);
+    //Set lang to the right value
+    if (lang)
+        $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
 
+    //Listen to changes in language
+    $('table#config_table #lang_sel').change(function(){
+        setLang($(this).val());
+    });
+
+    //Vendor customization, change small logo
+    $('div#logo img').attr('src',logo_small);
 });

@@ -21,7 +21,7 @@ include OpenNebula
 
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
-OpenNebula 3.2.0
+OpenNebula 3.3.0
 Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -363,6 +363,15 @@ EOT
         else
             value=Time.at(value).strftime("%m/%d %H:%M:%S")
         end
+    end
+
+    def OpenNebulaHelper.period_to_str(time)
+        seconds=time.to_i
+        minutes, seconds=seconds.divmod(60)
+        hours, minutes=minutes.divmod(60)
+        days, hours=hours.divmod(24)
+
+        "%4dd %02d:%02d:%02d" % [days, hours, minutes, seconds]
     end
 
     BinarySufix = ["K", "M", "G", "T" ]

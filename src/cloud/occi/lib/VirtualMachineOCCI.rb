@@ -22,6 +22,8 @@ class VirtualMachineOCCI < VirtualMachine
     OCCI_VM = %q{
         <COMPUTE href="<%= base_url %>/compute/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s%></ID>
+            <USER href="<%= base_url %>/user/<%= self['UID'] %>" name="<%= self['UNAME'] %>"/>
+            <GROUP><%= self['GNAME'] %></GROUP>
             <CPU><%= self['TEMPLATE/CPU'] %></CPU>
             <MEMORY><%= self['TEMPLATE/MEMORY'] %></MEMORY>
             <NAME><%= self.name%></NAME>
@@ -120,7 +122,7 @@ class VirtualMachineOCCI < VirtualMachine
     end
 
     # Creates the VMI representation of a Virtual Machine
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         begin
             occi_vm = ERB.new(OCCI_VM)
             occi_vm_text = occi_vm.result(binding)

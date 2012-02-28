@@ -86,7 +86,7 @@ EOF
 #-------------------------------------------------------------------------------
 function fs_du {
 	if [ -d "$1" ]; then
-		SIZE=`du -s "$1" | cut -f1`
+		SIZE=`du -sb "$1" | cut -f1`
 		error=$?
 	else
 		SIZE=`stat -c %s "$1"`

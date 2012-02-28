@@ -14,22 +14,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
-
-include OpenNebula
+require 'UserOCCI'
 
 class UserPoolOCCI < UserPool
     OCCI_USER_POOL = %q{
         <USER_COLLECTION>
             <% self.each{ |user|  %>
+            <% if verbose %>
+            <%= user.to_occi(base_url) %>
+            <% else %>
             <USER href="<%= base_url %>/user/<%= user.id.to_s  %>" name="<%= user.name  %>"/>
+            <% end %>
             <% } %>
         </USER_COLLECTION>
     }
 
-
     # Creates the OCCI representation of a User Pool
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         begin
             occi = ERB.new(OCCI_USER_POOL)
             occi_text = occi.result(binding)
@@ -39,5 +40,9 @@ class UserPoolOCCI < UserPool
         end
 
         return occi_text.gsub(/\n\s*/,'')
+    end
+
+    def factory(element_xml)
+        UserOCCI.new(element_xml,@client)
     end
 end

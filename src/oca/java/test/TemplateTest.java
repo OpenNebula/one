@@ -248,17 +248,6 @@ public class TemplateTest
     }
 
     @Test
-    public void allocateFromTemplate()
-    {
-        res = template.info();
-        assertTrue( !res.isError() );
-
-        res = VirtualMachine.allocateFromTemplate(client, template);
-        assertTrue( !res.isError() );
-        assertTrue( res.getMessage().equals("0") );
-    }
-
-    @Test
     public void chown()
     {
         // Create a new User and Group

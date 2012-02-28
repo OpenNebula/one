@@ -14,22 +14,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
-
-include OpenNebula
+require 'ImageOCCI'
 
 class ImagePoolOCCI < ImagePool
     OCCI_IMAGE_POOL = %q{
         <STORAGE_COLLECTION>
             <% self.each{ |im|  %>  
+            <% if verbose %>
+            <%= im.to_occi(base_url) %>
+            <% else %>
             <STORAGE href="<%= base_url %>/storage/<%= im.id.to_s  %>" name="<%= im.name  %>"/>
+            <% end %>
             <% } %>
         </STORAGE_COLLECTION>       
     }
     
-    
     # Creates the OCCI representation of a Virtual Machine Pool
-    def to_occi(base_url)
+    def to_occi(base_url, verbose=false)
         begin
             occi = ERB.new(OCCI_IMAGE_POOL)
             occi_text = occi.result(binding) 
@@ -39,6 +40,10 @@ class ImagePoolOCCI < ImagePool
         end
 
         return occi_text.gsub(/\n\s*/,'')
+    end
+
+    def factory(element_xml)
+        ImageOCCI.new(element_xml,@client)
     end
 end
 

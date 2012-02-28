@@ -108,8 +108,6 @@ int VirtualNetworkPool::allocate (
         goto error_duplicated;
     }
 
-    vn = new VirtualNetwork(uid, gid, uname, gname, vn_template);
-
     *oid = PoolSQL::allocate(vn, error_str);
 
     return *oid;

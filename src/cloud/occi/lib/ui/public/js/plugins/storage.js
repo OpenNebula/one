@@ -478,7 +478,7 @@ function popUpCreateImageDialog(){
         multiple: false,
         params: {},
         showMessage: function(message){
-            notifyMessage(message);
+            //notifyMessage(message);
         },
         onSubmit: function(id, fileName){
             var xml = json2xml(img_obj,"STORAGE");
