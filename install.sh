@@ -186,11 +186,7 @@ ETC_DIRS="$ETC_LOCATION/datastore \
           $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
-          $ETC_LOCATION/tm_shared \
-          $ETC_LOCATION/tm_ssh \
-          $ETC_LOCATION/tm_dummy \
-          $ETC_LOCATION/tm_vmware \
-          $ETC_LOCATION/tm_lvm \
+          $ETC_LOCATION/tm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/auth/certificates \
@@ -207,12 +203,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/occi \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
-          $LIB_LOCATION/tm_commands \
-          $LIB_LOCATION/tm_commands/shared \
-          $LIB_LOCATION/tm_commands/ssh \
-          $LIB_LOCATION/tm_commands/dummy \
-          $LIB_LOCATION/tm_commands/lvm \
-          $LIB_LOCATION/tm_commands/vmware \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -225,7 +215,10 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/xen.d \
           $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/ganglia.d \
+          $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
+          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/dummy \
@@ -233,8 +226,12 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
           $VAR_LOCATION/remotes/vnm/vmware \
-          $VAR_LOCATION/remotes/vmm/xen \
-          $VAR_LOCATION/remotes/vmm/vmware \
+          $VAR_LOCATION/remotes/tm/ \
+          $VAR_LOCATION/remotes/tm/dummy \
+          $VAR_LOCATION/remotes/tm/lvm \
+          $VAR_LOCATION/remotes/tm/shared \
+          $VAR_LOCATION/remotes/tm/ssh \
+          $VAR_LOCATION/remotes/tm/vmware \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -384,11 +381,12 @@ INSTALL_FILES=(
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
-    SHARED_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/shared
-    SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
-    VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
-    DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
-    LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
+    TM_FILES:$VAR_LOCATION/remotes/tm
+    TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
+    TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
+    TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
+    TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
+    TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmware
@@ -534,11 +532,7 @@ INSTALL_ETC_FILES=(
     DATASTORE_DRIVER_FS_ETC_FILES:$ETC_LOCATION/datastore/
     DATASTORE_DRIVER_VMWARE_ETC_FILES:$ETC_LOCATION/datastore/
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
-    TM_SHARED_ETC_FILES:$ETC_LOCATION/tm_shared
-    TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
-    TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy
-    TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm
-    TM_VMWARE_ETC_FILES:$ETC_LOCATION/tm_vmware
+    TM_LVM_ETC_FILES:$ETC_LOCATION/tm/
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
     ECO_ETC_FILES:$ETC_LOCATION
@@ -613,7 +607,6 @@ MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 #-------------------------------------------------------------------------------
 
 MADS_LIB_FILES="src/mad/sh/madcommon.sh \
-              src/tm_mad/tm_common.sh \
               src/vmm_mad/exec/one_vmm_exec.rb \
               src/vmm_mad/exec/one_vmm_exec \
               src/vmm_mad/exec/one_vmm_sh \
@@ -761,46 +754,53 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
                     src/vnm_mad/remotes/vmware/pre \
                     src/vnm_mad/remotes/vmware/VMware.rb"
 
-
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
-#   - SHARED TM, $LIB_LOCATION/tm_commands/shared
-#   - SSH TM, $LIB_LOCATION/tm_commands/ssh
-#   - dummy TM, $LIB_LOCATION/tm_commands/dummy
-#   - LVM TM, $LIB_LOCATION/tm_commands/lvm
+#   - SHARED TM, $VAR_LOCATION/tm/shared
+#   - SSH TM, $VAR_LOCATION/tm/ssh
+#   - dummy TM, $VAR_LOCATION/tm/dummy
+#   - LVM TM, $VAR_LOCATION/tm/lvm
 #-------------------------------------------------------------------------------
 
-SHARED_TM_COMMANDS_LIB_FILES="src/tm_mad/shared/tm_clone.sh \
-                           src/tm_mad/shared/tm_delete.sh \
-                           src/tm_mad/shared/tm_ln.sh \
-                           src/tm_mad/shared/tm_mkswap.sh \
-                           src/tm_mad/shared/tm_mkimage.sh \
-                           src/tm_mad/shared/tm_mv.sh \
-                           src/tm_mad/shared/tm_context.sh"
+TM_FILES="src/tm_mad/tm_common.sh"
 
-SSH_TM_COMMANDS_LIB_FILES="src/tm_mad/ssh/tm_clone.sh \
-                           src/tm_mad/ssh/tm_delete.sh \
-                           src/tm_mad/ssh/tm_ln.sh \
-                           src/tm_mad/ssh/tm_mkswap.sh \
-                           src/tm_mad/ssh/tm_mkimage.sh \
-                           src/tm_mad/ssh/tm_mv.sh \
-                           src/tm_mad/ssh/tm_context.sh"
+TM_SHARED_FILES="src/tm_mad/shared/clone \
+                 src/tm_mad/shared/delete \
+                 src/tm_mad/shared/ln \
+                 src/tm_mad/shared/mkswap \
+                 src/tm_mad/shared/mkimage \
+                 src/tm_mad/shared/mv \
+                 src/tm_mad/shared/context"
 
-DUMMY_TM_COMMANDS_LIB_FILES="src/tm_mad/dummy/tm_dummy.sh"
+TM_SSH_FILES="src/tm_mad/ssh/clone \
+              src/tm_mad/ssh/delete \
+              src/tm_mad/ssh/ln \
+              src/tm_mad/ssh/mkswap \
+              src/tm_mad/ssh/mkimage \
+              src/tm_mad/ssh/mv \
+              src/tm_mad/ssh/context"
 
-LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
-                           src/tm_mad/lvm/tm_delete.sh \
-                           src/tm_mad/lvm/tm_ln.sh \
-                           src/tm_mad/lvm/tm_mkswap.sh \
-                           src/tm_mad/lvm/tm_mkimage.sh \
-                           src/tm_mad/lvm/tm_mv.sh \
-                           src/tm_mad/lvm/tm_context.sh"
+TM_DUMMY_FILES="src/tm_mad/dummy/clone \
+              src/tm_mad/dummy/delete \
+              src/tm_mad/dummy/ln \
+              src/tm_mad/dummy/mkswap \
+              src/tm_mad/dummy/mkimage \
+              src/tm_mad/dummy/mv \
+              src/tm_mad/dummy/context"
 
-VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
-                             src/tm_mad/vmware/tm_ln.sh \
-                             src/tm_mad/vmware/tm_mv.sh \
-                             src/tm_mad/vmware/functions.sh \
-                             src/tm_mad/vmware/tm_context.sh"
+TM_LVM_FILES="src/tm_mad/lvm/clone \
+              src/tm_mad/lvm/delete \
+              src/tm_mad/lvm/ln \
+              src/tm_mad/lvm/mkswap \
+              src/tm_mad/lvm/mkimage \
+              src/tm_mad/lvm/mv \
+              src/tm_mad/lvm/context"
+
+TM_VMWARE_FILES="src/tm_mad/vmware/clone \
+                 src/tm_mad/vmware/ln \
+                 src/tm_mad/vmware/mv \
+                 src/tm_mad/vmware/functions.sh \
+                 src/tm_mad/vmware/context"
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
@@ -881,19 +881,7 @@ IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
 #   - lvm, $ETC_LOCATION/tm_lvm
 #-------------------------------------------------------------------------------
 
-TM_SHARED_ETC_FILES="src/tm_mad/shared/tm_shared.conf \
-                  src/tm_mad/shared/tm_sharedrc"
-
-TM_SSH_ETC_FILES="src/tm_mad/ssh/tm_ssh.conf \
-                  src/tm_mad/ssh/tm_sshrc"
-
-TM_DUMMY_ETC_FILES="src/tm_mad/dummy/tm_dummy.conf \
-                    src/tm_mad/dummy/tm_dummyrc"
-
-TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
-                  src/tm_mad/lvm/tm_lvmrc"
-
-TM_VMWARE_ETC_FILES="src/tm_mad/vmware/tm_vmware.conf"
+TM_LVM_ETC_FILES="src/tm_mad/lvm/lvm.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
