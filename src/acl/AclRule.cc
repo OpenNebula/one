@@ -254,12 +254,13 @@ void AclRule::build_str()
             PoolObjectSQL::USER,
             PoolObjectSQL::TEMPLATE,
             PoolObjectSQL::GROUP,
-            PoolObjectSQL::DATASTORE
+            PoolObjectSQL::DATASTORE,
+            PoolObjectSQL::CLUSTER
     };
 
     bool prefix = false;
 
-    for ( int i = 0; i < 8; i++ )
+    for ( int i = 0; i < 9; i++ )
     {
         if ( (resource & objects[i]) != 0 )
         {

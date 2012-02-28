@@ -40,7 +40,7 @@ protected:
         dspool     = nd.get_dspool();
 
         auth_object = PoolObjectSQL::CLUSTER;
-        auth_op     = AuthRequest::MANAGE;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~RequestManagerCluster(){};

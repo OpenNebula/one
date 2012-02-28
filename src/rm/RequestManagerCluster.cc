@@ -94,7 +94,7 @@ void RequestManagerCluster::add_generic(
     {
         AuthRequest ar(att.uid, att.gid);
 
-        ar.add_auth(auth_op, c_perms);              // MANAGE CLUSTER
+        ar.add_auth(auth_op, c_perms);              // ADMIN  CLUSTER
         ar.add_auth(AuthRequest::ADMIN, obj_perms); // ADMIN  OBJECT
 
         if (UserPool::authorize(ar) == -1)
