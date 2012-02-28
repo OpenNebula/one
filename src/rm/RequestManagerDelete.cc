@@ -153,6 +153,43 @@ int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
 /* ------------------------------------------------------------------------- */
 
+int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    Host * host    = static_cast<Host *>(object);
+    int cluster_id = host->get_cluster_id();
+
+    int rc = pool->drop(object, error_msg);
+
+    object->unlock();
+
+    if ( rc == 0 )
+    {
+        Nebula&         nd      = Nebula::instance();
+        ClusterPool *   clpool  = nd.get_clpool();
+
+        Cluster *       cluster   = clpool->get(cluster_id, true);
+
+        if( cluster != 0 )
+        {
+            rc = cluster->del_host(oid, error_msg);
+
+            if ( rc < 0 )
+            {
+                cluster->unlock();
+                return rc;
+            }
+
+            clpool->update(cluster);
+
+            cluster->unlock();
+        }
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+
 int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
     User * user  = static_cast<User *>(object);
