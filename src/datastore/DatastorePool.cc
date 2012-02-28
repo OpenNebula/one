@@ -58,7 +58,7 @@ DatastorePool::DatastorePool(SqlDB * db):
         oss << "NAME      = " << SYSTEM_DS_NAME << endl
             << "BASE_PATH = " << base_path << "system"<< endl
             << "TYPE      = fs" << endl
-            << "TM_MAD    = tm_shared";
+            << "TM_MAD    = shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -87,7 +87,7 @@ DatastorePool::DatastorePool(SqlDB * db):
         oss << "NAME      = "   << DEFAULT_DS_NAME << endl
             << "BASE_PATH = "   << base_path << "default" << endl
             << "TYPE      = fs" << endl
-            << "TM_MAD    = tm_shared";
+            << "TM_MAD    = shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
