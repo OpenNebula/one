@@ -67,10 +67,16 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", cluster.name]
         puts
 
-        CLIHelper.print_header(str_h1 % "HOSTS", false)
-        CLIHelper.print_header("%-15s" % ["ID"])
+        CLIHelper.print_header("%-15s" % ["HOSTS"])
         cluster.host_ids.each do |id|
             puts "%-15s" % [id]
         end
+
+        puts
+        CLIHelper.print_header("%-15s" % ["DATASTORES"])
+        cluster.datastore_ids.each do |id|
+            puts "%-15s" % [id]
+        end
+
     end
 end

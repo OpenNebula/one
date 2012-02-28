@@ -43,8 +43,7 @@ DatastorePool::DatastorePool(SqlDB * db):
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
-        int         rc;
-        Datastore * ds;
+        int                 rc;
         DatastoreTemplate * ds_tmpl;
 
         // ---------------------------------------------------------------------
@@ -64,9 +63,11 @@ DatastorePool::DatastorePool(SqlDB * db):
             goto error_bootstrap;
         }
 
-        ds = new Datastore(-1, ds_tmpl);
-
-        rc = PoolSQL::allocate(ds, error_str);
+        allocate(ds_tmpl,
+                &rc,
+                ClusterPool::DEFAULT_CLUSTER_ID,
+                ClusterPool::DEFAULT_CLUSTER_NAME,
+                error_str);
 
         if( rc < 0 )
         {
@@ -91,9 +92,11 @@ DatastorePool::DatastorePool(SqlDB * db):
             goto error_bootstrap;
         }
 
-        ds = new Datastore(-1, ds_tmpl);
-
-        rc = PoolSQL::allocate(ds, error_str);
+        allocate(ds_tmpl,
+                &rc,
+                ClusterPool::DEFAULT_CLUSTER_ID,
+                ClusterPool::DEFAULT_CLUSTER_NAME,
+                error_str);
 
         if( rc < 0 )
         {
@@ -118,6 +121,8 @@ error_bootstrap:
 
 int DatastorePool::allocate(DatastoreTemplate * ds_template,
                             int *               oid,
+                            int                 cluster_id,
+                            const string&       cluster_name,
                             string&             error_str)
 {
     Datastore *     ds;
@@ -125,7 +130,11 @@ int DatastorePool::allocate(DatastoreTemplate * ds_template,
     string          name;
     ostringstream   oss;
 
-    ds = new Datastore(-1, ds_template);
+    Nebula&         nd = Nebula::instance();
+    ClusterPool *   clpool;
+    Cluster *       cluster;
+
+    ds = new Datastore(-1, ds_template, cluster_id, cluster_name);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -151,6 +160,29 @@ int DatastorePool::allocate(DatastoreTemplate * ds_template,
     }
 
     *oid = PoolSQL::allocate(ds, error_str);
+
+    if ( *oid < 0 )
+    {
+        return *oid;
+    }
+
+    // Add to Cluster
+    clpool = nd.get_clpool();
+    cluster = clpool->get(cluster_id, true);
+
+    if( cluster == 0 )
+    {
+        return -1;
+    }
+
+    if ( cluster->add_datastore(*oid, error_str) < 0 )
+    {
+        return -1;
+    }
+
+    clpool->update(cluster);
+
+    cluster->unlock();
 
     return *oid;
 

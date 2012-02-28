@@ -20,11 +20,12 @@
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
 #include "DatastoreTemplate.h"
+#include "Clusterable.h"
 
 /**
  *  The Datastore class.
  */
-class Datastore : public PoolObjectSQL, ObjectCollection
+class Datastore : public PoolObjectSQL, ObjectCollection, public Clusterable
 {
 public:
 
@@ -121,7 +122,11 @@ private:
     // Constructor
     // *************************************************************************
 
-    Datastore(int id, DatastoreTemplate* ds_template);
+    Datastore(
+            int                 id,
+            DatastoreTemplate*  ds_template,
+            int                 cluster_id,
+            const string&       cluster_name);
 
     virtual ~Datastore(){};
 

@@ -391,7 +391,13 @@ int DatastoreAllocate::pool_allocate(
 
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
-    return dspool->allocate(ds_tmpl, &id, error_str);
+    // TODO: include another int parameter for the cluster?
+    int     cluster_id   = ClusterPool::DEFAULT_CLUSTER_ID;
+    string  cluster_name = ClusterPool::DEFAULT_CLUSTER_NAME;
+
+    // TODO: Add to auth request CLUSTER MANAGE or ADMIN
+
+    return dspool->allocate(ds_tmpl, &id, cluster_id, cluster_name, error_str);
 }
 
 /* -------------------------------------------------------------------------- */

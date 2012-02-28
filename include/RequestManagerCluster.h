@@ -37,6 +37,7 @@ protected:
         Nebula& nd = Nebula::instance();
         clpool     = nd.get_clpool();
         hpool      = nd.get_hpool();
+        dspool     = nd.get_dspool();
 
         auth_object = PoolObjectSQL::CLUSTER;
         auth_op     = AuthRequest::MANAGE;
@@ -46,8 +47,9 @@ protected:
 
     /* --------------------------------------------------------------------- */
 
-    ClusterPool * clpool;
-    HostPool *    hpool;
+    ClusterPool *           clpool;
+    HostPool *              hpool;
+    DatastorePool *         dspool;
 
     /* --------------------------------------------------------------------- */
 
@@ -109,6 +111,44 @@ public:
 
         *object      = static_cast<PoolObjectSQL *>(host);
         *cluster_obj = static_cast<Clusterable *>(host);
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterAddDatastore : public RequestManagerCluster
+{
+public:
+    ClusterAddDatastore():
+        RequestManagerCluster("ClusterAddDatastore",
+                "Adds a datastore to the cluster",
+                "A:sii"){};
+
+    ~ClusterAddDatastore(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att)
+    {
+        return add_generic(_paramList, att, dspool, PoolObjectSQL::DATASTORE);
+    }
+
+    virtual int add_object(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->add_datastore(id, error_msg);
+    };
+
+    virtual int del_object(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->del_datastore(id, error_msg);
+    };
+
+    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    {
+        Datastore * ds = dspool->get(oid, lock);
+
+        *object      = static_cast<PoolObjectSQL *>(ds);
+        *cluster_obj = static_cast<Clusterable *>(ds);
     };
 };
 

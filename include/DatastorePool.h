@@ -63,12 +63,16 @@ public:
      *  allocated for the object.
      *    @param ds_template Datastore definition template
      *    @param oid the id assigned to the Datastore
+     *    @param cluster_id the id of the cluster this Datastore will belong to
+     *    @param cluster_name the name of the cluster this Datastore will belong to
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
     int allocate(DatastoreTemplate *    ds_template,
                  int *                  oid,
+                 int                    cluster_id,
+                 const string&          cluster_name,
                  string&                error_str);
 
     /**
@@ -159,7 +163,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Datastore(-1, 0);
+        return new Datastore(-1, 0, -1, "");
     };
 };
 

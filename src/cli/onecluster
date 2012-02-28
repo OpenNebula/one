@@ -107,4 +107,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    adddatastore_desc = <<-EOT.unindent
+        Adds a Datastore to the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :datastoreid_list]
+    command :adddatastore, adddatastore_desc,:clusterid, :datastoreid do
+        helper.perform_actions(args[0],options,"updated") do |cluster|
+            cluster.adddatastore(args[1].to_i)
+        end
+    end
 end

@@ -281,6 +281,8 @@ void Nebula::start()
         vector<const Attribute *> vm_restricted_attrs;
         vector<const Attribute *> img_restricted_attrs;
 
+        clpool  = new ClusterPool(db);
+
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK", host_hooks);
 
@@ -315,8 +317,6 @@ void Nebula::start()
         tpool  = new VMTemplatePool(db);
 
         dspool = new DatastorePool(db);
-
-        clpool  = new ClusterPool(db);
     }
     catch (exception&)
     {

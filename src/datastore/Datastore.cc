@@ -34,9 +34,12 @@ const char * Datastore::db_bootstrap =
 /* ************************************************************************ */
 
 Datastore::Datastore(int                id,
-                     DatastoreTemplate* ds_template):
+                     DatastoreTemplate* ds_template,
+                     int                 cluster_id,
+                     const string&       cluster_name):
                 PoolObjectSQL(id,DATASTORE,"",-1,-1,"","",table),
                 ObjectCollection("IMAGES"),
+                Clusterable(cluster_id, cluster_name),
                 type(""),
                 tm_mad(""),
                 base_path("")
@@ -235,7 +238,9 @@ string& Datastore::to_xml(string& xml) const
         "<NAME>"        << name         << "</NAME>" <<
         "<TYPE>"        << type         << "</TYPE>" <<
         "<TM_MAD>"      << tm_mad       << "</TM_MAD>" <<
-        "<BASE_PATH>"   << base_path    << "</BASE_PATH>" <<
+        "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
+        "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
+        "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
         collection_xml <<
     "</DATASTORE>";
 
@@ -261,6 +266,9 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(type,       "/DATASTORE/TYPE",      "not_found");
     rc += xpath(tm_mad,     "/DATASTORE/TM_MAD",    "not_found");
     rc += xpath(base_path,  "/DATASTORE/BASE_PATH", "not_found");
+
+    rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
+    rc += xpath(cluster,    "/DATASTORE/CLUSTER",    "not_found");
 
     // Set the owner and group to oneadmin
     set_user(0, "");

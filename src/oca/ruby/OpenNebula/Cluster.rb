@@ -24,10 +24,11 @@ module OpenNebula
         #######################################################################
 
         CLUSTER_METHODS = {
-            :info       => "cluster.info",
-            :allocate   => "cluster.allocate",
-            :delete     => "cluster.delete",
-            :addhost    => "cluster.addhost"
+            :info           => "cluster.info",
+            :allocate       => "cluster.allocate",
+            :delete         => "cluster.delete",
+            :addhost        => "cluster.addhost",
+            :adddatastore   => "cluster.adddatastore"
         }
 
         # Creates a Cluster description with just its identifier
@@ -75,6 +76,8 @@ module OpenNebula
 
         # Adds a Host to this Cluster
         # @param hid [Integer] Host ID
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
         def addhost(hid)
             return Error.new('ID not defined') if !@pe_id
 
@@ -84,24 +87,63 @@ module OpenNebula
             return rc
         end
 
+        # Adds a Datastore to this Cluster
+        # @param ds_id [Integer] Datastore ID
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def adddatastore(ds_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(CLUSTER_METHODS[:adddatastore], @pe_id, ds_id)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
         # ---------------------------------------------------------------------
         # Helpers to get information
         # ---------------------------------------------------------------------
 
-        # Returns whether or not the host with id 'uid' is part of this group
-        def contains(uid)
+        # Returns whether or not the host with 'id' is part of this cluster
+        # @param id [Integer] host ID
+        # @return [Boolean] true if found 
+        def contains_host(id)
             #This doesn't work in ruby 1.8.5
             #return self["HOSTS/ID[.=#{uid}]"] != nil
 
             id_array = retrieve_elements('HOSTS/ID')
-            return id_array != nil && id_array.include?(uid.to_s)
+            return id_array != nil && id_array.include?(id.to_s)
         end
 
         # Returns an array with the numeric host ids
+        # @return [Array<Integer>]
         def host_ids
             array = Array.new
 
             self.each("HOSTS/ID") do |id|
+                array << id.text.to_i
+            end
+
+            return array
+        end
+
+        # Returns whether or not the datastore with 'id' is part of this cluster
+        # @param id [Integer] datastore ID
+        # @return [Boolean] true if found 
+        def contains_datastore(id)
+            #This doesn't work in ruby 1.8.5
+            #return self["DATASTORES/ID[.=#{uid}]"] != nil
+
+            id_array = retrieve_elements('DATASTORES/ID')
+            return id_array != nil && id_array.include?(id.to_s)
+        end
+
+        # Returns an array with the numeric datastore ids
+        # @return [Array<Integer>]
+        def datastore_ids
+            array = Array.new
+
+            self.each("DATASTORES/ID") do |id|
                 array << id.text.to_i
             end
 
