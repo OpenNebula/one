@@ -26,10 +26,10 @@
 /* from ID 100                                                                */
 /* -------------------------------------------------------------------------- */
 
-const string DatastorePool::SYSTEM_DS_NAME = "system_ds";
+const string DatastorePool::SYSTEM_DS_NAME = "system";
 const int    DatastorePool::SYSTEM_DS_ID   = 0;
 
-const string DatastorePool::DEFAULT_DS_NAME = "default_ds";
+const string DatastorePool::DEFAULT_DS_NAME = "default";
 const int    DatastorePool::DEFAULT_DS_ID   = 1;
 
 /* -------------------------------------------------------------------------- */
@@ -43,17 +43,22 @@ DatastorePool::DatastorePool(SqlDB * db):
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
-        int                 rc;
         DatastoreTemplate * ds_tmpl;
+
+        int     rc;
+        string  base_path;
+        Nebula& nd = Nebula::instance();
+
+        base_path = nd.get_var_location() + "datastores/";
 
         // ---------------------------------------------------------------------
         // Create the system datastore 
         // ---------------------------------------------------------------------
 
-        oss << "NAME        = " << SYSTEM_DS_NAME       << endl
-            << "BASE_PATH   = /var/lib/one/system_ds"   << endl
-            << "TYPE        = fs"                       << endl
-            << "TM_MAD      = tm_shared";
+        oss << "NAME      = " << SYSTEM_DS_NAME << endl
+            << "BASE_PATH = " << base_path << "system"<< endl
+            << "TYPE      = fs" << endl
+            << "TM_MAD    = tm_shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -79,10 +84,10 @@ DatastorePool::DatastorePool(SqlDB * db):
         // ---------------------------------------------------------------------
         oss.str("");
 
-        oss << "NAME        = " << DEFAULT_DS_NAME      << endl
-            << "BASE_PATH   = /var/lib/one/default_ds"      << endl
-            << "TYPE        = fs"                       << endl
-            << "TM_MAD      = tm_shared";
+        oss << "NAME      = "   << DEFAULT_DS_NAME << endl
+            << "BASE_PATH = "   << base_path << "default" << endl
+            << "TYPE      = fs" << endl
+            << "TM_MAD    = tm_shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
