@@ -67,13 +67,6 @@ protected:
     virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
 
     virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj) = 0;
-
-    int get_info (PoolSQL *                 pool,
-                  int                       id,
-                  PoolObjectSQL::ObjectType type,
-                  RequestAttributes&        att,
-                  PoolObjectAuth&           perms,
-                  string&                   name);
 };
 
 /* ------------------------------------------------------------------------- */

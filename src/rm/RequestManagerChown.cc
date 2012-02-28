@@ -23,33 +23,6 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RequestManagerChown::get_info (PoolSQL *                 pool,
-                                   int                       id,
-                                   PoolObjectSQL::ObjectType type,
-                                   RequestAttributes&        att,
-                                   PoolObjectAuth&           perms, 
-                                   string&                   name)
-{
-    PoolObjectSQL * ob;
-
-    if ((ob = pool->get(id,true)) == 0 )
-    {
-        failure_response(NO_EXISTS, get_error(object_name(type), id), att);
-        return -1;
-    }
-
-    ob->get_permissions(perms);
-
-    name = ob->get_name();
-
-    ob->unlock();
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
                                           RequestAttributes& att)
 {
