@@ -181,7 +181,7 @@ module CloudCLI
     
     def version_text
         version=<<EOT
-OpenNebula 3.2.0
+OpenNebula 3.3.0
 Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may

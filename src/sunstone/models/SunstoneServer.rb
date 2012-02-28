@@ -231,7 +231,7 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-    def get_monitoring(id, resource, monitor_resources, gid)
+    def get_monitoring(id, resource, monitor_resources, opts={})
         watch_client = case resource
             when "vm","VM"
                 OneWatchClient::VmWatchClient.new
@@ -242,13 +242,16 @@ class SunstoneServer
                 return [200, error.to_json]
             end
 
+        filter = {}
+        filter[:uid] = opts[:uid] if opts[:gid]!="0"
+
         columns = monitor_resources.split(',')
         columns.map!{|e| e.to_sym}
 
         if id
-            rc = watch_client.resource_monitoring(id.to_i, columns)
+            rc = watch_client.resource_monitoring(id.to_i, columns, filter)
         else
-            rc = watch_client.total_monitoring(columns)
+            rc = watch_client.total_monitoring(columns, filter)
         end
 
         if rc.nil?

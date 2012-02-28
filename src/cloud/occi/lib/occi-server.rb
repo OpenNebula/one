@@ -305,6 +305,11 @@ get '/user/:id' do
     treat_response(result,rc)
 end
 
+get '/instance_type/:id' do
+    result,rc = @occi_server.get_instance_type(request, params)
+    treat_response(result,rc)
+end
+
 ##############################################
 ## OCCI UI (Self-Service)
 ##############################################
