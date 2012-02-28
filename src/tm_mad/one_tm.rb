@@ -129,7 +129,7 @@ class TransferManagerDriver < OpenNebulaDriver
         end
 
         path = File.join(@local_scripts_path, tm, cmd)
-        path << " " << arguments
+        path << " " << args
 
         rc = LocalCommand.run(path, log_method(id))
 
