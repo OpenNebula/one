@@ -29,12 +29,13 @@ MD5SUM=md5sum
 MKFS=mkfs
 MKISOFS=mkisofs
 MKSWAP=mkswap
+QEMU_IMG=qemu-img
+READLINK=readlink
 SCP=scp
 SED=sed
 SSH=ssh
 SUDO=sudo
 WGET=wget
-READLINK=readlink
 
 # Used for log messages
 SCRIPT_NAME=`basename $0`

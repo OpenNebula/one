@@ -55,17 +55,33 @@ SIZE="${XPATH_ELEMENTS[1]}"
 
 DST=`generate_image_path`
 
+DISK=$DST/disk.vmdk
+DISK_TMP=$DISK.tmp
+
+IMAGE_FORMAT=vmdk
+
+umask 0007
 # ------------ Create the image to the repository ------------
 
-MKFS_CMD=`mkfs_command $DST $FSTYPE`
+MKFS_CMD=`mkfs_command $DISK_TMP $FSTYPE`
 
-exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
-    "Could not create image $DST"
+exec_and_log "mkdir -p $DST" \
+    "Could not create disk directory $DST"
+exec_and_log "$DD if=/dev/zero of=$DISK_TMP bs=1 count=1 seek=${SIZE}M" \
+    "Could not create temporary image $DISK_TMP"
 exec_and_log "$MKFS_CMD" \
-    "Unable to create filesystem $FSTYPE in $DST"
-exec_and_log "chmod 0660 $DST"
+    "Unable to create filesystem $FSTYPE in $DISK_TMP"
+exec_and_log "$QEMU_IMG convert -O $IMAGE_FORMAT $DISK_TMP $DISK" \
+    "Unable to convert to $IMAGE_FORMAT in $DISK_TMP"
+exec_and_log "rm -f $DISK_TMP" \
+    "Unable to remove temporary disk $DISK_TMP"
+exec_and_log "chmod 0660 $DISK"
 
 # ---------------- Get the size of the image ------------
-SIZE=`fs_du $DST`
+
+SIZE=`$QEMU_IMG info $DISK|grep "^virtual size:"|\
+        sed 's/^.*(\([0-9]\+\) bytes.*$/\1/g'`
+
+SIZE=$(($SIZE/1048576))
 
 echo "$DST $SIZE"
