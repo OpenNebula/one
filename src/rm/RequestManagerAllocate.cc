@@ -325,6 +325,7 @@ void HostAllocate::request_execute(
 
     Nebula&  nd  = Nebula::instance();
 
+    Cluster *       cluster = 0;
     ClusterPool *   clpool = nd.get_clpool();
     HostPool *      hpool  = static_cast<HostPool *>(pool);
 
@@ -364,6 +365,42 @@ void HostAllocate::request_execute(
         failure_response(INTERNAL, allocate_error(error_str), att);
         return;
     }
+
+    // ------------- Add Host to Cluster --------------------------------------
+
+    cluster = clpool->get(cluster_id, true);
+
+    if ( cluster == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id), att);
+        return;
+    }
+
+    rc = cluster->add_host(id, error_str);
+
+    if ( rc < 0 )
+    {
+        string drop_err;
+        Host * host = 0;
+
+        cluster->unlock();
+
+        host = hpool->get(id, true);
+
+        if ( host != 0 )
+        {
+            hpool->drop(host, drop_err);
+            host->unlock();
+        }
+
+        failure_response(INTERNAL, allocate_error(error_str), att);
+        return;
+    }
+
+    clpool->update(cluster);
+
+    cluster->unlock();
 
     success_response(id, att);
 }

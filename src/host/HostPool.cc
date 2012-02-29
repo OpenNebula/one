@@ -25,7 +25,6 @@
 #include "HostHook.h"
 #include "NebulaLog.h"
 #include "GroupPool.h"
-#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -158,13 +157,8 @@ int HostPool::allocate (
     const string& cluster_name,
     string& error_str)
 {
-    Nebula&       nd = Nebula::instance();
-
     Host *        host;
     ostringstream oss;
-
-    ClusterPool * clpool;
-    Cluster *     cluster;
 
     if ( hostname.empty() )
     {
@@ -213,31 +207,7 @@ int HostPool::allocate (
 
     *oid = PoolSQL::allocate(host, error_str);
 
-    if ( *oid < 0 )
-    {
-        return *oid;
-    }
-
-    // Add Host to Cluster
-    clpool = nd.get_clpool();
-    cluster = clpool->get(cluster_id, true);
-
-    if( cluster == 0 )
-    {
-        return -1;
-    }
-
-    if ( cluster->add_host(*oid, error_str) < 0 )
-    {
-        return -1;
-    }
-
-    clpool->update(cluster);
-
-    cluster->unlock();
-
     return *oid;
-
 
 error_name:
     oss << "NAME cannot be empty.";
