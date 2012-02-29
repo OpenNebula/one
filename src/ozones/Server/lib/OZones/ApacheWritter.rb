@@ -28,11 +28,19 @@ module OZones
                 zone.vdcs.all.each{|vdc|
                     htaccess << "RewriteRule ^#{vdc.NAME} " +
                     "#{zone.ENDPOINT} [P]\n"
+
                     if zone.SUNSENDPOINT != nil
                         htaccess << "RewriteRule ^sunstone_#{vdc.NAME}/(.+) " +
                             "#{zone.SUNSENDPOINT}/$1 [P]\n"
                         htaccess << "RewriteRule ^sunstone_#{vdc.NAME} " +
                             "#{zone.SUNSENDPOINT}/ [P]\n"
+                    end
+
+                    if zone.SELFENDPOINT != nil
+                        htaccess << "RewriteRule ^self_#{vdc.NAME}/(.+) " +
+                            "#{zone.SELFENDPOINT}/$1 [P]\n"
+                        htaccess << "RewriteRule ^self_#{vdc.NAME} " +
+                            "#{zone.SELFENDPOINT}/ [P]\n"
                     end
                 }
             }
