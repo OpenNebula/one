@@ -131,9 +131,11 @@ var user_actions = {
     "User.passwd" : {
         type: "multiple",
         call: OpenNebula.User.passwd,
-        //nocallback
+        callback: function(req,res){
+            notifyMessage(tr("Change password successful"));
+        },
         elements: userElements,
-        error: onError
+        error: onError,
     },
     "User.chgrp" : {
         type: "multiple",
@@ -492,6 +494,7 @@ function popUpCreateUserDialog(){
 
 
 function popUpUpdatePasswordDialog(){
+    $('#new_password',$update_pw_dialog).val("");
     $update_pw_dialog.dialog('open');
 }
 
