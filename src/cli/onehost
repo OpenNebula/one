@@ -63,7 +63,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, :hostname, :im_mad, :vmm_mad,  
             :vnm_mad, [:clusterid, nil] do
         helper.create_resource(options) do |host|
-            if args[4]
+            if args.size == 4
                 host.allocate(args[0], args[1], args[2], args[3])
             else
                 host.allocate(args[0], args[1], args[2], args[3], args[4].to_i)
