@@ -95,7 +95,7 @@ module CloudLogger
     ]
 
     # Mon Feb 27 06:02:30 2012 [Clo] [E]: Error message example
-    MSG_FORMAT  = %{%s [Clo] [%s]: %s\n}
+    MSG_FORMAT  = %{%s [%s]: %s\n}
 
     # Mon Feb 27 06:02:30 2012
     DATE_FORMAT = "%a %b %d %H:%M:%S %Y"
