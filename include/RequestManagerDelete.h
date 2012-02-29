@@ -31,10 +31,22 @@ class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
-                         const string& help)
-        :Request(method_name,"A:si",help)
+                         const string& help,
+                         bool  _do_cluster=false)
+        :Request(method_name,"A:si",help),
+         do_cluster(_do_cluster)
     {
         auth_op = AuthRequest::MANAGE;
+
+        if ( do_cluster )
+        {
+            Nebula& nd  = Nebula::instance();
+            clpool      = nd.get_clpool();
+        }
+        else
+        {
+            clpool = 0;
+        }
     };
 
     ~RequestManagerDelete(){};
@@ -49,15 +61,21 @@ protected:
                               
     /* -------------------------------------------------------------------- */
 
-    virtual int drop(int oid, PoolObjectSQL * object, string& error_msg)
+    virtual int drop(int oid, PoolObjectSQL * object, string& error_msg);
+
+    virtual int get_cluster_id(PoolObjectSQL * object)
     {
-        int rc = pool->drop(object, error_msg);
-
-        object->unlock();
-
-        return rc;
+        return -1;
     };
 
+    virtual int del_from_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return -1;
+    };
+
+private:
+    bool            do_cluster;
+    ClusterPool *   clpool;
 };
 
 
@@ -126,7 +144,7 @@ class HostDelete : public RequestManagerDelete
 {
 public:
     HostDelete():
-        RequestManagerDelete("HostDelete", "Deletes a host")
+        RequestManagerDelete("HostDelete", "Deletes a host", true)
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
@@ -138,7 +156,15 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    int get_cluster_id(PoolObjectSQL * object)
+    {
+        return static_cast<Host*>(object)->get_cluster_id();
+    };
+
+    int del_from_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->del_host(id, error_msg);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -188,7 +214,7 @@ class DatastoreDelete: public RequestManagerDelete
 {
 public:
     DatastoreDelete():
-        RequestManagerDelete("DatastoreDelete", "Deletes a datastore")
+        RequestManagerDelete("DatastoreDelete", "Deletes a datastore", true)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
@@ -197,6 +223,18 @@ public:
     };
 
     ~DatastoreDelete(){};
+
+    /* -------------------------------------------------------------------- */
+
+    int get_cluster_id(PoolObjectSQL * object)
+    {
+        return static_cast<Datastore*>(object)->get_cluster_id();
+    };
+
+    int del_from_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->del_datastore(id, error_msg);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

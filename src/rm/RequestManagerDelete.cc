@@ -102,6 +102,49 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 }
 
 /* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int RequestManagerDelete::drop(
+        int             oid,
+        PoolObjectSQL * object,
+        string&         error_msg)
+{
+    int cluster_id = -1;
+
+    if ( do_cluster )
+    {
+        cluster_id = get_cluster_id(object);
+    }
+
+    int rc = pool->drop(object, error_msg);
+
+    object->unlock();
+
+    if ( do_cluster == true && rc == 0 )
+    {
+        Cluster * cluster = clpool->get(cluster_id, true);
+
+        if( cluster != 0 )
+        {
+            rc = del_from_cluster(cluster, oid, error_msg);
+
+            if ( rc < 0 )
+            {
+                cluster->unlock();
+                return rc;
+            }
+
+            clpool->update(cluster);
+
+            cluster->unlock();
+        }
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 
 int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
@@ -152,42 +195,6 @@ int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 }
 
 /* ------------------------------------------------------------------------- */
-
-int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
-{
-    Host * host    = static_cast<Host *>(object);
-    int cluster_id = host->get_cluster_id();
-
-    int rc = pool->drop(object, error_msg);
-
-    object->unlock();
-
-    if ( rc == 0 )
-    {
-        Nebula&         nd      = Nebula::instance();
-        ClusterPool *   clpool  = nd.get_clpool();
-
-        Cluster *       cluster   = clpool->get(cluster_id, true);
-
-        if( cluster != 0 )
-        {
-            rc = cluster->del_host(oid, error_msg);
-
-            if ( rc < 0 )
-            {
-                cluster->unlock();
-                return rc;
-            }
-
-            clpool->update(cluster);
-
-            cluster->unlock();
-        }
-    }
-
-    return rc;
-}
-
 /* ------------------------------------------------------------------------- */
 
 int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
