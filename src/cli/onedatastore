@@ -64,10 +64,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Datastore from the given template file
     EOT
 
-    command :create, create_desc, :file do
+    command :create, create_desc, :file, :clusterid do
         helper.create_resource(options) do |datastore|
             template=File.read(args[0])
-            datastore.allocate(template)
+            datastore.allocate(template, args[1].to_i)
         end
     end
 

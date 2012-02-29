@@ -333,7 +333,8 @@ public:
     DatastoreAllocate():
         RequestManagerAllocate("DatastoreAllocate",
                                "Allocates a new Datastore",
-                               "A:ss",
+                               "A:ssi",
+                               true,
                                true)
     {
         Nebula& nd  = Nebula::instance();
@@ -354,7 +355,13 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int cluster_id,
+                      const string& cluster_name);
+
+    int get_cluster_id(xmlrpc_c::paramList const&  paramList);
+
+    int add_to_cluster(Cluster* cluster, int id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */

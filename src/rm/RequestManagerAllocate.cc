@@ -459,23 +459,34 @@ int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 int DatastoreAllocate::pool_allocate(
-        xmlrpc_c::paramList const& paramList,
-        Template * tmpl,
-        int& id,
-        string& error_str,
-        RequestAttributes& att)
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         cluster_id,
+        const string&               cluster_name)
 {
     DatastorePool * dspool = static_cast<DatastorePool *>(pool);
 
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
-    // TODO: include another int parameter for the cluster?
-    int     cluster_id   = ClusterPool::DEFAULT_CLUSTER_ID;
-    string  cluster_name = ClusterPool::DEFAULT_CLUSTER_NAME;
-
-    // TODO: Add to auth request CLUSTER MANAGE or ADMIN
-
     return dspool->allocate(ds_tmpl, &id, cluster_id, cluster_name, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int DatastoreAllocate::get_cluster_id(xmlrpc_c::paramList const&  paramList)
+{
+    return xmlrpc_c::value_int(paramList.getInt(2));
+}
+
+/* -------------------------------------------------------------------------- */
+
+int DatastoreAllocate::add_to_cluster(
+        Cluster* cluster, int id, string& error_msg)
+{
+    return cluster->add_datastore(id, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

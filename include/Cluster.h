@@ -45,7 +45,7 @@ public:
 
         if ( rc < 0 )
         {
-            error_msg = "ID is already in the set.";
+            error_msg = "Host ID is already in the cluster set.";
         }
 
         return rc;
@@ -63,7 +63,7 @@ public:
 
         if ( rc < 0 )
         {
-            error_msg = "ID is not part of the set.";
+            error_msg = "Host ID is not part of the cluster set.";
         }
 
         return rc;
@@ -81,7 +81,7 @@ public:
 
         if ( rc < 0 )
         {
-            error_msg = "ID is already in the set.";
+            error_msg = "Datastore ID is already in the cluster set.";
         }
 
         return rc;
@@ -99,7 +99,7 @@ public:
 
         if ( rc < 0 )
         {
-            error_msg = "ID is not part of the set.";
+            error_msg = "Datastore ID is not part of the cluster set.";
         }
 
         return rc;
@@ -117,7 +117,7 @@ public:
 
         if ( rc < 0 )
         {
-            error_msg = "ID is already in the set.";
+            error_msg = "Network ID is already in the cluster set.";
         }
 
         return rc;
@@ -135,7 +135,7 @@ public:
 
         if ( rc < 0 )
         {
-            error_msg = "ID is not part of the set.";
+            error_msg = "Network ID is not part of the cluster set.";
         }
 
         return rc;

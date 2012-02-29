@@ -63,11 +63,12 @@ module OpenNebula
         # Allocates a new Datastore in OpenNebula
         #
         # @param description [String] The template of the Datastore.
+        # @param cluster_id [Integer] Id of the cluster
         #
         # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise
-        def allocate(description)
-            super(DATASTORE_METHODS[:allocate], description)
+        def allocate(description, cluster_id)
+            super(DATASTORE_METHODS[:allocate], description, cluster_id)
         end
 
         # Deletes the Datastore
