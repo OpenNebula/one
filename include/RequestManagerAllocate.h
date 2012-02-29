@@ -37,10 +37,21 @@ protected:
     RequestManagerAllocate(const string& method_name,
                            const string& help,
                            const string& xml_args,
-                           bool  dt)
-        :Request(method_name,xml_args,help), do_template(dt)
+                           bool  dt,
+                           bool  dc=false)
+        :Request(method_name,xml_args,help), do_template(dt), do_cluster(dc)
     {
         auth_op = AuthRequest::CREATE;
+
+        if ( do_cluster )
+        {
+            Nebula& nd  = Nebula::instance();
+            clpool      = nd.get_clpool();
+        }
+        else
+        {
+            clpool = 0;
+        }
     };
 
     ~RequestManagerAllocate(){};
@@ -50,8 +61,9 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    virtual bool allocate_authorization(Template * obj_template,
-                                        RequestAttributes& att);
+    virtual bool allocate_authorization(Template *          obj_template,
+                                        RequestAttributes&  att,
+                                        PoolObjectAuth *    cluster_perms);
 
     /* -------------------------------------------------------------------- */
 
@@ -66,9 +78,34 @@ protected:
         return -1;
     };
 
+    virtual int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                              Template * tmpl,
+                              int& id,
+                              string& error_str,
+                              RequestAttributes& att,
+                              int cluster_id,
+                              const string& cluster_name)
+    {
+        return pool_allocate(_paramList, tmpl, id, error_str, att);
+    };
+
+    virtual int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    {
+        return -1;
+    };
+
+    virtual int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return -1;
+    };
+
+protected:
+    ClusterPool * clpool;
+
 private:
 
     bool do_template;
+    bool do_cluster;
 };
 
 
@@ -90,6 +127,7 @@ public:
     };
 
     ~VirtualMachineAllocate(){};
+
     /* --------------------------------------------------------------------- */
 
     Template * get_object_template() 
@@ -103,8 +141,9 @@ public:
                       string& error_str,
                       RequestAttributes& att);
 
-    bool allocate_authorization(Template * obj_template,
-                                RequestAttributes& att);
+    bool allocate_authorization(Template *          obj_template,
+                                RequestAttributes&  att,
+                                PoolObjectAuth *    cluster_perms);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -208,7 +247,8 @@ public:
         RequestManagerAllocate("HostAllocate",
                                "Allocates a new host",
                                "A:sssssi",
-                               false)
+                               false,
+                               true)
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
@@ -219,8 +259,17 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes&         att);
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template * tmpl,
+                      int& id,
+                      string& error_str,
+                      RequestAttributes& att,
+                      int cluster_id,
+                      const string& cluster_name);
+
+    int get_cluster_id(xmlrpc_c::paramList const&  paramList);
+
+    int add_to_cluster(Cluster* cluster, int id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */

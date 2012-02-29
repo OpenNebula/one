@@ -23,8 +23,10 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
-                                                    RequestAttributes& att)
+bool RequestManagerAllocate::allocate_authorization(
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
 {
     if ( att.uid == 0 )
     {
@@ -42,6 +44,11 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
 
     ar.add_create_auth(auth_object, tmpl_str);
 
+    if ( do_cluster )
+    {
+        ar.add_auth(AuthRequest::ADMIN, *cluster_perms); // ADMIN CLUSTER
+    }
+
     if (UserPool::authorize(ar) == -1)
     {
         failure_response(AUTHORIZATION,
@@ -57,8 +64,10 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
-                                                    RequestAttributes& att)
+bool VirtualMachineAllocate::allocate_authorization(
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
 {
     if ( att.uid == 0 )
     {
@@ -97,6 +106,11 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
     string error_str;
     int    rc, id;
 
+    Cluster *       cluster      = 0;
+    int             cluster_id   = -1;
+    string          cluster_name = "";
+    PoolObjectAuth  cluster_perms;
+
     if ( do_template == true )
     {
         string str_tmpl  = xmlrpc_c::value_string(params.getString(1));
@@ -114,20 +128,73 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         }
     }
 
-    if ( allocate_authorization(tmpl, att) == false )
+    if ( do_cluster == true )
+    {
+        cluster_id = get_cluster_id(params);
+
+        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att,
+                cluster_perms, cluster_name);
+
+        if ( rc != 0 )
+        {
+            delete tmpl;
+            return;
+        }
+    }
+
+    if ( allocate_authorization(tmpl, att, &cluster_perms) == false )
     {
         delete tmpl;
         return;
     }
 
-    rc = pool_allocate(params, tmpl, id, error_str, att);
+    rc = pool_allocate(params, tmpl, id, error_str, att, cluster_id, cluster_name);
 
     if ( rc < 0 )
     {
         failure_response(INTERNAL, allocate_error(error_str), att);
         return;
     }
-    
+
+    if ( do_cluster == true )
+    {
+        cluster = clpool->get(cluster_id, true);
+
+        if ( cluster == 0 )
+        {
+            failure_response(
+                    NO_EXISTS,
+                    get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id),
+                    att);
+            return;
+        }
+
+        rc = add_to_cluster(cluster, id, error_str);
+
+        if ( rc < 0 )
+        {
+            string drop_err;
+            PoolObjectSQL * obj = 0;
+
+            cluster->unlock();
+
+            obj = pool->get(id, true);
+
+            if ( obj != 0 )
+            {
+                pool->drop(obj, drop_err);
+                obj->unlock();
+            }
+
+            failure_response(INTERNAL, allocate_error(error_str), att);
+            return;
+        }
+
+        clpool->update(cluster);
+
+        cluster->unlock();
+    }
+
     success_response(id, att);
 }
 
@@ -170,7 +237,6 @@ int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                                              RequestAttributes& att)
 {
-
     string error_str;
     string ds_name;
     string ds_data;
@@ -306,103 +372,39 @@ int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HostAllocate::request_execute(
+int HostAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
-        RequestAttributes&          att)
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         cluster_id,
+        const string&               cluster_name)
 {
-    string error_str;
-    string cluster_name;
-    string ds_data;
-    int    rc, id;
-
-    PoolObjectAuth cluster_perms;
-
     string host    = xmlrpc_c::value_string(paramList.getString(1));
     string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
     string vmm_mad = xmlrpc_c::value_string(paramList.getString(3));
     string vnm_mad = xmlrpc_c::value_string(paramList.getString(4));
-    int cluster_id = xmlrpc_c::value_int(paramList.getInt(5));
 
-    Nebula&  nd  = Nebula::instance();
+    HostPool * hpool = static_cast<HostPool *>(pool);
 
-    Cluster *       cluster = 0;
-    ClusterPool *   clpool = nd.get_clpool();
-    HostPool *      hpool  = static_cast<HostPool *>(pool);
-
-    // ------------------------- Check Cluster exists ------------------------
-
-    get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att,
-            cluster_perms, cluster_name);
-
-    // ------------- Set authorization request for non-oneadmin's -------------
-
-    if ( att.uid != 0 )
-    {
-        AuthRequest ar(att.uid, att.gid);
-        string      tmpl_str = "";
-
-        ar.add_create_auth(auth_object, tmpl_str);      // CREATE HOST
-
-        ar.add_auth(AuthRequest::ADMIN, cluster_perms); // ADMIN CLUSTER
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
-
-            return;
-        }
-    }
-
-    // ------------- Allocate Host --------------------------------------------
-
-    rc =  hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
+    return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
                            cluster_id, cluster_name, error_str);
 
-    if ( rc < 0 )
-    {
-        failure_response(INTERNAL, allocate_error(error_str), att);
-        return;
-    }
+}
 
-    // ------------- Add Host to Cluster --------------------------------------
+/* -------------------------------------------------------------------------- */
 
-    cluster = clpool->get(cluster_id, true);
+int HostAllocate::get_cluster_id(xmlrpc_c::paramList const&  paramList)
+{
+    return xmlrpc_c::value_int(paramList.getInt(5));
+}
 
-    if ( cluster == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::CLUSTER), cluster_id), att);
-        return;
-    }
+/* -------------------------------------------------------------------------- */
 
-    rc = cluster->add_host(id, error_str);
-
-    if ( rc < 0 )
-    {
-        string drop_err;
-        Host * host = 0;
-
-        cluster->unlock();
-
-        host = hpool->get(id, true);
-
-        if ( host != 0 )
-        {
-            hpool->drop(host, drop_err);
-            host->unlock();
-        }
-
-        failure_response(INTERNAL, allocate_error(error_str), att);
-        return;
-    }
-
-    clpool->update(cluster);
-
-    cluster->unlock();
-
-    success_response(id, att);
+int HostAllocate::add_to_cluster(Cluster* cluster, int id, string& error_msg)
+{
+    return cluster->add_host(id, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
