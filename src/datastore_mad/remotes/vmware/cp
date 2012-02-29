@@ -21,7 +21,7 @@
 # Several SRC types are supported
 ###############################################################################
 
-# -------- Set up the environment to source common tools & conf ------------ 
+# -------- Set up the environment to source common tools & conf ------------
 
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
@@ -34,7 +34,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 
-# -------- Get cp and datastore arguments from OpenNebula core ------------ 
+# -------- Get cp and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
@@ -42,21 +42,13 @@ ID=$2
 set_up_datastore $DRV_ACTION
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
-eval "SRC=`$XPATH /DS_DRIVER_ACTION_DATA/IMAGE/PATH`"
+SRC=`$XPATH /DS_DRIVER_ACTION_DATA/IMAGE/PATH`
 
 DST=`generate_image_path`
 
-# ------------ Copy the image to the repository ------------- 
+# ------------ Copy the image to the repository -------------
 
 case $SRC in
-http://*)
-    log "Downloading $SRC to the image repository"
-
-    exec_and_log "$WGET -O $DST $SRC" "Error downloading $SRC"
-
-    exec_and_log "chmod 0660 $DST"
-    ;;
-
 *)
     if [ `check_restricted $SRC` -eq 1 ]; then
         log_error "Not allowed to copy images from $RESTRICTED_DIRS"

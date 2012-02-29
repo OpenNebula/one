@@ -45,10 +45,11 @@ values = ""
 tmp = Base64::decode64(tmp64)
 xml = REXML::Document.new(tmp).root
 
-ARGV.each { |xpath|
+ARGV.each do |xpath|
 	element = xml.elements[xpath]
-	values  << "\'#{element.text}\' " if !element.nil?
-}
+    values << element.text if !element.nil?
+    values << "\0"
+end
 
 puts values
 

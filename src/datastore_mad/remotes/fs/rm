@@ -17,10 +17,10 @@
 #--------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used to remove a VM image (SRC) from the image repository 
+# This script is used to remove a VM image (SRC) from the image repository
 ###############################################################################
 
-# ------------ Set up the environment to source common tools ------------ 
+# ------------ Set up the environment to source common tools ------------
 
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
@@ -33,15 +33,15 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 
-# -------- Get rm and datastore arguments from OpenNebula core ------------ 
+# -------- Get rm and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
-eval "SRC=`$XPATH /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE`"
+SRC=`$XPATH /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE`
 
-# ------------ Remove the image from the repository ------------ 
+# ------------ Remove the image from the repository ------------
 
 if [ -e $SRC ] ; then
     log "Removing $SRC from the image repository"
