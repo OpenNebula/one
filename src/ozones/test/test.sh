@@ -35,8 +35,7 @@ for j in `ls ./spec/*_spec.rb` ; do
     OZONES_AUTH=$PWD/etc/ozones_auth ONE_LOCATION=$ONE_LOCATION_A oneA/bin/ozones-server start
     
     sleep 5
-
-    ONE_LOCATION=$ONE_LOCATION_A spec $j -f s
+    ONE_LOCATION=$ONE_LOCATION_A rspec $j -f s
     CODE=$?
 
     if [ $CODE != 0 ] ; then
@@ -63,7 +62,3 @@ if (($CODE == 0)); then
     rm -rf oneA
     rm -rf oneB
 fi
-
-
-
-
