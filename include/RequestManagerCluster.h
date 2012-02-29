@@ -38,6 +38,7 @@ protected:
         clpool     = nd.get_clpool();
         hpool      = nd.get_hpool();
         dspool     = nd.get_dspool();
+        vnpool     = nd.get_vnpool();
 
         auth_object = PoolObjectSQL::CLUSTER;
         auth_op     = AuthRequest::ADMIN;
@@ -50,6 +51,7 @@ protected:
     ClusterPool *           clpool;
     HostPool *              hpool;
     DatastorePool *         dspool;
+    VirtualNetworkPool *    vnpool;
 
     /* --------------------------------------------------------------------- */
 
@@ -142,6 +144,44 @@ public:
 
         *object      = static_cast<PoolObjectSQL *>(ds);
         *cluster_obj = static_cast<Clusterable *>(ds);
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterAddVNet : public RequestManagerCluster
+{
+public:
+    ClusterAddVNet():
+        RequestManagerCluster("ClusterAddVNet",
+                "Adds a virtual network to the cluster",
+                "A:sii"){};
+
+    ~ClusterAddVNet(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att)
+    {
+        return add_generic(_paramList, att, vnpool, PoolObjectSQL::NET);
+    }
+
+    virtual int add_object(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->add_vnet(id, error_msg);
+    };
+
+    virtual int del_object(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->del_vnet(id, error_msg);
+    };
+
+    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    {
+        VirtualNetwork * vnet = vnpool->get(oid, lock);
+
+        *object      = static_cast<PoolObjectSQL *>(vnet);
+        *cluster_obj = static_cast<Clusterable *>(vnet);
     };
 };
 

@@ -105,7 +105,8 @@ class VirtualNetworkDelete: public RequestManagerDelete
 public:
     VirtualNetworkDelete():
         RequestManagerDelete("VirtualNetworkDelete",
-                             "Deletes a virtual network")
+                             "Deletes a virtual network",
+                             true)
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
@@ -113,6 +114,18 @@ public:
     };
 
     ~VirtualNetworkDelete(){};
+
+    /* -------------------------------------------------------------------- */
+
+    int get_cluster_id(PoolObjectSQL * object)
+    {
+        return static_cast<VirtualNetwork*>(object)->get_cluster_id();
+    };
+
+    int del_from_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->del_vnet(id, error_msg);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

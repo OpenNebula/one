@@ -328,6 +328,7 @@ void RequestManager::register_xml_methods()
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
     xmlrpc_c::methodPtr cluster_addds(new ClusterAddDatastore());
+    xmlrpc_c::methodPtr cluster_addvnet(new ClusterAddVNet());
 
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -424,6 +425,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
     RequestManagerRegistry.addMethod("one.cluster.addhost", cluster_addhost);
     RequestManagerRegistry.addMethod("one.cluster.adddatastore", cluster_addds);
+    RequestManagerRegistry.addMethod("one.cluster.addvnet", cluster_addvnet);
 
     RequestManagerRegistry.addMethod("one.clusterpool.info",clusterpool_info);
 };

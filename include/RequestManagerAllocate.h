@@ -156,6 +156,7 @@ public:
         RequestManagerAllocate("VirtualNetworkAllocate",
                                "Allocates a new virtual network",
                                "A:ss",
+                               true,
                                true)
     {    
         Nebula& nd  = Nebula::instance();
@@ -172,11 +173,17 @@ public:
         return new VirtualNetworkTemplate; 
     };
 
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
-                      int& id, 
+                      int& id,
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int cluster_id,
+                      const string& cluster_name);
+
+    int get_cluster_id(xmlrpc_c::paramList const&  paramList);
+
+    int add_to_cluster(Cluster* cluster, int id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */

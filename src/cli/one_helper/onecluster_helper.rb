@@ -78,5 +78,10 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
             puts "%-15s" % [id]
         end
 
+        puts
+        CLIHelper.print_header("%-15s" % ["VNETS"])
+        cluster.vnet_ids.each do |id|
+            puts "%-15s" % [id]
+        end
     end
 end

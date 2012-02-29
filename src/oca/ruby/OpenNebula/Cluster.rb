@@ -28,7 +28,8 @@ module OpenNebula
             :allocate       => "cluster.allocate",
             :delete         => "cluster.delete",
             :addhost        => "cluster.addhost",
-            :adddatastore   => "cluster.adddatastore"
+            :adddatastore   => "cluster.adddatastore",
+            :addvnet        => "cluster.addvnet"
         }
 
         # Creates a Cluster description with just its identifier
@@ -100,6 +101,19 @@ module OpenNebula
             return rc
         end
 
+        # Adds a VNet to this Cluster
+        # @param vnet_id [Integer] VNet ID
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def addvnet(vnet_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(CLUSTER_METHODS[:addvnet], @pe_id, vnet_id)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
         # ---------------------------------------------------------------------
         # Helpers to get information
         # ---------------------------------------------------------------------
@@ -144,6 +158,29 @@ module OpenNebula
             array = Array.new
 
             self.each("DATASTORES/ID") do |id|
+                array << id.text.to_i
+            end
+
+            return array
+        end
+
+        # Returns whether or not the vnet with 'id' is part of this cluster
+        # @param id [Integer] vnet ID
+        # @return [Boolean] true if found 
+        def contains_vnet(id)
+            #This doesn't work in ruby 1.8.5
+            #return self["HOSTS/ID[.=#{uid}]"] != nil
+
+            id_array = retrieve_elements('VNETS/ID')
+            return id_array != nil && id_array.include?(id.to_s)
+        end
+
+        # Returns an array with the numeric vnet ids
+        # @return [Array<Integer>]
+        def vnet_ids
+            array = Array.new
+
+            self.each("VNETS/ID") do |id|
                 array << id.text.to_i
             end
 

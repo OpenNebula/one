@@ -218,17 +218,35 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
-                                          Template * tmpl,
-                                          int& id, 
-                                          string& error_str,
-                                          RequestAttributes& att)
+int VirtualNetworkAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         cluster_id,
+        const string&               cluster_name)
 {
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
     return vpool->allocate(att.uid, att.gid, att.uname, att.gname, vtmpl, &id,
-            error_str);
+            cluster_id, cluster_name, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkAllocate::get_cluster_id(xmlrpc_c::paramList const&  paramList)
+{
+    return ClusterPool::DEFAULT_CLUSTER_ID;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkAllocate::add_to_cluster(
+        Cluster* cluster, int id, string& error_msg)
+{
+    return cluster->add_vnet(id, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

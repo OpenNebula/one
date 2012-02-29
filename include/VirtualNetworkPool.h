@@ -45,6 +45,8 @@ public:
      *    @param gid the id of the group this object is assigned to
      *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
+     *    @param cluster_id the id of the cluster this VNET will belong to
+     *    @param cluster_name the name of the cluster this VNET will belong to
      *    @param error_str Returns the error reason, if any
      *    @return oid on success, -1 error
      */
@@ -55,6 +57,8 @@ public:
         const string&               gname,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
+        int                         cluster_id,
+        const string&               cluster_name,
         string&                     error_str);
 
     /**
@@ -163,7 +167,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(-1,-1,"","",0);
+        return new VirtualNetwork(-1,-1,"","",-1,"",0);
     };
 
     /**

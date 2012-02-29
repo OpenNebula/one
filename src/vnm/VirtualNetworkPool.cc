@@ -78,6 +78,8 @@ int VirtualNetworkPool::allocate (
     const string&  gname,
     VirtualNetworkTemplate * vn_template,
     int *          oid,
+    int            cluster_id,
+    const string&  cluster_name,
     string&        error_str)
 {
     VirtualNetwork *         vn;
@@ -85,7 +87,8 @@ int VirtualNetworkPool::allocate (
     string          name;
     ostringstream   oss;
 
-    vn = new VirtualNetwork(uid, gid, uname, gname, vn_template);
+    vn = new VirtualNetwork(uid, gid, uname, gname,
+                            cluster_id, cluster_name, vn_template);
 
     // Check name
     vn->get_template_attribute("NAME", name);

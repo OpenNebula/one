@@ -117,4 +117,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             cluster.adddatastore(args[1].to_i)
         end
     end
+
+    addvnet_desc = <<-EOT.unindent
+        Adds a Virtual Network to the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :vnetid_list]
+    command :addvnet, addvnet_desc,:clusterid, :vnetid do
+        helper.perform_actions(args[0],options,"updated") do |cluster|
+            cluster.addvnet(args[1].to_i)
+        end
+    end
 end
