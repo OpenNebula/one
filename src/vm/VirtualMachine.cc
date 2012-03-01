@@ -56,9 +56,7 @@ VirtualMachine::VirtualMachine(int           id,
         net_rx(0),
         history(0),
         previous_history(0),
-        _log(0),
-        system_dir(""),
-        remote_system_dir("")
+        _log(0)
 {
     if (_vm_template != 0)
     {
@@ -111,10 +109,11 @@ int VirtualMachine::select(SqlDB * db)
     ostringstream   oss;
     ostringstream   ose;
 
-    int             rc;
-    int             last_seq;
+    string system_dir;
+    int    rc;
+    int    last_seq;
 
-    Nebula&         nd = Nebula::instance();
+    Nebula& nd = Nebula::instance();
 
     // Rebuild the VirtualMachine object
     rc = PoolObjectSQL::select(db);
@@ -166,6 +165,8 @@ int VirtualMachine::select(SqlDB * db)
     mkdir(oss.str().c_str(), 0700);
     chmod(oss.str().c_str(), 0700);
 
+    system_dir = get_system_dir();
+
     mkdir(system_dir.c_str(), 0700);
     chmod(system_dir.c_str(), 0700);
 
@@ -203,13 +204,10 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string name;
 
     SingleAttribute * attr;
-    string            aname;
-    string            value;
-    string            ds_location;
+    string aname;
+    string value;
 
     ostringstream     oss;
-
-    Nebula& nd = Nebula::instance();
 
     // ------------------------------------------------------------------------
     // Check template for restricted attributes
@@ -297,21 +295,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     parse_graphics();
-
-    // ------------------------------------------------------------------------
-    // Set the System DataStore Paths for the VM
-    // ------------------------------------------------------------------------
-    oss.str("");
-    oss << nd.get_system_ds_path() << "/" << oid;
-
-    system_dir = oss.str();
-
-    oss.str("");
-
-    nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
-    oss << ds_location << "/" << nd.get_system_ds_name() << "/" << oid;
-
-    remote_system_dir = oss.str();
 
     // ------------------------------------------------------------------------
     // Insert the VM
@@ -658,7 +641,6 @@ void VirtualMachine::add_history(
                           seq,
                           hid,
                           hostname,
-                          remote_system_dir,
                           vmm_mad,
                           vnm_mad);
 
@@ -681,10 +663,8 @@ void VirtualMachine::cp_history()
                        history->seq + 1,
                        history->hid,
                        history->hostname,
-                       remote_system_dir,
                        history->vmm_mad_name,
                        history->vnm_mad_name);
-
 
     previous_history = history;
     history          = htmp;
@@ -708,7 +688,6 @@ void VirtualMachine::cp_previous_history()
                        history->seq + 1,
                        previous_history->hid,
                        previous_history->hostname,
-                       remote_system_dir,
                        previous_history->vmm_mad_name,
                        previous_history->vnm_mad_name);
 
@@ -1300,8 +1279,6 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << "<SYSTEM_DIR>"        << system_dir        << "</SYSTEM_DIR>"
-        << "<REMOTE_SYSTEM_DIR>" << remote_system_dir << "</REMOTE_SYSTEM_DIR>"
         << obj_template->to_xml(template_xml);
 
     if ( hasHistory() )
@@ -1371,9 +1348,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(net_tx,    "/VM/NET_TX",   0);
     rc += xpath(net_rx,    "/VM/NET_RX",   0);
 
-    rc += xpath(system_dir,"/VM/SYSTEM_DIR","not_found");
-    rc += xpath(remote_system_dir,"/VM/REMOTE_SYSTEM_DIR","not_found");
-
     // Permissions
     rc += perms_from_xml();
 
@@ -1418,3 +1392,29 @@ int VirtualMachine::from_xml(const string &xml_str)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+string VirtualMachine::get_remote_system_dir() const
+{
+    ostringstream oss;
+
+    string  ds_location;
+    Nebula& nd = Nebula::instance();
+
+    nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
+    oss << ds_location << "/" << DatastorePool::SYSTEM_DS_ID << "/" << oid;
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string VirtualMachine::get_system_dir() const
+{
+    ostringstream oss;
+    Nebula&       nd = Nebula::instance();
+
+    oss << nd.get_ds_location() << DatastorePool::SYSTEM_DS_ID << "/"<< oid;
+
+    return oss.str();
+};

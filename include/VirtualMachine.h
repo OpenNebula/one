@@ -211,24 +211,18 @@ public:
     // ------------------------------------------------------------------------
     /**
      *  Returns the remote VM directory. The VM remote dir is in the form:
-     *  $DATASTORE_LOCATION/$SYSTEM_DS_NAME/$VM_ID. The remote system_dir stores
+     *  $DATASTORE_LOCATION/$SYSTEM_DS_ID/$VM_ID. The remote system_dir stores
      *  disks for a running VM in the target host.
      *    @return the remote system directory for the VM
      */
-    const string & get_remote_system_dir() const
-    {
-        return remote_system_dir;
-    };
+    string get_remote_system_dir() const;
 
     /**
      *  Returns the local VM directory. The VM local dir is in the form:
      *  $SYSTEM_DS_BASE_PATH/$VM_ID. Temporary stores VM disks.
      *    @return the system directory for the VM
      */
-    const string & get_system_dir() const
-    {
-        return system_dir;
-    };
+    string get_system_dir() const;
 
     // ------------------------------------------------------------------------
     // History
@@ -775,18 +769,6 @@ private:
      *          /var/log/one/$VM_ID.log
      */
     FileLog * _log;
-
-    /**
-     *  Directory for the VM in the System DS (system_ds_path/$VID). Defaults to
-     *  $ONE_LOCATION/var/system_ds/$VID or /var/log/one/system_ds/$VID
-     */
-     string   system_dir;
-
-    /**
-     *  Directory for the VM in hosts, the System DS (system_ds_path/$VID). Defaults to
-     *  $ONE_LOCATION/var/system_ds/$VID or /var/log/one/system_ds/$VID
-     */
-     string   remote_system_dir;
 
     // *************************************************************************
     // DataBase implementation (Private)

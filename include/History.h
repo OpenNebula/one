@@ -44,7 +44,6 @@ public:
         int seq,
         int hid,
         const string& hostname,
-        const string& remote_system_dir,
         const string& vmm,
         const string& vnm);
 
@@ -86,8 +85,6 @@ private:
     int     seq;
 
     string  hostname;
-    string  remote_system_dir;
-
     int     hid;
 
     string  vmm_mad_name;

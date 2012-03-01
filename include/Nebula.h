@@ -219,32 +219,6 @@ public:
     };
 
     /**
-     *  Returns the base for the system datastore (for tmp VM images). When 
-     *  ONE_LOCATION is defined this path points to $ONE_LOCATION/var/system_ds, 
-     *  otherwise it is /var/lib/one/system_ds.
-     *      @return the system datastore pa location.
-     */
-    string get_system_ds_path()
-    {
-        Datastore * ds;
-        string      system_ds_path = "";
-
-        ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
-
-        if ( ds == 0 )
-        {
-            NebulaLog::log("DaS", Log::ERROR, "Can not get system datastore");
-            return system_ds_path;
-        }
-
-        system_ds_path = ds->get_base_path();
-
-        ds->unlock();
-
-        return system_ds_path;
-    };
-
-    /**
      *  Returns the Transfer Manager for the system datastore
      *      @return the tm name.
      */
@@ -266,30 +240,6 @@ public:
         ds->unlock();
 
         return tm_mad;
-    };
-
-    /**
-     *  Returns the name for the system datastore
-     *      @return the datastore name.
-     */
-    string get_system_ds_name()
-    {
-        Datastore * ds;
-        string      name = "";
-
-        ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
-
-        if ( ds == 0 )
-        {
-            NebulaLog::log("DaS", Log::ERROR, "Can not get system datastore");
-            return name;
-        }
-
-        name = ds->get_name();
-
-        ds->unlock();
-
-        return name;
     };
     
     /**

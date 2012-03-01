@@ -26,9 +26,9 @@ SRC=$1
 DST=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
-    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
 . $TMCOMMON
@@ -41,10 +41,10 @@ DST_PATH=`arg_path $DST`
 
 set_ds_location
 
-REL_DST_PATH=${DS_PATH##"$DS_LOCATION/"}
+REL_DST_PATH=${DST_PATH##"$DS_LOCATION/"}
 REL_SRC_PATH=${SRC_PATH##"$ONE_LOCAL_VAR/datastores/"}
 
-DST_PATH="$ONE_LOCAL_VAR/datastore/$REL_DST_PATH"
+DST_PATH="$ONE_LOCAL_VAR/datastores/$REL_DST_PATH"
 DST_DIR=`dirname $DST_PATH`
 
 if [ ! -d $DST_DIR ]; then
@@ -52,7 +52,7 @@ if [ ! -d $DST_DIR ]; then
     exec_and_log "mkdir -p $DST_DIR"
 fi
 
-DST_FILE=`basename $DST_DIR`
+DST_FILE=`basename $DST_PATH`
 
 #-------------------------------------------------------------------------------
 # Link (ln) SRC into DST
@@ -60,5 +60,7 @@ DST_FILE=`basename $DST_DIR`
 
 log "Linking $SRC_PATH in $DST_PATH"
 
-exec_and_log "cd $DST_DIR; ln -s ../$REL_SRC_PATH ./$DST_FILE" \
+cd $DST_DIR
+
+exec_and_log "ln -s ../../$REL_SRC_PATH ./$DST_FILE" \
              "Error linking $SRC to $DST"

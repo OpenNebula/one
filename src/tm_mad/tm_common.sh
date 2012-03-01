@@ -16,10 +16,6 @@
 
 export LANG=C
 
-ONE_SH=$ONE_LIB/sh
-
-. $ONE_SH/scripts_common.sh
-
 # ------------------------------------------------------------------------------
 # Set enviroment for the tm drivers (bash-based)
 # ------------------------------------------------------------------------------
@@ -30,6 +26,10 @@ else
     ONE_LOCAL_VAR=$ONE_LOCATION/var
     ONE_LIB=$ONE_LOCATION/lib
 fi
+
+ONE_SH=$ONE_LIB/sh
+
+. $ONE_SH/scripts_common.sh
 
 if [ "x$(uname -s)" = "xLinux" ]; then
     SED="$SED -r"
@@ -57,5 +57,5 @@ function arg_path
 function set_ds_location
 {
     DS_LOCATION=`grep '^DATASTORE_LOCATION=' $ONE_LOCAL_VAR/config | cut -d= -f2`
-    DS_LOCATION=`fix_var_slashes $DS_LOCATION`
+    DS_LOCATION=`fix_dir_slashes $DS_LOCATION`
 }

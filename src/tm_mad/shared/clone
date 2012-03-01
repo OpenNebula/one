@@ -26,9 +26,9 @@ SRC=$1
 DST=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
-    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
 . $TMCOMMON
@@ -41,8 +41,8 @@ DST_PATH=`arg_path $DST`
 
 set_ds_location
 
-REL_DST_PATH=${DS_PATH##"$DS_LOCATION/"}
-DST_PATH="$ONE_LOCAL_VAR/datastore/$REL_DST_PATH"
+REL_DST_PATH=${DST_PATH##"$DS_LOCATION/"}
+DST_PATH="$ONE_LOCAL_VAR/datastores/$REL_DST_PATH"
 
 DST_DIR=`dirname $DST_PATH`
 

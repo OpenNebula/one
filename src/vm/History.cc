@@ -40,7 +40,6 @@ History::History(
         oid(_oid),
         seq(_seq),
         hostname(""),
-        remote_system_dir(""),
         hid(-1),
         vmm_mad_name(""),
         vnm_mad_name(""),
@@ -61,13 +60,11 @@ History::History(
     int	_seq,
     int	_hid,
     const string& _hostname,
-    const string& _remote_system_dir,
     const string& _vmm,
     const string& _vnm):
         oid(_oid),
         seq(_seq),
         hostname(_hostname),
-        remote_system_dir(_remote_system_dir),
         hid(_hid),
         vmm_mad_name(_vmm),
         vnm_mad_name(_vnm),
@@ -90,8 +87,12 @@ History::History(
 void History::non_persistent_data()
 {
     ostringstream os;
-    string        vm_lhome;
-    Nebula&       nd = Nebula::instance();
+
+    string vm_lhome;
+    string vm_rhome;
+    string ds_location;
+    
+    Nebula& nd = Nebula::instance();
 
     // ----------- Local Locations ------------
     os.str("");
@@ -115,10 +116,18 @@ void History::non_persistent_data()
 
     // ----------- Remote Locations ------------
 
-    checkpoint_file = remote_system_dir + "/checkpoint";
+    os.str("");
+
+    nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
+    os << ds_location << "/" << DatastorePool::SYSTEM_DS_ID << "/" << oid;
+
+    vm_rhome = os.str();
+
+    os << "/checkpoint";
+    checkpoint_file = os.str();
 
     os.str("");
-    os << remote_system_dir << "/deployment." << seq;
+    os << vm_rhome << "/deployment." << seq;
 
     rdeployment_file = os.str();
 }
@@ -257,7 +266,6 @@ string& History::to_xml(string& xml) const
         "<HISTORY>" <<
           "<SEQ>"               << seq               << "</SEQ>"   <<
           "<HOSTNAME>"          << hostname          << "</HOSTNAME>"<<
-          "<REMOTE_SYSTEM_DIR>" << remote_system_dir << "</REMOTE_SYSTEM_DIR>"<<
           "<HID>"               << hid               << "</HID>"   <<
           "<STIME>"             << stime             << "</STIME>" <<
           "<ETIME>"             << etime             << "</ETIME>" <<
@@ -287,7 +295,6 @@ int History::rebuild_attributes()
 
     rc += xpath(seq              , "/HISTORY/SEQ",      -1);
     rc += xpath(hostname         , "/HISTORY/HOSTNAME", "not_found");
-    rc += xpath(remote_system_dir, "/HISTORY/REMOTE_SYSTEM_DIR", "not_found");
     rc += xpath(hid              , "/HISTORY/HID",      -1);
     rc += xpath(stime            , "/HISTORY/STIME",    0);
     rc += xpath(etime            , "/HISTORY/ETIME",    0);
