@@ -106,7 +106,7 @@ conf  = YAML::load(File.read(CONF_FILE))
 rc, data = do_action("virsh -c #{@uri} --readonly nodeinfo")
 
 if rc == false
-    exit info
+    exit data
 end
 
 data.split(/\n/).each{|line|
