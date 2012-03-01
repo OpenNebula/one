@@ -61,6 +61,10 @@ public:
     /**
      *  Allocates a new Datastore, writing it in the pool database. No memory is
      *  allocated for the object.
+     *    @param uid the user id of the Datastore owner
+     *    @param gid the id of the group this object is assigned to
+     *    @param uname name of the user
+     *    @param gname name of the group
      *    @param ds_template Datastore definition template
      *    @param oid the id assigned to the Datastore
      *    @param cluster_id the id of the cluster this Datastore will belong to
@@ -69,11 +73,16 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(DatastoreTemplate *    ds_template,
-                 int *                  oid,
-                 int                    cluster_id,
-                 const string&          cluster_name,
-                 string&                error_str);
+    int allocate(
+            int                 uid,
+            int                 gid,
+            const string&       uname,
+            const string&       gname,
+            DatastoreTemplate * ds_template,
+            int *               oid,
+            int                 cluster_id,
+            const string&       cluster_name,
+            string&             error_str);
 
     /**
      *  Function to get a Datastore from the pool, if the object is not in memory
@@ -163,7 +172,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Datastore(-1, 0, -1, "");
+        return new Datastore(-1,-1,"","", 0, -1, "");
     };
 };
 

@@ -66,6 +66,9 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "DATASTORE #{datastore['ID']} INFORMATION")
         puts str % ["ID",       datastore.id.to_s]
         puts str % ["NAME",     datastore.name]
+        puts str % ["USER",     datastore['UNAME']]
+        puts str % ["GROUP",    datastore['GNAME']]
+
         puts str % ["TYPE",     datastore['TYPE']]
         puts str % ["BASE PATH",datastore['BASE_PATH']]
         puts

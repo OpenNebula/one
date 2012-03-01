@@ -67,7 +67,11 @@ DatastorePool::DatastorePool(SqlDB * db):
             goto error_bootstrap;
         }
 
-        allocate(ds_tmpl,
+        allocate(UserPool::ONEADMIN_ID,
+                GroupPool::ONEADMIN_ID,
+                UserPool::oneadmin_name,
+                GroupPool::ONEADMIN_NAME,
+                ds_tmpl,
                 &system_id,
                 ClusterPool::DEFAULT_CLUSTER_ID,
                 ClusterPool::DEFAULT_CLUSTER_NAME,
@@ -95,7 +99,11 @@ DatastorePool::DatastorePool(SqlDB * db):
             goto error_bootstrap;
         }
 
-        allocate(ds_tmpl,
+        allocate(UserPool::ONEADMIN_ID,
+                GroupPool::ONEADMIN_ID,
+                UserPool::oneadmin_name,
+                GroupPool::ONEADMIN_NAME,
+                ds_tmpl,
                 &default_id,
                 ClusterPool::DEFAULT_CLUSTER_ID,
                 ClusterPool::DEFAULT_CLUSTER_NAME,
@@ -145,18 +153,24 @@ error_bootstrap:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DatastorePool::allocate(DatastoreTemplate * ds_template,
-                            int *               oid,
-                            int                 cluster_id,
-                            const string&       cluster_name,
-                            string&             error_str)
+int DatastorePool::allocate(
+        int                 uid,
+        int                 gid,
+        const string&       uname,
+        const string&       gname,
+        DatastoreTemplate * ds_template,
+        int *               oid,
+        int                 cluster_id,
+        const string&       cluster_name,
+        string&             error_str)
 {
     Datastore *     ds;
     Datastore *     ds_aux = 0;
     string          name;
     ostringstream   oss;
 
-    ds = new Datastore(-1, ds_template, cluster_id, cluster_name);
+    ds = new Datastore(uid, gid, uname, gname,
+            ds_template, cluster_id, cluster_name);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
