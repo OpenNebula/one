@@ -75,5 +75,9 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         datastore.img_ids.each do |id|
             puts "%-15s" % [id]
         end
+
+        puts
+        CLIHelper.print_header(str_h1 % "DATASTORE TEMPLATE",false)
+        puts datastore.template_str
     end
 end

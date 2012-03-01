@@ -110,8 +110,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     base_path = oss.str();
 
-    replace_template_attribute("BASE_PATH", base_path);
-
     //--------------------------------------------------------------------------
     // Insert the Datastore
     //--------------------------------------------------------------------------
@@ -228,6 +226,7 @@ string& Datastore::to_xml(string& xml) const
 {
     ostringstream   oss;
     string          collection_xml;
+    string          template_xml;
 
     ObjectCollection::to_xml(collection_xml);
 
@@ -240,7 +239,8 @@ string& Datastore::to_xml(string& xml) const
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
         "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
         "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
-        collection_xml <<
+        collection_xml  <<
+        obj_template->to_xml(template_xml)                  <<
     "</DATASTORE>";
 
     xml = oss.str();
@@ -283,6 +283,19 @@ int Datastore::from_xml(const string& xml)
 
     // Set of IDs
     rc += ObjectCollection::from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Get associated classes
+    ObjectXML::get_nodes("/DATASTORE/TEMPLATE", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 
