@@ -16,6 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# ln fe:SOURCE host:remote_system_ds/disk.i size
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
 SRC=$1
 DST=$2
 
@@ -27,20 +33,32 @@ fi
 
 . $TMCOMMON
 
-get_vmdir
-
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
 
-fix_dst_path
+set_ds_location
 
+REL_DST_PATH=${DS_PATH##"$DS_LOCATION/"}
+REL_SRC_PATH=${SRC_PATH##"$ONE_LOCAL_VAR/datastores/"}
+
+DST_PATH="$ONE_LOCAL_VAR/datastore/$REL_DST_PATH"
 DST_DIR=`dirname $DST_PATH`
 
-log "Creating directory $DST_DIR"
-exec_and_log "mkdir -p $DST_DIR" \
-    "Could not create directory $DST_DIR"
-exec_and_log "chmod a+w $DST_DIR"
+if [ ! -d $DST_DIR ]; then
+    log "Creating directory $DST_DIR"
+    exec_and_log "mkdir -p $DST_DIR"
+fi
 
-log "Link $SRC_PATH"
-exec_and_log "ln -s $SRC_PATH $DST_PATH"
+DST_FILE=`basename $DST_DIR`
 
+#-------------------------------------------------------------------------------
+# Link (ln) SRC into DST
+#-------------------------------------------------------------------------------
+
+log "Linking $SRC_PATH in $DST_PATH"
+
+exec_and_log "cd $DST_DIR; ln -s ../$REL_SRC_PATH ./$DST_FILE" \
+             "Error linking $SRC to $DST"

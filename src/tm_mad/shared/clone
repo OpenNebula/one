@@ -16,6 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# clone fe:SOURCE host:remote_system_ds/disk.i size
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
 SRC=$1
 DST=$2
 
@@ -27,35 +33,35 @@ fi
 
 . $TMCOMMON
 
-get_vmdir
-
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
 
-fix_paths
+set_ds_location
 
-log_debug "$1 $2"
-log_debug "DST: $DST_PATH"
+REL_DST_PATH=${DS_PATH##"$DS_LOCATION/"}
+DST_PATH="$ONE_LOCAL_VAR/datastore/$REL_DST_PATH"
 
 DST_DIR=`dirname $DST_PATH`
 
-log "Creating directory $DST_DIR"
-exec_and_log "mkdir -p $DST_DIR"
-exec_and_log "chmod a+w $DST_DIR"
+if [ ! -d $DST_DIR ]; then
+    log "Creating directory $DST_DIR"
+    exec_and_log "mkdir -p $DST_DIR"
+fi
 
+#-------------------------------------------------------------------------------
+# Clone (cp) SRC into DST
+#-------------------------------------------------------------------------------
 case $SRC in
 http://*)
-    log "Downloading $SRC"
-    exec_and_log "$WGET -O $DST_PATH $SRC" \
-        "Error downloading $SRC"
+    log "Downloading $SRC into $DST_PATH"
+    exec_and_log "$WGET -O $DST_PATH $SRC" "Error downloading $SRC"
     ;;
 
 *)
-    log "Cloning $SRC_PATH"
-    exec_and_log "cp -r $SRC_PATH $DST_PATH" \
-        "Error copying $SRC to $DST"
+    log "Cloning $SRC_PATH in $DST_PATH"
+    exec_and_log "cp -r $SRC_PATH $DST_PATH" "Error copying $SRC to $DST"
     ;;
 esac
-
-exec_and_log "chmod a+rw $DST_PATH"
-

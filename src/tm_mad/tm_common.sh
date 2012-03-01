@@ -16,6 +16,13 @@
 
 export LANG=C
 
+ONE_SH=$ONE_LIB/sh
+
+. $ONE_SH/scripts_common.sh
+
+# ------------------------------------------------------------------------------
+# Set enviroment for the tm drivers (bash-based)
+# ------------------------------------------------------------------------------
 if [ -z "$ONE_LOCATION" ]; then
     ONE_LOCAL_VAR=/var/lib/one
     ONE_LIB=/usr/lib/one
@@ -24,76 +31,15 @@ else
     ONE_LIB=$ONE_LOCATION/lib
 fi
 
-ONE_SH=$ONE_LIB/sh
-
-. $ONE_SH/scripts_common.sh
-
-
-
 if [ "x$(uname -s)" = "xLinux" ]; then
     SED="$SED -r"
 else
     SED="/usr/bin/sed -E"
 fi
 
-function get_vmdir
-{
-    VMDIR=`grep '^VM_DIR=' $ONE_LOCAL_VAR/config | cut -d= -f2`
-    fix_var_slashes
-}
-
-# Takes out uneeded slashes. Repeated and final directory slashes:
-# /some//path///somewhere/ -> /some/path/somewhere
-function fix_dir_slashes
-{
-    dirname "$1/file" | $SED 's/\/+/\//g'
-}
-
-function get_compare_target
-{
-    echo "$1" | $SED 's/\/+/\//g' | $SED 's/\/images$//'
-}
-
-function full_src_and_dst_equal
-{
-    s=`get_compare_target "$SRC"`
-    d=`get_compare_target "$DST"`
-
-    [ "$s" == "$d" ]
-
-}
-
-function fix_var_slashes
-{
-    ONE_LOCAL_VAR=`fix_dir_slashes "$ONE_LOCAL_VAR"`
-    VMDIR=`fix_dir_slashes "$VMDIR"`
-}
-
-function fix_paths
-{
-    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
-        SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
-        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
-        DST_PATH=`fix_dir_slashes "$DST_PATH"`
-        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
-    fi
-}
-
-function fix_src_path
-{
-    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
-        SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
-        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
-    fi
-}
-
-function fix_dst_path
-{
-    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
-        DST_PATH=`fix_dir_slashes "$DST_PATH"`
-        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
-    fi
-}
+# ------------------------------------------------------------------------------
+# Function to get hosts and paths from arguments
+# ------------------------------------------------------------------------------
 
 # Gets the host from an argument
 function arg_host
@@ -107,5 +53,9 @@ function arg_path
     echo $1 | $SED 's/^[^:]*:(.*)$/\1/'
 }
 
-
-
+#Return the DATASTORE_LOCATION from OpenNebula configuration
+function set_ds_location
+{
+    DS_LOCATION=`grep '^DATASTORE_LOCATION=' $ONE_LOCAL_VAR/config | cut -d= -f2`
+    DS_LOCATION=`fix_var_slashes $DS_LOCATION`
+}

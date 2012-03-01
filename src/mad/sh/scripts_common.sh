@@ -40,6 +40,21 @@ WGET=wget
 # Used for log messages
 SCRIPT_NAME=`basename $0`
 
+# ------------------------------------------------------------------------------
+# Path manipulation functions
+# ------------------------------------------------------------------------------
+
+# Takes out unneeded slashes. Repeated and final directory slashes:
+# /some//path///somewhere/ -> /some/path/somewhere
+function fix_dir_slashes
+{
+    dirname "$1/file" | $SED 's/\/+/\//g'
+}
+
+# ------------------------------------------------------------------------------
+# Log functions
+# ------------------------------------------------------------------------------
+
 # Formats date for logs
 function log_date
 {
@@ -107,8 +122,6 @@ function exec_and_log
     fi
     log "Executed \"$1\"."
 }
-
-
 
 # Like exec_and_log but the first argument is the number of seconds
 # before here is timeout and kills the command
