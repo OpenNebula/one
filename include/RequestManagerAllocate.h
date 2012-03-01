@@ -37,21 +37,13 @@ protected:
     RequestManagerAllocate(const string& method_name,
                            const string& help,
                            const string& xml_args,
-                           bool  dt,
-                           bool  dc=false)
-        :Request(method_name,xml_args,help), do_template(dt), do_cluster(dc)
+                           bool  dt)
+        :Request(method_name,xml_args,help), do_template(dt)
     {
         auth_op = AuthRequest::CREATE;
 
-        if ( do_cluster )
-        {
-            Nebula& nd  = Nebula::instance();
-            clpool      = nd.get_clpool();
-        }
-        else
-        {
-            clpool = 0;
-        }
+        Nebula& nd  = Nebula::instance();
+        clpool      = nd.get_clpool();
     };
 
     ~RequestManagerAllocate(){};
@@ -91,7 +83,7 @@ protected:
 
     virtual int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
-        return -1;
+        return ClusterPool::NONE_CLUSTER_ID;
     };
 
     virtual int add_to_cluster(Cluster* cluster, int id, string& error_msg)
@@ -105,7 +97,6 @@ protected:
 private:
 
     bool do_template;
-    bool do_cluster;
 };
 
 
@@ -156,7 +147,6 @@ public:
         RequestManagerAllocate("VirtualNetworkAllocate",
                                "Allocates a new virtual network",
                                "A:ss",
-                               true,
                                true)
     {    
         Nebula& nd  = Nebula::instance();
@@ -180,10 +170,6 @@ public:
                       RequestAttributes& att,
                       int cluster_id,
                       const string& cluster_name);
-
-    int get_cluster_id(xmlrpc_c::paramList const&  paramList);
-
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -254,8 +240,7 @@ public:
         RequestManagerAllocate("HostAllocate",
                                "Allocates a new host",
                                "A:sssssi",
-                               false,
-                               true)
+                               false)
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
@@ -274,9 +259,15 @@ public:
                       int cluster_id,
                       const string& cluster_name);
 
-    int get_cluster_id(xmlrpc_c::paramList const&  paramList);
+    int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    {
+        return xmlrpc_c::value_int(paramList.getInt(5));
+    };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg);
+    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->add_host(id, error_msg);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -341,7 +332,6 @@ public:
         RequestManagerAllocate("DatastoreAllocate",
                                "Allocates a new Datastore",
                                "A:ssi",
-                               true,
                                true)
     {
         Nebula& nd  = Nebula::instance();
@@ -366,9 +356,15 @@ public:
                       int cluster_id,
                       const string& cluster_name);
 
-    int get_cluster_id(xmlrpc_c::paramList const&  paramList);
+    int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    {
+        return xmlrpc_c::value_int(paramList.getInt(2));
+    };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg);
+    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->add_datastore(id, error_msg);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

@@ -86,7 +86,7 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise
-        def allocate(hostname,im,vmm,vnm,cluster_id=ClusterPool::DEFAULT_CLUSTER_ID)
+        def allocate(hostname,im,vmm,vnm,cluster_id=ClusterPool::NONE_CLUSTER_ID)
             super(HOST_METHODS[:allocate],hostname,im,vmm,vnm,cluster_id)
         end
 

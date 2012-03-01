@@ -29,6 +29,9 @@
 const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
 const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 
+const string ClusterPool::NONE_CLUSTER_NAME = "none";
+const int    ClusterPool::NONE_CLUSTER_ID   = -1;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

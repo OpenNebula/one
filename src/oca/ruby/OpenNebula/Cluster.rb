@@ -28,8 +28,11 @@ module OpenNebula
             :allocate       => "cluster.allocate",
             :delete         => "cluster.delete",
             :addhost        => "cluster.addhost",
+            :delhost        => "cluster.delhost",
             :adddatastore   => "cluster.adddatastore",
-            :addvnet        => "cluster.addvnet"
+            :deldatastore   => "cluster.deldatastore",
+            :addvnet        => "cluster.addvnet",
+            :delvnet        => "cluster.delvnet"
         }
 
         # Creates a Cluster description with just its identifier
@@ -88,6 +91,19 @@ module OpenNebula
             return rc
         end
 
+        # Deletes a Host from this Cluster
+        # @param hid [Integer] Host ID
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def delhost(hid)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(CLUSTER_METHODS[:delhost], @pe_id, hid)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
         # Adds a Datastore to this Cluster
         # @param ds_id [Integer] Datastore ID
         # @return [nil, OpenNebula::Error] nil in case of success, Error
@@ -101,6 +117,19 @@ module OpenNebula
             return rc
         end
 
+        # Deletes a Datastore from this Cluster
+        # @param ds_id [Integer] Datastore ID
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def deldatastore(ds_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(CLUSTER_METHODS[:deldatastore], @pe_id, ds_id)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
         # Adds a VNet to this Cluster
         # @param vnet_id [Integer] VNet ID
         # @return [nil, OpenNebula::Error] nil in case of success, Error
@@ -109,6 +138,19 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(CLUSTER_METHODS[:addvnet], @pe_id, vnet_id)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Deletes a VNet from this Cluster
+        # @param vnet_id [Integer] VNet ID
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def delvnet(vnet_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(CLUSTER_METHODS[:delvnet], @pe_id, vnet_id)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

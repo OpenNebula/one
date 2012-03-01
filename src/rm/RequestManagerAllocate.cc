@@ -44,7 +44,7 @@ bool RequestManagerAllocate::allocate_authorization(
 
     ar.add_create_auth(auth_object, tmpl_str);
 
-    if ( do_cluster )
+    if ( cluster_perms->oid != ClusterPool::NONE_CLUSTER_ID )
     {
         ar.add_auth(AuthRequest::ADMIN, *cluster_perms); // ADMIN CLUSTER
     }
@@ -107,8 +107,8 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
     int    rc, id;
 
     Cluster *       cluster      = 0;
-    int             cluster_id   = -1;
-    string          cluster_name = "";
+    int             cluster_id   = ClusterPool::NONE_CLUSTER_ID;
+    string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
     PoolObjectAuth  cluster_perms;
 
     if ( do_template == true )
@@ -128,10 +128,10 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         }
     }
 
-    if ( do_cluster == true )
-    {
-        cluster_id = get_cluster_id(params);
+    cluster_id = get_cluster_id(params);
 
+    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    {
         rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att,
                 cluster_perms, cluster_name);
 
@@ -140,6 +140,10 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
             delete tmpl;
             return;
         }
+    }
+    else
+    {
+        cluster_perms.oid = ClusterPool::NONE_CLUSTER_ID;
     }
 
     if ( allocate_authorization(tmpl, att, &cluster_perms) == false )
@@ -156,7 +160,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    if ( do_cluster == true )
+    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
         cluster = clpool->get(cluster_id, true);
 
@@ -232,21 +236,6 @@ int VirtualNetworkAllocate::pool_allocate(
 
     return vpool->allocate(att.uid, att.gid, att.uname, att.gname, vtmpl, &id,
             cluster_id, cluster_name, error_str);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetworkAllocate::get_cluster_id(xmlrpc_c::paramList const&  paramList)
-{
-    return ClusterPool::DEFAULT_CLUSTER_ID;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetworkAllocate::add_to_cluster(
-        Cluster* cluster, int id, string& error_msg)
-{
-    return cluster->add_vnet(id, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -413,17 +402,6 @@ int HostAllocate::pool_allocate(
 
 /* -------------------------------------------------------------------------- */
 
-int HostAllocate::get_cluster_id(xmlrpc_c::paramList const&  paramList)
-{
-    return xmlrpc_c::value_int(paramList.getInt(5));
-}
-
-/* -------------------------------------------------------------------------- */
-
-int HostAllocate::add_to_cluster(Cluster* cluster, int id, string& error_msg)
-{
-    return cluster->add_host(id, error_msg);
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -490,21 +468,6 @@ int DatastoreAllocate::pool_allocate(
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
     return dspool->allocate(ds_tmpl, &id, cluster_id, cluster_name, error_str);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int DatastoreAllocate::get_cluster_id(xmlrpc_c::paramList const&  paramList)
-{
-    return xmlrpc_c::value_int(paramList.getInt(2));
-}
-
-/* -------------------------------------------------------------------------- */
-
-int DatastoreAllocate::add_to_cluster(
-        Cluster* cluster, int id, string& error_msg)
-{
-    return cluster->add_datastore(id, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

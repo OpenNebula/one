@@ -327,8 +327,11 @@ void RequestManager::register_xml_methods()
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
+    xmlrpc_c::methodPtr cluster_delhost(new ClusterDelHost());
     xmlrpc_c::methodPtr cluster_addds(new ClusterAddDatastore());
+    xmlrpc_c::methodPtr cluster_delds(new ClusterDelDatastore());
     xmlrpc_c::methodPtr cluster_addvnet(new ClusterAddVNet());
+    xmlrpc_c::methodPtr cluster_delvnet(new ClusterDelVNet());
 
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -423,9 +426,13 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.allocate",cluster_allocate);
     RequestManagerRegistry.addMethod("one.cluster.delete",  cluster_delete);
     RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
+
     RequestManagerRegistry.addMethod("one.cluster.addhost", cluster_addhost);
+    RequestManagerRegistry.addMethod("one.cluster.delhost", cluster_delhost);
     RequestManagerRegistry.addMethod("one.cluster.adddatastore", cluster_addds);
+    RequestManagerRegistry.addMethod("one.cluster.deldatastore", cluster_delds);
     RequestManagerRegistry.addMethod("one.cluster.addvnet", cluster_addvnet);
+    RequestManagerRegistry.addMethod("one.cluster.delvnet", cluster_delvnet);
 
     RequestManagerRegistry.addMethod("one.clusterpool.info",clusterpool_info);
 };

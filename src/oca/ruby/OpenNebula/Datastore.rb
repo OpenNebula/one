@@ -67,7 +67,7 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise
-        def allocate(description, cluster_id)
+        def allocate(description, cluster_id=ClusterPool::NONE_CLUSTER_ID)
             super(DATASTORE_METHODS[:allocate], description, cluster_id)
         end
 

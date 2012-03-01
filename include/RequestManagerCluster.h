@@ -55,11 +55,12 @@ protected:
 
     /* --------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+    virtual void request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att) = 0;
 
     void add_generic(
-            xmlrpc_c::paramList const&  _paramList,
+            int                         cluster_id,
+            int                         object_id,
             RequestAttributes&          att,
             PoolSQL *                   pool,
             PoolObjectSQL::ObjectType   type);
@@ -74,21 +75,16 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterAddHost : public RequestManagerCluster
+class RequestManagerClusterHost : public RequestManagerCluster
 {
 public:
-    ClusterAddHost():
-        RequestManagerCluster("ClusterAddHost",
-                "Adds a host to the cluster",
-                "A:sii"){};
+    RequestManagerClusterHost(
+            const string& method_name,
+            const string& help,
+            const string& params):
+                RequestManagerCluster(method_name, help, params){};
 
-    ~ClusterAddHost(){};
-
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att)
-    {
-        return add_generic(_paramList, att, hpool, PoolObjectSQL::HOST);
-    }
+    ~RequestManagerClusterHost(){};
 
     virtual int add_object(Cluster* cluster, int id, string& error_msg)
     {
@@ -112,21 +108,66 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterAddDatastore : public RequestManagerCluster
+class ClusterAddHost : public RequestManagerClusterHost
 {
 public:
-    ClusterAddDatastore():
-        RequestManagerCluster("ClusterAddDatastore",
-                "Adds a datastore to the cluster",
+    ClusterAddHost():
+        RequestManagerClusterHost("ClusterAddHost",
+                "Adds a host to the cluster",
                 "A:sii"){};
 
-    ~ClusterAddDatastore(){};
+    ~ClusterAddHost(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
+    void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att)
     {
-        return add_generic(_paramList, att, dspool, PoolObjectSQL::DATASTORE);
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
+        int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return add_generic(cluster_id, object_id, att,
+                hpool, PoolObjectSQL::HOST);
     }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterDelHost : public RequestManagerClusterHost
+{
+public:
+    ClusterDelHost():
+        RequestManagerClusterHost("ClusterDelHost",
+                "Deletes a host from its cluster",
+                "A:sii"){};
+
+    ~ClusterDelHost(){};
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+                         RequestAttributes& att)
+    {
+        // First param is ignored, as objects can be assigned to only
+        // one cluster
+        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return add_generic(cluster_id, object_id, att,
+                hpool, PoolObjectSQL::HOST);
+    }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class RequestManagerClusterDatastore : public RequestManagerCluster
+{
+public:
+    RequestManagerClusterDatastore(
+        const string& method_name,
+        const string& help,
+        const string& params):
+            RequestManagerCluster(method_name, help, params){};
+
+    ~RequestManagerClusterDatastore(){};
 
     virtual int add_object(Cluster* cluster, int id, string& error_msg)
     {
@@ -150,21 +191,67 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterAddVNet : public RequestManagerCluster
+class ClusterAddDatastore : public RequestManagerClusterDatastore
 {
 public:
-    ClusterAddVNet():
-        RequestManagerCluster("ClusterAddVNet",
-                "Adds a virtual network to the cluster",
+    ClusterAddDatastore():
+        RequestManagerClusterDatastore("ClusterAddDatastore",
+                "Adds a datastore to the cluster",
                 "A:sii"){};
 
-    ~ClusterAddVNet(){};
+    ~ClusterAddDatastore(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
+    void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att)
     {
-        return add_generic(_paramList, att, vnpool, PoolObjectSQL::NET);
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
+        int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return add_generic(cluster_id, object_id, att,
+                dspool, PoolObjectSQL::DATASTORE);
     }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterDelDatastore : public RequestManagerClusterDatastore
+{
+public:
+    ClusterDelDatastore():
+        RequestManagerClusterDatastore("ClusterDelDatastore",
+                "Deletes a datastore from its cluster",
+                "A:sii"){};
+
+    ~ClusterDelDatastore(){};
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+                         RequestAttributes& att)
+    {
+        // First param is ignored, as objects can be assigned to only
+        // one cluster
+        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return add_generic(cluster_id, object_id, att,
+                dspool, PoolObjectSQL::DATASTORE);
+    }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class RequestManagerClusterVNet : public RequestManagerCluster
+{
+public:
+
+    RequestManagerClusterVNet(
+            const string& method_name,
+            const string& help,
+            const string& params):
+                RequestManagerCluster(method_name, help, params){};
+
+    ~RequestManagerClusterVNet(){};
 
     virtual int add_object(Cluster* cluster, int id, string& error_msg)
     {
@@ -183,6 +270,56 @@ public:
         *object      = static_cast<PoolObjectSQL *>(vnet);
         *cluster_obj = static_cast<Clusterable *>(vnet);
     };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterAddVNet : public RequestManagerClusterVNet
+{
+public:
+    ClusterAddVNet():
+        RequestManagerClusterVNet("ClusterAddVNet",
+                "Adds a virtual network to the cluster",
+                "A:sii"){};
+
+    ~ClusterAddVNet(){};
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+                         RequestAttributes& att)
+    {
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
+        int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return add_generic(cluster_id, object_id, att,
+                vnpool, PoolObjectSQL::NET);
+    }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterDelVNet : public RequestManagerClusterVNet
+{
+public:
+    ClusterDelVNet():
+        RequestManagerClusterVNet("ClusterDelVNet",
+                "Deletes a virtual network from its cluster",
+                "A:sii"){};
+
+    ~ClusterDelVNet(){};
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+                         RequestAttributes& att)
+    {
+        // First param is ignored, as objects can be assigned to only
+        // one cluster
+        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return add_generic(cluster_id, object_id, att,
+                vnpool, PoolObjectSQL::NET);
+    }
 };
 
 /* -------------------------------------------------------------------------- */

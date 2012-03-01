@@ -31,22 +31,13 @@ class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
-                         const string& help,
-                         bool  _do_cluster=false)
-        :Request(method_name,"A:si",help),
-         do_cluster(_do_cluster)
+                         const string& help)
+        :Request(method_name,"A:si",help)
     {
         auth_op = AuthRequest::MANAGE;
 
-        if ( do_cluster )
-        {
-            Nebula& nd  = Nebula::instance();
-            clpool      = nd.get_clpool();
-        }
-        else
-        {
-            clpool = 0;
-        }
+        Nebula& nd  = Nebula::instance();
+        clpool      = nd.get_clpool();
     };
 
     ~RequestManagerDelete(){};
@@ -65,7 +56,7 @@ protected:
 
     virtual int get_cluster_id(PoolObjectSQL * object)
     {
-        return -1;
+        return ClusterPool::NONE_CLUSTER_ID;
     };
 
     virtual int del_from_cluster(Cluster* cluster, int id, string& error_msg)
@@ -74,7 +65,6 @@ protected:
     };
 
 private:
-    bool            do_cluster;
     ClusterPool *   clpool;
 };
 
@@ -105,8 +95,7 @@ class VirtualNetworkDelete: public RequestManagerDelete
 public:
     VirtualNetworkDelete():
         RequestManagerDelete("VirtualNetworkDelete",
-                             "Deletes a virtual network",
-                             true)
+                             "Deletes a virtual network")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
@@ -157,7 +146,7 @@ class HostDelete : public RequestManagerDelete
 {
 public:
     HostDelete():
-        RequestManagerDelete("HostDelete", "Deletes a host", true)
+        RequestManagerDelete("HostDelete", "Deletes a host")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
@@ -227,7 +216,7 @@ class DatastoreDelete: public RequestManagerDelete
 {
 public:
     DatastoreDelete():
-        RequestManagerDelete("DatastoreDelete", "Deletes a datastore", true)
+        RequestManagerDelete("DatastoreDelete", "Deletes a datastore")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();

@@ -107,6 +107,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    delhost_desc = <<-EOT.unindent
+        Deletes a Host from the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :hostid_list]
+    command :delhost, delhost_desc, :clusterid, :hostid do
+        helper.perform_actions(args[0],options,"updated") do |cluster|
+            cluster.delhost(args[1].to_i)
+        end
+    end
+
     adddatastore_desc = <<-EOT.unindent
         Adds a Datastore to the given Cluster
     EOT
@@ -118,6 +129,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    deldatastore_desc = <<-EOT.unindent
+        Deletes a Datastore from the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :datastoreid_list]
+    command :deldatastore, deldatastore_desc, :clusterid, :datastoreid do
+        helper.perform_actions(args[0],options,"updated") do |cluster|
+            cluster.deldatastore(args[1].to_i)
+        end
+    end
+
     addvnet_desc = <<-EOT.unindent
         Adds a Virtual Network to the given Cluster
     EOT
@@ -126,6 +148,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :addvnet, addvnet_desc,:clusterid, :vnetid do
         helper.perform_actions(args[0],options,"updated") do |cluster|
             cluster.addvnet(args[1].to_i)
+        end
+    end
+
+    delvnet_desc = <<-EOT.unindent
+        Deletes a Virtual Network from the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :vnetid_list]
+    command :delvnet, delvnet_desc,:clusterid, :vnetid do
+        helper.perform_actions(args[0],options,"updated") do |cluster|
+            cluster.delvnet(args[1].to_i)
         end
     end
 end

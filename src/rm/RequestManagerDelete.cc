@@ -109,18 +109,13 @@ int RequestManagerDelete::drop(
         PoolObjectSQL * object,
         string&         error_msg)
 {
-    int cluster_id = -1;
-
-    if ( do_cluster )
-    {
-        cluster_id = get_cluster_id(object);
-    }
+    int cluster_id = get_cluster_id(object);
 
     int rc = pool->drop(object, error_msg);
 
     object->unlock();
 
-    if ( do_cluster == true && rc == 0 )
+    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID && rc == 0 )
     {
         Cluster * cluster = clpool->get(cluster_id, true);
 

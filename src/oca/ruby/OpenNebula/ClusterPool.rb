@@ -23,6 +23,7 @@ module OpenNebula
         # Constants and Class attribute accessors
         #######################################################################
 
+        NONE_CLUSTER_ID      = -1
         DEFAULT_CLUSTER_ID   = 0
 
         CLUSTER_POOL_METHODS = {
