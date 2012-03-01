@@ -209,6 +209,16 @@ public:
     };
 
     /**
+     *  Returns the default var location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
+     *      @return the log location.
+     */
+    const string& get_ds_location()
+    {
+        return ds_location;
+    };
+
+    /**
      *  Returns the base for the system datastore (for tmp VM images). When 
      *  ONE_LOCATION is defined this path points to $ONE_LOCATION/var/system_ds, 
      *  otherwise it is /var/lib/one/system_ds.
@@ -353,6 +363,7 @@ private:
             log_location     = "/var/log/one/";
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
+            ds_location      = "/var/lib/one/datastores/";
         }
         else
         {
@@ -368,6 +379,7 @@ private:
             log_location     = nebula_location + "var/";
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
+            ds_location      = nebula_location + "var/datastores/";
         }
     };
 
@@ -495,6 +507,7 @@ private:
     string	var_location;
     string  hook_location;
     string  remotes_location;
+    string  ds_location;
 
     string	hostname;
 

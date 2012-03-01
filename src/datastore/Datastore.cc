@@ -17,6 +17,7 @@
 #include "Datastore.h"
 #include "GroupPool.h"
 #include "NebulaLog.h"
+#include "Nebula.h"
 
 const char * Datastore::table = "datastore_pool";
 
@@ -79,7 +80,10 @@ int Datastore::disk_attribute(VectorAttribute * disk)
 
 int Datastore::insert(SqlDB *db, string& error_str)
 {
-    int rc;
+    int           rc;
+    ostringstream oss;
+
+    Nebula& nd = Nebula::instance();
 
     // ---------------------------------------------------------------------
     // Check default datastore attributes
@@ -102,12 +106,11 @@ int Datastore::insert(SqlDB *db, string& error_str)
         goto error_tm;
     }
 
-    erase_template_attribute("BASE_PATH", base_path);
+    oss << nd.get_ds_location() << oid;
 
-    if ( base_path.empty() == true )
-    {
-        goto error_base_path;
-    }
+    base_path = oss.str();
+
+    replace_template_attribute("BASE_PATH", base_path);
 
     //--------------------------------------------------------------------------
     // Insert the Datastore
@@ -123,10 +126,6 @@ error_type:
 
 error_tm:
     error_str = "No TM_MAD in template.";
-    goto error_common;
-
-error_base_path:
-    error_str = "No BASE_PATH in template.";
     goto error_common;
 
 error_common:

@@ -46,20 +46,16 @@ DatastorePool::DatastorePool(SqlDB * db):
         DatastoreTemplate * ds_tmpl;
 
         int     rc, system_id, default_id;
-        string  base_path;
         Nebula& nd = Nebula::instance();
 
         ClusterPool * clpool = nd.get_clpool();
         Cluster *     cluster;
-
-        base_path = nd.get_var_location() + "datastores/";
 
         // ---------------------------------------------------------------------
         // Create the system datastore 
         // ---------------------------------------------------------------------
 
         oss << "NAME      = " << SYSTEM_DS_NAME << endl
-            << "BASE_PATH = " << base_path << "system"<< endl
             << "TYPE      = fs" << endl
             << "TM_MAD    = shared";
 
@@ -88,7 +84,6 @@ DatastorePool::DatastorePool(SqlDB * db):
         oss.str("");
 
         oss << "NAME      = "   << DEFAULT_DS_NAME << endl
-            << "BASE_PATH = "   << base_path << "default" << endl
             << "TYPE      = fs" << endl
             << "TM_MAD    = shared";
 
