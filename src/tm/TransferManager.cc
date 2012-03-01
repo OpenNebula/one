@@ -542,8 +542,8 @@ void TransferManager::prolog_migr_action(int vid)
             continue;
         }
 
-        //MVDISK tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i
-        xfr << "MVDISK "
+        //MV tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i
+        xfr << "MV "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":" 
             << vm->get_remote_system_dir() << "/disk." << i << " "
@@ -664,8 +664,8 @@ void TransferManager::prolog_resume_action(int vid)
             continue;
         }
 
-        //MVDISK tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i
-        xfr << "MVDISK "
+        //MV tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i
+        xfr << "MV "
             << tm_mad << " "
             << nd.get_nebula_hostname() << ":" 
             << vm->get_system_dir() << "/disk." << i << " "
@@ -812,8 +812,8 @@ void TransferManager::epilog_action(int vid)
                 tsource << source << " ";
             }
 
-            //MV tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE>
-            xfr << "MV " 
+            //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE>
+            xfr << "MVDS " 
                 << tm_mad << " "
                 << vm->get_hostname() << ":" 
                 << vm->get_remote_system_dir() << "/disk." << i << " "
@@ -821,8 +821,8 @@ void TransferManager::epilog_action(int vid)
         }
         else if ( !tm_mad.empty() ) //No saving disk and no system_ds disk
         {
-            //DELETEDISK tm_mad hostname:remote_system_dir/disk.i
-            xfr << "DELETEDISK "
+            //DELETE tm_mad hostname:remote_system_dir/disk.i
+            xfr << "DELETE "
                 << tm_mad << " "
                 << vm->get_hostname() << ":"
                 << vm->get_remote_system_dir() << "/disk." << i << endl;
@@ -937,8 +937,8 @@ void TransferManager::epilog_stop_action(int vid)
             continue;
         }
 
-        //MVDISK tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i
-        xfr << "MVDISK "
+        //MV tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i
+        xfr << "MV "
             << tm_mad << " "
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << i << " "
@@ -1056,8 +1056,8 @@ void TransferManager::epilog_delete_action(int vid)
             continue;
         }
 
-        //DELETEDISK tm_mad host:remote_system_dir/disk.i
-        xfr << "DELETEDISK "
+        //DELETE tm_mad host:remote_system_dir/disk.i
+        xfr << "DELETE "
             << tm_mad << " "
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << i << endl;
@@ -1175,8 +1175,8 @@ void TransferManager::epilog_delete_previous_action(int vid)
             continue;
         }
 
-        //DELETEDISK tm_mad prev_host:remote_system_dir/disk.i
-        xfr << "DELETEDISK "
+        //DELETE tm_mad prev_host:remote_system_dir/disk.i
+        xfr << "DELETE "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << i << endl;
