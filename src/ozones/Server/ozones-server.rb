@@ -23,15 +23,20 @@ if !ONE_LOCATION
     LIB_LOCATION="/usr/lib/one"
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
     VAR_LOCATION="/var/lib/one"
+    CONFIGURATION_FILE="/etc/one/ozones-server.conf"
 else
     ETC_LOCATION=ONE_LOCATION+"/etc"
     LIB_LOCATION=ONE_LOCATION+"/lib"
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
     VAR_LOCATION=ONE_LOCATION+"/var"
+    CONFIGURATION_FILE=ONE_LOCATION+"/etc/ozones-server.conf"
 end
+
+OZONES_LOG = VAR_LOCATION + "/ozones-server.log"
 
 $: << LIB_LOCATION + "/sunstone/models"
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+'/cloud'
 $: << LIB_LOCATION+'/ozones/models'
 $: << LIB_LOCATION+'/ozones/lib'
 $: << RUBY_LIB_LOCATION+"/cli"
@@ -52,8 +57,16 @@ require 'OzonesServer'
 ##############################################################################
 # Read configuration
 ##############################################################################
-config_data=File.read(ETC_LOCATION+'/ozones-server.conf')
-config=YAML::load(config_data)
+begin
+    config=YAML::load_file(CONFIGURATION_FILE)
+rescue Exception => e
+    warn "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    exit 1
+end
+
+config[:debug_level] ||= 3
+
+CloudServer.print_configuration(config)
 
 db_type = config[:databasetype]
 
@@ -71,6 +84,20 @@ case db_type
         warn "DB type #{db_type} not recognized"
         exit -1
 end
+
+##############################################################################
+# Sinatra Configuration
+##############################################################################
+set :config, config
+set :bind, config[:host]
+set :port, config[:port]
+
+use Rack::Session::Pool, :key => 'ozones'
+
+#Enable logger
+disable :logging
+include CloudLogger
+enable_logging OZONES_LOG, settings.config[:debug_level].to_i
 
 ##############################################################################
 # DB bootstrapping
@@ -92,7 +119,7 @@ if Auth.all.size == 0
         credentials = IO.read(ENV['OZONES_AUTH']).strip.split(':')
 
         if credentials.length < 2
-            warn "Authorization data malformed"
+            settings.logger.error {"Authorization data malformed"}
             exit -1
         end
         credentials[1] = Digest::SHA1.hexdigest(credentials[1])
@@ -100,7 +127,8 @@ if Auth.all.size == 0
                            :password => credentials[1]})
         @auth.save
     else
-        warn "oZones admin credentials not set, missing OZONES_AUTH file."
+        error_m = "oZones admin credentials not set, missing OZONES_AUTH file."
+        settings.logger.error { error_m }
         exit -1
     end
 else
@@ -116,15 +144,6 @@ rescue Exception => e
     warn e.message
     exit -1
 end
-
-
-##############################################################################
-# Sinatra Configuration
-##############################################################################
-use Rack::Session::Pool, :key => 'ozones'
-set :bind, config[:host]
-set :port, config[:port]
-set :show_exceptions, false
 
 ##############################################################################
 # Helpers
@@ -157,10 +176,11 @@ helpers do
 
                 return [204, ""]
             else
+                logger.info {"User not authorized login attempt"}
                 return [401, ""]
             end
         end
-
+        logger.error {"Authentication settings wrong or not provided"}
         return [401, ""]
     end
 
@@ -181,7 +201,9 @@ before do
             end
         end
 
-        @OzonesServer = OzonesServer.new(session[:key])
+        @OzonesServer = OzonesServer.new(session[:key],
+                                         settings.config,
+                                         settings.logger)
         @pr           = OZones::ProxyRules.new("apache",config[:htaccess])
     end
 end
