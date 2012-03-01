@@ -568,7 +568,7 @@ class OCCIServer < CloudServer
             return [404, error]
         end
 
-        vnc_proxy = OpenNebulaVNC.new(config,{:json_errors => false})
+        vnc_proxy = OpenNebulaVNC.new(config, logger, {:json_errors => false})
         return vnc_proxy.start(vm)
     end
 
@@ -576,7 +576,8 @@ class OCCIServer < CloudServer
         begin
             OpenNebulaVNC.stop(pipe)
         rescue Exception => e
-            return [500, e.message]
+            logger.error {e.message}
+            return [500, "Error stopping VNC. Please check server logs."]
         end
         
         return [200,nil]

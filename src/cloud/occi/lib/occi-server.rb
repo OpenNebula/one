@@ -136,7 +136,9 @@ before do
             error 401, ""
         else
             client  = settings.cloud_auth.client(username)
-            @occi_server = OCCIServer.new(client, settings.config, settings.logger)
+            @occi_server = OCCIServer.new(client,
+                                          settings.config,
+                                          settings.logger)
         end
     end
 end
@@ -172,7 +174,9 @@ helpers do
             error 401, ""
         else
             client  = settings.cloud_auth.client(username)
-            @occi_server = OCCIServer.new(client, settings.config, settings.logger)
+            @occi_server = OCCIServer.new(client,
+                                          settings.config,
+                                          settings.logger)
 
             user_id = OpenNebula::User::SELF
             user    = OpenNebula::User.new_with_id(user_id, client)
