@@ -95,7 +95,6 @@ set :port, config[:port]
 use Rack::Session::Pool, :key => 'ozones'
 
 #Enable logger
-disable :logging
 include CloudLogger
 enable_logging OZONES_LOG, settings.config[:debug_level].to_i
 
