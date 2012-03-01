@@ -123,7 +123,10 @@ private:
     // *************************************************************************
 
     Datastore(
-            int                 id,
+            int                 uid,
+            int                 gid,
+            const string&       uname,
+            const string&       gname,
             DatastoreTemplate*  ds_template,
             int                 cluster_id,
             const string&       cluster_name);

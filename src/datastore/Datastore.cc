@@ -34,16 +34,20 @@ const char * Datastore::db_bootstrap =
 /* Datastore :: Constructor/Destructor                                      */
 /* ************************************************************************ */
 
-Datastore::Datastore(int                id,
-                     DatastoreTemplate* ds_template,
-                     int                 cluster_id,
-                     const string&       cluster_name):
-                PoolObjectSQL(id,DATASTORE,"",-1,-1,"","",table),
-                ObjectCollection("IMAGES"),
-                Clusterable(cluster_id, cluster_name),
-                type(""),
-                tm_mad(""),
-                base_path("")
+Datastore::Datastore(
+        int                 uid,
+        int                 gid,
+        const string&       uname,
+        const string&       gname,
+        DatastoreTemplate*  ds_template,
+        int                 cluster_id,
+        const string&       cluster_name):
+            PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,table),
+            ObjectCollection("IMAGES"),
+            Clusterable(cluster_id, cluster_name),
+            type(""),
+            tm_mad(""),
+            base_path("")
 {
     if (ds_template != 0)
     {
@@ -144,10 +148,6 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-    // Set the owner and group to oneadmin
-    set_user(0, "");
-    set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
-
     // Update the Datastore
 
     sql_name = db->escape_str(name.c_str());
@@ -232,10 +232,14 @@ string& Datastore::to_xml(string& xml) const
 
     oss <<
     "<DATASTORE>"    <<
-        "<ID>"          << oid          << "</ID>"   <<
-        "<NAME>"        << name         << "</NAME>" <<
-        "<TYPE>"        << type         << "</TYPE>" <<
-        "<TM_MAD>"      << tm_mad       << "</TM_MAD>" <<
+        "<ID>"          << oid          << "</ID>"          <<
+        "<UID>"         << uid          << "</UID>"         <<
+        "<GID>"         << gid          << "</GID>"         <<
+        "<UNAME>"       << uname        << "</UNAME>"       <<
+        "<GNAME>"       << gname        << "</GNAME>"       <<
+        "<NAME>"        << name         << "</NAME>"        <<
+        "<TYPE>"        << type         << "</TYPE>"        <<
+        "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
         "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
         "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
@@ -261,6 +265,10 @@ int Datastore::from_xml(const string& xml)
 
     // Get class base attributes
     rc += xpath(oid,        "/DATASTORE/ID",        -1);
+    rc += xpath(uid,        "/DATASTORE/UID",       -1);
+    rc += xpath(gid,        "/DATASTORE/GID",       -1);
+    rc += xpath(uname,      "/DATASTORE/UNAME",     "not_found");
+    rc += xpath(gname,      "/DATASTORE/GNAME",     "not_found");
     rc += xpath(name,       "/DATASTORE/NAME",      "not_found");
     rc += xpath(type,       "/DATASTORE/TYPE",      "not_found");
     rc += xpath(tm_mad,     "/DATASTORE/TM_MAD",    "not_found");
@@ -268,10 +276,6 @@ int Datastore::from_xml(const string& xml)
 
     rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
     rc += xpath(cluster,    "/DATASTORE/CLUSTER",    "not_found");
-
-    // Set the owner and group to oneadmin
-    set_user(0, "");
-    set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
     // Get associated classes
     ObjectXML::get_nodes("/DATASTORE/IMAGES", content);

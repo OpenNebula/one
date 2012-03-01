@@ -467,7 +467,8 @@ int DatastoreAllocate::pool_allocate(
 
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
-    return dspool->allocate(ds_tmpl, &id, cluster_id, cluster_name, error_str);
+    return dspool->allocate(att.uid, att.gid, att.uname, att.gname,
+            ds_tmpl, &id, cluster_id, cluster_name, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
