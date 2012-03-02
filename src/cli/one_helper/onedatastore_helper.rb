@@ -73,6 +73,18 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["BASE PATH",datastore['BASE_PATH']]
         puts
 
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+
+        ["OWNER", "GROUP", "OTHER"].each { |e|
+            mask = "---"
+            mask[0] = "u" if datastore["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if datastore["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if datastore["PERMISSIONS/#{e}_A"] == "1"
+
+            puts str % [e,  mask]
+        }
+        puts
+
         CLIHelper.print_header(str_h1 % "IMAGES", false)
         CLIHelper.print_header("%-15s" % ["ID"])
         datastore.img_ids.each do |id|

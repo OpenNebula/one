@@ -313,12 +313,14 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_chown(new VirtualNetworkChown());
     xmlrpc_c::methodPtr image_chown(new ImageChown());
     xmlrpc_c::methodPtr user_chown(new UserChown());
+    xmlrpc_c::methodPtr datastore_chown(new DatastoreChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
     xmlrpc_c::methodPtr template_chmod(new TemplateChmod());
     xmlrpc_c::methodPtr vn_chmod(new VirtualNetworkChmod());
     xmlrpc_c::methodPtr image_chmod(new ImageChmod());
+    xmlrpc_c::methodPtr datastore_chmod(new DatastoreChmod());
 
     // ACL Methods
     xmlrpc_c::methodPtr acl_addrule(new AclAddRule());
@@ -419,6 +421,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.datastore.allocate",datastore_allocate);
     RequestManagerRegistry.addMethod("one.datastore.delete",  datastore_delete);
     RequestManagerRegistry.addMethod("one.datastore.info",    datastore_info);
+    RequestManagerRegistry.addMethod("one.datastore.chown",   datastore_chown);
+    RequestManagerRegistry.addMethod("one.datastore.chmod",   datastore_chmod);
 
     RequestManagerRegistry.addMethod("one.datastorepool.info",datastorepool_info);
 

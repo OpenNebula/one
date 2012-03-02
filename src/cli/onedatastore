@@ -86,6 +86,38 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    chgrp_desc = <<-EOT.unindent
+        Changes the Datastore group
+    EOT
+
+    command :chgrp, chgrp_desc,[:range, :datastoreid_list], :groupid do
+        helper.perform_actions(args[0],options,"Group changed") do |obj|
+            obj.chown(-1, args[1].to_i)
+        end
+    end
+
+    chown_desc = <<-EOT.unindent
+        Changes the Datastore owner and group
+    EOT
+
+    command :chown, chown_desc, [:range, :datastoreid_list], :userid,
+            [:groupid,nil] do
+        gid = args[2].nil? ? -1 : args[2].to_i
+        helper.perform_actions(args[0],options,"Owner/Group changed") do |obj|
+            obj.chown(args[1].to_i, gid)
+        end
+    end
+
+    chmod_desc = <<-EOT.unindent
+        Changes the Datastore permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :datastoreid_list], :octet do
+        helper.perform_actions(args[0],options, "Permissions changed") do |obj|
+            obj.chmod_octet(args[1])
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Datastores in the pool
     EOT

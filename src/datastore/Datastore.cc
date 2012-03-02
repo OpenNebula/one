@@ -227,6 +227,7 @@ string& Datastore::to_xml(string& xml) const
     ostringstream   oss;
     string          collection_xml;
     string          template_xml;
+    string          perms_xml;
 
     ObjectCollection::to_xml(collection_xml);
 
@@ -238,6 +239,7 @@ string& Datastore::to_xml(string& xml) const
         "<UNAME>"       << uname        << "</UNAME>"       <<
         "<GNAME>"       << gname        << "</GNAME>"       <<
         "<NAME>"        << name         << "</NAME>"        <<
+        perms_to_xml(perms_xml)                             <<
         "<TYPE>"        << type         << "</TYPE>"        <<
         "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
@@ -276,6 +278,9 @@ int Datastore::from_xml(const string& xml)
 
     rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
     rc += xpath(cluster,    "/DATASTORE/CLUSTER",    "not_found");
+
+    // Permissions
+    rc += perms_from_xml();
 
     // Get associated classes
     ObjectXML::get_nodes("/DATASTORE/IMAGES", content);

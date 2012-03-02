@@ -158,9 +158,12 @@ module OpenNebula
         end
 
         # Changes the owner/group
-        # uid:: _Integer_ the new owner id. Set to -1 to leave the current one
-        # gid:: _Integer_ the new group id. Set to -1 to leave the current one
-        # [return] nil in case of success or an Error object
+        #
+        # @param uid [Integer] the new owner id. Set to -1 to leave the current one
+        # @param gid [Integer] the new group id. Set to -1 to leave the current one
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
         def chown(uid, gid)
             super(VN_METHODS[:chown], uid, gid)
         end

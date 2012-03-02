@@ -26,7 +26,9 @@ module OpenNebula
         DATASTORE_METHODS = {
             :info       => "datastore.info",
             :allocate   => "datastore.allocate",
-            :delete     => "datastore.delete"
+            :delete     => "datastore.delete",
+            :chown      => "datastore.chown",
+            :chmod      => "datastore.chmod"
         }
 
         # Creates a Datastore description with just its identifier
@@ -74,6 +76,37 @@ module OpenNebula
         # Deletes the Datastore
         def delete()
             super(DATASTORE_METHODS[:delete])
+        end
+
+        # Changes the owner/group
+        #
+        # @param uid [Integer] the new owner id. Set to -1 to leave the current one
+        # @param gid [Integer] the new group id. Set to -1 to leave the current one
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chown(uid, gid)
+            super(DATASTORE_METHODS[:chown], uid, gid)
+        end
+
+        # Changes the datastore permissions.
+        #
+        # @param octet [String] Permissions octed , e.g. 640
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod_octet(octet)
+            super(DATASTORE_METHODS[:chmod], octet)
+        end
+
+        # Changes the datastore permissions.
+        # Each [Integer] argument must be 1 to allow, 0 deny, -1 do not change
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
+                other_m, other_a)
+            super(DATASTORE_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
+                group_m, group_a, other_u, other_m, other_a)
         end
 
         # ---------------------------------------------------------------------

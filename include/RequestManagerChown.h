@@ -153,6 +153,25 @@ public:
                                  RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreChown: public RequestManagerChown
+{
+public:
+    DatastoreChown():
+        RequestManagerChown("Datastore",
+                           "Changes ownership of a datastore")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreChown(){};
+
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
