@@ -56,6 +56,18 @@ function arg_path
 #Return the DATASTORE_LOCATION from OpenNebula configuration
 function set_ds_location
 {
-    DS_LOCATION=`grep '^DATASTORE_LOCATION=' $ONE_LOCAL_VAR/config | cut -d= -f2`
+    DS_LOCATION=`$GREP '^DATASTORE_LOCATION=' $ONE_LOCAL_VAR/config | cut -d= -f2`
     DS_LOCATION=`fix_dir_slashes $DS_LOCATION`
+}
+
+#Return 1 if the first argument is a disk
+function is_disk
+{
+    echo "$1" | $GREP '/disk\.[0-9]\+' > /dev/null 2>&1 
+
+    if [ $? -eq 0 ]; then
+        echo "1"
+    else
+        echo "0"
+    fi
 }

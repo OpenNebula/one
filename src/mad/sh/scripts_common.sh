@@ -36,6 +36,7 @@ SED=sed
 SSH=ssh
 SUDO=sudo
 WGET=wget
+GREP=grep
 
 # Used for log messages
 SCRIPT_NAME=`basename $0`
@@ -181,6 +182,10 @@ function mkfs_command {
 
         "jfs")
             OPTS="-q"
+            ;;
+        "none")
+            echo ""
+            return 0 
             ;;
         *)
             OPTS=""
