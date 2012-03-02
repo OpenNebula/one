@@ -57,7 +57,20 @@ config=YAML::load(config_data)
 
 db_type = config[:databasetype]
 
-db_url = db_type + "://" + VAR_LOCATION + "/ozones.db"
+case db_type
+    when "sqlite" then
+        db_url = db_type + "://" + VAR_LOCATION + "/ozones.db"
+    when "mysql","postgres" then
+        if config[:databaseserver].nil?
+            warn "DB server needed for this type of DB backend"
+            exit -1
+        end
+
+        db_url = db_type + "://" + config[:databaseserver] + "/ozones"
+    else 
+        warn "DB type #{db_type} not recognized"
+        exit -1
+end
 
 ##############################################################################
 # DB bootstrapping
