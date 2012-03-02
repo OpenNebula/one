@@ -32,8 +32,9 @@ else
 end
 
 SUNSTONE_AUTH             = VAR_LOCATION + "/.one/sunstone_auth"
-SUNSTONE_LOG              = VAR_LOCATION + "/sunstone.log"
+SUNSTONE_LOG              = LOG_LOCATION + "/sunstone.log"
 CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
+
 PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)

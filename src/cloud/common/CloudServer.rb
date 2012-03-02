@@ -121,6 +121,9 @@ module CloudLogger
         # Add the logger instance to the Sinatra settings
         set :logger, logger
 
+        # The logging will be configured in Rack, not in Sinatra
+        disable :logging
+
         # Use the logger instance in the Rack  methods
         use Rack::CommonLogger, logger
 

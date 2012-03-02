@@ -25,19 +25,22 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
-    TEMPLATE_LOCATION="/etc/one/occi_templates"
-    CONFIGURATION_FILE = "/etc/one/occi-server.conf"
+    ETC_LOCATION = "/etc/one"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    VAR_LOCATION = ONE_LOCATION+"/var"
-    TEMPLATE_LOCATION=ONE_LOCATION+"/etc/occi_templates"
-    CONFIGURATION_FILE = ONE_LOCATION+"/etc/occi-server.conf"
+    VAR_LOCATION = ONE_LOCATION + "/var"
+    LOG_LOCATION = ONE_LOCATION + "/var"
+    ETC_LOCATION = ONE_LOCATION + "/etc"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-OCCI_AUTH = VAR_LOCATION + "/.one/occi_auth"
-OCCI_LOG  = VAR_LOCATION + "/occi-server.log"
+OCCI_AUTH          = VAR_LOCATION + "/.one/occi_auth"
+OCCI_LOG           = LOG_LOCATION + "/occi-server.log"
+CONFIGURATION_FILE = ETC_LOCATION + "/occi-server.conf"
+
+TEMPLATE_LOCATION  = ETC_LOCATION + "/occi_templates"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud/occi"

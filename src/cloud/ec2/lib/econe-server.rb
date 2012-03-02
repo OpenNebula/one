@@ -20,20 +20,23 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION  = "/usr/lib/one/ruby"
+    LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
-    CONFIGURATION_FILE = "/etc/one/econe.conf"
-    TEMPLATE_LOCATION  = "/etc/one/ec2query_templates"
+    ETC_LOCATION = "/etc/one"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
-    RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
-    VAR_LOCATION = ONE_LOCATION+"/var"
-    CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
-    TEMPLATE_LOCATION  = ONE_LOCATION+"/etc/ec2query_templates"
+    VAR_LOCATION = ONE_LOCATION + "/var"
+    LOG_LOCATION = ONE_LOCATION + "/var"
+    ETC_LOCATION = ONE_LOCATION + "/etc"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
-EC2_AUTH = VAR_LOCATION + "/.one/ec2_auth"
-EC2_LOG = VAR_LOCATION + "/econe.log"
+EC2_AUTH           = VAR_LOCATION + "/.one/ec2_auth"
+EC2_LOG            = LOG_LOCATION + "/econe-server.log"
+CONFIGURATION_FILE = ETC_LOCATION + "/occi-server.conf"
+
+TEMPLATE_LOCATION  = ETC_LOCATION + "/occi_templates"
+VIEWS_LOCATION     = RUBY_LIB_LOCATION + "/cloud/econe/views"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"

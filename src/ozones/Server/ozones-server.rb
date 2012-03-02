@@ -19,20 +19,21 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    ETC_LOCATION="/etc/one"
-    LIB_LOCATION="/usr/lib/one"
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    VAR_LOCATION="/var/lib/one"
-    CONFIGURATION_FILE="/etc/one/ozones-server.conf"
+    LOG_LOCATION = "/var/log/one"
+    VAR_LOCATION = "/var/lib/one"
+    ETC_LOCATION = "/etc/one"
+    LIB_LOCATION = "/usr/lib/one"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
-    ETC_LOCATION=ONE_LOCATION+"/etc"
-    LIB_LOCATION=ONE_LOCATION+"/lib"
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    VAR_LOCATION=ONE_LOCATION+"/var"
-    CONFIGURATION_FILE=ONE_LOCATION+"/etc/ozones-server.conf"
+    VAR_LOCATION = ONE_LOCATION + "/var"
+    LOG_LOCATION = ONE_LOCATION + "/var"
+    ETC_LOCATION = ONE_LOCATION + "/etc"
+    LIB_LOCATION = ONE_LOCATION+"/lib"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-OZONES_LOG = VAR_LOCATION + "/ozones-server.log"
+OZONES_LOG         = LOG_LOCATION + "/ozones-server.log"
+CONFIGURATION_FILE = ETC_LOCATION + "/ozones-server.conf"
 
 $: << LIB_LOCATION + "/sunstone/models"
 $: << RUBY_LIB_LOCATION
