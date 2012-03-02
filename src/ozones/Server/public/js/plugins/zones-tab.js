@@ -53,6 +53,12 @@ var create_zone_tmpl =
         <input type="text" name="sunsendpoint_port" id="sunsendpoint_port" value="9869" style="width:3em;"/> /\
         <input type="text" name="sunsendpoint_path" id="sunsendpoint_path" value="" style="width:4em;"/>\
         <br />\
+        <label for="selfsendpoint">SelfService end point:</label>\
+        <input type="text" name="selfsendpoint_ptc" id="selfsendpoint_ptc" value="http" style="width:2em;"/> ://\
+        <input type="text" name="selfsendpoint" id="selfsendpoint" style="width:7em;" value="localhost"/> :\
+        <input type="text" name="selfsendpoint_port" id="selfsendpoint_port" value="4567" style="width:3em;"/> /\
+        <input type="text" name="selfsendpoint_path" id="selfsendpoint_path" value="ui" style="width:4em;"/>\
+        <br />\
      </div>\
    </fieldset>\
    <fieldset>\
@@ -310,8 +316,12 @@ function updateZoneInfo(req,zone_json){
                 <td class="value_td">'+zone.ENDPOINT+'</td>\
             </tr>\
             <tr>\
-            <td class="key_td">Sunstone endpoint</td>\
-<td class="value_td">'+ (zone.SUNSENDPOINT.length? '<a href="'+zone.SUNSENDPOINT+'" target="_blank">'+zone.SUNSENDPOINT+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "") +'</td>\
+                <td class="key_td">Sunstone endpoint</td>\
+                <td class="value_td">'+ (zone.SUNSENDPOINT.length? '<a href="'+zone.SUNSENDPOINT+'" target="_blank">'+zone.SUNSENDPOINT+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "") +'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">SelfService endpoint</td>\
+                <td class="value_td">'+ (zone.SELFENDPOINT.length? '<a href="'+zone.SELFENDPOINT+'" target="_blank">'+zone.SELFENDPOINT+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "") +'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">#VDCs</td>\
@@ -557,10 +567,16 @@ function setupCreateZoneDialog(){
         var endpoint_port = $('#endpoint_port',this).val();
         var onename = $('#onename',this).val();
         var onepass = $('#onepass',this).val();
+
         var se = $('#sunsendpoint',this).val();
         var se_ptc = $('#sunsendpoint_ptc',this).val();
         var se_port = $('#sunsendpoint_port',this).val();
         var se_path = $('#sunsendpoint_path',this).val();
+
+        var ss = $('#selfsendpoint',this).val();
+        var ss_ptc = $('#selfsendpoint_ptc',this).val();
+        var ss_port = $('#selfsendpoint_port',this).val();
+        var ss_path = $('#selfsendpoint_path',this).val();
 
         if (!name.length || !endpoint.length ||
             !onename.length || !onepass.length){
@@ -575,13 +591,18 @@ function setupCreateZoneDialog(){
             se = se_ptc + "://" + se + ":" + se_port +
             "/" + se_path;
 
+        if (ss.length)
+            ss = ss_ptc + "://" + ss + ":" + ss_port +
+            "/" + ss_path;
+
         var zone_json = {
             "ZONE": {
                 "NAME": name,
                 "ENDPOINT": endpoint,
                 "ONENAME": onename,
                 "ONEPASS": onepass,
-                "SUNSENDPOINT" : se
+                "SUNSENDPOINT" : se,
+                "SELFENDPOINT" : ss,
             }
         };
 
