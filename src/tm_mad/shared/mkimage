@@ -60,6 +60,6 @@ MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE`
 exec_and_log "$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M" \
     "Could not create image $DST_PATH"
 
-if [ -n $MKFS_CMD ]; then
+if [ -n "$MKFS_CMD" ]; then
 	exec_and_log "$MKFS_CMD" "Unable to create filesystem $FSTYPE in $DST_PATH"
 fi

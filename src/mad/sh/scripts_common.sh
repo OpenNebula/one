@@ -187,6 +187,10 @@ function mkfs_command {
             echo ""
             return 0 
             ;;
+        "swap")
+            echo "$MKSWAP $DST"
+            return 0
+            ;;
         *)
             OPTS=""
             ;;
