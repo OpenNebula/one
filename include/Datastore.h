@@ -180,6 +180,14 @@ private:
         string error_str;
         return insert_replace(db, true, error_str);
     }
+
+    /**
+     *  Factory method for virtual network templates
+     */
+    Template * get_new_template()
+    {
+        return new DatastoreTemplate;
+    }
 };
 
 #endif /*DATASTORE_H_*/

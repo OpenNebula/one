@@ -255,6 +255,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_update(new HostUpdateTemplate());
     xmlrpc_c::methodPtr vn_update(new VirtualNetworkUpdateTemplate());
     xmlrpc_c::methodPtr user_update(new UserUpdateTemplate());
+    xmlrpc_c::methodPtr datastore_update(new DatastoreUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -421,6 +422,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.datastore.allocate",datastore_allocate);
     RequestManagerRegistry.addMethod("one.datastore.delete",  datastore_delete);
     RequestManagerRegistry.addMethod("one.datastore.info",    datastore_info);
+    RequestManagerRegistry.addMethod("one.datastore.update",  datastore_update);
     RequestManagerRegistry.addMethod("one.datastore.chown",   datastore_chown);
     RequestManagerRegistry.addMethod("one.datastore.chmod",   datastore_chmod);
 

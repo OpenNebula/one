@@ -27,6 +27,7 @@ module OpenNebula
             :info       => "datastore.info",
             :allocate   => "datastore.allocate",
             :delete     => "datastore.delete",
+            :update     => "datastore.update",
             :chown      => "datastore.chown",
             :chmod      => "datastore.chmod"
         }
@@ -76,6 +77,16 @@ module OpenNebula
         # Deletes the Datastore
         def delete()
             super(DATASTORE_METHODS[:delete])
+        end
+
+        # Replaces the template contents
+        #
+        # @param new_template [String] New template contents
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(new_template)
+            super(DATASTORE_METHODS[:update], new_template)
         end
 
         # Changes the owner/group

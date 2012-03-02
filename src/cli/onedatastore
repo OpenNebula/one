@@ -133,4 +133,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :show, show_desc, :datastoreid, :options=>OpenNebulaHelper::XML do
         helper.show_resource(args[0],options)
     end
+
+    update_desc = <<-EOT.unindent
+        Launches the system editor to modify and update the template contents
+    EOT
+
+    command :update, update_desc, :datastoreid do
+        helper.perform_action(args[0],options,"modified") do |obj|
+            str = OpenNebulaHelper.update_template(args[0], obj)
+            obj.update(str)
+        end
+    end
 end
