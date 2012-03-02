@@ -19,14 +19,14 @@
 if [ -z "$ONE_LOCATION" ]; then
     OZONES_PID=/var/run/one/ozones.pid
     OZONES_LOCATION=/usr/lib/one/ozones
-    OZONES_SERVER=$OZONES_LOCATION/config.ru
+    OZONES_SERVER=$OZONES_LOCATION/ozones-server.rb
     OZONES_LOCK_FILE=/var/lock/one/.ozones.lock
     OZONES_LOG=/var/log/one/ozones-server.log
     OZONES_CONF=/etc/one/ozones-server.conf
 else
     OZONES_PID=$ONE_LOCATION/var/ozones.pid
     OZONES_LOCATION=$ONE_LOCATION/lib/ozones
-    OZONES_SERVER=$OZONES_LOCATION/config.ru
+    OZONES_SERVER=$OZONES_LOCATION/ozones-server.rb
     OZONES_LOCK_FILE=$ONE_LOCATION/var/.ozones.lock
     OZONES_LOG=$ONE_LOCATION/var/ozones-server.log
     OZONES_CONF=$ONE_LOCATION/etc/ozones-server.conf
@@ -58,29 +58,26 @@ start()
     exit 1
   fi
 
-  HOST=`cat $OZONES_CONF|grep ^\:host\:|cut -d' ' -f 2`
-  PORT=`cat $OZONES_CONF|grep ^\:port\:|cut -d' ' -f 2`
-
-  lsof -i:$PORT  &> /dev/null
-  if [ $? -eq 0 ]; then
-    echo "The port $PORT is being used. Please specify a different one."
-    exit 1
-  fi
-
   # Start the ozones daemon
   touch $OZONES_LOCK_FILE
-  rackup $OZONES_SERVER -s thin -p $PORT -o $HOST \
-                  -P $OZONES_PID &> $OZONES_LOG &
+  ruby $OZONES_SERVER > $OZONES_LOG 2>&1 &
+  LASTPID=$!
+  if [ $? -ne 0 ]; then
+    echo "Error executing $OZONES_SERVER, please check the log $OZONES_LOG"
+    exit 1
+  else
+      echo $LASTPID > $OZONES_PID
+  fi
 
   sleep 2
-  ps -p $(cat $OZONES_PID 2>/dev/null) > /dev/null 2>&1
+  ps $LASTPID &> /dev/null
 
   if [ $? -ne 0 ]; then
     echo "Error executing $OZONES_SERVER, please check the log $OZONES_LOG"
     exit 1
   fi
 
-  echo "ozones-server listening on $HOST:$PORT"
+  echo "ozones-server started"
 }
 
 #
