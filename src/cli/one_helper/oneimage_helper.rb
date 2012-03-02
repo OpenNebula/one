@@ -118,6 +118,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", image.name]
         puts str % ["USER", image['UNAME']]
         puts str % ["GROUP",image['GNAME']]
+        puts str % ["DATASTORE",image['DATASTORE']]
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(image['REGTIME'])]
