@@ -16,6 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# context context.sh file1 file2 ... fileN host:remote_system_ds/disk.i
+#   - context.sh file are the contents of the context ISO
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
 while (( "$#" )); do
     if [ "$#" == "1" ]; then
         DST=$1
@@ -26,39 +31,48 @@ while (( "$#" )); do
 done
 
 if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
-    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
 . $TMCOMMON
 
-get_vmdir
-
+#-------------------------------------------------------------------------------
+# Set dst path and dirs
+#-------------------------------------------------------------------------------
 DST_PATH=`arg_path $DST`
 
-fix_dst_path
+set_ds_location
 
-DST_DIR=`dirname $DST_PATH`
+REL_DST_PATH=${DST_PATH##"$DS_LOCATION/"}
+DST_PATH="$ONE_LOCAL_VAR/datastores/$REL_DST_PATH"
+
+DST_DIR=`dirname $DST_PATH`    
 ISO_DIR=$DST_DIR/isofiles
+
+if [ ! -d $DST_DIR ]; then
+    log "Creating directory $DST_DIR"
+    exec_and_log "mkdir -p $DST_DIR"
+fi
 
 exec_and_log "mkdir -p $ISO_DIR"
 
+#-------------------------------------------------------------------------------
+# Build the Context Block device
+#-------------------------------------------------------------------------------
 for f in $SRC; do
     case $f in
     http://*)
-        exec_and_log "$WGET -P $ISO_DIR $f" \
-            "Error downloading $f"
+        exec_and_log "$WGET -P $ISO_DIR $f" "Error downloading $f"
         ;;
 
     *)
-        exec_and_log "cp -R $f $ISO_DIR" \
-            "Error copying $f to $ISO_DIR"
+        exec_and_log "cp -R $f $ISO_DIR" "Error copying $f to $ISO_DIR"
         ;;
     esac
 done
 
-exec_and_log "$MKISOFS -o $DST_PATH -J -R $ISO_DIR" \
-    "Error creating iso fs"
+exec_and_log "$MKISOFS -o $DST_PATH -J -R $ISO_DIR" "Error creating iso fs"
 
 exec_and_log "rm -rf $ISO_DIR"
