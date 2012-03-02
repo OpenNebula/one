@@ -437,6 +437,10 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     itemplate = new ImageTemplate;
 
+    // This template is not owned by oneadmin, but it needs
+    // the SOURCE restricted attribute.
+    itemplate->disable_restricted_check();
+
     itemplate->parse(oss.str(), &error_char);
 
     // ------------------ Authorize the operation ------------------

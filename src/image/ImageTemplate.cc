@@ -35,6 +35,11 @@ bool ImageTemplate::check(string& rs_attr)
     string avector, vattr;
     vector<const Attribute *> values;
 
+    if ( do_restricted_check == false )
+    {
+        return false;
+    }
+
     for (int i=0; i < RS_ATTRS_LENGTH ;i++)
     {
         pos = RESTRICTED_ATTRIBUTES[i].find("/");

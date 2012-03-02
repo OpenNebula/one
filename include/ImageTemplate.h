@@ -27,7 +27,9 @@ using namespace std;
 class ImageTemplate : public Template
 {
 public:
-    ImageTemplate() : Template(true,'=',"TEMPLATE"){};
+    ImageTemplate() :
+        Template(true,'=',"TEMPLATE"),
+        do_restricted_check(true){};
 
     ~ImageTemplate(){};
 
@@ -38,7 +40,29 @@ public:
      */
     bool check(string& rs_attr);
 
+    /**
+     * Enables the restricted attributes check. It is enabled by default
+     */
+    void enable_restricted_check()
+    {
+        do_restricted_check = true;
+    };
+
+    /**
+     * Disables the restricted attributes check.
+     * When check() is called, it will always return false.
+     */
+    void disable_restricted_check()
+    {
+        do_restricted_check = false;
+    };
+
 private:
+    /**
+     * If set to false, disables the restricted attributes check
+     */
+    bool do_restricted_check;
+
     /**
      *  Number of restricted attributes
      */
