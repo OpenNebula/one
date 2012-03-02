@@ -1430,6 +1430,9 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $MAKE_DIRS; do
         mkdir -p $DESTDIR$d
     done
+
+    # Remove old migrators
+    rm $LIB_LOCATION/ruby/onedb/*.rb
 fi
 
 # --- Install/Uninstall files ---
