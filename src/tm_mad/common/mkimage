@@ -16,14 +16,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# ln fe:SOURCE host:remote_system_ds/disk.i size
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+# mkimage size format host:remote_system_ds/disk.i size
+#   - size in MB of the image
+#   - format for the image
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 
-SRC=$1
-DST=$2
+SIZE=$1
+FSTYPE=$2
+DST=$3
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -36,9 +37,6 @@ fi
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
-
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
@@ -46,13 +44,18 @@ DST_DIR=`dirname $DST_PATH`
 ssh_make_path $DST_HOST $DST_DIR
 
 #-------------------------------------------------------------------------------
-# Link (ln) SRC into DST
+# Make the new image (file-based)
 #-------------------------------------------------------------------------------
+MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE`
 
-log "Linking $SRC_PATH in $DST"
+MKSCRIPT=$(cat <<EOF
+$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M
+$MKFS_CMD
+EOF
+)
 
-ssh_exec_and_log $DST_HOST \
-			     "cd $DST_DIR; ln -s $SRC_PATH $DST_PATH" \
-             	 "Error linking $SRC to $DST"
+log "Making filesystem of ${SIZE}M and type $FSTYPE at $DST"
+
+ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH"
 
 exit 0

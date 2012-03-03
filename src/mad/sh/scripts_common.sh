@@ -109,19 +109,20 @@ function error_message
 function exec_and_log
 {
     message=$2
-    output=`$1 2>&1 1>/dev/null`
-    code=$?
-    if [ "x$code" != "x0" ]; then
-        log_error "Command \"$1\" failed."
-        log_error "$output"
-        if [ -z "$message" ]; then
-            error_message "$output"
+    
+    EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
+    EXEC_LOG_RC=$?
+
+    if [ $EXEC_LOG_RC -ne 0 ]; then
+        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+
+        if [ -n "$2" ]; then
+            error_message "$2"
         else
-            error_message "$message"
+            error_message "Error executing $1: $EXEC_LOG_ERR"
         fi
         exit $code
     fi
-    log "Executed \"$1\"."
 }
 
 # Like exec_and_log but the first argument is the number of seconds
