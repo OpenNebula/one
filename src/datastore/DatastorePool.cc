@@ -45,11 +45,7 @@ DatastorePool::DatastorePool(SqlDB * db):
     {
         DatastoreTemplate * ds_tmpl;
 
-        int     rc, system_id, default_id;
-        Nebula& nd = Nebula::instance();
-
-        ClusterPool * clpool = nd.get_clpool();
-        Cluster *     cluster;
+        int     rc;
 
         // ---------------------------------------------------------------------
         // Create the system datastore 
@@ -72,12 +68,12 @@ DatastorePool::DatastorePool(SqlDB * db):
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 ds_tmpl,
-                &system_id,
-                ClusterPool::DEFAULT_CLUSTER_ID,
-                ClusterPool::DEFAULT_CLUSTER_NAME,
+                &rc,
+                ClusterPool::NONE_CLUSTER_ID,
+                ClusterPool::NONE_CLUSTER_NAME,
                 error_str);
 
-        if( system_id < 0 )
+        if( rc < 0 )
         {
             goto error_bootstrap;
         }
@@ -104,37 +100,15 @@ DatastorePool::DatastorePool(SqlDB * db):
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 ds_tmpl,
-                &default_id,
-                ClusterPool::DEFAULT_CLUSTER_ID,
-                ClusterPool::DEFAULT_CLUSTER_NAME,
+                &rc,
+                ClusterPool::NONE_CLUSTER_ID,
+                ClusterPool::NONE_CLUSTER_NAME,
                 error_str);
 
-        if( default_id < 0 )
+        if( rc < 0 )
         {
             goto error_bootstrap;
         }
-
-        // Add to Cluster
-        cluster = clpool->get(ClusterPool::DEFAULT_CLUSTER_ID, true);
-
-        if( cluster == 0 )
-        {
-            error_str = "Could not get default cluster";
-            goto error_bootstrap;
-        }
-
-        rc =  cluster->add_datastore(system_id, error_str);
-        rc += cluster->add_datastore(default_id, error_str);
-
-        if ( rc != 0 )
-        {
-            cluster->unlock();
-            goto error_bootstrap;
-        }
-
-        clpool->update(cluster);
-
-        cluster->unlock();
 
         // User created datastores will start from ID 100
         set_update_lastOID(99);

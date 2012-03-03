@@ -103,6 +103,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
+        puts str % ["CLUSTER", vn['CLUSTER']]
         puts str % ["TYPE", vn.type_str]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]

@@ -68,6 +68,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME",     datastore.name]
         puts str % ["USER",     datastore['UNAME']]
         puts str % ["GROUP",    datastore['GNAME']]
+        puts str % ["CLUSTER",  datastore['CLUSTER']]
 
         puts str % ["TYPE",     datastore['TYPE']]
         puts str % ["BASE PATH",datastore['BASE_PATH']]
