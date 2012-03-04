@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# clone fe:SOURCE host:remote_system_ds/disk.i size
+# mvds host:remote_system_ds/disk.i fe:SOURCE
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
@@ -33,31 +33,41 @@ fi
 
 . $TMCOMMON
 
+set_ds_location
+
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
 
-DST_HOST=`arg_host $DST`
+DST_PATH="$RMT_DS_DIR/${DST_PATH##"$DS_DIR/"}"
 
-DST_DIR=`dirname $DST_PATH`
-
-ssh_make_path $DST_HOST $DST_DIR
+SRC_HOST=`arg_host $DST`
 
 #-------------------------------------------------------------------------------
-# Copy files to the remote host
+# Move the image back to the datastore
 #-------------------------------------------------------------------------------
-case $SRC in
-http://*)
-    log "Downloading $SRC"
-    RMT_CMD="$WGET -O $DST_PATH $SRC"
-    ssh_exec_and_log "$DST_HOST" "$RMT_CMD" "Error downloading $SRC"
-    ;;
-
-*)
-    log "Cloning $SRC in $DST_PATH"
-    exec_and_log "$SCP $SRC $DST" "Error copying $SRC to $DST"
+MVSCRIPT=$(cat <<EOF
+if [ \( -L $SRC \) -a \
+     \( "`$READLINK -f $SRC_PATH`" = "`$READLINK -f $DST_PATH`" \) ] ; then
+	echo "Not moving files to image repo, they are the same"
+else
+	mv -f $SRC_PATH $DST_PATH
+fi
     ;;
 esac
+
+if [ -d $DST_PATH ]; then
+    chmod 0770 $DST_PATH
+else
+    chmod 0660 $DST_PATH
+fi
+EOF
+)
+
+log "Moving $SRC_PATH to datastore as $DST_PATH"
+
+ssh_exec_and_log $SRC_HOST "$MVSCRIPT" "Could not move image $DST_PATH"
+
+exit 0
