@@ -104,14 +104,14 @@ int Datastore::insert(SqlDB *db, string& error_str)
     erase_template_attribute("NAME", name);
     // NAME is checked in DatastorePool::allocate
 
-    erase_template_attribute("TYPE", type);
+    get_template_attribute("TYPE", type);
 
     if ( type.empty() == true )
     {
         goto error_type;
     }
 
-    erase_template_attribute("TM_MAD", tm_mad);
+    get_template_attribute("TM_MAD", tm_mad);
 
     if ( tm_mad.empty() == true )
     {
@@ -319,6 +319,40 @@ int Datastore::from_xml(const string& xml)
     if (rc != 0)
     {
         return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Datastore::replace_template(const string& tmpl_str, string& error)
+{
+    string new_type;
+    string new_tm_mad;
+
+    int rc;
+
+    rc = PoolObjectSQL::replace_template(tmpl_str, error);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    get_template_attribute("TYPE", new_type);
+
+    if ( !new_type.empty() )
+    {
+        type = new_type;
+    }
+
+    get_template_attribute("TM_MAD", new_tm_mad);
+
+    if ( !new_tm_mad.empty() )
+    {
+        tm_mad = new_tm_mad;
     }
 
     return 0;

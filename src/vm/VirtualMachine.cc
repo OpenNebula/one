@@ -624,12 +624,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
             oss << " & ( " << requirements << " )";
         }
 
-        SingleAttribute * reqs_att;
-
-        obj_template->erase("REQUIREMENTS");
-
-        reqs_att = new SingleAttribute("REQUIREMENTS",oss.str());
-        obj_template->set(reqs_att);
+        replace_template_attribute("REQUIREMENTS", oss.str());
     }
 
     return 0;

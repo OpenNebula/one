@@ -373,7 +373,7 @@ public:
      *  after calling this method
      *    @param tmpl string representation of the template
      */
-    int replace_template(const string& tmpl_str, string& error);
+    virtual int replace_template(const string& tmpl_str, string& error);
 
 
     /**
