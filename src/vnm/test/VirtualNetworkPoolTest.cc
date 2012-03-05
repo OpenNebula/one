@@ -125,7 +125,9 @@ public:
 
         if( rc == 0 )
         {
-            return VirtualNetworkPool::allocate(uid, 0,"the_user","oneadmin", vn_template, oid, err);
+            return VirtualNetworkPool::allocate(uid, 0,"the_user","oneadmin",
+                    vn_template, oid, ClusterPool::NONE_CLUSTER_ID,
+                    ClusterPool::NONE_CLUSTER_NAME, err);
         }
         else
         {

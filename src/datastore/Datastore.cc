@@ -72,6 +72,14 @@ int Datastore::disk_attribute(VectorAttribute * disk)
     disk->replace("DATASTORE_ID",   oss.str());
     disk->replace("TM_MAD",         get_tm_mad());
 
+    if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    {
+        oss.str("");
+        oss << get_cluster_id();
+
+        disk->replace("CLUSTER_ID", oss.str());
+    }
+
     return 0;
 }
 
@@ -96,14 +104,14 @@ int Datastore::insert(SqlDB *db, string& error_str)
     erase_template_attribute("NAME", name);
     // NAME is checked in DatastorePool::allocate
 
-    erase_template_attribute("TYPE", type);
+    get_template_attribute("TYPE", type);
 
     if ( type.empty() == true )
     {
         goto error_type;
     }
 
-    erase_template_attribute("TM_MAD", tm_mad);
+    get_template_attribute("TM_MAD", tm_mad);
 
     if ( tm_mad.empty() == true )
     {
@@ -311,6 +319,40 @@ int Datastore::from_xml(const string& xml)
     if (rc != 0)
     {
         return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Datastore::replace_template(const string& tmpl_str, string& error)
+{
+    string new_type;
+    string new_tm_mad;
+
+    int rc;
+
+    rc = PoolObjectSQL::replace_template(tmpl_str, error);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    get_template_attribute("TYPE", new_type);
+
+    if ( !new_type.empty() )
+    {
+        type = new_type;
+    }
+
+    get_template_attribute("TM_MAD", new_tm_mad);
+
+    if ( !new_tm_mad.empty() )
+    {
+        tm_mad = new_tm_mad;
     }
 
     return 0;

@@ -24,6 +24,7 @@
 #include "FixedLeases.h"
 
 #include "AuthManager.h"
+#include "ClusterPool.h"
 
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
@@ -626,10 +627,10 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     string  ip;
     string  mac;
 
-    ostringstream  vnid;
+    ostringstream  oss;
 
     ip    = nic->vector_value("IP");
-    vnid << oid;
+    oss << oid;
 
     //--------------------------------------------------------------------------
     //                       GET NETWORK LEASE
@@ -654,7 +655,7 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     //--------------------------------------------------------------------------
 
     nic->replace("NETWORK"   ,name);
-    nic->replace("NETWORK_ID",vnid.str());
+    nic->replace("NETWORK_ID",oss.str());
     nic->replace("BRIDGE"    ,bridge);
     nic->replace("MAC"       ,mac);
     nic->replace("IP"        ,ip);
@@ -676,6 +677,14 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     if (!vlan_id.empty())
     {
         nic->replace("VLAN_ID", vlan_id);
+    }
+
+    if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    {
+        oss.str("");
+        oss << get_cluster_id();
+
+        nic->replace("CLUSTER_ID", oss.str());
     }
 
     return 0;

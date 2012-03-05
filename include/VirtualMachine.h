@@ -878,6 +878,14 @@ private:
     int parse_requirements(string& error_str);
 
     /**
+     * Adds automatic placement requirements: Datastore and Cluster
+     *
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int automatic_requirements(string& error_str);
+
+    /**
      *  Parse the "GRAPHICS" attribute and generates a default PORT if not
      *  defined
      */

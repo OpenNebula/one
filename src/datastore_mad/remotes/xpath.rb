@@ -47,7 +47,7 @@ xml = REXML::Document.new(tmp).root
 
 ARGV.each do |xpath|
 	element = xml.elements[xpath]
-    values << element.text if !element.nil?
+    values << element.text.to_s if !element.nil?
     values << "\0"
 end
 

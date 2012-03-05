@@ -14,25 +14,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#                          PRESERVE BASH SYNTAX
+module OZones
 
-#*******************************************************************************
-#  DEFAULT Configuration File for File-System based Datastores
-#-------------------------------------------------------------------------------
-#  BASE_PATH: Path where the images will be stored. If not defined 
-#  defaults to /var/lib/one/images or $ONE_LOCATION/var/images
-#
-#  RESTRICTED_DIRS: Paths that can not be used to register images. A space 
-#  separated list of paths. This prevents users to access important files like
-#  oned.db or /etc/shadow. OpenNebula will automatically add its configuration 
-#  dirs:/var/lib/one, /etc/one and oneadmin's home ($HOME).
-#
-#  SAFE_DIRS: Paths that are safe to specify image paths. A space separated list
-#  of paths.This will allow you to open specific paths within RESTRICTED_DIRS
-#*******************************************************************************
+    class AggregatedClusters < AggregatedPool
 
-#BASE_PATH=/var/lib/one/images
+        def initialize
+            super("ZONE_POOL")
+        end
 
-RESTRICTED_DIRS="/etc/"
+        def factory(client)
+            OpenNebulaJSON::ClusterPoolJSON.new(client)
+        end
+    end
 
-SAFE_DIRS="$HOME/public/"
+end

@@ -17,8 +17,11 @@
 #--------------------------------------------------------------------------- #
 
 #------------------------------------------------------------------------------
-#  Set up environment variables 
-#    @param $1 - template (base 64 encoded) with driver data
+#  Set up environment variables
+#    @param $1 - Datastore base_path
+#    @param $2 - Restricted directories
+#    @param $3 - Safe dirs
+#    @param $4 - Umask for new file creation (default: 0007)
 #    @return sets the following environment variables
 #      - RESTRICTED_DIRS: Paths that can not be used to register images
 #      - SAFE_DIRS: Paths that are safe to specify image paths
@@ -28,30 +31,17 @@ function set_up_datastore {
 	#
 	# Load the default configuration for FS datastores
 	#
+	BASE_PATH="$1"
+	RESTRICTED_DIRS="$2"
+	SAFE_DIRS="$3"
+	UMASK="$4"
+
 	if [ -z "${ONE_LOCATION}" ]; then
 	    VAR_LOCATION=/var/lib/one/
 	    ETC_LOCATION=/etc/one/
 	else
 	    VAR_LOCATION=$ONE_LOCATION/var/
 	    ETC_LOCATION=$ONE_LOCATION/etc/
-	fi
-
-	CONF_FILE=$ETC_LOCATION/datastore/fs.conf
-
-	source $CONF_FILE
-
-	#
-	# Load attributes from the Datastore
-	#
-	XPATH="$VAR_LOCATION/remotes/datastore/xpath.rb -b $1"
-	eval "DS_BASE_PATH=`$XPATH /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH`"
-
-	if [ -z "${DS_BASE_PATH}" ]; then
-		if [ -z "${BASE_PATH}" ]; then
-			BASE_PATH="${VAR_LOCATION}/images"
-		fi
-	else
-		BASE_PATH=${DS_BASE_PATH}
 	fi
 
 	#
@@ -62,6 +52,14 @@ function set_up_datastore {
 	export BASE_PATH
 	export RESTRICTED_DIRS
 	export SAFE_DIRS
+
+	mkdir -p $BASE_PATH
+
+	if [ -n "$UMASK" ]; then
+		umask $UMASK
+	else
+		umask 0007
+	fi
 }
 
 #-------------------------------------------------------------------------------
@@ -98,6 +96,22 @@ function fs_du {
 	else
 		SIZE=$(($SIZE/1048576))
 	fi
+
+	echo "$SIZE"
+}
+
+#-------------------------------------------------------------------------------
+# Computes the size of an image
+#   @param $1 - Path to the image
+#   @return size of the image in Mb
+#-------------------------------------------------------------------------------
+function qemu_size {
+	DISK="$1"
+
+	SIZE=`$QEMU_IMG info $DISK|grep "^virtual size:"|\
+        sed 's/^.*(\([0-9]\+\) bytes.*$/\1/g'`
+
+	SIZE=$(($SIZE/1048576))
 
 	echo "$SIZE"
 }

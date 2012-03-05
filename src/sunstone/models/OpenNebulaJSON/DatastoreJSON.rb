@@ -14,25 +14,37 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#                          PRESERVE BASH SYNTAX
+require 'OpenNebulaJSON/JSONUtils'
 
-#*******************************************************************************
-#  DEFAULT Configuration File for File-System based Datastores
-#-------------------------------------------------------------------------------
-#  BASE_PATH: Path where the images will be stored. If not defined 
-#  defaults to /var/lib/one/images or $ONE_LOCATION/var/images
-#
-#  RESTRICTED_DIRS: Paths that can not be used to register images. A space 
-#  separated list of paths. This prevents users to access important files like
-#  oned.db or /etc/shadow. OpenNebula will automatically add its configuration 
-#  dirs:/var/lib/one, /etc/one and oneadmin's home ($HOME).
-#
-#  SAFE_DIRS: Paths that are safe to specify image paths. A space separated list
-#  of paths.This will allow you to open specific paths within RESTRICTED_DIRS
-#*******************************************************************************
+module OpenNebulaJSON
+    class ClusterJSON < OpenNebula::Datastore
+        include JSONUtils
 
-#BASE_PATH=/var/lib/one/images
+        def create(template_json, cluster_id=ClusterPool::NONE_CLUSTER_ID)
+            datastore_hash = parse_json(template_json, 'datastore')
 
-RESTRICTED_DIRS="/etc/"
+            if OpenNebula.is_error?(datastore_hash)
+                return datastore_hash
+            end
 
-SAFE_DIRS="$HOME/public/"
+            if datastore_hash['datastore_raw']
+                template = datastore_hash['image_raw']
+            else
+                template = template_to_str(datastore_hash)
+            end
+
+            self.allocate(template,cluster_id)
+        end
+
+        def perform_action(template_json)
+            action_hash = parse_json(template_json, 'action')
+            if OpenNebula.is_error?(action_hash)
+                return action_hash
+            end
+
+            error_msg = "#{action_hash['perform']} action not " <<
+                " available for this resource"
+            OpenNebula::Error.new(error_msg)
+        end
+    end
+end

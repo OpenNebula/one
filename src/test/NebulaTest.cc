@@ -67,6 +67,11 @@ DatastorePool* NebulaTest::create_dspool(SqlDB* db)
     return new DatastorePool(db);
 }
 
+ClusterPool* NebulaTest::create_clpool(SqlDB* db)
+{
+    return new ClusterPool(db);
+}
+
 // -----------------------------------------------------------
 // Managers
 // -----------------------------------------------------------
