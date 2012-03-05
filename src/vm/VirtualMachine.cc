@@ -289,6 +289,13 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
+    rc = automatic_requirements(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_requirements;
+    }
+
     parse_graphics();
 
     // ------------------------------------------------------------------------
@@ -514,6 +521,118 @@ int VirtualMachine::parse_requirements(string& error_str)
     }
 
     return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::automatic_requirements(string& error_str)
+{
+    int                   num_vatts;
+    vector<Attribute  * > v_attributes;
+    VectorAttribute *     vatt;
+
+    ostringstream   oss;
+    string          requirements;
+    string          cluster_id;
+    bool            error = false;
+
+    oss << "Incompatible cluster IDs.";
+
+    // Get cluster id from all DISK vector attributes
+
+    num_vatts = obj_template->get("DISK",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        string vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            oss << endl << "DISK [" << i << "]: IMAGE ["
+                << vatt->vector_value("IMAGE_ID") << "] from DATASTORE ["
+                << vatt->vector_value("DATASTORE_ID") << "] requires CLUSTER ["
+                << vatt_cluster_id << "]";
+
+            if ( cluster_id.empty() )
+            {
+                cluster_id = vatt_cluster_id;
+            }
+            else if ( cluster_id != vatt_cluster_id )
+            {
+                error = true;
+            }
+        }
+    }
+
+    // Get cluster id from all NIC vector attributes
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("NIC",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        string vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            oss << endl << "NIC [" << i << "]: NETWORK ["
+                << vatt->vector_value("NETWORK_ID") << "] requires CLUSTER ["
+                << vatt_cluster_id << "]";
+
+            if ( cluster_id.empty() )
+            {
+                cluster_id = vatt_cluster_id;
+            }
+            else if ( cluster_id != vatt_cluster_id )
+            {
+                error = true;
+            }
+        }
+    }
+
+    if ( error == true )
+    {
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    if ( !cluster_id.empty() )
+    {
+        oss.str("");
+        oss << "CLUSTER_ID = " << cluster_id;
+
+        obj_template->get("REQUIREMENTS", requirements);
+
+        if ( !requirements.empty() )
+        {
+            oss << " & ( " << requirements << " )";
+        }
+
+        SingleAttribute * reqs_att;
+
+        obj_template->erase("REQUIREMENTS");
+
+        reqs_att = new SingleAttribute("REQUIREMENTS",oss.str());
+        obj_template->set(reqs_att);
+    }
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

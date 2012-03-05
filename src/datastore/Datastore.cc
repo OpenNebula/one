@@ -72,6 +72,14 @@ int Datastore::disk_attribute(VectorAttribute * disk)
     disk->replace("DATASTORE_ID",   oss.str());
     disk->replace("TM_MAD",         get_tm_mad());
 
+    if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    {
+        oss.str("");
+        oss << get_cluster_id();
+
+        disk->replace("CLUSTER_ID", oss.str());
+    }
+
     return 0;
 }
 
