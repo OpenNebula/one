@@ -128,7 +128,7 @@ int ImageManager::acquire_image(Image *img, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::release_image(int iid)
+void ImageManager::release_image(int iid, bool failed)
 {
     int rvms;
 
@@ -148,20 +148,47 @@ void ImageManager::release_image(int iid)
         case Image::USED:
             rvms = img->dec_running();
 
-            if ( img->isPersistent() || rvms == 0 )
+            if (img->isPersistent())
+            {
+                if (failed == true)
+                {
+                    img->set_state(Image::ERROR);
+                }
+                else
+                {                
+                    img->set_state(Image::READY);
+                }
+
+                ipool->update(img);
+            }
+            else if ( rvms == 0 )
             {
                 img->set_state(Image::READY);
 
                 ipool->update(img);
-
-                img->unlock();
             }
+
+            img->unlock();
         break;
+
+        case Image::LOCKED: //SAVE_AS images are LOCKED till released
+            if (failed == true)
+            {
+                img->set_state(Image::ERROR);
+            }
+            else
+            {                
+                img->set_state(Image::READY);
+            }
+
+            ipool->update(img);
+
+            img->unlock();
+            break;
 
         case Image::DISABLED:
         case Image::READY:
         case Image::ERROR:
-        case Image::LOCKED:
             NebulaLog::log("ImM",Log::ERROR,
                 "Trying to release image in wrong state.");
         default:

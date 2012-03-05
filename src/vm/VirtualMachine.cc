@@ -938,7 +938,7 @@ error_common:
 
     for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
     {
-        imagem->release_image(*it);
+        imagem->release_image(*it, false);
     }
 
     return -1;
@@ -977,7 +977,7 @@ void VirtualMachine::release_disk_images()
 
         if ( !iid.empty() )
         {
-            imagem->release_image(iid);
+            imagem->release_image(iid, (state == FAILED));
         }
     }
 }
