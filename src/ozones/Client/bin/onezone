@@ -71,8 +71,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
           onezone show 4 host
     EOT
 
-    command :show, show_desc, :zoneid, [:resource, nil] do
-        zone=helper.show_resource(args[0],options)[1]
+    command :show, show_desc, :zoneid, [:resource, nil],
+    :options => OZonesHelper::JSON do
+        zone = helper.show_resource(args[0],options)[1]
+
+        #manually print here
+        if options[:json]
+            puts zone
+        end
+
+        if !args[1] then next 0 end
 
         case args[1]
         when "host"
@@ -87,35 +95,41 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             aux_helper  = OneTemplateHelper.new
         when "user"
             aux_helper  = OneUserHelper.new
-	else
-	    puts "\n:!: Pool #{args[1]} doesn't exist or is not supported\n\n"
-	    next 0
+        else
+            puts "\n:!: Pool #{args[1]} doesn't exist or is not supported\n\n"
+            next 0
         end
 
-        pool_hash_data = helper.get_resource_pool("zone", zone[:ID], args[1])
+        pool_hash_data = helper.get_resource_pool("zone", args[0], args[1],
+                                                  options)
 
-	if pool_hash_data[0] != 0
-   	    puts "\nError retrieving information for pool #{args[1]}. Reason: " + pool_hash_data[1] + "\n\n"
+        if pool_hash_data[0] != 0
+            puts "\nError retrieving information for pool #{args[1]}. Reason: " + pool_hash_data[1] + "\n\n"
             next 0
-	end
+        end
 
-	if !pool_hash_data[1]
-	    next 0
+        if !pool_hash_data[1]
+            next 0
+        end
+
+        if options[:json]
+            puts pool_hash_data[1]
+            next 0
         end
 
         if pool_hash_data[1].is_a?(Hash)
             pool_hash_data[1]=[Hash.transform_keys_to_strings(pool_hash_data[1])]
-	else
-    	    pool_hash_data[1].each{|hash| hash.replace(Hash.transform_keys_to_strings(hash))}
+        else
+            pool_hash_data[1].each{|hash| hash.replace(Hash.transform_keys_to_strings(hash))}
         end
 
         table = aux_helper.format_pool(options)
-        table.show(pool_hash_data[1]) 
+        table.show(pool_hash_data[1])
 
         0
     end
 
-    command :list, 'Lists Zones in the pool' do
+    command :list, 'Lists Zones in the pool', :options=>OZonesHelper::JSON do
         helper.list_pool(options)
     end
 
