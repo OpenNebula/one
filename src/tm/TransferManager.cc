@@ -790,26 +790,23 @@ void TransferManager::epilog_action(int vid)
 
         tm_mad = disk->vector_value("TM_MAD");
 
-        if ( save == "YES" )
+        if ( save == "YES" ) //TODO SAVE_SOURCE
         {
-            ostringstream tsource;
             string        source;
+            string        save_source;
 
-            source = disk->vector_value("SOURCE");
+            source      = disk->vector_value("SOURCE");
+            save_source = disk->vector_value("SAVE_AS_SOURCE");
 
-            if ( source.empty() )
+            if ( source.empty() && save_source.empty() )
             {
                 vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
                 continue;
             }
 
-            if ( source.find(":") == string::npos ) //Regular file
+            if (!save_source.empty()) //Use the save as source instead
             {
-                tsource << nd.get_nebula_hostname() << ":" << source << " ";
-            }
-            else //TM Plugin specific protocol
-            {
-                tsource << source << " ";
+                source = save_source;
             }
 
             //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE>
@@ -817,7 +814,7 @@ void TransferManager::epilog_action(int vid)
                 << tm_mad << " "
                 << vm->get_hostname() << ":" 
                 << vm->get_remote_system_dir() << "/disk." << i << " "
-                << tsource.str() << endl;
+                << source << endl;
         }
         else if ( !tm_mad.empty() ) //No saving disk and no system_ds disk
         {

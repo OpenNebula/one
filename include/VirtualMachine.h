@@ -653,15 +653,27 @@ public:
     int  generate_context(string &files);
 
     // ------------------------------------------------------------------------
-    // Image repository related functions
+    // Datastore related functions
     // ------------------------------------------------------------------------
     /**
      *  Set the SAVE_AS attribute for the "disk_id"th disk.
      *    @param  disk_id Index of the disk to save
-     *    @param  img_id ID of the image this disk will be saved to.
+     *    @param  source to save the disk (SAVE_AS_SOURCE)
+     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
      *    @return 0 if success
      */
-    int  save_disk(int disk_id, int img_id, string& error_str);
+    int save_disk(const string& disk_id, 
+                  const string& source,
+                  int img_id);
+
+    /**
+     * Get the original image id of the disk. It also checks that the disk can
+     * be saved_as.
+     *    @param  disk_id Index of the disk to save
+     *    @param  error_str describes the error
+     *    @return -1 if failure
+     */
+    int get_image_from_disk(int disk_id, string& error_str);
 
     // ------------------------------------------------------------------------
     // Authorization related functions

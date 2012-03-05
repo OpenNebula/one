@@ -96,6 +96,7 @@ int Image::insert(SqlDB *db, string& error_str)
     string dev_prefix;
     string source_attr;
     string aname;
+    string saved_id;
 
     ostringstream oss;
 
@@ -159,33 +160,35 @@ int Image::insert(SqlDB *db, string& error_str)
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
 
-    // The template should contain PATH or SOURCE
-    if ( source.empty() && path.empty() )
+    if (!isSaving()) //Not a saving image
     {
-        string        size_attr;
-        istringstream iss;
-
-        erase_template_attribute("SIZE",   size_attr);
-        erase_template_attribute("FSTYPE", fs_type);
-
-        // DATABLOCK image needs SIZE and FSTYPE
-        if (type != DATABLOCK || size_attr.empty() || fs_type.empty())
+        if ( source.empty() && path.empty() )
         {
-            goto error_no_path;
+            string        size_attr;
+            istringstream iss;
+
+            erase_template_attribute("SIZE",   size_attr);
+            erase_template_attribute("FSTYPE", fs_type);
+
+            // DATABLOCK image needs SIZE and FSTYPE
+            if (type != DATABLOCK || size_attr.empty() || fs_type.empty())
+            {
+                goto error_no_path;
+            }
+
+            iss.str(size_attr);
+
+            iss >> size_mb;
+
+            if (iss.fail() == true)
+            {
+                goto error_size_format;
+            }
         }
-
-        iss.str(size_attr);
-
-        iss >> size_mb;
-
-        if (iss.fail() == true)
+        else if ( !source.empty() && !path.empty() )
         {
-            goto error_size_format;
+            goto error_path_and_source;
         }
-    }
-    else if ( !source.empty() && !path.empty() )
-    {
-        goto error_path_and_source;
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository

@@ -128,83 +128,13 @@ int ImageManager::acquire_image(Image *img, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::move_image(Image *img, const string& source)
-{
-    const ImageManagerDriver* imd = get();
-    ostringstream oss;
-
-    if ( imd == 0 )
-    {
-        NebulaLog::log("ImM",Log::ERROR,
-                "Could not get driver to update repository");
-        return;
-    }
-
-    oss << "Moving disk " << source << " to repository image " 
-        << img->get_oid();
-
-    imd->mv(img->get_oid(),source,img->get_source());
-
-    NebulaLog::log("ImM",Log::INFO,oss);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void ImageManager::disk_to_image(const string& disk_path, 
-                                 int           disk_num, 
-                                 const string& save_id)
-{
-    int sid;
-
-    istringstream iss;
-    Image *       img;
-
-    ostringstream disk_file;
-
-    iss.str(save_id);
-
-    iss >> sid;
-
-    img = ipool->get(sid,true);
-
-    if ( img == 0 )
-    {
-        NebulaLog::log("ImM",Log::ERROR,"Could not get image to saveas disk.");
-    }
-    else
-    {
-        disk_file << disk_path << "/disk." << disk_num;
-
-        move_image(img,disk_file.str());
-    }
-
-    img->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void ImageManager::release_image(int           iid,
-                                 const string& disk_path, 
-                                 int           disk_num, 
-                                 const string& save_id)
+void ImageManager::release_image(int iid)
 {
     int rvms;
 
-    int sid = -1;
-
-    istringstream iss;
-    Image *       img;
+    Image * img;
 
     ostringstream disk_file;
-
-    if ( save_id.empty() == false )
-    {
-        iss.str(save_id);
-
-        iss >> sid;
-    }
 
     img = ipool->get(iid,true);
 
@@ -218,47 +148,13 @@ void ImageManager::release_image(int           iid,
         case Image::USED:
             rvms = img->dec_running();
 
-            if ( img->isPersistent() && !disk_path.empty() )
+            if ( img->isPersistent() || rvms == 0 )
             {
-                disk_file << disk_path << "/disk." << disk_num;
-
-                img->set_state(Image::LOCKED);
-
-                move_image(img,disk_file.str());
+                img->set_state(Image::READY);
 
                 ipool->update(img);
 
                 img->unlock();
-            }
-            else 
-            {
-                if ( rvms == 0)
-                {
-                    img->set_state(Image::READY);
-                }
-
-                ipool->update(img);
-
-                img->unlock();
-
-                if ( sid != -1 )
-                {
-                    img = ipool->get(sid,true);
-
-                    if ( img == 0 )
-                    {
-                        NebulaLog::log("ImM",Log::ERROR,
-                            "Could not get image to saveas disk.");
-                    }
-                    else
-                    {
-                        disk_file << disk_path << "/disk." << disk_num;
-
-                        move_image(img,disk_file.str());
-                    }
-
-                    img->unlock();
-                }
             }
         break;
 
@@ -372,8 +268,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     }
 
     drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
-
-    source = img->get_source();
+    source  = img->get_source();
 
     if (source.empty())
     {
@@ -431,30 +326,25 @@ int ImageManager::register_image(int iid, const string& ds_data)
     drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
     path    = img->get_path();
 
-    if ( path.empty() == true ) //NO PATH -> USE SOURCE OR MKFS FOR DATABLOCK
+    if ( path.empty() == true ) //NO PATH
     {
-        if ( img->get_type() == Image::DATABLOCK)
-        {
-            string fs   = img->get_fstype();
-            int    size = img->get_size();
+        string source = img->get_source();
 
+        if ( img->isSaving() || img->get_type() == Image::DATABLOCK )
+        {
             imd->mkfs(img->get_oid(), *drv_msg);
          
-            oss << "Creating disk at " << img->get_source() << " of " 
-                << size << "Mb with format " << fs;
+            oss << "Creating disk at " << source 
+                << " of "<<  img->get_size()
+                << "Mb (type: " <<  img->get_fstype() << ")";
         }
-        else
+        else if ( !source.empty() ) //Source in Template
         {
-            string source = img->get_source();
+            img->set_state(Image::READY);
+            ipool->update(img);
 
-            if (source != "-") //SAVE_AS IMAGE DO NOT ENABLE THE IMAGE
-            {
-                img->set_state(Image::READY);
-                ipool->update(img);
-
-                oss << "Using source " << img->get_source() 
-                    << " from template for image " << img->get_name();
-            }
+            oss << "Using source " << source
+                << " from template for image " << img->get_name();
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE

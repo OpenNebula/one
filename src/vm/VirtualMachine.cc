@@ -824,9 +824,7 @@ error_common:
 
     for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
     {
-        // Set disk_path and save_id to empty string, this way the image manager
-        // won't try to move any files
-        imagem->release_image(*it,"",-1,"");
+        imagem->release_image(*it);
     }
 
     return -1;
@@ -849,14 +847,7 @@ void VirtualMachine::release_disk_images()
     Nebula& nd = Nebula::instance();
     imagem     = nd.get_imagem();
 
-    num_disks   = get_template_attribute("DISK",disks);
-
-    if (hasHistory() != 0)
-    {
-        /*
-        disk_base_path = get_local_dir();
-        */
-    }
+    num_disks  = get_template_attribute("DISK",disks);
 
     for(int i=0; i<num_disks; i++)
     {
@@ -868,19 +859,11 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        iid    = disk->vector_value("IMAGE_ID");
-        saveas = disk->vector_value("SAVE_AS");
+        iid = disk->vector_value("IMAGE_ID");
 
-        if ( iid.empty() )
+        if ( !iid.empty() )
         {
-            if (!saveas.empty())
-            {
-                imagem->disk_to_image(disk_base_path,i,saveas);
-            }
-        }
-        else
-        {
-            imagem->release_image(iid,disk_base_path,i,saveas);
+            imagem->release_image(iid);
         }
     }
 }
@@ -1037,26 +1020,45 @@ int VirtualMachine::generate_context(string &files)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
+static int id_from_attr (VectorAttribute * attr, const char *name)
 {
-    int                   num_disks;
+    int    id;
+    string id_str;
+
+    id_str = attr->vector_value(name);
+
+    if (id_str.empty())
+    {
+        return -1;
+    }
+
+    istringstream iss(id_str);
+    iss >> id;
+
+    return id;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
+{
+    int num_disks;
+    int tid;
+    int iid = -1;
+
     vector<Attribute  * > disks;
     VectorAttribute *     disk;
 
-    string                disk_id_str;
-    int                   tmp_disk_id;
-
     ostringstream oss;
-    istringstream iss;
+
+    num_disks = obj_template->get("DISK",disks);
 
     if ( state == DONE || state == FAILED )
     {
         goto error_state;
     }
 
-    num_disks  = obj_template->get("DISK",disks);
-
-    for(int i=0; i<num_disks; i++, iss.clear())
+    for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
 
@@ -1065,12 +1067,9 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
             continue;
         }
 
-        disk_id_str = disk->vector_value("DISK_ID");
+        tid = id_from_attr(disk,"DISK_ID");
 
-        iss.str(disk_id_str);
-        iss >> tmp_disk_id;
-
-        if ( tmp_disk_id == disk_id )
+        if ( disk_id == tid )
         {
             if(!((disk->vector_value("SAVE_AS")).empty()))
             {
@@ -1082,12 +1081,16 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
                 goto error_persistent;
             }
 
+            iid = id_from_attr(disk, "IMAGE_ID");
+
+            if (iid == -1)
+            {
+                goto error_image_id;
+            }
+
             disk->replace("SAVE", "YES");
 
-            oss << (img_id);
-            disk->replace("SAVE_AS", oss.str());
-
-            return 0;
+            return iid;
         }
     }
 
@@ -1105,6 +1108,10 @@ error_saved:
     oss << "The DISK " << disk_id << " is already going to be saved.";
     goto error_common;
 
+error_image_id:
+    oss << "The DISK " << disk_id << "does not have a valid IMAGE_ID.";
+    goto error_common;
+
 error_not_found:
     oss << "The DISK " << disk_id << " does not exist for VM " << oid << ".";
 
@@ -1112,6 +1119,53 @@ error_common:
     error_str = oss.str();
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::save_disk(const string& disk_id, 
+                              const string& source,
+                              int           img_id)
+{
+    vector<Attribute  * > disks;
+    VectorAttribute *     disk;
+
+    int    num_disks;
+    string tdisk_id;
+
+    ostringstream oss;
+
+    if ( state == DONE || state == FAILED )
+    {
+        return -1;
+    }
+
+    num_disks  = obj_template->get("DISK",disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        tdisk_id = disk->vector_value("DISK_ID");
+
+        if ( tdisk_id == disk_id )
+        {
+            disk->replace("SAVE_AS_SOURCE", source);
+
+            oss << (img_id);
+            disk->replace("SAVE_AS", oss.str());
+
+            break;
+        }
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
