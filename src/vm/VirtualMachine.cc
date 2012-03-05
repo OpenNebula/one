@@ -164,12 +164,7 @@ int VirtualMachine::select(SqlDB * db)
 
     mkdir(oss.str().c_str(), 0700);
     chmod(oss.str().c_str(), 0700);
-
-    system_dir = get_system_dir();
-
-    mkdir(system_dir.c_str(), 0700);
-    chmod(system_dir.c_str(), 0700);
-
+    
     //--------------------------------------------------------------------------
     //Create Log support for this VM
     //--------------------------------------------------------------------------

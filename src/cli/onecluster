@@ -56,6 +56,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
+    set :format, :vnetid, OpenNebulaHelper.rname_to_id_desc("VNET") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "VNET")
+    end
+
+    set :format, :hostid, OpenNebulaHelper.rname_to_id_desc("HOST") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "HOST")
+    end
+
+    set :format, :datastoreid, OpenNebulaHelper.rname_to_id_desc("DATASTORE") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "DATASTORE")
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -102,7 +114,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     # TODO: allow the second param to be [:range, :hostid_list]
     command :addhost, addhost_desc,:clusterid, :hostid do
-        helper.perform_actions(args[0],options,"updated") do |cluster|
+        helper.perform_action(args[0],options,"updated") do |cluster|
             cluster.addhost(args[1].to_i)
         end
     end
@@ -113,7 +125,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     # TODO: allow the second param to be [:range, :hostid_list]
     command :delhost, delhost_desc, :clusterid, :hostid do
-        helper.perform_actions(args[0],options,"updated") do |cluster|
+        helper.perform_action(args[0],options,"updated") do |cluster|
             cluster.delhost(args[1].to_i)
         end
     end
@@ -124,7 +136,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     # TODO: allow the second param to be [:range, :datastoreid_list]
     command :adddatastore, adddatastore_desc,:clusterid, :datastoreid do
-        helper.perform_actions(args[0],options,"updated") do |cluster|
+        helper.perform_action(args[0],options,"updated") do |cluster|
             cluster.adddatastore(args[1].to_i)
         end
     end
@@ -135,7 +147,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     # TODO: allow the second param to be [:range, :datastoreid_list]
     command :deldatastore, deldatastore_desc, :clusterid, :datastoreid do
-        helper.perform_actions(args[0],options,"updated") do |cluster|
+        helper.perform_action(args[0],options,"updated") do |cluster|
             cluster.deldatastore(args[1].to_i)
         end
     end
@@ -146,7 +158,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     # TODO: allow the second param to be [:range, :vnetid_list]
     command :addvnet, addvnet_desc,:clusterid, :vnetid do
-        helper.perform_actions(args[0],options,"updated") do |cluster|
+        helper.perform_action(args[0],options,"updated") do |cluster|
             cluster.addvnet(args[1].to_i)
         end
     end

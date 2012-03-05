@@ -529,8 +529,6 @@ INSTALL_ETC_FILES=(
     VMWARE_ETC_FILES:$ETC_LOCATION
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
-    DATASTORE_DRIVER_FS_ETC_FILES:$ETC_LOCATION/datastore/
-    DATASTORE_DRIVER_VMWARE_ETC_FILES:$ETC_LOCATION/datastore/
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
     TM_LVM_ETC_FILES:$ETC_LOCATION/tm/
     HM_ETC_FILES:$ETC_LOCATION/hm
@@ -808,21 +806,15 @@ TM_VMWARE_FILES="src/tm_mad/vmware/clone \
 #   - VMware based Image Repository, $REMOTES_LOCATION/datastore/vmware
 #-------------------------------------------------------------------------------
 
-DATASTORE_DRIVER_FS_ETC_FILES="src/datastore_mad/remotes/fs/fs.conf"
-
-DATASTORE_DRIVER_VMWARE_ETC_FILES="src/datastore_mad/remotes/vmware/vmware.conf"
-
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/libfs.sh"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
-                         src/datastore_mad/remotes/fs/mv \
                          src/datastore_mad/remotes/fs/rm"
 
 DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
                          src/datastore_mad/remotes/vmware/mkfs \
-                         src/datastore_mad/remotes/vmware/mv \
                          src/datastore_mad/remotes/vmware/rm"
 
 #-------------------------------------------------------------------------------

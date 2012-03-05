@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,25 +16,46 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#                          PRESERVE BASH SYNTAX
+# mkimage size format host:remote_system_ds/disk.i size
+#   - size in MB of the image
+#   - format for the image
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
 
-#*******************************************************************************
-#  DEFAULT Configuration File for File-System based Datastores
+SIZE=$1
+FSTYPE=$2
+DST=$3
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+. $TMCOMMON
+
 #-------------------------------------------------------------------------------
-#  BASE_PATH: Path where the images will be stored. If not defined 
-#  defaults to /var/lib/one/images or $ONE_LOCATION/var/images
-#
-#  RESTRICTED_DIRS: Paths that can not be used to register images. A space 
-#  separated list of paths. This prevents users to access important files like
-#  oned.db or /etc/shadow. OpenNebula will automatically add its configuration 
-#  dirs:/var/lib/one, /etc/one and oneadmin's home ($HOME).
-#
-#  SAFE_DIRS: Paths that are safe to specify image paths. A space separated list
-#  of paths.This will allow you to open specific paths within RESTRICTED_DIRS
-#*******************************************************************************
+# Set dst path and dir
+#-------------------------------------------------------------------------------
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
 
-#BASE_PATH=/var/lib/one/images
+ssh_make_path $DST_HOST $DST_DIR
 
-RESTRICTED_DIRS="/etc/"
+#-------------------------------------------------------------------------------
+# Make the new image (file-based)
+#-------------------------------------------------------------------------------
+MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE`
 
-SAFE_DIRS="$HOME/public/"
+MKSCRIPT=$(cat <<EOF
+$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M
+$MKFS_CMD
+EOF
+)
+
+log "Making filesystem of ${SIZE}M and type $FSTYPE at $DST"
+
+ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH"
+
+exit 0

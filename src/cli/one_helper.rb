@@ -333,6 +333,11 @@ EOT
         when "GROUP"     then OpenNebula::GroupPool.new(client)
         when "USER"      then OpenNebula::UserPool.new(client)
         when "DATASTORE" then OpenNebula::DatastorePool.new(client)
+        when "CLUSTER"   then OpenNebula::ClusterPool.new(client)
+        when "VNET"      then OpenNebula::VirtualNetworkPool.new(client)
+        when "IMAGE"     then OpenNebula::ImagePool.new(client)
+        when "VMTEMPLATE" then OpenNebula::TemplatePool.new(client)
+        when "VM"        then OpenNebula::VirtualMachinePool.new(client)
         end
 
         rc = pool.info

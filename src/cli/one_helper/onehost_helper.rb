@@ -118,6 +118,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         puts str % ["ID", host.id.to_s]
         puts str % ["NAME", host.name]
+        puts str % ["CLUSTER", host['CLUSTER']]
         puts str % ["STATE", host.state_str]
         puts str % ["IM_MAD", host['IM_MAD']]
         puts str % ["VM_MAD", host['VM_MAD']]

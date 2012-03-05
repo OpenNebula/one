@@ -84,7 +84,7 @@ class TransferManagerDriver < OpenNebulaDriver
 
             if result == RESULT[:failure]
                 send_message("TRANSFER", result, id, info)
-                break
+                return 
             end
         }
 
