@@ -33,12 +33,6 @@ ONE_SH=$ONE_LIB/sh
 
 . $ONE_SH/scripts_common.sh
 
-if [ "x$(uname -s)" = "xLinux" ]; then
-    SED="$SED -r"
-else
-    SED="/usr/bin/sed -E"
-fi
-
 # ------------------------------------------------------------------------------
 # Function to get hosts and paths from arguments
 # ------------------------------------------------------------------------------
@@ -52,7 +46,8 @@ function arg_host
 # Gets the path from an argument
 function arg_path
 {
-    echo $1 | $SED 's/^[^:]*:(.*)$/\1/'
+    ARG_PATH=`echo $1 | $SED 's/^[^:]*:(.*)$/\1/'`
+    fix_dir_slashes "$ARG_PATH"
 }
 
 #Return the DATASTORE_LOCATION from OpenNebula configuration

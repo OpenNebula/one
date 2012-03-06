@@ -38,6 +38,12 @@ SUDO=sudo
 WGET=wget
 GREP=grep
 
+if [ "x$(uname -s)" = "xLinux" ]; then
+    SED="$SED -r"
+else
+    SED="/usr/bin/sed -E"
+fi
+
 # Used for log messages
 SCRIPT_NAME=`basename $0`
 
