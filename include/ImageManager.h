@@ -101,22 +101,6 @@ public:
      *    @param iid image id of the image to be released
      *    @param failed the associated VM releasing the images is FAILED
      */
-    void release_image(const string& iid, bool failed)
-    {
-        int           image_id;
-        istringstream iss;
-
-        iss.str(iid);
-        iss >> image_id;
-
-        release_image(image_id, failed);
-    };
-
-    /**
-     *  Releases an image and triggers any needed operations in the repo
-     *    @param iid image id of the image to be released
-     *    @param failed the associated VM releasing the images is FAILED
-     */
     void release_image(int iid, bool failed);
 
     /**

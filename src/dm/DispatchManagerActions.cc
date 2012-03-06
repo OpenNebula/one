@@ -616,15 +616,14 @@ int DispatchManager::finalize(
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
         case VirtualMachine::STOPPED:
+            vm->release_network_leases();
+            vm->release_disk_images();
+
             vm->set_exit_time(time(0));
 
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::DONE);
             vmpool->update(vm);
-
-            vm->release_network_leases();
-
-            vm->release_disk_images();
 
             vm->log("DiM", Log::INFO, "New VM state is DONE.");
         break;

@@ -949,8 +949,9 @@ error_common:
 
 void VirtualMachine::release_disk_images()
 {
-    string  iid;
-    string  saveas;
+    int     iid;
+    int     save_as_id;
+    int     rc;
     int     num_disks;
 
     vector<Attribute const  * > disks;
@@ -973,11 +974,18 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        iid = disk->vector_value("IMAGE_ID");
+        rc = disk->vector_value("IMAGE_ID", iid);
 
-        if ( !iid.empty() )
+        if ( rc == 0 )
         {
             imagem->release_image(iid, (state == FAILED));
+        }
+
+        rc = disk->vector_value("SAVE_AS", save_as_id);
+
+        if ( rc == 0 )
+        {
+            imagem->release_image(save_as_id, (state == FAILED));
         }
     }
 }
@@ -1132,33 +1140,13 @@ int VirtualMachine::generate_context(string &files)
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static int id_from_attr (VectorAttribute * attr, const char *name)
-{
-    int    id;
-    string id_str;
-
-    id_str = attr->vector_value(name);
-
-    if (id_str.empty())
-    {
-        return -1;
-    }
-
-    istringstream iss(id_str);
-    iss >> id;
-
-    return id;
-}
-
-/* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
 {
     int num_disks;
     int tid;
     int iid = -1;
+    int rc;
 
     vector<Attribute  * > disks;
     VectorAttribute *     disk;
@@ -1181,7 +1169,12 @@ int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
             continue;
         }
 
-        tid = id_from_attr(disk,"DISK_ID");
+        rc = disk->vector_value("DISK_ID", tid);
+
+        if ( rc != 0 )
+        {
+            continue;
+        }
 
         if ( disk_id == tid )
         {
@@ -1195,9 +1188,9 @@ int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
                 goto error_persistent;
             }
 
-            iid = id_from_attr(disk, "IMAGE_ID");
+            rc = disk->vector_value("IMAGE_ID", iid);
 
-            if (iid == -1)
+            if ( rc != 0 )
             {
                 goto error_image_id;
             }

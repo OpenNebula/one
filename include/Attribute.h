@@ -244,6 +244,16 @@ public:
     string vector_value(const char *name) const;
 
     /**
+     * Returns the integer value
+     *
+     * @param name Name of the attribute
+     * @param value Integer value
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int vector_value(const char *name, int & value) const;
+
+    /**
      *  Marshall the attribute in a single string. The string MUST be freed
      *  by the calling function. The string is in the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
