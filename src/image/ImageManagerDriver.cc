@@ -238,6 +238,8 @@ void ImageManagerDriver::protocol(
                     goto error_save_state_vm;
                 }
 
+                vmpool->update(vm);
+
                 vm->unlock();
             }
 

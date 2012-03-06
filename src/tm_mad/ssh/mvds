@@ -43,7 +43,7 @@ DST_PATH=`arg_path $DST`
 
 DST_PATH="$RMT_DS_DIR/${DST_PATH##"$DS_DIR/"}"
 
-SRC_HOST=`arg_host $DST`
+SRC_HOST=`arg_host $SRC`
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore

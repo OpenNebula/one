@@ -43,20 +43,20 @@ DST_PATH=`arg_path $DST`
 
 DST_PATH="$RMT_DS_DIR/${DST_PATH##"$DS_DIR/"}"
 
-SRC_HOST=`arg_host $DST`
+SRC_HOST=`arg_host $SRC`
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 MVSCRIPT=$(cat <<EOF
-if [ \( -L $SRC \) -a \
-     \( "`$READLINK -f $SRC_PATH`" = "`$READLINK -f $DST_PATH`" \) ] ; then
+SRC_READLN=eval "$READLINK -f $SRC_PATH"
+DST_READLN=eval "$READLINK -f $DST_PATH"
+
+if [ \( -L $SRC \) -a \( "$SRC_READLN" = "$DST_READLN" \) ] ; then
 	echo "Not moving files to image repo, they are the same"
 else
 	mv -f $SRC_PATH $DST_PATH
 fi
-    ;;
-esac
 
 if [ -d $DST_PATH ]; then
     chmod 0770 $DST_PATH

@@ -54,7 +54,7 @@ function arg_path
 function set_ds_location
 {
     RMT_DS_DIR=`$GREP '^DATASTORE_LOCATION=' $ONE_LOCAL_VAR/config | cut -d= -f2`
-    RMT_DS_DIR=`fix_dir_slashes $DS_LOCATION`
+    RMT_DS_DIR=`fix_dir_slashes $RMT_DS_DIR`
 
     export RMT_DS_DIR
 }
