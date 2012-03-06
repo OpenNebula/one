@@ -496,7 +496,6 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     oss << "NAME    = \"" << img_name << "\"" << endl;
     oss << "SIZE    = "   << size << endl;
-    oss << "FS_TYPE = save_as" << endl;
 
     oss << "SAVED_IMAGE_ID = " << iid_orig << endl;
     oss << "SAVED_DISK_ID  = " << disk_id << endl;

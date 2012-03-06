@@ -65,6 +65,14 @@ SIZE="${XPATH_ELEMENTS[6]}"
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 DST=`generate_image_path`
+
+# ------------ Image to save_as disk, no need to create a FS ------------
+
+if [ "$FSTYPE" = "save_as" ]; then
+    echo "$DST $SIZE"
+    exit 0
+fi
+
 # ------------ Create the image to the repository ------------
 
 MKFS_CMD=`mkfs_command $DST $FSTYPE`

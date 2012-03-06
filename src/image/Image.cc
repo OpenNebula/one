@@ -190,6 +190,23 @@ int Image::insert(SqlDB *db, string& error_str)
             goto error_path_and_source;
         }
     }
+    else
+    {
+        string        size_attr;
+        istringstream iss;
+
+        fs_type = "save_as";
+        erase_template_attribute("SIZE",   size_attr);
+
+        iss.str(size_attr);
+
+        iss >> size_mb;
+
+        if (iss.fail() == true)
+        {
+            goto error_size_format;
+        }
+    }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
 
