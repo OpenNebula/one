@@ -778,7 +778,7 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/mkimage \
               src/tm_mad/ssh/mv \
               src/tm_mad/ssh/context \
-              src/tm_mad/ssh/vmds"
+              src/tm_mad/ssh/mvds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/delete \
