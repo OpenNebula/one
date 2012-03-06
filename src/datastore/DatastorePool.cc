@@ -52,7 +52,7 @@ DatastorePool::DatastorePool(SqlDB * db):
         // ---------------------------------------------------------------------
 
         oss << "NAME      = " << SYSTEM_DS_NAME << endl
-            << "TYPE      = fs" << endl
+            << "DS_MAD    = fs" << endl
             << "TM_MAD    = shared";
 
         ds_tmpl = new DatastoreTemplate;
@@ -84,7 +84,7 @@ DatastorePool::DatastorePool(SqlDB * db):
         oss.str("");
 
         oss << "NAME      = "   << DEFAULT_DS_NAME << endl
-            << "TYPE      = fs" << endl
+            << "DS_MAD    = fs" << endl
             << "TM_MAD    = shared";
 
         ds_tmpl = new DatastoreTemplate;

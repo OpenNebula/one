@@ -45,7 +45,7 @@ Datastore::Datastore(
             PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,table),
             ObjectCollection("IMAGES"),
             Clusterable(cluster_id, cluster_name),
-            type(""),
+            ds_mad(""),
             tm_mad(""),
             base_path("")
 {
@@ -104,11 +104,11 @@ int Datastore::insert(SqlDB *db, string& error_str)
     erase_template_attribute("NAME", name);
     // NAME is checked in DatastorePool::allocate
 
-    get_template_attribute("TYPE", type);
+    get_template_attribute("DS_MAD", ds_mad);
 
-    if ( type.empty() == true )
+    if ( ds_mad.empty() == true )
     {
-        goto error_type;
+        goto error_ds;
     }
 
     get_template_attribute("TM_MAD", tm_mad);
@@ -130,8 +130,8 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     return rc;
 
-error_type:
-    error_str = "No TYPE in template.";
+error_ds:
+    error_str = "No DS_MAD in template.";
     goto error_common;
 
 error_tm:
@@ -248,7 +248,7 @@ string& Datastore::to_xml(string& xml) const
         "<GNAME>"       << gname        << "</GNAME>"       <<
         "<NAME>"        << name         << "</NAME>"        <<
         perms_to_xml(perms_xml)                             <<
-        "<TYPE>"        << type         << "</TYPE>"        <<
+        "<DS_MAD>"      << ds_mad       << "</DS_MAD>"      <<
         "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
         "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
@@ -280,7 +280,7 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(uname,      "/DATASTORE/UNAME",     "not_found");
     rc += xpath(gname,      "/DATASTORE/GNAME",     "not_found");
     rc += xpath(name,       "/DATASTORE/NAME",      "not_found");
-    rc += xpath(type,       "/DATASTORE/TYPE",      "not_found");
+    rc += xpath(ds_mad,     "/DATASTORE/DS_MAD",    "not_found");
     rc += xpath(tm_mad,     "/DATASTORE/TM_MAD",    "not_found");
     rc += xpath(base_path,  "/DATASTORE/BASE_PATH", "not_found");
 
@@ -329,7 +329,7 @@ int Datastore::from_xml(const string& xml)
 
 int Datastore::replace_template(const string& tmpl_str, string& error)
 {
-    string new_type;
+    string new_ds_mad;
     string new_tm_mad;
 
     int rc;
@@ -341,11 +341,15 @@ int Datastore::replace_template(const string& tmpl_str, string& error)
         return rc;
     }
 
-    get_template_attribute("TYPE", new_type);
+    get_template_attribute("DS_MAD", new_ds_mad);
 
-    if ( !new_type.empty() )
+    if ( !new_ds_mad.empty() )
     {
-        type = new_type;
+        ds_mad = new_ds_mad;
+    }
+    else
+    {
+        replace_template_attribute("DS_MAD", ds_mad);
     }
 
     get_template_attribute("TM_MAD", new_tm_mad);
@@ -353,6 +357,10 @@ int Datastore::replace_template(const string& tmpl_str, string& error)
     if ( !new_tm_mad.empty() )
     {
         tm_mad = new_tm_mad;
+    }
+    else
+    {
+        replace_template_attribute("TM_MAD", tm_mad);
     }
 
     return 0;

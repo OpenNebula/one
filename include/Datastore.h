@@ -111,9 +111,9 @@ private:
     // *************************************************************************
 
     /**
-     * Type of driver
+     * Name of the datastore driver used to register new images
      */
-    string type;
+    string ds_mad;
 
     /**
      *  Name of the TM driver used to transfer file to and from the hosts

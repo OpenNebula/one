@@ -137,7 +137,7 @@ class DatastoreDriver < OpenNebulaDriver
         message = Base64.decode64(drv_message)
         xml_doc = REXML::Document.new(message)
 
-        dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TYPE']
+        dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/DS_MAD']
         dstxt = dsxml.text if dsxml
 
         return dstxt
