@@ -451,7 +451,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // Get the data of the Image to be saved
     // -------------------------------------------------------------------------
 
-    if ( (img = ipool->get(iid_orig, true)) != 0 )
+    img = ipool->get(iid_orig, true);
+
+    if ( img == 0 )
     {
         failure_response(NO_EXISTS,
                          get_error(object_name(PoolObjectSQL::IMAGE), iid_orig), 
@@ -493,7 +495,6 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     ostringstream    oss;
 
     oss << "NAME    = \"" << img_name << "\"" << endl;
-    oss << "PUBLIC  = NO" << endl;
     oss << "SIZE    = "   << size << endl;
     oss << "FS_TYPE = save_as" << endl;
 
