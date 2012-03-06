@@ -35,16 +35,6 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     *  Name for the default cluster
-     */
-    static const string DEFAULT_CLUSTER_NAME;
-
-    /**
-     *  Identifier for the default cluster
-     */
-    static const int DEFAULT_CLUSTER_ID;
-
-    /**
      *  Name for the "none" cluster
      */
     static const string NONE_CLUSTER_NAME;

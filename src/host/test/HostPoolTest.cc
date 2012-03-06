@@ -164,8 +164,8 @@ protected:
         string err;
         return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
                      vmm_mad, vnm_mad, 
-                     ClusterPool::DEFAULT_CLUSTER_ID, 
-                     ClusterPool::DEFAULT_CLUSTER_NAME,err);
+                     ClusterPool::NONE_CLUSTER_ID,
+                     ClusterPool::NONE_CLUSTER_NAME,err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -250,8 +250,8 @@ public:
                           im_mad, 
                           vmm_mad, 
                           vnm_mad, 
-                          ClusterPool::DEFAULT_CLUSTER_ID,
-                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          ClusterPool::NONE_CLUSTER_ID,
+                          ClusterPool::NONE_CLUSTER_NAME,
                           err);
         CPPUNIT_ASSERT( oid_0 == 0 );
         CPPUNIT_ASSERT( rc    == oid_0 );
@@ -261,8 +261,8 @@ public:
                           im_mad, 
                           vmm_mad, 
                           vnm_mad, 
-                          ClusterPool::DEFAULT_CLUSTER_ID,
-                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          ClusterPool::NONE_CLUSTER_ID,
+                          ClusterPool::NONE_CLUSTER_NAME,
                           err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
@@ -273,8 +273,8 @@ public:
                           im_mad_2, 
                           vmm_mad, 
                           vnm_mad, 
-                          ClusterPool::DEFAULT_CLUSTER_ID,
-                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          ClusterPool::NONE_CLUSTER_ID,
+                          ClusterPool::NONE_CLUSTER_NAME,
                           err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
@@ -300,8 +300,8 @@ public:
                           im_mad, 
                           vmm_mad, 
                           vnm_mad, 
-                          ClusterPool::DEFAULT_CLUSTER_ID,
-                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          ClusterPool::NONE_CLUSTER_ID,
+                          ClusterPool::NONE_CLUSTER_NAME,
                           err);
         }
 
@@ -339,8 +339,8 @@ public:
                           im_mad, 
                           vmm_mad, 
                           vnm_mad, 
-                          ClusterPool::DEFAULT_CLUSTER_ID,
-                          ClusterPool::DEFAULT_CLUSTER_NAME,
+                          ClusterPool::NONE_CLUSTER_ID,
+                          ClusterPool::NONE_CLUSTER_NAME,
                           err);
         }
 
@@ -385,8 +385,8 @@ public:
                          im_mad, 
                          vmm_mad, 
                          vnm_mad, 
-                         ClusterPool::DEFAULT_CLUSTER_ID,
-                         ClusterPool::DEFAULT_CLUSTER_NAME,
+                         ClusterPool::NONE_CLUSTER_ID,
+                         ClusterPool::NONE_CLUSTER_NAME,
                          err);
             CPPUNIT_ASSERT(oid == i);
 
@@ -450,8 +450,8 @@ public:
                          im_mad, 
                          vmm_mad, 
                          vnm_mad, 
-                         ClusterPool::DEFAULT_CLUSTER_ID,
-                         ClusterPool::DEFAULT_CLUSTER_NAME,
+                         ClusterPool::NONE_CLUSTER_ID,
+                         ClusterPool::NONE_CLUSTER_NAME,
                          err);
             }
 
@@ -486,8 +486,8 @@ public:
                          im_mad, 
                          vmm_mad, 
                          vnm_mad, 
-                         ClusterPool::DEFAULT_CLUSTER_ID,
-                         ClusterPool::DEFAULT_CLUSTER_NAME,
+                         ClusterPool::NONE_CLUSTER_ID,
+                         ClusterPool::NONE_CLUSTER_NAME,
                          err);
 
             host = hp->get(oid, false);

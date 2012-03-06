@@ -101,8 +101,8 @@ public:
                         "im_mad", 
                         "vmm_mad", 
                         "vnm_mad",
-                        ClusterPool::DEFAULT_CLUSTER_ID, 
-                        ClusterPool::DEFAULT_CLUSTER_NAME, 
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
                         err);
 
         CPPUNIT_ASSERT( oid >= 0 );
@@ -128,8 +128,8 @@ public:
                         "im_mad", 
                         "vmm_mad", 
                         "vnm_mad",
-                        ClusterPool::DEFAULT_CLUSTER_ID, 
-                        ClusterPool::DEFAULT_CLUSTER_NAME, 
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
                         err);
         CPPUNIT_ASSERT( oid >= 0 );
 
@@ -161,8 +161,8 @@ public:
                         "im_mad", 
                         "vmm_mad", 
                         "vnm_mad",
-                        ClusterPool::DEFAULT_CLUSTER_ID, 
-                        ClusterPool::DEFAULT_CLUSTER_NAME, 
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
                         err);
         CPPUNIT_ASSERT( oid >= 0 );
 
@@ -194,8 +194,8 @@ public:
                         "im_mad", 
                         "vmm_mad", 
                         "vnm_mad",
-                        ClusterPool::DEFAULT_CLUSTER_ID, 
-                        ClusterPool::DEFAULT_CLUSTER_NAME, 
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
                         err);
 
         CPPUNIT_ASSERT( oid >= 0 );

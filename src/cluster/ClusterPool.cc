@@ -26,9 +26,6 @@
 /* Regular ones start from ID 100                                             */
 /* -------------------------------------------------------------------------- */
 
-const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
-const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
-
 const string ClusterPool::NONE_CLUSTER_NAME = "none";
 const int    ClusterPool::NONE_CLUSTER_ID   = -1;
 
@@ -42,28 +39,10 @@ ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table)
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
-        int         rc;
-        Cluster *   cluster;
-
-        cluster = new Cluster(DEFAULT_CLUSTER_ID, DEFAULT_CLUSTER_NAME);
-
-        rc = PoolSQL::allocate(cluster, error_str);
-
-        if( rc < 0 )
-        {
-            goto error_bootstrap;
-        }
-
         set_update_lastOID(99);
     }
 
     return;
-
-error_bootstrap:
-    oss << "Error trying to create default cluster: " << error_str;
-    NebulaLog::log("CLUSTER",Log::ERROR,oss);
-
-    throw runtime_error(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
