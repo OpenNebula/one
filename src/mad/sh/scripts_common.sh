@@ -121,7 +121,7 @@ function exec_and_log
         else
             error_message "Error executing $1: $EXEC_LOG_ERR"
         fi
-        exit $code
+        exit $EXEC_LOG_RC
     fi
 }
 

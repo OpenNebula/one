@@ -88,9 +88,8 @@ $2
 EOF`
     SSH_EXEC_RC=$?
 
-    if [ $? -ne 0 ]; then
-        log_error "Command $2 failed"
-        log_error "$SSH_EXEC_ERR"
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        log_error "Command \"$2\" failed: $SSH_EXEC_ERR"
 
         if [ -n "$3" ]; then
             error_message "$3"
