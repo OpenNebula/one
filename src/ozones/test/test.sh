@@ -51,13 +51,6 @@ for j in `ls ./spec/*_spec.rb` ; do
 done
 
 if (($CODE == 0)); then
-    # Terminate ONEs
-    ONE_LOCATION=$ONE_LOCATION_A oneA/bin/one stop
-    ONE_LOCATION=$ONE_LOCATION_B oneB/bin/one stop
-    
-    # Stop oZones
-    ONE_LOCATION=$ONE_LOCATION_A oneA/bin/ozones-server stop
-    
     # Delete directories
     rm -rf oneA
     rm -rf oneB

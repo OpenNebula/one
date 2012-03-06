@@ -1,0 +1,14 @@
+{
+  "ZONE": {
+    "ID": 1,
+    "ENDPOINT": "http://localhost:2666/RPC2",
+    "SUNSENDPOINT": "http://localhost:9869",
+    "VDCS": [
+
+    ],
+    "NAME": "zoneA",
+    "SELFENDPOINT": null,
+    "ONENAME": "oneadminA",
+    "ONEPASS": "OkqWM2aSqbM/nlrdHGv3OA=="
+  }
+}

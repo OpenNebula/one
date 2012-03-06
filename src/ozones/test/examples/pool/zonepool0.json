@@ -1,0 +1,26 @@
+{
+  "ZONE_POOL": {
+    "ZONE": [
+      {
+        "ID": 1,
+        "ENDPOINT": "http://localhost:2666/RPC2",
+        "NUMBERVDCS": 0,
+        "SUNSENDPOINT": "http://localhost:9869",
+        "NAME": "zoneA",
+        "SELFENDPOINT": null,
+        "ONENAME": "oneadminA",
+        "ONEPASS": "OkqWM2aSqbM/nlrdHGv3OA=="
+      },
+      {
+        "ID": 2,
+        "ENDPOINT": "http://localhost:2667/RPC2",
+        "NUMBERVDCS": 0,
+        "SUNSENDPOINT": null,
+        "NAME": "zoneB",
+        "SELFENDPOINT": null,
+        "ONENAME": "oneadminB",
+        "ONEPASS": "8Si8vlo2P3qn5/SNxkMkDg=="
+      }
+    ]
+  }
+}
