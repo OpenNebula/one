@@ -768,7 +768,8 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/mkswap \
                  src/tm_mad/shared/mkimage \
                  src/tm_mad/shared/mv \
-                 src/tm_mad/shared/context"
+                 src/tm_mad/shared/context \
+                 src/tm_mad/shared/mvds"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/delete \
@@ -776,7 +777,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/mkswap \
               src/tm_mad/ssh/mkimage \
               src/tm_mad/ssh/mv \
-              src/tm_mad/ssh/context"
+              src/tm_mad/ssh/context \
+              src/tm_mad/ssh/vmds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/delete \
@@ -792,7 +794,8 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
               src/tm_mad/lvm/mkswap \
               src/tm_mad/lvm/mkimage \
               src/tm_mad/lvm/mv \
-              src/tm_mad/lvm/context"
+              src/tm_mad/lvm/context \
+              src/tm_mad/lvm/dummy"
 
 TM_VMWARE_FILES="src/tm_mad/vmware/clone \
                  src/tm_mad/vmware/ln \
