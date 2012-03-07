@@ -32,7 +32,9 @@ else
 end
 
 SUNSTONE_AUTH             = VAR_LOCATION + "/.one/sunstone_auth"
+SUNSTONE_LOG              = LOG_LOCATION + "/sunstone.log"
 CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
+
 PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
@@ -54,27 +56,42 @@ require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstonePlugins'
 
+
+##############################################################################
+# Configuration
+##############################################################################
+
 begin
     conf = YAML.load_file(CONFIGURATION_FILE)
 rescue Exception => e
-    puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
 
-##############################################################################
-# Sinatra Configuration
-##############################################################################
-use Rack::Session::Pool, :key => 'sunstone'
+conf[:debug_level] ||= 3
+
+CloudServer.print_configuration(conf)
+
+#Sinatra configuration
+
 set :config, conf
 set :bind, settings.config[:host]
 set :port, settings.config[:port]
+
+use Rack::Session::Pool, :key => 'sunstone'
+
+# Enable logger
+
+include CloudLogger
+enable_logging SUNSTONE_LOG, settings.config[:debug_level].to_i
 
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
     cloud_auth = CloudAuth.new(settings.config)
 rescue => e
-    puts "Error initializing authentication system"
-    puts e.message
+    settings.logger.error {
+        "Error initializing authentication system" }
+    settings.logger.error { e.message }
     exit -1
 end
 
@@ -93,10 +110,12 @@ helpers do
             settings.cloud_auth.update_userpool_cache
             result = settings.cloud_auth.auth(request.env, params)
         rescue Exception => e
-            error 500, e.message
+            error 500, ""
+            logger.error { e.message }
         end
 
         if result.nil?
+            logger.info { "Unauthorized login attempt" }
             return [401, ""]
         else
             client  = settings.cloud_auth.client(result)
@@ -105,7 +124,7 @@ helpers do
             user    = OpenNebula::User.new_with_id(user_id, client)
             rc = user.info
             if OpenNebula.is_error?(rc)
-                # Add a log message
+                logger.error { rc.message }
                 return [500, ""]
             end
 
@@ -157,7 +176,9 @@ before do
         halt 401 unless authorized?
 
         @SunstoneServer = SunstoneServer.new(
-            settings.cloud_auth.client(session[:user]))
+                              settings.cloud_auth.client(session[:user]),
+                              settings.config,
+                              settings.logger)
     end
 end
 
@@ -244,7 +265,10 @@ end
 post '/config' do
     begin
         body = JSON.parse(request.body.read)
-    rescue
+    rescue Exception => e
+        msg = "Error parsing configuration JSON"
+        logger.error { msg }
+        logger.error { e.message } 
         [500, OpenNebula::Error.new(msg).to_json]
     end
 

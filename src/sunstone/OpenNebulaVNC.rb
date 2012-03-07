@@ -21,7 +21,7 @@ require 'OpenNebula'
 # This class provides support for launching and stopping a websockify proxy
 #
 class OpenNebulaVNC
-    def initialize(config, opt={:json_errors => true})
+    def initialize(config, logger, opt={:json_errors => true})
         @proxy_path      = config[:vnc_proxy_path]
         @proxy_base_port = config[:vnc_proxy_base_port].to_i
 
@@ -36,6 +36,7 @@ class OpenNebulaVNC
         end
 
         @options = opt
+        @logger = logger
     end
 
     # Start a VNC proxy
@@ -71,7 +72,7 @@ class OpenNebulaVNC
         cmd ="#{@proxy_path} #{proxy_options} #{proxy_port} #{host}:#{vnc_port}"
 
         begin
-            $stderr.puts("Starting vnc proxy: #{cmd}")
+            @logger.info { "Starting vnc proxy: #{cmd}" }
             pipe = IO.popen(cmd)
         rescue Exception => e
             return [500, OpenNebula::Error.new(e.message).to_json]

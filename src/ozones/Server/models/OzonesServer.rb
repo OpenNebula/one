@@ -14,13 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'CloudServer'
+
 require 'JSONUtils'
 
 
-class OzonesServer
+class OzonesServer < CloudServer
     include OpenNebulaJSON::JSONUtils
 
-    def initialize(cipher)
+    def initialize(cipher, config, logger)
+        super(config, logger)
         #Set cipher for Zone classes
         OZones::Zones.cipher = cipher
     end

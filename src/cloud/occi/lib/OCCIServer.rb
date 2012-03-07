@@ -52,8 +52,8 @@ class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
     # template:: _String_ path to the location of the templates
-    def initialize(client, config)
-        super(config)
+    def initialize(client, config, logger)
+        super(config, logger)
 
         if config[:ssl_server]
             @base_url=config[:ssl_server]
@@ -81,10 +81,10 @@ class OCCIServer < CloudServer
     ############################################################################
 
     def get_collections(request)
-        xml_resp = "<COLLECTIONS>\n"
+        xml_resp = "<COLLECTIONS>"
 
-        COLLECTIONS.each { |c|
-            xml_resp << "\t<#{c.upcase}_COLLECTION href=\"#{@base_url}/#{c}\">\n"
+        COLLECTIONS.sort.each { |c|
+            xml_resp << "<#{c.upcase}_COLLECTION href=\"#{@base_url}/#{c}\"/>"
         }
 
         xml_resp << "</COLLECTIONS>"
@@ -97,7 +97,7 @@ class OCCIServer < CloudServer
         <INSTANCE_TYPE href="<%= @base_url %>/instance_type/<%=name%>" name="<%= name %>">
             <ID><%= name.to_s %></ID>
             <NAME><%= name.to_s %></NAME>
-        <% opts.each { |elem, value|
+        <% opts.sort{|k1,k2| k1[0].to_s<=>k2[0].to_s}.each { |elem, value|
             next if elem==:template
             str = elem.to_s.upcase %>
             <<%= str %>><%= value %></<%= str %>>
@@ -106,9 +106,11 @@ class OCCIServer < CloudServer
     }
 
     def get_instance_types(request)
-        xml_resp = "<INSTANCE_TYPE_COLLECTION>\n"
+        xml_resp = "<INSTANCE_TYPE_COLLECTION>"
 
-        @config[:instance_types].each { |name, opts|
+        @config[:instance_types].sort { |k1,k2|
+            k1[0].to_s<=>k2[0].to_s
+        }.each { |name, opts|
             if request.params['verbose']
                 begin
                     occi_it = ERB.new(INSTANCE_TYPE)
@@ -120,7 +122,7 @@ class OCCIServer < CloudServer
 
                 xml_resp << occi_it.gsub(/\n\s*/,'')
             else
-                xml_resp << "\t<INSTANCE_TYPE href=\"#{@base_url}/instance_type/#{name.to_s}\"  name=\"#{name}\">\n"
+                xml_resp << "<INSTANCE_TYPE href=\"#{@base_url}/instance_type/#{name.to_s}\"  name=\"#{name}\"/>"
             end
         }
 
@@ -163,7 +165,7 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        return to_occi_xml(vmpool, :status=>200, :verbose=>request.params['verbose'])
+        return to_occi_xml(vmpool, :code=>200, :verbose=>request.params['verbose'])
     end
 
 
@@ -183,7 +185,7 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        return to_occi_xml(network_pool, :status=>200, :verbose=>request.params['verbose'])
+        return to_occi_xml(network_pool, :code=>200, :verbose=>request.params['verbose'])
     end
 
     # Gets the pool representation of STORAGES
@@ -202,7 +204,7 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        return to_occi_xml(image_pool, :status=>200, :verbose=>request.params['verbose'])
+        return to_occi_xml(image_pool, :code=>200, :verbose=>request.params['verbose'])
     end
 
     # Gets the pool representation of USERs
@@ -219,7 +221,7 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        return to_occi_xml(user_pool, :status=>200, :verbose=>request.params['verbose'])
+        return to_occi_xml(user_pool, :code=>200, :verbose=>request.params['verbose'])
     end
 
     ############################################################################
@@ -255,7 +257,7 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         vm.info
-        return to_occi_xml(vm, :status=>201)
+        return to_occi_xml(vm, :code=>201)
     end
 
     # Get the representation of a COMPUTE resource
@@ -274,7 +276,7 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        return to_occi_xml(vm, :status=>200)
+        return to_occi_xml(vm, :code=>200)
     end
 
     # Deletes a COMPUTE resource
@@ -317,7 +319,7 @@ class OCCIServer < CloudServer
             return result, code
         else
             vm.info
-            return to_occi_xml(vm, :status=>code)
+            return to_occi_xml(vm, :code=>code)
         end
     end
 
@@ -347,7 +349,7 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         network.info
-        return to_occi_xml(network, :status=>201)
+        return to_occi_xml(network, :code=>201)
     end
 
     # Retrieves a NETWORK resource
@@ -365,7 +367,7 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        return to_occi_xml(network, :status=>200)
+        return to_occi_xml(network, :code=>200)
     end
 
     # Deletes a NETWORK resource
@@ -411,7 +413,7 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         vnet.info
-        return to_occi_xml(vnet, :status=>202)
+        return to_occi_xml(vnet, :code=>202)
     end
 
     ############################################################################
@@ -457,7 +459,7 @@ class OCCIServer < CloudServer
         end
 
         # --- Prepare XML Response ---
-        return to_occi_xml(image, :status=>201)
+        return to_occi_xml(image, :code=>201)
     end
 
     # Get a STORAGE resource
@@ -476,7 +478,7 @@ class OCCIServer < CloudServer
         end
 
         # --- Prepare XML Response ---
-        return to_occi_xml(image, :status=>200)
+        return to_occi_xml(image, :code=>200)
     end
 
     # Deletes a STORAGE resource (Not yet implemented)
@@ -530,7 +532,7 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         image.info
-        return to_occi_xml(image, :status=>202)
+        return to_occi_xml(image, :code=>202)
     end
 
     # Get the representation of a USER
@@ -549,7 +551,7 @@ class OCCIServer < CloudServer
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        return to_occi_xml(user, :status=>200)
+        return to_occi_xml(user, :code=>200)
     end
 
     ############################################################################
@@ -566,7 +568,7 @@ class OCCIServer < CloudServer
             return [404, error]
         end
 
-        vnc_proxy = OpenNebulaVNC.new(config,{:json_errors => false})
+        vnc_proxy = OpenNebulaVNC.new(config, logger, {:json_errors => false})
         return vnc_proxy.start(vm)
     end
 
@@ -574,7 +576,8 @@ class OCCIServer < CloudServer
         begin
             OpenNebulaVNC.stop(pipe)
         rescue Exception => e
-            return [500, e.message]
+            logger.error {e.message}
+            return [500, "Error stopping VNC. Please check server logs."]
         end
         
         return [200,nil]
