@@ -1,5 +1,0 @@
-NAME=testvdc1
-HOSTS=8
-ZONEID=1
-VDCADMINNAME=othername
-VDCADMINPASS=otherpass

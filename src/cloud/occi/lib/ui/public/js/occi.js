@@ -189,7 +189,7 @@ var OCCI = {
             $.ajax({
                 url: resource.toLowerCase(),
                 type: "GET",
-                data: {timeout: timeout},
+                data: {timeout: timeout, verbose: true},
                 dataType: "xml ONEjson",
                 success: function(response){
                     var res = {};

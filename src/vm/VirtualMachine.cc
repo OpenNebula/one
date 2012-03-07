@@ -1252,7 +1252,7 @@ error_saved:
     goto error_common;
 
 error_image_id:
-    oss << "The DISK " << disk_id << "does not have a valid IMAGE_ID.";
+    oss << "The DISK " << disk_id << " does not have a valid IMAGE_ID.";
     goto error_common;
 
 error_not_found:

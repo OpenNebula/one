@@ -28,36 +28,71 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'ozones_helper/zones_helper.rb'
 
+TESTS_PATH = File.dirname(__FILE__)+"/../"
+
 module OZones
 
     describe "oZones server regarding zones" do
         before(:all) do
-            @helper    = ZonesHelper.new("zone", "ozonesadmin","ozonespassword")  
-            @badhelper = ZonesHelper.new("zone", "wronguser","wrongpassword")       
+            @helper    = ZonesHelper.new("zone", "ozonesadmin","ozonespassword")
+            @badhelper = ZonesHelper.new("zone", "wronguser","wrongpassword")
         end
-                
+
         it "should be able to create a couple of zones" do
-            @helper.create_resource(File.dirname(__FILE__)+
-                                "/../templates/zoneA.template")[0].should eql(0)
-            @helper.create_resource(File.dirname(__FILE__)+
-                                "/../templates/zoneB.template")[0].should eql(0)                   
-        end  
-        
+            rc = @helper.create_resource(TESTS_PATH+"templates/zoneA.template")
+            rc[0].should eql(0)
+
+            @helper.create_resource(TESTS_PATH+"templates/zoneB.template")
+            rc[0].should eql(0)
+        end
+
         it "should fail with wrong zones templates" do
-            @helper.create_resource(File.dirname(__FILE__)+
-             "/../templates/zone.wrong.credentials.template")[0].should eql(-1)
-            @helper.create_resource(File.dirname(__FILE__)+
-                 "/../templates/zone.wrong.endpoint.template")[0].should eql(-1)                   
-        end  
-        
+            templ_path = "templates/zone.wrong.credentials.template"
+            rc = @helper.create_resource(TESTS_PATH+templ_path)
+            rc[0].should eql(-1)
+
+            templ_path = "templates/zone.wrong.endpoint.template"
+            rc = @helper.create_resource(TESTS_PATH+templ_path)
+            rc[0].should eql(-1)
+        end
+
         it "should fail when creating zones with existing name" do
-            @helper.create_resource(File.dirname(__FILE__)+
-             "/../templates/zoneA.template")[0].should eql(-1)                 
-        end  
-        
+            rc = @helper.create_resource(TESTS_PATH+"templates/zoneA.template")
+            rc[0].should eql(-1)
+        end
+
         it "should refuse unauthorized requests" do
-            @badhelper.create_resource(File.dirname(__FILE__)+
-                                "/../templates/zoneA.template")[0].should eql(-1)                   
-        end  
+            rc = @badhelper.create_resource(TESTS_PATH+
+                                            "templates/zoneA.template")
+            rc[0].should eql(-1)
+        end
+
+        it "should be able to retrieve the zone pool" do
+            zonepool = @helper.list_pool({:json => true})
+            zonepool[0].should eql(0)
+            zonepool[1].should eql(File.read(TESTS_PATH+
+                                             "examples/pool/zonepool0.json"))
+        end
+
+        it "should be able to retrieve a particular zone" do
+            zone = @helper.show_resource(1,{:json => true})
+            zone[0].should eql(0)
+            zone[1].should eql(File.read(TESTS_PATH+"examples/zone/zone0.json"))
+        end
+
+        it "should allow deleting a zone" do
+            rc = @helper.delete_resource(2, {})
+            rc[0].should eql(0)
+            rc = @helper.list_pool({:json => true})
+            rc[0].should eql(0)
+            rc[1].should eql(File.read(TESTS_PATH+
+                                       "examples/pool/zonepool_deleted.json"))
+        end
+
+        it "should fail on non existing zone deletion" do
+            rc = @helper.delete_resource(7, {})
+            rc[0].should eql(-1)
+        end
+
     end
 end

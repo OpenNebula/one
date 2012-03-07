@@ -153,13 +153,6 @@ var vm_actions = {
         error: onError
     },
 
-    "VM.showstate" : {
-        type: "single",
-        call: OCCI.VM.show,
-        callback: updateVMStateCB,
-        error: onError
-    },
-
     "VM.refresh" : {
         type: "custom",
         call : function (){
@@ -178,7 +171,7 @@ var vm_actions = {
     "VM.suspend" : {
         type: "multiple",
         call: OCCI.VM.suspend,
-        callback: updateVMStateCB,
+        callback: updateVMachineElement,
         elements: vmElements,
         error: onError,
         notify: true
@@ -187,7 +180,7 @@ var vm_actions = {
     "VM.resume" : {
         type: "multiple",
         call: OCCI.VM.resume,
-        callback: updateVMStateCB,
+        callback: updateVMachineElement,
         elements: vmElements,
         error: onError,
         notify: true
@@ -196,7 +189,7 @@ var vm_actions = {
     "VM.stop" : {
         type: "multiple",
         call: OCCI.VM.stop,
-        callback: updateVMStateCB,
+        callback: updateVMachineElement,
         elements: vmElements,
         error: onError,
         notify: true
@@ -214,7 +207,7 @@ var vm_actions = {
     "VM.shutdown" : {
         type: "multiple",
         call: OCCI.VM.shutdown,
-        callback: updateVMStateCB,
+        callback: updateVMachineElement,
         elements: vmElements,
         error: onError,
         notify: true
@@ -223,7 +216,7 @@ var vm_actions = {
     "VM.cancel" : {
         type: "multiple",
         call: OCCI.VM.cancel,
-        callback: updateVMStateCB,
+        callback: updateVMachineElement,
         elements: vmElements,
         error: onError,
         notify: true
@@ -240,7 +233,7 @@ var vm_actions = {
     "VM.saveas" : {
         type: "single",
         call: OCCI.VM.saveas,
-        callback: updateVMStateCB,
+        callback: updateVMachineElement,
         error:onError
     },
 
@@ -259,7 +252,7 @@ var vm_actions = {
             };
             var options = "";
             for (var i = 0; i<response.length; i++){
-                var type = response[i].INSTANCE_TYPE.NAME;
+                var type = response[i].INSTANCE_TYPE.name;
                 options += '<option value="'+type+'">'+type+'</option>';
             };
             $('#dialog select#instance_type').html(options);
@@ -423,7 +416,7 @@ function vMachineElementArray(vm_json){
     return [
         '<input class="check_item" type="checkbox" id="vm_'+id+'" name="selected_items" value="'+id+'"/>',
         id,
-        name
+        VMStateBulletStr(vm_json) + name
     ];
 }
 
@@ -473,16 +466,15 @@ function updateVMachinesView(request, vmachine_list){
     $.each(vmachine_list,function(){
         el_array = vMachineElementArray(this);
         vmachine_list_array.push(el_array);
-        Sunstone.runAction("VM.showstate",el_array[1]);
     });
 
     updateView(vmachine_list_array,dataTable_vMachines);
     updateDashboard("vms",vmachine_list);
 };
 
-function updateVMStateCB(request,vm){
+function VMStateBulletStr(vm){
     var vm_state = vm.COMPUTE.STATE;
-    var state_html = vm_state;
+    var state_html = "";
     switch (vm_state) {
     case "INIT":
     case "PENDING":
@@ -499,13 +491,8 @@ function updateVMStateCB(request,vm){
         state_html = '<img style="display:inline-block;margin-right:5px;" src="images/red_bullet.png" alt="'+vm_state+'" title="'+vm_state+'"/>';
         break;
     };
-
-    var tag = 'input#vm_'+vm.COMPUTE.ID;
-    var array = vMachineElementArray(vm);
-    array[2] = state_html + array[2];
-    updateSingleElement(array,dataTable_vMachines,tag);
-};
-
+    return state_html;
+}
 
 // Refreshes the information panel for a VM
 function updateVMInfo(request,vm){
