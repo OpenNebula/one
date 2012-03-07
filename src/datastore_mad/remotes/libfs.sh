@@ -136,37 +136,3 @@ function check_restricted {
 
   	echo 0
 }
-
-
-# ------------------------------------------------------------------------------
-# iSCSI functions
-# ------------------------------------------------------------------------------
-
-#-------------------------------------------------------------------------------
-# Returns the command to create a new target
-#   @param $1 - ID of the image
-#   @param $2 - Target Host
-#   @param $3 - Device
-#   @return the command to create a new target
-#-------------------------------------------------------------------------------
-
-function iscsi_target_new {
-    ID="$1"
-    IQN="$2"
-
-    echo "$TGTADM --lld iscsi --op new --mode target --tid $ID "\
-        "--targetname $IQN"
-}
-
-function iscsi_logicalunit_new {
-	ID="$1"
-    DEV="$2"
-
-	echo "$TGTADM --lld iscsi --op new --mode logicalunit --tid $ID "\
-		"--lun 1 --backing-store $DEV"
-}
-
-function iscsi_target_delete {
-	ID="$1"
-	echo "$TGTADM --lld iscsi --op delete --mode target --tid $ID"
-}
