@@ -57,6 +57,7 @@ SAFE_DIRS="${XPATH_ELEMENTS[2]}"
 UMASK="${XPATH_ELEMENTS[3]}"
 SRC="${XPATH_ELEMENTS[4]}"
 
+mkdir -p "$BASE_PATH"
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 DST=`generate_image_path`

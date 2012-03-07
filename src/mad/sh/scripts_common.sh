@@ -115,7 +115,7 @@ function error_message
 function exec_and_log
 {
     message=$2
-    
+
     EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
     EXEC_LOG_RC=$?
 
@@ -192,7 +192,7 @@ function mkfs_command {
             ;;
         "raw")
             echo ""
-            return 0 
+            return 0
             ;;
         "swap")
             echo "$MKSWAP $DST"
@@ -204,4 +204,42 @@ function mkfs_command {
     esac
 
     echo "$MKFS -t $FSTYPE $OPTS $DST"
+}
+
+#This function executes $2 at $1 host and report error $3
+function ssh_exec_and_log
+{
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+$2
+EOF`
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        log_error "Command \"$2\" failed: $SSH_EXEC_ERR"
+
+        if [ -n "$3" ]; then
+            error_message "$3"
+        else
+            error_message "Error executing $2: $SSH_EXEC_ERR"
+        fi
+
+        exit $SSH_EXEC_RC
+    fi
+}
+
+#Creates path ($2) at $1
+function ssh_make_path
+{
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+if [ ! -d $2 ]; then
+   mkdir -p $2
+fi
+EOF`
+    SSH_EXEC_RC=$?
+
+    if [ $? -ne 0 ]; then
+        error_message "Error creating directory $2 at $1: $SSH_EXEC_ERR"
+
+        exit $SSH_EXEC_RC
+    fi
 }

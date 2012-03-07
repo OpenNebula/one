@@ -53,8 +53,6 @@ function set_up_datastore {
 	export RESTRICTED_DIRS
 	export SAFE_DIRS
 
-	mkdir -p $BASE_PATH
-
 	if [ -n "$UMASK" ]; then
 		umask $UMASK
 	else
@@ -94,7 +92,7 @@ function fs_du {
 	if [ $error -ne 0 ]; then
 		SIZE=0
 	else
-		SIZE=$(($SIZE/1048576))
+		SIZE=$((($SIZE+1048575)/1048576))
 	fi
 
 	echo "$SIZE"
@@ -111,7 +109,7 @@ function qemu_size {
 	SIZE=`$QEMU_IMG info $DISK|grep "^virtual size:"|\
         sed 's/^.*(\([0-9]\+\) bytes.*$/\1/g'`
 
-	SIZE=$(($SIZE/1048576))
+	SIZE=$((($SIZE+1048575)/1048576))
 
 	echo "$SIZE"
 }

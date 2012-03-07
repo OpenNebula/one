@@ -49,7 +49,6 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
 
@@ -58,10 +57,10 @@ BASE_PATH="${XPATH_ELEMENTS[0]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
 SAFE_DIRS="${XPATH_ELEMENTS[2]}"
 UMASK="${XPATH_ELEMENTS[3]}"
-SRC="${XPATH_ELEMENTS[4]}"
-FSTYPE="${XPATH_ELEMENTS[5]}"
-SIZE="${XPATH_ELEMENTS[6]}"
+FSTYPE="${XPATH_ELEMENTS[4]}"
+SIZE="${XPATH_ELEMENTS[5]}"
 
+mkdir -p "$BASE_PATH"
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 DST=`generate_image_path`
@@ -81,8 +80,5 @@ exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
     "Could not create image $DST"
 exec_and_log "$MKFS_CMD" \
     "Unable to create filesystem $FSTYPE in $DST"
-
-# ---------------- Get the size of the image ------------
-SIZE=`fs_du $DST`
 
 echo "$DST $SIZE"
