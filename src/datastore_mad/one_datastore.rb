@@ -83,9 +83,9 @@ class DatastoreDriver < OpenNebulaDriver
         register_action(ACTION[:mkfs].to_sym, method("mkfs"))
     end
 
-    ############################################################################ 
+    ############################################################################
     # Image Manager Protocol Actions (generic implementation)
-    ############################################################################ 
+    ############################################################################
 # TODO: Integrate this with TM
 #    def mv(id, ds, src, dst)
 #        do_image_action(id, ds, :mv, "'#{src}' '#{dst}' '#{id}'")
@@ -112,7 +112,7 @@ class DatastoreDriver < OpenNebulaDriver
         if @types.include?(ds)
             return true
         else
-            send_message(ACTION[action], RESULT[:failure], id, 
+            send_message(ACTION[action], RESULT[:failure], id,
                 "Datastore driver '#{ds}' not available")
             return false
         end
@@ -130,6 +130,8 @@ class DatastoreDriver < OpenNebulaDriver
 
         result, info = get_info_from_execution(rc)
 
+
+        PP.pp([ACTION[action], result, id, info],STDERR)
         send_message(ACTION[action], result, id, info)
     end
 
