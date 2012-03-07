@@ -114,7 +114,7 @@ int RequestManager::setup_socket()
     {
         ostringstream oss;
 
-        oss << "Can not open server socket: " << strerror(errno);
+        oss << "Cannot open server socket: " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
        
         return -1; 
@@ -126,7 +126,7 @@ int RequestManager::setup_socket()
     {
         ostringstream oss;
 
-        oss << "Can not set socket options: " << strerror(errno);
+        oss << "Cannot set socket options: " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
         
         close(socket_fd);
@@ -146,7 +146,7 @@ int RequestManager::setup_socket()
     {
         ostringstream oss;
 
-        oss << "Can not bind to port " << port << " : " << strerror(errno);
+        oss << "Cannot bind to port " << port << " : " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
        
         close(socket_fd);

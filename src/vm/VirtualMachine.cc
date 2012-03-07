@@ -183,7 +183,7 @@ int VirtualMachine::select(SqlDB * db)
     return 0;
 
 error_previous_history:
-    ose << "Can not get previous history record (seq:" << history->seq
+    ose << "Cannot get previous history record (seq:" << history->seq
         << ") for VM id: " << oid;
 
     log("ONE", Log::ERROR, ose);
@@ -380,7 +380,7 @@ int VirtualMachine::parse_context(string& error_str)
 
     if (str == 0)
     {
-        NebulaLog::log("ONE",Log::ERROR, "Can not marshall CONTEXT");
+        NebulaLog::log("ONE",Log::ERROR, "Cannot marshall CONTEXT");
         return -1;
     }
 
@@ -955,15 +955,15 @@ int VirtualMachine::get_disk_images(string& error_str)
     return 0;
 
 error_max_os:
-    error_str = "VM can not use more than one OS image.";
+    error_str = "VM cannot use more than one OS image.";
     goto error_common;
 
 error_max_cd:
-    error_str = "VM can not use more than one CDROM image.";
+    error_str = "VM cannot use more than one CDROM image.";
     goto error_common;
 
 error_max_db:
-    error_str = "VM can not use more than 10 DATABLOCK images.";
+    error_str = "VM cannot use more than 10 DATABLOCK images.";
     goto error_common;
 
 error_common:

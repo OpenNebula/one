@@ -172,7 +172,7 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
 
     if ( new_tmpl == 0 )
     {
-        error = "Can not allocate a new template";
+        error = "Cannot allocate a new template";
         return -1;
     }
     
