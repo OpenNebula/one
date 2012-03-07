@@ -8,7 +8,7 @@ VM_POLLING_INTERVAL      = 600
 
 SCRIPTS_REMOTE_DIR=/var/tmp/one
 
-PORT = 2667
+PORT = 2666
 
 DB = [ backend = "sqlite" ]
 
