@@ -24,20 +24,28 @@ function auth_error(req, error){
 
     switch (status){
     case 401:
-        $("#one_error").hide();
-        $("#auth_error").fadeIn("slow");
+        $("#error_box").text("Invalid username or password");
         break;
     case 500:
-        $("#auth_error").hide();
-        $("#one_error").fadeIn("slow");
+        $("#error_box").text("OpenNebula is not running or there was a server exception. Please check the server logs.");
         break;
+    case 0:
+        $("#error_box").text("No answer from server. Is it running?");
+        break;
+    default:
+        $("#error_box").text("Unexpected error. Status "+status+". Check the server logs.");
     };
+    $("#error_box").fadeIn("slow");
+    $("#login_spinner").hide();
 }
 
 function authenticate(){
     var username = $("#username").val();
     var password = $("#password").val();
     var remember = $("#check_remember").is(":checked");
+
+    $("#error_box").fadeOut("slow");
+    $("#login_spinner").show();
 
     OpenNebula.Auth.login({ data: {username: username
                                     , password: password}
@@ -61,4 +69,5 @@ $(document).ready(function(){
     };
 
     $("input#username.box").focus();
+    $("#login_spinner").hide();
 });

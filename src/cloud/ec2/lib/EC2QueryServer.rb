@@ -61,8 +61,8 @@ class EC2QueryServer < CloudServer
 
     ###########################################################################
 
-    def initialize(client, config)
-        super(config)
+    def initialize(client, config, logger)
+        super(config, logger)
 
         @client = client
     end

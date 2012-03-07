@@ -1,0 +1,20 @@
+<INSTANCE_TYPE_COLLECTION>
+  <INSTANCE_TYPE href="http://localhost:4567/instance_type/large" name="large">
+    <ID>large</ID>
+    <NAME>large</NAME>
+    <CPU>8</CPU>
+    <MEMORY>8192</MEMORY>
+  </INSTANCE_TYPE>
+  <INSTANCE_TYPE href="http://localhost:4567/instance_type/medium" name="medium">
+    <ID>medium</ID>
+    <NAME>medium</NAME>
+    <CPU>4</CPU>
+    <MEMORY>4096</MEMORY>
+  </INSTANCE_TYPE>
+  <INSTANCE_TYPE href="http://localhost:4567/instance_type/small" name="small">
+    <ID>small</ID>
+    <NAME>small</NAME>
+    <CPU>1</CPU>
+    <MEMORY>1024</MEMORY>
+  </INSTANCE_TYPE>
+</INSTANCE_TYPE_COLLECTION>

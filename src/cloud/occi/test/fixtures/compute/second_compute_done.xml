@@ -1,0 +1,20 @@
+<COMPUTE href="http://localhost:4567/compute/1">
+  <ID>1</ID>
+  <USER href="http://localhost:4567/user/3" name="my_second_occi_user"/>
+  <GROUP>users</GROUP>
+  <CPU>1</CPU>
+  <MEMORY>1024</MEMORY>
+  <NAME>Compute2</NAME>
+  <INSTANCE_TYPE href="http://localhost:4567/instance_type/small">small</INSTANCE_TYPE>
+  <STATE>DONE</STATE>
+  <DISK id="0">
+    <STORAGE href="http://localhost:4567/storage/1" name="Storage2"/>
+    <TYPE>DISK</TYPE>
+    <TARGET>hde</TARGET>
+  </DISK>
+  <NIC>
+    <NETWORK href="http://localhost:4567/network/1" name="Network2"/>
+    <IP>192.168.2.1</IP>
+    <MAC>02:00:c0:a8:02:01</MAC>
+  </NIC>
+</COMPUTE>
