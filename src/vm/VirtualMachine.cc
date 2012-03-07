@@ -535,9 +535,8 @@ int VirtualMachine::automatic_requirements(string& error_str)
     ostringstream   oss;
     string          requirements;
     string          cluster_id;
+    string          vatt_cluster_id;
     bool            error = false;
-
-    oss << "Incompatible cluster IDs.";
 
     // Get cluster id from all DISK vector attributes
 
@@ -552,23 +551,16 @@ int VirtualMachine::automatic_requirements(string& error_str)
             continue;
         }
 
-        string vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
 
         if ( !vatt_cluster_id.empty() )
         {
-            oss << endl << "DISK [" << i << "]: IMAGE ["
-                << vatt->vector_value("IMAGE_ID") << "] from DATASTORE ["
-                << vatt->vector_value("DATASTORE_ID") << "] requires CLUSTER ["
-                << vatt_cluster_id << "]";
+            if ( cluster_id != vatt_cluster_id )
+            {
+                goto error;
+            }
 
-            if ( cluster_id.empty() )
-            {
-                cluster_id = vatt_cluster_id;
-            }
-            else if ( cluster_id != vatt_cluster_id )
-            {
-                error = true;
-            }
+            cluster_id = vatt_cluster_id;
         }
     }
 
@@ -586,30 +578,17 @@ int VirtualMachine::automatic_requirements(string& error_str)
             continue;
         }
 
-        string vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
 
         if ( !vatt_cluster_id.empty() )
         {
-            oss << endl << "NIC [" << i << "]: NETWORK ["
-                << vatt->vector_value("NETWORK_ID") << "] requires CLUSTER ["
-                << vatt_cluster_id << "]";
+            if ( cluster_id != vatt_cluster_id )
+            {
+                goto error;
+            }
 
-            if ( cluster_id.empty() )
-            {
-                cluster_id = vatt_cluster_id;
-            }
-            else if ( cluster_id != vatt_cluster_id )
-            {
-                error = true;
-            }
+            cluster_id = vatt_cluster_id;
         }
-    }
-
-    if ( error == true )
-    {
-        error_str = oss.str();
-
-        return -1;
     }
 
     if ( !cluster_id.empty() )
@@ -628,6 +607,63 @@ int VirtualMachine::automatic_requirements(string& error_str)
     }
 
     return 0;
+
+error:
+
+    oss << "Incompatible cluster IDs.";
+
+    // Get cluster id from all DISK vector attributes
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("DISK",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            oss << endl << "DISK [" << i << "]: IMAGE ["
+                << vatt->vector_value("IMAGE_ID") << "] from DATASTORE ["
+                << vatt->vector_value("DATASTORE_ID") << "] requires CLUSTER ["
+                << vatt_cluster_id << "]";
+        }
+    }
+
+    // Get cluster id from all NIC vector attributes
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("NIC",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            oss << endl << "NIC [" << i << "]: NETWORK ["
+                << vatt->vector_value("NETWORK_ID") << "] requires CLUSTER ["
+                << vatt_cluster_id << "]";
+        }
+    }
+
+    error_str = oss.str();
+
+    return -1;
 }
 
 /* ------------------------------------------------------------------------ */
