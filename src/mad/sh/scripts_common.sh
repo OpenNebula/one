@@ -22,6 +22,7 @@ CUT=cut
 DATE=date
 DD=dd
 DU=du
+GREP=grep
 LVCREATE=lvcreate
 LVREMOVE=lvremove
 LVS=lvs
@@ -35,8 +36,8 @@ SCP=scp
 SED=sed
 SSH=ssh
 SUDO=sudo
+TGTADM=tgtadm
 WGET=wget
-GREP=grep
 
 if [ "x$(uname -s)" = "xLinux" ]; then
     SED="$SED -r"
