@@ -17,12 +17,10 @@
 #--------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used to copy a VM image (SRC) to the image repository as DST
-# Several SRC types are supported
+# This script is used to remove a VM image (SRC) from the image repository
 ###############################################################################
 
-# -------- Set up the environment to source common tools & conf ------------
-
+# ------------ Set up the environment to source common tools ------------
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
 else
@@ -33,8 +31,9 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
+source ${DRIVER_PATH}/iscsi.conf
 
-# -------- Get cp and datastore arguments from OpenNebula core ------------
+# -------- Get rm and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
@@ -45,47 +44,38 @@ unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BASE_TID)
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
-RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
-SAFE_DIRS="${XPATH_ELEMENTS[2]}"
-UMASK="${XPATH_ELEMENTS[3]}"
-SRC="${XPATH_ELEMENTS[4]}"
+SRC="${XPATH_ELEMENTS[0]}"
+DST_HOST="${XPATH_ELEMENTS[1]}"
+BASE_TID="${XPATH_ELEMENTS[2]:-$BASE_TID}"
 
-mkdir -p "$BASE_PATH"
-set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
+BASE_IQN=`echo $SRC|$CUT -d: -f1`
+TARGET=`echo $SRC|$CUT -d: -f2`
+LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
+VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
+DEV="/dev/$VG_NAME/$LV_NAME"
 
-DST=`generate_image_path`
+let TID=ID+BASE_TID
 
-# ------------ Copy the image to the repository -------------
-
-case $SRC in
-http://*)
-    log "Downloading $SRC to the image repository"
-
-    exec_and_log "$WGET -O $DST $SRC" "Error downloading $SRC"
-    ;;
-
-*)
-    if [ `check_restricted $SRC` -eq 1 ]; then
-        log_error "Not allowed to copy images from $RESTRICTED_DIRS"
-        error_message "Not allowed to copy image file $SRC"
-        exit -1
+RM_COMMAND=$(cat <<EOF
+    n_snapshots=\$($SUDO $LVS --noheadings -o name,origin $VG_NAME | \
+        $AWK '{if(\$2 == "$LV_NAME"){print \$1}}'|wc -l)
+    if [ "\$n_snapshots" = "0" ]; then
+        $SUDO $(iscsi_target_delete "$TID")
+        $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME
+    else
+        echo "Error: \$n_snapshots active snapshots for $VG_NAME/$LV_NAME" >&2
+        exit 1
     fi
+EOF
+)
 
-    log "Copying local image $SRC to the image repository"
+log "Removing $DST_HOST:$DEV from the image repository"
 
-    exec_and_log "cp -f $SRC $DST" "Error copying $SRC to $DST"
-    ;;
-esac
+ssh_exec_and_log "$DST_HOST" "$RM_COMMAND" \
+    "Error removing $DST_HOST:$DEV"
 
-# ---------------- Get the size of the image ------------
-
-SIZE=`fs_du $DST`
-
-echo "$DST $SIZE"
+exit 0

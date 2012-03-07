@@ -53,8 +53,6 @@ function set_up_datastore {
 	export RESTRICTED_DIRS
 	export SAFE_DIRS
 
-	mkdir -p $BASE_PATH
-
 	if [ -n "$UMASK" ]; then
 		umask $UMASK
 	else
@@ -94,7 +92,7 @@ function fs_du {
 	if [ $error -ne 0 ]; then
 		SIZE=0
 	else
-		SIZE=$(($SIZE/1048576))
+		SIZE=$((($SIZE+1048575)/1048576))
 	fi
 
 	echo "$SIZE"
@@ -111,7 +109,7 @@ function qemu_size {
 	SIZE=`$QEMU_IMG info $DISK|grep "^virtual size:"|\
         sed 's/^.*(\([0-9]\+\) bytes.*$/\1/g'`
 
-	SIZE=$(($SIZE/1048576))
+	SIZE=$((($SIZE+1048575)/1048576))
 
 	echo "$SIZE"
 }
@@ -137,4 +135,38 @@ function check_restricted {
     done
 
   	echo 0
+}
+
+
+# ------------------------------------------------------------------------------
+# iSCSI functions
+# ------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# Returns the command to create a new target
+#   @param $1 - ID of the image
+#   @param $2 - Target Host
+#   @param $3 - Device
+#   @return the command to create a new target
+#-------------------------------------------------------------------------------
+
+function iscsi_target_new {
+    ID="$1"
+    IQN="$2"
+
+    echo "$TGTADM --lld iscsi --op new --mode target --tid $ID "\
+        "--targetname $IQN"
+}
+
+function iscsi_logicalunit_new {
+	ID="$1"
+    DEV="$2"
+
+	echo "$TGTADM --lld iscsi --op new --mode logicalunit --tid $ID "\
+		"--lun 1 --backing-store $DEV"
+}
+
+function iscsi_target_delete {
+	ID="$1"
+	echo "$TGTADM --lld iscsi --op delete --mode target --tid $ID"
 }

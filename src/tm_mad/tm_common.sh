@@ -62,64 +62,11 @@ function set_ds_location
 #Return 1 if the first argument is a disk
 function is_disk
 {
-    echo "$1" | $GREP '/disk\.[0-9]\+' > /dev/null 2>&1 
+    echo "$1" | $GREP '/disk\.[0-9]\+' > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
         echo "1"
     else
         echo "0"
     fi
-}
-
-# ------------------------------------------------------------------------------
-# Function to get hosts and paths from arguments
-# ------------------------------------------------------------------------------
-
-#This function executes $2 at $1 host and report error $3
-function ssh_exec_and_log
-{
-    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
-$2
-EOF`
-    SSH_EXEC_RC=$?
-
-    if [ $SSH_EXEC_RC -ne 0 ]; then
-        log_error "Command \"$2\" failed: $SSH_EXEC_ERR"
-
-        if [ -n "$3" ]; then
-            error_message "$3"
-        else
-            error_message "Error executing $2: $SSH_EXEC_ERR"
-        fi
-
-        exit $SSH_EXEC_RC
-    fi
-}
-
-#Creates path ($2) at $1
-function ssh_make_path
-{
-    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
-if [ ! -d $2 ]; then
-   mkdir -p $2
-fi
-EOF`
-    SSH_EXEC_RC=$?
-
-    if [ $? -ne 0 ]; then
-        error_message "Error creating directory $2 at $1: $SSH_EXEC_ERR"
-
-        exit $SSH_EXEC_RC
-    fi
-}
-
-#Transform a system data store path from its remote location to the local one
-#$1 remote path
-function remote2local_path
-{
-    if [ -z "$RMT_DS_DIR" ]; then
-        set_ds_location
-    fi
-
-    echo "$ONE_LOCAL_VAR/datastores/${1##"$RMT_DS_DIR/"}"
 }

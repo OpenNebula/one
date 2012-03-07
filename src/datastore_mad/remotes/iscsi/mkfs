@@ -17,8 +17,8 @@
 #--------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used to copy a VM image (SRC) to the image repository as DST
-# Several SRC types are supported
+# This script is used to create a VM image (SRC) of size (SIZE) and formatted
+# as (FS)
 ###############################################################################
 
 # -------- Set up the environment to source common tools & conf ------------
@@ -33,8 +33,9 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
+source ${DRIVER_PATH}/iscsi.conf
 
-# -------- Get cp and datastore arguments from OpenNebula core ------------
+# -------- Get mkfs and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
@@ -49,43 +50,52 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VG_NAME \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BASE_IQN \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BASE_TID \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
+
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
 SAFE_DIRS="${XPATH_ELEMENTS[2]}"
 UMASK="${XPATH_ELEMENTS[3]}"
-SRC="${XPATH_ELEMENTS[4]}"
+DST_HOST="${XPATH_ELEMENTS[4]}"
+VG_NAME="${XPATH_ELEMENTS[5]:-$VG_NAME}"
+BASE_IQN="${XPATH_ELEMENTS[6]:-$BASE_IQN}"
+BASE_TID="${XPATH_ELEMENTS[7]:-$BASE_TID}"
+FSTYPE="${XPATH_ELEMENTS[8]}"
+SIZE="${XPATH_ELEMENTS[9]:-0}"
 
-mkdir -p "$BASE_PATH"
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
-DST=`generate_image_path`
+LV_NAME="lv-one-${ID}"
+IQN="$BASE_IQN:$DST_HOST.$VG_NAME.$LV_NAME"
+DEV="/dev/$VG_NAME/$LV_NAME"
 
-# ------------ Copy the image to the repository -------------
+let TID=ID+BASE_TID
 
-case $SRC in
-http://*)
-    log "Downloading $SRC to the image repository"
+REGISTER_CMD=$(cat <<EOF
+    set -e
+    $SUDO $LVCREATE -L${SIZE}M ${VG_NAME} -n ${LV_NAME}
+    $SUDO $(iscsi_target_new "$TID" "$IQN")
+    $SUDO $(iscsi_logicalunit_new "$TID" "$DEV")
+    $SUDO $(mkfs_command "$DEV" "$FSTYPE")
+EOF
+)
 
-    exec_and_log "$WGET -O $DST $SRC" "Error downloading $SRC"
-    ;;
+# ------------ Image to save_as disk, no need to create a FS ------------
 
-*)
-    if [ `check_restricted $SRC` -eq 1 ]; then
-        log_error "Not allowed to copy images from $RESTRICTED_DIRS"
-        error_message "Not allowed to copy image file $SRC"
-        exit -1
-    fi
+if [ "$FSTYPE" = "save_as" ]; then
+    echo "$DST $SIZE"
+    exit 0
+fi
 
-    log "Copying local image $SRC to the image repository"
+# ------------ Create the image to the repository ------------
 
-    exec_and_log "cp -f $SRC $DST" "Error copying $SRC to $DST"
-    ;;
-esac
+ssh_exec_and_log "$DST_HOST" "$REGISTER_CMD" \
+    "Error registering $DST_HOST:$DEV"
 
-# ---------------- Get the size of the image ------------
-
-SIZE=`fs_du $DST`
-
-echo "$DST $SIZE"
+echo "$IQN $SIZE"
