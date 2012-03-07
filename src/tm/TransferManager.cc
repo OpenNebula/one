@@ -1288,14 +1288,17 @@ void TransferManager::load_mads(int uid)
     int    rc;
     string name;
 
-    const VectorAttribute * vattr;
+    const VectorAttribute * vattr = 0;
     TransferManagerDriver * tm_driver = 0;
 
     oss << "Loading Transfer Manager driver.";
 
     NebulaLog::log("TM",Log::INFO,oss);
 
-    vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+    if ( mad_conf.size() > 0 )
+    {
+        vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+    }
 
     if ( vattr == 0 )
     {
