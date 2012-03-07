@@ -536,7 +536,6 @@ int VirtualMachine::automatic_requirements(string& error_str)
     string          requirements;
     string          cluster_id;
     string          vatt_cluster_id;
-    bool            error = false;
 
     // Get cluster id from all DISK vector attributes
 
