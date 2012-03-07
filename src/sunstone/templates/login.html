@@ -3,6 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>OpenNebula Sunstone Login</title>
     <link rel="stylesheet" type="text/css" href="css/login.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/jQueryUI/jquery-ui-1.8.16.custom.css" />
 
     <!-- Vendor Libraries -->
     <script type="text/javascript" src="vendor/jQuery/jquery-1.7.1.min.js"></script>
@@ -25,11 +26,7 @@
       <div id="logo_sunstone">
       </div>
 
-      <div id="auth_error" class="error_message">
-          Invalid username or password
-      </div>
-      <div id="one_error" class="error_message">
-          OpenNebula is not running
+      <div id="error_box" class="error_message ui-state-error ui-corner-all">
       </div>
 
       <form id="login_form">
@@ -43,6 +40,7 @@
                 <input type="checkbox" id="check_remember" />
                 <label id="label_remember" for="check_remember">Remember me</label>
                 <input type="submit" id="login_btn" value="" />
+                <img src="images/ajax-loader.gif" alt="retrieving" id="login_spinner" />
 
             </div>
         </div>

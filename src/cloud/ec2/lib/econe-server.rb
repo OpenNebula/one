@@ -20,19 +20,23 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION  = "/usr/lib/one/ruby"
+    LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
-    CONFIGURATION_FILE = "/etc/one/econe.conf"
-    TEMPLATE_LOCATION  = "/etc/one/ec2query_templates"
+    ETC_LOCATION = "/etc/one"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
-    RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
-    VAR_LOCATION = ONE_LOCATION+"/var"
-    CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
-    TEMPLATE_LOCATION  = ONE_LOCATION+"/etc/ec2query_templates"
+    VAR_LOCATION = ONE_LOCATION + "/var"
+    LOG_LOCATION = ONE_LOCATION + "/var"
+    ETC_LOCATION = ONE_LOCATION + "/etc"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
-EC2_AUTH = VAR_LOCATION + "/.one/ec2_auth"
+EC2_AUTH           = VAR_LOCATION + "/.one/ec2_auth"
+EC2_LOG            = LOG_LOCATION + "/econe-server.log"
+CONFIGURATION_FILE = ETC_LOCATION + "/occi-server.conf"
+
+TEMPLATE_LOCATION  = ETC_LOCATION + "/occi_templates"
+VIEWS_LOCATION     = RUBY_LIB_LOCATION + "/cloud/econe/views"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
@@ -57,12 +61,13 @@ include OpenNebula
 begin
     conf = YAML.load_file(CONFIGURATION_FILE)
 rescue Exception => e
-    puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
 
 conf[:template_location] = TEMPLATE_LOCATION
 conf[:views] = VIEWS_LOCATION
+conf[:debug_level] ||= 3
 
 CloudServer.print_configuration(conf)
 
@@ -70,21 +75,28 @@ CloudServer.print_configuration(conf)
 # Sinatra Configuration
 ##############################################################################
 set :config, conf
-set :bind, settings.config[:server]
-set :port, settings.config[:port]
+
+include CloudLogger
+enable_logging EC2_LOG, settings.config[:debug_level].to_i
 
 if CloudServer.is_port_open?(settings.config[:server],
                              settings.config[:port])
-    puts "Port busy, please shutdown the service or move econe server port."
-    exit 1
+    settings.logger.error {
+        "Port #{settings.config[:port]} busy, please shutdown " <<
+        "the service or move occi server port."
+    }
+    exit -1
 end
+
+set :bind, settings.config[:server]
+set :port, settings.config[:port]
 
 begin
     ENV["ONE_CIPHER_AUTH"] = EC2_AUTH
-    cloud_auth = CloudAuth.new(settings.config)
+    cloud_auth = CloudAuth.new(settings.config, settings.logger)
 rescue => e
-    puts "Error initializing authentication system"
-    puts e.message
+    settings.logger.error {"Error initializing authentication system"}
+    settings.logger.error {e.message}
     exit -1
 end
 
@@ -116,6 +128,7 @@ before do
         params['econe_path'] = settings.econe_path
         username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
+        logger.error {e.message}
         error 500, error_xml("AuthFailure", 0)
     end
 
@@ -123,7 +136,7 @@ before do
         error 401, error_xml("AuthFailure", 0)
     else
         client = settings.cloud_auth.client(username)
-        @econe_server = EC2QueryServer.new(client, settings.config)
+        @econe_server = EC2QueryServer.new(client, settings.config, settings.logger)
     end
 end
 
@@ -179,6 +192,7 @@ def do_http_request(params)
     end
 
     if OpenNebula::is_error?(result)
+        logger.error(result.message)
         error rc, error_xml(result.message, 0)
     end
 

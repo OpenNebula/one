@@ -39,11 +39,12 @@ class CloudAuth
     # Tokens will be generated if time > EXPIRE_TIME - EXPIRE_MARGIN
     EXPIRE_MARGIN = 300
 
-    attr_reader :client, :token
+    attr_reader :client, :token, :logger
 
     # conf a hash with the configuration attributes as symbols
-    def initialize(conf)
+    def initialize(conf, logger=nil)
         @conf = conf
+        @logger = logger
 
         @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
 
