@@ -30,6 +30,7 @@ module OZones
         property :ONEPASS,      String, :required => true
         property :ENDPOINT,     String, :required => true
         property :SUNSENDPOINT, String
+        property :SELFENDPOINT, String        
 
         has n,   :vdcs
 

@@ -53,7 +53,7 @@ setup()
 start()
 {
 	if [ ! -f "$ECONE_SERVER" ]; then
-		echo "Can not find $ECONE_SERVER."
+		echo "Cannot find $ECONE_SERVER."
 		exit 1
 	fi
 

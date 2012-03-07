@@ -23,7 +23,7 @@
 #    @param $3 - Safe dirs
 #    @param $4 - Umask for new file creation (default: 0007)
 #    @return sets the following environment variables
-#      - RESTRICTED_DIRS: Paths that can not be used to register images
+#      - RESTRICTED_DIRS: Paths that cannot be used to register images
 #      - SAFE_DIRS: Paths that are safe to specify image paths
 #      - BASE_PATH: Path where the images will be stored
 #------------------------------------------------------------------------------

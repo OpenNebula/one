@@ -95,7 +95,7 @@ int ImageManager::acquire_image(Image *img, string& error)
         case Image::USED:
              if (img->isPersistent())
              {
-                 error = "Cannot aquire persistent image, it is already in use";
+                 error = "Cannot acquire persistent image, it is already in use";
                  rc    = -1;
              }
              else
@@ -106,15 +106,15 @@ int ImageManager::acquire_image(Image *img, string& error)
         break;
 
         case Image::DISABLED:
-             error = "Cannot aquire image, it is disabled";
+             error = "Cannot acquire image, it is disabled";
              rc    = -1;
         break;
         case Image::LOCKED:
-             error = "Cannot aquire image, it is locked";
+             error = "Cannot acquire image, it is locked";
              rc    = -1;
         break;
         case Image::ERROR:
-             error = "Cannot aquire image, it is in an error state";
+             error = "Cannot acquire image, it is in an error state";
              rc    = -1;
         break;
         default:
@@ -276,13 +276,13 @@ int ImageManager::delete_image(int iid, const string& ds_data)
             if ( img->get_running() != 0 )
             {
                 img->unlock();
-                return -1; //Can not remove images in use
+                return -1; //Cannot remove images in use
             }
         break; 
 
         case Image::USED:
             img->unlock();
-            return -1; //Can not remove images in use
+            return -1; //Cannot remove images in use
         break;
 
         case Image::INIT:

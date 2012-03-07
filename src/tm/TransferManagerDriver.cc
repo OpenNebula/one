@@ -142,7 +142,7 @@ void TransferManagerDriver::protocol(
             getline(is,info);
 
             os.str("");
-            os << "Error excuting image transfer script";
+            os << "Error executing image transfer script";
             
             if (!info.empty() && info[0] != '-')
             {

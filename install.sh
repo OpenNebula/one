@@ -1095,8 +1095,7 @@ ETC_CLIENT_FILES="src/cli/etc/group.default"
 # Sunstone files
 #-----------------------------------------------------------------------------
 
-SUNSTONE_FILES="src/sunstone/config.ru \
-                src/sunstone/sunstone-server.rb \
+SUNSTONE_FILES="src/sunstone/sunstone-server.rb \
                 src/sunstone/OpenNebulaVNC.rb"
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
@@ -1241,8 +1240,7 @@ src/sunstone/public/locale/ru/ru_datatable.txt"
 # Ozones files
 #-----------------------------------------------------------------------------
 
-OZONES_FILES="src/ozones/Server/config.ru \
-              src/ozones/Server/ozones-server.rb"
+OZONES_FILES="src/ozones/Server/ozones-server.rb"
 
 OZONES_BIN_FILES="src/ozones/Server/bin/ozones-server"
 
@@ -1448,6 +1446,9 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $MAKE_DIRS; do
         mkdir -p $DESTDIR$d
     done
+
+    # Remove old migrators
+    rm $LIB_LOCATION/ruby/onedb/*.rb
 fi
 
 # --- Install/Uninstall files ---

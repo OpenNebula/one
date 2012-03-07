@@ -160,7 +160,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
     if ( rc != 0 )
     {
         failure_response(INTERNAL,
-                request_error("Can not update virtual machine history",""),
+                request_error("Cannot update virtual machine history",""),
                 att);
 
         return -1;
@@ -442,7 +442,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     if ( iid_orig == -1 )
     {
         failure_response(INTERNAL, 
-                         request_error("Can not used selected DISK", error_str), 
+                         request_error("Cannot use selected DISK", error_str),
                          att);
         return;
     }

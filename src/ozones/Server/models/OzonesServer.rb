@@ -14,13 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'CloudServer'
+
 require 'JSONUtils'
 
 
-class OzonesServer
+class OzonesServer < CloudServer
     include OpenNebulaJSON::JSONUtils
 
-    def initialize(cipher)
+    def initialize(cipher, config, logger)
+        super(config, logger)
         #Set cipher for Zone classes
         OZones::Zones.cipher = cipher
     end
@@ -214,7 +217,7 @@ class OzonesServer
             vdc = OZones::OpenNebulaVdc.new(id)
             rc  = vdc.destroy
         rescue => e
-            return [404, OZones::Error.new("Error: Can not delete vdc. " \
+            return [404, OZones::Error.new("Error: Cannot delete vdc. " \
                                            "Reason: #{e.message}").to_json]
         end
 
@@ -234,7 +237,7 @@ class OzonesServer
             rc = zone.destroy
         else
             return [404, 
-                    OZones::Error.new("Error: Can not delete " \
+                    OZones::Error.new("Error: Cannot delete " \
                                       "zone. Reason: zone #{id} not found").to_json]
         end
 

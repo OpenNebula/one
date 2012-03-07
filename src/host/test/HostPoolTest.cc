@@ -267,7 +267,7 @@ public:
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
-        // the hostname can not be repeated if the drivers change
+        // the hostname cannot be repeated if the drivers change
         rc = hp->allocate(&oid_1, 
                           names[0], 
                           im_mad_2, 

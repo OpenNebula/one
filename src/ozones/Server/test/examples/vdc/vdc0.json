@@ -1,8 +1,0 @@
-{
-  "vdc": {
-    "hosts": "5,7,9",
-    "zones_id": 1,
-    "name": "testvdc0",
-    "id": 1
-  }
-}

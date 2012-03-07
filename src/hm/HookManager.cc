@@ -49,12 +49,15 @@ void HookManager::load_mads(int uid)
 {
     HookManagerDriver *     hm_mad;
     ostringstream           oss;
-    const VectorAttribute * vattr;
+    const VectorAttribute * vattr = 0;
     int                     rc;
 
     NebulaLog::log("HKM",Log::INFO,"Loading Hook Manager driver.");
 
-    vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+    if ( mad_conf.size() > 0 )
+    {
+        vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+    }
 
     if ( vattr == 0 )
     {

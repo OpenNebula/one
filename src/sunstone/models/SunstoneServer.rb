@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'CloudServer'
+
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
@@ -22,14 +24,15 @@ require 'OpenNebulaVNC'
 require 'OpenNebulaJSON/JSONUtils'
 include JSONUtils
 
-class SunstoneServer
+class SunstoneServer < CloudServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_ALL
 
     # Secs to sleep between checks to see if image upload to repo is finished
     IMAGE_POLL_SLEEP_TIME = 5
 
-    def initialize(client)
+    def initialize(client, config, logger)
+        super(config, logger)
         @client = client
     end
 
@@ -194,7 +197,8 @@ class SunstoneServer
             begin
                 log = File.read(vm_log_file)
             rescue Exception => e
-                return [200, "Log for VM #{id} not available"]
+                msg = "Log for VM #{id} not available"
+                return [200, {:vm_log => msg}.to_json]
             end
 
             return [200, {:vm_log => log}.to_json]
@@ -210,7 +214,7 @@ class SunstoneServer
             return [404, resource.to_json]
         end
 
-        vnc_proxy = OpenNebulaVNC.new(config)
+        vnc_proxy = OpenNebulaVNC.new(config, logger)
         return vnc_proxy.start(resource)
     end
 
@@ -221,7 +225,8 @@ class SunstoneServer
         begin
             OpenNebulaVNC.stop(pipe)
         rescue Exception => e
-            error = Error.new(e.message)
+            logger.error {e.message}
+            error = Error.new("Error stopping VNC. Please check server logs.")
             return [500, error.to_json]
         end
 

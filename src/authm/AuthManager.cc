@@ -429,7 +429,7 @@ void AuthManager::notify_request(int auth_id,bool result,const string& message)
 void AuthManager::load_mads(int uid)
 {
     ostringstream                   oss;
-    const VectorAttribute *         vattr;
+    const VectorAttribute *         vattr = 0;
     int                             rc;
     string                          name;
     AuthManagerDriver *             authm_driver = 0;
@@ -438,7 +438,10 @@ void AuthManager::load_mads(int uid)
 
     NebulaLog::log("AuM",Log::INFO,oss);
 
-    vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+    if ( mad_conf.size() > 0 )
+    {
+        vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+    }
 
     if ( vattr == 0 )
     {

@@ -18,6 +18,15 @@ require 'zona'
 
 module OZonesHelper
 
+    #Specific ozones CLI options
+
+    JSON={
+        :name  => "json",
+        :short => "-j",
+        :large => "--json",
+        :description => "Show the resource in JSON format"
+    }
+
     class OZHelper
         def initialize(user=nil, pass=nil, endpoint_str=nil,
                        timeout=nil, debug_flag=true)
@@ -45,8 +54,13 @@ module OZonesHelper
             if Zona::is_error?(rc)
                 [-1, rc.message]
             else
-                pool=Zona::OZonesJSON.parse_json(rc.body, kind.upcase + "_POOL")
-                format_pool(pool, options)
+                if options[:json]
+                    [0, rc.body]
+                else
+                    resource_str = kind.upcase + "_POOL"
+                    pool=Zona::OZonesJSON.parse_json(rc.body, resource_str)
+                    format_pool(pool, options)
+                end
             end
         end
 
@@ -56,18 +70,26 @@ module OZonesHelper
             if Zona::is_error?(rc)
                 [-1, rc.message]
             else
-                resource=Zona::OZonesJSON.parse_json(rc.body, kind.upcase)
-                format_resource(resource, options)
+                if options[:json]
+                    [0, rc.body]
+                else
+                    resource=Zona::OZonesJSON.parse_json(rc.body, kind.upcase)
+                    format_resource(resource, options)
+                end
             end
         end
 
-        def get_resource_pool(kind, id, pool)
+        def get_resource_pool(kind, id, pool, options)
             rc = @client.get_resource_pool(kind, id, pool)
 
             if Zona::is_error?(rc)
                 [-1, rc.message]
             else
-                [0 , Zona::OZonesJSON.parse_json(rc.body, pool.upcase+"_POOL")[pool.upcase.to_sym]]
+                if options[:json]
+                    [0, rc.body]
+                else
+                    [0 , Zona::OZonesJSON.parse_json(rc.body, pool.upcase+"_POOL")[pool.upcase.to_sym]]
+                end
             end
         end
 
