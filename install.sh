@@ -1116,6 +1116,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/AclJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
 SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html \
@@ -1134,6 +1135,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/dashboard-tab.js \
                         src/sunstone/public/js/plugins/dashboard-users-tab.js \
                         src/sunstone/public/js/plugins/hosts-tab.js \
+                        src/sunstone/public/js/plugins/clusters-tab.js \
                         src/sunstone/public/js/plugins/groups-tab.js \
                         src/sunstone/public/js/plugins/images-tab.js \
                         src/sunstone/public/js/plugins/templates-tab.js \

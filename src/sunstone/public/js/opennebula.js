@@ -852,5 +852,49 @@ var OpenNebula = {
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Acl.resource);
         }
-    }
+    },
+
+    "Cluster" : {
+        "resource" : "CLUSTER",
+
+        "create" : function(params){
+            OpenNebula.Action.create(params,OpenNebula.Cluster.resource);
+        },
+        "delete" : function(params){
+            OpenNebula.Action.delete(params,OpenNebula.Cluster.resource);
+        },
+        "list" : function(params){
+            OpenNebula.Action.list(params,OpenNebula.Cluster.resource);
+        },
+        "addhost" : function(params){
+            var action_obj = { "host_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                            "addhost",action_obj);
+        },
+        "delhost" : function(params){
+            var action_obj = { "host_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                            "delhost",action_obj);
+        },
+        "adddatastore" : function(params){
+            var action_obj = { "ds_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                            "adddatastore",action_obj);
+        },
+        "deldatastore" : function(params){
+            var action_obj = { "ds_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                            "deldatastore",action_obj);
+        },
+        "addvnet" : function(params){
+            var action_obj = { "vnet_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                            "addvnet",action_obj);
+        },
+        "delvnet" : function(params){
+            var action_obj = { "vnet_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                            "delvnet",action_obj);
+        },
+    },
 }

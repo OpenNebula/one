@@ -14,6 +14,11 @@
     :user:
     :group:
         oneadmin: true
+- plugins/clusters-tab.js:
+    :ALL: false
+    :user:
+    :group:
+        oneadmin: true
 - plugins/vms-tab.js:
     :ALL: true
     :user:
