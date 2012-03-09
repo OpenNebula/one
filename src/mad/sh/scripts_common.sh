@@ -27,6 +27,7 @@ ISCSIADM=iscsiadm
 LVCREATE=lvcreate
 LVREMOVE=lvremove
 LVS=lvs
+LN=ln
 MD5SUM=md5sum
 MKFS=mkfs
 MKISOFS=mkisofs
