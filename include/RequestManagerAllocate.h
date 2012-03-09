@@ -146,7 +146,7 @@ public:
     VirtualNetworkAllocate():
         RequestManagerAllocate("VirtualNetworkAllocate",
                                "Allocates a new virtual network",
-                               "A:ss",
+                               "A:ssi",
                                true)
     {    
         Nebula& nd  = Nebula::instance();
@@ -170,6 +170,16 @@ public:
                       RequestAttributes& att,
                       int cluster_id,
                       const string& cluster_name);
+
+    int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    {
+        return xmlrpc_c::value_int(paramList.getInt(2));
+    };
+
+    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    {
+        return cluster->add_datastore(id, error_msg);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -181,7 +191,7 @@ public:
     ImageAllocate():
         RequestManagerAllocate("ImageAllocate",
                                "Allocates a new image",
-                               "A:ss",
+                               "A:ssi",
                                true)
     {
         Nebula& nd  = Nebula::instance();
