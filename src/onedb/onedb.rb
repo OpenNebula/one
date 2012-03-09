@@ -107,43 +107,57 @@ class OneDB
             backup(ops[:backup], ops)
         end
 
-        result = nil
-        i = 0
+        begin
+            result = nil
+            i = 0
 
-        while ( matches.size > 0 )
-            if ( matches.size > 1 )
-                raise "There are more than one file that match \
-                        \"#{RUBY_LIB_LOCATION}/onedb/#{version}_to_*.rb\""
+            while ( matches.size > 0 )
+                if ( matches.size > 1 )
+                    raise "There are more than one file that match \
+                            \"#{RUBY_LIB_LOCATION}/onedb/#{version}_to_*.rb\""
+                end
+
+                file = matches[0]
+
+                puts "  > Running migrator #{file}" if ops[:verbose]
+
+                load(file)
+                @backend.extend Migrator
+                result = @backend.up
+
+                if !result
+                    raise "Error while upgrading from #{version} to " <<
+                          " #{@backend.db_version}"
+                end
+
+                puts "  > Done" if ops[:verbose]
+                puts "" if ops[:verbose]
+
+                matches = Dir.glob(
+                    "#{RUBY_LIB_LOCATION}/onedb/#{@backend.db_version}_to_*.rb")
             end
 
-            file = matches[0]
-
-            puts "  > Running migrator #{file}" if ops[:verbose]
-
-            load(file)
-            @backend.extend Migrator
-            result = @backend.up
-
-            if !result
-                raise "Error while upgrading from #{version} to " <<
-                      " #{@backend.db_version}"
+            # Modify db_versioning table
+            if result != nil
+                @backend.update_db_version(version)
+            else
+                puts "Database already uses version #{version}"
             end
 
-            puts "  > Done" if ops[:verbose]
-            puts "" if ops[:verbose]
+            return 0
 
-            matches = Dir.glob(
-                "#{RUBY_LIB_LOCATION}/onedb/#{@backend.db_version}_to_*.rb")
+        rescue Exception => e
+            puts e.message
+
+            puts
+            puts "The database will be restored"
+
+            ops[:force] = true
+
+            restore(ops[:backup], ops)
+
+            return -1
         end
-
-        # Modify db_versioning table
-        if result != nil
-            @backend.update_db_version(version)
-        else
-            puts "Database already uses version #{version}"
-        end
-
-        return 0
     end
 
     private
