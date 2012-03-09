@@ -59,7 +59,11 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
             end
 
             column :IMAGES, "Number of Images", :left, :size=>6 do |d|
-                d["IMAGES"].size
+                if d["IMAGES"]["ID"].nil?
+                    "0"
+                else
+                    d["IMAGES"]["ID"].size
+                end
             end
 
             column :TYPE, "Datastore driver", :left, :size=>6 do |d|

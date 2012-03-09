@@ -3,11 +3,6 @@
   :desc: ONE identifier for the Image
   :size: 4
 
-:NAME: 
-  :desc: Name of the Image
-  :size: 12
-  :left: true
-
 :USER: 
   :desc: Username of the Virtual Machine owner
   :size: 8
@@ -16,6 +11,16 @@
 :GROUP: 
   :desc: Group of the Virtual Machine
   :size: 8
+  :left: true
+
+:NAME: 
+  :desc: Name of the Image
+  :size: 12
+  :left: true
+
+:DATASTORE: 
+  :desc: Name of the Datastore
+  :size: 10
   :left: true
 
 :SIZE: 
@@ -47,9 +52,9 @@
 - :USER
 - :GROUP
 - :NAME
+- :DATASTORE
 - :SIZE
 - :TYPE
-- :REGTIME
 - :PERSISTENT
 - :STAT
 - :RVMS
