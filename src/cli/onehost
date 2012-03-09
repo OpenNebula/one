@@ -67,19 +67,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     }
 
     CREAT_OPTIONS = [ IM, VMM, VNET, OneClusterHelper::CLUSTER ]
+    
     ########################################################################
     # Formatters for arguments
     ########################################################################
+
     set :format, :hostid, OneHostHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
 
     set :format, :hostid_list, OneHostHelper.list_to_id_desc do |arg|
         helper.list_to_id(arg)
-    end
-
-    set :format, :clusterid, OpenNebulaHelper.rname_to_id_desc("CLUSTER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "CLUSTER")
     end
 
     ########################################################################
