@@ -78,9 +78,13 @@ module OpenNebula
 
         # Allocates a new VirtualNetwork in OpenNebula
         #
-        # +description+ A string containing the template of the VirtualNetwork.
-        def allocate(description)
-            super(VN_METHODS[:allocate],description)
+        # @param description [String] The template of the VirtualNetwork.
+        # @param cluster_id [Integer] Id of the cluster
+        #
+        # @return [Integer, OpenNebula::Error] the new ID in case of
+        #   success, error otherwise
+        def allocate(description,cluster_id=ClusterPool::NONE_CLUSTER_ID)
+            super(VN_METHODS[:allocate], description, cluster_id)
         end
 
         # Replaces the template contents
