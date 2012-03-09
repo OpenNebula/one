@@ -70,3 +70,18 @@ function is_disk
         echo "0"
     fi
 }
+
+#Makes path src ($1) relative to dst ($2)
+function make_relative {
+    src=$1
+    dst=$2
+
+    common=$dst
+
+    while [ -z "`echo $src | grep -E "^$common"`" ]; do
+        common=`dirname $common`
+        dots="../$dots"
+    done
+
+    echo $dots${src#$common/}
+}

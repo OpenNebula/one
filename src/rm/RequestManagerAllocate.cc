@@ -76,8 +76,27 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     AuthRequest ar(att.uid, att.gid);
     string      t64;
+    string      aname;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+
+    // Check template for restricted attributes
+
+    if ( att.uid != 0 && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        if (ttmpl->check(aname))
+        {
+            ostringstream oss;
+
+            oss << "VM Template includes a restricted attribute " << aname;
+
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+
+            return false;
+        }
+    }
 
     ar.add_create_auth(auth_object, tmpl->to_xml(t64));
 
@@ -93,6 +112,39 @@ bool VirtualMachineAllocate::allocate_authorization(
     }
 
     return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool ImageAllocate::allocate_authorization(
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
+{
+    string      aname;
+
+    ImageTemplate * itmpl = static_cast<ImageTemplate *>(tmpl);
+
+    // Check template for restricted attributes
+
+    if ( att.uid != 0 && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        if (itmpl->check(aname))
+        {
+            ostringstream oss;
+
+            oss << "Template includes a restricted attribute " << aname;
+
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+
+            return false;
+        }
+    }
+
+    return RequestManagerAllocate::allocate_authorization(tmpl, att, cluster_perms);
 }
 
 /* -------------------------------------------------------------------------- */
