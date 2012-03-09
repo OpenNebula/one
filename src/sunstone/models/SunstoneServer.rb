@@ -229,7 +229,7 @@ class SunstoneServer
 
         begin
             novnc_cmd = "#{config[:novnc_path]}/utils/wsproxy.py"
-            novnc_exec = "#{novnc_cmd} #{proxy_port} #{host}:#{vnc_port}"
+            novnc_exec = "#{novnc_cmd} -D #{proxy_port} #{host}:#{vnc_port}"
             $stderr.puts("Starting vnc proxy: #{novnc_exec}")
             pipe = IO.popen(novnc_exec)
         rescue Exception => e
@@ -253,8 +253,26 @@ class SunstoneServer
         end
 
         begin
+            $stderr.puts("Killing vnc proxy: #{pipe.pid}")
             Process.kill('KILL',pipe.pid)
             pipe.close
+
+            #if all other processes are finished with the daemon, kill it
+            host = resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+            vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
+            
+            pipe = IO.popen("ps -ef | grep #{host}:#{vnc_port}")
+            pids = Array.new
+            pipe.readlines.each { |line|
+               parts = line.split(/\s+/)
+               if(line.include? "wsproxy") then
+                  pids.push parts[1].to_i
+               end
+            }
+            if (pids.length == 1) then
+               Process.kill('KILL', pids[0])
+            end
+
         rescue Exception => e
             error = Error.new(e.message)
             return [500, error.to_json]
