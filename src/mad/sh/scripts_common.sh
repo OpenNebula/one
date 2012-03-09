@@ -212,7 +212,7 @@ function mkfs_command {
 #This function executes $2 at $1 host and report error $3
 function ssh_exec_and_log
 {
-    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
 $2
 EOF`
     SSH_EXEC_RC=$?
@@ -233,7 +233,7 @@ EOF`
 #Creates path ($2) at $1
 function ssh_make_path
 {
-    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
 if [ ! -d $2 ]; then
    mkdir -p $2
 fi
