@@ -121,12 +121,12 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
-        CLIHelper.print_header(str_h1 % "DATASTORE TEMPLATE",false)
+        CLIHelper.print_header(str_h1 % "DATASTORE TEMPLATE", false)
         puts datastore.template_str
 
         puts
 
-        CLIHelper.print_header(str_h1 % "REGISTERED IMAGES", false)
+        CLIHelper.print_header("%-15s" % "IMAGES")
         datastore.img_ids.each do |id|
             puts "%-15s" % [id]
         end
