@@ -239,13 +239,13 @@ int Mad::start()
 
 error_exec:
     oss.str("");
-    oss << "Can not load driver " << executable << ", " << strerror(errno);
+    oss << "Cannot load driver " << executable << ", " << strerror(errno);
     NebulaLog::log("MAD", Log::ERROR, oss);
     exit(-1);
     
 error_dup2:
     oss.str("");
-    oss << "Can not duplicate descriptors, " << strerror(errno);
+    oss << "Cannot duplicate descriptors, " << strerror(errno);
     NebulaLog::log("MAD", Log::ERROR, oss);
     exit(-1);
 
@@ -275,7 +275,7 @@ error_attributes:
 
 error_pipes:
     oss.str("");
-    oss << "Can not create driver pipes, " << strerror(errno);
+    oss << "Cannot create driver pipes, " << strerror(errno);
     NebulaLog::log("MAD", Log::ERROR, oss);
     return -1;
 }

@@ -22,7 +22,7 @@
 
 /* -------------------------------------------------------------------------- */
 /* There are two default groups boostrapped by the core:                      */
-/*   - oneadmin can not be removed                                            */
+/*   - oneadmin cannot be removed                                            */
 /*   - users to place regular users by default                                */
 /* The first 100 group IDs are reserved for system groups. Regular ones start */
 /* from ID 100                                                                */

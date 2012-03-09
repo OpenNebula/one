@@ -79,8 +79,9 @@ let TID=ID+BASE_TID
 REGISTER_CMD=$(cat <<EOF
     set -e
     $SUDO $LVCREATE -L${SIZE}M ${VG_NAME} -n ${LV_NAME}
-    $SUDO $(iscsi_target_new "$TID" "$IQN")
-    $SUDO $(iscsi_logicalunit_new "$TID" "$DEV")
+    $SUDO $(tgtadm_target_new "$TID" "$IQN")
+    $SUDO $(tgtadm_target_bind_all "$TID")
+    $SUDO $(tgtadm_logicalunit_new "$TID" "$DEV")
 EOF
 )
 

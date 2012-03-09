@@ -91,7 +91,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
     if ( rc != 0 )
     {
         failure_response(INTERNAL,
-            request_error("Can not delete "+object_name(auth_object),error_msg),
+            request_error("Cannot delete "+object_name(auth_object),error_msg),
             att);
         return;
     }
@@ -163,7 +163,7 @@ int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     if ( ds == 0 )
     {
-       error_msg = "Datastore no longer exists can not remove image";
+       error_msg = "Datastore no longer exists cannot remove image";
        return -1; 
     }
 
@@ -199,7 +199,7 @@ int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     if (oid == 0)
     {
-        error_msg = "oneadmin can not be deleted.";
+        error_msg = "oneadmin cannot be deleted.";
 
         object->unlock();
         return -1;

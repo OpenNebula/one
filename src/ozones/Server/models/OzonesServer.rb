@@ -217,7 +217,7 @@ class OzonesServer < CloudServer
             vdc = OZones::OpenNebulaVdc.new(id)
             rc  = vdc.destroy
         rescue => e
-            return [404, OZones::Error.new("Error: Can not delete vdc. " \
+            return [404, OZones::Error.new("Error: Cannot delete vdc. " \
                                            "Reason: #{e.message}").to_json]
         end
 
@@ -237,7 +237,7 @@ class OzonesServer < CloudServer
             rc = zone.destroy
         else
             return [404, 
-                    OZones::Error.new("Error: Can not delete " \
+                    OZones::Error.new("Error: Cannot delete " \
                                       "zone. Reason: zone #{id} not found").to_json]
         end
 

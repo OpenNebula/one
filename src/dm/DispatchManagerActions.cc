@@ -664,7 +664,7 @@ int DispatchManager::resubmit(int vid)
     {
         case VirtualMachine::SUSPENDED:
             NebulaLog::log("DiM",Log::ERROR,
-                "Can not resubmit a suspended VM. Resume it first");
+                "Cannot resubmit a suspended VM. Resume it first");
             rc = -2;
         break;
 
@@ -688,7 +688,7 @@ int DispatchManager::resubmit(int vid)
         break;
         case VirtualMachine::DONE:
             NebulaLog::log("DiM",Log::ERROR,
-                "Can not resubmit a VM already in DONE state");
+                "Cannot resubmit a VM already in DONE state");
             rc = -2;
         break;
     }

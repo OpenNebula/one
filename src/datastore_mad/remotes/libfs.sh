@@ -23,7 +23,7 @@
 #    @param $3 - Safe dirs
 #    @param $4 - Umask for new file creation (default: 0007)
 #    @return sets the following environment variables
-#      - RESTRICTED_DIRS: Paths that can not be used to register images
+#      - RESTRICTED_DIRS: Paths that cannot be used to register images
 #      - SAFE_DIRS: Paths that are safe to specify image paths
 #      - BASE_PATH: Path where the images will be stored
 #------------------------------------------------------------------------------
@@ -135,38 +135,4 @@ function check_restricted {
     done
 
   	echo 0
-}
-
-
-# ------------------------------------------------------------------------------
-# iSCSI functions
-# ------------------------------------------------------------------------------
-
-#-------------------------------------------------------------------------------
-# Returns the command to create a new target
-#   @param $1 - ID of the image
-#   @param $2 - Target Host
-#   @param $3 - Device
-#   @return the command to create a new target
-#-------------------------------------------------------------------------------
-
-function iscsi_target_new {
-    ID="$1"
-    IQN="$2"
-
-    echo "$TGTADM --lld iscsi --op new --mode target --tid $ID "\
-        "--targetname $IQN"
-}
-
-function iscsi_logicalunit_new {
-	ID="$1"
-    DEV="$2"
-
-	echo "$TGTADM --lld iscsi --op new --mode logicalunit --tid $ID "\
-		"--lun 1 --backing-store $DEV"
-}
-
-function iscsi_target_delete {
-	ID="$1"
-	echo "$TGTADM --lld iscsi --op delete --mode target --tid $ID"
 }

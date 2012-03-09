@@ -23,6 +23,7 @@ DATE=date
 DD=dd
 DU=du
 GREP=grep
+ISCSIADM=iscsiadm
 LVCREATE=lvcreate
 LVREMOVE=lvremove
 LVS=lvs
@@ -244,3 +245,61 @@ EOF`
         exit $SSH_EXEC_RC
     fi
 }
+
+
+# ------------------------------------------------------------------------------
+# iSCSI functions
+# ------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# Returns the command to create a new target
+#   @param $1 - ID of the image
+#   @param $2 - Target Host
+#   @param $3 - Device
+#   @return the command to create a new target
+#-------------------------------------------------------------------------------
+
+function tgtadm_target_new {
+    ID="$1"
+    IQN="$2"
+
+    echo "$TGTADM --lld iscsi --op new --mode target --tid $ID "\
+        "--targetname $IQN;"
+}
+
+function tgtadm_target_bind_all {
+    ID="$1"
+    echo "$TGTADM  --lld iscsi --op bind --mode target --tid $ID -I ALL"
+}
+
+function tgtadm_logicalunit_new {
+    ID="$1"
+    DEV="$2"
+
+    echo "$TGTADM --lld iscsi --op new --mode logicalunit --tid $ID "\
+        "--lun 1 --backing-store $DEV"
+}
+
+function tgtadm_target_delete {
+    ID="$1"
+    echo "$TGTADM --lld iscsi --op delete --mode target --tid $ID"
+}
+
+###
+
+function iscsiadm_discovery {
+    TARGET_HOST="$1"
+    echo "$ISCSIADM -m discovery -t st -p $TARGET_HOST"
+}
+
+function iscsiadm_login {
+    IQN="$1"
+    TARGET_HOST="$2"
+    echo "$ISCSIADM -m node --targetname $IQN -p $TARGET_HOST --login"
+}
+
+function iscsiadm_logout {
+    IQN="$1"
+    echo "$ISCSIADM -m node --targetname $IQN --logout"
+}
+

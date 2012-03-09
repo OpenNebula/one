@@ -170,7 +170,7 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
         {
             ostringstream oss;
 
-            oss << "Unkown VM_HOOK " << on << ". Hook not registered!";
+            oss << "Unknown VM_HOOK " << on << ". Hook not registered!";
             NebulaLog::log("VM",Log::WARNING,oss);
         }
     }
