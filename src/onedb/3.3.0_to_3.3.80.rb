@@ -122,14 +122,14 @@ module Migrator
         "    <OTHER_M>0</OTHER_M>" <<
         "    <OTHER_A>0</OTHER_A>" <<
         "  </PERMISSIONS>" <<
-        "  <DS_MAD>fs</DS_MAD>" <<
+        "  <DS_MAD>-</DS_MAD>" <<
         "  <TM_MAD>shared</TM_MAD>" <<
         "  <BASE_PATH>#{var_location}/datastores/0</BASE_PATH>" <<
         "  <CLUSTER_ID>-1</CLUSTER_ID>" <<
         "  <CLUSTER>none</CLUSTER>" <<
         "  <IMAGES/>" <<
         "  <TEMPLATE>" <<
-        "    <DS_MAD><![CDATA[fs]]></DS_MAD>" <<
+        "    <DS_MAD><![CDATA[-]]></DS_MAD>" <<
         "    <TM_MAD><![CDATA[shared]]></TM_MAD>" <<
         "  </TEMPLATE>" <<
         "</DATASTORE>"
