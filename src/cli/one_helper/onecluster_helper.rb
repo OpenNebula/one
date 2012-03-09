@@ -17,6 +17,20 @@
 require 'one_helper'
 
 class OneClusterHelper < OpenNebulaHelper::OneHelper
+
+    CLUSTER = {
+        :name   => "cluster",
+        :short  => "-c id|name",
+        :large  => "--cluster id|name" ,
+        :description => "Selects the cluster",
+        :format => String,
+        :proc   => lambda { |o, options|
+            ch = OneClusterHelper.new
+            rc, cid = ch.to_id(o)
+            cid
+        }
+    }
+    
     def self.rname
         "CLUSTER"
     end

@@ -82,7 +82,7 @@ module OpenNebula
         # @param im [String] Name of the im_driver (information/monitoring)
         # @param vmm [String] Name of the vmm_driver (hypervisor)
         # @param tm [String] Name of the vnm_driver (networking)
-        # @param cluster_id [Integer] Id of the cluster
+        # @param cluster_id [String] Id of the cluster
         #
         # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise

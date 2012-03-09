@@ -17,6 +17,19 @@
 require 'one_helper'
 
 class OneDatastoreHelper < OpenNebulaHelper::OneHelper
+    DATASTORE = {
+        :name   => "datastore",
+        :short  => "-d id|name",
+        :large  => "--datastore id|name" ,
+        :description => "Selects the datastore",
+        :format => String,
+        :proc   => lambda { |o, options|
+            ch = OneDatastoreHelper.new
+            rc, dsid = ch.to_id(o)
+            dsid
+        }
+    }
+    
     def self.rname
         "DATASTORE"
     end
