@@ -128,7 +128,7 @@ var cluster_actions = {
 
     "Cluster.adddatastore" : {
         type: "single",
-        call : OpenNebula.Cluster.addhost,
+        call : OpenNebula.Cluster.adddatastore,
         callback : function (req) {
             Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
             //Sunstone.runAction("Cluster.show",req.request.data[0]);
@@ -138,7 +138,7 @@ var cluster_actions = {
 
     "Cluster.deldatastore" : {
         type: "single",
-        call : OpenNebula.Cluster.addhost,
+        call : OpenNebula.Cluster.deldatastore,
         callback : function (req) {
             //Sunstone.runAction("Cluster.show",req.request.data[0]);
         },

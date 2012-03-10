@@ -56,6 +56,7 @@ class SunstoneServer < CloudServer
             when "vnet"       then VirtualNetworkPoolJSON.new(@client, user_flag)
             when "user"       then UserPoolJSON.new(@client)
             when "acl"        then AclPoolJSON.new(@client)
+            when "datastore"  then DatastorePoolJSON.new(@client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -109,6 +110,7 @@ class SunstoneServer < CloudServer
             when "vnet"       then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
             when "user"       then UserJSON.new(User.build_xml, @client)
             when "acl"        then AclJSON.new(Acl.build_xml, @client)
+            when "datastore"  then DatastoreJSON.new(Acl.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -276,15 +278,16 @@ class SunstoneServer < CloudServer
     ############################################################################
     def retrieve_resource(kind, id)
         resource = case kind
-            when "group"    then GroupJSON.new_with_id(id, @client)
-            when "cluster"  then ClusterJSON.new_with_id(id, @client)
-            when "host"     then HostJSON.new_with_id(id, @client)
-            when "image"    then ImageJSON.new_with_id(id, @client)
+            when "group"      then GroupJSON.new_with_id(id, @client)
+            when "cluster"    then ClusterJSON.new_with_id(id, @client)
+            when "host"       then HostJSON.new_with_id(id, @client)
+            when "image"      then ImageJSON.new_with_id(id, @client)
             when "vmtemplate" then TemplateJSON.new_with_id(id, @client)
-            when "vm"       then VirtualMachineJSON.new_with_id(id, @client)
-            when "vnet"     then VirtualNetworkJSON.new_with_id(id, @client)
-            when "user"     then UserJSON.new_with_id(id, @client)
-            when "acl"      then AclJSON.new_with_id(id, @client)
+            when "vm"         then VirtualMachineJSON.new_with_id(id, @client)
+            when "vnet"       then VirtualNetworkJSON.new_with_id(id, @client)
+            when "user"       then UserJSON.new_with_id(id, @client)
+            when "acl"        then AclJSON.new_with_id(id, @client)
+            when "datastore"  then DatastoreJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error

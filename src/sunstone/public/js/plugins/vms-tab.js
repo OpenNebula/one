@@ -1302,7 +1302,6 @@ $(document).ready(function(){
     setupSaveasDialog();
     setVMAutorefresh();
     setupVNC();
-    setupTips
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

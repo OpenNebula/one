@@ -23,6 +23,10 @@
     :ALL: true
     :user:
     :group:
+- plugins/datastores-tab.js:
+    :ALL: true
+    :user:
+    :group:
 - plugins/templates-tab.js:
     :ALL: true
     :user:

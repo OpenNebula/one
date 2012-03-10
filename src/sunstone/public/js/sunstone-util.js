@@ -751,6 +751,12 @@ function hosts_sel(){
     return hosts_select;
 }
 
+function clusters_sel() {
+    return clusters_select;
+}
+
+
+
 function ownerUse(resource){
     return parseInt(resource.PERMISSIONS.OWNER_U);
 };

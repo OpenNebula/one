@@ -587,7 +587,7 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">'+tr("VLAN ID")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.VLAN_ID) == "object" ? "--": vn_info.VLAN_ID) +'</td>\
             </tr>\
-            <tr><td class="key_td">Permissions</td><td></td></tr>\
+            <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
             <tr>\
               <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
               <td class="value_td" style="font-family:monospace;">'+ownerPermStr(vn_info)+'</td>\

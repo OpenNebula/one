@@ -599,21 +599,21 @@ var update_template_tmpl =
                          <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="owner_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_owner_u" class="owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_owner_m" class="owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_owner_a" class="owner_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="group_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_group_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_group_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_group_a" class="group_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="other_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_other_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_other_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="template_other_a" class="other_a" /></td>\
                      </tr>\
                    </table>\
                  </div>\
@@ -624,7 +624,7 @@ var update_template_tmpl =
             <fieldset>\
                  <div class="form_buttons">\
                     <button class="button" id="template_template_update_button" value="Template.update_template">\
-                       Update\
+                       '+tr("Update")+'\
                     </button>\
                  </div>\
             </fieldset>\
@@ -956,7 +956,7 @@ function updateTemplateInfo(request,template){
              <td class="key_td">'+tr("Register time")+'</td>\
              <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
            </tr>\
-           <tr><td class="key_td">Permissions</td><td></td></tr>\
+           <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
            <tr>\
              <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
              <td class="value_td" style="font-family:monospace;">'+ownerPermStr(template_info)+'</td>\
@@ -2088,7 +2088,6 @@ function setupTemplateTemplateUpdateDialog(){
 
         Sunstone.runAction("Template.update",id,new_template);
         $(this).parents('#template_template_update_dialog').dialog('close');
-        dialog.dialog('close');
         return false;
     });
 };

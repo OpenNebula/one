@@ -321,11 +321,6 @@ var hosts_tab = {
     buttons: host_buttons
 }
 
-//Hack since this plugin is loaded earlier
-function clusters_sel() {
-    return clusters_select;
-}
-
 Sunstone.addActions(host_actions);
 Sunstone.addMainTab('hosts_tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
@@ -607,7 +602,7 @@ function setupCreateHostDialog(){
 
 //Open creation dialogs
 function popUpCreateHostDialog(){
-    $('#host_cluster_id',$create_host_dialog).html(clusters_select);
+    $('#host_cluster_id',$create_host_dialog).html(clusters_sel());
     $create_host_dialog.dialog('open');
     return false;
 }
@@ -630,10 +625,6 @@ function hostMonitorError(req,error_json){
     var id_suffix = labels.replace(/,/g,'_');
     var id = '#host_monitor_'+id_suffix;
     $('#host_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
-}
-
-function hosts_sel() {
-    return hosts_select;
 }
 
 //This is executed after the sunstone.js ready() is run.

@@ -17,23 +17,27 @@
 require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
-    class ClusterJSON < OpenNebula::Datastore
+    class DatastoreJSON < OpenNebula::Datastore
         include JSONUtils
 
-        def create(template_json, cluster_id=ClusterPool::NONE_CLUSTER_ID)
-            datastore_hash = parse_json(template_json, 'datastore')
-
-            if OpenNebula.is_error?(datastore_hash)
-                return datastore_hash
+        def create(template_json)
+            ds_hash = parse_json(template_json, 'datastore')
+            if OpenNebula.is_error?(ds_hash)
+                return ds_hash
             end
 
-            if datastore_hash['datastore_raw']
-                template = datastore_hash['image_raw']
+            cluster_id = parse_json(template_json, 'cluster_id')
+            if OpenNebula.is_error?(cluster_id)
+                return cluster_id
+            end
+
+            if ds_hash['datastore_raw']
+                template = ds_hash['datastore_raw']
             else
-                template = template_to_str(datastore_hash)
+                template = template_to_str(ds_hash)
             end
 
-            self.allocate(template,cluster_id)
+            self.allocate(template,cluster_id.to_i)
         end
 
         def perform_action(template_json)
@@ -42,9 +46,27 @@ module OpenNebulaJSON
                 return action_hash
             end
 
-            error_msg = "#{action_hash['perform']} action not " <<
-                " available for this resource"
-            OpenNebula::Error.new(error_msg)
+            rc = case action_hash['perform']
+                 when "update"        then self.update(action_hash['params'])
+                 when "chown"         then self.chown(action_hash['params'])
+                 when "chmod"         then self.chmod_octet(action_hash['params'])
+                 else
+                     error_msg = "#{action_hash['perform']} action not " <<
+                         " available for this resource"
+                     OpenNebula::Error.new(error_msg)
+                 end
+        end
+
+        def update(params=Hash.new)
+            super(params['template_raw'])
+        end
+
+        def chown(params=Hash.new)
+            super(params['owner_id'].to_i,params['group_id'].to_i)
+        end
+
+        def chmod_octet(params=Hash.new)
+            super(params['octet'])
         end
     end
 end
