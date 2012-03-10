@@ -988,8 +988,8 @@ function setupImageTemplateUpdateDialog(){
         var old_persistent = is_persistent_image(id);
         var new_persistent = $('#image_template_update_persistent',dialog).is(':checked');
         if (old_persistent != new_persistent){
-            if (new_persistent) Sunstone.runAction("Image.persistent",id);
-            else Sunstone.runAction("Image.nonpersistent",id);
+            if (new_persistent) Sunstone.runAction("Image.persistent",[id]);
+            else Sunstone.runAction("Image.nonpersistent",[id]);
         };
 
         var permissions = $('.permissions_table',dialog);
@@ -1067,9 +1067,9 @@ function setupImageActionCheckboxes(){
         var $this = $(this)
         var id=$this.attr('elem_id');
         if ($this.attr('checked'))
-            Sunstone.runAction("Image.persistent",id);
+            Sunstone.runAction("Image.persistent",[id]);
         else
-            Sunstone.runAction("Image.nonpersistent",id);
+            Sunstone.runAction("Image.nonpersistent",[id]);
 
         return true;
     });
