@@ -17,6 +17,20 @@
 require 'one_helper'
 
 class OneClusterHelper < OpenNebulaHelper::OneHelper
+
+    CLUSTER = {
+        :name   => "cluster",
+        :short  => "-c id|name",
+        :large  => "--cluster id|name" ,
+        :description => "Selects the cluster",
+        :format => String,
+        :proc   => lambda { |o, options|
+            ch = OneClusterHelper.new
+            rc, cid = ch.to_id(o)
+            cid
+        }
+    }
+    
     def self.rname
         "CLUSTER"
     end
@@ -37,7 +51,19 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            default :ID, :NAME
+            column :HOSTS, "Number of Hosts", :left, :size=>5 do |d|
+                d["HOSTS"].size
+            end
+
+            column :NETS, "Number of Networks", :left, :size=>5 do |d|
+                d["HOSTS"].size
+            end
+
+            column :DATASTORES, "Number of Datastores", :left, :size=>10 do |d|
+                d["DATASTORES"].size
+            end
+
+            default :ID, :NAME, :HOSTS, :NETS, :DATASTORES
         end
 
         table
@@ -73,14 +99,14 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         end
 
         puts
-        CLIHelper.print_header("%-15s" % ["DATASTORES"])
-        cluster.datastore_ids.each do |id|
+        CLIHelper.print_header("%-15s" % ["VNETS"])
+        cluster.vnet_ids.each do |id|
             puts "%-15s" % [id]
         end
 
         puts
-        CLIHelper.print_header("%-15s" % ["VNETS"])
-        cluster.vnet_ids.each do |id|
+        CLIHelper.print_header("%-15s" % ["DATASTORES"])
+        cluster.datastore_ids.each do |id|
             puts "%-15s" % [id]
         end
     end

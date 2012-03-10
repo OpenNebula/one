@@ -311,7 +311,7 @@ EOT
 
                     opts.on(*args) do |o|
                         if e[:proc]
-                            e[:proc].call(o, @options)
+                            @options[e[:name].to_sym]=e[:proc].call(o, @options)
                         elsif e[:name]=="help"
                             help
                             exit

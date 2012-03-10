@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/oneimage_helper'
+require 'one_helper/onedatastore_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneimage` <command> [<args>] [<options>]"
@@ -45,6 +46,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     list_options << OpenNebulaHelper::XML
     list_options << OpenNebulaHelper::NUMERIC
 
+    CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE]
+
     ########################################################################
     # Formatters for arguments
     ########################################################################
@@ -54,10 +57,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
         OpenNebulaHelper.rname_to_id(arg, "USER")
-    end
-
-    set :format, :datastoreid, OpenNebulaHelper.rname_to_id_desc("DATASTORE") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "DATASTORE")
     end
 
     set :format, :imageid, OneImageHelper.to_id_desc do |arg|
@@ -80,10 +79,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Image from the given template file
     EOT
 
-    command :create, create_desc, :file, :datastoreid do
+    command :create, create_desc, :file, :options=>CREATE_OPTIONS do
+        if options[:datastore].nil?
+            STDERR.puts "Datastore to save the image is mandatory: "
+            STDERR.puts "\t -d datastore_id"
+            exit -1
+        end
         helper.create_resource(options) do |image|
-            template=File.read(args[0])
-            image.allocate(template, args[1])
+            begin
+                template=File.read(args[0])
+                image.allocate(template, options[:datastore] )
+            rescue => e
+                STDERR.puts e.messsage
+                exit -1
+            end
         end
     end
 

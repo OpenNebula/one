@@ -49,6 +49,6 @@ SRC_HOST=`arg_host $SRC`
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 log "Moving $SRC_PATH to datastore as $DST_PATH"
-exec_and_log "$SCP $SRC $DST" "Error copying $SRC to $DST"
+exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
 
 exit 0

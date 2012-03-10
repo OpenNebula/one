@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/onedatastore_helper'
+require 'one_helper/onecluster_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onedatastore` <command> [<args>] [<options>]"
@@ -76,14 +77,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Datastore from the given template file
     EOT
 
-    command :create, create_desc, :file, [:clusterid, nil] do
-        helper.create_resource(options) do |datastore|
-            template=File.read(args[0])
+    command :create, create_desc, :file, :options=>[OneClusterHelper::CLUSTER] do
 
-            if args.size == 1
-                datastore.allocate(template)
-            else
-                datastore.allocate(template, args[1].to_i)
+        cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
+
+        helper.create_resource(options) do |datastore|
+            begin
+                template=File.read(args[0])
+                datastore.allocate(template, cid)
+            rescue =>e
+                STDERR.puts e.message
+                exit -1
             end
         end
     end

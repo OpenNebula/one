@@ -5,7 +5,12 @@
 
 :NAME: 
   :desc: Name of the Host
-  :size: 15
+  :size: 12
+  :left: true
+
+:CLUSTER: 
+  :desc: Name of the Cluster
+  :size: 8
   :left: true
 
 :RVM: 
@@ -38,11 +43,12 @@
 
 :STAT: 
   :desc: Host status
-  :size: 6
+  :size: 4
 
 :default:
 - :ID
 - :NAME
+- :CLUSTER
 - :RVM
 - :TCPU
 - :FCPU

@@ -39,11 +39,6 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Virtual Network", :left,
-                    :size=>15 do |d|
-                d["NAME"]
-            end
-
             column :USER, "Username of the Virtual Network owner", :left,
                     :size=>8 do |d|
                 helper.user_name(d, options)
@@ -54,11 +49,24 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
+            column :NAME, "Name of the Virtual Network", :left,
+                    :size=>15 do |d|
+                d["NAME"]
+            end
+
+            column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
+                if d["CLUSTER"] == "none"
+                    "-"
+                else
+                    d["CLUSTER"]
+                end
+            end 
+
             column :TYPE, "Type of Virtual Network", :size=>6 do |d|
                 OneVNetHelper.type_to_str(d["TYPE"])
             end
 
-            column :SIZE, "Size of the Virtual Network", :size=>6 do |d|
+            column :SIZE, "Size of the Virtual Network", :size=>5 do |d|
                 d["SIZE"]
             end
 
@@ -68,7 +76,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :LEASES, "Number of this Virtual Network's given leases",
-                    :size=>7 do |d|
+                    :size=>6 do |d|
                 d["TOTAL_LEASES"]
             end
 

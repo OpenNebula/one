@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/onehost_helper'
+require 'one_helper/onecluster_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onehost` <command> [<args>] [<options>]"
@@ -41,9 +42,36 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     set :option, CommandParser::OPTIONS
 
+    IM = {
+    :name   => "im",
+    :short  => "-i im_mad",
+    :large  => "--im im_mad" ,
+    :description => "Set the information driver for the host",
+    :format => String
+    }
+
+    VMM = {
+    :name   => "vmm",
+    :short  => "-v vmm_mad",
+    :large  => "--vm vmm_mad" ,
+    :description => "Set the virtualization driver for the host",
+    :format => String
+    }
+
+    VNET = {
+    :name   => "vnm",
+    :short  => "-n vnet_mad",
+    :large  => "--net vnet_mad" ,
+    :description => "Set the network driver for the host",
+    :format => String
+    }
+
+    CREAT_OPTIONS = [ IM, VMM, VNET, OneClusterHelper::CLUSTER ]
+    
     ########################################################################
     # Formatters for arguments
     ########################################################################
+
     set :format, :hostid, OneHostHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
@@ -60,14 +88,23 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Host
     EOT
 
-    command :create, create_desc, :hostname, :im_mad, :vmm_mad,  
-            :vnm_mad, [:clusterid, nil] do
+    command :create, create_desc, :hostname, :options=>CREAT_OPTIONS do
+        if options[:im].nil? or options[:vmm].nil? or options[:vnm].nil?
+            STDERR.puts "Drivers are mandatory to create a host:"
+            STDERR.puts "\t -i information driver"
+            STDERR.puts "\t -v hypervisor driver"
+            STDERR.puts "\t -n network driver"
+            exit -1
+        end
+
+        cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
+
         helper.create_resource(options) do |host|
-            if args.size == 4
-                host.allocate(args[0], args[1], args[2], args[3])
-            else
-                host.allocate(args[0], args[1], args[2], args[3], args[4].to_i)
-            end
+                host.allocate(args[0], 
+                              options[:im],
+                              options[:vmm],
+                              options[:vnm],
+                              cid)
         end
     end
 

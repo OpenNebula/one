@@ -25,7 +25,38 @@ module Migrator
         "OpenNebula 3.3.80"
     end
 
+    SHORT_VM_STATES=%w{init pend hold actv stop susp done fail}
+
+    SHORT_LCM_STATES=%w{prol boot runn migr save save save migr prol,
+                        epil epil shut shut fail clea unkn}
+
     def up
+
+        header_done = false
+
+        @db.fetch("SELECT oid,name,state,lcm_state FROM vm_pool WHERE ( state <> 1 AND state <> 6 )") do |row|
+            if ( !header_done )
+                puts "You can't have active VMs. Please shutdown or delete the following VMs:"
+                puts
+                puts "    ID STAT NAME"
+
+                header_done = true
+            end
+
+            if row[:state] != 3
+                state_str = SHORT_VM_STATES[row[:state]]
+            else
+                state_str = SHORT_LCM_STATES[row[:lcm_state]]
+            end
+
+            puts "#{'%6.6s' % row[:oid].to_s} #{state_str} #{row[:name]}"
+        end
+
+        if ( header_done )
+            puts
+            return false
+        end
+
         one_location = ENV["ONE_LOCATION"]
 
         if !one_location
@@ -91,14 +122,14 @@ module Migrator
         "    <OTHER_M>0</OTHER_M>" <<
         "    <OTHER_A>0</OTHER_A>" <<
         "  </PERMISSIONS>" <<
-        "  <DS_MAD>fs</DS_MAD>" <<
+        "  <DS_MAD>-</DS_MAD>" <<
         "  <TM_MAD>shared</TM_MAD>" <<
         "  <BASE_PATH>#{var_location}/datastores/0</BASE_PATH>" <<
         "  <CLUSTER_ID>-1</CLUSTER_ID>" <<
         "  <CLUSTER>none</CLUSTER>" <<
         "  <IMAGES/>" <<
         "  <TEMPLATE>" <<
-        "    <DS_MAD><![CDATA[fs]]></DS_MAD>" <<
+        "    <DS_MAD><![CDATA[-]]></DS_MAD>" <<
         "    <TM_MAD><![CDATA[shared]]></TM_MAD>" <<
         "  </TEMPLATE>" <<
         "</DATASTORE>"
@@ -208,9 +239,7 @@ module Migrator
                 if ( hash.length == 32 && hash =~ /^[0-9A-F]+$/i )
                     e.text = "#{var_location}/datastores/1/#{hash}"
 
-                    # TODO: create link, or mv image file?
                     `ln -s #{previous_source} #{e.text}`
-                    # `mv #{e.text} #{previous_source}`
                 end
             }
 
@@ -250,15 +279,15 @@ module Migrator
         "    <OTHER_M>0</OTHER_M>" <<
         "    <OTHER_A>0</OTHER_A>" <<
         "  </PERMISSIONS>" <<
-        "  <DS_MAD>fs</DS_MAD>" <<                                      # TODO
-        "  <TM_MAD>shared</TM_MAD>" <<                                  # TODO
+        "  <DS_MAD>fs</DS_MAD>" <<
+        "  <TM_MAD>shared</TM_MAD>" <<
         "  <BASE_PATH>#{var_location}/datastores/1</BASE_PATH>" <<
         "  <CLUSTER_ID>-1</CLUSTER_ID>" <<
         "  <CLUSTER>none</CLUSTER>" <<
         images_element <<
         "  <TEMPLATE>" <<
-        "    <DS_MAD><![CDATA[fs]]></DS_MAD>" <<                        # TODO
-        "    <TM_MAD><![CDATA[shared]]></TM_MAD>" <<                    # TODO
+        "    <DS_MAD><![CDATA[fs]]></DS_MAD>" <<
+        "    <TM_MAD><![CDATA[shared]]></TM_MAD>" <<
         "  </TEMPLATE>" <<
         "</DATASTORE>"
 

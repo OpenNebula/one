@@ -17,6 +17,19 @@
 require 'one_helper'
 
 class OneDatastoreHelper < OpenNebulaHelper::OneHelper
+    DATASTORE = {
+        :name   => "datastore",
+        :short  => "-d id|name",
+        :large  => "--datastore id|name" ,
+        :description => "Selects the datastore",
+        :format => String,
+        :proc   => lambda { |o, options|
+            ch = OneDatastoreHelper.new
+            rc, dsid = ch.to_id(o)
+            dsid
+        }
+    }
+
     def self.rname
         "DATASTORE"
     end
@@ -33,11 +46,35 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Datastore", :left, :size=>15 do |d|
+            column :NAME, "Name of the Datastore", :left, :size=>12 do |d|
                 d["NAME"]
             end
 
-            default :ID, :NAME
+            column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
+                if d["CLUSTER"] == "none"
+                    "-"
+                else
+                    d["CLUSTER"]
+                end
+            end
+
+            column :IMAGES, "Number of Images", :left, :size=>6 do |d|
+                if d["IMAGES"]["ID"].nil?
+                    "0"
+                else
+                    d["IMAGES"]["ID"].size
+                end
+            end
+
+            column :TYPE, "Datastore driver", :left, :size=>6 do |d|
+                d["DS_MAD"]
+            end
+
+            column :TM, "Transfer driver", :left, :size=>6 do |d|
+                d["TM_MAD"]
+            end
+
+            default :ID, :CLUSTER, :NAME, :IMAGES, :TYPE, :TM_MAD
         end
 
         table
@@ -69,6 +106,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["USER",     datastore['UNAME']]
         puts str % ["GROUP",    datastore['GNAME']]
         puts str % ["CLUSTER",  datastore['CLUSTER']]
+        puts str % ["CLUSTER_ID",  datastore['CLUSTER_ID']]
 
         puts str % ["DS_MAD",   datastore['DS_MAD']]
         puts str % ["TM_MAD",   datastore['TM_MAD']]
@@ -87,14 +125,14 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
-        CLIHelper.print_header(str_h1 % "IMAGES", false)
-        CLIHelper.print_header("%-15s" % ["ID"])
+        CLIHelper.print_header(str_h1 % "DATASTORE TEMPLATE", false)
+        puts datastore.template_str
+
+        puts
+
+        CLIHelper.print_header("%-15s" % "IMAGES")
         datastore.img_ids.each do |id|
             puts "%-15s" % [id]
         end
-
-        puts
-        CLIHelper.print_header(str_h1 % "DATASTORE TEMPLATE",false)
-        puts datastore.template_str
     end
 end
