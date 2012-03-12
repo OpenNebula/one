@@ -63,6 +63,12 @@ var create_image_tmpl =
                  <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
                <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
                </div>\
+               <div class="img_param">\
+                 <label for="img_type">'+tr("Datastore")+':</label>\
+                 <select id="img_datastore" name="img_datastore">\
+                 </select>\
+                 <div class="tip">'+tr("Select the datastore for this image")+'</div>\
+               </div>\
              </fieldset>\
              <fieldset>\
                <div class="img_param">\
@@ -850,7 +856,11 @@ function setupCreateImageDialog(){
         });
         if (exit) { return false; }
 
-        var ds_id = $('#img_ds_id',this).val();
+        var ds_id = $('#img_datastore',this).val();
+        if (!ds_id){
+            notifyError(tr("Please select a datastore for this image"));
+            return false;
+        };
 
         var img_json = {};
 
@@ -906,7 +916,6 @@ function setupCreateImageDialog(){
             img_json[attr_name] = attr_value;
         });
 
-        ds_id = 1;
         img_obj = { "image" : img_json,
                     "ds_id" : ds_id};
 
@@ -931,6 +940,8 @@ function setupCreateImageDialog(){
 function popUpCreateImageDialog(){
     $('#file-uploader input',$create_image_dialog).removeAttr("style");
     $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
+
+    $('#img_datastore',$create_image_dialog).html(datastores_sel());
 
     $create_image_dialog.dialog('open');
 }

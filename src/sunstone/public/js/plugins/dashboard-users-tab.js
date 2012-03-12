@@ -70,6 +70,10 @@ var dashboard_tab_content =
               <td class="value_td"><span id="total_vnets"></span><span id="public_vnets"></span></td>\
             </tr>\
             <tr>\
+              <td class="key_td">' + tr("Datastores") + '</td>\
+              <td class="value_td"><span id="total_datastores"></span></td>\
+            </tr>\
+            <tr>\
               <td class="key_td">'+tr("Images (total/public)")+'</td>\
               <td class="value_td"><span id="total_images"></span><span id="public_images"></span></td>\
             </tr>\
@@ -85,7 +89,7 @@ var dashboard_tab_content =
         <h3>'+tr("Quickstart")+'</h3>\
         <form id="quickstart_form"><fieldset>\
           <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
-          <label style="font-weight:bold;width:40px;height:4em;">New:</label>\
+          <label style="font-weight:bold;width:40px;height:6em;">New:</label>\
           <input type="radio" name="quickstart" value="Template.create_dialog">'+tr("VM Template")+'</input><br />\
           <input type="radio" name="quickstart" value="VM.create_dialog">'+tr("VM Instance")+'</input><br />\
           <input type="radio" name="quickstart" value="Network.create_dialog">'+tr("Virtual Network")+'</input><br />\
@@ -295,6 +299,14 @@ function updateDashboard(what,json_info){
     case "acls":
         var total_acls=json_info.length;
         $('#total_acls',db).html(total_acls);
+        break;
+    case "clusters":
+        var total_clusters=json_info.length;
+        $('#total_clusters',db).html(total_clusters);
+        break;
+    case "datastores":
+        var total_datastores=json_info.length;
+        $('#total_datastores',db).html(total_datastores);
         break;
     }
 }

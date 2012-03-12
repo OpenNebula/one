@@ -403,19 +403,26 @@ function waitingNodes(dataTable){
 
 function getUserName(uid){
     if (typeof(dataTable_users) != "undefined"){
-        return getName(uid,dataTable_users);
+        return getName(uid,dataTable_users,2);
     }
     return uid;
 }
 
 function getGroupName(gid){
     if (typeof(dataTable_groups) != "undefined"){
-        return getName(gid,dataTable_groups);
+        return getName(gid,dataTable_groups,2);
     }
     return gid;
 }
 
-function getName(id,dataTable){
+function getImageName(id){
+    if (typeof(dataTable_images) != "undefined"){
+        return getName(id,dataTable_images,4);
+    }
+    return id;
+};
+
+function getName(id,dataTable,name_col){
     var name = id;
     if (typeof(dataTable) == "undefined") {
         return name;
@@ -424,7 +431,7 @@ function getName(id,dataTable){
 
     $.each(nodes,function(){
         if (id == this[1]) {
-            name = this[2];
+            name = this[name_col];
             return false;
         }
     });
@@ -753,6 +760,10 @@ function hosts_sel(){
 
 function clusters_sel() {
     return clusters_select;
+}
+
+function datastores_sel() {
+    return datastores_select;
 }
 
 
