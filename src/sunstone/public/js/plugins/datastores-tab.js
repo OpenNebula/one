@@ -265,7 +265,8 @@ var datastore_buttons = {
     },
     "Datastore.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New")
+        text: tr("+ New"),
+        condition: mustBeAdmin,
     },
     "Datastore.update_dialog" : {
         type: "action",
@@ -277,6 +278,7 @@ var datastore_buttons = {
         text: tr("Select cluster"),
         select: clusters_sel,
         tip: tr("Select the destination cluster:"),
+        condition: mustBeAdmin,
     },
     "Datastore.chown" : {
         type: "confirm_with_select",
@@ -354,22 +356,34 @@ function datastoreInfoListener(){
         Sunstone.runAction("Datastore.showinfo",id);
         return false;
     });
-}
+};
+
+function updateDatastoreSelect(){
+    datastores_select = makeSelectOptions(dataTable_datastores,
+                                          1,
+                                          4,
+                                          [],
+                                          []
+                                         );
+};
 
 function updateDatastoreElement(request, element_json){
     var id = element_json.DATASTORE.ID;
     var element = datastoreElementArray(element_json);
     updateSingleElement(element,dataTable_datastores,'#datastore_'+id)
+    updateDatastoreSelect();
 }
 
 function deleteDatastoreElement(request){
     deleteElement(dataTable_datastores,'#datastore_'+request.request.data);
+    updateDatastoreSelect();
 }
 
 function addDatastoreElement(request,element_json){
     var id = element_json.DATASTORE.ID;
     var element = datastoreElementArray(element_json);
     addElement(element,dataTable_datastores);
+    updateDatastoreSelect();
 }
 
 
@@ -381,17 +395,28 @@ function updateDatastoresView(request, list){
     });
 
     updateView(list_array,dataTable_datastores);
+    updateDatastoreSelect();
     updateDashboard("datastores",list);
 }
 
 
 function updateDatastoreInfo(request,ds){
     var info = ds.DATASTORE;
+    var images_str = "";
+    if (info.IMAGES.ID &&
+        info.IMAGES.ID.constructor == Array){
+        for (var i=0; i<info.IMAGES.ID.length;i++){
+            images_str+=getImageName(info.IMAGES.ID[i])+', ';
+        };
+        images_str=images_str.slice(0,-2);
+    } else if (info.IMAGES.ID){
+        images_str=getImageName(info.IMAGES.ID);
+    };
 
     var info_tab = {
         title : tr("Datastore information"),
         content:
-        '<table id="info_datastore_table" class="info_table">\
+        '<table id="info_datastore_table" class="info_table" style="width:80%">\
             <thead>\
               <tr><th colspan="2">'+tr("Datastore information")+' - '+info.NAME+'</th></tr>\
             </thead>\
@@ -427,6 +452,10 @@ function updateDatastoreInfo(request,ds){
               <tr>\
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
+              </tr>\
+              <tr>\
+                 <td class="key_td">'+tr("Images")+'</td>\
+                 <td class="value_td">'+images_str+'</td>\
               </tr>\
               <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
               <tr>\

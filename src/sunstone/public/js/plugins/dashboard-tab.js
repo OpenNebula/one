@@ -59,6 +59,10 @@ var dashboard_tab_content =
               <td class="value_td"><span id="total_hosts"></span><span id="active_hosts" class="green"></span></td>\
             </tr>\
             <tr>\
+              <td class="key_td">' + tr("Clusters") + '</td>\
+              <td class="value_td"><span id="total_clusters"></span></td>\
+            </tr>\
+            <tr>\
               <td class="key_td">' + tr("Groups") + '</td>\
               <td class="value_td"><span id="total_groups"></span></td>\
             </tr>\
@@ -77,6 +81,10 @@ var dashboard_tab_content =
             <tr>\
               <td class="key_td">' + tr("Virtual Networks (total/public)") + '</td>\
               <td class="value_td"><span id="total_vnets"></span><span id="public_vnets"></span></td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Datastores") + '</td>\
+              <td class="value_td"><span id="total_datastores"></span></td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Images (total/public)") + '</td>\
@@ -102,11 +110,13 @@ var dashboard_tab_content =
         <h3>' + tr("Quickstart") + '</h3>\
         <form id="quickstart_form"><fieldset>\
           <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
-<label style="font-weight:bold;width:40px;height:10em;">' + tr("New")+': </label>\
+<label style="font-weight:bold;width:40px;height:12em;">' + tr("New")+': </label>\
           <input type="radio" name="quickstart" value="Host.create_dialog">' + tr("Host") + '</input><br />\
+          <input type="radio" name="quickstart" value="Cluster.create_dialog">' + tr("Cluster") + '</input><br />\
           <input type="radio" name="quickstart" value="VM.create_dialog">' + tr("VM Instance") + '</input><br />\
           <input type="radio" name="quickstart" value="Template.create_dialog">' + tr("VM Template") + '</input><br />\
-          <input type="radio" name="quickstart" value="Network.create_dialog">' + tr("Virtual Network") + '</input><br />\
+          <input type="radio" name="quickstart" value="Network.create_dialog">' + tr("Virtual Network") + '</iput><br />\
+          <input type="radio" name="quickstart" value="Datastore.create_dialog">' + tr("Datastore") + '</input><br />\
           <input type="radio" name="quickstart" value="Image.create_dialog">' + tr("Image") + '</input><br />\
           <input type="radio" name="quickstart" value="User.create_dialog">' + tr("User") + '</input><br />\
           <input type="radio" name="quickstart" value="Group.create_dialog">' + tr("Group") + '</input><br />\
@@ -315,6 +325,14 @@ function updateDashboard(what,json_info){
     case "acls":
         var total_acls=json_info.length;
         $('#total_acls',db).html(total_acls);
+        break;
+    case "clusters":
+        var total_clusters=json_info.length;
+        $('#total_clusters',db).html(total_clusters);
+        break;
+    case "datastores":
+        var total_datastores=json_info.length;
+        $('#total_datastores',db).html(total_datastores);
         break;
     }
 }

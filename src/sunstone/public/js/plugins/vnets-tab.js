@@ -419,6 +419,7 @@ var vnet_buttons = {
         text: tr("Select cluster"),
         select: clusters_sel,
         tip: tr("Select the destination cluster:"),
+        condition: mustBeAdmin,
     },
     "Network.chown" : {
         type: "confirm_with_select",

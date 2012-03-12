@@ -130,9 +130,22 @@ class SunstoneServer < CloudServer
     ############################################################################
     def upload(template, file_path)
         image_hash = parse_json(template, 'image')
+        if OpenNebula.is_error?(image_hash)
+            return [500, image_hash.to_json]
+        end
+
         image_hash['PATH'] = file_path
 
-        new_template = {:image => image_hash}.to_json
+        ds_id = parse_json(template, 'ds_id')
+        if OpenNebula.is_error?(ds_id)
+            return [500, ds_id.to_json]
+        end
+        
+        new_template = {
+            :image => image_hash,
+            :ds_id => ds_id,
+        }.to_json
+
         image = ImageJSON.new(Image.build_xml, @client)
 
         rc = image.create(new_template)
