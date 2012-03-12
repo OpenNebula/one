@@ -44,6 +44,9 @@ DST_HOST=`arg_host $DST`
 
 DST_DIR=`dirname $DST_PATH`
 
+SRC_DS_DIR=`dirname  $SRC_PATH`
+SRC_VM_DIR=`basename $SRC_PATH`
+
 if [ `is_disk $DST_PATH` -eq 1 ]; then
 	exit 0
 fi
@@ -60,7 +63,7 @@ log "Moving $SRC to $DST"
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
     "Error removing target path to prevent overwrite errors"
 
-TAR_COPY="$SSH $SRC_HOST '$TAR -C $SRC_PATH/.. -cf - .'"
+TAR_COPY="$SSH $SRC_HOST '$TAR -C $SRC_DS_DIR -cf - $SRC_VM_DIR'"
 TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_DIR -xf -'"
 
 exec_and_log "eval $TAR_COPY" "Error copying disk directory to target host"

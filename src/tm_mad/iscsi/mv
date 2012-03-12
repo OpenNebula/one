@@ -110,7 +110,6 @@ if is_iscsi "$DST_HOST"; then
         set -e
         mkdir -p $DST_DIR
         $SUDO $(iscsiadm_discovery "$TARGET_HOST")
-        $SUDO $(iscsiadm_discovery "$TARGET_HOST")
         $SUDO $(iscsiadm_login "$IQN" "$TARGET_HOST")
         sleep 1
         DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)

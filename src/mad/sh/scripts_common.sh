@@ -327,9 +327,8 @@ function iqn_get_vg_name {
 
 function iqn_get_host {
     IQN="$1"
-
+    TARGET=`echo "$IQN"|$CUT -d: -f2`
     LV_NAME=$(iqn_get_lv_name "$IQN")
     VG_NAME=$(iqn_get_vg_name "$IQN")
-
     echo ${TARGET%%.$VG_NAME.$LV_NAME}
 }
