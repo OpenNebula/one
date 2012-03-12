@@ -178,7 +178,7 @@ EOT
         # Formatters for arguments
         ########################################################################
         def to_id(name)
-            return 0, name if name.match(/^[0123456789]+$/)
+            return 0, name.to_i if name.match(/^[0123456789]+$/)
 
             rc = get_pool
             return rc if rc.first != 0
@@ -288,11 +288,11 @@ EOT
 
         def pool_to_array(pool)
     	    if !pool.instance_of?(Hash)
-                phash = pool.to_hash 
+                phash = pool.to_hash
             else
                 phash = pool
             end
-            
+
             rname = self.class.rname
 
             if phash["#{rname}_POOL"] &&
@@ -408,7 +408,7 @@ EOT
         rc = resource.info
 
         if OpenNebula.is_error?(rc)
-            puts rc.message 
+            puts rc.message
             exit -1
         end
 
