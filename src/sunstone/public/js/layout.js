@@ -48,28 +48,44 @@ function showTab(tabname){
     $(".tab").hide();
     $(activeTab).show();
     //~ if (activeTab == '#dashboard') {
-		//~ emptyDashboard();
-		//~ preloadTables();
-	//~ }
+                //~ emptyDashboard();
+                //~ preloadTables();
+        //~ }
     innerLayout.close("south");
 }
+
+function setupTabs(){
+
+    var topTabs = $(".outer-west ul li.topTab");
+    var subTabs = $(".outer-west ul li.subTab");
+
+    subTabs.live("click",function(){
+        var tab = $('a',this).attr('href');
+        showTab(tab);
+        return false;
+    });
+
+    topTabs.live("click",function(e){
+        var tab = $('a',this).attr('href');
+        //toggle subtabs trick
+        if ($(e.target).is('span')){
+            $('li.'+tab.substr(1)).fadeToggle('fast');
+            $('span',this).toggleClass('ui-icon-circle-plus ui-icon-circle-minus');
+            return false;
+        } else  if ($(this).hasClass("navigation-active-li")){//duplicate
+            $('li.'+tab.substr(1)).fadeToggle('fast');
+            $('span',this).toggleClass('ui-icon-circle-plus ui-icon-circle-minus');
+        };
+        showTab(tab);
+        return false;
+    });
+
+};
 
 $(document).ready(function () {
     $(".tab").hide();
 
-    $(".outer-west ul li.subTab").live("click",function(){
-        var tab = $('a',this).attr('href');
-        showTab(tab);
-        return false;
-    });
-
-    $(".outer-west ul li.topTab").live("click",function(){
-        var tab = $('a',this).attr('href');
-        //toggle subtabs trick
-        $('li.'+tab.substr(1)).toggle();
-        showTab(tab);
-        return false;
-    });
+    setupTabs();
 
     outerLayout = $('body').layout({
         applyDefaultStyles:       false
@@ -106,4 +122,3 @@ $(document).ready(function () {
     });
 
 });
-

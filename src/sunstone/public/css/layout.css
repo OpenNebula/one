@@ -120,15 +120,23 @@ background-image: -moz-linear-gradient(
     rgb(53,55,53) 100%
 );
 }
-#navigation {
+
+.navigation {
     list-style:     none;
     padding:        0;
 }
 
-#navigation li {
+.navigation li.topTab {
     line-height:        2em;
-    text-align:         right;
-    padding-right:      10px;
+    text-align:         left;
+    padding-left:       15px;
+}
+
+.navigation li.subTab {
+    line-height:        1.8em;
+    font-size:          12px;
+    text-align:         left;
+    padding-left:       30px;
 }
 
 #navigation li a {

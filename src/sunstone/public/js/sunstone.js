@@ -470,7 +470,12 @@ function insertTab(tab_name){
 
     $('div#'+tab_name,main_tabs_context).html(tab_info.content);
 
-    $('div#menu ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#'+tab_name+'">'+tab_info.title+'</a></li>');
+    $('div#menu ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#'+tab_name+'">'+tab_info.title+'<span style="display:none;float:right;margin-right:1em;margin-top:5px;" class="ui-icon ui-icon-circle-plus"></span></a></li>');
+
+    if (parent){ //this is a subtab
+        $('div#menu li#li_'+tab_name).hide();//hide by default
+        $('div#menu li#li_'+parent+' span').css("display","inline-block");
+    };
 }
 
 function hideSubTabs(){
