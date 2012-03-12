@@ -20,7 +20,7 @@
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 
-DST=$1 # o202:/var/lib/one//datastores/0/0/disk.0
+DST=$1
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh

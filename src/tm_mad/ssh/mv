@@ -16,8 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# MV <hostA:system_ds/disk.i|hostB:system_ds/disk.i> 
-#    <hostA:system_ds/|hostB:system_ds/> 
+# MV <hostA:system_ds/disk.i|hostB:system_ds/disk.i>
+#    <hostA:system_ds/|hostB:system_ds/>
 #   - hostX is the target host to deploy the VM
 #   - system_ds is the path for the system datastore in the host
 
@@ -34,7 +34,7 @@ fi
 
 #-------------------------------------------------------------------------------
 # Return if moving a disk, we will move them when moving the whole system_ds
-# directory for the VM 
+# directory for the VM
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
@@ -53,11 +53,17 @@ if [ "$SRC" == "$DST" ]; then
 	exit 0
 fi
 
-ssh_make_path $DST_HOST $DST_DIR
+ssh_make_path "$DST_HOST" "$DST_DIR"
 
 log "Moving $SRC to $DST"
 
-exec_and_log "$SCP -r $SRC $DST" "Could not copy $SRC to $DST"
+ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
+    "Error removing target path to prevent overwrite errors"
+
+TAR_COPY="$SSH $SRC_HOST '$TAR -C $SRC_PATH/.. -cf - .'"
+TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_DIR -xf -'"
+
+exec_and_log "eval $TAR_COPY" "Error copying disk directory to target host"
 
 exec_and_log "$SSH $SRC_HOST rm -rf $SRC_PATH"
 

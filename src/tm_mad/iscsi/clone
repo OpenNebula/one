@@ -22,8 +22,8 @@
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 
-SRC=$1 # iqn.2012-02.org.opennebula:o200.vg-one.lv-one-0
-DST=$2 # o202:/var/lib/one//datastores/0/0/disk.0
+SRC=$1
+DST=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -37,19 +37,18 @@ fi
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 
-TARGET=`arg_path $SRC` # o200.vg-one.lv-one-0
-DST_PATH=`arg_path $DST` # /var/lib/one/datastores/0/0/disk.0
-DST_HOST=`arg_host $DST` # o202
-DST_DIR=`dirname $DST_PATH` # /var/lib/one/datastores/0/0
+TARGET=`arg_path $SRC`
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
 
-BASE_IQN=`echo $SRC|$CUT -d: -f1`
-TARGET=`echo $SRC|$CUT -d: -f2`
-LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
-VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
+IQN="$SRC"
+
+LV_NAME=`iqn_get_lv_name "$IQN"`
+VG_NAME=`iqn_get_vg_name "$IQN"`
 DEV="/dev/$VG_NAME/$LV_NAME"
 
-exit
-ssh_make_path $DST_HOST $DST_DIR
+ssh_make_path "$DST_HOST" "$DST_DIR"
 
 #-------------------------------------------------------------------------------
 # Copy files to the remote host

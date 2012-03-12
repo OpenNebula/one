@@ -38,6 +38,7 @@ SCP=scp
 SED=sed
 SSH=ssh
 SUDO=sudo
+TAR=tar
 TGTADM=tgtadm
 WGET=wget
 
@@ -304,3 +305,31 @@ function iscsiadm_logout {
     echo "$ISCSIADM -m node --targetname $IQN --logout"
 }
 
+function is_iscsi {
+    if echo "$NO_ISCSI"|grep -q "\b$1\b"; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+function iqn_get_lv_name {
+    IQN="$1"
+    TARGET=`echo "$IQN"|$CUT -d: -f2`
+    echo $TARGET|$AWK -F. '{print $(NF)}'
+}
+
+function iqn_get_vg_name {
+    IQN="$1"
+    TARGET=`echo "$IQN"|$CUT -d: -f2`
+    echo $TARGET|$AWK -F. '{print $(NF-1)}'
+}
+
+function iqn_get_host {
+    IQN="$1"
+
+    LV_NAME=$(iqn_get_lv_name "$IQN")
+    VG_NAME=$(iqn_get_vg_name "$IQN")
+
+    echo ${TARGET%%.$VG_NAME.$LV_NAME}
+}
