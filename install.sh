@@ -232,6 +232,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/ssh \
           $VAR_LOCATION/remotes/tm/vmware \
+          $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -386,6 +387,7 @@ INSTALL_FILES=(
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
+    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
@@ -805,6 +807,11 @@ TM_VMWARE_FILES="src/tm_mad/vmware/clone \
                  src/tm_mad/vmware/functions.sh \
                  src/tm_mad/vmware/context"
 
+TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
+                 src/tm_mad/iscsi/ln \
+                 src/tm_mad/iscsi/mv \
+                 src/tm_mad/iscsi/mvds \
+                 src/tm_mad/iscsi/delete"
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
