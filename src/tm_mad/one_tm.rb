@@ -33,9 +33,9 @@ require 'OpenNebulaDriver'
 require 'CommandManager'
 require 'getoptlong'
 
-# This class provides basic messaging and logging functionality to implement
-# TransferManager Drivers. A TransferManager driver is a program (or a set of)
-# that  specialize the OpenNebula behavior to distribute disk images in a
+# This class provides basic messaging and logging functionality to implement 
+# TransferManager Drivers. A TransferManager driver is a program (or a set of) 
+# that  specialize the OpenNebula behavior to distribute disk images in a 
 # specific datastore to the hosts
 class TransferManagerDriver < OpenNebulaDriver
 
@@ -72,9 +72,9 @@ class TransferManagerDriver < OpenNebulaDriver
         script = parse_script(script_file)
 
         if script.nil?
-            send_message("TRANSFER",
+            send_message("TRANSFER", 
                          RESULT[:failure],
-                         id,
+                         id, 
                          "Transfer file '#{script_file}' does not exist")
             return
         end
@@ -84,7 +84,7 @@ class TransferManagerDriver < OpenNebulaDriver
 
             if result == RESULT[:failure]
                 send_message("TRANSFER", result, id, info)
-                return
+                return 
             end
         }
 
@@ -106,7 +106,7 @@ class TransferManagerDriver < OpenNebulaDriver
         stext.each_line {|line|
             next if line.match(/^\s*#/) # skip if the line is commented
             next if line.match(/^\s*$/) # skip if the line is empty
-
+            
             command = line.split(" ")
 
             lines << command
@@ -115,7 +115,7 @@ class TransferManagerDriver < OpenNebulaDriver
         return lines
     end
 
-    # Executes a single transfer action (command), as returned by the parse
+    # Executes a single transfer action (command), as returned by the parse 
     # method
     # @param id [String] with the OpenNebula ID for the TRANSFER action
     # @param command [Array]
@@ -131,12 +131,9 @@ class TransferManagerDriver < OpenNebulaDriver
         path = File.join(@local_scripts_path, tm, cmd)
         path << " " << args
 
-
         rc = LocalCommand.run(path, log_method(id))
 
         result, info = get_info_from_execution(rc)
-
-        PP.pp([path,result,info],STDERR)
 
         return result, info
     end
