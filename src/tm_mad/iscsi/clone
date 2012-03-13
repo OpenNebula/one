@@ -16,52 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# clone fe:SOURCE host:remote_system_ds/disk.i size
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
-#   - host is the target host to deploy the VM
-#   - remote_system_ds is the path for the system datastore in the host
+log_error "CLONE not supported for TM_ISCSI. Use persistent images"
 
-SRC=$1
-DST=$2
-
-if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-else
-    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-fi
-
-. $TMCOMMON
-
-#-------------------------------------------------------------------------------
-# Set dst path and dir
-#-------------------------------------------------------------------------------
-
-TARGET=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
-DST_DIR=`dirname $DST_PATH`
-
-IQN="$SRC"
-
-LV_NAME=`iqn_get_lv_name "$IQN"`
-VG_NAME=`iqn_get_vg_name "$IQN"`
-DEV="/dev/$VG_NAME/$LV_NAME"
-
-ssh_make_path "$DST_HOST" "$DST_DIR"
-
-#-------------------------------------------------------------------------------
-# Copy files to the remote host
-#-------------------------------------------------------------------------------
-case $SRC in
-http://*)
-    log "Downloading $SRC"
-    RMT_CMD="$WGET -O $DST_PATH $SRC"
-    ssh_exec_and_log "$DST_HOST" "$RMT_CMD" "Error downloading $SRC"
-    ;;
-
-*)
-    log "Cloning $SRC in $DST_PATH"
-    exec_and_log "$SCP $SRC $DST" "Error copying $SRC to $DST"
-    ;;
-esac
+exit 1
