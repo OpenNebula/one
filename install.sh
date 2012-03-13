@@ -1453,7 +1453,7 @@ if [ "$UNINSTALL" = "no" ] ; then
     done
 
     # Remove old migrators
-    rm $LIB_LOCATION/ruby/onedb/*.rb
+    rm $LIB_LOCATION/ruby/onedb/*.rb &> /dev/null
 fi
 
 # --- Install/Uninstall files ---
