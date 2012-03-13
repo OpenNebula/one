@@ -202,7 +202,7 @@ EOT
 
             result = names.split(',').collect { |name|
                 if name.match(/^[0123456789]+$/)
-                    name
+                    name.to_i
                 else
                     rc = OneHelper.name_to_id(name, pool, poolname)
 
