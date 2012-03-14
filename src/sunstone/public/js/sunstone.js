@@ -373,7 +373,7 @@ $(document).ready(function(){
     });
 
     //Start with the dashboard (supposing we have one).
-    showTab('#dashboard_tab');
+    showTab('dashboard_tab');
 
 });
 
@@ -465,7 +465,7 @@ function insertTab(tab_name){
 
     $('div#'+tab_name,main_tabs_context).html(tab_info.content);
 
-    $('div#menu ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#'+tab_name+'">'+tab_info.title+'<span class="ui-icon ui-icon-circle-plus plusIcon"></span></a></li>');
+    $('div#menu ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'">'+tab_info.title+'<span class="ui-icon ui-icon-circle-plus plusIcon"></span></li>');
 
     if (parent){ //this is a subtab
         $('div#menu li#li_'+tab_name).hide();//hide by default

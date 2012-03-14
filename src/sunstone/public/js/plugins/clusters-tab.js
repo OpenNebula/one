@@ -501,7 +501,7 @@ function clusterSubmenusListeners(){
         id = id.split('_');
         id = id[id.length-1];
         dataTable_hosts.fnFilter(getClusterName(id),3,false,true,false,true);
-        showTab('#hosts_tab',$('a',this).attr('href'));
+        showTab('#hosts_tab',$(this).attr('id').substring(3));
         return false;
     });
 
@@ -510,7 +510,7 @@ function clusterSubmenusListeners(){
         id = id.split('_');
         id = id[id.length-1];
         dataTable_datastores.fnFilter(getClusterName(id),5,false,true,false,true);
-        showTab('#datastores_tab',$('a',this).attr('href'));
+        showTab('#datastores_tab',$(this).attr('id').substring(3));
         return false;
     });
 
@@ -519,7 +519,7 @@ function clusterSubmenusListeners(){
         id = id.split('_');
         id = id[id.length-1];
         dataTable_vNetworks.fnFilter(getClusterName(id),5,false,true,false,true);
-        showTab('#vnets_tab',$('a',this).attr('href'));
+        showTab('#vnets_tab',$(this).attr('id').substring(3));
         return false;
     });
 };

@@ -199,13 +199,6 @@ function refresh_graphs(){
 }
 
 $(document).ready(function(){
-    //Dashboard link listener
-    $("#dashboard_table h3 a",main_tabs_context).live("click", function (){
-        var tab = $(this).attr('href');
-        showTab(tab);
-        return false;
-    });
-
     emptyDashboard();
 
     refresh_graphs();

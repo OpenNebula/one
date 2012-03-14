@@ -32,33 +32,34 @@ function popDialogLoading(){
 }
 
 function showTab(tabname,highlight_tab){
+    //Since menu items no longer have an <a> element
+    //we no longer expect #tab_id here, but simply tab_id
+    //So safety check - remove # from #tab_id if present to ensure compatibility
+    if (tabname.indexOf('#') == 0)
+        tabname = tabname.substring(1);
+    if (highlight_tab && highlight_tab.indexOf('#') == 0)
+        highlight_tab == highlight.substring(1);
+
     var activeTab = tabname;
 
     if (!highlight_tab) highlight_tab = activeTab;
 
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
-    $("#navigation li a").removeClass("navigation-active-li-a");
     $("div#header ul#menutop_ul li").removeClass("navigation-active-li");
 
     //select tab in left menu
-    var li = $("#navigation li:has(a[href='"+highlight_tab+"'])")
-    var li_a = $("#navigation li a[href='"+highlight_tab+"']")
+    var li = $("#navigation li#li_"+highlight_tab)
     li.addClass("navigation-active-li");
-    li_a.addClass("navigation-active-li-a");
 
     //select tab in top menu
-    var top_li = $("div#header ul#menutop_ul li#top_"+highlight_tab.substring(1));
+    var top_li = $("div#header ul#menutop_ul li#top_"+highlight_tab);
     top_li.addClass("navigation-active-li");
 
 
     //show tab
     $(".tab").hide();
-    $(activeTab).show();
-    //~ if (activeTab == '#dashboard') {
-                //~ emptyDashboard();
-                //~ preloadTables();
-        //~ }
+    $('#'+activeTab).show();
     innerLayout.close("south");
 }
 
@@ -71,15 +72,15 @@ function setupTabs(){
         //leave floor to topTab listener in case of tabs with both classes
         if ($(this).hasClass('topTab')) return false;
 
-        var tab = $('a',this).attr('href');
+        var tab = $(this).attr('id').substring(3);
         showTab(tab);
         return false;
     });
 
     topTabs.live("click",function(e){
-        var tab = $('a',this).attr('href'); //This tabs #name
+        var tab = $(this).attr('id').substring(3);
         //Subtabs have a class with the name of  this tab
-        var subtabs = $('div#menu li.'+tab.substr(1));
+        var subtabs = $('div#menu li.'+tab);
 
         //toggle subtabs only when clicking on the icon or when clicking on an
         //already selected menu
@@ -88,9 +89,8 @@ function setupTabs(){
             //for each subtab, we hide the subsubtabs
             subtabs.each(function(){
                 //for each subtab, hide its subtabs
-                var subsubtabs = $('a',this);
+                var subsubtabs = $(this).attr('id').substr(3);
                 //subsubtabs class
-                subsubtabs = subsubtabs.attr('href').substr(1);
                 subsubtabs = $('div#menu li.'+subsubtabs);
                 subsubtabs.hide();
             });

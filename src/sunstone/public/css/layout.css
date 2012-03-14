@@ -148,7 +148,6 @@ background-image: -moz-linear-gradient(
     font-size:          11px;
     text-align:         left;
     padding-left:       40px;
-
 }
 
 .navigation li.topTab span.plusIcon,
@@ -166,8 +165,9 @@ background-image: -moz-linear-gradient(
     margin-top: 3px;
 }
 
-#navigation li a {
+#navigation li {
     color:  #ffffff;
+    cursor: pointer;
 }
 
 #navigation li:hover, .navigation-active-li {
@@ -198,10 +198,10 @@ background-image: -moz-linear-gradient(
     );
     */
 }
-.navigation-active-li-a {
+.navigation-active-li {
     font-weight: bold;
 }
-#navigation li:hover a, .navigation-active-li-a {
+#navigation li:hover {
     color: #ffffff !important;
 }
 
