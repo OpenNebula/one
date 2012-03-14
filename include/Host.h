@@ -281,7 +281,7 @@ public:
     /**
      *  Factory method for host templates
      */
-    Template * get_new_template()
+    Template * get_new_template() const
     {
         return new HostTemplate;
     }

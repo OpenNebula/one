@@ -44,7 +44,7 @@ public:
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template()
+    Template * get_new_template() const
     {
         return new VirtualMachineTemplate;
     }

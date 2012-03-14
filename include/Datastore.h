@@ -191,7 +191,7 @@ private:
     /**
      *  Factory method for virtual network templates
      */
-    Template * get_new_template()
+    Template * get_new_template() const
     {
         return new DatastoreTemplate;
     }

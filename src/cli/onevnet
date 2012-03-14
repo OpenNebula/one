@@ -75,7 +75,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Virtual Network from the given template file
     EOT
 
-    command :create, create_desc, :file, options=>CREATE_OPTIONS do
+    command :create, create_desc, :file, :options=>CREATE_OPTIONS do
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 
         helper.create_resource(options) do |vn|

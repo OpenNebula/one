@@ -169,7 +169,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     # TODO: allow the second param to be [:range, :vnetid_list]
     command :delvnet, delvnet_desc,:clusterid, :vnetid do
-        helper.perform_actions(args[0],options,"updated") do |cluster|
+        helper.perform_action(args[0],options,"updated") do |cluster|
             cluster.delvnet(args[1].to_i)
         end
     end

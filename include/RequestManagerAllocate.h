@@ -178,7 +178,7 @@ public:
 
     int add_to_cluster(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->add_datastore(id, error_msg);
+        return cluster->add_vnet(id, error_msg);
     };
 };
 
