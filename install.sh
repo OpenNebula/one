@@ -801,8 +801,7 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
               src/tm_mad/lvm/mkswap \
               src/tm_mad/lvm/mkimage \
               src/tm_mad/lvm/mv \
-              src/tm_mad/lvm/context \
-              src/tm_mad/lvm/dummy"
+              src/tm_mad/lvm/context"
 
 TM_VMWARE_FILES="src/tm_mad/vmware/clone \
                  src/tm_mad/vmware/ln \
