@@ -43,7 +43,7 @@ var graph4 = {
 };
 
 var dashboard_tab_content =
-'<table id="dashboard_table">\
+'<table class="dashboard_table">\
 <tr>\
 <td style="width:40%">\
 <table id="information_table" style="width:100%">\
@@ -67,28 +67,28 @@ var dashboard_tab_content =
               <td class="value_td"><span id="total_groups"></span></td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("VM Templates (total/public)") + '</td>\
-              <td class="value_td"><span id="total_templates"></span><span id="public_templates"></span></td>\
+              <td class="key_td">' + tr("VM Templates") + '</td>\
+              <td class="value_td"><span id="total_templates"></span></td>\
             </tr>\
             <tr>\
               <td class="key_td">' +
-    tr("VM Instances")+ ' (' + 
+    tr("VM Instances")+ ' (' +
     tr("total") + '/<span class="green">' +
-    tr("running") + '</span>/<span class="red">' + 
+    tr("running") + '</span>/<span class="red">' +
     tr("failed") + '</span>)</td>\
               <td class="value_td"><span id="total_vms"></span><span id="running_vms" class="green"></span><span id="failed_vms" class="red"></span></td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Virtual Networks (total/public)") + '</td>\
-              <td class="value_td"><span id="total_vnets"></span><span id="public_vnets"></span></td>\
+              <td class="key_td">' + tr("Virtual Networks") + '</td>\
+              <td class="value_td"><span id="total_vnets"></span></td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Datastores") + '</td>\
               <td class="value_td"><span id="total_datastores"></span></td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Images (total/public)") + '</td>\
-              <td class="value_td"><span id="total_images"></span><span id="public_images"></span></td>\
+              <td class="key_td">' + tr("Images") + '</td>\
+              <td class="value_td"><span id="total_images"></span></td>\
             </tr>\
             <tr>\
               <td class="key_td">' + tr("Users")+'</td>\
@@ -108,20 +108,20 @@ var dashboard_tab_content =
     <td>\
       <div class="panel">\
         <h3>' + tr("Quickstart") + '</h3>\
-        <form id="quickstart_form"><fieldset>\
-          <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
-<label style="font-weight:bold;width:40px;height:12em;">' + tr("New")+': </label>\
-          <input type="radio" name="quickstart" value="Host.create_dialog">' + tr("Host") + '</input><br />\
-          <input type="radio" name="quickstart" value="Cluster.create_dialog">' + tr("Cluster") + '</input><br />\
-          <input type="radio" name="quickstart" value="VM.create_dialog">' + tr("VM Instance") + '</input><br />\
-          <input type="radio" name="quickstart" value="Template.create_dialog">' + tr("VM Template") + '</input><br />\
-          <input type="radio" name="quickstart" value="Network.create_dialog">' + tr("Virtual Network") + '</iput><br />\
-          <input type="radio" name="quickstart" value="Datastore.create_dialog">' + tr("Datastore") + '</input><br />\
-          <input type="radio" name="quickstart" value="Image.create_dialog">' + tr("Image") + '</input><br />\
-          <input type="radio" name="quickstart" value="User.create_dialog">' + tr("User") + '</input><br />\
-          <input type="radio" name="quickstart" value="Group.create_dialog">' + tr("Group") + '</input><br />\
-          <input type="radio" name="quickstart" value="Acl.create_dialog">' + tr("Acl") + '</input><br />\
-          </td></tr></table>\
+           <div class="panel_info">\
+              <p><br/>'+tr("Create new")+':<br/>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Host")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#clusters_tab" value="Cluster.create_dialog">'+tr("Cluster")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vms_tab" value="VM.create_dialog">'+tr("VM Instance")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#templates_tab" value="Template.create_dialog">'+tr("VM Template")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Virtual Network")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Datastore")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#images_tab" value="Image.create_dialog">'+tr("Image")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#users_tab" value="User.create_dialog">'+tr("User")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#groups_tab" value="Group.create_dialog">'+tr("Group")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#acls_tab" value="Acl.create_dialog">'+tr("ACL")+'</a></br>\
+              </p>\
+           </div>\
       </div>\
     </td>\
   </tr>\
@@ -158,7 +158,8 @@ var dashboard_tab_content =
 
 var dashboard_tab = {
     title: tr("Dashboard"),
-    content: dashboard_tab_content
+    content: dashboard_tab_content,
+    showOnTopMenu: true,
 }
 
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);
@@ -209,13 +210,6 @@ function plot_global_graph(data,info){
     $.plot($('#'+id+'_graph',context),series,options);
 }
 
-function quickstart_setup(){
-
-    $('#dashboard_table #quickstart_form input',main_tabs_context).click(function(){
-        Sunstone.runAction($(this).val());
-    });
-}
-
 function graph_autorefresh(){
     setInterval(function(){
         refresh_graphs();
@@ -232,15 +226,13 @@ function refresh_graphs(){
 
 $(document).ready(function(){
     //Dashboard link listener
-    $("#dashboard_table h3 a",main_tabs_context).live("click", function (){
+    $("#dashboard_tab h3 a",main_tabs_context).live("click", function (){
         var tab = $(this).attr('href');
         showTab(tab);
         return false;
     });
 
     emptyDashboard();
-
-    quickstart_setup();
 
     refresh_graphs();
     graph_autorefresh();
@@ -288,14 +280,8 @@ function updateDashboard(what,json_info){
         $('#failed_vms',db).html(failed_vms);
         break;
     case "vnets":
-        var public_vnets=0;
         var total_vnets=json_info.length;
-        $.each(json_info,function(){
-            if (parseInt(this.VNET.PUBLIC)){
-                public_vnets++;}
-        });
-        $('#total_vnets',db).html(total_vnets+'&nbsp;/&nbsp;');
-        $('#public_vnets',db).html(public_vnets);
+        $('#total_vnets',db).html(total_vnets);
         break;
     case "users":
         var total_users=json_info.length;
@@ -303,24 +289,11 @@ function updateDashboard(what,json_info){
         break;
     case "images":
         var total_images=json_info.length;
-        var public_images=0;
-        $.each(json_info,function(){
-            if (parseInt(this.IMAGE.PUBLIC)){
-                public_images++;}
-        });
-        $('#total_images',db).html(total_images+'&nbsp;/&nbsp;');
-        $('#public_images',db).html(public_images);
+        $('#total_images',db).html(total_images);
         break;
     case "templates":
         var total_templates=json_info.length;
-        var public_templates=0;
-        $.each(json_info,function(){
-            if (parseInt(this.VMTEMPLATE.PUBLIC)){
-                public_templates++;
-            }
-        });
-        $('#total_templates',db).html(total_templates+'&nbsp;/&nbsp;');
-        $('#public_templates',db).html(public_templates);
+        $('#total_templates',db).html(total_templates);
         break;
     case "acls":
         var total_acls=json_info.length;
@@ -335,4 +308,4 @@ function updateDashboard(what,json_info){
         $('#total_datastores',db).html(total_datastores);
         break;
     }
-}
+};

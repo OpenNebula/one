@@ -9,36 +9,15 @@
     :user:
     :group:
         oneadmin: false
-- plugins/hosts-tab.js:
+- plugins/config-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/system-tab.js:
     :ALL: false
     :user:
     :group:
         oneadmin: true
-- plugins/clusters-tab.js:
-    :ALL: false
-    :user:
-    :group:
-        oneadmin: true
-- plugins/vms-tab.js:
-    :ALL: true
-    :user:
-    :group:
-- plugins/datastores-tab.js:
-    :ALL: true
-    :user:
-    :group:
-- plugins/templates-tab.js:
-    :ALL: true
-    :user:
-    :group:
-- plugins/vnets-tab.js:
-    :ALL: true
-    :user:
-    :group:
-- plugins/images-tab.js:
-    :ALL: true
-    :user:
-    :group:
 - plugins/users-tab.js:
     :ALL: false
     :user:
@@ -54,7 +33,38 @@
     :user:
     :group:
         oneadmin: true
-- plugins/config-tab.js:
+- plugins/vresources-tab.js:
     :ALL: true
     :user:
     :group:
+- plugins/vms-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/templates-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/images-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/hosts-tab.js:
+    :ALL: false
+    :user:
+    :group:
+        oneadmin: true
+- plugins/datastores-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/vnets-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/clusters-tab.js:
+    :ALL: false
+    :user:
+    :group:
+        oneadmin: true
+

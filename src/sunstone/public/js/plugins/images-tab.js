@@ -496,7 +496,9 @@ var image_info_panel = {
 var images_tab = {
     title: tr("Images"),
     content: images_tab_content,
-    buttons: image_buttons
+    buttons: image_buttons,
+    tabClass: 'subTab',
+    parentTab: 'vres_tab'
 }
 
 Sunstone.addActions(image_actions);
@@ -586,6 +588,7 @@ function updateImagesView(request, images_list){
 
     updateView(image_list_array,dataTable_images);
     updateDashboard("images",images_list);
+    updateVResDashboard("images",images_list);
 }
 
 // Callback to update the information panel tabs and pop it up

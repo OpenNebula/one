@@ -830,7 +830,9 @@ var template_info_panel = {
 var templates_tab = {
     title: tr("Templates"),
     content: templates_tab_content,
-    buttons: template_buttons
+    buttons: template_buttons,
+    tabClass: 'subTab',
+    parentTab: 'vres_tab'
 }
 
 Sunstone.addActions(template_actions);
@@ -922,7 +924,7 @@ function updateTemplatesView(request, templates_list){
     updateView(template_list_array,dataTable_templates);
     updateTemplateSelect();
     updateDashboard("templates",templates_list);
-
+    updateVResDashboard("templates",templates_list);
 }
 
 // Callback to update the information panel tabs and pop it up

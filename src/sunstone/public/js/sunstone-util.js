@@ -422,6 +422,34 @@ function getImageName(id){
     return id;
 };
 
+function getClusterName(id){
+    if (typeof(dataTable_clusters) != "undefined"){
+        return getName(id,dataTable_clusters,2);
+    }
+    return id;
+};
+
+function getDatastoreName(id){
+    if (typeof(dataTable_datastores) != "undefined"){
+        return getName(id,dataTable_datastores,4);
+    }
+    return id;
+};
+
+function getVNetName(id){
+    if (typeof(dataTable_vNetworks) != "undefined"){
+        return getName(id,dataTable_vNetworks,4);
+    }
+    return id;
+};
+
+function getHostName(id){
+    if (typeof(dataTable_hosts) != "undefined"){
+        return getName(id,dataTable_hosts,2);
+    }
+    return id;
+};
+
 function getName(id,dataTable,name_col){
     var name = id;
     if (typeof(dataTable) == "undefined") {

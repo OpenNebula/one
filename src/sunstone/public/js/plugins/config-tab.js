@@ -58,8 +58,10 @@ var config_actions = {
 
 var config_tab = {
     title: tr("Configuration"),
-    content: config_tab_content
-}
+    content: config_tab_content,
+    tabClass: "subTab",
+    parentTab: "dashboard_tab",
+};
 
 Sunstone.addActions(config_actions);
 Sunstone.addMainTab('config_tab',config_tab);
