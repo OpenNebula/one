@@ -792,7 +792,8 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/mkswap \
               src/tm_mad/dummy/mkimage \
               src/tm_mad/dummy/mv \
-              src/tm_mad/dummy/context"
+              src/tm_mad/dummy/context \
+              src/tm_mad/dummy/mvds"
 
 TM_LVM_FILES="src/tm_mad/lvm/clone \
               src/tm_mad/lvm/delete \
