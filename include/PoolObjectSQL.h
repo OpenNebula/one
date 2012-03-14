@@ -363,7 +363,7 @@ public:
      *  by classes that uses templates
      *    @return a new template
      */
-    virtual Template * get_new_template()
+    virtual Template * get_new_template() const
     {
         return 0;
     }
