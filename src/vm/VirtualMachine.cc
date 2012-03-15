@@ -512,7 +512,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     ostringstream   oss;
     string          requirements;
-    string          cluster_id;
+    string          cluster_id = "";
     string          vatt_cluster_id;
 
     // Get cluster id from all DISK vector attributes
@@ -532,7 +532,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
         if ( !vatt_cluster_id.empty() )
         {
-            if ( cluster_id != vatt_cluster_id )
+            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
             {
                 goto error;
             }
@@ -559,7 +559,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
         if ( !vatt_cluster_id.empty() )
         {
-            if ( cluster_id != vatt_cluster_id )
+            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
             {
                 goto error;
             }
