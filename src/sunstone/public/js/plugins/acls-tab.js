@@ -156,7 +156,9 @@ var acl_buttons = {
 var acls_tab = {
     title: tr("ACLs"),
     content: acls_tab_content,
-    buttons: acl_buttons
+    buttons: acl_buttons,
+    tabClass: 'subTab',
+    parentTab: 'system_tab'
 }
 
 Sunstone.addActions(acl_actions);
@@ -303,6 +305,7 @@ function updateAclsView(request,list){
     });
     updateView(list_array,dataTable_acls);
     updateDashboard("acls",list);
+    updateSystemDashboard("acls",list);
 }
 
 function setupCreateAclDialog(){

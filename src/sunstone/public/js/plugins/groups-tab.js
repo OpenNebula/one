@@ -142,8 +142,10 @@ var group_buttons = {
 var groups_tab = {
     title: tr("Groups"),
     content: groups_tab_content,
-    buttons: group_buttons
-}
+    buttons: group_buttons,
+    tabClass: 'subTab',
+    parentTab: 'system_tab'
+};
 
 Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups_tab',groups_tab);
@@ -224,6 +226,7 @@ function updateGroupsView(request, group_list){
     updateView(group_list_array,dataTable_groups);
     updateGroupSelect(group_list);
     updateDashboard("groups",group_list);
+    updateSystemDashboard("groups",group_list);
 }
 
 //Prepares the dialog to create

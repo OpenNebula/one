@@ -457,7 +457,9 @@ var vnet_info_panel = {
 var vnets_tab = {
     title: tr("Virtual Networks"),
     content: vnets_tab_content,
-    buttons: vnet_buttons
+    buttons: vnet_buttons,
+    tabClass: "hidden",
+    showOnTopMenu: true,
 }
 
 Sunstone.addActions(vnet_actions);
@@ -1197,4 +1199,8 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_vNetworks);
     tableCheckboxesListener(dataTable_vNetworks);
     vNetworkInfoListener();
+
+    $('div#header ul#menutop_ul li#top_vnets_tab').live('click',function(){
+        dataTable_vNetworks.fnFilter('',5);
+    });
 });

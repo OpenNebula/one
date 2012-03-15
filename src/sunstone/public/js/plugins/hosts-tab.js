@@ -318,8 +318,10 @@ var host_info_panel = {
 var hosts_tab = {
     title: tr("Hosts"),
     content: hosts_tab_content,
-    buttons: host_buttons
-}
+    buttons: host_buttons,
+    tabClass: "hidden",
+    showOnTopMenu: true,
+};
 
 Sunstone.addActions(host_actions);
 Sunstone.addMainTab('hosts_tab',hosts_tab);
@@ -665,4 +667,8 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);
     hostInfoListener();
+
+    $('div#header ul#menutop_ul li#top_hosts_tab').live('click',function(){
+        dataTable_hosts.fnFilter('',3);
+    });
 });

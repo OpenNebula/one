@@ -212,7 +212,8 @@ var host_info_panel = {
 var clusters_tab = {
     title: tr("Clusters"),
     content: clusters_tab_content,
-    buttons: cluster_buttons
+    buttons: cluster_buttons,
+    showOnTopMenu: true,
 }
 
 Sunstone.addActions(cluster_actions);
@@ -296,11 +297,232 @@ function updateClustersView (request,list){
         list_array.push(clusterElementArray(this));
     });
 
+    removeClusterMenus();
+
     updateView(list_array,dataTable_clusters);
     updateClusterSelect();
     //dependency with the dashboard plugin
     updateDashboard("clusters",list);
-}
+    newClusterMenu(list);
+};
+
+
+function clusterTabContent(cluster_json) {
+    var cluster = cluster_json.CLUSTER;
+
+    var dss_list = '<li class="clusterElemLi">'+tr("No datastores in this cluster")+'</li>';
+    if (cluster.DATASTORES.ID &&
+        cluster.DATASTORES.ID.constructor == Array){
+        dss_list = '';
+        for (var i=0; i<cluster.DATASTORES.ID.length;i++){
+            dss_list += '<li class="clusterElemLi">'+cluster.DATASTORES.ID[i]+' - '+getDatastoreName(cluster.DATASTORES.ID[i])+'</li>';
+        };
+    } else if (cluster.DATASTORES.ID)
+        dss_list = '<li class="clusterElemLi">'+cluster.DATASTORES.ID+' - '+getDatastoreName(cluster.DATASTORES.ID)+'</li>';
+
+    var hosts_list = '<li class="clusterElemLi">'+tr("No hosts in this cluster")+'</li>';
+    if (cluster.HOSTS.ID &&
+        cluster.HOSTS.ID.constructor == Array){
+        hosts_list = '';
+        for (var i=0; i<cluster.HOSTS.ID.length;i++){
+            hosts_list += '<li class="clusterElemLi">'+cluster.HOSTS.ID[i]+' - '+getHostName(cluster.HOSTS.ID[i])+'</li>';
+        };
+    } else if (cluster.HOSTS.ID)
+        hosts_list = '<li class="clusterElemLi">'+cluster.HOSTS.ID+' - '+getHostName(cluster.HOSTS.ID)+'</li>';
+
+    var vnets_list = '<li class="clusterElemLi">'+tr("No virtual networks in this cluster")+'</li>';
+    if (cluster.VNETS.ID &&
+        cluster.VNETS.ID.constructor == Array){
+        vnets_list = '';
+        for (var i=0; i<cluster.VNETS.ID.length;i++){
+            vnets_list += '<li class="clusterElemLi">'+cluster.VNETS.ID[i]+' - '+getVNetName(cluster.VNETS.ID[i])+'</li>';
+        };
+    } else if (cluster.VNETS.ID)
+        vnets_list = '<li class="clusterElemLi">'+cluster.VNETS.ID+' - '+getVNetName(cluster.VNETS.ID)+'</li>';
+
+    var html_code = '\
+<table class="dashboard_table">\
+<tr>\
+<td style="width:50%">\
+<table style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+<h3>' + tr("Cluster information") + '</h3>\
+        <div class="panel_info">\
+\
+          <table class="info_table">\
+            <tr>\
+              <td class="key_td">' + tr("ID") + '</td>\
+              <td class="value_td">'+cluster.ID+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Name") + '</td>\
+              <td class="value_td">'+cluster.NAME+'</td>\
+            </tr>\
+          </table>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Hosts in this cluster") + '</h3>\
+        <div class="panel_info">\
+\
+          <ul>'+hosts_list+'\
+          </ul>\
+\
+      </div>\
+    </td>\
+  </tr>\
+</table>\
+</td>\
+<td style="width:50%">\
+<table style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Datastores in this cluster") + '</h3>\
+        <div class="panel_info">\
+\
+          <ul>'+dss_list+'\
+          </ul>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Virtual Networks in this cluster") + '</h3>\
+        <div class="panel_info">\
+\
+          <ul>'+vnets_list+'\
+          </ul>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+</table>\
+</td>\
+</tr></table>\
+';
+
+    return html_code;
+};
+
+function removeClusterMenus(){
+    var data = dataTable_clusters.fnGetData();
+
+    Sunstone.removeMainTab('cluster_vnets_tab_n',true);
+    Sunstone.removeMainTab('cluster_datastores_tab_n',true);
+    Sunstone.removeMainTab('cluster_hosts_tab_n',true);
+    Sunstone.removeMainTab('cluster_tab_n',true);
+
+    for (var i=0; i < data.length; i++){
+        var id = data[i][1];
+        Sunstone.removeMainTab('cluster_vnets_tab_'+id,true);
+        Sunstone.removeMainTab('cluster_datastores_tab_'+id,true);
+        Sunstone.removeMainTab('cluster_hosts_tab_'+id,true);
+        Sunstone.removeMainTab('cluster_tab_'+id,true);
+    };
+};
+
+
+function newClusterMenu(list){
+    var cluster_none = {
+        'CLUSTER' : {
+            'NAME' : 'None',
+            'ID' : 'n',
+            'DATASTORES' : [],
+            'HOSTS' : [],
+            'VNETS' : []
+        }
+    };
+
+    newClusterMenuElement(cluster_none);
+
+    for (var i=0; i < list.length; i++){
+        newClusterMenuElement(list[i]);
+    };
+    $('div#menu li#li_clusters_tab span').removeClass('ui-icon-circle-minus');
+    $('div#menu li#li_clusters_tab span').addClass('ui-icon-circle-plus');
+};
+
+function newClusterMenuElement(element){
+    var cluster = element.CLUSTER;
+    var menu_name = cluster.NAME.length > 10 ?
+        cluster.NAME.substring(0,9)+'...' : cluster.NAME;
+
+    var menu_cluster = {
+        title: menu_name + ' (id ' + cluster.ID + ')',
+        content: clusterTabContent(element),
+        tabClass: 'topTab subTab',
+        parentTab: 'clusters_tab'
+//        buttons: null
+    };
+
+    var submenu_hosts = {
+        title: tr("Hosts"),
+        content: '',
+        tabClass: "subTab clusterHosts subsubTab",
+        parentTab: "cluster_tab_" + cluster.ID
+    };
+
+    var submenu_datastores = {
+        title: tr("Datastores"),
+        content: '',
+        tabClass: "subTab clusterDatastores subsubTab",
+        parentTab: "cluster_tab_" + cluster.ID
+    };
+
+    var submenu_vnets = {
+        title: tr("Virtual Networks"),
+        content: '',
+        tabClass: "subTab clusterVnets subsubTab",
+        parentTab: "cluster_tab_" + cluster.ID
+    };
+
+    Sunstone.addMainTab('cluster_tab_'+cluster.ID,menu_cluster,true);
+    Sunstone.addMainTab('cluster_hosts_tab_'+cluster.ID,submenu_hosts,true);
+    Sunstone.addMainTab('cluster_datastores_tab_'+cluster.ID,submenu_datastores,true);
+    Sunstone.addMainTab('cluster_vnets_tab_'+cluster.ID,submenu_vnets,true);
+};
+
+function clusterSubmenusListeners(){
+    //hack  the menu selection
+    $('div#menu li.clusterHosts').live('click',function(){
+        var id = $(this).attr('id');
+        id = id.split('_');
+        id = id[id.length-1];
+        dataTable_hosts.fnFilter(getClusterName(id),3,false,true,false,true);
+        showTab('#hosts_tab',$(this).attr('id').substring(3));
+        return false;
+    });
+
+    $('div#menu li.clusterDatastores').live('click',function(){
+        var id = $(this).attr('id');
+        id = id.split('_');
+        id = id[id.length-1];
+        dataTable_datastores.fnFilter(getClusterName(id),5,false,true,false,true);
+        showTab('#datastores_tab',$(this).attr('id').substring(3));
+        return false;
+    });
+
+    $('div#menu li.clusterVnets').live('click',function(){
+        var id = $(this).attr('id');
+        id = id.split('_');
+        id = id[id.length-1];
+        dataTable_vNetworks.fnFilter(getClusterName(id),5,false,true,false,true);
+        showTab('#vnets_tab',$(this).attr('id').substring(3));
+        return false;
+    });
+};
 
 /*
 //Updates the host info panel tab's content and pops it up
@@ -459,9 +681,12 @@ function popUpCreateClusterDialog(){
 //Prepares the autorefresh for hosts
 function setClusterAutorefresh() {
     setInterval(function(){
+        var selected_menu = $('div#menu li.navigation-active-li');
+        var inSubMenu = selected_menu.attr('id').indexOf('cluster') > 0;
+
         var checked = $('input.check_item:checked',dataTable_clusters);
         var  filter = $("#datatable_clusters_filter input",dataTable_clusters.parents('#datatable_clusters_wrapper')).attr('value');
-        if (!checked.length && !filter.length){
+        if (!checked.length && !filter.length && !inSubMenu){
             Sunstone.runAction("Cluster.autorefresh");
         }
     },INTERVAL+someTime());
@@ -504,6 +729,8 @@ $(document).ready(function(){
     setupCreateClusterDialog();
 
     setClusterAutorefresh();
+
+    clusterSubmenusListeners();
 
     initCheckAllBoxes(dataTable_clusters);
     tableCheckboxesListener(dataTable_clusters);

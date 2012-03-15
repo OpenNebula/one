@@ -314,7 +314,9 @@ var datastore_info_panel = {
 var datastores_tab = {
     title: tr("Datastores"),
     content: datastores_tab_content,
-    buttons: datastore_buttons
+    buttons: datastore_buttons,
+    tabClass: "hidden",
+    showOnTopMenu: true,
 }
 
 Sunstone.addActions(datastore_actions);
@@ -683,4 +685,8 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_datastores);
     tableCheckboxesListener(dataTable_datastores);
     datastoreInfoListener();
+
+    $('div#header ul#menutop_ul li#top_datastores_tab').live('click',function(){
+        dataTable_datastores.fnFilter('',5);
+    });
 })
