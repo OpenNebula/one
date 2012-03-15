@@ -179,6 +179,7 @@ void ImageManager::release_image(int           iid,
     Image *       img;
 
     ostringstream disk_file;
+    ostringstream oss;
 
     if ( save_id.empty() == false )
     {
@@ -228,17 +229,17 @@ void ImageManager::release_image(int           iid,
 
                     if ( img == 0 )
                     {
-                        NebulaLog::log("ImM",Log::ERROR,
-                            "Could not get image to saveas disk.");
+                        oss << "Could not get image [" << sid << "] to saveas disk.";
+                        NebulaLog::log("ImM",Log::ERROR,oss);
                     }
                     else
                     {
                         disk_file << disk_path << "/disk." << disk_num;
 
                         move_image(img,disk_file.str());
-                    }
 
-                    img->unlock();
+                        img->unlock();
+                    }
                 }
             }
         break;
