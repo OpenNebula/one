@@ -801,19 +801,7 @@ var template_buttons = {
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
-    "action_list" : {
-        type: "select",
-        actions: {
-            "Template.publish" : {
-                type: "action",
-                text: tr("Publish")
-            },
-            "Template.unpublish" : {
-                type: "action",
-                text: tr("Unpublish")
-            },
-        }
-    },
+
     "Template.delete" : {
         type: "confirm",
         text: tr("Delete")
