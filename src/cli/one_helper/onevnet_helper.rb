@@ -55,11 +55,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
-                if d["CLUSTER"] == "none"
-                    "-"
-                else
-                    d["CLUSTER"]
-                end
+                OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end 
 
             column :TYPE, "Type of Virtual Network", :size=>6 do |d|
@@ -111,7 +107,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
-        puts str % ["CLUSTER", vn['CLUSTER']]
+        puts str % ["CLUSTER", OpenNebulaHelper.cluster_str(vn['CLUSTER'])]
         puts str % ["TYPE", vn.type_str]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]

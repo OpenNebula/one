@@ -126,7 +126,7 @@ module Migrator
         "  <TM_MAD>shared</TM_MAD>" <<
         "  <BASE_PATH>#{var_location}/datastores/0</BASE_PATH>" <<
         "  <CLUSTER_ID>-1</CLUSTER_ID>" <<
-        "  <CLUSTER>none</CLUSTER>" <<
+        "  <CLUSTER/>" <<
         "  <IMAGES/>" <<
         "  <TEMPLATE>" <<
         "    <DS_MAD><![CDATA[-]]></DS_MAD>" <<
@@ -169,7 +169,7 @@ module Migrator
 
             # Add Cluster elements
             doc.root.add_element("CLUSTER_ID").text = "-1"
-            doc.root.add_element("CLUSTER").text    = "none"
+            doc.root.add_element("CLUSTER").text    = ""
 
             @db[:host_pool].insert(
                 :oid            => row[:oid],
@@ -198,7 +198,7 @@ module Migrator
 
             # Add Cluster elements
             doc.root.add_element("CLUSTER_ID").text = "-1"
-            doc.root.add_element("CLUSTER").text    = "none"
+            doc.root.add_element("CLUSTER").text    = ""
 
             @db[:network_pool].insert(
                 :oid        => row[:oid],
@@ -283,7 +283,7 @@ module Migrator
         "  <TM_MAD>shared</TM_MAD>" <<
         "  <BASE_PATH>#{var_location}/datastores/1</BASE_PATH>" <<
         "  <CLUSTER_ID>-1</CLUSTER_ID>" <<
-        "  <CLUSTER>none</CLUSTER>" <<
+        "  <CLUSTER/>" <<
         images_element <<
         "  <TEMPLATE>" <<
         "    <DS_MAD><![CDATA[fs]]></DS_MAD>" <<

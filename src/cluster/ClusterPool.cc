@@ -26,7 +26,7 @@
 /* Regular ones start from ID 100                                             */
 /* -------------------------------------------------------------------------- */
 
-const string ClusterPool::NONE_CLUSTER_NAME = "none";
+const string ClusterPool::NONE_CLUSTER_NAME = "";
 const int    ClusterPool::NONE_CLUSTER_ID   = -1;
 
 /* -------------------------------------------------------------------------- */
