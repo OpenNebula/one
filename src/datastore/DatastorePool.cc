@@ -44,6 +44,7 @@ DatastorePool::DatastorePool(SqlDB * db):
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
         DatastoreTemplate * ds_tmpl;
+        Datastore *         ds;
 
         int     rc;
 
@@ -109,6 +110,18 @@ DatastorePool::DatastorePool(SqlDB * db):
         {
             goto error_bootstrap;
         }
+
+        ds = get(rc, true);
+
+        ds->set_permissions(
+                -1,-1,-1,
+                -1,-1,-1,
+                1,-1,-1,
+                error_str);
+
+        update(ds);
+
+        ds->unlock();
 
         // User created datastores will start from ID 100
         set_update_lastOID(99);

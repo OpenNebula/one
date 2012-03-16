@@ -115,7 +115,7 @@ module Migrator
         "    <OWNER_U>1</OWNER_U>" <<
         "    <OWNER_M>1</OWNER_M>" <<
         "    <OWNER_A>0</OWNER_A>" <<
-        "    <GROUP_U>0</GROUP_U>" <<
+        "    <GROUP_U>1</GROUP_U>" <<
         "    <GROUP_M>0</GROUP_M>" <<
         "    <GROUP_A>0</GROUP_A>" <<
         "    <OTHER_U>0</OTHER_U>" <<
@@ -141,7 +141,7 @@ module Migrator
             :uid        => 0,
             :gid        => 0,
             :owner_u    => 1,
-            :group_u    => 0,
+            :group_u    => 1,
             :other_u    => 0)
 
         # Last oid for cluster_pool and datastore_pool
@@ -272,7 +272,7 @@ module Migrator
         "    <OWNER_U>1</OWNER_U>" <<
         "    <OWNER_M>1</OWNER_M>" <<
         "    <OWNER_A>0</OWNER_A>" <<
-        "    <GROUP_U>0</GROUP_U>" <<
+        "    <GROUP_U>1</GROUP_U>" <<
         "    <GROUP_M>0</GROUP_M>" <<
         "    <GROUP_A>0</GROUP_A>" <<
         "    <OTHER_U>0</OTHER_U>" <<
@@ -298,7 +298,7 @@ module Migrator
             :uid        => 0,
             :gid        => 0,
             :owner_u    => 1,
-            :group_u    => 0,
+            :group_u    => 1,
             :other_u    => 0)
 
         return true

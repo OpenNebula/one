@@ -49,6 +49,8 @@ Datastore::Datastore(
             tm_mad(""),
             base_path("")
 {
+    group_u = 1;
+
     if (ds_template != 0)
     {
         obj_template = ds_template;
