@@ -198,7 +198,7 @@ class OzonesServer < CloudServer
             return [403, OZones::Error.new("Error: Couldn't update vdc. " \
                       "Hosts are not unique, use force to override").to_json]
         end
-
+        logger.debug {"----> #{vdc_data}"}
         rc = vdc.update(vdc_data[:RESOURCES])
 
         if !OpenNebula.is_error?(rc)

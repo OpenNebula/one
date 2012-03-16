@@ -77,34 +77,70 @@ class VDCHelper < OZonesHelper::OZHelper
         super(@vdc_str,id, options)
     end
 
-    def addhost(id, host_array, options)
+    def add(id, options)
         vdc = Zona::VDC.new(Zona::VDC.build_json(id), @client)
         rc  = vdc.info
 
         return [-1, rc.message] if Zona::is_error?(rc)
 
-        rc  = vdc.add_hosts(host_array, :FORCE => options[:force])
+        exit_code = 0
+        message   = ""
+
+        rc  = vdc.add_hosts(options[:hosts], :FORCE => options[:force])
 
         if Zona::is_error?(rc)
-            return [-1, rc.message]
+            message << "Error adding hosts to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
         end
 
-        [0, ""]
+        rc  = vdc.add_networks(options[:networks])
+
+        if Zona::is_error?(rc)
+            message << "Error adding networks to VDC:\n#{rc.message}\n"
+            exit_code = -1
+        end
+
+        rc  = vdc.add_datastores(options[:datastores])
+
+        if Zona::is_error?(rc)
+            message << "Error adding datastores to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
+        end
+
+        return [exit_code, message]
     end
 
-    def delhost(id, host_array)
+    def del(id, options)
         vdc = Zona::VDC.new(Zona::VDC.build_json(id), @client)
         rc  = vdc.info
 
         return [-1, rc.message] if Zona::is_error?(rc)
 
-        rc  = vdc.del_hosts(host_array)
+        exit_code = 0
+        message   = ""
+
+        rc  = vdc.del_hosts(options[:hosts])
 
         if Zona::is_error?(rc)
-            return [-1, rc.message]
+            message << "Error deleting to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
         end
 
-        [0, ""]
+        rc  = vdc.del_networks(options[:networks])
+
+        if Zona::is_error?(rc)
+            message << "Error deleting networks to VDC:\n#{rc.message}\n"
+            exit_code = -1
+        end
+
+        rc  = vdc.del_datastores(options[:datastores])
+
+        if Zona::is_error?(rc)
+            message << "Error deleting datastores to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
+        end
+
+        return [exit_code, message]
     end
 
     private
@@ -135,16 +171,36 @@ class VDCHelper < OZonesHelper::OZHelper
                 d[:ID]
             end
 
-            column :NAME, "Name of the VDC", :right, :size=>15 do |d,e|
+            column :NAME, "Name of the VDC", :left, :size=>15 do |d,e|
                 d[:NAME]
             end
 
-            column :ZONEID, "Id of the Zone where it belongs",
-            :right, :size=>40 do |d,e|
+            column :ZONE, "Id of the Zone where it belongs",
+            :right, :size=>5 do |d,e|
                 d[:ZONES_ID]
             end
 
-            default :ID, :NAME, :ZONEID
+            column :CLUSTER, "Cluster where it belongs",
+            :right, :size=>7 do |d,e|
+                d[:CLUSTER_ID]
+            end
+
+            column :HOSTS, "Number of hosts in the VDC",
+            :right, :size=>5 do |d,e|
+                d[:RESOURCES][:HOSTS].size
+            end
+
+            column :DATASTORES, "Number of datastores in the VDC",
+            :right, :size=>10 do |d,e|
+                d[:RESOURCES][:DATASTORES].size
+            end
+
+            column :NETWORKS, "Number of networks in the VDC",
+            :right, :size=>8 do |d,e|
+                d[:RESOURCES][:NETWORKS].size
+            end
+
+            default :ID, :ZONE, :CLUSTER, :NAME, :HOSTS, :NETWORKS, :DATASTORES
         end
         st.show(pool[:VDC], options)
 

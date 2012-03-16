@@ -333,12 +333,15 @@ module OZones
         end
 
         # Delete ACLs
-        def delete_acls(first_id = 0)
+        def delete_acls(first = 0)
             rsrc = @vdc.resources
 
             return if rsrc[:ACLS].nil?
 
-            rsrc[:ACLS][first_id..-1].each { |acl_id|
+            OzonesServer::logger.debug { 
+                "Deleting VDC ACL rules: #{rsrc[:ACLS][first..-1]}" }
+
+            rsrc[:ACLS][first..-1].each { |acl_id|
                 OpenNebula::Acl.new_with_id(acl_id, @client).delete
             }
         end

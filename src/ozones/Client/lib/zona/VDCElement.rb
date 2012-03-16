@@ -106,7 +106,7 @@ module Zona
         end
 
         def del_datastores(ds_array)
-            delresource(:DATASTORESS, ds_array)
+            delresource(:DATASTORES, ds_array)
         end
 
         alias :add_host :add_hosts
@@ -122,9 +122,15 @@ module Zona
 
         def addresource(type, rsrc_array, options={})
             return nil if rsrc_array.nil?
+            return nil if rsrc_array.empty?
             return Error.new('VDC not info-ed') if !@json_hash
 
+            orig_resources = self[:RESOURCES][type].clone
+
+            rsrc_array.map! {|i| i.to_i}
             self[:RESOURCES][type].concat(rsrc_array).uniq!
+
+            return nil if self[:RESOURCES][type] == orig_resources
 
             template = {
                 :ID        => @pe_id,
@@ -141,9 +147,15 @@ module Zona
 
         def delresource(type, rsrc_array)
             return nil if rsrc_array.nil?
+            return nil if rsrc_array.empty?
             return Error.new('VDC not info-ed') if !@json_hash
 
+            orig_resources = self[:RESOURCES][type].clone
+
+            rsrc_array.map! {|i| i.to_i}
             self[:RESOURCES][type] = self[:RESOURCES][type] - rsrc_array
+
+            return nil if self[:RESOURCES][type] == orig_resources
 
             template = {
                 :VDC => {
@@ -156,7 +168,5 @@ module Zona
             return rc if Zona.is_error?(rc)
             nil
         end
-
-
     end
 end
