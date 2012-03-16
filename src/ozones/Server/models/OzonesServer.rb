@@ -192,13 +192,13 @@ class OzonesServer < CloudServer
         vdc_data[:CLUSTER_ID] = vdc.vdc.CLUSTER_ID
         vdc_data[:ID]         = vdc.vdc.ID
 
-        force  = vdc_data.delete(:FORCE)
+        force = vdc_data.delete(:FORCE)
 
         if (!force or force.upcase!="YES") and !host_unique?(vdc.zone, vdc_data)
             return [403, OZones::Error.new("Error: Couldn't update vdc. " \
                       "Hosts are not unique, use force to override").to_json]
         end
-        logger.debug {"----> #{vdc_data}"}
+
         rc = vdc.update(vdc_data[:RESOURCES])
 
         if !OpenNebula.is_error?(rc)

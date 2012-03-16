@@ -338,9 +338,6 @@ module OZones
 
             return if rsrc[:ACLS].nil?
 
-            OzonesServer::logger.debug { 
-                "Deleting VDC ACL rules: #{rsrc[:ACLS][first..-1]}" }
-
             rsrc[:ACLS][first..-1].each { |acl_id|
                 OpenNebula::Acl.new_with_id(acl_id, @client).delete
             }
