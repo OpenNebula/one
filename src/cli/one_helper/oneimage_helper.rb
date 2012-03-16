@@ -67,6 +67,11 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OneImageHelper.type_to_str(d["TYPE"])
             end
 
+            column :REGTIME, "Registration time of the Image",
+                    :size=>20 do |d|
+                OpenNebulaHelper.time_to_str(d["REGTIME"])
+            end
+            
             column :PERSISTENT, "Whether the Image is persistent or not",
                     :size=>3 do |d|
                 OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])

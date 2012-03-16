@@ -270,26 +270,22 @@ EOT
         def self.parse_error(value, kind)
             if Zona.is_error?(value)
                 return value
-            else
-                if Zona.is_http_error?(value)
-                    str = "Operating with #{kind} failed with HTTP error"
-                    str += " code: #{value.code}\n"
-                    if value.body
-                        # Try to extract error message
-                        begin
-                            str << "Body: " <<
-                                OZonesJSON.parse_json(value.body,
-                                                      "error")["message"]
-                        rescue
-                            str.gsub!("\nBody:","")
-                        end
-                    end
-                    return Error.new(str)
-                end
             end
+
+            if Zona.is_http_error?(value)
+                str = "Operating with #{kind} failed with HTTP error"
+                str += " code: #{value.code}\n"
+
+                if value.body
+                    ehash = OZonesJSON.parse_json(value.body,"error")
+                    str  << ehash[:message] if !ehash.nil?
+                end
+
+                return Error.new(str)
+            end
+
             value # If it is not an error, return it as-is
         end
-
     end
 
     # Parses a OpenNebula template string and turns it into a JSON string

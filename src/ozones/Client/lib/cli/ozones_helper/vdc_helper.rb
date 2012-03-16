@@ -49,6 +49,9 @@ class VDCHelper < OZonesHelper::OZHelper
         tmpl_hash["RESOURCES"] = { "HOSTS"      => eval("[#{hosts}]"), 
                                    "DATASTORES" => eval("[#{ds}]"),
                                    "NETWORKS"   => eval("[#{nets}]") }
+        if options[:force]
+            tmpl_hash["FORCE"] = "YES"
+        end
 
         vdc = { "#{@vdc_str.upcase}" => tmpl_hash }
 

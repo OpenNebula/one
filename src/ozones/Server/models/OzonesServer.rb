@@ -90,8 +90,11 @@ class OzonesServer < CloudServer
                                            "Reason: #{data.message}.").to_json]
         end
 
+        #-----------------------------------------------------------------------
         #Get the Zone that will host the VDC. And check resouces
+        #-----------------------------------------------------------------------
         zoneid = vdc_data.delete(:ZONE_ID)
+        force  = vdc_data.delete(:FORCE)
 
         if !zoneid
             return [400, OZones::Error.new("Error: Couldn't create vdc. " \
@@ -104,7 +107,14 @@ class OzonesServer < CloudServer
                                     "Zone #{zoneid} not found.").to_json]
         end
 
+        if (!force or force.upcase != "YES") and !host_unique?(zone, vdc_data)
+            return [403, OZones::Error.new("Error: Couldn't create vdc. " \
+                         "Hosts are not unique, use force to override").to_json]
+        end
+
+        #-----------------------------------------------------------------------
         # Create de VDC
+        #-----------------------------------------------------------------------
         vdc = OZones::OpenNebulaVdc.new(-1,zone)
         rc  = vdc.create(vdc_data)
 
@@ -113,7 +123,9 @@ class OzonesServer < CloudServer
                                            "Reason: #{rc.message}").to_json]
         end
 
+        #-----------------------------------------------------------------------
         #Update the zone and save the vdc
+        #-----------------------------------------------------------------------
         zone.raise_on_save_failure = true
         zone.vdcs << vdc.vdc
 
@@ -160,17 +172,16 @@ class OzonesServer < CloudServer
         if OpenNebula.is_error?(vdc_data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
                                            "Reason: #{data.message}.").to_json]
-        end
-
-        rsrc  = vdc_data.delete(:RESOURCES)
-
-        # Check parameters
-        if !rsrc
+        end        
+        
+        #-----------------------------------------------------------------------
+        # Check parameters & VDC
+        #-----------------------------------------------------------------------
+        if !vdc_data[:RESOURCES]
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
                                            "Missing RESOURCES.").to_json]
         end
 
-        # Check if the referenced Vdc exists
         begin
             vdc  = OZones::OpenNebulaVdc.new(vdc_id)
         rescue => e
@@ -178,7 +189,17 @@ class OzonesServer < CloudServer
                                            "#{e.message}").to_json]
         end
 
-        rc = vdc.update(rsrc)
+        vdc_data[:CLUSTER_ID] = vdc.CLUSTER_ID
+        vdc_data[:ID]         = vdc.ID
+
+        force  = vdc_data.delete(:FORCE)
+
+        if (!force or force.upcase!="YES") and !host_unique?(vdc.zone, vdc_data)
+            return [403, OZones::Error.new("Error: Couldn't update vdc. " \
+                      "Hosts are not unique, use force to override").to_json]
+        end
+
+        rc = vdc.update(vdc_data[:RESOURCES])
 
         if !OpenNebula.is_error?(rc)
             return [200, rc]
@@ -215,9 +236,8 @@ class OzonesServer < CloudServer
         if zone
             rc = zone.destroy
         else
-            return [404, 
-                    OZones::Error.new("Error: Cannot delete " \
-                                      "zone. Reason: zone #{id} not found").to_json]
+            return [404, OZones::Error.new("Error: Cannot delete " \
+                                "zone. Reason: zone #{id} not found").to_json]
         end
 
         if !rc
@@ -227,5 +247,36 @@ class OzonesServer < CloudServer
             pr.update # Rewrite proxy conf file
             return [200, OZones.str_to_json("Zone #{id} successfully deleted")]
         end
+    end
+
+    ############################################################################
+    # Misc Helper Functions
+    ############################################################################
+    private
+
+    # Check if hosts are already include in any Vdc of the zone
+    def host_unique?(zone, vdc_data)
+
+        hosts = vdc_data[:RESOURCES][:HOSTS]
+        c_id  = vdc_data[:CLUSTER_ID]
+
+        return true if hosts.empty?
+
+        all_hosts = Array.new
+
+        zone.vdcs.all(:CLUSTER_ID =>c_id).each{ |vdc|
+
+            rsrc = vdc.resources 
+
+            if !rsrc[:HOSTS].empty? and vdc.ID != vdc_data[:ID]
+                all_hosts.concat(rsrc[:HOSTS])
+            end
+        }
+
+        hosts.each{|hid|
+            return false if all_hosts.include?(hid)
+        }
+
+        return true
     end
 end

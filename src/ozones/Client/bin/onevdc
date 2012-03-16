@@ -43,6 +43,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     set :option, CommandParser::OPTIONS
 
+    FORCE={
+        :name => "force",
+        :short => "-f",
+        :large => "--force",
+        :description => "Force the usage of Hosts in more than one VDC"
+    }
+
     begin
         helper = VDCHelper.new "vdc"
     rescue Exception => e
@@ -50,7 +57,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         exit -1
     end
 
-    command :create, 'Create a new VDC', :file do
+    command :create, 'Create a new VDC', :file, :options=>[FORCE] do
         helper.create_resource(args[0], options)
     end
 
