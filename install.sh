@@ -1154,6 +1154,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/datastores-tab.js \
                         src/sunstone/public/js/plugins/system-tab.js \
                         src/sunstone/public/js/plugins/vresources-tab.js \
+                        src/sunstone/public/js/plugins/infra-tab.js \
                         src/sunstone/public/js/plugins/groups-tab.js \
                         src/sunstone/public/js/plugins/images-tab.js \
                         src/sunstone/public/js/plugins/templates-tab.js \

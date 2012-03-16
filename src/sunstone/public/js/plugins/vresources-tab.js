@@ -46,6 +46,7 @@ var vres_tab_content =
             <tr>\
               <td class="key_td">' + tr("Images") + '</td>\
               <td class="value_td"><span id="vres_total_images"></span></td>\
+            </tr>\
           </table>\
 \
         </div>\

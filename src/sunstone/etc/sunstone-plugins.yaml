@@ -49,6 +49,10 @@
     :ALL: true
     :user:
     :group:
+- plugins/infra-tab.js:
+    :ALL: true
+    :user:
+    :group:
 - plugins/hosts-tab.js:
     :ALL: false
     :user:
@@ -67,4 +71,3 @@
     :user:
     :group:
         oneadmin: true
-

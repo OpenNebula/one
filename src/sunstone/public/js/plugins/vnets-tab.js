@@ -458,8 +458,9 @@ var vnets_tab = {
     title: tr("Virtual Networks"),
     content: vnets_tab_content,
     buttons: vnet_buttons,
-    tabClass: "hidden",
-    showOnTopMenu: true,
+    tabClass: "subTab",
+    parentTab: "infra_tab",
+    showOnTopMenu: false,
 }
 
 Sunstone.addActions(vnet_actions);
@@ -485,7 +486,7 @@ function vNetworkElementArray(vn_json){
         network.UNAME,
         network.GNAME,
         network.NAME,
-        network.CLUSTER,
+        network.CLUSTER.length ? network.CLUSTER : "-",
         parseInt(network.TYPE) ? "FIXED" : "RANGED",
         network.BRIDGE,
         network.TOTAL_LEASES ];
@@ -542,6 +543,7 @@ function updateVNetworksView(request, network_list){
     updateView(network_list_array,dataTable_vNetworks);
     //dependency with dashboard
     updateDashboard("vnets",network_list);
+    updateInfraDashboard("vnets",network_list);
 
 }
 
@@ -564,7 +566,7 @@ function updateVNetworkInfo(request,vn){
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Cluster")+'</td>\
-              <td class="value_td">'+vn_info.CLUSTER+'</td>\
+              <td class="value_td">'+(network.CLUSTER.length ? network.CLUSTER : "-")+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Owner")+'</td>\
@@ -1200,7 +1202,7 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_vNetworks);
     vNetworkInfoListener();
 
-    $('div#header ul#menutop_ul li#top_vnets_tab').live('click',function(){
+    $('div#menu li#li_vnets_tab').live('click',function(){
         dataTable_vNetworks.fnFilter('',5);
     });
 });

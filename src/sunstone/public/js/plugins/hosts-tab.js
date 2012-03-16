@@ -319,8 +319,9 @@ var hosts_tab = {
     title: tr("Hosts"),
     content: hosts_tab_content,
     buttons: host_buttons,
-    tabClass: "hidden",
-    showOnTopMenu: true,
+    tabClass: "subTab",
+    parentTab: "infra_tab",
+    showOnTopMenu: false,
 };
 
 Sunstone.addActions(host_actions);
@@ -380,7 +381,7 @@ function hostElementArray(host_json){
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
         host.ID,
         host.NAME,
-        host.CLUSTER,
+        host.CLUSTER.length ? host.CLUSTER : "-",
         host.HOST_SHARE.RUNNING_VMS, //rvm
         pb_cpu,
         pb_mem,
@@ -448,6 +449,7 @@ function updateHostsView (request,host_list){
     updateHostSelect();
     //dependency with the dashboard plugin
     updateDashboard("hosts",host_list);
+    updateInfraDashboard("hosts",host_list);
 }
 
 //Updates the host info panel tab's content and pops it up
@@ -473,7 +475,7 @@ function updateHostInfo(request,host){
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("Cluster") + '</td>\
-                <td class="value_td">'+host_info.CLUSTER+'</td>\
+                <td class="value_td">'+(host.CLUSTER.length ? host.CLUSTER : "-")+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("State") + '</td>\
@@ -668,7 +670,7 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_hosts);
     hostInfoListener();
 
-    $('div#header ul#menutop_ul li#top_hosts_tab').live('click',function(){
+    $('div#menu li#li_hosts_tab').live('click',function(){
         dataTable_hosts.fnFilter('',3);
     });
 });

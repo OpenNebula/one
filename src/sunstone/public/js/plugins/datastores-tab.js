@@ -315,8 +315,9 @@ var datastores_tab = {
     title: tr("Datastores"),
     content: datastores_tab_content,
     buttons: datastore_buttons,
-    tabClass: "hidden",
-    showOnTopMenu: true,
+    tabClass: "subTab",
+    parentTab: "infra_tab",
+    showOnTopMenu: false,
 }
 
 Sunstone.addActions(datastore_actions);
@@ -341,7 +342,7 @@ function datastoreElementArray(element_json){
         element.UNAME,
         element.GNAME,
         element.NAME,
-        element.CLUSTER
+        element.CLUSTER.length ? element.CLUSTER : "-"
     ];
 }
 
@@ -399,6 +400,7 @@ function updateDatastoresView(request, list){
     updateView(list_array,dataTable_datastores);
     updateDatastoreSelect();
     updateDashboard("datastores",list);
+    updateInfraDashboard("datastores",list);
 }
 
 
@@ -441,7 +443,7 @@ function updateDatastoreInfo(request,ds){
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Cluster")+'</td>\
-                 <td class="value_td">'+info.CLUSTER+'</td>\
+                 <td class="value_td">'+(element.CLUSTER.length ? element.CLUSTER : "-")+'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("DS Mad")+'</td>\
@@ -686,7 +688,7 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_datastores);
     datastoreInfoListener();
 
-    $('div#header ul#menutop_ul li#top_datastores_tab').live('click',function(){
+    $('div#menu li#li_datastores_tab').live('click',function(){
         dataTable_datastores.fnFilter('',5);
     });
 })
