@@ -78,25 +78,12 @@ class VDCHelper < OZonesHelper::OZHelper
     end
 
     def addhost(id, host_array, options)
-        rc = @client.get_resource(@vdc_str, id)
+        vdc = Zona::VDC.new(Zona::VDC.build_json(id), @client)
+        rc  = vdc.info
 
-        if Zona::is_error?(rc)
-            return [-1, rc.message]
-        else
-            vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
-        end
+        return [-1, rc.message] if Zona::is_error?(rc)
 
-        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
-        host_array.concat(hosts).uniq!
-
-        new_host = host_array.join(',')
-        template = "ID=#{id}\nHOSTS=#{new_host}\n"
-
-        if options[:force]
-            template << "FORCE=YES\n"
-        end
-
-        rc = @client.put_resource_str(@vdc_str, id, template)
+        rc  = vdc.add_hosts(host_array, :FORCE => options[:force])
 
         if Zona::is_error?(rc)
             return [-1, rc.message]
@@ -105,23 +92,15 @@ class VDCHelper < OZonesHelper::OZHelper
         [0, ""]
     end
 
-    def delhost(id, host_array, options)
-        rc = @client.get_resource(@vdc_str, id)
+    def delhost(id, host_array)
+        vdc = Zona::VDC.new(Zona::VDC.build_json(id), @client)
+        rc  = vdc.info
+
+        return [-1, rc.message] if Zona::is_error?(rc)
+
+        rc  = vdc.del_hosts(host_array)
 
         if Zona::is_error?(rc)
-            return [-1, rc.message]
-        else
-            vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
-        end
-
-        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
-
-        new_host = (hosts - host_array).join(',')
-        template = "ID=#{id}\nHOSTS=#{new_host}\n"
-
-        rc = @client.put_resource_str(@vdc_str, id, template)
-
-        if Zona.is_error?(rc)
             return [-1, rc.message]
         end
 
