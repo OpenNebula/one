@@ -292,11 +292,11 @@ error_mkfs:
     goto error_common;
 
 error_rm:
-    image->unlock();
-
     os.str("");
-    os << "Error removing image from repository. Remove file " << source
-       << "  to completely delete image.";
+    os << "Error removing image from repository. Remove file " << image->get_source()
+       << " to completely delete image.";
+
+    image->unlock();
 
     getline(is,info);
 
