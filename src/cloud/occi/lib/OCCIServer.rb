@@ -446,7 +446,7 @@ class OCCIServer < CloudServer
         template = image.to_one_template
         return template, 500 if OpenNebula.is_error?(template)
 
-        rc = image.allocate(template, @config[:datastore_id]||1t)
+        rc = image.allocate(template, @config[:datastore_id]||1)
         if OpenNebula.is_error?(rc)
             return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
