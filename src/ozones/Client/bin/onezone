@@ -65,7 +65,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     show_desc = <<-EOT.unindent
         Show information of a particular Zone
-        Available resources: host, vm, image, vnet, vmtemplate, user
+        Available resources: host, vm, image, vnet, vmtemplate,
+                             user, cluster, datastore
         Examples:
           onezone show 4
           onezone show 4 host
@@ -95,6 +96,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             aux_helper  = OneTemplateHelper.new
         when "user"
             aux_helper  = OneUserHelper.new
+        when "cluster"
+            aux_helper  = OneClusterHelper.new
+        when "datastore"
+            aux_helper  = OneDatastoreHelper.new
         else
             puts "\n:!: Pool #{args[1]} doesn't exist or is not supported\n\n"
             next 0
@@ -102,7 +107,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         pool_hash_data = helper.get_resource_pool("zone", args[0], args[1],
                                                   options)
-
         if pool_hash_data[0] != 0
             puts "\nError retrieving information for pool #{args[1]}. Reason: " + pool_hash_data[1] + "\n\n"
             next 0
@@ -122,6 +126,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         else
             pool_hash_data[1].each{|hash| hash.replace(Hash.transform_keys_to_strings(hash))}
         end
+
+        puts
+        str_h1="%-61s"
+        CLIHelper.print_header(str_h1 % ["ZONE VIEW - #{args[1]}"],false)
 
         table = aux_helper.format_pool(options)
         table.show(pool_hash_data[1])
