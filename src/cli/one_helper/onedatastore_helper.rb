@@ -57,11 +57,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
-                if d["CLUSTER"] == "none"
-                    "-"
-                else
-                    d["CLUSTER"]
-                end
+                OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end
 
             column :IMAGES, "Number of Images", :left, :size=>6 do |d|
@@ -111,8 +107,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME",     datastore.name]
         puts str % ["USER",     datastore['UNAME']]
         puts str % ["GROUP",    datastore['GNAME']]
-        puts str % ["CLUSTER",  datastore['CLUSTER']]
-        puts str % ["CLUSTER_ID",  datastore['CLUSTER_ID']]
+        puts str % ["CLUSTER",  OpenNebulaHelper.cluster_str(datastore['CLUSTER'])]
 
         puts str % ["DS_MAD",   datastore['DS_MAD']]
         puts str % ["TM_MAD",   datastore['TM_MAD']]

@@ -79,7 +79,7 @@ class EC2QueryServer < CloudServer
             return OpenNebula::Error.new('Unsupported'), 400
         end
 
-        rc = image.allocate(template)
+        rc = image.allocate(template, @config[:datastore_id]||1)
         if OpenNebula.is_error?(rc)
             return OpenNebula::Error.new('Unsupported'), 400
         end

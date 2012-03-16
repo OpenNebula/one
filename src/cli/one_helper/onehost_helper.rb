@@ -44,11 +44,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
-                if d["CLUSTER"] == "none"
-                    "-"
-                else
-                    d["CLUSTER"]
-                end
+                OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end
 
             column :RVM, "Number of Virtual Machines running", :size=>6 do |d|
@@ -126,7 +122,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         puts str % ["ID", host.id.to_s]
         puts str % ["NAME", host.name]
-        puts str % ["CLUSTER", host['CLUSTER']]
+        puts str % ["CLUSTER", OpenNebulaHelper.cluster_str(host['CLUSTER'])]
         puts str % ["STATE", host.state_str]
         puts str % ["IM_MAD", host['IM_MAD']]
         puts str % ["VM_MAD", host['VM_MAD']]

@@ -399,6 +399,18 @@ EOT
         end
     end
 
+    # If the cluster name is empty, returns a '-' char.
+    #
+    # @param str [String || Hash] Cluster name, or empty Hash (when <CLUSTER/>)
+    # @return [String] the same Cluster name, or '-' if it is empty
+    def OpenNebulaHelper.cluster_str(str)
+        if str != nil && !str.empty?
+            str
+        else
+            "-"
+        end
+    end
+
     def OpenNebulaHelper.update_template(id, resource)
         require 'tempfile'
 

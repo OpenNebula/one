@@ -115,7 +115,7 @@ module Migrator
         "    <OWNER_U>1</OWNER_U>" <<
         "    <OWNER_M>1</OWNER_M>" <<
         "    <OWNER_A>0</OWNER_A>" <<
-        "    <GROUP_U>0</GROUP_U>" <<
+        "    <GROUP_U>1</GROUP_U>" <<
         "    <GROUP_M>0</GROUP_M>" <<
         "    <GROUP_A>0</GROUP_A>" <<
         "    <OTHER_U>0</OTHER_U>" <<
@@ -126,7 +126,7 @@ module Migrator
         "  <TM_MAD>shared</TM_MAD>" <<
         "  <BASE_PATH>#{var_location}/datastores/0</BASE_PATH>" <<
         "  <CLUSTER_ID>-1</CLUSTER_ID>" <<
-        "  <CLUSTER>none</CLUSTER>" <<
+        "  <CLUSTER/>" <<
         "  <IMAGES/>" <<
         "  <TEMPLATE>" <<
         "    <DS_MAD><![CDATA[-]]></DS_MAD>" <<
@@ -141,7 +141,7 @@ module Migrator
             :uid        => 0,
             :gid        => 0,
             :owner_u    => 1,
-            :group_u    => 0,
+            :group_u    => 1,
             :other_u    => 0)
 
         # Last oid for cluster_pool and datastore_pool
@@ -169,7 +169,7 @@ module Migrator
 
             # Add Cluster elements
             doc.root.add_element("CLUSTER_ID").text = "-1"
-            doc.root.add_element("CLUSTER").text    = "none"
+            doc.root.add_element("CLUSTER").text    = ""
 
             @db[:host_pool].insert(
                 :oid            => row[:oid],
@@ -198,7 +198,7 @@ module Migrator
 
             # Add Cluster elements
             doc.root.add_element("CLUSTER_ID").text = "-1"
-            doc.root.add_element("CLUSTER").text    = "none"
+            doc.root.add_element("CLUSTER").text    = ""
 
             @db[:network_pool].insert(
                 :oid        => row[:oid],
@@ -272,7 +272,7 @@ module Migrator
         "    <OWNER_U>1</OWNER_U>" <<
         "    <OWNER_M>1</OWNER_M>" <<
         "    <OWNER_A>0</OWNER_A>" <<
-        "    <GROUP_U>0</GROUP_U>" <<
+        "    <GROUP_U>1</GROUP_U>" <<
         "    <GROUP_M>0</GROUP_M>" <<
         "    <GROUP_A>0</GROUP_A>" <<
         "    <OTHER_U>0</OTHER_U>" <<
@@ -283,7 +283,7 @@ module Migrator
         "  <TM_MAD>shared</TM_MAD>" <<
         "  <BASE_PATH>#{var_location}/datastores/1</BASE_PATH>" <<
         "  <CLUSTER_ID>-1</CLUSTER_ID>" <<
-        "  <CLUSTER>none</CLUSTER>" <<
+        "  <CLUSTER/>" <<
         images_element <<
         "  <TEMPLATE>" <<
         "    <DS_MAD><![CDATA[fs]]></DS_MAD>" <<
@@ -298,7 +298,7 @@ module Migrator
             :uid        => 0,
             :gid        => 0,
             :owner_u    => 1,
-            :group_u    => 0,
+            :group_u    => 1,
             :other_u    => 0)
 
         return true
