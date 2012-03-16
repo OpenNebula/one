@@ -278,7 +278,8 @@ EOT
 
                 if value.body
                     ehash = OZonesJSON.parse_json(value.body,"error")
-                    str  << ehash[:message] if !ehash.nil?
+
+                    str << ehash[:message] if !ehash.nil? or !Zona.is_error?(ehash)
                 end
 
                 return Error.new(str)

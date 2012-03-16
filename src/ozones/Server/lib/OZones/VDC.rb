@@ -242,7 +242,7 @@ module OZones
             # ------------------------------------------------------------------
             delete_resource_acls
 
-            acls = @vcd.resources[:ACLS]
+            acls = @vdc.resources[:ACLS]
 
             acls.slice!(RESOURCE_ACL_FIRST_ID..-1)
 
@@ -255,8 +255,7 @@ module OZones
 
                 return rc if OpenNebula.is_error?(rc)
 
-                acls << acls_id
-
+                acls.concat(acls_ids)
             end
 
             rsrc_hash[:ACLS] = acls

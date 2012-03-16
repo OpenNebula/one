@@ -189,8 +189,8 @@ class OzonesServer < CloudServer
                                            "#{e.message}").to_json]
         end
 
-        vdc_data[:CLUSTER_ID] = vdc.CLUSTER_ID
-        vdc_data[:ID]         = vdc.ID
+        vdc_data[:CLUSTER_ID] = vdc.vdc.CLUSTER_ID
+        vdc_data[:ID]         = vdc.vdc.ID
 
         force  = vdc_data.delete(:FORCE)
 
@@ -265,7 +265,6 @@ class OzonesServer < CloudServer
         all_hosts = Array.new
 
         zone.vdcs.all(:CLUSTER_ID =>c_id).each{ |vdc|
-
             rsrc = vdc.resources 
 
             if !rsrc[:HOSTS].empty? and vdc.ID != vdc_data[:ID]
