@@ -37,7 +37,7 @@ class CloudServer
     ##########################################################################
     # Public attributes
     ##########################################################################
-    attr_reader :config, :logger
+    attr_reader :config
 
     # Initializes the Cloud server based on a config file
     # config_file:: _String_ for the server. MUST include the following
@@ -47,9 +47,18 @@ class CloudServer
     #   XMLRPC
     def initialize(config, logger=nil)
         # --- Load the Cloud Server configuration file ---
-        @config = config
-        @logger = logger
+        @config  = config
+        @@logger = logger
     end
+
+    def self.logger
+        return @@logger
+    end
+
+    def logger
+        return @@logger
+    end
+
     #
     # Prints the configuration of the server
     #

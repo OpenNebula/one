@@ -224,11 +224,7 @@ EOT
             return Client.parse_error(res, kind)
         end
 
-
-
         private
-
-
 
         # Starts an http connection and calls the block provided. SSL flag
         # is set if needed.
@@ -295,7 +291,6 @@ EOT
         end
 
     end
-
 
     # Parses a OpenNebula template string and turns it into a JSON string
     # @param [String] kind element kind

@@ -15,9 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'CloudServer'
-
 require 'JSONUtils'
-
 
 class OzonesServer < CloudServer
     include OpenNebulaJSON::JSONUtils
@@ -93,27 +91,17 @@ class OzonesServer < CloudServer
         end
 
         #Get the Zone that will host the VDC. And check resouces
-        zoneid = vdc_data.delete(:ZONEID)
-        force  = vdc_data.delete(:FORCE)
+        zoneid = vdc_data.delete(:ZONE_ID)
 
         if !zoneid
-            return [400, 
-                    OZones::Error.new("Error: Couldn't create vdc. " \
-                                      "Mandatory attribute zoneid missing.").to_json]
+            return [400, OZones::Error.new("Error: Couldn't create vdc. " \
+                                "Mandatory attribute zoneid missing.").to_json]
         end
 
         zone = OZones::Zones.get(zoneid)
         if !zone
             return [404, OZones::Error.new("Error: Couldn't create vdc. " \
-                                           "Zone #{zoneid} not found.").to_json]
-        end
-
-        if (!force or force.upcase!="YES") and
-                !host_uniqueness?(zone, vdc_data[:HOSTS])
-
-            return [403, 
-                    OZones::Error.new("Error: Couldn't create vdc. " \
-                                      "Hosts are not unique, use force to override").to_json]
+                                    "Zone #{zoneid} not found.").to_json]
         end
 
         # Create de VDC
@@ -132,11 +120,11 @@ class OzonesServer < CloudServer
         begin
             zone.save
         rescue => e
-            vdc.clean_bootstrap
+            #vdc.clean_bootstrap
+            logger.error {"create_vdc: #{e.resource.errors.inspect}"}
 
-            return [400, 
-                    OZones::Error.new("Error: Couldn't create " \
-                                      "vdc. Zone could not be saved: #{e.message}").to_json]
+            return [400, OZones::Error.new("Error: Couldn't create " \
+                          "vdc. Zone could not be saved: #{e.message}").to_json]
         end
 
         pr.update # Rewrite proxy conf file
@@ -174,13 +162,12 @@ class OzonesServer < CloudServer
                                            "Reason: #{data.message}.").to_json]
         end
 
-        hosts  = vdc_data.delete(:HOSTS)
-        force  = vdc_data.delete(:FORCE)
+        rsrc  = vdc_data.delete(:RESOURCES)
 
         # Check parameters
-        if !hosts
+        if !rsrc
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
-                                           "Missing HOSTS.").to_json]
+                                           "Missing RESOURCES.").to_json]
         end
 
         # Check if the referenced Vdc exists
@@ -191,15 +178,7 @@ class OzonesServer < CloudServer
                                            "#{e.message}").to_json]
         end
 
-        if (!force or force.upcase != "YES") and
-                !host_uniqueness?(vdc.zone, hosts, vdc_id.to_i)
-
-            return [403, 
-                    OZones::Error.new("Error: Couldn't update vdc. " \
-                                      "Hosts are not unique, use force to override").to_json]
-        end
-
-        rc = vdc.update(hosts)
+        rc = vdc.update(rsrc)
 
         if !OpenNebula.is_error?(rc)
             return [200, rc]
@@ -248,30 +227,5 @@ class OzonesServer < CloudServer
             pr.update # Rewrite proxy conf file
             return [200, OZones.str_to_json("Zone #{id} successfully deleted")]
         end
-    end
-
-    ############################################################################
-    # Misc Helper Functions
-    ############################################################################
-    private
-
-    # Check if hosts are already include in any Vdc of the zone
-    def host_uniqueness?(zone, host_list, vdc_id = -1)
-        return true if host_list.empty?
-
-        all_hosts = ""
-        zone.vdcs.all.each{|vdc|
-            if vdc.HOSTS != nil and !vdc.HOSTS.empty? and vdc.id != vdc_id
-                all_hosts << ',' << vdc.HOSTS
-            end
-        }
-
-        all_hosts = all_hosts.split(',')
-
-        host_list.split(",").each{|host|
-            return false if all_hosts.include?(host)
-        }
-
-        return true
     end
 end

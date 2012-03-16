@@ -17,7 +17,14 @@
 require 'cli/ozones_helper'
 require 'cli/one_helper'
 
+require 'zona'
+
 class VDCHelper < OZonesHelper::OZHelper
+    NAME_REG = /[\w\d_-]+/
+    VAR_REG  = /\s*(#{NAME_REG})\s*=\s*/
+
+    SVAR_REG = /^#{VAR_REG}([^\[]+?)(#.*)?$/
+
     def initialize(kind, user=nil, pass=nil, endpoint_str=nil,
                    timeout=nil, debug_flag=true)
         @vdc_str = kind
@@ -25,13 +32,27 @@ class VDCHelper < OZonesHelper::OZHelper
     end
 
     def create_resource(template, options)
-        tmpl_str = File.read(template)
+        tmpl_str  = File.read(template)
+        tmpl_hash = Hash.new
 
-        if options[:force]
-            tmpl_str << "FORCE=YES\n"
+        tmpl_str.scan(SVAR_REG) do | m |
+            key   = m[0].strip.upcase
+            value = m[1].strip
+
+            tmpl_hash[key] = value
         end
 
-        rc = @client.post_resource_str(@vdc_str, tmpl_str)
+        hosts = tmpl_hash.delete("HOSTS")
+        ds    = tmpl_hash.delete("DATASTORES")
+        nets  = tmpl_hash.delete("NETWORKS")
+
+        tmpl_hash["RESOURCES"] = { "HOSTS"      => eval("[#{hosts}]"), 
+                                   "DATASTORES" => eval("[#{ds}]"),
+                                   "NETWORKS"   => eval("[#{nets}]") }
+
+        vdc = { "#{@vdc_str.upcase}" => tmpl_hash }
+
+        rc  = @client.post_resource(@vdc_str,Zona::OZonesJSON.to_json(vdc))
 
         if Zona::is_error?(rc)
             [-1, rc.message]
@@ -108,16 +129,19 @@ class VDCHelper < OZonesHelper::OZHelper
 
     def format_resource(vdc, options)
         str_h1="%-60s"
-        str="%-10s: %-20s"
+        str="%-12s: %-20s"
 
         CLIHelper.print_header(str_h1 % ["VDC #{vdc['name']} INFORMATION"])
 
-        puts str % ["ID ",       vdc[:ID].to_s]
-        puts str % ["NAME ",     vdc[:NAME].to_s]
-        puts str % ["GROUP_ID ", vdc[:GROUP_ID].to_s]
-        puts str % ["ZONEID ",   vdc[:ZONES_ID].to_s]
-        puts str % ["VDCADMIN ", vdc[:VDCADMINNAME].to_s]
-        puts str % ["HOST IDs ", vdc[:HOSTS].to_s]
+        puts str % ["ID ",          vdc[:ID].to_s]
+        puts str % ["NAME ",        vdc[:NAME].to_s]
+        puts str % ["ZONE_ID ",     vdc[:ZONES_ID].to_s]
+        puts str % ["CLUSTER_ID ",  vdc[:CLUSTER_ID].to_s]
+        puts str % ["GROUP_ID ",    vdc[:GROUP_ID].to_s]
+        puts str % ["VDCADMIN ",    vdc[:VDCADMINNAME].to_s]
+        puts str % ["HOSTS ",      vdc[:RESOURCES][:HOSTS].to_s]
+        puts str % ["DATASTORES ", vdc[:RESOURCES][:DATASTORES].to_s]
+        puts str % ["NETWORKS ",   vdc[:RESOURCES][:NETWORKS].to_s]
         puts
 
         return 0
