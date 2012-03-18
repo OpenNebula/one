@@ -148,11 +148,15 @@ module OZones
             vdcpass = vdc_data.delete(:VDCADMINPASS)
 
             #-------------------------------------------------------------------
-            # Create a vdc record
+            # Create a vdc record & check cluster consistency
             #-------------------------------------------------------------------
             @vdc = Vdc.new
 
             @vdc.attributes = vdc_data
+
+            rc   = resources_in_cluster?(rsrc)
+
+            return rc if OpenNebula.is_error?(rc)
 
             #-------------------------------------------------------------------
             # Create a group in the zone with the VDC name
@@ -202,6 +206,9 @@ module OZones
             return true
         end
 
+        #######################################################################
+        #
+        #######################################################################
         def destroy
             #-------------------------------------------------------------------
             # Delete the resources from the VDC
@@ -228,7 +235,9 @@ module OZones
             return @vdc.destroy
         end
 
-        #Cleans bootstrap operations in a zone
+        #######################################################################
+        # Cleans bootstrap operations in a zone
+        #######################################################################
         def clean_bootstrap
             delete_acls
 
@@ -236,7 +245,17 @@ module OZones
             OpenNebula::Group.new_with_id(@vdc.GROUP_ID, @client).delete
         end
 
+        #######################################################################
+        #
+        #######################################################################
         def update(rsrc_hash)
+            #-------------------------------------------------------------------
+            # Check cluster consistency
+            #-------------------------------------------------------------------
+            rc   = resources_in_cluster?(rsrc_hash)
+
+            return rc if OpenNebula.is_error?(rc)
+
             # ------------------------------------------------------------------
             # Delete existing host ACLs
             # ------------------------------------------------------------------
@@ -407,6 +426,32 @@ module OZones
             }
 
             return rc, acls_ids
+        end
+
+        #
+        #
+        #
+        def resources_in_cluster?(rsrc_hash)
+            cluster = OpenNebula::Cluster.new_with_id(@vdc.CLUSTER_ID, @client)
+            rc      = cluster.info
+
+            if OpenNebula.is_error?(rc)
+                return OpenNebula::Error.new("Error getting cluster: #{rc.message}")
+            end
+
+            if !cluster.contains_datastore?(rsrc_hash[:DATASTORES])
+                return OpenNebula::Error.new("Some Datastores are not in cluster")
+            end
+
+            if !cluster.contains_host?(rsrc_hash[:HOSTS])
+                return OpenNebula::Error.new("Some Hosts are not in cluster")
+            end
+
+            if !cluster.contains_vnet?(rsrc_hash[:NETWORKS])
+                return OpenNebula::Error.new("Some Networks are not in cluster")
+            end
+
+            return true
         end
     end
 end

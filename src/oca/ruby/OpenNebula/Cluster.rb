@@ -161,14 +161,10 @@ module OpenNebula
         # ---------------------------------------------------------------------
 
         # Returns whether or not the host with 'id' is part of this cluster
-        # @param id [Integer] host ID
+        # @param id [Integer|Array] host ID
         # @return [Boolean] true if found 
-        def contains_host(id)
-            #This doesn't work in ruby 1.8.5
-            #return self["HOSTS/ID[.=#{uid}]"] != nil
-
-            id_array = retrieve_elements('HOSTS/ID')
-            return id_array != nil && id_array.include?(id.to_s)
+        def contains_host?(id)
+            contains_resource?('HOSTS/ID', id)
         end
 
         # Returns an array with the numeric host ids
@@ -184,14 +180,10 @@ module OpenNebula
         end
 
         # Returns whether or not the datastore with 'id' is part of this cluster
-        # @param id [Integer] datastore ID
+        # @param id [Integer|Array] datastore ID
         # @return [Boolean] true if found 
-        def contains_datastore(id)
-            #This doesn't work in ruby 1.8.5
-            #return self["DATASTORES/ID[.=#{uid}]"] != nil
-
-            id_array = retrieve_elements('DATASTORES/ID')
-            return id_array != nil && id_array.include?(id.to_s)
+        def contains_datastore?(id)
+            contains_resource?('DATASTORES/ID', id)
         end
 
         # Returns an array with the numeric datastore ids
@@ -207,14 +199,10 @@ module OpenNebula
         end
 
         # Returns whether or not the vnet with 'id' is part of this cluster
-        # @param id [Integer] vnet ID
+        # @param id [Integer|Arrray] vnet ID
         # @return [Boolean] true if found 
-        def contains_vnet(id)
-            #This doesn't work in ruby 1.8.5
-            #return self["HOSTS/ID[.=#{uid}]"] != nil
-
-            id_array = retrieve_elements('VNETS/ID')
-            return id_array != nil && id_array.include?(id.to_s)
+        def contains_vnet?(id)
+            contains_resource?('VNETS/ID', id)
         end
 
         # Returns an array with the numeric vnet ids
@@ -227,6 +215,22 @@ module OpenNebula
             end
 
             return array
+        end
+
+        private
+
+        def contains_resource?(xpath, id)
+            id_array = retrieve_elements(xpath)
+
+            return false if id_array.nil?
+
+            id = [id] if id.class != Array
+
+            id.each { |i| 
+                return false if !id_array.include?(i.to_s)
+            }
+
+            return true
         end
     end
 end
