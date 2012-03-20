@@ -35,7 +35,7 @@ EC2_AUTH           = VAR_LOCATION + "/.one/ec2_auth"
 EC2_LOG            = LOG_LOCATION + "/econe-server.log"
 CONFIGURATION_FILE = ETC_LOCATION + "/econe.conf"
 
-TEMPLATE_LOCATION  = ETC_LOCATION + "/econe_templates"
+TEMPLATE_LOCATION  = ETC_LOCATION + "/ec2query_templates"
 VIEWS_LOCATION     = RUBY_LIB_LOCATION + "/cloud/econe/views"
 
 $: << RUBY_LIB_LOCATION
