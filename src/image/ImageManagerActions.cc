@@ -17,11 +17,12 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
+#include "SSLTools.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(int image_id)
+Image * ImageManager::acquire_image(int image_id, string& error)
 {
     Image * img;
     int     rc;
@@ -30,10 +31,14 @@ Image * ImageManager::acquire_image(int image_id)
 
     if ( img == 0 )
     {
+        ostringstream oss;
+        oss << "Image with ID: " << image_id  << " does not exists";
+
+        error = oss.str();
         return 0;
     }
 
-    rc = acquire_image(img);
+    rc = acquire_image(img, error);
 
     if ( rc != 0 )
     {
@@ -46,7 +51,7 @@ Image * ImageManager::acquire_image(int image_id)
 
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(const string& name, int uid)
+Image * ImageManager::acquire_image(const string& name, int uid, string& error)
 {
     Image * img;
     int     rc;
@@ -55,10 +60,14 @@ Image * ImageManager::acquire_image(const string& name, int uid)
 
     if ( img == 0 )
     {
+        ostringstream oss;
+        oss << "Image " << name << " does not exists for user " << uid;
+
+        error = oss.str();
         return 0;
     }
 
-    rc = acquire_image(img);
+    rc = acquire_image(img, error);
 
     if ( rc != 0 )
     {
@@ -71,7 +80,7 @@ Image * ImageManager::acquire_image(const string& name, int uid)
 
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::acquire_image(Image *img)
+int ImageManager::acquire_image(Image *img, string& error)
 {
     int rc = 0;
 
@@ -86,7 +95,8 @@ int ImageManager::acquire_image(Image *img)
         case Image::USED:
              if (img->isPersistent())
              {
-                 rc = -1;
+                 error = "Cannot acquire persistent image, it is already in use";
+                 rc    = -1;
              }
              else
              {
@@ -96,10 +106,19 @@ int ImageManager::acquire_image(Image *img)
         break;
 
         case Image::DISABLED:
+             error = "Cannot acquire image, it is disabled";
+             rc    = -1;
+        break;
         case Image::LOCKED:
+             error = "Cannot acquire image, it is locked";
+             rc    = -1;
+        break;
         case Image::ERROR:
+             error = "Cannot acquire image, it is in an error state";
+             rc    = -1;
+        break;
         default:
-           rc = -1;
+           rc    = -1;
         break;
     }
 
@@ -109,83 +128,13 @@ int ImageManager::acquire_image(Image *img)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::move_image(Image *img, const string& source)
-{
-    const ImageManagerDriver* imd = get();
-    ostringstream oss;
-
-    if ( imd == 0 )
-    {
-        NebulaLog::log("ImM",Log::ERROR,
-                "Could not get driver to update repository");
-        return;
-    }
-
-    oss << "Moving disk " << source << " to repository image " 
-        << img->get_oid();
-
-    imd->mv(img->get_oid(),source,img->get_source());
-
-    NebulaLog::log("ImM",Log::INFO,oss);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void ImageManager::disk_to_image(const string& disk_path, 
-                                 int           disk_num, 
-                                 const string& save_id)
-{
-    int sid;
-
-    istringstream iss;
-    Image *       img;
-
-    ostringstream disk_file;
-
-    iss.str(save_id);
-
-    iss >> sid;
-
-    img = ipool->get(sid,true);
-
-    if ( img == 0 )
-    {
-        NebulaLog::log("ImM",Log::ERROR,"Could not get image to saveas disk.");
-    }
-    else
-    {
-        disk_file << disk_path << "/disk." << disk_num;
-
-        move_image(img,disk_file.str());
-    }
-
-    img->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void ImageManager::release_image(int           iid,
-                                 const string& disk_path, 
-                                 int           disk_num, 
-                                 const string& save_id)
+void ImageManager::release_image(int iid, bool failed)
 {
     int rvms;
 
-    int sid = -1;
-
-    istringstream iss;
-    Image *       img;
+    Image * img;
 
     ostringstream disk_file;
-
-    if ( save_id.empty() == false )
-    {
-        iss.str(save_id);
-
-        iss >> sid;
-    }
 
     img = ipool->get(iid,true);
 
@@ -199,54 +148,52 @@ void ImageManager::release_image(int           iid,
         case Image::USED:
             rvms = img->dec_running();
 
-            if ( img->isPersistent() && !disk_path.empty() )
+            if (img->isPersistent())
             {
-                disk_file << disk_path << "/disk." << disk_num;
-
-                img->set_state(Image::LOCKED);
-
-                move_image(img,disk_file.str());
-
-                ipool->update(img);
-
-                img->unlock();
+                if (failed == true)
+                {
+                    img->set_state(Image::ERROR);
+                }
+                else
+                {                
+                    img->set_state(Image::READY);
+                }
             }
-            else 
+            else if ( rvms == 0 )
             {
-                if ( rvms == 0)
+                img->set_state(Image::READY);
+            }
+
+            ipool->update(img);
+
+            img->unlock();
+        break;
+
+        case Image::LOCKED: //SAVE_AS images are LOCKED till released
+            if ( img->isSaving() )
+            {
+                if (failed == true)
+                {
+                    img->set_state(Image::ERROR);
+                }
+                else
                 {
                     img->set_state(Image::READY);
                 }
 
                 ipool->update(img);
-
-                img->unlock();
-
-                if ( sid != -1 )
-                {
-                    img = ipool->get(sid,true);
-
-                    if ( img == 0 )
-                    {
-                        NebulaLog::log("ImM",Log::ERROR,
-                            "Could not get image to saveas disk.");
-                    }
-                    else
-                    {
-                        disk_file << disk_path << "/disk." << disk_num;
-
-                        move_image(img,disk_file.str());
-                    }
-
-                    img->unlock();
-                }
             }
-        break;
+            else
+            {
+                NebulaLog::log("ImM",Log::ERROR,
+                    "Trying to release image in wrong state.");
+            }
 
+            img->unlock();
+            break;
         case Image::DISABLED:
         case Image::READY:
         case Image::ERROR:
-        case Image::LOCKED:
             NebulaLog::log("ImM",Log::ERROR,
                 "Trying to release image in wrong state.");
         default:
@@ -309,10 +256,12 @@ int ImageManager::enable_image(int iid, bool to_enable)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::delete_image(int iid)
+int ImageManager::delete_image(int iid, const string& ds_data)
 {
-    Image * img;
-    string  source;
+    Image *     img;
+    string      source;
+    string      img_tmpl;
+    string *    drv_msg;
 
     img = ipool->get(iid,true);
 
@@ -327,13 +276,13 @@ int ImageManager::delete_image(int iid)
             if ( img->get_running() != 0 )
             {
                 img->unlock();
-                return -1; //Can not remove images in use
+                return -1; //Cannot remove images in use
             }
         break; 
 
         case Image::USED:
             img->unlock();
-            return -1; //Can not remove images in use
+            return -1; //Cannot remove images in use
         break;
 
         case Image::INIT:
@@ -350,7 +299,8 @@ int ImageManager::delete_image(int iid)
         return -1;
     }
 
-    source = img->get_source();
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    source  = img->get_source();
 
     if (source.empty())
     {
@@ -367,10 +317,12 @@ int ImageManager::delete_image(int iid)
     }
     else
     {
-        imd->rm(img->get_oid(),img->get_source());
+        imd->rm(img->get_oid(), *drv_msg);
     }
 
     img->unlock();
+
+    delete drv_msg;
 
     return 0;
 }
@@ -378,18 +330,21 @@ int ImageManager::delete_image(int iid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::register_image(int iid)
+int ImageManager::register_image(int iid, const string& ds_data)
 {
     const ImageManagerDriver* imd = get();
-    ostringstream oss;
 
-    string path;
-    Image* img;
+    ostringstream oss;
+    Image *       img;
+
+    string        path;
+    string        img_tmpl;
+    string *      drv_msg;
+
 
     if ( imd == 0 )
     {
-        NebulaLog::log("ImM",Log::ERROR,
-                "Could not get driver to update repository");
+        NebulaLog::log("ImM",Log::ERROR, "Could not get datastore driver");
         return -1;
     }
 
@@ -400,37 +355,33 @@ int ImageManager::register_image(int iid)
         return -1;
     }
 
-    path = img->get_path();
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    path    = img->get_path();
 
-    if ( path.empty() == true ) //NO PATH -> USE SOURCE OR MKFS FOR DATABLOCK
+    if ( path.empty() == true ) //NO PATH
     {
-        if ( img->get_type() == Image::DATABLOCK)
-        {
-            string fs   = img->get_fstype();
-            int    size = img->get_size();
+        string source = img->get_source();
 
-            imd->mkfs(img->get_oid(), fs, size);
+        if ( img->isSaving() || img->get_type() == Image::DATABLOCK )
+        {
+            imd->mkfs(img->get_oid(), *drv_msg);
          
-            oss << "Creating disk at " << img->get_source() << " of " 
-                << size << "Mb with format " << fs;
+            oss << "Creating disk at " << source 
+                << " of "<<  img->get_size()
+                << "Mb (type: " <<  img->get_fstype() << ")";
         }
-        else
+        else if ( !source.empty() ) //Source in Template
         {
-            string source = img->get_source();
+            img->set_state(Image::READY);
+            ipool->update(img);
 
-            if (source != "-") //SAVE_AS IMAGE DO NOT ENABLE THE IMAGE
-            {
-                img->set_state(Image::READY);
-                ipool->update(img);
-
-                oss << "Using source " << img->get_source() 
-                    << " from template for image " << img->get_name();
-            }
+            oss << "Using source " << source
+                << " from template for image " << img->get_name();
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
     {
-        imd->cp(img->get_oid(), path);
+        imd->cp(img->get_oid(), *drv_msg);
         oss << "Copying " << path <<" to repository for image "<<img->get_oid();
     }
     
@@ -438,7 +389,26 @@ int ImageManager::register_image(int iid)
 
     img->unlock();
 
+    delete drv_msg;
+
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string * ImageManager::format_message(
+    const string& img_data,
+    const string& ds_data)
+{
+    ostringstream oss;
+
+    oss << "<DS_DRIVER_ACTION_DATA>"
+        << img_data
+        << ds_data
+        << "</DS_DRIVER_ACTION_DATA>";
+
+    return SSLTools::base64_encode(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

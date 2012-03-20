@@ -26,13 +26,18 @@ module OpenNebulaJSON
                 return image_hash
             end
 
+            ds_id = parse_json(template_json, 'ds_id')
+            if OpenNebula.is_error?(ds_id)
+                return ds_id
+            end
+
             if image_hash['image_raw']
                 template = image_hash['image_raw']
             else
                 template = template_to_str(image_hash)
             end
 
-            self.allocate(template)
+            self.allocate(template,ds_id.to_i)
         end
 
         def perform_action(template_json)

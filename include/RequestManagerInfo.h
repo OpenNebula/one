@@ -162,7 +162,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-
 class GroupInfo: public RequestManagerInfo
 {
 public:
@@ -194,6 +193,42 @@ public:
     };
 
     ~UserInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreInfo: public RequestManagerInfo
+{
+public:
+    DatastoreInfo():
+        RequestManagerInfo("DatastoreInfo",
+                           "Returns datastore information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterInfo: public RequestManagerInfo
+{
+public:
+    ClusterInfo():
+        RequestManagerInfo("ClusterInfo",
+                           "Returns cluster information")
+    {
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_clpool();
+        auth_object = PoolObjectSQL::CLUSTER;
+    };
+
+    ~ClusterInfo(){};
 };
 
 /* -------------------------------------------------------------------------- */

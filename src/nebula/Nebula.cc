@@ -248,6 +248,8 @@ void Nebula::start()
             rc += ImagePool::bootstrap(db);
             rc += VMTemplatePool::bootstrap(db);
             rc += AclManager::bootstrap(db);
+            rc += DatastorePool::bootstrap(db);
+            rc += ClusterPool::bootstrap(db);
 
             // Create the versioning table only if bootstrap went well
             if ( rc == 0 )
@@ -278,6 +280,8 @@ void Nebula::start()
         vector<const Attribute *> host_hooks;
         vector<const Attribute *> vm_restricted_attrs;
         vector<const Attribute *> img_restricted_attrs;
+
+        clpool  = new ClusterPool(db);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK", host_hooks);
@@ -311,6 +315,8 @@ void Nebula::start()
                                img_restricted_attrs);
 
         tpool  = new VMTemplatePool(db);
+
+        dspool = new DatastorePool(db);
     }
     catch (exception&)
     {
@@ -546,7 +552,7 @@ void Nebula::start()
     {
         vector<const Attribute *> image_mads;
 
-        nebula_configuration->get("IMAGE_MAD", image_mads);
+        nebula_configuration->get("DATASTORE_MAD", image_mads);
 
         imagem = new ImageManager(ipool,image_mads);
     }

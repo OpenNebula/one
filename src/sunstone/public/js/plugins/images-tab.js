@@ -28,6 +28,7 @@ var images_tab_content =
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Name")+'</th>\
+      <th>'+tr("Datastore")+'</th>\
       <th>'+tr("Size")+'</th>\
       <th>'+tr("Type")+'</th>\
       <th>'+tr("Registration time")+'</th>\
@@ -61,6 +62,12 @@ var create_image_tmpl =
                  <label for="img_desc">'+tr("Description")+':</label>\
                  <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
                <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
+               </div>\
+               <div class="img_param">\
+                 <label for="img_type">'+tr("Datastore")+':</label>\
+                 <select id="img_datastore" name="img_datastore">\
+                 </select>\
+                 <div class="tip">'+tr("Select the datastore for this image")+'</div>\
                </div>\
              </fieldset>\
              <fieldset>\
@@ -316,7 +323,7 @@ var image_actions = {
         type: "single",
         call: OpenNebula.Image.update,
         callback: function() {
-            notifyMessage(tr("Template updated correctly"));
+            notifyMessage(tr("Image updated correctly"));
         },
         error: onError
     },
@@ -378,7 +385,7 @@ var image_actions = {
         type: "multiple",
         call: OpenNebula.Image.chown,
         callback:  function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0]);
+            Sunstone.runAction("Image.show",req.request.data[0][0]);
         },
         elements: imageElements,
         error: onError,
@@ -389,7 +396,7 @@ var image_actions = {
         type: "multiple",
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0]);
+            Sunstone.runAction("Image.show",req.request.data[0][0]);
         },
         elements: imageElements,
         error: onError,
@@ -489,7 +496,9 @@ var image_info_panel = {
 var images_tab = {
     title: tr("Images"),
     content: images_tab_content,
-    buttons: image_buttons
+    buttons: image_buttons,
+    tabClass: 'subTab',
+    parentTab: 'vres_tab'
 }
 
 Sunstone.addActions(image_actions);
@@ -522,6 +531,7 @@ function imageElementArray(image_json){
         image.UNAME,
         image.GNAME,
         image.NAME,
+        image.DATASTORE,
         image.SIZE,
         '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'" style="width:100px">'+type.html()+'</select>',
         pretty_time(image.REGTIME),
@@ -578,6 +588,7 @@ function updateImagesView(request, images_list){
 
     updateView(image_list_array,dataTable_images);
     updateDashboard("images",images_list);
+    updateVResDashboard("images",images_list);
 }
 
 // Callback to update the information panel tabs and pop it up
@@ -598,6 +609,10 @@ function updateImageInfo(request,img){
            <tr>\
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td">'+img_info.NAME+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">'+tr("Datastore")+'</td>\
+              <td class="value_td">'+img_info.DATASTORE+'</td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Owner")+'</td>\
@@ -643,7 +658,7 @@ function updateImageInfo(request,img){
               <td class="key_td">'+tr("Running #VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
            </tr>\
-           <tr><td class="key_td">Permissions</td><td></td></tr>\
+           <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
            <tr>\
              <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
              <td class="value_td" style="font-family:monospace;">'+ownerPermStr(img_info)+'</td>\
@@ -843,6 +858,13 @@ function setupCreateImageDialog(){
             }
         });
         if (exit) { return false; }
+
+        var ds_id = $('#img_datastore',this).val();
+        if (!ds_id){
+            notifyError(tr("Please select a datastore for this image"));
+            return false;
+        };
+
         var img_json = {};
 
         var name = $('#img_name',this).val();
@@ -897,8 +919,8 @@ function setupCreateImageDialog(){
             img_json[attr_name] = attr_value;
         });
 
-
-        img_obj = { "image" : img_json };
+        img_obj = { "image" : img_json,
+                    "ds_id" : ds_id};
 
         if (upload){
             uploader._onInputChange(file_input);
@@ -921,6 +943,8 @@ function setupCreateImageDialog(){
 function popUpCreateImageDialog(){
     $('#file-uploader input',$create_image_dialog).removeAttr("style");
     $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
+
+    $('#img_datastore',$create_image_dialog).html(datastores_sel());
 
     $create_image_dialog.dialog('open');
 }
@@ -1094,10 +1118,10 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2,3,8,9] },
-            { "sWidth": "35px", "aTargets": [1,5,10] },
-            { "sWidth": "100px", "aTargets": [6] },
-            { "sWidth": "150px", "aTargets": [7] }
+            { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
+            { "sWidth": "35px", "aTargets": [1,6,11] },
+            { "sWidth": "100px", "aTargets": [5,7] },
+            { "sWidth": "150px", "aTargets": [8] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1108,7 +1132,7 @@ $(document).ready(function(){
     dataTable_images.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','',''],dataTable_images);
+        '','','','','','','','','','',''],dataTable_images);
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();

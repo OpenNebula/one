@@ -53,7 +53,7 @@ setup()
 start()
 {
   if [ ! -x "$OCCI_SERVER" ]; then
-    echo "Can not find $OCCI_SERVER."
+    echo "Cannot find $OCCI_SERVER."
     exit 1
   fi
 

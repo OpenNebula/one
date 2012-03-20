@@ -178,7 +178,7 @@ EOT
         # Formatters for arguments
         ########################################################################
         def to_id(name)
-            return 0, name if name.match(/^[0123456789]+$/)
+            return 0, name.to_i if name.match(/^[0123456789]+$/)
 
             rc = get_pool
             return rc if rc.first != 0
@@ -202,7 +202,7 @@ EOT
 
             result = names.split(',').collect { |name|
                 if name.match(/^[0123456789]+$/)
-                    name
+                    name.to_i
                 else
                     rc = OneHelper.name_to_id(name, pool, poolname)
 
@@ -288,11 +288,11 @@ EOT
 
         def pool_to_array(pool)
     	    if !pool.instance_of?(Hash)
-                phash = pool.to_hash 
+                phash = pool.to_hash
             else
                 phash = pool
             end
-            
+
             rname = self.class.rname
 
             if phash["#{rname}_POOL"] &&
@@ -329,9 +329,15 @@ EOT
         client = OpenNebula::Client.new
 
         pool = case poolname
-        when "HOST"  then OpenNebula::HostPool.new(client)
-        when "GROUP" then OpenNebula::GroupPool.new(client)
-        when "USER"  then OpenNebula::UserPool.new(client)
+        when "HOST"      then OpenNebula::HostPool.new(client)
+        when "GROUP"     then OpenNebula::GroupPool.new(client)
+        when "USER"      then OpenNebula::UserPool.new(client)
+        when "DATASTORE" then OpenNebula::DatastorePool.new(client)
+        when "CLUSTER"   then OpenNebula::ClusterPool.new(client)
+        when "VNET"      then OpenNebula::VirtualNetworkPool.new(client)
+        when "IMAGE"     then OpenNebula::ImagePool.new(client)
+        when "VMTEMPLATE" then OpenNebula::TemplatePool.new(client)
+        when "VM"        then OpenNebula::VirtualMachinePool.new(client)
         end
 
         rc = pool.info
@@ -393,6 +399,18 @@ EOT
         end
     end
 
+    # If the cluster name is empty, returns a '-' char.
+    #
+    # @param str [String || Hash] Cluster name, or empty Hash (when <CLUSTER/>)
+    # @return [String] the same Cluster name, or '-' if it is empty
+    def OpenNebulaHelper.cluster_str(str)
+        if str != nil && !str.empty?
+            str
+        else
+            "-"
+        end
+    end
+
     def OpenNebulaHelper.update_template(id, resource)
         require 'tempfile'
 
@@ -402,7 +420,7 @@ EOT
         rc = resource.info
 
         if OpenNebula.is_error?(rc)
-            puts rc.message 
+            puts rc.message
             exit -1
         end
 

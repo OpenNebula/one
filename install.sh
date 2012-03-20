@@ -99,7 +99,8 @@ if [ -z "$ROOT" ] ; then
     VAR_LOCATION="/var/lib/one"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
-    IMAGES_LOCATION="$VAR_LOCATION/images"
+    SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
+    DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     RUN_LOCATION="/var/run/one"
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
@@ -130,7 +131,7 @@ if [ -z "$ROOT" ] ; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
-                   $IMAGES_LOCATION $MAN_LOCATION"
+                   $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -145,7 +146,8 @@ else
     VAR_LOCATION="$ROOT/var"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     OZONES_LOCATION="$LIB_LOCATION/ozones"
-    IMAGES_LOCATION="$VAR_LOCATION/images"
+    SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
+    DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
     MAN_LOCATION="$ROOT/share/man/man1"
@@ -166,8 +168,8 @@ else
         DELETE_DIRS="$MAKE_DIRS"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
-                   $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION \
-                   $MAN_LOCATION $OZONES_LOCATION"
+                   $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
+                   $DEFAULT_DS_LOCATION $MAN_LOCATION $OZONES_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -180,15 +182,11 @@ fi
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/examples/tm"
 
-ETC_DIRS="$ETC_LOCATION/image \
+ETC_DIRS="$ETC_LOCATION/datastore \
           $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
-          $ETC_LOCATION/tm_shared \
-          $ETC_LOCATION/tm_ssh \
-          $ETC_LOCATION/tm_dummy \
-          $ETC_LOCATION/tm_vmware \
-          $ETC_LOCATION/tm_lvm \
+          $ETC_LOCATION/tm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/auth/certificates \
@@ -205,12 +203,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/occi \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
-          $LIB_LOCATION/tm_commands \
-          $LIB_LOCATION/tm_commands/shared \
-          $LIB_LOCATION/tm_commands/ssh \
-          $LIB_LOCATION/tm_commands/dummy \
-          $LIB_LOCATION/tm_commands/lvm \
-          $LIB_LOCATION/tm_commands/vmware \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -223,7 +215,10 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/xen.d \
           $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/ganglia.d \
+          $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
+          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/dummy \
@@ -231,12 +226,20 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
           $VAR_LOCATION/remotes/vnm/vmware \
-          $VAR_LOCATION/remotes/vmm/xen \
-          $VAR_LOCATION/remotes/vmm/vmware \
+          $VAR_LOCATION/remotes/tm/ \
+          $VAR_LOCATION/remotes/tm/dummy \
+          $VAR_LOCATION/remotes/tm/lvm \
+          $VAR_LOCATION/remotes/tm/shared \
+          $VAR_LOCATION/remotes/tm/ssh \
+          $VAR_LOCATION/remotes/tm/vmware \
+          $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
-          $VAR_LOCATION/remotes/image \
-          $VAR_LOCATION/remotes/image/fs \
+          $VAR_LOCATION/remotes/datastore \
+          $VAR_LOCATION/remotes/datastore/dummy \
+          $VAR_LOCATION/remotes/datastore/fs \
+          $VAR_LOCATION/remotes/datastore/vmware \
+          $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -381,12 +384,18 @@ INSTALL_FILES=(
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
-    SHARED_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/shared
-    SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
-    VMWARE_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/vmware
-    DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
-    LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
-    IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
+    TM_FILES:$VAR_LOCATION/remotes/tm
+    TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
+    TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
+    TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
+    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
+    TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
+    TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
+    DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
+    DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
+    DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
+    DATASTORE_DRIVER_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmware
+    DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
@@ -526,13 +535,8 @@ INSTALL_ETC_FILES=(
     VMWARE_ETC_FILES:$ETC_LOCATION
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
-    IMAGE_DRIVER_FS_ETC_FILES:$ETC_LOCATION/image/
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
-    TM_SHARED_ETC_FILES:$ETC_LOCATION/tm_shared
-    TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
-    TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy
-    TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm
-    TM_VMWARE_ETC_FILES:$ETC_LOCATION/tm_vmware
+    TM_LVM_ETC_FILES:$ETC_LOCATION/tm/
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
     ECO_ETC_FILES:$ETC_LOCATION
@@ -558,6 +562,8 @@ BIN_FILES="src/nebula/oned \
            src/cli/onegroup \
            src/cli/onetemplate \
            src/cli/oneacl \
+           src/cli/onedatastore \
+           src/cli/onecluster \
            src/onedb/onedb \
            src/authm_mad/remotes/quota/onequota \
            src/mad/utils/tty_expect \
@@ -585,7 +591,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/OpenNebula.rb \
-                src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/quota/quota.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
@@ -606,7 +611,6 @@ MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 #-------------------------------------------------------------------------------
 
 MADS_LIB_FILES="src/mad/sh/madcommon.sh \
-              src/tm_mad/tm_common.sh \
               src/vmm_mad/exec/one_vmm_exec.rb \
               src/vmm_mad/exec/one_vmm_exec \
               src/vmm_mad/exec/one_vmm_sh \
@@ -629,8 +633,8 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/hm_mad/one_hm \
               src/authm_mad/one_auth_mad.rb \
               src/authm_mad/one_auth_mad \
-              src/image_mad/one_image.rb \
-              src/image_mad/one_image"
+              src/datastore_mad/one_datastore.rb \
+              src/datastore_mad/one_datastore"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
@@ -754,60 +758,87 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
                     src/vnm_mad/remotes/vmware/pre \
                     src/vnm_mad/remotes/vmware/VMware.rb"
 
-
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
-#   - SHARED TM, $LIB_LOCATION/tm_commands/shared
-#   - SSH TM, $LIB_LOCATION/tm_commands/ssh
-#   - dummy TM, $LIB_LOCATION/tm_commands/dummy
-#   - LVM TM, $LIB_LOCATION/tm_commands/lvm
+#   - SHARED TM, $VAR_LOCATION/tm/shared
+#   - SSH TM, $VAR_LOCATION/tm/ssh
+#   - dummy TM, $VAR_LOCATION/tm/dummy
+#   - LVM TM, $VAR_LOCATION/tm/lvm
 #-------------------------------------------------------------------------------
 
-SHARED_TM_COMMANDS_LIB_FILES="src/tm_mad/shared/tm_clone.sh \
-                           src/tm_mad/shared/tm_delete.sh \
-                           src/tm_mad/shared/tm_ln.sh \
-                           src/tm_mad/shared/tm_mkswap.sh \
-                           src/tm_mad/shared/tm_mkimage.sh \
-                           src/tm_mad/shared/tm_mv.sh \
-                           src/tm_mad/shared/tm_context.sh"
+TM_FILES="src/tm_mad/tm_common.sh"
 
-SSH_TM_COMMANDS_LIB_FILES="src/tm_mad/ssh/tm_clone.sh \
-                           src/tm_mad/ssh/tm_delete.sh \
-                           src/tm_mad/ssh/tm_ln.sh \
-                           src/tm_mad/ssh/tm_mkswap.sh \
-                           src/tm_mad/ssh/tm_mkimage.sh \
-                           src/tm_mad/ssh/tm_mv.sh \
-                           src/tm_mad/ssh/tm_context.sh"
+TM_SHARED_FILES="src/tm_mad/shared/clone \
+                 src/tm_mad/shared/delete \
+                 src/tm_mad/shared/ln \
+                 src/tm_mad/shared/mkswap \
+                 src/tm_mad/shared/mkimage \
+                 src/tm_mad/shared/mv \
+                 src/tm_mad/shared/context \
+                 src/tm_mad/shared/mvds"
 
-DUMMY_TM_COMMANDS_LIB_FILES="src/tm_mad/dummy/tm_dummy.sh"
+TM_SSH_FILES="src/tm_mad/ssh/clone \
+              src/tm_mad/ssh/delete \
+              src/tm_mad/ssh/ln \
+              src/tm_mad/ssh/mkswap \
+              src/tm_mad/ssh/mkimage \
+              src/tm_mad/ssh/mv \
+              src/tm_mad/ssh/context \
+              src/tm_mad/ssh/mvds"
 
-LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
-                           src/tm_mad/lvm/tm_delete.sh \
-                           src/tm_mad/lvm/tm_ln.sh \
-                           src/tm_mad/lvm/tm_mkswap.sh \
-                           src/tm_mad/lvm/tm_mkimage.sh \
-                           src/tm_mad/lvm/tm_mv.sh \
-                           src/tm_mad/lvm/tm_context.sh"
+TM_DUMMY_FILES="src/tm_mad/dummy/clone \
+              src/tm_mad/dummy/delete \
+              src/tm_mad/dummy/ln \
+              src/tm_mad/dummy/mkswap \
+              src/tm_mad/dummy/mkimage \
+              src/tm_mad/dummy/mv \
+              src/tm_mad/dummy/context \
+              src/tm_mad/dummy/mvds"
 
-VMWARE_TM_COMMANDS_LIB_FILES="src/tm_mad/vmware/tm_clone.sh \
-                             src/tm_mad/vmware/tm_ln.sh \
-                             src/tm_mad/vmware/tm_mv.sh \
-                             src/tm_mad/vmware/functions.sh \
-                             src/tm_mad/vmware/tm_context.sh"
+TM_LVM_FILES="src/tm_mad/lvm/clone \
+              src/tm_mad/lvm/delete \
+              src/tm_mad/lvm/ln \
+              src/tm_mad/lvm/mkswap \
+              src/tm_mad/lvm/mkimage \
+              src/tm_mad/lvm/mv \
+              src/tm_mad/lvm/context"
 
+TM_VMWARE_FILES="src/tm_mad/vmware/clone \
+                 src/tm_mad/vmware/ln \
+                 src/tm_mad/vmware/mv \
+                 src/tm_mad/vmware/functions.sh \
+                 src/tm_mad/vmware/context"
+
+TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
+                 src/tm_mad/iscsi/ln \
+                 src/tm_mad/iscsi/mv \
+                 src/tm_mad/iscsi/mvds \
+                 src/tm_mad/iscsi/delete"
 #-------------------------------------------------------------------------------
-# Image Repository drivers, to be installed under $REMOTES_LOCATION/image
-#   - FS based Image Repository, $REMOTES_LOCATION/image/fs
+# Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
+#   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
+#   - VMware based Image Repository, $REMOTES_LOCATION/datastore/vmware
 #-------------------------------------------------------------------------------
 
-IMAGE_DRIVER_FS_ETC_FILES="src/image_mad/remotes/fs/fs.conf"
+DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
+                             src/datastore_mad/remotes/libfs.sh"
 
-IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
-                         src/image_mad/remotes/fs/mkfs \
-                         src/image_mad/remotes/fs/mv \
-                         src/image_mad/remotes/fs/fsrc \
-                         src/image_mad/remotes/fs/rm"
+DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
+                         src/datastore_mad/remotes/dummy/mkfs \
+                         src/datastore_mad/remotes/dummy/rm"
 
+DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
+                         src/datastore_mad/remotes/fs/mkfs \
+                         src/datastore_mad/remotes/fs/rm"
+
+DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
+                         src/datastore_mad/remotes/vmware/mkfs \
+                         src/datastore_mad/remotes/vmware/rm"
+
+DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
+                         src/datastore_mad/remotes/iscsi/mkfs \
+                         src/datastore_mad/remotes/iscsi/rm \
+                         src/datastore_mad/remotes/iscsi/iscsi.conf"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
@@ -821,6 +852,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/3.1.80_to_3.2.0.rb \
                       src/onedb/3.2.0_to_3.2.1.rb \
                       src/onedb/3.2.1_to_3.3.0.rb \
+                      src/onedb/3.3.0_to_3.3.80.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
@@ -865,19 +897,7 @@ IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
 #   - lvm, $ETC_LOCATION/tm_lvm
 #-------------------------------------------------------------------------------
 
-TM_SHARED_ETC_FILES="src/tm_mad/shared/tm_shared.conf \
-                  src/tm_mad/shared/tm_sharedrc"
-
-TM_SSH_ETC_FILES="src/tm_mad/ssh/tm_ssh.conf \
-                  src/tm_mad/ssh/tm_sshrc"
-
-TM_DUMMY_ETC_FILES="src/tm_mad/dummy/tm_dummy.conf \
-                    src/tm_mad/dummy/tm_dummyrc"
-
-TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
-                  src/tm_mad/lvm/tm_lvmrc"
-
-TM_VMWARE_ETC_FILES="src/tm_mad/vmware/tm_vmware.conf"
+TM_LVM_ETC_FILES="src/tm_mad/lvm/lvm.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
@@ -948,6 +968,10 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/GroupPool.rb \
                            src/oca/ruby/OpenNebula/Acl.rb \
                            src/oca/ruby/OpenNebula/AclPool.rb \
+                           src/oca/ruby/OpenNebula/Datastore.rb \
+                           src/oca/ruby/OpenNebula/DatastorePool.rb \
+                           src/oca/ruby/OpenNebula/Cluster.rb \
+                           src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
@@ -1053,7 +1077,9 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/oneuser_helper.rb \
                    src/cli/one_helper/onevm_helper.rb \
                    src/cli/one_helper/onevnet_helper.rb \
-                   src/cli/one_helper/oneacl_helper.rb"
+                   src/cli/one_helper/oneacl_helper.rb \
+                   src/cli/one_helper/onedatastore_helper.rb \
+                   src/cli/one_helper/onecluster_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1062,7 +1088,9 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneimage \
                src/cli/onetemplate \
                src/cli/onegroup \
-               src/cli/oneacl"
+               src/cli/oneacl \
+               src/cli/onedatastore \
+               src/cli/onecluster"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1071,7 +1099,9 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/oneuser.yaml \
                 src/cli/etc/onevm.yaml \
                 src/cli/etc/onevnet.yaml \
-                src/cli/etc/oneacl.yaml"
+                src/cli/etc/oneacl.yaml \
+                src/cli/etc/onedatastore.yaml \
+                src/cli/etc/onecluster.yaml"
 
 ETC_CLIENT_FILES="src/cli/etc/group.default"
 
@@ -1100,6 +1130,8 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/AclJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
 SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html \
@@ -1118,6 +1150,11 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/dashboard-tab.js \
                         src/sunstone/public/js/plugins/dashboard-users-tab.js \
                         src/sunstone/public/js/plugins/hosts-tab.js \
+                        src/sunstone/public/js/plugins/clusters-tab.js \
+                        src/sunstone/public/js/plugins/datastores-tab.js \
+                        src/sunstone/public/js/plugins/system-tab.js \
+                        src/sunstone/public/js/plugins/vresources-tab.js \
+                        src/sunstone/public/js/plugins/infra-tab.js \
                         src/sunstone/public/js/plugins/groups-tab.js \
                         src/sunstone/public/js/plugins/images-tab.js \
                         src/sunstone/public/js/plugins/templates-tab.js \
@@ -1404,6 +1441,8 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/onetemplate.1.gz \
         share/man/onegroup.1.gz \
         share/man/onedb.1.gz \
+        share/man/onedatastore.1.gz \
+        share/man/onecluster.1.gz \
         share/man/econe-describe-images.1.gz \
         share/man/econe-describe-instances.1.gz \
         share/man/econe-register.1.gz \
@@ -1430,7 +1469,7 @@ if [ "$UNINSTALL" = "no" ] ; then
     done
 
     # Remove old migrators
-    rm $LIB_LOCATION/ruby/onedb/*.rb
+    rm $LIB_LOCATION/ruby/onedb/*.rb &> /dev/null
 fi
 
 # --- Install/Uninstall files ---
@@ -1504,12 +1543,6 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
-
-    # --- Set correct permissions for Image Repository ---
-
-    if [ -d "$DESTDIR$IMAGES_LOCATION" ]; then
-        chmod 3770 $DESTDIR$IMAGES_LOCATION
-    fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d

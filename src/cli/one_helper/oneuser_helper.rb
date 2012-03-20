@@ -34,7 +34,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             begin
                 password = File.read(arg).split("\n").first
             rescue
-                return -1, "Can not read file: #{arg}"
+                return -1, "Cannot read file: #{arg}"
             end
         else
             password = arg.dup

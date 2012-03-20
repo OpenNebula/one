@@ -33,6 +33,7 @@
 #include "RequestManagerImage.h"
 #include "RequestManagerUser.h"
 #include "RequestManagerAcl.h"
+#include "RequestManagerCluster.h"
 
 #include <sys/signal.h>
 #include <sys/socket.h>
@@ -113,7 +114,7 @@ int RequestManager::setup_socket()
     {
         ostringstream oss;
 
-        oss << "Can not open server socket: " << strerror(errno);
+        oss << "Cannot open server socket: " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
        
         return -1; 
@@ -125,7 +126,7 @@ int RequestManager::setup_socket()
     {
         ostringstream oss;
 
-        oss << "Can not set socket options: " << strerror(errno);
+        oss << "Cannot set socket options: " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
         
         close(socket_fd);
@@ -145,7 +146,7 @@ int RequestManager::setup_socket()
     {
         ostringstream oss;
 
-        oss << "Can not bind to port " << port << " : " << strerror(errno);
+        oss << "Cannot bind to port " << port << " : " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
        
         close(socket_fd);
@@ -254,6 +255,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_update(new HostUpdateTemplate());
     xmlrpc_c::methodPtr vn_update(new VirtualNetworkUpdateTemplate());
     xmlrpc_c::methodPtr user_update(new UserUpdateTemplate());
+    xmlrpc_c::methodPtr datastore_update(new DatastoreUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -263,6 +265,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_allocate(new TemplateAllocate());
     xmlrpc_c::methodPtr host_allocate(new HostAllocate());
     xmlrpc_c::methodPtr user_allocate(new  UserAllocate());
+    xmlrpc_c::methodPtr datastore_allocate(new DatastoreAllocate());
+    xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
 
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
@@ -271,6 +275,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_delete(new VirtualNetworkDelete());
     xmlrpc_c::methodPtr user_delete(new UserDelete());
     xmlrpc_c::methodPtr image_delete(new ImageDelete());
+    xmlrpc_c::methodPtr datastore_delete(new DatastoreDelete());
+    xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -280,17 +286,19 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_info(new VirtualNetworkInfo());
     xmlrpc_c::methodPtr user_info(new UserInfo());
     xmlrpc_c::methodPtr image_info(new ImageInfo());
+    xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
+    xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
 
     // PoolInfo Methods 
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
     xmlrpc_c::methodPtr grouppool_info(new GroupPoolInfo());
     xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
-
-    // PoolInfo Methods with Filtering
+    xmlrpc_c::methodPtr datastorepool_info(new DatastorePoolInfo());
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
     xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
+    xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -306,17 +314,27 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_chown(new VirtualNetworkChown());
     xmlrpc_c::methodPtr image_chown(new ImageChown());
     xmlrpc_c::methodPtr user_chown(new UserChown());
+    xmlrpc_c::methodPtr datastore_chown(new DatastoreChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
     xmlrpc_c::methodPtr template_chmod(new TemplateChmod());
     xmlrpc_c::methodPtr vn_chmod(new VirtualNetworkChmod());
     xmlrpc_c::methodPtr image_chmod(new ImageChmod());
+    xmlrpc_c::methodPtr datastore_chmod(new DatastoreChmod());
 
     // ACL Methods
     xmlrpc_c::methodPtr acl_addrule(new AclAddRule());
     xmlrpc_c::methodPtr acl_delrule(new AclDelRule());
     xmlrpc_c::methodPtr acl_info(new AclInfo());
+
+    // Cluster Methods
+    xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
+    xmlrpc_c::methodPtr cluster_delhost(new ClusterDelHost());
+    xmlrpc_c::methodPtr cluster_addds(new ClusterAddDatastore());
+    xmlrpc_c::methodPtr cluster_delds(new ClusterDelDatastore());
+    xmlrpc_c::methodPtr cluster_addvnet(new ClusterAddVNet());
+    xmlrpc_c::methodPtr cluster_delvnet(new ClusterDelVNet());
 
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -399,6 +417,30 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.acl.addrule", acl_addrule);
     RequestManagerRegistry.addMethod("one.acl.delrule", acl_delrule);
     RequestManagerRegistry.addMethod("one.acl.info",    acl_info);
+
+    /* Datastore related methods */
+    RequestManagerRegistry.addMethod("one.datastore.allocate",datastore_allocate);
+    RequestManagerRegistry.addMethod("one.datastore.delete",  datastore_delete);
+    RequestManagerRegistry.addMethod("one.datastore.info",    datastore_info);
+    RequestManagerRegistry.addMethod("one.datastore.update",  datastore_update);
+    RequestManagerRegistry.addMethod("one.datastore.chown",   datastore_chown);
+    RequestManagerRegistry.addMethod("one.datastore.chmod",   datastore_chmod);
+
+    RequestManagerRegistry.addMethod("one.datastorepool.info",datastorepool_info);
+
+    /* Cluster related methods */
+    RequestManagerRegistry.addMethod("one.cluster.allocate",cluster_allocate);
+    RequestManagerRegistry.addMethod("one.cluster.delete",  cluster_delete);
+    RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
+
+    RequestManagerRegistry.addMethod("one.cluster.addhost", cluster_addhost);
+    RequestManagerRegistry.addMethod("one.cluster.delhost", cluster_delhost);
+    RequestManagerRegistry.addMethod("one.cluster.adddatastore", cluster_addds);
+    RequestManagerRegistry.addMethod("one.cluster.deldatastore", cluster_delds);
+    RequestManagerRegistry.addMethod("one.cluster.addvnet", cluster_addvnet);
+    RequestManagerRegistry.addMethod("one.cluster.delvnet", cluster_delvnet);
+
+    RequestManagerRegistry.addMethod("one.clusterpool.info",clusterpool_info);
 };
 
 /* -------------------------------------------------------------------------- */

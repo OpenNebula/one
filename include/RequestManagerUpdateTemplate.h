@@ -134,6 +134,24 @@ public:
     ~UserUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    DatastoreUpdateTemplate():
+        RequestManagerUpdateTemplate("DatastoreUpdateTemplate",
+                                     "Updates a datastore template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -598,7 +598,9 @@ var vm_info_panel = {
 var vms_tab = {
     title: tr("Virtual Machines"),
     content: vms_tab_content,
-    buttons: vm_buttons
+    buttons: vm_buttons,
+    tabClass: 'subTab',
+    parentTab: 'vres_tab'
 }
 
 Sunstone.addActions(vm_actions);
@@ -700,6 +702,7 @@ function updateVMachinesView(request, vmachine_list){
 
     updateView(vmachine_list_array,dataTable_vMachines);
     updateDashboard("vms",vmachine_list);
+    updateVResDashboard("vms",vmachine_list);
 }
 
 
@@ -1302,7 +1305,6 @@ $(document).ready(function(){
     setupSaveasDialog();
     setVMAutorefresh();
     setupVNC();
-    setupTips
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

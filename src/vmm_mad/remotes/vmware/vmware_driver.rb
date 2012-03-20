@@ -165,9 +165,10 @@ class VMwareDriver
     def restore(checkpoint)
         begin
             # Define the VM
-            dfile = File.dirname(File.dirname(checkpoint)) + "/deployment.0"
+            dfile = VAR_LOCATION + "/" + 
+                    File.basename(File.dirname(checkpoint)) + "/deployment.0"
         rescue => e
-            OpenNebula.log_error("Can not open checkpoint #{e.message}")
+            OpenNebula.log_error("Cannot open checkpoint #{e.message}")
             exit -1
         end
 

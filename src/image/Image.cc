@@ -47,7 +47,9 @@ Image::Image(int             _uid,
         fs_type(""),
         size_mb(0),
         state(INIT),
-        running_vms(0)
+        running_vms(0),
+        ds_id(-1),
+        ds_name("")
 {
     if (_image_template != 0)
     {
@@ -93,23 +95,9 @@ int Image::insert(SqlDB *db, string& error_str)
     string persistent_attr;
     string dev_prefix;
     string source_attr;
-    string aname;
+    string saved_id;
 
     ostringstream oss;
-
-    // ------------------------------------------------------------------------
-    // Check template for restricted attributes
-    // ------------------------------------------------------------------------
-
-    if ( uid != 0 && gid != GroupPool::ONEADMIN_ID )
-    {
-        ImageTemplate *img_template = static_cast<ImageTemplate *>(obj_template);
-
-        if (img_template->check(aname))
-        {
-            goto error_restricted;
-        }
-    }
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -149,7 +137,6 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
-
         obj_template->set(dev_att);
     }
 
@@ -158,20 +145,43 @@ int Image::insert(SqlDB *db, string& error_str)
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
 
-    // The template should contain PATH or SOURCE
-    if ( source.empty() && path.empty() )
+    if (!isSaving()) //Not a saving image
+    {
+        if ( source.empty() && path.empty() )
+        {
+            string        size_attr;
+            istringstream iss;
+
+            erase_template_attribute("SIZE",   size_attr);
+            erase_template_attribute("FSTYPE", fs_type);
+
+            // DATABLOCK image needs SIZE and FSTYPE
+            if (type != DATABLOCK || size_attr.empty() || fs_type.empty())
+            {
+                goto error_no_path;
+            }
+
+            iss.str(size_attr);
+
+            iss >> size_mb;
+
+            if (iss.fail() == true)
+            {
+                goto error_size_format;
+            }
+        }
+        else if ( !source.empty() && !path.empty() )
+        {
+            goto error_path_and_source;
+        }
+    }
+    else
     {
         string        size_attr;
         istringstream iss;
 
+        fs_type = "save_as";
         erase_template_attribute("SIZE",   size_attr);
-        erase_template_attribute("FSTYPE", fs_type);
-
-        // DATABLOCK image needs SIZE and FSTYPE
-        if (type != DATABLOCK || size_attr.empty() || fs_type.empty())
-        {
-            goto error_no_path;
-        }
 
         iss.str(size_attr);
 
@@ -181,10 +191,6 @@ int Image::insert(SqlDB *db, string& error_str)
         {
             goto error_size_format;
         }
-    }
-    else if ( !source.empty() && !path.empty() )
-    {
-        goto error_path_and_source;
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -219,11 +225,6 @@ error_size_format:
 
 error_path_and_source:
     error_str = "Template malformed, PATH and SOURCE are mutually exclusive.";
-    goto error_common;
-
-error_restricted:
-    oss << "Template includes a restricted attribute " << aname << ".";
-    error_str = oss.str();
     goto error_common;
 
 error_common:
@@ -352,6 +353,8 @@ string& Image::to_xml(string& xml) const
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
+            "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
+            "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             obj_template->to_xml(template_xml)                        <<
         "</IMAGE>";
 
@@ -392,6 +395,9 @@ int Image::from_xml(const string& xml)
     rc += xpath(size_mb, "/IMAGE/SIZE", 0);
     rc += xpath(int_state, "/IMAGE/STATE", 0);
     rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
+
+    rc += xpath(ds_id,  "/IMAGE/DATASTORE_ID", -1);
+    rc += xpath(ds_name,"/IMAGE/DATASTORE", "not_found");
 
     // Permissions
     rc += perms_from_xml();

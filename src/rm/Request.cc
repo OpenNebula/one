@@ -177,6 +177,10 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "group";
         case PoolObjectSQL::ACL:
             return "ACL";
+        case PoolObjectSQL::DATASTORE:
+            return "datastore";
+        case PoolObjectSQL::CLUSTER:
+            return "cluster";
         default:
             return "-";
       }
@@ -289,6 +293,34 @@ string Request::allocate_error (const string& error)
     }
 
     return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Request::get_info(
+        PoolSQL *                 pool,
+        int                       id,
+        PoolObjectSQL::ObjectType type,
+        RequestAttributes&        att,
+        PoolObjectAuth&           perms,
+        string&                   name)
+{
+    PoolObjectSQL * ob;
+
+    if ((ob = pool->get(id,true)) == 0 )
+    {
+        failure_response(NO_EXISTS, get_error(object_name(type), id), att);
+        return -1;
+    }
+
+    ob->get_permissions(perms);
+
+    name = ob->get_name();
+
+    ob->unlock();
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

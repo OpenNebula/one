@@ -48,6 +48,7 @@ class SunstoneServer < CloudServer
 
         pool = case kind
             when "group"      then GroupPoolJSON.new(@client)
+            when "cluster"    then ClusterPoolJSON.new(@client)
             when "host"       then HostPoolJSON.new(@client)
             when "image"      then ImagePoolJSON.new(@client, user_flag)
             when "vmtemplate" then TemplatePoolJSON.new(@client, user_flag)
@@ -55,6 +56,7 @@ class SunstoneServer < CloudServer
             when "vnet"       then VirtualNetworkPoolJSON.new(@client, user_flag)
             when "user"       then UserPoolJSON.new(@client)
             when "acl"        then AclPoolJSON.new(@client)
+            when "datastore"  then DatastorePoolJSON.new(@client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -100,6 +102,7 @@ class SunstoneServer < CloudServer
     def create_resource(kind, template)
         resource = case kind
             when "group"      then GroupJSON.new(Group.build_xml, @client)
+            when "cluster"    then ClusterJSON.new(Group.build_xml, @client)
             when "host"       then HostJSON.new(Host.build_xml, @client)
             when "image"      then ImageJSON.new(Image.build_xml, @client)
             when "vmtemplate" then TemplateJSON.new(Template.build_xml, @client)
@@ -107,6 +110,7 @@ class SunstoneServer < CloudServer
             when "vnet"       then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
             when "user"       then UserJSON.new(User.build_xml, @client)
             when "acl"        then AclJSON.new(Acl.build_xml, @client)
+            when "datastore"  then DatastoreJSON.new(Acl.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -126,9 +130,22 @@ class SunstoneServer < CloudServer
     ############################################################################
     def upload(template, file_path)
         image_hash = parse_json(template, 'image')
+        if OpenNebula.is_error?(image_hash)
+            return [500, image_hash.to_json]
+        end
+
         image_hash['PATH'] = file_path
 
-        new_template = {:image => image_hash}.to_json
+        ds_id = parse_json(template, 'ds_id')
+        if OpenNebula.is_error?(ds_id)
+            return [500, ds_id.to_json]
+        end
+        
+        new_template = {
+            :image => image_hash,
+            :ds_id => ds_id,
+        }.to_json
+
         image = ImageJSON.new(Image.build_xml, @client)
 
         rc = image.create(new_template)
@@ -274,14 +291,16 @@ class SunstoneServer < CloudServer
     ############################################################################
     def retrieve_resource(kind, id)
         resource = case kind
-            when "group"    then GroupJSON.new_with_id(id, @client)
-            when "host"     then HostJSON.new_with_id(id, @client)
-            when "image"    then ImageJSON.new_with_id(id, @client)
+            when "group"      then GroupJSON.new_with_id(id, @client)
+            when "cluster"    then ClusterJSON.new_with_id(id, @client)
+            when "host"       then HostJSON.new_with_id(id, @client)
+            when "image"      then ImageJSON.new_with_id(id, @client)
             when "vmtemplate" then TemplateJSON.new_with_id(id, @client)
-            when "vm"       then VirtualMachineJSON.new_with_id(id, @client)
-            when "vnet"     then VirtualNetworkJSON.new_with_id(id, @client)
-            when "user"     then UserJSON.new_with_id(id, @client)
-            when "acl"      then AclJSON.new_with_id(id, @client)
+            when "vm"         then VirtualMachineJSON.new_with_id(id, @client)
+            when "vnet"       then VirtualNetworkJSON.new_with_id(id, @client)
+            when "user"       then UserJSON.new_with_id(id, @client)
+            when "acl"        then AclJSON.new_with_id(id, @client)
+            when "datastore"  then DatastoreJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error

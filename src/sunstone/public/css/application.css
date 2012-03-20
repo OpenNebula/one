@@ -31,6 +31,11 @@ select, button {
     padding: 2px;
 }
 
+.inline-icon {
+    display:inline-block;
+    vertical-align:middle;
+}
+
 h2 {
     float:left;
     font-size:20px;
@@ -46,17 +51,32 @@ h3 {
     margin: 0 0;
 }
 
-table#dashboard_table{
+table.dashboard_table{
     width:100%;
     margin: 0;
 }
 
-table#dashboard_table tr {
+table.dashboard_table tr {
     vertical-align: top;
 }
 
-table#dashboard_table > tbody > tr > td{
+table.dashboard_table > tbody > tr > td{
     width:50%;
+}
+
+table.dashboard_table .inline-icon {
+    margin-left: 40px;
+}
+
+
+.dashboard_p {
+    color: #353735;
+    text-align:justify;
+}
+
+
+.clusterElemLi {
+    list-style: circle;
 }
 
 div.panel {

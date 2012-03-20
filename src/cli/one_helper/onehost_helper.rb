@@ -39,8 +39,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Host", :left, :size=>15 do |d|
+            column :NAME, "Name of the Host", :left, :size=>12 do |d|
                 d["NAME"]
+            end
+
+            column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
+                OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end
 
             column :RVM, "Number of Virtual Machines running", :size=>6 do |d|
@@ -82,11 +86,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(acpu,options)
             end
 
-            column :STAT, "Host status", :size=>6 do |d|
+            column :STAT, "Host status", :size=>4 do |d|
                 OneHostHelper.state_to_str(d["STATE"])
             end
 
-            default :ID, :NAME, :RVM, :TCPU, :FCPU, :ACPU, :TMEM, :FMEM,
+            default :ID, :NAME, :CLUSTER, :RVM, :TCPU, :FCPU, :ACPU, :TMEM, :FMEM,
                 :AMEM, :STAT
         end
 
@@ -118,11 +122,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         puts str % ["ID", host.id.to_s]
         puts str % ["NAME", host.name]
+        puts str % ["CLUSTER", OpenNebulaHelper.cluster_str(host['CLUSTER'])]
         puts str % ["STATE", host.state_str]
         puts str % ["IM_MAD", host['IM_MAD']]
         puts str % ["VM_MAD", host['VM_MAD']]
         puts str % ["VN_MAD", host['VN_MAD']]
-        puts str % ["TM_MAD", host['TM_MAD']]
         puts str % ["LAST MONITORING TIME", host['LAST_MON_TIME']]
         puts
 

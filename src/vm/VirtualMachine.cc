@@ -109,10 +109,11 @@ int VirtualMachine::select(SqlDB * db)
     ostringstream   oss;
     ostringstream   ose;
 
-    int             rc;
-    int             last_seq;
+    string system_dir;
+    int    rc;
+    int    last_seq;
 
-    Nebula&         nd = Nebula::instance();
+    Nebula& nd = Nebula::instance();
 
     // Rebuild the VirtualMachine object
     rc = PoolObjectSQL::select(db);
@@ -148,14 +149,25 @@ int VirtualMachine::select(SqlDB * db)
         }
     }
 
-    //Create support directory for this VM
+    if ( state == DONE ) //Do not recreate dirs. They may be deleted
+    {
+        _log = 0;
+
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+    //Create support directories for this VM
+    //--------------------------------------------------------------------------
     oss.str("");
     oss << nd.get_var_location() << oid;
 
-    mkdir(oss.str().c_str(), 0777);
-    chmod(oss.str().c_str(), 0777);
-
+    mkdir(oss.str().c_str(), 0700);
+    chmod(oss.str().c_str(), 0700);
+    
+    //--------------------------------------------------------------------------
     //Create Log support for this VM
+    //--------------------------------------------------------------------------
     try
     {
         _log = new FileLog(nd.get_vm_log_filename(oid),Log::DEBUG);
@@ -171,7 +183,7 @@ int VirtualMachine::select(SqlDB * db)
     return 0;
 
 error_previous_history:
-    ose << "Can not get previous history record (seq:" << history->seq
+    ose << "Cannot get previous history record (seq:" << history->seq
         << ") for VM id: " << oid;
 
     log("ONE", Log::ERROR, ose);
@@ -187,25 +199,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string name;
 
     SingleAttribute *   attr;
-    string              aname;
     string              value;
     ostringstream       oss;
-
-
-    // ------------------------------------------------------------------------
-    // Check template for restricted attributes
-    // ------------------------------------------------------------------------
-
-    if ( uid != 0 && gid != GroupPool::ONEADMIN_ID )
-    {
-        VirtualMachineTemplate *vt = 
-            static_cast<VirtualMachineTemplate *>(obj_template);
-        
-        if (vt->check(aname))
-        {
-            goto error_restricted;            
-        }
-    }
 
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -277,6 +272,13 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
+    rc = automatic_requirements(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_requirements;
+    }
+
     parse_graphics();
 
     // ------------------------------------------------------------------------
@@ -306,11 +308,6 @@ error_rollback:
 
 error_leases_rollback:
     release_network_leases();
-    goto error_common;
-
-error_restricted:
-    oss << "VM Template includes a restricted attribute " << aname << "."; 
-    error_str = oss.str(); 
     goto error_common;
 
 error_name_length:
@@ -361,7 +358,7 @@ int VirtualMachine::parse_context(string& error_str)
 
     if (str == 0)
     {
-        NebulaLog::log("ONE",Log::ERROR, "Can not marshall CONTEXT");
+        NebulaLog::log("ONE",Log::ERROR, "Cannot marshall CONTEXT");
         return -1;
     }
 
@@ -507,6 +504,148 @@ int VirtualMachine::parse_requirements(string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int VirtualMachine::automatic_requirements(string& error_str)
+{
+    int                   num_vatts;
+    vector<Attribute  * > v_attributes;
+    VectorAttribute *     vatt;
+
+    ostringstream   oss;
+    string          requirements;
+    string          cluster_id = "";
+    string          vatt_cluster_id;
+
+    // Get cluster id from all DISK vector attributes
+
+    num_vatts = obj_template->get("DISK",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
+            {
+                goto error;
+            }
+
+            cluster_id = vatt_cluster_id;
+        }
+    }
+
+    // Get cluster id from all NIC vector attributes
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("NIC",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
+            {
+                goto error;
+            }
+
+            cluster_id = vatt_cluster_id;
+        }
+    }
+
+    if ( !cluster_id.empty() )
+    {
+        oss.str("");
+        oss << "CLUSTER_ID = " << cluster_id;
+
+        obj_template->get("REQUIREMENTS", requirements);
+
+        if ( !requirements.empty() )
+        {
+            oss << " & ( " << requirements << " )";
+        }
+
+        replace_template_attribute("REQUIREMENTS", oss.str());
+    }
+
+    return 0;
+
+error:
+
+    oss << "Incompatible cluster IDs.";
+
+    // Get cluster id from all DISK vector attributes
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("DISK",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            oss << endl << "DISK [" << i << "]: IMAGE ["
+                << vatt->vector_value("IMAGE_ID") << "] from DATASTORE ["
+                << vatt->vector_value("DATASTORE_ID") << "] requires CLUSTER ["
+                << vatt_cluster_id << "]";
+        }
+    }
+
+    // Get cluster id from all NIC vector attributes
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("NIC",v_attributes);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+
+        if ( !vatt_cluster_id.empty() )
+        {
+            oss << endl << "NIC [" << i << "]: NETWORK ["
+                << vatt->vector_value("NETWORK_ID") << "] requires CLUSTER ["
+                << vatt_cluster_id << "]";
+        }
+    }
+
+    error_str = oss.str();
+
+    return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;
@@ -603,10 +742,8 @@ error_common:
 void VirtualMachine::add_history(
     int   hid,
     const string& hostname,
-    const string& vm_dir,
     const string& vmm_mad,
-    const string& vnm_mad,
-    const string& tm_mad)
+    const string& vnm_mad)
 {
     ostringstream os;
     int           seq;
@@ -622,7 +759,12 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
-    history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,vnm_mad,tm_mad);
+    history = new History(oid,
+                          seq,
+                          hid,
+                          hostname,
+                          vmm_mad,
+                          vnm_mad);
 
     history_records.push_back(history);
 };
@@ -643,11 +785,8 @@ void VirtualMachine::cp_history()
                        history->seq + 1,
                        history->hid,
                        history->hostname,
-                       history->vm_dir,
                        history->vmm_mad_name,
-                       history->vnm_mad_name,
-                       history->tm_mad_name);
-
+                       history->vnm_mad_name);
 
     previous_history = history;
     history          = htmp;
@@ -671,10 +810,8 @@ void VirtualMachine::cp_previous_history()
                        history->seq + 1,
                        previous_history->hid,
                        previous_history->hostname,
-                       previous_history->vm_dir,
                        previous_history->vmm_mad_name,
-                       previous_history->vnm_mad_name,
-                       previous_history->tm_mad_name);
+                       previous_history->vnm_mad_name);
 
     previous_history = history;
     history          = htmp;
@@ -746,8 +883,13 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, i, &index, &img_type, uid, image_id);
-
+        rc = ipool->disk_attribute(disk, 
+                                   i, 
+                                   &index, 
+                                   &img_type, 
+                                   uid, 
+                                   image_id, 
+                                   error_str);
         if (rc == 0 )
         {
             acquired_images.push_back(image_id);
@@ -784,26 +926,22 @@ int VirtualMachine::get_disk_images(string& error_str)
         }
         else if ( rc == -1 )
         {
-            goto error_image;
+            goto error_common;
         }
     }
 
     return 0;
 
 error_max_os:
-    error_str = "VM can not use more than one OS image.";
+    error_str = "VM cannot use more than one OS image.";
     goto error_common;
 
 error_max_cd:
-    error_str = "VM can not use more than one CDROM image.";
+    error_str = "VM cannot use more than one CDROM image.";
     goto error_common;
 
 error_max_db:
-    error_str = "VM can not use more than 10 DATABLOCK images.";
-    goto error_common;
-
-error_image:
-    error_str = "Could not get disk image for VM.";
+    error_str = "VM cannot use more than 10 DATABLOCK images.";
     goto error_common;
 
 error_common:
@@ -813,9 +951,7 @@ error_common:
 
     for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
     {
-        // Set disk_path and save_id to empty string, this way the image manager
-        // won't try to move any files
-        imagem->release_image(*it,"",-1,"");
+        imagem->release_image(*it, false);
     }
 
     return -1;
@@ -826,8 +962,9 @@ error_common:
 
 void VirtualMachine::release_disk_images()
 {
-    string  iid;
-    string  saveas;
+    int     iid;
+    int     save_as_id;
+    int     rc;
     int     num_disks;
 
     vector<Attribute const  * > disks;
@@ -838,12 +975,7 @@ void VirtualMachine::release_disk_images()
     Nebula& nd = Nebula::instance();
     imagem     = nd.get_imagem();
 
-    num_disks   = get_template_attribute("DISK",disks);
-
-    if (hasHistory() != 0)
-    {
-        disk_base_path = get_local_dir();
-    }
+    num_disks  = get_template_attribute("DISK",disks);
 
     for(int i=0; i<num_disks; i++)
     {
@@ -855,19 +987,18 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        iid    = disk->vector_value("IMAGE_ID");
-        saveas = disk->vector_value("SAVE_AS");
+        rc = disk->vector_value("IMAGE_ID", iid);
 
-        if ( iid.empty() )
+        if ( rc == 0 )
         {
-            if (!saveas.empty())
-            {
-                imagem->disk_to_image(disk_base_path,i,saveas);
-            }
+            imagem->release_image(iid, (state == FAILED));
         }
-        else
+
+        rc = disk->vector_value("SAVE_AS", save_as_id);
+
+        if ( rc == 0 )
         {
-            imagem->release_image(iid,disk_base_path,i,saveas);
+            imagem->release_image(save_as_id, (state == FAILED));
         }
     }
 }
@@ -896,19 +1027,15 @@ int VirtualMachine::get_network_leases(string& estr)
             continue;
         }
 
-        rc = vnpool->nic_attribute(nic, uid, oid);
+        rc = vnpool->nic_attribute(nic, uid, oid, estr);
 
         if (rc == -1)
         {
-            goto error_vnet; 
+            return -1;
         }
     }
 
     return 0;
-
-error_vnet:
-    estr = "Could not get virtual network for VM.";
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1026,28 +1153,27 @@ int VirtualMachine::generate_context(string &files)
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
+int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
 {
-    int                   num_disks;
+    int num_disks;
+    int tid;
+    int iid = -1;
+    int rc;
+
     vector<Attribute  * > disks;
     VectorAttribute *     disk;
 
-    string                disk_id_str;
-    int                   tmp_disk_id;
-
     ostringstream oss;
-    istringstream iss;
+
+    num_disks = obj_template->get("DISK",disks);
 
     if ( state == DONE || state == FAILED )
     {
         goto error_state;
     }
 
-    num_disks  = obj_template->get("DISK",disks);
-
-    for(int i=0; i<num_disks; i++, iss.clear())
+    for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
 
@@ -1056,12 +1182,14 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
             continue;
         }
 
-        disk_id_str = disk->vector_value("DISK_ID");
+        rc = disk->vector_value("DISK_ID", tid);
 
-        iss.str(disk_id_str);
-        iss >> tmp_disk_id;
+        if ( rc != 0 )
+        {
+            continue;
+        }
 
-        if ( tmp_disk_id == disk_id )
+        if ( disk_id == tid )
         {
             if(!((disk->vector_value("SAVE_AS")).empty()))
             {
@@ -1073,12 +1201,16 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
                 goto error_persistent;
             }
 
+            rc = disk->vector_value("IMAGE_ID", iid);
+
+            if ( rc != 0 )
+            {
+                goto error_image_id;
+            }
+
             disk->replace("SAVE", "YES");
 
-            oss << (img_id);
-            disk->replace("SAVE_AS", oss.str());
-
-            return 0;
+            return iid;
         }
     }
 
@@ -1096,6 +1228,10 @@ error_saved:
     oss << "The DISK " << disk_id << " is already going to be saved.";
     goto error_common;
 
+error_image_id:
+    oss << "The DISK " << disk_id << " does not have a valid IMAGE_ID.";
+    goto error_common;
+
 error_not_found:
     oss << "The DISK " << disk_id << " does not exist for VM " << oid << ".";
 
@@ -1103,6 +1239,53 @@ error_common:
     error_str = oss.str();
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::save_disk(const string& disk_id, 
+                              const string& source,
+                              int           img_id)
+{
+    vector<Attribute  * > disks;
+    VectorAttribute *     disk;
+
+    int    num_disks;
+    string tdisk_id;
+
+    ostringstream oss;
+
+    if ( state == DONE || state == FAILED )
+    {
+        return -1;
+    }
+
+    num_disks  = obj_template->get("DISK",disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        tdisk_id = disk->vector_value("DISK_ID");
+
+        if ( tdisk_id == disk_id )
+        {
+            disk->replace("SAVE_AS_SOURCE", source);
+
+            oss << (img_id);
+            disk->replace("SAVE_AS", oss.str());
+
+            break;
+        }
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1378,3 +1561,29 @@ int VirtualMachine::from_xml(const string &xml_str)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+string VirtualMachine::get_remote_system_dir() const
+{
+    ostringstream oss;
+
+    string  ds_location;
+    Nebula& nd = Nebula::instance();
+
+    nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
+    oss << ds_location << "/" << DatastorePool::SYSTEM_DS_ID << "/" << oid;
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string VirtualMachine::get_system_dir() const
+{
+    ostringstream oss;
+    Nebula&       nd = Nebula::instance();
+
+    oss << nd.get_ds_location() << DatastorePool::SYSTEM_DS_ID << "/"<< oid;
+
+    return oss.str();
+};

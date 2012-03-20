@@ -39,6 +39,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     VMTemplate *             rtmpl;
 
     string error_str;
+    string aname;
 
     rtmpl = tpool->get(id,true);
 
@@ -56,6 +57,26 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     rtmpl->get_permissions(perms);
 
     rtmpl->unlock();
+
+    // Check template for restricted attributes, but only if the Template owner
+    // is not oneadmin
+
+    if ( perms.uid != 0 && perms.gid != GroupPool::ONEADMIN_ID )
+    {
+        if (tmpl->check(aname))
+        {
+            ostringstream oss;
+
+            oss << "VM Template includes a restricted attribute " << aname;
+
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+
+            delete tmpl;
+            return;
+        }
+    }
 
     tmpl->erase("NAME");
     tmpl->set(new SingleAttribute("NAME",name));

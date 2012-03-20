@@ -54,7 +54,7 @@ setup()
 start()
 {
   if [ ! -f "$OZONES_SERVER" ]; then
-    echo "Can not find $OZONES_SERVER."
+    echo "Cannot find $OZONES_SERVER."
     exit 1
   fi
 

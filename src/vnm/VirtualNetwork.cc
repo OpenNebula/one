@@ -24,6 +24,7 @@
 #include "FixedLeases.h"
 
 #include "AuthManager.h"
+#include "ClusterPool.h"
 
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
@@ -35,8 +36,11 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                int                      _gid,
                                const string&            _uname,
                                const string&            _gname,
+                               int                      _cluster_id,
+                               const string&            _cluster_name,
                                VirtualNetworkTemplate * _vn_template):
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
+            Clusterable(_cluster_id, _cluster_name),
             bridge(""),
             type(UNINITIALIZED),
             leases(0)
@@ -474,16 +478,18 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     os <<
         "<VNET>" <<
-            "<ID>"     << oid    << "</ID>"    <<
-            "<UID>"    << uid    << "</UID>"   <<
-            "<GID>"    << gid    << "</GID>"   <<
-            "<UNAME>"  << uname  << "</UNAME>" << 
-            "<GNAME>"  << gname  << "</GNAME>" <<
-            "<NAME>"   << name   << "</NAME>"  <<
-            perms_to_xml(perm_str)              <<
-            "<TYPE>"   << type   << "</TYPE>"  <<
-            "<BRIDGE>" << bridge << "</BRIDGE>"<<
-            "<VLAN>"   << vlan   << "</VLAN>";
+            "<ID>"          << oid          << "</ID>"          <<
+            "<UID>"         << uid          << "</UID>"         <<
+            "<GID>"         << gid          << "</GID>"         <<
+            "<UNAME>"       << uname        << "</UNAME>"       <<
+            "<GNAME>"       << gname        << "</GNAME>"       <<
+            "<NAME>"        << name         << "</NAME>"        <<
+            perms_to_xml(perm_str)          <<
+            "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
+            "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
+            "<TYPE>"        << type         << "</TYPE>"  <<
+            "<BRIDGE>"      << bridge       << "</BRIDGE>"<<
+            "<VLAN>"        << vlan         << "</VLAN>";
 
     if (!phydev.empty())
     {
@@ -566,6 +572,9 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(bridge,     "/VNET/BRIDGE", "not_found");
     rc += xpath(vlan,       "/VNET/VLAN",   0);
 
+    rc += xpath(cluster_id, "/VNET/CLUSTER_ID", -1);
+    rc += xpath(cluster,    "/VNET/CLUSTER",    "not_found");
+
     // Permissions
     rc += perms_from_xml();
 
@@ -618,10 +627,10 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     string  ip;
     string  mac;
 
-    ostringstream  vnid;
+    ostringstream  oss;
 
-    ip      = nic->vector_value("IP");
-    vnid   << oid;
+    ip    = nic->vector_value("IP");
+    oss << oid;
 
     //--------------------------------------------------------------------------
     //                       GET NETWORK LEASE
@@ -646,7 +655,7 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     //--------------------------------------------------------------------------
 
     nic->replace("NETWORK"   ,name);
-    nic->replace("NETWORK_ID",vnid.str());
+    nic->replace("NETWORK_ID",oss.str());
     nic->replace("BRIDGE"    ,bridge);
     nic->replace("MAC"       ,mac);
     nic->replace("IP"        ,ip);
@@ -668,6 +677,14 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     if (!vlan_id.empty())
     {
         nic->replace("VLAN_ID", vlan_id);
+    }
+
+    if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    {
+        oss.str("");
+        oss << get_cluster_id();
+
+        nic->replace("CLUSTER_ID", oss.str());
     }
 
     return 0;

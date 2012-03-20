@@ -45,8 +45,10 @@ var create_acl_tmpl =
                 <label for="applies">'+tr("This rule applies to")+':</label>\
                 <select name="applies" id="applies"></select>\
                 <div class="clear"></div>\
-                <label style="height:9em">'+tr("Affected resources")+':</label>\
+                <label style="height:11em">'+tr("Affected resources")+':</label>\
                 <input type="checkbox" name="res_host" class="resource_cb" value="HOST">'+tr("Hosts")+'</input><br />\
+                <input type="checkbox" name="res_cluster" class="resource_cb" value="CLUSTER">'+tr("Clusters")+'</input><br />\
+                <input type="checkbox" name="res_datastore" class="resource_cb" value="DATASTORE">'+tr("Datastores")+'</input><br />\
                 <input type="checkbox" name="res_vm" class="resource_cb" value="VM">'+tr("Virtual Machines")+'</input><br />\
                 <input type="checkbox" name="res_net" class="resource_cb" value="NET">'+tr("Virtual Networks")+'</input><br />\
                 <input type="checkbox" name="res_image" class="resource_cb" value="IMAGE">'+tr("Images")+'</input><br />\
@@ -154,7 +156,9 @@ var acl_buttons = {
 var acls_tab = {
     title: tr("ACLs"),
     content: acls_tab_content,
-    buttons: acl_buttons
+    buttons: acl_buttons,
+    tabClass: 'subTab',
+    parentTab: 'system_tab'
 }
 
 Sunstone.addActions(acl_actions);
@@ -247,6 +251,12 @@ function parseAclString(string) {
         case "GROUP":
             resources_str+=tr("Groups")+", ";
             break;
+        case "CLUSTER":
+            resources_str+=tr("Clusters")+", ";
+            break;
+        case "DATASTORE":
+            resources_str+=tr("Datastores")+", ";
+            break;
         };
     };
     //remove ", " from end
@@ -295,6 +305,7 @@ function updateAclsView(request,list){
     });
     updateView(list_array,dataTable_acls);
     updateDashboard("acls",list);
+    updateSystemDashboard("acls",list);
 }
 
 function setupCreateAclDialog(){

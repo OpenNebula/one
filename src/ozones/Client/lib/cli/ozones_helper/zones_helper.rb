@@ -5,7 +5,8 @@ require 'cli/one_helper/oneimage_helper'
 require 'cli/one_helper/onevnet_helper'
 require 'cli/one_helper/onetemplate_helper'
 require 'cli/one_helper/oneuser_helper'
-
+require 'cli/one_helper/onecluster_helper'
+require 'cli/one_helper/onedatastore_helper'
 
 class ZonesHelper < OZonesHelper::OZHelper
     def initialize(kind, user=nil, pass=nil, endpoint_str=nil,
@@ -50,14 +51,14 @@ class ZonesHelper < OZonesHelper::OZHelper
             return [0, zone]
         end
 
-        CLIHelper.print_header(str_h1 % ["VDCS INFORMATION"])
+        CLIHelper.print_header(str_h1 % ["VDCS INFORMATION"], false)
 
         st=CLIHelper::ShowTable.new(nil) do
-            column :ID, "Identifier for VDC", :size=>4 do |d,e|
+            column :ID, "Identifier for VDC", :size=>5 do |d,e|
                 d[:ID]
             end
 
-            column :NAME, "Name of the VDC", :right, :size=>15 do |d,e|
+            column :NAME, "Name of the VDC", :left, :size=>15 do |d,e|
                 d[:NAME]
             end
 

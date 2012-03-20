@@ -1,0 +1,176 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+
+require 'command_parser'
+require 'one_helper/onecluster_helper'
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "`onecluster` <command> [<args>] [<options>]"
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper = OneClusterHelper.new
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS
+
+    list_options = CLIHelper::OPTIONS
+    list_options << OpenNebulaHelper::XML
+    list_options << OpenNebulaHelper::NUMERIC
+
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    set :format, :clusterid, OneClusterHelper.to_id_desc do |arg|
+        helper.to_id(arg)
+    end
+
+    set :format, :clusterid_list, OneClusterHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
+    end
+
+    set :format, :vnetid, OpenNebulaHelper.rname_to_id_desc("VNET") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "VNET")
+    end
+
+    set :format, :hostid, OpenNebulaHelper.rname_to_id_desc("HOST") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "HOST")
+    end
+
+    set :format, :datastoreid, OpenNebulaHelper.rname_to_id_desc("DATASTORE") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "DATASTORE")
+    end
+
+    ########################################################################
+    # Commands
+    ########################################################################
+
+    create_desc = <<-EOT.unindent
+        Creates a new Cluster
+    EOT
+
+    command :create, create_desc, :name do
+        helper.create_resource(options) do |cluster|
+            cluster.allocate(args[0])
+        end
+    end
+
+    delete_desc = <<-EOT.unindent
+        Deletes the given Cluster
+    EOT
+
+    command :delete, delete_desc, [:range, :clusterid_list] do
+        helper.perform_actions(args[0],options,"deleted") do |obj|
+            obj.delete
+        end
+    end
+
+    list_desc = <<-EOT.unindent
+        Lists Clusters in the pool
+    EOT
+
+    command :list, list_desc, :options=>list_options do
+        helper.list_pool(options)
+    end
+
+    show_desc = <<-EOT.unindent
+        Shows information for the given Cluster
+    EOT
+
+    command :show, show_desc,:clusterid, :options=>OpenNebulaHelper::XML do
+        helper.show_resource(args[0],options)
+    end
+
+    addhost_desc = <<-EOT.unindent
+        Adds a Host to the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :hostid_list]
+    command :addhost, addhost_desc,:clusterid, :hostid do
+        helper.perform_action(args[0],options,"updated") do |cluster|
+            cluster.addhost(args[1].to_i)
+        end
+    end
+
+    delhost_desc = <<-EOT.unindent
+        Deletes a Host from the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :hostid_list]
+    command :delhost, delhost_desc, :clusterid, :hostid do
+        helper.perform_action(args[0],options,"updated") do |cluster|
+            cluster.delhost(args[1].to_i)
+        end
+    end
+
+    adddatastore_desc = <<-EOT.unindent
+        Adds a Datastore to the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :datastoreid_list]
+    command :adddatastore, adddatastore_desc,:clusterid, :datastoreid do
+        helper.perform_action(args[0],options,"updated") do |cluster|
+            cluster.adddatastore(args[1].to_i)
+        end
+    end
+
+    deldatastore_desc = <<-EOT.unindent
+        Deletes a Datastore from the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :datastoreid_list]
+    command :deldatastore, deldatastore_desc, :clusterid, :datastoreid do
+        helper.perform_action(args[0],options,"updated") do |cluster|
+            cluster.deldatastore(args[1].to_i)
+        end
+    end
+
+    addvnet_desc = <<-EOT.unindent
+        Adds a Virtual Network to the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :vnetid_list]
+    command :addvnet, addvnet_desc,:clusterid, :vnetid do
+        helper.perform_action(args[0],options,"updated") do |cluster|
+            cluster.addvnet(args[1].to_i)
+        end
+    end
+
+    delvnet_desc = <<-EOT.unindent
+        Deletes a Virtual Network from the given Cluster
+    EOT
+
+    # TODO: allow the second param to be [:range, :vnetid_list]
+    command :delvnet, delvnet_desc,:clusterid, :vnetid do
+        helper.perform_action(args[0],options,"updated") do |cluster|
+            cluster.delvnet(args[1].to_i)
+        end
+    end
+end

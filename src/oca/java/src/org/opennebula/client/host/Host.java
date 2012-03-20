@@ -75,7 +75,6 @@ public class Host extends PoolElement{
      * @param vnm The name of the virtual network manager mad name
      * (vnm_mad_name), this values are taken from the oned.conf with the
      * tag name VN_MAD (name)
-     * @param tm The transfer manager mad name to be used with this host 
      * @return If successful the message contains the associated
      * id generated for this host
      */
@@ -83,10 +82,9 @@ public class Host extends PoolElement{
                                        String hostname,
                                        String im,
                                        String vmm,
-                                       String vnm,
-                                       String tm)
+                                       String vnm)
     {
-        return client.call(ALLOCATE, hostname, im, vmm, vnm, tm);
+        return client.call(ALLOCATE, hostname, im, vmm, vnm);
     }
 
     /**

@@ -222,19 +222,19 @@ int LibVirtDriver::deployment_description_vmware(
         {
             file << "\t\t<disk type='block' device='disk'>" << endl;
             file << "\t\t\t<source file=[" <<  datastore << "] " << vm->get_oid()
-                << "/images/disk."  << i << "'/>"  << endl;
+                << "/disk."  << i << "'/>"  << endl;
         }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
             file << "\t\t\t<source file=[" <<  datastore << "] " << vm->get_oid()
-                << "/images/disk."  << i << ".iso'/>"  << endl;
+                << "/disk."  << i << ".iso'/>"  << endl;
         }
         else
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
                  << "\t\t\t<source file='[" <<  datastore <<"] " << vm->get_oid()
-                 << "/images/disk." << i << "/disk.vmdk'/>" << endl;
+                 << "/disk." << i << "/disk.vmdk'/>" << endl;
         }
 
         file << "\t\t\t<target dev='" << target << "'";

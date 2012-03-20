@@ -40,10 +40,14 @@ const char * UserPool::DEFAULT_AUTH = "default";
 
 const char * UserPool::SERVER_NAME  = "serveradmin";
 
+const int   UserPool::ONEADMIN_ID   = 0;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 time_t UserPool::_session_expiration_time;
+
+string UserPool::oneadmin_name;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -74,8 +78,13 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
-    if (get(0,false) != 0)
+    User * oneadmin_user = get(0, true);
+
+    if (oneadmin_user != 0)
     {
+        oneadmin_name = oneadmin_user->get_name();
+        oneadmin_user->unlock();
+
         return;
     }
 
@@ -121,6 +130,8 @@ UserPool::UserPool(SqlDB * db,
     {
         goto error_token;
     }
+
+    oneadmin_name = one_name;
 
     if ( one_name == SERVER_NAME )
     {

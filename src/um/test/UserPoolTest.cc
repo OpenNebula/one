@@ -380,7 +380,7 @@ public:
     {
         User        *user_oid, *user_name;
         int         oid_0;
-        int         uid_0;
+        //int         uid_0;
         string      name_0;
 
         oid_0 = allocate(0);
@@ -393,7 +393,7 @@ public:
         CPPUNIT_ASSERT(user_oid != 0);
 
         name_0 = user_oid->get_name();
-        uid_0  = user_oid->get_uid();
+        //uid_0  = user_oid->get_uid();
 
         user_oid->unlock();
 

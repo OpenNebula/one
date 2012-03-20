@@ -162,7 +162,7 @@ public:
     /**
      *  Factory method for image templates
      */
-    Template * get_new_template()
+    Template * get_new_template() const
     {
         return new UserTemplate;
     }

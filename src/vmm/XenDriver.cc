@@ -281,7 +281,7 @@ int XenDriver::deployment_description(
             }
         }
 
-        file << vm->get_remote_dir() << "/disk." << i << ","
+        file << vm->get_remote_system_dir() << "/disk." << i << ","
              << target << ","
              << mode
              << "'," << endl;
@@ -312,7 +312,7 @@ int XenDriver::deployment_description(
                 file << default_driver;
             }
 
-            file << vm->get_remote_dir() << "/disk." << num <<","<< target <<","
+            file << vm->get_remote_system_dir() << "/disk." << num <<","<< target <<","
                  << "r'," << endl;
         }
         else

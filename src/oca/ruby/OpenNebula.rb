@@ -42,6 +42,10 @@ require 'OpenNebula/Group'
 require 'OpenNebula/GroupPool'
 require 'OpenNebula/Acl'
 require 'OpenNebula/AclPool'
+require 'OpenNebula/Datastore'
+require 'OpenNebula/DatastorePool'
+require 'OpenNebula/Cluster'
+require 'OpenNebula/ClusterPool'
 
 module OpenNebula
 

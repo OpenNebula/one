@@ -73,7 +73,6 @@ module Zona
             super(VDC_KIND)
         end
 
-
         # Adds hosts to a VDC. The specified hosts are added to the VDC's
         # current ones.
         # @param [Array<#to_i>] hosts_array array of hosts IDs
@@ -82,17 +81,63 @@ module Zona
         # @option options [Boolean] :force allows hosts to add hosts
         # which already belong to other VDCs
         # @return [Zona::Error] nil or Error
-        def addhosts(hosts_array,options={})
+        def add_hosts(hosts_array,options={})
+            addresource(:HOSTS, hosts_array, options)
+        end
+
+        def add_networks(net_array,options={})
+            addresource(:NETWORKS, net_array, options)
+        end
+
+        def add_datastores(ds_array,options={})
+            addresource(:DATASTORES, ds_array, options)
+        end
+
+        # Delete hosts from a VDC. The specified hosts are removed from the VDC.
+        # @param [Array<#to_i>] hosts_array array of the VDC's hosts IDs
+        # to be removed. If a host is not in the VDC, then it is ignored.
+        # @return [Zona::Error] nil or Error
+        def del_hosts(hosts_array)
+            delresource(:HOSTS, hosts_array)
+        end
+
+        def del_networks(net_array)
+            delresource(:NETWORKS, net_array)
+        end
+
+        def del_datastores(ds_array)
+            delresource(:DATASTORES, ds_array)
+        end
+
+        alias :add_host :add_hosts
+        alias :del_host :del_hosts
+
+        alias :add_network :add_networks
+        alias :del_network :del_networks
+
+        alias :add_datastore :add_datastores
+        alias :del_datastore :del_datastores
+
+        private
+
+        def addresource(type, rsrc_array, options={})
+            return nil if rsrc_array.nil?
+            return nil if rsrc_array.empty?
             return Error.new('VDC not info-ed') if !@json_hash
 
-            # array of hosts, integers
-            hosts = self[:HOSTS].split(',').collect!{|x| x.to_i}
-            hosts.concat(hosts_array).uniq!
+            orig_resources = self[:RESOURCES][type].clone
 
-            new_hosts = hosts.join(',')
-            template = {:ID => @pe_id, :HOSTS => new_hosts}
+            rsrc_array.map! {|i| i.to_i}
+            self[:RESOURCES][type].concat(rsrc_array).uniq!
+
+            return nil if self[:RESOURCES][type] == orig_resources
+
+            template = {
+                :ID        => @pe_id,
+                :RESOURCES => self[:RESOURCES]
+            }
+
             template[:FORCE] = "YES" if options[:FORCE]
-
             template = {:VDC => template}
 
             rc = @client.put_resource(VDC_KIND,@pe_id,template.to_json)
@@ -100,25 +145,28 @@ module Zona
             nil
         end
 
-        # Delete hosts from a VDC. The specified hosts are removed from the VDC.
-        # @param [Array<#to_i>] hosts_array array of the VDC's hosts IDs
-        # to be removed. If a host is not in the VDC, then it is ignored.
-        # @return [Zona::Error] nil or Error
-        def delhosts(hosts_array)
+        def delresource(type, rsrc_array)
+            return nil if rsrc_array.nil?
+            return nil if rsrc_array.empty?
             return Error.new('VDC not info-ed') if !@json_hash
 
-            hosts = self[:HOSTS].split(',').collect!{|x| x.to_i}
+            orig_resources = self[:RESOURCES][type].clone
 
-            new_hosts = (hosts - hosts_array).join(',')
-            template = {:VDC => {:ID => @pe_id, :HOSTS => new_hosts}}
+            rsrc_array.map! {|i| i.to_i}
+            self[:RESOURCES][type] = self[:RESOURCES][type] - rsrc_array
+
+            return nil if self[:RESOURCES][type] == orig_resources
+
+            template = {
+                :VDC => {
+                    :ID        => @pe_id,
+                    :RESOURCES => self[:RESOURCES]
+                }
+            }
 
             rc = @client.put_resource(VDC_KIND,@pe_id,template.to_json)
             return rc if Zona.is_error?(rc)
             nil
         end
-
-        alias :addhost :addhosts
-        alias :delhost :delhosts
-
     end
 end

@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 
     if( fd == -1)
     {
-        cerr<< "Error: Can not start oned, opening lock file " << lockfile 
+        cerr<< "Error: Cannot start oned, opening lock file " << lockfile 
             << endl;
         
         exit(-1);
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     return 0;
     
 error_chdir:
-    cerr << "Error: can not change to dir " << wd << "\n";
+    cerr << "Error: cannot change to dir " << wd << "\n";
     unlink(lockfile.c_str());
     exit(-1);
 

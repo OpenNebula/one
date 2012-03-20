@@ -37,7 +37,7 @@ class CloudServer
     ##########################################################################
     # Public attributes
     ##########################################################################
-    attr_reader :config, :logger
+    attr_reader :config
 
     # Initializes the Cloud server based on a config file
     # config_file:: _String_ for the server. MUST include the following
@@ -47,9 +47,18 @@ class CloudServer
     #   XMLRPC
     def initialize(config, logger=nil)
         # --- Load the Cloud Server configuration file ---
-        @config = config
-        @logger = logger
+        @config  = config
+        @@logger = logger
     end
+
+    def self.logger
+        return @@logger
+    end
+
+    def logger
+        return @@logger
+    end
+
     #
     # Prints the configuration of the server
     #
@@ -101,15 +110,27 @@ module CloudLogger
     DATE_FORMAT = "%a %b %d %H:%M:%S %Y"
 
     # Patch logger class to be compatible with Rack::CommonLogger
-    class ::Logger
+    class CloudLogger < Logger
+
+        def initialize(path)
+            super(path)
+        end
+
         def write(msg)
             info msg.chop
+        end
+
+        def add(severity, message = nil, progname = nil, &block)
+            rc = super(severity, message, progname, &block)
+            @logdev.dev.flush
+
+            rc
         end
     end
 
     def enable_logging(path=nil, debug_level=3)
         path ||= $stdout
-        logger = ::Logger.new(path)
+        logger = CloudLogger.new(path)
         logger.level = DEBUG_LEVEL[debug_level]
         logger.formatter = proc do |severity, datetime, progname, msg|
             MSG_FORMAT % [

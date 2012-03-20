@@ -30,7 +30,7 @@ exec_and_log "$XM_SHUTDOWN $deploy_id" \
 
 OUT=$(gdm)
 
-while [ -n "$OUT" -a $(echo $OUT | awk '{print $5}') != "---s--" ]; do
+while [ -n "$OUT" -a "$(echo $OUT | awk '{print $5}')" != "---s--" ]; do
     sleep 1
     OUT=$(gdm)
 done

@@ -25,4 +25,6 @@ module OpenNebulaJSON
     class GroupPoolJSON < OpenNebula::GroupPool; include JSONUtils; end
     class UserPoolJSON < OpenNebula::UserPool; include JSONUtils; end
     class AclPoolJSON < OpenNebula::AclPool; include JSONUtils; end
+    class ClusterPoolJSON < OpenNebula::ClusterPool; include JSONUtils; end
+    class DatastorePoolJSON < OpenNebula::DatastorePool; include JSONUtils; end
 end

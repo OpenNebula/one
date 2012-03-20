@@ -52,13 +52,6 @@ protected:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
-
-    int get_info (PoolSQL *                 pool,
-                  int                       id,
-                  PoolObjectSQL::ObjectType type,
-                  RequestAttributes&        att,
-                  PoolObjectAuth&           perms, 
-                  string&                   name);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -158,6 +151,25 @@ public:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreChown: public RequestManagerChown
+{
+public:
+    DatastoreChown():
+        RequestManagerChown("Datastore",
+                           "Changes ownership of a datastore")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreChown(){};
+
 };
 
 /* -------------------------------------------------------------------------- */

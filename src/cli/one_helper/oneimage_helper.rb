@@ -45,10 +45,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Image", :left, :size=>12 do |d|
-                d["NAME"]
-            end
-
             column :USER, "Username of the Virtual Machine owner", :left,
                     :size=>8 do |d|
                 helper.user_name(d, options)
@@ -59,6 +55,14 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
+            column :NAME, "Name of the Image", :left, :size=>12 do |d|
+                d["NAME"]
+            end
+
+            column :DATASTORE, "Name of the Image", :left, :size=>10 do |d|
+                d["DATASTORE"]
+            end
+
             column :TYPE, "Type of the Image", :size=>4 do |d,e|
                 OneImageHelper.type_to_str(d["TYPE"])
             end
@@ -67,7 +71,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                     :size=>20 do |d|
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
-
+            
             column :PERSISTENT, "Whether the Image is persistent or not",
                     :size=>3 do |d|
                 OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])
@@ -87,7 +91,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d['SIZE'].to_i,options,"M")
             end
 
-            default :ID, :USER, :GROUP, :NAME, :SIZE, :TYPE, :REGTIME,
+            default :ID, :USER, :GROUP, :NAME, :DATASTORE, :SIZE, :TYPE,
                 :PERSISTENT , :STAT, :RVMS
         end
 
@@ -118,6 +122,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", image.name]
         puts str % ["USER", image['UNAME']]
         puts str % ["GROUP",image['GNAME']]
+        puts str % ["DATASTORE",image['DATASTORE']]
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(image['REGTIME'])]
