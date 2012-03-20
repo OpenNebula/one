@@ -313,6 +313,8 @@ module OZones
             rule_str << "##{@vdc.VDCADMIN_ID} USER/* CREATE"
             rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} " \
             "USE+MANAGE+ADMIN"
+            rule_str << "##{@vdc.VDCADMIN_ID} VM+IMAGE+TEMPLATE/@#{@vdc.GROUP_ID} " \
+            "USE+MANAGE"
 
             ####################################################################
             #When more rules are added the class constant RESOURCE_ACL_FIRST_ID
