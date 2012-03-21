@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-module CoreCloudAuth
+module OpenNebulaCloudAuth
     def do_auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)
 
@@ -26,7 +26,7 @@ module CoreCloudAuth
 
             rc = user.info
             if OpenNebula.is_error?(rc)
-                logger.error { "User #{username} could not be authenticated"}
+                logger.error { "User #{username} could not be authenticated" }
                 logger.error { rc.message }
                 return nil 
             end

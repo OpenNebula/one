@@ -17,7 +17,7 @@
 module EC2CloudAuth
     def do_auth(env, params={})
         username = params['AWSAccessKeyId']
-        one_pass = get_password(username)
+        one_pass = get_password(username, 'core')
         return nil unless one_pass
 
         signature = case params['SignatureVersion']

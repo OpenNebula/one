@@ -118,9 +118,9 @@ class CloudAuth
         @user_pool
     end
 
-    def get_password(username, non_public_user=false)
-        if non_public_user == true
-            xp="USER[NAME=\"#{username}\" and AUTH_DRIVER!=\"public\"]/PASSWORD"
+    def get_password(username, driver=nil)
+        if driver
+            xp="USER[NAME=\"#{username}\" and AUTH_DRIVER=\"#{driver}\"]/PASSWORD"
         else
             xp="USER[NAME=\"#{username}\"]/PASSWORD"
         end
