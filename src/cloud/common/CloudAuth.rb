@@ -17,10 +17,11 @@
 class CloudAuth
     # These are the authentication methods for the user requests
     AUTH_MODULES = {
-        "occi"     => 'OCCICloudAuth',
-        "sunstone" => 'SunstoneCloudAuth' ,
-        "ec2"      => 'EC2CloudAuth',
-        "x509"     => 'X509CloudAuth'
+        "occi"       => 'OCCICloudAuth',
+        "sunstone"   => 'SunstoneCloudAuth' ,
+        "ec2"        => 'EC2CloudAuth',
+        "x509"       => 'X509CloudAuth',
+        "opennebula" => 'OpenNebulaCloudAuth'
     }
 
     # These are the authentication modules for the OpenNebula requests
