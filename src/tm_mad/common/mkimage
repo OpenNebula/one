@@ -46,10 +46,14 @@ ssh_make_path $DST_HOST $DST_DIR
 #-------------------------------------------------------------------------------
 # Make the new image (file-based)
 #-------------------------------------------------------------------------------
-MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE`
+MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
 
+if ! echo "$FSTYPE"|grep -q ^vmdk; then
+  CREATE_IMAGE="$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
+fi
+ 
 MKSCRIPT=$(cat <<EOF
-$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M
+$CREATE_IMAGE
 $MKFS_CMD
 EOF
 )
