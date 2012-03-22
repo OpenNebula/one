@@ -22,8 +22,8 @@
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 
-SRC=$1 # iqn.2012-02.org.opennebula:o200.vg-one.lv-one-0
-DST=$2 # o202:/var/lib/one//datastores/0/0/disk.0
+SRC=$1
+DST=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -38,10 +38,10 @@ fi
 #-------------------------------------------------------------------------------
 
 IQN=$SRC
-TARGET=`arg_path $SRC` # o200.vg-one.lv-one-0
-DST_PATH=`arg_path $DST` # /var/lib/one/datastores/0/0/disk.0
-DST_HOST=`arg_host $DST` # o202
-DST_DIR=`dirname $DST_PATH` # /var/lib/one/datastores/0/0
+TARGET=`arg_path $SRC`
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
 
 BASE_IQN=`echo $IQN|$CUT -d: -f1`
 TARGET=`echo $IQN|$CUT -d: -f2`
@@ -64,17 +64,3 @@ EOF
 ssh_exec_and_log "$DST_HOST" "$DISCOVER_CMD" \
         "Error registering $DST_HOST:$DEV"
 exit 0
-
-
-# case $SRC in
-# http://*)
-#     log "Downloading $SRC"
-#     RMT_CMD="$WGET -O $DST_PATH $SRC"
-#     ssh_exec_and_log "$DST_HOST" "$RMT_CMD" "Error downloading $SRC"
-#     ;;
-
-# *)
-#     log "Cloning $SRC in $DST_PATH"
-#     exec_and_log "$SCP $SRC $DST" "Error copying $SRC to $DST"
-#     ;;
-# esac

@@ -22,8 +22,8 @@
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 
-SRC=$1 # o202:/var/lib/one//datastores/0/1/disk.0
-DST=$2 # iqn.2012-02.org.opennebula:o200.vg-one.lv-one-0
+SRC=$1
+DST=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -33,7 +33,7 @@ fi
 
 . $TMCOMMON
 
-SRC_HOST=`arg_host $SRC` # o202
+SRC_HOST=`arg_host $SRC`
 IQN=$DST
 
 log "Logging out $IQN"

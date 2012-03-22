@@ -54,6 +54,4 @@ else
     ssh_exec_and_log "$DST_HOST" "rm -rf $DST_PATH" "Error deleting $DST_PATH"
 fi
 
-ssh_exec_and_log "$DST_HOST" "$DISCOVER_CMD" \
-        "Error registering $DST_HOST:$DEV"
 exit 0

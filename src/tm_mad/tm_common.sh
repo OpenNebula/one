@@ -33,6 +33,9 @@ ONE_SH=$ONE_LIB/sh
 
 . $ONE_SH/scripts_common.sh
 
+# Set umask
+umask 0007
+
 # ------------------------------------------------------------------------------
 # Function to get hosts and paths from arguments
 # ------------------------------------------------------------------------------

@@ -24,7 +24,6 @@
 SRC=$1
 DST=$2
 
-
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
@@ -36,16 +35,6 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source ${DRIVER_PATH}/../../datastore/iscsi/iscsi.conf
-
-# {:path=>
-#   "/var/lib/one/remotes/tm/iscsi/mv o202:/var/lib/one//datastores/0/3/disk.0 rama:/var/lib/one/datastores/0/3/disk.0",
-#  :result=>"SUCCESS",
-#  :info=>"-"}
-
-# {:path=>
-#   "/var/lib/one/remotes/tm/shared/mv o202:/var/lib/one//datastores/0/3 rama:/var/lib/one/datastores/0/3",
-#  :result=>"SUCCESS",
-#  :info=>"-"}
 
 #-------------------------------------------------------------------------------
 # Return if moving a disk, we will move them when moving the whole system_ds
