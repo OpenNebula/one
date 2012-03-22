@@ -43,7 +43,7 @@ DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
-ssh_make_path $DST_HOST $DST_DIR
+ssh_make_path $DST_HOST $DST_PATH
 
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST
@@ -51,6 +51,7 @@ ssh_make_path $DST_HOST $DST_DIR
 log "Cloning $SRC_PATH in $DST"
 
 CLONESCRIPT=$(cat <<EOF
+cd $DST_DIR
 sudo $VMKFSTOOLS -U $DST_PATH/disk.vmdk
 sudo $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
 EOF
