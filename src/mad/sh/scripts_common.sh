@@ -208,6 +208,7 @@ function mkfs_command {
             VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 1`
             echo "sudo $VMKFSTOOLS -U $DST/disk.vmdk ; sudo $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST_PATH/disk.vmdk"
             return 0
+            ;;
         *)
             OPTS=""
             ;;
