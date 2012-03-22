@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
+#include "DatastorePool.h"
 
 using namespace std;
 
@@ -77,6 +78,17 @@ public:
      */
     int add_datastore(int id, string& error_msg)
     {
+        if ( id == DatastorePool::SYSTEM_DS_ID )
+        {
+            ostringstream oss;
+            oss << "Datastore '"<< DatastorePool::SYSTEM_DS_NAME
+                << "' cannot be added to any cluster.";
+
+            error_msg = oss.str();
+
+            return -1;
+        }
+
         int rc = datastores.add_collection_id(id);
 
         if ( rc < 0 )
