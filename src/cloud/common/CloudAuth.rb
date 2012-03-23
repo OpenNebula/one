@@ -46,10 +46,10 @@ class CloudAuth
 
     # conf a hash with the configuration attributes as symbols
     def initialize(conf, logger=nil)
-        @conf = conf
+        @conf   = conf
         @logger = logger
 
-        @lock = Mutex.new
+        @lock   = Mutex.new
 
         @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
 
@@ -63,7 +63,7 @@ class CloudAuth
         if AUTH_CORE_MODULES.include?(@conf[:core_auth])
             core_auth = AUTH_CORE_MODULES[@conf[:core_auth]]
         else
-            core_auth =AUTH_CORE_MODULES["cipher"]
+            core_auth = AUTH_CORE_MODULES["cipher"]
         end
 
         begin
@@ -84,22 +84,24 @@ class CloudAuth
     # ussername:: _String_ Name of the User
     # [return] _Client_
     def client(username=nil)
+        expiration_time = @lock.synchronize {
+            time_now = Time.now.to_i
+    
+            if time_now > @token_expiration_time - EXPIRE_MARGIN
+                @token_expiration_time = time_now + EXPIRE_DELTA
+            end
+
+            @token_expiration_time
+        }
+
         token = @server_auth.login_token(expiration_time,username)
  
         Client.new(token,@conf[:one_xmlrpc])
     end
 
-    def update_userpool_cache
-        oneadmin_client = client
-
-        @lock.synchronize {
-            @user_pool = OpenNebula::UserPool.new(oneadmin_client)
-
-            rc = @user_pool.info
-            raise rc.message if OpenNebula.is_error?(rc)
-        }
-    end
-
+    #
+    #
+    #
     def auth(env, params={})
         username = do_auth(env, params)
 
@@ -113,24 +115,10 @@ class CloudAuth
 
     protected
 
-    def expiration_time
-        @lock.synchronize {
-            time_now = Time.now.to_i
-    
-            if time_now > @token_expiration_time - EXPIRE_MARGIN
-                @token_expiration_time = time_now + EXPIRE_DELTA
-            end
-
-            @token_expiration_time
-        }
-    end
-
-    def retrieve_from_userpool(xpath)
-        @lock.synchronize {
-            @user_pool[xpath]
-        }
-    end
-
+    # Gets the password associated with a username
+    # username:: _String_ the username
+    # driver:: _String_ list of valid drivers for the user, | separated
+    # [return] _Hash_ with the username
     def get_password(username, driver=nil)
         xpath = "USER[NAME=\"#{username}\""
         if driver
@@ -149,5 +137,25 @@ class CloudAuth
         xpath = "USER[contains(PASSWORD, \"#{password}\")]/NAME"
 
         retrieve_from_userpool(xpath)
+    end
+
+    private
+
+    def retrieve_from_userpool(xpath)
+        @lock.synchronize {
+            @user_pool[xpath]
+        }
+    end
+
+
+    def update_userpool_cache
+        oneadmin_client = client
+
+        @lock.synchronize {
+            @user_pool = OpenNebula::UserPool.new(oneadmin_client)
+
+            rc = @user_pool.info
+            raise rc.message if OpenNebula.is_error?(rc)
+        }
     end
 end
