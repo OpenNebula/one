@@ -182,8 +182,7 @@ fi
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/examples/tm"
 
-ETC_DIRS="$ETC_LOCATION/datastore \
-          $ETC_LOCATION/im_ec2 \
+ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/tm \
