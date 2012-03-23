@@ -21,7 +21,7 @@ module OCCICloudAuth
         if auth.provided? && auth.basic?
             username, password = auth.credentials
 
-            one_pass = get_password(username)
+            one_pass = get_password(username, 'core|public')
 
             if one_pass && one_pass == password
                 return username

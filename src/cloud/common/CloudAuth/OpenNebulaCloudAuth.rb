@@ -14,18 +14,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-module SunstoneCloudAuth
+module OpenNebulaCloudAuth
     def do_auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)
 
         if auth.provided? && auth.basic?
             username, password = auth.credentials
 
-            one_pass = get_password(username, 'core')
+            client = OpenNebula::Client.new("#{username}:#{password}")
+            user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
 
-            if one_pass && one_pass == Digest::SHA1.hexdigest(password)
-                return username
+            rc = user.info
+            if OpenNebula.is_error?(rc)
+                logger.error { "User #{username} could not be authenticated" }
+                logger.error { rc.message }
+                return nil 
             end
+            
+            return username
         end
 
         return nil

@@ -14,13 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'thread'
+
 class CloudAuth
     # These are the authentication methods for the user requests
     AUTH_MODULES = {
-        "occi"     => 'OCCICloudAuth',
-        "sunstone" => 'SunstoneCloudAuth' ,
-        "ec2"      => 'EC2CloudAuth',
-        "x509"     => 'X509CloudAuth'
+        "occi"       => 'OCCICloudAuth',
+        "sunstone"   => 'SunstoneCloudAuth' ,
+        "ec2"        => 'EC2CloudAuth',
+        "x509"       => 'X509CloudAuth',
+        "opennebula" => 'OpenNebulaCloudAuth'
     }
 
     # These are the authentication modules for the OpenNebula requests
@@ -43,8 +46,10 @@ class CloudAuth
 
     # conf a hash with the configuration attributes as symbols
     def initialize(conf, logger=nil)
-        @conf = conf
+        @conf   = conf
         @logger = logger
+
+        @lock   = Mutex.new
 
         @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
 
@@ -55,11 +60,10 @@ class CloudAuth
             raise "Auth module not specified"
         end
 
-
         if AUTH_CORE_MODULES.include?(@conf[:core_auth])
             core_auth = AUTH_CORE_MODULES[@conf[:core_auth]]
         else
-            core_auth =AUTH_CORE_MODULES["cipher"]
+            core_auth = AUTH_CORE_MODULES["cipher"]
         end
 
         begin
@@ -68,6 +72,11 @@ class CloudAuth
         rescue => e
             raise e.message
         end
+
+        @user_pool = OpenNebula::UserPool.new(client)
+
+        rc = @user_pool.info
+        raise rc.message if OpenNebula.is_error?(rc)
     end
 
     # Generate a new OpenNebula client for the target User, if the username
@@ -75,19 +84,24 @@ class CloudAuth
     # ussername:: _String_ Name of the User
     # [return] _Client_
     def client(username=nil)
+        expiration_time = @lock.synchronize {
+            time_now = Time.now.to_i
+    
+            if time_now > @token_expiration_time - EXPIRE_MARGIN
+                @token_expiration_time = time_now + EXPIRE_DELTA
+            end
+
+            @token_expiration_time
+        }
+
         token = @server_auth.login_token(expiration_time,username)
+ 
         Client.new(token,@conf[:one_xmlrpc])
     end
 
-    def update_userpool_cache
-        @user_pool = OpenNebula::UserPool.new(client)
-
-        rc = @user_pool.info
-        if OpenNebula.is_error?(rc)
-            raise rc.message
-        end
-    end
-
+    #
+    #
+    #
     def auth(env, params={})
         username = do_auth(env, params)
 
@@ -101,36 +115,47 @@ class CloudAuth
 
     protected
 
-    def expiration_time
-        time_now = Time.now.to_i
-
-        if time_now > @token_expiration_time - EXPIRE_MARGIN
-            @token_expiration_time = time_now + EXPIRE_DELTA
+    # Gets the password associated with a username
+    # username:: _String_ the username
+    # driver:: _String_ list of valid drivers for the user, | separated
+    # [return] _Hash_ with the username
+    def get_password(username, driver=nil)
+        xpath = "USER[NAME=\"#{username}\""
+        if driver
+            xpath << " and (AUTH_DRIVER=\""
+            xpath << driver.split('|').join("\" or AUTH_DRIVER=\"") << '")'
         end
+        xpath << "]/PASSWORD"
 
-        @token_expiration_time
-    end
-
-    # If @user_pool is not defined it will retrieve it from OpenNebula
-    def get_userpool
-        update_userpool_cache if @user_pool.nil?
-        @user_pool
-    end
-
-    def get_password(username, non_public_user=false)
-        if non_public_user == true
-            xp="USER[NAME=\"#{username}\" and AUTH_DRIVER!=\"public\"]/PASSWORD"
-        else
-            xp="USER[NAME=\"#{username}\"]/PASSWORD"
-        end
-
-        return get_userpool[xp]
+        retrieve_from_userpool(xpath)
     end
 
     # Gets the username associated with a password
     # password:: _String_ the password
     # [return] _Hash_ with the username
     def get_username(password)
-        return get_userpool["USER[contains(PASSWORD, \"#{password}\")]/NAME"]
+        xpath = "USER[contains(PASSWORD, \"#{password}\")]/NAME"
+
+        retrieve_from_userpool(xpath)
+    end
+
+    private
+
+    def retrieve_from_userpool(xpath)
+        @lock.synchronize {
+            @user_pool[xpath]
+        }
+    end
+
+
+    def update_userpool_cache
+        oneadmin_client = client
+
+        @lock.synchronize {
+            @user_pool = OpenNebula::UserPool.new(oneadmin_client)
+
+            rc = @user_pool.info
+            raise rc.message if OpenNebula.is_error?(rc)
+        }
     end
 end
