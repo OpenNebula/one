@@ -84,16 +84,16 @@ class CloudAuth
     # ussername:: _String_ Name of the User
     # [return] _Client_
     def client(username=nil)
-        token = @lock.synchronize {
-            @server_auth.login_token(expiration_time,username)
-        }
-
+        @server_auth.login_token(expiration_time,username)
+ 
         Client.new(token,@conf[:one_xmlrpc])
     end
 
     def update_userpool_cache
+        oneadmin_client = client
+
         @lock.synchronize {
-            @user_pool = OpenNebula::UserPool.new(client)
+            @user_pool = OpenNebula::UserPool.new(oneadmin_client)
 
             rc = @user_pool.info
             raise rc.message if OpenNebula.is_error?(rc)
@@ -114,13 +114,15 @@ class CloudAuth
     protected
 
     def expiration_time
-        time_now = Time.now.to_i
+        @lock.synchronize {
+            time_now = Time.now.to_i
+    
+            if time_now > @token_expiration_time - EXPIRE_MARGIN
+                @token_expiration_time = time_now + EXPIRE_DELTA
+            end
 
-        if time_now > @token_expiration_time - EXPIRE_MARGIN
-            @token_expiration_time = time_now + EXPIRE_DELTA
-        end
-
-        @token_expiration_time
+            @token_expiration_time
+        }
     end
 
     def retrieve_from_userpool(xpath)
