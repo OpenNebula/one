@@ -84,7 +84,7 @@ class CloudAuth
     # ussername:: _String_ Name of the User
     # [return] _Client_
     def client(username=nil)
-        @server_auth.login_token(expiration_time,username)
+        token = @server_auth.login_token(expiration_time,username)
  
         Client.new(token,@conf[:one_xmlrpc])
     end
