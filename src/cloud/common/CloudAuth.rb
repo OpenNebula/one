@@ -49,7 +49,7 @@ class CloudAuth
         @conf = conf
         @logger = logger
 
-        @mutex = Mutex.new
+        @lock = Mutex.new
 
         @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
 
@@ -73,7 +73,10 @@ class CloudAuth
             raise e.message
         end
 
-        update_userpool_cache
+        @user_pool = OpenNebula::UserPool.new(client)
+
+        rc = @user_pool.info
+        raise rc.message if OpenNebula.is_error?(rc)
     end
 
     # Generate a new OpenNebula client for the target User, if the username
@@ -81,12 +84,15 @@ class CloudAuth
     # ussername:: _String_ Name of the User
     # [return] _Client_
     def client(username=nil)
-        token = @server_auth.login_token(expiration_time,username)
+        token = @lock.synchronize {
+            @server_auth.login_token(expiration_time,username)
+        }
+
         Client.new(token,@conf[:one_xmlrpc])
     end
 
     def update_userpool_cache
-        @mutex.synchronize {
+        @lock.synchronize {
             @user_pool = OpenNebula::UserPool.new(client)
 
             rc = @user_pool.info
@@ -111,28 +117,35 @@ class CloudAuth
         time_now = Time.now.to_i
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
-            @mutex.synchronize {
-                @token_expiration_time = time_now + EXPIRE_DELTA
-            }
+            @token_expiration_time = time_now + EXPIRE_DELTA
         end
 
         @token_expiration_time
     end
 
-    def get_password(username, driver=nil)
-        if driver
-            xp="USER[NAME=\"#{username}\" and AUTH_DRIVER=\"#{driver}\"]/PASSWORD"
-        else
-            xp="USER[NAME=\"#{username}\"]/PASSWORD"
-        end
+    def retrieve_from_userpool(xpath)
+        @lock.synchronize {
+            @user_pool[xpath]
+        }
+    end
 
-        @user_pool[xp]
+    def get_password(username, driver=nil)
+        xpath = "USER[NAME=\"#{username}\""
+        if driver
+            xpath = "\" and (AUTH_DRIVER=\""
+            xpath << driver.split('|').join("or AUTH_DRIVER=\"") << '")'
+        end
+        xpath << "]/PASSWORD"
+
+        retrieve_from_userpool(xpath)
     end
 
     # Gets the username associated with a password
     # password:: _String_ the password
     # [return] _Hash_ with the username
     def get_username(password)
-        @user_pool["USER[contains(PASSWORD, \"#{password}\")]/NAME"]
+        xpath = "USER[contains(PASSWORD, \"#{password}\")]/NAME"
+
+        retrieve_from_userpool(xpath)
     end
 end
