@@ -803,10 +803,13 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
               src/tm_mad/lvm/context"
 
 TM_VMWARE_FILES="src/tm_mad/vmware/clone \
+                 src/tm_mad/vmware/delete
                  src/tm_mad/vmware/ln \
+                 src/tm_mad/vmware/mkswap \
+                 src/tm_mad/vmware/mkimage \
                  src/tm_mad/vmware/mv \
-                 src/tm_mad/vmware/functions.sh \
-                 src/tm_mad/vmware/context"
+                 src/tm_mad/vmware/context \
+                 src/tm_mad/vmware/mvds"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
