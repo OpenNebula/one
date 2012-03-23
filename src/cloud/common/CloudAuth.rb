@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'thread'
+
 class CloudAuth
     # These are the authentication methods for the user requests
     AUTH_MODULES = {
@@ -47,6 +49,8 @@ class CloudAuth
         @conf = conf
         @logger = logger
 
+        @mutex = Mutex.new
+
         @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
 
         if AUTH_MODULES.include?(@conf[:auth])
@@ -55,7 +59,6 @@ class CloudAuth
         else
             raise "Auth module not specified"
         end
-
 
         if AUTH_CORE_MODULES.include?(@conf[:core_auth])
             core_auth = AUTH_CORE_MODULES[@conf[:core_auth]]
@@ -69,6 +72,8 @@ class CloudAuth
         rescue => e
             raise e.message
         end
+
+        update_userpool_cache
     end
 
     # Generate a new OpenNebula client for the target User, if the username
@@ -81,12 +86,12 @@ class CloudAuth
     end
 
     def update_userpool_cache
-        @user_pool = OpenNebula::UserPool.new(client)
+        @mutex.synchronize {
+            @user_pool = OpenNebula::UserPool.new(client)
 
-        rc = @user_pool.info
-        if OpenNebula.is_error?(rc)
-            raise rc.message
-        end
+            rc = @user_pool.info
+            raise rc.message if OpenNebula.is_error?(rc)
+        }
     end
 
     def auth(env, params={})
@@ -106,16 +111,12 @@ class CloudAuth
         time_now = Time.now.to_i
 
         if time_now > @token_expiration_time - EXPIRE_MARGIN
-            @token_expiration_time = time_now + EXPIRE_DELTA
+            @mutex.synchronize {
+                @token_expiration_time = time_now + EXPIRE_DELTA
+            }
         end
 
         @token_expiration_time
-    end
-
-    # If @user_pool is not defined it will retrieve it from OpenNebula
-    def get_userpool
-        update_userpool_cache if @user_pool.nil?
-        @user_pool
     end
 
     def get_password(username, driver=nil)
@@ -125,13 +126,13 @@ class CloudAuth
             xp="USER[NAME=\"#{username}\"]/PASSWORD"
         end
 
-        return get_userpool[xp]
+        @user_pool[xp]
     end
 
     # Gets the username associated with a password
     # password:: _String_ the password
     # [return] _Hash_ with the username
     def get_username(password)
-        return get_userpool["USER[contains(PASSWORD, \"#{password}\")]/NAME"]
+        @user_pool["USER[contains(PASSWORD, \"#{password}\")]/NAME"]
     end
 end
