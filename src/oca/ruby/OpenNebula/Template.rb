@@ -70,9 +70,12 @@ module OpenNebula
 
         # Allocates a new Template in OpenNebula
         #
-        # +templatename+ A string containing the name of the Template.
-        def allocate(templatename)
-            super(TEMPLATE_METHODS[:allocate], templatename)
+        # @param description [String] The contents of the Template.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def allocate(description)
+            super(TEMPLATE_METHODS[:allocate], description)
         end
 
         # Deletes the Template
