@@ -132,8 +132,8 @@ class CloudAuth
     def get_password(username, driver=nil)
         xpath = "USER[NAME=\"#{username}\""
         if driver
-            xpath = "\" and (AUTH_DRIVER=\""
-            xpath << driver.split('|').join("or AUTH_DRIVER=\"") << '")'
+            xpath << " and (AUTH_DRIVER=\""
+            xpath << driver.split('|').join("\" or AUTH_DRIVER=\"") << '")'
         end
         xpath << "]/PASSWORD"
 
