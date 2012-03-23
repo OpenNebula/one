@@ -141,7 +141,7 @@ error_xml:
     db->free_str(sql_hostname);
     db->free_str(sql_xml);
 
-    error_str = "Error transforming the Group to XML.";
+    error_str = "Error transforming the Host to XML.";
 
     goto error_common;
 
