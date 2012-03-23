@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# ln fe:SOURCE host:remote_system_ds/disk.i
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
+SRC=$1
+DST=$2
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+. $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
+SRC_PATH=`arg_path $SRC`
+SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
+
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+
+#-------------------------------------------------------------------------------
+# Link (ln) SRC into DST
+#-------------------------------------------------------------------------------
+
+# Is it a file or a folder (VMware)?
+if [ -d `arg_path $SRC`  ]; then
+	ssh_make_path $DST_HOST $DST_PATH
+
+	# It's a folder, make links for all elements
+    SRC_FOLDER_NAME=`basename $SRC_PATH`
+    SRC_WITH_NO_FOLDER=`dirname $SRC_PATH`
+    SRC_DS_NAME=`basename $SRC_WITH_NO_FOLDER`
+	REL_SRC_PATH="../../../$SRC_DS_NAME/$SRC_FOLDER_NAME"
+
+	log "Link all files in $SRC_PATH to $DST_PATH"
+
+LINK_SCRIPT=$(cat <<EOF
+for file in \$(cd $DST_DIR  ; find $SRC_PATH -type f); do
+	FNAME=\$(basename \$file)
+	(cd $DST_PATH ;  ln -sf $REL_SRC_PATH/\$FNAME $DST_PATH/$FNAME)
+done
+EOF
+)
+	ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" "Could not link dir files from source DS to system DS"
+else
+	ssh_make_path $DST_HOST $DST_DIR
+
+	# Just link a file
+	log "Linking $SRC_PATH in $DST"
+
+	ssh_exec_and_log $DST_HOST \
+				     "cd $DST_DIR; ln -s $SRC_PATH $DST_PATH" \
+	             	 "Error linking $SRC to $DST"
+fi
+
+
+exit 0
+
