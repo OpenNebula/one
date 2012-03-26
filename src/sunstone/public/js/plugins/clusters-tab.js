@@ -366,7 +366,82 @@ function clusterTabContent(cluster_json) {
         vnets_list = '<li class="clusterElemLi">'+cluster.VNETS.ID+' - '+getVNetName(cluster.VNETS.ID)+'</li>';
 */
 
+    //special case for cluster none, simplified dashboard
+    if (cluster.ID == "-"){
+        var html_code = '\
+<table class="dashboard_table">\
+<tr>\
+<td style="width:50%">\
+<table style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+<h3>' + tr("Cluster information") + '</h3>\
+        <div class="panel_info">\
+\
+          <table class="info_table">\
+            <tr>\
+              <td class="key_td">' + tr("ID") + '</td>\
+              <td class="value_td">'+cluster.ID+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Name") + '</td>\
+              <td class="value_td">'+cluster.NAME+'</td>\
+            </tr>\
+          </table>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Hosts") + '</h3>\
+        <div class="panel_info">\
+<br />\
+          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new host")+'</a><br />\
+          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#hosts_tab">'+tr("Manage unclustered hosts")+'</a><br /></p>\
+\
+      </div>\
+    </td>\
+  </tr>\
+</table>\
+</td>\
+<td style="width:50%">\
+<table style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Datastores") + '</h3>\
+        <div class="panel_info">\
+<br />\
+          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new datastore")+'</a><br />\
+          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#datastores_tab">'+tr("Manage unclustered datastores")+'</a><br /></p>\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Virtual Networks") + '</h3>\
+        <div class="panel_info">\
+<br />\
+          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new virtual network")+'</a><br />\
+          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#vnets_tab">'+tr("Manage unclustered virtual networks")+'</a><br /></p>\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+</table>\
+</td>\
+</tr></table>\
+';
+        return html_code;
+    };
 
+    //end cluster none special html
 
     var html_code = '\
 <table class="dashboard_table">\
