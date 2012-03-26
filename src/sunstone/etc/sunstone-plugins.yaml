@@ -53,6 +53,11 @@
     :ALL: true
     :user:
     :group:
+- plugins/clusters-tab.js:
+    :ALL: false
+    :user:
+    :group:
+        oneadmin: true
 - plugins/hosts-tab.js:
     :ALL: true
     :user:
@@ -65,8 +70,3 @@
     :ALL: true
     :user:
     :group:
-- plugins/clusters-tab.js:
-    :ALL: false
-    :user:
-    :group:
-        oneadmin: true
