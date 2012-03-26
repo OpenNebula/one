@@ -82,60 +82,26 @@ public:
     /**
      *  Try to acquire an image from the repository for a VM.
      *    @param image_id id of image
+     *    @param error string describing the error
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int image_id);
+    Image * acquire_image(int image_id, string& error);
     
     /**
      *  Try to acquire an image from the repository for a VM.
      *    @param name of the image
      *    @param id of owner
+     *    @param error string describing the error
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(const string& name, int uid);
+    Image * acquire_image(const string& name, int uid, string& error);
 
     /**
      *  Releases an image and triggers any needed operations in the repo
      *    @param iid image id of the image to be released
-     *    @param disk_path base path for disk location
-     *    @param disk number for this image in the VM
-     *    @param saveid id of image to save the current image
+     *    @param failed the associated VM releasing the images is FAILED
      */
-    void release_image(const string& iid,
-                       const string& disk_path, 
-                       int           disk_num, 
-                       const string& saveid)
-    {
-        int           image_id;
-        istringstream iss;
-
-        iss.str(iid);
-        iss >> image_id;
-
-        release_image(image_id, disk_path, disk_num, saveid);
-    };
-
-    /**
-     *  Releases an image and triggers any needed operations in the repo
-     *    @param iid image id of the image to be released
-     *    @param disk_path base path for disk location
-     *    @param disk number for this image in the VM
-     *    @param saveid id of image to save the current image
-     */
-    void release_image(int           iid,
-                       const string& disk_path,
-                       int           disk_num,
-                       const string& saveid);
-
-    /**
-     *  Moves a VM disk to the Image Repository
-     *    @param disk_path base path for disk location
-     *    @param disk number for this image in the VM
-     *    @param saveid id of image to save the current image
-     */
-    void disk_to_image(const string& disk_path, 
-                       int           disk_num, 
-                       const string& save_id);
+    void release_image(int iid, bool failed);
 
     /**
      *  Enables the image
@@ -146,17 +112,18 @@ public:
 
     /**
      *  Adds a new image to the repository copying or creating it as needed
-     *    @param iid id of image
+     *    @param img pointer to the image
+     *    @param ds_data data of the associated datastore in XML format
      *    @return 0 on success
      */
-    int register_image(int iid);
+    int register_image(int iid, const string& ds_data);
 
     /**
      *  Deletes an image from the repository and the DB
      *    @param iid id of image
      *    @return 0 on success
      */
-    int delete_image(int iid);
+    int delete_image(int iid, const string& ds_data);
 
 private:
     /**
@@ -202,16 +169,14 @@ private:
      *    @param action the name of the action
      *    @param arg arguments for the action function
      */
-    void do_action(
-        const string &  action,
-        void *          arg);
+    void do_action(const string& action, void * arg);
 
     /**
      *  Acquires an image updating its state.
      *    @param image pointer to image, it should be locked
      *    @return 0 on success
      */
-    int acquire_image(Image *img);
+    int acquire_image(Image *img, string& error);
 
     /**
      *  Moves a file to an image in the repository
@@ -219,6 +184,15 @@ private:
      *    @param source path of the disk file 
      */
     void move_image(Image *img, const string& source);
+
+    /**
+     * Formats an XML message for the MAD
+     *
+     *    @param img_data Image XML representation
+     *    @param ds_data Datastore XML representation
+     *    @return the XML message
+     */
+    string * format_message(const string& img_data, const string& ds_data);
 };
 
 #endif /*IMAGE_MANAGER_H*/

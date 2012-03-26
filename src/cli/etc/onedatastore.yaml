@@ -1,0 +1,38 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the Datastore
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Datastore
+  :size: 15
+  :left: true
+
+:CLUSTER: 
+  :desc: Name of the Cluster
+  :size: 8
+  :left: true
+
+:IMAGES: 
+  :desc: Number of Images
+  :size: 6
+  :left: true
+
+:TYPE:
+  :desc: Datastore driver
+  :size: 6
+  :left: true
+
+:TM:
+  :desc: Transfer driver
+  :size: 6
+  :left: true
+
+:default:
+- :ID
+- :NAME
+- :CLUSTER
+- :IMAGES
+- :TYPE
+- :TM
+

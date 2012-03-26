@@ -20,13 +20,14 @@
 #include "PoolSQL.h"
 #include "HostTemplate.h"
 #include "HostShare.h"
+#include "Clusterable.h"
 
 using namespace std;
 
 /**
  *  The Host class.
  */
-class Host : public PoolObjectSQL
+class Host : public PoolObjectSQL, public Clusterable
 {
 public:
 
@@ -137,15 +138,6 @@ public:
     const string& get_vnm_mad() const
     {
         return vnm_mad_name;
-    };
-
-    /**
-     * Retrives TM mad name
-     *    @return string tm mad name
-     */
-    const string& get_tm_mad() const
-    {
-        return tm_mad_name;
     };
 
     /**
@@ -289,7 +281,7 @@ public:
     /**
      *  Factory method for host templates
      */
-    Template * get_new_template()
+    Template * get_new_template() const
     {
         return new HostTemplate;
     }
@@ -326,11 +318,6 @@ private:
     string      vnm_mad_name;
 
 	/**
-     *  Name of the TM driver used to transfer file to and from this host
-     */
-	string      tm_mad_name;
-
-	/**
      *  If Host State= MONITORED  last time it got fully monitored or 1 Jan 1970
      *     Host State = MONITORING last time it got a signal to be monitored
      */
@@ -348,12 +335,13 @@ private:
     // Constructor
     // *************************************************************************
 
-    Host(int           id=-1,
-         const string& hostname="",
-         const string& im_mad_name="",
-         const string& vmm_mad_name="",
-         const string& vnm_mad_name="",
-         const string& tm_mad_name="");
+    Host(int           id,
+         const string& hostname,
+         const string& im_mad_name,
+         const string& vmm_mad_name,
+         const string& vnm_mad_name,
+         int           cluster_id,
+         const string& cluster_name);
 
     virtual ~Host();
 

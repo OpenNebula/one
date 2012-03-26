@@ -40,6 +40,22 @@ public:
     };
 
     /**
+     *  Return the string representation of an ImageType
+     *    @param ob the type
+     *    @return the string
+     */ 
+    static string type_to_str(ImageType ob)
+    {
+        switch (ob)
+        {
+            case OS:        return "OS" ; break;
+            case CDROM:     return "CDROM" ; break;
+            case DATABLOCK: return "DATABLOCK" ; break;
+            default:        return "";
+        }
+    };
+
+    /**
      *  Image State
      */
     enum ImageState
@@ -200,6 +216,17 @@ public:
     }
 
     /**
+     *  Check if the image is used for saving_as a current one
+     *  @return true if the image will be used to save an existing image.
+     */
+    bool isSaving()
+    {
+        ImageTemplate * it = static_cast<ImageTemplate *>(obj_template);
+
+        return it->is_saving();
+    }
+
+    /**
      *  Set permissions for the Image. Extends the PoolSQLObject method
      *  by checking the persistent state of the image.
      */
@@ -291,11 +318,27 @@ public:
     /**
      *  Factory method for image templates
      */
-    Template * get_new_template()
+    Template * get_new_template() const
     {
         return new ImageTemplate;
     }
 
+    /**
+     * Returns the Datastore ID
+     */
+    int get_ds_id() const
+    {
+        return ds_id;
+    };
+
+    /**
+     * Returns the Datastore ID
+     */
+    const string& get_ds_name() const
+    {
+        return ds_name;
+    };
+    
 private:
 
     // -------------------------------------------------------------------------
@@ -352,6 +395,16 @@ private:
      * Number of VMs using the image
      */
     int running_vms;
+
+    /**
+     * Datastore ID
+     */
+    int ds_id;
+
+    /**
+     * Datastore name
+     */
+    string ds_name;
 
     // *************************************************************************
     // DataBase implementation (Private)

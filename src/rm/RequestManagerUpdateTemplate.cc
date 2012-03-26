@@ -54,7 +54,7 @@ void RequestManagerUpdateTemplate::request_execute(
     if ( rc != 0 )
     {
         failure_response(INTERNAL,
-                request_error("Can not update template",error_str),
+                request_error("Cannot update template",error_str),
                 att);
         object->unlock();
 

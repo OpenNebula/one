@@ -50,6 +50,32 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Force the usage of Hosts in more than one VDC"
     }
 
+    HOST={
+        :name => "hosts",
+        :short => "-s 1,2,3",
+        :large => "--hosts 1,2,3",
+        :description => "Host IDs",
+        :format => Array
+    }
+
+    DS={
+        :name => "datastores",
+        :short => "-d 1,2,3",
+        :large => "--datastores 1,2,3",
+        :description => "Datastore IDs",
+        :format => Array
+    }
+
+    NET={
+        :name => "networks",
+        :short => "-n 1,2,3",
+        :large => "--networks 1,2,3",
+        :description => "Network IDs",
+        :format => Array
+    }
+
+    ADD_DEL_OPTIONS=[HOST, DS, NET]
+
     begin
         helper = VDCHelper.new "vdc"
     rescue Exception => e
@@ -74,13 +100,28 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.delete_resource(args[0],options)
     end
 
-    command :addhost, 'Adds the set of hosts to the VDC',
-    :vdcid, :range, :options=>[FORCE] do
-        helper.addhost(args[0], args[1], options)
+    command :add, 'Adds the set of resources to the VDC', :vdcid,
+        :options=>[FORCE].concat(ADD_DEL_OPTIONS) do
+        if options[:hosts].nil? and options[:datastores].nil? and 
+           options[:networks].nil?
+           STDERR.puts "At least one resource type must be specified: " \
+                       "network (-n), host (-s) or datastore (-d) "
+           exit 1
+        end
+
+        helper.add(args[0], options)
     end
 
-    command :delhost, 'Deletes the set of hosts from the VDC',
-    :vdcid, :range do
-        helper.delhost(args[0], args[1], options)
+    command :del, 'Deletes the set of resources from the VDC', :vdcid,
+        :options => ADD_DEL_OPTIONS do
+
+        if options[:hosts].nil? and options[:datastores].nil? and 
+           options[:networks].nil?
+           STDERR.puts "At least one resource type must be specified: " \
+                       "network (-n), host (-s) or datastore (-d) "
+           exit 1
+        end
+
+        helper.del(args[0], options)
     end
 end

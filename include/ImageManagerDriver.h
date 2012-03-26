@@ -70,7 +70,12 @@ private:
 	 */
 	//Template	driver_conf;
 
-    void cp(int oid, const string& source) const;
+    /**
+     * Sends a copy request to the MAD
+     *    @param oid the image id.
+     *    @param drv_msg xml data for the mad operation.
+     */
+    void cp(int oid, const string& drv_msg) const;
 
     /**
      *  Sends a move request to the MAD: "MV IMAGE_ID SRC_PATH DST_PATH"
@@ -84,18 +89,15 @@ private:
     /**
      *  Sends a make filesystem request to the MAD: "MKFS IMAGE_ID PATH SIZE_MB"
      *    @param oid the image id.
-     *    @param fs type
-     *    @param size_mb of the image to be created
+     *    @param drv_msg xml data for the mad operation.
      */
-    void mkfs(int           oid, 
-              const string& fs, 
-              int           size_mb) const;
+    void mkfs(int oid, const string& drv_msg) const;
     /**
      *  Sends a delete request to the MAD: "DELETE IMAGE_ID PATH"
      *    @param oid the image id.
-     *    @param destination is the path to the image to be removed
+     *    @param drv_msg xml data for the mad operation.
      */
-    void rm(int oid, const string& destination) const;
+    void rm(int oid, const string& drv_msg) const;
 };
 
 /* -------------------------------------------------------------------------- */

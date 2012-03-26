@@ -45,6 +45,8 @@ public:
      *    @param gid the id of the group this object is assigned to
      *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
+     *    @param cluster_id the id of the cluster this VNET will belong to
+     *    @param cluster_name the name of the cluster this VNET will belong to
      *    @param error_str Returns the error reason, if any
      *    @return oid on success, -1 error
      */
@@ -55,6 +57,8 @@ public:
         const string&               gname,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
+        int                         cluster_id,
+        const string&               cluster_name,
         string&                     error_str);
 
     /**
@@ -92,11 +96,12 @@ public:
      *  metadata
      *    @param nic the nic attribute to be generated
      *    @param vid of the VM requesting the lease
+     *    @param error_str string describing the error
      *    @return 0 on success, 
      *            -1 error, 
      *            -2 not using the pool
      */
-    int nic_attribute(VectorAttribute * nic, int uid, int vid);
+    int nic_attribute(VectorAttribute * nic, int uid, int vid, string& error_str);
 
     /**
      *  Generates an Authorization token for a NIC attribute
@@ -162,7 +167,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(-1,-1,"","",0);
+        return new VirtualNetwork(-1,-1,"","",-1,"",0);
     };
 
     /**
@@ -171,12 +176,13 @@ private:
      */
     VirtualNetwork * get_nic_by_name(VectorAttribute * nic, 
                                      const string&     name,
-                                     int               _uid);
+                                     int               _uidi,
+                                     string&           error);
 
     /**
      *  Function to get a VirtualNetwork by its id, as provided by a VM template
      */
-    VirtualNetwork * get_nic_by_id(const string& id_s);
+    VirtualNetwork * get_nic_by_id(const string& id_s, string& error);
 };
 
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

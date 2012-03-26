@@ -43,6 +43,7 @@ var hosts_tab_content =
       <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
       <th>' + tr("id") + '</th>\
       <th>' + tr("Name") + '</th>\
+      <th>' + tr("Cluster") + '</th>\
       <th>' + tr("Running VMs") + '</th>\
       <th>' + tr("CPU Use") + '</th>\
       <th>' + tr("Memory use") + '</th>\
@@ -93,19 +94,15 @@ var create_host_tmpl =
          <option value="vmware">VMware</option>\
        </select>\
     </div>\
-    <div class="manager clear" id="tm_mads">\
-      <label>' + tr("Transfer Manager") + ':</label>\
-       <select id="tm_mad" name="tm">\
-         <option value="tm_shared">' + tr("Shared") + '</option>\
-         <option value="tm_ssh">' + tr("SSH") + '</option>\
-         <option value="tm_vmware">' + tr("VMware") + '</option>\
-         <option value="tm_dummy">' + tr("Dummy") + '</option>\
+    <div class="manager clear" id="cluster_select">\
+      <label>' + tr("Cluster") + ':</label>\
+       <select id="host_cluster_id" name="host_cluster_id">\
        </select>\
     </div>\
     </fieldset>\
     <fieldset>\
     <div class="form_buttons">\
-        <div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
+        <div><button class="button" type="submit" id="create_host_submit" value="OpenNebula.Host.create">' + tr("Create") + '</button>\
         <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
     </div>\
   </fieldset>\
@@ -250,7 +247,20 @@ var host_actions = {
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
-    }
+    },
+
+    "Host.addtocluster" : {
+        type: "multiple",
+        call: function(params){
+            var cluster = params.data.extra_param;
+            var host = params.data.id;
+            Sunstone.runAction("Cluster.addhost",cluster,host);
+        },
+        callback: null,
+        elements: hostElements,
+        notify:true,
+    },
+
 };
 
 var host_buttons = {
@@ -267,6 +277,12 @@ var host_buttons = {
         type: "action",
         text: tr("Update a template"),
         alwaysActive: true
+    },
+    "Host.addtocluster" : {
+        type: "confirm_with_select",
+        text: tr("Select cluster"),
+        select: clusters_sel,
+        tip: tr("Select the destination cluster:"),
     },
     "Host.enable" : {
         type: "action",
@@ -302,8 +318,11 @@ var host_info_panel = {
 var hosts_tab = {
     title: tr("Hosts"),
     content: hosts_tab_content,
-    buttons: host_buttons
-}
+    buttons: host_buttons,
+    tabClass: "subTab",
+    parentTab: "infra_tab",
+    showOnTopMenu: false,
+};
 
 Sunstone.addActions(host_actions);
 Sunstone.addMainTab('hosts_tab',hosts_tab);
@@ -362,6 +381,7 @@ function hostElementArray(host_json){
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
         host.ID,
         host.NAME,
+        host.CLUSTER.length ? host.CLUSTER : "-",
         host.HOST_SHARE.RUNNING_VMS, //rvm
         pb_cpu,
         pb_mem,
@@ -389,7 +409,7 @@ function updateHostSelect(){
     hosts_select = makeSelectOptions(dataTable_hosts,
                                      1,//id_col
                                      2,//name_col
-                                     [6,6],//status_cols
+                                     [7,7],//status_cols
                                      ["ERROR","OFF"]//bad_st
                                     );
 }
@@ -429,6 +449,7 @@ function updateHostsView (request,host_list){
     updateHostSelect();
     //dependency with the dashboard plugin
     updateDashboard("hosts",host_list);
+    updateInfraDashboard("hosts",host_list);
 }
 
 //Updates the host info panel tab's content and pops it up
@@ -447,6 +468,14 @@ function updateHostInfo(request,host){
             <tr>\
                 <td class="key_td">' + tr("id") + '</td>\
                 <td class="value_td">'+host_info.ID+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">' + tr("Name") + '</td>\
+                <td class="value_td">'+host_info.NAME+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">' + tr("Cluster") + '</td>\
+                <td class="value_td">'+(host.CLUSTER.length ? host.CLUSTER : "-")+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("State") + '</td>\
@@ -553,15 +582,19 @@ function setupCreateHostDialog(){
             notifyError(tr("Host name missing!"));
             return false;
         }
+
+        var cluster_id = $('#host_cluster_id',this).val();
+        if (!cluster_id) cluster_id = "-1";
+
         var host_json = {
             "host": {
                 "name": $('#name',this).val(),
-                "tm_mad": $('#tm_mad :selected',this).val(),
-                "vm_mad": $('#vmm_mad :selected',this).val(),
-                "vnm_mad": $('#vnm_mad :selected',this).val(),
-                "im_mad": $('#im_mad :selected',this).val()
+                "vm_mad": $('#vmm_mad',this).val(),
+                "vnm_mad": $('#vnm_mad',this).val(),
+                "im_mad": $('#im_mad',this).val(),
+                "cluster_id": cluster_id
             }
-        }
+        };
 
         //Create the OpenNebula.Host.
         //If it's successfull we refresh the list.
@@ -573,6 +606,7 @@ function setupCreateHostDialog(){
 
 //Open creation dialogs
 function popUpCreateHostDialog(){
+    $('#host_cluster_id',$create_host_dialog).html(clusters_sel());
     $create_host_dialog.dialog('open');
     return false;
 }
@@ -597,10 +631,6 @@ function hostMonitorError(req,error_json){
     $('#host_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
 }
 
-function hosts_sel() {
-    return hosts_select;
-}
-
 //This is executed after the sunstone.js ready() is run.
 //Here we can basicly init the host datatable, preload it
 //and add specific listeners
@@ -614,22 +644,22 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,3] },
+            { "sWidth": "60px", "aTargets": [0,4] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [6] },
-            { "sWidth": "200px", "aTargets": [4,5] }
+            { "sWidth": "100px", "aTargets": [7,3] },
+            { "sWidth": "200px", "aTargets": [5,6] }
         ],
-	"oLanguage": (datatable_lang != "") ?
-	    {
-		sUrl: "locale/"+lang+"/"+datatable_lang
-	    } : ""
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
     });
 
     //preload it
     dataTable_hosts.fnClearTable();
     addElement([
         spinner,
-        '','','','','',''],dataTable_hosts);
+        '','','','','','',''],dataTable_hosts);
     Sunstone.runAction("Host.list");
 
     setupCreateHostDialog();
@@ -639,4 +669,8 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);
     hostInfoListener();
+
+    $('div#menu li#li_hosts_tab').live('click',function(){
+        dataTable_hosts.fnFilter('',3);
+    });
 });

@@ -403,19 +403,54 @@ function waitingNodes(dataTable){
 
 function getUserName(uid){
     if (typeof(dataTable_users) != "undefined"){
-        return getName(uid,dataTable_users);
+        return getName(uid,dataTable_users,2);
     }
     return uid;
 }
 
 function getGroupName(gid){
     if (typeof(dataTable_groups) != "undefined"){
-        return getName(gid,dataTable_groups);
+        return getName(gid,dataTable_groups,2);
     }
     return gid;
 }
 
-function getName(id,dataTable){
+function getImageName(id){
+    if (typeof(dataTable_images) != "undefined"){
+        return getName(id,dataTable_images,4);
+    }
+    return id;
+};
+
+function getClusterName(id){
+    if (typeof(dataTable_clusters) != "undefined"){
+        return getName(id,dataTable_clusters,2);
+    }
+    return id;
+};
+
+function getDatastoreName(id){
+    if (typeof(dataTable_datastores) != "undefined"){
+        return getName(id,dataTable_datastores,4);
+    }
+    return id;
+};
+
+function getVNetName(id){
+    if (typeof(dataTable_vNetworks) != "undefined"){
+        return getName(id,dataTable_vNetworks,4);
+    }
+    return id;
+};
+
+function getHostName(id){
+    if (typeof(dataTable_hosts) != "undefined"){
+        return getName(id,dataTable_hosts,2);
+    }
+    return id;
+};
+
+function getName(id,dataTable,name_col){
     var name = id;
     if (typeof(dataTable) == "undefined") {
         return name;
@@ -424,7 +459,7 @@ function getName(id,dataTable){
 
     $.each(nodes,function(){
         if (id == this[1]) {
-            name = this[2];
+            name = this[name_col];
             return false;
         }
     });
@@ -750,6 +785,16 @@ function groups_sel(){
 function hosts_sel(){
     return hosts_select;
 }
+
+function clusters_sel() {
+    return clusters_select;
+}
+
+function datastores_sel() {
+    return datastores_select;
+}
+
+
 
 function ownerUse(resource){
     return parseInt(resource.PERMISSIONS.OWNER_U);

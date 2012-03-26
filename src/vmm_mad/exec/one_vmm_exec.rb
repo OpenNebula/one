@@ -259,7 +259,7 @@ class ExecDriver < VirtualMachineDriver
 
         if !local_dfile || File.zero?(local_dfile)
             send_message(ACTION[:deploy],RESULT[:failure],id,
-                "Can not open deployment file #{local_dfile}")
+                "Cannot open deployment file #{local_dfile}")
             return
         end
 

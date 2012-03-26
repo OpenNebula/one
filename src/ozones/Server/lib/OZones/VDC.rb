@@ -14,49 +14,78 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'OzonesServer'
+
 module OZones
 
+    # VDC class represents a virtual datacenter abstraction. It is defined by an
+    # ID, NAME, the GROUP backing the VDC, the admin credentials and the VDC
+    # resources. VDC resources are stored in JSON document in the DB and used as
+    # a hash in the VDC.
     class Vdc
         include DataMapper::Resource
         include OpenNebulaJSON::JSONUtils
-        extend OpenNebulaJSON::JSONUtils
+        extend  OpenNebulaJSON::JSONUtils
 
         property :ID,           Serial
         property :NAME,         String, :required => true, :unique => true
         property :GROUP_ID,     Integer
         property :VDCADMINNAME, String, :required => true
         property :VDCADMIN_ID,  Integer
-        property :ACLS,         Text
-        property :HOSTS,        Text
+        property :CLUSTER_ID,   Integer
+        property :RESOURCES,    Text
 
         belongs_to :zones
 
+        def resources
+            rsrc_json = self.RESOURCES
+
+            parser = JSON.parser.new(rsrc_json, {:symbolize_names => true})
+            parser.parse
+        end 
+ 
+        def resources=(rsrc_hash)
+            self.RESOURCES = JSON.generate(rsrc_hash)
+        end
+
         def self.to_hash
             zonePoolHash = Hash.new
-            zonePoolHash["VDC_POOL"] = Hash.new
+
+            zonePoolHash["VDC_POOL"]        = Hash.new
             zonePoolHash["VDC_POOL"]["VDC"] = Array.new unless self.all.empty?
-            self.all.each{|vdc|
-                # Hack! zones_ID does not respect the
-                # "all capital letters" policy
+
+            self.all.each{ |vdc|
+                # Hack! zones_ID does not respect the "all capital letters" policy
                 attrs = vdc.attributes.clone
+
                 attrs[:ZONES_ID] = vdc.attributes[:zones_ID]
                 attrs.delete(:zones_ID)
 
+                rsrc_json = attrs.delete(:RESOURCES)
+                parser    = JSON.parser.new(rsrc_json, {:symbolize_names=>true})
+                attrs[:RESOURCES] = parser.parse
+
                 zonePoolHash["VDC_POOL"]["VDC"] << attrs
             }
+
             return zonePoolHash
         end
 
         def to_hash
             vdc_attributes = Hash.new
 
-            # Hack! zones_ID does not respect the
-            # "all capital letters" policy
+            # Hack! zones_ID does not respect the "all capital letters" policy
             attrs = attributes.clone
+
             attrs[:ZONES_ID] = attributes[:zones_ID]
             attrs.delete(:zones_ID)
 
+            rsrc_json = attrs.delete(:RESOURCES)
+            parser    = JSON.parser.new(rsrc_json, {:symbolize_names=>true})
+            attrs[:RESOURCES] = parser.parse
+
             vdc_attributes["VDC"] = attrs
+
             return vdc_attributes
         end
     end
@@ -70,14 +99,17 @@ module OZones
         #######################################################################
         # Constants
         #######################################################################
-        VDC_ATTRS = [:VDCADMINNAME, :VDCADMINPASS, :NAME, :HOSTS]
+        VDC_ATTRS = [:VDCADMINNAME, 
+                     :VDCADMINPASS, 
+                     :NAME, 
+                     :CLUSTER_ID,
+                     :RESOURCES]
 
         attr_reader :vdc
         attr_reader :zone
 
         #Creates an OpenNebula VDC, using its ID, vdcid and the associated zone
         def initialize(vdcid, zone = nil)
-
             if vdcid != -1
                 @vdc = Vdc.get(vdcid)
 
@@ -102,21 +134,33 @@ module OZones
         #
         #######################################################################
         def create(vdc_data)
-            #Check and prepare VDC data
+            OzonesServer::logger.debug {"Creating new VDC #{vdc_data}"}
+
+            #Check and prepare VDC data and preserve RESOURCES
             VDC_ATTRS.each { |param|
                 if !vdc_data[param]
                     return OZones::Error.new("Error: Couldn't create vdc." \
-                                             "Mandatory attribute '#{param}' is missing.")
+                            "Mandatory attribute '#{param}' is missing.")
                 end
             }
 
-            #Create a vdc record
+            rsrc    = vdc_data.delete(:RESOURCES)
+            vdcpass = vdc_data.delete(:VDCADMINPASS)
+
+            #-------------------------------------------------------------------
+            # Create a vdc record & check cluster consistency
+            #-------------------------------------------------------------------
             @vdc = Vdc.new
 
-            vdcpass = vdc_data.delete(:VDCADMINPASS)
             @vdc.attributes = vdc_data
 
+            rc   = resources_in_cluster?(rsrc)
+
+            return rc if OpenNebula.is_error?(rc)
+
+            #-------------------------------------------------------------------
             # Create a group in the zone with the VDC name
+            #-------------------------------------------------------------------
             group = OpenNebula::Group.new(OpenNebula::Group.build_xml, @client)
             rc    = group.allocate(@vdc.NAME)
 
@@ -124,7 +168,11 @@ module OZones
 
             @vdc.GROUP_ID = group.id
 
+            OzonesServer::logger.debug {"Group #{group.id} created"}
+
+            #-------------------------------------------------------------------
             # Create the VDC admin user in the Zone
+            #-------------------------------------------------------------------
             user = OpenNebula::User.new(OpenNebula::User.build_xml, @client)
             rc   = user.allocate(@vdc.VDCADMINNAME, vdcpass)
 
@@ -132,31 +180,47 @@ module OZones
 
             @vdc.VDCADMIN_ID = user.id
 
+            OzonesServer::logger.debug {"VDC admin user #{user.id} created"}
+
+            #-------------------------------------------------------------------
             # Change primary group of the admin user to the VDC group
+            #-------------------------------------------------------------------
             rc = user.chgrp(group.id)
             return rollback(group, user, nil, rc) if OpenNebula.is_error?(rc)
 
+            #-------------------------------------------------------------------
             # Add ACLs
-            aclp  = OpenNebula::AclPool.new(@client)
-            rules = get_acls
+            #-------------------------------------------------------------------
+            rules = get_acls(rsrc)
 
-            rc, acls_str = create_acls(rules)
-            return rollback(group, user,acls_str,rc) if OpenNebula.is_error?(rc)
+            OzonesServer::logger.debug {"Creating ACLs #{rules}..."}
 
-            @vdc.ACLS = acls_str
+            rc, acl_ids = create_acls(rules)
+            return rollback(group, user, acl_ids,rc) if OpenNebula.is_error?(rc)
+
+            OzonesServer::logger.debug {"ACLs #{acl_ids} created"}            
+
+            rsrc[:ACLS]    = acl_ids
+            @vdc.resources = rsrc
 
             return true
         end
 
+        #######################################################################
+        #
+        #######################################################################
         def destroy
+            #-------------------------------------------------------------------
             # Delete the resources from the VDC
+            #-------------------------------------------------------------------
             delete_images
             delete_templates
             delete_vms
-            delete_vns
             delete_acls
 
-            # Delete users from a group
+            #-------------------------------------------------------------------
+            # Delete users from a group and the group
+            #-------------------------------------------------------------------
             up = OpenNebula::UserPool.new(@client)
             up.info
 
@@ -166,13 +230,14 @@ module OZones
                 end
             }
 
-            # Delete the group
             OpenNebula::Group.new_with_id(@vdc.GROUP_ID, @client).delete
 
             return @vdc.destroy
         end
 
-        #Cleans bootstrap operations in a zone
+        #######################################################################
+        # Cleans bootstrap operations in a zone
+        #######################################################################
         def clean_bootstrap
             delete_acls
 
@@ -180,33 +245,46 @@ module OZones
             OpenNebula::Group.new_with_id(@vdc.GROUP_ID, @client).delete
         end
 
-        def update(host_list)
+        #######################################################################
+        #
+        #######################################################################
+        def update(rsrc_hash)
+            #-------------------------------------------------------------------
+            # Check cluster consistency
+            #-------------------------------------------------------------------
+            rc   = resources_in_cluster?(rsrc_hash)
+
+            return rc if OpenNebula.is_error?(rc)
+
+            # ------------------------------------------------------------------
             # Delete existing host ACLs
-            delete_host_acls
+            # ------------------------------------------------------------------
+            delete_resource_acls
 
-            if @vdc.ACLS =~ /((\d+,){#{HOST_ACL_FIRST_ID}}).*/
-                newacls = $1.chop
-            else
-                newacls = @vdc.ACLS.clone
-            end
+            acls = @vdc.resources[:ACLS]
 
+            acls.slice!(RESOURCE_ACL_FIRST_ID..-1)
+
+            # ------------------------------------------------------------------
             # Create new ACLs. TODO Rollback ACL creation
-            if !host_list.empty?
-                host_acls    = get_host_acls(host_list)
-                rc, acls_str = create_acls(host_acls)
+            # ------------------------------------------------------------------
+            if !rsrc_hash.nil?
+                rsrc_acls    = get_resource_acls(rsrc_hash)
+                rc, acls_ids = create_acls(rsrc_acls)
 
                 return rc if OpenNebula.is_error?(rc)
 
-                #Create the new acl string.
-                newacls << "," << acls_str
+                acls.concat(acls_ids)
             end
 
+            rsrc_hash[:ACLS] = acls
 
+            # ------------------------------------------------------------------
             #Update the VDC Record
+            # ------------------------------------------------------------------
             begin
                 @vdc.raise_on_save_failure = true
-                @vdc.HOSTS = host_list
-                @vdc.ACLS  = newacls
+                @vdc.resources = rsrc_hash
 
                 @vdc.save
             rescue => e
@@ -220,40 +298,48 @@ module OZones
         #######################################################################
         # Functions to generate ACL Strings
         #######################################################################
-        # The ID of the first host ACL
-        HOST_ACL_FIRST_ID = 3
+        # The ID of the first resource ACL
+        RESOURCE_ACL_FIRST_ID = 3
 
         # This method returns an Array of ACL strings to create them
         # in the target zone
-        def get_acls
+        def get_acls(rsrc_hash)
             rule_str = Array.new
 
             # Grant permissions to the group
-            rule_str << "@#{@vdc.GROUP_ID} VM+NET+IMAGE+TEMPLATE/* CREATE"
+            rule_str << "@#{@vdc.GROUP_ID} VM+IMAGE+TEMPLATE/* CREATE"
 
             # Grant permissions to the vdc admin
             rule_str << "##{@vdc.VDCADMIN_ID} USER/* CREATE"
             rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} " \
             "USE+MANAGE+ADMIN"
+            rule_str << "##{@vdc.VDCADMIN_ID} VM+IMAGE+TEMPLATE/@#{@vdc.GROUP_ID} " \
+            "USE+MANAGE"
 
-            ###############################################################
-            #When more rules are added the class constant HOST_ACL_FIRST_ID
+            ####################################################################
+            #When more rules are added the class constant RESOURCE_ACL_FIRST_ID
             #must be modified
-            ###############################################################
+            ####################################################################
 
-            rule_str.concat(get_host_acls)
+            rule_str.concat(get_resource_acls(rsrc_hash))
         end
 
-        def get_host_acls(host_list = nil)
-            rule_str = Array.new
-
-            if host_list == nil
-                host_list = @vdc.HOSTS
-            end
+        def get_resource_acls(rsrc_hash)
+            rule_str  = Array.new
 
             # Grant permissions to use the vdc hosts
-            host_list.split(',').each{|hostid|
+            rsrc_hash[:HOSTS].each{ |hostid|
                 rule_str << "@#{@vdc.GROUP_ID} HOST/##{hostid} MANAGE"
+            }
+
+            # Grant permissions to use the vdc datastores
+            rsrc_hash[:DATASTORES].each{ |dsid|
+                rule_str << "@#{@vdc.GROUP_ID} DATASTORE/##{dsid} USE"
+            }
+
+            # Grant permissions to use the vdc networks
+            rsrc_hash[:NETWORKS].each{ |netid|
+                rule_str << "@#{@vdc.GROUP_ID} NET/##{netid} USE"
             }
 
             return rule_str
@@ -262,21 +348,19 @@ module OZones
         #######################################################################
         # Functions to delete resources associated to the VDC
         #######################################################################
-        # Deletes ACLs for the hosts
-        def delete_host_acls
-            host_acls = @vdc.ACLS.split(',')[HOST_ACL_FIRST_ID..-1]
-
-            if host_acls
-                host_acls.each{|acl|
-                    OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
-                }
-            end
+        # Deletes ACLs for the resources
+        def delete_resource_acls
+            delete_acls(RESOURCE_ACL_FIRST_ID)
         end
 
         # Delete ACLs
-        def delete_acls
-            @vdc.ACLS.split(",").each{|acl|
-                OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
+        def delete_acls(first = 0)
+            rsrc = @vdc.resources
+
+            return if rsrc[:ACLS].nil?
+
+            rsrc[:ACLS][first..-1].each { |acl_id|
+                OpenNebula::Acl.new_with_id(acl_id, @client).delete
             }
         end
 
@@ -310,16 +394,6 @@ module OZones
             }
         end
 
-        # Deletes VNs
-        def delete_vns
-            vnp = OpenNebula::VirtualNetworkPool.new(@client)
-            vnp.info
-
-            vnp.each{|vn|
-                vnp.delete if vn['GID'].to_i == @vdc.GROUP_ID
-            }
-        end
-
         #######################################################################
         # Misc helper functions for the class
         #######################################################################
@@ -330,9 +404,8 @@ module OZones
             user.delete if user
 
             if acls
-                acls.chop
-                acls.split(",").each{|acl|
-                    OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
+                acls.each{|acl_id|
+                    OpenNebula::Acl.new_with_id(acl_id, @client).delete
                 }
             end
 
@@ -342,7 +415,7 @@ module OZones
         # Creates an acl array of acl strings. Returns true or error and
         # a comma-separated list with the new acl ids
         def create_acls(acls)
-            acls_str = ""
+            acls_ids = Array.new
             rc       = true
 
             acls.each{|rule|
@@ -351,10 +424,36 @@ module OZones
 
                 break if OpenNebula.is_error?(rc)
 
-                acls_str << acl.id.to_s << ","
+                acls_ids << acl.id
             }
 
-            return rc, acls_str.chop
+            return rc, acls_ids
+        end
+
+        #
+        #
+        #
+        def resources_in_cluster?(rsrc_hash)
+            cluster = OpenNebula::Cluster.new_with_id(@vdc.CLUSTER_ID, @client)
+            rc      = cluster.info
+
+            if OpenNebula.is_error?(rc)
+                return OpenNebula::Error.new("Error getting cluster: #{rc.message}")
+            end
+
+            if !cluster.contains_datastore?(rsrc_hash[:DATASTORES])
+                return OpenNebula::Error.new("Some Datastores are not in cluster")
+            end
+
+            if !cluster.contains_host?(rsrc_hash[:HOSTS])
+                return OpenNebula::Error.new("Some Hosts are not in cluster")
+            end
+
+            if !cluster.contains_vnet?(rsrc_hash[:NETWORKS])
+                return OpenNebula::Error.new("Some Networks are not in cluster")
+            end
+
+            return true
         end
     end
 end

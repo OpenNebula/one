@@ -16,84 +16,29 @@
 
 export LANG=C
 
+# ------------------------------------------------------------------------------
+# Set enviroment for the tm drivers (bash-based)
+# ------------------------------------------------------------------------------
 if [ -z "$ONE_LOCATION" ]; then
     ONE_LOCAL_VAR=/var/lib/one
     ONE_LIB=/usr/lib/one
+    DS_DIR=/var/lib/one/datastores
 else
     ONE_LOCAL_VAR=$ONE_LOCATION/var
     ONE_LIB=$ONE_LOCATION/lib
+    DS_DIR=$ONE_LOCATION/var/datastores
 fi
 
 ONE_SH=$ONE_LIB/sh
 
 . $ONE_SH/scripts_common.sh
 
+# Set umask
+umask 0007
 
-
-if [ "x$(uname -s)" = "xLinux" ]; then
-    SED="$SED -r"
-else
-    SED="/usr/bin/sed -E"
-fi
-
-function get_vmdir
-{
-    VMDIR=`grep '^VM_DIR=' $ONE_LOCAL_VAR/config | cut -d= -f2`
-    fix_var_slashes
-}
-
-# Takes out uneeded slashes. Repeated and final directory slashes:
-# /some//path///somewhere/ -> /some/path/somewhere
-function fix_dir_slashes
-{
-    dirname "$1/file" | $SED 's/\/+/\//g'
-}
-
-function get_compare_target
-{
-    echo "$1" | $SED 's/\/+/\//g' | $SED 's/\/images$//'
-}
-
-function full_src_and_dst_equal
-{
-    s=`get_compare_target "$SRC"`
-    d=`get_compare_target "$DST"`
-
-    [ "$s" == "$d" ]
-
-}
-
-function fix_var_slashes
-{
-    ONE_LOCAL_VAR=`fix_dir_slashes "$ONE_LOCAL_VAR"`
-    VMDIR=`fix_dir_slashes "$VMDIR"`
-}
-
-function fix_paths
-{
-    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
-        SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
-        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
-        DST_PATH=`fix_dir_slashes "$DST_PATH"`
-        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
-    fi
-}
-
-function fix_src_path
-{
-    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
-        SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
-        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
-    fi
-}
-
-function fix_dst_path
-{
-    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
-        DST_PATH=`fix_dir_slashes "$DST_PATH"`
-        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
-    fi
-}
+# ------------------------------------------------------------------------------
+# Function to get hosts and paths from arguments
+# ------------------------------------------------------------------------------
 
 # Gets the host from an argument
 function arg_host
@@ -104,8 +49,42 @@ function arg_host
 # Gets the path from an argument
 function arg_path
 {
-    echo $1 | $SED 's/^[^:]*:(.*)$/\1/'
+    ARG_PATH=`echo $1 | $SED 's/^[^:]*:(.*)$/\1/'`
+    fix_dir_slashes "$ARG_PATH"
 }
 
+#Return the DATASTORE_LOCATION from OpenNebula configuration
+function set_ds_location
+{
+    RMT_DS_DIR=`$GREP '^DATASTORE_LOCATION=' $ONE_LOCAL_VAR/config | cut -d= -f2`
+    RMT_DS_DIR=`fix_dir_slashes $RMT_DS_DIR`
 
+    export RMT_DS_DIR
+}
 
+#Return 1 if the first argument is a disk
+function is_disk
+{
+    echo "$1" | $GREP '/disk\.[0-9]\+' > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+        echo "1"
+    else
+        echo "0"
+    fi
+}
+
+#Makes path src ($1) relative to dst ($2)
+function make_relative {
+    src=$1
+    dst=$2
+
+    common=$dst
+
+    while [ -z "`echo $src | grep -E "^$common"`" ]; do
+        common=`dirname $common`
+        dots="../$dots"
+    done
+
+    echo $dots${src#$common/}
+}

@@ -306,8 +306,10 @@ var user_info_panel = {
 var users_tab = {
     title: tr("Users"),
     content: users_tab_content,
-    buttons: user_buttons
-}
+    buttons: user_buttons,
+    tabClass: 'subTab',
+    parentTab: 'system_tab'
+};
 
 Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users_tab',users_tab);
@@ -383,6 +385,7 @@ function updateUsersView(request,users_list){
     });
     updateView(user_list_array,dataTable_users);
     updateDashboard("users",users_list);
+    updateSystemDashboard("users",users_list);
     updateUserSelect();
 };
 

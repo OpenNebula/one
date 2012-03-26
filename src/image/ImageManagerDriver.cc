@@ -27,11 +27,11 @@
 /* ************************************************************************** */
 
 void ImageManagerDriver::cp(int           oid, 
-                            const string& source) const
+                            const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "CP " << oid << " " << source << endl;
+    os << "CP " << oid << " " << drv_msg << endl;
 
     write(os);
 }
@@ -52,22 +52,22 @@ void ImageManagerDriver::mv(int           oid,
 /* -------------------------------------------------------------------------- */
 
 void ImageManagerDriver::mkfs(int           oid, 
-                              const string& fs,
-                              int           size_mb) const
+                              const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "MKFS " << oid << " " << fs << " " << size_mb << endl;
+    os << "MKFS " << oid << " " << drv_msg << endl;
+    
     write(os);
 }
 
 /* -------------------------------------------------------------------------- */
 
-void ImageManagerDriver::rm(int oid, const string& destination) const
+void ImageManagerDriver::rm(int oid, const string& drv_msg) const
 {
     ostringstream os;
 
-    os << "RM " << oid << " " << destination << endl;
+    os << "RM " << oid << " " << drv_msg << endl;
 
     write(os);
 }
@@ -179,40 +179,71 @@ void ImageManagerDriver::protocol(
             goto error_cp;
         }
     }
-    else if ( action == "MV" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            if (image->get_source() == "-")
-            {
-                image->set_source(source);
-            }
-
-            image->set_size(size_mb);
-
-            image->set_state(Image::READY);
-
-            ipool->update(image);
-
-            NebulaLog::log("ImM", Log::INFO, "Image saved and ready to use.");
-        }
-        else
-        {
-            goto error_mv;
-        }
-    }
     else if ( action == "MKFS" )
     {
         if ( result == "SUCCESS" )
         {
-            image->set_source(source);
-            image->set_size(size_mb);
+            bool   is_saving = image->isSaving();
 
-            image->set_state(Image::READY);
+            string disk_id;
+            string vm_id;
+            int    rc;
+
+            image->set_source(source);
+
+            if (is_saving)
+            {
+                image->get_template_attribute("SAVED_DISK_ID",disk_id);
+                image->get_template_attribute("SAVED_VM_ID",  vm_id);
+            }
+            else
+            {
+                image->set_size(size_mb);
+
+                image->set_state(Image::READY);
+
+                NebulaLog::log("ImM", Log::INFO, 
+                               "Image created and ready to use");
+            }
 
             ipool->update(image);
 
-            NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
+            image->unlock();
+
+            if (is_saving)
+            {
+                Nebula& nd = Nebula::instance();
+
+                VirtualMachinePool * vmpool = nd.get_vmpool();
+
+                VirtualMachine * vm;
+                istringstream    iss(vm_id);
+
+                int vm_id_i;
+
+                iss >> vm_id_i;
+
+                vm = vmpool->get(vm_id_i, true);
+
+                if ( vm == 0 )
+                {
+                    goto error_save_no_vm;
+                }
+
+                rc = vm->save_disk(disk_id, source, id);
+
+                if ( rc == -1 )
+                {
+                    vm->unlock();
+                    goto error_save_state_vm;
+                }
+
+                vmpool->update(vm);
+
+                vm->unlock();
+            }
+
+            return;
         }
         else
         {
@@ -255,22 +286,17 @@ error_cp:
     os << "Error copying image in the repository";
     goto error_common;
 
-error_mv:
-    os.str("");
-    os << "Error saving image to the repository";
-    goto error_common;
-
 error_mkfs:
     os.str("");
     os << "Error creating datablock";
     goto error_common;
 
 error_rm:
-    image->unlock();
-
     os.str("");
-    os << "Error removing image from repository. Remove file " << source
-       << "  to completely delete image.";
+    os << "Error removing image from repository. Remove file " << image->get_source()
+       << " to completely delete image.";
+
+    image->unlock();
 
     getline(is,info);
 
@@ -280,8 +306,27 @@ error_rm:
     }
 
     NebulaLog::log("ImM", Log::ERROR, os);
-
     return;
+
+error_save_no_vm:
+    os.str("");
+    os << "Image created for SAVE_AS, but the associated VM does not exist.";
+
+    goto error_save_common;
+
+error_save_state_vm:
+    os.str("");
+    os << "Image created for SAVE_AS, but VM is no longer running";
+
+    goto error_save_common;
+
+error_save_common:
+    image = ipool->get(id, true);
+
+    if (image == 0 )
+    {
+        return;
+    }
 
 error_common:
     getline(is,info);

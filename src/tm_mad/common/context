@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# context context.sh file1 file2 ... fileN host:remote_system_ds/disk.i
+#   - context.sh file are the contents of the context ISO
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
+while (( "$#" )); do
+    if [ "$#" == "1" ]; then
+        DST=$1
+    else
+        SRC="$SRC $1"
+    fi
+    shift
+done
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+. $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Set dst path and dirs
+#-------------------------------------------------------------------------------
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+
+ssh_make_path $DST_HOST $DST_DIR
+
+#-------------------------------------------------------------------------------
+# Build the Context Block device (locally) and copy it remotely
+#-------------------------------------------------------------------------------
+log "Generating context block device at $DST"
+
+VM_ID=`basename $DST_DIR`
+ISO_DIR="$DS_DIR/.isofiles/$VM_ID"
+ISO_FILE="$ISO_DIR/$VM_ID.iso"
+
+exec_and_log "mkdir -p $ISO_DIR" "Could not create tmp dir to make context dev"
+
+for f in $SRC; do
+    case $f in
+    http://*)
+        exec_and_log "$WGET -P $ISO_DIR $f" "Error downloading $f"
+        ;;
+    *)
+        exec_and_log "cp -R $f $ISO_DIR" "Error copying $f to $ISO_DIR"
+        ;;
+    esac
+done
+
+exec_and_log "$MKISOFS -o $ISO_FILE -J -R $ISO_DIR" "Error creating iso fs"
+
+exec_and_log "$SCP $ISO_FILE $DST" "Error copying context ISO to $DST"
+
+# Creates symbolic link to add a .iso suffix, needed for VMware CDROMs
+ssh_exec_and_log $DST_HOST "$LN -s $DST_PATH $DST_PATH.iso" "Error creating ISO symbolic link"
+
+rm -rf $ISO_DIR > /dev/null 2>&1
+
+exit 0

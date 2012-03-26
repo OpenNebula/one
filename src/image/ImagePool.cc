@@ -65,6 +65,9 @@ int ImagePool::allocate (
         const string&  uname,
         const string&  gname,
         ImageTemplate* img_template,
+        int            ds_id,
+        const string&  ds_name,
+        const string&  ds_data,
         int *          oid,
         string&        error_str)
 {
@@ -75,7 +78,9 @@ int ImagePool::allocate (
 
     img = new Image(uid, gid, uname, gname, img_template);
 
-    // Check name
+    // -------------------------------------------------------------------------
+    // Check name & duplicates
+    // -------------------------------------------------------------------------
     img->get_template_attribute("NAME", name);
 
     if ( name.empty() )
@@ -88,13 +93,15 @@ int ImagePool::allocate (
         goto error_name_length;
     }
 
-    // Check for duplicates
     img_aux = get(name,uid,false);
 
     if( img_aux != 0 )
     {
         goto error_duplicated;
     }
+
+    img->ds_name = ds_name;
+    img->ds_id   = ds_id;
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository
@@ -106,7 +113,7 @@ int ImagePool::allocate (
         Nebula&        nd     = Nebula::instance();
         ImageManager * imagem = nd.get_imagem();
 
-        if ( imagem->register_image(*oid) == -1 )
+        if ( imagem->register_image(*oid, ds_data) == -1 )
         {
             error_str = "Failed to copy image to repository. "
                         "Image left in ERROR state.";
@@ -118,7 +125,6 @@ int ImagePool::allocate (
 
 error_name:
     oss << "NAME cannot be empty.";
-
     goto error_common;
 
 error_name_length:
@@ -128,6 +134,7 @@ error_name_length:
 error_duplicated:
     oss << "NAME is already taken by IMAGE "
         << img_aux->get_oid() << ".";
+    goto error_common;
 
 error_common:
     delete img;
@@ -209,16 +216,18 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int *              index,
                               Image::ImageType * img_type,
                               int                uid,
-                              int&               image_id)
+                              int&               image_id,
+                              string&            error_str)
 {
     string  source;
     Image * img = 0;
     int     rc  = 0;
+    int     datastore_id;
 
     ostringstream oss;
 
-    Nebula&        nd     = Nebula::instance();
-    ImageManager * imagem = nd.get_imagem();
+    Nebula&         nd      = Nebula::instance();
+    ImageManager *  imagem  = nd.get_imagem();
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
@@ -226,10 +235,11 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
        
         if ( uiid == -1)
         {
+            error_str = "Cannot get user set in IMAGE_UID or IMAGE_UNAME.";
             return -1; 
         }
 
-        img = imagem->acquire_image(source, uiid);
+        img = imagem->acquire_image(source, uiid, error_str);
 
         if ( img == 0 )
         {
@@ -242,10 +252,11 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
         if ( iid == -1)
         {
+            error_str = "Wrong ID set in IMAGE_ID";
             return -1; 
         }
 
-        img = imagem->acquire_image(iid);
+        img = imagem->acquire_image(iid, error_str);
 
         if ( img == 0 )
         {
@@ -278,13 +289,29 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
     if ( img != 0 )
     {
+        DatastorePool * ds_pool = nd.get_dspool();
+        Datastore *     ds;
+
         img->disk_attribute(disk, index, img_type);
 
-        image_id = img->get_oid();
-        
+        image_id     = img->get_oid();
+        datastore_id = img->get_ds_id();
+
         update(img);
 
         img->unlock();
+
+        ds = ds_pool->get(datastore_id, true);
+
+        if ( ds == 0 )
+        {
+            error_str = "Associated datastore for the image does not exist";
+            return -1;
+        }
+
+        ds->disk_attribute(disk);
+
+        ds->unlock();
     }
 
     oss << disk_id;

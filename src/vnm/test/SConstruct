@@ -23,6 +23,8 @@ env.Prepend(LIBS=[
     'nebula_im',
     'nebula_hm',
     'nebula_rm',
+    'nebula_datastore',
+    'nebula_cluster',
     'nebula_dm',
     'nebula_tm',
     'nebula_um',

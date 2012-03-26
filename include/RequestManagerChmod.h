@@ -81,7 +81,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-
 class VirtualNetworkChmod: public RequestManagerChmod
 {
 public:
@@ -114,6 +113,25 @@ public:
     };
 
     ~ImageChmod(){};
+
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DatastoreChmod: public RequestManagerChmod
+{
+public:
+    DatastoreChmod():
+        RequestManagerChmod("DatastoreChmod",
+                           "Changes permission bits of a datastore")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_dspool();
+        auth_object = PoolObjectSQL::DATASTORE;
+    };
+
+    ~DatastoreChmod(){};
 
 };
 

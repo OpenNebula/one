@@ -87,6 +87,16 @@ void Nebula::start()
         delete gpool;
     }
 
+    if ( dspool != 0)
+    {
+        delete dspool;
+    }
+
+    if ( clpool != 0)
+    {
+        delete clpool;
+    }
+
     if ( vmm != 0)
     {
         delete vmm;
@@ -184,6 +194,8 @@ void Nebula::start()
         VMTemplatePool::bootstrap(db);
         GroupPool::bootstrap(db);
         AclManager::bootstrap(db);
+        DatastorePool::bootstrap(db);
+        ClusterPool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -198,6 +210,11 @@ void Nebula::start()
         int     size = 126;
         string  default_image_type      = "OS";
         string  default_device_prefix   = "hd";
+
+        if (tester->need_cluster_pool)
+        {
+            clpool = tester->create_clpool(db);
+        }
 
         if (tester->need_vm_pool)
         {
@@ -234,6 +251,11 @@ void Nebula::start()
         if (tester->need_template_pool)
         {
             tpool  = tester->create_tpool(db);
+        }
+
+        if (tester->need_datastore_pool)
+        {
+            dspool  = tester->create_dspool(db);
         }
     }
     catch (exception&)

@@ -96,7 +96,15 @@ public:
     {
         string err;
 
-        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "vnm_mad", "tm_mad", err);
+        hpool->allocate(&oid, 
+                        "host_test", 
+                        "im_mad", 
+                        "vmm_mad", 
+                        "vnm_mad",
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
+                        err);
+
         CPPUNIT_ASSERT( oid >= 0 );
 
         sleep(1);
@@ -114,7 +122,15 @@ public:
     {
         string err;
 
-        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "vnm_mad", "tm_mad", err);
+
+        hpool->allocate(&oid, 
+                        "host_test", 
+                        "im_mad", 
+                        "vmm_mad", 
+                        "vnm_mad",
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
+                        err);
         CPPUNIT_ASSERT( oid >= 0 );
 
         host = hpool->get(oid, true);
@@ -140,7 +156,14 @@ public:
     {
         string err;
 
-        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "vnm_mad", "tm_mad", err);
+        hpool->allocate(&oid, 
+                        "host_test", 
+                        "im_mad", 
+                        "vmm_mad", 
+                        "vnm_mad",
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
+                        err);
         CPPUNIT_ASSERT( oid >= 0 );
 
         host = hpool->get(oid, true);
@@ -166,7 +189,15 @@ public:
     {
         string err;
 
-        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "vnm_mad", "tm_mad", err);
+        hpool->allocate(&oid, 
+                        "host_test", 
+                        "im_mad", 
+                        "vmm_mad", 
+                        "vnm_mad",
+                        ClusterPool::NONE_CLUSTER_ID,
+                        ClusterPool::NONE_CLUSTER_NAME,
+                        err);
+
         CPPUNIT_ASSERT( oid >= 0 );
 
         host = hpool->get(oid, true);

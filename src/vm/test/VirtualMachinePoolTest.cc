@@ -66,7 +66,7 @@ const string xml_dump_where =
     "<VM_POOL><VM><ID>0</ID><UID>1</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM></VM_POOL>";
 
 const string xml_history_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM><VM><ID>1</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>Second VM</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE><HISTORY_RECORDS><HISTORY><SEQ>0</SEQ><HOSTNAME>A_hostname</HOSTNAME><VM_DIR>A_vm_dir</VM_DIR><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>A_vmm_mad</VMMMAD><VNMMAD>A_vnm_mad</VNMMAD><TMMAD>A_tm_mad</TMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></HISTORY_RECORDS></VM><VM><ID>2</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[2]]></VMID></TEMPLATE><HISTORY_RECORDS><HISTORY><SEQ>1</SEQ><HOSTNAME>C_hostname</HOSTNAME><VM_DIR>C_vm_dir</VM_DIR><HID>2</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>C_vmm_mad</VMMMAD><VNMMAD>C_vnm_mad</VNMMAD><TMMAD>C_tm_mad</TMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></HISTORY_RECORDS></VM><VM><ID>3</ID><UID>1</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>6</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[3]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM></VM_POOL>";
+    "<VM_POOL><VM><ID>0</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM><VM><ID>1</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>Second VM</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE><HISTORY_RECORDS><HISTORY><SEQ>0</SEQ><HOSTNAME>A_hostname</HOSTNAME><VM_DIR>A_vm_dir</VM_DIR><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>A_vmm_mad</VMMMAD><VNMMAD>A_vnm_mad</VNMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></HISTORY_RECORDS></VM><VM><ID>2</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[2]]></VMID></TEMPLATE><HISTORY_RECORDS><HISTORY><SEQ>1</SEQ><HOSTNAME>C_hostname</HOSTNAME><VM_DIR>C_vm_dir</VM_DIR><HID>2</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>C_vmm_mad</VMMMAD><VNMMAD>C_vnm_mad</VNMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></HISTORY_RECORDS></VM><VM><ID>3</ID><UID>1</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>6</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[3]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM></VM_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -194,7 +194,6 @@ public:
         string hostname     = "hostname";
         string vm_dir       = "vm_dir";
         string vmm_mad      = "vm_mad";
-        string tm_mad       = "tm_mad";
 
         // Allocate two VMs
         oid = allocate(0);
@@ -299,10 +298,8 @@ public:
         VirtualMachine*      vm;
 
         string hostnames[] = {"A_hostname", "B_hostname", "C_hostname"};
-        string vm_dirs[]   = {"A_vm_dir", "B_vm_dir", "C_vm_dir"};
         string vmm_mads[]  = {"A_vmm_mad", "B_vmm_mad", "C_vmm_mad"};
         string vnm_mads[]  = {"A_vnm_mad", "B_vnm_mad", "C_vnm_mad"};
-        string tm_mads[]   = {"A_tm_mad", "B_tm_mad", "C_tm_mad"};
 
         int oid, rc;
         ostringstream oss;
@@ -324,7 +321,7 @@ public:
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
-        vm->add_history(0, hostnames[0], vm_dirs[0], vmm_mads[0], vnm_mads[0], tm_mads[0]);
+        vm->add_history(0, hostnames[0], vmm_mads[0], vnm_mads[0]);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -342,7 +339,7 @@ public:
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
-        vm->add_history(1, hostnames[1], vm_dirs[1], vmm_mads[1], vnm_mads[1], tm_mads[1]);
+        vm->add_history(1, hostnames[1], vmm_mads[1], vnm_mads[1]);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -351,7 +348,7 @@ public:
         CPPUNIT_ASSERT( rc == 0 );
 
         // Add another history item
-        vm->add_history(2, hostnames[2], vm_dirs[2], vmm_mads[2], vnm_mads[2], tm_mads[2]);
+        vm->add_history(2, hostnames[2], vmm_mads[2], vnm_mads[2]);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -406,10 +403,8 @@ public:
 
         string hostname     = "hostname";
         string new_hostname = "new_hostname";
-        string vm_dir       = "vm_dir";
         string vmm_mad      = "vm_mad";
         string vnm_mad      = "vn_mad";
-        string tm_mad       = "tm_mad";
 
         // Allocate a VM
         oid = allocate(0);
@@ -419,7 +414,7 @@ public:
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
-        vm->add_history(0, hostname, vm_dir, vmm_mad, vnm_mad, tm_mad);
+        vm->add_history(0, hostname, vmm_mad, vnm_mad);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -427,7 +422,7 @@ public:
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
-        vm->add_history(0, new_hostname, vm_dir, vmm_mad, vnm_mad, tm_mad);
+        vm->add_history(0, new_hostname, vmm_mad, vnm_mad);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );

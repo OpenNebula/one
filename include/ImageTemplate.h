@@ -41,10 +41,35 @@ public:
         return Template::check(rs_attr, restricted_attributes);
     };
 
+    bool is_saving()
+    {
+        string saving;
+
+        get(saving_attribute, saving);
+
+        return (saving.empty() == false);
+    }
+
+    void set_saving()
+    {
+        SingleAttribute * attr= new SingleAttribute(saving_attribute, "YES");
+
+        erase(saving_attribute);
+
+        set(attr);
+    }
+
+    void unset_saving()
+    {
+        erase(saving_attribute);
+    }
+
 private:
     friend class ImagePool;
 
     static vector<string> restricted_attributes;
+
+    static string saving_attribute;
 
     /**
      * Stores the attributes as restricted, these attributes will be used in

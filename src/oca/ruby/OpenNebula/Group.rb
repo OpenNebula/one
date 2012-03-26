@@ -69,7 +69,7 @@ module OpenNebula
         # Creates ACLs for the group. The ACL rules are described in a file
         def create_acls(filename = GROUP_DEFAULT)
             if !File.readable?(filename)
-                return -1, "Can not read deafult ACL file for group"
+                return -1, "Cannot read deafult ACL file for group"
             end
 
             msg = String.new

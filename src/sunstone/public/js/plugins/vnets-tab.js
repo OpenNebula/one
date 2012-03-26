@@ -28,6 +28,7 @@ var vnets_tab_content =
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Name")+'</th>\
+      <th>'+tr("Cluster")+'</th>\
       <th>'+tr("Type")+'</th>\
       <th>'+tr("Bridge")+'</th>\
       <th>'+tr("Total Leases")+'</th>\
@@ -49,6 +50,7 @@ var create_vn_tmpl =
               <fieldset>\
                  <label for="name">'+tr("Name")+':</label>\
                  <input type="text" name="name" id="name" /><br />\
+                 <br />\
               </fieldset>\
               <fieldset>\
                  <label for="network_mode">'+tr("Network mode")+':</label>\
@@ -380,6 +382,18 @@ var vnet_actions = {
         error: onError
     },
 
+    "Network.addtocluster" : {
+        type: "multiple",
+        call: function(params){
+            var cluster = params.data.extra_param;
+            var vnet = params.data.id;
+            Sunstone.runAction("Cluster.addvnet",cluster,vnet);
+        },
+        callback: null,
+        elements: vnElements,
+        notify:true,
+    },
+
 };
 
 
@@ -400,7 +414,13 @@ var vnet_buttons = {
         text: tr("Update properties"),
         alwaysActive: true
     },
-
+    "Network.addtocluster" : {
+        type: "confirm_with_select",
+        text: tr("Select cluster"),
+        select: clusters_sel,
+        tip: tr("Select the destination cluster:"),
+        condition: mustBeAdmin,
+    },
     "Network.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -437,7 +457,10 @@ var vnet_info_panel = {
 var vnets_tab = {
     title: tr("Virtual Networks"),
     content: vnets_tab_content,
-    buttons: vnet_buttons
+    buttons: vnet_buttons,
+    tabClass: "subTab",
+    parentTab: "infra_tab",
+    showOnTopMenu: false,
 }
 
 Sunstone.addActions(vnet_actions);
@@ -463,6 +486,7 @@ function vNetworkElementArray(vn_json){
         network.UNAME,
         network.GNAME,
         network.NAME,
+        network.CLUSTER.length ? network.CLUSTER : "-",
         parseInt(network.TYPE) ? "FIXED" : "RANGED",
         network.BRIDGE,
         network.TOTAL_LEASES ];
@@ -519,6 +543,7 @@ function updateVNetworksView(request, network_list){
     updateView(network_list_array,dataTable_vNetworks);
     //dependency with dashboard
     updateDashboard("vnets",network_list);
+    updateInfraDashboard("vnets",network_list);
 
 }
 
@@ -538,6 +563,10 @@ function updateVNetworkInfo(request,vn){
             <tr>\
               <td class="key_td">'+tr("Name")+'</td>\
               <td class="value_td">'+vn_info.NAME+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Cluster")+'</td>\
+              <td class="value_td">'+(network.CLUSTER.length ? network.CLUSTER : "-")+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Owner")+'</td>\
@@ -563,7 +592,7 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">'+tr("VLAN ID")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.VLAN_ID) == "object" ? "--": vn_info.VLAN_ID) +'</td>\
             </tr>\
-            <tr><td class="key_td">Permissions</td><td></td></tr>\
+            <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
             <tr>\
               <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
               <td class="value_td" style="font-family:monospace;">'+ownerPermStr(vn_info)+'</td>\
@@ -849,6 +878,7 @@ function setupCreateVNetDialog() {
         var phydev = $('#phydev',this).val();
         var vlan = $('#vlan',this).val();
         var vlan_id = $('#vlan_id',this).val();
+
         switch (network_mode) {
         case "default":
             if (!bridge && !phydev){
@@ -948,7 +978,9 @@ function setupCreateVNetDialog() {
 
         //Create the VNetwork.
 
-        network_json = {"vnet" : network_json};
+        network_json = {
+            "vnet" : network_json,
+        };
 
         Sunstone.runAction("Network.create",network_json);
         $create_vn_dialog.dialog('close');
@@ -1145,9 +1177,9 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,5,6,7] },
+            { "sWidth": "60px", "aTargets": [0,6,7,8] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3] }
+            { "sWidth": "100px", "aTargets": [2,3,5] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1158,7 +1190,7 @@ $(document).ready(function(){
     dataTable_vNetworks.fnClearTable();
     addElement([
         spinner,
-        '','','','','','',''],dataTable_vNetworks);
+        '','','','','','','',''],dataTable_vNetworks);
     Sunstone.runAction("Network.list");
 
     setupCreateVNetDialog();
@@ -1169,4 +1201,8 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_vNetworks);
     tableCheckboxesListener(dataTable_vNetworks);
     vNetworkInfoListener();
+
+    $('div#menu li#li_vnets_tab').live('click',function(){
+        dataTable_vNetworks.fnFilter('',5);
+    });
 });

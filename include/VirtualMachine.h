@@ -207,6 +207,24 @@ public:
     };
 
     // ------------------------------------------------------------------------
+    // Access to VM locations
+    // ------------------------------------------------------------------------
+    /**
+     *  Returns the remote VM directory. The VM remote dir is in the form:
+     *  $DATASTORE_LOCATION/$SYSTEM_DS_ID/$VM_ID. The remote system_dir stores
+     *  disks for a running VM in the target host.
+     *    @return the remote system directory for the VM
+     */
+    string get_remote_system_dir() const;
+
+    /**
+     *  Returns the local VM directory. The VM local dir is in the form:
+     *  $SYSTEM_DS_BASE_PATH/$VM_ID. Temporary stores VM disks.
+     *    @return the system directory for the VM
+     */
+    string get_system_dir() const;
+
+    // ------------------------------------------------------------------------
     // History
     // ------------------------------------------------------------------------
     /**
@@ -215,10 +233,8 @@ public:
     void add_history(
         int     hid,
         const string& hostname,
-        const string& vm_dir,
         const string& vmm_mad,
-        const string& vnm_mad,
-        const string& tm_mad);
+        const string& vnm_mad);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
@@ -295,26 +311,6 @@ public:
     };
 
     /**
-     *  Returns the TM driver name for the current host. The hasHistory()
-     *  function MUST be called before this one.
-     *    @return the TM mad name
-     */
-    const string & get_tm_mad() const
-    {
-        return history->tm_mad_name;
-    };
-
-    /**
-     *  Returns the TM driver name for the previous host. The
-     *  hasPreviousHistory() function MUST be called before this one.
-     *    @return the TM mad name
-     */
-    const string & get_previous_tm_mad() const
-    {
-        return previous_history->tm_mad_name;
-    };
-
-    /**
      *  Returns the transfer filename. The transfer file is in the form:
      *          $ONE_LOCATION/var/$VM_ID/transfer.$SEQ
      *  or, in case that OpenNebula is installed in root
@@ -374,30 +370,6 @@ public:
     const string & get_checkpoint_file() const
     {
         return history->checkpoint_file;
-    };
-
-    /**
-     *  Returns the remote VM directory. The VM remote dir is in the form:
-     *          $VM_DIR/$VM_ID/
-     *  or, in case that OpenNebula is installed in root
-     *          /var/lib/one/$VM_ID/
-     *  The hasHistory() function MUST be called before this one.
-     *    @return the remote directory
-     */
-    const string & get_remote_dir() const
-    {
-        return history->vm_rhome;
-    };
-
-    /**
-     *  Returns the local VM directory. The VM local dir is in the form:
-     *          $ONE_LOCATION/var/$VM_ID/
-     *  The hasHistory() function MUST be called before this one.
-     *    @return the remote directory
-     */
-    const string & get_local_dir() const
-    {
-        return history->vm_lhome;
     };
 
     /**
@@ -570,7 +542,7 @@ public:
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template()
+    Template * get_new_template() const
     {
         return new VirtualMachineTemplate;
     }
@@ -681,15 +653,27 @@ public:
     int  generate_context(string &files);
 
     // ------------------------------------------------------------------------
-    // Image repository related functions
+    // Datastore related functions
     // ------------------------------------------------------------------------
     /**
      *  Set the SAVE_AS attribute for the "disk_id"th disk.
      *    @param  disk_id Index of the disk to save
-     *    @param  img_id ID of the image this disk will be saved to.
+     *    @param  source to save the disk (SAVE_AS_SOURCE)
+     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
      *    @return 0 if success
      */
-    int  save_disk(int disk_id, int img_id, string& error_str);
+    int save_disk(const string& disk_id, 
+                  const string& source,
+                  int img_id);
+
+    /**
+     * Get the original image id of the disk. It also checks that the disk can
+     * be saved_as.
+     *    @param  disk_id Index of the disk to save
+     *    @param  error_str describes the error
+     *    @return -1 if failure
+     */
+    int get_image_from_disk(int disk_id, string& error_str);
 
     // ------------------------------------------------------------------------
     // Authorization related functions
@@ -781,14 +765,13 @@ private:
      */
     History *   previous_history;
 
-
     /**
      *  Complete set of history records for the VM
      */
     vector<History *> history_records;
 
     // -------------------------------------------------------------------------
-    // Logging
+    // Logging & Dirs
     // -------------------------------------------------------------------------
 
     /**
@@ -797,7 +780,7 @@ private:
      *  or, in case that OpenNebula is installed in root
      *          /var/log/one/$VM_ID.log
      */
-    FileLog *       _log;
+    FileLog * _log;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -893,6 +876,14 @@ private:
      *    @return 0 on success
      */
     int parse_requirements(string& error_str);
+
+    /**
+     * Adds automatic placement requirements: Datastore and Cluster
+     *
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int automatic_requirements(string& error_str);
 
     /**
      *  Parse the "GRAPHICS" attribute and generates a default PORT if not

@@ -52,7 +52,9 @@ module OpenNebula
             "IMAGE"         => 0x8000000000,
             "USER"          => 0x10000000000,
             "TEMPLATE"      => 0x20000000000,
-            "GROUP"         => 0x40000000000
+            "GROUP"         => 0x40000000000,
+            "DATASTORE"     => 0x100000000000,
+            "CLUSTER"       => 0x200000000000
         }
 
         RIGHTS =

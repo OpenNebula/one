@@ -151,7 +151,7 @@ module WatchHelper
             String  :name
             String  :im_mad
             String  :vm_mad
-            String  :tm_mad
+            String  :vn_mad
         end
 
         DB.create_table? :vm_timestamps do
@@ -422,7 +422,7 @@ module WatchHelper
                 h.name   = host['NAME']
                 h.im_mad = host['IM_MAD']
                 h.vm_mad = host['VM_MAD']
-                h.tm_mad = host['TM_MAD']
+                h.vn_mad = host['VN_MAD']
             }
         end
 

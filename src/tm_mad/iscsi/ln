@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# clone fe:SOURCE host:remote_system_ds/disk.i size
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
+SRC=$1
+DST=$2
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+. $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
+
+IQN=$SRC
+TARGET=`arg_path $SRC`
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+
+BASE_IQN=`echo $IQN|$CUT -d: -f1`
+TARGET=`echo $IQN|$CUT -d: -f2`
+LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
+VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
+TARGET_DEV="/dev/$VG_NAME/$LV_NAME"
+TARGET_HOST=${TARGET%.$VG_NAME.$LV_NAME}
+
+DISCOVER_CMD=$(cat <<EOF
+    set -e
+    mkdir -p $DST_DIR
+    $SUDO $(iscsiadm_discovery "$TARGET_HOST")
+    $SUDO $(iscsiadm_login "$IQN" "$TARGET_HOST")
+    sleep 1
+    DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)
+    ln -s "\$DISK_BY_PATH" "$DST_PATH"
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$DISCOVER_CMD" \
+        "Error registering $DST_HOST:$DEV"
+exit 0

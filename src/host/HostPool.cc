@@ -35,7 +35,7 @@ HostPool::HostPool(SqlDB*                    db,
                    const string&             remotes_location)
                         : PoolSQL(db,Host::table)
 {
-    // ------------------ Initialize Hooks fot the pool ----------------------
+    // ------------------ Initialize Hooks for the pool ----------------------
 
     const VectorAttribute * vattr;
 
@@ -153,7 +153,8 @@ int HostPool::allocate (
     const string& im_mad_name,
     const string& vmm_mad_name,
     const string& vnm_mad_name,
-    const string& tm_mad_name,
+    int           cluster_id,
+    const string& cluster_name,
     string& error_str)
 {
     Host *        host;
@@ -184,11 +185,6 @@ int HostPool::allocate (
         goto error_vnm;
     }
 
-    if ( tm_mad_name.empty() )
-    {
-        goto error_tm;
-    }
-
     host = get(hostname,false);
 
     if ( host !=0)
@@ -198,15 +194,20 @@ int HostPool::allocate (
 
     // Build a new Host object
 
-    host = new Host(-1, hostname, im_mad_name, vmm_mad_name, vnm_mad_name,
-            tm_mad_name);
+    host = new Host(
+            -1,
+            hostname,
+            im_mad_name,
+            vmm_mad_name,
+            vnm_mad_name,
+            cluster_id,
+            cluster_name);
 
     // Insert the Object in the pool
 
     *oid = PoolSQL::allocate(host, error_str);
 
     return *oid;
-
 
 error_name:
     oss << "NAME cannot be empty.";
@@ -226,10 +227,6 @@ error_vmm:
 
 error_vnm:
     oss << "VNM_MAD_NAME cannot be empty.";
-    goto error_common;
-
-error_tm:
-    oss << "TM_MAD_NAME cannot be empty.";
     goto error_common;
 
 error_duplicated:

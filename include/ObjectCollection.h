@@ -28,7 +28,7 @@ using namespace std;
  */
 class ObjectCollection
 {
-protected:
+public:
 
     ObjectCollection(const string& _collection_name)
         :collection_name(_collection_name){};

@@ -49,29 +49,33 @@ public:
      */
     enum ObjectType
     {
-        VM       = 0x0000001000000000LL,
-        HOST     = 0x0000002000000000LL,
-        NET      = 0x0000004000000000LL,
-        IMAGE    = 0x0000008000000000LL,
-        USER     = 0x0000010000000000LL,
-        TEMPLATE = 0x0000020000000000LL,
-        GROUP    = 0x0000040000000000LL,
-        ACL      = 0x0000080000000000LL
+        VM          = 0x0000001000000000LL,
+        HOST        = 0x0000002000000000LL,
+        NET         = 0x0000004000000000LL,
+        IMAGE       = 0x0000008000000000LL,
+        USER        = 0x0000010000000000LL,
+        TEMPLATE    = 0x0000020000000000LL,
+        GROUP       = 0x0000040000000000LL,
+        ACL         = 0x0000080000000000LL,
+        DATASTORE   = 0x0000100000000000LL,
+        CLUSTER     = 0x0000200000000000LL
     };
 
     static string type_to_str(ObjectType ob)
     {
         switch (ob)
         {
-            case VM:       return "VM" ; break;
-            case HOST:     return "HOST" ; break;
-            case NET:      return "NET" ; break;
-            case IMAGE:    return "IMAGE" ; break;
-            case USER:     return "USER" ; break;
-            case TEMPLATE: return "TEMPLATE" ; break;
-            case GROUP:    return "GROUP" ; break;
-            case ACL:      return "ACL" ; break;
-            default:       return "";
+            case VM:        return "VM" ; break;
+            case HOST:      return "HOST" ; break;
+            case NET:       return "NET" ; break;
+            case IMAGE:     return "IMAGE" ; break;
+            case USER:      return "USER" ; break;
+            case TEMPLATE:  return "TEMPLATE" ; break;
+            case GROUP:     return "GROUP" ; break;
+            case ACL:       return "ACL" ; break;
+            case DATASTORE: return "DATASTORE" ; break;
+            case CLUSTER:   return "CLUSTER" ; break;
+            default:        return "";
         }
     };
 
@@ -359,7 +363,7 @@ public:
      *  by classes that uses templates
      *    @return a new template
      */
-    virtual Template * get_new_template()
+    virtual Template * get_new_template() const
     {
         return 0;
     }
@@ -369,7 +373,7 @@ public:
      *  after calling this method
      *    @param tmpl string representation of the template
      */
-    int replace_template(const string& tmpl_str, string& error);
+    virtual int replace_template(const string& tmpl_str, string& error);
 
 
     /**

@@ -189,6 +189,10 @@ module OZones
                        OpenNebulaJSON::VirtualNetworkPoolJSON.new(@client)
                    when "template","vmtemplate" then
                        OpenNebulaJSON::TemplatePoolJSON.new(@client)
+                   when "cluster" then
+                       OpenNebulaJSON::ClusterPoolJSON.new(@client)
+                   when "datastore" then
+                       OpenNebulaJSON::DatastorePoolJSON.new(@client)
                    else
                        error = OZones::Error.new("Error: Pool #{pool_kind} not " \
                                                  "supported for zone view")
@@ -214,6 +218,10 @@ module OZones
                        OZones::AggregatedVirtualNetworks.new
                    when "template","vmtemplate" then
                        OZones::AggregatedTemplates.new
+                   when "cluster" then
+                       OZones::AggregatedCluster.new
+                   when "datastore" then
+                       OZones::AggregatedDatastore.new
                    else
                        error = OZones::Error.new("Error: Pool #{pool_kind} not" \
                                                  " supported for aggregated zone view")

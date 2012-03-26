@@ -78,6 +78,8 @@ int VirtualNetworkPool::allocate (
     const string&  gname,
     VirtualNetworkTemplate * vn_template,
     int *          oid,
+    int            cluster_id,
+    const string&  cluster_name,
     string&        error_str)
 {
     VirtualNetwork *         vn;
@@ -85,7 +87,8 @@ int VirtualNetworkPool::allocate (
     string          name;
     ostringstream   oss;
 
-    vn = new VirtualNetwork(uid, gid, uname, gname, vn_template);
+    vn = new VirtualNetwork(uid, gid, uname, gname,
+                            cluster_id, cluster_name, vn_template);
 
     // Check name
     vn->get_template_attribute("NAME", name);
@@ -139,13 +142,16 @@ error_common:
 
 VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic, 
                                                      const string&     name,
-                                                     int               _uid)
+                                                     int               _uid,
+                                                     string&           error)
 {
     istringstream  is;
 
     string uid_s ;
     string uname;
     int    uid;
+
+    VirtualNetwork * vnet;
 
     if (!(uid_s = nic->vector_value("NETWORK_UID")).empty())
     {
@@ -154,6 +160,7 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
 
         if( is.fail() )
         {
+            error = "Cannot get user in NETWORK_UID";
             return 0;
         }
     }
@@ -167,6 +174,7 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
         
         if ( user == 0 )
         {
+            error = "User set in NETWORK_UNAME does not exist";
             return 0;
         }
 
@@ -179,39 +187,63 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
         uid = _uid;        
     }
 
-    return get(name,uid,true);
+    vnet = get(name,uid,true);
+
+    if (vnet == 0)
+    {
+        ostringstream oss;
+        oss << "Virtual network " << name << " does not exist for user " << uid;
+
+        error = oss.str(); 
+    }
+
+    return vnet;
 }
         
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s)
+VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s, 
+                                                   string&       error)
 {
     istringstream  is;
     int            id;
 
+    VirtualNetwork * vnet = 0;
+
     is.str(id_s);
     is >> id;
 
-    if( is.fail() )
+    if( !is.fail() )
     {
-        return 0;
+        vnet = get(id,true);
     }
 
-    return get(id,true);
+    if (vnet == 0)
+    {
+        ostringstream oss;
+        oss << "Virtual network with ID: " << id_s << " does not exist";
+
+        error = oss.str(); 
+    }
+
+    return vnet;
 }
 
-int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
+int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, 
+                                      int     uid, 
+                                      int     vid,
+                                      string& error)
 {
     string           network;
     VirtualNetwork * vnet = 0;
 
     if (!(network = nic->vector_value("NETWORK")).empty())
     {
-        vnet = get_nic_by_name (nic, network, uid);
+        vnet = get_nic_by_name (nic, network, uid, error);
     }
     else if (!(network = nic->vector_value("NETWORK_ID")).empty())
     {
-        vnet = get_nic_by_id(network);
+        vnet = get_nic_by_id(network, error);
     }
     else //Not using a pre-defined network
     {
@@ -229,6 +261,10 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
     {
         update(vnet);
     }
+    else
+    {
+        error = "Cannot get IP/MAC lease from virtual network.";
+    }
 
     vnet->unlock();
 
@@ -245,14 +281,15 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
     string           network;
     VirtualNetwork * vnet = 0;
     PoolObjectAuth   perm;
+    string           error;
 
     if (!(network = nic->vector_value("NETWORK")).empty())
     {
-        vnet = get_nic_by_name (nic, network, uid);
+        vnet = get_nic_by_name (nic, network, uid, error);
     }
     else if (!(network = nic->vector_value("NETWORK_ID")).empty())
     {
-        vnet = get_nic_by_id(network);
+        vnet = get_nic_by_id(network, error);
     }
     else //Not using a pre-defined network
     {

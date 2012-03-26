@@ -24,7 +24,7 @@ function fix_iso {
 	    if [ $? -eq 0 ]; then
 	        bname=`basename $dst_path`
 	        exec_and_log "ln -s $bname $dst_path/$bname.iso" \
-	                     "Can not link ISO file."
+	                     "Cannot link ISO file."
 	    fi
 	fi
 }

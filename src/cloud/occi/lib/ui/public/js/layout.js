@@ -14,16 +14,21 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+//This file is mostly a copy of layout.js from Sunstone.
+//Instead of opening a south panel, it opens an east panel.
+//Apart from document.ready() modifications, the rest of different lines are
+//makerd with MODIFIED
+
 var activeTab;
 var outerLayout, innerLayout;
 
 function hideDialog(){
-    innerLayout.close("east");
+    innerLayout.close("east");//MODIFIED
 }
 
 function popDialog(content){
     $("#dialog").html(content);
-    innerLayout.open("east");
+    innerLayout.open("east");//MODIFIED
 }
 
 function popDialogLoading(){
@@ -31,45 +36,98 @@ function popDialogLoading(){
     popDialog(loading);
 }
 
-function showTab(tabname){
-    activeTab = tabname;
+function showTab(tabname,highlight_tab){
+    //Since menu items no longer have an <a> element
+    //we no longer expect #tab_id here, but simply tab_id
+    //So safety check - remove # from #tab_id if present to ensure compatibility
+    if (tabname.indexOf('#') == 0)
+        tabname = tabname.substring(1);
+    if (highlight_tab && highlight_tab.indexOf('#') == 0)
+        highlight_tab == highlight.substring(1);
+
+    var activeTab = tabname;
+
+    if (!highlight_tab) highlight_tab = activeTab;
 
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
-    $("#navigation li a").removeClass("navigation-active-li-a");
+    $("div#header ul#menutop_ul li").removeClass("navigation-active-li");
 
-    //select menu
-    var li = $("#navigation li:has(a[href='"+activeTab+"'])")
-    var li_a = $("#navigation li a[href='"+activeTab+"']")
+    //select tab in left menu
+    var li = $("#navigation li#li_"+highlight_tab)
     li.addClass("navigation-active-li");
-    li_a.addClass("navigation-active-li-a");
+
+    //select tab in top menu
+    var top_li = $("div#header ul#menutop_ul li#top_"+highlight_tab);
+    top_li.addClass("navigation-active-li");
+
 
     //show tab
     $(".tab").hide();
-    $(activeTab).show();
-    //~ if (activeTab == '#dashboard') {
-		//~ emptyDashboard();
-		//~ preloadTables();
-	//~ }
-    innerLayout.close("south");
-}
+    $('#'+activeTab).show();
+//    innerLayout.close("south");//MODIFIED commented
+};
+
+function setupTabs(){
+
+    var topTabs = $(".outer-west ul li.topTab");
+    var subTabs = $(".outer-west ul li.subTab");
+
+    subTabs.live("click",function(){
+        //leave floor to topTab listener in case of tabs with both classes
+        if ($(this).hasClass('topTab')) return false;
+
+        var tab = $(this).attr('id').substring(3);
+        showTab(tab);
+        return false;
+    });
+
+    topTabs.live("click",function(e){
+        var tab = $(this).attr('id').substring(3);
+        //Subtabs have a class with the name of  this tab
+        var subtabs = $('div#menu li.'+tab);
+
+        //toggle subtabs only when clicking on the icon or when clicking on an
+        //already selected menu
+        if ($(e.target).is('span') ||
+            $(this).hasClass("navigation-active-li")){
+            //for each subtab, we hide the subsubtabs
+            subtabs.each(function(){
+                //for each subtab, hide its subtabs
+                var subsubtabs = $(this).attr('id').substr(3);
+                //subsubtabs class
+                subsubtabs = $('div#menu li.'+subsubtabs);
+                subsubtabs.hide();
+            });
+            //hide subtabs and reset icon to + position, since all subsubtabs
+            //are hidden
+            subtabs.fadeToggle('fast');
+            $('span',subtabs).removeClass('ui-icon-circle-minus');
+            $('span',subtabs).addClass('ui-icon-circle-plus');
+            //toggle icon on this tab
+            $('span',this).toggleClass('ui-icon-circle-plus ui-icon-circle-minus');
+        };
+        //if we are clicking on the icon only, do not show the tab
+        if ($(e.target).is('span')) return false;
+
+        showTab(tab);
+        return false;
+    });
+
+};
+
+function setupTopMenu(){
+    $('div#header ul#menutop_ul li').live('click',function(){
+        var tab = "#" + $(this).attr('id').substring(4);
+        showTab(tab);
+    });
+};
 
 $(document).ready(function () {
     $(".tab").hide();
 
-    $(".outer-west ul li.subTab").live("click",function(){
-        var tab = $('a',this).attr('href');
-        showTab(tab);
-        return false;
-    });
-
-    $(".outer-west ul li.topTab").live("click",function(){
-        var tab = $('a',this).attr('href');
-        //toggle subtabs trick
-        $('li.'+tab.substr(1)).toggle();
-        showTab(tab);
-        return false;
-    });
+    setupTabs();
+    //setupTopMenu();
 
     outerLayout = $('body').layout({
         applyDefaultStyles:       false

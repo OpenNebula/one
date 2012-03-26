@@ -131,7 +131,7 @@ module OCCIClient
                     file_path="/"+m[1]
                 end
             elsif !image_info.elements['TYPE'] == "DATABLOCK"
-                return CloudClient::Error.new("Can not find URL")
+                return CloudClient::Error.new("Cannot find URL")
             end
 
             if curb
@@ -316,7 +316,7 @@ module OCCIClient
             end
 
             if info.elements['ID'] == nil
-                return CloudClient::Error.new("Can not find RESOURCE ID")
+                return CloudClient::Error.new("Cannot find RESOURCE ID")
             end
 
             resource_id = info.elements['ID'].text

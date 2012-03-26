@@ -17,7 +17,14 @@
 require 'cli/ozones_helper'
 require 'cli/one_helper'
 
+require 'zona'
+
 class VDCHelper < OZonesHelper::OZHelper
+    NAME_REG = /[\w\d_-]+/
+    VAR_REG  = /\s*(#{NAME_REG})\s*=\s*/
+
+    SVAR_REG = /^#{VAR_REG}([^\[]+?)(#.*)?$/
+
     def initialize(kind, user=nil, pass=nil, endpoint_str=nil,
                    timeout=nil, debug_flag=true)
         @vdc_str = kind
@@ -25,13 +32,30 @@ class VDCHelper < OZonesHelper::OZHelper
     end
 
     def create_resource(template, options)
-        tmpl_str = File.read(template)
+        tmpl_str  = File.read(template)
+        tmpl_hash = Hash.new
 
-        if options[:force]
-            tmpl_str << "FORCE=YES\n"
+        tmpl_str.scan(SVAR_REG) do | m |
+            key   = m[0].strip.upcase
+            value = m[1].strip
+
+            tmpl_hash[key] = value
         end
 
-        rc = @client.post_resource_str(@vdc_str, tmpl_str)
+        hosts = tmpl_hash.delete("HOSTS")
+        ds    = tmpl_hash.delete("DATASTORES")
+        nets  = tmpl_hash.delete("NETWORKS")
+
+        tmpl_hash["RESOURCES"] = { "HOSTS"      => eval("[#{hosts}]"), 
+                                   "DATASTORES" => eval("[#{ds}]"),
+                                   "NETWORKS"   => eval("[#{nets}]") }
+        if options[:force]
+            tmpl_hash["FORCE"] = "YES"
+        end
+
+        vdc = { "#{@vdc_str.upcase}" => tmpl_hash }
+
+        rc  = @client.post_resource(@vdc_str,Zona::OZonesJSON.to_json(vdc))
 
         if Zona::is_error?(rc)
             [-1, rc.message]
@@ -53,71 +77,89 @@ class VDCHelper < OZonesHelper::OZHelper
         super(@vdc_str,id, options)
     end
 
-    def addhost(id, host_array, options)
-        rc = @client.get_resource(@vdc_str, id)
+    def add(id, options)
+        vdc = Zona::VDC.new(Zona::VDC.build_json(id), @client)
+        rc  = vdc.info
+
+        return [-1, rc.message] if Zona::is_error?(rc)
+
+        exit_code = 0
+        message   = ""
+
+        rc  = vdc.add_hosts(options[:hosts], :FORCE => options[:force])
 
         if Zona::is_error?(rc)
-            return [-1, rc.message]
-        else
-            vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
+            message << "Error adding hosts to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
         end
 
-        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
-        host_array.concat(hosts).uniq!
-
-        new_host = host_array.join(',')
-        template = "ID=#{id}\nHOSTS=#{new_host}\n"
-
-        if options[:force]
-            template << "FORCE=YES\n"
-        end
-
-        rc = @client.put_resource_str(@vdc_str, id, template)
+        rc  = vdc.add_networks(options[:networks])
 
         if Zona::is_error?(rc)
-            return [-1, rc.message]
+            message << "Error adding networks to VDC:\n#{rc.message}\n"
+            exit_code = -1
         end
 
-        [0, ""]
+        rc  = vdc.add_datastores(options[:datastores])
+
+        if Zona::is_error?(rc)
+            message << "Error adding datastores to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
+        end
+
+        return [exit_code, message]
     end
 
-    def delhost(id, host_array, options)
-        rc = @client.get_resource(@vdc_str, id)
+    def del(id, options)
+        vdc = Zona::VDC.new(Zona::VDC.build_json(id), @client)
+        rc  = vdc.info
+
+        return [-1, rc.message] if Zona::is_error?(rc)
+
+        exit_code = 0
+        message   = ""
+
+        rc  = vdc.del_hosts(options[:hosts])
 
         if Zona::is_error?(rc)
-            return [-1, rc.message]
-        else
-            vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
+            message << "Error deleting to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
         end
 
-        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
+        rc  = vdc.del_networks(options[:networks])
 
-        new_host = (hosts - host_array).join(',')
-        template = "ID=#{id}\nHOSTS=#{new_host}\n"
-
-        rc = @client.put_resource_str(@vdc_str, id, template)
-
-        if Zona.is_error?(rc)
-            return [-1, rc.message]
+        if Zona::is_error?(rc)
+            message << "Error deleting networks to VDC:\n#{rc.message}\n"
+            exit_code = -1
         end
 
-        [0, ""]
+        rc  = vdc.del_datastores(options[:datastores])
+
+        if Zona::is_error?(rc)
+            message << "Error deleting datastores to VDC:\n\t#{rc.message}\n"
+            exit_code = -1
+        end
+
+        return [exit_code, message]
     end
 
     private
 
     def format_resource(vdc, options)
         str_h1="%-60s"
-        str="%-10s: %-20s"
+        str="%-12s: %-20s"
 
         CLIHelper.print_header(str_h1 % ["VDC #{vdc['name']} INFORMATION"])
 
-        puts str % ["ID ",       vdc[:ID].to_s]
-        puts str % ["NAME ",     vdc[:NAME].to_s]
-        puts str % ["GROUP_ID ", vdc[:GROUP_ID].to_s]
-        puts str % ["ZONEID ",   vdc[:ZONES_ID].to_s]
-        puts str % ["VDCADMIN ", vdc[:VDCADMINNAME].to_s]
-        puts str % ["HOST IDs ", vdc[:HOSTS].to_s]
+        puts str % ["ID ",          vdc[:ID].to_s]
+        puts str % ["NAME ",        vdc[:NAME].to_s]
+        puts str % ["ZONE_ID ",     vdc[:ZONES_ID].to_s]
+        puts str % ["CLUSTER_ID ",  vdc[:CLUSTER_ID].to_s]
+        puts str % ["GROUP_ID ",    vdc[:GROUP_ID].to_s]
+        puts str % ["VDCADMIN ",    vdc[:VDCADMINNAME].to_s]
+        puts str % ["HOSTS ",      vdc[:RESOURCES][:HOSTS].to_s]
+        puts str % ["DATASTORES ", vdc[:RESOURCES][:DATASTORES].to_s]
+        puts str % ["NETWORKS ",   vdc[:RESOURCES][:NETWORKS].to_s]
         puts
 
         return 0
@@ -129,16 +171,36 @@ class VDCHelper < OZonesHelper::OZHelper
                 d[:ID]
             end
 
-            column :NAME, "Name of the VDC", :right, :size=>15 do |d,e|
+            column :NAME, "Name of the VDC", :left, :size=>15 do |d,e|
                 d[:NAME]
             end
 
-            column :ZONEID, "Id of the Zone where it belongs",
-            :right, :size=>40 do |d,e|
+            column :ZONE, "Id of the Zone where it belongs",
+            :right, :size=>5 do |d,e|
                 d[:ZONES_ID]
             end
 
-            default :ID, :NAME, :ZONEID
+            column :CLUSTER, "Cluster where it belongs",
+            :right, :size=>7 do |d,e|
+                d[:CLUSTER_ID]
+            end
+
+            column :HOSTS, "Number of hosts in the VDC",
+            :right, :size=>5 do |d,e|
+                d[:RESOURCES][:HOSTS].size
+            end
+
+            column :DATASTORES, "Number of datastores in the VDC",
+            :right, :size=>10 do |d,e|
+                d[:RESOURCES][:DATASTORES].size
+            end
+
+            column :NETWORKS, "Number of networks in the VDC",
+            :right, :size=>8 do |d,e|
+                d[:RESOURCES][:NETWORKS].size
+            end
+
+            default :ID, :ZONE, :CLUSTER, :NAME, :HOSTS, :NETWORKS, :DATASTORES
         end
         st.show(pool[:VDC], options)
 

@@ -219,6 +219,26 @@ protected:
      *    @return string for logging
      */
     string allocate_error (PoolObjectSQL::ObjectType obj, const string& error);
+
+    /**
+     * Locks the requested object, gets information, and unlocks it
+     *
+     * @param pool object pool
+     * @param id of the object
+     * @param type of the object
+     * @param att the specific request attributes
+     *
+     * @param perms returns the object's permissions
+     * @param name returns the object's name
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int get_info (PoolSQL *                 pool,
+                  int                       id,
+                  PoolObjectSQL::ObjectType type,
+                  RequestAttributes&        att,
+                  PoolObjectAuth&           perms,
+                  string&                   name);
 };
 
 /* -------------------------------------------------------------------------- */

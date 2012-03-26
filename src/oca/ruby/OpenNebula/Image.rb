@@ -91,9 +91,13 @@ module OpenNebula
 
         # Allocates a new Image in OpenNebula
         #
-        # +description+ A string containing the template of the Image.
-        def allocate(description)
-            super(IMAGE_METHODS[:allocate],description)
+        # @param description [String] A string containing the template of the Image.
+        # @param ds_id [Integer] the target datastore ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def allocate(description, ds_id)
+            super(IMAGE_METHODS[:allocate],description, ds_id)
         end
 
         # Replaces the template contents

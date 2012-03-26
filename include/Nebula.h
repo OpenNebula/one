@@ -27,6 +27,8 @@
 #include "UserPool.h"
 #include "VMTemplatePool.h"
 #include "GroupPool.h"
+#include "DatastorePool.h"
+#include "ClusterPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -89,6 +91,16 @@ public:
     VMTemplatePool * get_tpool()
     {
         return tpool;
+    };
+
+    DatastorePool * get_dspool()
+    {
+        return dspool;
+    };
+
+    ClusterPool * get_clpool()
+    {
+        return clpool;
     };
 
     // --------------------------------------------------------------
@@ -187,9 +199,8 @@ public:
     };
 
     /**
-     *  Returns the path where the OpenNebula DB and the VM local directories
-     *  are stored. When ONE_LOCATION is defined this path points to
-     *  $ONE_LOCATION/var, otherwise it is /var/lib/one.
+     *  Returns the default var location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
      *  	@return the log location.
      */
     const string& get_var_location()
@@ -197,6 +208,40 @@ public:
     	return var_location;
     };
 
+    /**
+     *  Returns the default var location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
+     *      @return the log location.
+     */
+    const string& get_ds_location()
+    {
+        return ds_location;
+    };
+
+    /**
+     *  Returns the Transfer Manager for the system datastore
+     *      @return the tm name.
+     */
+    string get_system_ds_tm_mad()
+    {
+        Datastore * ds;
+        string      tm_mad = "";
+
+        ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
+
+        if ( ds == 0 )
+        {
+            NebulaLog::log("DaS", Log::ERROR, "Can not get system datastore");
+            return tm_mad;
+        }
+
+        tm_mad = ds->get_tm_mad();
+
+        ds->unlock();
+
+        return tm_mad;
+    };
+    
     /**
      *  Returns the path of the log file for a VM, depending where OpenNebula is
      *  installed,
@@ -254,8 +299,8 @@ private:
     // -----------------------------------------------------------------------
 
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),
-        upool(0),ipool(0),gpool(0),tpool(0),lcm(0),vmm(0),im(0),tm(0),
-        dm(0),rm(0),hm(0),authm(0),aclm(0),imagem(0)
+        upool(0),ipool(0),gpool(0),tpool(0),dspool(0),clpool(0),
+        lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0),aclm(0),imagem(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -268,6 +313,7 @@ private:
             log_location     = "/var/log/one/";
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
+            ds_location      = "/var/lib/one/datastores/";
         }
         else
         {
@@ -283,6 +329,7 @@ private:
             log_location     = nebula_location + "var/";
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
+            ds_location      = nebula_location + "var/datastores/";
         }
     };
 
@@ -323,6 +370,16 @@ private:
             delete tpool;
         }
 
+        if ( dspool != 0)
+        {
+            delete dspool;
+        }
+
+        if ( clpool != 0)
+        {
+            delete clpool;
+        }
+        
         if ( vmm != 0)
         {
             delete vmm;
@@ -400,6 +457,7 @@ private:
     string	var_location;
     string  hook_location;
     string  remotes_location;
+    string  ds_location;
 
     string	hostname;
 
@@ -421,6 +479,8 @@ private:
     ImagePool          * ipool;
     GroupPool          * gpool;
     VMTemplatePool     * tpool;
+    DatastorePool      * dspool;
+    ClusterPool        * clpool;
 
     // ---------------------------------------------------------------
     // Nebula Managers
