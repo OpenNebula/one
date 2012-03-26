@@ -271,30 +271,36 @@ var host_buttons = {
         },
     "Host.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New")
+        text: tr("+ New"),
+        condition: mustBeAdmin
     },
     "Host.update_dialog" : {
         type: "action",
         text: tr("Update a template"),
-        alwaysActive: true
+        alwaysActive: true,
+        condition: mustBeAdmin
     },
     "Host.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
         select: clusters_sel,
         tip: tr("Select the destination cluster:"),
+        condition: mustBeAdmin
     },
     "Host.enable" : {
         type: "action",
-        text: tr("Enable")
+        text: tr("Enable"),
+        condition: mustBeAdmin
     },
     "Host.disable" : {
         type: "action",
-        text: tr("Disable")
+        text: tr("Disable"),
+        condition: mustBeAdmin
     },
     "Host.delete" : {
         type: "confirm",
-        text: tr("Delete host")
+        text: tr("Delete host"),
+        condition: mustBeAdmin
     }
 };
 
@@ -475,7 +481,7 @@ function updateHostInfo(request,host){
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("Cluster") + '</td>\
-                <td class="value_td">'+(host.CLUSTER.length ? host.CLUSTER : "-")+'</td>\
+                <td class="value_td">'+(host_info.CLUSTER.length ? host_info.CLUSTER : "-")+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">' + tr("State") + '</td>\

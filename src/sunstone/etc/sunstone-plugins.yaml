@@ -54,10 +54,9 @@
     :user:
     :group:
 - plugins/hosts-tab.js:
-    :ALL: false
+    :ALL: true
     :user:
     :group:
-        oneadmin: true
 - plugins/datastores-tab.js:
     :ALL: true
     :user:

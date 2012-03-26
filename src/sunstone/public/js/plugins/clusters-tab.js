@@ -453,7 +453,7 @@ function removeClusterMenus(){
 //    Sunstone.removeMainTab('cluster_vnets_tab_n',true);
 //    Sunstone.removeMainTab('cluster_datastores_tab_n',true);
 //    Sunstone.removeMainTab('cluster_hosts_tab_n',true);
-    Sunstone.removeMainTab('cluster_tab_n',true);
+    Sunstone.removeMainTab('cluster_tab_-',true);
 
     for (var i=0; i < data.length; i++){
         var id = data[i][1];

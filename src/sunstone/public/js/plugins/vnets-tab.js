@@ -566,7 +566,7 @@ function updateVNetworkInfo(request,vn){
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Cluster")+'</td>\
-              <td class="value_td">'+(network.CLUSTER.length ? network.CLUSTER : "-")+'</td>\
+              <td class="value_td">'+(vn_info.CLUSTER.length ? vn_info.CLUSTER : "-")+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Owner")+'</td>\
