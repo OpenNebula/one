@@ -40,6 +40,7 @@ SSH=ssh
 SUDO=sudo
 TAR=tar
 TGTADM=tgtadm
+VMKFSTOOLS=/usr/sbin/vmkfstools
 WGET=wget
 
 if [ "x$(uname -s)" = "xLinux" ]; then
@@ -180,6 +181,7 @@ function timeout_exec_and_log
 function mkfs_command {
     DST=$1
     FSTYPE=${2:-ext3}
+    SIZE=${3:-0}
 
     # Specific options for different FS
     case "$FSTYPE" in
@@ -200,6 +202,11 @@ function mkfs_command {
             ;;
         "swap")
             echo "$MKSWAP $DST"
+            return 0
+            ;;
+        "vmdk_*")
+            VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 1`
+            echo "sudo $VMKFSTOOLS -U $DST/disk.vmdk ; sudo $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST_PATH/disk.vmdk"
             return 0
             ;;
         *)
