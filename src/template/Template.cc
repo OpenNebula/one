@@ -443,8 +443,9 @@ Attribute * Template::single_xml_att(const xmlNode * node)
     Attribute * attr = 0;
     xmlNode *   child = node->children;
 
-    if( child != 0 && (child->type == XML_TEXT_NODE ||
-                       child->type == XML_CDATA_SECTION_NODE))
+    if( child->next == 0 && child != 0 &&
+        (child->type == XML_TEXT_NODE ||
+         child->type == XML_CDATA_SECTION_NODE))
     {
         attr = new SingleAttribute(
                             reinterpret_cast<const char *>(node->name),
@@ -464,7 +465,12 @@ Attribute * Template::vector_xml_att(const xmlNode * node)
     xmlNode *           child       = node->children;
     xmlNode *           grandchild  = 0;
 
-    if(child != 0 && child->type == XML_ELEMENT_NODE)
+    while(child != 0 && child->type != XML_ELEMENT_NODE)
+    {
+        child = child->next;
+    }
+
+    if(child != 0)
     {
         attr = new VectorAttribute(
                         reinterpret_cast<const char *>(node->name));
