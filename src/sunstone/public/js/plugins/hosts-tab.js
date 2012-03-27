@@ -189,7 +189,7 @@ var host_actions = {
 
     "Host.delete" : {
         type: "multiple",
-        call : OpenNebula.Host.delete,
+        call : OpenNebula.Host.del,
         callback : deleteHostElement,
         elements: hostElements,
         error : onError,

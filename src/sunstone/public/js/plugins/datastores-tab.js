@@ -207,7 +207,7 @@ var datastore_actions = {
 
     "Datastore.delete" : {
         type: "multiple",
-        call : OpenNebula.Datastore.delete,
+        call : OpenNebula.Datastore.del,
         callback : deleteDatastoreElement,
         elements: datastoreElements,
         error : onError,

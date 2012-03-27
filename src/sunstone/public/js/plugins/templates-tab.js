@@ -725,7 +725,7 @@ var template_actions = {
 
     "Template.delete" : {
         type: "multiple",
-        call: OpenNebula.Template.delete,
+        call: OpenNebula.Template.del,
         callback: deleteTemplateElement,
         elements: templateElements,
         error: onError,

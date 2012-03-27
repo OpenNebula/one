@@ -354,7 +354,7 @@ var vm_actions = {
 
     "VM.delete" : {
         type: "multiple",
-        call: OpenNebula.VM.delete,
+        call: OpenNebula.VM.del,
         callback: deleteVMachineElement,
         elements: vmElements,
         error: onError,

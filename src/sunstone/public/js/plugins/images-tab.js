@@ -374,7 +374,7 @@ var image_actions = {
 
     "Image.delete" : {
         type: "multiple",
-        call: OpenNebula.Image.delete,
+        call: OpenNebula.Image.del,
         callback: deleteImageElement,
         elements: imageElements,
         error: onError,

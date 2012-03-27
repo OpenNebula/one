@@ -283,7 +283,7 @@ var vnet_actions = {
 
     "Network.delete" : {
         type: "multiple",
-        call: OpenNebula.Network.delete,
+        call: OpenNebula.Network.del,
         callback: deleteVNetworkElement,
         elements: vnElements,
         error: onError,

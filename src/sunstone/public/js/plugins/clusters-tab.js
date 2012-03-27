@@ -166,7 +166,7 @@ var cluster_actions = {
 
     "Cluster.delete" : {
         type: "multiple",
-        call : OpenNebula.Cluster.delete,
+        call : OpenNebula.Cluster.del,
         callback : deleteClusterElement,
         elements: clusterElements,
         error : onError,

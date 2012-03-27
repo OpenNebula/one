@@ -216,7 +216,7 @@ var OpenNebula = {
             });
         },
 
-        "delete": function(params,resource){
+        "del": function(params,resource){
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
@@ -450,8 +450,8 @@ var OpenNebula = {
         "create": function(params){
             OpenNebula.Action.create(params,OpenNebula.Host.resource);
         },
-        "delete": function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Host.resource);
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.Host.resource);
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.Host.resource);
@@ -489,8 +489,8 @@ var OpenNebula = {
         "create": function(params){
             OpenNebula.Action.create(params,OpenNebula.Network.resource);
         },
-        "delete": function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Network.resource);
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.Network.resource);
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.Network.resource);
@@ -563,8 +563,8 @@ var OpenNebula = {
         "create": function(params){
             OpenNebula.Action.create(params,OpenNebula.VM.resource);
         },
-        "delete": function(params){
-            OpenNebula.Action.delete(params,OpenNebula.VM.resource);
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.VM.resource);
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.VM.resource);
@@ -681,8 +681,8 @@ var OpenNebula = {
         "create": function(params){
             OpenNebula.Action.create(params,OpenNebula.Group.resource);
         },
-        "delete": function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Group.resource);
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.Group.resource);
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.Group.resource);
@@ -695,8 +695,8 @@ var OpenNebula = {
         "create": function(params){
             OpenNebula.Action.create(params,OpenNebula.User.resource);
         },
-        "delete": function(params){
-            OpenNebula.Action.delete(params,OpenNebula.User.resource);
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.User.resource);
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.User.resource);
@@ -747,8 +747,8 @@ var OpenNebula = {
         "create": function(params){
             OpenNebula.Action.create(params,OpenNebula.Image.resource);
         },
-        "delete": function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Image.resource);
+        "del": function(params){
+            OpenNebula.Action.del(params,OpenNebula.Image.resource);
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.Image.resource);
@@ -806,8 +806,8 @@ var OpenNebula = {
         "create" : function(params){
             OpenNebula.Action.create(params,OpenNebula.Template.resource);
         },
-        "delete" : function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Template.resource);
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.Template.resource);
         },
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Template.resource);
@@ -859,8 +859,8 @@ var OpenNebula = {
         "create" : function(params){
             OpenNebula.Action.create(params,OpenNebula.Acl.resource);
         },
-        "delete" : function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Acl.resource);
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.Acl.resource);
         },
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Acl.resource);
@@ -873,8 +873,8 @@ var OpenNebula = {
         "create" : function(params){
             OpenNebula.Action.create(params,OpenNebula.Cluster.resource);
         },
-        "delete" : function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Cluster.resource);
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.Cluster.resource);
         },
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Cluster.resource);
@@ -919,8 +919,8 @@ var OpenNebula = {
         "create" : function(params){
             OpenNebula.Action.create(params,OpenNebula.Datastore.resource);
         },
-        "delete" : function(params){
-            OpenNebula.Action.delete(params,OpenNebula.Datastore.resource);
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.Datastore.resource);
         },
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Datastore.resource);
