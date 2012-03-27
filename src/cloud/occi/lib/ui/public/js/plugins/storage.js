@@ -199,7 +199,7 @@ var image_actions = {
 
     "Image.delete" : {
         type: "multiple",
-        call: OCCI.Image.delete,
+        call: OCCI.Image.del,
         callback: deleteImageElement,
         elements: imageElements,
         error: onError,
