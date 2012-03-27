@@ -329,7 +329,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <input type="text" id="SCRIPT" name="script" />\
                                   <div class="tip">'+tr("Name of a shell script to be executed after creating the tun device for the VM")+'</div>\
                             </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt niccfg">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt niccfg network">\
                                   <label for="MODEL">'+tr("Model")+':</label>\
                                   <input type="text" id="MODEL" name="model" />\
                                   <div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>\
