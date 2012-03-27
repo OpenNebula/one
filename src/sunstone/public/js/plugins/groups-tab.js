@@ -97,7 +97,7 @@ var group_actions = {
 
     "Group.delete" : {
         type: "multiple",
-        call : OpenNebula.Group.delete,
+        call : OpenNebula.Group.del,
         callback : deleteGroupElement,
         error : onError,
         elements: groupElements,

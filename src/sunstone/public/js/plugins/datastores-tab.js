@@ -207,7 +207,7 @@ var datastore_actions = {
 
     "Datastore.delete" : {
         type: "multiple",
-        call : OpenNebula.Datastore.delete,
+        call : OpenNebula.Datastore.del,
         callback : deleteDatastoreElement,
         elements: datastoreElements,
         error : onError,
@@ -271,7 +271,8 @@ var datastore_buttons = {
     "Datastore.update_dialog" : {
         type: "action",
         text: tr("Update properties"),
-        alwaysActive: true
+        alwaysActive: true,
+        condition: mustBeAdmin,
     },
     "Datastore.addtocluster" : {
         type: "confirm_with_select",
@@ -296,7 +297,8 @@ var datastore_buttons = {
     },
     "Datastore.delete" : {
         type: "confirm",
-        text: tr("Delete")
+        text: tr("Delete"),
+        condition: mustBeAdmin
     }
 }
 
@@ -443,7 +445,7 @@ function updateDatastoreInfo(request,ds){
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("Cluster")+'</td>\
-                 <td class="value_td">'+(element.CLUSTER.length ? element.CLUSTER : "-")+'</td>\
+                 <td class="value_td">'+(info.CLUSTER.length ? info.CLUSTER : "-")+'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">'+tr("DS Mad")+'</td>\

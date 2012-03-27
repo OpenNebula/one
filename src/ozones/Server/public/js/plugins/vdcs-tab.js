@@ -155,7 +155,7 @@ var vdc_actions = {
 
     "VDC.delete" : {
         type: "multiple",
-        call: oZones.VDC.delete,
+        call: oZones.VDC.del,
         callback: deleteVDCElement,
         elements: vdcSelectedNodes,
         error: onError,

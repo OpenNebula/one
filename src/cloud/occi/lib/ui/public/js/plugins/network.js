@@ -143,7 +143,7 @@ var vnet_actions = {
 
     "Network.delete" : {
         type: "multiple",
-        call: OCCI.Network.delete,
+        call: OCCI.Network.del,
         callback: deleteVNetworkElement,
         elements: vnElements,
         error: onError,
