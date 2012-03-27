@@ -63,6 +63,7 @@ var vms_tab_content =
       <th>'+tr("CPU")+'</th>\
       <th>'+tr("Memory")+'</th>\
       <th>'+tr("Hostname")+'</th>\
+      <th>'+tr("IPs")+'</th>\
       <th>'+tr("Start Time")+'</th>\
       <th>'+tr("VNC Access")+'</th>\
     </tr>\
@@ -619,7 +620,21 @@ function vmShow(req) {
 // Returns a human readable running time for a VM
 function str_start_time(vm){
     return pretty_time(vm.STIME);
-}
+};
+
+function ip_str(vm){
+    var nic = vm.TEMPLATE.NIC;
+    var ip = '--';
+    if ($.isArray(nic)) {
+        ip = '';
+	$.each(nic, function(index,value){
+	    ip += value.IP+'<br />';
+	});
+    } else if (nic && nic.IP) {
+	ip = nic.IP;
+    };
+    return ip;
+};
 
 // Returns an array formed by the information contained in the vm_json
 // and ready to be introduced in a dataTable
@@ -650,10 +665,11 @@ function vMachineElementArray(vm_json){
         vm.CPU,
         humanize_size(vm.MEMORY),
         hostname,
+        ip_str(vm),
         str_start_time(vm),
         vncIcon(vm)
     ];
-}
+};
 
 
 //Creates a listener for the TDs of the VM table
@@ -1284,9 +1300,9 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7] },
-            { "sWidth": "35px", "aTargets": [1,10] },
-            { "sWidth": "150px", "aTargets": [5,9] },
-            { "sWidth": "100px", "aTargets": [2,3] }
+            { "sWidth": "35px", "aTargets": [1,11] },
+            { "sWidth": "150px", "aTargets": [5,10] },
+            { "sWidth": "100px", "aTargets": [2,3,9] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1297,7 +1313,7 @@ $(document).ready(function(){
     dataTable_vMachines.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','',''],dataTable_vMachines);
+        '','','','','','','','','','',''],dataTable_vMachines);
     Sunstone.runAction("VM.list");
 
     setupCreateVMDialog();
