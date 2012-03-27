@@ -499,10 +499,6 @@ function updateHostInfo(request,host){
                 <td class="key_td">'+ tr("VN MAD") +'</td>\
                 <td class="value_td">'+host_info.VN_MAD+'</td>\
             </tr>\
-            <tr>\
-                <td class="key_td">'+ tr("TM MAD") +'</td>\
-                <td class="value_td">'+host_info.TM_MAD+'</td>\
-            </tr>\
             </tbody>\
          </table>\
          <table id="host_shares_table" class="info_table">\
