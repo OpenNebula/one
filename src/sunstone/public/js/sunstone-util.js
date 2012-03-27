@@ -60,6 +60,20 @@ function pretty_time_axis(time){
     return hour + ":" + mins + ":" + secs;// + "&nbsp;" + month + "/" + day;
 }
 
+function pretty_time_runtime(time){
+    var d = new Date();
+    d.setTime(time*1000);
+
+    var secs = pad(d.getUTCSeconds(),2);
+    var hour = pad(d.getUTCHours(),2);
+    var mins = pad(d.getUTCMinutes(),2);
+    var day = d.getUTCDate()-1;
+    var month = pad(d.getUTCMonth()+1,2); //getMonths returns 0-11
+    var year = d.getUTCFullYear();
+
+    return day + "d " + hour + ":" + mins;// + ":" + secs;// + "&nbsp;" + month + "/" + day;
+}
+
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
 function humanize_size(value) {
     if (typeof(value) === "undefined") {

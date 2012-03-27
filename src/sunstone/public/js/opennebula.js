@@ -46,21 +46,24 @@ var OpenNebula = {
         {
             switch(type)
             {
-                case "HOST","host":
+                case "HOST":
+                case "host":
                     return ["INIT",
                             "MONITORING",
                             "MONITORED",
                             "ERROR",
                             "DISABLED"][value];
                     break;
-                case "HOST_SIMPLE","host_simple":
+                case "HOST_SIMPLE":
+                case "host_simple":
                     return ["ON",
                             "ON",
                             "ON",
                             "ERROR",
                             "OFF"][value];
                     break;
-                case "VM","vm":
+                case "VM":
+                case "vm":
                     return ["INIT",
                             "PENDING",
                             "HOLD",
@@ -70,7 +73,8 @@ var OpenNebula = {
                             "DONE",
                             "FAILED"][value];
                     break;
-                case "VM_LCM","vm_lcm":
+                case "VM_LCM":
+                case "vm_lcm":
                     return ["LCM_INIT",
                             "PROLOG",
                             "BOOT",
@@ -89,13 +93,22 @@ var OpenNebula = {
                             "CLEANUP",
                             "UNKNOWN"][value];
                     break;
-                case "IMAGE","image":
+                case "IMAGE":
+                case "image":
                     return ["INIT",
                             "READY",
                             "USED",
                             "DISABLED",
                             "LOCKED",
                             "ERROR"][value];
+                    break;
+                case "VM_MIGRATE_REASON":
+                case "vm_migrate_reason":
+                    return ["NONE",
+                            "ERROR",
+                            "STOP_RESUME",
+                            "USER",
+                            "CANCEL"][value];
                     break;
                 default:
                     return;
