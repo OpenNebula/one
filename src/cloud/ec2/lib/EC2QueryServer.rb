@@ -61,10 +61,18 @@ class EC2QueryServer < CloudServer
 
     ###########################################################################
 
-    def initialize(client, config, logger)
+    def initialize(client, oneadmin_client, config, logger)
         super(config, logger)
 
         @client = client
+        @oneadmin_client = oneadmin_client
+
+        if @config[:elasticips_vnet_id].nil?
+            logger.error { 'ElasticIP module not loaded' }
+        else
+            require 'elastic_ip'
+            extend ElasticIP
+        end
     end
 
     ###########################################################################
@@ -208,8 +216,33 @@ class EC2QueryServer < CloudServer
     end
 
     ###########################################################################
+    # Elastic IP
+    ###########################################################################
+    def allocate_address(params)
+        return OpenNebula::Error.new('Unsupported'),400
+    end
+
+    def release_address(params)
+        return OpenNebula::Error.new('Unsupported'),400
+    end
+
+    def describe_addresses(params)
+        return OpenNebula::Error.new('Unsupported'),400
+    end
+
+    def associate_address(params)
+        return OpenNebula::Error.new('Unsupported'),400
+    end
+
+    def disassociate_address(params)
+        return OpenNebula::Error.new('Unsupported'),400
+    end
+
+    ###########################################################################
     # Helper functions
     ###########################################################################
+    private
+
     def render_state(vm)
         one_state = ONE_STATES[vm.status]
         ec2_state = EC2_STATES[one_state||:pending]

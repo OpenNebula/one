@@ -135,8 +135,9 @@ before do
     if username.nil?
         error 401, error_xml("AuthFailure", 0)
     else
-        client = settings.cloud_auth.client(username)
-        @econe_server = EC2QueryServer.new(client, settings.config, settings.logger)
+        client          = settings.cloud_auth.client(username)
+        oneadmin_client = settings.cloud_auth.client
+        @econe_server = EC2QueryServer.new(client, oneadmin_client, settings.config, settings.logger)
     end
 end
 
@@ -189,6 +190,16 @@ def do_http_request(params)
             result,rc = @econe_server.describe_instances(params)
         when 'TerminateInstances'
             result,rc = @econe_server.terminate_instances(params)
+        when 'AllocateAddress'
+            result,rc = @econe_server.allocate_address(params)
+        when 'AssociateAddress'
+            result,rc = @econe_server.associate_address(params)
+        when 'DisassociateAddress'
+            result,rc = @econe_server.disassociate_address(params)
+        when 'ReleaseAddress'
+            result,rc = @econe_server.release_address(params)
+        when 'DescribeAddresses'
+            result,rc = @econe_server.describe_addresses(params)
     end
 
     if OpenNebula::is_error?(result)

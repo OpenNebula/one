@@ -178,6 +178,8 @@ module OpenNebula
         def update(xml_method, new_template)
             return Error.new('ID not defined') if !@pe_id
 
+            new_template ||= template_xml.delete("\n").gsub(/\s+/m,'')
+
             rc = @client.call(xml_method,@pe_id, new_template)
             rc = nil if !OpenNebula.is_error?(rc)
 
