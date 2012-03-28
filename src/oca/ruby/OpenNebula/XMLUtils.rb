@@ -101,6 +101,44 @@ module OpenNebula
             end
         end
 
+        def delete_element(xpath)
+            if NOKOGIRI
+                @xml.xpath(xpath.to_s).remove
+            else
+                @xml.delete_element(xpath.to_s)
+            end
+        end
+
+        def add_element(xpath, elems)
+            elems.each { |key, value|
+                if value.instance_of?(Hash)
+                    if NOKOGIRI
+                        elem = Nokogiri::XML::Node.new key, @xml.document
+                        value.each { |k2, v2|
+                            child = Nokogiri::XML::Node.new k2, elem
+                            child.content = v2
+                            elem.add_child(child)
+                        }
+                        @xml.xpath(xpath.to_s).first.add_child(elem)
+                    else
+                        elem = REXML::Element.new(key)
+                        value.each { |k2, v2|
+                            elem.add_element(k2).text = v2
+                        }
+                        @xml.elements[xpath].add_element(elem)
+                    end
+                else
+                    if NOKOGIRI
+                        elem = Nokogiri::XML::Node.new key, @xml.document
+                        elem.content = value
+                        @xml.xpath(xpath.to_s).first.add_child(elem)
+                    else
+                        @xml.elements[xpath].add_element(key).text = value
+                    end
+                end
+            }
+        end
+
         # Gets an array of text from elemenets extracted
         # using  the XPATH  expression passed as filter
         def retrieve_elements(filter)
@@ -199,6 +237,14 @@ module OpenNebula
 
         def template_str(indent=true)
             template_like_str('TEMPLATE', indent)
+        end
+
+        def template_xml
+            if NOKOGIRI
+                @xml.xpath('TEMPLATE').to_s
+            else
+                @xml.elements['TEMPLATE'].to_s
+            end
         end
 
         def template_like_str(root_element, indent=true, xpath_exp=nil)
