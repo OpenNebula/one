@@ -90,7 +90,7 @@ module OpenNebula
         # Replaces the template contents
         #
         # +new_template+ New template contents
-        def update(new_template)
+        def update(new_template=nil)
             super(VN_METHODS[:update], new_template)
         end
 

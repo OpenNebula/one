@@ -118,7 +118,7 @@ var zone_actions = {
 
     "Zone.delete" : {
         type: "multiple",
-        call: oZones.Zone.delete,
+        call: oZones.Zone.del,
         callback: deleteZoneElement,
         elements: zoneSelectedNodes,
         error: onError,

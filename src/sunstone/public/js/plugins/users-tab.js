@@ -197,7 +197,7 @@ var user_actions = {
 
     "User.delete" : {
         type: "multiple",
-        call: OpenNebula.User.delete,
+        call: OpenNebula.User.del,
         callback: deleteUserElement,
         elements: userElements,
         error: onError,

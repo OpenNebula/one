@@ -465,7 +465,19 @@ function insertTab(tab_name){
 
     $('div#'+tab_name,main_tabs_context).html(tab_info.content);
 
-    $('div#menu ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'">'+tab_info.title+'<span class="ui-icon ui-icon-circle-plus plusIcon"></span></li>');
+    var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'">'+tab_info.title+'<span class="ui-icon ui-icon-circle-plus plusIcon"></span></li>';
+
+    //if this is a submenu...
+    if (parent.length) {
+        var children = $('div#menu ul#navigation li.'+parent);
+        //if there are other submenus, insert after last of them
+        if (children.length)
+            $(children[children.length-1]).after(li_item);
+        else //instert after parent menu
+            $('div#menu ul#navigation li#li_'+parent).after(li_item);
+    } else { //not a submenu, instert in the end
+        $('div#menu ul#navigation').append(li_item);
+    };
 
     if (parent){ //this is a subtab
         $('div#menu li#li_'+tab_name).hide();//hide by default

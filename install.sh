@@ -1011,6 +1011,7 @@ CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/OCCICloudAuth.rb \
 ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
                src/cloud/ec2/lib/EC2QueryServer.rb \
                src/cloud/ec2/lib/ImageEC2.rb \
+               src/cloud/ec2/lib/elastic_ip.rb \
                src/cloud/ec2/lib/econe-server.rb"
 
 ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"
@@ -1019,6 +1020,11 @@ ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
                     src/cloud/ec2/lib/views/describe_instances.erb \
                     src/cloud/ec2/lib/views/register_image.erb \
                     src/cloud/ec2/lib/views/run_instances.erb \
+                    src/cloud/ec2/lib/views/allocate_address.erb \
+                    src/cloud/ec2/lib/views/associate_address.erb \
+                    src/cloud/ec2/lib/views/disassociate_address.erb \
+                    src/cloud/ec2/lib/views/describe_addresses.erb \
+                    src/cloud/ec2/lib/views/release_address.erb \
                     src/cloud/ec2/lib/views/terminate_instances.erb"
 
 ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \

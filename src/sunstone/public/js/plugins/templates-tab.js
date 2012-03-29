@@ -186,7 +186,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 <h3>'+tr("Add disks/images")+' <a id="add_disks" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
                           </div>\
                           <fieldset><legend>'+tr("Disks")+'</legend>\
-                             <div class="" id="image_vs_disk">\
+                             <div class="" id="image_vs_disk" style="display:none;">\
                                   <label>'+tr("Add disk/image")+'</label>\
                                   <input type="radio" id="add_disk" name="image_vs_disk" value="disk">'+tr("Disk")+'</input>\
                                   <!--<label for="add_disk">Add a disk</label>-->\
@@ -227,6 +227,11 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <label for="SOURCE">'+tr("Source")+':</label>\
                                   <input type="text" id="SOURCE" name="source" />\
                                   <div class="tip">'+tr("Disk file location path or URL")+'</div>\
+                            </div>\
+                            <div class="vm_param kvm xen vmware add_disk">\
+                                  <label for="TM_MAD">'+tr("Transfer Manager")+':</label>\
+                                  <input type="text" id="TM_MAD" name="tm_mad" />\
+                                  <div class="tip">'+tr("shared,ssh,iscsi,dummy")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt add_disk ">\
                             <!--Mandatory for swap, fs and block images-->\
@@ -283,7 +288,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                               <h3>'+tr("Setup Networks")+' <a id="add_networks" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
                             </div>\
                           <fieldset><legend>'+tr("Network")+'</legend>\
-                            <div class="" id="network_vs_niccfg">\
+                            <div class="" id="network_vs_niccfg" style="display:none;">\
                                   <label>'+tr("Add network")+'</label>\
                                   <input type="radio" id="add_network" name="network_vs_niccfg" value="network">'+tr("Predefined")+'</input>\
                                   <!--<label style="width:200px;" for="add_network">Pre-defined network</label>-->\
@@ -324,7 +329,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <input type="text" id="SCRIPT" name="script" />\
                                   <div class="tip">'+tr("Name of a shell script to be executed after creating the tun device for the VM")+'</div>\
                             </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt niccfg">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt niccfg network">\
                                   <label for="MODEL">'+tr("Model")+':</label>\
                                   <input type="text" id="MODEL" name="model" />\
                                   <div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>\
@@ -720,7 +725,7 @@ var template_actions = {
 
     "Template.delete" : {
         type: "multiple",
-        call: OpenNebula.Template.delete,
+        call: OpenNebula.Template.del,
         callback: deleteTemplateElement,
         elements: templateElements,
         error: onError,
@@ -1406,7 +1411,7 @@ function setupCreateTemplateDialog(){
         $('#image_vs_disk input',section_disks).click(function(){
             //$('fieldset',section_disks).show();
             $('.vm_param', section_disks).show();
-            var select = $('#image_vs_disk :checked',section_disks).val();
+            var select = $(this).val();
             switch (select)
             {
             case "disk":
@@ -1540,7 +1545,11 @@ function setupCreateTemplateDialog(){
             box_remove_element(section_disks,'#disks_box');
             return false;
         });
-        };
+
+        //preselect now hidden option
+        $('#image_vs_disk input#add_image',section_disks).trigger('click');
+
+    };
 
     // Sets up the network section
     var networks_setup = function(){
@@ -1570,7 +1579,7 @@ function setupCreateTemplateDialog(){
             $('.firewall_select',section_networks).show();
             $('.firewall_select select option',section_networks).removeAttr('selected');
 
-            select = $('#network_vs_niccfg :checked',section_networks).val();
+            select = $(this).val();
             switch (select) {
             case "network":
                 $('.niccfg',section_networks).hide();
@@ -1648,6 +1657,8 @@ function setupCreateTemplateDialog(){
             return false;
         });
 
+        //preselect now hidden option
+        $('#network_vs_niccfg input#add_network',section_networks).trigger('click');
     };
 
     //Sets up the input section - basicly enabling adding and removing from box

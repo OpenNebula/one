@@ -129,7 +129,7 @@ var acl_actions = {
 
     "Acl.delete" : {
         type: "multiple",
-        call: OpenNebula.Acl.delete,
+        call: OpenNebula.Acl.del,
         callback: deleteAclElement,
         elements: aclElements,
         error: onError,
