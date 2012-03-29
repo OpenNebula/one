@@ -1,27 +1,22 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEHOST" "1" "March 2012" "" "onehost(1) -- manages OpenNebula hosts"
+.TH "ONECLUSTER" "1" "March 2012" "" "onecluster(1) -- manages OpenNebula clusters"
 .
 .SH "NAME"
-\fBonehost\fR
+\fBonecluster\fR
 .
 .SH "SYNOPSIS"
-\fBonehost\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
+\fBonecluster\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
 .
 .SH "OPTIONS"
 .
 .nf
 
- \-i, \-\-im im_mad           Set the information driver for the host
- \-v, \-\-vm vmm_mad          Set the virtualization driver for the host
- \-n, \-\-net vnet_mad        Set the network driver for the host
- \-c, \-\-cluster id|name     Selects the cluster
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
- \-k, \-\-kilobytes           Show units in kilobytes
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -31,14 +26,13 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIhostname\fR
+create \fIname\fR
 .
 .IP "" 4
 .
 .nf
 
-Creates a new Host
-valid options: im, vmm, vnm, cluster
+Creates a new Cluster
 .
 .fi
 .
@@ -46,71 +40,13 @@ valid options: im, vmm, vnm, cluster
 
 .
 .IP "\(bu" 4
-delete \fIrange|hostid_list\fR
+delete \fIrange|clusterid_list\fR
 .
 .IP "" 4
 .
 .nf
 
-Deletes the given Host
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-enable \fIrange|hostid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Enables the given Host
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-disable \fIrange|hostid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Disables the given Host
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-update \fIhostid\fR
-.
-.IP "" 4
-.
-.nf
-
-Launches the system editor to modify and update the template contents
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-sync
-.
-.IP "" 4
-.
-.nf
-
-Synchronizes probes in /var/lib/one/remotes ($ONE_LOCATION/var/remotes
-in self\-contained installations) with Hosts\.
-The copy is performed the next time the Host is monitored
+Deletes the given Cluster
 .
 .fi
 .
@@ -124,8 +60,8 @@ list
 .
 .nf
 
-Lists Hosts in the pool
-valid options: list, delay, xml, numeric, kilobytes
+Lists Clusters in the pool
+valid options: list, delay, xml, numeric
 .
 .fi
 .
@@ -133,13 +69,13 @@ valid options: list, delay, xml, numeric, kilobytes
 
 .
 .IP "\(bu" 4
-show \fIhostid\fR
+show \fIclusterid\fR
 .
 .IP "" 4
 .
 .nf
 
-Shows information for the given Host
+Shows information for the given Cluster
 valid options: xml
 .
 .fi
@@ -148,14 +84,83 @@ valid options: xml
 
 .
 .IP "\(bu" 4
-top
+addhost \fIclusterid\fR \fIhostid\fR
 .
 .IP "" 4
 .
 .nf
 
-Lists Hosts continuously
-valid options: list, delay, xml, numeric, kilobytes
+Adds a Host to the given Cluster
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+delhost \fIclusterid\fR \fIhostid\fR
+.
+.IP "" 4
+.
+.nf
+
+Deletes a Host from the given Cluster
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+adddatastore \fIclusterid\fR \fIdatastoreid\fR
+.
+.IP "" 4
+.
+.nf
+
+Adds a Datastore to the given Cluster
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+deldatastore \fIclusterid\fR \fIdatastoreid\fR
+.
+.IP "" 4
+.
+.nf
+
+Deletes a Datastore from the given Cluster
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+addvnet \fIclusterid\fR \fIvnetid\fR
+.
+.IP "" 4
+.
+.nf
+
+Adds a Virtual Network to the given Cluster
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+delvnet \fIclusterid\fR \fIvnetid\fR
+.
+.IP "" 4
+.
+.nf
+
+Deletes a Virtual Network from the given Cluster
 .
 .fi
 .
@@ -209,6 +214,48 @@ String
 
 .
 .IP "\(bu" 4
+clusterid
+.
+.IP "" 4
+.
+.nf
+
+OpenNebula CLUSTER name or id
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+clusterid_list
+.
+.IP "" 4
+.
+.nf
+
+Comma\-separated list of OpenNebula CLUSTER names or ids
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+vnetid
+.
+.IP "" 4
+.
+.nf
+
+OpenNebula VNET name or id
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
 hostid
 .
 .IP "" 4
@@ -223,13 +270,13 @@ OpenNebula HOST name or id
 
 .
 .IP "\(bu" 4
-hostid_list
+datastoreid
 .
 .IP "" 4
 .
 .nf
 
-Comma\-separated list of OpenNebula HOST names or ids
+OpenNebula DATASTORE name or id
 .
 .fi
 .
