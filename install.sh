@@ -1033,6 +1033,11 @@ ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
                src/cloud/ec2/bin/econe-register \
                src/cloud/ec2/bin/econe-run-instances \
                src/cloud/ec2/bin/econe-terminate-instances \
+               src/cloud/ec2/bin/econe-describe-addresses \
+               src/cloud/ec2/bin/econe-allocate-address \
+               src/cloud/ec2/bin/econe-release-address \
+               src/cloud/ec2/bin/econe-associate-address \
+               src/cloud/ec2/bin/econe-disassociate-address \
                src/cloud/ec2/bin/econe-upload"
 
 ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
@@ -1040,6 +1045,11 @@ ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
                src/cloud/ec2/bin/econe-register \
                src/cloud/ec2/bin/econe-run-instances \
                src/cloud/ec2/bin/econe-terminate-instances \
+               src/cloud/ec2/bin/econe-describe-addresses \
+               src/cloud/ec2/bin/econe-allocate-address \
+               src/cloud/ec2/bin/econe-release-address \
+               src/cloud/ec2/bin/econe-associate-address \
+               src/cloud/ec2/bin/econe-disassociate-address \
                src/cloud/ec2/bin/econe-upload"
 
 ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
