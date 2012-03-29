@@ -187,6 +187,7 @@ PoolObjectSQL * PoolSQL::get(
 
                 if ( objectsql->isValid() == false )
                 {
+                    objectsql->unlock();
                     objectsql = 0;
                 }
             }
@@ -276,7 +277,6 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
             if ( objectsql->isValid() == false )
             {
                 objectsql->unlock();
-
                 objectsql = 0;
             }
         }
