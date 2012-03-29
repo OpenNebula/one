@@ -1313,6 +1313,8 @@ OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
                 src/ozones/Server/lib/OZones/AggregatedVirtualNetworks.rb \
                 src/ozones/Server/lib/OZones/AggregatedPool.rb \
                 src/ozones/Server/lib/OZones/AggregatedImages.rb \
+                src/ozones/Server/lib/OZones/AggregatedDatastores.rb \
+                src/ozones/Server/lib/OZones/AggregatedClusters.rb \
                 src/ozones/Server/lib/OZones/AggregatedTemplates.rb"
 
 OZONES_LIB_API_FILES="src/ozones/Client/lib/zona.rb"
