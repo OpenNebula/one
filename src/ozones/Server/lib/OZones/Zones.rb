@@ -219,9 +219,9 @@ module OZones
                    when "template","vmtemplate" then
                        OZones::AggregatedTemplates.new
                    when "cluster" then
-                       OZones::AggregatedCluster.new
+                       OZones::AggregatedClusters.new
                    when "datastore" then
-                       OZones::AggregatedDatastore.new
+                       OZones::AggregatedDatastores.new
                    else
                        error = OZones::Error.new("Error: Pool #{pool_kind} not" \
                                                  " supported for aggregated zone view")

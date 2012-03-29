@@ -27,6 +27,8 @@ require 'OZones/AggregatedVirtualNetworks'
 require 'OZones/AggregatedImages'
 require 'OZones/AggregatedUsers'
 require 'OZones/AggregatedTemplates'
+require 'OZones/AggregatedClusters'
+require 'OZones/AggregatedDatastores'
 
 require 'openssl'
 require 'digest/sha1'
