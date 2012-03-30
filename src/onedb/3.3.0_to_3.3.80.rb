@@ -234,6 +234,11 @@ module Migrator
             # Update SOURCE
             doc.root.each_element("SOURCE") { |e|
                 previous_source = e.text
+
+                if previous_source.nil?
+                    next
+                end
+
                 hash = previous_source.split('/')[-1]
 
                 if ( hash.length == 32 && hash =~ /^[0-9A-F]+$/i )
