@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Creates a new virtual network representation.
-     * 
+     *
      * @param id The virtual network id (nid) .
      * @param client XML-RPC Client.
      */
@@ -64,24 +64,47 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Allocates a new virtual network in OpenNebula.
-     * 
+     *
      * @param client XML-RPC Client.
      * @param description A string containing the template
-     * of the virtual network. 
+     * of the virtual network.
+     * @param clusterId The cluster ID. If it is -1, this virtual network
+     * won't be added to any cluster.
+     *
      * @return If successful the message contains the associated
      * id generated for this virtual network.
      */
-    public static OneResponse allocate(Client client, String description)
+    public static OneResponse allocate(
+            Client  client,
+            String  description,
+            int     clusterId)
     {
-        return client.call(ALLOCATE, description);
+        return client.call(ALLOCATE, description, clusterId);
+    }
+
+    /**
+     * Allocates a new virtual network in OpenNebula.
+     *
+     * @param client XML-RPC Client.
+     * @param description A string containing the template
+     * of the virtual network.
+     *
+     * @return If successful the message contains the associated
+     * id generated for this virtual network.
+     */
+    public static OneResponse allocate(
+            Client  client,
+            String  description)
+    {
+        return allocate(client, description, -1);
     }
 
     /**
      * Retrieves the information of the given virtual network
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id the virtual network id (nid) for the network to
-     * retrieve the information from. 
+     * retrieve the information from.
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -92,7 +115,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Deletes a network from OpenNebula.
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
      * @return A encapsulated response.
@@ -104,7 +127,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Publishes or unpublishes a virtual network.
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
      * @param publish True for publishing, false for unpublishing.
@@ -171,7 +194,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
@@ -185,7 +208,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the VirtualNetwork permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
      * @param owner_u 1 to allow, 0 deny, -1 do not change
@@ -212,7 +235,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -225,7 +248,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -256,7 +279,7 @@ public class VirtualNetwork extends PoolElement{
     /**
      * Loads the xml representation of the virtual network.
      * The info is also stored internally.
-     * 
+     *
      * @see VirtualNetwork#info(Client, int)
      */
     public OneResponse info()
@@ -268,7 +291,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Deletes the network from OpenNebula.
-     * 
+     *
      * @return A encapsulated response.
      */
     public OneResponse delete()
@@ -278,7 +301,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Publishes or unpublishes the virtual network.
-     * 
+     *
      * @param publish True for publishing, false for unpublishing.
      * @return If successful the message contains the image id.
      */
@@ -289,7 +312,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Publishes the virtual network.
-     * 
+     *
      * @return If successful the message contains the image id.
      */
     public OneResponse publish()
@@ -299,7 +322,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Unpublishes the virtual network.
-     * 
+     *
      * @return If successful the message contains the image id.
      */
     public OneResponse unpublish()
@@ -379,7 +402,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
      * @param gid The new group ID. Set it to -1 to leave the current one.
      * @return If an error occurs the error message contains the reason.
@@ -391,7 +414,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the owner
-     * 
+     *
      * @param uid The new owner user ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -402,7 +425,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the group
-     * 
+     *
      * @param gid The new group ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -413,7 +436,7 @@ public class VirtualNetwork extends PoolElement{
 
     /**
      * Changes the VirtualNetwork permissions
-     * 
+     *
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
      * @param owner_a 1 to allow, 0 deny, -1 do not change
