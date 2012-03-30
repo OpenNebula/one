@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,7 +59,7 @@ public abstract class PoolElement {
 
     /**
      * Creates a new PoolElement from the xml provided.
-     * 
+     *
      * @param client XML-RPC Client.
      * @param xmlElement XML representation of the element.
      */
@@ -102,7 +102,7 @@ public abstract class PoolElement {
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param method XML-RPC method.
      * @param id The id of the target object.
@@ -130,11 +130,11 @@ public abstract class PoolElement {
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param method XML-RPC method.
      * @param id The id of the target object.
-     * @param octet Permissions octed , e.g. 640
+     * @param octet Permissions octet, e.g. 640
      * @return If an error occurs the error message contains the reason.
      */
     protected static OneResponse chmod(Client client, String method, int id,
@@ -158,7 +158,7 @@ public abstract class PoolElement {
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param method XML-RPC method.
      * @param id The id of the target object.
@@ -207,7 +207,7 @@ public abstract class PoolElement {
 
     /**
      * Returns the owner User's ID, or -1 if the element doesn't have one.
-     * 
+     *
      * @return the owner User's ID, or -1 if the element doesn't have one.
      */
     public int uid()
@@ -229,7 +229,7 @@ public abstract class PoolElement {
 
     /**
      * Returns the element group's ID, or -1 if the element doesn't have one.
-     * 
+     *
      * @return the element group's ID, or -1 if the element doesn't have one.
      */
     public int gid()
