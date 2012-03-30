@@ -63,6 +63,7 @@ var vms_tab_content =
       <th>'+tr("CPU")+'</th>\
       <th>'+tr("Memory")+'</th>\
       <th>'+tr("Hostname")+'</th>\
+      <th>'+tr("IPs")+'</th>\
       <th>'+tr("Start Time")+'</th>\
       <th>'+tr("VNC Access")+'</th>\
     </tr>\
@@ -353,7 +354,7 @@ var vm_actions = {
 
     "VM.delete" : {
         type: "multiple",
-        call: OpenNebula.VM.delete,
+        call: OpenNebula.VM.del,
         callback: deleteVMachineElement,
         elements: vmElements,
         error: onError,
@@ -592,6 +593,10 @@ var vm_info_panel = {
     "vm_log_tab" : {
         title: tr("VM log"),
         content: ""
+    },
+    "vm_history_tab" : {
+        title: tr("History information"),
+        content: "",
     }
 }
 
@@ -619,7 +624,21 @@ function vmShow(req) {
 // Returns a human readable running time for a VM
 function str_start_time(vm){
     return pretty_time(vm.STIME);
-}
+};
+
+function ip_str(vm){
+    var nic = vm.TEMPLATE.NIC;
+    var ip = '--';
+    if ($.isArray(nic)) {
+        ip = '';
+        $.each(nic, function(index,value){
+            ip += value.IP+'<br />';
+        });
+    } else if (nic && nic.IP) {
+        ip = nic.IP;
+    };
+    return ip;
+};
 
 // Returns an array formed by the information contained in the vm_json
 // and ready to be introduced in a dataTable
@@ -650,10 +669,11 @@ function vMachineElementArray(vm_json){
         vm.CPU,
         humanize_size(vm.MEMORY),
         hostname,
+        ip_str(vm),
         str_start_time(vm),
         vncIcon(vm)
     ];
-}
+};
 
 
 //Creates a listener for the TDs of the VM table
@@ -703,7 +723,69 @@ function updateVMachinesView(request, vmachine_list){
     updateView(vmachine_list_array,dataTable_vMachines);
     updateDashboard("vms",vmachine_list);
     updateVResDashboard("vms",vmachine_list);
-}
+};
+
+function generateHistoryTable(vm){
+    var html = ' <table id="vm_history_table" class="info_table" style="width:80%">\
+                   <thead>\
+                     <tr>\
+                         <th>'+tr("Sequence")+'</th>\
+                         <th>'+tr("Hostname")+'</th>\
+                         <th>'+tr("Reason")+'</th>\
+                         <th>'+tr("State change time")+'</th>\
+                         <th>'+tr("Total time")+'</th>\
+                         <th colspan="2">'+tr("Prolog time")+'</th>\
+                     </tr>\
+                   </thead>\
+                   <tbody>';
+
+    var history = [];
+
+    if ($.isArray(vm.HISTORY_RECORDS.HISTORY))
+        history = vm.HISTORY_RECORDS.HISTORY;
+    else if (vm.HISTORY_RECORDS.HISTORY.SEQ)
+        history = [vm.HISTORY_RECORDS.HISTORY];
+
+    var now = Math.round(new Date().getTime() / 1000);
+
+    for (var i=0; i < history.length; i++){
+        // :TIME time calculations copied from onevm_helper.rb
+        var stime = parseInt(history[i].STIME, 10);
+
+        var etime = parseInt(history[i].ETIME, 10)
+        etime = etime == 0 ? now : etime;
+
+        var dtime = etime - stime;
+        // end :TIME
+
+        //:PTIME
+        var stime2 = parseInt(history[i].PSTIME, 10);
+        var etime2;
+        var ptime2 = parseInt(history[i].PETIME, 10);
+        if (stime2 == 0)
+            etime2 = 0;
+        else
+            etime2 = ptime2 == 0 ? now : ptime2;
+        var dtime2 = etime2 - stime2;
+
+        //end :PTIME
+
+
+        html += '     <tr>\
+                       <td style="width:20%">'+history[i].SEQ+'</td>\
+                       <td style="width:20%">'+history[i].HOSTNAME+'</td>\
+                       <td style="width:16%">'+OpenNebula.Helper.resource_state("VM_MIGRATE_REASON",parseInt(history[i].REASON, 10))+'</td>\
+                       <td style="width:16%">'+pretty_time(history[i].STIME)+'</td>\
+                       <td style="width:16%">'+pretty_time_runtime(dtime)+'</td>\
+                       <td style="width:16%">'+pretty_time_runtime(dtime2)+'</td>\
+                       <td></td>\
+                      </tr>'
+    };
+    html += '</tbody>\
+                </table>';
+    return html;
+
+};
 
 
 // Refreshes the information panel for a VM
@@ -805,7 +887,7 @@ function updateVMInfo(request,vm){
                       </tr>\
                     </tbody>\
                 </table>'
-    }
+    };
 
     var template_tab = {
         title: tr("VM Template"),
@@ -814,21 +896,27 @@ function updateVMInfo(request,vm){
                <thead><tr><th colspan="2">'+tr("VM template")+'</th></tr></thead>'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>'
-    }
+    };
 
     var log_tab = {
         title: tr("VM log"),
         content: '<div>'+spinner+'</div>'
-    }
+    };
 
     var monitoring_tab = {
         title: tr("Monitoring information"),
         content: generateMonitoringDivs(vm_graphs,"vm_monitor_")
-    }
+    };
+
+    var history_tab = {
+        title: tr("History information"),
+        content: generateHistoryTable(vm_info),
+    };
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
 
     //Pop up the info panel and asynchronously get vm_log and stats
@@ -1284,9 +1372,9 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7] },
-            { "sWidth": "35px", "aTargets": [1,10] },
-            { "sWidth": "150px", "aTargets": [5,9] },
-            { "sWidth": "100px", "aTargets": [2,3] }
+            { "sWidth": "35px", "aTargets": [1,11] },
+            { "sWidth": "150px", "aTargets": [5,10] },
+            { "sWidth": "100px", "aTargets": [2,3,9] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1297,7 +1385,7 @@ $(document).ready(function(){
     dataTable_vMachines.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','',''],dataTable_vMachines);
+        '','','','','','','','','','',''],dataTable_vMachines);
     Sunstone.runAction("VM.list");
 
     setupCreateVMDialog();

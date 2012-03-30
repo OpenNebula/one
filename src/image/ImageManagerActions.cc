@@ -296,6 +296,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     if ( imd == 0 )
     {
+        img->unlock();
         return -1;
     }
 

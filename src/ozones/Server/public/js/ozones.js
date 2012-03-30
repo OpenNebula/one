@@ -223,7 +223,7 @@ var oZones = {
             });
         },
 
-        "delete": function(params,resource){
+        "del": function(params,resource){
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
@@ -381,8 +381,8 @@ var oZones = {
         "create": function(params){
             oZones.Action.create(params,oZones.Zone.resource);
         },
-        "delete" : function(params){
-            oZones.Action.delete(params,oZones.Zone.resource);
+        "del" : function(params){
+            oZones.Action.del(params,oZones.Zone.resource);
         },
         "list": function(params){
             oZones.Action.list(params,oZones.Zone.resource);
@@ -446,8 +446,8 @@ var oZones = {
         "update": function(params){
             oZones.Action.update(params,oZones.VDC.resource);
         },
-        "delete": function(params){
-            oZones.Action.delete(params,oZones.VDC.resource);
+        "del": function(params){
+            oZones.Action.del(params,oZones.VDC.resource);
         },
         "list": function(params){
             oZones.Action.list(params,oZones.VDC.resource);

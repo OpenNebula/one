@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.opennebula.client.image;
+package org.opennebula.client.datastore;
 
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
@@ -21,40 +21,26 @@ import org.opennebula.client.PoolElement;
 import org.w3c.dom.Node;
 
 /**
- * This class represents an OpenNebula image.
+ * This class represents an OpenNebula datastore.
  * It also offers static XML-RPC call wrappers.
  */
-public class Image extends PoolElement
+public class Datastore extends PoolElement
 {
 
-    private static final String METHOD_PREFIX = "image.";
-    private static final String ALLOCATE = METHOD_PREFIX + "allocate";
+    private static final String METHOD_PREFIX = "datastore.";
     private static final String INFO     = METHOD_PREFIX + "info";
+    private static final String ALLOCATE = METHOD_PREFIX + "allocate";
     private static final String DELETE   = METHOD_PREFIX + "delete";
     private static final String UPDATE   = METHOD_PREFIX + "update";
-    private static final String ENABLE   = METHOD_PREFIX + "enable";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
-    private static final String CHTYPE   = METHOD_PREFIX + "chtype";
-
-    private static final String[] IMAGE_STATES =
-        {"INIT", "READY", "USED", "DISABLED"};
-
-    private static final String[] SHORT_IMAGE_STATES =
-        {"init", "rdy", "used", "disa"};
-
-    private static final String[] IMAGE_TYPES =
-        {"OS", "CDROM", "DATABLOCK"};
-
-    private static final String[] SHORT_IMAGE_TYPES =
-        {"OS", "CD", "DB"};
 
     /**
-     * Creates a new Image representation.
-     * @param id The image id.
+     * Creates a new Datastore representation.
+     * @param id The datastore id.
      * @param client XML-RPC Client.
      */
-    public Image(int id, Client client)
+    public Datastore(int id, Client client)
     {
         super(id, client);
     }
@@ -62,7 +48,7 @@ public class Image extends PoolElement
     /**
      * @see PoolElement
      */
-    protected Image(Node xmlElement, Client client)
+    protected Datastore(Node xmlElement, Client client)
     {
         super(xmlElement, client);
     }
@@ -72,42 +58,23 @@ public class Image extends PoolElement
     // =================================
 
     /**
-     * Allocates a new Image in OpenNebula.
+     * Allocates a new Datastore in OpenNebula.
      *
      * @param client XML-RPC Client.
-     * @param description A string containing the template of the image.
-     * @param clusterId The cluster ID. If it is -1, this image
-     * won't be added to any cluster.
-     *
+     * @param description A string containing the template of the datastore.
      * @return If successful the message contains the associated
-     * id generated for this Image.
-     */
-    public static OneResponse allocate(
-            Client client,
-            String description,
-            int    clusterId)
-    {
-        return client.call(ALLOCATE, description, clusterId);
-    }
-
-    /**
-     * Allocates a new Image in OpenNebula.
-     *
-     * @param client XML-RPC Client.
-     * @param description A string containing the template of the image.
-     * @return If successful the message contains the associated
-     * id generated for this Image.
+     * id generated for this Datastore.
      */
     public static OneResponse allocate(Client client, String description)
     {
-        return allocate(client, description, -1);
+        return client.call(ALLOCATE, description);
     }
 
     /**
-     * Retrieves the information of the given Image.
+     * Retrieves the information of the given Datastore.
      *
      * @param client XML-RPC Client.
-     * @param id The image id for the image to retrieve the information from
+     * @param id The datastore id to retrieve the information from
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -117,10 +84,10 @@ public class Image extends PoolElement
     }
 
     /**
-     * Deletes an image from OpenNebula.
+     * Deletes a datastore from OpenNebula.
      *
      * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to delete.
+     * @param id The id of the target datastore we want to delete.
      * @return A encapsulated response.
      */
     public static OneResponse delete(Client client, int id)
@@ -129,12 +96,12 @@ public class Image extends PoolElement
     }
 
     /**
-     * Replaces the template contents.
+     * Replaces the datastore contents.
      *
      * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to modify.
-     * @param new_template New template contents
-     * @return If successful the message contains the image id.
+     * @param id The id of the target datastore we want to modify.
+     * @param new_template New datastore contents.
+     * @return If successful the message contains the datastore id.
      */
     public static OneResponse update(Client client, int id, String new_template)
     {
@@ -142,25 +109,12 @@ public class Image extends PoolElement
     }
 
     /**
-     * Enables or disables an image.
+     * Publishes or unpublishes a datastore.
      *
      * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to modify.
-     * @param enable True for enabling, false for disabling.
-     * @return If successful the message contains the image id.
-     */
-    public static OneResponse enable(Client client, int id, boolean enable)
-    {
-        return client.call(ENABLE, id, enable);
-    }
-
-    /**
-     * Publishes or unpublishes an image.
-     *
-     * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to modify.
+     * @param id The id of the target datastore we want to modify.
      * @param publish True for publishing, false for unpublishing.
-     * @return If successful the message contains the image id.
+     * @return If successful the message contains the datastore id.
      */
     public static OneResponse publish(Client client, int id, boolean publish)
     {
@@ -171,9 +125,9 @@ public class Image extends PoolElement
 
     /**
      * Changes the owner/group
-     *
+     * 
      * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to modify.
+     * @param id The id of the target datastore we want to modify.
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
      * @param gid The new group ID. Set it to -1 to leave the current one.
      * @return If an error occurs the error message contains the reason.
@@ -184,10 +138,10 @@ public class Image extends PoolElement
     }
 
     /**
-     * Changes the Image permissions
-     *
+     * Changes the datastore permissions
+     * 
      * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to modify.
+     * @param id The id of the target datastore.
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
      * @param owner_a 1 to allow, 0 deny, -1 do not change
@@ -205,17 +159,17 @@ public class Image extends PoolElement
                                     int other_u, int other_m, int other_a)
     {
         return chmod(client, CHMOD, id,
-                owner_u, owner_m, owner_a,
-                group_u, group_m, group_a,
-                other_u, other_m, other_a);
+                    owner_u, owner_m, owner_a,
+                    group_u, group_m, group_a,
+                    other_u, other_m, other_a);
     }
 
     /**
      * Changes the permissions
-     *
+     * 
      * @param client XML-RPC Client.
      * @param id The id of the target object.
-     * @param octet Permissions octed , e.g. 640
+     * @param octet Permissions octet, e.g. 640
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse chmod(Client client, int id, String octet)
@@ -225,7 +179,7 @@ public class Image extends PoolElement
 
     /**
      * Changes the permissions
-     *
+     * 
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -236,25 +190,12 @@ public class Image extends PoolElement
         return chmod(client, CHMOD, id, octet);
     }
 
-    /**
-     * Changes the Image type
-     *
-     * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to modify.
-     * @param type The new Image type
-     * @return If an error occurs the error message contains the reason.
-     */
-    public static OneResponse chtype(Client client, int id, String type)
-    {
-        return client.call(CHTYPE, id, type);
-    }
-
     // =================================
     // Instanced object XML-RPC methods
     // =================================
 
     /**
-     * Retrieves the information of the Image.
+     * Retrieves the information of the Datastore.
      *
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -267,7 +208,7 @@ public class Image extends PoolElement
     }
 
     /**
-     * Deletes the image from OpenNebula.
+     * Deletes the datastore from OpenNebula.
      *
      * @return A encapsulated response.
      */
@@ -277,10 +218,10 @@ public class Image extends PoolElement
     }
 
     /**
-     * Replaces the template contents.
+     * Replaces the datastore template.
      *
-     * @param new_template New template contents
-     * @return If successful the message contains the image id.
+     * @param new_template New datastore template.
+     * @return If successful the message contains the datastore id.
      */
     public OneResponse update(String new_template)
     {
@@ -288,41 +229,10 @@ public class Image extends PoolElement
     }
 
     /**
-     * Enables or disables the image.
-     *
-     * @param enable True for enabling, false for disabling.
-     * @return If successful the message contains the image id.
-     */
-    public OneResponse enable(boolean enable)
-    {
-        return enable(client, id, enable);
-    }
-
-    /**
-     * Enables the image.
-     *
-     * @return If successful the message contains the image id.
-     */
-    public OneResponse enable()
-    {
-        return enable(true);
-    }
-
-    /**
-     * Disables the image.
-     *
-     * @return If successful the message contains the image id.
-     */
-    public OneResponse disable()
-    {
-        return enable(false);
-    }
-
-    /**
-     * Publishes or unpublishes the image.
+     * Publishes or unpublishes the datastore.
      *
      * @param publish True for publishing, false for unpublishing.
-     * @return If successful the message contains the image id.
+     * @return If successful the message contains the datastore id.
      */
     public OneResponse publish(boolean publish)
     {
@@ -330,9 +240,9 @@ public class Image extends PoolElement
     }
 
     /**
-     * Publishes the image.
+     * Publishes the datastore.
      *
-     * @return If successful the message contains the image id.
+     * @return If successful the message contains the datastore id.
      */
     public OneResponse publish()
     {
@@ -340,9 +250,9 @@ public class Image extends PoolElement
     }
 
     /**
-     * Unpublishes the image.
+     * Unpublishes the datastore.
      *
-     * @return If successful the message contains the image id.
+     * @return If successful the message contains the datastore id.
      */
     public OneResponse unpublish()
     {
@@ -351,7 +261,7 @@ public class Image extends PoolElement
 
     /**
      * Changes the owner/group
-     *
+     * 
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
      * @param gid The new group ID. Set it to -1 to leave the current one.
      * @return If an error occurs the error message contains the reason.
@@ -363,7 +273,7 @@ public class Image extends PoolElement
 
     /**
      * Changes the owner
-     *
+     * 
      * @param uid The new owner user ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -374,7 +284,7 @@ public class Image extends PoolElement
 
     /**
      * Changes the group
-     *
+     * 
      * @param gid The new group ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -384,8 +294,8 @@ public class Image extends PoolElement
     }
 
     /**
-     * Changes the Image permissions
-     *
+     * Changes the datastore permissions
+     * 
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
      * @param owner_a 1 to allow, 0 deny, -1 do not change
@@ -429,87 +339,19 @@ public class Image extends PoolElement
         return chmod(client, id, octet);
     }
 
-    /**
-     * Changes the Image type
-     *
-     * @param type The new Image type
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse chtype(String type)
-    {
-        return chtype(client, id, type);
-    }
-
     // =================================
     // Helpers
     // =================================
 
     /**
-     * Returns the state of the Image.
-     * <br/>
-     * The method {@link Image#info()} must be called before.
+     * Returns whether or not the image is part of this datastore
      *
-     * @return The state of the Image.
+     * @param id The image ID.
+     * @return Whether or not the image is part of this datastore.
      */
-    public String stateString()
+    public boolean contains(int id)
     {
-        int state = state();
-        return state != -1 ? IMAGE_STATES[state] : null;
-    }
-
-    /**
-     * Returns the short length string state of the Image.
-     * <br/>
-     * The method {@link Image#info()} must be called before.
-     *
-     * @return The short length string state of the Image.
-     */
-    public String shortStateStr()
-    {
-        int state = state();
-        return state != -1 ? SHORT_IMAGE_STATES[state] : null;
-    }
-
-    /**
-     * Returns the type of the Image.
-     *
-     * @return The type of the Image.
-     */
-    public int type()
-    {
-        String state = xpath("TYPE");
-        return state != null ? Integer.parseInt( state ) : -1;
-    }
-
-    /**
-     * Returns the type of the Image as a String.
-     *
-     * @return The type of the Image as a String.
-     */
-    public String typeStr()
-    {
-        int type = type();
-        return type != -1 ? IMAGE_TYPES[type] : null;
-    }
-
-    /**
-     * Returns the type of the Image as a short String.
-     *
-     * @return The type of the Image as a short String.
-     */
-    public String shortTypeStr()
-    {
-        int type = type();
-        return type != -1 ? SHORT_IMAGE_TYPES[type] : null;
-    }
-
-    /**
-     * Returns true if the image is enabled.
-     *
-     * @return True if the image is enabled.
-     */
-    public boolean isEnabled()
-    {
-        return state() != 3;
+        String res = xpath("IMAGES/ID[.="+id+"]");
+        return res != null && res.equals(""+id);
     }
 }

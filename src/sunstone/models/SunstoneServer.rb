@@ -198,7 +198,7 @@ class SunstoneServer < CloudServer
     end
 
     ############################################################################
-    #
+    # Unused
     ############################################################################
     def get_vm_log(id)
         resource = retrieve_resource("vm", id)

@@ -19,7 +19,6 @@ package org.opennebula.client.vm;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.PoolElement;
-import org.opennebula.client.template.Template;
 import org.w3c.dom.Node;
 
 /**
@@ -152,7 +151,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The virtual machine id (vid) of the target instance.
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
@@ -166,7 +165,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the VM permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The VM id of the target VM.
      * @param owner_u 1 to allow, 0 deny, -1 do not change
@@ -193,7 +192,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -206,7 +205,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -317,7 +316,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
      * @param gid The new group ID. Set it to -1 to leave the current one.
      * @return If an error occurs the error message contains the reason.
@@ -329,7 +328,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the owner
-     * 
+     *
      * @param uid The new owner user ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -340,7 +339,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the group
-     * 
+     *
      * @param gid The new group ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -352,7 +351,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Changes the VM permissions
-     * 
+     *
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
      * @param owner_a 1 to allow, 0 deny, -1 do not change

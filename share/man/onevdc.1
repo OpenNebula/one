@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVDC" "1" "February 2012" "" "onevdc(1) -- manages OpenNebula Virtual DataCenters"
+.TH "ONEVDC" "1" "March 2012" "" "onevdc(1) -- manages OpenNebula Virtual DataCenters"
 .
 .SH "NAME"
 \fBonevdc\fR
@@ -14,6 +14,10 @@
 .nf
 
  \-f, \-\-force               Force the usage of Hosts in more than one VDC
+ \-j, \-\-json                Show the resource in JSON format
+ \-s, \-\-hosts 1,2,3         Host IDs
+ \-d, \-\-datastores 1,2,3    Datastore IDs
+ \-n, \-\-networks 1,2,3      Network IDs
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -45,6 +49,7 @@ show \fIvdcid\fR
 .nf
 
 Show information of a particular VDC
+valid options: json
 .
 .fi
 .
@@ -59,6 +64,7 @@ list
 .nf
 
 Lists VDCs in the pool
+valid options: json
 .
 .fi
 .
@@ -80,14 +86,14 @@ Deletes a VDC
 
 .
 .IP "\(bu" 4
-addhost \fIvdcid\fR \fIrange\fR
+add \fIvdcid\fR
 .
 .IP "" 4
 .
 .nf
 
-Adds the set of hosts to the VDC
-valid options: force
+Adds the set of resources to the VDC
+valid options: force, hosts, datastores, networks
 .
 .fi
 .
@@ -95,13 +101,14 @@ valid options: force
 
 .
 .IP "\(bu" 4
-delhost \fIvdcid\fR \fIrange\fR
+del \fIvdcid\fR
 .
 .IP "" 4
 .
 .nf
 
-Deletes the set of hosts from the VDC
+Deletes the set of resources from the VDC
+valid options: hosts, datastores, networks
 .
 .fi
 .
@@ -171,7 +178,7 @@ VDC ID
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.3\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.3\.80 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

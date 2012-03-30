@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var infra_tab_content =
-'<table class="dashboard_table" style=>\
+'<table class="dashboard_table" id="infra_dashboard" style=>\
 <tr>\
 <td style="width:50%">\
 <table style="width:100%">\
@@ -26,7 +26,7 @@ var infra_tab_content =
         <div class="panel_info">\
 \
           <table class="info_table">\
-            <tr>\
+            <tr class="cluster_related">\
               <td class="key_td">' + tr("Clusters") + '</td>\
               <td class="value_td"><span id="infra_total_clusters"></span></td>\
             </tr>\
@@ -54,7 +54,7 @@ var infra_tab_content =
         <h3>' + tr("Quickstart") + '</h3>\
         <div class="panel_info dashboard_p">\
              <p></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#clusters_tab" value="Cluster.create_dialog">'+tr("Create new Cluster")+'</a></br>\
+             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon cluster_related" /><a class="action_button cluster_related" href="#clusters_tab" value="Cluster.create_dialog">'+tr("Create new Cluster")+'</a></br>\
              <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new Host")+'</a></br>\
              <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new Datastore")+'</a></br>\
              <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new Virtual Network")+'</a></br>\
@@ -72,7 +72,7 @@ var infra_tab_content =
       <div class="panel">\
         <h3>' + tr("Infrastructure resources") + '</h3>\
         <div class="panel_info">\
-            <p>'+tr("The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks and the Clusters they are placed in. The Clusters node can be expanded, and resources can be managed for each cluster.")+'</p>\
+            <p>'+tr("The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well.")+'</p>\
             <p>'+tr("You can find further information on the following links:")+'</p>\
             <ul>\
                <li><a href="http://opennebula.org/documentation:rel3.4:hostsubsystem" target="_blank">Host subsystem</a></li>\
@@ -117,5 +117,6 @@ function updateInfraDashboard(what,json_info){
 };
 
 $(document).ready(function(){
-
+    if (!mustBeAdmin())
+        $('table#infra_dashboard .cluster_related', main_tabs_context).hide();
 });

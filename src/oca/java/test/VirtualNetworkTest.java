@@ -40,7 +40,6 @@ public class VirtualNetworkTest
     private static String template =
                         "NAME = " + name + "\n"+
                         "TYPE = RANGED\n" +
-                        "PUBLIC = NO\n" +
                         "BRIDGE = vbr0\n" +
                         "NETWORK_SIZE    = C\n" +
                         "NETWORK_ADDRESS = 192.168.0.0\n";
@@ -147,30 +146,7 @@ public class VirtualNetworkTest
         res = vnet.info();
         assertTrue( res.isError() );
     }
-// TODO
-/*
-    @Test
-    public void publish()
-    {
-        res = vnet.info();
-        assertTrue( !res.isError() );
-        assertTrue( !vnet.isPublic() );
 
-        // Publish it
-        res = vnet.publish();
-        assertTrue( !res.isError() );
-
-        res = vnet.info();
-        assertTrue( vnet.isPublic() );
-
-        // Unpublish it
-        res = vnet.unpublish();
-        assertTrue( !res.isError() );
-
-        res = vnet.info();
-        assertTrue( !vnet.isPublic() );
-    }
-*/
     @Test
     public void addLeases()
     {
@@ -273,4 +249,5 @@ public class VirtualNetworkTest
         assertTrue( vnet.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
         assertTrue( vnet.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
     }
+
 }
