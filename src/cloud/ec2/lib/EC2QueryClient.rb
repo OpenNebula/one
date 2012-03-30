@@ -237,5 +237,74 @@ module EC2QueryClient
 
             return response
         end
+
+        ######################################################################
+        ######################################################################
+        def describe_addresses()
+            begin
+                response = @ec2_connection.describe_addresses
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        ######################################################################
+        def allocate_address()
+            begin
+                response = @ec2_connection.allocate_address
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        ######################################################################
+        def associate_address(public_ip, instance_id)
+            begin
+                response = @ec2_connection.associate_address(
+                            :public_ip   => public_ip, 
+                            :instance_id => instance_id)
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        ######################################################################
+        def disassociate_address(public_ip)
+            begin
+                response = @ec2_connection.disassociate_address(
+                            :public_ip   => public_ip)
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        ######################################################################
+        def release_address(public_ip)
+            begin
+                response = @ec2_connection.release_address(
+                            :public_ip   => public_ip)
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
     end
 end
