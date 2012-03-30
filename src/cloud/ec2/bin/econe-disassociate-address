@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cloud"
+
+COMMANDS_HELP=<<-EOT
+econe-disasociate-address
+
+Disasociate a publicIP of the user currently associated with an instance
+
+Usage:
+    econe-disasociate-address [OPTIONS] PUBLIC-IP
+
+Options:
+
+    --help, -h
+        Show help
+
+    --access-key <id>, -K <id>
+        The username of the user
+
+    --secret-key <key>, -S <key>
+        The password of the user
+
+    --url <url>, -U <url>
+        Set url as the web service url to use
+        
+    --headers, -H
+        Display column headers
+        
+PUBLIC-IP: ElasticIP owned by the user. To see the list of ips use econe-describe-addresses
+
+EOT
+
+require 'econe/EC2QueryClient'
+require 'CloudClient'
+require 'getoptlong'
+
+include CloudCLI
+
+opts = GetoptLong.new(
+            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
+            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
+            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
+            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
+            ['--type',       '-t',GetoptLong::REQUIRED_ARGUMENT],
+            ['--user-data',  '-d',GetoptLong::REQUIRED_ARGUMENT],
+            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
+       )
+
+headers = false
+url     = nil
+access  = nil
+secret  = nil
+auth    = nil
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--help'
+                puts COMMANDS_HELP
+                return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
+            when '--access-key'
+                access = arg
+            when '--secret-key'
+                secret = arg
+            when '--url'
+                url = arg
+            when '--headers'
+                headers = true
+        end
+    end
+rescue Exception => e
+    exit -1
+end 
+
+public_ip = ARGV.shift
+
+if !public_ip
+    puts "#{cmd_name}: missing publicIP parameter"
+    exit -1
+end
+
+auth = "#{access}:#{secret}" if secret && access
+
+begin
+    ec2_client = EC2QueryClient::Client.new(auth,url)
+rescue Exception => e
+    puts "#{cmd_name}: #{e.message}"
+    exit -1
+end
+
+rc = ec2_client.disassociate_address(public_ip)
+
+if CloudClient::is_error?(rc)
+    puts "#{cmd_name}: #{rc.message}"
+    exit -1
+end
+
+exit 0
