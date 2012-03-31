@@ -198,7 +198,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    rc;
     string name;
 
-    SingleAttribute *   attr;
     string              value;
     ostringstream       oss;
 
