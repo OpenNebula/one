@@ -209,9 +209,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     oss << oid;
     value = oss.str();
 
-    attr = new SingleAttribute("VMID",value);
-
-    obj_template->set(attr);
+    replace_template_attribute("VMID", value);
 
     get_template_attribute("NAME",name);
 
