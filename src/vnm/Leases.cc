@@ -415,6 +415,28 @@ bool Leases::check(unsigned int ip)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool Leases::is_owner(const string& ip, int vid)
+{
+    unsigned int _ip;
+    map<unsigned int,Lease *>::iterator it;
+
+    Leases::Lease::ip_to_number(ip,_ip);
+
+    it = leases.find(_ip);
+
+    if (it!=leases.end())
+    {
+        return (it->second->vid == vid);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Leases::hold_leases(vector<const Attribute*>&   vector_leases,
                         string&                     error_msg)
 {
