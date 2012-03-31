@@ -135,13 +135,24 @@ public:
     };
 
     /**
-     *    Release previously given lease
+     *  Release previously given lease
      *    @param _ip IP identifying the lease
      *    @return 0 if success
      */
     void release_lease(const string& ip)
     {
         return leases->release(ip);
+    };
+
+    /**
+     *  Check if a VM is the owner of the ip 
+     *    @param ip of the lease to be checked
+     *    @param vid the ID of the VM
+     *    @return true if the ip was already assigned
+     */
+    bool is_owner (const string& ip, int vid)
+    {
+        return leases->is_owner(ip, vid);
     };
 
     /**
