@@ -1084,8 +1084,11 @@ void VirtualMachine::release_network_leases()
             continue;
         }
 
-        vn->release_lease(ip);
-        vnpool->update(vn);
+        if (vn->is_owner(ip,oid))
+        {
+            vn->release_lease(ip);
+            vnpool->update(vn);
+        }
 
         vn->unlock();
     }
