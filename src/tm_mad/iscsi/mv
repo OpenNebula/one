@@ -102,7 +102,7 @@ if is_iscsi "$DST_HOST"; then
         $SUDO $(iscsiadm_login "$IQN" "$TARGET_HOST")
         sleep 1
         DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)
-        ln -s "\$DISK_BY_PATH" "$DST_PATH"
+        ln -sf "\$DISK_BY_PATH" "$DST_PATH"
 EOF
 )
 
