@@ -365,9 +365,8 @@ module OpenNebula
         #
         def attr_to_str(attr)
             attr.gsub!('"',"\\\"")
-            attr.prepend('"')
-            attr << '"'
-
+            attr = "\"#{attr}\""
+            
             return attr
         end
     end
