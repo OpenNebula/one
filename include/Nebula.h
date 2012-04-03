@@ -157,6 +157,25 @@ public:
     // --------------------------------------------------------------
 
     /**
+     *  Returns the value of DEBUG_LEVEL in oned.conf file
+     *      @return the debug level, to instantiate Log'ers
+     */
+    Log::MessageType get_debug_level() const
+    {
+        Log::MessageType    clevel = Log::ERROR;
+        int                 log_level_int;
+
+        nebula_configuration->get("DEBUG_LEVEL", log_level_int);
+
+        if (0 <= log_level_int && log_level_int <= 3 )
+        {
+            clevel = static_cast<Log::MessageType>(log_level_int);
+        }
+
+        return clevel;
+    }
+
+    /**
      *  Returns the value of ONE_LOCATION env variable. When this variable is
      *  not defined the nebula location is "/".
      *  	@return the nebula location.
