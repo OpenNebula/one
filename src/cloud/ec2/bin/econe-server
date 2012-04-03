@@ -21,12 +21,14 @@ if [ -z "$ONE_LOCATION" ]; then
     ECONE_SERVER=/usr/lib/one/ruby/cloud/econe/econe-server.rb
     ECONE_LOCK_FILE=/var/lock/one/.econe.lock
     ECONE_LOG=/var/log/one/econe-server.log
+    ECONE_LOG_ERROR=/var/log/one/econe-server.error
     ECONE_ETC=/etc/one/econe.conf
 else
     ECONE_PID=$ONE_LOCATION/var/econe-server.pid
     ECONE_SERVER=$ONE_LOCATION/lib/ruby/cloud/econe/econe-server.rb
     ECONE_LOCK_FILE=$ONE_LOCATION/var/.econe.lock
     ECONE_LOG=$ONE_LOCATION/var/econe-server.log
+    ECONE_LOG_ERROR=$ONE_LOCATION/var/econe-server.error
     ECONE_ETC=$ONE_LOCATION/etc/econe.conf
 fi
 
@@ -58,7 +60,7 @@ start()
 	fi
 
 	# Start the econe-server daemon
-	ruby $ECONE_SERVER > $ECONE_LOG 2>&1 &
+	ruby $ECONE_SERVER >$ECONE_LOG 2>$ECONE_LOG_ERROR &
 
 	LASTRC=$?
 	LASTPID=$!

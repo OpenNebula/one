@@ -21,12 +21,14 @@ if [ -z "$ONE_LOCATION" ]; then
     OCCI_SERVER=/usr/lib/one/ruby/cloud/occi/occi-server.rb
     OCCI_LOCK_FILE=/var/lock/one/.occi.lock
     OCCI_LOG=/var/log/one/occi-server.log
+    OCCI_LOG_ERROR=/var/log/one/occi-server.error
     OCCI_ETC=/etc/one/occi-server.conf
 else
     OCCI_PID=$ONE_LOCATION/var/occi-server.pid
     OCCI_SERVER=$ONE_LOCATION/lib/ruby/cloud/occi/occi-server.rb
     OCCI_LOCK_FILE=$ONE_LOCATION/var/.occi.lock
     OCCI_LOG=$ONE_LOCATION/var/occi-server.log
+    OCCI_LOG_ERROR=$ONE_LOCATION/var/occi-server.error
     OCCI_ETC=$ONE_LOCATION/etc/occi-server.conf
 fi
 
@@ -58,7 +60,7 @@ start()
   fi
 
   # Start the occi-server daemon
-  ruby $OCCI_SERVER > $OCCI_LOG 2>&1 &
+  ruby $OCCI_SERVER >$OCCI_LOG 2>$OCCI_LOG_ERROR &
 
   LASTRC=$?
   LASTPID=$!
