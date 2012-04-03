@@ -22,10 +22,16 @@ source $(dirname $0)/../../scripts_common.sh
 deploy_id=$1
 file=$2
 
-if [ ! -f $file ]; then
-    touch $file
-    chmod 666 $file
+if [ -f $file ]; then
+    log "Moving old checkpoint file $file"
+    epoch=`date +%s`
+
+    exec_and_log "mv $file $file.$epoch" \
+        "Could not move $file to $file.$epoch"
 fi
+
+touch $file
+chmod 666 $file
 
 exec_and_log "virsh --connect $LIBVIRT_URI save $deploy_id $file" \
     "Could not save $deploy_id to $file"
