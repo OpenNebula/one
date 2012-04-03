@@ -21,5 +21,17 @@ source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 
+function gdm {
+    $XM_LIST | grep "$deploy_id "
+}
+
 exec_and_log "$XM_CANCEL $deploy_id" \
     "Could not destroy $deploy_id"
+
+OUT=$(gdm)
+
+while [ -n "$OUT" ]; do
+    sleep 1
+    OUT=$(gdm)
+done
+
