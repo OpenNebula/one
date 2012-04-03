@@ -63,7 +63,7 @@ public class HostTest
     @Before
     public void setUp() throws Exception
     {
-        res = Host.allocate(client, name, "im_dummy", "vmm_dummy", "vnm_dummy");
+        res = Host.allocate(client, name, "im_dummy", "vmm_dummy", "dummy");
 
         int hid = !res.isError() ? Integer.parseInt(res.getMessage()) : -1;
         host    = new Host(hid, client);
@@ -83,7 +83,7 @@ public class HostTest
     {
         String name = "allocate_test";
 
-        res = Host.allocate(client, name, "im_dummy", "vmm_dummy", "vmm_dummy");
+        res = Host.allocate(client, name, "im_dummy", "vmm_dummy", "dummy");
         assertTrue( !res.isError() );
 //        assertTrue( res.getMessage().equals("0") );
 

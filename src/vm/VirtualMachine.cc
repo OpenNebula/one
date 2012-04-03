@@ -198,7 +198,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    rc;
     string name;
 
-    SingleAttribute *   attr;
     string              value;
     ostringstream       oss;
 
@@ -209,9 +208,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     oss << oid;
     value = oss.str();
 
-    attr = new SingleAttribute("VMID",value);
-
-    obj_template->set(attr);
+    replace_template_attribute("VMID", value);
 
     get_template_attribute("NAME",name);
 
@@ -1087,8 +1084,11 @@ void VirtualMachine::release_network_leases()
             continue;
         }
 
-        vn->release_lease(ip);
-        vnpool->update(vn);
+        if (vn->is_owner(ip,oid))
+        {
+            vn->release_lease(ip);
+            vnpool->update(vn);
+        }
 
         vn->unlock();
     }

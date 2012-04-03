@@ -234,6 +234,11 @@ module Migrator
             # Update SOURCE
             doc.root.each_element("SOURCE") { |e|
                 previous_source = e.text
+
+                if previous_source.nil?
+                    next
+                end
+
                 hash = previous_source.split('/')[-1]
 
                 if ( hash.length == 32 && hash =~ /^[0-9A-F]+$/i )
@@ -275,7 +280,7 @@ module Migrator
         "    <GROUP_U>1</GROUP_U>" <<
         "    <GROUP_M>0</GROUP_M>" <<
         "    <GROUP_A>0</GROUP_A>" <<
-        "    <OTHER_U>0</OTHER_U>" <<
+        "    <OTHER_U>1</OTHER_U>" <<
         "    <OTHER_M>0</OTHER_M>" <<
         "    <OTHER_A>0</OTHER_A>" <<
         "  </PERMISSIONS>" <<
@@ -299,7 +304,7 @@ module Migrator
             :gid        => 0,
             :owner_u    => 1,
             :group_u    => 1,
-            :other_u    => 0)
+            :other_u    => 1)
 
         return true
     end

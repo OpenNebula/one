@@ -299,7 +299,20 @@ protected:
      */
     bool check(const string& ip);
 
+    /**
+     * Check if the passed ip corresponds with a given lease
+     * @param ip of the lease to be checked
+     * @return true if the ip was already assigned
+     */
     bool check(unsigned int ip);
+
+    /**
+     * Check if a VM is the owner of the ip 
+     * @param ip of the lease to be checked
+     * @param vid the ID of the VM
+     * @return true if the ip was already assigned
+     */
+    bool is_owner(const string& ip, int vid);
 
     /**
      *  Reads the leases from the DB, and updates the lease hash table

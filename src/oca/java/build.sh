@@ -124,6 +124,12 @@ do_clean()
 
     find share/examples -name '*.class' -delete
     find test/ -name '*.class' -delete
+
+    echo "Cleaning javadoc files..."
+    rm -rf $DOC_DIR > /dev/null 2>&1
+
+    echo "Cleaning jar files..."
+    rm -rf $JAR_DIR > /dev/null 2>&1
 }
 
 if [ "$DO_CLEAN" = "yes" ] ; then

@@ -129,7 +129,7 @@ module OpenNebula
             #This doesn't work in ruby 1.8.5
             #return self["DATASTORE/ID[.=#{uid}]"] != nil
 
-            id_array = retrieve_elements('DATASTORE/ID')
+            id_array = retrieve_elements('IMAGES/ID')
             return id_array != nil && id_array.include?(uid.to_s)
         end
 
