@@ -22,5 +22,13 @@ source $(dirname $0)/../../scripts_common.sh
 deploy_id=$1
 file=$2
 
+if [ -f $file ]; then
+    log "Moving old checkpoint file $file"
+    epoch=`date +%s`
+
+    exec_and_log "mv $file $file.$epoch" \
+        "Could not move $file to $file.$epoch"
+fi
+
 exec_and_log "$XM_SAVE $deploy_id $file" \
     "Could not save $deploy_id to $file"
