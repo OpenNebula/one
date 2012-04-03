@@ -431,10 +431,15 @@ var oZones = {
         "vnet": function(params){
             oZones.Zone.subresource(params,"vnet");
         },
-
         "group": function(params){
             oZones.Zone.subresource(params,"group");
-        }
+        },
+        "cluster": function(params){
+            oZones.Zone.subresource(params,"cluster");
+        },
+        "datastore": function(params){
+            oZones.Zone.subresource(params,"datastore");
+        },
     },
 
     "VDC": {
@@ -497,5 +502,19 @@ var oZones = {
         "list": function(params){
             oZones.Action.list(params,oZones.ZoneImages.resource,"vmtemplate");
         }
-    }
-}
+    },
+
+    "ZoneClusters": {
+        "resource": "ZONE",
+        "list": function(params){
+            oZones.Action.list(params,oZones.ZoneClusters.resource,"cluster");
+        }
+    },
+
+    "ZoneDatastores": {
+        "resource": "ZONE",
+        "list": function(params){
+            oZones.Action.list(params,oZones.ZoneDatastores.resource,"datastore");
+        }
+    },
+};

@@ -30,10 +30,26 @@ function updateHostsList(req,list,tag,zone_id,zone_name){
 function updateVMsList(req,list,tag,zone_id,zone_name){
     var vmsDataTable = $(tag).dataTable();
     var vms_array = [];
+
+    var ip_str = function ip_str(vm){
+        var nic = vm.TEMPLATE.NIC;
+        var ip = '--';
+        if ($.isArray(nic)) {
+            ip = '';
+            $.each(nic, function(index,value){
+                ip += value.IP+'<br />';
+            });
+        } else if (nic && nic.IP) {
+            ip = nic.IP;
+        };
+        return ip;
+    };
+
     $.each(list,function(){
         var vm = this.VM;
         var state = oZones.Helper.resource_state("vm",vm.STATE);
         var hostname = "--";
+        var ip = ip_str(vm);
 
         if (state == "ACTIVE" || state == "SUSPENDED"){
             if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
@@ -59,6 +75,7 @@ function updateVMsList(req,list,tag,zone_id,zone_name){
                 vm.CPU,
                 humanize_size(vm.MEMORY),
                 hostname,
+                ip,
                 pretty_time(vm.STIME)
             ]);
         } else {
@@ -71,6 +88,7 @@ function updateVMsList(req,list,tag,zone_id,zone_name){
                 vm.CPU,
                 humanize_size(vm.MEMORY),
                 hostname,
+                ip,
                 pretty_time(vm.STIME)
             ]);
         };
@@ -101,16 +119,18 @@ function updateVNsList(req,list,tag,zone_id,zone_name){
                 network.UNAME,
                 network.GNAME,
                 network.NAME,
+                network.CLUSTER.length ? network.CLUSTER : "-",
                 parseInt(network.TYPE) ? "FIXED" : "RANGED",
                 network.BRIDGE,
                 total_leases
             ]);
         } else {
-             vn_array.push([
+            vn_array.push([
                 network.ID,
                 network.UNAME,
                 network.GNAME,
                 network.NAME,
+                network.CLUSTER.length ? network.CLUSTER : "-",
                 parseInt(network.TYPE) ? "FIXED" : "RANGED",
                 network.BRIDGE,
                 total_leases
@@ -276,6 +296,7 @@ function hostElementArray(host,zone_id,zone_name){
             zone_name,
             host.ID,
             host.NAME,
+            host.CLUSTER.length ? host.CLUSTER : "-",
             host.HOST_SHARE.RUNNING_VMS, //rvm
             pb_cpu,
             pb_mem,
@@ -285,8 +306,68 @@ function hostElementArray(host,zone_id,zone_name){
     return [
         host.ID,
         host.NAME,
+        host.CLUSTER.length ? host.CLUSTER : "-",
         host.HOST_SHARE.RUNNING_VMS, //rvm
         pb_cpu,
         pb_mem,
         oZones.Helper.resource_state("host_simple",host.STATE) ];
-}
+};
+
+
+function updateClustersList(req,list,tag, zone_id,zone_name){
+    var dataTable = $(tag).dataTable();
+    var array = [];
+
+    $.each(list,function(){
+        var cluster = this.CLUSTER;
+
+        if (zone_id){
+            array.push([
+                zone_id,
+                zone_name,
+                cluster.ID,
+                cluster.NAME
+            ]);
+        } else {
+            array.push([
+                cluster.ID,
+                cluster.NAME
+            ]);
+        };
+
+    });
+    dataTable.fnAddData(array);
+    dataTable.fnDraw(false);
+};
+
+function updateDatastoresList(req,list,tag, zone_id,zone_name){
+    var dataTable = $(tag).dataTable();
+    var array = [];
+
+    $.each(list,function(){
+        var ds = this.DATASTORE;
+
+        if (zone_id){
+            array.push([
+                zone_id,
+                zone_name,
+                ds.ID,
+                ds.UNAME,
+                ds.GNAME,
+                ds.NAME,
+                ds.CLUSTER.length ? ds.CLUSTER : "-",
+            ]);
+        } else {
+            array.push([
+                ds.ID,
+                ds.UNAME,
+                ds.GNAME,
+                ds.NAME,
+                ds.CLUSTER.length ? ds.CLUSTER : "-",
+            ]);
+        };
+
+    });
+    dataTable.fnAddData(array);
+    dataTable.fnDraw(false);
+};

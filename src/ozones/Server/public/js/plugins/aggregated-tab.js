@@ -25,6 +25,7 @@ var aggregated_hosts_tab_content =
       <th>Zone Name</th>\
       <th>ID</th>\
       <th>Name</th>\
+      <th>Cluster</th>\
       <th>Running VMs</th>\
       <th>CPU Use</th>\
       <th>Memory use</th>\
@@ -68,6 +69,7 @@ var aggregated_vns_tab_content =
       <th>Owner</th>\
       <th>Group</th>\
       <th>Name</th>\
+      <th>Cluster</th>\
       <th>Type</th>\
       <th>Bridge</th>\
       <th>Total Leases</th>\
@@ -113,7 +115,6 @@ var aggregated_users_tab_content =
   <tbody>\
   </tbody>\
 </table>';
-
 var aggregated_templates_tab_content =
 '<div class="action_blocks">\
  </div>\
@@ -133,12 +134,49 @@ var aggregated_templates_tab_content =
   </tbody>\
 </table>';
 
+var aggregated_clusters_tab_content =
+'<div class="action_blocks">\
+ </div>\
+<table id="datatable_agg_clusters" class="display">\
+  <thead>\
+    <tr>\
+      <th>Zone ID</th>\
+      <th>Zone Name</th>\
+      <th>ID</th>\
+      <th>Name</th>\
+    </tr>\
+  </thead>\
+  <tbody>\
+  </tbody>\
+</table>';
+
+var aggregated_datastores_tab_content =
+'<div class="action_blocks">\
+ </div>\
+<table id="datatable_agg_datastores" class="display">\
+  <thead>\
+    <tr>\
+      <th>Zone ID</th>\
+      <th>Zone Name</th>\
+      <th>ID</th>\
+      <th>Owner</th>\
+      <th>Group</th>\
+      <th>Name</th>\
+      <th>Cluster</th>\
+    </tr>\
+  </thead>\
+  <tbody>\
+  </tbody>\
+</table>';
+
 var dataTable_agg_hosts;
 var dataTable_agg_vms;
 var dataTable_agg_vns;
 var dataTable_agg_images;
 var dataTable_agg_users;
 var dataTable_agg_templates;
+var dataTable_agg_cluters;
+var dataTable_agg_datastores;
 
 var agg_actions = {
     "ZoneHosts.list" : {
@@ -175,6 +213,18 @@ var agg_actions = {
         type: "single",
         call: oZones.ZoneTemplates.list,
         callback: templatesListCB,
+        error: onError
+    },
+    "ZoneClusters.list" : {
+        type: "single",
+        call: oZones.ZoneClusters.list,
+        callback: clustersListCB,
+        error: onError
+    },
+    "ZoneDatastores.list" : {
+        type: "single",
+        call: oZones.ZoneDatastores.list,
+        callback: datastoresListCB,
         error: onError
     },
     "ZoneHosts.refresh" : {
@@ -295,7 +345,47 @@ var agg_actions = {
                 success: templatesListCB,
                 error: onError})
         }
-    }
+    },
+
+    "ZoneClusters.refresh" : {
+        type: "custom",
+        call: function() {
+            waitingNodes(dataTable_agg_clusters);
+            Sunstone.runAction("ZoneClusters.list");
+        },
+        error: onError,
+        notify: false
+    },
+
+    "ZoneClusters.autorefresh" : {
+        type: "custom",
+        call: function() {
+            oZones.ZoneClusters.list({
+                timeout:true,
+                success: clustersListCB,
+                error: onError})
+        }
+    },
+
+    "ZoneDatastores.refresh" : {
+        type: "custom",
+        call: function() {
+            waitingNodes(dataTable_agg_datastores);
+            Sunstone.runAction("ZoneDatastores.list");
+        },
+        error: onError,
+        notify: false
+    },
+
+    "ZoneDatastores.autorefresh" : {
+        type: "custom",
+        call: function() {
+            oZones.ZoneDatastores.list({
+                timeout:true,
+                success: datastoresListCB,
+                error: onError})
+        }
+    },
 
 };
 
@@ -341,6 +431,22 @@ var users_buttons = {
 
 var templates_buttons = {
     "ZoneTemplates.refresh" : {
+        type: "image",
+        text: "Refresh list",
+        img: "images/Refresh-icon.png"
+    }
+};
+
+var clusters_buttons = {
+    "ZoneClusters.refresh" : {
+        type: "image",
+        text: "Refresh list",
+        img: "images/Refresh-icon.png"
+    }
+};
+
+var datastores_buttons = {
+    "ZoneDatastores.refresh" : {
         type: "image",
         text: "Refresh list",
         img: "images/Refresh-icon.png"
@@ -396,13 +502,32 @@ var templates_tab = {
     parentTab: "dashboard_tab"
 };
 
+var clusters_tab = {
+    title: "Clusters",
+    content: aggregated_clusters_tab_content,
+    buttons: clusters_buttons,
+    tabClass: "subTab",
+    parentTab: "dashboard_tab"
+};
+
+var datastores_tab = {
+    title: "Datastores",
+    content: aggregated_datastores_tab_content,
+    buttons: datastores_buttons,
+    tabClass: "subTab",
+    parentTab: "dashboard_tab"
+};
+
 Sunstone.addActions(agg_actions);
-Sunstone.addMainTab("agg_hosts_tab",hosts_tab);
-Sunstone.addMainTab("agg_vms_tab",vms_tab);
-Sunstone.addMainTab("agg_vns_tab",vns_tab);
-Sunstone.addMainTab("agg_images_tab",images_tab);
 Sunstone.addMainTab("agg_users_tab",users_tab);
+Sunstone.addMainTab("agg_vms_tab",vms_tab);
 Sunstone.addMainTab("agg_templates_tab",templates_tab);
+Sunstone.addMainTab("agg_images_tab",images_tab);
+Sunstone.addMainTab("agg_clusters_tab",clusters_tab);
+Sunstone.addMainTab("agg_hosts_tab",hosts_tab);
+Sunstone.addMainTab("agg_datastores_tab",datastores_tab);
+Sunstone.addMainTab("agg_vns_tab",vns_tab);
+
 
 
 function hostsListCB(req,list){
@@ -499,7 +624,39 @@ function templatesListCB(req,list){
     });
 
     updateZonesDashboard("templates",total_templates);
-}
+};
+
+function clustersListCB(req,list){
+    dataTable_agg_clusters.fnClearTable();
+    var total = [];
+    $.each(list,function(){
+        if (this.ZONE.error){
+            notifyError(this.ZONE.error.message);
+            return;
+        };
+        var json = oZones.Helper.pool("CLUSTER",this.ZONE);
+        total = total.concat(json);
+        updateClustersList(req,json,'#datatable_agg_clusters',this.ZONE.ID,this.ZONE.NAME);
+    });
+
+    updateZonesDashboard("clusters",total);
+};
+
+function datastoresListCB(req,list){
+    dataTable_agg_datastores.fnClearTable();
+    var total = [];
+    $.each(list,function(){
+        if (this.ZONE.error){
+            notifyError(this.ZONE.error.message);
+            return;
+        };
+        var json = oZones.Helper.pool("DATASTORE",this.ZONE);
+        total = total.concat(json);
+        updateDatastoresList(req,json,'#datatable_agg_datastores',this.ZONE.ID,this.ZONE.NAME);
+    });
+
+    updateZonesDashboard("datastores",total);
+};
 
 function setAutorefreshes(){
     setInterval(function(){
@@ -543,6 +700,20 @@ function setAutorefreshes(){
             Sunstone.runAction("ZoneTemplates.autorefresh");
         };
     },INTERVAL+someTime());
+
+    setInterval(function(){
+        var filter = $('#datatable_agg_clusters_filter input').attr("value");
+        if (!filter.length){
+            Sunstone.runAction("ZoneClusters.autorefresh");
+        };
+    },INTERVAL+someTime());
+
+    setInterval(function(){
+        var filter = $('#datatable_agg_datastores_filter input').attr("value");
+        if (!filter.length){
+            Sunstone.runAction("ZoneDatastores.autorefresh");
+        };
+    },INTERVAL+someTime());
 }
 
 $(document).ready(function(){
@@ -556,10 +727,10 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [4,7] },
+            { "sWidth": "60px", "aTargets": [5,8] },
             { "sWidth": "35px", "aTargets": [0,2] },
-            { "sWidth": "160px", "aTargets": [5,6] },
-            { "sWidth": "100px", "aTargets": [1] }
+            { "sWidth": "160px", "aTargets": [6,7] },
+            { "sWidth": "100px", "aTargets": [1,4] }
         ]
     });
 
@@ -581,9 +752,9 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [6,7,8] },
+            { "sWidth": "60px", "aTargets": [7,8,9] },
             { "sWidth": "35px", "aTargets": [0,2] },
-            { "sWidth": "100px", "aTargets": [1,3,4] }
+            { "sWidth": "100px", "aTargets": [1,3,4,6] }
         ]
     });
 
@@ -621,12 +792,36 @@ $(document).ready(function(){
         ]
     });
 
+    dataTable_agg_clusters = $('#datatable_agg_clusters').dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sPaginationType": "full_numbers",
+        "bAutoWidth":false,
+        "aoColumnDefs": [
+            { "sWidth": "35px", "aTargets": [0,2] },
+            { "sWidth": "100px", "aTargets": [1] }
+        ]
+    });
+
+    dataTable_agg_datastores = $('#datatable_agg_datastores').dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sPaginationType": "full_numbers",
+        "bAutoWidth":false,
+        "aoColumnDefs": [
+            { "sWidth": "35px", "aTargets": [0,2] },
+            { "sWidth": "100px", "aTargets": [1,3,4,6] }
+        ]
+    });
+
     Sunstone.runAction("ZoneHosts.list");
     Sunstone.runAction("ZoneVMs.list");
     Sunstone.runAction("ZoneVNs.list");
     Sunstone.runAction("ZoneImages.list");
     Sunstone.runAction("ZoneUsers.list");
     Sunstone.runAction("ZoneTemplates.list");
+    Sunstone.runAction("ZoneClusters.list");
+    Sunstone.runAction("ZoneDatastores.list");
 
     setAutorefreshes();
 });
