@@ -747,6 +747,9 @@ function setupTemplateUpdateDialog(){
             return false;
         };
 
+        //Workaround so deletion of templates is allowed.
+        if (!new_template) new_template=" ";
+
         var resource = $(this).val();
         Sunstone.runAction(resource+".update",id,new_template);
         dialog.dialog('close');
