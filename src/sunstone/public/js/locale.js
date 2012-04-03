@@ -58,10 +58,14 @@ function setLang(lang_str){
                 id: uid,
                 extra_param: template_str
             },
-            error: onError
+            error: onError,
+            success: function() {
+                $.post('config',JSON.stringify({lang:lang_tmp}),function(){
+                    window.location.href = ".";
+                });
+            },
         };
         OpenNebula.User.update(obj);
-        $.post('config',JSON.stringify({lang:lang_tmp}),function(){window.location.href = "."});
 
     };
 
