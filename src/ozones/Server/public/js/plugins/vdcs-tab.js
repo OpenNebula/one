@@ -25,7 +25,10 @@ var vdcs_tab_content =
       <th>ID</th>\
       <th>Name</th>\
       <th>Zone ID</th>\
+      <th>Cluster ID</th>\
       <th>Hosts</th>\
+      <th>Virtual Networks</th>\
+      <th>Datastores</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvdcs">\
@@ -47,17 +50,34 @@ var create_vdc_tmpl =
         <select id="zoneid" name="zone">\
         </select><br />\
         <div class="clear"></div>\
-        <label for="vdc_force_hosts">VDC host sharing:</label>\
-        <input type="checkbox" name="vdc_force_hosts" id="vdc_force_hosts" />\
-        <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear greyed-out in the lists.</div>\
+        <label for="clusterid">Cluster:</label>\
+        <select id="clusterid">\
+        </select><br />\
+        <label for="vdc_force_hosts">VDC resource sharing:</label>\
+        <input type="checkbox" name="vdc_force" id="vdc_force" />\
+        <div class="tip">Allows hosts, Vnets, datastores belonging to other VDCs to be re-added to this one. They will appear greyed-out in the lists.</div>\
         <div class="clear"></div>\
+        <label>Add resources:</label>\
         <label style="margin-left:265px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
         <label style="margin-left:243px;font-size:0.8em;color:#bbbbbb">Available / Selected</label><br />\
         <div class="clear"></div>\
-        <label>Hosts:</label>\
-        <div id="vdc_hosts_lists" class="dd_lists" style="width:250px">\
-          <ul id="vdc_available_hosts_list" class="dd_list dd_left" style="width:115px"></ul>\
-          <ul id="vdc_selected_hosts_list" class="dd_list dd_right" style="width:115px"></ul>\
+        <label><a href="#" class="vdc_show_hide">Hosts<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <div id="vdc_hosts_lists" class="dd_lists">\
+          <ul id="vdc_available_hosts_list" class="dd_list dd_left"></ul>\
+          <ul id="vdc_selected_hosts_list" class="dd_list dd_right"></ul>\
+        </div>\
+        <div class="clear"></div>\
+        <label><a href="#" class="vdc_show_hide">Virtual Networks<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <div id="vdc_vnets_lists" class="dd_lists">\
+          <ul id="vdc_available_vnets_list" class="dd_list dd_left"></ul>\
+          <ul id="vdc_selected_vnets_list" class="dd_list dd_right"></ul>\
+        </div>\
+        <div class="clear"></div>\
+        <label><a href="#" class="vdc_show_hide">Datastores<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <div id="vdc_datastores_lists" class="dd_lists">\
+          <ul id="vdc_available_datastores_list" class="dd_list dd_left"></ul>\
+          <ul id="vdc_selected_datastores_list" class="dd_list dd_right"></ul>\
+        </div>\
      </div>\
    </fieldset>\
    <fieldset>\
@@ -72,20 +92,33 @@ var update_vdc_tmpl =
 '<form id="update_vdc_form" action="">\
   <fieldset>\
      <div>\
-        <label for="vdc_update_id">Update hosts in:</label>\
+        <label for="vdc_update_id">Update resources in:</label>\
         <select name="vdc_update_id" id="vdc_update_id">\
         </select>\
         <div class="clear"></div>\
-        <label for="vdc_update_force_hosts">VDC host sharing:</label>\
-        <input type="checkbox" name="vdc_update_force_hosts" id="vdc_update_force_hosts" />\
-        <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear greyed-out in the list.</div>\
+        <label for="vdc_update_force">VDC resource sharing:</label>\
+        <input type="checkbox" name="vdc_update_force" id="vdc_update_force" />\
+        <div class="tip">Allows hosts, Vnets belonging to other VDCs to be re-added to this one. They will appear greyed-out in the list.</div>\
         <div class="clear"></div>\
-        <label style="margin-left:205px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
-        <label style="margin-left:195px;font-size:0.8em;color:#bbbbbb">Available / Current</label>\
-        <label>Hosts:</label>\
+        <label style="margin-left:265px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
+        <label style="margin-left:243px;font-size:0.8em;color:#bbbbbb">Available / Current</label>\
+        <label><a href="#" class="vdc_show_hide">Hosts<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
         <div id="vdc_update_hosts_lists" class="dd_lists">\
           <ul id="vdc_update_available_hosts_list" class="dd_list dd_left"></ul>\
           <ul id="vdc_update_selected_hosts_list" class="dd_list dd_right"></ul>\
+        </div>\
+        <div class="clear"></div>\
+        <label><a href="#" class="vdc_show_hide">Virtual Networks<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <div id="vdc_update_vnets_lists" class="dd_lists">\
+          <ul id="vdc_update_available_vnets_list" class="dd_list dd_left"></ul>\
+          <ul id="vdc_update_selected_vnets_list" class="dd_list dd_right"></ul>\
+        </div>\
+        <div class="clear"></div>\
+        <label><a href="#" class="vdc_show_hide">Datastores<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <div id="vdc_update_datastores_lists" class="dd_lists">\
+          <ul id="vdc_update_available_datastores_list" class="dd_list dd_left"></ul>\
+          <ul id="vdc_update_selected_datastores_list" class="dd_list dd_right"></ul>\
+        </div>\
      </div>\
    </fieldset>\
    <fieldset>\
@@ -178,7 +211,46 @@ var vdc_actions = {
         call: oZones.Zone.host,
         callback: fillUpdateHostList,
         error: onError
-    }
+    },
+    "VDC.zone_vnets" : {
+        type: "single",
+        call: oZones.Zone.vnet,
+        callback: fillVNetList,
+        error: onError
+    },
+    "VDC.update_zone_vnets" : {
+        type: "single",
+        call: oZones.Zone.vnet,
+        callback: fillUpdateVNetList,
+        error: onError
+    },
+    "VDC.zone_datastores" : {
+        type: "single",
+        call: oZones.Zone.datastore,
+        callback: fillDatastoreList,
+        error: onError
+    },
+    "VDC.update_zone_datastores" : {
+        type: "single",
+        call: oZones.Zone.datastore,
+        callback: fillUpdateDatastoreList,
+        error: onError
+    },
+    "VDC.zone_clusters" : {
+        type: "single",
+        call: oZones.Zone.cluster,
+        callback: function(req, list_json){
+            var options='<option value="">Please select</option>';
+            options += '<option value="-">None</option>';
+            $.each(list_json,function(){
+                options += '<option value="'+this.CLUSTER.ID+'">'+this.CLUSTER.NAME+'</option>';
+            });
+            if (options)
+            $('div#create_vdc_dialog select#clusterid').html(options);
+        },
+        error: onError
+    },
+
 };
 
 var vdc_buttons = {
@@ -194,13 +266,13 @@ var vdc_buttons = {
     },
     "VDC.update_dialog" : {
         type: "action",
-        text: "Add/Remove hosts",
+        text: "Update VDC resources",
     },
     "VDC.delete" : {
         type: "action",
         text: "Delete",
         type : "confirm",
-        tip: "Careful! This will delete the selected VDCs and associated resources"
+        tip: "Careful! This will delete the selected VDCs"
     }
 };
 
@@ -229,7 +301,10 @@ function vdcElementArray(vdc_json){
         vdc.ID,
         vdc.NAME,
         vdc.ZONES_ID,
-        vdc.HOSTS ? vdc.HOSTS : "none"
+        vdc.CLUSTER_ID,
+        vdc.RESOURCES.HOSTS.length ? vdc.RESOURCES.HOSTS.join() : "none",
+        vdc.RESOURCES.NETWORKS.length ? vdc.RESOURCES.NETWORKS.join() : "none",
+        vdc.RESOURCES.DATASTORES.length ? vdc.RESOURCES.DATASTORES.join() : "none",
     ];
 }
 
@@ -313,8 +388,20 @@ function updateVDCInfo(req,vdc_json){
                 <td class="value_td">'+vdc.ZONES_ID+'</td>\
             </tr>\
             <tr>\
+                <td class="key_td">Cluster ID</td>\
+                <td class="value_td">'+vdc.CLUSTER_ID+'</td>\
+            </tr>\
+            <tr>\
                 <td class="key_td">Hosts</td>\
-                <td class="value_td">'+(vdc.HOSTS? vdc.HOSTS : "none")+'</td>\
+                <td class="value_td">'+(vdc.RESOURCES.HOSTS.length? vdc.RESOURCES.HOSTS.join() : "none")+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">Virtual Networks</td>\
+                <td class="value_td">'+(vdc.RESOURCES.NETWORKS.length? vdc.RESOURCES.NETWORKS.join() : "none")+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">Datastores</td>\
+                <td class="value_td">'+(vdc.RESOURCES.DATASTORES.length? vdc.RESOURCES.DATASTORES.join() : "none")+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Admin name</td>\
@@ -326,7 +413,7 @@ function updateVDCInfo(req,vdc_json){
             </tr>\
             <tr>\
                 <td class="key_td">ACLs</td>\
-                <td class="value_td">'+vdc.ACLS+'</td>\
+                <td class="value_td">'+(vdc.RESOURCES.ACLS.length ? vdc.RESOURCES.ACLS.join() : "none") +'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Sunstone public link</td>\
@@ -350,89 +437,140 @@ function updateVDCInfo(req,vdc_json){
     setTimeout(function(){
         $('#vdc_info_panel input#one_xmlrpc').select();
     }, 700);
-}
+};
 
-function fillHostList(req, host_list_json){
+function inCluster(resCluster, selCluster){
+    if (selCluster == "-")//cluster none
+        return resCluster == "-1";
+    else return resCluster == selCluster;
+};
+
+function fillList(res, req, list_json){
     var list = "";
-    var force = $('div#create_vdc_dialog #vdc_force_hosts:checked').length ?
-        true : false;
+    var dialog = $('div#create_vdc_dialog');
+    var force =  $('#vdc_force',dialog).is(':checked');
+    var cluster = $('select#clusterid',dialog).val();
     var zone_id = req.request.data[0];
     var free;
 
-    $.each(host_list_json,function(){
-        free = isHostFree(this.HOST.ID,zone_id);
+    $.each(list_json,function(){
+        var id = this[res.toUpperCase()].ID;
+        var name = this[res.toUpperCase()].NAME;
+        if (!inCluster(this[res.toUpperCase()].CLUSTER_ID,cluster))
+            return true; //continue
+        free = isResourceFree(res,id,zone_id);
 
         if (force || free){
-            list+='<li host_id="'+this.HOST.ID+'">'+(free? this.HOST.NAME : '<span style="color:Grey;">'+this.HOST.NAME+'</span>')+'</li>';
-        }
+            list+='<li '+res+'_id="'+id+'">'+(free ? name : '<span style="color:Grey;">'+name+'</span>')+'</li>';
+        };
     });
-    $('div#create_vdc_dialog #vdc_available_hosts_list').html(list);
-}
+    $('#vdc_available_'+res+'s_list',dialog).html(list);
+};
 
-//return the array of hosts
-function isHostMine(host_id,vdc_id){
+function fillHostList(req, list_json){
+    fillList("host",req,list_json);
+};
+
+function fillVNetList(req, list_json){
+    fillList("vnet",req,list_json);
+};
+
+function fillDatastoreList(req, list_json){
+    fillList("datastore",req,list_json);
+};
+
+//returns if resource with id is from a certain VDC
+function isResourceMine(resource,id,vdc_id){
+    var column;
+    switch (resource){
+        case "host": column = 5; break;
+        case "vnet" : column = 6; break;
+        case "datastore" : column = 7; break;
+        default: return false;
+    };
+
     //locate myself
     var vdcs = dataTable_vdcs.fnGetData();
-    var my_hosts=null;
+    var my_resources=[];
     for (var i=0; i < vdcs.length; i++){
         if (vdcs[i][1]==vdc_id){
-            my_hosts = vdcs[i][4].split(',');
+            if (vdcs[i][column] != "none")
+                my_resources = vdcs[i][column].split(',');
             break;
-        }
+        };
     };
-    if (!my_hosts) return false;
-    return $.inArray(host_id,my_hosts) >= 0;
-}
+    return $.inArray(id,my_resources) >= 0;
+};
 
-function fillUpdateHostList(req, host_list_json){
+function fillUpdateList(res, req, list_json){
     var list = "";
     var list_mine = "";
     var vdc_id = $('#vdc_update_id',$update_vdc_dialog).val();
-    var force = $('#vdc_update_force_hosts:checked',$update_vdc_dialog).length ?
-        true : false;
+    var force = $('#vdc_update_force',$update_vdc_dialog).is(':checked');
+    var cluster = dataTable_vdcs.fnGetData($('#vdc_'+vdc_id, dataTable_vdcs.fnGetNodes()).parents('tr')[0])[4];
 
     var zone_id = req.request.data[0];
     var free,li;
 
-    $.each(host_list_json,function(){
+    $.each(list_json,function(){
         //if mine, put in mine_list
-        if (isHostMine(this.HOST.ID,vdc_id)){
-            list_mine+='<li host_id="'+this.HOST.ID+'">'+this.HOST.NAME+'</li>';
+        var id = this[res.toUpperCase()].ID;
+        var name = this[res.toUpperCase()].NAME;
+        if (!inCluster(this[res.toUpperCase()].CLUSTER_ID,cluster))
             return true; //continue
-        }
+
+        if (isResourceMine(res,id,vdc_id)){
+            list_mine+='<li '+res+'_id="'+id+'">'+name+'</li>';
+            return true; //continue
+        };
         //otherwise, check if its free etc...
-        free = isHostFree(this.HOST.ID,zone_id);
+        free = isResourceFree(res,id,zone_id);
 
         if (force || free){
-            list+='<li host_id="'+this.HOST.ID+'">'+(free? this.HOST.NAME : '<span style="color:Grey;">'+this.HOST.NAME+'</span>')+'</li>';
+            list+='<li '+res+'_id="'+id+'">'+(free? name : '<span style="color:Grey;">'+name+'</span>')+'</li>';
         }
     });
 
+    $('#vdc_update_available_'+res+'s_list', $update_vdc_dialog).html(list);
+    $('#vdc_update_selected_'+res+'s_list', $update_vdc_dialog).html(list_mine);
+};
 
+function fillUpdateHostList(req, list_json){
+    fillUpdateList("host", req, list_json);
+};
+function fillUpdateVNetList(req, list_json){
+    fillUpdateList("vnet", req, list_json);
+};
+function fillUpdateDatastoreList(req, list_json){
+    fillUpdateList("datastore", req, list_json);
+};
 
-    $('#vdc_update_available_hosts_list',$update_vdc_dialog).html(list);
-    $('#vdc_update_selected_hosts_list',$update_vdc_dialog).html(list_mine);
-
-}
-
-function isHostFree(id,zone_id){//strings
+function isResourceFree(res, id, zone_id){//id, zone_id strings
+    var column;
+    switch (res){
+        case "host": column = 5; break;
+        case "vnet": column = 6; break;
+        case "datastore": column = 7; break;
+    };
     var data = dataTable_vdcs.fnGetData();
     var result = true;
-    var hosts;
+    var resources;
     for (var i=0; i<data.length; i++){
         //this vdc is not in the interesting zone:
         if (data[i][3] != zone_id) continue;
 
         //note it is an array of strings
-        hosts = data[i][4].split(',');
+        resources = [];
+        if (data[i][column] != "none")
+            resources = data[i][column].split(',');
 
-        if ($.inArray(id,hosts) >= 0){
+        if ($.inArray(id,resources) >= 0){
             result = false;
             break;
-        }
-    }
+        };
+    };
     return result;
-}
+};
 
 function setupCreateVDCDialog(){
     $('div#dialogs').append('<div title="Create VDC" id="create_vdc_dialog"></div>');
@@ -448,6 +586,12 @@ function setupCreateVDCDialog(){
         width: 500
     });
 
+    $('div#vdc_hosts_lists,div#vdc_vnets_lists,div#vdc_datastores_lists',dialog).hide();
+    $('.vdc_show_hide',dialog).click(function(){
+        $('span',this).toggleClass('ui-icon-triangle-1-s ui-icon-triangle-1-n');
+        $(this).parent().next().toggle();
+    });
+
     $('button',dialog).button();
     $('#vdc_available_hosts_list',dialog).sortable({
         connectWith : '#vdc_selected_hosts_list',
@@ -457,58 +601,118 @@ function setupCreateVDCDialog(){
         connectWith : '#vdc_available_hosts_list',
         containment: dialog
     });
+    $('#vdc_available_vnets_list',dialog).sortable({
+        connectWith : '#vdc_selected_vnets_list',
+        containment: dialog
+    });
+    $('#vdc_selected_vnets_list',dialog).sortable({
+        connectWith : '#vdc_available_vnets_list',
+        containment: dialog
+    });
+    $('#vdc_available_datastores_list',dialog).sortable({
+        connectWith : '#vdc_selected_datastores_list',
+        containment: dialog
+    });
+    $('#vdc_selected_datastores_list',dialog).sortable({
+        connectWith : '#vdc_available_datastores_list',
+        containment: dialog
+    });
 
-    $('input#vdc_force_hosts',dialog).change(function(){
-        select = $('select#zoneid',$('#create_vdc_dialog'));
+    $('input#vdc_force',dialog).change(function(){
+        select = $('div#create_vdc_dialog select#clusterid');
         if (select.val().length){
             select.trigger("change");
-        }
+        };
     });
 
     //load zone hosts
-    $('select#zoneid').change(function(){
+    $('select#zoneid',dialog).change(function(){
         var id=$(this).val();
+        if (!id) {
+            $('select#clusterid').html('<option value="">Select zone</option>');
+            $('select#clusterid').trigger('change');
+            return true;
+        };
+        $('select#clusterid').html('<option value="">Loading...</option>');
+        $('select#clusterid').trigger('change');
+        Sunstone.runAction("VDC.zone_clusters",id);
+    });
+
+    $('select#clusterid',dialog).change(function(){
+        var context = $('div#create_vdc_dialog');
+        var id=$('select#zoneid',context).val();
+        var clusterid=$(this).val();
         var av_hosts=
-            $('div#create_vdc_dialog #vdc_available_hosts_list');
+            $('#vdc_available_hosts_list', context);
         var sel_hosts=
-            $('div#create_vdc_dialog #vdc_selected_hosts_list');
-        if (!id.length){
+            $('#vdc_selected_hosts_list', context);
+        var av_vnets=
+            $('#vdc_available_vnets_list', context);
+        var sel_vnets=
+            $('#vdc_selected_vnets_list', context);
+        var av_datastores=
+            $('#vdc_available_datastores_list', context);
+        var sel_datastores=
+            $('#vdc_selected_datastores_list', context);
+
+        if (!clusterid){
             av_hosts.empty();
             sel_hosts.empty();
+            av_vnets.empty();
+            sel_vnets.empty();
+            av_datastores.empty();
+            sel_datastores.empty();
             return true;
         }
         av_hosts.html('<li>'+spinner+'</li>');
+        av_vnets.html('<li>'+spinner+'</li>');
+        av_datastores.html('<li>'+spinner+'</li>');
         sel_hosts.empty();
+        sel_vnets.empty();
+        sel_datastores.empty();
         Sunstone.runAction("VDC.zone_hosts",id);
+        Sunstone.runAction("VDC.zone_vnets",id);
+        Sunstone.runAction("VDC.zone_datastores",id);
     });
 
     $('#create_vdc_form', dialog).submit(function(){
-        var name = $('#name',$(this)).val();
-        var vdcadminname = $('#vdcadminname',$(this)).val();
-        var vdcadminpass = $('#vdcadminpass',$(this)).val();
-        var zoneid = $('select#zoneid',$(this)).val();
-        var force = $('#vdc_force_hosts:checked',$(this)).length ? "yes" : "please no";
-        if (!name.length || !vdcadminname.length
-            || !vdcadminpass.length || !zoneid.length){
-            notifyError("Name, administrator credentials or zone are missing");
+        var name = $('#name',this).val();
+        var vdcadminname = $('#vdcadminname',this).val();
+        var vdcadminpass = $('#vdcadminpass',this).val();
+        var zoneid = $('select#zoneid',this).val();
+        var clusterid = $('select#clusterid',this).val();
+        var force = $('#vdc_force',this).is(':checked') ? "yes" : "please no";
+        if (!name || !vdcadminname
+            || !vdcadminpass || !zoneid || !clusterid){
+            notifyError("Name, administrator, credentials, zone and cluster are mandatory parameters");
             return false;
         }
-        var hosts="";
+        var hosts=[];
         $('#vdc_selected_hosts_list li',$(this)).each(function(){
-            hosts+=$(this).attr("host_id")+',';
+            hosts.push($(this).attr("host_id"));
         });
-        if (hosts.length){
-            hosts= hosts.slice(0,-1);
-        };
+        var vnets=[];
+        $('#vdc_selected_vnets_list li',$(this)).each(function(){
+            vnets.push($(this).attr("vnet_id"));
+        });
+        var datastores=[];
+        $('#vdc_selected_datastores_list li',$(this)).each(function(){
+            datastores.push($(this).attr("datastore_id"));
+        });
 
         var vdc_json = {
             "VDC" : {
                 "NAME" : name,
-                "ZONEID" : zoneid,
+                "ZONE_ID" : zoneid,
                 "VDCADMINNAME" : vdcadminname,
                 "VDCADMINPASS" : vdcadminpass,
                 "FORCE" : force,
-                "HOSTS" : hosts
+                "CLUSTER_ID" : clusterid,
+                "RESOURCES" : {
+                    "HOSTS" : hosts,
+                    "DATASTORES" : datastores,
+                    "NETWORKS" : vnets,
+                },
             }
         };
 
@@ -516,7 +720,7 @@ function setupCreateVDCDialog(){
         dialog.dialog('close');
         return false;
     });
-}
+};
 
 function openCreateVDCDialog(){
     var dialog = $('div#create_vdc_dialog')
@@ -526,8 +730,6 @@ function openCreateVDCDialog(){
     };
     $('select#zoneid',dialog).html(zones_select);
     $('select#zoneid',dialog).trigger("change");
-    $('#vdc_available_hosts_list',dialog).empty();
-    $('#vdc_selected_hosts_list',dialog).empty();
     dialog.dialog('open');
 }
 
@@ -539,7 +741,13 @@ function setupUpdateVDCDialog(){
     dialog.dialog({
         autoOpen: false,
         modal: true,
-        width: 420
+        width: 500
+    });
+
+    $('div#vdc_update_hosts_lists,div#vdc_update_vnets_lists,div#vdc_update_datastores_lists',dialog).hide();
+    $('.vdc_show_hide',dialog).click(function(){
+        $('span',this).toggleClass('ui-icon-triangle-1-s ui-icon-triangle-1-n');
+        $(this).parent().next().toggle();
     });
 
     $('button',dialog).button();
@@ -551,8 +759,24 @@ function setupUpdateVDCDialog(){
         connectWith : '#vdc_update_available_hosts_list',
         containment: dialog
     });
+    $('#vdc_update_available_vnets_list',dialog).sortable({
+        connectWith : '#vdc_update_selected_vnets_list',
+        containment: dialog
+    });
+    $('#vdc_update_selected_vnets_list',dialog).sortable({
+        connectWith : '#vdc_update_available_vnets_list',
+        containment: dialog
+    });
+    $('#vdc_update_available_datastores_list',dialog).sortable({
+        connectWith : '#vdc_update_selected_datastores_list',
+        containment: dialog
+    });
+    $('#vdc_update_selected_datastores_list',dialog).sortable({
+        connectWith : '#vdc_update_available_datastores_list',
+        containment: dialog
+    });
 
-    $('#vdc_update_force_hosts',dialog).change(function(){
+    $('#vdc_update_force',dialog).change(function(){
         select = $('select#vdc_update_id',$update_vdc_dialog);
         if (select.val().length){
             select.trigger("change");
@@ -566,10 +790,22 @@ function setupUpdateVDCDialog(){
             $('#vdc_update_available_hosts_list',$update_vdc_dialog);
         var sel_hosts=
             $('#vdc_update_selected_hosts_list',$update_vdc_dialog);
+        var av_vnets=
+            $('#vdc_update_available_vnets_list',$update_vdc_dialog);
+        var sel_vnets=
+            $('#vdc_update_selected_vnets_list',$update_vdc_dialog);
+        var av_datastores=
+            $('#vdc_update_available_datastores_list',$update_vdc_dialog);
+        var sel_datastores=
+            $('#vdc_update_selected_datastores_list',$update_vdc_dialog);
 
-        if (!id || !id.length) {
+        if (!id) {
             av_hosts.empty();
             sel_hosts.empty();
+            av_vnets.empty();
+            sel_vnets.empty();
+            av_datastores.empty();
+            sel_datastores.empty();
             return true;
         };
         //A VDC has been selected
@@ -577,32 +813,44 @@ function setupUpdateVDCDialog(){
         //move current hosts to current
         av_hosts.html('<li>'+spinner+'</li>');
         sel_hosts.empty();
+        av_vnets.html('<li>'+spinner+'</li>');
+        sel_vnets.empty();
+        av_datastores.html('<li>'+spinner+'</li>');
+        sel_datastores.empty();
         Sunstone.runAction("VDC.update_zone_hosts",zone_id);
+        Sunstone.runAction("VDC.update_zone_vnets",zone_id);
+        Sunstone.runAction("VDC.update_zone_datastores",zone_id);
     });
 
     $('#update_vdc_form').submit(function(){
-        var force = $('#vdc_update_force_hosts',this).length ? "yes" : "nein";
+        var force = $('#vdc_update_force',this).length ? "yes" : "nein";
         var id =  $('#vdc_update_id',this).val();
 
-        var hosts="";
+        var hosts=[];
         $('#vdc_update_selected_hosts_list li',this).each(function(){
-            hosts+=$(this).attr("host_id")+',';
+            hosts.push($(this).attr("host_id"));
         });
-        if (hosts.length){
-            hosts= hosts.slice(0,-1);
-        };
+        var vnets=[];
+        $('#vdc_update_selected_vnets_list li',this).each(function(){
+            vnets.push($(this).attr("vnet_id"));
+        });
+        var datastores=[];
+        $('#vdc_update_selected_datastores_list li',this).each(function(){
+            datastores.push($(this).attr("datastore_id"));
+        });
 
         var vdc_json = {
             "VDC" : {
                 "ID": id,
                 "FORCE": force,
-                "HOSTS": ""
-            }
+                "RESOURCES": {
+                    "HOSTS": hosts,
+                    "NETWORKS": vnets,
+                    "DATASTORES": datastores,
+                }
+            },
         };
 
-        if (hosts.length){
-            vdc_json["VDC"]["HOSTS"]=hosts;
-        };
         Sunstone.runAction("VDC.update",id,vdc_json);
         dialog.dialog('close');
         return false;
@@ -630,6 +878,10 @@ function openUpdateVDCDialog(){
 
     $('#vdc_update_available_hosts_list',dialog).empty();
     $('#vdc_update_selected_hosts_list',dialog).empty();
+    $('#vdc_update_available_vnets_list',dialog).empty();
+    $('#vdc_update_selected_vnets_list',dialog).empty();
+    $('#vdc_update_available_datastores_list',dialog).empty();
+    $('#vdc_update_selected_datastores_list',dialog).empty();
 
     $('select#vdc_update_id',dialog).html(options);
     if (selected_elems.length == 1){
@@ -663,13 +915,13 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "150px", "aTargets": [4] },
-            { "sWidth": "35px", "aTargets": [1,3] }
+            { "sWidth": "150px", "aTargets": [5,6,7] },
+            { "sWidth": "35px", "aTargets": [1,3,4] }
         ]
     });
 
     dataTable_vdcs.fnClearTable();
-    addElement([spinner,'','','',''],dataTable_vdcs);
+    addElement([spinner,'','','','','','',''],dataTable_vdcs);
     Sunstone.runAction("VDC.list");
 
     setupCreateVDCDialog();

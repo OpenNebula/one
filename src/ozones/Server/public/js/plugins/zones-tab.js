@@ -178,7 +178,23 @@ var zone_actions = {
             updateUsersList(req,user_json,'#datatable_zone_users');
         },
         error: onError
-    }
+    },
+    "Zone.cluster" : {
+        type: "single",
+        call: oZones.Zone.cluster,
+        callback: function(req,json){
+            updateClustersList(req,json,'#datatable_zone_clusters');
+        },
+        error: onError
+    },
+    "Zone.datastore" : {
+        type: "single",
+        call: oZones.Zone.datastore,
+        callback: function(req,json){
+            updateDatastoresList(req,json,'#datatable_zone_datastores');
+        },
+        error: onError
+    },
 }
 
 var zone_buttons = {
@@ -210,26 +226,38 @@ var zone_info_panel = {
         title : "Zone Information",
         content : ""
     },
-    "zone_hosts_tab" : {
-        title : "Hosts",
-        content : ""
-    },
-    "zone_templates_tab" : {
-        title : "Templates",
+    "zone_users_tab" : {
+        title : "Users",
         content : ""
     },
     "zone_vms_tab" : {
         title : "Virtual Machines",
         content : ""
     },
-    "zone_vnets_tab" : {
-        title : "Virtual Networks",
+    "zone_templates_tab" : {
+        title : "Templates",
         content : ""
     },
     "zone_images_tab" : {
         title : "Images",
         content : ""
-    }
+    },
+    "zone_clusters_tab" : {
+        title : "Clusters",
+        content : ""
+    },
+    "zone_hosts_tab" : {
+        title : "Hosts",
+        content : ""
+    },
+    "zone_datastores_tab" : {
+        title : "Datastores",
+        content : ""
+    },
+    "zone_vnets_tab" : {
+        title : "Virtual Networks",
+        content : ""
+    },
 };
 
 Sunstone.addActions(zone_actions);
@@ -339,6 +367,7 @@ function updateZoneInfo(req,zone_json){
     <tr>\
       <th>ID</th>\
       <th>Name</th>\
+      <th>Cluster</th>\
       <th>Running VMs</th>\
       <th>CPU Use</th>\
       <th>Memory use</th>\
@@ -384,6 +413,7 @@ function updateZoneInfo(req,zone_json){
       <th>CPU</th>\
       <th>Memory</th>\
       <th>Hostname</th>\
+      <th>IPs</th>\
       <th>Start Time</th>\
     </tr>\
   </thead>\
@@ -403,6 +433,7 @@ function updateZoneInfo(req,zone_json){
       <th>Owner</th>\
       <th>Group</th>\
       <th>Name</th>\
+      <th>Cluster</th>\
       <th>Type</th>\
       <th>Bridge</th>\
       <th>Total Leases</th>\
@@ -453,6 +484,43 @@ function updateZoneInfo(req,zone_json){
 </div>'
     };
 
+    var clusters_tab = {
+        title: "Clusters",
+        content:
+'<div style="padding: 10px 10px;">\
+<table id="datatable_zone_clusters" class="display">\
+  <thead>\
+    <tr>\
+      <th>ID</th>\
+      <th>Name</th>\
+    </tr>\
+  </thead>\
+  <tbody>\
+  </tbody>\
+</table>\
+</div>'
+    };
+
+    var datastores_tab = {
+        title: "Datastores",
+        content:
+'<div style="padding: 10px 10px;">\
+<table id="datatable_zone_datastores" class="display">\
+  <thead>\
+    <tr>\
+      <th>ID</th>\
+      <th>Owner</th>\
+      <th>Group</th>\
+      <th>Name</th>\
+      <th>Cluster</th>\
+    </tr>\
+  </thead>\
+  <tbody>\
+  </tbody>\
+</table>\
+</div>'
+    };
+
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_hosts_tab",hosts_tab);
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_templates_tab",templates_tab);
@@ -460,6 +528,8 @@ function updateZoneInfo(req,zone_json){
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_vnets_tab",vnets_tab);
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_images_tab",images_tab);
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_users_tab",users_tab);
+    Sunstone.updateInfoPanelTab("zone_info_panel","zone_clusters_tab",clusters_tab);
+    Sunstone.updateInfoPanelTab("zone_info_panel","zone_datastores_tab",datastores_tab);
 
     //Pop up the info we have now.
     Sunstone.popUpInfoPanel("zone_info_panel");
@@ -472,9 +542,10 @@ function updateZoneInfo(req,zone_json){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [2,5] },
+            { "sWidth": "60px", "aTargets": [3,6] },
+            { "sWidth": "100px", "aTargets": [2] },
             { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "200px", "aTargets": [3,4] }
+            { "sWidth": "200px", "aTargets": [4,5] }
         ]
     });
 
@@ -497,9 +568,9 @@ function updateZoneInfo(req,zone_json){
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [4,5,6] },
+            { "sWidth": "60px", "aTargets": [5,6,7] },
             { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [1,2] }
+            { "sWidth": "100px", "aTargets": [1,2,4] }
         ]
     });
 
@@ -536,6 +607,26 @@ function updateZoneInfo(req,zone_json){
         ]
     });
 
+    $('#datatable_zone_clusters').dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "sWidth": "35px", "aTargets": [0] },
+        ]
+    });
+
+    $('#datatable_zone_datastores').dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "sWidth": "35px", "aTargets": [0] },
+            { "sWidth": "100px", "aTargets": [1,2,4] }
+        ]
+    });
 
     /*End init dataTables*/
 
@@ -546,6 +637,8 @@ function updateZoneInfo(req,zone_json){
     Sunstone.runAction("Zone.vnet",zone.ID);
     Sunstone.runAction("Zone.image",zone.ID);
     Sunstone.runAction("Zone.user",zone.ID);
+    Sunstone.runAction("Zone.cluster",zone.ID);
+    Sunstone.runAction("Zone.datastore",zone.ID);
 }
 
 
