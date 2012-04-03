@@ -55,7 +55,38 @@ var dashboard_tab_content =
  <tr>\
     <td>\
       <div class="panel">\
-        <h3><a href="#aggregated_hosts_tab">Hosts</a>\
+        <h3><a href="#agg_clusters_tab">Clusters</a>\
+        </h3>\
+        <div class="panel_info">\
+            <table class="info_table">\
+                <tr>\
+                    <td class="key_td">Total</td>\
+                    <td class="value_td"><span id="total_clusters"></span></td>\
+                </tr>\
+            </table>\
+        </div>\
+      </div>\
+    </td>\
+    <td>\
+      <div class="panel">\
+        <h3><a href="#agg_datastores_tab">Datastores</a>\
+        </h3>\
+        <div class="panel_info">\
+            <table class="info_table">\
+                <tr>\
+                    <td class="key_td">Total</td>\
+                    <td class="value_td"><span id="total_datastores"></span></td>\
+                </tr>\
+            </table>\
+        </div>\
+      </div>\
+      </div>\
+    </td>\
+  </tr>\
+ <tr>\
+    <td>\
+      <div class="panel">\
+        <h3><a href="#agg_hosts_tab">Hosts</a>\
         </h3>\
         <div class="panel_info">\
             <table class="info_table">\
@@ -130,7 +161,7 @@ var dashboard_tab_content =
     <td>\
       <div class="panel">\
         <h3>\
-            <a href="#images_tab">Images</a>\
+            <a href="#agg_images_tab">Images</a>\
         </h3>\
         <div class="panel_info">\
             <table class="info_table">\
@@ -144,7 +175,7 @@ var dashboard_tab_content =
     </td>\
     <td class="oneadmin">\
       <div class="panel">\
-       <h3><a href="#users_tab">Users</a>\
+       <h3><a href="#agg_users_tab">Users</a>\
         </h3>\
         <div class="panel_info">\
             <table class="info_table">\
@@ -238,5 +269,13 @@ function updateZonesDashboard(what,json_info){
         var total_images=json_info.length;
         $('#total_images',db).html(total_images);
         break;
-    }
-}
+    case "clusters":
+        var total_clusters=json_info.length;
+        $('#total_clusters',db).html(total_clusters);
+        break;
+    case "datastores":
+        var total_datastores=json_info.length;
+        $('#total_datastores',db).html(total_datastores);
+        break;
+    };
+};
