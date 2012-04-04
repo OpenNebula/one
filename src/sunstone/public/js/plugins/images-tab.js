@@ -415,7 +415,7 @@ var image_actions = {
         type: "single",
         call: OpenNebula.Image.chtype,
         callback: function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0]);
+            Sunstone.runAction("Image.show",req.request.data[0][0]);
         },
         elements: imageElements,
         error: onError,
@@ -804,6 +804,7 @@ function setupCreateImageDialog(){
         action: 'upload',
         multiple: false,
         params: {},
+        sizeLimit: 0,
         showMessage: function(message){
             //notifyMessage(message);
         },
@@ -813,7 +814,7 @@ function setupCreateImageDialog(){
                 file: fileName
             });
             var pos_top = $(window).height() - 120;
-            var pos_left = 140;
+            var pos_left = 190;
             var pb_dialog = $('<div id="pb_dialog" title="'+
                               tr("Uploading...")+'">'+
                               '<div id="upload-progress"></div>'+

@@ -839,7 +839,7 @@ function templateElements(){
 
 //Runs a show action on the template with from a prev request
 function templateShow(req){
-    Sunstone.runAction("Template.show",req.request.data[0]);
+    Sunstone.runAction("Template.show",req.request.data[0][0]);
 }
 
 // Returns an array containing the values of the template_json and ready
