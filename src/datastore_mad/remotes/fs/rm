@@ -39,12 +39,26 @@ DRV_ACTION=$1
 ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
-SRC=`$XPATH /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE`
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH)
+
+SRC="${XPATH_ELEMENTS[0]}"
+BASE_PATH="${XPATH_ELEMENTS[1]}"
 
 # ------------ Remove the image from the repository ------------
 
-if [ -e $SRC ] ; then
+if [ -f "$SRC" -a `dirname "$SRC"` = "$BASE_PATH" -a -n `basename "$SRC"` ]
+then
     log "Removing $SRC from the image repository"
-    exec_and_log "rm -r $SRC" \
+
+    exec_and_log "rm -f $SRC" \
         "Error deleting $SRC"
+else
+    log_error "Bad formed or unavailable Image source: ${SRC}"
+    exit 1
 fi
