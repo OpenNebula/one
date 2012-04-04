@@ -50,9 +50,11 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
 SRC="${XPATH_ELEMENTS[0]}"
 BASE_PATH="${XPATH_ELEMENTS[1]}"
 
+BASENAME_SRC=`basename "${SRC##$BASE_PATH}"`
+
 # ------------ Remove the image from the repository ------------
 
-if [ -d "$SRC" -a `dirname "$SRC"` = "$BASE_PATH" -a -n `basename "$SRC"` ]
+if [ -d "$SRC" -a `dirname "$SRC"` = "$BASE_PATH" -a -n "$BASENAME_SRC" ]
 then
     log "Removing $SRC from the image repository"
 
