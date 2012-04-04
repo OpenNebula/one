@@ -75,7 +75,7 @@ EOF
 	IMAGE_HASH=$(echo $CANONICAL_MD5 | cut -d ' ' -f1)
 	IMAGE_HASH=$(basename "$IMAGE_HASH")
 
-	if [ -z "$IMAGE_HASH" ]; then
+	if [ -z "$IMAGE_HASH" -o -z "$BASE_PATH" ]; then
 		log_error "Error generating the path in generate_image_path."
 		exit 1
 	fi
