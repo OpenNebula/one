@@ -331,10 +331,6 @@ function datastoreElements() {
     return getSelectedNodes(dataTable_datastores);
 }
 
-function vmShow(req) {
-    Sunstone.runAction("Datastore.show",req.request.data[0]);
-}
-
 function datastoreElementArray(element_json){
     var element = element_json.DATASTORE;
 

@@ -141,7 +141,7 @@ var user_actions = {
         type: "multiple",
         call: OpenNebula.User.chgrp,
         callback : function(req){
-            Sunstone.runAction("User.show",req.request.data[0]);
+            Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements : userElements,
         error: onError,
@@ -152,7 +152,7 @@ var user_actions = {
         type: "multiple",
         call: OpenNebula.User.chauth,
         callback : function(req){
-            Sunstone.runAction("User.show",req.request.data[0]);
+            Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements: userElements,
         error: onError,

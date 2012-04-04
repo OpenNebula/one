@@ -149,14 +149,14 @@ $(document).ready(function(){
     });
 
     $('.tab_link').click(function(){
-        var to= $(this).attr('href');
-        $('.outer-west ul li.topTab a[href="'+to+'"]').trigger("click");
+        var to= $(this).attr('href').slice(1);
+        $('.outer-west ul li#li_'+to).trigger("click");
         return false;
     });
 
     $('.action_link').click(function(){
-        var to= $(this).attr('href');
-        $('.outer-west ul li.topTab a[href="'+to+'"]').trigger("click");
+        var to= $(this).attr('href').slice(1);
+        $('.outer-west ul li#li_'+to).trigger("click");
         var action = $(this).attr('action');
         Sunstone.runAction(action);
 

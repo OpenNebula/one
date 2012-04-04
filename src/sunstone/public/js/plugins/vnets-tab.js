@@ -473,7 +473,7 @@ function vnElements(){
 }
 
 function vnShow(req){
-    Sunstone.runAction("Network.show",req.request.data[0]);
+    Sunstone.runAction("Network.show",req.request.data[0][0]);
 }
 
 //returns an array with the VNET information fetched from the JSON object
