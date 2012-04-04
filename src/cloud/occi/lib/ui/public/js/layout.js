@@ -133,7 +133,7 @@ $(document).ready(function () {
         applyDefaultStyles:       false
     ,   center__paneSelector:	".outer-center"
     ,	west__paneSelector:		".outer-west"
-    ,	west__size:				133
+    ,	west__size:				160
     ,	north__size:			26
     ,   south__size:            26
     ,	spacing_open:			0 // ALL panes

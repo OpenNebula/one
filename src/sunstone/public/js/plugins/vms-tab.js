@@ -598,7 +598,7 @@ var vm_info_panel = {
         title: tr("History information"),
         content: "",
     }
-}
+};
 
 var vms_tab = {
     title: tr("Virtual Machines"),
@@ -606,7 +606,7 @@ var vms_tab = {
     buttons: vm_buttons,
     tabClass: 'subTab',
     parentTab: 'vres_tab'
-}
+};
 
 Sunstone.addActions(vm_actions);
 Sunstone.addMainTab('vms_tab',vms_tab);
@@ -615,11 +615,11 @@ Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
 
 function vmElements() {
     return getSelectedNodes(dataTable_vMachines);
-}
+};
 
 function vmShow(req) {
     Sunstone.runAction("VM.show",req.request.data[0]);
-}
+};
 
 // Returns a human readable running time for a VM
 function str_start_time(vm){
@@ -740,11 +740,12 @@ function generateHistoryTable(vm){
                    <tbody>';
 
     var history = [];
-
-    if ($.isArray(vm.HISTORY_RECORDS.HISTORY))
-        history = vm.HISTORY_RECORDS.HISTORY;
-    else if (vm.HISTORY_RECORDS.HISTORY.SEQ)
-        history = [vm.HISTORY_RECORDS.HISTORY];
+    if (vm.HISTORY_RECORDS.HISTORY){
+        if ($.isArray(vm.HISTORY_RECORDS.HISTORY))
+            history = vm.HISTORY_RECORDS.HISTORY;
+        else if (vm.HISTORY_RECORDS.HISTORY.SEQ)
+            history = [vm.HISTORY_RECORDS.HISTORY];
+    };
 
     var now = Math.round(new Date().getTime() / 1000);
 
