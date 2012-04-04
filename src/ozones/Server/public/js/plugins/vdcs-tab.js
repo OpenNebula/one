@@ -241,7 +241,6 @@ var vdc_actions = {
         call: oZones.Zone.cluster,
         callback: function(req, list_json){
             var options='<option value="">Please select</option>';
-            options += '<option value="-">None</option>';
             $.each(list_json,function(){
                 options += '<option value="'+this.CLUSTER.ID+'">'+this.CLUSTER.NAME+'</option>';
             });
@@ -440,7 +439,7 @@ function updateVDCInfo(req,vdc_json){
 };
 
 function inCluster(resCluster, selCluster){
-    if (selCluster == "-")//cluster none
+    if (selCluster == "-")//cluster none, unused
         return resCluster == "-1";
     else return resCluster == selCluster;
 };
