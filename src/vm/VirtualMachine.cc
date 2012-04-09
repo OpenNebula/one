@@ -170,7 +170,10 @@ int VirtualMachine::select(SqlDB * db)
     //--------------------------------------------------------------------------
     try
     {
-        _log = new FileLog(nd.get_vm_log_filename(oid),Log::DEBUG);
+        Log::MessageType clevel;
+
+        clevel = nd.get_debug_level();
+        _log   = new FileLog(nd.get_vm_log_filename(oid), clevel);
     }
     catch(exception &e)
     {

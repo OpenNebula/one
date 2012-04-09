@@ -185,7 +185,6 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
 ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_exec \
-          $ETC_LOCATION/tm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/auth/certificates \
@@ -227,7 +226,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/vmware \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
-          $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
@@ -392,7 +390,6 @@ INSTALL_FILES=(
     TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
-    TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
@@ -539,7 +536,6 @@ INSTALL_ETC_FILES=(
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
-    TM_LVM_ETC_FILES:$ETC_LOCATION/tm/
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
     ECO_ETC_FILES:$ETC_LOCATION
@@ -766,8 +762,9 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #   - SHARED TM, $VAR_LOCATION/tm/shared
 #   - QCOW2 TM, $VAR_LOCATION/tm/qcow2
 #   - SSH TM, $VAR_LOCATION/tm/ssh
-#   - dummy TM, $VAR_LOCATION/tm/dummy
-#   - LVM TM, $VAR_LOCATION/tm/lvm
+#   - DUMMY TM, $VAR_LOCATION/tm/dummy
+#   - VMWARE TM, $VAR_LOCATION/tm/vmware
+#   - ISCSI TM, $VAR_LOCATION/tm/iscsi
 #-------------------------------------------------------------------------------
 
 TM_FILES="src/tm_mad/tm_common.sh"
@@ -807,14 +804,6 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/mv \
               src/tm_mad/dummy/context \
               src/tm_mad/dummy/mvds"
-
-TM_LVM_FILES="src/tm_mad/lvm/clone \
-              src/tm_mad/lvm/delete \
-              src/tm_mad/lvm/ln \
-              src/tm_mad/lvm/mkswap \
-              src/tm_mad/lvm/mkimage \
-              src/tm_mad/lvm/mv \
-              src/tm_mad/lvm/context"
 
 TM_VMWARE_FILES="src/tm_mad/vmware/clone \
                  src/tm_mad/vmware/delete
@@ -869,6 +858,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/3.2.0_to_3.2.1.rb \
                       src/onedb/3.2.1_to_3.3.0.rb \
                       src/onedb/3.3.0_to_3.3.80.rb \
+                      src/onedb/3.3.80_to_3.4.0.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
@@ -904,16 +894,6 @@ VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
 
 IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
                   src/im_mad/ec2/im_ec2.conf"
-
-#-------------------------------------------------------------------------------
-# Storage drivers config. files, to be installed under $ETC_LOCATION
-#   - shared, $ETC_LOCATION/tm_shared
-#   - ssh, $ETC_LOCATION/tm_ssh
-#   - dummy, $ETC_LOCATION/tm_dummy
-#   - lvm, $ETC_LOCATION/tm_lvm
-#-------------------------------------------------------------------------------
-
-TM_LVM_ETC_FILES="src/tm_mad/lvm/lvm.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
@@ -1080,10 +1060,12 @@ OCCI_LIB_CLIENT_FILES="src/cloud/occi/lib/OCCIClient.rb"
 OCCI_BIN_FILES="src/cloud/occi/bin/occi-server \
                src/cloud/occi/bin/occi-compute \
                src/cloud/occi/bin/occi-network \
+               src/cloud/occi/bin/occi-instance-type \
                src/cloud/occi/bin/occi-storage"
 
 OCCI_BIN_CLIENT_FILES="src/cloud/occi/bin/occi-compute \
                src/cloud/occi/bin/occi-network \
+               src/cloud/occi/bin/occi-instance-type \
                src/cloud/occi/bin/occi-storage"
 
 OCCI_ETC_FILES="src/cloud/occi/etc/occi-server.conf"

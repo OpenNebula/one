@@ -14,25 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# -------------------------------------------------------------------------- #
+module Migrator
+    def db_version
+        "3.4.0"
+    end
 
-# Volume Group to create logical volumes or snapshots in the cluster nodes   # 
-VG_NAME=
+    def one_version
+        "OpenNebula 3.4.0"
+    end
 
-# Default size for logical volumes if not specified
-DEFAULT_LV_SIZE="1G"
-
-# -------------------------------------------------------------------------- #
-# Helper functions for the LVM plugin                                        #
-# -------------------------------------------------------------------------- #
-
-function get_vid {
-    echo $1 |$SED -e 's%^.*/([^/]*)/images.*$%\1%'
-}
-
-function get_lv_name {
-    VID=`get_vid $1`
-    DISK=`echo $1|$AWK -F. '{printf $NF}'`
-    echo "lv-one-$VID-$DISK"
-}
-
+    def up
+        return true
+    end
+end

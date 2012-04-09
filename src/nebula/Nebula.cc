@@ -85,18 +85,11 @@ void Nebula::start()
 
     try
     {
-        string              log_fname;
-        int                 log_level_int;
-        Log::MessageType    clevel = Log::ERROR;
+        string           log_fname;
+        Log::MessageType clevel;
 
         log_fname = log_location + "oned.log";
-
-        nebula_configuration->get("DEBUG_LEVEL", log_level_int);
-
-        if (0 <= log_level_int && log_level_int <= 3 )
-        {
-            clevel = static_cast<Log::MessageType>(log_level_int);
-        }
+        clevel    = get_debug_level();
 
         // Initializing ONE Daemon log system
 

@@ -76,25 +76,25 @@ Options:
 --debug, -D
     Enables verbosity
 
---multipart, -M
-    Use 'multipart-post' library instead of Curb/Curl
+--verbose
+    Show resources in verbose mode
 
 EOT
 
 require 'occi/OCCIClient'
-require 'CloudClient'
 require 'getoptlong'
 
 include CloudCLI
 
 opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--username',   '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--password',   '-P',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-R',GetoptLong::REQUIRED_ARGUMENT],
-            ['--timeout',    '-T',GetoptLong::REQUIRED_ARGUMENT],
-            ['--debug',      '-D',GetoptLong::NO_ARGUMENT]
+            ['--help',     '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',  '-v',GetoptLong::NO_ARGUMENT],
+            ['--username', '-U',GetoptLong::REQUIRED_ARGUMENT],
+            ['--password', '-P',GetoptLong::REQUIRED_ARGUMENT],
+            ['--url',      '-R',GetoptLong::REQUIRED_ARGUMENT],
+            ['--timeout',  '-T',GetoptLong::REQUIRED_ARGUMENT],
+            ['--debug',    '-D',GetoptLong::NO_ARGUMENT],
+            ['--verbose',       GetoptLong::NO_ARGUMENT]
         )
 
 url      = nil
@@ -103,6 +103,7 @@ password = nil
 auth     = nil
 timeout  = nil
 debug    = false
+verbose  = false
 
 begin
     opts.each do |opt, arg|
@@ -123,12 +124,13 @@ begin
                 timeout = arg
             when '--debug'
                 debug = true
+            when '--verbose'
+                verbose = true
         end
     end
 rescue Exception => e
     exit(-1)
 end 
-
 
 begin
     occi_client = OCCIClient::Client.new(url,username,password,timeout,debug)
@@ -156,7 +158,7 @@ case ARGV[0].downcase
         rc = occi_client.post_network(network_xml)
 
     when 'list'
-        rc = occi_client.get_networks
+        rc = occi_client.get_networks(verbose)
 
     when 'show'
         network_id = ARGV[1]
