@@ -74,8 +74,8 @@ module OCCIClient
         ######################################################################
         # Retieves the available Instance types
         ######################################################################
-        def get_instance_types
-            get('/instance_type')
+        def get_instance_types(verbose=false)
+            get('/instance_type', verbose)
         end
 
         ######################################################################
@@ -89,8 +89,8 @@ module OCCIClient
         ######################################################################
         # Retieves the pool of Virtual Machines
         ######################################################################
-        def get_vms
-            get('/compute')
+        def get_vms(verbose=false)
+            get('/compute', verbose)
         end
 
         ######################################################################
@@ -104,8 +104,8 @@ module OCCIClient
         ######################################################################
         # Retieves the pool of Virtual Networks
         ######################################################################
-        def get_networks
-            get('/network')
+        def get_networks(verbose=false)
+            get('/network', verbose)
         end
 
         ######################################################################
@@ -202,8 +202,8 @@ module OCCIClient
         ######################################################################
         # Retieves the pool of Images owned by the user
         ######################################################################
-        def get_images
-            get('/storage')
+        def get_images(verbose=false)
+            get('/storage', verbose)
         end
 
 
@@ -281,7 +281,8 @@ module OCCIClient
 
         private
 
-        def get(path)
+        def get(path, verbose=false)
+            path += "?verbose=true" if verbose
             url = URI.parse(@endpoint+path)
             req = Net::HTTP::Get.new(url.path)
 

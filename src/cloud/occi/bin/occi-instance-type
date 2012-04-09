@@ -29,31 +29,15 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-occi-compute - Manages compute resources
+occi-instance-type - Retrieve instance types
 
 Usage:
-    occi-compute <COMMAND> [OPTIONS] [ARGUMENTS]
+    occi-instance-type <COMMAND> [OPTIONS] 
 
 Commands:
 
-* create <occi xml file>
-       creates a new compute resource described by the provided 
-       <occi xml file>
-
 * list
-       lists available compute resources
-
-* show <compute id>
-       retrieves the OCCI XML representation of the compute resource
-       identified by <compute id>
-
-* update <occi xml file>
-       updates the representation of the compute resource represented by the
-       provided <occi xml file>
-
-* delete <compute id>
-       deletes the compute resource idenfitied by <compute id>
-
+       lists available instance types
 
 Options:
 
@@ -146,48 +130,7 @@ end
 
 case ARGV[0].downcase
     when 'list'
-        rc = occi_client.get_vms(verbose)
-
-    when 'create'
-        vm_xml = ARGV[1]
-
-        if !vm_xml || !File.exists?(vm_xml)
-            puts "#{cmd_name} create: missing OCCI-XML or file not found"
-            exit(-1)
-        end
-
-        rc = occi_client.post_vms(vm_xml)
-
-    when 'show'
-        vm_id = ARGV[1]
-
-        if !vm_id 
-            puts "#{cmd_name} show: missing VM-ID parameter"
-            exit(-1)
-        end
-
-        rc = occi_client.get_vm(vm_id)
-        
-    when 'update'
-        vm_xml = ARGV[1]
-
-        if !vm_xml || !File.exists?(vm_xml)
-            puts "#{cmd_name} update: missing OCCI-XML or file not found"
-            exit -1
-        end
-
-        rc = occi_client.put_vm(vm_xml)
-        
-    when 'delete'
-        vm_id = ARGV[1]
-
-        if !vm_id 
-            puts "#{cmd_name} delete: missing VM-ID parameter"
-            exit -1
-        end
-
-        rc = occi_client.delete_vm(vm_id)
-        
+        rc = occi_client.get_instance_types(verbose)
     else
         puts "Command #{ARGV[0]} not valid."
         exit(-1)

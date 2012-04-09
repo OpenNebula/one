@@ -1059,10 +1059,12 @@ OCCI_LIB_CLIENT_FILES="src/cloud/occi/lib/OCCIClient.rb"
 OCCI_BIN_FILES="src/cloud/occi/bin/occi-server \
                src/cloud/occi/bin/occi-compute \
                src/cloud/occi/bin/occi-network \
+               src/cloud/occi/bin/occi-instance-type \
                src/cloud/occi/bin/occi-storage"
 
 OCCI_BIN_CLIENT_FILES="src/cloud/occi/bin/occi-compute \
                src/cloud/occi/bin/occi-network \
+               src/cloud/occi/bin/occi-instance-type \
                src/cloud/occi/bin/occi-storage"
 
 OCCI_ETC_FILES="src/cloud/occi/etc/occi-server.conf"
