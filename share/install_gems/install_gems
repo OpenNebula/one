@@ -43,7 +43,8 @@ DISTRIBUTIONS={
             'curb'      => ['gcc', 'libcurl4-openssl-dev'],
             'nokogiri'  => %w{gcc rake libxml2-dev libxslt1-dev},
             'xmlparser' => ['gcc', 'libexpat1-dev'],
-            'thin'      => ['g++']
+            'thin'      => ['g++'],
+            'json'      => ['make', 'gcc']
         },
         :install_command => 'apt-get install',
         :gem_env    => {
@@ -58,7 +59,8 @@ DISTRIBUTIONS={
             'curb'      => ['gcc', 'curl-devel'],
             'nokogiri'  => %w{gcc rubygem-rake libxml2-devel libxslt-devel},
             'xmlparser' => ['gcc', 'expat-devel'],
-            'thin'      => ['gcc-c++']
+            'thin'      => ['gcc-c++'],
+            'json'      => ['make', 'gcc']
         },
         :install_command => 'yum install'
     },
@@ -70,7 +72,8 @@ DISTRIBUTIONS={
             'curb'      => ['gcc', 'libcurl-devel'],
             'nokogiri'  => %w{rubygem-rake gcc rubygem-rake libxml2-devel libxslt-devel},
             'xmlparser' => ['gcc', 'libexpat-devel'],
-            'thin'      => ['rubygem-rake', 'gcc-c++']
+            'thin'      => ['rubygem-rake', 'gcc-c++'],
+            'json'      => ['make', 'gcc']
         },
         :install_command => 'zypper install'
     }
