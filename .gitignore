@@ -1,0 +1,24 @@
+# build artifacts
+*.o
+*.a
+src/mad/utils/tty_expect
+src/nebula/oned
+src/scheduler/src/sched/mm_sched
+
+
+# python specific
+*.pyc
+
+# built man pages
+share/man/*gz
+
+# unit testing artifacts
+
+.sconsign.dblite
+.xmlrpc_test/
+src/nebula/.xmlrpc_test/
+src/scheduler/src/sched/.xmlrpc_test/
+
+## generic files to ignore
+.rvmrc
+
