@@ -25,6 +25,7 @@ source $(dirname $0)/../../scripts_common.sh
 #------------------------------------------------------------------------------
 POLL_INTERVAL=2
 TIMEOUT=300
+HALF_LOOP=$(($TIMEOUT/POLL_INTERVAL))
 
 deploy_id=$1
 
@@ -47,6 +48,13 @@ do
 		echo "Timeout reached" >&2
 		exit 1
 	fi
+
+    # Issue another shutdown to cover occasional libvirt lack of attention
+	if [ "$count" -eq "$HALF_LOOP" ] 
+	then
+		virsh --connect $LIBVIRT_URI shutdown $deploy_id
+    fi
+
 	let count=count+$POLL_INTERVAL
 done
 
