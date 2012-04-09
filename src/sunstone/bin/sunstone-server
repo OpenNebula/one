@@ -28,6 +28,7 @@ else
     SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/sunstone-server.rb
     SUNSTONE_LOCK_FILE=$ONE_LOCATION/var/.sunstone.lock
     SUNSTONE_LOG=$ONE_LOCATION/var/sunstone.log
+    SUNSTONE_LOG_ERROR=$ONE_LOCATION/var/sunstone.error
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
 fi
 
@@ -59,7 +60,7 @@ start()
   
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
-  ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>&1 &
+  ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &
   LASTPID=$!
   if [ $? -ne 0 ]; then
     echo "Error executing $SUNSTONE_SERVER, please check the log $SUNSTONE_LOG"
