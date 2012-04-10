@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright 2010-2011, C12G Labs S.L.
+# Copyright 2010-2012, C12G Labs S.L.
 #
 # This file is part of OpenNebula addons.
 #
