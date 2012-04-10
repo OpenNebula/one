@@ -18,10 +18,6 @@ require "CommandManager"
 require 'base64'
 require 'rexml/document'
 
-# Author:: dsa-research.org
-# Copyright:: (c) 2011 Universidad Computense de Madrid
-# License:: Apache License
-
 # This class provides basic messaging and logging functionality
 # to implement OpenNebula Drivers. A driver is a program that
 # specialize the OpenNebula behavior by interfacing with specific
