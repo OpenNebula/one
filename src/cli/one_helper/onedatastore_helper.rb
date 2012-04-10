@@ -76,7 +76,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 d["TM_MAD"]
             end
 
-            default :ID, :CLUSTER, :NAME, :IMAGES, :TYPE, :TM_MAD
+            default :ID, :CLUSTER, :NAME, :IMAGES, :TYPE, :TM
         end
 
         table
