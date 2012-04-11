@@ -116,6 +116,21 @@ int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
 /* ------------------------------------------------------------------------- */
 
+int GroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+
+    if ( rc == 0 )
+    {
+        aclm->del_gid_rules(oid);
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
     User * user  = static_cast<User *>(object);
@@ -135,10 +150,7 @@ int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     if ( rc == 0 )
     {
-        Nebula&     nd      = Nebula::instance();
-        GroupPool * gpool   = nd.get_gpool();
-
-        Group *     group   = gpool->get(group_id, true);
+        Group * group = gpool->get(group_id, true);
 
         if( group != 0 )
         {
@@ -147,6 +159,8 @@ int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
             group->unlock();
         }
+
+        aclm->del_uid_rules(oid);
     }
 
     return rc;
