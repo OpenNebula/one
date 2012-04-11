@@ -64,7 +64,7 @@ var create_image_tmpl =
                <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
                </div>\
                <div class="img_param">\
-                 <label for="img_type">'+tr("Datastore")+':</label>\
+                 <label for="img_datastore">'+tr("Datastore")+':</label>\
                  <select id="img_datastore" name="img_datastore">\
                  </select>\
                  <div class="tip">'+tr("Select the datastore for this image")+'</div>\
@@ -175,8 +175,10 @@ var create_image_tmpl =
             <form id="create_image_form_manual" action="">\
                <fieldset style="border-top:none;">\
                  <h3 style="margin-bottom:10px;">'+tr("Write the image template here")+'</h3>\
-                 <textarea id="template" rows="15" style="width:100%;">\
-                 </textarea>\
+                 <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
+                 <select id="img_datastore_raw" name="img_datastore_raw">\
+                 </select>\
+                 <textarea id="template" rows="15" style="width:100%;"></textarea>\
                </fieldset>\
                <fieldset>\
                <div class="form_buttons">\
@@ -935,7 +937,20 @@ function setupCreateImageDialog(){
 
     $('#create_image_form_manual',dialog).submit(function(){
         var template=$('#template',this).val();
-        Sunstone.runAction("Image.create",template);
+        var ds_id = $('#img_datastore_raw',this).val();
+
+        if (!ds_id){
+            notifyError(tr("Please select a datastore for this image"));
+            return false;
+        };
+
+        var img_obj = {
+            "image" : {
+                "image_raw" : template
+            },
+            "ds_id" : ds_id,
+        };
+        Sunstone.runAction("Image.create",img_obj);
         $create_image_dialog.dialog('close');
         return false;
     });
@@ -946,6 +961,7 @@ function popUpCreateImageDialog(){
     $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
 
     $('#img_datastore',$create_image_dialog).html(datastores_sel());
+    $('#img_datastore_raw',$create_image_dialog).html(datastores_sel());
 
     $create_image_dialog.dialog('open');
 }

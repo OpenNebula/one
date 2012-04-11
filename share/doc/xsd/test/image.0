@@ -1,0 +1,4 @@
+NAME          = "Ubuntu"
+PATH          = /etc/hosts
+TYPE          = OS
+DESCRIPTION   = "Ubuntu 10.04 desktop for students."

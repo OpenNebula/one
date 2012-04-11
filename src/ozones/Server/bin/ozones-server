@@ -29,6 +29,7 @@ else
     OZONES_SERVER=$OZONES_LOCATION/ozones-server.rb
     OZONES_LOCK_FILE=$ONE_LOCATION/var/.ozones.lock
     OZONES_LOG=$ONE_LOCATION/var/ozones-server.log
+    OZONES_LOG_ERROR=$ONE_LOCATION/var/ozones-server.error
     OZONES_CONF=$ONE_LOCATION/etc/ozones-server.conf
 fi
 
@@ -60,7 +61,7 @@ start()
 
   # Start the ozones daemon
   touch $OZONES_LOCK_FILE
-  ruby $OZONES_SERVER > $OZONES_LOG 2>&1 &
+  ruby $OZONES_SERVER > $OZONES_LOG 2>$OZONES_LOG_ERROR &
   LASTPID=$!
   if [ $? -ne 0 ]; then
     echo "Error executing $OZONES_SERVER, please check the log $OZONES_LOG"

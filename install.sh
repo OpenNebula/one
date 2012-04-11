@@ -302,6 +302,8 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryLayout \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/dataTables \
@@ -528,6 +530,8 @@ INSTALL_SELF_SERVICE_FILES=(
     SELF_SERVICE_PUBLIC_IMAGES_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/images
     SELF_SERVICE_PUBLIC_LOCALE_EN_US:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US
     SELF_SERVICE_PUBLIC_LOCALE_ES_ES:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES
+    SELF_SERVICE_PUBLIC_LOCALE_FR_FR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR
+    SELF_SERVICE_PUBLIC_LOCALE_FR_CA:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA
 )
 
 INSTALL_ETC_FILES=(
@@ -1431,7 +1435,11 @@ src/cloud/occi/lib/ui/public/images/yellow_bullet.png"
 
 SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/public/locale/en_US/en_US.js"
 SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/public/locale/es_ES/es_ES.js \
-                src/cloud/occi/lib/ui/public/locale/es_ES/es_datatable.txt"
+                                  src/cloud/occi/lib/ui/public/locale/es_ES/es_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/public/locale/fr_FR/fr_FR.js \
+                                  src/cloud/occi/lib/ui/public/locale/fr_FR/fr_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/public/locale/fr_CA/fr_CA.js \
+                                  src/cloud/occi/lib/ui/public/locale/fr_CA/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # ACCT files

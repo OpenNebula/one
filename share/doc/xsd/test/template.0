@@ -1,0 +1,5 @@
+NAME = template0
+MEMORY = 128
+CPU = 1
+EXTRA = ABC
+EXTRA2 = 123
