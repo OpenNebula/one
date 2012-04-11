@@ -504,7 +504,6 @@ int AclManager::del_rule(int oid, string& error_str)
     {
         found = *rule == *(it->second);
 
-
         if ( !found )
         {
             it++;
@@ -541,6 +540,56 @@ int AclManager::del_rule(int oid, string& error_str)
 
     unlock();
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::del_uid_rules(int uid)
+{
+    long long user_req = AclRule::INDIVIDUAL_ID | uid;
+
+    del_user_matching_rules(user_req);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::del_gid_rules(int gid)
+{
+    long long user_req = AclRule::GROUP_ID | gid;
+
+    del_user_matching_rules(user_req);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::del_user_matching_rules(long long user_req)
+{
+    multimap<long long, AclRule *>::iterator        it;
+    pair<multimap<long long, AclRule *>::iterator,
+         multimap<long long, AclRule *>::iterator>  index;
+
+    vector<int>             oids;
+    vector<int>::iterator   oid_it;
+    string                  error_str;
+
+    lock();
+
+    index = acl_rules.equal_range( user_req );
+
+    for ( it = index.first; it != index.second; it++)
+    {
+        oids.push_back(it->second->oid);
+    }
+
+    unlock();
+
+    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    {
+        del_rule(*oid_it, error_str);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
