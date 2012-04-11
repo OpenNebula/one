@@ -125,6 +125,16 @@ public:
         return _time_out;
     }
 
+    /**
+     * Returns true if there is an authorization driver enabled
+     *
+     * @return true if there is an authorization driver enabled
+     */
+    bool is_authz_enabled()
+    {
+        return authz_enabled;
+    };
+
 private:
     /**
      *  Thread id for the Transfer Manager
@@ -159,7 +169,12 @@ private:
     /**
      *  Generic name for the Auth driver
      */
-     static const char *  auth_driver_name;
+     static const char *    auth_driver_name;
+
+     /**
+      * True if there is an authorization driver enabled
+      */
+     bool                   authz_enabled;
 
     /**
      *  Returns a pointer to a Auth Manager driver.
