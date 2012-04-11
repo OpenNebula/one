@@ -265,7 +265,7 @@ class SunstoneServer < CloudServer
             end
 
         filter = {}
-        filter[:uid] = opts[:uid] if opts[:gid]!="0"
+        filter[:uid] = opts[:uid] if opts[:gid]!=0
 
         columns = monitor_resources.split(',')
         columns.map!{|e| e.to_sym}
