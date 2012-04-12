@@ -22,6 +22,7 @@ if [ -z "$ONE_LOCATION" ]; then
     OZONES_SERVER=$OZONES_LOCATION/ozones-server.rb
     OZONES_LOCK_FILE=/var/lock/one/.ozones.lock
     OZONES_LOG=/var/log/one/ozones-server.log
+    OZONES_LOG_ERROR=/var/log/one/ozones-server.error
     OZONES_CONF=/etc/one/ozones-server.conf
 else
     OZONES_PID=$ONE_LOCATION/var/ozones.pid

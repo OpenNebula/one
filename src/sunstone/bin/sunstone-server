@@ -22,6 +22,7 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_SERVER=/usr/lib/one/sunstone/sunstone-server.rb
     SUNSTONE_LOCK_FILE=/var/lock/one/.sunstone.lock
     SUNSTONE_LOG=/var/log/one/sunstone.log
+    SUNSTONE_LOG_ERROR=/var/log/one/sunstone.error
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
