@@ -180,11 +180,21 @@ public:
     {    
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
+        aclm       = nd.get_aclm();
+
         auth_object = PoolObjectSQL::GROUP;
         auth_op     = AuthRequest::ADMIN;
     };
 
     ~GroupDelete(){};
+
+    /* -------------------------------------------------------------------- */
+
+    AclManager * aclm;
+
+    /* -------------------------------------------------------------------- */
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -198,11 +208,19 @@ public:
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
+        gpool       = nd.get_gpool();
+        aclm        = nd.get_aclm();
+
         auth_object = PoolObjectSQL::USER;
         auth_op     = AuthRequest::ADMIN;
     };
 
     ~UserDelete(){};
+
+    /* -------------------------------------------------------------------- */
+
+    GroupPool *  gpool;
+    AclManager * aclm;
 
     /* -------------------------------------------------------------------- */
 

@@ -453,6 +453,29 @@ void AuthManager::load_mads(int uid)
 
     auth_conf.replace("NAME",auth_driver_name);
 
+    oss.str("");
+
+    string authn = auth_conf.vector_value("AUTHN");
+
+    if ( !authn.empty() )
+    {
+        oss << "--authn " << authn;
+    }
+
+    string authz = auth_conf.vector_value("AUTHZ");
+
+    if ( !authz.empty() )
+    {
+        authz_enabled = true;
+        oss << " --authz " << authz;
+    }
+    else
+    {
+        authz_enabled = false;
+    }
+
+    auth_conf.replace("ARGUMENTS", oss.str());
+
     authm_driver = new AuthManagerDriver(uid,auth_conf.value(),(uid!=0),this);
 
     rc = add(authm_driver);

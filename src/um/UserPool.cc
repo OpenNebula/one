@@ -735,7 +735,7 @@ int UserPool::authorize(AuthRequest& ar)
     AuthManager * authm = nd.get_authm();
     int           rc    = -1;
 
-    if (authm == 0)
+    if (authm == 0 || !authm->is_authz_enabled())
     {
         if (ar.core_authorize())
         {
