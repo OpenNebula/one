@@ -259,6 +259,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/locale/en_US \
                $SUNSTONE_LOCATION/public/locale/ru \
                $SUNSTONE_LOCATION/public/locale/it_IT \
+               $SUNSTONE_LOCATION/public/locale/pt_PT \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
@@ -471,6 +472,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
     SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
     SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
+    SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/pt_PT
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -1277,6 +1279,10 @@ src/sunstone/public/locale/ru/ru_datatable.txt"
 SUNSTONE_PUBLIC_LOCALE_IT_IT="
 src/sunstone/public/locale/it_IT/it_IT.js \
 src/sunstone/public/locale/it_IT/it_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_PT_PT="
+src/sunstone/public/locale/pt_PT/pt_PT.js \
+src/sunstone/public/locale/pt_PT/pt_datatable.txt"
 
 
 
