@@ -1,0 +1,3 @@
+NAME=datastore
+DS_MAD=fs
+TM_MAD=dummy

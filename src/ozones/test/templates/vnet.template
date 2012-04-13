@@ -1,0 +1,5 @@
+NAME    = "Blue LAN"
+TYPE    = FIXED
+BRIDGE  = vbr1
+ 
+LEASES  = [IP=130.10.0.1]
