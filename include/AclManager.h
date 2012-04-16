@@ -94,6 +94,20 @@ public:
     virtual int del_rule(int oid, string& error_str);
 
     /**
+     * Deletes rules that apply to this user id
+     *
+     * @param uid The user id
+     */
+    void del_uid_rules(int uid);
+
+    /**
+     * Deletes rules that apply to this group id
+     *
+     * @param gid The group id
+     */
+    void del_gid_rules(int gid);
+
+    /**
      * Searches what resources of type obj_type the ACL rules set allows
      * the given user to perform the operation.
      *
@@ -198,6 +212,13 @@ private:
             long long individual_obj_type,
             long long group_obj_type,
             multimap<long long, AclRule*> &tmp_rules);
+
+    /**
+     * Deletes all rules that match the user mask
+     *
+     * @param user_req Mask to match
+     */
+    void del_user_matching_rules(long long user_req);
 
     // ----------------------------------------
     // Mutex synchronization

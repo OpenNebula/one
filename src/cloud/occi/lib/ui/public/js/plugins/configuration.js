@@ -30,6 +30,8 @@ var config_tab_content =
                    <select id="lang_sel" style="width:20em;">\
                        <option value="en_US">'+tr("English")+'</option>\
                        <option value="es_ES">'+tr("Spanish")+'</option>\
+                       <option value="fr_FR">'+tr("French (FR)")+'</option>\
+                       <option value="fr_CA">'+tr("French (CA)")+'</option>\
                    </select>\
               </td>\
             </tr>\

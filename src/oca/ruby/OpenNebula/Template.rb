@@ -32,7 +32,8 @@ module OpenNebula
             :publish     => "template.publish",
             :delete      => "template.delete",
             :chown       => "template.chown",
-            :chmod       => "template.chmod"
+            :chmod       => "template.chmod",
+            :clone       => "template.clone"
         }
 
         # Creates a Template description with just its identifier
@@ -141,6 +142,20 @@ module OpenNebula
                 other_m, other_a)
             super(TEMPLATE_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
+        end
+
+        # Clones this template into a new one
+        #
+        # @param name [String] Name for the new Template.
+        #
+        # @return [Integer, OpenNebula::Error] The new Template ID in case
+        # of success, Error otherwise
+        def clone(name)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(TEMPLATE_METHODS[:clone], @pe_id, name)
+
+            return rc
         end
 
         #######################################################################

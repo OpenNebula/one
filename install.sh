@@ -259,6 +259,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/locale/en_US \
                $SUNSTONE_LOCATION/public/locale/ru \
                $SUNSTONE_LOCATION/public/locale/it_IT \
+               $SUNSTONE_LOCATION/public/locale/pt_PT \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
@@ -302,6 +303,8 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryLayout \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/dataTables \
@@ -469,6 +472,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
     SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
     SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
+    SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/pt_PT
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -528,6 +532,8 @@ INSTALL_SELF_SERVICE_FILES=(
     SELF_SERVICE_PUBLIC_IMAGES_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/images
     SELF_SERVICE_PUBLIC_LOCALE_EN_US:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US
     SELF_SERVICE_PUBLIC_LOCALE_ES_ES:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES
+    SELF_SERVICE_PUBLIC_LOCALE_FR_FR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR
+    SELF_SERVICE_PUBLIC_LOCALE_FR_CA:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA
 )
 
 INSTALL_ETC_FILES=(
@@ -1274,6 +1280,10 @@ SUNSTONE_PUBLIC_LOCALE_IT_IT="
 src/sunstone/public/locale/it_IT/it_IT.js \
 src/sunstone/public/locale/it_IT/it_datatable.txt"
 
+SUNSTONE_PUBLIC_LOCALE_PT_PT="
+src/sunstone/public/locale/pt_PT/pt_PT.js \
+src/sunstone/public/locale/pt_PT/pt_datatable.txt"
+
 
 
 #-----------------------------------------------------------------------------
@@ -1431,7 +1441,11 @@ src/cloud/occi/lib/ui/public/images/yellow_bullet.png"
 
 SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/public/locale/en_US/en_US.js"
 SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/public/locale/es_ES/es_ES.js \
-                src/cloud/occi/lib/ui/public/locale/es_ES/es_datatable.txt"
+                                  src/cloud/occi/lib/ui/public/locale/es_ES/es_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/public/locale/fr_FR/fr_FR.js \
+                                  src/cloud/occi/lib/ui/public/locale/fr_FR/fr_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/public/locale/fr_CA/fr_CA.js \
+                                  src/cloud/occi/lib/ui/public/locale/fr_CA/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # ACCT files

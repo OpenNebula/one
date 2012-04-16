@@ -101,6 +101,8 @@ module OpenNebula
             end
         end
 
+        # Delete an element from the xml
+        # xpath::_String_ xpath expression that selects the elemnts to be deleted
         def delete_element(xpath)
             if NOKOGIRI
                 @xml.xpath(xpath.to_s).remove
@@ -109,6 +111,15 @@ module OpenNebula
             end
         end
 
+        # Add a new element to the xml
+        # xpath::_String_ xpath xpression where the elemente will be added
+        # elems::_Hash_ Hash containing the pairs key-value to be included
+        # Examples:
+        #   add_element('VM', 'NEW_ITEM' => 'NEW_VALUE')
+        #     <VM><NEW_ITEM>NEW_VALUE</NEW_ITEM>...</VM>
+        #
+        #   add_element('VM/TEMPLATE', 'V1' => {'X1' => 'A1', 'Y2' => 'A2'})
+        #     <VM><TEMPLATE><V1><X1>A1</X1><Y2>A2</Y2>...</TEMPLATE></VM>
         def add_element(xpath, elems)
             elems.each { |key, value|
                 if value.instance_of?(Hash)

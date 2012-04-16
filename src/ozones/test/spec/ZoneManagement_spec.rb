@@ -42,7 +42,9 @@ module OZones
             rc = @helper.create_resource(TESTS_PATH+"templates/zoneA.template")
             rc[0].should eql(0)
 
-            @helper.create_resource(TESTS_PATH+"templates/zoneB.template")
+            sleep 1
+
+            rc = @helper.create_resource(TESTS_PATH+"templates/zoneB.template")
             rc[0].should eql(0)
         end
 

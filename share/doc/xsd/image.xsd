@@ -33,6 +33,8 @@
         <xs:element name="SIZE" type="xs:integer"/>
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="RUNNING_VMS" type="xs:integer"/>
+        <xs:element name="DATASTORE_ID" type="xs:integer"/>
+        <xs:element name="DATASTORE" type="xs:string"/>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
       </xs:sequence>
     </xs:complexType>

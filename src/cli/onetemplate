@@ -88,6 +88,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    clone_desc = <<-EOT.unindent
+        Creates a new Template from an existing one
+    EOT
+
+    command :clone, clone_desc, :templateid, :name do
+        helper.perform_action(args[0],options,"cloned") do |t|
+            res = t.clone(args[1])
+
+            if !OpenNebula.is_error?(res)
+                puts "ID: #{res}"
+            end
+        end
+    end
+
     delete_desc = <<-EOT.unindent
         Deletes the given Image
     EOT

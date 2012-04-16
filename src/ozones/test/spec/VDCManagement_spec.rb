@@ -28,6 +28,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'ozones_helper/zones_helper.rb'
 require 'ozones_helper/vdc_helper.rb'
+require 'pp'
 
 TESTS_PATH = File.dirname(__FILE__)+"/../"
 
@@ -48,28 +49,62 @@ module OZones
                                     TESTS_PATH+"etc/one_auth_b"),
                                     "http://localhost:2667/RPC2")
 
+            clusterA = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml,
+                                              @clientA)
+            clusterA.allocate("clusterA")
+
+            sleep 1
+
+            clusterB = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml,
+                                              @clientB)
+            clusterB.allocate("clusterB")
+
             hostA=OpenNebula::Host.new(OpenNebula::Host.build_xml, @clientA)
-            hostA.allocate("hostA1","im_dummy","vmm_dummy","tm_dummy","dummy")
-            hostA.allocate("hostA2","im_dummy","vmm_dummy","tm_dummy","dummy")
-            hostA.allocate("hostA3","im_dummy","vmm_dummy","tm_dummy","dummy")
-            hostA.allocate("hostA4","im_dummy","vmm_dummy","tm_dummy","dummy")
+            hostA.allocate("hostA1","im_dummy","vmm_dummy","dummy",100)
+            hostA.allocate("hostA2","im_dummy","vmm_dummy","dummy",100)
+            hostA.allocate("hostA3","im_dummy","vmm_dummy","dummy",100)
+            hostA.allocate("hostA4","im_dummy","vmm_dummy","dummy",100)
 
             hostB=OpenNebula::Host.new(OpenNebula::Host.build_xml, @clientB)
-            hostB.allocate("hostB1","im_dummy","vmm_dummy","tm_dummy","dummy")
-            hostB.allocate("hostB2","im_dummy","vmm_dummy","tm_dummy","dummy")
-            hostB.allocate("hostB3","im_dummy","vmm_dummy","tm_dummy","dummy")
+            hostB.allocate("hostB1","im_dummy","vmm_dummy","dummy",100)
+            hostB.allocate("hostB2","im_dummy","vmm_dummy","dummy",100)
+            hostB.allocate("hostB3","im_dummy","vmm_dummy","dummy",100)
+
+            ds_tmpl = File.new(TESTS_PATH+"templates/datastore.template").read
+            dsA = OpenNebula::Datastore.new(OpenNebula::Datastore.build_xml, @clientA)
+            dsA.allocate(ds_tmpl,100)
+
+            sleep 1
+
+            dsB = OpenNebula::Datastore.new(OpenNebula::Datastore.build_xml, @clientB)
+            dsB.allocate(ds_tmpl,100)
+
+            sleep 1
+
+            vnet_tmpl = File.new(TESTS_PATH+"templates/vnet.template").read
+            vnetA = OpenNebula::VirtualNetwork.new(OpenNebula::VirtualNetwork.build_xml, @clientA)
+            rc = vnetA.allocate(vnet_tmpl,100)
+            
+            sleep 1
+
+            vnetB = OpenNebula::VirtualNetwork.new(OpenNebula::VirtualNetwork.build_xml, @clientB)
+            rc = vnetB.allocate(vnet_tmpl,100)
+            
         end
 
         it "should be able to create a couple of zones" do
             rc = @zonehelper.create_resource(TESTS_PATH+"templates/zoneA.template")
             rc[0].should eql(0)
+            
+            sleep 1
+            
             rc = @zonehelper.create_resource(TESTS_PATH+"templates/zoneB.template")
             rc[0].should eql(0)
         end
 
         it "should be able to create one vdc with apropiate ONE resources" do
-            @vdchelper.create_resource(TESTS_PATH+"templates/vdcA.template",
-                                       {:force => false})[0].should eql(0)
+            rc = @vdchelper.create_resource(TESTS_PATH+"templates/vdcA.template",
+                                       {:force => false})
 
             upool = OpenNebula::UserPool.new(@clientA)
             upool.info
@@ -96,18 +131,19 @@ module OZones
             apool = OpenNebula::AclPool.new(@clientA)
             apool.info
             # TODO check ACLs
+
         end
 
         it "should be able to create a couple of VDCs" do
             @vdchelper.create_resource(TESTS_PATH+"templates/vdcB.template",
-                                       {:force => false})[0].should eql(0)
+                                       {:force => true})[0].should eql(0)
             @vdchelper.create_resource(TESTS_PATH+"templates/vdcC.template",
-                                       {:force => false})[0].should eql(0)
+                                       {:force => true})[0].should eql(0)
         end
 
         it "should fail when creating an existing VDC" do
             @vdchelper.create_resource(TESTS_PATH+"templates/vdcA.template",
-                                       {:force => false})[0].should eql(-1)
+                                       {:force => true})[0].should eql(-1)
         end
 
         it "should fail when creating a VDC upon a non existing zone" do
@@ -140,5 +176,5 @@ module OZones
             rc = @vdchelper.delete_resource(7, {})
             rc[0].should eql(-1)
         end
-    end
+     end
 end

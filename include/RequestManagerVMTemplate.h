@@ -68,6 +68,26 @@ public:
                          RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VMTemplateClone : public RequestManagerVMTemplate
+{
+public:
+    VMTemplateClone():
+        RequestManagerVMTemplate("VMTemplateClone",
+                                 "Clone an existing virtual machine template",
+                                 "A:sis")
+    {
+        auth_op = AuthRequest::USE;
+    };
+
+    ~VMTemplateClone(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

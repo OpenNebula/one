@@ -25,6 +25,8 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="CLUSTER_ID" type="xs:integer"/>
+        <xs:element name="CLUSTER" type="xs:string"/>
         <xs:element name="TYPE" type="xs:integer"/>
         <xs:element name="BRIDGE" type="xs:string"/>
         <xs:element name="VLAN" type="xs:integer"/>
