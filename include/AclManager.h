@@ -220,6 +220,16 @@ private:
      */
     void del_user_matching_rules(long long user_req);
 
+    /**
+     * Deletes all rules that match the resource mask
+     *
+     *    @param resource_req 64 bit request, ob. type and group id
+     *    @param resource_mask Mask with ob. type and group flags
+     */
+    void del_resource_matching_rules(
+            long long resource_req,
+            long long resource_mask);
+
     // ----------------------------------------
     // Mutex synchronization
     // ----------------------------------------

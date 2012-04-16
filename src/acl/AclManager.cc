@@ -549,6 +549,8 @@ void AclManager::del_uid_rules(int uid)
 {
     long long user_req = AclRule::INDIVIDUAL_ID | uid;
 
+    // Delete rules that match
+    // #uid  __/__  __
     del_user_matching_rules(user_req);
 }
 
@@ -557,9 +559,16 @@ void AclManager::del_uid_rules(int uid)
 
 void AclManager::del_gid_rules(int gid)
 {
-    long long user_req = AclRule::GROUP_ID | gid;
+    long long request = AclRule::GROUP_ID | gid;
+    long long resource_gid_mask = AclRule::GROUP_ID |
+                                  0x00000000FFFFFFFFLL;
 
-    del_user_matching_rules(user_req);
+    // Delete rules that match
+    // @gid  __/__  __
+    del_user_matching_rules(request);
+
+    // __  __/@gid  __
+    del_resource_matching_rules(request, resource_gid_mask);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -582,6 +591,36 @@ void AclManager::del_user_matching_rules(long long user_req)
     for ( it = index.first; it != index.second; it++)
     {
         oids.push_back(it->second->oid);
+    }
+
+    unlock();
+
+    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    {
+        del_rule(*oid_it, error_str);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::del_resource_matching_rules(long long resource_req,
+                                             long long resource_mask)
+{
+    multimap<long long, AclRule *>::iterator        it;
+
+    vector<int>             oids;
+    vector<int>::iterator   oid_it;
+    string                  error_str;
+
+    lock();
+
+    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
+    {
+        if ( ( it->second->resource & resource_mask ) == resource_req )
+        {
+            oids.push_back(it->second->oid);
+        }
     }
 
     unlock();
