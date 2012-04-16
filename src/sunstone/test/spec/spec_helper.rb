@@ -15,12 +15,13 @@
 #--------------------------------------------------------------------------- #
 
 EXAMPLES_PATH = File.join(File.dirname(__FILE__),'../examples')
+FIXTURES_PATH = File.join(File.dirname(__FILE__),'../fixtures')
 ONEUI_LIB_LOCATION = File.join(File.dirname(__FILE__), '..', '..')
 $: << ONEUI_LIB_LOCATION
 
 # Load the testing libraries
 require 'rubygems'
-require 'spec'
+require 'rspec'
 require 'rack/test'
 require 'json'
 

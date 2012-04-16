@@ -32,9 +32,10 @@ for j in `ls ./spec/*_spec.rb` ; do
     PID=$$
 
     oned -f &
-    sleep 2s;
+    sleep 1
+    until grep 'Auth Manager loaded' ${VAR_LOCATION}/oned.log; do sleep 1; done
 
-    spec $j -f s
+    rspec $j -f s
     CODE=$?
 
     pkill -P $PID oned

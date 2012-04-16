@@ -1,6 +1,7 @@
 {
   "user": {
     "name": "user_one",
-    "password": "pass1"
+    "password": "pass1",
+    "auth_driver": "core"
   }
 }

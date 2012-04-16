@@ -1,0 +1,51 @@
+{
+  "VNET": {
+    "PHYDEV": {
+    },
+    "VLAN_ID": {
+    },
+    "BRIDGE": "vbr2",
+    "CLUSTER_ID": "-1",
+    "NAME": "fixed_vnet",
+    "GID": "0",
+    "TEMPLATE": {
+      "NETWORK_ADDRESS": "10.0.1.0"
+    },
+    "TOTAL_LEASES": "0",
+    "PERMISSIONS": {
+      "GROUP_A": "0",
+      "OWNER_M": "1",
+      "GROUP_M": "0",
+      "OTHER_U": "0",
+      "OTHER_A": "0",
+      "OTHER_M": "0",
+      "OWNER_U": "1",
+      "GROUP_U": "0",
+      "OWNER_A": "0"
+    },
+    "UNAME": "oneadmin",
+    "UID": "0",
+    "ID": "1",
+    "TYPE": "1",
+    "CLUSTER": {
+    },
+    "LEASES": {
+      "LEASE": [
+        {
+          "MAC": "02:00:0a:00:01:01",
+          "VID": "-1",
+          "IP": "10.0.1.1",
+          "USED": "0"
+        },
+        {
+          "MAC": "02:00:0a:00:01:02",
+          "VID": "-1",
+          "IP": "10.0.1.2",
+          "USED": "0"
+        }
+      ]
+    },
+    "VLAN": "0",
+    "GNAME": "oneadmin"
+  }
+}

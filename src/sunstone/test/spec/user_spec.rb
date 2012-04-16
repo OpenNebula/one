@@ -39,7 +39,7 @@ describe 'User tests' do
         last_response.status.should eql(201)
 
         json_response = JSON.parse(last_response.body)
-        json_response['USER']['ID'].should eql("1")
+        json_response['USER']['ID'].should eql("2")
     end
 
     it "should create a second User" do
@@ -48,11 +48,11 @@ describe 'User tests' do
         last_response.status.should eql(201)
 
         json_response = JSON.parse(last_response.body)
-        json_response['USER']['ID'].should eql("2")
+        json_response['USER']['ID'].should eql("3")
     end
 
     it "should get User 1 information" do
-        url = '/user/1'
+        url = '/user/2'
         get url
 
         last_response.status.should eql(200)
@@ -64,14 +64,14 @@ describe 'User tests' do
     end
 
     it "should change User 1 password" do
-        url = '/user/1/action'
+        url = '/user/2/action'
         post url, @action_passwd
 
         last_response.status.should eql(204)
     end
 
     it "should get User 1 information after changing its password" do
-        url = '/user/1'
+        url = '/user/2'
         get url
 
         last_response.status.should eql(200)
@@ -83,7 +83,7 @@ describe 'User tests' do
     end
 
     it "should get User 2 information" do
-        url = '/user/2'
+        url = '/user/3'
         get url
 
         last_response.status.should eql(200)
@@ -100,13 +100,13 @@ describe 'User tests' do
         last_response.status.should eql(200)
 
         json_response = JSON.parse(last_response.body)
-        json_response['USER_POOL']['USER'].size.should eql(3)
+        json_response['USER_POOL']['USER'].size.should eql(4)
         json_response['USER_POOL']['USER'].each do |user|
-            if user['ID'] == '1'
+            if user['ID'] == '2'
                 user['NAME'].should eql(@user1_h['user']['name'])
                 password = Digest::SHA1.hexdigest(@action_passwd_h['action']['params']['password'])
                 user['PASSWORD'].should eql(password)
-            elsif user['ID'] == '2'
+            elsif user['ID'] == '3'
                 user['NAME'].should eql(@user2_h['user']['name'])
                 password = Digest::SHA1.hexdigest(@user2_h['user']['password'])
                 user['PASSWORD'].should eql(password)
@@ -116,7 +116,7 @@ describe 'User tests' do
 
     it "should try to get User 3 information and check the error, because " <<
         "it does not exist" do
-        get '/user/3'
+        get '/user/4'
 
         last_response.status.should eql(404)
 
@@ -126,7 +126,7 @@ describe 'User tests' do
 
     it "should try to change password of User 3 and check the error, because " <<
         "it does not exist" do
-        post '/user/3/action',  @action_passwd
+        post '/user/4/action',  @action_passwd
         last_response.status.should eql(404)
 
         json_response = JSON.parse(last_response.body)
@@ -143,14 +143,14 @@ describe 'User tests' do
     end
 
     it "should delete User 2" do
-        url = '/user/2'
+        url = '/user/3'
         delete url
 
         last_response.status.should eql(204)
     end
 
     it "should try to get the deleted User information and check the error" do
-        url = '/user/2'
+        url = '/user/3'
         get url
 
         last_response.status.should eql(404)
