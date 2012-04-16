@@ -236,6 +236,7 @@ void RequestManager::register_xml_methods()
 
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
+    xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
 
     // VirtualMachine Methods
     xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
@@ -356,6 +357,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.info", template_info);
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
     RequestManagerRegistry.addMethod("one.template.chmod", template_chmod);
+    RequestManagerRegistry.addMethod("one.template.clone", template_clone);
 
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 

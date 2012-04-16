@@ -31,6 +31,7 @@ var config_tab_content =
                        <option value="en_US">'+tr("English")+'</option>\
                        <option value="ru">'+tr("Russian")+'</option>\
                        <option value="it_IT">'+tr("Italian")+'</option>\
+                       <option value="pt_PT">'+tr("Portuguese")+'</option>\
                    </select>\
               </td>\
             </tr>\
