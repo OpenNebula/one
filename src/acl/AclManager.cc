@@ -574,6 +574,23 @@ void AclManager::del_gid_rules(int gid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AclManager::del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type)
+{
+    long long request = obj_type |
+                        AclRule::INDIVIDUAL_ID |
+                        oid;
+
+    long long mask = 0xFFFFFFFFFFFFFFFFLL;
+
+    // Delete rules that are an exact match, i.e. for oid=7 and obj_type=IMAGE,
+    // this rule applies, but can't be deleted:
+    // __ IMAGE+TEMPLATE/#7 __
+    del_resource_matching_rules(request, mask);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AclManager::del_user_matching_rules(long long user_req)
 {
     multimap<long long, AclRule *>::iterator        it;

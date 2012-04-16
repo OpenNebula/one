@@ -108,6 +108,14 @@ public:
     void del_gid_rules(int gid);
 
     /**
+     * Deletes all rules that apply to this resource
+     *
+     * @param oid Id of the deleted object
+     * @param obj_type Object type
+     */
+    void del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type);
+
+    /**
      * Searches what resources of type obj_type the ACL rules set allows
      * the given user to perform the operation.
      *

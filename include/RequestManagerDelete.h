@@ -38,6 +38,7 @@ protected:
 
         Nebula& nd  = Nebula::instance();
         clpool      = nd.get_clpool();
+        aclm        = nd.get_aclm();
     };
 
     ~RequestManagerDelete(){};
@@ -64,8 +65,9 @@ protected:
         return -1;
     };
 
-private:
+protected:
     ClusterPool *   clpool;
+    AclManager *    aclm;
 };
 
 
@@ -180,17 +182,12 @@ public:
     {    
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
-        aclm       = nd.get_aclm();
 
         auth_object = PoolObjectSQL::GROUP;
         auth_op     = AuthRequest::ADMIN;
     };
 
     ~GroupDelete(){};
-
-    /* -------------------------------------------------------------------- */
-
-    AclManager * aclm;
 
     /* -------------------------------------------------------------------- */
 
@@ -209,7 +206,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         gpool       = nd.get_gpool();
-        aclm        = nd.get_aclm();
 
         auth_object = PoolObjectSQL::USER;
         auth_op     = AuthRequest::ADMIN;
@@ -220,7 +216,6 @@ public:
     /* -------------------------------------------------------------------- */
 
     GroupPool *  gpool;
-    AclManager * aclm;
 
     /* -------------------------------------------------------------------- */
 

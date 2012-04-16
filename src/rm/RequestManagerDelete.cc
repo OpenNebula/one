@@ -96,6 +96,8 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    aclm->del_resource_rules(oid, auth_object);
+
     success_response(oid, att);
 
     return;
