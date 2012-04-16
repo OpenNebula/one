@@ -60,6 +60,7 @@ start()
   
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
+  echo "ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &"
   ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &
   LASTPID=$!
   if [ $? -ne 0 ]; then
