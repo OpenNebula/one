@@ -179,8 +179,7 @@ else
     CHOWN_DIRS="$ROOT"
 fi
 
-SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/examples/tm"
+SHARE_DIRS="$SHARE_LOCATION/examples"
 
 ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
@@ -408,7 +407,6 @@ INSTALL_FILES=(
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
-    TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
@@ -923,17 +921,6 @@ AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/private.net \
                      share/examples/public.net"
-
-#-------------------------------------------------------------------------------
-# TM Sample files, to be installed under $SHARE_LOCATION/examples/tm
-#-------------------------------------------------------------------------------
-
-TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
-                        share/examples/tm/tm_delete.sh \
-                        share/examples/tm/tm_ln.sh \
-                        share/examples/tm/tm_mkimage.sh \
-                        share/examples/tm/tm_mkswap.sh \
-                        share/examples/tm/tm_mv.sh"
 
 #-------------------------------------------------------------------------------
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
