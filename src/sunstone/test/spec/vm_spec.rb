@@ -127,26 +127,26 @@ describe 'VirtualMachine tests' do
     ############################################################################
     # Saveas
     ############################################################################
-    it "should prepare the VirtualMachine 0 disk to be saved" do
-        url = '/vm/0/action'
-        post url, @action_saveas
-
-        last_response.status.should eql(204)
-    end
-
-    it "should get VirtualMachine 0 information after saveas action" do
-        url = '/vm/0'
-        get url
-
-        last_response.status.should eql(200)
-
-        json_response = JSON.parse(last_response.body)
-        json_response['VM']['STATE'].should eql("3")
-        json_response['VM']['NAME'].should eql(@vm0_h['vm']['name'])
-        json_response['VM']['TEMPLATE']['CPU'].should eql(@vm0_h['vm']['cpu'])
-        json_response['VM']['TEMPLATE']['MEMORY'].should eql(@vm0_h['vm']['memory'])
-        json_response['VM']['TEMPLATE']['DISK']["SAVE_AS"].should eql("0")
-    end
+    #it "should prepare the VirtualMachine 0 disk to be saved" do
+    #    url = '/vm/0/action'
+    #    post url, @action_saveas
+#
+    #    last_response.status.should eql(204)
+    #end
+#
+    #it "should get VirtualMachine 0 information after saveas action" do
+    #    url = '/vm/0'
+    #    get url
+#
+    #    last_response.status.should eql(200)
+#
+    #    json_response = JSON.parse(last_response.body)
+    #    json_response['VM']['STATE'].should eql("3")
+    #    json_response['VM']['NAME'].should eql(@vm0_h['vm']['name'])
+    #    json_response['VM']['TEMPLATE']['CPU'].should eql(@vm0_h['vm']['cpu'])
+    #    json_response['VM']['TEMPLATE']['MEMORY'].should eql(@vm0_h['vm']['memory'])
+    #    json_response['VM']['TEMPLATE']['DISK']["SAVE_AS"].should eql("0")
+    #end
 
     ############################################################################
     # Stop

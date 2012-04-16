@@ -64,15 +64,12 @@ describe 'VirtualNetwork tests' do
         url = '/vnet/0'
         get url
 
-        last_response.status.should eql(200)
+        File.open(FIXTURES_PATH + '/network/network0.json', 'w') { |f| 
+            f.write last_response.body
+        }
 
-        json_response = JSON.parse(last_response.body)
-        json_response['VNET']['NAME'].should eql(@ranged_vnet_h['vnet']['name'])
-        json_response['VNET']['TYPE'].should eql("0")
-        json_response['VNET']['BRIDGE'].should eql(@ranged_vnet_h['vnet']['bridge'])
-        json_response['VNET']['TEMPLATE']['NETWORK_SIZE'].should eql(@ranged_vnet_h['vnet']['network_size'])
-        json_response['VNET']['TEMPLATE']['NETWORK_ADDRESS'].should eql(@ranged_vnet_h['vnet']['network_address'])
-        json_response['VNET']['PUBLIC'].should eql("0")
+        last_response.body.should eql(File.read(FIXTURES_PATH + '/network/network0.json'))
+        last_response.status.should eql(200)
     end
 
     it "should publish VirtualNetwork 0" do
@@ -89,7 +86,7 @@ describe 'VirtualNetwork tests' do
         last_response.status.should eql(200)
 
         json_response = JSON.parse(last_response.body)
-        json_response['VNET']['PUBLIC'].should eql("1")
+        json_response['VNET']['PERMISSIONS']['GROUP_U'].should eql("1")
     end
 
     it "should unpublish VirtualNetwork 0" do
@@ -106,7 +103,7 @@ describe 'VirtualNetwork tests' do
         last_response.status.should eql(200)
 
         json_response = JSON.parse(last_response.body)
-        json_response['VNET']['PUBLIC'].should eql("0")
+        json_response['VNET']['PERMISSIONS']['GROUP_U'].should eql("0")
     end
 
 
@@ -114,39 +111,23 @@ describe 'VirtualNetwork tests' do
         url = '/vnet/1'
         get url
 
-        last_response.status.should eql(200)
+        File.open(FIXTURES_PATH + '/network/network1.json', 'w') { |f| 
+            f.write last_response.body
+        }
 
-        json_response = JSON.parse(last_response.body)
-        json_response['VNET']['NAME'].should eql(@fixed_vnet_h['vnet']['name'])
-        json_response['VNET']['TYPE'].should eql("1")
-        json_response['VNET']['BRIDGE'].should eql(@fixed_vnet_h['vnet']['bridge'])
-        json_response['VNET']['TEMPLATE']['NETWORK_ADDRESS'].should eql(@fixed_vnet_h['vnet']['network_address'])
-        json_response['VNET']['PUBLIC'].should eql("0")
+        last_response.body.should eql(File.read(FIXTURES_PATH + '/network/network1.json'))
+        last_response.status.should eql(200)
     end
 
     it "should get vnet_pool information" do
         get '/vnet'
 
-        last_response.status.should eql(200)
+        File.open(FIXTURES_PATH + '/network/network_pool.json', 'w') { |f| 
+            f.write last_response.body
+        }
 
-        json_response = JSON.parse(last_response.body)
-        json_response['VNET_POOL']['VNET'].size.should eql(2)
-        json_response['VNET_POOL']['VNET'].each do |vnet|
-            if vnet['ID'] == '0'
-                vnet['NAME'].should eql(@ranged_vnet_h['vnet']['name'])
-                vnet['TYPE'].should eql("0")
-                vnet['BRIDGE'].should eql(@ranged_vnet_h['vnet']['bridge'])
-                vnet['TEMPLATE']['NETWORK_SIZE'].should eql(@ranged_vnet_h['vnet']['network_size'])
-                vnet['TEMPLATE']['NETWORK_ADDRESS'].should eql(@ranged_vnet_h['vnet']['network_address'])
-                vnet['PUBLIC'].should eql("0")
-            elsif vnet['ID'] == '1'
-                vnet['NAME'].should eql(@fixed_vnet_h['vnet']['name'])
-                vnet['TYPE'].should eql("1")
-                vnet['BRIDGE'].should eql(@fixed_vnet_h['vnet']['bridge'])
-                vnet['TEMPLATE']['NETWORK_ADDRESS'].should eql(@fixed_vnet_h['vnet']['network_address'])
-                vnet['PUBLIC'].should eql("0")
-            end
-        end
+        last_response.body.should eql(File.read(FIXTURES_PATH + '/network/network_pool.json'))
+        last_response.status.should eql(200)
     end
 
     it "should try to get VirtualNetwork 3 information and check the error, because " <<

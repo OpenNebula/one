@@ -1,0 +1,76 @@
+{
+  "IMAGE_POOL": {
+    "IMAGE": [
+      {
+        "SIZE": "0",
+        "NAME": "first_image",
+        "GID": "0",
+        "PERSISTENT": "0",
+        "TEMPLATE": {
+          "DEV_PREFIX": "hd"
+        },
+        "PERMISSIONS": {
+          "GROUP_A": "0",
+          "OWNER_M": "1",
+          "GROUP_M": "0",
+          "OTHER_U": "0",
+          "OTHER_A": "0",
+          "OTHER_M": "0",
+          "OWNER_U": "1",
+          "GROUP_U": "0",
+          "OWNER_A": "0"
+        },
+        "UNAME": "oneadmin",
+        "DATASTORE": "default",
+        "REGTIME": "1334327590",
+        "UID": "0",
+        "ID": "0",
+        "TYPE": "0",
+        "DATASTORE_ID": "1",
+        "PATH": "/etc/hosts",
+        "SOURCE": {
+        },
+        "GNAME": "oneadmin",
+        "STATE": "4",
+        "FSTYPE": {
+        },
+        "RUNNING_VMS": "0"
+      },
+      {
+        "SIZE": "0",
+        "NAME": "second_image",
+        "GID": "0",
+        "PERSISTENT": "0",
+        "TEMPLATE": {
+          "DEV_PREFIX": "hd"
+        },
+        "PERMISSIONS": {
+          "GROUP_A": "0",
+          "OWNER_M": "1",
+          "GROUP_M": "0",
+          "OTHER_U": "0",
+          "OTHER_A": "0",
+          "OTHER_M": "0",
+          "OWNER_U": "1",
+          "GROUP_U": "0",
+          "OWNER_A": "0"
+        },
+        "UNAME": "oneadmin",
+        "DATASTORE": "default",
+        "REGTIME": "1334327590",
+        "UID": "0",
+        "ID": "1",
+        "TYPE": "1",
+        "DATASTORE_ID": "1",
+        "PATH": "/etc/hosts",
+        "SOURCE": {
+        },
+        "GNAME": "oneadmin",
+        "STATE": "4",
+        "FSTYPE": {
+        },
+        "RUNNING_VMS": "0"
+      }
+    ]
+  }
+}

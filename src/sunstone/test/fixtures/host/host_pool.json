@@ -1,0 +1,64 @@
+{
+  "HOST_POOL": {
+    "HOST": [
+      {
+        "LAST_MON_TIME": "0",
+        "VN_MAD": "dummy",
+        "CLUSTER_ID": "-1",
+        "NAME": "pepe",
+        "TEMPLATE": {
+        },
+        "ID": "0",
+        "CLUSTER": {
+        },
+        "STATE": "0",
+        "HOST_SHARE": {
+          "USED_DISK": "0",
+          "CPU_USAGE": "0",
+          "DISK_USAGE": "0",
+          "FREE_CPU": "0",
+          "MAX_DISK": "0",
+          "MEM_USAGE": "0",
+          "FREE_MEM": "0",
+          "MAX_CPU": "0",
+          "FREE_DISK": "0",
+          "USED_MEM": "0",
+          "MAX_MEM": "0",
+          "RUNNING_VMS": "0",
+          "USED_CPU": "0"
+        },
+        "VM_MAD": "vmm_dummy",
+        "IM_MAD": "im_dummy"
+      },
+      {
+        "LAST_MON_TIME": "0",
+        "VN_MAD": "dummy",
+        "CLUSTER_ID": "-1",
+        "NAME": "pepe_two",
+        "TEMPLATE": {
+        },
+        "ID": "1",
+        "CLUSTER": {
+        },
+        "STATE": "0",
+        "HOST_SHARE": {
+          "USED_DISK": "0",
+          "CPU_USAGE": "0",
+          "DISK_USAGE": "0",
+          "FREE_CPU": "0",
+          "MAX_DISK": "0",
+          "MEM_USAGE": "0",
+          "FREE_MEM": "0",
+          "MAX_CPU": "0",
+          "FREE_DISK": "0",
+          "USED_MEM": "0",
+          "MAX_MEM": "0",
+          "RUNNING_VMS": "0",
+          "USED_CPU": "0"
+        },
+        "VM_MAD": "vmm_dummy",
+        "IM_MAD": "im_dummy"
+      }
+    ]
+  }
+}
