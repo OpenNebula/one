@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
