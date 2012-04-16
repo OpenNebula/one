@@ -1306,7 +1306,7 @@ function setupVNC(){
         Sunstone.runAction("VM.stopvnc",id);
     });
 
-    $('.vnc',main_tabs_context).live("click",function(){
+    $('.vnc').live("click",function(){
         //Which VM is it?
         var id = $(this).attr('vm_id');
         //Set attribute to dialog
