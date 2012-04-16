@@ -57,16 +57,16 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :HOSTS, "Number of Hosts", :left, :size=>5 do |d|
-                d["HOSTS"].size
+            column :HOSTS, "Number of Hosts", :right, :size=>5 do |d|
+                d["HOSTS"]["ID"] ? d["HOSTS"]["ID"].size : 0
             end
 
-            column :NETS, "Number of Networks", :left, :size=>5 do |d|
-                d["HOSTS"].size
+            column :NETS, "Number of Networks", :right, :size=>5 do |d|
+                d["VNETS"]["ID"] ? d["VNETS"]["ID"].size : 0
             end
 
-            column :DATASTORES, "Number of Datastores", :left, :size=>10 do |d|
-                d["DATASTORES"].size
+            column :DATASTORES, "Number of Datastores", :right, :size=>10 do |d|
+                d["DATASTORES"]["ID"] ? d["DATASTORES"]["ID"].size : 0
             end
 
             default :ID, :NAME, :HOSTS, :NETS, :DATASTORES
