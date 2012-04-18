@@ -11,21 +11,18 @@
 :HOSTS:
   :desc: Number of Hosts
   :size: 5
-  :left: true
 
-:NETS:
+:VNETS:
   :desc: Number of Networks
   :size: 5
-  :left: true
 
 :DATASTORES:
   :desc: Number of Datastores 
   :size: 10
-  :left: true
 
 :default:
 - :ID
 - :NAME
 - :HOSTS
-- :NETS
+- :VNETS
 - :DATASTORES
