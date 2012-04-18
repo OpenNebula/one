@@ -18,8 +18,9 @@
 var dataTable_acls;
 var $create_acl_dialog;
 
-var acls_tab_content =
-'<form id="acl_form" action="" action="javascript:alert(\'js error!\');">\
+var acls_tab_content = '\
+<h2>'+tr("Access Control Lists")+'</h2>\
+<form id="acl_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_acls" class="display">\

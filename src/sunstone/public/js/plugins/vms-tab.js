@@ -47,8 +47,9 @@ var vm_graphs = [
     }
 ];
 
-var vms_tab_content =
-'<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
+var vms_tab_content = '\
+<h2>'+tr("Virtual Machines")+'</h2>\
+<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_vmachines" class="display">\

@@ -16,8 +16,9 @@
 
 /*Templates tab plugin*/
 
-var templates_tab_content =
-'<form id="template_form" action="" action="javascript:alert(\'js error!\');">\
+var templates_tab_content = '\
+<h2>'+tr("Templates")+'</h2>\
+<form id="template_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_templates" class="display">\

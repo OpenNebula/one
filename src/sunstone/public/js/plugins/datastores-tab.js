@@ -17,8 +17,9 @@
 /*Datastore tab plugin*/
 
 
-var datastores_tab_content =
-'<form id="form_datastores" action="javascript:alert(\'js errors?!\')">\
+var datastores_tab_content = '\
+<h2>'+tr("Datastores")+'</h2>\
+<form id="form_datastores" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_datastores" class="display">\

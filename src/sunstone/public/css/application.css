@@ -39,8 +39,13 @@ select, button {
 h2 {
     float:left;
     font-size:20px;
-    margin-bottom: 5px;
-    padding-bottom: 0}
+    margin-bottom: 2px;
+    margin-top: 8px;
+    padding-bottom: 2px;
+    width:400px;
+    color: #636663;
+    border-bottom: 3px solid;
+}
 
 h3 {
     border-bottom: 1px solid #CCCCCC;

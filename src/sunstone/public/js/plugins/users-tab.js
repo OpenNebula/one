@@ -20,8 +20,9 @@ var users_select="";
 var $create_user_dialog;
 var $update_pw_dialog;
 
-var users_tab_content =
-'<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
+var users_tab_content = '\
+<h2>Users</h2>\
+<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_users" class="display">\

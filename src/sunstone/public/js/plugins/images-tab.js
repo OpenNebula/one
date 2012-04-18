@@ -16,8 +16,9 @@
 
 /*Images tab plugin*/
 
-var images_tab_content =
-'<form id="image_form" action="" action="javascript:alert(\'js error!\');">\
+var images_tab_content = '\
+<h2>'+tr("Images")+'</h2>\
+<form id="image_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_images" class="display">\

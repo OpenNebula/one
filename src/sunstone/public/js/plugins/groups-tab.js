@@ -18,8 +18,9 @@ var groups_select="";
 var dataTable_groups;
 var $create_group_dialog;
 
-var groups_tab_content =
-'<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
+var groups_tab_content = '\
+<h2>'+tr("Groups")+'</h2>\
+<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_groups" class="display">\

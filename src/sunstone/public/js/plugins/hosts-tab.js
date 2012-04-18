@@ -33,8 +33,9 @@ var host_graphs = [
 ]
 
 
-var hosts_tab_content =
-'<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
+var hosts_tab_content = '\
+<h2>'+tr("Hosts")+'</h2>\
+<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_hosts" class="display">\

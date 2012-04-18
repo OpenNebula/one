@@ -17,8 +17,9 @@
 /*Cluster tab plugin*/
 
 
-var clusters_tab_content =
-'<form id="form_cluters" action="javascript:alert(\'js errors?!\')">\
+var clusters_tab_content = '
+<h2>'+tr("Clusters")+'</h2>\
+<form id="form_cluters" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_clusters" class="display">\
