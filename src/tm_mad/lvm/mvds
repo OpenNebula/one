@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# mvds host:remote_system_ds/disk.i fe:SOURCE
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
+SRC=$1
+DST=$2
+VM_ID=$3
+DS_ID=$3
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+. $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
+SRC_PATH=`arg_path $SRC`
+SRC_HOST=`arg_host $SRC`
+
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+
+VG_NAME=$(echo $DST_PATH|cut -d. -f1)
+LV_NAME=$(echo $DST_PATH|cut -d. -f2)
+
+TARGET_DEV=/dev/$VG_NAME/$LV_NAME
+
+DUMP_CMD=$(cat <<EOF
+    DEV=\$(readlink $SRC_PATH)
+    SOURCE_DEV=\$(echo \$DEV|sed 's/-[0-9]*-[0-9]*$//')
+    SIZE=\$($SUDO $LVS \$SOURCE_DEV --noheadings|awk '{print \$4}'|tr -d m)
+    $SUDO $LVCREATE -L\${SIZE}M ${VG_NAME} -n ${LV_NAME}
+    $SUDO $DD if=$SRC_PATH of=$TARGET_DEV bs=64k
+    $SUDO $LVREMOVE -f \$DEV
+EOF
+)
+
+#-------------------------------------------------------------------------------
+# Move the image back to the datastore
+#-------------------------------------------------------------------------------
+log "Dumping $SRC to $DST"
+ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" "Error dumping $SRC to $DST"
+
+exit 0

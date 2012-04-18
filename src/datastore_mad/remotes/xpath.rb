@@ -22,18 +22,24 @@
 require 'base64'
 require 'rexml/document'
 require 'getoptlong'
+require 'pp'
 
 opts = opts = GetoptLong.new(
+    [ '--stdin',   '-s', GetoptLong::NO_ARGUMENT ],
     [ '--base64',  '-b', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
-tmp64 = ""
+source = :stdin
+tmp64  = ""
 
 begin
     opts.each do |opt, arg|
         case opt
+            when '--stdin'
+                source = :stdin
             when '--base64'
-                tmp64 = arg
+                source = :b64
+                tmp64  = arg
         end
     end
 rescue Exception => e
@@ -42,10 +48,18 @@ end
 
 values = ""
 
-tmp = Base64::decode64(tmp64)
+case source
+when :stdin
+    tmp = STDIN.read
+when :b64
+    tmp = Base64::decode64(tmp64)
+end
+
 xml = REXML::Document.new(tmp).root
+# pp([:argv,ARGV],STDERR)
 
 ARGV.each do |xpath|
+    # pp([:xpath,xpath],STDERR)
 	element = xml.elements[xpath]
     values << element.text.to_s if !element.nil?
     values << "\0"
