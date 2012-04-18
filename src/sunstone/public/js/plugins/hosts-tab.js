@@ -41,13 +41,16 @@ var hosts_tab_content =
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
-      <th>' + tr("id") + '</th>\
+      <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
       <th>' + tr("Cluster") + '</th>\
       <th>' + tr("Running VMs") + '</th>\
       <th>' + tr("CPU Use") + '</th>\
       <th>' + tr("Memory use") + '</th>\
       <th>' + tr("Status") + '</th>\
+      <th>' + tr("IM MAD") + '</th>\
+      <th>' + tr("VM MAD") + '</th>\
+      <th>' + tr("Last monitored on") + '</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyhosts">\
@@ -391,7 +394,11 @@ function hostElementArray(host_json){
         host.HOST_SHARE.RUNNING_VMS, //rvm
         pb_cpu,
         pb_mem,
-        OpenNebula.Helper.resource_state("host_simple",host.STATE) ];
+        OpenNebula.Helper.resource_state("host_simple",host.STATE),
+        host.IM_MAD,
+        host.VM_MAD,
+        pretty_time(host.LAST_MON_TIME)
+    ];
 }
 
 //Listen to clicks on the tds of the tables and shows the info dialogs.
@@ -642,14 +649,19 @@ $(document).ready(function(){
     dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,4] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [7,3] },
-            { "sWidth": "200px", "aTargets": [5,6] }
+            { "sWidth": "100px", "aTargets": [7,3,8,9,10] },
+            { "sWidth": "200px", "aTargets": [5,6] },
+            { "bVisible": false, "aTargets": [8,9,10]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -661,7 +673,7 @@ $(document).ready(function(){
     dataTable_hosts.fnClearTable();
     addElement([
         spinner,
-        '','','','','','',''],dataTable_hosts);
+        '','','','','','','','','',''],dataTable_hosts);
     Sunstone.runAction("Host.list");
 
     setupCreateHostDialog();

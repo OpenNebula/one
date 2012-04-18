@@ -273,6 +273,7 @@ $(document).ready(function(){
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
         "aoColumnDefs": [

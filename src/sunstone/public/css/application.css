@@ -588,3 +588,17 @@ ul.action_list li a:hover{
 .ui-layout-resizer-dragging {
     background: #EEE;
 }
+
+.dataTables_length {
+    width: auto;
+}
+
+.ColVis {
+    margin: 0 10px 0 10px;
+    float: left;
+}
+
+.ColVis_Button {
+    padding: 5px;
+    font-size: 1em;
+}

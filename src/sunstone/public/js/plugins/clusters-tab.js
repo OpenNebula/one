@@ -25,7 +25,7 @@ var clusters_tab_content =
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
-      <th>' + tr("id") + '</th>\
+      <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
     </tr>\
   </thead>\
@@ -771,7 +771,7 @@ function setupCreateClusterDialog(){
     dialog.dialog({
         autoOpen: false,
         modal: true,
-        width: 500
+        width: 400
     });
 
     $('button',dialog).button();
@@ -831,6 +831,10 @@ $(document).ready(function(){
     dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [

@@ -32,6 +32,7 @@ var users_tab_content =
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Authentication driver")+'</th>\
+      <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyusers">\
@@ -329,7 +330,8 @@ function userElementArray(user_json){
         user.ID,
         user.NAME,
         user.GNAME,
-        user.AUTH_DRIVER
+        user.AUTH_DRIVER,
+        user.GID
     ]
 };
 
@@ -521,12 +523,17 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "150px", "aTargets": [4] }
+            { "sWidth": "35px", "aTargets": [1,5] },
+            { "sWidth": "150px", "aTargets": [4] },
+            { "bVisible": false, "aTargets": [5]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -536,7 +543,7 @@ $(document).ready(function(){
     dataTable_users.fnClearTable();
     addElement([
         spinner,
-        '','','',''],dataTable_users);
+        '','','','',''],dataTable_users);
 
     Sunstone.runAction("User.list");
 

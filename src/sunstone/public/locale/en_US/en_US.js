@@ -1,6 +1,6 @@
 //Translated by
 lang="en_US"
-datatable_lang=""
+datatable_lang="en_datatable.txt"
 locale={
     "802.1Q":"",
     "Accept (default)":"",

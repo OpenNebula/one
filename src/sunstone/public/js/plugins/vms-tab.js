@@ -1367,6 +1367,10 @@ $(document).ready(function(){
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
         "bJQueryUI": true,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
@@ -1375,7 +1379,8 @@ $(document).ready(function(){
             { "sWidth": "60px", "aTargets": [0,6,7] },
             { "sWidth": "35px", "aTargets": [1,11] },
             { "sWidth": "150px", "aTargets": [5,10] },
-            { "sWidth": "100px", "aTargets": [2,3,9] }
+            { "sWidth": "100px", "aTargets": [2,3,9] },
+            { "bVisible": false, "aTargets": [6,7,10]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {

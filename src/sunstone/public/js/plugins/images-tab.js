@@ -1132,13 +1132,18 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
             { "sWidth": "35px", "aTargets": [1,6,11] },
             { "sWidth": "100px", "aTargets": [5,7] },
-            { "sWidth": "150px", "aTargets": [8] }
+            { "sWidth": "150px", "aTargets": [8] },
+            { "bVisible": false, "aTargets": [6,8]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {

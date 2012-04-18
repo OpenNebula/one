@@ -31,6 +31,7 @@ var acls_tab_content =
       <th>'+tr("Affected resources")+'</th>\
       <th>'+tr("Resource ID / Owned by")+'</th>\
       <th>'+tr("Allowed operations")+'</th>\
+      <th>'+tr("ACL String")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyaclss">\
@@ -287,7 +288,8 @@ function aclElementArray(acl_json){
         acl_array[0],
         acl_array[1],
         acl_array[2],
-        acl_array[3]
+        acl_array[3],
+        acl.STRING
     ]
 }
 
@@ -480,12 +482,17 @@ $(document).ready(function(){
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [1] },
+            { "bVisible": false, "aTargets": [6]}
         ],
 	"oLanguage": (datatable_lang != "") ?
 	    {
@@ -495,7 +502,7 @@ $(document).ready(function(){
     dataTable_acls.fnClearTable();
     addElement([
         spinner,
-        '','','','',''],dataTable_acls);
+        '','','','','',''],dataTable_acls);
 
     Sunstone.runAction("Acl.list");
 
