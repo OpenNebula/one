@@ -313,6 +313,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ImageTemplate * tmpl = new ImageTemplate;
     Datastore *     ds;
+    Image::DiskType ds_disk_type;
 
     // ------------------------- Parse image template --------------------------
 
@@ -351,7 +352,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds->get_permissions(ds_perms);
 
-    ds_name = ds->get_name();
+    ds_name      = ds->get_name();
+    ds_disk_type = ds->get_disk_type();
 
     ds->to_xml(ds_data);
 
@@ -387,7 +389,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          att.gname, 
                          tmpl, 
                          ds_id, 
-                         ds_name, 
+                         ds_name,
+                         ds_disk_type,
                          ds_data, 
                          &id,
                          error_str);

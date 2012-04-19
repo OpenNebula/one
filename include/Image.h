@@ -56,6 +56,33 @@ public:
     };
 
     /**
+     *  Type of Disks (used by the VMM_MAD). Values: BLOCK, CDROM or 
+     *  FILE
+     */
+    enum DiskType
+    {
+        FILE   = 0, /** < File-based disk */
+        CD_ROM = 1, /** < An ISO9660 disk */
+        BLOCK  = 2  /** < Block-device disk */
+    };
+
+    /**
+     *  Return the string representation of a DiskType
+     *    @param ob the type
+     *    @return the string
+     */ 
+    static string disk_type_to_str(DiskType ob)
+    {
+        switch (ob)
+        {
+            case FILE:   return "FILE" ; break;
+            case CD_ROM: return "CDROM" ; break;
+            case BLOCK:  return "BLOCK" ; break;
+            default:     return "";
+        }
+    };
+
+    /**
      *  Image State
      */
     enum ImageState
@@ -355,6 +382,11 @@ private:
      *  Type of the Image
      */
     ImageType    type;
+
+    /**
+     *  Type for the Disk
+     */
+    DiskType     disk_type;
 
     /**
      *  Persistency of the Image

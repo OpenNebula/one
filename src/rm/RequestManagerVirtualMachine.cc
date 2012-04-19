@@ -417,6 +417,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     Image         *  img;
     Datastore     *  ds;
+    Image::DiskType  ds_disk_type;
 
     int           rc;
     string        error_str;
@@ -485,6 +486,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     ds->get_permissions(ds_perms);
     ds->to_xml(ds_data);
+    
+    ds_disk_type = ds->get_disk_type();
 
     ds->unlock();
 
@@ -535,10 +538,11 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          att.uname, 
                          att.gname, 
                          itemplate,
-                         ds_id, 
-                         ds_name, 
-                         ds_data, 
-                         &iid, 
+                         ds_id,
+                         ds_name,
+                         ds_disk_type,
+                         ds_data,
+                         &iid,
                          error_str);
     if (rc < 0)
     {
