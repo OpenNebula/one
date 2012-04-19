@@ -96,6 +96,9 @@ class EC2Driver < VirtualMachineDriver
                 "SECURITYGROUPS" => {
                     :opt => '-g',
                     :proc => lambda {|str| str.split(',').join(' -g ')}
+                },
+                "AVAILABILITYZONE" => {
+                    :opt => '--availability-zone'
                 }
             }
         },
