@@ -60,7 +60,7 @@ xml = REXML::Document.new(tmp).root
 
 ARGV.each do |xpath|
     # pp([:xpath,xpath],STDERR)
-	element = xml.elements[xpath]
+	element = xml.elements[xpath.dup]
     values << element.text.to_s if !element.nil?
     values << "\0"
 end
