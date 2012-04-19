@@ -58,6 +58,11 @@ var create_datastore_tmpl =
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="dummy">' + tr("Dummy") + '</option>\
   </select>\
+  <label>' + tr("Disk type") + ':</label>\
+  <select id="disk_type" name="disk_type">\
+        <option value="file">' + tr("File") + '</option>\
+        <option value="block">' + tr("Block") + '</option>\
+  </select>\
   </fieldset>\
   <fieldset>\
     <div class="form_buttons">\
@@ -515,6 +520,7 @@ function setupCreateDatastoreDialog(){
         var cluster_id = $('#cluster_id',this).val();
         var ds_mad = $('#ds_mad',this).val();
         var tm_mad = $('#tm_mad',this).val();
+        var type = $('#disk_type',this).val();
 
         if (!name){
             notifyError("Please provide a name");
@@ -525,7 +531,8 @@ function setupCreateDatastoreDialog(){
             "datastore" : {
                 "name" : name,
                 "ds_mad" : ds_mad,
-                "tm_mad" : tm_mad
+                "tm_mad" : tm_mad,
+                "disk_type" : type
             },
             "cluster_id" : cluster_id
         };
