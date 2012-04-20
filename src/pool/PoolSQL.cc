@@ -199,8 +199,6 @@ PoolObjectSQL * PoolSQL::get(
     }
     else
     {
-        map<string,PoolObjectSQL *>::iterator name_index;
-
         objectsql = create();
 
         objectsql->oid = oid;
@@ -217,10 +215,12 @@ PoolObjectSQL * PoolSQL::get(
         }
 
         if ( uses_name_pool )
-        {
-            string okey = key(objectsql->name,objectsql->uid);
+        {        
+            map<string,PoolObjectSQL *>::iterator name_index;
+            string okey;
 
-            name_index  = name_pool.find(okey);
+            okey       = key(objectsql->name,objectsql->uid);
+            name_index = name_pool.find(okey);
 
             if ( name_index != name_pool.end() )
             {
@@ -262,17 +262,18 @@ PoolObjectSQL * PoolSQL::get(
 
 PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
 {
-    if ( uses_name_pool == false )
-    {
-        return 0;
-    }
-
     map<string,PoolObjectSQL *>::iterator  index;
     
     PoolObjectSQL *  objectsql;
     int              rc;
 
     lock();
+
+    if ( uses_name_pool == false )
+    {
+        unlock();
+        return 0;
+    }
 
     index = name_pool.find(key(name,ouid));
 
@@ -354,14 +355,15 @@ void PoolSQL::update_cache_index(string& old_name,
                                  string& new_name,
                                  int     new_uid)
 {
-    if ( uses_name_pool == false )
-    {
-        return;
-    }
-
     map<string,PoolObjectSQL *>::iterator  index;
 
     lock();
+
+    if ( uses_name_pool == false )
+    {
+        unlock();
+        return;
+    }
 
     string old_key  = key(old_name, old_uid);
     string new_key  = key(new_name, new_uid);
