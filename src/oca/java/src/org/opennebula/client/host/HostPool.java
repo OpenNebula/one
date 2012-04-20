@@ -91,7 +91,7 @@ public class HostPool extends Pool implements Iterable<Host>{
 
     /**
      * Returns the Host with the given Id from the pool. If it is not found,
-     * then returns null.
+     * then returns null. The method {@link #info()} must be called before.
      *
      * @param id of the Host to retrieve
      * @return The Image with the given Id, or null if it was not found.

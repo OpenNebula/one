@@ -205,7 +205,7 @@ public abstract class Pool{
 
     /**
      * Returns the element with the given Id from the pool. If it is not found,
-     * then returns null.
+     * then returns null. The method {@link #info()} must be called before.
      *
      * @param id of the element to retrieve
      * @return The element with the given Id, or null if it was not found.
