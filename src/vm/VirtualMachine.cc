@@ -376,13 +376,8 @@ int VirtualMachine::parse_context(string& error_str)
 
         if ( target.empty() )
         {
-            Nebula&       nd = Nebula::instance();
-            string        dev_prefix;
-
-            nd.get_configuration_attribute("DEFAULT_DEVICE_PREFIX",dev_prefix);
-            dev_prefix += "b";
-
-            context_parsed->replace("TARGET", dev_prefix);
+            error_str = "Missing TARGET attribute in CONTEXT.";
+            return -1;
         }
 
         obj_template->set(context_parsed);
@@ -860,21 +855,15 @@ int VirtualMachine::get_disk_images(string& error_str)
     VectorAttribute *     disk;
     vector<int>           acquired_images;
 
-    int     n_os = 0; // Number of OS images
-    int     n_cd = 0; // Number of CDROMS
-    int     n_db = 0; // Number of DATABLOCKS
-    string  type;
-    int     image_id;
-
-    ostringstream    oss;
-    Image::ImageType img_type;
+    int           image_id;
+    ostringstream oss;
 
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
     num_disks  = obj_template->get("DISK",disks);
 
-    for(int i=0, index=0; i<num_disks; i++)
+    for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
 
@@ -883,66 +872,19 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, 
-                                   i, 
-                                   &index, 
-                                   &img_type, 
-                                   uid, 
-                                   image_id, 
-                                   error_str);
+        rc = ipool->disk_attribute(disk, i, uid, image_id, error_str);
+
         if (rc == 0 )
         {
             acquired_images.push_back(image_id);
-
-            switch(img_type)
-            {
-                case Image::OS:
-                    n_os++;
-                    break;
-                case Image::CDROM:
-                    n_cd++;
-                    break;
-                case Image::DATABLOCK:
-                    n_db++;
-                    break;
-                default:
-                    break;
-            }
-
-            if( n_os > 1 )  // Max. number of OS images is 1
-            {
-                goto error_max_os;
-            }
-
-            if( n_cd > 1 )  // Max. number of CDROM images is 1
-            {
-                goto error_max_cd;
-            }
-
-            if( n_db > 10 )  // Max. number of DATABLOCK images is 10
-            {
-                goto error_max_db;
-            }
         }
-        else if ( rc == -1 )
+        else
         {
             goto error_common;
         }
     }
 
     return 0;
-
-error_max_os:
-    error_str = "VM cannot use more than one OS image.";
-    goto error_common;
-
-error_max_cd:
-    error_str = "VM cannot use more than one CDROM image.";
-    goto error_common;
-
-error_max_db:
-    error_str = "VM cannot use more than 10 DATABLOCK images.";
-    goto error_common;
 
 error_common:
     ImageManager *  imagem  = nd.get_imagem();

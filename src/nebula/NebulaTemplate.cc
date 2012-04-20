@@ -179,7 +179,6 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 #  DATASTORE_LOCATION
 #  DEFAULT_IMAGE_TYPE
-#  DEFAULT_DEVICE_PREFIX
 #*******************************************************************************
 */
     //DATASTORE_LOCATION
@@ -193,11 +192,6 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("DEFAULT_IMAGE_TYPE",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
-    //DEFAULT_DEVICE_PREFIX
-    value = "hd";
-
-    attribute = new SingleAttribute("DEFAULT_DEVICE_PREFIX",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************
 # Auth Manager Configuration

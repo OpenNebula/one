@@ -104,8 +104,7 @@ public:
 
     virtual UserPool* create_upool(SqlDB* db);
 
-    virtual ImagePool* create_ipool( SqlDB* db,
-                                    string default_image_type,
+    virtual ImagePool* create_ipool(SqlDB* db,
                                     string default_device_prefix);
 
     virtual VMTemplatePool* create_tpool(SqlDB* db);
