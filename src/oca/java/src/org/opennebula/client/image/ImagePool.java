@@ -251,7 +251,7 @@ public class ImagePool extends Pool implements Iterable<Image>
 
     /**
      * Returns the Image with the given Id from the pool. If it is not found,
-     * then returns null.
+     * then returns null. The method {@link #info()} must be called before.
      *
      * @param id of the Image to retrieve
      * @return The Image with the given Id, or null if it was not found.
