@@ -34,7 +34,7 @@ unsigned int VirtualNetworkPool::_default_size;
 VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     const string&   prefix,
     int             __default_size):
-    PoolSQL(db,VirtualNetwork::table)
+    PoolSQL(db, VirtualNetwork::table, true)
 {
     istringstream iss;
     size_t        pos   = 0;

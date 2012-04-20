@@ -32,7 +32,7 @@ const int    ClusterPool::NONE_CLUSTER_ID   = -1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table)
+ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true)
 {
     ostringstream oss;
     string        error_str;

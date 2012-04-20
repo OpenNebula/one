@@ -37,17 +37,16 @@ using namespace std;
 class PoolSQL: public Callbackable, public Hookable
 {
 public:
-
     /**
      * Initializes the oid counter. This function sets lastOID to
      * the last used Object identifier by querying the corresponding database
      * table. This function SHOULD be called before any pool related function.
      *   @param _db a pointer to the database
-     *   @param table the name of the table supporting the pool (to set the oid
+     *   @param _table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
-     *   @param with_uid the Pool objects have an owner id (uid)
+     *   @param cache_by_name True if the objects can be retrieved by name
      */
-    PoolSQL(SqlDB * _db, const char * _table);
+    PoolSQL(SqlDB * _db, const char * _table, bool cache_by_name);
 
     virtual ~PoolSQL();
 
@@ -70,17 +69,6 @@ public:
      *   @return a pointer to the object, 0 in case of failure
      */
     PoolObjectSQL * get(int oid, bool lock);
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param uid id of owner
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    PoolObjectSQL * get(const string& name, int uid, bool lock);
 
     /**
      * Updates the cache name index. Must be called when the owner of an object
@@ -169,6 +157,17 @@ public:
 protected:
 
     /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    PoolObjectSQL * get(const string& name, int uid, bool lock);
+
+    /**
      *  Pointer to the database.
      */
     SqlDB * db;
@@ -237,6 +236,11 @@ private:
      *  OID as key.
      */
     map<int,PoolObjectSQL *> pool;
+
+    /**
+     * Whether or not this pool uses the name_pool index
+     */
+    bool uses_name_pool;
 
     /**
      *  This is a name index for the pool map. The key is the name of the object
