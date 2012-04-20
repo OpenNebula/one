@@ -29,6 +29,8 @@ require 'OZones/AggregatedUsers'
 require 'OZones/AggregatedClusters'
 require 'OZones/AggregatedDatastores'
 require 'OZones/AggregatedTemplates'
+require 'OZones/AggregatedClusters'
+require 'OZones/AggregatedDatastores'
 
 require 'openssl'
 require 'digest/sha1'

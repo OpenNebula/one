@@ -18,8 +18,9 @@ var groups_select="";
 var dataTable_groups;
 var $create_group_dialog;
 
-var groups_tab_content =
-'<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
+var groups_tab_content = '\
+<h2>'+tr("Groups")+'</h2>\
+<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_groups" class="display">\
@@ -34,6 +35,9 @@ var groups_tab_content =
   <tbody id="tbodygroups">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("Tip: Refresh the list if it only shows user ids in the user column.")+'\
+</p>\
 </form>';
 
 var create_group_tmpl =
@@ -273,6 +277,7 @@ $(document).ready(function(){
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
         "aoColumnDefs": [

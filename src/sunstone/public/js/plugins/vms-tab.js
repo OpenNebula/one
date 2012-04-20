@@ -47,8 +47,9 @@ var vm_graphs = [
     }
 ];
 
-var vms_tab_content =
-'<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
+var vms_tab_content = '\
+<h2>'+tr("Virtual Machines")+'</h2>\
+<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_vmachines" class="display">\
@@ -71,6 +72,12 @@ var vms_tab_content =
   <tbody id="tbodyvmachines">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab (oneacctd needs to be running for this information to be up to date)")+'\
+</p>\
+<p class="legend">\
+'+tr("VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information.")+'\
+</p>\
 </form>';
 
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
@@ -1306,7 +1313,7 @@ function setupVNC(){
         Sunstone.runAction("VM.stopvnc",id);
     });
 
-    $('.vnc',main_tabs_context).live("click",function(){
+    $('.vnc').live("click",function(){
         //Which VM is it?
         var id = $(this).attr('vm_id');
         //Set attribute to dialog
@@ -1367,6 +1374,10 @@ $(document).ready(function(){
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
         "bJQueryUI": true,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
@@ -1375,7 +1386,8 @@ $(document).ready(function(){
             { "sWidth": "60px", "aTargets": [0,6,7] },
             { "sWidth": "35px", "aTargets": [1,11] },
             { "sWidth": "150px", "aTargets": [5,10] },
-            { "sWidth": "100px", "aTargets": [2,3,9] }
+            { "sWidth": "100px", "aTargets": [2,3,9] },
+            { "bVisible": false, "aTargets": [6,7,10]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {

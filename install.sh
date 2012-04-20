@@ -1178,7 +1178,10 @@ SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
 
 SUNSTONE_PUBLIC_VENDOR_DATATABLES="\
                 src/sunstone/public/vendor/dataTables/jquery.dataTables.min.js \
+                src/sunstone/public/vendor/dataTables/ColVis.min.js \
+                src/sunstone/public/vendor/dataTables/ColReorderWithResize.js \
                 src/sunstone/public/vendor/dataTables/demo_table_jui.css \
+                src/sunstone/public/vendor/dataTables/ColVis.css \
                 src/sunstone/public/vendor/dataTables/BSD-LICENSE.txt \
                 src/sunstone/public/vendor/dataTables/NOTICE"
 
@@ -1188,7 +1191,7 @@ SUNSTONE_PUBLIC_VENDOR_JGROWL="\
                 src/sunstone/public/vendor/jGrowl/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/jQuery/jquery-1.7.1.min.js \
+                        src/sunstone/public/vendor/jQuery/jquery-1.7.2.min.js \
                         src/sunstone/public/vendor/jQuery/MIT-LICENSE.txt \
                         src/sunstone/public/vendor/jQuery/NOTICE"
 
@@ -1253,10 +1256,15 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/yellow_bullet.png \
                         src/sunstone/public/images/green_bullet.png \
                         src/sunstone/public/images/vnc_off.png \
-                        src/sunstone/public/images/vnc_on.png"
+                        src/sunstone/public/images/vnc_on.png \
+                        src/sunstone/public/images/network_icon.png \
+                        src/sunstone/public/images/system_icon.png \
+                        src/sunstone/public/images/server_icon.png \
+"
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
 src/sunstone/public/locale/en_US/en_US.js \
+src/sunstone/public/locale/en_US/en_datatable.txt \
 "
 
 SUNSTONE_PUBLIC_LOCALE_RU="

@@ -16,8 +16,9 @@
 
 /*Images tab plugin*/
 
-var images_tab_content =
-'<form id="image_form" action="" action="javascript:alert(\'js error!\');">\
+var images_tab_content = '\
+<h2>'+tr("Images")+'</h2>\
+<form id="image_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_images" class="display">\
@@ -40,6 +41,9 @@ var images_tab_content =
   <tbody id="tbodyimages">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
+</p>\
 </form>';
 
 var create_image_tmpl =
@@ -1132,13 +1136,18 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
             { "sWidth": "35px", "aTargets": [1,6,11] },
             { "sWidth": "100px", "aTargets": [5,7] },
-            { "sWidth": "150px", "aTargets": [8] }
+            { "sWidth": "150px", "aTargets": [8] },
+            { "bVisible": false, "aTargets": [6,8]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {

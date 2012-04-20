@@ -20,8 +20,9 @@ var users_select="";
 var $create_user_dialog;
 var $update_pw_dialog;
 
-var users_tab_content =
-'<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
+var users_tab_content = '\
+<h2>'+tr("Users")+'</h2>\
+<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_users" class="display">\
@@ -32,11 +33,17 @@ var users_tab_content =
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Authentication driver")+'</th>\
+      <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyusers">\
   </tbody>\
 </table>\
+<p class="legend">\
+<!--'+
+    tr("Tip: select Core authentication for new Sunstone/Self-Service regular users.")+
+'-->\
+</p>\
 </form>';
 
 var create_user_tmpl =
@@ -52,8 +59,6 @@ var create_user_tmpl =
                      <option value="core" selected="selected">'+tr("Core")+'</option>\
                      <option value="ssh">'+tr("SSH")+'</option>\
                      <option value="x509">'+tr("x509")+'</option>\
-                     <option value="server_cipher">'+tr("Server (Cipher)")+'</option>\
-                     <option value="server_x509">'+tr("Server (x509)")+'</option>\
                      <option value="public">'+tr("Public")+'</option>\
                 </select>\
         </div>\
@@ -270,8 +275,6 @@ var user_buttons = {
             return   '<option value="core" selected="selected">'+tr("Core")+'</option>\
                      <option value="ssh">'+tr("SSH")+'</option>\
                      <option value="x509">'+tr("x509")+'</option>\
-                     <option value="server_cipher">'+tr("Server (Cipher)")+'</option>\
-                     <option value="server_x509">'+tr("Server (x509)")+'</option>\
                      <option value="public">'+tr("Public")+'</option>'
         },
         tip: tr("Please choose the new type of authentication for the selected users")+":"
@@ -329,7 +332,8 @@ function userElementArray(user_json){
         user.ID,
         user.NAME,
         user.GNAME,
-        user.AUTH_DRIVER
+        user.AUTH_DRIVER,
+        user.GID
     ]
 };
 
@@ -521,12 +525,17 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "150px", "aTargets": [4] }
+            { "sWidth": "35px", "aTargets": [1,5] },
+            { "sWidth": "150px", "aTargets": [4] },
+            { "bVisible": false, "aTargets": [5]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -536,7 +545,7 @@ $(document).ready(function(){
     dataTable_users.fnClearTable();
     addElement([
         spinner,
-        '','','',''],dataTable_users);
+        '','','','',''],dataTable_users);
 
     Sunstone.runAction("User.list");
 

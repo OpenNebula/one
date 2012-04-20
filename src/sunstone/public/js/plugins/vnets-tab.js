@@ -16,8 +16,9 @@
 
 /*Virtual networks tab plugin*/
 
-var vnets_tab_content =
-'<form id="virtualNetworks_form" action="javascript:alert(\'js error!\');">\
+var vnets_tab_content = '\
+<h2>'+tr("Virtual Networks")+'</h2>\
+<form id="virtualNetworks_form" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_vnetworks" class="display">\
@@ -37,6 +38,9 @@ var vnets_tab_content =
   <tbody id="tbodyvnetworks">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("Tip: edit the leases of a network by clicking on one and going to the lease management tab.")+'\
+</p>\
 </form>';
 
 var create_vn_tmpl =
@@ -1174,12 +1178,17 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7,8] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,5] }
+            { "sWidth": "100px", "aTargets": [2,3,5] },
+            { "bVisible": false, "aTargets": [7]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {

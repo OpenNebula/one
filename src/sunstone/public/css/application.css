@@ -39,8 +39,13 @@ select, button {
 h2 {
     float:left;
     font-size:20px;
-    margin-bottom: 5px;
-    padding-bottom: 0}
+    margin-bottom: 2px;
+    margin-top: 8px;
+    padding-bottom: 2px;
+    width:400px;
+    color: #636663;
+    border-bottom: 3px solid;
+}
 
 h3 {
     border-bottom: 1px solid #CCCCCC;
@@ -236,6 +241,10 @@ label{
     text-align:left;
 }
 
+.dataTables_wrapper {
+    min-height: 0;
+}
+
 .dataTables_wrapper label {
     float: none;
     width: auto;
@@ -340,10 +349,12 @@ tr.odd td, tr.even td{
 
 tr.odd:hover{
     background-color: #E69138 !important;
+    cursor: pointer;
 }
 
 tr.even:hover{
     background-color: #E69138 !important;
+    cursor: pointer;
 }
 
 .show_hide label{
@@ -587,4 +598,25 @@ ul.action_list li a:hover{
 .ui-layout-resizer-open-hover, /* hover-color to 'resize' */
 .ui-layout-resizer-dragging {
     background: #EEE;
+}
+
+.dataTables_length {
+    width: auto;
+}
+
+.ColVis {
+    margin: 0 10px 0 10px;
+    float: left;
+}
+
+.ColVis_Button {
+    padding: 5px;
+    font-size: 1em;
+}
+
+.legend {
+    color: #636663;
+    margin-left: 10px;
+    margin-top: 5px;
+    font-style: italic;
 }
