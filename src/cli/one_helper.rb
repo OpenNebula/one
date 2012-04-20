@@ -411,31 +411,33 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.update_template(id, resource)
-        require 'tempfile'
+    def OpenNebulaHelper.update_template(id, resource, path=nil)
+        unless path
+            require 'tempfile'
 
-        tmp  = Tempfile.new(id.to_s)
-        path = tmp.path
+            tmp  = Tempfile.new(id.to_s)
+            path = tmp.path
 
-        rc = resource.info
+            rc = resource.info
 
-        if OpenNebula.is_error?(rc)
-            puts rc.message
-            exit -1
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            tmp << resource.template_str
+            tmp.flush
+
+            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+            system("#{editor_path} #{path}")
+
+            unless $?.exitstatus == 0
+                puts "Editor not defined"
+                exit -1
+            end
+
+            tmp.close
         end
-
-        tmp << resource.template_str
-        tmp.flush
-
-        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
-        system("#{editor_path} #{path}")
-
-        unless $?.exitstatus == 0
-            puts "Editor not defined"
-            exit -1
-        end
-
-        tmp.close
 
         str = File.read(path)
         str
