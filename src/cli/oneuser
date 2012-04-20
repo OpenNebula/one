@@ -181,14 +181,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     update_desc = <<-EOT.unindent
-        Launches the system editor to modify and update the template contents
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
     EOT
 
-    command :update, update_desc, :userid do
+    command :update, update_desc, :userid, [:file, nil] do
         helper = OneUserHelper.new
 
         helper.perform_action(args[0],options,"modified") do |user|
-            str = OpenNebulaHelper.update_template(args[0], user)
+            str = OpenNebulaHelper.update_template(args[0], user, args[1])
             user.update(str)
         end
     end

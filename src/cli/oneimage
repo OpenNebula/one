@@ -151,20 +151,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    enable_desc = <<-EOT.unindent
-        Enables the given Image
-    EOT
-
     update_desc = <<-EOT.unindent
-        Launches the system editor to modify and update the template contents
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
     EOT
 
-    command :update, update_desc, :imageid do
+    command :update, update_desc, :imageid, [:file, nil] do
         helper.perform_action(args[0],options,"modified") do |image|
-            str = OpenNebulaHelper.update_template(args[0], image)
+            str = OpenNebulaHelper.update_template(args[0], image, args[1])
             image.update(str)
         end
     end
+
+    enable_desc = <<-EOT.unindent
+        Enables the given Image
+    EOT
 
     command :enable, enable_desc, [:range,:imageid_list] do
         helper.perform_actions(args[0],options,"enabled") do |image|
