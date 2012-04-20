@@ -54,7 +54,7 @@ string UserPool::oneadmin_name;
 
 UserPool::UserPool(SqlDB * db,
                    time_t  __session_expiration_time):
-                       PoolSQL(db,User::table)
+                       PoolSQL(db, User::table, true)
 {
     int           one_uid    = -1;
     int           server_uid = -1;

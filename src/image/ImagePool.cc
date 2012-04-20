@@ -35,7 +35,7 @@ ImagePool::ImagePool(SqlDB *       db,
                      const string& __default_type,
                      const string& __default_dev_prefix,
                      vector<const Attribute *>& restricted_attrs):
-                        PoolSQL(db,Image::table)
+                        PoolSQL(db, Image::table, true)
 {
     ostringstream sql;
 

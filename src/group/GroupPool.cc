@@ -37,7 +37,7 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
+GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table, true)
 {
     ostringstream oss;
     string        error_str;
