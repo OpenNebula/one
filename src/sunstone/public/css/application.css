@@ -241,6 +241,10 @@ label{
     text-align:left;
 }
 
+.dataTables_wrapper {
+    min-height: 0;
+}
+
 .dataTables_wrapper label {
     float: none;
     width: auto;
@@ -345,10 +349,12 @@ tr.odd td, tr.even td{
 
 tr.odd:hover{
     background-color: #E69138 !important;
+    cursor: pointer;
 }
 
 tr.even:hover{
     background-color: #E69138 !important;
+    cursor: pointer;
 }
 
 .show_hide label{
@@ -606,4 +612,11 @@ ul.action_list li a:hover{
 .ColVis_Button {
     padding: 5px;
     font-size: 1em;
+}
+
+.legend {
+    color: #636663;
+    margin-left: 10px;
+    margin-top: 5px;
+    font-style: italic;
 }

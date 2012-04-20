@@ -38,6 +38,9 @@ var acls_tab_content = '\
   <tbody id="tbodyaclss">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns.")+'\
+</p>\
 </form>';
 
 var create_acl_tmpl =

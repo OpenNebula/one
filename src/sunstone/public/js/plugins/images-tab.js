@@ -41,6 +41,9 @@ var images_tab_content = '\
   <tbody id="tbodyimages">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
+</p>\
 </form>';
 
 var create_image_tmpl =

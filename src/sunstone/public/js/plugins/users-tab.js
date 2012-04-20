@@ -39,6 +39,11 @@ var users_tab_content = '\
   <tbody id="tbodyusers">\
   </tbody>\
 </table>\
+<p class="legend">\
+<!--'+
+    tr("Tip: select Core authentication for new Sunstone/Self-Service regular users.")+
+'-->\
+</p>\
 </form>';
 
 var create_user_tmpl =
@@ -54,8 +59,6 @@ var create_user_tmpl =
                      <option value="core" selected="selected">'+tr("Core")+'</option>\
                      <option value="ssh">'+tr("SSH")+'</option>\
                      <option value="x509">'+tr("x509")+'</option>\
-                     <option value="server_cipher">'+tr("Server (Cipher)")+'</option>\
-                     <option value="server_x509">'+tr("Server (x509)")+'</option>\
                      <option value="public">'+tr("Public")+'</option>\
                 </select>\
         </div>\
@@ -272,8 +275,6 @@ var user_buttons = {
             return   '<option value="core" selected="selected">'+tr("Core")+'</option>\
                      <option value="ssh">'+tr("SSH")+'</option>\
                      <option value="x509">'+tr("x509")+'</option>\
-                     <option value="server_cipher">'+tr("Server (Cipher)")+'</option>\
-                     <option value="server_x509">'+tr("Server (x509)")+'</option>\
                      <option value="public">'+tr("Public")+'</option>'
         },
         tip: tr("Please choose the new type of authentication for the selected users")+":"

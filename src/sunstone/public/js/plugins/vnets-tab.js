@@ -38,6 +38,9 @@ var vnets_tab_content = '\
   <tbody id="tbodyvnetworks">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("Tip: edit the leases of a network by clicking on one and going to the lease management tab.")+'\
+</p>\
 </form>';
 
 var create_vn_tmpl =

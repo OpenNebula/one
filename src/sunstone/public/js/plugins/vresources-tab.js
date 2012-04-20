@@ -76,7 +76,8 @@ var vres_tab_content =
       <div class="panel">\
         <h3>' + tr("Virtual Resources") + '</h3>\
         <div class="panel_info">\
-            <p>'+tr("The Virtual Resources menu allows management of Virtual Machine Templates, Instances and Images.")+'</p>\
+            <p><img src="images/server_icon.png" alt="server" width="128" height="128" style="float:right;" />'+tr("The Virtual Resources menu allows management of Virtual Machine Templates, Instances and storage (Images).")+'</p>\
+            <p>'+tr("Virtual Machine templates can be instantiated as many times as you want. You can do it from the Templates tab or by creating a new VM in the VM tab. The second method allows you to customize the name and the number of VMs you want to launch.")+'</p>\
             <p>'+tr("You can find further information on the following links:")+'</p>\
             <ul>\
                <li><a href="http://opennebula.org/documentation:rel3.4:vm_guide" target="_blank">Creating Virtual Machines</a></li>\

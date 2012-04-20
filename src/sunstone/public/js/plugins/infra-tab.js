@@ -72,12 +72,13 @@ var infra_tab_content =
       <div class="panel">\
         <h3>' + tr("Infrastructure resources") + '</h3>\
         <div class="panel_info">\
-            <p>'+tr("The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well.")+'</p>\
+            <p><img src="images/network_icon.png" style="float:right;" alt="network icon"/>'+tr("The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well.")+'</p>\
             <p>'+tr("You can find further information on the following links:")+'</p>\
             <ul>\
                <li><a href="http://opennebula.org/documentation:rel3.4:hostsubsystem" target="_blank">Host subsystem</a></li>\
                <li><a href="http://opennebula.org/documentation:rel3.4:host_guide" target="_blank">Managing Hosts</a></li>\
                <li><a href="http://opennebula.org/documentation:rel3.4:nm" target="_blank">Networking subsystem</a></li>\
+               <li><a href="http://opennebula.org/documentation:rel3.4:cluster_guide" target="_blank">Managing Clusters</a></li>\
             </ul>\
         </div>\
       </div>\

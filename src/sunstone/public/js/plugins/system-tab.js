@@ -67,7 +67,7 @@ var system_tab_content =
       <div class="panel">\
         <h3>' + tr("System Resources") + '</h3>\
         <div class="panel_info">\
-            <p>'+tr("System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs.")+'</p>\
+            <p><img src="images/system_icon.png" style="float:right;" alt="user" width="128" height="128" />'+tr("System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs.")+'</p>\
             <p>'+tr("You can find further information on the following links:")+'</p>\
             <ul>\
                <li><a href="http://opennebula.org/documentation:rel3.4:auth_overview" target="_blank">Users & Groups subsystem</a></li>\

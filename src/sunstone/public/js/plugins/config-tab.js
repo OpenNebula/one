@@ -45,9 +45,13 @@ var config_tab_content =
 \
         </div>\
       </div>\
+      <p class="legend">\
+'+tr("These options are stored in your OpenNebula user template.")+'\
+      </p>\
     </td>\
   </tr>\
-</table></form>';
+</table>\
+</form>';
 
 var config_actions = {
     "Config.list" : {

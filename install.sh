@@ -1269,7 +1269,11 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/yellow_bullet.png \
                         src/sunstone/public/images/green_bullet.png \
                         src/sunstone/public/images/vnc_off.png \
-                        src/sunstone/public/images/vnc_on.png"
+                        src/sunstone/public/images/vnc_on.png \
+                        src/sunstone/public/images/network_icon.png \
+                        src/sunstone/public/images/system_icon.png \
+                        src/sunstone/public/images/server_icon.png \
+"
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
 src/sunstone/public/locale/en_US/en_US.js \

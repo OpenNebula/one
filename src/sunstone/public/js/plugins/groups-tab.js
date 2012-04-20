@@ -35,6 +35,9 @@ var groups_tab_content = '\
   <tbody id="tbodygroups">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("Tip: Refresh the list if it only shows user ids in the user column.")+'\
+</p>\
 </form>';
 
 var create_group_tmpl =

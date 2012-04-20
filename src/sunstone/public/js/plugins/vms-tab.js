@@ -72,6 +72,12 @@ var vms_tab_content = '\
   <tbody id="tbodyvmachines">\
   </tbody>\
 </table>\
+<p class="legend">\
+'+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab (oneacctd needs to be running for this information to be up to date)")+'\
+</p>\
+<p class="legend">\
+'+tr("VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information.")+'\
+</p>\
 </form>';
 
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
