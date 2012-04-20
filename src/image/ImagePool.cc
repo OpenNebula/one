@@ -26,14 +26,12 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 string ImagePool::_default_type;
-string ImagePool::_default_dev_prefix;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ImagePool::ImagePool(SqlDB *       db,
-                     const string& __default_type,
-                     const string& __default_dev_prefix,
+ImagePool::ImagePool(SqlDB *                    db,
+                     const string&              __default_type,
                      vector<const Attribute *>& restricted_attrs):
                         PoolSQL(db, Image::table, true)
 {
@@ -41,7 +39,6 @@ ImagePool::ImagePool(SqlDB *       db,
 
     // Init static defaults
     _default_type       = __default_type;
-    _default_dev_prefix = __default_dev_prefix;
 
     // Set default type
     if (_default_type != "OS"       &&
@@ -216,8 +213,6 @@ static int get_disk_id(const string& id_s)
 
 int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int                disk_id,
-                              int *              index,
-                              Image::ImageType * img_type,
                               int                uid,
                               int&               image_id,
                               string&            error_str)
@@ -226,6 +221,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     Image * img = 0;
     int     rc  = 0;
     int     datastore_id;
+    int     iid;
 
     ostringstream oss;
 
@@ -248,10 +244,12 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
         {
             return -1;
         }
+
+        iid = img->get_oid();
     }
     else if (!(source = disk->vector_value("IMAGE_ID")).empty())
     {
-        int iid = get_disk_id(source);
+        iid = get_disk_id(source);
 
         if ( iid == -1)
         {
@@ -266,27 +264,26 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
             return -1;
         }
     }
-    else //Not using the image repository
+    else //Not using the image repository (volatile DISK)
     {
-        string type;
-
-        rc   = -2;
-        type = disk->vector_value("TYPE");
+        string type = disk->vector_value("TYPE");
 
         transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
-        if( type == "SWAP" )
+        if ( type == "SWAP" || type == "FS" ) 
         {
             string target = disk->vector_value("TARGET");
 
             if ( target.empty() )
             {
-                string  dev_prefix = _default_dev_prefix;
-
-                dev_prefix += "d";
-
-                disk->replace("TARGET", dev_prefix);
+                error_str = "Missing target for disk of type " + type;
+                return -1;
             }
+        }
+        else
+        {
+            error_str = "Unknown disk type " + type;
+            return -1;
         }
     }
 
@@ -295,20 +292,29 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
         DatastorePool * ds_pool = nd.get_dspool();
         Datastore *     ds;
 
-        img->disk_attribute(disk, index, img_type);
+        iid = img->get_oid();
+        rc  = img->disk_attribute(disk);
 
         image_id     = img->get_oid();
         datastore_id = img->get_ds_id();
 
-        update(img);
-
         img->unlock();
+
+        if (rc == -1)
+        {
+            imagem->release_image(iid, false);
+            error_str = "Missing TARGET in disk";
+
+            return -1;
+        }
 
         ds = ds_pool->get(datastore_id, true);
 
         if ( ds == 0 )
         {
+            imagem->release_image(iid, false);
             error_str = "Associated datastore for the image does not exist";
+
             return -1;
         }
 

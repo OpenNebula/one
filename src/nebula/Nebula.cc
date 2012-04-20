@@ -299,16 +299,9 @@ void Nebula::start()
         upool  = new UserPool(db, expiration_time);
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
-        nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
-                                  default_device_prefix);
-
-        ipool  = new ImagePool(db,
-                               default_image_type,
-                               default_device_prefix,
-                               img_restricted_attrs);
-
+    
+        ipool  = new ImagePool(db, default_image_type, img_restricted_attrs);
         tpool  = new VMTemplatePool(db);
-
         dspool = new DatastorePool(db);
     }
     catch (exception&)
