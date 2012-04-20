@@ -27,7 +27,7 @@ class VMTemplatePool : public PoolSQL
 {
 public:
 
-    VMTemplatePool(SqlDB * db) : PoolSQL(db, VMTemplate::table){};
+    VMTemplatePool(SqlDB * db) : PoolSQL(db, VMTemplate::table, true){};
 
     ~VMTemplatePool(){};
 

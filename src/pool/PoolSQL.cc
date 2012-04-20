@@ -50,8 +50,8 @@ int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * _table):
-    db(_db), lastOID(-1), table(_table)
+PoolSQL::PoolSQL(SqlDB * _db, const char * _table, bool cache_by_name):
+    db(_db), lastOID(-1), table(_table), uses_name_pool(cache_by_name)
 {
     ostringstream   oss;
 
@@ -199,8 +199,6 @@ PoolObjectSQL * PoolSQL::get(
     }
     else
     {
-        map<string,PoolObjectSQL *>::iterator name_index;
-
         objectsql = create();
 
         objectsql->oid = oid;
@@ -216,23 +214,30 @@ PoolObjectSQL * PoolSQL::get(
             return 0;
         }
 
-        string okey = key(objectsql->name,objectsql->uid);
-        name_index  = name_pool.find(okey);
-
-        if ( name_index != name_pool.end() )
+        if ( uses_name_pool )
         {        
-            name_index->second->lock();
+            map<string,PoolObjectSQL *>::iterator name_index;
+            string okey;
 
-            PoolObjectSQL * tmp_ptr  = name_index->second;
+            okey       = key(objectsql->name,objectsql->uid);
+            name_index = name_pool.find(okey);
 
-            name_pool.erase(okey);
-            pool.erase(tmp_ptr->oid);
+            if ( name_index != name_pool.end() )
+            {
+                name_index->second->lock();
 
-            delete tmp_ptr;
+                PoolObjectSQL * tmp_ptr  = name_index->second;
+
+                name_pool.erase(okey);
+                pool.erase(tmp_ptr->oid);
+
+                delete tmp_ptr;
+            }
+
+            name_pool.insert(make_pair(okey, objectsql));
         }
 
         pool.insert(make_pair(objectsql->oid,objectsql));
-        name_pool.insert(make_pair(okey, objectsql));
 
         if ( olock == true )
         {
@@ -263,6 +268,12 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
     int              rc;
 
     lock();
+
+    if ( uses_name_pool == false )
+    {
+        unlock();
+        return 0;
+    }
 
     index = name_pool.find(key(name,ouid));
 
@@ -348,6 +359,12 @@ void PoolSQL::update_cache_index(string& old_name,
 
     lock();
 
+    if ( uses_name_pool == false )
+    {
+        unlock();
+        return;
+    }
+
     string old_key  = key(old_name, old_uid);
     string new_key  = key(new_name, new_uid);
 
@@ -398,10 +415,14 @@ void PoolSQL::replace()
         else
         {
             PoolObjectSQL * tmp_ptr = index->second;
-            string          okey    = key(tmp_ptr->name,tmp_ptr->uid);
 
             pool.erase(index);
-            name_pool.erase(okey);
+
+            if ( uses_name_pool )
+            {
+                string okey = key(tmp_ptr->name,tmp_ptr->uid);
+                name_pool.erase(okey);
+            }
 
             delete tmp_ptr;
 

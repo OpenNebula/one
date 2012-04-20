@@ -36,7 +36,7 @@ const int    DatastorePool::DEFAULT_DS_ID   = 1;
 /* -------------------------------------------------------------------------- */
 
 DatastorePool::DatastorePool(SqlDB * db):
-                        PoolSQL(db, Datastore::table)
+                        PoolSQL(db, Datastore::table, true)
 {
     ostringstream oss;
     string        error_str;

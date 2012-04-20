@@ -29,7 +29,7 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
                                        const string& hook_location,
                                        const string& remotes_location,
                                        vector<const Attribute *>& restricted_attrs)
-    : PoolSQL(db,VirtualMachine::table)
+    : PoolSQL(db, VirtualMachine::table, false)
 {
     const VectorAttribute * vattr;
 

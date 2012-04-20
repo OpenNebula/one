@@ -118,7 +118,7 @@ class TestPool : public PoolSQL
 {
 
 public:
-    TestPool(SqlDB *db):PoolSQL(db,"test_pool"){};
+    TestPool(SqlDB *db):PoolSQL(db,"test_pool",true){};
     ~TestPool(){};
 
     TestObjectSQL * get(
