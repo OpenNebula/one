@@ -513,7 +513,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
         break;
 
         case CDROM: //Always use CDROM type for these ones
-          disk_attr_type = "CDROM"
+          disk_attr_type = "CDROM";
           disk->replace("READONLY","YES");
         break;
     }
