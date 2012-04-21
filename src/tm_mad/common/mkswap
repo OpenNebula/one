@@ -16,15 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mkswap size host:remote_system_ds/disk.i size
+# mkswap size host:remote_system_ds/disk.i size vmid dsid
 #   - size in MB of the image
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
 
 SIZE=$1
 DST=$2
 
-CMD="`dirname $0`/mkimage $SIZE swap $DST"
+VMID=$3
+DSID=$4
+
+CMD="`dirname $0`/mkimage $SIZE swap $DST $VMID $DSID"
 `$CMD`
 
 exit 0

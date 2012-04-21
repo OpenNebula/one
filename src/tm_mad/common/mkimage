@@ -16,15 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mkimage size format host:remote_system_ds/disk.i size
+# mkimage size format host:remote_system_ds/disk.i vmid dsid
 #   - size in MB of the image
 #   - format for the image
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
 
 SIZE=$1
 FSTYPE=$2
 DST=$3
+
+VMID=$4
+DSID=$5
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
