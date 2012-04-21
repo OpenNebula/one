@@ -11,7 +11,7 @@ MEMORY = 256
 #       root       = sda1,
 #       kernel_cmd = "ro xencons=tty console=tty1"]
 
-DISK = [ IMAGE_ID   = <%= erb_vm_info[:img_id] %> ]
+DISK = [ IMAGE_ID   = <%= erb_vm_info[:img_id] %>, TARGET = "hda" ]
 
 # Put here the ID of the VNET with the IPs for the EC2 VMs
 NIC=[NETWORK_ID=<EC2-VNET-ID>]
@@ -22,6 +22,6 @@ INSTANCE_TYPE = <%= erb_vm_info[:instance_type ]%>
 <% if erb_vm_info[:user_data] %>
 CONTEXT = [ 
        EC2_USER_DATA="<%= erb_vm_info[:user_data] %>",
-       TARGET="hdc"
+       TARGET="hdb"
        ]
 <% end %>
