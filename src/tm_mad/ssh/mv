@@ -16,13 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# MV <hostA:system_ds/disk.i|hostB:system_ds/disk.i>
+# MV <hostA:system_ds/disk.i|hostB:system_ds/disk.i> vmid dsid
 #    <hostA:system_ds/|hostB:system_ds/>
 #   - hostX is the target host to deploy the VM
 #   - system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
 
 SRC=$1
 DST=$2
+
+VMID=$3
+DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh

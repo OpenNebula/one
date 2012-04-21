@@ -16,11 +16,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/>
+# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/> vmid dsid
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
 
 DST=$1
+
+VMID=$2
+DSID=$3
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh

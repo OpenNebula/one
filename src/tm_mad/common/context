@@ -16,10 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# context context.sh file1 file2 ... fileN host:remote_system_ds/disk.i
+# context context.sh file1 file2 ... fileN host:remote_system_ds/disk.i vmid 0
 #   - context.sh file are the contents of the context ISO
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - 0 is the target datastore (system)
 
 while (( "$#" )); do
     if [ "$#" == "1" ]; then
