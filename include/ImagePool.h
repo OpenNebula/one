@@ -54,7 +54,6 @@ public:
      *    @param img_template template associated with the image
      *    @param ds_id the id of the datastore
      *    @param ds_name the name of the datastore
-     *    @param ds_type disk type for the image
      *    @param ds_data the datastore data
      *    @param oid the id assigned to the Image
      *    @param error_str Returns the error reason, if any
@@ -70,7 +69,6 @@ public:
         ImageTemplate * img_template,
         int             ds_id,
         const string&   ds_name,
-        Image::DiskType ds_type,
         const string&   ds_data,
         int *           oid,
         string&         error_str);

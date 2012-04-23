@@ -60,17 +60,16 @@ ImagePool::ImagePool(SqlDB *       db,
 /* -------------------------------------------------------------------------- */
 
 int ImagePool::allocate (
-        int             uid,
-        int             gid,
-        const string&   uname,
-        const string&   gname,
-        ImageTemplate*  img_template,
-        int             ds_id,
-        const string&   ds_name,
-        Image::DiskType disk_type,
-        const string&   ds_data,
-        int *           oid,
-        string&         error_str)
+        int            uid,
+        int            gid,
+        const string&  uname,
+        const string&  gname,
+        ImageTemplate* img_template,
+        int            ds_id,
+        const string&  ds_name,
+        const string&  ds_data,
+        int *          oid,
+        string&        error_str)
 {
     Image *         img;
     Image *         img_aux = 0;
@@ -103,8 +102,6 @@ int ImagePool::allocate (
 
     img->ds_name = ds_name;
     img->ds_id   = ds_id;
-    
-    img->disk_type = disk_type;
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository

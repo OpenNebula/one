@@ -41,7 +41,6 @@ Image::Image(int             _uid,
              ImageTemplate * _image_template):
         PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,table),
         type(OS),
-        disk_type(FILE),
         regtime(time(0)),
         source(""),
         path(""),
@@ -346,7 +345,6 @@ string& Image::to_xml(string& xml) const
             "<NAME>"           << name            << "</NAME>"        <<
             perms_to_xml(perms_xml)                                   <<
             "<TYPE>"           << type            << "</TYPE>"        <<
-            "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << source          << "</SOURCE>"      <<
@@ -373,7 +371,6 @@ int Image::from_xml(const string& xml)
     vector<xmlNodePtr> content;
     int int_state;
     int int_type;
-    int int_disk_type;
 
     int rc = 0;
 
@@ -391,7 +388,6 @@ int Image::from_xml(const string& xml)
     rc += xpath(name, "/IMAGE/NAME", "not_found");
 
     rc += xpath(int_type, "/IMAGE/TYPE", 0);
-    rc += xpath(int_disk_type, "/IMAGE/DISK_TYPE", 0);
     rc += xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
     rc += xpath(regtime, "/IMAGE/REGTIME", 0);
 
@@ -410,9 +406,8 @@ int Image::from_xml(const string& xml)
     xpath(path,"/IMAGE/PATH", "");
     xpath(fs_type,"/IMAGE/FSTYPE","");
 
-    type      = static_cast<ImageType>(int_type);
-    disk_type = static_cast<DiskType>(int_disk_type);
-    state     = static_cast<ImageState>(int_state);
+    type  = static_cast<ImageType>(int_type);
+    state = static_cast<ImageState>(int_state);
 
     // Get associated classes
     ObjectXML::get_nodes("/IMAGE/TEMPLATE", content);
@@ -444,7 +439,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     string  bus;
     string  target;
     string  driver;
-    string  disk_attr_type;
 
     ostringstream  iid;
 
@@ -507,19 +501,16 @@ int Image::disk_attribute(  VectorAttribute * disk,
     switch(type)
     {
         case OS:
-        case DATABLOCK: //Type is FILE or BLOCK as inherited from the DS
-          disk_attr_type = disk_type_to_str(disk_type);
+        case DATABLOCK:
+          disk->replace("TYPE","DISK");
           disk->replace("READONLY","NO");
         break;
 
-        case CDROM: //Always use CDROM type for these ones
-          disk_attr_type = "CDROM"
+        case CDROM:
+          disk->replace("TYPE","CDROM");
           disk->replace("READONLY","YES");
         break;
     }
-
-    
-    disk->replace("TYPE",disk_attr_type);
 
    //---------------------------------------------------------------------------
    //   TARGET attribute

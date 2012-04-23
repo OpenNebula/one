@@ -96,7 +96,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
 {
     int           rc;
     ostringstream oss;
-    string        s_disk_type;
 
     Nebula& nd = Nebula::instance();
 
@@ -125,25 +124,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     base_path = oss.str();
 
-    get_template_attribute("DISK_TYPE", s_disk_type);
-
-    if (s_disk_type == "BLOCK")
-    {
-        disk_type = Image::BLOCK;
-    } 
-    else if (s_disk_type == "CDROM")
-    {
-        disk_type = Image::CD_ROM;
-    }
-    else
-    {
-        disk_type = Image::FILE;
-    }
-
-    if ( tm_mad.empty() == true )
-    {
-        goto error_tm;
-    }
     //--------------------------------------------------------------------------
     // Insert the Datastore
     //--------------------------------------------------------------------------
@@ -273,7 +253,6 @@ string& Datastore::to_xml(string& xml) const
         "<DS_MAD>"      << ds_mad       << "</DS_MAD>"      <<
         "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
-        "<DISK_TYPE>"   << disk_type    << "</DISK_TYPE>"   <<
         "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
         "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
         collection_xml  <<
@@ -291,31 +270,27 @@ string& Datastore::to_xml(string& xml) const
 int Datastore::from_xml(const string& xml)
 {
     int rc = 0;
-    int int_disk_type;
     vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
     update_from_str(xml);
 
     // Get class base attributes
-    rc += xpath(oid,          "/DATASTORE/ID",        -1);
-    rc += xpath(uid,          "/DATASTORE/UID",       -1);
-    rc += xpath(gid,          "/DATASTORE/GID",       -1);
-    rc += xpath(uname,        "/DATASTORE/UNAME",     "not_found");
-    rc += xpath(gname,        "/DATASTORE/GNAME",     "not_found");
-    rc += xpath(name,         "/DATASTORE/NAME",      "not_found");
-    rc += xpath(ds_mad,       "/DATASTORE/DS_MAD",    "not_found");
-    rc += xpath(tm_mad,       "/DATASTORE/TM_MAD",    "not_found");
-    rc += xpath(base_path,    "/DATASTORE/BASE_PATH", "not_found");
-    rc += xpath(int_disk_type,"/DATASTORE/DISK_TYPE", -1);
+    rc += xpath(oid,        "/DATASTORE/ID",        -1);
+    rc += xpath(uid,        "/DATASTORE/UID",       -1);
+    rc += xpath(gid,        "/DATASTORE/GID",       -1);
+    rc += xpath(uname,      "/DATASTORE/UNAME",     "not_found");
+    rc += xpath(gname,      "/DATASTORE/GNAME",     "not_found");
+    rc += xpath(name,       "/DATASTORE/NAME",      "not_found");
+    rc += xpath(ds_mad,     "/DATASTORE/DS_MAD",    "not_found");
+    rc += xpath(tm_mad,     "/DATASTORE/TM_MAD",    "not_found");
+    rc += xpath(base_path,  "/DATASTORE/BASE_PATH", "not_found");
 
     rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
     rc += xpath(cluster,    "/DATASTORE/CLUSTER",    "not_found");
 
     // Permissions
     rc += perms_from_xml();
-
-    disk_type = static_cast<Image::DiskType>(int_disk_type);
 
     // Get associated classes
     ObjectXML::get_nodes("/DATASTORE/IMAGES", content);

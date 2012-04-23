@@ -21,7 +21,6 @@
 #include "ObjectCollection.h"
 #include "DatastoreTemplate.h"
 #include "Clusterable.h"
-#include "Image.h"
 
 /**
  *  The Datastore class.
@@ -84,14 +83,6 @@ public:
     };
 
     /**
-     *  Retrieves the disk type
-     *    @return disk type
-     */
-    Image::DiskType get_disk_type() const
-    {
-        return disk_type;
-    };
-    /**
      * Modifies the given VM disk attribute adding the relevant datastore
      * attributes
      *
@@ -133,11 +124,6 @@ private:
      * Base path for the storage
      */
     string base_path;
-
-    /**
-     * Disk types for the Images created in this datastore
-     */
-     Image::DiskType disk_type;
 
     // *************************************************************************
     // Constructor
