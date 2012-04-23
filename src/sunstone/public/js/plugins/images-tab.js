@@ -36,6 +36,7 @@ var images_tab_content = '\
       <th>'+tr("Persistent")+'</th>\
       <th>'+tr("Status")+'</th>\
       <th>'+tr("#VMS")+'</th>\
+      <th>'+tr("Target")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyimages">\
@@ -107,6 +108,11 @@ var create_image_tmpl =
                   <label for="img_driver">'+tr("Driver")+':</label>\
                   <input type="text" name="img_driver" id="img_driver" />\
                   <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
+               </div>\
+               <div class="img_param">\
+                  <label for="img_target">'+tr("Target")+':</label>\
+                  <input type="text" name="img_target" id="img_target" />\
+                  <div class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</div>\
                </div>\
               </fieldset>\
               <fieldset>\
@@ -544,7 +550,8 @@ function imageElementArray(image_json){
         parseInt(image.PERSISTENT) ? '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
             : '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'"/>',
         OpenNebula.Helper.resource_state("image",image.STATE),
-        image.RUNNING_VMS
+        image.RUNNING_VMS,
+        image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
         ];
 }
 
@@ -899,6 +906,10 @@ function setupCreateImageDialog(){
         if (driver.length)
             img_json["DRIVER"] = driver;
 
+        var target = $('#img_target',this).val();
+        if (target)
+            img_json["TARGET"] = target;
+
         switch ($('#src_path_select input:checked',this).val()){
         case "path":
             path = $('#img_path',this).val();
@@ -1144,10 +1155,10 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-            { "sWidth": "35px", "aTargets": [1,6,11] },
+            { "sWidth": "35px", "aTargets": [1,6,11,12] },
             { "sWidth": "100px", "aTargets": [5,7] },
             { "sWidth": "150px", "aTargets": [8] },
-            { "bVisible": false, "aTargets": [6,8]}
+            { "bVisible": false, "aTargets": [6,8,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1158,7 +1169,7 @@ $(document).ready(function(){
     dataTable_images.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','','',''],dataTable_images);
+        '','','','','','','','','','','',''],dataTable_images);
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();

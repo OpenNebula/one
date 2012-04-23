@@ -208,7 +208,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   </select>\
                                   <div class="tip">'+tr("Type of disk device to emulate: ide, scsi")+'</div>\
                             </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware">\
+                            <div class="vm_param kvm xen vmware">\
                                   <label for="TARGET">'+tr("Target")+':</label>\
                                   <input type="text" id="TARGET" name="target" />\
                                   <div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>\
@@ -1405,6 +1405,11 @@ function setupCreateTemplateDialog(){
         $('#IMAGE', section_disks).change(function(){
             var uname = getValue($(this).val(),4,2,dataTable_images);
             $('input#IMAGE_UNAME',section_disks).val(uname);
+            var target = getValue($(this).val(),4,12,dataTable_images);
+            if (target && target != "--")
+                $('input#TARGET',section_disks).val(target);
+            else
+                $('input#TARGET',section_disks).val('');
         });
 
         //Depending on adding a disk or a image we need to show/hide
@@ -1420,16 +1425,12 @@ function setupCreateTemplateDialog(){
                 $('.add_image',section_disks).attr('disabled','disabled');
                 $('.add_disk',section_disks).show();
                 $('.add_disk',section_disks).removeAttr('disabled');
-                $('#TARGET',section_disks).parent().removeClass(opt_class);
-                $('#TARGET',section_disks).parent().addClass(man_class);
                 break;
             case "image":
                 $('.add_disk',section_disks).hide();
                 $('.add_disk',section_disks).attr('disabled','disabled');
                 $('.add_image',section_disks).show();
                 $('.add_image',section_disks).removeAttr('disabled');
-                $('#TARGET',section_disks).parent().removeClass(man_class);
-                $('#TARGET',section_disks).parent().addClass(opt_class);
                 break;
             }
             $('#SIZE',section_disks).parent().hide();
