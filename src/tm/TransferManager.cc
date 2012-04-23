@@ -227,19 +227,11 @@ void TransferManager::prolog_action(int vid)
 
     int  context_result;
 
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // Setup & Transfer script
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "prolog, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
-
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -253,6 +245,13 @@ void TransferManager::prolog_action(int vid)
         goto error_history;
     }
 
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
+    }
+
     xfr_name = vm->get_transfer_file() + ".prolog";
     xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
@@ -261,12 +260,13 @@ void TransferManager::prolog_action(int vid)
         goto error_file;
     }
 
-    // -------------------------------------------------------------------------
-    // Image Transfer Commands
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Swap and image Commands
+    // ------------------------------------------------------------------------
+
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0; i < num; i++)
+    for (int i=0; i < num ;i++, source="", type="", clon="",tm_mad="",ds_id="-")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -277,8 +277,19 @@ void TransferManager::prolog_action(int vid)
 
         type = disk->vector_value("TYPE");
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-        
+        if ( type.empty() == false)
+        {
+            transform(type.begin(),type.end(),type.begin(),
+                (int(*)(int))toupper);
+        }
+
+        ds_id = disk->vector_value("DATASTORE_ID");
+
+        if ( ds_id.empty() )
+        {
+            ds_id = "-";
+        }
+
         if ( type == "SWAP" )
         {
             // -----------------------------------------------------------------
@@ -286,20 +297,20 @@ void TransferManager::prolog_action(int vid)
             // -----------------------------------------------------------------
             size = disk->vector_value("SIZE");
 
-            if ( size.empty() )
+            if (size.empty()==true)
             {
                 vm->log("TM",Log::WARNING,"No size in swap image, skipping");
                 continue;
             }
 
-            //MKSWAP tm_mad size host:remote_system_dir/disk.i vmid dsid(=0)
+            //MKSWAP tm_mad size host:remote_system_dir/disk.i
             xfr << "MKSWAP " 
                 << system_tm_mad << " "
                 << size   << " " 
                 << vm->get_hostname() << ":"
                 << vm->get_remote_system_dir() << "/disk." << i << " "
                 << vm->get_oid() << " "
-                << "0" << endl;
+                << ds_id << endl;
         }
         else if ( type == "FS" )
         {
@@ -309,13 +320,13 @@ void TransferManager::prolog_action(int vid)
             size   = disk->vector_value("SIZE");
             format = disk->vector_value("FORMAT");
 
-            if ( size.empty() || format.empty() )
+            if ( size.empty() || format.empty())
             {
-                vm->log("TM",Log::WARNING, "No size or format in FS, skipping");
+                vm->log("TM",Log::WARNING,"No size or format in plain FS image,"
+                        " skipping");
                 continue;
             }
-
-            //MKIMAGE tm_mad size format host:remote_system_dir/disk.i vmid dsid(=0)
+            //MKIMAGE tm_mad size format host:remote_system_dir/disk.i
             xfr << "MKIMAGE " 
                 << system_tm_mad << " "
                 << size   << " " 
@@ -323,33 +334,34 @@ void TransferManager::prolog_action(int vid)
                 << vm->get_hostname() << ":" 
                 << vm->get_remote_system_dir() << "/disk." << i << " "
                 << vm->get_oid() << " "
-                << "0" << endl;
+                << ds_id << endl;
         }
         else
         {
-            // -----------------------------------------------------------------
-            // Get transfer attributes & check errors
-            // -----------------------------------------------------------------
             tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
-            source = disk->vector_value("SOURCE");
-            clon   = disk->vector_value("CLONE");
 
-            if ( source.empty() || 
-                 tm_mad.empty() || 
-                 ds_id.empty()  || 
-                 clon.empty() )
+            if ( tm_mad.empty() )
             {
-                goto error_attributes;
+                goto error_tm_mad;
             }
-
-            transform(clon.begin(),clon.end(),clon.begin(),(int(*)(int))toupper);
 
             // -----------------------------------------------------------------
             // CLONE or LINK disk images
             // -----------------------------------------------------------------
+            clon = disk->vector_value("CLONE");
+            size = disk->vector_value("SIZE");
 
-            // <CLONE|LN> tm_mad fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+            if ( clon.empty() == true )
+            {
+                clon = "YES"; //Clone by default
+            }
+            else
+            {
+                transform(clon.begin(),clon.end(),clon.begin(),
+                    (int(*)(int))toupper);
+            }
+
+            // <CLONE|LN> tm_mad fe:SOURCE host:remote_system_ds/disk.i size
             if (clon == "YES")
             {
                 xfr << "CLONE ";
@@ -361,6 +373,16 @@ void TransferManager::prolog_action(int vid)
 
             xfr << tm_mad << " ";
 
+            // -----------------------------------------------------------------
+            // Get the disk image, and set source URL
+            // -----------------------------------------------------------------
+            source = disk->vector_value("SOURCE");
+
+            if ( source.empty() )
+            {
+                goto error_empty_disk;
+            }
+
             if ( source.find(":") == string::npos ) //Regular file
             {
                 xfr << nd.get_nebula_hostname() << ":" << source << " ";
@@ -371,15 +393,21 @@ void TransferManager::prolog_action(int vid)
             }
             
             xfr << vm->get_hostname() << ":" 
-                << vm->get_remote_system_dir() << "/disk." << i << " "
-                << vm->get_oid() << " " 
-                << ds_id << endl;
+                << vm->get_remote_system_dir() << "/disk." << i;
+
+            if (!size.empty()) //Add size for dev based disks
+            {
+                xfr << " " << size;
+            }
+
+            xfr << " " << vm->get_oid() << " " << ds_id << endl;
         }
     }
 
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // Generate context file (There are 0...num-1 disks, constext is disk.num)
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     context_result = vm->generate_context(files);
 
     if ( context_result == -1 )
@@ -389,7 +417,7 @@ void TransferManager::prolog_action(int vid)
 
     if ( context_result )
     {
-        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
+        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i
         xfr << "CONTEXT " 
             << system_tm_mad << " "
             << vm->get_context_file() << " ";
@@ -400,9 +428,8 @@ void TransferManager::prolog_action(int vid)
         }
 
         xfr << vm->get_hostname() << ":" 
-            << vm->get_remote_system_dir() << "/disk." << num << " "
-            << vm->get_oid() << " " 
-            << "0" << endl;
+            << vm->get_remote_system_dir() << "/disk." << num 
+            << " " << vm->get_oid() << " -" << endl;
     }
 
     xfr.close();
@@ -412,6 +439,11 @@ void TransferManager::prolog_action(int vid)
     vm->unlock();
 
     return;
+
+error_context:
+    os.str("");
+    os << "prolog, could not write context file for VM " << vid;
+    goto error_common;
 
 error_history:
     os.str("");
@@ -423,20 +455,20 @@ error_file:
     os << "prolog, could not open file: " << xfr_name;
     goto error_common;
 
-error_attributes:
+error_driver:
     os.str("");
-    os << "prolog, missing DISK mandatory attributes " 
-       << "(SOURCE, TM_MAD, CLONE, DATASTORE_ID) for VM " << vid;
-
-    xfr.close();
+    os << "prolog, error getting Transfer Manager driver.";
     goto error_common;
 
-error_context:
+error_tm_mad:
     os.str("");
-    os << "prolog, could not write context file for VM " << vid;
-
+    os << "prolog, undefined TM_MAD for disk image in VM template";
     xfr.close();
-    goto error_common;
+
+error_empty_disk:
+    os.str("");
+    os << "prolog, undefined source disk image in VM template";
+    xfr.close();
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
@@ -468,19 +500,11 @@ void TransferManager::prolog_migr_action(int vid)
 
     const TransferManagerDriver * tm_md;
 
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // Setup & Transfer script
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "prolog_migr, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
-
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -492,6 +516,13 @@ void TransferManager::prolog_migr_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
     }
 
     xfr_name = vm->get_transfer_file() + ".migrate";
@@ -508,7 +539,7 @@ void TransferManager::prolog_migr_action(int vid)
 
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0 ; i < num ; i++)
+    for (int i=0 ; i < num ; i++, tm_mad="", ds_id="-")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -518,14 +549,20 @@ void TransferManager::prolog_migr_action(int vid)
         }
 
         tm_mad = disk->vector_value("TM_MAD");
-        ds_id  = disk->vector_value("DATASTORE_ID");
 
-        if ( tm_mad.empty() ||  ds_id.empty() )
+        if ( tm_mad.empty() )
         {
             continue;
         }
 
-        //MV tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i vmid dsid
+        ds_id = disk->vector_value("DATASTORE_ID");
+
+        if ( ds_id.empty() )
+        {
+            ds_id = "-";
+        }
+
+        //MV tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i
         xfr << "MV "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":" 
@@ -536,15 +573,14 @@ void TransferManager::prolog_migr_action(int vid)
             << ds_id << endl;
     }
 
-    //MV tm_mad prev_host:remote_system_dir host:remote_system_dir VMID 0
+    //MV tm_mad prev_host:remote_system_dir host:remote_system_dir
     xfr << "MV "
         << system_tm_mad << " "
         << vm->get_previous_hostname() << ":" 
         << vm->get_remote_system_dir() << " "
         << vm->get_hostname() << ":" 
         << vm->get_remote_system_dir() << " "
-        << vm->get_oid() << " " 
-        << "0" << endl;
+        << vm->get_oid() << " -" << endl;
 
     xfr.close();
 
@@ -563,6 +599,10 @@ error_file:
     os.str("");
     os << "prolog_migr, could not open file: " << xfr_name;
     goto error_common;
+
+error_driver:
+    os.str("");
+    os << "prolog_migr, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
@@ -594,19 +634,11 @@ void TransferManager::prolog_resume_action(int vid)
 
     const TransferManagerDriver * tm_md;
 
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // Setup & Transfer script
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "prolog_resume, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
-
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -618,6 +650,13 @@ void TransferManager::prolog_resume_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
     }
 
     xfr_name = vm->get_transfer_file() + ".resume";
@@ -633,7 +672,7 @@ void TransferManager::prolog_resume_action(int vid)
     // ------------------------------------------------------------------------
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0 ; i < num ; i++)
+    for (int i=0 ; i < num ; i++, tm_mad="", ds_id="-")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -643,14 +682,20 @@ void TransferManager::prolog_resume_action(int vid)
         }
 
         tm_mad = disk->vector_value("TM_MAD");
-        ds_id  = disk->vector_value("DATASTORE_ID");
 
-        if ( tm_mad.empty() || ds_id.empty() )
+        if ( tm_mad.empty() )
         {
             continue;
         }
 
-        //MV tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i vmid dsid
+        ds_id = disk->vector_value("DATASTORE_ID");
+
+        if ( ds_id.empty() )
+        {
+            ds_id = "-";
+        }
+
+        //MV tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i
         xfr << "MV "
             << tm_mad << " "
             << nd.get_nebula_hostname() << ":" 
@@ -661,13 +706,12 @@ void TransferManager::prolog_resume_action(int vid)
             << ds_id << endl;
     }
 
-    //MV tm_mad fe:system_dir host:remote_system_dir vmid 0
+    //MV tm_mad fe:system_dir host:remote_system_dir 
     xfr << "MV "
         << system_tm_mad << " "
         << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir()<< " "
-        << vm->get_oid() << " "
-        << "0" << endl;
+        << vm->get_oid() << " -" << endl;
    
     xfr.close();
 
@@ -686,6 +730,10 @@ error_file:
     os.str("");
     os << "prolog_resume, could not open file: " << xfr_name;
     goto error_common;
+
+error_driver:
+    os.str("");
+    os << "prolog_resume, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
@@ -721,16 +769,8 @@ void TransferManager::epilog_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+
     system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -744,6 +784,13 @@ void TransferManager::epilog_action(int vid)
         goto error_history;
     }
 
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
+    }
+
     xfr_name = vm->get_transfer_file() + ".epilog";
     xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
@@ -752,12 +799,13 @@ void TransferManager::epilog_action(int vid)
         goto error_file;
     }
 
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // copy back VM image (DISK with SAVE="yes")
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0; i < num; i++)
+    for (int i=0; i < num; i++, save="", ds_id="-")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -766,37 +814,44 @@ void TransferManager::epilog_action(int vid)
             continue;
         }
 
-        save   = disk->vector_value("SAVE");
-        ds_id  = disk->vector_value("DATASTORE_ID");
-        tm_mad = disk->vector_value("TM_MAD");
+        save = disk->vector_value("SAVE");
 
-        if ( save.empty() || ds_id.empty() || tm_mad.empty() )
+        if ( save.empty() == true)
         {
             continue;
         }
-        
+
+        ds_id = disk->vector_value("DATASTORE_ID");
+
+        if ( ds_id.empty() )
+        {
+            ds_id = "-";
+        }
+
         transform(save.begin(),save.end(),save.begin(),(int(*)(int))toupper);
 
-        if ( save == "YES" )
+        tm_mad = disk->vector_value("TM_MAD");
+
+        if ( save == "YES" ) //TODO SAVE_SOURCE
         {
-            string source;
-            string save_source;
+            string        source;
+            string        save_source;
 
             source      = disk->vector_value("SOURCE");
             save_source = disk->vector_value("SAVE_AS_SOURCE");
 
-            if (source.empty() && save_source.empty())
+            if ( source.empty() && save_source.empty() )
             {
                 vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
                 continue;
             }
 
-            if (!save_source.empty())//Use the save_as_source instead
+            if (!save_source.empty()) //Use the save as source instead
             {
                 source = save_source;
             }
 
-            //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
+            //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE>
             xfr << "MVDS " 
                 << tm_mad << " "
                 << vm->get_hostname() << ":" 
@@ -805,9 +860,9 @@ void TransferManager::epilog_action(int vid)
                 << vm->get_oid() << " "
                 << ds_id << endl;
         }
-        else //No saving disk
+        else if ( !tm_mad.empty() ) //No saving disk and no system_ds disk
         {
-            //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
+            //DELETE tm_mad hostname:remote_system_dir/disk.i
             xfr << "DELETE "
                 << tm_mad << " "
                 << vm->get_hostname() << ":"
@@ -817,12 +872,11 @@ void TransferManager::epilog_action(int vid)
         }
     }
 
-    //DELETE system_tm_mad hostname:remote_system_dir vmid ds_id
+    //DELETE system_tm_mad hostname:remote_system_dir
     xfr << "DELETE " 
         << system_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
-        << vm->get_oid() << " "
-        << "0" << endl;
+        << vm->get_oid() << " -" << endl;
     
     xfr.close();
 
@@ -841,6 +895,10 @@ error_file:
     os.str("");
     os << "epilog, could not open file: " << xfr_name;
     goto error_common;
+
+error_driver:
+    os.str("");
+    os << "epilog, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
@@ -875,15 +933,6 @@ void TransferManager::epilog_stop_action(int vid)
     // Setup & Transfer script
     // ------------------------------------------------------------------------
     system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog_stop, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -895,6 +944,13 @@ void TransferManager::epilog_stop_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
     }
 
     xfr_name = vm->get_transfer_file() + ".stop";
@@ -910,7 +966,7 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0 ; i < num ; i++)
+    for (int i=0 ; i < num ; i++, tm_mad="", ds_id="-")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -920,14 +976,20 @@ void TransferManager::epilog_stop_action(int vid)
         }
 
         tm_mad = disk->vector_value("TM_MAD");
-        ds_id  = disk->vector_value("DATASTORE_ID");
 
-        if (tm_mad.empty() || ds_id.empty())
+        if ( tm_mad.empty() )
         {
             continue;
         }
 
-        //MV tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i vmid dsid
+        ds_id = disk->vector_value("DATASTORE_ID");
+
+        if ( ds_id.empty() )
+        {
+            ds_id = "-";
+        }
+
+        //MV tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i
         xfr << "MV "
             << tm_mad << " "
             << vm->get_hostname() << ":"
@@ -943,8 +1005,7 @@ void TransferManager::epilog_stop_action(int vid)
         << system_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
         << nd.get_nebula_hostname() << ":" << vm->get_system_dir() << " "
-        << vm->get_oid() << " "
-        << "0" << endl;
+        << vm->get_oid() << " -" << endl;
 
     xfr.close();
 
@@ -963,6 +1024,10 @@ error_file:
     os.str("");
     os << "epilog_stop, could not open file: " << xfr_name;
     goto error_common;
+
+error_driver:
+    os.str("");
+    os << "epilog_stop, error getting Transfer Manager driver.";
 
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
@@ -998,15 +1063,6 @@ void TransferManager::epilog_delete_action(int vid)
     // Setup & Transfer script
     // ------------------------------------------------------------------------
     system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog_delete, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -1018,6 +1074,13 @@ void TransferManager::epilog_delete_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
     }
     
     xfr_name = vm->get_transfer_file() + ".delete";
@@ -1033,7 +1096,7 @@ void TransferManager::epilog_delete_action(int vid)
     // -------------------------------------------------------------------------
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0 ; i < num ; i++)
+    for (int i=0 ; i < num ; i++, tm_mad="", ds_id="-")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -1043,14 +1106,20 @@ void TransferManager::epilog_delete_action(int vid)
         }
 
         tm_mad = disk->vector_value("TM_MAD");
-        ds_id = disk->vector_value("DATASTORE_ID");
 
-        if ( tm_mad.empty() || ds_id.empty() )
+        if ( tm_mad.empty() )
         {
             continue;
         }
 
-        //DELETE tm_mad host:remote_system_dir/disk.i vmid dsid
+        ds_id = disk->vector_value("DATASTORE_ID");
+
+        if ( ds_id.empty() )
+        {
+            ds_id = "-";
+        }
+
+        //DELETE tm_mad host:remote_system_dir/disk.i
         xfr << "DELETE "
             << tm_mad << " "
             << vm->get_hostname() << ":"
@@ -1059,12 +1128,11 @@ void TransferManager::epilog_delete_action(int vid)
             << ds_id << endl;
     }
 
-    //DELETE system_tm_mad hostname:remote_system_dir vmid dsid(=0)
+    //DELETE system_tm_mad hostname:remote_system_dir
     xfr << "DELETE " 
         << system_tm_mad << " "
         << vm->get_hostname() <<":"<< vm->get_remote_system_dir() << " "
-        << vm->get_oid() << " "
-        << "0";
+        << vm->get_oid() << " -";
 
     xfr.close();
 
@@ -1085,6 +1153,12 @@ error_file:
     os << ". You may need to manually clean " << vm->get_hostname() 
        << ":" << vm->get_remote_system_dir();
     goto error_common;
+
+error_driver:
+    os.str("");
+    os << "epilog_delete, error getting driver Transfer Manager driver.";
+    os << ". You may need to manually clean " << vm->get_hostname() 
+       << ":" << vm->get_remote_system_dir();
 
 error_common:
     vm->log("TM", Log::ERROR, os);
@@ -1117,16 +1191,8 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
+
     system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog_delete, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -1138,6 +1204,13 @@ void TransferManager::epilog_delete_previous_action(int vid)
     if (!vm->hasHistory() || !vm->hasPreviousHistory())
     {
         goto error_history;
+    }
+
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
     }
 
     xfr_name = vm->get_transfer_file() + ".delete_prev";
@@ -1153,7 +1226,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0 ; i < num ; i++)
+    for (int i=0 ; i < num ; i++, tm_mad="", ds_id="-")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -1163,14 +1236,20 @@ void TransferManager::epilog_delete_previous_action(int vid)
         }
 
         tm_mad = disk->vector_value("TM_MAD");
-        ds_id  = disk->vector_value("DATASTORE_ID");
 
-        if (tm_mad.empty() || ds_id.empty())
+        if ( tm_mad.empty() )
         {
             continue;
         }
 
-        //DELETE tm_mad prev_host:remote_system_dir/disk.i vmid ds_id
+        ds_id = disk->vector_value("DATASTORE_ID");
+
+        if ( ds_id.empty() )
+        {
+            ds_id = "-";
+        }
+
+        //DELETE tm_mad prev_host:remote_system_dir/disk.i
         xfr << "DELETE "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":"
@@ -1179,12 +1258,11 @@ void TransferManager::epilog_delete_previous_action(int vid)
             << ds_id << endl;
     }
 
-    //DELTE system_tm_mad prev_host:remote_system_dir vmid ds_id(=0)
+    //DELTE system_tm_mad prev_host:remote_system_dir
     xfr << "DELETE " 
         << system_tm_mad << " "
         << vm->get_previous_hostname() <<":"<< vm->get_remote_system_dir()
-        << " " << vm->get_oid() << " "
-        << "0" << endl;
+        << " " << vm->get_oid() << " -" << endl;
     
     xfr.close();
 
@@ -1205,6 +1283,12 @@ error_file:
     os << ". You may need to manually clean " << vm->get_previous_hostname() 
        << ":" << vm->get_remote_system_dir();
     goto error_common;
+
+error_driver:
+    os.str("");
+    os << "epilog_delete, error getting driver Transfer Manager driver.";
+    os << ". You may need to manually clean " << vm->get_previous_hostname() 
+       << ":" << vm->get_remote_system_dir();
 
 error_common:
     vm->log("TM", Log::ERROR, os);
@@ -1229,12 +1313,6 @@ void TransferManager::driver_cancel_action(int vid)
     // ------------------------------------------------------------------------
     // Get the Driver for this host
     // ------------------------------------------------------------------------
-    tm_md = get();
-
-    if ( tm_md == 0 )
-    {
-        return;
-    }
 
     vm = vmpool->get(vid,true);
 
@@ -1243,12 +1321,28 @@ void TransferManager::driver_cancel_action(int vid)
         return;
     }
 
+    tm_md = get();
+
+    if ( tm_md == 0 )
+    {
+        goto error_driver;
+    }
+
     // ------------------------------------------------------------------------
     // Cancel the current operation
     // ------------------------------------------------------------------------
     
     tm_md->driver_cancel(vid);
 
+    vm->unlock();
+
+    return;
+
+error_driver:
+    os.str("");
+    os << "driver_cancel, error getting driver Transfer Manager driver.";
+
+    vm->log("TM", Log::ERROR, os);
     vm->unlock();
 
     return;
