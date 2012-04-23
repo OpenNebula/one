@@ -130,6 +130,17 @@ int Image::insert(SqlDB *db, string& error_str)
 
     persistent_img = (persistent_attr == "YES");
 
+    // ------------ PREFIX --------------------
+
+    get_template_attribute("DEV_PREFIX", dev_prefix);
+
+    if( dev_prefix.empty() )
+    {
+        SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
+                                          ImagePool::default_dev_prefix());
+        obj_template->set(dev_att);
+    }
+
     // ------------ PATH & SOURCE --------------------
 
     erase_template_attribute("PATH", path);
@@ -426,15 +437,18 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::disk_attribute(VectorAttribute * disk)
+int Image::disk_attribute(  VectorAttribute * disk,
+                            int *             index,
+                            ImageType*        img_type)
 {
-    string bus;
-    string target;
-    string driver;
-    string disk_attr_type;
+    string  bus;
+    string  target;
+    string  driver;
+    string  disk_attr_type;
 
-    ostringstream iid;
+    ostringstream  iid;
 
+    *img_type = type;
     bus       = disk->vector_value("BUS");
     target    = disk->vector_value("TARGET");
     driver    = disk->vector_value("DRIVER");
@@ -442,30 +456,24 @@ int Image::disk_attribute(VectorAttribute * disk)
 
     string template_bus;
     string template_target;
+    string prefix;
     string template_driver;
 
-    get_template_attribute("BUS",    template_bus);
+    get_template_attribute("BUS", template_bus);
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
 
-   //---------------------------------------------------------------------------
-   //   TARGET attribute
-   //---------------------------------------------------------------------------
-    if (target.empty())
+    get_template_attribute("DEV_PREFIX", prefix);
+
+    if (prefix.empty())//Removed from image template, get it again from defaults
     {
-        if (!template_target.empty())
-        {
-            disk->replace("TARGET", template_target);
-        }
-        else //No TARGET in DISK nor in Image (ERROR!)
-        {
-            return -1;
-        }
+        prefix = ImagePool::default_dev_prefix();
     }
 
    //---------------------------------------------------------------------------
    //                       BASE DISK ATTRIBUTES
    //---------------------------------------------------------------------------
+
     disk->replace("IMAGE",    name);
     disk->replace("IMAGE_ID", iid.str());
     disk->replace("SOURCE",   source);
@@ -483,6 +491,7 @@ int Image::disk_attribute(VectorAttribute * disk)
    //---------------------------------------------------------------------------
    //   TYPE, READONLY, CLONE, and SAVE attributes
    //---------------------------------------------------------------------------
+
     if ( persistent_img )
     {
         disk->replace("CLONE","NO");
@@ -504,13 +513,47 @@ int Image::disk_attribute(VectorAttribute * disk)
         break;
 
         case CDROM: //Always use CDROM type for these ones
-          disk_attr_type = "CDROM";
+          disk_attr_type = "CDROM"
           disk->replace("READONLY","YES");
         break;
     }
 
+    
     disk->replace("TYPE",disk_attr_type);
- 
+
+   //---------------------------------------------------------------------------
+   //   TARGET attribute
+   //---------------------------------------------------------------------------
+
+    if (target.empty()) //No TARGET in DISK attribute
+    {
+        if (!template_target.empty())
+        {
+            disk->replace("TARGET", template_target);
+        }
+        else
+        {
+            switch(type)
+            {
+                case OS:
+                    prefix += "a";
+                break;
+
+                case CDROM:
+                    prefix += "c"; // b is for context
+                break;
+
+                case DATABLOCK:
+                    prefix += static_cast<char>(('e'+ *index));
+                    *index  = *index + 1;
+                break;
+
+            }
+
+            disk->replace("TARGET", prefix);
+        }
+    }
+
     return 0;
 }
 
