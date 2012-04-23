@@ -410,6 +410,7 @@ void TransferManager::prolog_action(int vid)
     tm_md->transfer(vid,xfr_name);
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -550,6 +551,7 @@ void TransferManager::prolog_migr_action(int vid)
     tm_md->transfer(vid,xfr_name);
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -672,6 +674,7 @@ void TransferManager::prolog_resume_action(int vid)
     tm_md->transfer(vid,xfr_name);
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -826,6 +829,7 @@ void TransferManager::epilog_action(int vid)
     tm_md->transfer(vid,xfr_name);
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -1067,6 +1071,7 @@ void TransferManager::epilog_delete_action(int vid)
     tm_md->transfer(vid,xfr_name);
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -1083,9 +1088,8 @@ error_file:
 
 error_common:
     vm->log("TM", Log::ERROR, os);
-    (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
     vm->unlock();
+
     return;
 }
 
@@ -1187,6 +1191,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
     tm_md->transfer(vid,xfr_name);
 
     vm->unlock();
+
     return;
 
 error_history:
@@ -1202,10 +1207,9 @@ error_file:
     goto error_common;
 
 error_common:
-   (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
     vm->log("TM", Log::ERROR, os);
-
     vm->unlock();
+
     return;
 }
 
@@ -1246,6 +1250,7 @@ void TransferManager::driver_cancel_action(int vid)
     tm_md->driver_cancel(vid);
 
     vm->unlock();
+
     return;
 }
 
