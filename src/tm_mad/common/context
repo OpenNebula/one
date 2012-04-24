@@ -23,13 +23,19 @@
 #   - vmid is the id of the VM
 #   - 0 is the target datastore (system)
 
-while (( "$#" )); do
-    if [ "$#" == "1" ]; then
-        DST=$1
+i=1
+for arg in "$@"; do
+    if [ $i -eq $# ]; then
+        DS_ID="$arg"
+    elif [ $i -eq $(($#-1)) ]; then
+        VM_ID="$arg"
+    elif [ $i -eq $(($#-2)) ]; then
+        DST="$arg"
     else
-        SRC="$SRC $1"
+        SRC="$SRC $arg"
     fi
-    shift
+
+    let i=i+1
 done
 
 if [ -z "${ONE_LOCATION}" ]; then
