@@ -1013,6 +1013,7 @@ function setupVNC(){
         modal:true,
         height:500,
         resizable:true,
+        closeOnEscape: false
     });
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
