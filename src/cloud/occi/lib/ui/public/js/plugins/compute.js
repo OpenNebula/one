@@ -63,6 +63,7 @@ var vms_tab_content =
       <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+' / '+tr("State")+'</th>\
+      <th>'+tr("IP")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -397,6 +398,20 @@ function str_start_time(vm){
     return pretty_time(vm.STIME);
 }
 
+function ip_str(vm){
+    var nic = vm.NIC;
+    var ip = '--';
+    if ($.isArray(nic)) {
+        ip = '';
+        $.each(nic, function(index,value){
+            ip += value.IP+'<br />';
+        });
+    } else if (nic && nic.IP) {
+        ip = nic.IP;
+    };
+    return ip;
+};
+
 // Returns an array formed by the information contained in the vm_json
 // and ready to be introduced in a dataTable
 function vMachineElementArray(vm_json){
@@ -416,7 +431,8 @@ function vMachineElementArray(vm_json){
     return [
         '<input class="check_item" type="checkbox" id="vm_'+id+'" name="selected_items" value="'+id+'"/>',
         id,
-        VMStateBulletStr(vm_json) + name
+        VMStateBulletStr(vm_json) + name,
+        ip_str(vm)
     ];
 }
 
@@ -454,7 +470,7 @@ function addVMachineElement(request,vm_json){
     var id = vm_json.COMPUTE.ID;
     var element = vMachineElementArray(vm_json);
     addElement(element,dataTable_vMachines);
-    Sunstone.runAction("VM.showstate",id);
+    Sunstone.runAction("VM.show",id);
 }
 
 
@@ -1098,6 +1114,7 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "110px", "aTargets": [3] },
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1108,7 +1125,7 @@ $(document).ready(function(){
     dataTable_vMachines.fnClearTable();
     addElement([
         spinner,
-        '',''],dataTable_vMachines);
+        '','',''],dataTable_vMachines);
     Sunstone.runAction("VM.list");
 
     //setupCreateVMDialog();
