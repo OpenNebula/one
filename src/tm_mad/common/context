@@ -23,20 +23,12 @@
 #   - vmid is the id of the VM
 #   - 0 is the target datastore (system)
 
-i=1
-for arg in "$@"; do
-    if [ $i -eq $# ]; then
-        DS_ID="$arg"
-    elif [ $i -eq $(($#-1)) ]; then
-        VM_ID="$arg"
-    elif [ $i -eq $(($#-2)) ]; then
-        DST="$arg"
-    else
-        SRC="$SRC $arg"
-    fi
+ARGV=("$@")
 
-    let i=i+1
-done
+DS_ID="${ARGV[$(($#-1))]}"
+VM_ID="${ARGV[$(($#-2))]}"
+DST="${ARGV[$(($#-3))]}"
+SRC="${ARGV[@]:0:$(($#-3))}"
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
