@@ -441,12 +441,12 @@ int Image::disk_attribute(  VectorAttribute * disk,
                             int *             index,
                             ImageType*        img_type)
 {
-    string  bus;
-    string  target;
-    string  driver;
-    string  disk_attr_type;
+    string bus;
+    string target;
+    string driver;
+    string disk_attr_type;
 
-    ostringstream  iid;
+    ostringstream iid;
 
     *img_type = type;
     bus       = disk->vector_value("BUS");
@@ -459,7 +459,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
     string prefix;
     string template_driver;
 
-    get_template_attribute("BUS", template_bus);
+    get_template_attribute("BUS",    template_bus);
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
 
@@ -473,7 +473,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
    //---------------------------------------------------------------------------
    //                       BASE DISK ATTRIBUTES
    //---------------------------------------------------------------------------
-
     disk->replace("IMAGE",    name);
     disk->replace("IMAGE_ID", iid.str());
     disk->replace("SOURCE",   source);
@@ -491,7 +490,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
    //---------------------------------------------------------------------------
    //   TYPE, READONLY, CLONE, and SAVE attributes
    //---------------------------------------------------------------------------
-
     if ( persistent_img )
     {
         disk->replace("CLONE","NO");
@@ -518,7 +516,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
         break;
     }
 
-    
     disk->replace("TYPE",disk_attr_type);
 
    //---------------------------------------------------------------------------
