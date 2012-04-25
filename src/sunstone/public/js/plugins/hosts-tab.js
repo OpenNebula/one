@@ -84,7 +84,11 @@ var create_host_tmpl =
                 <option value="vmm_vmware">' + tr("VMware") + '</option>\
                 <option value="vmm_ec2">' + tr("EC2") + '</option>\
                 <option value="vmm_dummy">' + tr("Dummy") + '</option>\
+                <option value="custom">' + tr("Custom") + '</option>\
           </select>\
+          <div>\
+          <label>' + tr("Custom VMM_MAD") + ':</label>\
+          <input type="text" name="custom_vmm_mad" /></div>\
     </div>\
     <div class="manager clear" id="im_mads">\
       <label>' + tr("Information Manager") + ':</label>\
@@ -94,18 +98,28 @@ var create_host_tmpl =
                <option value="im_vmware">' + tr("VMware") + '</option>\
                <option value="im_ec2">' + tr("EC2") + '</option>\
                <option value="im_dummy">' + tr("Dummy") + '</option>\
+               <option value="custom">' + tr("Custom") + '</option>\
       </select>\
+      <div>\
+        <label>' + tr("Custom IM_MAD") + ':</label>\
+        <input type="text" name="custom_im_mad" />\
+      </div>\
     </div>\
     <div class="manager clear" id="vnm_mads">\
       <label>Virtual Network Manager:</label>\
        <select id="vnm_mad" name="vn">\
          <option value="dummy">' + tr("Default (dummy)") +'</option>\
-         <option value="fw">Firewall</option>\
-         <option value="802.1Q">802.1Q</option>\
-         <option value="ebtables">Ebtables</option>\
-         <option value="ovswitch">Open vSwitch</option>\
-         <option value="vmware">VMware</option>\
+         <option value="fw">'+tr("Firewall")+'</option>\
+         <option value="802.1Q">'+tr("802.1Q")+'</option>\
+         <option value="ebtables">'+tr("Ebtables")+'</option>\
+         <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
+         <option value="vmware">'+tr("VMware")+'</option>\
+         <option value="custom">' + tr("Custom") + '</option>\
        </select>\
+       <div>\
+          <label>' + tr("Custom VNM_MAD") + ':</label>\
+          <input type="text" name="custom_vnm_mad" />\
+       </div>\
     </div>\
     <div class="manager clear" id="cluster_select">\
       <label>' + tr("Cluster") + ':</label>\
@@ -595,9 +609,35 @@ function setupCreateHostDialog(){
 
     $('button',dialog).button();
 
+    $('input[name="custom_vmm_mad"],'+
+       'input[name="custom_im_mad"],'+
+       'input[name="custom_vnm_mad"]',dialog).parent().hide();
+
+    $('select#vmm_mad',dialog).change(function(){
+        if ($(this).val()=="custom")
+            $('input[name="custom_vmm_mad"]').parent().show();
+        else
+            $('input[name="custom_vmm_mad"]').parent().hide();
+    });
+
+    $('select#im_mad',dialog).change(function(){
+        if ($(this).val()=="custom")
+            $('input[name="custom_im_mad"]').parent().show();
+        else
+            $('input[name="custom_im_mad"]').parent().hide();
+    });
+
+    $('select#vnm_mad',dialog).change(function(){
+        if ($(this).val()=="custom")
+            $('input[name="custom_vnm_mad"]').parent().show();
+        else
+            $('input[name="custom_vnm_mad"]').parent().hide();
+    });
+
     //Handle the form submission
     $('#create_host_form',dialog).submit(function(){
-        if (!($('#name',this).val().length)){
+        var name = $('#name',this).val();
+        if (!name){
             notifyError(tr("Host name missing!"));
             return false;
         }
@@ -605,12 +645,19 @@ function setupCreateHostDialog(){
         var cluster_id = $('#host_cluster_id',this).val();
         if (!cluster_id) cluster_id = "-1";
 
+        var vmm_mad = $('select#vmm_mad',this).val();
+        vmm_mad = vmm_mad == "custom" ? $('input[name="custom_vmm_mad"]').val() : vmm_mad;
+        var im_mad = $('select#im_mad',this).val();
+        im_mad = im_mad == "custom" ? $('input[name="custom_im_mad"]').val() : im_mad;
+        var vnm_mad = $('select#vnm_mad',this).val();
+        vnm_mad = vnm_mad == "custom" ? $('input[name="custom_vnm_mad"]').val() : vnm_mad;
+
         var host_json = {
             "host": {
-                "name": $('#name',this).val(),
-                "vm_mad": $('#vmm_mad',this).val(),
-                "vnm_mad": $('#vnm_mad',this).val(),
-                "im_mad": $('#im_mad',this).val(),
+                "name": name,
+                "vm_mad": vmm_mad,
+                "vnm_mad": vnm_mad,
+                "im_mad": im_mad,
                 "cluster_id": cluster_id
             }
         };
