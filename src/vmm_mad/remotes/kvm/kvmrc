@@ -20,9 +20,9 @@ export LIBVIRT_URI=qemu:///system
 
 export QEMU_PROTOCOL=qemu+ssh
 
-# Senconds to wait after shutdown until timeout
-export SHUTDOWN_TIMEOUT=120
+# Seconds to wait after shutdown until timeout
+export SHUTDOWN_TIMEOUT=300
 
-# Uncoment this line to force VM cancellation after shutdown timeout
+# Uncomment this line to force VM cancellation after shutdown timeout
 #export FORCE_DESTROY=yes
 
