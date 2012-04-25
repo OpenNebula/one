@@ -176,6 +176,48 @@ function timeout_exec_and_log
     fi
 }
 
+# Parameters are times (seconds) and monitoring command (or function).
+# Executes monitoring command until it is successful (VM is no longer
+# running) or the timeout is reached.
+function retry
+{
+    times=$1
+    function=$2
+
+    count=1
+
+    ret=$($function)
+    error=$?
+
+    while [ $count -lt $times -a "$error" != "0" ]; do
+        sleep 1
+        count=$(( $count + 1 ))
+        ret=$($function)
+        error=$?
+    done
+
+    [ "x$error" = "x0" ]
+}
+
+# Parameters are deploy_id and cancel command. If the last command is
+# unsuccessful and $FORCE_DESTROY=yes then calls cancel command
+function force_shutdown {
+    error=$?
+    deploy_id=$1
+    command=$2
+
+    if [ "x$error" != "x0" ]; then
+        if [ "$FORCE_DESTROY" = "yes" ]; then
+            log_error "Timeout shutting down $deploy_id. Destroying it"
+            $($command)
+            sleep 2
+        else
+            error_message "Timed out shutting down $deploy_id"
+            exit -1
+        fi
+    fi
+}
+
 # This function will return a command that upon execution will format a
 # filesystem with its proper parameters based on the filesystem type
 function mkfs_command {
