@@ -191,7 +191,6 @@ void ImageManager::release_image(int iid, bool failed)
 
             img->unlock();
             break;
-
         case Image::DISABLED:
         case Image::READY:
         case Image::ERROR:

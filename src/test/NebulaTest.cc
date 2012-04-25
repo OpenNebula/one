@@ -44,11 +44,12 @@ UserPool* NebulaTest::create_upool(SqlDB* db)
 }
 
 ImagePool* NebulaTest::create_ipool( SqlDB* db,
-                                string default_image_type)
+                                string default_image_type,
+                                string default_device_prefix)
 {
     vector<const Attribute *> restricted_attrs;
 
-    return new ImagePool(db, default_image_type, restricted_attrs);
+    return new ImagePool(db, default_image_type, default_device_prefix, restricted_attrs);
 }
 
 VMTemplatePool* NebulaTest::create_tpool(SqlDB* db)

@@ -90,10 +90,12 @@ class ImagePoolFriend : public ImagePool
 public:
     ImagePoolFriend(SqlDB *                     db,
                     const string&               _default_type,
+                    const string&               _default_dev_prefix,
                     vector<const Attribute *>   _restricted_attrs):
 
                     ImagePool(  db,
                                 _default_type,
+                                _default_dev_prefix,
                                 _restricted_attrs){};
 
 
@@ -113,7 +115,7 @@ public:
             string gname = gnames[uid];
 
             return ImagePool::allocate(uid, 1, uname, gname, 
-                        img_template, 0, "none", "", oid, err);
+                        img_template, 0,"none", "", oid, err);
         }
         else
         {
@@ -143,6 +145,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( duplicates );
     CPPUNIT_TEST ( extra_attributes );
     CPPUNIT_TEST ( wrong_templates );
+    CPPUNIT_TEST ( target_generation );
     CPPUNIT_TEST ( bus_source_assignment );
     CPPUNIT_TEST ( persistence );
     CPPUNIT_TEST ( imagepool_disk_attribute );
@@ -253,7 +256,7 @@ public:
         // Create a new pool, using the same DB. This new pool should read the
         // allocated images.
         vector<const Attribute *> restricted_attrs;
-        imp = new ImagePool(db,"OS", restricted_attrs);
+        imp = new ImagePool(db,"OS", "hd", restricted_attrs);
 
         img = imp->get(0, false);
         CPPUNIT_ASSERT( img != 0 );
@@ -427,6 +430,107 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+    void target_generation()
+    {
+        ImagePoolFriend *         imp = static_cast<ImagePoolFriend *>(pool);
+        Image *             img;
+
+        VectorAttribute *   disk;
+        int                 oid;
+        string              value;
+        int                 index=0;
+        Image::ImageType    img_type;
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate an OS type image
+        oid = allocate(0);
+        img = imp->get(oid, false);
+
+        CPPUNIT_ASSERT( img != 0 );
+        CPPUNIT_ASSERT( oid == 0 );
+
+        img->set_state(Image::READY);
+        img->disk_attribute(disk, &index, &img_type);
+
+        value = disk->vector_value("TARGET");
+
+        CPPUNIT_ASSERT( value == "hda" );
+        CPPUNIT_ASSERT( img_type == Image::OS );
+
+        // clean up
+        delete disk;
+        value = "";
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate a CDROM type image
+        string templ = "NAME = \"name A\" TYPE = CDROM PATH = /tmp";
+        imp->allocate(0, templ, &oid);
+
+        CPPUNIT_ASSERT(oid >= 0);
+
+        img = imp->get(oid, false);
+        CPPUNIT_ASSERT( img != 0 );
+
+        img->set_state(Image::READY);
+        img->disk_attribute(disk, &index, &img_type);
+
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT(value == "hdc");
+        CPPUNIT_ASSERT( img_type == Image::CDROM );
+
+        // clean up
+        delete disk;
+        value = "";
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate a DATABLOCK type image
+        templ = "NAME = \"name B\" TYPE = DATABLOCK PATH=\"/dev/null\"";
+        imp->allocate(0, templ, &oid);
+
+        CPPUNIT_ASSERT(oid >= 0);
+
+        img = imp->get(oid, false);
+        CPPUNIT_ASSERT( img != 0 );
+
+        img->set_state(Image::READY);
+        img->disk_attribute(disk, &index, &img_type);
+
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT(value == "hde");
+        CPPUNIT_ASSERT( img_type == Image::DATABLOCK );
+
+        // clean up
+        delete disk;
+        value = "";
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate a DATABLOCK type image
+        templ = "NAME = \"name C\" TYPE = DATABLOCK DEV_PREFIX = \"sd\""
+                " SIZE=4 FSTYPE=ext3";
+        imp->allocate(0, templ, &oid);
+
+        CPPUNIT_ASSERT(oid >= 0);
+
+        img = imp->get(oid, false);
+        CPPUNIT_ASSERT( img != 0 );
+
+        img->set_state(Image::READY);
+        img->disk_attribute(disk, &index, &img_type);
+
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT(value == "sdf");
+
+        // clean up
+        delete disk;
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void bus_source_assignment()
     {
         ImagePool *         imp = static_cast<ImagePool *>(pool);
@@ -500,10 +604,11 @@ public:
         // Allocate 2 images, with different dev_prefix
 
         string template_0 = "NAME          = \"Image 0\"\n"
-                            "TARGET        = \"hdx\"\n"
+                            "DEV_PREFIX    = \"hd\"\n"
                             "PATH          = /dev/null\n";
 
         string template_1 = "NAME          = \"Image 1\"\n"
+                            "DEV_PREFIX    = \"sd\"\n"
                             "PATH          = /dev/null\n";
 
 
@@ -527,25 +632,29 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE_ID", "0");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0, 0, img_id,error);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0, img_id,error);
 
         value = "";
         value = disk->vector_value("TARGET");
-        CPPUNIT_ASSERT( value == "hdx" );
+        CPPUNIT_ASSERT( value == "hda" );
 
-        value = "";
-        value = disk->vector_value("IMAGE");
-        CPPUNIT_ASSERT( value == "Image 0" );
 
         delete disk;
+
 
         // Disk using image 1 index
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE_ID", "1");
 
-        int rc = ((ImagePool*)imp)->disk_attribute(disk, 0, 0, img_id,error);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0, img_id,error);
 
-        CPPUNIT_ASSERT( rc == -1 );
+        value = "";
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT( value == "sda" );
+
+        value = "";
+        value = disk->vector_value("IMAGE");
+        CPPUNIT_ASSERT( value == "Image 1" );
 
         delete disk;
     }

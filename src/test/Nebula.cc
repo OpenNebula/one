@@ -243,7 +243,9 @@ void Nebula::start()
 
         if (tester->need_image_pool)
         {
-            ipool  = tester->create_ipool(db, default_image_type);
+            ipool  = tester->create_ipool(db,
+                                          default_image_type,
+                                          default_device_prefix);
         }
 
         if (tester->need_template_pool)
