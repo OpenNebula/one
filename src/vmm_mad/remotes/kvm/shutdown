@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -19,45 +19,42 @@
 source $(dirname $0)/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
-#------------------------------------------------------------------------------
-# Wait the VM to shutdown TIMEOUT (xPOLL_INTERVAL) seconds.
-# Set to ~10min
-#------------------------------------------------------------------------------
-POLL_INTERVAL=2
-TIMEOUT=300
-HALF_LOOP=$(($TIMEOUT/POLL_INTERVAL))
+count=0
 
 deploy_id=$1
 
-virsh --connect $LIBVIRT_URI shutdown $deploy_id
-
-exit_code=$?
-
-if [ "$exit_code" != "0" ]; then
-    error_message "Could not shutdown $deploy_id"
-    exit $exit_code
+if [ -z "$SHUTDOWN_TIMEOUT" ]; then
+    TIMEOUT=120
+else
+    TIMEOUT=$SHUTDOWN_TIMEOUT
 fi
 
-count=0
-while [ $(virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1; echo $?) = "0" ]
-do 
-	sleep $POLL_INTERVAL
-	if [ "$count" -gt "$TIMEOUT" ]
-	then
-	    error_message "Timeout reached and VM $deploy_id is still alive"
-		echo "Timeout reached" >&2
-		exit 1
-	fi
+HALF_LOOP=$(($TIMEOUT/2))
 
+function monitor
+{
     # Issue another shutdown to cover occasional libvirt lack of attention
-	if [ "$count" -eq "$HALF_LOOP" ] 
-	then
-		virsh --connect $LIBVIRT_URI shutdown $deploy_id
+    if [ "$count" -eq "$HALF_LOOP" ]
+    then
+        virsh --connect $LIBVIRT_URI shutdown $deploy_id
     fi
 
-	let count=count+$POLL_INTERVAL
-done
+    let count=count+1
+
+    export count
+
+    virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1
+
+    [ "x$?" != "x0" ]
+}
+
+exec_and_log "virsh --connect $LIBVIRT_URI shutdown \"$deploy_id\"" \
+    "Could not shutdown $deploy_id"
+
+retry $TIMEOUT monitor
+
+force_shutdown "$deploy_id" \
+    "virsh --connect $LIBVIRT_URI destroy \"$deploy_id\""
 
 sleep 4
 
-exit 0
