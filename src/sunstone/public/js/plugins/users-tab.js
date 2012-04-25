@@ -60,7 +60,12 @@ var create_user_tmpl =
                      <option value="ssh">'+tr("SSH")+'</option>\
                      <option value="x509">'+tr("x509")+'</option>\
                      <option value="public">'+tr("Public")+'</option>\
+                     <option value="custom">'+tr("Custom")+'</option>\
                 </select>\
+                <div>\
+                  <label>'+tr("Custom auth driver")+':</label>\
+                  <input type="text" name="custom_auth" /><br />\
+                </div>\
         </div>\
         </fieldset>\
         <fieldset>\
@@ -444,15 +449,25 @@ function setupCreateUserDialog(){
 
     $('button',dialog).button();
 
+    $('input[name="custom_auth"]',dialog).parent().hide();
+    $('select#driver').change(function(){
+        if ($(this).val() == "custom")
+            $('input[name="custom_auth"]',dialog).parent().show();
+        else
+            $('input[name="custom_auth"]',dialog).parent().hide();
+    });
+
     $('#create_user_form',dialog).submit(function(){
         var user_name=$('#username',this).val();
         var user_password=$('#pass',this).val();
         var driver = $('#driver', this).val();
+        if (driver == 'custom')
+            driver = $('input[name="custom_auth"]').val();
 
         if (!user_name.length || !user_password.length){
             notifyError(tr("User name and password must be filled in"));
             return false;
-        }
+        };
 
         var user_json = { "user" :
                           { "name" : user_name,
