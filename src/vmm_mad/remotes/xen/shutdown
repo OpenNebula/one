@@ -39,5 +39,5 @@ exec_and_log "$XM_SHUTDOWN $deploy_id" \
 
 retry $TIMEOUT monitor
 
-force_shutdown "$deploy_id" "$XM_CANCEL \"$deploy_id\""
+force_shutdown "$deploy_id" "$XM_CANCEL $deploy_id"
 
