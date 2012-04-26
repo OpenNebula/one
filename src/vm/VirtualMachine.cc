@@ -839,30 +839,52 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void assign_disk_targets(queue<pair <string, VectorAttribute *> >& _queue,
+                                set<string>& used_targets)
+{
+    int    index = 0;
+    string target;
+
+    pair <string, VectorAttribute *> disk_pair;
+
+    while (_queue.size() > 0 )
+    {
+        disk_pair = _queue.front();
+        index     = 0;
+
+        do
+        {
+            target = disk_pair.first + static_cast<char>(('a'+ index));
+            index++;
+        }
+        while ( used_targets.count(target) > 0 && index < 26 );
+
+        disk_pair.second->replace("TARGET", target);
+        used_targets.insert(target);
+
+        _queue.pop();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::get_disk_images(string& error_str)
 {
-    int                   num_disks, rc;
-    vector<Attribute  * > disks;
-    ImagePool *           ipool;
-    VectorAttribute *     disk;
-    vector<int>           acquired_images;
+    int                  num_disks, rc;
+    vector<Attribute  *> disks;
+    ImagePool *          ipool;
+    VectorAttribute *    disk;
+    vector<int>          acquired_images;
 
     int     image_id;
     string  dev_prefix;
     string  target;
 
-    queue< pair <string, VectorAttribute *> >   os_disk;
-    queue< pair <string, VectorAttribute *> >   cdrom_disks;
-    queue< pair <string, VectorAttribute *> >   datablock_disks;
+    queue<pair <string, VectorAttribute *> > os_disk;
+    queue<pair <string, VectorAttribute *> > cdrom_disks;
+    queue<pair <string, VectorAttribute *> > datablock_disks;
 
-    queue< pair <string, VectorAttribute *> >*  queues[3] =
-        {&os_disk, &cdrom_disks, &datablock_disks};
-
-    pair <string, VectorAttribute *>            disk_pair;
-    set<string>                                 used_targets;
-
-    bool            inserted;
-    int             index = 0;
+    set<string> used_targets;
 
     ostringstream    oss;
     Image::ImageType img_type;
@@ -870,7 +892,9 @@ int VirtualMachine::get_disk_images(string& error_str)
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
+    // -------------------------------------------------------------------------
     // The context is the first of the cdroms
+    // -------------------------------------------------------------------------
     num_disks = obj_template->get("CONTEXT", disks);
 
     if ( num_disks > 0 )
@@ -883,17 +907,25 @@ int VirtualMachine::get_disk_images(string& error_str)
 
             if ( !target.empty() )
             {
-                used_targets.insert(target).second;
+                used_targets.insert(target);
             }
             else
             {
-                cdrom_disks.push( make_pair(ipool->default_dev_prefix(), disk) );
+                cdrom_disks.push(make_pair(ipool->default_dev_prefix(), disk));
             }
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Set DISK attributes & Targets
+    // -------------------------------------------------------------------------
     disks.clear();
     num_disks = obj_template->get("DISK", disks);
+
+    if ( num_disks > 20 )
+    {
+        goto error_max_disks;
+    }
 
     for(int i=0; i<num_disks; i++)
     {
@@ -904,8 +936,6 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        // This will set disk->target only if
-        // it is defined in the Image template
         rc = ipool->disk_attribute(disk, 
                                    i,
                                    &img_type,
@@ -913,21 +943,15 @@ int VirtualMachine::get_disk_images(string& error_str)
                                    uid, 
                                    image_id, 
                                    error_str);
-
         if (rc == 0 )
         {
             acquired_images.push_back(image_id);
-
-            // If the disk has TARGET defined, that one can't be used later
-            // in the automatic assignment
 
             target = disk->vector_value("TARGET");
 
             if ( !target.empty() )
             {
-                inserted = used_targets.insert(target).second;
-
-                if ( inserted == false )
+                if (  used_targets.insert(target).second == false )
                 {
                     goto error_duplicated_target;
                 }
@@ -938,10 +962,8 @@ int VirtualMachine::get_disk_images(string& error_str)
                 {
                     case Image::OS:
                         // The first OS disk gets the first device (a),
-                        // if there are more than one, the rest will start after
-                        // the cdroms, with the other datablock disks
-
-                        if ( os_disk.size() == 0 )
+                        // other OS's will be managed as DATABLOCK's 
+                        if ( os_disk.empty() )
                         {
                             os_disk.push( make_pair(dev_prefix, disk) );
                         }
@@ -970,35 +992,24 @@ int VirtualMachine::get_disk_images(string& error_str)
         }
     }
 
-    // TODO: check that there is at least one OS disk
-
-    for ( int i=0; i<3; i++ )
+    if (os_disk.empty())
     {
-        queue< pair <string, VectorAttribute *> >*  queue = queues[i];
-
-        while ( (*queue).size() > 0 )
-        {
-            disk_pair = (*queue).front();
-
-            index = 0;
-
-            do
-            {
-                target = disk_pair.first + static_cast<char>(('a'+ index));
-                index++;
-            }
-            while ( used_targets.count(target) > 0 && index < 26 );
-
-            // TODO: if index == 26, then all targets up to z are used
-
-            disk_pair.second->replace("TARGET", target);
-            used_targets.insert(target);
-
-            (*queue).pop();
-        }
+        goto error_no_os;
     }
 
+    assign_disk_targets(os_disk, used_targets);
+    assign_disk_targets(cdrom_disks, used_targets);
+    assign_disk_targets(datablock_disks, used_targets);
+
     return 0;
+
+error_max_disks:
+    error_str = "Exceeded the maximum number of disks (20)";
+    return -1;
+
+error_no_os:
+    error_str = "There is no OS image defined";
+    goto error_common;
 
 error_duplicated_target:
     oss << "Two disks have defined the same target " << target;
