@@ -148,7 +148,7 @@ public:
      */
     int disk_attribute(VectorAttribute *  disk,
                        int                disk_id,
-                       Image::ImageType * img_type,
+                       Image::ImageType&  img_type,
                        string&            dev_prefix,
                        int                uid,
                        int&               image_id,

@@ -938,7 +938,7 @@ int VirtualMachine::get_disk_images(string& error_str)
 
         rc = ipool->disk_attribute(disk, 
                                    i,
-                                   &img_type,
+                                   img_type,
                                    dev_prefix,
                                    uid, 
                                    image_id, 

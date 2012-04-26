@@ -438,7 +438,7 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 
 int Image::disk_attribute(  VectorAttribute * disk,
-                            ImageType*        img_type,
+                            ImageType&        img_type,
                             string&           dev_prefix)
 {
     string bus;
@@ -448,10 +448,10 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     ostringstream iid;
 
-    *img_type = type;
-    bus       = disk->vector_value("BUS");
-    target    = disk->vector_value("TARGET");
-    driver    = disk->vector_value("DRIVER");
+    img_type = type;
+    bus      = disk->vector_value("BUS");
+    target   = disk->vector_value("TARGET");
+    driver   = disk->vector_value("DRIVER");
     iid << oid;
 
     string template_bus;

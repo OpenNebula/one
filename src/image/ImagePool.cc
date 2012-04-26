@@ -214,13 +214,13 @@ static int get_disk_id(const string& id_s)
 
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::disk_attribute(VectorAttribute *  disk,
-                              int                disk_id,
-                              Image::ImageType * img_type,
-                              string&            dev_prefix,
-                              int                uid,
-                              int&               image_id,
-                              string&            error_str)
+int ImagePool::disk_attribute(VectorAttribute * disk,
+                              int               disk_id,
+                              Image::ImageType& img_type,
+                              string&           dev_prefix,
+                              int               uid,
+                              int&              image_id,
+                              string&           error_str)
 {
     string  source;
     Image * img = 0;
@@ -278,7 +278,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
         if ( type == "SWAP" || type == "FS" ) 
         {
             dev_prefix = _default_dev_prefix;
-            *img_type  = Image::DATABLOCK;
+            img_type   = Image::DATABLOCK;
         }
         else
         {

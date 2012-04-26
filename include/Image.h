@@ -339,7 +339,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_attribute( VectorAttribute * disk,
-                        ImageType*        img_type,
+                        ImageType&        img_type,
                         string&           dev_prefix);
 
     /**
