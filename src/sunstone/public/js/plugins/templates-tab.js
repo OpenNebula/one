@@ -435,31 +435,31 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <h3>'+tr("Add Graphics")+' <a id="add_graphics" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
                             </div>\
                           <fieldset><legend>'+tr("Graphics")+'</legend>\
-                            <div class="vm_param kvm_opt xen_opt">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="TYPE">'+tr("Graphics type")+':</label>\
                                   <select id="TYPE" name="">\
                     <option value="">'+tr("Please select")+'</option>\
                                         <option id="vnc" value="vnc">'+tr("VNC")+'</option>\
                                         <option value="sdl">'+tr("SDL")+'</option>\
                                   </select>\
-                                  <div class="tip"></div>\
+                                  <div class="tip">'+tr("VMware supports VNC only")+'</div>\
                             </div>\
-                            <div class="vm_param kvm_opt xen_opt">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="LISTEN">'+tr("Listen IP")+':</label>\
                                   <input type="text" id="LISTEN" name="graphics_ip" />\
                                   <div class="tip">'+tr("IP to listen on")+'</div>\
                             </div>\
-                            <div class="vm_param kvm_opt xen_opt">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="PORT">'+tr("Port")+':</label>\
                                   <input type="text" id="PORT" name="port" />\
                                   <div class="tip">'+tr("Port for the VNC server")+'</div>\
                             </div>\
-                            <div class="vm_param kvm_opt xen_opt">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="PASSWD">'+tr("Password")+':</label>\
                                   <input type="text" id="PASSWD" name="graphics_pw" />\
                                   <div class="tip">'+tr("Password for the VNC server")+'</div>\
                             </div>\
-                            <div class="vm_param kvm_opt xen_opt">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="KEYMAP">'+tr("Keymap")+'</label>\
                                   <input type="text" id="KEYMAP" name="keymap" />\
                                   <div class="tip">'+tr("Keyboard configuration locale to use in the VNC display")+'</div>\
@@ -997,7 +997,6 @@ function setupCreateTemplateDialog(){
 
         //hide non common sections
         $(section_inputs).hide();
-        $(section_graphics).hide();
 
         switch(ui.index){
         case 0:
@@ -1085,7 +1084,6 @@ function setupCreateTemplateDialog(){
         $('input#TYPE', section_raw).val("kvm");
 
         $(section_inputs).show();
-        $(section_graphics).show();
     };
 
     // Using XEN wizard.
@@ -1121,7 +1119,6 @@ function setupCreateTemplateDialog(){
         $('select#BUS',section_disks).html(bus_opts);
 
         $('input#TYPE', section_raw).val("xen");
-        $(section_graphics).show();
     };
 
     //VMWare wizard
