@@ -438,8 +438,8 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 
 int Image::disk_attribute(  VectorAttribute * disk,
-                            int *             index,
-                            ImageType*        img_type)
+                            ImageType*        img_type,
+                            string&           dev_prefix)
 {
     string bus;
     string target;
@@ -456,18 +456,17 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     string template_bus;
     string template_target;
-    string prefix;
     string template_driver;
 
     get_template_attribute("BUS",    template_bus);
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
 
-    get_template_attribute("DEV_PREFIX", prefix);
+    get_template_attribute("DEV_PREFIX", dev_prefix);
 
-    if (prefix.empty())//Removed from image template, get it again from defaults
+    if (dev_prefix.empty())//Removed from image template, get it again from defaults
     {
-        prefix = ImagePool::default_dev_prefix();
+        dev_prefix = ImagePool::default_dev_prefix();
     }
 
    //---------------------------------------------------------------------------
@@ -518,37 +517,14 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     disk->replace("TYPE",disk_attr_type);
 
-   //---------------------------------------------------------------------------
-   //   TARGET attribute
-   //---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
+    //   TARGET attribute
+    //---------------------------------------------------------------------------
 
-    if (target.empty()) //No TARGET in DISK attribute
+    // TARGET defined in the Image template, but not in the DISK attribute
+    if ( target.empty() && !template_target.empty() )
     {
-        if (!template_target.empty())
-        {
-            disk->replace("TARGET", template_target);
-        }
-        else
-        {
-            switch(type)
-            {
-                case OS:
-                    prefix += "a";
-                break;
-
-                case CDROM:
-                    prefix += "c"; // b is for context
-                break;
-
-                case DATABLOCK:
-                    prefix += static_cast<char>(('e'+ *index));
-                    *index  = *index + 1;
-                break;
-
-            }
-
-            disk->replace("TARGET", prefix);
-        }
+        disk->replace("TARGET", template_target);
     }
 
     return 0;

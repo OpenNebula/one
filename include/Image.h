@@ -329,18 +329,18 @@ public:
      * Modifies the given disk attribute adding the following attributes:
      *  * SOURCE: the file-path.
      *  * BUS:    will only be set if the Image's definition includes it.
-     *  * TARGET: the value set depends on:
-     *    - OS images will be mounted at prefix + a:  hda, sda.
-     *    - Prefix + b is reserved for the contex cdrom.
-     *    - CDROM images will be at prefix + c:  hdc, sdc.
-     *    - Several DATABLOCK images can be mounted, they will be set to
-     *      prefix + (d + index) :   hdd, hde, hdf...
+     *  * TARGET: will only be set if the Image's definition includes it.
+     *
      * @param disk attribute for the VM template
-     * @param index number of datablock images used by the same VM. Will be
-     *              automatically increased.
      * @param img_type will be set to the used image's type
+     * @param dev_prefix will be set to the defined dev_prefix,
+     *   or the default one
+     *
+     * @return 0 on success, -1 otherwise
      */
-    int disk_attribute(VectorAttribute * disk, int* index, ImageType* img_type);
+    int disk_attribute( VectorAttribute * disk,
+                        ImageType*        img_type,
+                        string&           dev_prefix);
 
     /**
      *  Factory method for image templates

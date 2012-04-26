@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <queue>
 
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
@@ -370,20 +371,6 @@ int VirtualMachine::parse_context(string& error_str)
 
         context_parsed = new VectorAttribute("CONTEXT");
         context_parsed->unmarshall(parsed," @^_^@ ");
-
-
-        string target = context_parsed->vector_value("TARGET");
-
-        if ( target.empty() )
-        {
-            Nebula&       nd = Nebula::instance();
-            string        dev_prefix;
-
-            nd.get_configuration_attribute("DEFAULT_DEVICE_PREFIX",dev_prefix);
-            dev_prefix += "b";
-
-            context_parsed->replace("TARGET", dev_prefix);
-        }
 
         obj_template->set(context_parsed);
     }
@@ -860,11 +847,22 @@ int VirtualMachine::get_disk_images(string& error_str)
     VectorAttribute *     disk;
     vector<int>           acquired_images;
 
-    int     n_os = 0; // Number of OS images
-    int     n_cd = 0; // Number of CDROMS
-    int     n_db = 0; // Number of DATABLOCKS
-    string  type;
     int     image_id;
+    string  dev_prefix;
+    string  target;
+
+    queue< pair <string, VectorAttribute *> >   os_disk;
+    queue< pair <string, VectorAttribute *> >   cdrom_disks;
+    queue< pair <string, VectorAttribute *> >   datablock_disks;
+
+    queue< pair <string, VectorAttribute *> >*  queues[3] =
+        {&os_disk, &cdrom_disks, &datablock_disks};
+
+    pair <string, VectorAttribute *>            disk_pair;
+    set<string>                                 used_targets;
+
+    bool            inserted;
+    int             index = 0;
 
     ostringstream    oss;
     Image::ImageType img_type;
@@ -872,9 +870,32 @@ int VirtualMachine::get_disk_images(string& error_str)
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
-    num_disks  = obj_template->get("DISK",disks);
+    // The context is the first of the cdroms
+    num_disks = obj_template->get("CONTEXT", disks);
 
-    for(int i=0, index=0; i<num_disks; i++)
+    if ( num_disks > 0 )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[0]);
+
+        if ( disk != 0 )
+        {
+            target = disk->vector_value("TARGET");
+
+            if ( !target.empty() )
+            {
+                used_targets.insert(target).second;
+            }
+            else
+            {
+                cdrom_disks.push( make_pair(ipool->default_dev_prefix(), disk) );
+            }
+        }
+    }
+
+    disks.clear();
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
 
@@ -883,66 +904,105 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
+        // This will set disk->target only if
+        // it is defined in the Image template
         rc = ipool->disk_attribute(disk, 
-                                   i, 
-                                   &index, 
-                                   &img_type, 
+                                   i,
+                                   &img_type,
+                                   dev_prefix,
                                    uid, 
                                    image_id, 
                                    error_str);
+
         if (rc == 0 )
         {
             acquired_images.push_back(image_id);
 
-            switch(img_type)
-            {
-                case Image::OS:
-                    n_os++;
-                    break;
-                case Image::CDROM:
-                    n_cd++;
-                    break;
-                case Image::DATABLOCK:
-                    n_db++;
-                    break;
-                default:
-                    break;
-            }
+            // If the disk has TARGET defined, that one can't be used later
+            // in the automatic assignment
 
-            if( n_os > 1 )  // Max. number of OS images is 1
-            {
-                goto error_max_os;
-            }
+            target = disk->vector_value("TARGET");
 
-            if( n_cd > 1 )  // Max. number of CDROM images is 1
+            if ( !target.empty() )
             {
-                goto error_max_cd;
-            }
+                inserted = used_targets.insert(target).second;
 
-            if( n_db > 10 )  // Max. number of DATABLOCK images is 10
+                if ( inserted == false )
+                {
+                    goto error_duplicated_target;
+                }
+            }
+            else
             {
-                goto error_max_db;
+                switch(img_type)
+                {
+                    case Image::OS:
+                        // The first OS disk gets the first device (a),
+                        // if there are more than one, the rest will start after
+                        // the cdroms, with the other datablock disks
+
+                        if ( os_disk.size() == 0 )
+                        {
+                            os_disk.push( make_pair(dev_prefix, disk) );
+                        }
+                        else
+                        {
+                            datablock_disks.push( make_pair(dev_prefix, disk) );
+                        }
+                        break;
+
+                    case Image::CDROM:
+                        cdrom_disks.push( make_pair(dev_prefix, disk) );
+                        break;
+
+                    case Image::DATABLOCK:
+                        datablock_disks.push( make_pair(dev_prefix, disk) );
+                        break;
+
+                    default:
+                        break;
+                }
             }
         }
-        else if ( rc == -1 )
+        else
         {
             goto error_common;
         }
     }
 
+    // TODO: check that there is at least one OS disk
+
+    for ( int i=0; i<3; i++ )
+    {
+        queue< pair <string, VectorAttribute *> >*  queue = queues[i];
+
+        while ( (*queue).size() > 0 )
+        {
+            disk_pair = (*queue).front();
+
+            index = 0;
+
+            do
+            {
+                target = disk_pair.first + static_cast<char>(('a'+ index));
+                index++;
+            }
+            while ( used_targets.count(target) > 0 && index < 26 );
+
+            // TODO: if index == 26, then all targets up to z are used
+
+            disk_pair.second->replace("TARGET", target);
+            used_targets.insert(target);
+
+            (*queue).pop();
+        }
+    }
+
     return 0;
 
-error_max_os:
-    error_str = "VM cannot use more than one OS image.";
-    goto error_common;
-
-error_max_cd:
-    error_str = "VM cannot use more than one CDROM image.";
-    goto error_common;
-
-error_max_db:
-    error_str = "VM cannot use more than 10 DATABLOCK images.";
-    goto error_common;
+error_duplicated_target:
+    oss << "Two disks have defined the same target " << target;
+    error_str = oss.str();
 
 error_common:
     ImageManager *  imagem  = nd.get_imagem();

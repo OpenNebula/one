@@ -216,8 +216,8 @@ static int get_disk_id(const string& id_s)
 
 int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int                disk_id,
-                              int *              index,
                               Image::ImageType * img_type,
+                              string&            dev_prefix,
                               int                uid,
                               int&               image_id,
                               string&            error_str)
@@ -277,13 +277,8 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
         if ( type == "SWAP" || type == "FS" ) 
         {
-            string target = disk->vector_value("TARGET");
-
-            if ( target.empty() )
-            {
-                error_str = "Missing target for disk of type " + type;
-                return -1;
-            }
+            dev_prefix = _default_dev_prefix;
+            *img_type  = Image::DATABLOCK;
         }
         else
         {
@@ -298,7 +293,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
         Datastore *     ds;
 
         iid = img->get_oid();
-        rc  = img->disk_attribute(disk, index, img_type);
+        rc  = img->disk_attribute(disk, img_type, dev_prefix);
 
         image_id     = img->get_oid();
         datastore_id = img->get_ds_id();
@@ -308,7 +303,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
         if (rc == -1)
         {
             imagem->release_image(iid, false);
-            error_str = "Missing TARGET in disk";
+            error_str = "Unknown internal error";
 
             return -1;
         }
