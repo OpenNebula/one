@@ -179,17 +179,6 @@ function groupElementArray(group_json){
         users_str ];
 }
 
-// function groupInfoListener(){
-//     $('#groups_tab #tbodygroups tr',main_tabs_context).live("click",function(e){
-//         //do nothing if we are clicking a checkbox!
-//         if ($(e.target).is('input')) {return true;}
-//         var aData = dataTable_groups.fnGetData(this);
-//         var id = $(aData[0]).val();
-//         Sunstone.runAction("Group.showinfo",id);
-//         return false;
-//     });
-// }
-
 function updateGroupSelect(){
     groups_select = makeSelectOptions(dataTable_groups,
                                       1,//id_col
@@ -302,4 +291,5 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_groups);
     tableCheckboxesListener(dataTable_groups);
+    infoListener(dataTable_groups);
 })

@@ -864,5 +864,5 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_clusters);
     tableCheckboxesListener(dataTable_clusters);
-//    clusterInfoListener();
+    infoListener(dataTable_clusters);
 });
