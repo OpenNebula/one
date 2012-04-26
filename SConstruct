@@ -237,22 +237,22 @@ if testing=='yes':
     ])
 
     build_scripts.extend([
-        'src/authm/test/SConstruct',
-        'src/common/test/SConstruct',
-        'src/host/test/SConstruct',
-        'src/cluster/test/SConstruct',
-        'src/datastore/test/SConstruct',
-        'src/group/test/SConstruct',
-        'src/image/test/SConstruct',
-        'src/lcm/test/SConstruct',
-        'src/pool/test/SConstruct',
-        'src/template/test/SConstruct',
-        'src/test/SConstruct',
-        'src/um/test/SConstruct',
+#        'src/authm/test/SConstruct',
+#        'src/common/test/SConstruct',
+#        'src/host/test/SConstruct',
+#        'src/cluster/test/SConstruct',
+#        'src/datastore/test/SConstruct',
+#        'src/group/test/SConstruct',
+#        'src/image/test/SConstruct',
+#        'src/lcm/test/SConstruct',
+#        'src/pool/test/SConstruct',
+#        'src/template/test/SConstruct',
+#        'src/test/SConstruct',
+#        'src/um/test/SConstruct',
         'src/vm/test/SConstruct',
-        'src/vnm/test/SConstruct',
-        'src/xml/test/SConstruct',
-        'src/vm_template/test/SConstruct',
+#        'src/vnm/test/SConstruct',
+#        'src/xml/test/SConstruct',
+#        'src/vm_template/test/SConstruct',
     ])
 else:
     main_env.Append(testing='no')

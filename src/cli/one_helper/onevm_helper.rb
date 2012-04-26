@@ -57,7 +57,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             column :NAME, "Name of the Virtual Machine", :left,
                     :size=>15 do |d|
-                d["NAME"]
+                if d["RESCHED"] == "1"
+                    "*#{d["NAME"]}"
+                else
+                    d["NAME"]
+                end
             end
 
             column :USER, "Username of the Virtual Machine owner", :left,
@@ -132,6 +136,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["GROUP", vm['GNAME']]
         puts str % ["STATE", vm.state_str]
         puts str % ["LCM_STATE", vm.lcm_state_str]
+        puts str % ["RESCHED", OpenNebulaHelper.boolean_to_str(vm['RESCHED'])]
         puts str % ["HOSTNAME",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
                 %w{ACTIVE SUSPENDED}.include? vm.state_str

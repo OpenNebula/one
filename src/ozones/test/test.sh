@@ -38,9 +38,9 @@ for j in `ls ./spec/*_spec.rb` ; do
     ONE_LOCATION=$ONE_LOCATION_A rspec $j -f s
     CODE=$?
 
-    if [ $CODE != 0 ] ; then
-        break
-    fi
+#    if [ $CODE != 0 ] ; then
+#        break
+#    fi
     
     ONE_LOCATION=$ONE_LOCATION_A oneA/bin/one stop
     ONE_LOCATION=$ONE_LOCATION_B oneB/bin/one stop

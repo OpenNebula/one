@@ -233,6 +233,14 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         rc = dm->reboot(id);
     }
+    else if (action == "resched")
+    {
+        rc = dm->resched(id, true);
+    }
+    else if (action == "unresched")
+    {
+        rc = dm->resched(id, false);
+    }
 
     switch (rc)
     {

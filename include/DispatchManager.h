@@ -219,6 +219,17 @@ public:
     int reboot(
         int vid);
 
+    /**
+     *  Set the re-scheduling flag for the VM (must be in RUNNING state)
+     *    @param vid VirtualMachine identification
+     *    @param do_resched set or unset the flag
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
+    int resched(
+        int  vid,
+        bool do_resched);
+
 private:
     /**
      *  Thread id for the Dispatch Manager

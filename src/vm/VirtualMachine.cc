@@ -47,6 +47,7 @@ VirtualMachine::VirtualMachine(int           id,
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
+        resched(0),
         stime(time(0)),
         etime(0),
         deploy_id(""),
@@ -1386,6 +1387,7 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
         << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+        << "<RESCHED>"   << resched   << "</RESCHED>"
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
@@ -1452,6 +1454,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(last_poll, "/VM/LAST_POLL", 0);
     rc += xpath(istate,    "/VM/STATE",     0);
     rc += xpath(ilcmstate, "/VM/LCM_STATE", 0);
+    rc += xpath(resched,   "/VM/RESCHED",   0);
 
     rc += xpath(stime,     "/VM/STIME",    0);
     rc += xpath(etime,     "/VM/ETIME",    0);

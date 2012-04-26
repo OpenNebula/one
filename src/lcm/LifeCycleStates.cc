@@ -719,6 +719,8 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
     vm->set_state(VirtualMachine::SAVE_SUSPEND);
 
+    vm->set_resched(false);
+
     vmpool->update(vm);
 
     vm->set_running_etime(the_time);
@@ -762,6 +764,8 @@ void  LifeCycleManager::monitor_done_action(int vid)
 
     vm->set_state(VirtualMachine::UNKNOWN);
 
+    vm->set_resched(false);
+
     vmpool->update(vm);
 
     vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
@@ -789,6 +793,8 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
 
     vm->set_state(VirtualMachine::FAILURE);
 
+    vm->set_resched(false);
+    
     vmpool->update(vm);
 
     vm->set_etime(the_time);
