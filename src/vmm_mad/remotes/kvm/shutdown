@@ -48,13 +48,13 @@ function monitor
     [ "x$?" != "x0" ]
 }
 
-exec_and_log "virsh --connect $LIBVIRT_URI shutdown \"$deploy_id\"" \
+exec_and_log "virsh --connect $LIBVIRT_URI shutdown $deploy_id" \
     "Could not shutdown $deploy_id"
 
 retry $TIMEOUT monitor
 
 force_shutdown "$deploy_id" \
-    "virsh --connect $LIBVIRT_URI destroy \"$deploy_id\""
+    "virsh --connect $LIBVIRT_URI destroy $deploy_id"
 
 sleep 4
 
