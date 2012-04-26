@@ -425,22 +425,6 @@ function hostElementArray(host_json){
     ];
 }
 
-//Listen to clicks on the tds of the tables and shows the info dialogs.
-function hostInfoListener(){
-    $('#tbodyhosts tr',dataTable_hosts).live("click",function(e){
-        //do nothing if we are clicking a checkbox!
-        if ($(e.target).is('input')) {return true;}
-
-        var aData = dataTable_hosts.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("Host.showinfo",id);
-        return false;
-    });
-}
-
 //updates the host select by refreshing the options in it
 function updateHostSelect(){
     hosts_select = makeSelectOptions(dataTable_hosts,
@@ -739,7 +723,7 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);
-    hostInfoListener();
+    infoListener(dataTable_hosts, "Host.showinfo");
 
     $('div#menu li#li_hosts_tab').live('click',function(){
         dataTable_hosts.fnFilter('',3);

@@ -342,20 +342,6 @@ function userElementArray(user_json){
     ]
 };
 
-function userInfoListener(){
-    $('#tbodyusers tr',dataTable_users).live("click",function(e){
-        //do nothing if we are clicking a checkbox!
-        if ($(e.target).is('input')) return true;
-        var aData = dataTable_users.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("User.showinfo",id);
-        return false;
-    });
-};
-
 function updateUserSelect(){
     users_select = makeSelectOptions(dataTable_users,
                                      1,//id_col
@@ -571,5 +557,5 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_users);
     tableCheckboxesListener(dataTable_users);
     //shortenedInfoFields('#datatable_users');
-    userInfoListener();
+    infoListener(dataTable_users,'User.showinfo');
 });

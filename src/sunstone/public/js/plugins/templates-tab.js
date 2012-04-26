@@ -857,21 +857,6 @@ function templateElementArray(template_json){
     ];
 }
 
-// Set up the listener on the table TDs to show the info panel
-function templateInfoListener(){
-    $('#tbodytemplates tr',dataTable_templates).live("click",function(e){
-        if ($(e.target).is('input')) {return true;}
-
-        var aData = dataTable_templates.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("Template.showinfo",id);
-        return false;
-    });
-}
-
 //Updates the select input field with an option for each template
 function updateTemplateSelect(){
     var templates_select =
@@ -2178,5 +2163,5 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_templates);
     tableCheckboxesListener(dataTable_templates);
-    templateInfoListener();
+    infoListener(dataTable_templates,'Template.showinfo');
 });

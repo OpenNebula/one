@@ -517,4 +517,5 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_acls);
     //shortenedInfoFields('#datatable_acls');
 
+    infoListener(dataTable_acls);
 })

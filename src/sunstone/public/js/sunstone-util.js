@@ -787,6 +787,33 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
     return false;
 }
 
+
+//Shows run a custom action when clicking on rows.
+function infoListener(dataTable, info_action){
+    $('tbody tr',dataTable).live("click",function(e){
+        if ($(e.target).is('input')) {return true;}
+
+        var aData = dataTable.fnGetData(this);
+        var id = $(aData[0]).val();
+        if (!id) return true;
+
+        var count = $('tbody .check_item:checked', dataTable).length;
+
+        if (info_action){
+            if (e.ctrlKey || count >= 1)
+                $('.check_item',this).trigger('click');
+            else {
+                popDialogLoading();
+                Sunstone.runAction(info_action,id)
+            };
+        } else {
+            $('.check_item',this).trigger('click');
+        };
+
+        return false;
+    });
+}
+
 function mustBeAdmin(){
     return gid == 0;
 }

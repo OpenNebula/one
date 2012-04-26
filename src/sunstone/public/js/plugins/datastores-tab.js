@@ -356,21 +356,6 @@ function datastoreElementArray(element_json){
     ];
 }
 
-function datastoreInfoListener(){
-
-    $('#tbodydatastores tr',dataTable_datastores).live("click", function(e){
-        if ($(e.target).is('input') || $(e.target).is('a img')) {return true;}
-
-        var aData = dataTable_datastores.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("Datastore.showinfo",id);
-        return false;
-    });
-};
-
 function updateDatastoreSelect(){
     datastores_select = makeSelectOptions(dataTable_datastores,
                                           1,
@@ -703,7 +688,7 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_datastores);
     tableCheckboxesListener(dataTable_datastores);
-    datastoreInfoListener();
+    infoListener(dataTable_datastores,'Datastore.showinfo');
 
     $('div#menu li#li_datastores_tab').live('click',function(){
         dataTable_datastores.fnFilter('',5);
