@@ -992,11 +992,6 @@ int VirtualMachine::get_disk_images(string& error_str)
         }
     }
 
-    if (os_disk.empty())
-    {
-        goto error_no_os;
-    }
-
     assign_disk_targets(os_disk, used_targets);
     assign_disk_targets(cdrom_disks, used_targets);
     assign_disk_targets(datablock_disks, used_targets);
@@ -1006,10 +1001,6 @@ int VirtualMachine::get_disk_images(string& error_str)
 error_max_disks:
     error_str = "Exceeded the maximum number of disks (20)";
     return -1;
-
-error_no_os:
-    error_str = "There is no OS image defined";
-    goto error_common;
 
 error_duplicated_target:
     oss << "Two disks have defined the same target " << target;
