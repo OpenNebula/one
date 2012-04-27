@@ -275,20 +275,6 @@ function zoneElementArray(zone_json){
     ];
 }
 
-function zoneInfoListener(){
-    $("#tbodyzones tr").live("click", function(e){
-        if ($(e.target).is('input')) {return true;}
-
-        var aData = dataTable_zones.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("Zone.showinfo",id);
-        return false;
-    });
-}
-
 function updateZoneSelect(){
     zones_select = makeSelectOptions(dataTable_zones,1,2,-1,"",-1);
 }
@@ -744,5 +730,5 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_zones);
     tableCheckboxesListener(dataTable_zones);
-    zoneInfoListener();
+    infoListener(dataTable_zones,'Zone.showinfo');
 });

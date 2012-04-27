@@ -307,20 +307,6 @@ function vdcElementArray(vdc_json){
     ];
 }
 
-function vdcInfoListener() {
-    $("#tbodyvdcs tr").live("click", function(e){
-        if ($(e.target).is('input')) {return true;}
-
-        var aData = dataTable_vdcs.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("VDC.showinfo",id);
-        return false;
-    });
-}
-
 function deleteVDCElement(req){
     deleteElement(dataTable_vdcs,'#vdc_'+req.request.data);
 }
@@ -930,5 +916,5 @@ $(document).ready(function(){
     setVDCAutorefresh();
     initCheckAllBoxes(dataTable_vdcs);
     tableCheckboxesListener(dataTable_vdcs);
-    vdcInfoListener();
+    infoListener(dataTable_vdcs,'VDC.showinfo');
 });
