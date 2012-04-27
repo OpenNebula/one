@@ -300,24 +300,6 @@ function imageElementArray(image_json){
     ];
 }
 
-// Set up the listener on the table TDs to show the info panel
-function imageInfoListener(){
-    $('#tbodyimages tr',dataTable_images).live("click",function(e){
-        var target = $(e.target);
-
-        if (target.is('input') || target.is('select') || target.is('option'))
-            return true;
-
-        var aData = dataTable_images.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("Image.showinfo",id);
-        return false;
-    });
-}
-
 // Callback to update an element in the dataTable
 function updateImageElement(request, image_json){
     var id = image_json.STORAGE.ID;
@@ -629,7 +611,7 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_images);
     tableCheckboxesListener(dataTable_images);
-    imageInfoListener();
+    infoListener(dataTable_images, 'Image.showinfo');
 
     $('#li_images_tab').click(function(){
         popUpImageDashboard();
