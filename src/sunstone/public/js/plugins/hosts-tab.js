@@ -534,6 +534,10 @@ function updateHostInfo(request,host){
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
                </tr>\
                <tr>\
+                  <td class="key_td">' + tr("Max CPU") + '</td>\
+                  <td class="value_td">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
+               </tr>\
+               <tr>\
                   <td class="key_td">' + tr("Used CPU (real)") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
                </tr>\
