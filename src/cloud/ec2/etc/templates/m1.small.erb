@@ -20,8 +20,5 @@ IMAGE_ID = <%= erb_vm_info[:ec2_img_id] %>
 INSTANCE_TYPE = <%= erb_vm_info[:instance_type ]%>
  
 <% if erb_vm_info[:user_data] %>
-CONTEXT = [ 
-       EC2_USER_DATA="<%= erb_vm_info[:user_data] %>",
-       TARGET="hdc"
-       ]
+CONTEXT = [ EC2_USER_DATA="<%= erb_vm_info[:user_data] %>" ]
 <% end %>
