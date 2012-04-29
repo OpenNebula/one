@@ -65,15 +65,17 @@ extern "C" void * scheduler_action_loop(void *arg)
 
 void Scheduler::start()
 {
-    int      rc;
+    int rc;
 
     ifstream      file;
     ostringstream oss;
 
     string etc_path;
-    int    oned_port;
 
-    pthread_attr_t  pattr;
+    int          oned_port;
+    unsigned int live_rescheds;
+
+    pthread_attr_t pattr;
 
     // -----------------------------------------------------------
     // Log system & Configuration File
