@@ -122,7 +122,7 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
                          client->get_oneauth().c_str(),    // argument 0 (AUTH)
                          vid,                              // argument 1 (VM)
                          hid,                              // argument 2 (HOST)
-                         true);                            // argument 3 (LIVE)
+                         live_resched);                    // argument 3 (LIVE)
         }
         else
         {

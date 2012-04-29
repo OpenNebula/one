@@ -156,6 +156,11 @@ private:
     unsigned int host_dispatch_limit;
 
     /**
+     *  Type of migrations when rescheduling a VM: 0 cold, 1 live
+     */
+    unsigned int live_rescheds;
+
+    /**
      *  Threshold value to round up freecpu
      */
     float threshold;
