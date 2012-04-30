@@ -1,3 +1,5 @@
+
+
 /* -------------------------------------------------------------------------- */
 /* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
@@ -63,6 +65,13 @@ int LibVirtDriver::deployment_description_vmware(
     string  bridge     = "";
     string  script     = "";
     string  model      = "";
+
+    const VectorAttribute * graphics;
+    
+    string  listen     = "";
+    string  port       = "";
+    string  passwd     = "";
+    string  keymap     = "";
 
     const VectorAttribute * raw;
     string data;
@@ -354,6 +363,58 @@ int LibVirtDriver::deployment_description_vmware(
 
         file << "\t\t</interface>" << endl;
 
+    }
+
+    attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // Graphics
+    // ------------------------------------------------------------------------
+
+    if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
+    {   
+        graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+        if ( graphics != 0 )
+        {   
+            type   = graphics->vector_value("TYPE");
+            listen = graphics->vector_value("LISTEN");
+            port   = graphics->vector_value("PORT");
+            passwd = graphics->vector_value("PASSWD");
+            keymap = graphics->vector_value("KEYMAP");
+
+            if ( type == "vnc" || type == "VNC" )
+            {   
+                file << "\t\t<graphics type='vnc'";
+
+                if ( !listen.empty() )
+                {   
+                    file << " listen='" << listen << "'";
+                }
+
+                if ( !port.empty() )
+                {   
+                    file << " port='" << port << "'";
+                }
+
+                if ( !passwd.empty() )
+                {   
+                    file << " passwd='" << passwd << "'";
+                }
+
+                if ( !keymap.empty() )
+                {   
+                    file << " keymap='" << keymap << "'";
+                }
+
+                file << "/>" << endl;
+            }
+            else
+            {   
+                vm->log("VMM", Log::WARNING,
+                        "Not supported graphics type, ignored.");
+            }
+        }
     }
 
     attrs.clear();
