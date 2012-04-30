@@ -199,7 +199,13 @@ module OZones
                        return [404, error.to_json]
                    end
 
-            pool.info
+            rc = pool.info
+            if OpenNebula.is_error?(rc)
+                error = "Error communicating with #{@zone.NAME}."
+                error << " Retrieving #{pool_kind} pool: "
+                error << "#{rc.to_str}"
+                return [500, OZones::Error.new(error).to_json]
+            end
 
             return [200, pool.to_json]
         end

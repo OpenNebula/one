@@ -34,26 +34,24 @@ module OZones
 
                 zone_pool_hash = zone.to_hash["ZONE"]
 
-                client   = OpenNebula::Client.new("#{zone.ONENAME}:#{zone.ONEPASS}",
-                                                  zone.ENDPOINT)
+                client = OpenNebula::Client.new("#{zone.ONENAME}:#{zone.ONEPASS}",
+                                                zone.ENDPOINT)
 
                 pool = factory(client)
 
-                if OpenNebula.is_error?(pool)
-                    zone_pool_hash.merge!(pool.to_hash)
-                    next
-                end
-
                 rc = pool.info
-
                 if !rc
                     zone_pool_hash.merge!(pool.to_hash)
+                elsif OpenNebula.is_error?(rc)
+                    error = "Error communicating with #{zone.NAME}."
+                    error << " Retrieving #{self.class.name.split('::').last}: "
+                    error << "#{rc.to_str}"
+                    zone_pool_hash.merge!({:error => {:message => error}})
                 else
                     zone_pool_hash.merge!(rc.to_hash)
                 end
 
                 @sup_aggregated_pool[@tag]["ZONE"] << zone_pool_hash
-
             }
         end
 
