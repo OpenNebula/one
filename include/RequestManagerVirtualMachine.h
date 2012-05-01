@@ -49,10 +49,11 @@ protected:
             RequestAttributes& att) = 0;
 
     bool vm_authorization(int id, 
-                          ImageTemplate *    tmpl,
-                          RequestAttributes& att, 
-                          PoolObjectAuth *   host_perms, 
-                          PoolObjectAuth *   ds_perm);
+                          ImageTemplate *        tmpl,
+                          RequestAttributes&     att, 
+                          PoolObjectAuth *       host_perms, 
+                          PoolObjectAuth *       ds_perm,
+                          AuthRequest::Operation op);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
             RequestAttributes& att, PoolObjectAuth& host_perms);
@@ -73,6 +74,8 @@ protected:
 class VirtualMachineAction : public RequestManagerVirtualMachine
 {
 public:
+    //auth_op is MANAGE for all actions but "resched" and "unresched"
+    //this is dynamically set for each request in the execute method
     VirtualMachineAction():
         RequestManagerVirtualMachine("VirtualMachineAction",
                                      "Performs an action on a virtual machine",
