@@ -580,6 +580,52 @@ error:
 
     return -2;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::resched(int vid, bool do_resched)
+{
+    VirtualMachine *    vm;
+    ostringstream       oss;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    oss << "Setting rescheduling flag on VM " << vid;
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        Nebula&             nd  = Nebula::instance();
+        LifeCycleManager *  lcm = nd.get_lcm();
+
+        vm->set_resched(do_resched);
+        vmpool->update(vm);
+    }
+    else
+    {
+        goto error;
+    }
+
+    vm->unlock();
+
+    return 0;
+
+error:
+    oss.str("");
+    oss << "Could not set rescheduling flag for VM " << vid << ", wrong state.";
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    vm->unlock();
+
+    return -2;
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -27,7 +27,7 @@ int HostPoolXML::set_up()
     if ( rc == 0 )
     {
         oss.str("");
-        oss << "Discovered Hosts (enabled):";
+        oss << "Discovered Hosts (enabled):" << endl;
 
         map<int,ObjectXML*>::iterator it;
 

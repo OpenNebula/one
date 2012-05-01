@@ -21,11 +21,13 @@ int VirtualMachinePoolXML::set_up()
 {
     ostringstream   oss;
     int             rc;
+
     rc = PoolXML::set_up();
+
     if ( rc == 0 )
     {
         oss.str("");
-        oss << "Pending virtual machines :";
+        oss << "Pending and rescheduling VMs:" << endl;
 
         map<int,ObjectXML*>::iterator it;
 
@@ -72,7 +74,7 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
                      -2,                            // VM from all users
                      -1,                            // start_id (none)
                      -1,                            // end_id (none)
-                     1);                            // in pending state
+                     -1);                           // not in DONE state
         return 0;
     }
     catch (exception const& e)
@@ -90,27 +92,48 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 /* -------------------------------------------------------------------------- */
 
 
-int VirtualMachinePoolXML::dispatch(int vid, int hid) const
+int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
 {
     ostringstream               oss;
     xmlrpc_c::value             deploy_result;
 
-    oss.str("");
-    oss << "Dispatching virtual machine " << vid
-        << " to HID: " << hid;
+    if (resched == true)
+    {
+        oss << "Rescheduling ";
+    }
+    else
+    {
+        oss << "Dispatching ";   
+    }
+
+    oss << "virtual machine " << vid << " to host " << hid;
 
     NebulaLog::log("VM",Log::INFO,oss);
 
     try
     {
-        client->call( client->get_endpoint(),           // serverUrl
-                      "one.vm.deploy",                  // methodName
-                      "sii",                            // arguments format
-                      &deploy_result,                   // resultP
-                      client->get_oneauth().c_str(),    // argument 0
-                      vid,                              // argument 1
-                      hid                               // argument 2
-                    );
+        //TODO Get live migration from config file
+        if (resched == true)
+        {
+            client->call(client->get_endpoint(),           // serverUrl
+                         "one.vm.migrate",                 // methodName
+                         "siib",                           // arguments format
+                         &deploy_result,                   // resultP
+                         client->get_oneauth().c_str(),    // argument 0 (AUTH)
+                         vid,                              // argument 1 (VM)
+                         hid,                              // argument 2 (HOST)
+                         live_resched);                    // argument 3 (LIVE)
+        }
+        else
+        {
+            client->call(client->get_endpoint(),           // serverUrl
+                         "one.vm.deploy",                  // methodName
+                         "sii",                            // arguments format
+                         &deploy_result,                   // resultP
+                         client->get_oneauth().c_str(),    // argument 0 (AUTH)
+                         vid,                              // argument 1 (VM)
+                         hid);                             // argument 2 (HOST)
+        }
     }
     catch (exception const& e)
     {

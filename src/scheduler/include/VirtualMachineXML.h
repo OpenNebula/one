@@ -56,10 +56,19 @@ public:
         return gid;
     };
 
+    int get_hid() const
+    {
+        return hid;
+    };
+
+    bool is_resched() const
+    {
+        return (resched == 1);
+    }
+
     /**
-     *  Adds a new share to the map of suitable shares to start this VM
+     *  Adds a new host to the list of suitable hosts to start this VM
      *    @param  hid of the selected host
-     *    @param hsid of the selected host share
      */
     void add_host(int hid);
 
@@ -150,6 +159,10 @@ protected:
 
     int     uid;
     int     gid;
+
+    int     hid;
+
+    int     resched;
 
     int     memory;
     float   cpu;

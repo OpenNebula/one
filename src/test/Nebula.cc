@@ -166,11 +166,12 @@ void Nebula::start()
     hook_location    = nebula_location + "hooks/";
     remotes_location = nebula_location + "var/remotes/";
 
-    if ( nebula_configuration != 0)
+    /*if ( nebula_configuration != 0)
     {
         delete nebula_configuration;
-    }
-
+    }*/
+   nebula_configuration = new OpenNebulaTemplate(etc_location, var_location);
+   
     xmlInitParser();
 
     // -----------------------------------------------------------

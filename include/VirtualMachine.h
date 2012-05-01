@@ -586,6 +586,22 @@ public:
         lcm_state = s;
     };
 
+    /**
+     *  Sets the re-scheduling flag
+     *    @param set or unset the re-schedule flag
+     */
+    void set_resched(bool do_sched)
+    {
+        if ( do_sched == true )
+        {
+            resched = 1;
+        }
+        else
+        {
+            resched = 0;
+        }
+    };
+
     // ------------------------------------------------------------------------
     // Timers
     // ------------------------------------------------------------------------
@@ -719,6 +735,11 @@ private:
      *  The state of the virtual machine (in the Life-cycle Manager).
      */
     LcmState    lcm_state;
+
+    /**
+     *  Marks the VM as to be re-scheduled
+     */
+    int         resched;
 
     /**
      *  Start time, the VM enter the nebula system (in epoch)
