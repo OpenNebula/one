@@ -16,28 +16,41 @@
 
 module OZones
 
-    class Zones
-        include DataMapper::Resource
+    class Zones < Sequel::Model
         include OpenNebulaJSON::JSONUtils
         extend  OpenNebulaJSON::JSONUtils
+
+        plugin :schema
+        plugin :validation_helpers
 
         #######################################################################
         # Data Model for the Zone
         #######################################################################
-        property :ID,           Serial
-        property :NAME,         String, :required => true, :unique => true
-        property :ONENAME,      String, :required => true
-        property :ONEPASS,      String, :required => true
-        property :ENDPOINT,     String, :required => true
-        property :SUNSENDPOINT, String
-        property :SELFENDPOINT, String        
+        set_schema do
+            primary_key :ID
+            String      :NAME, :unique => true
+            String      :ONENAME
+            String      :ONEPASS
+            String      :ENDPOINT
+            String      :SUNSENDPOINT
+            String      :SELFENDPOINT
+        end
 
-        has n,   :vdcs
+        create_table unless table_exists?
+
+        one_to_many :vdcs, :class => 'OZones::Vdc', :key => :ZONES_ID
 
         #######################################################################
         # Constants
         #######################################################################
         ZONE_ATTRS = [:ONENAME, :ONEPASS, :ENDPOINT, :NAME]
+
+        def validate
+            super
+            validates_presence ZONE_ATTRS
+            validates_unique :NAME
+        end
+
 
         #######################################################################
         # JSON Functions
@@ -47,11 +60,11 @@ module OZones
             zonePoolHash["ZONE_POOL"] = Hash.new
             zonePoolHash["ZONE_POOL"]["ZONE"] = Array.new unless self.all.empty?
 
-            self.all.each{|zone|
-                zattr = zone.attributes.clone
+            self.each{|zone|
+                zattr = zone.values.clone
                 
                 zattr[:ONEPASS]    = Zones.encrypt(zattr[:ONEPASS]) 
-                zattr[:NUMBERVDCS] = zone.vdcs.all.size
+                zattr[:NUMBERVDCS] = zone.vdcs.size
 
                 zonePoolHash["ZONE_POOL"]["ZONE"] << zattr
             }
@@ -62,12 +75,12 @@ module OZones
         def to_hash
             zattr = Hash.new
 
-            zattr["ZONE"]           = attributes.clone
+            zattr["ZONE"]           = @values.clone
             zattr["ZONE"][:ONEPASS] = Zones.encrypt(zattr["ZONE"][:ONEPASS]) 
             zattr["ZONE"][:VDCS]    = Array.new
 
-            self.vdcs.all.each{|vdc|
-                zattr["ZONE"][:VDCS]<< vdc.attributes.clone
+            self.vdcs.each{|vdc|
+                zattr["ZONE"][:VDCS]<< vdc.values.clone
             }
 
             return zattr
@@ -111,10 +124,7 @@ module OZones
             # Create the zone
             begin
                 zone = Zones.new
-                zone.raise_on_save_failure = true
-
-                zone.attributes = zone_data
-                zone.save
+                zone.update(zone_data)
             rescue => e
                 return OZones::Error.new(e.message)
             end
@@ -165,7 +175,7 @@ module OZones
     ##########################################################################
     class OpenNebulaZone
         def initialize(zoneid)
-            @zone = Zones.get(zoneid)
+            @zone = Zones[zoneid]
 
             if !@zone
                 raise "Error: Zone with id #{zoneid} not found"
