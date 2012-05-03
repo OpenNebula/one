@@ -36,7 +36,7 @@ module OCCIClient
         # Initialize client library
         ######################################################################
         def initialize(endpoint_str=nil, user=nil, pass=nil,
-            timeout=nil, debug_flag=true)
+            timeout=nil, debug_flag=true, plain=false)
             @debug   = debug_flag
             @timeout = timeout
 
@@ -60,7 +60,7 @@ module OCCIClient
                 raise "No authorization data present"
             end
 
-            @occiauth[1] = Digest::SHA1.hexdigest(@occiauth[1])
+            @occiauth[1] = Digest::SHA1.hexdigest(@occiauth[1]) unless plain
         end
 
         #################################
