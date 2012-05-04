@@ -1,14 +1,14 @@
 {
   "ZONE": {
-    "NAME": "zoneA",
+    "ENDPOINT": "http://localhost:2666/RPC2",
     "SUNSENDPOINT": "http://localhost:9869",
+    "NAME": "zoneA",
+    "SELFENDPOINT": null,
+    "ID": 1,
+    "ONENAME": "oneadminA",
     "VDCS": [
 
     ],
-    "SELFENDPOINT": null,
-    "ONENAME": "oneadminA",
-    "ID": 1,
-    "ONEPASS": "OkqWM2aSqbM/nlrdHGv3OA==",
-    "ENDPOINT": "http://localhost:2666/RPC2"
+    "ONEPASS": "e/TkohQckqFcmcWFwrirUapdiLkg87GHPafKnxkzznk="
   }
 }
