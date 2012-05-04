@@ -143,7 +143,7 @@ public:
     int dump(ostringstream& oss, const string& where)
     {
         return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table, where);
-    }
+    };
 
 private:
     /**

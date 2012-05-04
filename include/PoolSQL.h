@@ -154,6 +154,19 @@ public:
      */
     virtual int dump(ostringstream& oss, const string& where) = 0;
 
+    /**
+     *  Dumps the output of the custom sql query into an xml
+     *
+     *   @param oss The output stream to dump the xml contents
+     *   @param root_elem_name Name of the root xml element name
+     *   @param sql_query The SQL query to execute
+     *
+     *   @return 0 on success
+     */
+    int custom_dump(ostringstream&  oss,
+                    const string&   root_elem_name,
+                    ostringstream&  sql_query);
+
 protected:
 
     /**

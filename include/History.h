@@ -62,6 +62,12 @@ public:
      */
     string& to_xml(string& xml) const;
 
+    // ----------------------------------------
+    // DataBase implementation variables
+    // ----------------------------------------
+
+    static const char * table;
+
 private:
     friend class VirtualMachine;
     friend class VirtualMachinePool;
@@ -69,8 +75,6 @@ private:
     // ----------------------------------------
     // DataBase implementation variables
     // ----------------------------------------
-
-    static const char * table;
 
     static const char * db_names;
 

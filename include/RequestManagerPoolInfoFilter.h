@@ -56,11 +56,22 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void dump(RequestAttributes& att, 
+    void generate_where_string(
+            RequestAttributes& att,
+            int                filter_flag,
+            int                start_id,
+            int                end_id,
+            const string&      and_clause,
+            const string&      or_clause,
+            ostringstream&     where_string);
+
+    /* -------------------------------------------------------------------- */
+
+    void dump(RequestAttributes& att,
               int                filter_flag,
-              int                start_id, 
+              int                start_id,
               int                end_id,
-              const string&      and_clause, 
+              const string&      and_clause,
               const string&      or_clause);
 };
 
@@ -88,6 +99,31 @@ public:
     };
 
     ~VirtualMachinePoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachinePoolAccounting : public RequestManagerPoolInfoFilter
+{
+public:
+
+    VirtualMachinePoolAccounting():
+        RequestManagerPoolInfoFilter("VirtualMachinePoolAccounting",
+                                     "Returns the virtual machine history records",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+    };
+
+    ~VirtualMachinePoolAccounting(){};
 
     /* -------------------------------------------------------------------- */
 

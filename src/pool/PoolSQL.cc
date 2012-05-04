@@ -479,13 +479,7 @@ int PoolSQL::dump(ostringstream& oss,
                   const char * table,
                   const string& where)
 {
-    int             rc;
     ostringstream   cmd;
-
-    oss << "<" << elem_name << ">";
-
-    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
-                  static_cast<void *>(&oss));
 
     cmd << "SELECT body FROM " << table;
 
@@ -496,9 +490,26 @@ int PoolSQL::dump(ostringstream& oss,
 
     cmd << " ORDER BY oid";
 
-    rc = db->exec(cmd, this);
+    return custom_dump(oss, elem_name, cmd);
+}
 
-    oss << "</" << elem_name << ">";
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int PoolSQL::custom_dump(ostringstream&  oss,
+                         const string&   root_elem_name,
+                         ostringstream&  sql_query)
+{
+    int rc;
+
+    oss << "<" << root_elem_name << ">";
+
+    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
+                  static_cast<void *>(&oss));
+
+    rc = db->exec(sql_query, this);
+
+    oss << "</" << root_elem_name << ">";
 
     unset_callback();
 

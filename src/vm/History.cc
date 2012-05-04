@@ -25,10 +25,11 @@
 
 const char * History::table = "history";
 
-const char * History::db_names = "vid, seq, body";
+const char * History::db_names = "vid, seq, body, stime, etime";
 
 const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "history (vid INTEGER, seq INTEGER, body TEXT, PRIMARY KEY(vid,seq))";
+    "history (vid INTEGER, seq INTEGER, body TEXT, "
+    "stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -168,7 +169,9 @@ int History::insert_replace(SqlDB *db, bool replace)
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         <<          oid             << ","
         <<          seq             << ","
-        << "'" <<   sql_xml         << "')";
+        << "'" <<   sql_xml         << "',"
+        <<          stime           << ","
+        <<          etime           << ")";
 
     rc = db->exec(oss);
 
@@ -264,6 +267,7 @@ string& History::to_xml(string& xml) const
 
     oss <<
         "<HISTORY>" <<
+          "<OID>"               << oid               << "</OID>"   <<
           "<SEQ>"               << seq               << "</SEQ>"   <<
           "<HOSTNAME>"          << hostname          << "</HOSTNAME>"<<
           "<HID>"               << hid               << "</HID>"   <<

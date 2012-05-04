@@ -91,6 +91,74 @@ void VirtualMachinePoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void VirtualMachinePoolAccounting::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int time_start  = xmlrpc_c::value_int(paramList.getInt(2));
+    int time_end    = xmlrpc_c::value_int(paramList.getInt(3));
+
+    ostringstream oss;
+    ostringstream cmd;
+    ostringstream vmpool_where;
+    int           rc;
+
+    if ( filter_flag < MINE )
+    {
+        failure_response(XML_RPC_API,
+                request_error("Incorrect filter_flag",""),
+                att);
+        return;
+    }
+
+    cmd << "SELECT " << History::table << ".body FROM " << History::table
+        << " INNER JOIN " << VirtualMachine::table
+        << " WHERE vid=oid";
+
+    generate_where_string(att, filter_flag, -1, -1,
+            "", "", vmpool_where);
+
+    if ( !vmpool_where.str().empty() )  //TODO: better empty check?
+    {
+        cmd << " AND " << vmpool_where;
+    }
+
+    if ( time_start != -1 || time_end != -1 )
+    {
+        if ( time_start != -1 )
+        {
+            cmd << " AND (etime > " << time_start << " OR  etime = 0)";
+        }
+
+        if ( time_end != -1 )
+        {
+            cmd << " AND stime < " << time_end;
+        }
+    }
+
+    cmd << " GROUP BY vid,seq";
+
+    // ------------------------------------------
+    //           Dump the history records
+    // ------------------------------------------
+
+    rc = pool->custom_dump(oss, "HISTORY_RECORDS", cmd);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void HostPoolInfo::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
@@ -141,19 +209,16 @@ void ClusterPoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerPoolInfoFilter::dump(
+void RequestManagerPoolInfoFilter::generate_where_string(
         RequestAttributes& att,
         int                filter_flag,
         int                start_id,
         int                end_id,
         const string&      and_clause,
-        const string&      or_clause)
+        const string&      or_clause,
+        ostringstream&     where_string)
 {
-    set<int>::iterator it;
-
-    ostringstream oss;
     bool          empty = true;
-    ostringstream where_string;
 
     ostringstream uid_filter;
     ostringstream id_filter;
@@ -161,16 +226,6 @@ void RequestManagerPoolInfoFilter::dump(
     string uid_str;
     string acl_str;
     string id_str;
-
-    int rc;
-
-    if ( filter_flag < MINE )
-    {
-        failure_response(XML_RPC_API,
-                request_error("Incorrect filter_flag",""),
-                att);
-        return;
-    }
 
     Nebula&     nd   = Nebula::instance();
     AclManager* aclm = nd.get_aclm();
@@ -308,12 +363,39 @@ void RequestManagerPoolInfoFilter::dump(
 
         where_string << "(" << or_clause << ")";
     }
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void RequestManagerPoolInfoFilter::dump(
+        RequestAttributes& att,
+        int                filter_flag,
+        int                start_id,
+        int                end_id,
+        const string&      and_clause,
+        const string&      or_clause)
+{
+    ostringstream oss;
+    ostringstream where_string;
+    int           rc;
+
+    if ( filter_flag < MINE )
+    {
+        failure_response(XML_RPC_API,
+                request_error("Incorrect filter_flag",""),
+                att);
+        return;
+    }
+
+    generate_where_string(att, filter_flag, start_id, end_id,
+            and_clause, or_clause, where_string);
 
     // ------------------------------------------ 
     //           Get the pool
     // ------------------------------------------ 
     
-    rc = pool->dump(oss,where_string.str());
+    rc = pool->dump(oss, where_string.str());
 
     if ( rc != 0 )
     {
