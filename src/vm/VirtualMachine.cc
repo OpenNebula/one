@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <queue>
 
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
@@ -47,6 +48,7 @@ VirtualMachine::VirtualMachine(int           id,
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
+        resched(0),
         stime(time(0)),
         etime(0),
         deploy_id(""),
@@ -370,15 +372,6 @@ int VirtualMachine::parse_context(string& error_str)
 
         context_parsed = new VectorAttribute("CONTEXT");
         context_parsed->unmarshall(parsed," @^_^@ ");
-
-
-        string target = context_parsed->vector_value("TARGET");
-
-        if ( target.empty() )
-        {
-            error_str = "Missing TARGET attribute in CONTEXT.";
-            return -1;
-        }
 
         obj_template->set(context_parsed);
     }
@@ -847,21 +840,93 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void assign_disk_targets(queue<pair <string, VectorAttribute *> >& _queue,
+                                set<string>& used_targets)
+{
+    int    index = 0;
+    string target;
+
+    pair <string, VectorAttribute *> disk_pair;
+
+    while (_queue.size() > 0 )
+    {
+        disk_pair = _queue.front();
+        index     = 0;
+
+        do
+        {
+            target = disk_pair.first + static_cast<char>(('a'+ index));
+            index++;
+        }
+        while ( used_targets.count(target) > 0 && index < 26 );
+
+        disk_pair.second->replace("TARGET", target);
+        used_targets.insert(target);
+
+        _queue.pop();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::get_disk_images(string& error_str)
 {
-    int                   num_disks, rc;
-    vector<Attribute  * > disks;
-    ImagePool *           ipool;
-    VectorAttribute *     disk;
-    vector<int>           acquired_images;
+    int                  num_disks, rc;
+    vector<Attribute  *> disks;
+    ImagePool *          ipool;
+    VectorAttribute *    disk;
+    vector<int>          acquired_images;
 
-    int           image_id;
-    ostringstream oss;
+    int     image_id;
+    string  dev_prefix;
+    string  target;
+
+    queue<pair <string, VectorAttribute *> > os_disk;
+    queue<pair <string, VectorAttribute *> > cdrom_disks;
+    queue<pair <string, VectorAttribute *> > datablock_disks;
+
+    set<string> used_targets;
+
+    ostringstream    oss;
+    Image::ImageType img_type;
 
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
-    num_disks  = obj_template->get("DISK",disks);
+    // -------------------------------------------------------------------------
+    // The context is the first of the cdroms
+    // -------------------------------------------------------------------------
+    num_disks = obj_template->get("CONTEXT", disks);
+
+    if ( num_disks > 0 )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[0]);
+
+        if ( disk != 0 )
+        {
+            target = disk->vector_value("TARGET");
+
+            if ( !target.empty() )
+            {
+                used_targets.insert(target);
+            }
+            else
+            {
+                cdrom_disks.push(make_pair(ipool->default_dev_prefix(), disk));
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Set DISK attributes & Targets
+    // -------------------------------------------------------------------------
+    disks.clear();
+    num_disks = obj_template->get("DISK", disks);
+
+    if ( num_disks > 20 )
+    {
+        goto error_max_disks;
+    }
 
     for(int i=0; i<num_disks; i++)
     {
@@ -872,11 +937,55 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, i, uid, image_id, error_str);
-
+        rc = ipool->disk_attribute(disk, 
+                                   i,
+                                   img_type,
+                                   dev_prefix,
+                                   uid, 
+                                   image_id, 
+                                   error_str);
         if (rc == 0 )
         {
             acquired_images.push_back(image_id);
+
+            target = disk->vector_value("TARGET");
+
+            if ( !target.empty() )
+            {
+                if (  used_targets.insert(target).second == false )
+                {
+                    goto error_duplicated_target;
+                }
+            }
+            else
+            {
+                switch(img_type)
+                {
+                    case Image::OS:
+                        // The first OS disk gets the first device (a),
+                        // other OS's will be managed as DATABLOCK's 
+                        if ( os_disk.empty() )
+                        {
+                            os_disk.push( make_pair(dev_prefix, disk) );
+                        }
+                        else
+                        {
+                            datablock_disks.push( make_pair(dev_prefix, disk) );
+                        }
+                        break;
+
+                    case Image::CDROM:
+                        cdrom_disks.push( make_pair(dev_prefix, disk) );
+                        break;
+
+                    case Image::DATABLOCK:
+                        datablock_disks.push( make_pair(dev_prefix, disk) );
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
         else
         {
@@ -884,7 +993,19 @@ int VirtualMachine::get_disk_images(string& error_str)
         }
     }
 
+    assign_disk_targets(os_disk, used_targets);
+    assign_disk_targets(cdrom_disks, used_targets);
+    assign_disk_targets(datablock_disks, used_targets);
+
     return 0;
+
+error_max_disks:
+    error_str = "Exceeded the maximum number of disks (20)";
+    return -1;
+
+error_duplicated_target:
+    oss << "Two disks have defined the same target " << target;
+    error_str = oss.str();
 
 error_common:
     ImageManager *  imagem  = nd.get_imagem();
@@ -1386,6 +1507,7 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
         << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+        << "<RESCHED>"   << resched   << "</RESCHED>"
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
@@ -1452,6 +1574,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(last_poll, "/VM/LAST_POLL", 0);
     rc += xpath(istate,    "/VM/STATE",     0);
     rc += xpath(ilcmstate, "/VM/LCM_STATE", 0);
+    rc += xpath(resched,   "/VM/RESCHED",   0);
 
     rc += xpath(stime,     "/VM/STIME",    0);
     rc += xpath(etime,     "/VM/ETIME",    0);

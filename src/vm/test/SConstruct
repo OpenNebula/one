@@ -17,6 +17,13 @@
 Import('env')
 
 env.Prepend(LIBS=[
+    'nebula_core_test',
+    'nebula_lcm',
+    'nebula_tm',
+    'nebula_vmm',
+    'nebula_im',
+    'nebula_rm',
+    'nebula_dm',
     'nebula_um',
     'nebula_vm',
     'nebula_hm',
@@ -26,6 +33,8 @@ env.Prepend(LIBS=[
     'nebula_group',
     'nebula_template',
     'nebula_pool',
+    'nebula_host',
+    'nebula_vmtemplate',
     'nebula_xml',
     'nebula_image',
     'nebula_datastore',
@@ -39,4 +48,6 @@ env.Prepend(LIBS=[
     'crypto'
 ])
 
-env.Program('test','VirtualMachinePoolTest.cc')
+nt = env.Object('NebulaTemplateTest.o', '../../nebula/NebulaTemplate.cc')
+
+env.Program('test',[nt,'VirtualMachinePoolTest.cc'])

@@ -130,6 +130,17 @@ int Image::insert(SqlDB *db, string& error_str)
 
     persistent_img = (persistent_attr == "YES");
 
+    // ------------ PREFIX --------------------
+
+    get_template_attribute("DEV_PREFIX", dev_prefix);
+
+    if( dev_prefix.empty() )
+    {
+        SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
+                                          ImagePool::default_dev_prefix());
+        obj_template->set(dev_att);
+    }
+
     // ------------ PATH & SOURCE --------------------
 
     erase_template_attribute("PATH", path);
@@ -426,7 +437,9 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::disk_attribute(VectorAttribute * disk)
+int Image::disk_attribute(  VectorAttribute * disk,
+                            ImageType&        img_type,
+                            string&           dev_prefix)
 {
     string bus;
     string target;
@@ -435,9 +448,10 @@ int Image::disk_attribute(VectorAttribute * disk)
 
     ostringstream iid;
 
-    bus       = disk->vector_value("BUS");
-    target    = disk->vector_value("TARGET");
-    driver    = disk->vector_value("DRIVER");
+    img_type = type;
+    bus      = disk->vector_value("BUS");
+    target   = disk->vector_value("TARGET");
+    driver   = disk->vector_value("DRIVER");
     iid << oid;
 
     string template_bus;
@@ -448,19 +462,11 @@ int Image::disk_attribute(VectorAttribute * disk)
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
 
-   //---------------------------------------------------------------------------
-   //   TARGET attribute
-   //---------------------------------------------------------------------------
-    if (target.empty())
+    get_template_attribute("DEV_PREFIX", dev_prefix);
+
+    if (dev_prefix.empty())//Removed from image template, get it again from defaults
     {
-        if (!template_target.empty())
-        {
-            disk->replace("TARGET", template_target);
-        }
-        else //No TARGET in DISK nor in Image (ERROR!)
-        {
-            return -1;
-        }
+        dev_prefix = ImagePool::default_dev_prefix();
     }
 
    //---------------------------------------------------------------------------
@@ -510,7 +516,17 @@ int Image::disk_attribute(VectorAttribute * disk)
     }
 
     disk->replace("TYPE",disk_attr_type);
- 
+
+    //---------------------------------------------------------------------------
+    //   TARGET attribute
+    //---------------------------------------------------------------------------
+
+    // TARGET defined in the Image template, but not in the DISK attribute
+    if ( target.empty() && !template_target.empty() )
+    {
+        disk->replace("TARGET", template_target);
+    }
+
     return 0;
 }
 

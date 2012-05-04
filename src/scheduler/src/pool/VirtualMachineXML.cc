@@ -66,7 +66,29 @@ void VirtualMachineXML::init_attributes()
     else
     {
         requirements = "";
+    }    
+
+    result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
+
+    if (result.size() > 0) 
+    {
+        hid = atoi(result[0].c_str());
     }
+    else
+    {
+        hid = -1;
+    }
+
+    result = ((*this)["/VM/RESCHED"]);
+
+    if (result.size() > 0)
+    {
+        resched = atoi(result[0].c_str());
+    }
+    else
+    {
+        resched = 0;
+    }    
 }
 
 /* -------------------------------------------------------------------------- */
@@ -87,13 +109,16 @@ VirtualMachineXML::~VirtualMachineXML()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::add_host(int hid)
+void VirtualMachineXML::add_host(int host_id)
 {
-    VirtualMachineXML::Host * ss;
+    if (( resched == 1 && host_id != hid ) || ( resched == 0 ))
+    {
+        VirtualMachineXML::Host * ss;
 
-    ss = new VirtualMachineXML::Host(hid);
+        ss = new VirtualMachineXML::Host(host_id);
 
-    hosts.push_back(ss);
+        hosts.push_back(ss);            
+    }
 }
 
 /* -------------------------------------------------------------------------- */

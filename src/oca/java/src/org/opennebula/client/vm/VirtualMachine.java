@@ -502,6 +502,24 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Sets the re-scheduling flag for the VM
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse resched()
+    {
+        return action("resched");
+    }
+
+    /**
+     * Unsets the re-scheduling flag for the VM
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unresched()
+    {
+        return action("unresched");
+    }
+
+    /**
      * Migrates the virtual machine to the target host (hid).
      * <br/>
      * It does the same as {@link VirtualMachine#migrate(int, boolean)}

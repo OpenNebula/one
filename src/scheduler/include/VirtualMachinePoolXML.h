@@ -27,10 +27,10 @@ class VirtualMachinePoolXML : public PoolXML
 {
 public:
 
-    VirtualMachinePoolXML(
-                             Client*        client,
-                             unsigned int   machines_limit
-                         ):PoolXML(client, machines_limit){};
+    VirtualMachinePoolXML(Client*        client,
+                          unsigned int   machines_limit,
+                          bool           _live_resched):
+        PoolXML(client, machines_limit), live_resched(_live_resched){};
 
     ~VirtualMachinePoolXML(){};
 
@@ -47,18 +47,28 @@ public:
         return static_cast<VirtualMachineXML *>(PoolXML::get(oid));
     };
 
-    int dispatch(int vid, int hid) const;
+    /**
+     *  Dispatch a VM to the given host
+     *    @param vid the VM id
+     *    @param hid the id of the target host
+     *    @param resched the machine is going to be rescheduled 
+     */
+    int dispatch(int vid, int hid, bool resched) const;
 
 protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)
     {
-        return get_nodes("/VM_POOL/VM", content);
+        return get_nodes("/VM_POOL/VM[STATE=1 or (LCM_STATE=3 and RESCHED=1)]",
+                         content);
     };
 
     virtual void add_object(xmlNodePtr node);
 
     virtual int load_info(xmlrpc_c::value &result);
+
+    /* Do live migrations to resched VMs*/
+    bool live_resched;
 };
 
 #endif /* VM_POOL_XML_H_ */

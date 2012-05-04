@@ -54,7 +54,7 @@ setup()
 
 start()
 {
-  if [ ! -x "$OCCI_SERVER" ]; then
+  if [ ! -f "$OCCI_SERVER" ]; then
     echo "Cannot find $OCCI_SERVER."
     exit 1
   fi

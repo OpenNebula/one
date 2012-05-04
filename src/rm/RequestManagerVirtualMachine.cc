@@ -22,10 +22,11 @@
 /* -------------------------------------------------------------------------- */
 
 bool RequestManagerVirtualMachine::vm_authorization(int oid,
-                                                    ImageTemplate *    tmpl,
-                                                    RequestAttributes& att,
-                                                    PoolObjectAuth *   host_perm,
-                                                    PoolObjectAuth *   ds_perm)
+                                                    ImageTemplate *        tmpl,
+                                                    RequestAttributes&     att,
+                                                    PoolObjectAuth *       host_perm,
+                                                    PoolObjectAuth *       ds_perm,
+                                                    AuthRequest::Operation op)
 {
     PoolObjectSQL * object;
     PoolObjectAuth vm_perms;
@@ -52,7 +53,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
     AuthRequest ar(att.uid, att.gid);
 
-    ar.add_auth(auth_op, vm_perms);
+    ar.add_auth(op, vm_perms);
 
     if (host_perm != 0)
     {
@@ -184,7 +185,14 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    if ( vm_authorization(id, 0, att, 0, 0) == false )
+    AuthRequest::Operation op = auth_op;
+
+    if (action == "resched" || action == "unresched")
+    {
+        op = AuthRequest::ADMIN;
+    }
+
+    if ( vm_authorization(id, 0, att, 0, 0, op) == false )
     {
         return;
     }
@@ -232,6 +240,14 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     else if (action == "reboot")
     {
         rc = dm->reboot(id);
+    }
+    else if (action == "resched")
+    {
+        rc = dm->resched(id, true);
+    }
+    else if (action == "unresched")
+    {
+        rc = dm->resched(id, false);
     }
 
     switch (rc)
@@ -289,7 +305,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    auth = vm_authorization(id, 0, att, &host_perms, 0);
+    auth = vm_authorization(id, 0, att, &host_perms, 0, auth_op);
 
     if ( auth == false )
     {
@@ -351,7 +367,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    auth = vm_authorization(id, 0, att, &host_perms, 0);
+    auth = vm_authorization(id, 0, att, &host_perms, 0, auth_op);
 
     if ( auth == false )
     {
@@ -523,7 +539,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // Authorize the operation
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, itemplate, att, 0, &ds_perms) == false )
+    if ( vm_authorization(id, itemplate, att, 0, &ds_perms, auth_op) == false )
     {
         delete itemplate;
         return;

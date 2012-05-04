@@ -194,6 +194,16 @@ module OpenNebula
             action('resubmit')
         end
 
+        # Sets the re-scheduling flag for the VM
+        def resched
+            action('resched')
+        end
+
+        # Unsets the re-scheduling flag for the VM
+        def unresched
+            action('unresched')
+        end
+
         # Saves a running VM and starts it again in the specified host
         def migrate(host_id)
             return Error.new('ID not defined') if !@pe_id

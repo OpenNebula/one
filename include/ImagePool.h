@@ -40,6 +40,7 @@ public:
 
     ImagePool(SqlDB *       db,
               const string& _default_type,
+              const string& _default_dev_prefix,
               vector<const Attribute *>& restricted_attrs);
 
     ~ImagePool(){};
@@ -133,17 +134,22 @@ public:
 
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata
+     *
      *    @param disk the disk to be generated
      *    @param disk_id the id for this disk
+     *    @param img_type will be set to the used image's type
+     *    @param dev_prefix will be set to the image defined dev_prefix,
+     *        or the default one
      *    @param uid of VM owner (to look for the image id within its images)
      *    @param image_id on success returns the acquired image id
      *    @param error_str string describing the error
-     *    @return 0 on success, 
-     *            -1 error, 
-     *            -2 not using the pool, 
+     *
+     *    @return 0 on success, -1 otherwise
      */
     int disk_attribute(VectorAttribute *  disk,
                        int                disk_id,
+                       Image::ImageType&  img_type,
+                       string&            dev_prefix,
                        int                uid,
                        int&               image_id,
                        string&            error_str);
@@ -160,6 +166,11 @@ public:
         return _default_type;
     };
 
+    static const string& default_dev_prefix()
+    {
+        return _default_dev_prefix;
+    };
+
 private:
     //--------------------------------------------------------------------------
     // Configuration Attributes for Images
@@ -169,6 +180,11 @@ private:
      * Default image type
      **/
     static string  _default_type;
+
+    /**
+     * Default device prefix
+     **/
+    static string  _default_dev_prefix;
 
     //--------------------------------------------------------------------------
     // Pool Attributes

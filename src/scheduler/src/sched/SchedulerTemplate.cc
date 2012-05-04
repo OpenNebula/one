@@ -40,6 +40,7 @@ void SchedulerTemplate::set_conf_default()
 #  MAX_DISPATCH
 #  MAX_HOST
 #  DEFAULT_SCHED
+#  LIVE_RESCHEDS
 #-------------------------------------------------------------------------------
 */
     // ONED_PORT
@@ -70,6 +71,12 @@ void SchedulerTemplate::set_conf_default()
     value = "1";
 
     attribute = new SingleAttribute("MAX_HOST",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+    
+    //LIVE_RESCHEDS
+    value = "0";
+
+    attribute = new SingleAttribute("LIVE_RESCHEDS",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //DEFAULT_SCHED 

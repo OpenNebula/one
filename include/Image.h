@@ -329,13 +329,18 @@ public:
      * Modifies the given disk attribute adding the following attributes:
      *  * SOURCE: the file-path.
      *  * BUS:    will only be set if the Image's definition includes it.
-     *  * TARGET: if not set uses that in the image template
+     *  * TARGET: will only be set if the Image's definition includes it.
+     *
      * @param disk attribute for the VM template
-     * 
-     * @return -1 if there is no TARGET in the disk nor in the template, 0 
-     *         otherwise
+     * @param img_type will be set to the used image's type
+     * @param dev_prefix will be set to the defined dev_prefix,
+     *   or the default one
+     *
+     * @return 0 on success, -1 otherwise
      */
-    int disk_attribute(VectorAttribute * disk);
+    int disk_attribute( VectorAttribute * disk,
+                        ImageType&        img_type,
+                        string&           dev_prefix);
 
     /**
      *  Factory method for image templates

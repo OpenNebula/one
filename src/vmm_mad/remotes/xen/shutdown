@@ -21,24 +21,23 @@ source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 
-function gdm {
-    $XM_LIST | grep "$deploy_id "
+if [ -z "$SHUTDOWN_TIMEOUT" ]; then
+    TIMEOUT=120
+else
+    TIMEOUT=$SHUTDOWN_TIMEOUT
+fi
+
+function monitor
+{
+    $XM_LIST "$deploy_id" > /dev/null
+
+    [ "x$?" != "x0" ]
 }
 
 exec_and_log "$XM_SHUTDOWN $deploy_id" \
     "Could not shutdown $deploy_id"
 
-OUT=$(gdm)
+retry $TIMEOUT monitor
 
-while [ -n "$OUT" -a "$(echo $OUT | awk '{print $5}')" != "---s--" ]; do
-    sleep 1
-    OUT=$(gdm)
-done
-
-OUT=$(gdm)
-
-if [ -n "$OUT" ]; then
-    $XM_CANCEL "$deploy_id"
-fi
-sleep 2
+force_shutdown "$deploy_id" "$XM_CANCEL $deploy_id"
 

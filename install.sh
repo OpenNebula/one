@@ -230,6 +230,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/ssh \
           $VAR_LOCATION/remotes/tm/vmware \
           $VAR_LOCATION/remotes/tm/iscsi \
+          $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -237,6 +238,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/fs \
           $VAR_LOCATION/remotes/datastore/vmware \
           $VAR_LOCATION/remotes/datastore/iscsi \
+          $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -391,12 +393,14 @@ INSTALL_FILES=(
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
+    TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmware
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
+    DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
@@ -769,6 +773,7 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #   - DUMMY TM, $VAR_LOCATION/tm/dummy
 #   - VMWARE TM, $VAR_LOCATION/tm/vmware
 #   - ISCSI TM, $VAR_LOCATION/tm/iscsi
+#   - LVM TM, $VAR_LOCATION/tm/lvm
 #-------------------------------------------------------------------------------
 
 TM_FILES="src/tm_mad/tm_common.sh"
@@ -823,10 +828,20 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/mv \
                  src/tm_mad/iscsi/mvds \
                  src/tm_mad/iscsi/delete"
+
+TM_LVM_FILES="src/tm_mad/lvm/clone \
+                 src/tm_mad/lvm/ln \
+                 src/tm_mad/lvm/mv \
+                 src/tm_mad/lvm/mvds \
+                 src/tm_mad/lvm/delete"
+
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
+#   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
 #   - VMware based Image Repository, $REMOTES_LOCATION/datastore/vmware
+#   - iSCSI based Image Repository, $REMOTES_LOCATION/datastore/iscsi
+#   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
 #-------------------------------------------------------------------------------
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
@@ -848,6 +863,11 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
                          src/datastore_mad/remotes/iscsi/rm \
                          src/datastore_mad/remotes/iscsi/iscsi.conf"
+
+DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
+                         src/datastore_mad/remotes/lvm/mkfs \
+                         src/datastore_mad/remotes/lvm/rm \
+                         src/datastore_mad/remotes/lvm/lvm.conf"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION

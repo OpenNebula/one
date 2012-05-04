@@ -82,6 +82,9 @@ Options:
 --verbose
     Show resources in verbose mode
 
+--plain
+    The password provided will not be hashed
+
 EOT
 
 require 'occi/OCCIClient'
@@ -99,7 +102,8 @@ opts = GetoptLong.new(
             ['--debug',     '-D',GetoptLong::NO_ARGUMENT],
             ['--timeout',   '-T',GetoptLong::REQUIRED_ARGUMENT],
             ['--multipart', '-M',GetoptLong::NO_ARGUMENT],
-            ['--verbose',        GetoptLong::NO_ARGUMENT]
+            ['--verbose',        GetoptLong::NO_ARGUMENT],
+            ['--plain',         GetoptLong::NO_ARGUMENT]
         )
 
 url      = nil
@@ -110,6 +114,7 @@ timeout  = nil
 debug    = false
 curb     = true
 verbose  = false
+plain    = false
 
 begin
     opts.each do |opt, arg|
@@ -134,6 +139,8 @@ begin
                 curb = false
             when '--verbose'
                 verbose = true
+            when '--plain'
+                plain = true
         end
     end
 rescue Exception => e
@@ -148,7 +155,7 @@ end
 
 
 begin
-    occi_client = OCCIClient::Client.new(url,username,password,timeout,debug)
+    occi_client = OCCIClient::Client.new(url,username,password,timeout,debug,plain)
 rescue Exception => e
     puts "#{cmd_name}: #{e.message}"
     exit(-1)

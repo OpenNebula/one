@@ -16,45 +16,46 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+# clone fe:SOURCE host:remote_system_ds/disk.i size
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
 
-count=0
+SRC=$1
+DST=$2
 
-deploy_id=$1
-
-if [ -z "$SHUTDOWN_TIMEOUT" ]; then
-    TIMEOUT=120
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
-    TIMEOUT=$SHUTDOWN_TIMEOUT
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-HALF_LOOP=$(($TIMEOUT/2))
+. $TMCOMMON
 
-function monitor
-{
-    # Issue another shutdown to cover occasional libvirt lack of attention
-    if [ "$count" -eq "$HALF_LOOP" ]
-    then
-        virsh --connect $LIBVIRT_URI shutdown $deploy_id
-    fi
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
 
-    let count=count+1
+SRC_HOST=`arg_host $SRC`
+SRC_PATH=`arg_path $SRC`
 
-    export count
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
 
-    virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1
+LV_NAME=`echo $SRC_PATH|cut -d. -f2`
+VG_NAME=`echo $SRC_PATH|cut -d. -f1`
 
-    [ "x$?" != "x0" ]
-}
+TARGET_DEV="/dev/$VG_NAME/$LV_NAME"
 
-exec_and_log "virsh --connect $LIBVIRT_URI shutdown $deploy_id" \
-    "Could not shutdown $deploy_id"
+LINK_CMD=$(cat <<EOF
+    set -e
+    mkdir -p $DST_DIR
+    ln -s "$TARGET_DEV" "$DST_PATH"
+EOF
+)
 
-retry $TIMEOUT monitor
-
-force_shutdown "$deploy_id" \
-    "virsh --connect $LIBVIRT_URI destroy $deploy_id"
-
-sleep 4
-
+ssh_exec_and_log "$DST_HOST" "$LINK_CMD" \
+        "Error linking $TARGET_DEV"
+exit 0

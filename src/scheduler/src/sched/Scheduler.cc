@@ -65,15 +65,17 @@ extern "C" void * scheduler_action_loop(void *arg)
 
 void Scheduler::start()
 {
-    int      rc;
+    int rc;
 
     ifstream      file;
     ostringstream oss;
 
     string etc_path;
-    int    oned_port;
 
-    pthread_attr_t  pattr;
+    int          oned_port;
+    unsigned int live_rescheds;
+
+    pthread_attr_t pattr;
 
     // -----------------------------------------------------------
     // Log system & Configuration File
@@ -136,6 +138,8 @@ void Scheduler::start()
     conf.get("MAX_DISPATCH", dispatch_limit);
 
     conf.get("MAX_HOST", host_dispatch_limit);
+
+    conf.get("LIVE_RESCHEDS", live_rescheds);
    
     oss.str("");
      
@@ -169,8 +173,9 @@ void Scheduler::start()
     // -----------------------------------------------------------
 
     hpool  = new HostPoolXML(client);
-    vmpool = new VirtualMachinePoolXML(client, machines_limit);
-    
+    vmpool = new VirtualMachinePoolXML(client, 
+                                       machines_limit,
+                                       (live_rescheds == 1));
     acls   = new AclXML(client);
 
     // -----------------------------------------------------------
@@ -328,7 +333,6 @@ void Scheduler::match()
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
     const map<int, ObjectXML*> hosts = hpool->get_objects();
-
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
@@ -516,15 +520,15 @@ void Scheduler::dispatch()
 
     map<int, int>  host_vms;
 
-    oss << "Select hosts" << endl;
-    oss << "\tPRI\tHID" << endl;
-    oss << "\t-------------------" << endl;
+    oss << "Selected hosts:" << endl;
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        oss << "Virtual Machine: " << vm->get_oid() << "\n" << *vm << endl;
+        oss << "\t PRI\tHID  VM: " << vm->get_oid() << endl
+            << "\t-----------------------"  << endl
+            << *vm << endl;
     }
 
     NebulaLog::log("SCHED",Log::INFO,oss);
@@ -541,9 +545,9 @@ void Scheduler::dispatch()
 
         if (rc == 0)
         {
-            rc = vmpool->dispatch(vm_it->first,hid);
+            rc = vmpool->dispatch(vm_it->first, hid, vm->is_resched());
 
-            if (rc == 0)
+            if (rc == 0 && !vm->is_resched())
             {
                 dispatched_vms++;
             }

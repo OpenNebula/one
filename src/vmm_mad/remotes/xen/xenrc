@@ -28,4 +28,10 @@ export XM_LIST="sudo $XM_PATH list"
 export XM_SHUTDOWN="sudo $XM_PATH shutdown"
 export XM_POLL="sudo /usr/sbin/xentop -bi2"
 
+# Seconds to wait after shutdown until timeout
+export SHUTDOWN_TIMEOUT=300
+
+# Uncomment this line to force VM cancellation after shutdown timeout
+#export FORCE_DESTROY=yes
+
 

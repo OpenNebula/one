@@ -154,7 +154,7 @@ module OneWatchClient
             if filter[:uid]
                 filter[:uid]==0 ? (hosts = pool) : (return nil)
             elsif filter[:gid]
-                filter[:uid]==0 ? (hosts = pool) : (return nil)
+                filter[:gid]==0 ? (hosts = pool) : (return nil)
             else
                 hosts = pool
             end
