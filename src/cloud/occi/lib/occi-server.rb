@@ -89,7 +89,7 @@ enable_logging OCCI_LOG, settings.config[:debug_level].to_i
 # Set Sinatra configuration
 use Rack::Session::Pool, :key => 'occi'
 
-set :public, Proc.new { File.join(root, "ui/public") }
+set :public_folder, Proc.new { File.join(root, "ui/public") }
 set :views, settings.root + '/ui/views'
 
 if CloudServer.is_port_open?(settings.config[:server],
@@ -101,8 +101,18 @@ if CloudServer.is_port_open?(settings.config[:server],
     exit -1
 end
 
-set :bind, settings.config[:server]
+host = settings.config[:host] || settings.config[:server]
+set :bind, host
+
+if settings.config[:server]
+    warning = "Warning: :server: configuration parameter has been deprecated."
+    warning << " Use :host: instead."
+    settings.logger.error warning
+end
+
 set :port, settings.config[:port]
+
+
 
 
 # Create CloudAuth
