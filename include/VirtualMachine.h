@@ -199,7 +199,7 @@ public:
 
     /**
      *  Sets the VM exit time
-     *    @param _et VM exit time (when it arraived DONE/FAILED states)
+     *    @param _et VM exit time (when it arrived DONE/FAILED states)
      */
     void set_exit_time(time_t et)
     {
@@ -434,6 +434,9 @@ public:
      */
     void set_etime(time_t _etime)
     {
+        string xml;
+        history->vm_info = obj_template->to_xml(xml);
+
         history->etime=_etime;
     };
 
@@ -443,6 +446,9 @@ public:
      */
     void set_previous_etime(time_t _etime)
     {
+        string xml;
+        previous_history->vm_info = obj_template->to_xml(xml);
+
         previous_history->etime=_etime;
     };
 

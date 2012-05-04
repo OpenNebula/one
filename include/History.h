@@ -63,7 +63,7 @@ public:
     string& to_xml(string& xml) const;
 
     // ----------------------------------------
-    // DataBase implementation variables
+    // DataBase implementation
     // ----------------------------------------
 
     static const char * table;
@@ -107,6 +107,8 @@ private:
     time_t  epilog_etime;
 
     MigrationReason reason;
+
+    string  vm_info;
 
     // -------------------------------------------------------------------------
     // Non-persistent history fields
@@ -172,6 +174,23 @@ private:
      *    @return 0 on success
      */
     int select_cb(void *nil, int num, char **values, char **names);
+
+    /**
+     * Function to print the History object into a string in
+     * XML format, to be stored in the DB. It includes the VM template info
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_db_xml(string& xml) const;
+
+    /**
+     * Function to print the History object into a string in
+     * XML format. The VM info can be optionally included
+     *  @param xml the resulting XML string
+     *  @param database If it is true, the TEMPLATE element will be included
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml, bool database) const;
 
     /**
      *  Rebuilds the object from an xml node

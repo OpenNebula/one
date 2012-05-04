@@ -52,7 +52,8 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        reason(NONE){};
+        reason(NONE),
+        vm_info("<TEMPLATE/>"){};
 
 /* -------------------------------------------------------------------------- */
 
@@ -77,7 +78,8 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        reason(NONE)
+        reason(NONE),
+        vm_info("<TEMPLATE/>")
 {
     non_persistent_data();
 };
@@ -150,7 +152,7 @@ int History::insert_replace(SqlDB *db, bool replace)
         return 0;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_db_xml(xml_body).c_str());
 
     if ( sql_xml == 0 )
     {
@@ -263,6 +265,20 @@ ostream& operator<<(ostream& os, const History& history)
 
 string& History::to_xml(string& xml) const
 {
+    return to_xml(xml, false);
+}
+
+/* -------------------------------------------------------------------------- */
+
+string& History::to_db_xml(string& xml) const
+{
+    return to_xml(xml, true);
+}
+
+/* -------------------------------------------------------------------------- */
+
+string& History::to_xml(string& xml, bool database) const
+{
     ostringstream oss;
 
     oss <<
@@ -281,7 +297,14 @@ string& History::to_xml(string& xml) const
           "<RETIME>"            << running_etime     << "</RETIME>"<<
           "<ESTIME>"            << epilog_stime      << "</ESTIME>"<<
           "<EETIME>"            << epilog_etime      << "</EETIME>"<<
-          "<REASON>"            << reason            << "</REASON>"<<
+          "<REASON>"            << reason            << "</REASON>";
+
+    if ( database )
+    {
+        oss << vm_info;
+    }
+
+    oss <<
         "</HISTORY>";
 
    xml = oss.str();
