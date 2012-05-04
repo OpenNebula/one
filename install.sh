@@ -883,6 +883,7 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/3.2.1_to_3.3.0.rb \
                       src/onedb/3.3.0_to_3.3.80.rb \
                       src/onedb/3.3.80_to_3.4.0.rb \
+                      src/onedb/3.4.0_to_3.4.1.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
