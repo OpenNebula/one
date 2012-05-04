@@ -14,12 +14,21 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-class Auth
+class Auth < Sequel::Model
+    plugin :schema
+    plugin :validation_helpers
 
-    include DataMapper::Resource
+    set_schema do
+        primary_key :id
+        String      :name, :unique => true
+        String      :password
+    end
 
-    property :id,         Serial
-    property :name,       String, :required => true, :unique => true
-    property :password,   String, :required => true
+    create_table unless table_exists?
 
+    def validate
+        super
+        validates_unique(:name)
+        validates_presence [:name, :password]
+    end
 end

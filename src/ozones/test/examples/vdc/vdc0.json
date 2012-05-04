@@ -1,12 +1,8 @@
 {
   "VDC": {
-    "NAME": "vdcA",
+    "VDCADMINNAME": "vdcadminA",
     "VDCADMIN_ID": 2,
-    "ID": 1,
     "RESOURCES": {
-      "DATASTORES": [
-        100
-      ],
       "HOSTS": [
         0,
         1,
@@ -25,11 +21,15 @@
         8,
         9,
         10
+      ],
+      "DATASTORES": [
+        100
       ]
     },
-    "GROUP_ID": 100,
+    "NAME": "vdcA",
+    "CLUSTER_ID": 100,
     "ZONES_ID": 1,
-    "VDCADMINNAME": "vdcadminA",
-    "CLUSTER_ID": 100
+    "ID": 1,
+    "GROUP_ID": 100
   }
 }

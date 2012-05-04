@@ -36,7 +36,7 @@ class OzonesServer < CloudServer
 
     # Gets a VDC
     def get_vdc(id)
-        vdc = OZones::Vdc.get(id)
+        vdc = OZones::Vdc[id]
 
         if vdc
             return [200, vdc.to_json]
@@ -53,7 +53,7 @@ class OzonesServer < CloudServer
 
     #Gets a zone
     def get_zone(id)
-        zone = OZones::Zones.get(id)
+        zone = OZones::Zones[id]
 
         if zone
             return [200, zone.to_json]
@@ -101,7 +101,7 @@ class OzonesServer < CloudServer
                                 "Mandatory attribute zoneid missing.").to_json]
         end
 
-        zone = OZones::Zones.get(zoneid)
+        zone = OZones::Zones[zoneid]
         if !zone
             return [404, OZones::Error.new("Error: Couldn't create vdc. " \
                                     "Zone #{zoneid} not found.").to_json]
@@ -126,11 +126,10 @@ class OzonesServer < CloudServer
         #-----------------------------------------------------------------------
         #Update the zone and save the vdc
         #-----------------------------------------------------------------------
-        zone.raise_on_save_failure = true
         zone.vdcs << vdc.vdc
 
         begin
-            zone.save
+            zone.save(:raise_on_failture => true)
         rescue => e
             #vdc.clean_bootstrap
             logger.error {"create_vdc: #{e.resource.errors.inspect}"}
@@ -231,7 +230,7 @@ class OzonesServer < CloudServer
     end
 
     def delete_zone(id, pr)
-        zone = OZones::Zones.get(id)
+        zone = OZones::Zones[id]
 
         if zone
             rc = zone.destroy
@@ -264,7 +263,7 @@ class OzonesServer < CloudServer
 
         all_hosts = Array.new
 
-        zone.vdcs.all(:CLUSTER_ID =>c_id).each{ |vdc|
+        zone.vdcs(:CLUSTER_ID =>c_id).each{ |vdc|
             rsrc = vdc.resources 
 
             if !rsrc[:HOSTS].empty? and vdc.ID != vdc_data[:ID]

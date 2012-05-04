@@ -154,13 +154,25 @@ module OZones
         it "should be able to retrieve the vdc pool" do
             vdcpool = @vdchelper.list_pool({:json => true})
             vdcpool[0].should eql(0)
-            vdcpool[1].should eql(File.read(TESTS_PATH+"examples/pool/vdcpool0.json"))
+
+            got = vdcpool[1]
+            expected = File.read(TESTS_PATH+"examples/pool/vdcpool0.json")
+
+            got = JSON.parser.new(got, {:symbolize_names => true}).parse
+            expected = JSON.parser.new(expected, {:symbolize_names => true}).parse
+            got.should eql(expected)
         end
 
         it "should be able to retrieve a particular vdc" do
             vdc = @vdchelper.show_resource(1, {:json => true})
             vdc[0].should eql(0)
-            vdc[1].should eql(File.read(TESTS_PATH+"examples/vdc/vdc0.json"))
+            
+            got = vdc[1]
+            expected = File.read(TESTS_PATH+"examples/vdc/vdc0.json")
+
+            got = JSON.parser.new(got, {:symbolize_names => true}).parse
+            expected = JSON.parser.new(expected, {:symbolize_names => true}).parse
+            got.should eql(expected)
         end
 
         it "should allow deleting a vdc" do
@@ -168,8 +180,13 @@ module OZones
             rc[0].should eql(0)
             rc = @vdchelper.list_pool({:json => true})
             rc[0].should eql(0)
-            rc[1].should eql(File.read(TESTS_PATH+
-                                       "examples/pool/vdcpool_deleted.json"))
+
+            got = rc[1]
+            expected = File.read(TESTS_PATH+"examples/pool/vdcpool_deleted.json")
+
+            got = JSON.parser.new(got, {:symbolize_names => true}).parse
+            expected = JSON.parser.new(expected, {:symbolize_names => true}).parse
+            got.should eql(expected)
         end
 
         it "should fail on non-existing vdc deletion" do
