@@ -710,13 +710,6 @@ public:
     static void set_auth_request(int uid, 
                                  AuthRequest& ar, 
                                  VirtualMachineTemplate *tmpl);
-
-    // ------------------------------------------------------------------------
-    // DataBase implementation (Public)
-    // ------------------------------------------------------------------------
-
-    static const char * table;
-
 private:
 
     // -------------------------------------------------------------------------
@@ -952,6 +945,8 @@ protected:
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
+    
+    static const char * table;
 
     static const char * db_names;
 

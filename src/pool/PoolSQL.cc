@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "PoolSQL.h"
+#include "RequestManagerPoolInfoFilter.h"
 
 #include <errno.h>
 
@@ -490,22 +491,22 @@ int PoolSQL::dump(ostringstream& oss,
 
     cmd << " ORDER BY oid";
 
-    return custom_dump(oss, elem_name, cmd);
+    return dump(oss, elem_name, cmd);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolSQL::custom_dump(ostringstream&  oss,
-                         const string&   root_elem_name,
-                         ostringstream&  sql_query)
+int PoolSQL::dump(ostringstream&  oss,
+                  const string&   root_elem_name,
+                  ostringstream&  sql_query)
 {
     int rc;
 
     oss << "<" << root_elem_name << ">";
 
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
-                  static_cast<void *>(&oss));
+                 static_cast<void *>(&oss));
 
     rc = db->exec(sql_query, this);
 
@@ -557,3 +558,120 @@ int PoolSQL::search(
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolSQL::acl_filter(int                       uid, 
+                         int                       gid, 
+                         PoolObjectSQL::ObjectType auth_object,
+                         bool&                     all,
+                         string&                   filter)
+{
+    filter.clear();
+
+    if ( uid == 0 || gid == 0 )
+    {
+        all = true;
+        return;
+    }
+
+    Nebula&     nd   = Nebula::instance();
+    AclManager* aclm = nd.get_aclm();
+
+    ostringstream         acl_filter;
+    vector<int>::iterator it;
+
+    vector<int> oids;
+    vector<int> gids;
+
+    aclm->reverse_search(uid, 
+                         gid, 
+                         auth_object,
+                         AuthRequest::USE, 
+                         all, 
+                         oids, 
+                         gids);
+
+    for ( it = oids.begin(); it < oids.end(); it++ )
+    {
+        acl_filter << " OR oid = " << *it;
+    }
+
+    for ( it = gids.begin(); it < gids.end(); it++ )
+    {
+        acl_filter << " OR gid = " << *it;
+    }
+
+    filter = acl_filter.str();
+}
+
+/* -------------------------------------------------------------------------- */
+
+void PoolSQL::usr_filter(int           uid, 
+                         int           gid, 
+                         int           filter_flag,
+                         bool          all,
+                         const string& acl_str,
+                         string&       filter)
+{
+    ostringstream uid_filter;
+
+    if ( filter_flag == RequestManagerPoolInfoFilter::MINE )
+    {
+        uid_filter << "uid = " << uid;
+    }
+    else if ( filter_flag == RequestManagerPoolInfoFilter::MINE_GROUP )
+    {
+        uid_filter << " uid = " << uid 
+                   << " OR ( gid = " << gid << " AND group_u = 1 )";        
+    }
+    else if ( filter_flag == RequestManagerPoolInfoFilter::ALL )
+    {
+        if (!all)
+        {
+            uid_filter << " uid = " << uid 
+                       << " OR ( gid = " << gid << " AND group_u = 1 )"
+                       << " OR other_u = 1"
+                       << acl_str;
+        }
+    }
+    else
+    {
+        uid_filter << "uid = " << filter_flag;
+
+        if ( filter_flag != uid && !all )
+        {
+            uid_filter << " AND ("
+                       << " ( gid = " << gid << " AND group_u = 1)"
+                       << " OR other_u = 1"
+                       << acl_str
+                       << ")";
+        }
+    }
+
+    filter = uid_filter.str();
+}
+
+/* -------------------------------------------------------------------------- */
+
+void PoolSQL::oid_filter(int     start_id,
+                         int     end_id,
+                         string& filter)
+{
+    ostringstream idfilter;
+
+    if ( start_id != -1 )
+    {
+        idfilter << "oid >= " << start_id;
+
+        if ( end_id != -1 )
+        {
+            idfilter << " AND oid <= " << end_id;
+        }
+    }
+
+    filter = idfilter.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
