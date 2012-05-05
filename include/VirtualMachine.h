@@ -429,14 +429,27 @@ public:
     };
 
     /**
+     *  Sets VM info (with monitoring info) in the history record 
+     */
+     void set_vm_info()
+     {
+        obj_template->to_xml(history->vm_info);
+     };
+
+    /**
+     *  Sets VM info (with monitoring info) in the previous history record 
+     */
+     void set_previous_vm_info()
+     {
+        obj_template->to_xml(previous_history->vm_info);
+     };
+
+    /**
      *  Sets end time of a VM.
      *    @param _etime time when the VM finished
      */
     void set_etime(time_t _etime)
     {
-        string xml;
-        history->vm_info = obj_template->to_xml(xml);
-
         history->etime=_etime;
     };
 
@@ -446,9 +459,6 @@ public:
      */
     void set_previous_etime(time_t _etime)
     {
-        string xml;
-        previous_history->vm_info = obj_template->to_xml(xml);
-
         previous_history->etime=_etime;
     };
 
