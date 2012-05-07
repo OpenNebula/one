@@ -25,11 +25,12 @@ deploy_id=$1
 
 shutdown_command="virsh --connect $LIBVIRT_URI shutdown $deploy_id"
 
+#If VM does not have ACPI enabled do not try to use it, destroy instead shutdown
 if [ "x$CANCEL_NO_ACPI" = "xyes" ]; then
     virsh --connect $LIBVIRT_URI dumpxml $deploy_id | grep -q acpi
 
     if [ "x$?" != "x0" ]; then
-       virsh --connect $LIBVIRT_URI destroy $deploy_id
+       shutdown_command="virsh --connect $LIBVIRT_URI destroy $deploy_id"
     fi
 fi
 
@@ -46,7 +47,7 @@ function monitor
     # Issue another shutdown to cover occasional libvirt lack of attention
     if [ "$count" -eq "$HALF_LOOP" ]
     then
-        $($shutdown_command)
+        eval $shutdown_command
     fi
 
     let count=count+1
