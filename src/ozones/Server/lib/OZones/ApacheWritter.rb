@@ -24,8 +24,8 @@ module OZones
         def update
             htaccess = "RewriteEngine On\n"
 
-            OZones::Zones.all.each{|zone|
-                zone.vdcs.all.each{|vdc|
+            OZones::Zones.each{|zone|
+                zone.vdcs.each{|vdc|
                     htaccess << "RewriteRule ^#{vdc.NAME} " +
                     "#{zone.ENDPOINT} [P]\n"
 

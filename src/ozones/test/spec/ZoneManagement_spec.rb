@@ -72,14 +72,25 @@ module OZones
         it "should be able to retrieve the zone pool" do
             zonepool = @helper.list_pool({:json => true})
             zonepool[0].should eql(0)
-            zonepool[1].should eql(File.read(TESTS_PATH+
-                                             "examples/pool/zonepool0.json"))
+
+            got = zonepool[1]
+            expected = File.read(TESTS_PATH+"examples/pool/zonepool0.json")
+
+            got = JSON.parser.new(got, {:symbolize_names => true}).parse
+            expected = JSON.parser.new(expected, {:symbolize_names => true}).parse
+            got.should eql(expected)
         end
 
         it "should be able to retrieve a particular zone" do
             zone = @helper.show_resource(1,{:json => true})
             zone[0].should eql(0)
-            zone[1].should eql(File.read(TESTS_PATH+"examples/zone/zone0.json"))
+
+            got = zone[1]
+            expected =  File.read(TESTS_PATH+"examples/zone/zone0.json")
+
+            got = JSON.parser.new(got, {:symbolize_names => true}).parse
+            expected = JSON.parser.new(expected, {:symbolize_names => true}).parse
+            got.should eql(expected)
         end
 
         it "should allow deleting a zone" do
@@ -87,8 +98,13 @@ module OZones
             rc[0].should eql(0)
             rc = @helper.list_pool({:json => true})
             rc[0].should eql(0)
-            rc[1].should eql(File.read(TESTS_PATH+
-                                       "examples/pool/zonepool_deleted.json"))
+
+            got = rc[1]
+            expected = File.read(TESTS_PATH+"examples/pool/zonepool_deleted.json")
+
+            got = JSON.parser.new(got, {:symbolize_names => true}).parse
+            expected = JSON.parser.new(expected, {:symbolize_names => true}).parse
+            got.should eql(expected)
         end
 
         it "should fail on non existing zone deletion" do

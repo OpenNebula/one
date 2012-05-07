@@ -22,28 +22,42 @@ module OZones
     # ID, NAME, the GROUP backing the VDC, the admin credentials and the VDC
     # resources. VDC resources are stored in JSON document in the DB and used as
     # a hash in the VDC.
-    class Vdc
-        include DataMapper::Resource
+    class Vdc < Sequel::Model
         include OpenNebulaJSON::JSONUtils
         extend  OpenNebulaJSON::JSONUtils
 
-        property :ID,           Serial
-        property :NAME,         String, :required => true, :unique => true
-        property :GROUP_ID,     Integer
-        property :VDCADMINNAME, String, :required => true
-        property :VDCADMIN_ID,  Integer
-        property :CLUSTER_ID,   Integer
-        property :RESOURCES,    Text
+        plugin :schema
+        plugin :validation_helpers
 
-        belongs_to :zones
+        set_schema do
+            primary_key :ID
+            String      :NAME, :unique => true
+            Integer     :GROUP_ID
+            foreign_key :ZONES_ID, :zones, :key => :ID
+            String      :VDCADMINNAME
+            Integer     :VDCADMIN_ID
+            Integer     :CLUSTER_ID
+            String      :RESOURCES, :text => true
+
+        end
+
+        create_table unless table_exists?
+
+        many_to_one :zone, :class => 'OZones::Zones', :key => :ZONES_ID
+
+        def validate
+            super
+            validates_presence [:NAME, :VDCADMINNAME]
+            validates_unique :NAME
+        end
 
         def resources
             rsrc_json = self.RESOURCES
 
             parser = JSON.parser.new(rsrc_json, {:symbolize_names => true})
             parser.parse
-        end 
- 
+        end
+
         def resources=(rsrc_hash)
             self.RESOURCES = JSON.generate(rsrc_hash)
         end
@@ -55,11 +69,7 @@ module OZones
             zonePoolHash["VDC_POOL"]["VDC"] = Array.new unless self.all.empty?
 
             self.all.each{ |vdc|
-                # Hack! zones_ID does not respect the "all capital letters" policy
-                attrs = vdc.attributes.clone
-
-                attrs[:ZONES_ID] = vdc.attributes[:zones_ID]
-                attrs.delete(:zones_ID)
+                attrs = vdc.values.clone
 
                 rsrc_json = attrs.delete(:RESOURCES)
                 parser    = JSON.parser.new(rsrc_json, {:symbolize_names=>true})
@@ -74,11 +84,7 @@ module OZones
         def to_hash
             vdc_attributes = Hash.new
 
-            # Hack! zones_ID does not respect the "all capital letters" policy
-            attrs = attributes.clone
-
-            attrs[:ZONES_ID] = attributes[:zones_ID]
-            attrs.delete(:zones_ID)
+            attrs = @values.clone
 
             rsrc_json = attrs.delete(:RESOURCES)
             parser    = JSON.parser.new(rsrc_json, {:symbolize_names=>true})
@@ -99,9 +105,9 @@ module OZones
         #######################################################################
         # Constants
         #######################################################################
-        VDC_ATTRS = [:VDCADMINNAME, 
-                     :VDCADMINPASS, 
-                     :NAME, 
+        VDC_ATTRS = [:VDCADMINNAME,
+                     :VDCADMINPASS,
+                     :NAME,
                      :CLUSTER_ID,
                      :RESOURCES]
 
@@ -111,13 +117,13 @@ module OZones
         #Creates an OpenNebula VDC, using its ID, vdcid and the associated zone
         def initialize(vdcid, zone = nil)
             if vdcid != -1
-                @vdc = Vdc.get(vdcid)
+                @vdc = Vdc[vdcid]
 
                 if !@vdc
                     raise "VDC with id #{vdcid} not found."
                 end
 
-                @zone = OZones::Zones.get(@vdc.zones_ID)
+                @zone = OZones::Zones[@vdc.ZONES_ID]
             else
                 @zone = zone
             end
@@ -150,9 +156,17 @@ module OZones
             #-------------------------------------------------------------------
             # Create a vdc record & check cluster consistency
             #-------------------------------------------------------------------
-            @vdc = Vdc.new
+            begin
 
-            @vdc.attributes = vdc_data
+
+                @vdc = Vdc.new
+
+                @vdc.update(vdc_data)
+                @vdc.ZONES_ID = @zone.ID
+
+            rescue => e
+                return OpenNebula::Error.new(e.message)
+            end
 
             rc   = resources_in_cluster?(rsrc)
 
@@ -198,10 +212,11 @@ module OZones
             rc, acl_ids = create_acls(rules)
             return rollback(group, user, acl_ids,rc) if OpenNebula.is_error?(rc)
 
-            OzonesServer::logger.debug {"ACLs #{acl_ids} created"}            
+            OzonesServer::logger.debug {"ACLs #{acl_ids} created"}
 
             rsrc[:ACLS]    = acl_ids
             @vdc.resources = rsrc
+            @vdc.save
 
             return true
         end
@@ -283,10 +298,8 @@ module OZones
             #Update the VDC Record
             # ------------------------------------------------------------------
             begin
-                @vdc.raise_on_save_failure = true
                 @vdc.resources = rsrc_hash
-
-                @vdc.save
+                @vdc.save(:raise_on_failure => true)
             rescue => e
                 return OpenNebula::Error.new(e.message)
             end

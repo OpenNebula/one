@@ -2,24 +2,24 @@
   "ZONE_POOL": {
     "ZONE": [
       {
-        "NAME": "zoneA",
-        "SUNSENDPOINT": "http://localhost:9869",
-        "SELFENDPOINT": null,
-        "ONENAME": "oneadminA",
-        "ID": 1,
-        "ONEPASS": "OkqWM2aSqbM/nlrdHGv3OA==",
         "ENDPOINT": "http://localhost:2666/RPC2",
-        "NUMBERVDCS": 0
+        "SUNSENDPOINT": "http://localhost:9869",
+        "NAME": "zoneA",
+        "SELFENDPOINT": null,
+        "NUMBERVDCS": 0,
+        "ID": 1,
+        "ONENAME": "oneadminA",
+        "ONEPASS": "e/TkohQckqFcmcWFwrirUapdiLkg87GHPafKnxkzznk="
       },
       {
-        "NAME": "zoneB",
-        "SUNSENDPOINT": null,
-        "SELFENDPOINT": null,
-        "ONENAME": "oneadminB",
-        "ID": 2,
-        "ONEPASS": "8Si8vlo2P3qn5/SNxkMkDg==",
         "ENDPOINT": "http://localhost:2667/RPC2",
-        "NUMBERVDCS": 0
+        "SUNSENDPOINT": null,
+        "NAME": "zoneB",
+        "SELFENDPOINT": null,
+        "NUMBERVDCS": 0,
+        "ID": 2,
+        "ONENAME": "oneadminB",
+        "ONEPASS": "DrnuZMnmOFVeYTXTVwTgEmOGw2orTjaU/f1NyuNKlQY="
       }
     ]
   }

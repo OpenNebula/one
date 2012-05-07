@@ -51,7 +51,7 @@ require 'sinatra'
 
 require 'yaml'
 require 'rubygems'
-require 'data_mapper'
+require 'sequel'
 require 'digest/sha1'
 require 'OzonesServer'
 
@@ -102,17 +102,15 @@ enable_logging OZONES_LOG, settings.config[:debug_level].to_i
 ##############################################################################
 # DB bootstrapping
 ##############################################################################
-if config[:dbdebug]
-    DataMapper::Logger.new($stdout, :debug)
-end
 
-DataMapper.setup(:default, db_url)
+DB = Sequel.connect(db_url)
+
+if config[:dbdebug]
+    DB.loggers << settings.logger
+end
 
 require 'OZones'
 require 'Auth'
-
-DataMapper.finalize
-DataMapper.auto_upgrade!
 
 if Auth.all.size == 0
     if ENV['OZONES_AUTH'] && File.exist?(ENV['OZONES_AUTH'])
@@ -123,9 +121,10 @@ if Auth.all.size == 0
             exit -1
         end
         credentials[1] = Digest::SHA1.hexdigest(credentials[1])
-        @auth=Auth.create({:name => credentials[0],
-                           :password => credentials[1]})
-        @auth.save
+        @auth=Auth.new
+        @auth.name = credentials[0]
+        @auth.password = credentials[1]
+        @auth.save(:raise_on_failure => true)
     else
         error_m = "oZones admin credentials not set, missing OZONES_AUTH file."
         settings.logger.error { error_m }

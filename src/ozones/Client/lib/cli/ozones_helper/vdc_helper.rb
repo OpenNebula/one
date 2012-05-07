@@ -157,9 +157,9 @@ class VDCHelper < OZonesHelper::OZHelper
         puts str % ["CLUSTER_ID ",  vdc[:CLUSTER_ID].to_s]
         puts str % ["GROUP_ID ",    vdc[:GROUP_ID].to_s]
         puts str % ["VDCADMIN ",    vdc[:VDCADMINNAME].to_s]
-        puts str % ["HOSTS ",      vdc[:RESOURCES][:HOSTS].to_s]
-        puts str % ["DATASTORES ", vdc[:RESOURCES][:DATASTORES].to_s]
-        puts str % ["NETWORKS ",   vdc[:RESOURCES][:NETWORKS].to_s]
+        puts str % ["HOSTS ",       vdc[:RESOURCES][:HOSTS].join(',')]
+        puts str % ["DATASTORES ",  vdc[:RESOURCES][:DATASTORES].join(',')]
+        puts str % ["NETWORKS ",    vdc[:RESOURCES][:NETWORKS].join(',')]
         puts
 
         return 0
