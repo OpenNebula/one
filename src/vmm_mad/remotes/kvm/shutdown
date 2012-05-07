@@ -23,6 +23,16 @@ count=0
 
 deploy_id=$1
 
+shutdown_command="virsh --connect $LIBVIRT_URI shutdown $deploy_id"
+
+if [ "x$CANCEL_NO_ACPI" = "xyes" ]; then
+    virsh --connect $LIBVIRT_URI dumpxml $deploy_id | grep -q acpi
+
+    if [ "x$?" != "x0" ]; then
+       virsh --connect $LIBVIRT_URI destroy $deploy_id
+    fi
+fi
+
 if [ -z "$SHUTDOWN_TIMEOUT" ]; then
     TIMEOUT=120
 else
@@ -36,7 +46,7 @@ function monitor
     # Issue another shutdown to cover occasional libvirt lack of attention
     if [ "$count" -eq "$HALF_LOOP" ]
     then
-        virsh --connect $LIBVIRT_URI shutdown $deploy_id
+        $($shutdown_command)
     fi
 
     let count=count+1
@@ -48,7 +58,7 @@ function monitor
     [ "x$?" != "x0" ]
 }
 
-exec_and_log "virsh --connect $LIBVIRT_URI shutdown $deploy_id" \
+exec_and_log "$shutdown_command" \
     "Could not shutdown $deploy_id"
 
 retry $TIMEOUT monitor
