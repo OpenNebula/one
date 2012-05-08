@@ -2,13 +2,9 @@
   "VDC_POOL": {
     "VDC": [
       {
-        "NAME": "vdcA",
+        "VDCADMINNAME": "vdcadminA",
         "VDCADMIN_ID": 2,
-        "ID": 1,
         "RESOURCES": {
-          "DATASTORES": [
-            100
-          ],
           "HOSTS": [
             0,
             1,
@@ -27,21 +23,21 @@
             8,
             9,
             10
-          ]
-        },
-        "GROUP_ID": 100,
-        "ZONES_ID": 1,
-        "VDCADMINNAME": "vdcadminA",
-        "CLUSTER_ID": 100
-      },
-      {
-        "NAME": "vdcB",
-        "VDCADMIN_ID": 2,
-        "ID": 2,
-        "RESOURCES": {
+          ],
           "DATASTORES": [
             100
-          ],
+          ]
+        },
+        "NAME": "vdcA",
+        "CLUSTER_ID": 100,
+        "ZONES_ID": 1,
+        "ID": 1,
+        "GROUP_ID": 100
+      },
+      {
+        "VDCADMINNAME": "vdcadminB",
+        "VDCADMIN_ID": 2,
+        "RESOURCES": {
           "HOSTS": [
             1
           ],
@@ -56,21 +52,21 @@
             6,
             7,
             8
-          ]
-        },
-        "GROUP_ID": 100,
-        "ZONES_ID": 2,
-        "VDCADMINNAME": "vdcadminB",
-        "CLUSTER_ID": 100
-      },
-      {
-        "NAME": "vdcC",
-        "VDCADMIN_ID": 3,
-        "ID": 3,
-        "RESOURCES": {
+          ],
           "DATASTORES": [
             100
-          ],
+          ]
+        },
+        "NAME": "vdcB",
+        "CLUSTER_ID": 100,
+        "ZONES_ID": 2,
+        "ID": 2,
+        "GROUP_ID": 100
+      },
+      {
+        "VDCADMINNAME": "vdcadminC",
+        "VDCADMIN_ID": 3,
+        "RESOURCES": {
           "HOSTS": [
             3
           ],
@@ -85,12 +81,16 @@
             15,
             16,
             17
+          ],
+          "DATASTORES": [
+            100
           ]
         },
-        "GROUP_ID": 101,
+        "NAME": "vdcC",
+        "CLUSTER_ID": 100,
         "ZONES_ID": 1,
-        "VDCADMINNAME": "vdcadminC",
-        "CLUSTER_ID": 100
+        "ID": 3,
+        "GROUP_ID": 101
       }
     ]
   }

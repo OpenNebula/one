@@ -602,9 +602,6 @@ int DispatchManager::resched(int vid, bool do_resched)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         vm->set_resched(do_resched);
         vmpool->update(vm);
     }

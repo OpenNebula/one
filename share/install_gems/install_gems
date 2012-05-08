@@ -92,6 +92,45 @@ def good_gem_version?
     version>=Gem::Version.new('1.3.6')
 end
 
+def select_distribution
+    items=[]
+    counter=0
+
+    puts(<<-EOT.unindent(8))
+        Select your distribution or press enter to continue without
+        installing dependencies.
+
+EOT
+
+    DISTRIBUTIONS.each do |name, dist|
+        names=dist[:id].map do |r|
+            if Regexp===r
+                r.source.gsub(/[^\w\d]/, '')
+            else
+                r
+            end
+        end.join('/')
+        text="#{items.length}. #{names}"
+
+        items << name
+
+        puts text
+    end
+
+    puts
+
+    options=(0..items.length).to_a.map {|k| k.to_s }
+
+    option=STDIN.readline[0,1]
+
+    if options.include?(option)
+        item=items[option.to_i]
+        [item, DISTRIBUTIONS[items[option.to_i]]]
+    else
+        nil
+    end
+end
+
 def install_rubygems
     if !good_gem_version?
         puts(<<-EOT.unindent())
@@ -288,6 +327,9 @@ def install_gems(packages)
     end
 
     dist=detect_distro
+    if !dist
+        dist=select_distribution
+    end
 
     install_dependencies(gems_list, dist)
 

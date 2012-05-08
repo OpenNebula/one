@@ -64,6 +64,9 @@ case "$1" in
         2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
     esac
     ;;
+  status)
+       status_of_proc "oned" "$NAME" && exit 0 || exit $?
+       ;;
   restart|force-reload)
     #
     # If the "reload" option is implemented then remove the
@@ -87,7 +90,7 @@ case "$1" in
     esac
     ;;
   *)
-    echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+    echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
     exit 3
     ;;
 esac
