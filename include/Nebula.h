@@ -292,12 +292,12 @@ public:
 
     static string version()
     {
-        return "OpenNebula 3.4.1";
+        return "OpenNebula 3.4.2";
     };
 
     static string db_version()
     {
-        return "3.4.1";
+        return "3.4.2";
     }
 
     void start();
