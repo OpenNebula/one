@@ -156,7 +156,7 @@ public:
 
     /**
      *  Updates VM dynamic information (usage counters).
-     *   @param _memory used by the VM (total)
+     *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
      *   @param _net_tx received bytes (total)
@@ -773,7 +773,7 @@ private:
     string      deploy_id;
 
     /**
-     *  Memory in Megabytes used by the VM
+     *  Memory in Kilobytes used by the VM
      */
     int         memory;
 
@@ -783,12 +783,12 @@ private:
     int         cpu;
 
     /**
-     *  Network usage, transmitted Kilobytes
+     *  Network usage, transmitted bytes
      */
     int         net_tx;
 
     /**
-     *  Network usage, received Kilobytes
+     *  Network usage, received bytes
      */
     int         net_rx;
 
