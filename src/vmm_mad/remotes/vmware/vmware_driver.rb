@@ -112,6 +112,18 @@ class VMwareDriver
 
         OpenNebula.log_debug("Domain #{deploy_id} successfully rebooted.")
     end
+
+    # ------------------------------------------------------------------------ #
+    # Reset a running VM                                                       #
+    # ------------------------------------------------------------------------ #
+    def reset(deploy_id)
+        rc, info = do_action("virsh -c #{@uri} reset #{deploy_id}")
+
+        exit info if rc == false
+
+        OpenNebula.log_debug("Domain #{deploy_id} successfully reseted.")
+    end
+
     # ------------------------------------------------------------------------ #
     # Migrate                                                                  #
     # ------------------------------------------------------------------------ #
