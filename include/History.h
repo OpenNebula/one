@@ -45,7 +45,8 @@ public:
         int hid,
         const string& hostname,
         const string& vmm,
-        const string& vnm);
+        const string& vnm,
+        const string& vm_info);
 
     ~History(){};
 

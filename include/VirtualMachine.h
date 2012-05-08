@@ -431,18 +431,18 @@ public:
     /**
      *  Sets VM info (with monitoring info) in the history record 
      */
-     void set_vm_info()
-     {
-        obj_template->to_xml(history->vm_info);
-     };
+    void set_vm_info()
+    {
+        to_xml_extended(history->vm_info, 0);
+    };
 
     /**
      *  Sets VM info (with monitoring info) in the previous history record 
      */
-     void set_previous_vm_info()
-     {
-        obj_template->to_xml(previous_history->vm_info);
-     };
+    void set_previous_vm_info()
+    {
+        to_xml_extended(previous_history->vm_info, 0);
+    };
 
     /**
      *  Sets end time of a VM.
@@ -932,10 +932,13 @@ private:
      *  Function that renders the VM in XML format optinally including
      *  extended information (all history records)
      *  @param xml the resulting XML string
-     *  @param extended include additional info if true
+     *  @param n_history Number of history records to include:
+     *      0: none
+     *      1: the last one
+     *      2: all
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, bool extended) const;
+    string& to_xml_extended(string& xml, int n_history) const;
 
 protected:
 

@@ -53,7 +53,7 @@ History::History(
         epilog_stime(0),
         epilog_etime(0),
         reason(NONE),
-        vm_info("<TEMPLATE/>"){};
+        vm_info("<VM/>"){};
 
 /* -------------------------------------------------------------------------- */
 
@@ -63,7 +63,8 @@ History::History(
     int	_hid,
     const string& _hostname,
     const string& _vmm,
-    const string& _vnm):
+    const string& _vnm,
+    const string& _vm_info):
         oid(_oid),
         seq(_seq),
         hostname(_hostname),
@@ -79,7 +80,7 @@ History::History(
         epilog_stime(0),
         epilog_etime(0),
         reason(NONE),
-        vm_info("<TEMPLATE/>")
+        vm_info(_vm_info)
 {
     non_persistent_data();
 };
