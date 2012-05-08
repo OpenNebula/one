@@ -52,6 +52,7 @@ public:
         MIGRATE,
         RESTORE,
         REBOOT,
+        RESET,
         POLL,
         TIMER,
         DRIVER_CANCEL,
@@ -268,6 +269,13 @@ private:
      *    @param vid the id of the VM.
      */
     void reboot_action(
+        int vid);
+    
+    /**
+     *  Resets a running VM.
+     *    @param vid the id of the VM.
+     */
+    void reset_action(
         int vid);
 
     /**

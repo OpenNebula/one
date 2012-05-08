@@ -99,133 +99,6 @@ void VirtualMachineManagerDriver::get_default(
 }
 
 /* ************************************************************************** */
-/* Driver ASCII Protocol Implementation                                       */
-/* ************************************************************************** */
-
-void VirtualMachineManagerDriver::deploy (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os << "DEPLOY " << oid << " " << drv_msg << endl;
-    
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::shutdown (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os << "SHUTDOWN " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::cancel (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os << "CANCEL " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::checkpoint (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os<< "CHECKPOINT " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::save (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os<< "SAVE " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::restore (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os << "RESTORE " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::migrate (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os<< "MIGRATE " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::poll (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os << "POLL " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::reboot (
-    const int     oid,
-    const string& drv_msg) const
-{
-    ostringstream os;
-
-    os << "REBOOT " << oid << " " << drv_msg << endl;
-
-    write(os);
-};
-
-/* ************************************************************************** */
 /* MAD Interface                                                              */
 /* ************************************************************************** */
 
@@ -447,6 +320,18 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error rebooting VM, assume it's still running");
+            vmpool->update(vm);
+        }
+    }
+    else if ( action == "RESET" )
+    {
+        if (result == "SUCCESS")
+        {
+            vm->log("VMM",Log::ERROR,"VM Successfully reseted.");
+        }
+        else
+        {
+            log_error(vm,os,is,"Error resetting VM, assume it's still running");
             vmpool->update(vm);
         }
     }

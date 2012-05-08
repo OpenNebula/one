@@ -180,7 +180,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     string action = xmlrpc_c::value_string(paramList.getString(1));
     int    id     = xmlrpc_c::value_int(paramList.getInt(2));
 
-    int    rc;
+    int    rc = -4;
 
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
@@ -248,6 +248,10 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     else if (action == "unresched")
     {
         rc = dm->resched(id, false);
+    }
+    else if (action == "reset")
+    {
+        rc = dm->reset(id);
     }
 
     switch (rc)
