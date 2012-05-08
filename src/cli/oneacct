@@ -1,25 +1,20 @@
 #!/usr/bin/env ruby
 
-# --------------------------------------------------------------------------
-# Copyright 2010-2012, C12G Labs S.L.
-#
-# This file is part of OpenNebula addons.
-#
-# OpenNebula addons are free software: you can redistribute it
-# and/or modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation, either version 3 of
-# the License, or the hope That it will be useful, but (at your
-# option) any later version.
-#
-# OpenNebula addons are distributed in WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU General Public License for more
-# details.
-#
-# You should have received a copy of the GNU General Public License
-# along with OpenNebula addons. If not, see
-# <http://www.gnu.org/licenses/>
-# --------------------------------------------------------------------------
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
@@ -35,7 +30,6 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'rubygems'
 
-require 'acct/oneacct'
 require 'cli/one_helper'
 require 'cli/command_parser'
 require 'json'
@@ -43,164 +37,167 @@ require 'json'
 require 'optparse'
 require 'optparse/time'
 
-REG_DATE=/((\d{4})\/)?(\d\d?)(\/(\d\d?))?/
-REG_TIME=/(\d\d?):(\d\d?)(:(\d\d?))?/
-
 class AcctHelper
 
-    def format_vm(options=nil)
-        table = CLIHelper::ShowTable.new(nil, nil) do
-            column :VMID, "VM ID", :size=>4 do |d|
-                d[:vmid]
+    def initialize(client)
+        @client = client
+    end
+
+=begin
+    List of <HISTORY> child elements
+
+    OID
+    SEQ
+    HOSTNAME
+    HID
+    STIME
+    ETIME
+    VMMMAD
+    VNMMAD
+    PSTIME
+    PETIME
+    RSTIME
+    RETIME
+    ESTIME
+    EETIME
+    REASON
+=end
+
+    def list_history(data)
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :VID, "Virtual Machine ", :size=>4 do |d|
+                d["OID"]
             end
 
-            column :MEMORY, "Consumed memory", :right, :size=>8 do |d|
-                OpenNebulaHelper.unit_to_str(
-                    d[:slices].first[:mem]*1024,
-                    {})
+            column :SEQ, "Sequence number", :size=>3 do |d|
+                d["SEQ"]
             end
 
-            column :CPU, "Group of the User", :right, :size=>8 do |d|
-                d[:slices].first[:cpu]
+            column :HOSTNAME, "Host name", :size=>15 do |d|
+                d["HOSTNAME"]
             end
 
-            column :NETRX, "Group of the User", :right, :size=>10 do |d|
-                OpenNebulaHelper.unit_to_str(
-                    d[:network][:net_rx].to_i/1024.0,
-                    {})
+            column :REASON, "VM state change reason", :size=>6 do |d|
+                VirtualMachine.get_reason d["REASON"]
             end
 
-            column :NETTX, "Group of the User", :right, :size=>10 do |d|
-                OpenNebulaHelper.unit_to_str(
-                    d[:network][:net_tx].to_i/1024.0,
-                    {})
+            column :STIME, "Start time", :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['STIME'])
             end
 
-            column :TIME, "Group of the User", :right, :size=>15 do |d|
-                OpenNebulaHelper.period_to_str(d[:time])
+            column :ETIME, "End time", :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['ETIME'])
             end
 
-            default :VMID, :MEMORY, :CPU, :NETRX, :NETTX, :TIME
+            column :MEMORY, "Assigned memory", :right, :size=>8 do |d|
+                OpenNebulaHelper.unit_to_str(d["VM/TEMPLATE/MEMORY"].to_i, {})
+            end
+
+            column :CPU, "Number of CPUs", :right, :size=>3 do |d|
+                d["VM/TEMPLATE/CPU"]
+            end
+
+            column :NETRX, "Data received from the network", :right, :size=>8 do |d|
+                OpenNebulaHelper.unit_to_str(d["VM/NET_RX"].to_i, {})
+            end
+
+            column :NETTX, "Data sent to the network", :right, :size=>8 do |d|
+                OpenNebulaHelper.unit_to_str(d["VM/NET_TX"].to_i, {})
+            end
+
+            default :VID, :HOSTNAME, :REASON, :STIME, :ETIME, :MEMORY, :CPU, :NETRX, :NETTX
         end
 
-        table
+        table.show(data)
     end
 
-    def list_vms(data)
-        format_vm().show(data)
-    end
+public
+    def list_users(xml_info, options=nil)
 
-    def list_users(filters)
-        a=gen_accounting(filters)
+        xmldoc = XMLElement.new
+        xmldoc.initialize_xml(xml_info, 'HISTORY_RECORDS')
 
-        a.each do |user, data|
+        uids = xmldoc.retrieve_elements('HISTORY/VM/UID')
 
+        if uids.nil?
+            puts "No records found."
+            exit 0
+        end
+
+        uids.uniq!
+
+        history_elems = []
+
+        uids.each do |uid|
             CLIHelper.scr_bold
             CLIHelper.scr_underline
-            puts "# User #{user}"
+            # TODO: username?
+            puts "# User #{uid}                        "
             CLIHelper.scr_restore
             puts
 
-            vms=data[:vms].map do |k, v|
-                v
-            end
+            vm_ids = xmldoc.retrieve_elements("HISTORY/VM[UID=#{uid}]/ID")
+            vm_ids.uniq!
 
-            self.list_vms(vms)
+            vm_ids.each do |vid|
 
-            puts
-            puts
-
-        end
-    end
-
-    def gen_accounting(filters)
-        acct=AcctClient.new(filters)
-        acct.account()
-    end
-
-    def gen_json(filters)
-        begin
-            require 'json'
-        rescue LoadError
-            STDERR.puts "JSON gem is needed to give the result in this format"
-            exit(-1)
-        end
-
-        acct=gen_accounting(filters)
-        acct.to_json
-    end
-
-    def xml_tag(tag, value)
-        "<#{tag}>#{value}</#{tag}>\n"
-    end
-
-    def gen_xml(filters)
-        acct=gen_accounting(filters)
-
-        xml=""
-
-        acct.each do |user, data|
-            xml<<"<user id=\"#{user}\">\n"
-
-            data[:vms].each do |vmid, vm|
-                xml<<"  <vm id=\"#{vmid}\">\n"
-
-                xml<<"    "<<xml_tag(:name, vm[:name])
-                xml<<"    "<<xml_tag(:time, vm[:time])
-                xml<<"    "<<xml_tag(:cpu, vm[:slices].first[:cpu])
-                xml<<"    "<<xml_tag(:mem, vm[:slices].first[:mem])
-                xml<<"    "<<xml_tag(:net_rx, vm[:network][:net_rx])
-                xml<<"    "<<xml_tag(:net_tx, vm[:network][:net_tx])
-
-                vm[:slices].each do |slice|
-                    xml<<"    <slice seq=\"#{slice[:seq]}\">\n"
-
-                    slice.each do |key, value|
-                        xml<<"      "<<xml_tag(key, value)
-                    end
-
-                    xml<<"    </slice>\n"
+                if ( options[:split] )
+                    history_elems.clear
                 end
 
-                xml<<"  </vm>\n"
+                xmldoc.each("HISTORY[OID=#{vid}]") do |history|
+                    history_elems << history
+                end
+
+                if ( options[:split] )
+                    list_history(history_elems)
+                    puts
+                end
             end
 
-            xml<<"</user>\n"
+            if ( !options[:split] )
+                list_history(history_elems)
+                puts
+            end
         end
-
-        xml
     end
 end
 
 
-@options=Hash.new
+options = Hash.new
 
-@options[:format]=:table
+options[:format] = :table
 
-opts=OptionParser.new do |opts|
+opts = OptionParser.new do |opts|
     opts.on('-s', '--start TIME', Time,
         'Start date and time to take into account') do |ext|
-            @options[:start]=ext
+            options[:start]=ext
     end
 
     opts.on("-e", "--end TIME", Time,
         "End date and time" ) do |ext|
-            @options[:end]=ext
+            options[:end]=ext
     end
 
+    # TODO: Allow username
     opts.on("-u", "--user user", Integer,
         "User id to make accounting" ) do |ext|
-            @options[:user]=ext.to_i
+            options[:user]=ext.to_i
     end
 
     opts.on("-j", "--json",
         "Output in json format" ) do |ext|
-            @options[:format]=:json
+            options[:format]=:json
     end
 
     opts.on("-x", "--xml",
         "Output in xml format" ) do |ext|
-            @options[:format]=:xml
+            options[:format]=:xml
+    end
+
+    opts.on("--split",
+        "Split the output in a table for each VM" ) do |ext|
+            options[:split]=ext
     end
 
     opts.on()
@@ -215,27 +212,68 @@ rescue OptionParser::ParseError => e
 end
 
 
-acct_helper=AcctHelper.new
+client = OpenNebula::Client.new
+
+acct_helper = AcctHelper.new(client)
+
+time_start  = -1
+time_end    = -1
+filter_flag = VirtualMachinePool::INFO_ALL
+
+time_start  = options[:start].to_i if options[:start]
+time_end    = options[:end].to_i   if options[:end]
+filter_flag = options[:user].to_i  if options[:user]
 
 
-filters=Hash.new
+ret = client.call("vmpool.accounting",
+            filter_flag,
+            time_start,
+            time_end)
 
-filters[:start]=@options[:start].to_i if @options[:start]
-filters[:end]=@options[:end].to_i if @options[:end]
-filters[:user]=@options[:user].to_i if @options[:user]
-
-
-case @options[:format]
-when :table
-    acct_helper.list_users(filters)
-when :json
-    puts acct_helper.gen_json(filters)
-when :xml
-    puts acct_helper.gen_xml(filters)
+if OpenNebula.is_error?(ret)
+    puts ret.message
+    exit -1
 end
 
 
+case options[:format]
+when :table
+    if ( time_start != -1 or time_end != -1 )
+        print "Showing active history records from "
 
+        CLIHelper.scr_bold
 
+        if ( time_start != -1 )
+            print Time.at(time_start).to_s
+        else
+            print "-"
+        end
 
+        CLIHelper.scr_restore
 
+        print " to "
+
+        CLIHelper.scr_bold
+
+        if ( time_end != -1 )
+            print Time.at(time_end).to_s
+        else
+            print "-"
+        end
+
+        CLIHelper.scr_restore
+        puts
+        puts
+    end
+
+    acct_helper.list_users(ret, options)
+
+when :xml
+    puts ret
+
+when :json
+    xmldoc = XMLElement.new
+    xmldoc.initialize_xml(ret, 'HISTORY_RECORDS')
+    puts xmldoc.to_hash.to_json
+
+end
