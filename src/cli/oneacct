@@ -136,6 +136,8 @@ public
             CLIHelper.scr_restore
             puts
 
+            history_elems.clear
+
             vm_ids = xmldoc.retrieve_elements("HISTORY/VM[UID=#{uid}]/ID")
             vm_ids.uniq!
 
