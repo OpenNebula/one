@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
 # Copyright 2010-2012, C12G Labs S.L                                           #
@@ -37,27 +37,61 @@ secret=ARGV[2]
 
 options=YAML.load(File.read(ETC_LOCATION+'/auth/ldap_auth.conf'))
 
-ldap=LdapAuth.new(options)
+order=options[:order]
 
-user_name=ldap.find_user(user)
-
-if !user_name
-    STDERR.puts "User #{user} not found"
+if !order
+    STDERR.puts ":order value not found, the configuration file could be malformed"
+    order=options.keys
+elsif order.class != Array
+    STDERR.puts ":order value malformed, must be an Array"
     exit(-1)
 end
 
-if options[:group]
-    if !ldap.is_in_group?(user_name, options[:group])
-        STDERR.puts "User #{user} is not in group #{options[:group]}"
-        exit(-1)
+authenticated=false
+
+order.each do |server_name|
+    STDERR.puts "Trying server #{server_name}"
+
+    server_conf=options[server_name]
+    if !server_conf
+        STDERR.puts "Configuration for server not found"
+        break
     end
+
+begin
+    ldap=LdapAuth.new(server_conf)
+
+    user_name=ldap.find_user(user)
+
+    if !user_name
+        STDERR.puts "User #{user} not found"
+        next
+    end
+
+    if server_conf[:group]
+        if !ldap.is_in_group?(user_name, server_conf[:group])
+            STDERR.puts "User #{user} is not in group #{server_conf[:group]}"
+            next
+        end
+    end
+
+    if ldap.authenticate(user_name, secret)
+        puts "ldap #{user} #{user_name}"
+        authenticated=true
+        break
+    else
+        STDERR.puts "Bad user/password"
+    end
+
+rescue Exception => e
+    STDERR.puts "Exception raised authenticating to LDAP"
+    STDERR.puts e.inspect
+    STDERR.puts e.backtrace.join("\n")
+end # rescue
 end
 
-if ldap.authenticate(user_name, secret)
-    puts "ldap #{user} #{user_name}"
-    exit(0)
-else
-    STDERR.puts "Bad user/password"
+if !authenticated
+    STDERR.puts "Could not authenticate user #{user}"
     exit(-1)
 end
 
