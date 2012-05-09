@@ -418,6 +418,15 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Resets a running VM.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse reset()
+    {
+        return action("reset");
+    }
+
+    /**
      * Cancels the running VM.
      * @return If an error occurs the error message contains the reason.
      */
