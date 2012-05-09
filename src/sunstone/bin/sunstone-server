@@ -36,8 +36,11 @@ fi
 setup()
 {
   TMPDIR=$(grep ^:tmpdir: $SUNSTONE_CONF|awk '{print $2}')
-  test -n "$TMPDIR" && export TMPDIR
-  mkdir -p $TMPDIR
+
+  if [ -n "$TMPDIR" ]; then
+    export TMPDIR
+    mkdir -p $TMPDIR
+  fi
 
   if [ -f $SUNSTONE_LOCK_FILE ]; then
     if [ -f  $SUNSTONE_PID ]; then

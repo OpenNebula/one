@@ -35,8 +35,11 @@ fi
 setup()
 {
     TMPDIR=$(grep ^:tmpdir: $ECONE_ETC|awk '{print $2}')
-    test -n "$TMPDIR" && export TMPDIR
-    mkdir -p $TMPDIR
+
+    if [ -n "$TMPDIR" ]; then
+        export TMPDIR
+        mkdir -p $TMPDIR
+    fi
 
 	if [ -f $ECONE_LOCK_FILE ]; then
 		if [ -f  $ECONE_PID ]; then
