@@ -35,7 +35,7 @@ fi
 setup()
 {
   TMPDIR=$(grep ^:tmpdir: $OCCI_ETC|awk '{print $2}')
-  test -n $TMDIR && export TMPDIR
+  test -n "$TMPDIR" && export TMPDIR
   mkdir -p $TMPDIR
 
   if [ -f $OCCI_LOCK_FILE ]; then
