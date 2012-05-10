@@ -115,8 +115,8 @@ if conf[:ssl_server]
     econe_port = uri.port
     econe_path = uri.path
 else
-    econe_host = conf[:server]
-    econe_port = conf[:port]
+    econe_host = settings.config[:host]
+    econe_port = settings.config[:port]
     econe_path = '/'
 end
 
