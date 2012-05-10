@@ -79,7 +79,14 @@ set :config, conf
 include CloudLogger
 enable_logging EC2_LOG, settings.config[:debug_level].to_i
 
-if CloudServer.is_port_open?(settings.config[:server],
+if settings.config[:server]
+    settings.config[:host] ||= settings.config[:server]
+    warning = "Warning: :server: configuration parameter has been deprecated."
+    warning << " Use :host: instead."
+    settings.logger.warn warning
+end
+
+if CloudServer.is_port_open?(settings.config[:host],
                              settings.config[:port])
     settings.logger.error {
         "Port #{settings.config[:port]} busy, please shutdown " <<
@@ -88,7 +95,7 @@ if CloudServer.is_port_open?(settings.config[:server],
     exit -1
 end
 
-set :bind, settings.config[:server]
+set :bind, settings.config[:host]
 set :port, settings.config[:port]
 
 begin
