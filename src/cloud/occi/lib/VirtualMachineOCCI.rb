@@ -70,8 +70,9 @@ class VirtualMachineOCCI < VirtualMachine
         "RESUME"    => { :from => ["STOPPED", "SUSPENDED"], :action => :resume},
         "CANCEL"    => { :from => ["ACTIVE"], :action => :cancel},
         "REBOOT"    => { :from => ["ACTIVE"], :action => :reboot},
+        "RESET"     => { :from => ["ACTIVE"], :action => :reset},
         "SHUTDOWN"  => { :from => ["ACTIVE"], :action => :shutdown},
-        "DONE"      => { :from => VM_STATE, :action => :finalize}
+        "DONE"      => { :from => VM_STATE,   :action => :finalize}
     }
 
     # Class constructor
