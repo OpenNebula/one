@@ -65,11 +65,11 @@ class AcctHelper
 
     def list_history(data)
         table = CLIHelper::ShowTable.new(nil, self) do
-            column :VID, "Virtual Machine ", :size=>4 do |d|
+            column :VID, "Virtual Machine ID", :size=>4 do |d|
                 d["OID"]
             end
 
-            column :SEQ, "Sequence number", :size=>3 do |d|
+            column :SEQ, "History record sequence number", :size=>3 do |d|
                 d["SEQ"]
             end
 
@@ -77,19 +77,19 @@ class AcctHelper
                 d["HOSTNAME"]
             end
 
-            column :REASON, "VM state change reason", :size=>6 do |d|
+            column :REASON, "VM state change reason", :size=>4 do |d|
                 VirtualMachine.get_reason d["REASON"]
             end
 
-            column :STIME, "Start time", :size=>15 do |d|
+            column :START_TIME, "Start time", :size=>14 do |d|
                 OpenNebulaHelper.time_to_str(d['STIME'])
             end
 
-            column :ETIME, "End time", :size=>15 do |d|
+            column :END_TIME, "End time", :size=>14 do |d|
                 OpenNebulaHelper.time_to_str(d['ETIME'])
             end
 
-            column :MEMORY, "Assigned memory", :right, :size=>8 do |d|
+            column :MEMORY, "Assigned memory", :right, :size=>6 do |d|
                 OpenNebulaHelper.unit_to_str(d["VM/TEMPLATE/MEMORY"].to_i, {})
             end
 
@@ -97,15 +97,15 @@ class AcctHelper
                 d["VM/TEMPLATE/CPU"]
             end
 
-            column :NETRX, "Data received from the network", :right, :size=>8 do |d|
+            column :NET_RX, "Data received from the network", :right, :size=>6 do |d|
                 OpenNebulaHelper.unit_to_str(d["VM/NET_RX"].to_i, {})
             end
 
-            column :NETTX, "Data sent to the network", :right, :size=>8 do |d|
+            column :NET_TX, "Data sent to the network", :right, :size=>6 do |d|
                 OpenNebulaHelper.unit_to_str(d["VM/NET_TX"].to_i, {})
             end
 
-            default :VID, :HOSTNAME, :REASON, :STIME, :ETIME, :MEMORY, :CPU, :NETRX, :NETTX
+            default :VID, :HOSTNAME, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
         end
 
         table.show(data)
