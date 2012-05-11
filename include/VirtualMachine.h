@@ -122,7 +122,10 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const
+    {
+        return to_xml_extended(xml, 1);
+    }
 
     /**
      * Function to print the VirtualMachine object into a string in
@@ -130,7 +133,10 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml) const;
+    string& to_xml_extended(string& xml) const
+    {
+        return to_xml_extended(xml, 2);
+    }
 
     /**
      *  Rebuilds the object from an xml formatted string
