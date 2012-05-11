@@ -29,6 +29,16 @@ using namespace std;
 
 class RequestManagerPoolInfoFilter: public Request
 {
+public:
+    /** Specify all objects the user has right to USE (-2) */
+    static const int ALL;
+
+    /** Specify user's objects in the pool (-3) */
+    static const int MINE;
+
+    /** Specify user's + group objects (-1)     */
+    static const int MINE_GROUP;
+
 protected:
     RequestManagerPoolInfoFilter(const string& method_name,
                                  const string& help,
@@ -40,27 +50,26 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    /** Specify all objects the user has right to USE (-2) */
-    static const int ALL;
-
-    /** Specify user's objects in the pool (-3) */
-    static const int MINE;
-
-    /** Specify user's + group objects (-1)     */
-    static const int MINE_GROUP;
-
-    /* -------------------------------------------------------------------- */
-
     virtual void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 
     /* -------------------------------------------------------------------- */
 
-    void dump(RequestAttributes& att, 
+    void where_filter(RequestAttributes& att,
+                      int                filter_flag,
+                      int                start_id,
+                      int                end_id,
+                      const string&      and_clause,
+                      const string&      or_clause,
+                      string&            where_string);
+
+    /* -------------------------------------------------------------------- */
+
+    void dump(RequestAttributes& att,
               int                filter_flag,
-              int                start_id, 
+              int                start_id,
               int                end_id,
-              const string&      and_clause, 
+              const string&      and_clause,
               const string&      or_clause);
 };
 
@@ -88,6 +97,31 @@ public:
     };
 
     ~VirtualMachinePoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachinePoolAccounting : public RequestManagerPoolInfoFilter
+{
+public:
+
+    VirtualMachinePoolAccounting():
+        RequestManagerPoolInfoFilter("VirtualMachinePoolAccounting",
+                                     "Returns the virtual machine history records",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+    };
+
+    ~VirtualMachinePoolAccounting(){};
 
     /* -------------------------------------------------------------------- */
 

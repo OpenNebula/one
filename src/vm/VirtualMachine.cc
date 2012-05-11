@@ -735,6 +735,7 @@ void VirtualMachine::add_history(
 {
     ostringstream os;
     int           seq;
+    string        vm_xml;
 
     if (history == 0)
     {
@@ -747,12 +748,15 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
+    to_xml_extended(vm_xml, 0);
+
     history = new History(oid,
                           seq,
                           hid,
                           hostname,
                           vmm_mad,
-                          vnm_mad);
+                          vnm_mad,
+                          vm_xml);
 
     history_records.push_back(history);
 };
@@ -763,18 +767,22 @@ void VirtualMachine::add_history(
 void VirtualMachine::cp_history()
 {
     History * htmp;
+    string    vm_xml;
 
     if (history == 0)
     {
         return;
     }
 
+    to_xml_extended(vm_xml, 0);
+
     htmp = new History(oid,
                        history->seq + 1,
                        history->hid,
                        history->hostname,
                        history->vmm_mad_name,
-                       history->vnm_mad_name);
+                       history->vnm_mad_name,
+                       vm_xml);
 
     previous_history = history;
     history          = htmp;
@@ -788,18 +796,22 @@ void VirtualMachine::cp_history()
 void VirtualMachine::cp_previous_history()
 {
     History * htmp;
+    string    vm_xml;
 
     if ( previous_history == 0 || history == 0)
     {
         return;
     }
 
+    to_xml_extended(vm_xml, 0);
+
     htmp = new History(oid,
                        history->seq + 1,
                        previous_history->hid,
                        previous_history->hostname,
                        previous_history->vmm_mad_name,
-                       previous_history->vnm_mad_name);
+                       previous_history->vnm_mad_name,
+                       vm_xml);
 
     previous_history = history;
     history          = htmp;
@@ -1470,26 +1482,11 @@ error_yy:
     pthread_mutex_unlock(&lex_mutex);
     return -1;
 }
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string& VirtualMachine::to_xml(string& xml) const
-{
-    return to_xml_extended(xml,false);
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualMachine::to_xml_extended(string& xml) const
-{
-    return to_xml_extended(xml,true);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
+string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
 {
     string template_xml;
     string history_xml;
@@ -1517,11 +1514,11 @@ string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
         << obj_template->to_xml(template_xml);
 
-    if ( hasHistory() )
+    if ( hasHistory() && n_history > 0 )
     {
         oss << "<HISTORY_RECORDS>";
 
-        if ( extended )
+        if ( n_history == 2 )
         {
             for (unsigned int i=0; i < history_records.size(); i++)
             {

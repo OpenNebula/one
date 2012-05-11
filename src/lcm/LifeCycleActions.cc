@@ -615,6 +615,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
     vmpool->update(vm);
 
     vm->set_etime(the_time);
+    vm->set_vm_info();
     vm->set_reason(History::USER);
 
     vm->get_requirements(cpu,mem,disk);
@@ -650,6 +651,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             vm->set_previous_etime(the_time);
+            vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
@@ -680,6 +682,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             vm->set_previous_etime(the_time);
+            vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);

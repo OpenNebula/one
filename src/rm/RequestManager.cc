@@ -243,6 +243,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
     xmlrpc_c::methodPtr vm_action(new VirtualMachineAction()); 
     xmlrpc_c::methodPtr vm_savedisk(new VirtualMachineSaveDisk());
+    xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
 
     // VirtualNetwork Methods
     xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
@@ -348,6 +349,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.chmod", vm_chmod);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
+    RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);
 
     /* VM Template related methods*/
     RequestManagerRegistry.addMethod("one.template.update", template_update);

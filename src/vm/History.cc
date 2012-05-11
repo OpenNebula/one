@@ -25,10 +25,11 @@
 
 const char * History::table = "history";
 
-const char * History::db_names = "vid, seq, body";
+const char * History::db_names = "vid, seq, body, stime, etime";
 
 const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "history (vid INTEGER, seq INTEGER, body TEXT, PRIMARY KEY(vid,seq))";
+    "history (vid INTEGER, seq INTEGER, body TEXT, "
+    "stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -51,7 +52,8 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        reason(NONE){};
+        reason(NONE),
+        vm_info("<VM/>"){};
 
 /* -------------------------------------------------------------------------- */
 
@@ -61,7 +63,8 @@ History::History(
     int	_hid,
     const string& _hostname,
     const string& _vmm,
-    const string& _vnm):
+    const string& _vnm,
+    const string& _vm_info):
         oid(_oid),
         seq(_seq),
         hostname(_hostname),
@@ -76,7 +79,8 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        reason(NONE)
+        reason(NONE),
+        vm_info(_vm_info)
 {
     non_persistent_data();
 };
@@ -149,7 +153,7 @@ int History::insert_replace(SqlDB *db, bool replace)
         return 0;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_db_xml(xml_body).c_str());
 
     if ( sql_xml == 0 )
     {
@@ -168,7 +172,9 @@ int History::insert_replace(SqlDB *db, bool replace)
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         <<          oid             << ","
         <<          seq             << ","
-        << "'" <<   sql_xml         << "')";
+        << "'" <<   sql_xml         << "',"
+        <<          stime           << ","
+        <<          etime           << ")";
 
     rc = db->exec(oss);
 
@@ -260,10 +266,25 @@ ostream& operator<<(ostream& os, const History& history)
 
 string& History::to_xml(string& xml) const
 {
+    return to_xml(xml, false);
+}
+
+/* -------------------------------------------------------------------------- */
+
+string& History::to_db_xml(string& xml) const
+{
+    return to_xml(xml, true);
+}
+
+/* -------------------------------------------------------------------------- */
+
+string& History::to_xml(string& xml, bool database) const
+{
     ostringstream oss;
 
     oss <<
         "<HISTORY>" <<
+          "<OID>"               << oid               << "</OID>"   <<
           "<SEQ>"               << seq               << "</SEQ>"   <<
           "<HOSTNAME>"          << hostname          << "</HOSTNAME>"<<
           "<HID>"               << hid               << "</HID>"   <<
@@ -277,7 +298,14 @@ string& History::to_xml(string& xml) const
           "<RETIME>"            << running_etime     << "</RETIME>"<<
           "<ESTIME>"            << epilog_stime      << "</ESTIME>"<<
           "<EETIME>"            << epilog_etime      << "</EETIME>"<<
-          "<REASON>"            << reason            << "</REASON>"<<
+          "<REASON>"            << reason            << "</REASON>";
+
+    if ( database )
+    {
+        oss << vm_info;
+    }
+
+    oss <<
         "</HISTORY>";
 
    xml = oss.str();

@@ -154,6 +154,47 @@ public:
      */
     virtual int dump(ostringstream& oss, const string& where) = 0;
 
+    // -------------------------------------------------------------------------
+    // Function to generate dump filters
+    // -------------------------------------------------------------------------
+
+    /**
+     *  Creates a filter for those objects (oids) or objects owned by a given 
+     *  group that an user can access based on the ACL rules
+     *    @param uid the user id
+     *    @param gid the group id
+     *    @param auth_object object type
+     *    @param all returns if the user can access all objects
+     *    @param filter the resulting filter string
+     */
+    static void acl_filter(int                       uid, 
+                           int                       gid, 
+                           PoolObjectSQL::ObjectType auth_object,
+                           bool&                     all,
+                           string&                   filter);
+    /**
+     *  Creates a filter for the objects owned by a given user/group
+     *    @param uid the user id
+     *    @param gid the group id
+     *    @param filter_flag query type (ALL, MINE, GROUP)
+     *    @param all user can access all objects
+     *    @param filter the resulting filter string
+     */
+    static void usr_filter(int           uid, 
+                           int           gid, 
+                           int           filter_flag,
+                           bool          all,
+                           const string& acl_str,
+                           string&       filter);
+    /**
+     *  Creates a filter for a given set of objects based on their id
+     *    @param start_id first id
+     *    @param end_id last id
+     *    @param filter the resulting filter string
+     */
+    static void oid_filter(int     start_id,
+                           int     end_id,
+                           string& filter);
 protected:
 
     /**
@@ -182,8 +223,23 @@ protected:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& elem_name,
-             const char * table, const string& where);
+    int dump(ostringstream& oss, 
+             const string&  elem_name,
+             const char *   table, 
+             const string&  where);
+
+    /**
+     *  Dumps the output of the custom sql query into an xml
+     *
+     *   @param oss The output stream to dump the xml contents
+     *   @param root_elem_name Name of the root xml element name
+     *   @param sql_query The SQL query to execute
+     *
+     *   @return 0 on success
+     */
+    int dump(ostringstream&  oss,
+             const string&   root_elem_name,
+             ostringstream&  sql_query);    
 
     /* ---------------------------------------------------------------------- */
     /* Interface to access the lastOID assigned by the pool                   */

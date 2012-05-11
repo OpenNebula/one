@@ -91,6 +91,46 @@ void VirtualMachinePoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void VirtualMachinePoolAccounting::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int time_start  = xmlrpc_c::value_int(paramList.getInt(2));
+    int time_end    = xmlrpc_c::value_int(paramList.getInt(3));
+
+    ostringstream oss;
+    string        where;
+    int           rc;
+
+    if ( filter_flag < MINE )
+    {
+        failure_response(XML_RPC_API,
+                request_error("Incorrect filter_flag",""),
+                att);
+        return;
+    }
+
+    where_filter(att, filter_flag, -1, -1, "", "", where);
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_acct(oss,
+                                                              where, 
+                                                              time_start, 
+                                                              time_end);
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void HostPoolInfo::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
@@ -141,6 +181,79 @@ void ClusterPoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void RequestManagerPoolInfoFilter::where_filter(
+        RequestAttributes& att,
+        int                filter_flag,
+        int                start_id,
+        int                end_id,
+        const string&      and_clause,
+        const string&      or_clause,
+        string&            filter_str)
+{
+    bool empty = true;
+    bool all;
+
+    string acl_str;
+    string uid_str;
+    string oid_str;
+
+    ostringstream filter;
+
+    PoolSQL::acl_filter(att.uid, att.gid, auth_object, all, acl_str);
+
+    PoolSQL::usr_filter(att.uid, att.gid, filter_flag, all, acl_str, uid_str);
+
+    PoolSQL::oid_filter(start_id, end_id, oid_str);
+
+    // ------------------------------------------------------------------------- 
+    //                          Compound WHERE clause 
+    //   WHERE ( id_str ) AND ( uid_str ) AND ( and_clause ) OR ( or_clause )
+    // -------------------------------------------------------------------------
+
+    if (!oid_str.empty())
+    {
+        filter << "(" << oid_str << ")" ;
+        empty = false;
+    }
+
+    if (!uid_str.empty())
+    {
+        if (!empty)
+        {
+            filter << " AND ";
+        }
+
+        filter << "(" << uid_str << ")";
+        empty = false;
+    }
+
+    if (!and_clause.empty())
+    {
+        if (!empty)
+        {
+            filter << " AND ";
+        }
+
+        filter << "(" << and_clause << ")";
+        empty = false;
+    }
+
+    if (!or_clause.empty())
+    {
+        if (!empty)
+        {
+            filter << " OR ";
+        }
+
+        filter << "(" << or_clause << ")";
+    }
+
+    filter_str = filter.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void RequestManagerPoolInfoFilter::dump(
         RequestAttributes& att,
         int                filter_flag,
@@ -149,20 +262,9 @@ void RequestManagerPoolInfoFilter::dump(
         const string&      and_clause,
         const string&      or_clause)
 {
-    set<int>::iterator it;
-
     ostringstream oss;
-    bool          empty = true;
-    ostringstream where_string;
-
-    ostringstream uid_filter;
-    ostringstream id_filter;
-
-    string uid_str;
-    string acl_str;
-    string id_str;
-
-    int rc;
+    string        where_string;
+    int           rc;
 
     if ( filter_flag < MINE )
     {
@@ -172,148 +274,15 @@ void RequestManagerPoolInfoFilter::dump(
         return;
     }
 
-    Nebula&     nd   = Nebula::instance();
-    AclManager* aclm = nd.get_aclm();
-    bool        all;
-    vector<int> oids;
-    vector<int> gids;
+    where_filter(att,
+                 filter_flag,
+                 start_id,
+                 end_id,
+                 and_clause,
+                 or_clause,
+                 where_string);
 
-    // -------------------------------------------------------------------------
-    //                             User ID filter              
-    // ------------------------------------------------------------------------- 
-
-    if ( att.uid == 0 || att.gid == 0 )
-    {
-        all = true;
-    }
-    else
-    {
-        ostringstream         acl_filter;
-        vector<int>::iterator it;   
-
-        aclm->reverse_search(att.uid, 
-                             att.gid, 
-                             auth_object,
-                             AuthRequest::USE, 
-                             all, 
-                             oids, 
-                             gids);
-
-        for ( it = oids.begin(); it < oids.end(); it++ )
-        {
-            acl_filter << " OR oid = " << *it;
-        }
-
-        for ( it = gids.begin(); it < gids.end(); it++ )
-        {
-            acl_filter << " OR gid = " << *it;
-        }
-
-        acl_str = acl_filter.str();
-    }
-
-    switch ( filter_flag )
-    {
-        case MINE:
-            uid_filter << "uid = " << att.uid;
-            break;
-
-        case MINE_GROUP:
-            uid_filter << " uid = " << att.uid 
-                       << " OR ( gid = " << att.gid << " AND group_u = 1 )";
-            break;
-
-        case ALL:
-            if (!all)
-            {
-                uid_filter << " uid = " << att.uid 
-                           << " OR ( gid = " << att.gid << " AND group_u = 1 )"
-                           << " OR other_u = 1"
-                           << acl_str;
-            }
-            break;
-
-        default:
-            uid_filter << "uid = " << filter_flag;
-
-            if ( filter_flag != att.uid && !all )
-            {
-                uid_filter << " AND ("
-                           << " ( gid = " << att.gid << " AND group_u = 1)"
-                           << " OR other_u = 1"
-                           << acl_str
-                           << ")";
-            }
-            break;
-    }
-
-    uid_str = uid_filter.str();
-
-    // ------------------------------------------ 
-    //              Resource ID filter 
-    // ------------------------------------------ 
-
-    if ( start_id != -1 )
-    {
-        id_filter << "oid >= " << start_id;
-
-        if ( end_id != -1 )
-        {
-            id_filter << " AND oid <= " << end_id;
-        }
-    }
-
-    id_str = id_filter.str();
-
-    // ------------------------------------------ 
-    //           Compound WHERE clause 
-    // ------------------------------------------ 
-
-    // WHERE ( id_str ) AND ( uid_str ) AND ( and_clause ) OR ( or_clause )
-
-    if (!id_str.empty())
-    {
-        where_string << "(" << id_str << ")" ;
-        empty = false;
-    }
-
-    if (!uid_str.empty())
-    {
-        if (!empty)
-        {
-            where_string << " AND ";
-        }
-
-        where_string << "(" << uid_str << ")";
-        empty = false;
-    }
-
-    if (!and_clause.empty())
-    {
-        if (!empty)
-        {
-            where_string << " AND ";
-        }
-
-        where_string << "(" << and_clause << ")";
-        empty = false;
-    }
-
-    if (!or_clause.empty())
-    {
-        if (!empty)
-        {
-            where_string << " OR ";
-        }
-
-        where_string << "(" << or_clause << ")";
-    }
-
-    // ------------------------------------------ 
-    //           Get the pool
-    // ------------------------------------------ 
-    
-    rc = pool->dump(oss,where_string.str());
+    rc = pool->dump(oss, where_string);
 
     if ( rc != 0 )
     {
@@ -325,4 +294,3 @@ void RequestManagerPoolInfoFilter::dump(
 
     return;
 }
-

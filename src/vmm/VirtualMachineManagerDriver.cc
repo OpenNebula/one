@@ -546,8 +546,10 @@ void VirtualMachineManagerDriver::protocol(
             }
 
             vm->update_info(memory,cpu,net_tx,net_rx);
+            vm->set_vm_info();
 
             vmpool->update(vm);
+            vmpool->update_history(vm);
 
             if (state != '-' &&
                 (vm->get_lcm_state() == VirtualMachine::RUNNING ||
