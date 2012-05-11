@@ -29,6 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'yaml'
+require 'uri'
 require 'ldap_auth'
 
 user=ARGV[0]
@@ -76,7 +77,8 @@ begin
     end
 
     if ldap.authenticate(user_name, secret)
-        puts "ldap #{user} #{user_name}"
+        escaped_user=URI.escape(user_name, " \t\n\v\f\r")
+        puts "ldap #{user} #{escaped_user}"
         authenticated=true
         break
     else
