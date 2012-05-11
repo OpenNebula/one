@@ -90,7 +90,7 @@ class AcctHelper
             end
 
             column :MEMORY, "Assigned memory", :right, :size=>6 do |d|
-                OpenNebulaHelper.unit_to_str(d["VM/TEMPLATE/MEMORY"].to_i, {})
+                OpenNebulaHelper.unit_to_str(d["VM/TEMPLATE/MEMORY"].to_i, {}, 'M')
             end
 
             column :CPU, "Number of CPUs", :right, :size=>3 do |d|
@@ -98,11 +98,13 @@ class AcctHelper
             end
 
             column :NET_RX, "Data received from the network", :right, :size=>6 do |d|
-                OpenNebulaHelper.unit_to_str(d["VM/NET_RX"].to_i, {})
+                # NET is measured in bytes, unit_to_str expects KBytes
+                OpenNebulaHelper.unit_to_str(d["VM/NET_RX"].to_i / 1024.0, {})
             end
 
             column :NET_TX, "Data sent to the network", :right, :size=>6 do |d|
-                OpenNebulaHelper.unit_to_str(d["VM/NET_TX"].to_i, {})
+                # NET is measured in bytes, unit_to_str expects KBytes
+                OpenNebulaHelper.unit_to_str(d["VM/NET_TX"].to_i / 1024.0, {})
             end
 
             default :VID, :HOSTNAME, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
