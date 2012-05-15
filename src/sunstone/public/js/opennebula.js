@@ -48,67 +48,67 @@ var OpenNebula = {
             {
                 case "HOST":
                 case "host":
-                    return ["INIT",
-                            "MONITORING",
-                            "MONITORED",
-                            "ERROR",
-                            "DISABLED"][value];
+                    return tr(["INIT",
+                               "MONITORING",
+                               "MONITORED",
+                               "ERROR",
+                               "DISABLED"][value]);
                     break;
                 case "HOST_SIMPLE":
                 case "host_simple":
-                    return ["ON",
-                            "ON",
-                            "ON",
-                            "ERROR",
-                            "OFF"][value];
+                    return tr(["ON",
+                               "ON",
+                               "ON",
+                               "ERROR",
+                               "OFF"][value]);
                     break;
                 case "VM":
                 case "vm":
-                    return ["INIT",
-                            "PENDING",
-                            "HOLD",
-                            "ACTIVE",
-                            "STOPPED",
-                            "SUSPENDED",
-                            "DONE",
-                            "FAILED"][value];
+                    return tr(["INIT",
+                               "PENDING",
+                               "HOLD",
+                               "ACTIVE",
+                               "STOPPED",
+                               "SUSPENDED",
+                               "DONE",
+                               "FAILED"][value]);
                     break;
                 case "VM_LCM":
                 case "vm_lcm":
-                    return ["LCM_INIT",
-                            "PROLOG",
-                            "BOOT",
-                            "RUNNING",
-                            "MIGRATE",
-                            "SAVE_STOP",
-                            "SAVE_SUSPEND",
-                            "SAVE_MIGRATE",
-                            "PROLOG_MIGRATE",
-                            "PROLOG_RESUME",
-                            "EPILOG_STOP",
-                            "EPILOG",
-                            "SHUTDOWN",
-                            "CANCEL",
-                            "FAILURE",
-                            "CLEANUP",
-                            "UNKNOWN"][value];
+                    return tr(["LCM_INIT",
+                               "PROLOG",
+                               "BOOT",
+                               "RUNNING",
+                               "MIGRATE",
+                               "SAVE_STOP",
+                               "SAVE_SUSPEND",
+                               "SAVE_MIGRATE",
+                               "PROLOG_MIGRATE",
+                               "PROLOG_RESUME",
+                               "EPILOG_STOP",
+                               "EPILOG",
+                               "SHUTDOWN",
+                               "CANCEL",
+                               "FAILURE",
+                               "CLEANUP",
+                               "UNKNOWN"][value]);
                     break;
                 case "IMAGE":
                 case "image":
-                    return ["INIT",
-                            "READY",
-                            "USED",
-                            "DISABLED",
-                            "LOCKED",
-                            "ERROR"][value];
+                    return tr(["INIT",
+                               "READY",
+                               "USED",
+                               "DISABLED",
+                               "LOCKED",
+                               "ERROR"][value]);
                     break;
                 case "VM_MIGRATE_REASON":
                 case "vm_migrate_reason":
-                    return ["NONE",
-                            "ERROR",
-                            "STOP_RESUME",
-                            "USER",
-                            "CANCEL"][value];
+                    return tr(["NONE",
+                               "ERROR",
+                               "STOP_RESUME",
+                               "USER",
+                               "CANCEL"][value]);
                     break;
                 default:
                     return;

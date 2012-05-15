@@ -86,9 +86,9 @@ function setLang(lang_str){
 
 $(document).ready(function(){
     //Update static translations
-    $('#doc_link').text(tr("Documentation"));
-    $('#support_link').text(tr("Support"));
-    $('#community_link').text(tr("Community"));
-    $('#welcome').text(tr("Welcome"));
-    $('#logout').text(tr("Sign out"));
+    $('#doc_link').html(tr("Documentation"));
+    $('#support_link').html(tr("Support"));
+    $('#community_link').html(tr("Community"));
+    $('#welcome').html(tr("Welcome"));
+    $('#logout').html(tr("Sign out"));
 });
