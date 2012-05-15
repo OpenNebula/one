@@ -214,6 +214,24 @@ var vm_actions = {
         notify: true
     },
 
+    "VM.reboot" : {
+        type: "multiple",
+        call: OCCI.VM.reboot,
+        callback: updateVMachineElement,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.reset" : {
+        type: "multiple",
+        call: OCCI.VM.reset,
+        callback: updateVMachineElement,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
     "VM.cancel" : {
         type: "multiple",
         call: OCCI.VM.cancel,
@@ -335,6 +353,16 @@ var vm_buttons = {
                 type: "confirm",
                 text: tr("Stop"),
                 tip: "This will stop selected VMs"
+            },
+            "VM.reboot" : {
+                type: "confirm",
+                text: tr("Reboot"),
+                tip: "This will reboot [via acpi] selected VMs"
+            },
+            "VM.reset" : {
+                type: "confirm",
+                text: tr("Reset"),
+                tip: "This will perform a hard reset on selected VMs"
             },
             "VM.cancel" : {
                 type: "confirm",

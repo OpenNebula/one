@@ -415,6 +415,14 @@ var OCCI = {
             params.data.body = { state : "STOPPED" };
             OCCI.Action.update(params,OCCI.VM.resource,"stop");
         },
+        "reboot": function(params){
+            params.data.body = { state : "REBOOT" };
+            OCCI.Action.update(params,OCCI.VM.resource,"reboot");
+        },
+        "reset": function(params){
+            params.data.body = { state : "RESET" };
+            OCCI.Action.update(params,OCCI.VM.resource,"reset");
+        },
         "cancel": function(params){
             params.data.body = { state : "CANCEL" };
             OCCI.Action.update(params,OCCI.VM.resource,"cancel");
