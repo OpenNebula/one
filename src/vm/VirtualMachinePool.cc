@@ -266,3 +266,37 @@ int VirtualMachinePool::get_pending(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::dump_acct(ostringstream& oss, 
+                                  const string&  where, 
+                                  int            time_start, 
+                                  int            time_end)
+{
+    ostringstream cmd;
+
+    cmd << "SELECT " << History::table << ".body FROM " << History::table
+        << " INNER JOIN " << VirtualMachine::table
+        << " WHERE vid=oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " AND " << where;
+    }
+
+    if ( time_start != -1 || time_end != -1 )
+    {
+        if ( time_start != -1 )
+        {
+            cmd << " AND (etime > " << time_start << " OR  etime = 0)";
+        }
+
+        if ( time_end != -1 )
+        {
+            cmd << " AND stime < " << time_end;
+        }
+    }
+
+    cmd << " GROUP BY vid,seq";
+
+    return PoolSQL::dump(oss, "HISTORY_RECORDS", cmd);
+};

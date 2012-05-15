@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+  targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+
+  <xs:element name="HISTORY_RECORDS">
+    <xs:complexType>
+      <xs:sequence maxOccurs="1" minOccurs="1">
+        <xs:element ref="HISTORY" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="HISTORY">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="OID" type="xs:integer"/>
+        <xs:element name="SEQ" type="xs:integer"/>
+        <xs:element name="HOSTNAME" type="xs:string"/>
+        <xs:element name="HID" type="xs:integer"/>
+        <xs:element name="STIME" type="xs:integer"/>
+        <xs:element name="ETIME" type="xs:integer"/>
+        <xs:element name="VMMMAD" type="xs:string"/>
+        <xs:element name="VNMMAD" type="xs:string"/>
+        <xs:element name="PSTIME" type="xs:integer"/>
+        <xs:element name="PETIME" type="xs:integer"/>
+        <xs:element name="RSTIME" type="xs:integer"/>
+        <xs:element name="RETIME" type="xs:integer"/>
+        <xs:element name="ESTIME" type="xs:integer"/>
+        <xs:element name="EETIME" type="xs:integer"/>
+
+        <!-- REASON values:
+          NONE        = 0  Normal termination
+          ERROR       = 1  The VM ended in error
+          STOP_RESUME = 2  Stop/resume request
+          USER        = 3  Migration request
+          CANCEL      = 4  Cancel request
+        -->
+        <xs:element name="REASON" type="xs:integer"/>
+
+        <xs:element name="VM">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer"/>
+              <xs:element name="UID" type="xs:integer"/>
+              <xs:element name="GID" type="xs:integer"/>
+              <xs:element name="UNAME" type="xs:string"/>
+              <xs:element name="GNAME" type="xs:string"/>
+              <xs:element name="NAME" type="xs:string"/>
+              <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="OWNER_U" type="xs:integer"/>
+                    <xs:element name="OWNER_M" type="xs:integer"/>
+                    <xs:element name="OWNER_A" type="xs:integer"/>
+                    <xs:element name="GROUP_U" type="xs:integer"/>
+                    <xs:element name="GROUP_M" type="xs:integer"/>
+                    <xs:element name="GROUP_A" type="xs:integer"/>
+                    <xs:element name="OTHER_U" type="xs:integer"/>
+                    <xs:element name="OTHER_M" type="xs:integer"/>
+                    <xs:element name="OTHER_A" type="xs:integer"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="LAST_POLL" type="xs:integer"/>
+
+              <!-- STATE values,
+              see http://opennebula.org/_media/documentation:rel3.2:states-complete.png
+
+                INIT      = 0
+                PENDING   = 1
+                HOLD      = 2
+                ACTIVE    = 3 In this state, the Life Cycle Manager state is relevant
+                STOPPED   = 4
+                SUSPENDED = 5
+                DONE      = 6
+                FAILED    = 7
+              -->
+              <xs:element name="STATE" type="xs:integer"/>
+
+              <!-- LCM_STATE values, this sub-state is relevant only when STATE is
+                   ACTIVE (4)
+
+                LCM_INIT       = 0
+                PROLOG         = 1
+                BOOT           = 2
+                RUNNING        = 3
+                MIGRATE        = 4
+                SAVE_STOP      = 5
+                SAVE_SUSPEND   = 6
+                SAVE_MIGRATE   = 7
+                PROLOG_MIGRATE = 8
+                PROLOG_RESUME  = 9
+                EPILOG_STOP    = 10
+                EPILOG         = 11
+                SHUTDOWN       = 12
+                CANCEL         = 13
+                FAILURE        = 14
+                CLEANUP        = 15
+                UNKNOWN        = 16
+              -->
+              <xs:element name="LCM_STATE" type="xs:integer"/>
+              <xs:element name="RESCHED" type="xs:integer"/>
+              <xs:element name="STIME" type="xs:integer"/>
+              <xs:element name="ETIME" type="xs:integer"/>
+              <xs:element name="DEPLOY_ID" type="xs:string"/>
+
+              <!-- MEMORY consumption in kilobytes -->
+              <xs:element name="MEMORY" type="xs:integer"/>
+
+              <!-- Percentage of 1 CPU consumed (two fully consumed cpu is 200) -->
+              <xs:element name="CPU" type="xs:integer"/>
+
+              <!-- NET_TX: Sent bytes to the network -->
+              <xs:element name="NET_TX" type="xs:integer"/>
+
+              <!-- NET_RX: Received bytes from the network -->
+              <xs:element name="NET_RX" type="xs:integer"/>
+              <xs:element name="TEMPLATE" type="xs:anyType"/>
+              <xs:element name="HISTORY_RECORDS">
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

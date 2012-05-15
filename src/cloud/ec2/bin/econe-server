@@ -34,9 +34,12 @@ fi
 
 setup()
 {
-    eval `grep ^IMAGE_DIR= $ECONE_ETC`
-    export TMPDIR=$IMAGE_DIR/tmp
-    mkdir -p $TMPDIR
+    TMPDIR=$(grep ^:tmpdir: $ECONE_ETC|awk '{print $2}')
+
+    if [ -n "$TMPDIR" ]; then
+        export TMPDIR
+        mkdir -p $TMPDIR
+    fi
 
 	if [ -f $ECONE_LOCK_FILE ]; then
 		if [ -f  $ECONE_PID ]; then
