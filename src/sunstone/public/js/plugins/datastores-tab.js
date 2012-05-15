@@ -54,6 +54,7 @@ var create_datastore_tmpl =
         <option value="fs">' + tr("Filesystem") + '</option>\
         <option value="vmware">' + tr("VMware") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
+        <option value="lvm">' + tr("LVM") + '</option>\
   </select>\
   <label>' + tr("Transfer manager") + ':</label>\
   <select id="tm_mad" name="tm_mad">\
