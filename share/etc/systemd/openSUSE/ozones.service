@@ -13,8 +13,6 @@ ExecStartPost=/usr/bin/touch /var/lock/one/.ozones.lock
 ExecStop=/bin/kill -INT $MAINPID
 PIDFile=/var/run/one/ozones.pid
 Type=simple
-
-[Exec]
 Group=cloud
 User=oneadmin
 
