@@ -301,6 +301,15 @@ var vm_actions = {
         notify: true
     },
 
+    "VM.reset" : {
+        type: "multiple",
+        call: OpenNebula.VM.reset,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
     "VM.resubmit" : {
         type: "multiple",
         call: OpenNebula.VM.resubmit,
@@ -568,6 +577,11 @@ var vm_buttons = {
                 type : "confirm",
                 text: tr("Reboot"),
                 tip: tr("This will send a reboot action to running VMs")
+            },
+            "VM.reset" : {
+                type: "confirm",
+                text: tr("Reset"),
+                tip: tr("This will perform a hard reboot on selected VMs")
             },
             "VM.saveasmultiple" : {
                 type: "action",
