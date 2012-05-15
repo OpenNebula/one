@@ -1,13 +1,6 @@
-//Translated by
-// Bug detected: 
-//  - Community and Sign Out strings don't work with &eacute;
-//  - tables like the one displaying users don't seem to use the language file
-//     - Show, entries, Search, Showing x to y of z entries, First, Previous, Next, Last
-//  - allowed operations like create or manage
-//  - state of VM
-//  - Monitoring information message 'There is no monitoring information for vm xx'
+//Translated by Patrice Lachance
 lang="fr_FR"
-datatable_lang=""
+datatable_lang="fr_datatable.txt"
 locale={
     "802.1Q":"802.1Q",
     "Accept (default)":"Accept&eacute; (d&eacute;faut)",
@@ -70,7 +63,7 @@ locale={
     "Cluster information":"Information cluster",
     "Cluster name missing!":"Nom de cluster manquant",
     "Clusters":"Clusters",
-    "Community":"Communauté",
+    "Community":"Communaut&eacute;",
     "Configuration":"Configuration",
     "Confirmation of action":"Confirmation d'action",
     "Context":"Contexte",
@@ -416,7 +409,7 @@ locale={
     "shared,ssh,iscsi,dummy":"shared,ssh,iscsi,dummy",
     "Show":"Afficher",
     "Shutdown":"Arr&ecirc;ter",
-    "Sign out":"Déconnection",
+    "Sign out":"D&eacute;connection",
     "Size":"Taille",
     "Size in MB":"Taille en Mo",
     "Size (Mb)":"Taille (Mb)",
