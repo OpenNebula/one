@@ -744,6 +744,7 @@ int VirtualMachine::update_monitoring(SqlDB * db)
     string xml_body;
     string error_str;
     char * sql_xml;
+    time_t max_last_poll;
 
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
@@ -757,10 +758,11 @@ int VirtualMachine::update_monitoring(SqlDB * db)
         goto error_xml;
     }
 
+    max_last_poll = last_poll - VirtualMachinePool::monitor_expiration();
+
     oss << "DELETE FROM " << monit_table
-        << " WHERE vmid=" << oid
-        << " AND last_poll < (" << last_poll
-        << " - " << VirtualMachinePool::vm_monitoring_history() << ")";
+        << " WHERE vmid = " << oid
+        << " AND last_poll < " << max_last_poll;
 
     db->exec(oss);
 

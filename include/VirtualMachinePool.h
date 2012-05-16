@@ -37,7 +37,7 @@ public:
                        const string&                hook_location,
                        const string&                remotes_location,
                        vector<const Attribute *>&   restricted_attrs,
-                       int                          vm_monitoring_history);
+                       time_t                       monitor_expiration);
 
     ~VirtualMachinePool(){};
 
@@ -133,7 +133,7 @@ public:
     int update_monitoring(
         VirtualMachine * vm)
     {
-        if ( _vm_monitoring_history <= 0 )
+        if ( _monitor_expiration <= 0 )
         {
             return 0;
         }
@@ -202,12 +202,30 @@ public:
                         const string&  where);
 
     /**
+     *  Dumps the VM monitoring information  for a single VM
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param vmid id of the target VM
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        int            vmid)
+    {
+        ostringstream filter;
+
+        filter << "oid = " << vmid;
+
+        return dump_monitoring(oss, filter.str());
+    }
+
+    /**
      *  Get the size, in seconds, of the historical monitoring information
      *  @return the seconds
      */
-    static const int& vm_monitoring_history()
+    static time_t monitor_expiration()
     {
-        return _vm_monitoring_history;
+        return _monitor_expiration;
     };
 
 private:
@@ -223,7 +241,7 @@ private:
     /**
      * Size, in seconds, of the historical monitoring information
      */
-    static int _vm_monitoring_history;
+    static time_t _monitor_expiration;
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

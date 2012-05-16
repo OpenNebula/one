@@ -24,7 +24,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePool::_vm_monitoring_history;
+time_t VirtualMachinePool::_monitor_expiration;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -35,7 +35,7 @@ VirtualMachinePool::VirtualMachinePool(
         const string&               hook_location,
         const string&               remotes_location,
         vector<const Attribute *>&  restricted_attrs,
-        int                         vm_monitoring_history)
+        time_t                      expire_time)
     : PoolSQL(db, VirtualMachine::table, false)
 {
     const VectorAttribute * vattr;
@@ -48,6 +48,8 @@ VirtualMachinePool::VirtualMachinePool(
     bool   remote;
 
     bool state_hook = false;
+
+    _monitor_expiration = expire_time;
 
     for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
     {
@@ -193,8 +195,6 @@ VirtualMachinePool::VirtualMachinePool(
 
     // Set restricted attributes
     VirtualMachineTemplate::set_restricted_attributes(restricted_attrs);
-
-    _vm_monitoring_history = vm_monitoring_history;
 }
 
 /* -------------------------------------------------------------------------- */

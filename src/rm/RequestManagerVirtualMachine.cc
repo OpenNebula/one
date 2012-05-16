@@ -581,11 +581,10 @@ void VirtualMachineMonitoring::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    int id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int  id   = xmlrpc_c::value_int(paramList.getInt(1));
+    int  rc;
 
-    ostringstream   oss;
-    string          where;
-    int             rc;
+    ostringstream oss;
 
     bool auth = vm_authorization(id, 0, att, 0, 0, auth_op);
 
@@ -594,13 +593,7 @@ void VirtualMachineMonitoring::request_execute(
         return;
     }
 
-    oss << "oid = " << id;
-
-    where = oss.str();
-
-    oss.str("");
-
-    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, where);
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, id);
 
     if ( rc != 0 )
     {
