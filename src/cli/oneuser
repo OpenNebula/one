@@ -30,6 +30,8 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'one_helper/oneuser_helper'
 
+require 'uri'
+
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneuser` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
@@ -336,4 +338,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.show_resource(user,options)
     end
 
+    show_desc = <<-EOT.unindent
+        Encodes user and password to use it with ldap
+    EOT
+
+    command :encode, show_desc, :username, [:password, nil] do
+        ar=args.compact
+
+        if defined?(URI::Parser)
+            parser=URI::Parser.new
+        else
+            parser=URI
+        end
+
+        puts ar.map{|a| parser.escape(a) }.join(':')
+
+        0
+    end
 end
