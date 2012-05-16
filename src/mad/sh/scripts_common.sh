@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+export LANG=C
+
 # Paths for utilities
 export PATH=/bin:/sbin:/usr/bin:$PATH
 AWK=awk
