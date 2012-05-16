@@ -39,7 +39,7 @@ public:
              vector<const Attribute *> hook_mads,
              const string&             hook_location,
              const string&             remotes_location,
-             int                       host_monitoring_history);
+             time_t                    expire_time);
 
     ~HostPool(){};
 
@@ -168,6 +168,8 @@ public:
             return -1;
         }
 
+        clean_monitoring(host);
+
         return PoolSQL::drop(objsql, error_msg);
     };
 
@@ -210,6 +212,24 @@ public:
                         const string&  where);
 
     /**
+     *  Dumps the HOST monitoring information for a single HOST
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param hostid id of the target HOST
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        int            hostid)
+    {
+        ostringstream filter;
+
+        filter << "oid = " << hostid;
+
+        return dump_monitoring(oss, filter.str());
+    }
+
+    /**
      * Inserts the last monitoring, and deletes old monitoring entries for this
      * host
      *
@@ -218,7 +238,7 @@ public:
      */
     int update_monitoring(Host * host)
     {
-        if ( _host_monitoring_history <= 0 )
+        if ( _monitor_expiration <= 0 )
         {
             return 0;
         }
@@ -241,9 +261,9 @@ public:
      *  Get the size, in seconds, of the historical monitoring information
      *  @return the seconds
      */
-    static const int& host_monitoring_history()
+    static time_t monitor_expiration()
     {
-        return _host_monitoring_history;
+        return _monitor_expiration;
     };
 
 private:
@@ -270,7 +290,7 @@ private:
     /**
      * Size, in seconds, of the historical monitoring information
      */
-    static int _host_monitoring_history;
+    static time_t _monitor_expiration;
 };
 
 #endif /*HOST_POOL_H_*/

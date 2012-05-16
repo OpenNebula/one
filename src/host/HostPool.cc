@@ -29,7 +29,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::_host_monitoring_history;
+time_t HostPool::_monitor_expiration;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -38,9 +38,12 @@ HostPool::HostPool(SqlDB*                    db,
                    vector<const Attribute *> hook_mads,
                    const string&             hook_location,
                    const string&             remotes_location,
-                   int                       host_monitoring_history)
+                   time_t                    expire_time)
                         : PoolSQL(db, Host::table, true)
 {
+
+    _monitor_expiration = expire_time;
+
     // ------------------ Initialize Hooks for the pool ----------------------
 
     const VectorAttribute * vattr;
@@ -148,8 +151,6 @@ HostPool::HostPool(SqlDB*                    db,
 
         add_hook(hook);
     }
-
-    _host_monitoring_history = host_monitoring_history;
 }
 
 /* -------------------------------------------------------------------------- */

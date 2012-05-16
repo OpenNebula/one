@@ -208,6 +208,8 @@ int Host::update_monitoring(SqlDB * db)
     string error_str;
     char * sql_xml;
 
+    time_t max_mon_time;
+
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
     if ( sql_xml == 0 )
@@ -220,10 +222,11 @@ int Host::update_monitoring(SqlDB * db)
         goto error_xml;
     }
 
+    max_mon_time = last_monitored - HostPool::monitor_expiration();
+
     oss << "DELETE FROM " << monit_table
         << " WHERE hid=" << oid
-        << " AND last_mon_time < (" << last_monitored
-        << " - " << HostPool::host_monitoring_history() << ")";
+        << " AND last_mon_time < " << max_mon_time;
 
     db->exec(oss);
 

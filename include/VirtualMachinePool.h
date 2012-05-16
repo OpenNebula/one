@@ -37,7 +37,7 @@ public:
                        const string&                hook_location,
                        const string&                remotes_location,
                        vector<const Attribute *>&   restricted_attrs,
-                       time_t                       monitor_expiration);
+                       time_t                       expire_time);
 
     ~VirtualMachinePool(){};
 
