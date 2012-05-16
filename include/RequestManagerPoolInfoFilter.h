@@ -238,6 +238,31 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class HostPoolMonitoring : public RequestManagerPoolInfoFilter
+{
+public:
+
+    HostPoolMonitoring():
+        RequestManagerPoolInfoFilter("HostPoolMonitoring",
+                                     "Returns the host monitoring records",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hpool();
+        auth_object = PoolObjectSQL::HOST;
+    };
+
+    ~HostPoolMonitoring(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class GroupPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:

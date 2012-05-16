@@ -68,6 +68,26 @@ public:
                          RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HostMonitoring : public RequestManagerHost
+{
+public:
+    HostMonitoring():
+        RequestManagerHost("HostMonitoring",
+                            "Returns the host monitoring records",
+                            "A:si")
+    {
+        auth_op = AuthRequest::USE;
+    };
+
+    ~HostMonitoring(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

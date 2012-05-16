@@ -29,11 +29,16 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int HostPool::_host_monitoring_history;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 HostPool::HostPool(SqlDB*                    db,
                    vector<const Attribute *> hook_mads,
                    const string&             hook_location,
                    const string&             remotes_location,
-                   int                       host_monitoring_history)   // TODO
+                   int                       host_monitoring_history)
                         : PoolSQL(db, Host::table, true)
 {
     // ------------------ Initialize Hooks for the pool ----------------------
@@ -143,6 +148,8 @@ HostPool::HostPool(SqlDB*                    db,
 
         add_hook(hook);
     }
+
+    _host_monitoring_history = host_monitoring_history;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -289,4 +296,27 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
     unset_callback();
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::dump_monitoring(
+        ostringstream& oss,
+        const string&  where)
+{
+    ostringstream cmd;
+
+    cmd << "SELECT " << Host::monit_table << ".body FROM " << Host::monit_table
+        << " INNER JOIN " << Host::table
+        << " WHERE hid = oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " AND " << where;
+    }
+
+    cmd << " ORDER BY hid, " << Host::monit_table << ".last_mon_time;";
+
+    return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
 }

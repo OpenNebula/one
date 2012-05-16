@@ -306,6 +306,8 @@ void RequestManager::register_xml_methods()
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
+    xmlrpc_c::methodPtr host_monitoring(new HostMonitoring());
+    xmlrpc_c::methodPtr host_pool_monitoring(new HostPoolMonitoring());
 
     // Image Methods
     xmlrpc_c::methodPtr image_persistent(new ImagePersistent());
@@ -373,8 +375,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
     RequestManagerRegistry.addMethod("one.host.info", host_info);
+    RequestManagerRegistry.addMethod("one.host.monitoring", host_monitoring);
 
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info); 
+    RequestManagerRegistry.addMethod("one.hostpool.monitoring", host_pool_monitoring);
 
     /* Group related methods */
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);

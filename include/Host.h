@@ -114,6 +114,22 @@ public:
     int update_info(string &parse_str);
 
     /**
+     * Inserts the last monitoring, and deletes old monitoring entries.
+     *
+     * @param db pointer to the db
+     * @return 0 on success
+     */
+    int update_monitoring(SqlDB * db);
+
+    /**
+     * Deletes all monitoring entries.
+     *
+     * @param db pointer to the db
+     * @return 0 on success
+     */
+    int clean_monitoring(SqlDB * db);
+
+    /**
      * Retrives host state
      *    @return HostState code number
      */
@@ -355,6 +371,12 @@ private:
 
     static const char * table;
 
+    static const char * monit_db_names;
+
+    static const char * monit_db_bootstrap;
+
+    static const char * monit_table;
+
     /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
@@ -370,9 +392,15 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_host(Host::db_bootstrap);
+        int rc;
 
-        return db->exec(oss_host);
+        ostringstream oss_host(Host::db_bootstrap);
+        ostringstream oss_monit(Host::monit_db_bootstrap);
+
+        rc =  db->exec(oss_host);
+        rc += db->exec(oss_monit);
+
+        return rc;
     };
 
     /**

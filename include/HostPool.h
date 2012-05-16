@@ -197,6 +197,55 @@ public:
         return PoolSQL::search(oids, Host::table, where);
     };
 
+    /**
+     *  Dumps the host monitoring information entries in XML format. A filter
+     *  can be also added to the query.
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        const string&  where);
+
+    /**
+     * Inserts the last monitoring, and deletes old monitoring entries for this
+     * host
+     *
+     * @param host pointer to the host object
+     * @return 0 on success
+     */
+    int update_monitoring(Host * host)
+    {
+        if ( _host_monitoring_history <= 0 )
+        {
+            return 0;
+        }
+
+        return host->update_monitoring(db);
+    };
+
+    /**
+     * Deletes all monitoring entries for this host
+     *
+     * @param host pointer to the virtual machine object
+     * @return 0 on success
+     */
+    int clean_monitoring(Host * host)
+    {
+        return host->clean_monitoring(db);
+    };
+
+    /**
+     *  Get the size, in seconds, of the historical monitoring information
+     *  @return the seconds
+     */
+    static const int& host_monitoring_history()
+    {
+        return _host_monitoring_history;
+    };
+
 private:
 
     /**
@@ -217,6 +266,11 @@ private:
      *    @return 0 on success
      */
     int discover_cb(void * _map, int num, char **values, char **names);
+
+    /**
+     * Size, in seconds, of the historical monitoring information
+     */
+    static int _host_monitoring_history;
 };
 
 #endif /*HOST_POOL_H_*/

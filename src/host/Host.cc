@@ -69,6 +69,14 @@ const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
     "group_u INTEGER, other_u INTEGER, UNIQUE(name))";
 
+
+const char * Host::monit_table = "host_monitoring";
+
+const char * Host::monit_db_names = "hid, last_mon_time, body";
+
+const char * Host::monit_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+    "host_monitoring (hid INTEGER, last_mon_time INTEGER, body TEXT, "
+    "PRIMARY KEY(hid, last_mon_time))";
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
@@ -153,7 +161,7 @@ error_hostname:
     goto error_generic;
 
 error_generic:
-    error_str = "Error inserting Group in DB.";
+    error_str = "Error inserting Host in DB.";
 error_common:
     return -1;
 }
@@ -186,6 +194,83 @@ int Host::update_info(string &parse_str)
     get_template_attribute("USEDMEMORY",host_share.used_mem);
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Host::update_monitoring(SqlDB * db)
+{
+    ostringstream   oss;
+    int             rc;
+
+    string xml_body;
+    string error_str;
+    char * sql_xml;
+
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+
+    if ( sql_xml == 0 )
+    {
+        goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
+    }
+
+    oss << "DELETE FROM " << monit_table
+        << " WHERE hid=" << oid
+        << " AND last_mon_time < (" << last_monitored
+        << " - " << HostPool::host_monitoring_history() << ")";
+
+    db->exec(oss);
+
+    oss.str("");
+    oss << "INSERT INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
+        <<          oid             << ","
+        <<          last_monitored       << ","
+        << "'" <<   sql_xml         << "')";
+
+    db->free_str(sql_xml);
+
+    rc = db->exec(oss);
+
+    return rc;
+
+error_xml:
+    db->free_str(sql_xml);
+
+    error_str = "could not transform the Host to XML.";
+
+    goto error_common;
+
+error_body:
+    error_str = "could not insert the Host in the DB.";
+
+error_common:
+    oss.str("");
+    oss << "Error updating Host monitoring information, " << error_str;
+
+    NebulaLog::log("ONE",Log::ERROR, oss);
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Host::clean_monitoring(SqlDB * db)
+{
+    ostringstream   oss;
+    int             rc;
+
+    oss << "DELETE FROM " << monit_table << " WHERE hid=" << oid;
+
+    rc = db->exec(oss);
+
+    return rc;
 }
 
 /* ************************************************************************ */

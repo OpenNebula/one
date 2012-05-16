@@ -147,7 +147,6 @@ public:
      * @param vm pointer to the virtual machine object
      * @return 0 on success
      */
-
     int clean_monitoring(
             VirtualMachine * vm)
     {

@@ -128,6 +128,7 @@ void InformationManagerDriver::protocol(
         host->touch(true);
 
         hpool->update(host);
+        hpool->update_monitoring(host);
 
         host->unlock();
     }

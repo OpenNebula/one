@@ -163,6 +163,7 @@ void VirtualMachinePoolMonitoring::request_execute(
 
     return;
 }
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
@@ -171,6 +172,32 @@ void HostPoolInfo::request_execute(
         RequestAttributes& att)
 {
     dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void HostPoolMonitoring::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    ostringstream oss;
+    string        where;
+    int           rc;
+
+    where_filter(att, ALL, -1, -1, "", "", where);
+
+    rc = (static_cast<HostPool *>(pool))->dump_monitoring(oss, where);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
 }
 
 /* ------------------------------------------------------------------------- */
