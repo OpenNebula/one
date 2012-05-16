@@ -90,8 +90,10 @@ void OpenNebulaTemplate::set_conf_default()
 #-------------------------------------------------------------------------------
 #  HOST_MONITORING_INTERVAL
 #  HOST_PER_INTERVAL
+#  HOST_MONITORING_HISTORY
 #  VM_POLLING_INTERVAL
-#  VM_PER_INTERVAL 
+#  VM_PER_INTERVAL
+#  VM_MONITORING_HISTORY
 #  PORT
 #  DB
 #  VNC_BASE_PORT
@@ -110,6 +112,12 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("HOST_PER_INTERVAL",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    // HOST_MONITORING_HISTORY
+    value = "86400";
+
+    attribute = new SingleAttribute("HOST_MONITORING_HISTORY",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     // POLL_INTERVAL
     value = "600";
 
@@ -120,6 +128,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "5";
 
     attribute = new SingleAttribute("VM_PER_INTERVAL",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // VM_MONITORING_HISTORY
+    value = "86400";
+
+    attribute = new SingleAttribute("VM_MONITORING_HISTORY",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //XML-RPC Server PORT

@@ -668,6 +668,8 @@ int DispatchManager::finalize(
             vm->set_state(VirtualMachine::DONE);
             vmpool->update(vm);
 
+            vmpool->clean_monitoring(vm);
+
             vm->log("DiM", Log::INFO, "New VM state is DONE.");
         break;
 

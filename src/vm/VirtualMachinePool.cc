@@ -24,11 +24,18 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
-                                       vector<const Attribute *> hook_mads,
-                                       const string& hook_location,
-                                       const string& remotes_location,
-                                       vector<const Attribute *>& restricted_attrs)
+int VirtualMachinePool::_vm_monitoring_history;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VirtualMachinePool::VirtualMachinePool(
+        SqlDB *                     db,
+        vector<const Attribute *>   hook_mads,
+        const string&               hook_location,
+        const string&               remotes_location,
+        vector<const Attribute *>&  restricted_attrs,
+        int                         vm_monitoring_history)
     : PoolSQL(db, VirtualMachine::table, false)
 {
     const VectorAttribute * vattr;
@@ -186,6 +193,8 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 
     // Set restricted attributes
     VirtualMachineTemplate::set_restricted_attributes(restricted_attrs);
+
+    _vm_monitoring_history = vm_monitoring_history;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -300,3 +309,27 @@ int VirtualMachinePool::dump_acct(ostringstream& oss,
 
     return PoolSQL::dump(oss, "HISTORY_RECORDS", cmd);
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::dump_monitoring(
+        ostringstream& oss,
+        const string&  where)
+{
+    ostringstream cmd;
+
+    cmd << "SELECT " << VirtualMachine::monit_table << ".body FROM "
+        << VirtualMachine::monit_table
+        << " INNER JOIN " << VirtualMachine::table
+        << " WHERE vmid = oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " AND " << where;
+    }
+
+    cmd << " ORDER BY vmid, " << VirtualMachine::monit_table << ".last_poll;";
+
+    return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
+}

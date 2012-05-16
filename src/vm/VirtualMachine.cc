@@ -99,9 +99,18 @@ const char * VirtualMachine::db_names =
     "owner_u, group_u, other_u";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-        "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
-        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
-        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
+    "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+
+const char * VirtualMachine::monit_table = "vm_monitoring";
+
+const char * VirtualMachine::monit_db_names = "vmid, last_poll, body";
+
+const char * VirtualMachine::monit_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+    "vm_monitoring (vmid INTEGER, last_poll INTEGER, body TEXT, "
+    "PRIMARY KEY(vmid, last_poll))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -722,6 +731,83 @@ error_generic:
     error_str = "Error inserting VM in DB.";
 error_common:
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::update_monitoring(SqlDB * db)
+{
+    ostringstream   oss;
+    int             rc;
+
+    string xml_body;
+    string error_str;
+    char * sql_xml;
+
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+
+    if ( sql_xml == 0 )
+    {
+        goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
+    }
+
+    oss << "DELETE FROM " << monit_table
+        << " WHERE vmid=" << oid
+        << " AND last_poll < (" << last_poll
+        << " - " << VirtualMachinePool::vm_monitoring_history() << ")";
+
+    db->exec(oss);
+
+    oss.str("");
+    oss << "INSERT INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
+        <<          oid             << ","
+        <<          last_poll       << ","
+        << "'" <<   sql_xml         << "')";
+
+    db->free_str(sql_xml);
+
+    rc = db->exec(oss);
+
+    return rc;
+
+error_xml:
+    db->free_str(sql_xml);
+
+    error_str = "could not transform the VM to XML.";
+
+    goto error_common;
+
+error_body:
+    error_str = "could not insert the VM in the DB.";
+
+error_common:
+    oss.str("");
+    oss << "Error updating VM monitoring information, " << error_str;
+
+    NebulaLog::log("ONE",Log::ERROR, oss);
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::clean_monitoring(SqlDB * db)
+{
+    ostringstream   oss;
+    int             rc;
+
+    oss << "DELETE FROM " << monit_table << " WHERE vmid=" << oid;
+
+    rc = db->exec(oss);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

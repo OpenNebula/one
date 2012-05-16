@@ -263,6 +263,8 @@ void Nebula::start()
 
     try
     {
+        int     vm_monitoring_history;
+        int     host_monitoring_history;
         string  mac_prefix;
         int     size;
         string  default_image_type;
@@ -282,12 +284,21 @@ void Nebula::start()
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
 
+        nebula_configuration->get("VM_MONITORING_HISTORY",vm_monitoring_history);
+        nebula_configuration->get("HOST_MONITORING_HISTORY",host_monitoring_history);
+
         vmpool = new VirtualMachinePool(db, 
                                         vm_hooks, 
                                         hook_location, 
                                         remotes_location,
-                                        vm_restricted_attrs);
-        hpool  = new HostPool(db, host_hooks, hook_location, remotes_location);
+                                        vm_restricted_attrs,
+                                        vm_monitoring_history);
+
+        hpool  = new HostPool(  db,
+                                host_hooks,
+                                hook_location,
+                                remotes_location,
+                                host_monitoring_history);
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
         nebula_configuration->get("NETWORK_SIZE", size);

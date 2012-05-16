@@ -838,9 +838,11 @@ private:
         int rc;
 
         ostringstream oss_vm(VirtualMachine::db_bootstrap);
+        ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
         ostringstream oss_hist(History::db_bootstrap);
 
         rc =  db->exec(oss_vm);
+        rc += db->exec(oss_monit);
         rc += db->exec(oss_hist);
 
         return rc;
@@ -894,6 +896,22 @@ private:
         else
             return -1;
     };
+
+    /**
+     * Inserts the last monitoring, and deletes old monitoring entries.
+     *
+     * @param db pointer to the db
+     * @return 0 on success
+     */
+    int update_monitoring(SqlDB * db);
+
+    /**
+     * Deletes all monitoring entries.
+     *
+     * @param db pointer to the db
+     * @return 0 on success
+     */
+    int clean_monitoring(SqlDB * db);
 
     // -------------------------------------------------------------------------
     // Attribute Parser
@@ -970,6 +988,12 @@ protected:
     static const char * db_names;
 
     static const char * db_bootstrap;
+
+    static const char * monit_table;
+
+    static const char * monit_db_names;
+
+    static const char * monit_db_bootstrap;
 
     /**
      *  Reads the Virtual Machine (identified with its OID) from the database.

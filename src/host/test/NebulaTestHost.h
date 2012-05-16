@@ -81,7 +81,7 @@ public:
         host_hooks.push_back(hook);
 
 
-        return new HostPool(db, host_hooks, hook_location, var_location);
+        return new HostPool(db, host_hooks, hook_location, var_location, 0);
     }
 };
 

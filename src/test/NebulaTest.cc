@@ -24,13 +24,13 @@ VirtualMachinePool* NebulaTest::create_vmpool(SqlDB* db, string hook_location,
     vector<const Attribute *> hooks;
     vector<const Attribute *> restricted_attrs;
 
-    return new VirtualMachinePool(db, hooks, hook_location, vloc, restricted_attrs);
+    return new VirtualMachinePool(db, hooks, hook_location, vloc, restricted_attrs, 0);
 }
 
 HostPool* NebulaTest::create_hpool(SqlDB* db, string hook_location, string vloc)
 {
     vector<const Attribute *> hooks;
-    return new HostPool(db, hooks, hook_location, vloc);
+    return new HostPool(db, hooks, hook_location, vloc, 0);
 }
 
 VirtualNetworkPool* NebulaTest::create_vnpool(SqlDB* db, string mac_prefix, int size)

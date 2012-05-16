@@ -21,12 +21,13 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerVirtualMachine::vm_authorization(int oid,
-                                                    ImageTemplate *        tmpl,
-                                                    RequestAttributes&     att,
-                                                    PoolObjectAuth *       host_perm,
-                                                    PoolObjectAuth *       ds_perm,
-                                                    AuthRequest::Operation op)
+bool RequestManagerVirtualMachine::vm_authorization(
+        int                    oid,
+        ImageTemplate *        tmpl,
+        RequestAttributes&     att,
+        PoolObjectAuth *       host_perm,
+        PoolObjectAuth *       ds_perm,
+        AuthRequest::Operation op)
 {
     PoolObjectSQL * object;
     PoolObjectAuth vm_perms;
@@ -139,6 +140,7 @@ VirtualMachine * RequestManagerVirtualMachine::get_vm(int id,
 
     return vm;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -174,6 +176,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
@@ -569,6 +572,45 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // Return the new allocated Image ID
     success_response(iid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineMonitoring::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int id  = xmlrpc_c::value_int(paramList.getInt(1));
+
+    ostringstream   oss;
+    string          where;
+    int             rc;
+
+    bool auth = vm_authorization(id, 0, att, 0, 0, auth_op);
+
+    if ( auth == false )
+    {
+        return;
+    }
+
+    oss << "oid = " << id;
+
+    where = oss.str();
+
+    oss.str("");
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, where);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

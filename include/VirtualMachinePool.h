@@ -32,11 +32,12 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB * db,
-                       vector<const Attribute *> hook_mads,
-                       const string& hook_location,
-                       const string& remotes_location,
-                       vector<const Attribute *>& restricted_attrs);
+    VirtualMachinePool(SqlDB *                      db,
+                       vector<const Attribute *>    hook_mads,
+                       const string&                hook_location,
+                       const string&                remotes_location,
+                       vector<const Attribute *>&   restricted_attrs,
+                       int                          vm_monitoring_history);
 
     ~VirtualMachinePool(){};
 
@@ -123,6 +124,37 @@ public:
     }
 
     /**
+     * Inserts the last monitoring, and deletes old monitoring entries for this
+     * VM
+     *
+     * @param vm pointer to the virtual machine object
+     * @return 0 on success
+     */
+    int update_monitoring(
+        VirtualMachine * vm)
+    {
+        if ( _vm_monitoring_history <= 0 )
+        {
+            return 0;
+        }
+
+        return vm->update_monitoring(db);
+    }
+
+    /**
+     * Deletes all monitoring entries for this VM
+     *
+     * @param vm pointer to the virtual machine object
+     * @return 0 on success
+     */
+
+    int clean_monitoring(
+            VirtualMachine * vm)
+    {
+        return vm->clean_monitoring(db);
+    }
+
+    /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      *    @return 0 on success
      */
@@ -157,6 +189,28 @@ public:
                   const string&  where, 
                   int            time_start, 
                   int            time_end);
+
+    /**
+     *  Dumps the VM monitoring information entries in XML format. A filter
+     *  can be also added to the query.
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        const string&  where);
+
+    /**
+     *  Get the size, in seconds, of the historical monitoring information
+     *  @return the seconds
+     */
+    static const int& vm_monitoring_history()
+    {
+        return _vm_monitoring_history;
+    };
+
 private:
     /**
      *  Factory method to produce VM objects
@@ -166,6 +220,11 @@ private:
     {
         return new VirtualMachine(-1,-1,-1,"","",0);
     };
+
+    /**
+     * Size, in seconds, of the historical monitoring information
+     */
+    static int _vm_monitoring_history;
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

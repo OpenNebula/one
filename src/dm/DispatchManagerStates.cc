@@ -125,6 +125,8 @@ void  DispatchManager::done_action(int vid)
 
         vmpool->update(vm);
 
+        vmpool->clean_monitoring(vm);
+
         vm->log("DiM", Log::INFO, "New VM state is DONE");
 
         vm->release_network_leases();
