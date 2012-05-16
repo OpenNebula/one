@@ -32,7 +32,11 @@ require 'yaml'
 require 'ldap_auth'
 require 'uri'
 
-URI_PARSER=URI::Parser.new
+if defined?(URI::Parser)
+    URI_PARSER=URI::Parser.new
+else
+    URI_PARSER=URI
+end
 
 user=URI_PARSER.unescape(ARGV[0])
 pass=URI_PARSER.unescape(ARGV[1])
