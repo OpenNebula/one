@@ -33,9 +33,6 @@ require 'scripts_common'
 require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'shellwords'
-require 'uri'
-
-URI_PARSER=URI::Parser.new
 
 # This is a generic AuthZ/AuthN driver able to manage multiple authentication 
 # protocols (simultaneosly). It also supports the definition of custom 
@@ -115,7 +112,7 @@ class AuthDriver < OpenNebulaDriver
 
         command = File.join(authN_path, ACTION[:authN].downcase)
         command << ' ' << ([user, password, secret].map do |p|
-            Shellwords.escape(URI_PARSER.unescape(p))
+            Shellwords.escape(p)
         end.join(' '))
 
         rc = LocalCommand.run(command, log_method(request_id))

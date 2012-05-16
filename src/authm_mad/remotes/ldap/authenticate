@@ -34,9 +34,9 @@ require 'uri'
 
 URI_PARSER=URI::Parser.new
 
-user=ARGV[0]
-pass=ARGV[1]
-secret=ARGV[2]
+user=URI_PARSER.unescape(ARGV[0])
+pass=URI_PARSER.unescape(ARGV[1])
+secret=URI_PARSER.unescape(ARGV[2])
 
 options=YAML.load(File.read(ETC_LOCATION+'/auth/ldap_auth.conf'))
 
