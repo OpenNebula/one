@@ -255,6 +255,45 @@ module OpenNebula
             return rc
         end
 
+
+        # Retrieves this Element's monitoring data from OpenNebula
+        #
+        # @param xml_method [String] the name of the XML-RPC method
+        # @param root_elem [String] Root for each individual PoolElement
+        # @param xpath_expressions [Array<String>] Xpath expressions for the
+        #   elements to retrieve.
+        #
+        # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
+        #   the requested xpath expressions, and an Array of [timestamp, value].
+        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(xml_method, @pe_id)
+
+            if ( OpenNebula.is_error?(rc) )
+                return rc
+            end
+
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(rc, 'MONITORING_DATA')
+
+            hash = {}
+            timestamps = xmldoc.retrieve_elements(
+                root_elem + '/' + timestamp_elem)
+
+            xpath_expressions.each { |xpath|
+                xpath_values = xmldoc.retrieve_elements(root_elem + '/' + xpath)
+
+                if ( xpath_values.nil? )
+                    hash[xpath] = []
+                else
+                    hash[xpath] = timestamps.zip(xpath_values)
+                end
+            }
+
+            return hash
+        end
+
     public
 
         # Creates new element specifying its id

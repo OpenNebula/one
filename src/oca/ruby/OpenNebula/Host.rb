@@ -25,11 +25,12 @@ module OpenNebula
 
 
         HOST_METHODS = {
-            :info     => "host.info",
-            :allocate => "host.allocate",
-            :delete   => "host.delete",
-            :enable   => "host.enable",
-            :update   => "host.update"
+            :info       => "host.info",
+            :allocate   => "host.allocate",
+            :delete     => "host.delete",
+            :enable     => "host.enable",
+            :update     => "host.update",
+            :monitoring => "host.monitoring"
         }
 
         HOST_STATES=%w{INIT MONITORING MONITORED ERROR DISABLED}
@@ -110,6 +111,30 @@ module OpenNebula
         # +new_template+ New template contents
         def update(new_template)
             super(HOST_METHODS[:update], new_template)
+        end
+
+        # Retrieves this Host's monitoring data from OpenNebula
+        #
+        # @param xpath_expressions [Array<String>] Xpath expressions for the
+        #   elements to retrieve. For example:
+        #   ['HOST_SHARE/FREE_CPU', 'HOST_SHARE/RUNNING_VMS', 'TEMPLATE/CUSTOM_PROBE']
+        #
+        # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
+        #   the requested xpath expressions, and an Array of [timestamp, value].
+        #   For example:
+        #
+        #   { "HOST_SHARE/RUNNING_VMS" =>
+        #       [["1337266000", "1"], 
+        #        ["1337266044", "1"], 
+        #        ["1337266088", "3"]],
+        #     "HOST_SHARE/FREE_CPU" =>
+        #       [["1337266000", "800"], 
+        #        ["1337266044", "800"], 
+        #        ["1337266088", "800"]]
+        #   }
+        def monitoring(xpath_expressions)
+            return super(HOST_METHODS[:monitoring], 'HOST',
+                'LAST_MON_TIME', xpath_expressions)
         end
 
         #######################################################################

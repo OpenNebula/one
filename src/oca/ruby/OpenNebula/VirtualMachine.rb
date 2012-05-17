@@ -25,14 +25,15 @@ module OpenNebula
 
 
         VM_METHODS = {
-            :info     => "vm.info",
-            :allocate => "vm.allocate",
-            :action   => "vm.action",
-            :migrate  => "vm.migrate",
-            :deploy   => "vm.deploy",
-            :savedisk => "vm.savedisk",
-            :chown    => "vm.chown",
-            :chmod    => "vm.chmod",
+            :info       => "vm.info",
+            :allocate   => "vm.allocate",
+            :action     => "vm.action",
+            :migrate    => "vm.migrate",
+            :deploy     => "vm.deploy",
+            :savedisk   => "vm.savedisk",
+            :chown      => "vm.chown",
+            :chmod      => "vm.chmod",
+            :monitoring => "vm.monitoring"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED}
@@ -273,6 +274,30 @@ module OpenNebula
                 other_m, other_a)
             super(VM_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
+        end
+
+        # Retrieves this VM's monitoring data from OpenNebula
+        #
+        # @param xpath_expressions [Array<String>] Xpath expressions for the
+        #   elements to retrieve. For example:
+        #   ['CPU', 'NET_TX', 'TEMPLATE/CUSTOM_PROBE']
+        #
+        # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
+        #   the requested xpath expressions, and an Array of [timestamp, value].
+        #   For example:
+        #
+        #   { "NET_TX" => 
+        #       [["1337264510", "210"],
+        #        ["1337264553", "220"],
+        #        ["1337264584", "230"]],
+        #     "CPU" =>
+        #       [["1337264510", "0"],
+        #        ["1337264553", "0"],
+        #        ["1337264584", "0"]]
+        #   }
+        def monitoring(xpath_expressions)
+            return super(VM_METHODS[:monitoring], 'VM',
+                'LAST_POLL', xpath_expressions)
         end
 
         #######################################################################
