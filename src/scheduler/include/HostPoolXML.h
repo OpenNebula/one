@@ -46,7 +46,7 @@ protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)
     {
-        return get_nodes("/HOST_POOL/HOST[STATE<3]", content);
+        return get_nodes("/HOST_POOL/HOST[STATE=1 or STATE=2]", content);
     };
 
     void add_object(xmlNodePtr node);
