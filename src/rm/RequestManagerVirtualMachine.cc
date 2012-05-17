@@ -32,11 +32,6 @@ bool RequestManagerVirtualMachine::vm_authorization(
     PoolObjectSQL * object;
     PoolObjectAuth vm_perms;
 
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
-
     object = pool->get(oid,true);
 
     if ( object == 0 )
@@ -46,6 +41,12 @@ bool RequestManagerVirtualMachine::vm_authorization(
                 att);
 
         return false;
+    }
+
+    if ( att.uid == 0 )
+    {
+        object->unlock();
+        return true;
     }
 
     object->get_permissions(vm_perms);
@@ -581,7 +582,7 @@ void VirtualMachineMonitoring::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    int  id   = xmlrpc_c::value_int(paramList.getInt(1));
+    int  id = xmlrpc_c::value_int(paramList.getInt(1));
     int  rc;
 
     ostringstream oss;
