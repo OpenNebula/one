@@ -32,14 +32,15 @@ module OpenNebula
             :update   => "host.update"
         }
 
-        HOST_STATES=%w{INIT MONITORING MONITORED ERROR DISABLED}
+        HOST_STATES=%w{INIT MONITORING_MONITORED MONITORED ERROR DISABLED MONITORING_ERROR}
 
         SHORT_HOST_STATES={
-            "INIT"          => "on",
-            "MONITORING"    => "on",
-            "MONITORED"     => "on",
-            "ERROR"         => "err",
-            "DISABLED"      => "off"
+            "INIT"                 => "init",
+            "MONITORING_MONITORED" => "update",          
+            "MONITORED"            => "on",
+            "ERROR"                => "err",
+            "DISABLED"             => "off",
+            "MONITORING_ERROR"     => "retry", 
         }
 
         # Creates a Host description with just its identifier
