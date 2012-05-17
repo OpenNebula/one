@@ -649,22 +649,14 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     int             rc;
 
     string xml_body;
-    char * sql_deploy_id;
     char * sql_name;
     char * sql_xml;
-
-    sql_deploy_id = db->escape_str(deploy_id.c_str());
-
-    if ( sql_deploy_id == 0 )
-    {
-        goto error_generic;
-    }
 
     sql_name =  db->escape_str(name.c_str());
 
     if ( sql_name == 0 )
     {
-        goto error_name;
+        goto error_generic;
     }
 
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
@@ -701,7 +693,6 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          group_u         << ","
         <<          other_u         << ")";
 
-    db->free_str(sql_deploy_id);
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
@@ -710,7 +701,6 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     return rc;
 
 error_xml:
-    db->free_str(sql_deploy_id);
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
@@ -719,12 +709,7 @@ error_xml:
     goto error_common;
 
 error_body:
-    db->free_str(sql_deploy_id);
     db->free_str(sql_name);
-    goto error_generic;
-
-error_name:
-    db->free_str(sql_deploy_id);
     goto error_generic;
 
 error_generic:
