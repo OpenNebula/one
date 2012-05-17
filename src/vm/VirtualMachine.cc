@@ -800,6 +800,21 @@ int VirtualMachine::clean_monitoring(SqlDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::clean_all_monitoring(SqlDB * db)
+{
+    ostringstream   oss;
+    int             rc;
+
+    oss << "DELETE FROM " << monit_table;
+
+    rc = db->exec(oss);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::add_history(
     int   hid,
     const string& hostname,

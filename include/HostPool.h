@@ -288,6 +288,16 @@ private:
     int discover_cb(void * _map, int num, char **values, char **names);
 
     /**
+     * Deletes all monitoring entries for all hosts
+     *
+     * @return 0 on success
+     */
+    int clean_monitoring()
+    {
+        return Host::clean_all_monitoring(db);
+    };
+
+    /**
      * Size, in seconds, of the historical monitoring information
      */
     static time_t _monitor_expiration;

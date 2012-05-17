@@ -151,7 +151,17 @@ public:
             VirtualMachine * vm)
     {
         return vm->clean_monitoring(db);
-    }
+    };
+
+    /**
+     * Deletes all monitoring entries for all VMs
+     *
+     * @return 0 on success
+     */
+    int clean_monitoring()
+    {
+        return VirtualMachine::clean_all_monitoring(db);
+    };
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool

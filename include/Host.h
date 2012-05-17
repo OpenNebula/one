@@ -122,7 +122,7 @@ public:
     int update_monitoring(SqlDB * db);
 
     /**
-     * Deletes all monitoring entries.
+     * Deletes all monitoring entries for this Host
      *
      * @param db pointer to the db
      * @return 0 on success
@@ -423,6 +423,14 @@ private:
         string error_str;
         return insert_replace(db, true, error_str);
     };
+
+    /**
+     * Deletes all monitoring entries for all Hosts
+     *
+     * @param db pointer to the db
+     * @return 0 on success
+     */
+    static int clean_all_monitoring(SqlDB * db);
 };
 
 #endif /*HOST_H_*/

@@ -44,6 +44,11 @@ HostPool::HostPool(SqlDB*                    db,
 
     _monitor_expiration = expire_time;
 
+    if ( _monitor_expiration == 0 )
+    {
+        clean_monitoring();
+    }
+
     // ------------------ Initialize Hooks for the pool ----------------------
 
     const VectorAttribute * vattr;

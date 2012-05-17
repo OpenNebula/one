@@ -51,6 +51,11 @@ VirtualMachinePool::VirtualMachinePool(
 
     _monitor_expiration = expire_time;
 
+    if ( _monitor_expiration == 0 )
+    {
+        clean_monitoring();
+    }
+
     for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
     {
         vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
