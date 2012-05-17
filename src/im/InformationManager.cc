@@ -20,6 +20,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+
+const time_t InformationManager::monitor_expire = 600;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -136,8 +139,10 @@ void InformationManager::timer_action()
     static int mark = 0;
 
     int             rc;
-    time_t          thetime;
+    time_t          now;
     ostringstream   oss;
+
+    struct stat     sb;
 
     map<int, string>            discovered_hosts;
     map<int, string>::iterator  it;
@@ -146,6 +151,8 @@ void InformationManager::timer_action()
 
     Host *          host;
     istringstream   iss;
+
+    time_t          monitor_length;
 
     mark = mark + timer_period;
 
@@ -162,9 +169,7 @@ void InformationManager::timer_action()
         return;
     }
 
-    thetime = time(0);
-
-    struct stat sb;
+    now = time(0);
 
     if (stat(remotes_location.c_str(), &sb) == -1)
     {
@@ -183,23 +188,22 @@ void InformationManager::timer_action()
             continue;
         }
 
-        Host::HostState state = host->get_state();
+        monitor_length = now - host->get_last_monitored();
 
-        // TODO: Set apropriate threshold to timeout monitoring
-        if (( state == Host::MONITORING) &&
-            (thetime - host->get_last_monitored() >= 600))
+        if (host->isMonitoring() && (monitor_length >= monitor_expire))
         {
             host->set_state(Host::INIT);
 
             hpool->update(host);
         }
 
-        if ((state != Host::MONITORING) && (state != Host::DISABLED) &&
-            (thetime - host->get_last_monitored() >= monitor_period))
+        if ( host->isEnabled() && !(host->isMonitoring()) && 
+            (monitor_length >= monitor_period))
         {
             oss.str("");
             oss << "Monitoring host " << host->get_name()
                 << " (" << it->first << ")";
+
             NebulaLog::log("InM",Log::INFO,oss);
 
             imd = get(it->second);
@@ -224,7 +228,7 @@ void InformationManager::timer_action()
 
             	imd->monitor(it->first,host->get_name(),update_remotes);
 
-            	host->set_state(Host::MONITORING);
+            	host->set_monitoring_state();
             }
 
             hpool->update(host);

@@ -122,6 +122,11 @@ private:
     friend void * im_action_loop(void *arg);
 
     /**
+     *  Time in seconds to expire a monitoring action (10 minutes)
+     */
+    static const time_t monitor_expire;
+
+    /**
      *  Returns a pointer to a Information Manager MAD. The driver is
      *  searched by its name and owned by gwadmin with uid=0.
      *    @param name of the driver

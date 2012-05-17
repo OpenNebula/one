@@ -37,11 +37,12 @@ public:
 
     enum HostState
     {
-        INIT       = 0, /**< Initial state for enabled hosts. */
-        MONITORING = 1, /**< The host is being monitored. */
-        MONITORED  = 2, /**< The host has been successfully monitored. */
-        ERROR      = 3, /**< An error ocurrer while monitoring the host. */
-        DISABLED   = 4  /**< The host is disabled won't be monitored. */
+        INIT                 = 0, /**< Initial state for enabled hosts. */
+        MONITORING_MONITORED = 1, /**< Monitoring the host (from monitored). */
+        MONITORED            = 2, /**< The host has been successfully monitored. */
+        ERROR                = 3, /**< An error ocurrer while monitoring the host. */
+        DISABLED             = 4, /**< The host is disabled won't be monitored. */
+        MONITORING_ERROR     = 5  /**< Monitoring the host (from error). */
     };
 
     /**
@@ -66,6 +67,15 @@ public:
      bool isEnabled() const
      {
         return state != DISABLED;
+     }
+
+    /**
+     *  Check if the host is being monitored
+     *    @return true if the host is enabled
+     */
+     bool isMonitoring() const
+     {
+        return ((state == MONITORING_ERROR) || (state==MONITORING_MONITORED));
      }
 
     /**
@@ -159,6 +169,21 @@ public:
     };
 
     /**
+     * Sets the corresponding monitoring state based on the actual host state
+     */
+    void set_monitoring_state()
+    {
+        if ( state == ERROR )
+        {
+            state = MONITORING_ERROR;
+        }
+        else if ( state == MONITORED )
+        {
+            state = MONITORING_MONITORED;
+        }
+    };
+
+    /**
      * Retrives last time the host was monitored
      *    @return time_t last monitored time
      */
@@ -168,13 +193,10 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Share functions
+    // Share functions. Returns the value associated with each host share 
+    // metric
     // ------------------------------------------------------------------------
 
-    /**
-     *
-     *
-     */
     int get_share_running_vms()
     {
         return host_share.running_vms;
@@ -318,8 +340,8 @@ private:
     string      vnm_mad_name;
 
 	/**
-     *  If Host State= MONITORED  last time it got fully monitored or 1 Jan 1970
-     *     Host State = MONITORING last time it got a signal to be monitored
+     *  If Host State = MONITORED last time it got fully monitored or 1 Jan 1970
+     *     Host State = MONITORING* last time it got a signal to be monitored
      */
     time_t      last_monitored;
 
