@@ -557,10 +557,14 @@ int DispatchManager::reboot(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
 
-        lcm->trigger(LifeCycleManager::REBOOT,vid);
+        vmm->trigger(VirtualMachineManager::REBOOT,vid);
+
+        vm->set_resched(false); //Rebooting cancels re-scheduling actions
+
+        vmpool->update(vm);
     }
     else
     {
@@ -574,6 +578,55 @@ int DispatchManager::reboot(int vid)
 error:
     oss.str("");
     oss << "Could not reboot VM " << vid << ", wrong state.";
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    vm->unlock();
+
+    return -2;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::reset(int vid)
+{
+    VirtualMachine *    vm;
+    ostringstream       oss;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    oss << "Resetting VM " << vid;
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        vmm->trigger(VirtualMachineManager::RESET,vid);
+
+        vm->set_resched(false); //Resetting cancels re-scheduling actions
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        goto error;
+    }
+
+    vm->unlock();
+
+    return 0;
+
+error:
+    oss.str("");
+    oss << "Could not reset VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();

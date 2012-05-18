@@ -470,6 +470,17 @@ class ExecDriver < VirtualMachineDriver
 
         do_action("#{deploy_id} #{host}", id, host, ACTION[:reboot])
     end
+
+    #
+    # RESET action, resets a running VM
+    #
+    def reset(id, drv_message)
+        data      = decode(drv_message)
+        host      = data.elements['HOST'].text
+        deploy_id = data.elements['DEPLOY_ID'].text
+
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:reset])
+    end
 end
 
 ################################################################################

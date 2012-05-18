@@ -130,6 +130,10 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "REBOOT";
         break;
 
+    case RESET:
+        aname = "RESET";
+        break;
+
     case SHUTDOWN:
         aname = "SHUTDOWN";
         break;
@@ -205,6 +209,10 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "REBOOT")
     {
         reboot_action(vid);
+    }
+    else if (action == "RESET")
+    {
+        reset_action(vid);
     }
     else if (action == "SHUTDOWN")
     {
@@ -640,6 +648,75 @@ error_history:
 error_driver:
     os.str("");
     os << "reboot_action, error getting driver " << vm->get_vmm_mad();
+
+error_common:
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::reset_action(
+    int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    string        vm_tmpl;
+    string *      drv_msg; 
+    ostringstream os;
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->reset(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "reset_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "reset_action, error getting driver " << vm->get_vmm_mad();
 
 error_common:
     vm->log("VMM", Log::ERROR, os);

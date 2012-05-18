@@ -67,7 +67,6 @@ public:
         LIVE_MIGRATE,     /**< Sent by the DM to live-migrate a VM            */
         SHUTDOWN,         /**< Sent by the DM to shutdown a running VM        */
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
-        REBOOT,           /**< Sent by the DM to reboot a running VM          */
         DELETE,           /**< Sent by the DM to delete a VM                  */
         CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
         FINALIZE
@@ -194,8 +193,6 @@ private:
     void failure_action(VirtualMachine * vm);
 
     void restart_action(int vid);
-
-    void reboot_action(int vid);
 
     void delete_action(int vid);
 

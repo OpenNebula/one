@@ -116,7 +116,10 @@ private:
      */
     void deploy (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("DEPLOY", oid, drv_msg);
+    }
 
     /**
      *  Sends a shutdown request to the MAD: "SHUTDOWN ID XML_DRV_MSG"
@@ -125,7 +128,22 @@ private:
      */
     void shutdown (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("SHUTDOWN", oid, drv_msg);
+    }
+
+    /**
+     *  Sends a reset request to the MAD: "RESET ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void reset (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("RESET", oid, drv_msg);
+    }
 
     /**
      *  Sends a reboot request to the MAD: "REBOOT ID XML_DRV_MSG"
@@ -134,7 +152,10 @@ private:
      */
     void reboot (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("REBOOT", oid, drv_msg);
+    }
 
     /**
      *  Sends a cancel request to the MAD: "CANCEL ID XML_DRV_MSG"
@@ -143,7 +164,10 @@ private:
      */
     void cancel (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("CANCEL", oid, drv_msg);
+    }
 
     /**
      *  Sends a checkpoint request to the MAD: "CHECKPOINT ID XML_DRV_MSG"
@@ -152,7 +176,10 @@ private:
      */
     void checkpoint (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("CHECKPOINT", oid, drv_msg);
+    }
 
     /**
      *  Sends a save request to the MAD: "SAVE ID XML_DRV_MSG"
@@ -161,7 +188,11 @@ private:
      */
     void save (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("SAVE", oid, drv_msg);
+    }
+
 
     /**
      *  Sends a save request to the MAD: "RESTORE ID XML_DRV_MSG"
@@ -170,7 +201,11 @@ private:
      */
     void restore (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("RESTORE", oid, drv_msg);
+    }
+
 
     /**
      *  Sends a migrate request to the MAD: "MIGRATE ID XML_DRV_MSG"
@@ -179,7 +214,10 @@ private:
      */
     void migrate (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("MIGRATE", oid, drv_msg);
+    }
 
     /**
      *  Sends a poll request to the MAD: "POLL ID XML_DRV_MSG"
@@ -188,7 +226,22 @@ private:
      */
     void poll (
         const int     oid,
-        const string& drv_msg) const;
+        const string& drv_msg) const
+    {
+        write_drv("POLL", oid, drv_msg);
+
+    }
+
+private:
+
+    void write_drv(const char * aname, const int oid, const string& msg) const
+    {
+        ostringstream os;
+
+        os << aname << " " << oid << " " << msg << endl;
+    
+        write(os);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
