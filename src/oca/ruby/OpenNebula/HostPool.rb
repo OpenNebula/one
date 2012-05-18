@@ -25,7 +25,8 @@ module OpenNebula
 
 
         HOST_POOL_METHODS = {
-            :info => "hostpool.info"
+            :info       => "hostpool.info",
+            :monitoring => "hostpool.monitoring"
         }
 
         #######################################################################
@@ -50,6 +51,12 @@ module OpenNebula
         # Retrieves all the Hosts in the pool.
         def info()
             super(HOST_POOL_METHODS[:info])
+        end
+
+        # TODO
+        def monitoring(xpath_expressions)
+            return super(HOST_POOL_METHODS[:monitoring],
+                'HOST', 'LAST_MON_TIME', xpath_expressions)
         end
     end
 end
