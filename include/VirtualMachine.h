@@ -905,22 +905,6 @@ private:
      */
     int update_monitoring(SqlDB * db);
 
-    /**
-     * Deletes all monitoring entries.
-     *
-     * @param db pointer to the db
-     * @return 0 on success
-     */
-    int clean_monitoring(SqlDB * db);
-
-    /**
-     * Deletes all monitoring entries for all VMs
-     *
-     * @param db pointer to the db
-     * @return 0 on success
-     */
-    static int clean_all_monitoring(SqlDB * db);
-
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------

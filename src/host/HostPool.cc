@@ -46,7 +46,7 @@ HostPool::HostPool(SqlDB*                    db,
 
     if ( _monitor_expiration == 0 )
     {
-        clean_monitoring();
+        clean_all_monitoring();
     }
 
     // ------------------ Initialize Hooks for the pool ----------------------
@@ -325,4 +325,43 @@ int HostPool::dump_monitoring(
     cmd << " ORDER BY hid, " << Host::monit_table << ".last_mon_time;";
 
     return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::clean_expired_monitoring()
+{
+    if ( _monitor_expiration == 0 )
+    {
+        return 0;
+    }
+
+    int             rc;
+    time_t          max_mon_time;
+    ostringstream   oss;
+
+    max_mon_time = time(0) - _monitor_expiration;
+
+    oss << "DELETE FROM " << Host::monit_table
+        << " WHERE last_mon_time < " << max_mon_time;
+
+    rc = db->exec(oss);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::clean_all_monitoring()
+{
+    ostringstream   oss;
+    int             rc;
+
+    oss << "DELETE FROM " << Host::monit_table;
+
+    rc = db->exec(oss);
+
+    return rc;
 }

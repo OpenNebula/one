@@ -155,6 +155,9 @@ void InformationManager::timer_action()
         mark = 0;
     }
 
+    // Clear the expired monitoring records
+    hpool->clean_expired_monitoring();
+
     rc = hpool->discover(&discovered_hosts, host_limit);
 
     if ((rc != 0) || (discovered_hosts.empty() == true))

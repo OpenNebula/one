@@ -168,8 +168,6 @@ public:
             return -1;
         }
 
-        clean_monitoring(host);
-
         return PoolSQL::drop(objsql, error_msg);
     };
 
@@ -247,24 +245,11 @@ public:
     };
 
     /**
-     * Deletes all monitoring entries for this host
+     * Deletes the expired monitoring entries for all hosts
      *
-     * @param host pointer to the virtual machine object
      * @return 0 on success
      */
-    int clean_monitoring(Host * host)
-    {
-        return host->clean_monitoring(db);
-    };
-
-    /**
-     *  Get the size, in seconds, of the historical monitoring information
-     *  @return the seconds
-     */
-    static time_t monitor_expiration()
-    {
-        return _monitor_expiration;
-    };
+    int clean_expired_monitoring();
 
 private:
 
@@ -292,10 +277,7 @@ private:
      *
      * @return 0 on success
      */
-    int clean_monitoring()
-    {
-        return Host::clean_all_monitoring(db);
-    };
+    int clean_all_monitoring();
 
     /**
      * Size, in seconds, of the historical monitoring information

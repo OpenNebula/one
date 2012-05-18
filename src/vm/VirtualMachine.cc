@@ -729,7 +729,6 @@ int VirtualMachine::update_monitoring(SqlDB * db)
     string xml_body;
     string error_str;
     char * sql_xml;
-    time_t max_last_poll;
 
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
@@ -743,15 +742,6 @@ int VirtualMachine::update_monitoring(SqlDB * db)
         goto error_xml;
     }
 
-    max_last_poll = last_poll - VirtualMachinePool::monitor_expiration();
-
-    oss << "DELETE FROM " << monit_table
-        << " WHERE vmid = " << oid
-        << " AND last_poll < " << max_last_poll;
-
-    db->exec(oss);
-
-    oss.str("");
     oss << "INSERT INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
         <<          oid             << ","
         <<          last_poll       << ","
@@ -780,36 +770,6 @@ error_common:
     NebulaLog::log("ONE",Log::ERROR, oss);
 
     return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::clean_monitoring(SqlDB * db)
-{
-    ostringstream   oss;
-    int             rc;
-
-    oss << "DELETE FROM " << monit_table << " WHERE vmid=" << oid;
-
-    rc = db->exec(oss);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::clean_all_monitoring(SqlDB * db)
-{
-    ostringstream   oss;
-    int             rc;
-
-    oss << "DELETE FROM " << monit_table;
-
-    rc = db->exec(oss);
-
-    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

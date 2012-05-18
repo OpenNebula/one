@@ -208,8 +208,6 @@ int Host::update_monitoring(SqlDB * db)
     string error_str;
     char * sql_xml;
 
-    time_t max_mon_time;
-
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
     if ( sql_xml == 0 )
@@ -222,15 +220,6 @@ int Host::update_monitoring(SqlDB * db)
         goto error_xml;
     }
 
-    max_mon_time = last_monitored - HostPool::monitor_expiration();
-
-    oss << "DELETE FROM " << monit_table
-        << " WHERE hid=" << oid
-        << " AND last_mon_time < " << max_mon_time;
-
-    db->exec(oss);
-
-    oss.str("");
     oss << "INSERT INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
         <<          oid             << ","
         <<          last_monitored       << ","
@@ -259,36 +248,6 @@ error_common:
     NebulaLog::log("ONE",Log::ERROR, oss);
 
     return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Host::clean_monitoring(SqlDB * db)
-{
-    ostringstream   oss;
-    int             rc;
-
-    oss << "DELETE FROM " << monit_table << " WHERE hid=" << oid;
-
-    rc = db->exec(oss);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Host::clean_all_monitoring(SqlDB * db)
-{
-    ostringstream   oss;
-    int             rc;
-
-    oss << "DELETE FROM " << monit_table;
-
-    rc = db->exec(oss);
-
-    return rc;
 }
 
 /* ************************************************************************ */

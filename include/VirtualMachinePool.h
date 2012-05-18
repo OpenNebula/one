@@ -139,29 +139,21 @@ public:
         }
 
         return vm->update_monitoring(db);
-    }
+    };
 
     /**
-     * Deletes all monitoring entries for this VM
+     * Deletes the expired monitoring entries for all VMs
      *
-     * @param vm pointer to the virtual machine object
      * @return 0 on success
      */
-    int clean_monitoring(
-            VirtualMachine * vm)
-    {
-        return vm->clean_monitoring(db);
-    };
+    int clean_expired_monitoring();
 
     /**
      * Deletes all monitoring entries for all VMs
      *
      * @return 0 on success
      */
-    int clean_monitoring()
-    {
-        return VirtualMachine::clean_all_monitoring(db);
-    };
+    int clean_all_monitoring();
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
@@ -228,15 +220,6 @@ public:
 
         return dump_monitoring(oss, filter.str());
     }
-
-    /**
-     *  Get the size, in seconds, of the historical monitoring information
-     *  @return the seconds
-     */
-    static time_t monitor_expiration()
-    {
-        return _monitor_expiration;
-    };
 
 private:
     /**
