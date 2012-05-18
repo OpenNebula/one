@@ -48,17 +48,19 @@ var oZones = {
             {
                 case "HOST","host":
                     return ["INIT",
-                            "MONITORING",
+                            "MONITORING_MONITORED",
                             "MONITORED",
                             "ERROR",
-                            "DISABLED"][value];
+                            "DISABLED",
+                            "MONITORING_ERROR"][value];
                     break;
                 case "HOST_SIMPLE","host_simple":
-                    return ["ON",
-                            "ON",
+                    return ["INIT",
+                            "UPDATE",
                             "ON",
                             "ERROR",
-                            "OFF"][value];
+                            "OFF",
+                            "RETRY"][value];
                     break;
                 case "VM","vm":
                     return ["INIT",
