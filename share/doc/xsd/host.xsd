@@ -5,6 +5,15 @@
       <xs:sequence>
         <xs:element name="ID" type="xs:integer"/>
         <xs:element name="NAME" type="xs:string"/>
+        <!-- STATE values
+        
+          INIT                 = 0  Initial state for enabled hosts
+          MONITORING_MONITORED = 1  Monitoring the host (from monitored)
+          MONITORED            = 2  The host has been successfully monitored
+          ERROR                = 3  An error ocurrer while monitoring the host
+          DISABLED             = 4  The host is disabled won't be monitored
+          MONITORING_ERROR     = 5  Monitoring the host (from error)
+        -->
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="IM_MAD" type="xs:string"/>
         <xs:element name="VM_MAD" type="xs:string"/>
