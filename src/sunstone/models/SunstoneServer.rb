@@ -284,6 +284,34 @@ class SunstoneServer < CloudServer
         return [200, rc.to_json]
     end
 
+    def get_resource_monitoring(id, resource, meters)
+        pool_element = case resource
+            when "vm", "VM"
+                VirtualMachine.new_with_id(id, @client)
+            when "host", "HOST"
+                Host.new_with_id(id, @client)
+            else
+                error = Error.new("Monitoring not supported for #{resource}")
+                return [200, error.to_json]
+            end
+
+        meters_a = meters.split(',')
+
+        rc = pool_element.monitoring(meters_a)
+
+        if OpenNebula.is_error?(rc)
+            error = Error.new(rc,message)
+            return [500, error.to_json]
+        end
+
+        meters_h = Hash.new
+        meters_h[:resource]   = resource
+        meters_h[:id]         = id
+        meters_h[:monitoring] = rc
+
+        return [200, meters_h.to_json]
+    end
+
     private
 
     ############################################################################

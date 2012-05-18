@@ -298,14 +298,11 @@ get '/:resource/monitor' do
 end
 
 get '/:resource/:id/monitor' do
-    @SunstoneServer.get_monitoring(
+    @SunstoneServer.get_resource_monitoring(
         params[:id],
         params[:resource],
-        params[:monitor_resources],
-        :uid => session[:user_id].to_i,
-        :gid => session[:user_gid].to_i)
+        params[:monitor_resources])
 end
-
 
 ##############################################################################
 # GET Pool information
