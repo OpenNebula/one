@@ -41,7 +41,7 @@ po_file.each do |line|
     end
     if line.include?("msgid")
         msgid = line.sub("msgid ", "").chomp
-        if msgid.length == 0
+        if msgid.length == 0 || msgid.slice(0,1) == '#'
             msgid = nil
         end
     end

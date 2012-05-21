@@ -19,5 +19,5 @@
 #msgmerge [option] def.po ref.pot
 
 for lang in $(ls languages/*); do
-    msgmerge --backup=off --update $lang messages.pot
+    msgmerge --backup=off --no-wrap --update $lang messages.pot
 done
