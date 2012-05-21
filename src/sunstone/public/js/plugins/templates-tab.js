@@ -335,7 +335,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>\
                             </div>\
                             <div class="firewall_select">\
-                                  <label for="black_white_tcp">'+tr("Tcp firewall mode")+':</label>\
+                                  <label for="black_white_tcp">'+tr("TCP firewall mode")+':</label>\
                                   <select name="black_white_tcp" id="black_white_tcp">\
                                        <option value="">'+tr("Optional, please select")+'</option>\
                                        <option value="whitelist">'+tr("Port whitelist")+'</option>\
@@ -344,17 +344,17 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                             </div>\
                             <div class="clear"></div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="white_ports_tcp">'+tr("Tcp white ports")+':</label>\
+                                  <label for="white_ports_tcp">'+tr("TCP white ports")+':</label>\
                                   <input type="text" id="WHITE_PORTS_TCP" name="white_ports_tcp" />\
                                   <div class="tip">'+tr("Permits access to the VM only through the specified ports in the TCP protocol")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="black_ports_tcp">'+tr("Tcp black ports")+'</label>\
+                                  <label for="black_ports_tcp">'+tr("TCP black ports")+'</label>\
                                   <input type="text" id="BLACK_PORTS_TCP" name="black_ports_tcp" />\
                                   <div class="tip">'+tr("Disallow access to the VM through the specified ports in the TCP protocol")+'</div>\
                             </div>\
                             <div class="firewall_select">\
-                                  <label for="black_white_udp">'+tr("Udp firewall mode")+':</label>\
+                                  <label for="black_white_udp">'+tr("UDP firewall mode")+':</label>\
                                   <select name="black_white_udp" id="black_white_udp">\
                                        <option value="">'+tr("Optional, please select")+'</option>\
                                        <option value="whitelist">'+tr("Port whitelist")+'</option>\
@@ -363,17 +363,17 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                             </div>\
                             <div class="clear"></div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="white_ports_udp">'+tr("Udp white ports")+':</label>\
+                                  <label for="white_ports_udp">'+tr("UDP white ports")+':</label>\
                                   <input type="text" id="WHITE_PORTS_UDP" name="white_ports_udp" />\
                                   <div class="tip">'+tr("Permits access to the VM only through the specified ports in the UDP protocol")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
-                                  <label for="black_ports_udp">'+tr("Udp black ports")+':</label>\
+                                  <label for="black_ports_udp">'+tr("UDP black ports")+':</label>\
                                   <input type="text" id="BLACK_PORTS_UDP" name="black_ports_udp" />\
                                   <div class="tip">'+tr("Disallow access to the VM through the specified ports in the UDP protocol")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt niccfg network">\
-                                  <label for="icmp">'+tr("Icmp")+':</label>\
+                                  <label for="icmp">'+tr("ICMP")+':</label>\
                                   <select name="icmp" id="ICMP">\
                                       <option value="" selected="selected">'+tr("Accept (default)")+'</option>\
                                       <option value="drop">'+tr("Drop")+'</option>\
