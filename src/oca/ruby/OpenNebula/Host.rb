@@ -115,13 +115,13 @@ module OpenNebula
 
         # Retrieves this Host's monitoring data from OpenNebula
         #
-        # @param xpath_expressions [Array<String>] Xpath expressions for the
-        #   elements to retrieve. For example:
-        #   ['HOST_SHARE/FREE_CPU', 'HOST_SHARE/RUNNING_VMS', 'TEMPLATE/CUSTOM_PROBE']
+        # @param [Array<String>] xpath_expressions Elements to retrieve.
         #
-        # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
-        #   the requested xpath expressions, and an Array of [timestamp, value].
-        #   For example:
+        # @return [Hash<String, Array<Array<int>>>, OpenNebula::Error] Hash with
+        #   the requested xpath expressions, and an Array of 'timestamp, value'.
+        #
+        # @example
+        #   host.monitoring( ['HOST_SHARE/FREE_CPU', 'HOST_SHARE/RUNNING_VMS'] )
         #
         #   { "HOST_SHARE/RUNNING_VMS" =>
         #       [["1337266000", "1"], 
