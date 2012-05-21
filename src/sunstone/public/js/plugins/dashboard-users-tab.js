@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-/** HISTORY_LENGTH currently ignored on server, but it doesn't harm to have it**/
+/** HISTORY_LENGTH currently ignored on server, but it does not harm to have it**/
 var HISTORY_LENGTH=40;
 var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
 
