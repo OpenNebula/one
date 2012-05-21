@@ -502,7 +502,7 @@ function updateVNetworkElement(request, vn_json){
     element = vNetworkElementArray(vn_json);
     updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
 
-    //we update this too, even if it's not shown.
+    //we update this too, even if it is not shown.
     $('#leases_form').replaceWith(printLeases(vn_json.VNET));
 }
 
@@ -515,7 +515,7 @@ function deleteVNetworkElement(req){
 function addVNetworkElement(request,vn_json){
     var element = vNetworkElementArray(vn_json);
     addElement(element,dataTable_vNetworks);
-    //we update this too, even if it's not shown.
+    //we update this too, even if it is not shown.
     $('#leases_form').replaceWith(printLeases(vn_json.VNET));
 }
 
@@ -786,7 +786,7 @@ function setupCreateVNetDialog() {
         var lease_ip = $('#leaseip',create_form).val();
         var lease_mac = $('#leasemac',create_form).val();
 
-        //We don't add anything to the list if there is nothing to add
+        //We do not add anything to the list if there is nothing to add
         if (lease_ip == null) {
             notifyError(tr("Please provide a lease IP"));
             return false;

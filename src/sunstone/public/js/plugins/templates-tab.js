@@ -1196,7 +1196,7 @@ function setupCreateTemplateDialog(){
             var field = $(this);
             if (!(field.parents(".vm_param").attr('disabled')) &&
                 field.val().length){
-                //Pick up parent's ID if we do not have one
+                //Pick up parents ID if we do not have one
                 id = field.attr('id').length ? field.attr('id') : field.parent().attr('id');
                 value[id] = field.val();
             };
@@ -1999,7 +1999,7 @@ function popUpCreateTemplateDialog(){
                                    4, //id col - trick -> reference by name!
                                    4, //name col
                                    [10,10,10],
-                                   ["DISABLED","LOCKED","ERROR"]
+                                   [tr("DISABLED"),tr("LOCKED"),tr("ERROR")]
                                   );
     $('div#disks select#IMAGE',$create_template_dialog).html(im_sel);
     //Repopulate network select

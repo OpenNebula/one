@@ -96,7 +96,7 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
            <div>\
              <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
              <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-             <div class="tip">'+tr("You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them")+'.</div>\
+             <div class="tip">'+tr("You can use the wildcard &#37;. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them")+'.</div>\
            </div>\
         </div>\
         </fieldset>\

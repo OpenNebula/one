@@ -583,7 +583,7 @@ function makeSelectOptions(dataTable,
     return select;
 }
 
-//Escape " in a string and return it
+//Escape doublequote in a string and return it
 function escapeDoubleQuotes(string){
     string = string.replace(/\\"/g,'"');
     return string.replace(/"/g,'\\"');
