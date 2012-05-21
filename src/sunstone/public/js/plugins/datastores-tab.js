@@ -361,8 +361,9 @@ function updateDatastoreSelect(){
     datastores_select = makeSelectOptions(dataTable_datastores,
                                           1,
                                           4,
-                                          [],
-                                          []
+                                          [1],
+                                          [0], //do not include sys datastores
+                                          true
                                          );
 };
 
