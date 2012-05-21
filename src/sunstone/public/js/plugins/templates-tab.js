@@ -208,7 +208,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   </select>\
                                   <div class="tip">'+tr("Type of disk device to emulate: ide, scsi")+'</div>\
                             </div>\
-                            <div class="vm_param kvm xen vmware">\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="TARGET">'+tr("Target")+':</label>\
                                   <input type="text" id="TARGET" name="target" />\
                                   <div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>\
