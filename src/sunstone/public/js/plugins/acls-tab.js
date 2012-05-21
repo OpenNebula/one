@@ -292,7 +292,7 @@ function aclElementArray(acl_json){
         acl_array[0],
         acl_array[1],
         acl_array[2],
-        acl_array[3],
+        tr(acl_array[3].charAt(0).toUpperCase()+acl_array[3].substring(1)), //capitalize 1st letter for translation
         acl.STRING
     ]
 }

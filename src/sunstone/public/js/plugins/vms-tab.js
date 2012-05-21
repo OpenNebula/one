@@ -301,6 +301,15 @@ var vm_actions = {
         notify: true
     },
 
+    "VM.reset" : {
+        type: "multiple",
+        call: OpenNebula.VM.reset,
+        callback: vmShow,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
     "VM.resubmit" : {
         type: "multiple",
         call: OpenNebula.VM.resubmit,
@@ -569,6 +578,11 @@ var vm_buttons = {
                 text: tr("Reboot"),
                 tip: tr("This will send a reboot action to running VMs")
             },
+            "VM.reset" : {
+                type: "confirm",
+                text: tr("Reset"),
+                tip: tr("This will perform a hard reboot on selected VMs")
+            },
             "VM.saveasmultiple" : {
                 type: "action",
                 text: tr("Save as")
@@ -654,7 +668,7 @@ function vMachineElementArray(vm_json){
     var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
     var hostname = "--";
 
-    if (state == "ACTIVE" || state == "SUSPENDED"){
+    if (state == tr("ACTIVE") || state == tr("SUSPENDED")){
         if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
             hostname = vm.HISTORY_RECORDS.HISTORY[vm.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME;
         } else {
@@ -662,7 +676,7 @@ function vMachineElementArray(vm_json){
         };
     };
 
-    if (state == "ACTIVE") {
+    if (state == tr("ACTIVE")) {
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     };
 
@@ -785,7 +799,7 @@ function updateVMInfo(request,vm){
     var vm_info = vm.VM;
     var vm_state = OpenNebula.Helper.resource_state("vm",vm_info.STATE);
     var hostname = "--"
-    if (vm_state == "ACTIVE" || vm_state == "SUSPENDED") {
+    if (vm_state == tr("ACTIVE") || vm_state == tr("SUSPENDED")) {
         if (vm_info.HISTORY_RECORDS.HISTORY.constructor == Array){
             hostname = vm_info.HISTORY_RECORDS.HISTORY[vm_info.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME
         } else {
@@ -1335,7 +1349,7 @@ function vncIcon(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
     var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     var gr_icon;
-    if (graphics && graphics.TYPE == "vnc" && state == "RUNNING"){
+    if (graphics && graphics.TYPE == "vnc" && state == tr("RUNNING")){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<img src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
     }

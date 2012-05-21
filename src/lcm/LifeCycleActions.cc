@@ -439,41 +439,6 @@ void  LifeCycleManager::cancel_action(int vid)
 
     return;
 }
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::reboot_action(int vid)
-{
-    VirtualMachine *    vm;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING)
-    {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
-        vmm->trigger(VirtualMachineManager::REBOOT,vid);
-
-        vm->set_resched(false); //Rebooting cancel re-scheduling actions
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "reboot_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -615,6 +580,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
     vmpool->update(vm);
 
     vm->set_etime(the_time);
+    vm->set_vm_info();
     vm->set_reason(History::USER);
 
     vm->get_requirements(cpu,mem,disk);
@@ -650,6 +616,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             vm->set_previous_etime(the_time);
+            vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
@@ -680,6 +647,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             vm->set_previous_etime(the_time);
+            vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);

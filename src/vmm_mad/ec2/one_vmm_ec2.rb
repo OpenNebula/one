@@ -193,7 +193,7 @@ class EC2Driver < VirtualMachineDriver
             return
         end
 
-        deploy_exe = exec_and_log_ec2(:run, ec2_info, id)
+        deploy_exe = exec_and_log_ec2(:run, ec2_info, "", id)
         if deploy_exe.code != 0
             msg = deploy_exe.stderr
             send_message(ACTION[:deploy], RESULT[:failure], id, msg)
@@ -360,7 +360,7 @@ private
     # +action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
     # +xml+: REXML Document, containing EC2 information
     # +extra_params+: String, extra information to be added to the command
-    def exec_and_log_ec2(action, xml, extra_params="", id)
+    def exec_and_log_ec2(action, xml, extra_params, id)
         cmd = EC2[action][:cmd].clone
         cmd << ' ' << extra_params << ' ' if extra_params
 

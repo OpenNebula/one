@@ -60,6 +60,7 @@ module OpenNebulaJSON
                  when "stop"         then self.stop
                  when "suspend"      then self.suspend
                  when "restart"      then self.restart
+                 when "reset"        then self.reset
                  when "saveas"       then self.save_as(action_hash['params'])
                  when "shutdown"     then self.shutdown
                  when "reboot"       then self.reboot

@@ -122,7 +122,10 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const
+    {
+        return to_xml_extended(xml, 1);
+    }
 
     /**
      * Function to print the VirtualMachine object into a string in
@@ -130,7 +133,10 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml) const;
+    string& to_xml_extended(string& xml) const
+    {
+        return to_xml_extended(xml, 2);
+    }
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -156,7 +162,7 @@ public:
 
     /**
      *  Updates VM dynamic information (usage counters).
-     *   @param _memory used by the VM (total)
+     *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
      *   @param _net_tx received bytes (total)
@@ -199,7 +205,7 @@ public:
 
     /**
      *  Sets the VM exit time
-     *    @param _et VM exit time (when it arraived DONE/FAILED states)
+     *    @param _et VM exit time (when it arrived DONE/FAILED states)
      */
     void set_exit_time(time_t et)
     {
@@ -426,6 +432,22 @@ public:
     void set_stime(time_t _stime)
     {
         history->stime=_stime;
+    };
+
+    /**
+     *  Sets VM info (with monitoring info) in the history record 
+     */
+    void set_vm_info()
+    {
+        to_xml_extended(history->vm_info, 0);
+    };
+
+    /**
+     *  Sets VM info (with monitoring info) in the previous history record 
+     */
+    void set_previous_vm_info()
+    {
+        to_xml_extended(previous_history->vm_info, 0);
     };
 
     /**
@@ -757,7 +779,7 @@ private:
     string      deploy_id;
 
     /**
-     *  Memory in Megabytes used by the VM
+     *  Memory in Kilobytes used by the VM
      */
     int         memory;
 
@@ -767,12 +789,12 @@ private:
     int         cpu;
 
     /**
-     *  Network usage, transmitted Kilobytes
+     *  Network usage, transmitted bytes
      */
     int         net_tx;
 
     /**
-     *  Network usage, received Kilobytes
+     *  Network usage, received bytes
      */
     int         net_rx;
 
@@ -916,10 +938,13 @@ private:
      *  Function that renders the VM in XML format optinally including
      *  extended information (all history records)
      *  @param xml the resulting XML string
-     *  @param extended include additional info if true
+     *  @param n_history Number of history records to include:
+     *      0: none
+     *      1: the last one
+     *      2: all
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, bool extended) const;
+    string& to_xml_extended(string& xml, int n_history) const;
 
 protected:
 
@@ -939,7 +964,7 @@ protected:
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
+    
     static const char * table;
 
     static const char * db_names;

@@ -14,25 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-export LANG=C
+module Migrator
+    def db_version
+        "3.4.1"
+    end
 
-export XM_PATH="/usr/sbin/xm"
-export XM_CANCEL="sudo $XM_PATH destroy"
-export XM_CREATE="sudo $XM_PATH create"
-export XM_CREDITS="sudo $XM_PATH sched-cred"
-export XM_MIGRATE="sudo $XM_PATH migrate -l"
-export XM_SAVE="sudo $XM_PATH save"
-export XM_REBOOT="sudo $XM_PATH reboot"
-export XM_RESET="sudo $XM_PATH reset"
-export XM_RESTORE="sudo $XM_PATH restore"
-export XM_LIST="sudo $XM_PATH list"
-export XM_SHUTDOWN="sudo $XM_PATH shutdown"
-export XM_POLL="sudo /usr/sbin/xentop -bi2"
+    def one_version
+        "OpenNebula 3.4.1"
+    end
 
-# Seconds to wait after shutdown until timeout
-export SHUTDOWN_TIMEOUT=300
-
-# Uncomment this line to force VM cancellation after shutdown timeout
-#export FORCE_DESTROY=yes
-
-
+    def up
+        return true
+    end
+end

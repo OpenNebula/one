@@ -32,6 +32,7 @@ $: << RUBY_LIB_LOCATION
 require 'scripts_common'
 require 'OpenNebulaDriver'
 require 'getoptlong'
+require 'shellwords'
 
 # This is a generic AuthZ/AuthN driver able to manage multiple authentication 
 # protocols (simultaneosly). It also supports the definition of custom 
@@ -110,7 +111,9 @@ class AuthDriver < OpenNebulaDriver
         authN_path = File.join(@local_scripts_path, driver)
 
         command = File.join(authN_path, ACTION[:authN].downcase)
-        command << " '" << user.gsub("'", '\'"\'"\'') << "' '" << password.gsub("'", '\'"\'"\'') << "' " << secret
+        command << ' ' << ([user, password, secret].map do |p|
+            Shellwords.escape(p)
+        end.join(' '))
 
         rc = LocalCommand.run(command, log_method(request_id))
 

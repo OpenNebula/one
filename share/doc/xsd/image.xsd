@@ -25,6 +25,7 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="TYPE" type="xs:integer"/>
+        <xs:element name="DISK_TYPE" type="xs:integer"/>
         <xs:element name="PERSISTENT" type="xs:integer"/>
         <xs:element name="REGTIME" type="xs:integer"/>
         <xs:element name="SOURCE" type="xs:string"/>

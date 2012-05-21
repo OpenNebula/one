@@ -34,9 +34,12 @@ fi
 
 setup()
 {
-    eval `grep ^IMAGE_DIR= $OCCI_ETC `
-    export TMPDIR=$IMAGE_DIR/tmp
+  TMPDIR=$(grep ^:tmpdir: $OCCI_ETC|awk '{print $2}')
+
+  if [ -n "$TMPDIR" ]; then
+    export TMPDIR
     mkdir -p $TMPDIR
+  fi
 
   if [ -f $OCCI_LOCK_FILE ]; then
     if [ -f  $OCCI_PID ]; then

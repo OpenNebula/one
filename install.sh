@@ -261,6 +261,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/locale/ru \
                $SUNSTONE_LOCATION/public/locale/it_IT \
                $SUNSTONE_LOCATION/public/locale/pt_PT \
+               $SUNSTONE_LOCATION/public/locale/fr_FR \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
@@ -475,6 +476,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
     SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
     SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/pt_PT
+    SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/fr_FR
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -654,6 +656,7 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/migrate_local \
                     src/vmm_mad/remotes/kvm/restore \
                     src/vmm_mad/remotes/kvm/reboot \
+                    src/vmm_mad/remotes/kvm/reset \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/poll_ganglia \
@@ -669,6 +672,7 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/reboot \
+                    src/vmm_mad/remotes/xen/reset \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/poll_ganglia \
@@ -683,6 +687,7 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/migrate \
                          src/vmm_mad/remotes/vmware/restore \
                          src/vmm_mad/remotes/vmware/reboot \
+                         src/vmm_mad/remotes/vmware/reset \
                          src/vmm_mad/remotes/vmware/save \
                          src/vmm_mad/remotes/vmware/poll \
                          src/vmm_mad/remotes/vmware/checkpoint \
@@ -883,6 +888,8 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/3.2.1_to_3.3.0.rb \
                       src/onedb/3.3.0_to_3.3.80.rb \
                       src/onedb/3.3.80_to_3.4.0.rb \
+                      src/onedb/3.4.0_to_3.4.1.rb \
+                      src/onedb/3.4.1_to_3.5.80.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
@@ -1298,6 +1305,10 @@ src/sunstone/public/locale/it_IT/it_datatable.txt"
 SUNSTONE_PUBLIC_LOCALE_PT_PT="
 src/sunstone/public/locale/pt_PT/pt_PT.js \
 src/sunstone/public/locale/pt_PT/pt_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_FR_FR="
+src/sunstone/public/locale/fr_FR/fr_FR.js \
+src/sunstone/public/locale/fr_FR/fr_datatable.txt"
 
 
 
