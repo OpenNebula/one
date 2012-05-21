@@ -49,18 +49,20 @@ var OpenNebula = {
                 case "HOST":
                 case "host":
                     return tr(["INIT",
-                               "MONITORING",
+                               "MONITORING_MONITORED",
                                "MONITORED",
                                "ERROR",
-                               "DISABLED"][value]);
+                               "DISABLED",
+                               "MONITORING_ERROR"][value]);
                     break;
                 case "HOST_SIMPLE":
                 case "host_simple":
-                    return tr(["ON",
-                               "ON",
+                    return tr(["INIT",
+                               "UPDATE",
                                "ON",
                                "ERROR",
-                               "OFF"][value]);
+                               "OFF",
+                               "RETRY"][value]);
                     break;
                 case "VM":
                 case "vm":

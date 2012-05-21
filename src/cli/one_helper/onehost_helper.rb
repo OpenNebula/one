@@ -26,8 +26,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     end
 
     def self.state_to_str(id)
-        id = id.to_i
+        id        = id.to_i
         state_str = Host::HOST_STATES[id]
+        
         return Host::SHORT_HOST_STATES[state_str]
     end
 
@@ -86,7 +87,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(acpu,options)
             end
 
-            column :STAT, "Host status", :size=>4 do |d|
+            column :STAT, "Host status", :size=>7 do |d|
                 OneHostHelper.state_to_str(d["STATE"])
             end
 

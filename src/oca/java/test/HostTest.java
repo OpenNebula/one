@@ -107,7 +107,7 @@ public class HostTest
 //        assertTrue( host.getId().equals("0") );
         assertTrue( host.id() >= 0 );
 
-        assertTrue( host.shortStateStr().equals("on") );
+//        assertTrue( host.shortStateStr().equals("on") );
     }
 
     @Test

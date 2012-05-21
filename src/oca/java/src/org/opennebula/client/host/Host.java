@@ -35,7 +35,8 @@ public class Host extends PoolElement{
     private static final String UPDATE          = METHOD_PREFIX + "update";
 
     private static final String[] HOST_STATES =
-        {"INIT", "MONITORING", "MONITORED", "ERROR", "DISABLED"};
+        {"INIT", "MONITORING_MONITORED", "MONITORED", "ERROR", "DISABLED", 
+         "MONITORING_ERROR"};
 
 
     /**
@@ -265,14 +266,23 @@ public class Host extends PoolElement{
     public String shortStateStr()
     {
         String st = stateStr();
+
         if(st == null)
             return null;
         else if(st.equals("ERROR"))
             return "err";
         else if (st.equals("DISABLED"))
             return "off";
-        else
+        else if (st.equals("INIT"))
+            return "init";
+        else if (st.equals("MONITORING_MONITORED"))
+            return "update";
+        else if (st.equals("MONITORED"))
             return "on";
+        else if (st.equals("MONITORING_ERROR"))
+            return "retry";
+
+        return "";
     }
 
     /**

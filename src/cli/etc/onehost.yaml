@@ -43,7 +43,7 @@
 
 :STAT: 
   :desc: Host status
-  :size: 4
+  :size: 7
 
 :default:
 - :ID
