@@ -1999,7 +1999,7 @@ function popUpCreateTemplateDialog(){
                                    4, //id col - trick -> reference by name!
                                    4, //name col
                                    [10,10,10],
-                                   ["DISABLED","LOCKED","ERROR"]
+                                   [tr("DISABLED"),tr("LOCKED"),tr("ERROR")]
                                   );
     $('div#disks select#IMAGE',$create_template_dialog).html(im_sel);
     //Repopulate network select
