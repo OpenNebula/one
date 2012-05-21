@@ -1,0 +1,1719 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-18 11:43+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+msgid "Mouse"
+msgstr "Мышь"
+
+msgid "Instantiate"
+msgstr "Создать экземпляр ВМ"
+
+msgid "Make persistent"
+msgstr "Сделать постоянным"
+
+msgid "Changing language"
+msgstr "Смена языка интерфейса"
+
+msgid "IP to listen on"
+msgstr "IP-адрес для прослушивания"
+
+msgid "Please specify to who this ACL applies"
+msgstr "Необходимо указать, к кому применять данный список контроля"
+
+msgid "Manage unclustered hosts"
+msgstr ""
+
+msgid "Quickstart"
+msgstr "Типовые операции"
+
+msgid "Resource ID / Owned by"
+msgstr "№ ресурса / Принадлежит"
+
+msgid "Create new VM Template"
+msgstr ""
+
+msgid "VM MAD"
+msgstr "Модуль средства виртуализации"
+
+msgid "id"
+msgstr "№"
+
+msgid "Permissions"
+msgstr "Права"
+
+msgid "VCPU"
+msgstr "Кол-во вирт. ЦП"
+
+msgid "All"
+msgstr "Все"
+
+msgid "Boot/OS options"
+msgstr "Загрузка и тип ОС"
+
+msgid "VNC connection"
+msgstr "VNC соединение"
+
+msgid "User template"
+msgstr ""
+
+msgid "Udp black ports"
+msgstr "Запрещенные UDP-порты"
+
+msgid "Floppy"
+msgstr "Floppy"
+
+msgid "Disk type"
+msgstr "Тип диска"
+
+msgid "Create new Datastore"
+msgstr ""
+
+msgid "Clone"
+msgstr "Клонировать"
+
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
+msgstr "Логическое выражение, исключающее элементы из списка узлов, подходящих для запуска данной ВМ"
+
+msgid "Image updated correctly"
+msgstr ""
+
+msgid "Context variable name and value must be filled in"
+msgstr "Поля «Имя переменной» и «Значение» должны быть заполнены"
+
+msgid "Transfer Manager"
+msgstr "Средство передачи"
+
+msgid "System Resources"
+msgstr ""
+
+msgid "Source to be used in the DISK attribute. Useful for not file-based images."
+msgstr "В качестве источника указывается местоположение образа, который планируется использовать непосредственно."
+
+msgid "Read only"
+msgstr "только на чтение"
+
+msgid "Path to the OS kernel to boot the image"
+msgstr "Путь к ядру ОС для загрузки образа"
+
+msgid "You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them"
+msgstr ""
+
+msgid "+ New Group"
+msgstr "Создать группу"
+
+msgid "Please, choose and modify the datastore you want to update"
+msgstr ""
+
+msgid "Leases information"
+msgstr "Сведения по имеющимся адресам виртуальной сети"
+
+msgid "New password"
+msgstr "Новый пароль"
+
+msgid "Current number of virtual networks in this cluster"
+msgstr ""
+
+msgid "Name for the custom variable"
+msgstr "Имя пользовательской переменной"
+
+msgid "Network transmission"
+msgstr "Сеть: отправлено"
+
+msgid "Bus"
+msgstr "Тип шины"
+
+msgid "Fixed network"
+msgstr "Фиксированные адреса"
+
+msgid "Drop"
+msgstr "Сбросить"
+
+msgid "Keyboard configuration locale to use in the VNC display"
+msgstr "Раскладка клавиатуры, используемая при работе с VNC-дисплеем"
+
+msgid "There are mandatory fields missing in the capacity section"
+msgstr "В разделе «Производительность» не заполнены некоторые обязательные поля"
+
+msgid "Owner"
+msgstr "Владелец"
+
+msgid "Loading new language... please wait"
+msgstr "Выполняется загрузка языковых файлов..."
+
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
+msgstr "Тип создаваемой ФС. Может быть указан любой тип, который используется в unix-команде mkfs."
+
+msgid "Select template"
+msgstr "Шаблон"
+
+msgid "failed"
+msgstr "дефектных"
+
+msgid "SCSI"
+msgstr "SCSI"
+
+msgid "Open vSwitch"
+msgstr ""
+
+msgid "VM information"
+msgstr "Информация о ВМ"
+
+msgid "Value of the custom variable"
+msgstr "Значение пользовательской перменной"
+
+msgid "Template information"
+msgstr "Сведения о шаблоне"
+
+msgid "Name of the network to attach this device"
+msgstr "Сеть, подключаемая к данному устройству"
+
+msgid "Initrd"
+msgstr "initrd"
+
+msgid "Saveas for VM with ID"
+msgstr "Сохранить как для ВМ с №"
+
+msgid "SDL"
+msgstr "SDL"
+
+msgid "Update image properties"
+msgstr "Редактировать свойства образа"
+
+msgid "Select disk"
+msgstr "Выберите диск"
+
+msgid "Registration time"
+msgstr "Время регистрации"
+
+msgid "Filesystem"
+msgstr ""
+
+msgid "+ New"
+msgstr "Создать"
+
+msgid "Other"
+msgstr "Все остальные"
+
+msgid "VMware"
+msgstr ""
+
+msgid "Uploading..."
+msgstr ""
+
+msgid "Specific ID"
+msgstr "Ресурс с конкретным №"
+
+msgid "Disk file location path or URL"
+msgstr "Маршрутное имя файла диска или URL"
+
+msgid "Documentation"
+msgstr "Online-документация"
+
+msgid "Ranged network"
+msgstr "Диапазон адресов"
+
+msgid "Previous action"
+msgstr "Предыдущее действие"
+
+msgid "Manage unclustered datastores"
+msgstr ""
+
+msgid "Arguments for the booting kernel"
+msgstr "Параметры для загрузки ядра"
+
+msgid "Virtual Networks"
+msgstr "Вирт. сети"
+
+msgid "Value of the context variable"
+msgstr "Значение контекстной переменной"
+
+msgid "Used CPU"
+msgstr "Используется ЦП"
+
+msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
+msgstr "Формат образа виртуального диска. Для KVM: raw, qcow2. Для Xen: tap:aio:, file:. Форматы VMware не поддерживаются"
+
+msgid "Requirements"
+msgstr "Требования"
+
+msgid "Register time"
+msgstr "Время регистрации"
+
+msgid "Select the datastore for this image"
+msgstr ""
+
+msgid "Virtual Network name missing!"
+msgstr "Отсутствует название виртуальной сети!"
+
+msgid "Upload"
+msgstr ""
+
+msgid "Sunstone UI Configuration"
+msgstr "Конфигурация интерфейса Sunstone"
+
+msgid "Language"
+msgstr "Язык интерфейса"
+
+msgid "Used Mem (allocated)"
+msgstr "Использовано ОЗУ (выделено)"
+
+msgid "Unauthorized"
+msgstr "Неавторизован"
+
+msgid "No virtual networks in this cluster"
+msgstr ""
+
+msgid "Release"
+msgstr "Разрешить размещение"
+
+msgid "Authentication driver"
+msgstr "Драйвер аутентификации"
+
+msgid "Block"
+msgstr "Block"
+
+msgid "Group "
+msgstr "гр. "
+
+msgid "Infrastructure resources"
+msgstr ""
+
+msgid "Deploy # VMs"
+msgstr "Кол-во ВМ"
+
+msgid "You can find further information on the following links:"
+msgstr ""
+
+msgid "Status"
+msgstr "Статус"
+
+msgid "Resource ID"
+msgstr "№ ресурса"
+
+msgid "User information"
+msgstr ""
+
+msgid "cdrom"
+msgstr "cdrom"
+
+msgid "Info"
+msgstr "Информация"
+
+msgid "Bridge"
+msgstr "Шлюз"
+
+msgid "Total VM Memory"
+msgstr "Всего ОЗУ для ВМ"
+
+msgid "network"
+msgstr "network"
+
+msgid "Request an specific IP from the Network"
+msgstr "Запросить определенный IP-адрес из сети"
+
+msgid "Change group"
+msgstr "Сменить группу"
+
+msgid "Current NICs"
+msgstr "Используемые контроллеры сетевого интерфейса"
+
+msgid "ACPI"
+msgstr "ACPI"
+
+msgid "Keymap"
+msgstr "Раскладка клавиатуры"
+
+msgid "Clone this image"
+msgstr "Клонировать образ"
+
+msgid "Remove selected"
+msgstr "Удалить"
+
+msgid "Cluster information"
+msgstr ""
+
+msgid "Used CPU (real)"
+msgstr "Использовано ЦП (реально)"
+
+msgid "IP Start"
+msgstr "от"
+
+msgid "Max Mem"
+msgstr "Доступно ОЗУ"
+
+msgid "Driver default"
+msgstr "Драйвер по умолчанию"
+
+msgid "Base path"
+msgstr ""
+
+msgid "VM Template"
+msgstr "Шаблон ВМ"
+
+msgid "This will resubmits VMs to PENDING state"
+msgstr "Повторно выполнить попытку размещения выбранных ВМ на одном из доступных узлов системы виртуализации (перевод в состояние PENDING)"
+
+msgid "Use"
+msgstr "Пользование"
+
+msgid "Allowed operations"
+msgstr "Разрешенные действия"
+
+msgid "Image information"
+msgstr "Информация об образе"
+
+msgid "fd"
+msgstr "fd"
+
+msgid "Wizard XEN"
+msgstr "Шаблон XEN"
+
+msgid "System"
+msgstr ""
+
+msgid "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"
+msgstr "Формат образа виртуального диска. Для KVM: raw, qcow2. Для Xen: tap:aio, file:"
+
+msgid "Manage cluster virtual networks"
+msgstr ""
+
+msgid "None"
+msgstr "Никакой"
+
+msgid "Boot"
+msgstr "Загрузка"
+
+msgid "Select a datastore"
+msgstr ""
+
+msgid "Memory"
+msgstr "Память"
+
+msgid "VM template"
+msgstr "Шаблон ВМ"
+
+msgid "Type"
+msgstr "Тип"
+
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
+msgstr "Количество виртуальных процессоров. Это значение опционально, используется поведение гипервизора по умолчанию - один виртуальный ЦП."
+
+msgid "Host shares"
+msgstr "Ресурсы узла"
+
+msgid "Information Manager"
+msgstr "Средство мониторинга"
+
+msgid "Filesystem type for the fs images"
+msgstr "Тип файловой системы для образов ФС"
+
+msgid "Create new"
+msgstr ""
+
+msgid "VM Instance"
+msgstr "Экземпляр ВМ"
+
+msgid "Templates"
+msgstr "Шаблоны ВМ"
+
+msgid "Group name"
+msgstr "Название группы"
+
+msgid "Please select a datastore for this image"
+msgstr ""
+
+msgid "Network mode"
+msgstr ""
+
+msgid "Current inputs"
+msgstr "Используемые устройства ввода"
+
+msgid "Select a network"
+msgstr "Выберите виртуальную сеть"
+
+msgid "Custom variables"
+msgstr "Пользовательские переменные"
+
+msgid "yes"
+msgstr "да"
+
+msgid "Running #VMS"
+msgstr "Кол-во запущенных ВМ"
+
+msgid "Create new host"
+msgstr ""
+
+msgid "Create Virtual Machine"
+msgstr "Укажите параметры виртуальной машины"
+
+msgid "Hosts memory"
+msgstr "Загрузка ОЗУ"
+
+msgid "User name and password must be filled in"
+msgstr "Необходимо указать и имя пользователя, и пароль"
+
+msgid "Template"
+msgstr "Шаблон"
+
+msgid "ACLs"
+msgstr "Списки контроля"
+
+msgid "Default (current image type)"
+msgstr "По умолчанию (текущий тип образа)"
+
+msgid "There are mandatory fields missing in the OS Boot options section"
+msgstr "В разделе «Загрузка и тип ОС» не заполнены некоторые обязательные поля"
+
+msgid "Reason"
+msgstr ""
+
+msgid "Change"
+msgstr "Сменить"
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "No disk id or image name specified"
+msgstr "Внимание! Следует указать № диска или имя образа."
+
+msgid "Add"
+msgstr "Добавить"
+
+msgid "Target"
+msgstr "Цель"
+
+msgid "Permits access to the VM only through the specified ports in the UDP protocol"
+msgstr "Разрешить доступ к ВМ только через указанные порты протокола UPD"
+
+msgid "Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk."
+msgstr "«Путь к эталонному файлу образа» — образ создается путем копирования эталонного файла образа в хранилище образов. «Источник» — в данное поле следует указывать местоположение образа (в качестве образа будет использован ресурс, непосредственно указанный в поле «Источник», а не копия этого ресурса)."
+
+msgid "Description"
+msgstr "Описание"
+
+msgid "Dashboard"
+msgstr "Инф. панель"
+
+msgid "Template updated correctly"
+msgstr "Шаблон успешно обновлен"
+
+msgid "Skipping VM "
+msgstr "Пропуск ВМ "
+
+msgid "Create new Virtual Machine"
+msgstr ""
+
+msgid "Graphics"
+msgstr "Средства графического доступа"
+
+msgid "Port"
+msgstr "Порт"
+
+msgid "Create host"
+msgstr "Укажите параметры нового узла"
+
+msgid "Type of disk device to emulate."
+msgstr "Тип эмулируемого дискового устройства"
+
+msgid "Total time"
+msgstr ""
+
+msgid "Stop"
+msgstr "Остановить"
+
+msgid "Disks"
+msgstr "Диски"
+
+msgid "ACL String preview"
+msgstr "Строка, задающая правило"
+
+msgid "Information"
+msgstr "Информация"
+
+msgid "Network mask"
+msgstr "Маска подсети"
+
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
+msgstr "Префикс эмулируемого устройства, на которое будет смонтирован образ. Например, «hd» и «sd». Если не указать префикс, его значение будет считано из конфигурационного файла oned.conf (значение по умолчанию — «hd»)."
+
+msgid "Define a subnet by IP range"
+msgstr "Указать диапазон адресов"
+
+msgid "Canvas not supported."
+msgstr "Canvas не поддерживается."
+
+msgid "Name that the Image will get. Every image must have a unique name."
+msgstr "Название, которое получит образ. Каждый образ должен обладать уникальным названием."
+
+msgid "This rule applies to"
+msgstr "Область применения"
+
+msgid "FS"
+msgstr "FS"
+
+msgid "Datastore updated correctly"
+msgstr ""
+
+msgid "Xen templates must specify a boot method"
+msgstr "В шаблон Xen необходимо указывать метод загрузки"
+
+msgid "Network reception"
+msgstr "Сеть: принято"
+
+msgid "Mount image as read-only"
+msgstr "Монтировать образ только для чтения"
+
+msgid "IM MAD"
+msgstr "Модуль средства мониторинга"
+
+msgid "Source"
+msgstr "Источник"
+
+msgid "Lease management"
+msgstr "Управление адресами виртуальной сети"
+
+msgid "Create new ACL"
+msgstr ""
+
+msgid "ACL"
+msgstr ""
+
+msgid "Owned by group"
+msgstr "Принадлежит группе"
+
+msgid "Virtual network information"
+msgstr "Информация о виртуальной сети"
+
+msgid "This will change the password for the selected users"
+msgstr "Введите новый пароль для выбранных пользователей"
+
+msgid "Current number of hosts in this cluster"
+msgstr ""
+
+msgid "Add Graphics"
+msgstr "Добавить средства графического доступа"
+
+msgid "Loading"
+msgstr "Идет загрузка"
+
+msgid "VLAN ID"
+msgstr ""
+
+msgid "This will release held machines"
+msgstr "Продолжить ранее приостановленное размещение ВМ на узле"
+
+msgid "Name of the image to use"
+msgstr "Название образа для использования"
+
+msgid "Disallow access to the VM through the specified ports in the UDP protocol"
+msgstr "Запретить доступ к ВМ через указанные порты для UDP протокола"
+
+msgid "Please, choose and modify the virtual machine you want to update"
+msgstr "Выберите ВМ и внесите необходимые изменения в его параметры"
+
+msgid "Device to map image disk. If set, it will overwrite the default device mapping"
+msgstr "Соответствие обозначения устройства образу диска. Опционально."
+
+msgid "Virtual Network template (attributes)"
+msgstr "Шаблон виртуальной сети (атрибуты)"
+
+msgid "Image"
+msgstr "Образ"
+
+msgid "Hostname"
+msgstr "Название узла"
+
+msgid "VM Name"
+msgstr "Название ВМ"
+
+msgid "Udp white ports"
+msgstr "Разрешенные UDP-порты"
+
+msgid "Create new User"
+msgstr ""
+
+msgid "Password for the VNC server"
+msgstr "Пароль для VNC сервера"
+
+msgid "This will suspend selected machines"
+msgstr "Приостановить выбранные ВМ"
+
+msgid "Manage"
+msgstr "Управление"
+
+msgid "Tablet"
+msgstr "Планшетный ПК"
+
+msgid "Shutdown"
+msgstr "Выключить"
+
+msgid "Create new Image"
+msgstr ""
+
+msgid "Graphics type"
+msgstr "Обеспечить доступ через"
+
+msgid "CD-ROM"
+msgstr "CD-ROM"
+
+msgid "Images"
+msgstr "Образы ВМ"
+
+msgid "VNC Disabled"
+msgstr "VNC недоступно"
+
+msgid "There are mandatory parameters missing in this section"
+msgstr "В данном разделе указаны не все обязательные параметры"
+
+msgid "Manage unclustered virtual networks"
+msgstr ""
+
+msgid "Driver"
+msgstr "Драйвер"
+
+msgid "Add context variables"
+msgstr "Добавить контекстные переменные"
+
+msgid "running"
+msgstr "запущенных"
+
+msgid "Create an empty datablock"
+msgstr "Создать пустой блок данных"
+
+msgid "Virtual Network"
+msgstr "Виртуальная сеть"
+
+msgid "Start Time"
+msgstr "Время запуска"
+
+msgid "Provide a source"
+msgstr "Указать источник для образа"
+
+msgid "Save as"
+msgstr "Сохранить как"
+
+msgid "disabled"
+msgstr "откл"
+
+msgid "Yes"
+msgstr "Да"
+
+msgid "SSH"
+msgstr "SSH"
+
+msgid "Add placement options"
+msgstr "Добавить опции размещения"
+
+msgid "hd"
+msgstr "hd"
+
+msgid "Network"
+msgstr "Сеть"
+
+msgid "Create new Host"
+msgstr ""
+
+msgid "Default (dummy)"
+msgstr "По умолчанию (заглушка)"
+
+msgid "State change time"
+msgstr ""
+
+msgid "Resource subset"
+msgstr "Подмножество ресурсов"
+
+msgid "Add Hypervisor raw options"
+msgstr "Добавить исходные опции гипервизора"
+
+msgid "User"
+msgstr "Пользователь"
+
+msgid "Cluster"
+msgstr ""
+
+msgid "Hosts"
+msgstr "Узлы"
+
+msgid "Lease IP"
+msgstr "IP адрес"
+
+msgid "Path"
+msgstr "Путь к файлу"
+
+msgid "VLAN"
+msgstr ""
+
+msgid "Update template"
+msgstr "Редактировать шаблон"
+
+msgid "Update Datastore properties"
+msgstr ""
+
+msgid "Summary of virtual resources"
+msgstr ""
+
+msgid "Write the Virtual Machine template here"
+msgstr "Отредактируйте параметры шаблона ВМ вручную"
+
+msgid "Transfer manager"
+msgstr ""
+
+msgid "Total Leases"
+msgstr "Суммарное количество адресов"
+
+msgid "File"
+msgstr "Файл"
+
+msgid "Create ACL"
+msgstr "Создать правило контроля"
+
+msgid "Kernel"
+msgstr "Ядро"
+
+msgid "This will initiate the shutdown process in the selected VMs"
+msgstr "Данное действие запустит процесс выключения выбранных ВМ."
+
+msgid "Submitted"
+msgstr "Выполнено"
+
+msgid "Configuration"
+msgstr "Интерфейс"
+
+msgid "Migrate"
+msgstr "Перенести ВМ"
+
+msgid "Create Virtual Network"
+msgstr "Укажите параметры виртуальной сети"
+
+msgid "802.1Q"
+msgstr ""
+
+msgid "IP End"
+msgstr "до"
+
+msgid "This will deploy the selected VMs on the chosen host"
+msgstr "Разместить выбранные ВМ на определенном узле"
+
+msgid "Provide a path"
+msgstr "Указать путь к эталонному файлу образа"
+
+msgid "No disks defined"
+msgstr "Дисков не обнаружено"
+
+msgid "Datablock"
+msgstr "Блок данных"
+
+msgid "#VMS"
+msgstr "Кол-во ВМ"
+
+msgid "Summary of system resources"
+msgstr ""
+
+msgid "Name of a shell script to be executed after creating the tun device for the VM"
+msgstr "shell-скрипт, который будет выполнен после создания сетевого туннеля для ВМ"
+
+msgid "Host parameters"
+msgstr "Параметры узла"
+
+msgid "Manage cluster datastores"
+msgstr ""
+
+msgid "Datastore information"
+msgstr ""
+
+msgid "Network Mask"
+msgstr "Маска подсети"
+
+msgid "Etables"
+msgstr ""
+
+msgid "Port whitelist"
+msgstr "Список разрешенных портов"
+
+msgid "Amount of RAM required for the VM, in Megabytes."
+msgstr "Объем ОЗУ (в МБ), необходимый для ВМ."
+
+msgid "Size in MB"
+msgstr "Размер в МБ"
+
+msgid "CPU Use"
+msgstr "Использование ЦП"
+
+msgid "Deploy"
+msgstr "Разместить на узле"
+
+msgid "IPs"
+msgstr ""
+
+msgid "You have not selected a template"
+msgstr "Вы не выбрали шаблон"
+
+msgid "USB"
+msgstr "USB"
+
+msgid "Format"
+msgstr "Формат"
+
+msgid "Fill in a new password"
+msgstr "Введите новый пароль"
+
+msgid "Refresh list"
+msgstr "Обновить список"
+
+msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
+msgstr "Путь к исходному файлу, который будет скопирован в хранилище образов. Если путь не указан для типа образа БЛОК ДАННЫХ, то будет создан пустой образ."
+
+msgid "Make non persistent"
+msgstr "Сделать непостоянным"
+
+msgid "Persistence of the image"
+msgstr "Если образ является постоянным, то при каждом завершении работы с полученной на его основе виртуальной машиной все изменения будут сохранены в образе. Важно помнить, что сохранение выполнится только в случае завершения работы соответствующей ВМ при помощи операций «Выключить» и «Отменить». Постоянный образ всегда хранится в одном экземпляре."
+
+msgid "VM log"
+msgstr "Журнал ВМ"
+
+msgid "You need to select something."
+msgstr "Вы должны что-нибудь выбрать."
+
+msgid "Create new virtual network"
+msgstr ""
+
+msgid "Permits access to the VM only through the specified ports in the TCP protocol"
+msgstr "Разрешить доступ к ВМ только через указанные порты протокола TCP"
+
+msgid "Change owner"
+msgstr "Сменить владельца"
+
+msgid "Context"
+msgstr "Контекст"
+
+msgid "ICMP policy"
+msgstr "Политика ICMP"
+
+msgid "Datastore manager"
+msgstr ""
+
+msgid "Russian"
+msgstr "Русский (RU)"
+
+msgid "Datastores"
+msgstr ""
+
+msgid "Root"
+msgstr "Корень"
+
+msgid "Cancel"
+msgstr "Отменить"
+
+msgid "Type of disk device to emulate: ide, scsi"
+msgstr "Тип эмулируемого дискового устройства: ide, scsi"
+
+msgid "style"
+msgstr ""
+
+msgid "Hosts (total/active)"
+msgstr "Узлы (всего/из них активных)"
+
+msgid "Upload file"
+msgstr ""
+
+msgid "Udp firewall mode"
+msgstr "Режим брандмауэра UDP"
+
+msgid "Authentication"
+msgstr "Способ аутентификации"
+
+msgid "Please select"
+msgstr "выберите"
+
+msgid "Path to the initrd image"
+msgstr "Путь к образу initrd"
+
+msgid "Virtual Machine information"
+msgstr "Информация о виртуальной машине"
+
+msgid "Update template properties"
+msgstr "Свойства шаблона"
+
+msgid "Error"
+msgstr "Ошибка"
+
+msgid "Create new Virtual Network"
+msgstr ""
+
+msgid "hold"
+msgstr "запретить"
+
+msgid "Enable"
+msgstr "Включить"
+
+msgid "IDE"
+msgstr "IDE"
+
+msgid "Create new Cluster"
+msgstr ""
+
+msgid "Clusters"
+msgstr ""
+
+msgid "System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs."
+msgstr ""
+
+msgid "LCM State"
+msgstr "Текущее состояние ВМ"
+
+msgid "Capacity"
+msgstr "Производительность"
+
+msgid "Restart"
+msgstr "Перезапустить"
+
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
+msgstr "Процент процессорного времени ЦП, предоставляемого ВМ, разделенный на 100. Например, для выделения половины процессорного времени следует указать 0.5."
+
+msgid "Resubmit"
+msgstr "Разместить повторно"
+
+msgid "No hosts in this cluster"
+msgstr ""
+
+msgid "History information"
+msgstr ""
+
+msgid "Write the Virtual Network template here"
+msgstr "Отредактируйте параметры шаблона вирт. сети вручную"
+
+msgid "VM Save As"
+msgstr "ВМ сохранить как"
+
+msgid "Tcp firewall mode"
+msgstr "Режим брандмауэра TCP"
+
+msgid "No leases to show"
+msgstr "Список пуст"
+
+msgid "Cluster name missing!"
+msgstr ""
+
+msgid "KVM"
+msgstr "KVM"
+
+msgid "Current variables"
+msgstr "Используемые переменные"
+
+msgid "Add disks/images"
+msgstr "Добавить диски/образы"
+
+msgid "Add inputs"
+msgstr "Добавить устройства ввода"
+
+msgid "Retrieving"
+msgstr "Запрос сведений"
+
+msgid "VM Instances"
+msgstr "Экземпляры ВМ"
+
+msgid "Size"
+msgstr "Размер"
+
+msgid "Update VM properties"
+msgstr "Свойства ВМ"
+
+msgid "Image name"
+msgstr "Название образа"
+
+msgid "x509"
+msgstr "x509"
+
+msgid "PS2"
+msgstr "PS/2"
+
+msgid "Add lease"
+msgstr "Добавить адрес"
+
+msgid "Kernel commands"
+msgstr "Команды ядра"
+
+msgid "Create Image"
+msgstr "Укажите параметры нового образа"
+
+msgid "Data"
+msgstr "Данные"
+
+msgid "The Virtual Resources menu allows management of Virtual Machine Templates, Instances and Images."
+msgstr ""
+
+msgid "Select cluster"
+msgstr ""
+
+msgid "are mandatory"
+msgstr ", обязательны к заполнению"
+
+msgid "EC2"
+msgstr "EC2"
+
+msgid "Please, choose and modify the virtual network you want to update"
+msgstr "Выберите виртуальную сеть и внесите необходимые изменения в ее параметры"
+
+msgid "Update"
+msgstr "Сохранить изменения"
+
+msgid "DS Mad"
+msgstr ""
+
+msgid "IP"
+msgstr "IP-адрес"
+
+msgid "Port for the VNC server"
+msgstr "Порт для сервера VNC"
+
+msgid "Server (Cipher)"
+msgstr "Server (Cipher)"
+
+msgid "Datastore"
+msgstr ""
+
+msgid "Users"
+msgstr "Пользователи"
+
+msgid "Suspend"
+msgstr "Приостановить работу ВМ"
+
+msgid "Current number of datastores in this cluster"
+msgstr ""
+
+msgid "Create new datastore"
+msgstr ""
+
+msgid "Architecture"
+msgstr "Архитектура"
+
+msgid "Custom attributes"
+msgstr "Пользовательские атрибуты"
+
+msgid "Select the new group"
+msgstr "Выберите новую группу"
+
+msgid "Total VM count"
+msgstr "Количество виртуальных машин"
+
+msgid "Size of the datablock in MB."
+msgstr "Размер блока данных в МБ."
+
+msgid "Size (Mb)"
+msgstr "Размер (МБ)"
+
+msgid "Select a VM"
+msgstr "Выберите вирт. машину"
+
+msgid "Sequence"
+msgstr ""
+
+msgid "Image location"
+msgstr ""
+
+msgid "Script"
+msgstr "Скрипт"
+
+msgid "Create Datastore"
+msgstr ""
+
+msgid "This will hold selected pending VMs from being deployed"
+msgstr "Приостановить процедуру размещения ВМ на узле"
+
+msgid "Change password successful"
+msgstr ""
+
+msgid "iSCSI"
+msgstr ""
+
+msgid "Reset"
+msgstr "«Сбросить» все поля"
+
+msgid "Shared"
+msgstr "Общий каталог"
+
+msgid "Fields marked with"
+msgstr "Поля, отмеченные символом "
+
+msgid "Virtual Machines"
+msgstr "Вирт. машины"
+
+msgid "Summary of infrastructure resources"
+msgstr ""
+
+msgid "Groups"
+msgstr "Группы"
+
+msgid "Memory monitoring information"
+msgstr "Мониторинг ОЗУ"
+
+msgid "Host name missing!"
+msgstr "Не указано название узла"
+
+msgid "Network Address"
+msgstr "Адрес сети"
+
+msgid "Please, choose and modify the image you want to update"
+msgstr "Выберите образ и внесите необходимые изменения в его параметры"
+
+msgid "Default"
+msgstr "По умолчанию"
+
+msgid "Add network"
+msgstr "Добавить сеть"
+
+msgid "Current disks"
+msgstr "Используемые диски"
+
+msgid "Disallow access to the VM through the specified ports in the TCP protocol"
+msgstr "Запретить доступ к ВМ через указанные порты для TCP протокола"
+
+msgid "Model"
+msgstr "Модель"
+
+msgid "This will cancel selected VMs"
+msgstr "Прервать работу выбранных ВМ"
+
+msgid "Host template"
+msgstr "Шаблон узла"
+
+msgid "Disable"
+msgstr "Отключить"
+
+msgid "Create user"
+msgstr "Укажите данные для нового пользователя"
+
+msgid "Prolog time"
+msgstr ""
+
+msgid "Group"
+msgstr "Группа"
+
+msgid "Accept (default)"
+msgstr "Принять (по умолчанию)"
+
+msgid "Useful for power management, for example, normally required for graceful shutdown to work"
+msgstr "Требуется для корректного завершения работы ВМ средствами системы виртуализации"
+
+msgid "This will resume selected stopped or suspended VMs"
+msgstr "Возобновить работу выбранных остановленных или приостановленных ВМ"
+
+msgid "Summary of resources"
+msgstr "Использование ресурсов"
+
+msgid "Setup Networks"
+msgstr "Настройка сетей"
+
+msgid "Please provide a resource ID for the resource(s) in this rule"
+msgstr "Необходимо указать № ресурса(ов) для данного правила)"
+
+msgid "Placement"
+msgstr "Размещение"
+
+msgid "OS and Boot options"
+msgstr "Опции загрузки и ОС"
+
+msgid "XEN"
+msgstr "XEN"
+
+msgid "Start time"
+msgstr "Время запуска"
+
+msgid "Predefined"
+msgstr "По умолчанию"
+
+msgid "Confirmation of action"
+msgstr "Смена значения"
+
+msgid "OS"
+msgstr "ОС"
+
+msgid "Administrate"
+msgstr "Администрирование"
+
+msgid "Port blacklist"
+msgstr "Список запрещенных портов"
+
+msgid "Name for the tun device created for the VM"
+msgstr "Имя сетевого туннеля, созданного для ВМ"
+
+msgid "Advanced mode"
+msgstr "Расширенный режим"
+
+msgid "Welcome"
+msgstr "Текущий пользователь:"
+
+msgid "Virtual Network information"
+msgstr "Информация о виртуальной сети"
+
+msgid "Change authentication"
+msgstr "Сменить способ аутентификации"
+
+msgid "Host information"
+msgstr "Состояние узла"
+
+msgid "Bootloader"
+msgstr "Загрузчик"
+
+msgid "VN MAD"
+msgstr "Модуль средства управления вирт. сетью"
+
+msgid "Virtualization Manager"
+msgstr "Средство виртуализации"
+
+msgid "TM MAD"
+msgstr "Модуль средства передачи"
+
+msgid "Tcp white ports"
+msgstr "Разрешенные TCP-порты"
+
+msgid "CPU Monitoring information"
+msgstr "Мониторинг ЦП"
+
+msgid "Icmp"
+msgstr "ICMP"
+
+msgid "Community"
+msgstr "Сообщество OpenNebula"
+
+msgid "Create"
+msgstr "Создать"
+
+msgid "Please choose the new type of authentication for the selected users"
+msgstr "Укажите новый способ аутентификации для выбранных пользователей"
+
+msgid "Deploy ID"
+msgstr "№ размещения"
+
+msgid "Hold"
+msgstr "Запретить размещение"
+
+msgid "Update network properties"
+msgstr "Обновить свойства виртуальной сети"
+
+msgid "Save this image after shutting down the VM"
+msgstr "Сохранить образ после выключения ВМ"
+
+msgid "Select boot method"
+msgstr "Выберите метод загрузки"
+
+msgid "Features"
+msgstr "Особенности"
+
+msgid "Infrastructure"
+msgstr ""
+
+msgid "Virtio (KVM)"
+msgstr "Virtio (KVM)"
+
+msgid "Used Memory"
+msgstr "Используется памяти"
+
+msgid "Net_RX"
+msgstr "Принято"
+
+msgid "Used Mem (real)"
+msgstr "Использовано ОЗУ (реально)"
+
+msgid "Select a template"
+msgstr "Выберите шаблон"
+
+msgid "CPU"
+msgstr "ЦП"
+
+msgid "Raw data to be passed directly to the hypervisor"
+msgstr "Исходные данные, передаваемые напрямую гипервизору"
+
+msgid "Write the image template here"
+msgstr "Отредактируйте параметры шаблона образа ВМ вручную"
+
+msgid "This will delete the selected VMs from the database"
+msgstr "Удалить выбранные ВМ и связанные с ними образы дисков из базы данных и хранилища образов"
+
+msgid "Reboot"
+msgstr "Перезагрузить"
+
+msgid "Boot device type"
+msgstr "Тип устройства загрузки"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "VM Templates"
+msgstr "Шаблоны ВМ"
+
+msgid "Update a template"
+msgstr "Редактировать шаблон"
+
+msgid "Create VM Template"
+msgstr "Укажите параметры шаблона ВМ"
+
+msgid "ID"
+msgstr "№"
+
+msgid "Image template"
+msgstr "Шаблон образа"
+
+msgid "Name of the bridge the network device is going to be attached to"
+msgstr "Шлюз, с которым будет связано сетевое устройство"
+
+msgid "English"
+msgstr "English (EN)"
+
+msgid "Tcp black ports"
+msgstr "Запрещенные TCP-порты"
+
+msgid "You have to confirm this action."
+msgstr "Необходимо подтвердить данную операцию."
+
+msgid "Swap"
+msgstr "Swap"
+
+msgid "State"
+msgstr "Состояние"
+
+msgid "MAC"
+msgstr "MAC-адрес"
+
+msgid "Persistent"
+msgstr "Постоянный"
+
+msgid "Italian"
+msgstr ""
+
+msgid "Value"
+msgstr "Значение"
+
+msgid "total"
+msgstr "всего"
+
+msgid "Secure websockets connection"
+msgstr ""
+
+msgid "PAE"
+msgstr "PAE"
+
+msgid "Boot method"
+msgstr "Метод загрузки"
+
+msgid "Applies to"
+msgstr "Применено к"
+
+msgid "This will change the main group of the selected users. Select the new group"
+msgstr "Выберите основную группу для выбранных пользователей"
+
+msgid "Add custom variables"
+msgstr "Добавить пользовательские переменные"
+
+msgid "Select the destination cluster:"
+msgstr ""
+
+msgid "Manual"
+msgstr "Вручную"
+
+msgid "Server (x509)"
+msgstr "Server (x509)"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Hold lease"
+msgstr "Запретить выдачу адреса"
+
+msgid "Virtio"
+msgstr "Virtio"
+
+msgid "Total VM CPU"
+msgstr "Всего ЦП для ВМ"
+
+msgid "No datastores in this cluster"
+msgstr ""
+
+msgid "Add disk/image"
+msgstr "Добавить диск/образ"
+
+msgid "Public"
+msgstr "Public"
+
+msgid "Affected resources"
+msgstr "Затрагиваемые ресурсы"
+
+msgid "Delete host"
+msgstr "Удалить узел"
+
+msgid "Name that the VM will get for description purposes. If NAME is not supplied a name generated by one will be in the form of one-&lt;VID&gt;."
+msgstr "Название, которое получит ВМ. Если название не будет указано, то оно будет сгенерировано в формате one-&lt;№ ВМ&gt;."
+
+msgid "Wizard VMware"
+msgstr "Шаблон VMware"
+
+msgid "Host"
+msgstr "Узел"
+
+msgid "Name for the context variable"
+msgstr "Имя контекстной переменной"
+
+msgid "Select an image"
+msgstr "Выберите образ"
+
+msgid "There are missing network parameters"
+msgstr ""
+
+msgid "The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well."
+msgstr ""
+
+msgid "No"
+msgstr "Нет"
+
+msgid "Create cluster"
+msgstr ""
+
+msgid "Physical device"
+msgstr "Устройство"
+
+msgid "Historical monitoring information"
+msgstr "Мониторинг состояния"
+
+msgid "Custom attribute name and value must be filled in"
+msgstr "Поля названия и значения пользовательского атрибута обязательны к заполнению"
+
+msgid "VM Network stats"
+msgstr "Статистика виртуальных сетей"
+
+msgid "This will live-migrate the selected VMs to the chosen host"
+msgstr "Перенести выбранные запущенные ВМ, не завершая их работы, с текущих узлов на выбранный"
+
+msgid "Core"
+msgstr "Core"
+
+msgid "Path to the bootloader executable"
+msgstr "Путь к исполняемому файлу загрузчика"
+
+msgid "Raw"
+msgstr "Исходная опция"
+
+msgid "Hosts CPU"
+msgstr "Загрузка ЦП"
+
+msgid "Filesystem type"
+msgstr "Тип файловой системы"
+
+msgid "information"
+msgstr " "
+
+msgid "Live migrate"
+msgstr "Перенести запущенную ВМ"
+
+msgid "HW address associated with the network interface"
+msgstr "MAC-адрес, связанный с сетевым интерфейсом"
+
+msgid "Defaults to template name when emtpy"
+msgstr ""
+
+msgid "release"
+msgstr "размещение"
+
+msgid "Monitoring information"
+msgstr "Мониторинг"
+
+msgid "shared,ssh,iscsi,dummy"
+msgstr ""
+
+msgid "Rank"
+msgstr "Степень"
+
+msgid "This will send a reboot action to running VMs"
+msgstr "Отправить запущенным виртуальным машинам команду на перезагрузку"
+
+msgid "Device prefix"
+msgstr "Префикс устройства"
+
+msgid "Datastore template"
+msgstr ""
+
+msgid "Listen IP"
+msgstr "Прослушивание IP-адреса"
+
+msgid "Fold / Unfold all sections"
+msgstr "Свернуть/развернуть все разделы"
+
+msgid "Wizard"
+msgstr "Мастер настройки"
+
+msgid "Username"
+msgstr "Имя пользователя"
+
+msgid "This will redeploy selected VMs (in UNKNOWN or BOOT state)"
+msgstr "Повторно выполнить процедуру размещения выбранных ВМ, находящихся в состоянии UNKNOWN или BOOT, на узле"
+
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM. Basically, it defines which hosts are more suitable than others"
+msgstr "В данном поле устанавливается значение атрибута, используемое для ранжирования узлов, пригодных для размещения ВМ. Значение атрибута определяет, какие из узлов лучше подходят для размещения ВМ."
+
+msgid "Dummy"
+msgstr "Заглушка"
+
+msgid "Used by VM"
+msgstr "Используется ВМ"
+
+msgid "Support"
+msgstr "Сведения о поддержке"
+
+msgid "Physical address extension mode allows 32-bit guests to address more than 4 GB of memory"
+msgstr "Режим расширенной физической адресации позволяет использовать 32-битным ВМ больше 4-х ГБ "
+
+msgid "Change password"
+msgstr "Сменить пароль"
+
+msgid "Wizard KVM"
+msgstr "Шаблон KVM"
+
+msgid "Human readable description of the image for other users."
+msgstr "Краткое описание образа."
+
+msgid "Resume"
+msgstr "Возобновить работу ВМ"
+
+msgid "Admin"
+msgstr "Администрирование"
+
+msgid "Device to be mounted as root"
+msgstr "Устройство, монтируемое как корневое"
+
+msgid "Cannot contact server: is it running and reachable?"
+msgstr "Не удается установить соединение с сервером. Проверьте его доступность и/или удостоверьтесь в том, что он запущен."
+
+msgid "VNC Access"
+msgstr "Доступ по VNC"
+
+msgid "Select the new owner"
+msgstr "Выберите нового владельца"
+
+msgid "Current leases"
+msgstr "Адреса виртуальной сети"
+
+msgid "disk id"
+msgstr "№ диска"
+
+msgid "Virtual Resources"
+msgstr ""
+
+msgid "This will migrate the selected VMs to the chosen host"
+msgstr "Перенести выбранные остановленные ВМ с текущих узлов на выбранный"
+
+msgid "There are mandatory parameters missing"
+msgstr "Указаны не все обязательные параметры."
+
+msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
+msgstr "Аппаратное устройствое, которое будет отвечать за эмуляцию сетевого интерфейса. Для Xen это атрибут «vif»."
+
+msgid "FS type"
+msgstr "Тип ФС"
+
+msgid "Optional, please select"
+msgstr "Опционально, пожалуйста выберите"
+
+msgid "Name"
+msgstr "Название"
+
+msgid "VNC"
+msgstr "VNC"
+
+msgid "Please, choose and modify the template you want to update"
+msgstr "Выберите шаблон ВМ и внесите необходимые изменения в его параметры"
+
+msgid "Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
+msgstr "Тип. Если не указать тип образа, его значение будет считано из конфигурационного файла oned.conf (значение по умолчанию — «OS»)."
+
+msgid "CPU architecture to virtualization"
+msgstr "Архитектура ЦП для виртуализации"
+
+msgid "Create group"
+msgstr "Создать группу"
+
+msgid "ACL Rules"
+msgstr "Правила контроля доступа"
+
+msgid "Do you want to proceed?"
+msgstr "Хотите продолжить?"
+
+msgid "Lease MAC (opt):"
+msgstr "MAC адрес (необ.):"
+
+msgid "Running VMs"
+msgstr "Запущено ВМ"
+
+msgid "Drivers"
+msgstr "Драйверы"
+
+msgid "Network type"
+msgstr "Тип сети"
+
+msgid "Custom variable name and value must be filled in"
+msgstr "Поля «Имя переменной» и «Значение» должны быть заполнены"
+
+msgid "Please provide a lease IP"
+msgstr "Необходимо указать IP-адрес"
+
+msgid "Used CPU (allocated)"
+msgstr "Использовано ОЗУ (реально)"
+
+msgid "Update properties"
+msgstr "Редактировать свойства"
+
+msgid "Please select at least one resource"
+msgstr "Необходимо выбрать по меньшей мере один ресурс"
+
+msgid "Capacity options"
+msgstr "Настройки производительности"
+
+msgid "TM Mad"
+msgstr ""
+
+msgid "Sign out"
+msgstr "Выйти из сервиса"
+
+msgid "Datastore Template"
+msgstr ""
+
+msgid "Inputs"
+msgstr "Устройства ввода"
+
+msgid "Open VNC Session"
+msgstr "Открыть VNC-сессию"
+
+msgid "Network is unreachable: is OpenNebula running?"
+msgstr "Сеть недоступна. Проверьте, запущена ли OpenNebula."
+
+msgid "Please choose"
+msgstr "Пожалуйста выберите"
+
+msgid "VNC Session"
+msgstr "VNC сессия"
+
+msgid "Memory use"
+msgstr "Использование ОЗУ"
+
+msgid "Disk"
+msgstr "Диск"
+
+msgid "Manage cluster hosts"
+msgstr ""
+
+msgid "Create new Group"
+msgstr ""
+
+msgid "Save"
+msgstr "Сохранить"
+
+msgid "Net_TX"
+msgstr "Отправлено"
+

@@ -1,0 +1,1737 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-18 11:43+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "HW address associated with the network interface"
+msgstr "Adresse mat&eacute;rielle associ&eacute;e avec l'interface r&eacute;seau"
+
+msgid "Add Graphics"
+msgstr "Configurer l'interface graphique"
+
+msgid "Select the datastore for this image"
+msgstr "Choisir l'espace de stockage pour cette image:"
+
+msgid "Please, choose and modify the template you want to update"
+msgstr "Choisir et modifier le mod&egrave;le &agrave; mettre &agrave; jour"
+
+msgid "Fill in a new password"
+msgstr "Saisir un nouveau mot de passe"
+
+msgid "VM Name"
+msgstr "Nom de la VM"
+
+msgid "PS2"
+msgstr "PS2"
+
+msgid "Cluster"
+msgstr "Cluster"
+
+msgid "Datastore"
+msgstr "Espace de stockage"
+
+msgid "Listen IP"
+msgstr "IP d'&eacute;coute"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "VM log"
+msgstr "Journal"
+
+msgid "Size"
+msgstr "Taille"
+
+msgid "Canvas not supported."
+msgstr "Canvas non support&eacute;"
+
+msgid "Create new Cluster"
+msgstr "Cr&eacute;er un nouveau Cluster"
+
+msgid "Create new VM Template"
+msgstr "Cr&eacute;er un nouveau Mod&egrave;le de VM"
+
+msgid "Resume"
+msgstr "Reprendre"
+
+msgid "Select a datastore"
+msgstr "Choisir un espace de stockage"
+
+msgid "Create new Group"
+msgstr "Cr&eacute;er un nouveau Groupe"
+
+msgid "Datastore manager"
+msgstr "Gestion d'espace"
+
+msgid "Keymap"
+msgstr "Code clavier"
+
+msgid "Network mask"
+msgstr "Masque r&eacute;seau"
+
+msgid "VLAN"
+msgstr "VLAN"
+
+msgid "Shared"
+msgstr "Partag&eacute;"
+
+msgid "Save as"
+msgstr "Enregistrer sous"
+
+msgid "Data"
+msgstr "Donn&eacute;es"
+
+msgid "Capacity"
+msgstr "Capacit&eacute;"
+
+msgid "Do you want to proceed?"
+msgstr "Voulez-vous continuer?"
+
+msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
+msgstr "Mat&eacute;riel &eacute;mul&eacute; par l'interface. Correspond &agrave; l'attribut type de la 'vif'"
+
+msgid "Register time"
+msgstr "Heure d'enregistrement"
+
+msgid "Wizard VMware"
+msgstr "Assistant VMware"
+
+msgid "Group"
+msgstr "Groupe"
+
+msgid "CD-ROM"
+msgstr "CD-ROM"
+
+msgid "Requirements"
+msgstr "Exigences"
+
+msgid "History information"
+msgstr "Historique"
+
+msgid "Server (x509)"
+msgstr "Serveur (x509)"
+
+msgid "Kernel commands"
+msgstr "Commandes noyau"
+
+msgid "Owner"
+msgstr "Propri&eacute;taire"
+
+msgid "Virtual Resources"
+msgstr "Ressources virtuelles"
+
+msgid "Virtual Machines"
+msgstr "Machines virtuelles"
+
+msgid "Value of the context variable"
+msgstr "Valeur de la variable de contexte"
+
+msgid "Driver"
+msgstr "Pilote"
+
+msgid "Network transmission"
+msgstr "R&eacute;seau - transmission"
+
+msgid "This will migrate the selected VMs to the chosen host"
+msgstr "Ceci d&eacute;placera les VM s&eacute;lectionn&eacute;es vers l'h&ocirc;te choisi (&agrave; froid)"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Create Virtual Network"
+msgstr "Cr&eacute;er un r&eacute;seau virtuel"
+
+msgid "Xen templates must specify a boot method"
+msgstr "Les mod&egrave;les XEN doivent sp&eacute;cifier la m&eacute;thode d'amor&ccedil;age."
+
+msgid "Value of the custom variable"
+msgstr "Valeur de la variable personnalis&eacute;e"
+
+msgid "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"
+msgstr "Pilote de p&eacute;riph&eacute;rique sp&eacute;cifique &agrave; utiliser. KVM: raw, qcow2. XEN:tap:aio:, file:."
+
+msgid "Amount of RAM required for the VM, in Megabytes."
+msgstr "M&eacute;moire requise pour la VM, en m&eacute;ga-octets"
+
+msgid "Saveas for VM with ID"
+msgstr "Enregistrer la VM ayant l'ID sous"
+
+msgid "Other"
+msgstr "Autres"
+
+msgid "Write the Virtual Machine template here"
+msgstr "Saisir les caract&eacute;ristiques du mod&egrave;le de VM dans la case ci-dessous"
+
+msgid "This will suspend selected machines"
+msgstr "Ceci susprendra les VM s&eacute;lectionn&eacute;es"
+
+msgid "Select boot method"
+msgstr "Choisir le mode d'amor&ccedil;age"
+
+msgid "Select the destination cluster:"
+msgstr "Choisir le cluster de destination:"
+
+msgid "Public"
+msgstr "Publique"
+
+msgid "Create group"
+msgstr "Cr&eacute;er un groupe"
+
+msgid "Retrieving"
+msgstr "R&eacute;cup&eacute;ration"
+
+msgid "Running VMs"
+msgstr "#VM d&eacute;marr&eacute;es"
+
+msgid "KVM"
+msgstr "KVM"
+
+msgid "Permits access to the VM only through the specified ports in the TCP protocol"
+msgstr "Permets l'acc&egrave;s &agrave; la VM seulement pour les ports sp&eacute;fici&eacute;s - Protocole TCP"
+
+msgid "Unauthorized"
+msgstr "Non autoris&eacute;"
+
+msgid "Udp firewall mode"
+msgstr "Mode firewall UDP"
+
+msgid "Graphics type"
+msgstr "Type de console"
+
+msgid "Port for the VNC server"
+msgstr "Port pour le serveur VNC"
+
+msgid "Refresh list"
+msgstr "Actualiser la liste"
+
+msgid "Add disks/images"
+msgstr "Ajouter des disques/images"
+
+msgid "Max Mem"
+msgstr "M&eacute;moire max"
+
+msgid "Persistence of the image"
+msgstr "L'image est-elle persistante ou non?"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "Boot"
+msgstr "Amor&ccedil;age"
+
+msgid "IDE"
+msgstr "IDE"
+
+msgid "cdrom"
+msgstr "cdrom"
+
+msgid "Change"
+msgstr "Changer"
+
+msgid "OS and Boot options"
+msgstr "OS et option d'amorce"
+
+msgid "Network mode"
+msgstr "Gestion de r&eacute;seau"
+
+msgid "Context"
+msgstr "Contexte"
+
+msgid "Fields marked with"
+msgstr "Les champs marqu&eacute;s avec"
+
+msgid "Password for the VNC server"
+msgstr "Mot de passe pour le serveur VNC"
+
+msgid "IP End"
+msgstr "IP fin"
+
+msgid "ACL Rules"
+msgstr "Permissions"
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Udp white ports"
+msgstr "Ports UDP - Liste blanche"
+
+msgid "State change time"
+msgstr "Heure de changement de statut"
+
+msgid "Raw data to be passed directly to the hypervisor"
+msgstr "Directives &agrave; passer directement &agrave; l'hyperviseur"
+
+msgid "No hosts in this cluster"
+msgstr "Aucun h&ocirc;te dans ce cluster"
+
+msgid "ICMP policy"
+msgstr "Politique ICMP"
+
+msgid "Name for the custom variable"
+msgstr "Nom de la variable de personnalis&eacute;e"
+
+msgid "Show"
+msgstr "Afficher"
+
+msgid "Uploading..."
+msgstr "T&eacute;l&eacute;versement..."
+
+msgid "This will send a reboot action to running VMs"
+msgstr "Ceci transmettra un signal de red&eacute;marrage aux VM d&eacute;marr&eacute;es"
+
+msgid "State"
+msgstr "&Eacute;tat"
+
+msgid "Custom variables"
+msgstr "Variable sp&eacute;cifique"
+
+msgid "Hosts"
+msgstr "H&ocirc;tes"
+
+msgid "Create Datastore"
+msgstr "Cr&eacute;er un espace de stockage"
+
+msgid "Graphics"
+msgstr "Graphics"
+
+msgid "Add inputs"
+msgstr "Ajouter des p&eacute;riph&eacute;riques de saisie"
+
+msgid "Dummy"
+msgstr "Bidon"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "Please provide a lease IP"
+msgstr "Saisir l'IP pour le bail"
+
+msgid "Manage unclustered virtual networks"
+msgstr "G&eacute;rer les espaces de stockage non clusteris&eacute;s"
+
+msgid "Update properties"
+msgstr "Mettre &agrave; jour les propri&eacute;t&eacute;s"
+
+msgid "SCSI"
+msgstr "SCSI"
+
+msgid "Custom attribute name and value must be filled in"
+msgstr "Les nom et valeur de l'attribut sp&eacute;cifique doivent &ecirc;tre renseign&eacute;s"
+
+msgid "Select disk"
+msgstr "Choisir un disque"
+
+msgid "Architecture"
+msgstr "Architecture"
+
+msgid "VM Templates"
+msgstr "Mod&egrave;les de VM"
+
+msgid "Network is unreachable: is OpenNebula running?"
+msgstr "R&eacute;seau injoignable: est-ce qu'OpenNebula est en marche?"
+
+msgid "Physical address extension mode allows 32-bit guests to address more than 4 GB of memory"
+msgstr "Mode d'extension physique, permet aux VM 32-bit d'acc&eacute;der &agrave; plus de 4 Go de m&eacute;moire"
+
+msgid "Create user"
+msgstr "Cr&eacute;er un utilisateur"
+
+msgid "Port"
+msgstr "Port"
+
+msgid "Portuguese"
+msgstr "Portugais"
+
+msgid "Welcome"
+msgstr "Bienvenu"
+
+msgid "This will cancel selected VMs"
+msgstr "Ceci cancellera les VM s&eacute;lectionn&eacute;es"
+
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM. Basically, it defines which hosts are more suitable than others"
+msgstr "Attribut permettant &agrave; l'ordonnanceur de choisir le serveur h&ocirc;te le plus appropri&eacute;"
+
+msgid "Resource ID / Owned by"
+msgstr "ID Ressource / Propri&eacute;taire"
+
+msgid "Deploy"
+msgstr "D&eacute;ployer"
+
+msgid "This will deploy the selected VMs on the chosen host"
+msgstr "Ceci d&eacute;ploiera les VMs s&eacute;lectionn&eacute;es sur les h&ocirc;tes choisis"
+
+msgid "Permissions"
+msgstr "Permissions"
+
+msgid "EC2"
+msgstr "EC2"
+
+msgid "Select the new group"
+msgstr "Choisir un nouveau groupe"
+
+msgid "Virtualization Manager"
+msgstr "Gestionnaire de virtualisation"
+
+msgid "Please choose the new type of authentication for the selected users"
+msgstr "Choisir le nouveau mode d'authentification pour les utilisateurs s&eacute;lectionn&eacute;s"
+
+msgid "Create new host"
+msgstr "Cr&eacute;er un nouvel h&ocirc;te"
+
+msgid "Useful for power management, for example, normally required for graceful shutdown to work"
+msgstr "Utile pour la gestion de l'alimentation &eacute;lectrique. G&eacute;n&eacute;ralement requis pour la gestion de l'arr&ecirc;t 'propre' de l'OS"
+
+msgid "Start time"
+msgstr "D&eacute;marrage"
+
+msgid "Total time"
+msgstr "Temps total"
+
+msgid "XEN"
+msgstr "XEN"
+
+msgid "Suspend"
+msgstr "Mise en veille"
+
+msgid "Current number of virtual networks in this cluster"
+msgstr "Nombre de r&eacute;seaux virtuels dans ce cluster"
+
+msgid "Users & Groups subsystem"
+msgstr "Sous-syst&egrave;me Utilisateurs & Groupes"
+
+msgid "Name that the VM will get for description purposes. If NAME is not supplied a name generated by one will be in the form of one-&lt;VID&gt;."
+msgstr "Nom de la VM en guise de description. Si le nom n'est pas fourni, un nom sera automatiquement g&eacute;n&eacute;r&eacute; par 'one' sous la forme one-&lt;VID&gt;."
+
+msgid "Resource subset"
+msgstr "Sous-r&eacute;seau cible"
+
+msgid "Name of a shell script to be executed after creating the tun device for the VM"
+msgstr "Nom du script shell &agrave; ex&eacute;cuter suite &agrave; la cr&eacute;ation du p&eacute;riph&eacute;rique 'tun' de la VM"
+
+msgid "VLAN ID"
+msgstr "VLAN ID"
+
+msgid "This will change the password for the selected users"
+msgstr "Ceci changera le mot de passe des utilisateurs s&eacute;lectionn&eacute;s"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Net_RX"
+msgstr "Net_RX"
+
+msgid "ACPI"
+msgstr "ACPI"
+
+msgid "Inputs"
+msgstr "Entrants"
+
+msgid "Device to map image disk. If set, it will overwrite the default device mapping"
+msgstr "P&eacute;riph&eacute;rique auquel relier l'image. Surcharge la valeur par d&eacute;faut lorsque d&eacute;finie"
+
+msgid "Host parameters"
+msgstr "Param&egrave,tres d'h&ocirc;te"
+
+msgid "Open vSwitch"
+msgstr "Open vSwitch"
+
+msgid "Infrastructure resources"
+msgstr "Ressources d'infrastructure"
+
+msgid "Create Virtual Machine"
+msgstr "Cr&eacute;er une machine virtuelle"
+
+msgid "Add context variables"
+msgstr "Ajouter des variables de contexte"
+
+msgid "VMware"
+msgstr "VMware"
+
+msgid "Make persistent"
+msgstr "Rendre persistant"
+
+msgid "OS"
+msgstr "OS"
+
+msgid "Disks"
+msgstr "Disques"
+
+msgid "Current leases"
+msgstr "Baux actuels"
+
+msgid "yes"
+msgstr "Oui"
+
+msgid "User template"
+msgstr "Mod&egrave; utilisateur"
+
+msgid "Sequence"
+msgstr "S&eacute;quence"
+
+msgid "Confirmation of action"
+msgstr "Confirmation d'action"
+
+msgid "Applies to"
+msgstr "S'applique &agrave;"
+
+msgid "Current number of datastores in this cluster"
+msgstr "Nombre d'espaces de stockage d&eacute;finis dans ce cluster"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Tablet"
+msgstr "Tablette"
+
+msgid "Shutdown"
+msgstr "Arr&ecirc;ter"
+
+msgid "Context variable name and value must be filled in"
+msgstr "Les nom et valeur de la variable de contexte doivent &ecirc;tre renseign&eacute;s"
+
+msgid "Custom variable name and value must be filled in"
+msgstr "Les nom et valeur de la variable sp&eacute;cifique doivent &ecirc;tre renseign&eacute;s"
+
+msgid "Core"
+msgstr "Core"
+
+msgid "Update template"
+msgstr "Mettre &agrave; jour le mod&egrave;le"
+
+msgid "This will change the main group of the selected users. Select the new group"
+msgstr "Ceci changera le groupe principal des utilisateurs s&eacute;lectionn&eacute;s. Choisir le nouveau groupe"
+
+msgid "Create new datastore"
+msgstr "Cr&eacute;er un nouvel espace de stockage"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "This will initiate the shutdown process in the selected VMs"
+msgstr "Ceci initiera le processus de mise hors tension des VM s&eacute;lectionn&eacute;es"
+
+msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
+msgstr "Pilote de p&eacute;riph&eacute;rique sp&eacute;cifique &agrave; utiliser. KVM: raw, qcow2. XEN:tap:aio:, file:. VMware non support&eacute;"
+
+msgid "Information Manager"
+msgstr "Gestionnaire d'informations"
+
+msgid "Deploy # VMs"
+msgstr "D&eacute;ployer # VMs"
+
+msgid "Placement"
+msgstr "Placement"
+
+msgid "Lease management"
+msgstr "Gestion des baux"
+
+msgid "Network"
+msgstr "R&eacute;seau"
+
+msgid "There are mandatory parameters missing"
+msgstr "Des champs obligatoires ne sont pas remplis"
+
+msgid "Summary of virtual resources"
+msgstr "Synth&egrave;se des ressources virtuelles"
+
+msgid "Manage cluster datastores"
+msgstr "G&eacute;rer les espaces de stockage du cluster"
+
+msgid "Persistent"
+msgstr "Persistante"
+
+msgid "Create new Virtual Machine"
+msgstr "Cr&eacute;er une nouvelle VM"
+
+msgid "Create new Image"
+msgstr "Cr&eacute;er une nouvelle Image"
+
+msgid "Error"
+msgstr "Erreur"
+
+msgid "Path to the initrd image"
+msgstr "Chemin d'acc&egrave;s &agrave; l'image initrd"
+
+msgid "No disk id or image name specified"
+msgstr "Pas d'identifiant d'image sp&eacute;cifi&eacute; (id ou nom)"
+
+msgid "ACLs"
+msgstr "Permissions"
+
+msgid "VNC"
+msgstr "VNC"
+
+msgid "Used by VM"
+msgstr "Utilis&eacute; par VM"
+
+msgid "Network Mask"
+msgstr "Masque de r&eacute;seau"
+
+msgid "No"
+msgstr "Non"
+
+msgid "Please, choose and modify the datastore you want to update"
+msgstr "Choisir et modifier l'espace de stockage &agrave; mettre &agrave; jour"
+
+msgid "Tcp white ports"
+msgstr "Port TCP - liste blanche"
+
+msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
+msgstr "Chemin d'acc&egrave;s au fichier d'origine &agrave; copier vers la librairie d'images. Un fichier vide sera cr&eacute;&eacute; si aucun chemin n'est sp&eacute;cifi&eacute; pour une image de type DATABLOCK."
+
+msgid "Kernel"
+msgstr "Noyau"
+
+msgid "Lease IP"
+msgstr "Bail (IP)"
+
+msgid "Current NICs"
+msgstr "Interfaces actuelles"
+
+msgid "information"
+msgstr "Information"
+
+msgid "Create an empty datablock"
+msgstr "Cr&eacute;er un datablock vide"
+
+msgid "Please choose"
+msgstr "S&eacute;lectionner"
+
+msgid "Monitoring information"
+msgstr "M&eacute;trologie"
+
+msgid "+ New Group"
+msgstr "+ Nouveau"
+
+msgid "Template"
+msgstr "Mod&egrave;le"
+
+msgid "Documentation"
+msgstr "Documentation"
+
+msgid "Infrastructure"
+msgstr "Infrastructure"
+
+msgid "Create new virtual network"
+msgstr "Cr&eacute;er un nouveau r&eacute;seau virtuel"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "MAC"
+msgstr "MAC"
+
+msgid "File"
+msgstr "Fichier"
+
+msgid "No disks defined"
+msgstr "Aucun disque d&eacute;fini"
+
+msgid "Virtio"
+msgstr "Virtio"
+
+msgid "PAE"
+msgstr "PAE"
+
+msgid "Initrd"
+msgstr "Initrd"
+
+msgid "Script"
+msgstr "Script"
+
+msgid "Mouse"
+msgstr "Souris"
+
+msgid "802.1Q"
+msgstr "802.1Q"
+
+msgid "Hosts (total/active)"
+msgstr "H&ocirc;tes (total/actifs)"
+
+msgid "iSCSI"
+msgstr "iSCSI"
+
+msgid "Virtual Networks"
+msgstr "R&eacute;seaux virtuels"
+
+msgid "Total VM Memory"
+msgstr "Total VM Memory"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Custom attributes"
+msgstr "Attributs sp&eacute;cifiques"
+
+msgid "Upload"
+msgstr "T&eacute;l&eacute;verser"
+
+msgid "There are missing network parameters"
+msgstr "Des param&egrave;tres r&eacute;seaux sont manquants"
+
+msgid "Start Time"
+msgstr "D&eacute;marrage"
+
+msgid "Clone"
+msgstr "Clone"
+
+msgid "Disk"
+msgstr "Disque"
+
+msgid "CPU Monitoring information"
+msgstr "M&eacute;triques CPU"
+
+msgid "Raw"
+msgstr "Raw"
+
+msgid "VNC Disabled"
+msgstr "VNC d&eacute;sactiv&eacute;"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Templates"
+msgstr "Mod&egrave;les de VM"
+
+msgid "Sunstone UI Configuration"
+msgstr "Configuration de l'interface utilisateur Sunstone"
+
+msgid "Predefined"
+msgstr "Pr&eacute;d&eacute;fini"
+
+msgid "Boot method"
+msgstr "M&eacute;thode d'amorce"
+
+msgid "Provide a source"
+msgstr "Indiquer un fichier source"
+
+msgid "Select template"
+msgstr "Choisir du mod&egrave;le"
+
+msgid "Permits access to the VM only through the specified ports in the UDP protocol"
+msgstr "Permets l'acc&egrave;s &agrave; la VM seulement pour les ports sp&eacute;fici&eacute;s - Protocole UDP"
+
+msgid "Users"
+msgstr "Utilisateurs"
+
+msgid "Server (Cipher)"
+msgstr "Serveur (Cipher)"
+
+msgid "Memory use"
+msgstr "M&eacute;moire utilis&eacute;e"
+
+msgid "Disk type"
+msgstr "Type de disque"
+
+msgid "Name that the Image will get. Every image must have a unique name."
+msgstr "Nom de l'image. Chaque nom d'image doit &ecirc;tre unique."
+
+msgid "Disallow access to the VM through the specified ports in the UDP protocol"
+msgstr "D&eacute;sactiver l'acc&egrave;s &agrave; la VM par les ports UDP sp&eacute;cifi&eacute;s"
+
+msgid "Network Address"
+msgstr "Adresse r&eacute;seau"
+
+msgid "Virtual Network information"
+msgstr "Informations sur le r&eacute;seau virtuel"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Restart"
+msgstr "Red&eacute;marrer"
+
+msgid "Manage unclustered hosts"
+msgstr "G&eacute;rer les h&ocirc;tes non clusteris&eacute;s"
+
+msgid "Virtual Network"
+msgstr "R&eacute;seau virtuel"
+
+msgid "There are mandatory fields missing in the OS Boot options section"
+msgstr "Des champs obligatoires ne sont pas remplis dans la section d'amorce;"
+
+msgid "Tcp black ports"
+msgstr "Port TCP - liste noire"
+
+msgid "Open VNC Session"
+msgstr "Ouvrir une session VNC"
+
+msgid "Datastore updated correctly"
+msgstr "Mise &agrave; jour de l'espace de stockage r&eacute;ussie"
+
+msgid "Add placement options"
+msgstr "Ajouter des options de localisation"
+
+msgid "Disallow access to the VM through the specified ports in the TCP protocol"
+msgstr "D&eacute;sactiver l'acc&egrave;s &agrave; la VM par les ports TCP sp&eacute;cifi&eacute;s"
+
+msgid "Used CPU (real)"
+msgstr "CPU utilis&eacute; (r&eacute;el)"
+
+msgid "TM MAD"
+msgstr "TM MAD"
+
+msgid "Administrate"
+msgstr "Administrer"
+
+msgid "Network reception"
+msgstr "R&eacute;seau - r&eacute;ception"
+
+msgid "Create"
+msgstr "Cr&eacute;er"
+
+msgid "Groups"
+msgstr "Groupes"
+
+msgid "Update template properties"
+msgstr "Mettre &agrave; jour les propri&eacute;t&eacute;s du mod&egrave;le"
+
+msgid "Size in MB"
+msgstr "Taille en Mo"
+
+msgid "Bus"
+msgstr "Bus"
+
+msgid "Net_TX"
+msgstr "Net_TX"
+
+msgid "System"
+msgstr "Syst&egrave;me"
+
+msgid "Memory"
+msgstr "M&eacute;moire"
+
+msgid "Owned by group"
+msgstr "Appartenant &agrave; un groupe"
+
+msgid "Select a network"
+msgstr "Choisir un r&eacute;seau"
+
+msgid "Name of the network to attach this device"
+msgstr "Nom du r&eacute;seau auquel connecter le p&eacute;riph&eacute;rique"
+
+msgid "Resource ID"
+msgstr "ID Ressource"
+
+msgid "Virtual network information"
+msgstr "Informations sur le r&eacute;seau virtuel"
+
+msgid "This will delete the selected VMs from the database"
+msgstr "Ceci effacera les VM s&eacute;lectionn&eacute;es de la base de donn&eacute;es"
+
+msgid "shared,ssh,iscsi,dummy"
+msgstr "shared,ssh,iscsi,dummy"
+
+msgid "Ranged network"
+msgstr "Plage r&eacute;seau"
+
+msgid "ACL String preview"
+msgstr "Pr&eacute;visualisation (ACL strring)"
+
+msgid "Select cluster"
+msgstr "D&eacute;finir le cluster"
+
+msgid "Host information"
+msgstr "Information d'h&ocirc;te"
+
+msgid "+ New"
+msgstr "+ Nouveau"
+
+msgid "Please, choose and modify the virtual network you want to update"
+msgstr "Choisir et modifier le r&eacute;seau virtuel &agrave; mettre &agrave; jour"
+
+msgid "This will resubmits VMs to PENDING state"
+msgstr "Ceci resoumettra les VM en &eacute;tat PENDING"
+
+msgid "The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well."
+msgstr "Le menu Infrastructure permet la gestion des serveurs H&ocirc;tes, des Espaces de Stockage et des R&eacute;seaux Virtuels. Les utilisateurs membres du groupe oneadmin peuvent de plus  g&eacute;rer les clusters."
+
+msgid "Source"
+msgstr "Source"
+
+msgid "Clusters"
+msgstr "Clusters"
+
+msgid "Russian"
+msgstr "Russe"
+
+msgid "Size (Mb)"
+msgstr "Taille (Mb)"
+
+msgid "Release"
+msgstr "Lib&eacute;rer"
+
+msgid "Device to be mounted as root"
+msgstr "P&eacute;riph&eacute;rique racine"
+
+msgid "Manage unclustered datastores"
+msgstr "G&eacute;rer les espaces de stockage non clusteris&eacute;s"
+
+msgid "Rank"
+msgstr "Rang"
+
+msgid "id"
+msgstr "id"
+
+msgid "Port blacklist"
+msgstr "Port - liste noire"
+
+msgid "Select the new owner"
+msgstr "Choisir un nouveau propri&eacute;taire"
+
+msgid "Add network"
+msgstr "Ajouter un r&eacute;seau"
+
+msgid "VM information"
+msgstr "Informations g&eacute;n&eacute;rales"
+
+msgid "There are mandatory parameters missing in this section"
+msgstr "Des champs obligatoires ne sont pas remplis dans cette section"
+
+msgid "Used CPU"
+msgstr "CPU utilis&eacute;"
+
+msgid "Bootloader"
+msgstr "Lanceur"
+
+msgid "VNC Session"
+msgstr "Session VNC"
+
+msgid "Update VM properties"
+msgstr "Mettre &agrave; jour les propri&eacute;t&eacute;s de la VM"
+
+msgid "CPU architecture to virtualization"
+msgstr "Architecture CPU souhait&eacute;e"
+
+msgid "Running #VMS"
+msgstr "#VM d&eacute;marr&eacute;es"
+
+msgid "Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
+msgstr "Type d'image tel que d&eacute;crit dans la section suivante. Si laiss&eacute;e vide, la valeur sera celle d&eacute;finie dans le fichier oned.conf (d&eacute;faut: OS)."
+
+msgid "Image updated correctly"
+msgstr "Image t&eacute;l&eacute;vers&eacute;e avec succ&egrave;s"
+
+msgid "Change password successful"
+msgstr "Nouveau mot de passe d&eacute;fini avec succ&egrave;s"
+
+msgid "Datastore template"
+msgstr "Mod&egrave;le d'espace de stockage"
+
+msgid "Fixed network"
+msgstr "R&eacute;seau fixe"
+
+msgid "All"
+msgstr "Tous"
+
+msgid "New password"
+msgstr "Nouveau mot de passe"
+
+msgid "Update"
+msgstr "Mettre &agrave; jour"
+
+msgid "Tcp firewall mode"
+msgstr "Mode firecall TCP"
+
+msgid "Hold lease"
+msgstr "Maintenir le bail"
+
+msgid "Make non persistent"
+msgstr "Rendre non persistant"
+
+msgid "Cluster name missing!"
+msgstr "Nom de cluster manquant"
+
+msgid "Live migrate"
+msgstr "'Live migrate'"
+
+msgid "Define a subnet by IP range"
+msgstr "D&eacute;finir une plage de sous-r&eacute;seau IP"
+
+msgid "Default (none)"
+msgstr "D&eacute;faut (aucun)"
+
+msgid "Delete host"
+msgstr "Supprimer l'h&ocirc;te"
+
+msgid "Prolog time"
+msgstr "Prolog time"
+
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
+msgstr "Pr&eacufixte; utilis&eacute pour monter l'image.Par exemple 'hd' ou 'sd'. La valeur par d&eacute;faut est 'hd'."
+
+msgid "Write the Virtual Network template here"
+msgstr "Saisir les caract&eacute;ristiques du mod&egrave;le de r&eacute;seau dans la case ci-dessous"
+
+msgid "VM MAD"
+msgstr "VM MAD"
+
+msgid "User name and password must be filled in"
+msgstr "Le nom d'utilisateur et le mot de passe doivent &ecirc;tre fournis"
+
+msgid "Images"
+msgstr "Images"
+
+msgid "Create VM Template"
+msgstr "Cr&eacute;er un mod&egrave;le de VM"
+
+msgid "Registration time"
+msgstr "Heure d'enregistrement"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Virtual Network Manager"
+msgstr "Gestionnaire de r&eacute;seaux virtuels"
+
+msgid "The Virtual Resources menu allows management of Virtual Machine Templates, Instances and Images."
+msgstr "Le menu Ressources Virtuelles permet la gestion des Mod&egrave;les, des Instances et des Images de machines virtuelles."
+
+msgid "Image location"
+msgstr "Chemin d'acc&egrave;s"
+
+msgid "No virtual networks in this cluster"
+msgstr "Aucun r&eacute;seau virtuel dans ce cluster"
+
+msgid "Capacity options"
+msgstr "Caract&eacute;ristiques de base"
+
+msgid "Current inputs"
+msgstr "P&eacute;riph&eacute;riques actuels"
+
+msgid "IM MAD"
+msgstr "IM MAD"
+
+msgid "Keyboard configuration locale to use in the VNC display"
+msgstr "Param&egrave;tres r&eacute;gionaux clavier pour l'affichage VNC"
+
+msgid "Search"
+msgstr "Chercher"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them"
+msgstr "Le param&egrave;tre g&eacute;n&eacute;rique '%i' peut &ecirc;tre utilis&eacute; dans le nom de la VM. Celui-ci sera remplac&eacute; par un chiffre de 0 &agrave; N"
+
+msgid "Used Memory"
+msgstr "M&eacute;moire utilis&eacute;e"
+
+msgid "Use"
+msgstr "Utiliser"
+
+msgid "Type of disk device to emulate: ide, scsi"
+msgstr "Type de disque &agrave; &eacute;muler: ide, scsi"
+
+msgid "This will resume selected stopped or suspended VMs"
+msgstr "Ceci reprendra les VM s&eacute;lectionn&eacute;es (en &eacute;tat STOPPED ou SUSPENDED"
+
+msgid "Manage cluster hosts"
+msgstr "G&eacute;rer les h&ocirc;tes du cluster"
+
+msgid "Clone this image"
+msgstr "Cloner cette image"
+
+msgid "VNC connection"
+msgstr "Connexion VNC"
+
+msgid "Arguments for the booting kernel"
+msgstr "Directives pour le noyau"
+
+msgid "Hosts memory"
+msgstr "Serveurs h&ocirc;tes - M&eacute;moire"
+
+msgid "Wizard"
+msgstr "Assistant"
+
+msgid "Filesystem type"
+msgstr "Type de FS"
+
+msgid "Create host"
+msgstr "Cr&eacute;er un h&ocirc;te"
+
+msgid "Driver default"
+msgstr "D&eacute;faut (pilote)"
+
+msgid "Etables"
+msgstr "Etables"
+
+msgid "Please select a datastore for this image"
+msgstr "Choisir l'espace de stockage pour cette image"
+
+msgid "Fold / Unfold all sections"
+msgstr "Rouler / D&eacute;rouler toutes les sections"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Deploy ID"
+msgstr "ID d&eacute;ploiement"
+
+msgid "Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk."
+msgstr "Choisir le chemin d'acc&egrave;s pour une image bas&eacute;e sur un fichier. Choisir la source ou encore cr&eacute;er un 'datablock' vide."
+
+msgid "Wizard KVM"
+msgstr "Assistant KVM"
+
+msgid "This rule applies to"
+msgstr "R&egrave;gle s'appliquant &agrave;"
+
+msgid "Summary of infrastructure resources"
+msgstr "Synth&egrave;se des ressources d'infrastructure"
+
+msgid "Create new Virtual Network"
+msgstr "Cr&eacute;er  un nouveau R&eacute;seau Virtuel"
+
+msgid "Changing language"
+msgstr "Changement de la langue"
+
+msgid "Select a VM"
+msgstr "Choisir une VM"
+
+msgid "Host name missing!"
+msgstr "Nom manquant"
+
+msgid "Filesystem type for the fs images"
+msgstr "Type de FS pour le FS images"
+
+msgid "network"
+msgstr "r&eacute;seau"
+
+msgid "Allowed operations"
+msgstr "Op&eacute;rations permises"
+
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
+msgstr "Type de syst&egrave;me de fichiers &agrave; cr&eacute;er. Toutes options reconnues par la commande unix 'mkfs'."
+
+msgid "Template information"
+msgstr "Information sur le mod&egrave;le"
+
+msgid "Submitted"
+msgstr "Soumis"
+
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
+msgstr "Expression bool&eacute;enne r&eacute;gissant le choix des serveurs h&ocirc;tes &agrave; utiliser pour l'ex&eacute;cution de la VM"
+
+msgid "Advanced mode"
+msgstr "Mode avanc&eacute;"
+
+msgid "Root"
+msgstr "Root"
+
+msgid "Update a template"
+msgstr "Mettre &agrave; jour le mod&egrave;le"
+
+msgid "Source to be used in the DISK attribute. Useful for not file-based images."
+msgstr "Fichier source &agrave; utiliser pour l'attribut DISK."
+
+msgid "Manage"
+msgstr "G&eacute;rer"
+
+msgid "Manual"
+msgstr "Manuel"
+
+msgid "running"
+msgstr "en fonctionnement"
+
+msgid "SDL"
+msgstr "SDL"
+
+msgid "hold"
+msgstr "attendre"
+
+msgid "x509"
+msgstr "x509"
+
+msgid "VM Save As"
+msgstr "Enregistrer la VM sous"
+
+msgid "VCPU"
+msgstr "VCPU"
+
+msgid "total"
+msgstr "total"
+
+msgid "fd"
+msgstr "fd"
+
+msgid "Datastores"
+msgstr "Espaces de stockage"
+
+msgid "Disable"
+msgstr "D&eacute;sactiver"
+
+msgid "Used CPU (allocated)"
+msgstr "CPU utilis&eacute; (allou&eacute;)"
+
+msgid "This will release held machines"
+msgstr "Ceci lib&eacute;rera les VM en attente"
+
+msgid "French"
+msgstr "Fran&ccedil;ais"
+
+msgid "Image information"
+msgstr "Information sur l'image"
+
+msgid "Authentication"
+msgstr "Authentification"
+
+msgid "Human readable description of the image for other users."
+msgstr "Description du contenu de l'image, &agrave; destination des autres utilisateurs."
+
+msgid "VM Instance"
+msgstr "Instance de VM"
+
+msgid "TM Mad"
+msgstr "TM Mad"
+
+msgid "Skipping VM "
+msgstr "VM ignor&eacute;e"
+
+msgid "Name of the image to use"
+msgstr "Nom de l'image &agrave; utiliser"
+
+msgid "User information"
+msgstr "Informations utilisateur"
+
+msgid "Upload file"
+msgstr "Fichier &agrave; t&eacute;l&eacute;verser"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Please, choose and modify the image you want to update"
+msgstr "Choisir et modifier l'image &agrave; mettre &agrave; jour"
+
+msgid "Please select at least one resource"
+msgstr "S&eacute;lectionner au moins une ressource"
+
+msgid "Add custom variables"
+msgstr "Ajouter des variables personnalis&eacute;es"
+
+msgid "Udp black ports"
+msgstr "Ports UDP - Liste noire"
+
+msgid "This will live-migrate the selected VMs to the chosen host"
+msgstr "Ceci d&eacute;placera les VM s&eacute;lectionn&eacute;es vers l'h&ocirc;te choisi ('live-migrate')"
+
+msgid "Boot/OS options"
+msgstr "Options syst&egrave;me et d&quot;amor&ccedil;age"
+
+msgid "Select an image"
+msgstr "Choisir une image"
+
+msgid "System Resources"
+msgstr "Ressources syst&egrave;me"
+
+msgid "Affected resources"
+msgstr "Ressources affect&eacute;es"
+
+msgid "are mandatory"
+msgstr "sont obligatoires"
+
+msgid "LCM State"
+msgstr "&Eacute;tat LCM"
+
+msgid "Create new"
+msgstr "Cr&eacute;er un nouveau"
+
+msgid "VNC Access"
+msgstr "Console VNC"
+
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
+msgstr "Nombre de processeurs virtuels. Valeur optionnelle. Lorsque non sp&eacute;cifi&eacute;e, la valeur par d&eacute;faut de l'hyperviseur est utilis&eacute;e (g&eacute;n&eacute;ralement 1)"
+
+msgid "Boot device type"
+msgstr "Type de p&eacute;riph&eacute;rique d'amor&ccedil;age"
+
+msgid "Device prefix"
+msgstr "Pr&eacute;fix du p&eacute;riph&eacute;rique"
+
+msgid "Virtual Machine information"
+msgstr "Informations sur la machine virtuelle"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "failed"
+msgstr "&eacute;chec"
+
+msgid "Used Mem (real)"
+msgstr "M&eacute;moire utilis&eacute;e (r&eacute;elle)"
+
+msgid "Write the image template here"
+msgstr "Saisir les caract&eacute;ristiques de l'image dans la case ci-dessous"
+
+msgid "Total VM CPU"
+msgstr "Total VM CPU"
+
+msgid "Swap"
+msgstr "Swap"
+
+msgid "Image"
+msgstr "Image"
+
+msgid "disabled"
+msgstr "d&eacute;sactiv&eacute;"
+
+msgid "Remove selected"
+msgstr "Supprimer..."
+
+msgid "VM Network stats"
+msgstr "VM - Statistiques r&eacute;seau"
+
+msgid "Virtio (KVM)"
+msgstr "Virtio (KVM)"
+
+msgid "Summary of resources"
+msgstr "Synth&egrave;se des ressources"
+
+msgid "Accept (default)"
+msgstr "Accept&eacute; (d&eacute;faut)"
+
+msgid "Secure websockets connection"
+msgstr "Utilisation des websockets s&eacute;curis&eacute;es"
+
+msgid "IP to listen on"
+msgstr "IP &agrave; &eacute;couter"
+
+msgid "Save this image after shutting down the VM"
+msgstr "Sauvegarder l'image de la VM apr&egrave;s extinction"
+
+msgid "Wizard XEN"
+msgstr "Assistant XEN"
+
+msgid "Instantiate"
+msgstr "Instancier"
+
+msgid "System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs."
+msgstr "La gestion des ressources syst&egrave;me est accessible uniquement aux utilisateurs membres du groupe oneadmin et permet la gestion des utilisateurs, groupes et permissions OpenNebula."
+
+msgid "Add disk/image"
+msgstr "Ajouter des disque/image"
+
+msgid "Change authentication"
+msgstr "Changer le mode d'authentification"
+
+msgid "Please select"
+msgstr "S&eacute;lectionner"
+
+msgid "Cluster information"
+msgstr "Information cluster"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "FS"
+msgstr "FS"
+
+msgid "Read only"
+msgstr "Lecture seule"
+
+msgid "Used Mem (allocated)"
+msgstr "M&eacute;moire utilis&eacute;e (allou&eacute;e)"
+
+msgid "This will hold selected pending VMs from being deployed"
+msgstr "Ceci retardera les VM en attente de d&eacute;ploiement"
+
+msgid "Add lease"
+msgstr "Ajouter un bail"
+
+msgid "Leases information"
+msgstr "Informations sur les baux"
+
+msgid "Drivers"
+msgstr "Pilotes"
+
+msgid "VN MAD"
+msgstr "VN MAD"
+
+msgid "Name for the tun device created for the VM"
+msgstr "Nom du p&eacute;riph&eacute;rique 'tun' &agrave; cr&eacute;er pour la VM"
+
+msgid "Authentication driver"
+msgstr "Pilote d'authentification"
+
+msgid "Default (current image type)"
+msgstr "D&eacute;faut (type de l'image)"
+
+msgid "Default (dummy)"
+msgstr "D&eacute;faut (dummy)"
+
+msgid "Base path"
+msgstr "Racine"
+
+msgid "Image name"
+msgstr "Nom de l'image"
+
+msgid "Memory monitoring information"
+msgstr "M&eacute;triques m&eacute;moire"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "VM Template"
+msgstr "Mod&egrave;le de VM"
+
+msgid "VM template"
+msgstr "Mod&egrave;le de VM utilis&eacute;"
+
+msgid "Update network properties"
+msgstr "Mettre &agrave; jour les propri&eacute;t&eacute;s r&eacute;seau"
+
+msgid "Total VM count"
+msgstr "VM - Nombre total"
+
+msgid "Total Leases"
+msgstr "Baux totaux"
+
+msgid "There are mandatory fields missing in the capacity section"
+msgstr "Des champs obligatoires ne sont pas remplis dans la section capacit&eacute;"
+
+msgid "SSH"
+msgstr "SSH"
+
+msgid "IP Start"
+msgstr "IP d&eacute;but"
+
+msgid "Host shares"
+msgstr "Ressources du serveur h&ocirc;te"
+
+msgid "Summary of system resources"
+msgstr "Synth&egrave;se des ressources syst&egrave;mes"
+
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
+msgstr "Pourcentage CPU divis&eacute; par 100 demand&eacute; pour la Machine Virtuelle. Pour la moiti&eacute; d'un core, inscrire 0.5."
+
+msgid "Path to the bootloader executable"
+msgstr "Chemin d'acc&egrave;s du lanceur"
+
+msgid "release"
+msgstr "lib&eacute;rer"
+
+msgid "Floppy"
+msgstr "Diskette"
+
+msgid "Request an specific IP from the Network"
+msgstr "Utiliser une adresse IP pr&eacute;d&eacute;termin&eacute;e"
+
+msgid "Lease MAC (opt):"
+msgstr "Bail (MAC - opt.)"
+
+msgid "Disk file location path or URL"
+msgstr "Chemin ou URL d'acc&egrave;s au disque"
+
+msgid "Datablock"
+msgstr "Datablock"
+
+msgid "Bridge"
+msgstr "Pont"
+
+msgid "Hold"
+msgstr "Attendre"
+
+msgid "Reason"
+msgstr "Raison"
+
+msgid "You can find further information on the following links:"
+msgstr "Veuillez vous r&eacute;f&eacute;rer aux pages suivantes pour plus d'informations :"
+
+msgid "Template updated correctly"
+msgstr "Mise &agrave; du mod&egrave;le r&eacute;ussie"
+
+msgid "Reset"
+msgstr "R&eacute;initialiser"
+
+msgid "Filesystem"
+msgstr "Syst&egrave;me de fichiers"
+
+msgid "Resubmit"
+msgstr "Resoumettre"
+
+msgid "Icmp"
+msgstr "ICMP"
+
+msgid "Enable"
+msgstr "Activer"
+
+msgid "Hosts CPU"
+msgstr "Serveurs h&ocirc;tes - CPU"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "Stop"
+msgstr "Arr&ecirc;t"
+
+msgid "No leases to show"
+msgstr "Aucun bail &agrave; afficher"
+
+msgid "Current disks"
+msgstr "Disque existant"
+
+msgid "You have not selected a template"
+msgstr "Vous n'avez pas s&eacute;lectionn&eacute; de mod&egrave;le"
+
+msgid "ACL"
+msgstr "Permission"
+
+msgid "Quickstart"
+msgstr "D&eacute;marage rapide"
+
+msgid "Community"
+msgstr "Communaut&eacute;"
+
+msgid "Select a template"
+msgstr "Choisir un mod&egrave;le"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Italian"
+msgstr "Italien"
+
+msgid "Create new ACL"
+msgstr "Cr&eacute;er une nouvelle Permission"
+
+msgid "#VMS"
+msgstr "#VMS"
+
+msgid "VM Instances"
+msgstr "Instances de VM"
+
+msgid "IPs"
+msgstr "IPs"
+
+msgid "Change password"
+msgstr "Changer le mot de passe"
+
+msgid "Loading"
+msgstr "Chargement"
+
+msgid "Loading new language... please wait"
+msgstr "Chargement de la nouvelle image... patientez svp"
+
+msgid "Optional, please select"
+msgstr "Optionnel, choisir..."
+
+msgid "USB"
+msgstr "USB"
+
+msgid "Update Datastore properties"
+msgstr "Mettre &agrave; jour l'espace de stockage"
+
+msgid "Block"
+msgstr "Bloc"
+
+msgid "Create new Host"
+msgstr "Cr&eacute;er un nouvel H&ocirc;te"
+
+msgid "Create cluster"
+msgstr "Cr&eacute;er un cluster"
+
+msgid "Network type"
+msgstr "Type de r&eacute;seau"
+
+msgid "hd"
+msgstr "hd"
+
+msgid "Sign out"
+msgstr "D&eacute;connection"
+
+msgid "Setup Networks"
+msgstr "Configurer les connexions r&eacute;seaux"
+
+msgid "Physical device"
+msgstr "P&eacute;riph&eacute;rique"
+
+msgid "Reboot"
+msgstr "Reboot"
+
+msgid "You have to confirm this action."
+msgstr "Il vous faut confirmer cette action"
+
+msgid "Mount image as read-only"
+msgstr "Monter l'image en lecture seule"
+
+msgid "Provide a path"
+msgstr "Indiquer un chemin d'acc&egrave;s"
+
+msgid "Manage cluster virtual networks"
+msgstr "G&eacute;rer les r&eacute;seaux virtuels du cluster"
+
+msgid "Datastore information"
+msgstr "Informations sur l'espace de stockage"
+
+msgid "Features"
+msgstr "Fonctionnalit&eacute;s"
+
+msgid "Group "
+msgstr "Groupe "
+
+msgid "Change owner"
+msgstr "Changer de propri&eacute;taire"
+
+msgid "Change group"
+msgstr "Changer le groupe"
+
+msgid "Default"
+msgstr "D&eacute;faut"
+
+msgid "DS Mad"
+msgstr "DS Mad"
+
+msgid "Create Image"
+msgstr "Cr&eacute;er une image"
+
+msgid "Historical monitoring information"
+msgstr "Historique de consommation de ressources"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "Add Hypervisor raw options"
+msgstr "Ajouter des options sp&eacute;cifiques &agrave; l'hyperviseur"
+
+msgid "Defaults to template name when emtpy"
+msgstr "Utilise par d&eacute;faut le nom du mod&egrave;le lorsque la case est laiss&eacute;e vide"
+
+msgid "Previous action"
+msgstr "Action pr&eacute;c&eacute;dante"
+
+msgid "Current variables"
+msgstr "Variables actuelles"
+
+msgid "Host"
+msgstr "H&ocirc;te"
+
+msgid "disk id"
+msgstr "id disque"
+
+msgid "No datastores in this cluster"
+msgstr "Pas d'espace de stockage dans le cluster"
+
+msgid "Path to the OS kernel to boot the image"
+msgstr "Chemin d'acc&egrave;s &agrave; l'image du noyau"
+
+msgid "Create ACL"
+msgstr "Cr&eacute;er une permission"
+
+msgid "Transfer Manager"
+msgstr "Gestion de Tranferts"
+
+msgid "Target"
+msgstr "Cible"
+
+msgid "style"
+msgstr "style"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "FS type"
+msgstr "Type de FS"
+
+msgid "This will redeploy selected VMs (in UNKNOWN or BOOT state)"
+msgstr "Ceci red&eacute;ploiera les VM s&eacute;lectionn&eacute;es (en &eacute;tat UNKNOWN ou BOOT)"
+
+msgid "Please, choose and modify the virtual machine you want to update"
+msgstr "Choisir et modifier la machine virtuelle &agrave; mettre &agrave; jour"
+
+msgid "Please provide a resource ID for the resource(s) in this rule"
+msgstr "Saisir l'ID de ressource de cette r&grave;gle"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "Virtual Network template (attributes)"
+msgstr "Mod&egrave;le de r&eacute;seau virtuel (attributs)"
+
+msgid "Specific ID"
+msgstr "Identifiant sp&eacute;cifique"
+
+msgid "You need to select something."
+msgstr "Vous devez choisir une option"
+
+msgid "Update image properties"
+msgstr "Mettre &agrave; jour les propri&eacute;t&eacute;s de l'image"
+
+msgid "Create new User"
+msgstr "Cr&eacute;er un nouvel Utilisateur"
+
+msgid "Image template"
+msgstr "Mod&egrave;le d'image"
+
+msgid "Datastore Template"
+msgstr "Mod&egrave;le d'Espace de Stockage"
+
+msgid "CPU Use"
+msgstr "Utilisation CPU"
+
+msgid "Model"
+msgstr "Mod&egrave;le"
+
+msgid "Type of disk device to emulate."
+msgstr "Type de disque &agrave; &eacute;muler"
+
+msgid "Port whitelist"
+msgstr "Port - liste blanche"
+
+msgid "Cannot contact server: is it running and reachable?"
+msgstr "Impossible de contacter le serveur. V&eacute;rifier qu'il fonctionne et qu'il est joignable."
+
+msgid "Migrate"
+msgstr "Migrer"
+
+msgid "Name of the bridge the network device is going to be attached to"
+msgstr "Nom du pont r&eacute;seau auquel le p&eacute;riph&eacute;rique r&eacute;seau sera connect&eacute;"
+
+msgid "Please specify to who this ACL applies"
+msgstr "Sp&eacute;cifier &agrave; qui appliquer cette ACL"
+
+msgid "Name for the context variable"
+msgstr "Nom de la variable de contexte"
+
+msgid "Group name"
+msgstr "Nom de groupe"
+
+msgid "Transfer manager"
+msgstr "Gestion de tranferts"
+
+msgid "Size of the datablock in MB."
+msgstr "Taille du datablock en Mo"
+
+msgid "Host template"
+msgstr "Mod&egrave;le d'h&ocirc;te"
+
+msgid "Path"
+msgstr "Chemin d'acc&egrave;s"
+
+msgid "Drop"
+msgstr "Rejet&eacute;"
+
+msgid "Virtual Network name missing!"
+msgstr "Nom du r&eacute;seau virtuel manquant"
+
+msgid "Current number of hosts in this cluster"
+msgstr "Nombre de serveurs membres dans le cluster"
+
+msgid "Create new Datastore"
+msgstr "Cr&eacute;er un nouvel Espace de Stockage"
+
+msgid "Hostname"
+msgstr "Nom d'h&ocirc;te"
+
