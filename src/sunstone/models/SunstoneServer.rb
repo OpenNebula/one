@@ -19,7 +19,6 @@ require 'CloudServer'
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
-require 'acct/watch_client'
 require 'OpenNebulaVNC'
 require 'OpenNebulaJSON/JSONUtils'
 include JSONUtils
