@@ -70,111 +70,6 @@ module OpenNebula
             return xmlrpc_info(xml_method,who, start_id, end_id)
         end
 
-
-        # TODO
-        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions,
-            *args)
-
-            rc = @client.call(xml_method, *args)
-
-            if ( OpenNebula.is_error?(rc) )
-                return rc
-            end
-
-            xmldoc = XMLElement.new
-            xmldoc.initialize_xml(rc, 'MONITORING_DATA')
-
-            hash = {}
-
-            # Get all existing Object IDs
-            ids = xmldoc.retrieve_elements("#{root_elem}/ID")
-
-            if ids.nil?
-                xpath_expressions.each { |xpath_expression|
-                    hash[xpath_expression] = []
-                }
-
-                return hash
-            else
-                ids.uniq!
-            end
-
-            # Each object may have different monitorization times. This
-            # method will find out the min & max values and create equally
-            # spaced times for the X axis
-            timestamps = equally_spaced_times(xmldoc, root_elem, timestamp_elem)
-
-
-            # Get the timestamps for each individual object
-            object_times_hash = {}
-            ids.each { |id|
-                times = xmldoc.retrieve_elements(
-                    "#{root_elem}[ID=#{id}]/#{timestamp_elem}")
-
-                times.collect!{ |i| 
-                    i.to_i
-                }
-
-                object_times_hash[id] = times
-            }
-
-
-            xpath_expressions.each { |xpath_expression|
-                hash[xpath_expression] = []
-
-                timestamps.each { |timestamp|
-                    value = nil
-
-                    ids.each { |id|
-                        xpath = "#{root_elem}[ID=#{id}]/#{xpath_expression}"
-
-                        xpath_values = xmldoc.retrieve_elements(xpath)
-
-                        if xpath_values.nil?
-                            next
-                        end
-
-                        obj_times = object_times_hash[id]
-
-                        # Find two points next to the timestamp we need
-                        index_left  = obj_times.index{|i| i <= timestamp}
-                        index_right = obj_times.index{|i| i >= timestamp}
-
-                        if index_left.nil? || index_right.nil?
-                            next
-                        end
-
-                        if index_left == index_right
-                            y = xpath_values[index_left].to_i
-                        else
-                            # The point we need is (x,y) = (timestamp, y)
-                            # X axis is obj_times, Y is xpath_values
-                            y = linear_equation(
-                                obj_times[index_left],          # x1
-                                xpath_values[index_left].to_i,  # y1
-                                obj_times[index_right],         # x2
-                                xpath_values[index_right].to_i, # y2
-                                timestamp)                      # known x
-                        end
-
-                        if value.nil?
-                            value = y
-                        else
-                            # TODO: Allow other operations, sum, average, etc.
-                            value += y
-                        end
-                    }
-
-                    if !value.nil?
-                        hash[xpath_expression] << [timestamp, value]
-                    end
-                }
-            }
-
-            return hash
-        end
-
-
     private
         # Calls to the corresponding info method to retreive the pool
         # representation in XML format
@@ -190,41 +85,6 @@ module OpenNebula
             end
 
             return rc
-        end
-
-        # Solves for y, given two known points and x
-        def linear_equation(x1, y1, x2, y2, x)
-            m = (y2 - y1) / (x2 - y2)
-            return m * (x - x1) + y1
-        end
-
-        # Tries to guess the monitoring interval and creates equally-spaced timestamps
-        def equally_spaced_times(xmldoc, root_elem, timestamp_elem)
-            timestamps = xmldoc.retrieve_elements(
-                "#{root_elem}/#{timestamp_elem}").collect{|i| i.to_i }
-
-            # Get min & max time values
-            t_min = timestamps.min
-            t_max = timestamps.max
-
-            id_1 = xmldoc["#{root_elem}[1]/ID"]
-
-            elem_1_timestamps = xmldoc.retrieve_elements(
-                "#{root_elem}[ID=#{id_1}]/#{timestamp_elem}")
-
-            # TODO: try other IDs if elem_1_timestamps < 2
-
-            monitoring_interval = elem_1_timestamps[-1].to_i - elem_1_timestamps[-2].to_i
-
-            timestamps = []
-
-            time = t_min
-            timestamps << time
-            ((t_max - t_min) / monitoring_interval).times { |i|
-                timestamps << time += monitoring_interval
-            }
-
-            return timestamps
         end
 
     public
@@ -400,11 +260,6 @@ module OpenNebula
         #
         # @param xml_method [String] the name of the XML-RPC method
         # @param root_elem [String] Root for each individual PoolElement
-
-# TODO
-        # @param timestamp_elem
-
-
         # @param xpath_expressions [Array<String>] Xpath expressions for the
         #   elements to retrieve.
         #
@@ -424,10 +279,10 @@ module OpenNebula
 
             hash = {}
             timestamps = xmldoc.retrieve_elements(
-                "#{root_elem}/#{timestamp_elem}")
+                root_elem + '/' + timestamp_elem)
 
             xpath_expressions.each { |xpath|
-                xpath_values = xmldoc.retrieve_elements("#{root_elem}/#{xpath}")
+                xpath_values = xmldoc.retrieve_elements(root_elem + '/' + xpath)
 
                 if ( xpath_values.nil? )
                     hash[xpath] = []

@@ -25,8 +25,7 @@ module OpenNebula
 
 
         VM_POOL_METHODS = {
-            :info       => "vmpool.info",
-            :monitoring => "vmpool.monitoring"
+            :info => "vmpool.info"
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -110,12 +109,6 @@ module OpenNebula
                                -1,
                                -1,
                                INFO_NOT_DONE)
-        end
-
-        # TODO
-        def monitoring(xpath_expressions)
-            return super(VM_POOL_METHODS[:monitoring],
-                'VM', 'LAST_POLL', xpath_expressions, INFO_ALL)
         end
 
         private
