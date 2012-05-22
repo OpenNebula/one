@@ -146,6 +146,16 @@ module OpenNebula
                 'VM', 'LAST_POLL', xpath_expressions, filter_flag)
         end
 
+        # Retrieves the monitoring data for all the VMs in the pool, in XML
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE.
+        #
+        # @return [String] VM monitoring data, in XML
+        def monitoring_xml(filter_flag=INFO_ALL)
+            return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
+        end
+
         private
 
         def info_filter(xml_method, who, start_id, end_id, state)

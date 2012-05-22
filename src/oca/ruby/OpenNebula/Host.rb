@@ -137,6 +137,15 @@ module OpenNebula
                 'LAST_MON_TIME', xpath_expressions)
         end
 
+        # Retrieves this Host's monitoring data from OpenNebula, in XML
+        #
+        # @return [String] Monitoring data, in XML
+        def monitoring_xml()
+            return Error.new('ID not defined') if !@pe_id
+
+            return @client.call(HOST_METHODS[:monitoring], @pe_id)
+        end
+
         #######################################################################
         # Helpers to get Host information
         #######################################################################

@@ -302,6 +302,15 @@ module OpenNebula
                 'LAST_POLL', xpath_expressions)
         end
 
+        # Retrieves this VM's monitoring data from OpenNebula, in XML
+        #
+        # @return [String] VM monitoring data, in XML
+        def monitoring_xml()
+            return Error.new('ID not defined') if !@pe_id
+
+            return @client.call(VM_METHODS[:monitoring], @pe_id)
+        end
+
         #######################################################################
         # Helpers to get VirtualMachine information
         #######################################################################

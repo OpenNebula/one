@@ -80,5 +80,12 @@ module OpenNebula
             return super(HOST_POOL_METHODS[:monitoring],
                 'HOST', 'LAST_MON_TIME', xpath_expressions)
         end
+
+        # Retrieves the monitoring data for all the Hosts in the pool, in XML
+        #
+        # @return [String] VM monitoring data, in XML
+        def monitoring_xml()
+            return @client.call(HOST_POOL_METHODS[:monitoring])
+        end
     end
 end
