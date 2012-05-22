@@ -33,6 +33,7 @@ public class HostPool extends Pool implements Iterable<Host>{
 
     private static final String ELEMENT_NAME = "HOST";
     private static final String INFO_METHOD  = "hostpool.info";
+    private static final String MONITORING   = "hostpool.monitoring";
 
     /**
      * Creates a new host pool
@@ -62,6 +63,18 @@ public class HostPool extends Pool implements Iterable<Host>{
     }
 
     /**
+     * Retrieves the monitoring data for all the hosts in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse monitoring(Client client)
+    {
+        return client.call(MONITORING);
+    }
+
+    /**
      * Loads the xml representation of the host pool.
      *
      * @see HostPool#info(Client)
@@ -69,6 +82,17 @@ public class HostPool extends Pool implements Iterable<Host>{
     public OneResponse info()
     {
         return super.info();
+    }
+
+    /**
+     * Retrieves the monitoring data for all the hosts in the pool.
+     *
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse monitoring()
+    {
+        return monitoring(client);
     }
 
     public Iterator<Host> iterator()
