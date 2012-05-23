@@ -57,8 +57,8 @@ log "Cloning $SRC_PATH in $DST"
 
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR
-sudo $VMKFSTOOLS -U $DST_PATH/disk.vmdk
-sudo $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
+$VMKFSTOOLS -U $DST_PATH/disk.vmdk
+$VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
 EOF
 )
 
