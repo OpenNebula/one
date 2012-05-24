@@ -1463,13 +1463,13 @@ src/cloud/occi/lib/ui/public/images/vnc_off.png \
 src/cloud/occi/lib/ui/public/images/vnc_on.png \
 src/cloud/occi/lib/ui/public/images/yellow_bullet.png"
 
-SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/public/locale/en_US/en_US.js"
-SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/public/locale/es_ES/es_ES.js \
-                                  src/cloud/occi/lib/ui/public/locale/es_ES/es_datatable.txt"
-SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/public/locale/fr_FR/fr_FR.js \
-                                  src/cloud/occi/lib/ui/public/locale/fr_FR/fr_datatable.txt"
-SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/public/locale/fr_CA/fr_CA.js \
-                                  src/cloud/occi/lib/ui/public/locale/fr_CA/fr_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/locale/languages/en_US.js"
+SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/locale/languages/es_ES.js \
+                                  src/cloud/occi/lib/ui/locale/languages/es_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/locale/languages/fr_FR.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/locale/languages/fr_CA.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # ACCT files

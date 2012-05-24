@@ -1,5 +1,4 @@
-#!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
+# SConstruct for share/man
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -17,34 +16,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if !ARGV[0]
-    puts "Usage ./po2json.rb <file.po> > <output.js>"
-    exit 1
-end
+Import('env')
 
-po_file = File.open(ARGV[0])
+po_bld = Builder(action = 'share/scons/po2json.rb $SOURCE > $TARGET',
+                 suffix = '.js',
+                 src_suffix = '.po')
 
-lang = File.basename(ARGV[0]).split('.')[0]
-datatable_lang = lang.split("_")[0]
+env.Append(BUILDERS = {'Po' : po_bld})
 
-puts "lang=\"#{lang}\""
-puts "datatable_lang=\"#{datatable_lang}_datatable.txt\""
-puts "locale={"
-
-msgid = nil
-po_file.each do |line|
-    if msgid
-        msgstr = line.sub("msgstr ", "").chomp
-        puts "    #{msgid}:#{msgstr},"
-        msgid = nil
-        next
-    end
-    if line.include?("msgid")
-        msgid = line.sub("msgid ", "").chomp
-        if msgid.length == 0 || msgid.slice(0,1) == '#'
-            msgid = nil
-        end
-    end
-end
-
-puts "}"
+env.Po('en_US.po')
+env.Po('es_ES.po')
+env.Po('fr_CA.po')
+env.Po('fr_FR.po')
