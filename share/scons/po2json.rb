@@ -17,6 +17,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+if RUBY_VERSION =~ /1.9/
+    Encoding.default_external = Encoding::UTF_8
+    Encoding.default_internal = Encoding::UTF_8
+end
+
 if !ARGV[0]
     puts "Usage ./po2json.rb <file.po> > <output.js>"
     exit 1
@@ -39,12 +44,15 @@ po_file.each do |line|
         msgid = nil
         next
     end
+
     if line.include?("msgid")
         msgid = line.sub("msgid ", "").chomp
+
         if msgid.length == 0 || msgid.slice(0,1) == '#'
             msgid = nil
         end
     end
+
 end
 
 puts "}"

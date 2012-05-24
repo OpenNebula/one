@@ -1,4 +1,4 @@
-#!/bin/bash
+# SConstruct for share/man
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,9 +16,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-languages="en_US fr_FR it_IT pt_PT ru"
+Import('env')
 
-for lang in $languages; do
-    echo "Upgrading $lang..."
-    ./po2json.rb languages/$lang.po > ../public/locale/$lang/$lang.js
-done
+po_bld = Builder(action = 'share/scons/po2json.rb $SOURCE > $TARGET',
+                 suffix = '.js',
+                 src_suffix = '.po')
+
+env.Append(BUILDERS = {'Po' : po_bld})
+
+env.Po('en_US.po')
+env.Po('fr_FR.po')
+env.Po('it_IT.po')
+env.Po('pt_PT.po')
+env.Po('ru.po')

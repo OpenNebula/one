@@ -1290,27 +1290,25 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
 "
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
-src/sunstone/public/locale/en_US/en_US.js \
-src/sunstone/public/locale/en_US/en_datatable.txt \
+src/sunstone/locale/languages/en_US.js \
+src/sunstone/locale/languages/en_datatable.txt \
 "
 
 SUNSTONE_PUBLIC_LOCALE_RU="
-src/sunstone/public/locale/ru/ru.js \
-src/sunstone/public/locale/ru/ru_datatable.txt"
+src/sunstone/locale/languages/ru.js \
+src/sunstone/locale/languages/ru_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_IT_IT="
-src/sunstone/public/locale/it_IT/it_IT.js \
-src/sunstone/public/locale/it_IT/it_datatable.txt"
+src/sunstone/locale/languages/it_IT.js \
+src/sunstone/locale/languages/it_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PT_PT="
-src/sunstone/public/locale/pt_PT/pt_PT.js \
-src/sunstone/public/locale/pt_PT/pt_datatable.txt"
+src/sunstone/locale/languages/pt_PT.js \
+src/sunstone/locale/languages/pt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_FR_FR="
-src/sunstone/public/locale/fr_FR/fr_FR.js \
-src/sunstone/public/locale/fr_FR/fr_datatable.txt"
-
-
+src/sunstone/locale/languages/fr_FR.js \
+src/sunstone/locale/languages/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # Ozones files
