@@ -431,7 +431,7 @@ function updateHostSelect(){
                                      1,//id_col
                                      2,//name_col
                                      [7,7],//status_cols
-                                     [tr("ERROR"),tr("OFF")]//bad_st
+                                     [tr("ERROR"),tr("OFF"),tr("RETRY")]//bad_st
                                     );
 }
 
