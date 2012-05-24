@@ -17,15 +17,42 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-tr_strings = `grep -h -o -R -e 'tr("[[:print:]]*")' ../js/* | cut -d'"' -f 2 | sort -u`
-
-puts "//Translated by"
-puts 'lang="en_US"'
-puts 'datatable_lang=""'
-puts "locale={"
-
-tr_strings.each_line do | line |
-    puts "    \"#{line.chomp}\":\"\","
+if RUBY_VERSION =~ /1.9/
+    Encoding.default_external = Encoding::UTF_8
+    Encoding.default_internal = Encoding::UTF_8
 end
 
-puts "};"
+if !ARGV[0]
+    puts "Usage ./po2json.rb <file.po> > <output.js>"
+    exit 1
+end
+
+po_file = File.open(ARGV[0])
+
+lang = File.basename(ARGV[0]).split('.')[0]
+datatable_lang = lang.split("_")[0]
+
+puts "lang=\"#{lang}\""
+puts "datatable_lang=\"#{datatable_lang}_datatable.txt\""
+puts "locale={"
+
+msgid = nil
+po_file.each do |line|
+    if msgid
+        msgstr = line.sub("msgstr ", "").chomp
+        puts "    #{msgid}:#{msgstr},"
+        msgid = nil
+        next
+    end
+
+    if line.include?("msgid")
+        msgid = line.sub("msgid ", "").chomp
+
+        if msgid.length == 0 || msgid.slice(0,1) == '#'
+            msgid = nil
+        end
+    end
+
+end
+
+puts "}"

@@ -1196,7 +1196,7 @@ function setupCreateTemplateDialog(){
             var field = $(this);
             if (!(field.parents(".vm_param").attr('disabled')) &&
                 field.val().length){
-                //Pick up parent's ID if we do not have one
+                //Pick up parents ID if we do not have one
                 id = field.attr('id').length ? field.attr('id') : field.parent().attr('id');
                 value[id] = field.val();
             };

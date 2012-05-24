@@ -1290,27 +1290,25 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
 "
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
-src/sunstone/public/locale/en_US/en_US.js \
-src/sunstone/public/locale/en_US/en_datatable.txt \
+src/sunstone/locale/languages/en_US.js \
+src/sunstone/locale/languages/en_datatable.txt \
 "
 
 SUNSTONE_PUBLIC_LOCALE_RU="
-src/sunstone/public/locale/ru/ru.js \
-src/sunstone/public/locale/ru/ru_datatable.txt"
+src/sunstone/locale/languages/ru.js \
+src/sunstone/locale/languages/ru_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_IT_IT="
-src/sunstone/public/locale/it_IT/it_IT.js \
-src/sunstone/public/locale/it_IT/it_datatable.txt"
+src/sunstone/locale/languages/it_IT.js \
+src/sunstone/locale/languages/it_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PT_PT="
-src/sunstone/public/locale/pt_PT/pt_PT.js \
-src/sunstone/public/locale/pt_PT/pt_datatable.txt"
+src/sunstone/locale/languages/pt_PT.js \
+src/sunstone/locale/languages/pt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_FR_FR="
-src/sunstone/public/locale/fr_FR/fr_FR.js \
-src/sunstone/public/locale/fr_FR/fr_datatable.txt"
-
-
+src/sunstone/locale/languages/fr_FR.js \
+src/sunstone/locale/languages/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # Ozones files
@@ -1465,13 +1463,13 @@ src/cloud/occi/lib/ui/public/images/vnc_off.png \
 src/cloud/occi/lib/ui/public/images/vnc_on.png \
 src/cloud/occi/lib/ui/public/images/yellow_bullet.png"
 
-SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/public/locale/en_US/en_US.js"
-SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/public/locale/es_ES/es_ES.js \
-                                  src/cloud/occi/lib/ui/public/locale/es_ES/es_datatable.txt"
-SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/public/locale/fr_FR/fr_FR.js \
-                                  src/cloud/occi/lib/ui/public/locale/fr_FR/fr_datatable.txt"
-SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/public/locale/fr_CA/fr_CA.js \
-                                  src/cloud/occi/lib/ui/public/locale/fr_CA/fr_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/locale/languages/en_US.js"
+SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/locale/languages/es_ES.js \
+                                  src/cloud/occi/lib/ui/locale/languages/es_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/locale/languages/fr_FR.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/locale/languages/fr_CA.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # ACCT files

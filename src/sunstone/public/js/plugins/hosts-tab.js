@@ -431,7 +431,7 @@ function updateHostSelect(){
                                      1,//id_col
                                      2,//name_col
                                      [7,7],//status_cols
-                                     ["ERROR","OFF"]//bad_st
+                                     [tr("ERROR"),tr("OFF")]//bad_st
                                     );
 }
 
@@ -473,7 +473,7 @@ function updateHostsView (request,host_list){
     updateInfraDashboard("hosts",host_list);
 }
 
-//Updates the host info panel tab's content and pops it up
+//Updates the host info panel tab content and pops it up
 function updateHostInfo(request,host){
     var host_info = host.HOST;
 
@@ -651,7 +651,7 @@ function setupCreateHostDialog(){
         };
 
         //Create the OpenNebula.Host.
-        //If it's successfull we refresh the list.
+        //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
         $create_host_dialog.dialog('close');
         return false;
