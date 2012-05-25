@@ -62,6 +62,8 @@ module Migrator
             }
 
             doc.root.add_element("DISK_TYPE").text = "0"
+            doc.root.add_element("SOURCE_IMG").text = "-1"
+            doc.root.add_element("CLONING_OPS").text = "0"
 
             @db[:image_pool].insert(
                 :oid        => row[:oid],
