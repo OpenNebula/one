@@ -69,6 +69,7 @@ int ImagePool::allocate (
         const string&   ds_name,
         Image::DiskType disk_type,
         const string&   ds_data,
+        int             source_img_id,
         int *           oid,
         string&         error_str)
 {
@@ -105,6 +106,11 @@ int ImagePool::allocate (
     img->ds_id   = ds_id;
     
     img->disk_type = disk_type;
+
+    if ( source_img_id != -1 )
+    {
+        img->set_source_img(source_img_id);
+    }
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository

@@ -159,7 +159,7 @@ void ImageManager::release_image(int iid, bool failed)
                     img->set_state(Image::READY);
                 }
             }
-            else if ( rvms == 0 )
+            else if ( rvms == 0  && img->get_cloning() == 0 )
             {
                 img->set_state(Image::READY);
             }
@@ -263,6 +263,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     string      source;
     string      img_tmpl;
     string *    drv_msg;
+    int         source_id;
 
     img = ipool->get(iid,true);
 
@@ -274,7 +275,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     switch(img->get_state())
     {
         case Image::READY:
-            if ( img->get_running() != 0 )
+            if ( img->get_running() != 0 || img->get_cloning() > 0 )
             {
                 img->unlock();
                 return -1; //Cannot remove images in use
@@ -291,6 +292,45 @@ int ImageManager::delete_image(int iid, const string& ds_data)
         case Image::LOCKED:
         case Image::ERROR:
         break;
+    }
+
+    source_id = img->get_source_img();
+
+    if ( source_id != -1 ) // An Image clone was in progress
+    {
+        Image * source_image;
+
+        // Unlock to avoid death-locks with source_image
+        img->unlock();
+
+        source_image = ipool->get(source_id, true);
+
+        if ( source_image != 0 )
+        {
+            source_image->dec_cloning();
+
+            if ( source_image->get_state() == Image::USED &&
+                 source_image->get_running() == 0 &&
+                 source_image->get_cloning() == 0 )
+            {
+                source_image->set_state(Image::READY);
+            }
+
+            ipool->update(source_image);
+            source_image->unlock();
+        }
+
+        // Lock the image again
+        img = ipool->get(iid,true);
+
+        if ( img == 0 )
+        {
+            return -1;
+        }
+
+        img->unset_source_img();
+
+        ipool->update(img);
     }
 
     const ImageManagerDriver* imd = get();

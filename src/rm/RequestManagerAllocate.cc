@@ -306,9 +306,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string str_tmpl = xmlrpc_c::value_string(params.getString(1));
     int    ds_id    = xmlrpc_c::value_int(params.getInt(2));
 
-    Nebula&  nd  = Nebula::instance();
-
-    DatastorePool * dspool = nd.get_dspool();
     ImagePool * ipool      = static_cast<ImagePool *>(pool);
 
     ImageTemplate * tmpl = new ImageTemplate;
@@ -392,6 +389,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          ds_name,
                          ds_disk_type,
                          ds_data, 
+                         -1,
                          &id,
                          error_str);
     if ( rc < 0 )

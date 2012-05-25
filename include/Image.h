@@ -95,6 +95,25 @@ public:
         ERROR     = 5  /** < Error state the operation FAILED*/
     };
 
+    /**
+     * Returns the string representation of an ImageState
+     * @param state The state
+     * @return the string representation
+     */
+    static string state_to_str(ImageState state)
+    {
+        switch(state)
+        {
+            case INIT:      return "INIT";      break;
+            case READY:     return "READY";     break;
+            case USED:      return "USED";      break;
+            case DISABLED:  return "DISABLED";  break;
+            case LOCKED:    return "LOCKED";    break;
+            case ERROR:     return "ERROR";     break;
+            default:        return "";
+        }
+    };
+
     // *************************************************************************
     // Image Public Methods
     // *************************************************************************
@@ -187,7 +206,7 @@ public:
      *  Returns the image state
      *     @return state of image
      */
-    ImageState get_state()
+    ImageState get_state() const
     {
         return state;
     }
@@ -223,6 +242,36 @@ public:
     int get_running()
     {
         return running_vms;
+    }
+
+    int get_cloning()
+    {
+        return cloning_ops;
+    }
+
+    int dec_cloning()
+    {
+        return --cloning_ops;
+    }
+
+    int inc_cloning()
+    {
+        return ++cloning_ops;
+    }
+
+    int get_source_img()
+    {
+        return source_img_id;
+    }
+
+    void set_source_img(int id)
+    {
+        source_img_id = id;
+    }
+
+    void unset_source_img()
+    {
+        source_img_id = -1;
     }
 
     /**
@@ -365,7 +414,18 @@ public:
     {
         return ds_name;
     };
-    
+
+    /**
+     * Prepares a template to allocate a clone of this Image
+     *
+     * @param new_name Value for the NAME attribute
+     * @param tmpl Will contain the resulting template, if any
+     * @param error_str Returns the error reason, if any
+     * @return 0 in case of success, -1 otherwise
+     */
+    int clone_template(string& new_name,
+            ImageTemplate * &tmpl, string& error_str) const;
+
 private:
 
     // -------------------------------------------------------------------------
@@ -427,6 +487,17 @@ private:
      * Number of VMs using the image
      */
     int running_vms;
+
+    /**
+     * Number of pending cloning operations
+     */
+    int cloning_ops;
+
+    /**
+     * Indicates if this Image is a clone of another one.
+     * Once the clone process is complete, it should be set to -1
+     */
+    int source_img_id;
 
     /**
      * Datastore ID

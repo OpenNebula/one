@@ -135,6 +135,15 @@ public:
     virtual void set(Attribute * attr);
 
     /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined)
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace(const string& name, const string& value);
+
+    /**
      *  Removes an attribute from the template. The attributes are returned. The
      *  attributes MUST be freed by the calling funtion
      *    @param name of the attribute

@@ -163,6 +163,43 @@ void ImageManagerDriver::protocol(
     // Driver Actions
     if ( action == "CP" )
     {
+        int source_id = image->get_source_img();
+
+        if ( source_id != -1 ) // An Image clone operation finished
+        {
+            Image * source_image;
+
+            // Unlock to avoid death-locks with source_image
+            image->unlock();
+
+            source_image = ipool->get(source_id, true);
+
+            if ( source_image != 0 )
+            {
+                source_image->dec_cloning();
+
+                if ( source_image->get_state() == Image::USED &&
+                     source_image->get_running() == 0 &&
+                     source_image->get_cloning() == 0 )
+                {
+                    source_image->set_state(Image::READY);
+                }
+
+                ipool->update(source_image);
+                source_image->unlock();
+            }
+
+            // Lock the image again
+            image = ipool->get(id,true);
+
+            if ( image == 0 )
+            {
+                return;
+            }
+
+            image->unset_source_img();
+        }
+
         if ( result == "SUCCESS" )
         {
             image->set_source(source);

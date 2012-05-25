@@ -99,6 +99,32 @@ public:
                          RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ImageClone : public RequestManagerImage
+{
+public:
+    ImageClone():
+        RequestManagerImage("ImageClone",
+                "Clones an existing image",
+                "A:sis")
+    {
+        auth_op = AuthRequest::USE;
+
+        Nebula&  nd  = Nebula::instance();
+        dspool = nd.get_dspool();
+    };
+
+    ~ImageClone(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+
+private:
+    DatastorePool * dspool;
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

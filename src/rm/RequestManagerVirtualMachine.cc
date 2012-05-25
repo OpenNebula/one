@@ -562,6 +562,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          ds_name,
                          ds_disk_type,
                          ds_data,
+                         -1,
                          &iid,
                          error_str);
     if (rc < 0)

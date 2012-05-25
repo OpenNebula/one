@@ -196,6 +196,7 @@ public:
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
+        dspool      = nd.get_dspool();
         auth_object = PoolObjectSQL::IMAGE;
     };
 
@@ -209,6 +210,9 @@ public:
     bool allocate_authorization(Template *          obj_template,
                                 RequestAttributes&  att,
                                 PoolObjectAuth *    cluster_perms);
+
+private:
+    DatastorePool * dspool;
 };
 
 /* ------------------------------------------------------------------------- */
