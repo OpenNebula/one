@@ -269,7 +269,7 @@ class SunstoneServer < CloudServer
         rc = pool.monitoring(meters_a)
 
         if OpenNebula.is_error?(rc)
-            error = Error.new(rc,message)
+            error = Error.new(rc.message)
             return [500, error.to_json]
         end
 
@@ -294,7 +294,7 @@ class SunstoneServer < CloudServer
         rc = pool_element.monitoring(meters_a)
 
         if OpenNebula.is_error?(rc)
-            error = Error.new(rc,message)
+            error = Error.new(rc.message)
             return [500, error.to_json]
         end
 

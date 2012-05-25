@@ -20,13 +20,13 @@ var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
 
 var graph1 = {
     title : "graph1",
-    monitor_resources : "cpu_usage,used_cpu,max_cpu",
+    monitor_resources : "CPU_USAGE,USED_CPU,MAX_CPU",
     history_length : HISTORY_LENGTH
 };
 
 var graph2 = {
     title : "graph2",
-    monitor_resources : "mem_usage,used_mem,max_mem",
+    monitor_resources : "MEM_USAGE,USED_MEM,MAX_MEM",
     history_length : HISTORY_LENGTH
 };
 
@@ -38,7 +38,7 @@ var graph3 = {
 
 var graph4 = {
     title : "graph4",
-    monitor_resources : "net_tx,net_rx",
+    monitor_resources : "NET_TX,NET_RX",
     history_length : HISTORY_LENGTH
 };
 
@@ -218,10 +218,10 @@ function graph_autorefresh(){
 }
 
 function refresh_graphs(){
-    Sunstone.runAction("Host.monitor_all", graph1);
-    Sunstone.runAction("Host.monitor_all", graph2);
-    Sunstone.runAction("VM.monitor_all", graph3);
-    Sunstone.runAction("VM.monitor_all", graph4);
+//    Sunstone.runAction("Host.monitor_all", graph1);
+//    Sunstone.runAction("Host.monitor_all", graph2);
+//    Sunstone.runAction("VM.monitor_all", graph3);
+//    Sunstone.runAction("VM.monitor_all", graph4);
 }
 
 $(document).ready(function(){

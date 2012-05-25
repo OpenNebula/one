@@ -20,14 +20,14 @@ var HOST_HISTORY_LENGTH = 40;
 var host_graphs = [
     {
         title : tr("CPU Monitoring information"),
-        monitor_resources : "cpu_usage,used_cpu,max_cpu",
+        monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
         humanize_figures : false,
         history_length : HOST_HISTORY_LENGTH
     },
     {
         title: tr("Memory monitoring information"),
-        monitor_resources : "mem_usage,used_mem,max_mem",
-        humanize_figures : true,
+        monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
+        humanize_figures : false,
         history_length : HOST_HISTORY_LENGTH
     }
 ]
