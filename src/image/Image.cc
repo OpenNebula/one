@@ -358,7 +358,7 @@ string& Image::to_xml(string& xml) const
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
             "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
-            "<SOURCE_IMG>"     << source_img_id   << "</SOURCE_IMG>" <<
+            "<SOURCE_IMG>"     << source_img_id   << "</SOURCE_IMG>"  <<
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             obj_template->to_xml(template_xml)                        <<
@@ -573,7 +573,9 @@ int Image::clone_template(string& new_name,
 {
     if ( get_state() != READY )
     {
-        if ( isPersistent() )
+        // Persistent Images can have several simultaneous clone operations,
+        // but not if there is a VM using it.
+        if ( isPersistent() && (get_state() != USED || running_vms > 0) )
         {
             ostringstream oss;
 
