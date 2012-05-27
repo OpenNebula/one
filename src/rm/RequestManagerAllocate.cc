@@ -381,26 +381,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             delete tmpl;
             return;
         }
-
-        //TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST 
-        User * user;
-        UserPool * upool = nd.get_upool();
-        string error;
-
-        user = upool->get(att.uid,false);
-
-        if (!user->image_quota.check(ds_name, 0,  error))
-        {
-            failure_response(AUTHORIZATION,
-                    authorization_error(error, att),
-                    att);
-
-            delete tmpl;
-            return;            
-        }
-
-        upool->update(user);
-        //TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST 
     }
 
     rc = ipool->allocate(att.uid, 
