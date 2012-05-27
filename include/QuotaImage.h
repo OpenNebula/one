@@ -33,6 +33,8 @@
 
 class QuotaImage : public Quota
 {
+public:
+    
     QuotaImage():Quota("IMAGE_QUOTA"){};
 
     ~QuotaImage(){};

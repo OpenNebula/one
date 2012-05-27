@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "UserTemplate.h"
+#include "QuotaImage.h"
 
 using namespace std;
 
@@ -193,6 +194,12 @@ private:
      */
     bool        enabled;
 
+public:
+    /**
+     * Usage Counters and Quotas 
+     */
+     QuotaImage image_quota;
+private:
     // *************************************************************************
     // Authentication session (Private)
     // *************************************************************************

@@ -138,6 +138,7 @@ string& User::to_xml(string& xml) const
 {
     ostringstream   oss;
     string          template_xml;
+    string          image_quota_xml;
 
     int  enabled_int = enabled?1:0;
 
@@ -151,6 +152,7 @@ string& User::to_xml(string& xml) const
          "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         obj_template->to_xml(template_xml)                <<
+        image_quota.to_xml(image_quota_xml)               <<
     "</USER>";
 
     xml = oss.str();
@@ -192,6 +194,17 @@ int User::from_xml(const string& xml)
     }
 
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Get associated quota for the user
+    ObjectXML::get_nodes("/USER/IMAGE_QUOTA", content);
+
+    if (!content.empty())
+    {
+        rc += image_quota.from_xml_node(content[0]);
+    }
 
     ObjectXML::free_nodes(content);
 
