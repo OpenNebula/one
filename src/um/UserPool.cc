@@ -763,3 +763,63 @@ int UserPool::authorize(AuthRequest& ar)
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::authorize_quota(AuthRequest&              ar, 
+                              PoolObjectSQL::ObjectType type,
+                              const Template *          tmpl, 
+                              string&                   error)
+{
+    Nebula&       nd    = Nebula::instance();
+    AuthManager * authm = nd.get_authm();
+    int           rc    = -1;
+
+    if (authm == 0 || !authm->is_authz_enabled())
+    {
+        if (ar.core_authorize()) //ACL and Permissions OK
+        {
+            User * user;
+            bool   quota_check;
+
+            user = get(ar.uid, true);
+
+            if ( user == 0 )
+            {
+                error = "Internal error authorizing request";
+            }
+            else
+            {
+                //TODO use type to check the right quota
+                quota_check = user-> image_quota_check(tmpl, error);
+
+                if (quota_check)
+                {
+                    rc = 0;
+                }
+            }
+        }
+    }
+    else
+    {
+        authm->trigger(AuthManager::AUTHORIZE,&ar);
+        ar.wait();
+
+        if (ar.result==true)
+        {
+            rc = 0;
+        }
+        else
+        {
+            ostringstream oss;
+            oss << "Auth Error: " << ar.message;
+
+            NebulaLog::log("AuM",Log::ERROR,oss);
+
+            error = oss.str();
+        }
+    }
+
+    return rc;
+}
+

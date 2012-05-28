@@ -421,22 +421,32 @@ public:
     /**
      *  The result of the request, true if authorized or authenticated
      */
-    bool            result;
+    bool   result;
 
     /**
      *  Error message for negative results
      */
-    string          message;
+    string message;
 
     /**
      *  Time out
      */
-    bool            timeout;
-
+    bool   timeout;
+    
     /**
      *  Identification of this request
      */
-    int             id;
+    int    id;
+    
+    /**
+     *  The user id for this request
+     */
+    int    uid;
+ 
+    /**
+     *  The user group ID
+     */
+    int    gid;
 
 private:
 
@@ -446,16 +456,6 @@ private:
      *  The ActionManager that will be notify when the request is ready.
      */
     ActionManager am;
-
-    /**
-     *  The user id for this request
-     */
-    int uid;
-
-    /**
-     *  The user group ID
-     */
-    int gid;
 
     /**
      *  Timeout for this request

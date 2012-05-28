@@ -40,28 +40,19 @@ public:
     ~QuotaImage(){};
 
     /**
-     *  Check if image allocation will exceed the quota limits. If not the
-     *  usage counters are updated
-     *    @param ds_name the datastore where the image is going to be allocated
-     *    @param size of the image
+     *  Check if the resource allocation will exceed the quota limits. If not 
+     *  the usage counters are updated
+     *    @param tmpl template for the resource
      *    @param error string 
      *    @return true if the operation can be performed
      */
-    bool check(const string& ds_name, int size,  string& error);
+    bool check_add(const Template& tmpl,  string& error);
 
     /**
      *  Decrement usage counters when deallocating image
-     *    @param ds_name the datastore where the image is allocated
-     *    @param size of the image
+     *    @param tmpl template for the resource
      */
-    void del_usage(const string& ds_name, int size);
-
-    /**
-     *  Increment size usage counters
-     *    @param ds_name the datastore where the image is allocated
-     *    @param size of the image
-     */
-    void add_size_usage(const string& ds_name, int size);
+    void del(const Template& tmpl);
 
 protected:
 

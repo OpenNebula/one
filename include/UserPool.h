@@ -137,6 +137,11 @@ public:
      */
     static int authorize(AuthRequest& ar);
 
+    int authorize_quota(AuthRequest&              ar, 
+                        PoolObjectSQL::ObjectType type,
+                        const Template *          tmpl, 
+                        string&                   error);
+
     /**
      *  Dumps the User pool in XML format. A filter can be also added to the
      *  query

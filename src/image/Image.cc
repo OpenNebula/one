@@ -464,7 +464,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     get_template_attribute("DEV_PREFIX", dev_prefix);
 
-    if (dev_prefix.empty())//Removed from image template, get it again from defaults
+    if (dev_prefix.empty())//Removed from image template, get it again
     {
         dev_prefix = ImagePool::default_dev_prefix();
     }

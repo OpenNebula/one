@@ -225,3 +225,33 @@ int VectorAttribute::vector_value(const char *name, int & value) const
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string VectorAttribute::vector_value_str(const char *name, int& value) const
+{
+    map<string,string>::const_iterator it;
+
+    it = attribute_value.find(name);
+
+    if ( it == attribute_value.end() )
+    {
+        value = -1;
+        return  "";
+    }
+
+    if ( it->second.empty() )
+    {
+        value = -1;
+        return "";
+    }
+
+    istringstream iss(it->second);
+    iss >> value;
+
+    return it->second;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

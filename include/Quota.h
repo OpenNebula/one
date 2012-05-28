@@ -37,6 +37,27 @@ public:
      */
     int set(const string& quota_str, string& error);
 
+    /**
+     *  Check if the resource allocation will exceed the quota limits. If not 
+     *  the usage counters are updated
+     *    @param tmpl template for the resource
+     *    @param error string 
+     *    @return true if the operation can be performed
+     */
+    virtual bool check_add(const Template& tmpl,  string& error)
+    {
+        return false;
+    }
+
+    /**
+     *  Decrement usage counters when deallocating image
+     *    @param tmpl template for the resource
+     */
+    virtual void del(const Template& tmpl)
+    {
+        return;
+    }
+
 protected:
 
     Quota(const char * quota_name): Template(true, '=', quota_name) {};

@@ -251,7 +251,18 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int vector_value(const char *name, int & value) const;
+    int vector_value(const char *name, int& value) const;
+
+    /**
+     * Returns the integer value
+     *
+     * @param name Name of the attribute
+     * @param value Integer value, if an error ocurred the string returned is 
+     * empty and value set to -1;
+     *
+     * @return the value in string form on success, "" otherwise
+     */
+    string vector_value_str(const char *name, int& value) const;
 
     /**
      *  Marshall the attribute in a single string. The string MUST be freed

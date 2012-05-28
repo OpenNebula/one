@@ -167,6 +167,17 @@ public:
     {
         return new UserTemplate;
     }
+
+    /**
+     *  Check Image quotas, it updates usage counters if quotas are not exceeded
+     *    @param tmpl template for the image
+     *    @param reason string describing the error
+     *    @return true if image can be allocated, false otherwise
+     */
+     bool image_quota_check(const Template& tmpl, string& reason)
+     {
+        return image_quota.check_add(tmpl, reason);
+     }
     
 private:
     // -------------------------------------------------------------------------
@@ -194,12 +205,11 @@ private:
      */
     bool        enabled;
 
-public:
     /**
      * Usage Counters and Quotas 
      */
      QuotaImage image_quota;
-private:
+
     // *************************************************************************
     // Authentication session (Private)
     // *************************************************************************
