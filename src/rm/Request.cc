@@ -61,11 +61,6 @@ bool Request::basic_authorization(int oid,
     PoolObjectSQL * object;
     PoolObjectAuth  perms;
 
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
-
     if ( oid >= 0 )
     {
         object = pool->get(oid,true);
@@ -78,12 +73,23 @@ bool Request::basic_authorization(int oid,
             return false;
         }
 
+        if ( att.uid == 0 )
+        {
+            object->unlock();
+            return true;
+        }
+
         object->get_permissions(perms);
 
         object->unlock();
     }
     else
     {
+        if ( att.uid == 0 )
+        {
+            return true;
+        }
+
         perms.obj_type = auth_object;
     }
 

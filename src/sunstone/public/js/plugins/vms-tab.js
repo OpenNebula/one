@@ -26,22 +26,22 @@ loadVNC();
 
 var vm_graphs = [
     { title : tr("CPU"),
-      monitor_resources : "cpu_usage",
+      monitor_resources : "CPU",
       humanize_figures : false,
       history_length : VM_HISTORY_LENGTH
     },
     { title : tr("Memory"),
-      monitor_resources : "mem_usage",
+      monitor_resources : "MEMORY",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     },
     { title : tr("Network transmission"),
-      monitor_resources : "net_tx",
+      monitor_resources : "NET_TX",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     },
     { title : tr("Network reception"),
-      monitor_resources : "net_rx",
+      monitor_resources : "NET_RX",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     }

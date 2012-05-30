@@ -25,7 +25,8 @@ module OpenNebula
 
 
         VM_POOL_METHODS = {
-            :info => "vmpool.info"
+            :info       => "vmpool.info",
+            :monitoring => "vmpool.monitoring"
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -109,6 +110,50 @@ module OpenNebula
                                -1,
                                -1,
                                INFO_NOT_DONE)
+        end
+
+        # Retrieves the monitoring data for all the VMs in the pool
+        #
+        # @param [Array<String>] xpath_expressions Elements to retrieve.
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE.
+        #
+        # @return [Hash<String, <Hash<String, Array<Array<int>>>>>,
+        #   OpenNebula::Error] The first level hash uses the VM ID as keys, and
+        #   as value a Hash with the requested xpath expressions,
+        #   and an Array of 'timestamp, value'.
+        #
+        # @example
+        #   vm_pool.monitoring( ['CPU', 'NET_TX', 'TEMPLATE/CUSTOM_PROBE'] )
+        #
+        #   {"1"=>
+        #    {"CPU"=>
+        #      [["1337608271", "0"], ["1337608301", "0"], ["1337608331", "0"]],
+        #     "NET_TX"=>
+        #      [["1337608271", "510"], ["1337608301", "510"], ["1337608331", "520"]],
+        #     "TEMPLATE/CUSTOM_PROBE"=>
+        #      []},
+        #  
+        #   "0"=>
+        #    {"CPU"=>
+        #      [["1337608271", "0"], ["1337608301", "0"], ["1337608331", "0"]],
+        #     "NET_TX"=>
+        #      [["1337608271", "510"], ["1337608301", "510"], ["1337608331", "520"]],
+        #     "TEMPLATE/CUSTOM_PROBE"=>
+        #      []}}
+        def monitoring(xpath_expressions, filter_flag=INFO_ALL)
+            return super(VM_POOL_METHODS[:monitoring],
+                'VM', 'LAST_POLL', xpath_expressions, filter_flag)
+        end
+
+        # Retrieves the monitoring data for all the VMs in the pool, in XML
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE.
+        #
+        # @return [String] VM monitoring data, in XML
+        def monitoring_xml(filter_flag=INFO_ALL)
+            return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
         end
 
         private

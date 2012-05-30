@@ -67,3 +67,33 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void HostMonitoring::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int rc;
+
+    ostringstream oss;
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    rc = (static_cast<HostPool *>(pool))->dump_monitoring(oss, id);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

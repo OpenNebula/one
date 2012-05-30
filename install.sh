@@ -203,8 +203,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
-          $LIB_LOCATION/ruby/cli/one_helper \
-          $LIB_LOCATION/ruby/acct"
+          $LIB_LOCATION/ruby/cli/one_helper"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
@@ -423,8 +422,6 @@ INSTALL_FILES=(
     MAN_FILES:$MAN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    ACCT_LIB_FILES:$LIB_LOCATION/ruby/acct
-    ACCT_BIN_FILES:$BIN_LOCATION
 )
 
 INSTALL_CLIENT_FILES=(
@@ -553,7 +550,6 @@ INSTALL_ETC_FILES=(
     OCCI_ETC_FILES:$ETC_LOCATION
     OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
     CLI_CONF_FILES:$ETC_LOCATION/cli
-    ACCT_ETC_FILES:$ETC_LOCATION
 )
 
 #-------------------------------------------------------------------------------
@@ -1470,21 +1466,6 @@ SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/locale/languages/fr_FR.j
                                   src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
 SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/locale/languages/fr_CA.js \
                                   src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
-
-#-----------------------------------------------------------------------------
-# ACCT files
-#-----------------------------------------------------------------------------
-
-ACCT_BIN_FILES="src/acct/oneacctd"
-
-ACCT_LIB_FILES="src/acct/monitoring.rb \
-                src/acct/accounting.rb \
-                src/acct/acctd.rb \
-                src/acct/oneacct.rb \
-                src/acct/watch_helper.rb \
-                src/acct/watch_client.rb"
-
-ACCT_ETC_FILES="src/acct/etc/acctd.conf"
 
 #-----------------------------------------------------------------------------
 # MAN files

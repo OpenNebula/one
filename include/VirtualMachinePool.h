@@ -32,11 +32,12 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB * db,
-                       vector<const Attribute *> hook_mads,
-                       const string& hook_location,
-                       const string& remotes_location,
-                       vector<const Attribute *>& restricted_attrs);
+    VirtualMachinePool(SqlDB *                      db,
+                       vector<const Attribute *>    hook_mads,
+                       const string&                hook_location,
+                       const string&                remotes_location,
+                       vector<const Attribute *>&   restricted_attrs,
+                       time_t                       expire_time);
 
     ~VirtualMachinePool(){};
 
@@ -123,6 +124,38 @@ public:
     }
 
     /**
+     * Inserts the last monitoring, and deletes old monitoring entries for this
+     * VM
+     *
+     * @param vm pointer to the virtual machine object
+     * @return 0 on success
+     */
+    int update_monitoring(
+        VirtualMachine * vm)
+    {
+        if ( _monitor_expiration <= 0 )
+        {
+            return 0;
+        }
+
+        return vm->update_monitoring(db);
+    };
+
+    /**
+     * Deletes the expired monitoring entries for all VMs
+     *
+     * @return 0 on success
+     */
+    int clean_expired_monitoring();
+
+    /**
+     * Deletes all monitoring entries for all VMs
+     *
+     * @return 0 on success
+     */
+    int clean_all_monitoring();
+
+    /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      *    @return 0 on success
      */
@@ -157,6 +190,37 @@ public:
                   const string&  where, 
                   int            time_start, 
                   int            time_end);
+
+    /**
+     *  Dumps the VM monitoring information entries in XML format. A filter
+     *  can be also added to the query.
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        const string&  where);
+
+    /**
+     *  Dumps the VM monitoring information  for a single VM
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param vmid id of the target VM
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        int            vmid)
+    {
+        ostringstream filter;
+
+        filter << "oid = " << vmid;
+
+        return dump_monitoring(oss, filter.str());
+    }
+
 private:
     /**
      *  Factory method to produce VM objects
@@ -166,6 +230,11 @@ private:
     {
         return new VirtualMachine(-1,-1,-1,"","",0);
     };
+
+    /**
+     * Size, in seconds, of the historical monitoring information
+     */
+    static time_t _monitor_expiration;
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

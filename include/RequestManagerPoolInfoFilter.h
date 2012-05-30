@@ -132,6 +132,31 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualMachinePoolMonitoring : public RequestManagerPoolInfoFilter
+{
+public:
+
+    VirtualMachinePoolMonitoring():
+        RequestManagerPoolInfoFilter("VirtualMachinePoolMonitoring",
+                                     "Returns the virtual machine monitoring records",
+                                     "A:si")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+    };
+
+    ~VirtualMachinePoolMonitoring(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class TemplatePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
@@ -203,6 +228,31 @@ public:
     };
 
     ~HostPoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HostPoolMonitoring : public RequestManagerPoolInfoFilter
+{
+public:
+
+    HostPoolMonitoring():
+        RequestManagerPoolInfoFilter("HostPoolMonitoring",
+                                     "Returns the host monitoring records",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hpool();
+        auth_object = PoolObjectSQL::HOST;
+    };
+
+    ~HostPoolMonitoring(){};
 
     /* -------------------------------------------------------------------- */
 

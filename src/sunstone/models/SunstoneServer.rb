@@ -19,7 +19,6 @@ require 'CloudServer'
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
-require 'acct/watch_client'
 require 'OpenNebulaVNC'
 require 'OpenNebulaJSON/JSONUtils'
 include JSONUtils
@@ -253,35 +252,58 @@ class SunstoneServer < CloudServer
     ############################################################################
     #
     ############################################################################
-    def get_monitoring(id, resource, monitor_resources, opts={})
-        watch_client = case resource
-            when "vm","VM"
-                OneWatchClient::VmWatchClient.new
-            when "host","HOST"
-                OneWatchClient::HostWatchClient.new
+    def get_pool_monitoring(resource, meters)
+        #pool_element
+        pool = case resource
+            when "vm", "VM"
+                VirtualMachinePool.new(@client)
+            when "host", "HOST"
+                HostPool.new(@client)
             else
-                error = Error.new("Monitoring not supported for this resource: #{resource}")
+                error = Error.new("Monitoring not supported for #{resource}")
                 return [200, error.to_json]
             end
 
-        filter = {}
-        filter[:uid] = opts[:uid] if opts[:gid]!=0
+        meters_a = meters.split(',')
 
-        columns = monitor_resources.split(',')
-        columns.map!{|e| e.to_sym}
+        rc = pool.monitoring(meters_a)
 
-        if id
-            rc = watch_client.resource_monitoring(id.to_i, columns, filter)
-        else
-            rc = watch_client.total_monitoring(columns, filter)
-        end
-
-        if rc.nil?
-            error = Error.new("There is no monitoring information for #{resource} #{id}")
+        if OpenNebula.is_error?(rc)
+            error = Error.new(rc.message)
             return [500, error.to_json]
         end
 
+        rc[:resource] = resource
+
         return [200, rc.to_json]
+    end
+
+    def get_resource_monitoring(id, resource, meters)
+        pool_element = case resource
+            when "vm", "VM"
+                VirtualMachine.new_with_id(id, @client)
+            when "host", "HOST"
+                Host.new_with_id(id, @client)
+            else
+                error = Error.new("Monitoring not supported for #{resource}")
+                return [200, error.to_json]
+            end
+
+        meters_a = meters.split(',')
+
+        rc = pool_element.monitoring(meters_a)
+
+        if OpenNebula.is_error?(rc)
+            error = Error.new(rc.message)
+            return [500, error.to_json]
+        end
+
+        meters_h = Hash.new
+        meters_h[:resource]   = resource
+        meters_h[:id]         = id
+        meters_h[:monitoring] = rc
+
+        return [200, meters_h.to_json]
     end
 
     private
