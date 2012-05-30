@@ -19,8 +19,6 @@
 #include "Nebula.h"
 #include "PoolObjectSQL.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -367,18 +365,10 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         AuthRequest ar(att.uid, att.gid);
         string  tmpl_str;
-        string  tmpl_ds = ds_name;
-
-        SingleAttribute * attr;
 
         // ------------------ Check permissions and ACLs  ----------------------
-
-        TO_UPPER(tmpl_ds);
-        attr = new SingleAttribute("DATASTORE", tmpl_ds);
-        tmpl->set(attr);
-
-        attr = new SingleAttribute("SIZE", "0");
-        tmpl->set(attr);
+        tmpl->add("DATASTORE", ds_name);
+        tmpl->add("SIZE", "0");
 
         tmpl->to_xml(tmpl_str);
 
@@ -403,6 +393,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             delete tmpl;
             return;   
         }
+
+        tmpl->erase("DATASTORE");
     }
 
     rc = ipool->allocate(att.uid, 
@@ -418,7 +410,13 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          error_str);
     if ( rc < 0 )
     {
-        //TODO: rollback quotas
+        Template img_usage;
+
+        img_usage.add("DATASTORE", ds_name);
+        img_usage.add("SIZE", "0");
+
+        quota_rollback(&img_usage, att);
+
         failure_response(INTERNAL, allocate_error(error_str), att);
         return;
     }

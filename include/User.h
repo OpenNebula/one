@@ -178,7 +178,15 @@ public:
      {
         return image_quota.check_add(tmpl, reason);
      }
-    
+
+    /**
+     *  Delete usage from quota counters.
+     *    @param tmpl template for the image, with usage
+     */
+     void image_quota_del(Template * tmpl)
+     {
+        return image_quota.del(tmpl);
+     } 
 private:
     // -------------------------------------------------------------------------
     // Friends

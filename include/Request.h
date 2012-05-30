@@ -142,6 +142,14 @@ protected:
     bool quota_authorization(Template * tmpl, RequestAttributes& att);
 
     /**
+     *  Performs rollback on usage counters for a previous  quota check operation
+     *  for the request.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    void quota_rollback(Template * tmpl, RequestAttributes& att);
+
+    /**
      *  Actual Execution method for the request. Must be implemented by the
      *  XML-RPC requests
      *    @param _paramlist of the XML-RPC call (complete list)

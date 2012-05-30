@@ -102,6 +102,7 @@ bool Request::basic_authorization(int oid,
 
     return true;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -154,6 +155,41 @@ bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
     }
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Request::quota_rollback(Template * tmpl, RequestAttributes& att)
+{
+    Nebula& nd        = Nebula::instance();
+    UserPool * upool  = nd.get_upool();
+
+    User * user;
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        return;
+    }
+
+    switch (auth_object)
+    {
+        case PoolObjectSQL::IMAGE:
+            user->image_quota_del(tmpl);
+            break;
+
+        case PoolObjectSQL::VM:
+            break;
+
+        default:
+            break;
+    }
+
+    upool->update(user);
+
+    user->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
