@@ -72,12 +72,15 @@ var vms_tab_content = '\
   <tbody id="tbodyvmachines">\
   </tbody>\
 </table>\
-<p class="legend">\
-'+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab (oneacctd needs to be running for this information to be up to date)")+'\
-</p>\
-<p class="legend">\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend">\
+'+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab.")+'\
+  </p>\
+  <p class="legend">\
 '+tr("VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information.")+'\
-</p>\
+  </p>\
+</div>\
 </form>';
 
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
@@ -468,6 +471,13 @@ var vm_actions = {
         error: onError,
         notify: true
     },
+    "VM.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#vms_tab div.legend_div').slideToggle();
+        }
+    },
 };
 
 
@@ -599,6 +609,12 @@ var vm_buttons = {
         type: "confirm",
         text: tr("Delete"),
         tip: tr("This will delete the selected VMs from the database")
+    },
+
+    "VM.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 }
 
@@ -1409,4 +1425,6 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);
     infoListener(dataTable_vMachines,'VM.showinfo');
+
+    $('div#vms_tab div.legend_div').hide();
 })

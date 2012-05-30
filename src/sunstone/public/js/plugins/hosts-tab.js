@@ -57,15 +57,18 @@ var hosts_tab_content = '\
   <tbody id="tbodyhosts">\
   </tbody>\
 </table>\
-<p class="legend">\
-'+tr("CPU Use is calculated as the maximum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)")+'\
-</p>\
-<p class="legend">\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend">\
+'+tr("CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)")+'\
+  </p>\
+  <p class="legend">\
 '+tr("Memory use is calculated according to the information provided by the host monitoring driver.")+'\
-</p>\
-<p class="legend">\
+  </p>\
+  <p class="legend">\
 '+tr("You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available.")+'\
-</p>\
+  </p>\
+</div>\
 </form>';
 
 var create_host_tmpl =
@@ -111,7 +114,7 @@ var create_host_tmpl =
          <option value="dummy">' + tr("Default (dummy)") +'</option>\
          <option value="fw">'+tr("Firewall")+'</option>\
          <option value="802.1Q">'+tr("802.1Q")+'</option>\
-         <option value="ebtables">'+tr("Ebtables")+'</option>\
+         <option value="ebtables">'+tr("ebtables")+'</option>\
          <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
          <option value="vmware">'+tr("VMware")+'</option>\
          <option value="custom">' + tr("Custom") + '</option>\
@@ -288,6 +291,14 @@ var host_actions = {
         notify:true,
     },
 
+    "Host.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#hosts_tab div.legend_div').slideToggle();
+        }
+    }
+
 };
 
 var host_buttons = {
@@ -328,6 +339,11 @@ var host_buttons = {
         type: "confirm",
         text: tr("Delete host"),
         condition: mustBeAdmin
+    },
+    "Host.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 };
 
@@ -732,4 +748,6 @@ $(document).ready(function(){
     $('div#menu li#li_hosts_tab').live('click',function(){
         dataTable_hosts.fnFilter('',3);
     });
+
+    $('div#hosts_tab div.legend_div',main_tabs_context).hide();
 });
