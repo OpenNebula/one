@@ -27,7 +27,7 @@ var host_graphs = [
     {
         title: tr("Memory monitoring information"),
         monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-        humanize_figures : false,
+        humanize_figures : true,
         history_length : HOST_HISTORY_LENGTH
     }
 ]
@@ -531,7 +531,7 @@ function updateHostInfo(request,host){
                </tr>\
                <tr>\
                   <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
+                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
                </tr>\
                <tr>\
                   <td class="key_td">' + tr("Max CPU") + '</td>\

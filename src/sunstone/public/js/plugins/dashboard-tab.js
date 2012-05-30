@@ -20,13 +20,13 @@ var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
 
 var graph1 = {
     title : "graph1",
-    monitor_resources : "CPU_USAGE,USED_CPU,MAX_CPU",
+    monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
     history_length : HISTORY_LENGTH
 };
 
 var graph2 = {
     title : "graph2",
-    monitor_resources : "MEM_USAGE,USED_MEM,MAX_MEM",
+    monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
     history_length : HISTORY_LENGTH
 };
 
@@ -134,6 +134,7 @@ var dashboard_tab_content =
       <div class="panel">\
         <h3>' + tr("Historical monitoring information") + '</h3>\
         <div class="panel_info">\
+<!--\
           <table class="info_table">\
             <tr><td class="key_td graph_td">' + tr("Hosts CPU") + '</td>\
                 <td class="graph_td" id="graph1_legend"></td></tr>\
@@ -148,6 +149,7 @@ var dashboard_tab_content =
                 <td class="graph_td" id="graph4_legend"></td></tr>\
             <tr><td id="graph4" colspan="2">'+spinner+'</td></tr>\
           </table>\
+-->\
         </div>\
       </div>\
     </td>\
@@ -218,17 +220,17 @@ function graph_autorefresh(){
 }
 
 function refresh_graphs(){
-//    Sunstone.runAction("Host.monitor_all", graph1);
-//    Sunstone.runAction("Host.monitor_all", graph2);
-//    Sunstone.runAction("VM.monitor_all", graph3);
-//    Sunstone.runAction("VM.monitor_all", graph4);
+    Sunstone.runAction("Host.monitor_all", graph1);
+    Sunstone.runAction("Host.monitor_all", graph2);
+    Sunstone.runAction("VM.monitor_all", graph3);
+    Sunstone.runAction("VM.monitor_all", graph4);
 }
 
 $(document).ready(function(){
     emptyDashboard();
 
-    refresh_graphs();
-    graph_autorefresh();
+//    refresh_graphs();
+//    graph_autorefresh();
 
 });
 
