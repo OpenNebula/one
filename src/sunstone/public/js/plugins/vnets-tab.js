@@ -38,9 +38,12 @@ var vnets_tab_content = '\
   <tbody id="tbodyvnetworks">\
   </tbody>\
 </table>\
-<p class="legend">\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend">\
 '+tr("Tip: edit the leases of a network by clicking on one and going to the lease management tab.")+'\
-</p>\
+  </p>\
+</div>\
 </form>';
 
 var create_vn_tmpl =
@@ -61,7 +64,7 @@ var create_vn_tmpl =
                  <select name="network_mode" id="network_mode">\
                     <option value="default">'+tr("Default")+'</option>\
                     <option value="802.1Q">'+tr("802.1Q")+'</option>\
-                    <option value="etables">'+tr("Etables")+'</option>\
+                    <option value="ebtables">'+tr("ebtables")+'</option>\
                     <option value="openvswitch">'+tr("Open vSwitch")+'</option>\
                     <option value="vmware">'+tr("VMware")+'</option>\
                  </select><br />\
@@ -398,6 +401,14 @@ var vnet_actions = {
         notify:true,
     },
 
+    "Network.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#vnets_tab div.legend_div').slideToggle();
+        }
+    },
+
 };
 
 
@@ -444,6 +455,12 @@ var vnet_buttons = {
     "Network.delete" : {
         type: "confirm",
         text: tr("Delete")
+    },
+
+    "Network.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 }
 
@@ -760,7 +777,7 @@ function setupCreateVNetDialog() {
             $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
             break;
-        case "etables":
+        case "ebtables":
             $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
             break;
         case "openvswitch":
@@ -887,7 +904,7 @@ function setupCreateVNetDialog() {
                 network_json['vlan_id']=vlan_id;
             };
             break;
-        case "etables":
+        case "ebtables":
             if (!bridge){
                 notifyError("Bridge must be specified");
                 return false;
@@ -1197,4 +1214,6 @@ $(document).ready(function(){
     $('div#menu li#li_vnets_tab').live('click',function(){
         dataTable_vNetworks.fnFilter('',5);
     });
+
+    $('div#vnets_tab div.legend_div').hide();
 });

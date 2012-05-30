@@ -35,9 +35,12 @@ var groups_tab_content = '\
   <tbody id="tbodygroups">\
   </tbody>\
 </table>\
+<div class="legend_div">\
+  <span>?</span>\
 <p class="legend">\
-'+tr("Tip: Refresh the list if it only shows user ids in the user column.")+'\
+'+tr("Tip: Refresh the list if it only shows user ids in the Users column.")+'\
 </p>\
+</div>\
 </form>';
 
 var create_group_tmpl =
@@ -116,7 +119,13 @@ var group_actions = {
     //     error : onError,
     //     notify:true
     // },
-
+    "Group.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#groups_tab div.legend_div').slideToggle();
+        }
+    },
 }
 
 var group_buttons = {
@@ -140,6 +149,11 @@ var group_buttons = {
     "Group.delete" : {
         type: "confirm",
         text: tr("Delete")
+    },
+    "Group.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 };
 
@@ -274,10 +288,10 @@ $(document).ready(function(){
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "35px", "aTargets": [1] }
         ],
-	"oLanguage": (datatable_lang != "") ?
-	    {
-		sUrl: "locale/"+lang+"/"+datatable_lang
-	    } : ""
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
     });
 
     dataTable_groups.fnClearTable();
@@ -292,4 +306,6 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_groups);
     tableCheckboxesListener(dataTable_groups);
     infoListener(dataTable_groups);
+
+    $('div#groups_tab div.legend_div').hide();
 })

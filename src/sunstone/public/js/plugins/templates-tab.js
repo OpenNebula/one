@@ -35,6 +35,15 @@ var templates_tab_content = '\
   <tbody id="tbodytemplates">\
   </tbody>\
 </table>\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend">\
+'+tr("Clicking `instantiate` will instantly create new Virtual Machines from the selected templates and name one-id. If you want to assign a specific name to a new VM, or launch several instances at once, use Virtual Machines->New button.")+'\
+  </p>\
+  <p class="legend">\
+'+tr("You can clone a template to obtain a copy from an existing template. This copy will be owned by you.")+'\
+  </p>\
+</div>\
 </form>';
 
 var create_template_tmpl = '<div id="template_create_tabs">\
@@ -772,6 +781,14 @@ var template_actions = {
         error: onError,
         notify: true
     },
+
+    "Template.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#templates_tab div.legend_div').slideToggle();
+        }
+    },
 }
 
 var template_buttons = {
@@ -811,6 +828,12 @@ var template_buttons = {
     "Template.delete" : {
         type: "confirm",
         text: tr("Delete")
+    },
+
+    "Template.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 }
 
@@ -2134,6 +2157,9 @@ $(document).ready(function(){
         "bSortClasses": false,
         "bAutoWidth":false,
         "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
@@ -2161,4 +2187,6 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_templates);
     tableCheckboxesListener(dataTable_templates);
     infoListener(dataTable_templates,'Template.showinfo');
+
+    $('div#templates_tab div.legend_div').hide();
 });
