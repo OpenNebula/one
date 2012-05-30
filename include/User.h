@@ -174,7 +174,7 @@ public:
      *    @param reason string describing the error
      *    @return true if image can be allocated, false otherwise
      */
-     bool image_quota_check(const Template& tmpl, string& reason)
+     bool image_quota_check(Template * tmpl, string& reason)
      {
         return image_quota.check_add(tmpl, reason);
      }

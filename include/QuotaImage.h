@@ -46,13 +46,13 @@ public:
      *    @param error string 
      *    @return true if the operation can be performed
      */
-    bool check_add(const Template& tmpl,  string& error);
+    bool check_add(Template* tmpl,  string& error);
 
     /**
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */
-    void del(const Template& tmpl);
+    void del(Template* tmpl);
 
 protected:
 

@@ -131,16 +131,12 @@ public:
                       string&       uname,
                       string&       gname);
     /**
-     * Returns whether there is a user with given username/password or not
+     * Returns whether the operations described in a authorization request are
+     * authorized ot not.
      *   @param ar, an Authorization Request
      *   @return -1 if authz failed, 0 otherwise
      */
     static int authorize(AuthRequest& ar);
-
-    int authorize_quota(AuthRequest&              ar, 
-                        PoolObjectSQL::ObjectType type,
-                        const Template *          tmpl, 
-                        string&                   error);
 
     /**
      *  Dumps the User pool in XML format. A filter can be also added to the

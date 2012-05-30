@@ -102,6 +102,59 @@ bool Request::basic_authorization(int oid,
 
     return true;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
+{
+    Nebula& nd        = Nebula::instance();
+    UserPool * upool  = nd.get_upool();
+
+    User * user;
+    bool   rc = false;
+    string error_str;
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(AUTHORIZATION,
+                authorization_error("User not found", att),
+                att);
+
+        return false;
+    }
+
+    switch (auth_object)
+    {
+        case PoolObjectSQL::IMAGE:
+            rc = user->image_quota_check(tmpl, error_str);
+            break;
+
+        case PoolObjectSQL::VM:
+            break;
+
+        default:
+            user->unlock();
+            return true;
+    }
+
+    if (rc == true)
+    {
+        upool->update(user);
+    }
+
+    user->unlock();
+
+    if ( rc == false )
+    {
+        failure_response(AUTHORIZATION,
+                authorization_error(error_str, att),
+                att);
+    }
+
+    return rc;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

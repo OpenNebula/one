@@ -130,7 +130,17 @@ protected:
      */
     bool basic_authorization(int oid, AuthRequest::Operation op,
                              RequestAttributes& att);
-            
+
+    /**
+     *  Performs a basic quota check for this request using the uid/gid
+     *  from the request.  Usage counters are updated for the user/group.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     *
+     *    @return true if the user is authorized.
+     */
+    bool quota_authorization(Template * tmpl, RequestAttributes& att);
+
     /**
      *  Actual Execution method for the request. Must be implemented by the
      *  XML-RPC requests

@@ -44,7 +44,7 @@ public:
      *    @param error string 
      *    @return true if the operation can be performed
      */
-    virtual bool check_add(const Template& tmpl,  string& error)
+    virtual bool check_add(Template* tmpl,  string& error)
     {
         return false;
     }
@@ -53,7 +53,7 @@ public:
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */
-    virtual void del(const Template& tmpl)
+    virtual void del(Template* tmpl)
     {
         return;
     }

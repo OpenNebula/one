@@ -16,7 +16,7 @@
 
 #include "QuotaImage.h"
 
-bool QuotaImage::check_add(const Template& tmpl,  string& error)
+bool QuotaImage::check_add(Template * tmpl,  string& error)
 {
     vector<Attribute *> vector_ds_limit;
     VectorAttribute *   ds_limit; 
@@ -34,7 +34,7 @@ bool QuotaImage::check_add(const Template& tmpl,  string& error)
 
     // --------------------- Get data from the Template --------------------
 
-    tmpl.get("DATASTORE", ds_name);
+    tmpl->get("DATASTORE", ds_name);
 
     if ( ds_name.empty() )
     {
@@ -42,7 +42,7 @@ bool QuotaImage::check_add(const Template& tmpl,  string& error)
         return false;
     }
 
-    if ( tmpl.get("SIZE", size) == false )
+    if ( tmpl->get("SIZE", size) == false )
     {
         error = "Size not defined for image";
         return false;
@@ -116,7 +116,7 @@ bool QuotaImage::check_add(const Template& tmpl,  string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void QuotaImage::del(const Template& tmpl)
+void QuotaImage::del(Template * tmpl)
 {
     vector<Attribute *> vector_ds_limit;
     VectorAttribute *   ds_limit;
@@ -124,14 +124,14 @@ void QuotaImage::del(const Template& tmpl)
     string ds_name;
     int    size;
 
-    tmpl.get("DATASTORE", ds_name);
+    tmpl->get("DATASTORE", ds_name);
 
     if ( ds_name.empty() )
     {
         return;
     }
 
-    if ( tmpl.get("SIZE", size) == false )
+    if ( tmpl->get("SIZE", size) == false )
     {
         return;
     }

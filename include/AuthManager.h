@@ -438,6 +438,15 @@ public:
      */
     int    id;
     
+private:
+
+    friend class AuthManager;
+
+    /**
+     *  The ActionManager that will be notify when the request is ready.
+     */
+    ActionManager am;
+    
     /**
      *  The user id for this request
      */
@@ -447,15 +456,6 @@ public:
      *  The user group ID
      */
     int    gid;
-
-private:
-
-    friend class AuthManager;
-
-    /**
-     *  The ActionManager that will be notify when the request is ready.
-     */
-    ActionManager am;
 
     /**
      *  Timeout for this request

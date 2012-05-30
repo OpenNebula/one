@@ -15,10 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerAllocate.h"
-#include "NebulaLog.h"
 
 #include "Nebula.h"
 #include "PoolObjectSQL.h"
+
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -309,9 +310,10 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     Nebula&  nd  = Nebula::instance();
 
     DatastorePool * dspool = nd.get_dspool();
-    ImagePool * ipool      = static_cast<ImagePool *>(pool);
-
+    ImagePool *     ipool  = static_cast<ImagePool *>(pool);
+    
     ImageTemplate * tmpl = new ImageTemplate;
+
     Datastore *     ds;
     Image::DiskType ds_disk_type;
 
@@ -364,7 +366,19 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.gid);
-        string      tmpl_str = "";
+        string  tmpl_str;
+        string  tmpl_ds = ds_name;
+
+        SingleAttribute * attr;
+
+        // ------------------ Check permissions and ACLs  ----------------------
+
+        TO_UPPER(tmpl_ds);
+        attr = new SingleAttribute("DATASTORE", tmpl_ds);
+        tmpl->set(attr);
+
+        attr = new SingleAttribute("SIZE", "0");
+        tmpl->set(attr);
 
         tmpl->to_xml(tmpl_str);
 
@@ -381,6 +395,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             delete tmpl;
             return;
         }
+
+        // -------------------------- Check Quotas  ----------------------------
+
+        if ( quota_authorization(tmpl, att) == false )
+        {
+            delete tmpl;
+            return;   
+        }
     }
 
     rc = ipool->allocate(att.uid, 
@@ -396,6 +418,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          error_str);
     if ( rc < 0 )
     {
+        //TODO: rollback quotas
         failure_response(INTERNAL, allocate_error(error_str), att);
         return;
     }
@@ -454,9 +477,6 @@ int HostAllocate::pool_allocate(
                            cluster_id, cluster_name, error_str);
 
 }
-
-/* -------------------------------------------------------------------------- */
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
