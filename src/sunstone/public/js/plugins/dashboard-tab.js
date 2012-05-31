@@ -20,13 +20,13 @@ var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
 
 var graph1 = {
     title : "graph1",
-    monitor_resources : "cpu_usage,used_cpu,max_cpu",
+    monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
     history_length : HISTORY_LENGTH
 };
 
 var graph2 = {
     title : "graph2",
-    monitor_resources : "mem_usage,used_mem,max_mem",
+    monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
     history_length : HISTORY_LENGTH
 };
 
@@ -38,7 +38,7 @@ var graph3 = {
 
 var graph4 = {
     title : "graph4",
-    monitor_resources : "net_tx,net_rx",
+    monitor_resources : "NET_TX,NET_RX",
     history_length : HISTORY_LENGTH
 };
 
@@ -134,6 +134,7 @@ var dashboard_tab_content =
       <div class="panel">\
         <h3>' + tr("Historical monitoring information") + '</h3>\
         <div class="panel_info">\
+<!--\
           <table class="info_table">\
             <tr><td class="key_td graph_td">' + tr("Hosts CPU") + '</td>\
                 <td class="graph_td" id="graph1_legend"></td></tr>\
@@ -148,6 +149,7 @@ var dashboard_tab_content =
                 <td class="graph_td" id="graph4_legend"></td></tr>\
             <tr><td id="graph4" colspan="2">'+spinner+'</td></tr>\
           </table>\
+-->\
         </div>\
       </div>\
     </td>\
@@ -227,8 +229,8 @@ function refresh_graphs(){
 $(document).ready(function(){
     emptyDashboard();
 
-    refresh_graphs();
-    graph_autorefresh();
+//    refresh_graphs();
+//    graph_autorefresh();
 
 });
 

@@ -36,6 +36,7 @@ public class VirtualMachine extends PoolElement{
     private static final String SAVEDISK = METHOD_PREFIX + "savedisk";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
+    private static final String MONITORING = METHOD_PREFIX + "monitoring";
 
     private static final String[] VM_STATES =
     {
@@ -216,6 +217,19 @@ public class VirtualMachine extends PoolElement{
         return chmod(client, CHMOD, id, octet);
     }
 
+    /**
+     * Retrieves the monitoring information of the given VM, in XML
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @return If successful the message contains the string
+     * with the monitoring information returned by OpenNebula.
+     */
+    public static OneResponse monitoring(Client client, int id)
+    {
+        return client.call(MONITORING, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -393,6 +407,17 @@ public class VirtualMachine extends PoolElement{
     public OneResponse chmod(int octet)
     {
         return chmod(client, id, octet);
+    }
+
+    /**
+     * Retrieves the monitoring information of the given VM, in XML
+     *
+     * @return If successful the message contains the string
+     * with the monitoring information returned by OpenNebula.
+     */
+    public OneResponse monitoring()
+    {
+        return monitoring(client, id);
     }
 
     // =================================

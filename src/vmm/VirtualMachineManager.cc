@@ -1182,6 +1182,9 @@ void VirtualMachineManager::timer_action()
         mark = 0;
     }
 
+    // Clear the expired monitoring records
+    vmpool->clean_expired_monitoring();
+
     // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
     rc = vmpool->get_running(oids, vm_limit, thetime - poll_period);
 

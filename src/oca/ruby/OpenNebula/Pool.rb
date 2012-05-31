@@ -70,6 +70,51 @@ module OpenNebula
             return xmlrpc_info(xml_method,who, start_id, end_id)
         end
 
+        # Retrieves the monitoring data for all the Objects in the pool
+        #
+        # @param [String] xml_method xml-rcp method
+        # @param [String] root_elem Root for each individual PoolElement
+        # @param [String] timestamp_elem Name of the XML element with the last
+        #   monitorization timestamp
+        # @param [Array<String>] xpath_expressions Elements to retrieve.
+        # @param args arguemnts for the xml_method call
+        #
+        # @return [Hash<String, <Hash<String, Array<Array<int>>>>>,
+        #   OpenNebula::Error] The first level hash uses the Object ID as keys,
+        #   and as value a Hash with the requested xpath expressions,
+        #   and an Array of 'timestamp, value'.
+        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions,
+            *args)
+
+            rc = @client.call(xml_method, *args)
+
+            if ( OpenNebula.is_error?(rc) )
+                return rc
+            end
+
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(rc, 'MONITORING_DATA')
+
+            hash = {}
+
+            # Get all existing Object IDs
+            ids = xmldoc.retrieve_elements("#{root_elem}/ID")
+
+            if ids.nil?
+                return hash
+            else
+                ids.uniq!
+            end
+
+            ids.each { |id|
+                hash[id] = OpenNebula.process_monitoring(
+                    xmldoc, root_elem, timestamp_elem, id, xpath_expressions)
+
+            }
+
+            return hash
+        end
+
     private
         # Calls to the corresponding info method to retreive the pool
         # representation in XML format
@@ -255,6 +300,35 @@ module OpenNebula
             return rc
         end
 
+
+        # Retrieves this Element's monitoring data from OpenNebula
+        #
+        # @param [String] xml_method the name of the XML-RPC method
+        # @param [String] root_elem Root for each individual PoolElement
+        # @param [String] timestamp_elem Name of the XML element with the last
+        #   monitorization timestamp
+        # @param xpath_expressions [Array<String>] Xpath expressions for the
+        #   elements to retrieve.
+        #
+        # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
+        #   the requested xpath expressions, and an Array of [timestamp, value].
+        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(xml_method, @pe_id)
+
+            if ( OpenNebula.is_error?(rc) )
+                return rc
+            end
+
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(rc, 'MONITORING_DATA')
+
+
+            return OpenNebula.process_monitoring(
+                xmldoc, root_elem, timestamp_elem, @pe_id, xpath_expressions)
+        end
+
     public
 
         # Creates new element specifying its id
@@ -283,5 +357,35 @@ module OpenNebula
 
             return str
         end
+    end
+
+    # Processes the monitoring data in XML returned by OpenNebula
+    #
+    # @param [XMLElement] xmldoc monitoring data returned by OpenNebula
+    # @param [String] root_elem Root for each individual PoolElement
+    # @param [String] timestamp_elem Name of the XML element with the last
+    #   monitorization timestamp
+    # @param [Integer] Id of the object to process
+    # @param [Array<String>] xpath_expressions Elements to retrieve.
+    # @param args arguemnts for the xml_method call
+    #
+    # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
+    #   the requested xpath expressions, and an Array of [timestamp, value].
+    def self.process_monitoring(xmldoc, root_elem, timestamp_elem, oid, xpath_expressions)
+        hash = {}
+        timestamps = xmldoc.retrieve_elements(
+            "#{root_elem}[ID=#{oid}]/#{timestamp_elem}")
+
+        xpath_expressions.each { |xpath|
+            xpath_values = xmldoc.retrieve_elements("#{root_elem}[ID=#{oid}]/#{xpath}")
+
+            if ( xpath_values.nil? )
+                hash[xpath] = []
+            else
+                hash[xpath] = timestamps.zip(xpath_values)
+            end
+        }
+
+        return hash
     end
 end

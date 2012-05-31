@@ -243,7 +243,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
     xmlrpc_c::methodPtr vm_action(new VirtualMachineAction()); 
     xmlrpc_c::methodPtr vm_savedisk(new VirtualMachineSaveDisk());
+    xmlrpc_c::methodPtr vm_monitoring(new VirtualMachineMonitoring());
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
+    xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
 
     // VirtualNetwork Methods
     xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
@@ -304,6 +306,8 @@ void RequestManager::register_xml_methods()
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
+    xmlrpc_c::methodPtr host_monitoring(new HostMonitoring());
+    xmlrpc_c::methodPtr host_pool_monitoring(new HostPoolMonitoring());
 
     // Image Methods
     xmlrpc_c::methodPtr image_persistent(new ImagePersistent());
@@ -347,9 +351,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
     RequestManagerRegistry.addMethod("one.vm.chmod", vm_chmod);
+    RequestManagerRegistry.addMethod("one.vm.monitoring", vm_monitoring);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);
+    RequestManagerRegistry.addMethod("one.vmpool.monitoring", vm_pool_monitoring);
 
     /* VM Template related methods*/
     RequestManagerRegistry.addMethod("one.template.update", template_update);
@@ -369,8 +375,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
     RequestManagerRegistry.addMethod("one.host.info", host_info);
+    RequestManagerRegistry.addMethod("one.host.monitoring", host_monitoring);
 
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info); 
+    RequestManagerRegistry.addMethod("one.hostpool.monitoring", host_pool_monitoring);
 
     /* Group related methods */
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);

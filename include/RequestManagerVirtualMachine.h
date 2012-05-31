@@ -143,6 +143,29 @@ public:
             RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineMonitoring : public RequestManagerVirtualMachine
+{
+public:
+
+    VirtualMachineMonitoring():
+        RequestManagerVirtualMachine("VirtualMachineMonitoring",
+                "Returns the virtual machine monitoring records",
+                "A:si")
+    {
+        auth_op = AuthRequest::USE;
+    };
+
+    ~VirtualMachineMonitoring(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

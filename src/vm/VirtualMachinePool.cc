@@ -24,11 +24,18 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
-                                       vector<const Attribute *> hook_mads,
-                                       const string& hook_location,
-                                       const string& remotes_location,
-                                       vector<const Attribute *>& restricted_attrs)
+time_t VirtualMachinePool::_monitor_expiration;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VirtualMachinePool::VirtualMachinePool(
+        SqlDB *                     db,
+        vector<const Attribute *>   hook_mads,
+        const string&               hook_location,
+        const string&               remotes_location,
+        vector<const Attribute *>&  restricted_attrs,
+        time_t                      expire_time)
     : PoolSQL(db, VirtualMachine::table, false)
 {
     const VectorAttribute * vattr;
@@ -41,6 +48,13 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
     bool   remote;
 
     bool state_hook = false;
+
+    _monitor_expiration = expire_time;
+
+    if ( _monitor_expiration == 0 )
+    {
+        clean_all_monitoring();
+    }
 
     for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
     {
@@ -300,3 +314,66 @@ int VirtualMachinePool::dump_acct(ostringstream& oss,
 
     return PoolSQL::dump(oss, "HISTORY_RECORDS", cmd);
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::clean_expired_monitoring()
+{
+    if ( _monitor_expiration == 0 )
+    {
+        return 0;
+    }
+
+    time_t          max_last_poll;
+    int             rc;
+    ostringstream   oss;
+
+    max_last_poll = time(0) - _monitor_expiration;
+
+    oss << "DELETE FROM " << VirtualMachine::monit_table
+        << " WHERE last_poll < " << max_last_poll;
+
+    rc = db->exec(oss);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::clean_all_monitoring()
+{
+    ostringstream   oss;
+    int             rc;
+
+    oss << "DELETE FROM " << VirtualMachine::monit_table;
+
+    rc = db->exec(oss);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::dump_monitoring(
+        ostringstream& oss,
+        const string&  where)
+{
+    ostringstream cmd;
+
+    cmd << "SELECT " << VirtualMachine::monit_table << ".body FROM "
+        << VirtualMachine::monit_table
+        << " INNER JOIN " << VirtualMachine::table
+        << " WHERE vmid = oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " AND " << where;
+    }
+
+    cmd << " ORDER BY vmid, " << VirtualMachine::monit_table << ".last_poll;";
+
+    return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
+}

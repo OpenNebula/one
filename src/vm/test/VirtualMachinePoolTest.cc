@@ -90,7 +90,8 @@ public:
             SqlDB * db,
             vector<const Attribute *> hook_mads,
             vector<const Attribute *> restricted_attrs):
-                VirtualMachinePool(db, hook_mads, "./", "./", restricted_attrs)
+                VirtualMachinePool(db, hook_mads,
+                        "./", "./", restricted_attrs, 0)
         {};
 
 

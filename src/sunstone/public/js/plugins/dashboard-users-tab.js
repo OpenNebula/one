@@ -107,6 +107,7 @@ var dashboard_tab_content =
       <div class="panel">\
         <h3>'+tr("Historical monitoring information")+'</h3>\
         <div class="panel_info">\
+<!--\
           <table class="info_table">\
             <tr><td class="key_td graph_td">'+tr("Total VM count")+'</td>\
                 <td class="graph_td" id="graph1_legend"></td></tr>\
@@ -121,6 +122,7 @@ var dashboard_tab_content =
                 <td class="graph_td" id="graph4_legend"></td></tr>\
             <tr><td id="graph4" colspan="2">'+spinner+'</td></tr>\
           </table>\
+-->\
         </div>\
       </div>\
     </td>\

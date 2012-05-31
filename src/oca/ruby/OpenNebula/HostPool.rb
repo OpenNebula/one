@@ -25,7 +25,8 @@ module OpenNebula
 
 
         HOST_POOL_METHODS = {
-            :info => "hostpool.info"
+            :info       => "hostpool.info",
+            :monitoring => "hostpool.monitoring"
         }
 
         #######################################################################
@@ -50,6 +51,41 @@ module OpenNebula
         # Retrieves all the Hosts in the pool.
         def info()
             super(HOST_POOL_METHODS[:info])
+        end
+
+        # Retrieves the monitoring data for all the Hosts in the pool
+        #
+        # @param [Array<String>] xpath_expressions Elements to retrieve.
+        #
+        # @return [Hash<String, <Hash<String, Array<Array<int>>>>>,
+        #   OpenNebula::Error] The first level hash uses the Host ID as keys,
+        #   and as value a Hash with the requested xpath expressions,
+        #   and an Array of 'timestamp, value'.
+        #
+        # @example
+        #   host_pool.monitoring(
+        #     ['HOST_SHARE/FREE_CPU',
+        #     'HOST_SHARE/RUNNING_VMS',
+        #     'TEMPLATE/CUSTOM_PROBE'] )
+        #
+        #   {"1"=>
+        #     {"TEMPLATE/CUSTOM_PROBE"=>[],
+        #      "HOST_SHARE/FREE_CPU"=>[["1337609673", "800"]],
+        #      "HOST_SHARE/RUNNING_VMS"=>[["1337609673", "3"]]},
+        #    "0"=>
+        #     {"TEMPLATE/CUSTOM_PROBE"=>[],
+        #      "HOST_SHARE/FREE_CPU"=>[["1337609673", "800"]],
+        #      "HOST_SHARE/RUNNING_VMS"=>[["1337609673", "3"]]}}
+        def monitoring(xpath_expressions)
+            return super(HOST_POOL_METHODS[:monitoring],
+                'HOST', 'LAST_MON_TIME', xpath_expressions)
+        end
+
+        # Retrieves the monitoring data for all the Hosts in the pool, in XML
+        #
+        # @return [String] VM monitoring data, in XML
+        def monitoring_xml()
+            return @client.call(HOST_POOL_METHODS[:monitoring])
         end
     end
 end
