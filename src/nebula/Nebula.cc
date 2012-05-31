@@ -500,8 +500,7 @@ void Nebula::start()
 
         if (!auth_mads.empty())
         {
-            //Defaults 60s to timeout auth requests
-            authm = new AuthManager(timer_period,60,auth_mads);
+            authm = new AuthManager(timer_period, auth_mads);
         }
         else
         {

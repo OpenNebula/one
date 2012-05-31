@@ -40,16 +40,11 @@ class AuthManager : public MadManager, public ActionListener
 public:
 
     AuthManager(
-        time_t                      timer,
-        time_t                      __time_out,
-        vector<const Attribute*>&   _mads):
+        time_t                    timer,
+        vector<const Attribute*>& _mads):
             MadManager(_mads), timer_period(timer)
     {
-        _time_out = __time_out;
-
         am.addListener(this);
-
-        pthread_mutex_init(&mutex,0);
     };
 
     ~AuthManager(){};
@@ -97,32 +92,6 @@ public:
     };
 
     /**
-     *  Notify the result of an auth request
-     */
-    void notify_request(int auth_id, bool result, const string& message);
-
-    /**
-     *  Discards a pending request. Call this before freeing not notified or
-     *  timeout requests.
-     */
-    void discard_request(int auth_id)
-    {
-        lock();
-
-        auth_requests.erase(auth_id);
-
-        unlock();
-    }
-
-    /**
-     *  Gets default timeout for Auth requests
-     */
-    static time_t  time_out()
-    {
-        return _time_out;
-    }
-
-    /**
      * Returns true if there is an authorization driver enabled
      *
      * @return true if there is an authorization driver enabled
@@ -142,21 +111,6 @@ private:
      *  Action engine for the Manager
      */
     ActionManager           am;
-
-    /**
-     *  List of pending requests
-     */
-    map<int, AuthRequest *> auth_requests;
-
-    /**
-     *  Mutex to access the auth_requests
-     */
-    pthread_mutex_t         mutex;
-
-    /**
-     *  Default timeout for Auth requests
-     */
-    static time_t           _time_out;
 
     /**
      *  Timer for the Manager (periocally triggers timer action)
@@ -227,41 +181,6 @@ private:
      *  This function authorizes a user request
      */
     void authorize_action(AuthRequest * ar);
-
-    /**
-     *  This function is periodically executed to check time_outs on requests
-     */
-    void timer_action();
-
-    /**
-     *  Function to lock the pool
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the pool
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
-
-    /**
-     *  Add a new request to the Request map
-     *    @param ar pointer to the AuthRequest
-     *    @return the id for the request
-     */
-    int add_request(AuthRequest *ar);
-
-    /**
-     *  Gets request from the Request map
-     *    @param id for the request
-     *    @return pointer to the AuthRequest
-     */
-    AuthRequest * get_request(int id);
 };
 
 #endif /*AUTH_MANAGER_H*/

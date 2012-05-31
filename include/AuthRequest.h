@@ -24,6 +24,8 @@
 #include "SSLTools.h"
 #include "AuthManager.h"
 
+#include "SyncRequest.h"
+
 using namespace std;
 
 /**
@@ -31,19 +33,10 @@ using namespace std;
  *  request to the AuthManager. The result of the request will be stored
  *  in the result and message attributes of this class.
  */
-class AuthRequest : public ActionListener
+class AuthRequest : public SyncRequest
 {
 public:
-    AuthRequest(int _uid, int _gid):
-        result(false),
-        timeout(false),
-        uid(_uid),
-        gid(_gid),
-        time_out(0),
-        self_authorize(true)
-    {
-        am.addListener(this);
-    };
+    AuthRequest(int _uid, int _gid): uid(_uid),gid(_gid),self_authorize(true){};
 
     ~AuthRequest(){};
 
@@ -143,24 +136,6 @@ public:
         return oss.str();
     };
 
-    /**
-     *  Notify client that we have an answer for the request
-     */
-    void notify()
-    {
-        am.trigger(ActionListener::ACTION_FINALIZE,0);
-    };
-
-    /**
-     *  Wait for the AuthRequest to be completed
-     */
-    void wait()
-    {
-        time_out = time(0) + AuthManager::time_out();
-
-        am.loop(0,0);
-    };
-
     bool core_authorize()
     {
         return ( uid == 0 || self_authorize );
@@ -172,35 +147,10 @@ public:
 
         return (password == sha1_session);
     }
-
-    /**
-     *  The result of the request, true if authorized or authenticated
-     */
-    bool   result;
-
-    /**
-     *  Error message for negative results
-     */
-    string message;
-
-    /**
-     *  Time out
-     */
-    bool   timeout;
     
-    /**
-     *  Identification of this request
-     */
-    int    id;
+private: 
     
-private:
-
     friend class AuthManager;
-
-    /**
-     *  The ActionManager that will be notify when the request is ready.
-     */
-    ActionManager am;
     
     /**
      *  The user id for this request
@@ -211,11 +161,6 @@ private:
      *  The user group ID
      */
     int    gid;
-
-    /**
-     *  Timeout for this request
-     */
-    time_t time_out;
 
     /**
      *  Username to authenticate the user
@@ -246,11 +191,6 @@ private:
      *  Plain authorization for the request
      */
     bool self_authorize;
-
-    /**
-     *  No actions defined for the Auth request, just FINALIZE when done
-     */
-    void do_action(const string &name, void *args){};
 
     /**
      *  Adds a new authorization item to this request, with a template for

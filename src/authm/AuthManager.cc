@@ -24,8 +24,6 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-time_t AuthManager::_time_out;
-
 const char * AuthManager::auth_driver_name = "auth_exe";
 
 /* -------------------------------------------------------------------------- */
@@ -126,7 +124,7 @@ extern "C" void * authm_action_loop(void *arg)
 
     NebulaLog::log("AuM",Log::INFO,"Authorization Manager started.");
 
-    authm->am.loop(authm->timer_period,0);
+    authm->am.loop(authm->timer_period, 0);
 
     NebulaLog::log("AuM",Log::INFO,"Authorization Manager stopped.");
 
@@ -204,7 +202,7 @@ void AuthManager::do_action(const string &action, void * arg)
     }
     else if (action == ACTION_TIMER)
     {
-        timer_action();
+        check_time_outs_action();
     }
     else if (action == ACTION_FINALIZE)
     {
@@ -248,7 +246,6 @@ void AuthManager::authenticate_action(AuthRequest * ar)
     // ------------------------------------------------------------------------
     // Make the request to the driver
     // ---- --------------------------------------------------------------------
-
 
     authm_md->authenticate(ar->id,
                            ar->uid,
@@ -311,116 +308,6 @@ error:
     ar->notify();
 
     return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AuthManager::timer_action()
-{
-    map<int,AuthRequest *>::iterator it;
-
-    time_t the_time = time(0);
-
-    lock();
-
-    it = auth_requests.begin();
-
-    while ( it !=auth_requests.end())
-    {
-        if ((it->second->time_out != 0) && (the_time > it->second->time_out))
-        {
-            AuthRequest * ar = it->second;
-            auth_requests.erase(it++);
-
-            ar->result  = false;
-            ar->timeout = true;
-            ar->message = "Auth request timeout";
-
-            ar->notify();
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
-    unlock();
-
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int AuthManager::add_request(AuthRequest *ar)
-{
-    static int auth_id = 0;
-    int id;
-
-    lock();
-
-    id = auth_id++;
-
-    auth_requests.insert(auth_requests.end(),make_pair(id,ar));
-
-    unlock();
-
-    return id;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-AuthRequest * AuthManager::get_request(int id)
-{
-    AuthRequest * ar = 0;
-    map<int,AuthRequest *>::iterator it;
-    ostringstream oss;
-
-    lock();
-
-    it=auth_requests.find(id);
-
-    if ( it != auth_requests.end())
-    {
-        ar = it->second;
-
-        auth_requests.erase(it);
-    }
-
-    unlock();
-
-    return ar;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AuthManager::notify_request(int auth_id,bool result,const string& message)
-{
-
-    AuthRequest * ar;
-
-    ar = get_request(auth_id);
-
-    if ( ar == 0 )
-    {
-        return;
-    }
-
-    ar->result = result;
-
-    if ( message != "-" )
-    {
-        if ( !ar->message.empty() )
-        {
-            ar->message.append("; ");
-        }
-
-        ar->message.append(message);
-    }
-
-    ar->notify();
 }
 
 /* ************************************************************************** */
