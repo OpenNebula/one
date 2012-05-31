@@ -21,7 +21,7 @@
 #include <xmlrpc-c/registry.hpp>
 
 #include "RequestManager.h"
-#include "AuthManager.h"
+#include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 
 using namespace std;

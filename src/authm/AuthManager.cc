@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "AuthManager.h"
+#include "AuthRequest.h"
 #include "NebulaLog.h"
 #include "SSLTools.h"
 #include "PoolObjectAuth.h"
