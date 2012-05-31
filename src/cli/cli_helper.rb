@@ -84,10 +84,14 @@ module CLIHelper
 
     # Print header
     def CLIHelper.print_header(str, underline=true)
-        scr_bold
-        scr_underline if underline
-        print str
-        scr_restore
+        if $stdout.tty?
+            scr_bold
+            scr_underline if underline
+            print str
+            scr_restore
+        else
+            print str
+        end
         puts
     end
 
