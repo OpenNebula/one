@@ -31,6 +31,8 @@ import org.w3c.dom.Node;
  */
 public class ClusterPool extends Pool implements Iterable<Cluster>{
 
+    public static final int NONE_CLUSTER_ID = -1;
+
     private static final String ELEMENT_NAME = "CLUSTER";
     private static final String INFO_METHOD  = "clusterpool.info";
 
