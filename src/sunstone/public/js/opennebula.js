@@ -849,12 +849,16 @@ var OpenNebula = {
         "unpublish" : function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Template.resource,"unpublish");
         },
-
         "instantiate" : function(params) {
             var vm_name = params.data.extra_param ? params.data.extra_param : "";
             var action_obj = { "vm_name" : vm_name };
             OpenNebula.Action.simple_action(params,OpenNebula.Template.resource,
                                             "instantiate",action_obj);
+        },
+        "clone" : function(params) {
+            var name = params.data.extra_param ? params.data.extra_param : "";
+            var action_obj = { "name" : name };
+            OpenNebula.Action.simple_action(params,OpenNebula.Template.resource, "clone", action_obj);
         }
     },
 

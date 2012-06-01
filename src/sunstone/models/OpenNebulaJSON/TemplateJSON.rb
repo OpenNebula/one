@@ -48,6 +48,7 @@ module OpenNebulaJSON
                  when "chown"       then self.chown(action_hash['params'])
                  when "chmod"       then self.chmod_octet(action_hash['params'])
                  when "instantiate" then self.instantiate(action_hash['params'])
+                 when "clone"       then self.clone(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -69,6 +70,10 @@ module OpenNebulaJSON
 
         def instantiate(params=Hash.new)
             super(params['vm_name'])
+        end
+
+        def clone(params=Hash.new)
+            super(params['name'])
         end
 
     end
