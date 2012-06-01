@@ -111,18 +111,15 @@ body {
     padding-left:   0;
     border:0;
     border-right: 1px solid #353735;
-    background-image: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    color-stop(0.95, rgb(99,102,99)),
-    color-stop(1, rgb(53,55,53))
-);
-background-image: -moz-linear-gradient(
-    left center,
-    rgb(99,102,99) 95%,
-    rgb(53,55,53) 100%
-);
+
+    background: #636663; /* Old browsers */
+    background: -moz-linear-gradient(left, #636663 95%, #353735 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#636663), color-stop(100%,#353735)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, #636663 95%,#353735 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, #636663 95%,#353735 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, #636663 95%,#353735 100%); /* IE10+ */
+    background: linear-gradient(left, #636663 95%,#353735 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#636663', endColorstr='#353735',GradientType=1 ); /* IE6-9 */
 }
 
 .navigation {
@@ -171,32 +168,14 @@ background-image: -moz-linear-gradient(
 }
 
 #navigation li:hover, .navigation-active-li {
-    background-image: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    color-stop(0.95, #E69138),
-    color-stop(1, rgb(53,55,53))
-);
-background-image: -moz-linear-gradient(
-    left center,
-    #E69138 95%,
-    rgb(53,55,53) 100%
-);
-    /*
-    background-image: -webkit-gradient(
-        linear,
-        right top,
-        left top,
-        color-stop(0, rgb(0,152,192)),
-        color-stop(1, rgb(255,255,255))
-    );
-    background-image: -moz-linear-gradient(
-        right center,
-        rgb(0,152,192) 0%,
-        rgb(255,255,255) 100%
-    );
-    */
+    background: #e69138; /* Old browsers */
+    background: -moz-linear-gradient(left, #e69138 95%, #353735 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#e69138), color-stop(100%,#353735)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, #e69138 95%,#353735 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, #e69138 95%,#353735 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, #e69138 95%,#353735 100%); /* IE10+ */
+    background: linear-gradient(left, #e69138 95%,#353735 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e69138', endColorstr='#353735',GradientType=1 ); /* IE6-9 */
 }
 .navigation-active-li {
     font-weight: bold;

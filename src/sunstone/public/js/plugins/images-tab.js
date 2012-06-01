@@ -120,7 +120,7 @@ var create_image_tmpl =
               </fieldset>\
               <fieldset>\
                  <div class="" id="src_path_select">\
-                   <label style="height:4em;">'+tr("Image location")+':</label>\
+                   <label style="height:5em;">'+tr("Image location")+':</label>\
 \
                    <input type="radio" name="src_path" id="path_img" value="path" />\
                    <label style="float:none">'+tr("Provide a path")+'</label><br />\

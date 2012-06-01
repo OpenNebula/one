@@ -1000,7 +1000,9 @@ function setupCreateVMDialog(){
             };
         };
 
-        Sunstone.runAction("VM.list");
+        setTimeout(function(){
+            Sunstone.runAction("VM.list");
+        },1500);
         $create_vm_dialog.dialog('close');
         return false;
     });
