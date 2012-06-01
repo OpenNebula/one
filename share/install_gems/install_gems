@@ -6,7 +6,6 @@ DEFAULT=%w{optional sunstone quota cloud ozones_server auth_ldap}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
-
 else
     SQLITE='sqlite3-ruby --version 1.2.0'
 end
@@ -17,11 +16,11 @@ GROUPS={
     :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
     :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
     :ozones_client => %w{json},
-    :ozones_server => %w{json data_mapper dm-sqlite-adapter dm-mysql-adapter}+[
+    :ozones_server => %w{json sequel}+[
         SQLITE, 'mysql'
     ],
-    :ozones_server_sqlite => %w{json data_mapper dm-sqlite-adapter}<<SQLITE,
-    :ozones_server_mysql => %w{json data_mapper dm-mysql-adapter mysql},
+    :ozones_server_sqlite => %w{json sequel}<<SQLITE,
+    :ozones_server_mysql => %w{json sequel mysql},
     :auth_ldap => 'net-ldap'
 }
 
