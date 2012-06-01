@@ -377,20 +377,18 @@ void MadManager::check_time_outs_action()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int MadManager::add_request(SyncRequest *ar)
+void MadManager::add_request(SyncRequest *ar)
 {
     static int request_id = 0;
     int id;
 
     lock();
 
-    id = request_id++;
+    ar->id = request_id++;
 
-    sync_requests.insert(sync_requests.end(),make_pair(id,ar));
+    sync_requests.insert(sync_requests.end(),make_pair(ar->id,ar));
 
     unlock();
-
-    return id;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -241,7 +241,7 @@ void AuthManager::authenticate_action(AuthRequest * ar)
     // Queue the request
     // ------------------------------------------------------------------------
 
-    ar->id = add_request(ar);
+    add_request(ar);
 
     // ------------------------------------------------------------------------
     // Make the request to the driver
@@ -285,7 +285,7 @@ void AuthManager::authorize_action(AuthRequest * ar)
     // Queue the request
     // ------------------------------------------------------------------------
 
-    ar->id = add_request(ar);
+    add_request(ar);
 
     // ------------------------------------------------------------------------
     // Make the request to the driver

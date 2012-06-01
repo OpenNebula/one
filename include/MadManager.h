@@ -113,7 +113,7 @@ protected:
      *    @param ar pointer to the request
      *    @return the id for the request
      */
-    int add_request(SyncRequest *ar);
+    void add_request(SyncRequest *ar);
 
     /**
      *  Gets request from the Request map
@@ -121,19 +121,6 @@ protected:
      *    @return pointer to the Request
      */
     SyncRequest * get_request(int id);
-
-    /**
-     *  Discards a pending request. Call this before freeing not notified or
-     *  timeout requests.
-     */
-    void discard_request(int id)
-    {
-        lock();
-
-        sync_requests.erase(id);
-
-        unlock();
-    }
 
 private:
     /**
