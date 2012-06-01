@@ -18,6 +18,7 @@
 #include "NebulaLog.h"
 #include "ImagePool.h"
 #include "SSLTools.h"
+#include "SyncRequest.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -394,6 +395,39 @@ int ImageManager::register_image(int iid, const string& ds_data)
     delete drv_msg;
 
     return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::stat_image(const string& img_tmpl, 
+                             const string& ds_tmpl, 
+                             string& res)
+{
+    const ImageManagerDriver* imd = get();
+
+    string *    drv_msg;
+    SyncRequest sr;
+
+    int rc;
+    
+    add_request(&sr);
+     
+    drv_msg = format_message(img_tmpl, ds_tmpl);
+
+    imd->stat(sr.id, *drv_msg);
+
+    sr.wait();
+
+    delete drv_msg;
+
+    res = sr.message;
+
+    if ( sr.result != true )
+    {
+        rc = -1;
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

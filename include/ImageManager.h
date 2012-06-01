@@ -125,6 +125,18 @@ public:
      */
     int delete_image(int iid, const string& ds_data);
 
+    /**
+     *  Gets the size of an image by calling the STAT action of the associated
+     *  datastore driver.
+     *
+     *  @param img_tmpl the template for the image
+     *  @param ds_tmpl the template for the datastore
+     *  @oaram result with a string representation of the size or if an error 
+     *         occurred describing the error.
+     *  @result 0 on success
+     */
+     int stat_image(const string& img_tmpl, const string& ds_tmpl, string& res);
+
 private:
     /**
      *  Generic name for the Image driver
