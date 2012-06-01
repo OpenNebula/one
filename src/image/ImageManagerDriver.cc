@@ -341,6 +341,8 @@ static void rm_action(istringstream& is,
 
     rc = ipool->drop(image, tmp_error);
 
+    image->unlock();
+
     if ( rc < 0 )
     {
         goto error_drop;

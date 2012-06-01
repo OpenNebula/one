@@ -88,7 +88,7 @@ EOF
 #   @param $1 - Path to the image
 #   @return size of the image in Mb
 #-------------------------------------------------------------------------------
-function fs_size{
+function fs_size {
 
 	case $1 in
 	http://*)
@@ -103,6 +103,7 @@ function fs_size{
 			SIZE=`stat -c %s "$1"`
 			error=$?
 		fi
+		;;
 	esac
 
 	if [ $error -ne 0 ]; then

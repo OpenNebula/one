@@ -51,9 +51,9 @@ SRC="${XPATH_ELEMENTS[0]}"
 
 SIZE=`fs_size $SRC`
 
-if [ SIZE = "0"]; then
+if [ "$SIZE" = "0" ]; then
     log_error "Cannot determine size for $SRC"
     exit -1
 fi
 
-echo "SIZE"
+echo "$SIZE"

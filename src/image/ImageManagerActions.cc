@@ -19,6 +19,7 @@
 #include "ImagePool.h"
 #include "SSLTools.h"
 #include "SyncRequest.h"
+#include "Template.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -399,20 +400,61 @@ int ImageManager::register_image(int iid, const string& ds_data)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::stat_image(const string& img_tmpl, 
-                             const string& ds_tmpl, 
-                             string& res)
+int ImageManager::stat_image(Template*     img_tmpl, 
+                             const string& ds_data, 
+                             string&       res)
 {
     const ImageManagerDriver* imd = get();
 
-    string *    drv_msg;
+    string* drv_msg;
+    string  type_att;
+
+    ostringstream  img_data;
+
     SyncRequest sr;
 
-    int rc;
-    
+    int rc = 0;
+
+    img_tmpl->get("TYPE", type_att);
+
+    switch (Image::str_to_type(type_att))
+    {
+        case Image::OS:
+        case Image::CDROM:
+            img_tmpl->get("SOURCE", res);
+
+            if (!res.empty())
+            {
+                res = "0";
+                return 0;
+            }
+
+            img_tmpl->get("PATH", res);
+
+            if (res.empty())
+            {
+                res = "Either PATH or SOURCE are required for " + type_att;
+                return -1;
+            }
+
+            img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
+            break;
+
+        case Image::DATABLOCK:
+            img_tmpl->get("SIZE", res);
+
+            if (res.empty())
+            {
+                res = "SIZE attribute is mandatory for DATABLOCK.";
+                return -1;
+            }
+            
+            return 0;
+    }
+
     add_request(&sr);
      
-    drv_msg = format_message(img_tmpl, ds_tmpl);
+    drv_msg = format_message(img_data.str(), ds_data);
 
     imd->stat(sr.id, *drv_msg);
 

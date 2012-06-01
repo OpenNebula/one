@@ -26,6 +26,7 @@ using namespace std;
 extern "C" void * image_action_loop(void *arg);
 
 class Image;
+class Template;
 
 class ImageManager : public MadManager, public ActionListener
 {
@@ -135,7 +136,7 @@ public:
      *         occurred describing the error.
      *  @result 0 on success
      */
-     int stat_image(const string& img_tmpl, const string& ds_tmpl, string& res);
+     int stat_image(Template* img_tmpl, const string& ds_tmpl, string& res);
 
 private:
     /**

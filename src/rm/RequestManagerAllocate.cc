@@ -296,8 +296,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                                              RequestAttributes& att)
 {
     string error_str;
+    string size_str;
+
+    int           size_mb;
+    istringstream iss;
+
     string ds_name;
     string ds_data;
+
     int    rc, id;
 
     PoolObjectAuth ds_perms;
@@ -309,6 +315,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
+    ImageManager *  imagem = nd.get_imagem();
     
     ImageTemplate * tmpl = new ImageTemplate;
 
@@ -359,6 +366,34 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds->unlock();
 
+    // --------------- Get the SIZE for the Image, (DS driver) -----------------
+
+    rc = imagem->stat_image(tmpl, ds_data, size_str);
+
+    if ( rc == -1 )
+    {
+        failure_response(INTERNAL, 
+                         request_error("Cannot determine Image SIZE", size_str), 
+                         att);
+        delete tmpl;
+        return;
+    }
+
+    iss.str(size_str);
+    iss >> size_mb;
+
+    if ( iss.fail() )
+    {
+        failure_response(INTERNAL, 
+                         request_error("Cannot parse SIZE", size_str), 
+                         att);
+        delete tmpl;
+        return;   
+    }
+
+    tmpl->erase("SIZE");
+    tmpl->add("SIZE", size_str);
+
     // ------------- Set authorization request for non-oneadmin's --------------
 
     if ( att.uid != 0 )
@@ -368,7 +403,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         // ------------------ Check permissions and ACLs  ----------------------
         tmpl->add("DATASTORE", ds_name);
-        tmpl->add("SIZE", "0");
 
         tmpl->to_xml(tmpl_str);
 
@@ -413,7 +447,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         Template img_usage;
 
         img_usage.add("DATASTORE", ds_name);
-        img_usage.add("SIZE", "0");
+        img_usage.add("SIZE", size_str);
 
         quota_rollback(&img_usage, att);
 
