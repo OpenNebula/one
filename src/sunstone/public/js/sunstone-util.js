@@ -464,6 +464,13 @@ function getHostName(id){
     return id;
 };
 
+function getTemplateName(id){
+    if (typeof(dataTable_templates) != "undefined"){
+        return getName(id,dataTable_templates,4);
+    }
+    return id;
+};
+
 function getName(id,dataTable,name_col){
     var name = id;
     if (typeof(dataTable) == "undefined") {
