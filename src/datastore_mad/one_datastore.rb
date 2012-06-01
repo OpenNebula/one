@@ -47,7 +47,8 @@ class DatastoreDriver < OpenNebulaDriver
         :cp   => "CP",
         :rm   => "RM",
         :mkfs => "MKFS",
-        :log  => "LOG"
+        :log  => "LOG",
+        :stat => "STAT"
     }
 
     # Register default actions for the protocol
@@ -57,7 +58,7 @@ class DatastoreDriver < OpenNebulaDriver
             :threaded => true,
             :retries => 0,
             :local_actions => {
-                ACTION[:mv]   => nil,
+                ACTION[:stat] => nil,
                 ACTION[:cp]   => nil,
                 ACTION[:rm]   => nil,
                 ACTION[:mkfs] => nil
@@ -76,9 +77,10 @@ class DatastoreDriver < OpenNebulaDriver
             @types = ds_type
         end
 
-        register_action(ACTION[:cp].to_sym, method("cp"))
-        register_action(ACTION[:rm].to_sym, method("rm"))
+        register_action(ACTION[:cp].to_sym,   method("cp"))
+        register_action(ACTION[:rm].to_sym,   method("rm"))
         register_action(ACTION[:mkfs].to_sym, method("mkfs"))
+        register_action(ACTION[:stat].to_sym, method("stat"))    
     end
 
     ############################################################################
@@ -98,6 +100,11 @@ class DatastoreDriver < OpenNebulaDriver
     def mkfs(id, drv_message)
         ds = get_ds_type(drv_message)
         do_image_action(id, ds, :mkfs, "#{drv_message} #{id}")
+    end
+
+    def stat(id, drv_message)
+        ds = get_ds_type(drv_message)
+        do_image_action(id, ds, :stat, "#{drv_message} #{id}")
     end
 
     private

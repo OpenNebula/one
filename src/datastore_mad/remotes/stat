@@ -45,46 +45,15 @@ unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
+done < <($XPATH /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
-RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
-SAFE_DIRS="${XPATH_ELEMENTS[2]}"
-UMASK="${XPATH_ELEMENTS[3]}"
-SRC="${XPATH_ELEMENTS[4]}"
+SRC="${XPATH_ELEMENTS[0]}"
 
-mkdir -p "$BASE_PATH"
-set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
+SIZE=`fs_size $SRC`
 
-DST=`generate_image_path`
+if [ SIZE = "0"]; then
+    log_error "Cannot determine size for $SRC"
+    exit -1
+fi
 
-# ------------ Copy the image to the repository -------------
-
-case $SRC in
-*)
-    if [ `check_restricted $SRC` -eq 1 ]; then
-        log_error "Not allowed to copy images from $RESTRICTED_DIRS"
-        error_message "Not allowed to copy image file $SRC"
-        exit -1
-    fi
-
-    log "Copying local disk folder $SRC to the image repository"
-
-    exec_and_log "cp -rf $SRC $DST" "Error copying $SRC to $DST"
-
-
-    if [ ! -f $DST/disk.vmdk ]; then
-        BASE_DISK_FILE=`ls $DST | grep -v '\-\(flat\|delta\|s[0-9]*\)\.vmdk$'`
-
-
-        exec_and_log "mv -f $DST/$BASE_DISK_FILE $DST/disk.vmdk" \
-            "Error renaming disk file $BASE_DISK_FILE to disk.vmdk"
-    fi
-    ;;
-esac
-
-echo "$DST"
+echo "SIZE"
