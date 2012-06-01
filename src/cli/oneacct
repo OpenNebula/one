@@ -223,6 +223,11 @@ opts = OptionParser.new do |opts|
         "Host id to filter the results" ) do |ext|
             options[:host]=ext
     end
+    
+    opts.on("--xpath expression", String,
+        "Xpath expression to filter the results. For example: oneacct --xpath 'HISTORY[ETIME>0]'" ) do |ext|
+            options[:xpath]=ext
+    end
 
     opts.on("-j", "--json",
         "Output in json format" ) do |ext|
@@ -286,6 +291,10 @@ end
 xmldoc = XMLElement.new
 xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
 
+xpath   = nil
+hid     = nil
+gid     = nil
+
 if options[:host]
     rc = OpenNebulaHelper.rname_to_id(options[:host], "HOST")
 
@@ -295,8 +304,6 @@ if options[:host]
         puts rc[1]
         exit -1
     end
-
-    xmldoc = redo_xmldoc(xmldoc, "HISTORY[HID=#{hid}]")
 end
 
 if options[:group]
@@ -308,9 +315,23 @@ if options[:group]
         puts rc[1]
         exit -1
     end
-
-    xmldoc = redo_xmldoc(xmldoc, "HISTORY[VM/GID=#{gid}]")
 end
+
+if options[:host] && options[:group]
+    xpath = "HISTORY[VM/GID=#{gid} and HID=#{hid}]"
+elsif options[:host]
+    xpath = "HISTORY[HID=#{hid}]"
+elsif options[:group]
+    xpath = "HISTORY[VM/GID=#{gid}]"
+end
+
+xmldoc = redo_xmldoc(xmldoc, xpath) if !xpath.nil?
+
+
+if options[:xpath]
+    xmldoc = redo_xmldoc(xmldoc, options[:xpath])
+end
+
 
 case options[:format]
 when :table
