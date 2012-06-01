@@ -76,6 +76,26 @@ public:
     };
 
     /**
+     *  Function to get a VM from the pool, string version for VM ID
+     */
+    VirtualMachine * get(
+        const string& oid_s,
+        bool          lock)
+    {
+        istringstream iss(oid_s);
+        int           oid;
+
+        iss >> oid;
+        
+        if ( iss.fail() )
+        {
+            return 0;
+        }
+        
+        return static_cast<VirtualMachine *>(PoolSQL::get(oid,lock));
+    };
+
+    /**
      *  Function to get the IDs of running VMs
      *   @param oids a vector that contains the IDs
      *   @param vm_limit Max. number of VMs returned
