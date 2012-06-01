@@ -37,6 +37,11 @@ require 'json'
 require 'optparse'
 require 'optparse/time'
 
+
+################################################################################
+# CLI Helper
+################################################################################
+
 class AcctHelper < OpenNebulaHelper::OneHelper
 
     def self.conf_file
@@ -114,10 +119,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
     end
 
 public
-    def list_users(xml_info, options=nil)
-
-        xmldoc = XMLElement.new
-        xmldoc.initialize_xml(xml_info, 'HISTORY_RECORDS')
+    def list_users(xmldoc, options=nil)
 
         uids = xmldoc.retrieve_elements('HISTORY/VM/UID')
 
@@ -133,8 +135,10 @@ public
         uids.each do |uid|
             CLIHelper.scr_bold
             CLIHelper.scr_underline
-            # TODO: username?
-            puts "# User #{uid}                        "
+
+            username =
+                xmldoc.retrieve_elements(["HISTORY/VM[UID=#{uid}]/UNAME"]).uniq;
+            puts "# User #{uid} #{username}    "
             CLIHelper.scr_restore
             puts
 
@@ -167,6 +171,28 @@ public
     end
 end
 
+################################################################################
+# Helper methods
+################################################################################
+
+def redo_xmldoc(xmldoc, xpath_str)
+    xml_str = "<HISTORY_RECORDS>"
+
+    xmldoc.each(xpath_str) do |history|
+        xml_str << history.to_xml
+    end
+
+    xml_str << "</HISTORY_RECORDS>"
+
+    xmldoc = XMLElement.new
+    xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
+
+    return xmldoc
+end
+
+################################################################################
+# Main command
+################################################################################
 
 options = Hash.new
 
@@ -184,8 +210,18 @@ opts = OptionParser.new do |opts|
     end
 
     opts.on("-u", "--user user", String,
-        "User id to make accounting" ) do |ext|
+        "User id to filter the results" ) do |ext|
             options[:user]=ext
+    end
+
+    opts.on("-g", "--group group", String,
+        "Group id to filter the results" ) do |ext|
+            options[:group]=ext
+    end
+
+    opts.on("-h", "--host host", String,
+        "Host id to filter the results" ) do |ext|
+            options[:host]=ext
     end
 
     opts.on("-j", "--json",
@@ -237,16 +273,44 @@ if options[:user]
     end
 end
 
-ret = client.call("vmpool.accounting",
+xml_str = client.call("vmpool.accounting",
             filter_flag,
             time_start,
             time_end)
 
-if OpenNebula.is_error?(ret)
-    puts ret.message
+if OpenNebula.is_error?(xml_str)
+    puts xml_str.message
     exit -1
 end
 
+xmldoc = XMLElement.new
+xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
+
+if options[:host]
+    rc = OpenNebulaHelper.rname_to_id(options[:host], "HOST")
+
+    if rc[0] == 0
+        hid = rc[1]
+    else
+        puts rc[1]
+        exit -1
+    end
+
+    xmldoc = redo_xmldoc(xmldoc, "HISTORY[HID=#{hid}]")
+end
+
+if options[:group]
+    rc = OpenNebulaHelper.rname_to_id(options[:group], "GROUP")
+
+    if rc[0] == 0
+        gid = rc[1]
+    else
+        puts rc[1]
+        exit -1
+    end
+
+    xmldoc = redo_xmldoc(xmldoc, "HISTORY[VM/GID=#{gid}]")
+end
 
 case options[:format]
 when :table
@@ -278,14 +342,12 @@ when :table
         puts
     end
 
-    acct_helper.list_users(ret, options)
+    acct_helper.list_users(xmldoc, options)
 
 when :xml
-    puts ret
+    puts xmldoc.to_xml
 
 when :json
-    xmldoc = XMLElement.new
-    xmldoc.initialize_xml(ret, 'HISTORY_RECORDS')
     puts xmldoc.to_hash.to_json
 
 end
