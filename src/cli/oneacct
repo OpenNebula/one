@@ -37,10 +37,10 @@ require 'json'
 require 'optparse'
 require 'optparse/time'
 
-class AcctHelper
+class AcctHelper < OpenNebulaHelper::OneHelper
 
-    def initialize(client)
-        @client = client
+    def self.conf_file
+        "oneacct.yaml"
     end
 
 =begin
@@ -64,7 +64,7 @@ class AcctHelper
 =end
 
     def list_history(data)
-        table = CLIHelper::ShowTable.new(nil, self) do
+        table = CLIHelper::ShowTable.new(self.class.table_conf, self) do
             column :VID, "Virtual Machine ID", :size=>4 do |d|
                 d["OID"]
             end
@@ -73,11 +73,11 @@ class AcctHelper
                 d["SEQ"]
             end
 
-            column :HOSTNAME, "Host name", :size=>15 do |d|
+            column :HOSTNAME, "Host name", :left, :size=>15 do |d|
                 d["HOSTNAME"]
             end
 
-            column :REASON, "VM state change reason", :size=>4 do |d|
+            column :REASON, "VM state change reason", :left, :size=>4 do |d|
                 VirtualMachine.get_reason d["REASON"]
             end
 
@@ -89,20 +89,20 @@ class AcctHelper
                 OpenNebulaHelper.time_to_str(d['ETIME'])
             end
 
-            column :MEMORY, "Assigned memory", :right, :size=>6 do |d|
+            column :MEMORY, "Assigned memory", :size=>6 do |d|
                 OpenNebulaHelper.unit_to_str(d["VM/TEMPLATE/MEMORY"].to_i, {}, 'M')
             end
 
-            column :CPU, "Number of CPUs", :right, :size=>3 do |d|
+            column :CPU, "Number of CPUs", :size=>3 do |d|
                 d["VM/TEMPLATE/CPU"]
             end
 
-            column :NET_RX, "Data received from the network", :right, :size=>6 do |d|
+            column :NET_RX, "Data received from the network", :size=>6 do |d|
                 # NET is measured in bytes, unit_to_str expects KBytes
                 OpenNebulaHelper.unit_to_str(d["VM/NET_RX"].to_i / 1024.0, {})
             end
 
-            column :NET_TX, "Data sent to the network", :right, :size=>6 do |d|
+            column :NET_TX, "Data sent to the network", :size=>6 do |d|
                 # NET is measured in bytes, unit_to_str expects KBytes
                 OpenNebulaHelper.unit_to_str(d["VM/NET_TX"].to_i / 1024.0, {})
             end
@@ -183,10 +183,9 @@ opts = OptionParser.new do |opts|
             options[:end]=ext
     end
 
-    # TODO: Allow username
-    opts.on("-u", "--user user", Integer,
+    opts.on("-u", "--user user", String,
         "User id to make accounting" ) do |ext|
-            options[:user]=ext.to_i
+            options[:user]=ext
     end
 
     opts.on("-j", "--json",
@@ -218,7 +217,7 @@ end
 
 client = OpenNebula::Client.new
 
-acct_helper = AcctHelper.new(client)
+acct_helper = AcctHelper.new()
 
 time_start  = -1
 time_end    = -1
@@ -226,8 +225,17 @@ filter_flag = VirtualMachinePool::INFO_ALL
 
 time_start  = options[:start].to_i if options[:start]
 time_end    = options[:end].to_i   if options[:end]
-filter_flag = options[:user].to_i  if options[:user]
 
+if options[:user]
+    rc = OpenNebulaHelper.rname_to_id(options[:user], "USER")
+
+    if rc[0] == 0
+        filter_flag = rc[1]
+    else
+        puts rc[1]
+        exit -1
+    end
+end
 
 ret = client.call("vmpool.accounting",
             filter_flag,
