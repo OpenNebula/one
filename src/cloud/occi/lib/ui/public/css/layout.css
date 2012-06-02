@@ -116,9 +116,14 @@ body {
     background: linear-gradient(left, #636663 95%,#353735 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#636663', endColorstr='#353735',GradientType=1 ); /* IE6-9 */
 }
-#navigation {
+
+.navigation {
     list-style:     none;
     padding:        0;
+}
+
+.navigation i {
+    margin-right: 5px;
 }
 
 .navigation li.topTab {

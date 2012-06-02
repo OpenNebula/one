@@ -270,6 +270,9 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/vendor/jGrowl \
                $SUNSTONE_LOCATION/public/vendor/flot \
                $SUNSTONE_LOCATION/public/vendor/fileuploader \
+               $SUNSTONE_LOCATION/public/vendor/FontAwesome \
+               $SUNSTONE_LOCATION/public/vendor/FontAwesome/css \
+               $SUNSTONE_LOCATION/public/vendor/FontAwesome/font \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/templates \
                $SUNSTONE_LOCATION/views"
@@ -286,6 +289,9 @@ OZONES_DIRS="$OZONES_LOCATION/lib \
              $OZONES_LOCATION/public/vendor/jQueryUI \
              $OZONES_LOCATION/public/vendor/jQueryUI/images \
              $OZONES_LOCATION/public/vendor/jGrowl \
+             $OZONES_LOCATION/public/vendor/FontAwesome \
+             $OZONES_LOCATION/public/vendor/FontAwesome/css \
+             $OZONES_LOCATION/public/vendor/FontAwesome/font \
              $OZONES_LOCATION/public/js \
              $OZONES_LOCATION/public/js/plugins \
              $OZONES_LOCATION/public/images \
@@ -316,7 +322,10 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/flot \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/crypto-js \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/fileuploader \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json"
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/css \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font"
 
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
@@ -468,6 +477,9 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER:$SUNSTONE_LOCATION/public/vendor/fileuploader
+    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME:$SUNSTONE_LOCATION/public/vendor/FontAwesome
+    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/FontAwesome/font
+    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/FontAwesome/css
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
     SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
@@ -498,6 +510,9 @@ INSTALL_OZONES_FILES=(
     OZONES_PUBLIC_VENDOR_JQUERYUI:$OZONES_LOCATION/public/vendor/jQueryUI
     OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES:$OZONES_LOCATION/public/vendor/jQueryUI/images
     OZONES_PUBLIC_VENDOR_JQUERYLAYOUT:$OZONES_LOCATION/public/vendor/jQueryLayout
+    OZONES_PUBLIC_VENDOR_FONTAWESOME:$OZONES_LOCATION/public/vendor/FontAwesome
+    OZONES_PUBLIC_VENDOR_FONTAWESOME_FONT:$OZONES_LOCATION/public/vendor/FontAwesome/font
+    OZONES_PUBLIC_VENDOR_FONTAWESOME_CSS:$OZONES_LOCATION/public/vendor/FontAwesome/css
     OZONES_PUBLIC_JS_FILES:$OZONES_LOCATION/public/js
     OZONES_PUBLIC_IMAGES_FILES:$OZONES_LOCATION/public/images
     OZONES_PUBLIC_CSS_FILES:$OZONES_LOCATION/public/css
@@ -530,6 +545,9 @@ INSTALL_SELF_SERVICE_FILES=(
     SELF_SERVICE_PUBLIC_VENDOR_CRYPTOJS:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/crypto-js
     SELF_SERVICE_PUBLIC_VENDOR_FILEUPLOADER:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/fileuploader
     SELF_SERVICE_PUBLIC_VENDOR_XML2JSON:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json
+    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome
+    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_CSS:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/css
+    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_FONT:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font
     SELF_SERVICE_PUBLIC_IMAGES_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/images
     SELF_SERVICE_PUBLIC_LOCALE_EN_US:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US
     SELF_SERVICE_PUBLIC_LOCALE_ES_ES:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES
@@ -1267,6 +1285,22 @@ SUNSTONE_PUBLIC_VENDOR_XML2JSON="\
 src/sunstone/public/vendor/xml2json/NOTICE \
 src/sunstone/public/vendor/xml2json/jquery.xml2json.pack.js"
 
+SUNSTONE_PUBLIC_VENDOR_FONTAWESOME="\
+src/sunstone/public/vendor/FontAwesome/NOTICE \
+"
+
+SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS="\
+src/sunstone/public/vendor/FontAwesome/css/font-awesome.css \
+"
+
+SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT="\
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.eot \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.woff \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.ttf \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svgz \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
+"
+
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/login_over.png \
                         src/sunstone/public/images/login.png \
@@ -1362,6 +1396,12 @@ OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES=$SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES
 
 OZONES_PUBLIC_VENDOR_JQUERYLAYOUT=$SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT
 
+OZONES_PUBLIC_VENDOR_FONTAWESOME=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME
+
+OZONES_PUBLIC_VENDOR_FONTAWESOME_FONT=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT
+
+OZONES_PUBLIC_VENDOR_FONTAWESOME_CSS=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS
+
 OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
                         src/ozones/Server/public/js/login.js \
                         src/ozones/Server/public/js/ozones-util.js \
@@ -1436,6 +1476,9 @@ SELF_SERVICE_PUBLIC_VENDOR_FLOT=$SUNSTONE_PUBLIC_VENDOR_FLOT
 SELF_SERVICE_PUBLIC_VENDOR_CRYPTOJS=$SUNSTONE_PUBLIC_VENDOR_CRYPTOJS
 SELF_SERVICE_PUBLIC_VENDOR_FILEUPLOADER=$SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER
 SELF_SERVICE_PUBLIC_VENDOR_XML2JSON=$SUNSTONE_PUBLIC_VENDOR_XML2JSON
+SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME
+SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_FONT=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT
+SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_CSS=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS
 
 SELF_SERVICE_PUBLIC_IMAGES_FILES="\
 src/cloud/occi/lib/ui/public/images/ajax-loader.gif \

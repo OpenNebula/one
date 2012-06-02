@@ -127,6 +127,10 @@ body {
     padding:        0;
 }
 
+.navigation i {
+    margin-right: 5px;
+}
+
 .navigation li.topTab {
     line-height:        2em;
     text-align:         left;

@@ -117,7 +117,7 @@ var dashboard_tab_content =
 </tr></table>';
 
 var dashboard_tab = {
-    title: tr("Dashboard"),
+    title: '<i class="icon-home"></i>'+tr("Dashboard"),
     content: dashboard_tab_content
 }
 

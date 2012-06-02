@@ -192,7 +192,7 @@ var dashboard_tab_content =
 
 
 var dashboard_tab = {
-    title: 'Dashboard',
+    title: '<i class="icon-home"></i>'+'Dashboard',
     content: dashboard_tab_content
 }
 
