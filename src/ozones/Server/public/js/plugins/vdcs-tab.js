@@ -276,7 +276,7 @@ var vdc_buttons = {
 };
 
 var vdcs_tab = {
-    title: "VDCs",
+    title: '<i class="icon-th"></i>'+"VDCs",
     content: vdcs_tab_content,
     buttons: vdc_buttons
 }

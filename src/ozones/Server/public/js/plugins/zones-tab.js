@@ -215,7 +215,7 @@ var zone_buttons = {
 };
 
 var zones_tab = {
-    title: "Zones",
+    title: '<i class="icon-th-large"></i>'+"Zones",
     content: zones_tab_content,
     buttons: zone_buttons
 }
