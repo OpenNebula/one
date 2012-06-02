@@ -129,7 +129,7 @@ bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
     switch (auth_object)
     {
         case PoolObjectSQL::IMAGE:
-            rc = user->image_quota_check(tmpl, error_str);
+            rc = user->datastore_quota_check(tmpl, error_str);
             break;
 
         case PoolObjectSQL::VM:
@@ -177,7 +177,7 @@ void Request::quota_rollback(Template * tmpl, RequestAttributes& att)
     switch (auth_object)
     {
         case PoolObjectSQL::IMAGE:
-            user->image_quota_del(tmpl);
+            user->datastore_quota_del(tmpl);
             break;
 
         case PoolObjectSQL::VM:

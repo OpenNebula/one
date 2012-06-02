@@ -19,7 +19,7 @@
 
 #include "PoolSQL.h"
 #include "UserTemplate.h"
-#include "QuotaImage.h"
+#include "QuotaDatastore.h"
 
 using namespace std;
 
@@ -169,23 +169,24 @@ public:
     }
 
     /**
-     *  Check Image quotas, it updates usage counters if quotas are not exceeded
+     *  Check Datastore quotas, it updates usage counters if quotas are not 
+     *  exceeded.
      *    @param tmpl template for the image
      *    @param reason string describing the error
      *    @return true if image can be allocated, false otherwise
      */
-     bool image_quota_check(Template * tmpl, string& reason)
+     bool datastore_quota_check(Template * tmpl, string& reason)
      {
-        return image_quota.check_add(tmpl, reason);
+        return datastore_quota.check_add(tmpl, reason);
      }
 
     /**
      *  Delete usage from quota counters.
      *    @param tmpl template for the image, with usage
      */
-     void image_quota_del(Template * tmpl)
+     void datastore_quota_del(Template * tmpl)
      {
-        return image_quota.del(tmpl);
+        return datastore_quota.del(tmpl);
      } 
 private:
     // -------------------------------------------------------------------------
@@ -216,7 +217,7 @@ private:
     /**
      * Usage Counters and Quotas 
      */
-     QuotaImage image_quota;
+     QuotaDatastore datastore_quota;
 
     // *************************************************************************
     // Authentication session (Private)

@@ -239,7 +239,10 @@ public:
     };
 
     /**
+     *  Returns the string value
+     *    @param name of the attribute
      *
+     *    @return the value of the attribute if found, empty otherwise
      */
     string vector_value(const char *name) const;
 

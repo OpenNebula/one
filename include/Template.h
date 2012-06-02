@@ -141,8 +141,21 @@ public:
      */
      void add(const string& name, const string& value)
      {
-        SingleAttribute * at = new SingleAttribute(name, value);
-        set(at);
+        set(new SingleAttribute(name, value));
+     }
+
+    /**
+     *  Adds a new single attribute to the template.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
+     void add(const string& name, int value)
+     {
+        ostringstream oss;
+
+        oss << value;
+
+        set(new SingleAttribute(name, oss.str()));
      }
 
     /**

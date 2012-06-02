@@ -37,29 +37,32 @@ int Quota::set(const string& quota_str, string& error)
 
     for ( it = tmp.attributes.begin(); it != tmp.attributes.end(); it++)
     {
-        actual = attributes.equal_range(it->first);
+        quota  = get_quota(it->second);
 
-        if (actual.first == actual.second ) //Quota not set yet.
+        if ( quota == 0 ) //Quota not set yet.
         {
-            if ((quota = new_quota(it->second)) == 0)
+            Attribute * nq;
+
+            if ((nq = new_quota(it->second)) == 0)
             {
                 goto error_limits;
             }
 
-            attributes.insert(make_pair(quota->name(),quota));
+            attributes.insert(make_pair(nq->name(),nq));
         }
         else
         {
-            if (update_limits(actual.first->second, it->second))
+            if (update_limits(quota, it->second))
             {
                 goto error_limits;
-            }
+            }   
         }
     }
 
 error_limits:
     ostringstream oss;
-    oss <<  "Negative limits or bad format in quota " << it->first;
+    oss <<  "Negative limits or bad format in quota " << it->first
+        <<  " = " << it->second->marshall();
 
     error = oss.str();
     return -1;        

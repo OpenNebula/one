@@ -60,7 +60,7 @@ public:
 
 protected:
 
-    Quota(const char * quota_name): Template(true, '=', quota_name) {};
+    Quota(const char * quota_name): Template(false, '=', quota_name) {};
     
     virtual ~Quota(){};
 
@@ -85,6 +85,18 @@ protected:
     {
         return 0;
     }
+
+    /** 
+     *  Gets a quota for a given resource. The resource is specified as a
+     *  Template attribute. Derived class should return a quota that matches the
+     *  resource.
+     *    @param base_attribute describing the quota with the new limits
+     *    @return pointer to the quota on success or 0 otherwise
+     */
+    virtual Attribute * get_quota(const Attribute* base_attribute)
+    {
+       return 0; 
+    };
 
     /**
      *  Adds a given value to the current quota (single)

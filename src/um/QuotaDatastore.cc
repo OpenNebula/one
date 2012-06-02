@@ -14,12 +14,62 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "QuotaImage.h"
+#include "QuotaDatastore.h"
 
-bool QuotaImage::check_add(Template * tmpl,  string& error)
+VectorAttribute * QuotaDatastore::get_datastore_quota(const string& ds_name)
 {
-    vector<Attribute *> vector_ds_limit;
-    VectorAttribute *   ds_limit; 
+    vector<Attribute *> vquota;
+    VectorAttribute *   ds_quota = 0;
+
+    int num = get("DATASTORE", vquota);
+
+    for (int i = 0; i< num ; i++)
+    {
+        ds_quota = dynamic_cast<VectorAttribute *>(vquota[i]);
+
+        if (ds_quota == 0)
+        {
+            continue;
+        }
+
+        if ( ds_quota->vector_value("NAME") == ds_name )
+        {
+            return ds_quota;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Attribute * QuotaDatastore::get_quota(Attribute * resource)
+{
+    VectorAttribute * vresource = dynamic_cast<VectorAttribute *>(resource);
+    string ds_name;
+
+    if (vresource == 0)
+    {
+        return 0;
+    }
+
+    ds_name = vresource->vector_value("NAME");
+
+    if (ds_name.empty())
+    {
+        return 0;
+    }
+
+    return get_datastore_quota(ds_name);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool QuotaDatastore::check_add(Template * tmpl,  string& error)
+{
+    VectorAttribute *   ds_quota; 
 
     int img_limit  = 0; 
     int size_limit = 0;
@@ -48,48 +98,46 @@ bool QuotaImage::check_add(Template * tmpl,  string& error)
         return false;
     }
 
-    // ------ There is no quotas for this datastore, create a new one ------
+    // ------ There are no quotas for this datastore, create a new one ------
 
-    if ( get(ds_name,vector_ds_limit) == 0 )
+    ds_quota = get_datastore_quota(ds_name);
+
+    if ( ds_quota == 0 )
     {
         map<string,string> ds_quota;
         VectorAttribute *  attr;
+        ostringstream      size_str;
 
+        size_str << size;
+
+        ds_quota.insert(make_pair("NAME",        ds_name));
         ds_quota.insert(make_pair("IMAGES",      "0"));
         ds_quota.insert(make_pair("SIZE",        "0"));
         ds_quota.insert(make_pair("IMAGES_USED", "1"));
-        ds_quota.insert(make_pair("SIZE_USED",   "0"));
+        ds_quota.insert(make_pair("SIZE_USED",   size_str.str()));
 
-        attr = new VectorAttribute(ds_name, ds_quota);
+        attr = new VectorAttribute("DATASTORE",  ds_quota);
 
-        attributes.insert(make_pair(ds_name, attr));
+        attributes.insert(make_pair("DATASTORE", attr));
 
         return true;
     }
 
     // ------ Check usage limits ------
 
-    ds_limit = dynamic_cast<VectorAttribute *>(vector_ds_limit[0]);
+    ds_quota->vector_value("IMAGES", img_limit);
+    ds_quota->vector_value("SIZE",   size_limit);
 
-    if (ds_limit == 0)
-    {
-        error = "Internal error checking quota limits";
-        return false;
-    }
-
-    ds_limit->vector_value("IMAGES", img_limit);
-    ds_limit->vector_value("SIZE",   size_limit);
-
-    ds_limit->vector_value("IMAGES_USED", img_used);
-    ds_limit->vector_value("SIZE_USED",   size_used);
+    ds_quota->vector_value("IMAGES_USED", img_used);
+    ds_quota->vector_value("SIZE_USED",   size_used);
 
     img_ok  = (img_limit == 0) || ((img_used + 1)     <= img_limit );
     size_ok = (size_limit== 0) || ((size_used + size) <= size_limit);
 
     if ( img_ok && size_ok )
     {
-        add_to_quota(ds_limit, "IMAGES_USED", +1);
-        add_to_quota(ds_limit, "SIZE_USED",   +size);
+        add_to_quota(ds_quota, "IMAGES_USED", +1);
+        add_to_quota(ds_quota, "SIZE_USED",   +size);
     }
     else if (!img_ok)
     {
@@ -116,10 +164,9 @@ bool QuotaImage::check_add(Template * tmpl,  string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void QuotaImage::del(Template * tmpl)
+void QuotaDatastore::del(Template * tmpl)
 {
-    vector<Attribute *> vector_ds_limit;
-    VectorAttribute *   ds_limit;
+    VectorAttribute * ds_quota;
 
     string ds_name;
     int    size;
@@ -136,33 +183,30 @@ void QuotaImage::del(Template * tmpl)
         return;
     }
 
-    if ( get(ds_name,vector_ds_limit) == 0 )
+    ds_quota = get_datastore_quota(ds_name);
+
+    if ( ds_quota == 0 )
     {
         return;
     }
 
-    ds_limit = dynamic_cast<VectorAttribute *>(vector_ds_limit[0]);
-
-    if (ds_limit == 0)
-    {
-        return;
-    }
-
-    add_to_quota(ds_limit, "IMAGES_USED", -1);
-    add_to_quota(ds_limit, "SIZE_USED",   -size);
+    add_to_quota(ds_quota, "IMAGES_USED", -1);
+    add_to_quota(ds_quota, "SIZE_USED",   -size);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaImage::update_limits(Attribute * quota, Attribute * va)
+int QuotaDatastore::update_limits(Attribute * quota, Attribute * va)
 {        
     string images_limit;
     string size_limit;
+    string ds;
 
     VectorAttribute * vquota = dynamic_cast<VectorAttribute *>(quota);
+    int               rc     = get_limits(va, ds, images_limit, size_limit);
 
-    if ( vquota == 0 || get_limits(va, images_limit, size_limit) != 0 )
+    if ( vquota == 0 || rc != 0 )
     {
         return -1;
     }
@@ -176,33 +220,39 @@ int QuotaImage::update_limits(Attribute * quota, Attribute * va)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Attribute * QuotaImage::new_quota(Attribute * va)
+Attribute * QuotaDatastore::new_quota(Attribute * va)
 {
     string images_limit = "0";
     string size_limit   = "0";
+    string ds_name;
 
-    if ( va != 0 )
+    int rc = get_limits(va, ds_name, images_limit, size_limit);
+
+    if ( rc != 0 || ds_name.empty())
     {
-        if (get_limits(va, images_limit, size_limit) != 0 )
-        {
-            return 0;
-        }        
-    }
+        return 0;
+    }        
 
     map<string,string> limits;
+ 
+    limits.insert(make_pair("NAME", ds_name));
 
-    limits.insert(make_pair("IMAGES",images_limit));
-    limits.insert(make_pair("SIZE",size_limit));
-    limits.insert(make_pair("IMAGES_USED","0"));
-    limits.insert(make_pair("SIZE_USED","0"));
+    limits.insert(make_pair("IMAGES", images_limit));
+    limits.insert(make_pair("SIZE",   size_limit));
 
-    return new VectorAttribute(va->name(),limits);
+    limits.insert(make_pair("IMAGES_USED", "0"));
+    limits.insert(make_pair("SIZE_USED",   "0"));
+
+    return new VectorAttribute("DATASTORE",limits);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaImage::get_limits(Attribute * va_ptr, string& images, string& size)
+int QuotaDatastore::get_limits(Attribute * va_ptr, 
+                               string&     ds_name,
+                               string&     images, 
+                               string&     size)
 {
     int images_limit = 0; 
     int size_limit   = 0;
@@ -214,8 +264,9 @@ int QuotaImage::get_limits(Attribute * va_ptr, string& images, string& size)
         return -1;
     }
 
-    images = va->vector_value("IMAGES", images_limit);
-    size   = va->vector_value("SIZE", size_limit);
+    images  = va->vector_value("IMAGES", images_limit);
+    size    = va->vector_value("SIZE", size_limit);
+    ds_name = va->vector_value("NAME");
 
     if ( images_limit < 0 || size_limit < 0 )
     {

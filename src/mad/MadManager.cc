@@ -380,7 +380,6 @@ void MadManager::check_time_outs_action()
 void MadManager::add_request(SyncRequest *ar)
 {
     static int request_id = 0;
-    int id;
 
     lock();
 

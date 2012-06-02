@@ -14,14 +14,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef QUOTA_IMAGE_H_
-#define QUOTA_IMAGE_H_
+#ifndef QUOTA_DATASTORE_H_
+#define QUOTA_DATASTORE_H_
 
 #include "Quota.h"
 
 /**
- *  Image Quotas, defined as:
- *    <DATASTORE_NAME> = [
+ *  DataStore Quotas, defined as:
+ *    DATASTORE = [
+ *        NAME   = <Name of the datastore>
  *        IMAGES = <Max. number of images allowed in the datastore>
  *        SIZE   = <Max. number of MB used in the datastore>
  *        IMAGES_USED = Current number of images in the datastore
@@ -31,13 +32,13 @@
  *   0 = unlimited, default if missing
  */
 
-class QuotaImage : public Quota
+class QuotaDatastore :  public Quota
 {
 public:
     
-    QuotaImage():Quota("IMAGE_QUOTA"){};
+    QuotaDatastore():Quota("DATASTORE_QUOTA"){};
 
-    ~QuotaImage(){};
+    ~QuotaDatastore(){};
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not 
@@ -73,15 +74,31 @@ protected:
     Attribute * new_quota(Attribute * va);
 
 private:
+
     /**
      *  Return the limits for image and size stored in the a given quota.
      *    @param va_ptr the attribute that stores the quota
+     *    @param ds the name of the DATASTORE quota
      *    @param images the limit for the number of images
      *    @param size the limit for the total storage size
      *
      *    @return -1 if the limits are wrong 0 otherwise
      */
-    int get_limits(Attribute * va_ptr, string& images, string& size);
+    int get_limits(Attribute* va_ptr, string& ds, string& images, string& size);
+
+    /**
+     *  Return the attribute with the datastore quotas
+     *    @param ds_name name of the datastore
+     *    @return pointer to the datastore quota or 0 if not found
+     */
+    VectorAttribute * get_datastore_quota(const string& ds_name);
+
+    /**
+     *  Return the attribute with the datastore quotas
+     *    @param resource attribute describing a datastore quota
+     *    @return pointer to the datastore quota or 0 if not found
+     */
+    Attribute * get_quota(Attribute * resource);
 };
 
-#endif /*QUOTA_IMAGE_H_*/
+#endif /*QUOTA_DATASTORE_H_*/
