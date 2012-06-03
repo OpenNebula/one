@@ -35,7 +35,7 @@ public:
      *    @param error describe the error in case of error
      *    @return 0 on success -1 otherwise
      */
-    int set(const string& quota_str, string& error);
+    int set(vector<VectorAttribute*> * quotas, string& error);
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not 
@@ -44,19 +44,14 @@ public:
      *    @param error string 
      *    @return true if the operation can be performed
      */
-    virtual bool check_add(Template* tmpl,  string& error)
-    {
-        return false;
-    }
+    virtual bool check(Template* tmpl,  string& error) = 0;
 
     /**
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */
-    virtual void del(Template* tmpl)
-    {
-        return;
-    }
+    virtual void del(Template* tmpl) = 0;
+
 
 protected:
 
@@ -70,10 +65,8 @@ protected:
      *    @param va attribute with the new limits
      *    @return 0 on success or -1 if wrong limits
      */
-    virtual int update_limits(Attribute* quota, const Attribute* va)
-    {
-       return -1; 
-    };
+    virtual int update_limits(VectorAttribute* quota, 
+                              const VectorAttribute* va) = 0;
 
     /**
      *  Creates an empty quota based on the given attribute. The attribute va
@@ -81,29 +74,21 @@ protected:
      *    @param va limits for the new quota if 0 limits will be 0
      *    @return a new attribute representing the quota
      */
-    virtual Attribute * new_quota(Attribute* va)
-    {
-        return 0;
-    }
-
-    /** 
-     *  Gets a quota for a given resource. The resource is specified as a
-     *  Template attribute. Derived class should return a quota that matches the
-     *  resource.
-     *    @param base_attribute describing the quota with the new limits
-     *    @return pointer to the quota on success or 0 otherwise
-     */
-    virtual Attribute * get_quota(const Attribute* base_attribute)
-    {
-       return 0; 
-    };
+    virtual VectorAttribute * new_quota(VectorAttribute* va) = 0;
 
     /**
-     *  Adds a given value to the current quota (single)
-     *    @param attr the quota with a numeric value
-     *    @param num value to add to the current quota
+     *  Gets a quota identified by its ID.
+     *    @param id of the quota
+     *    @return a pointer to the quota or 0 if not found
      */
-    void add_to_quota(SingleAttribute * attr, float num);
+    virtual VectorAttribute * get_quota(const string& id);
+
+    /**
+     *  Adds a new quota, it also updates an internal index for fast accessing
+     *  the quotas
+     *    @param quota is the new quota, allocated in the HEAP
+     */
+    virtual void add(VectorAttribute * quota);
 
     /**
      *  Adds a given value to the current quota (vector)

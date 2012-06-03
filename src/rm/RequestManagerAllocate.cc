@@ -402,7 +402,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         string  tmpl_str;
 
         // ------------------ Check permissions and ACLs  ----------------------
-        tmpl->add("DATASTORE", ds_name);
+        tmpl->add("DATASTORE", ds_id);
 
         tmpl->to_xml(tmpl_str);
 
@@ -446,7 +446,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         Template img_usage;
 
-        img_usage.add("DATASTORE", ds_name);
+        img_usage.add("DATASTORE", ds_id);
         img_usage.add("SIZE", size_str);
 
         quota_rollback(&img_usage, att);

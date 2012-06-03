@@ -19,73 +19,44 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Quota::set(const string& quota_str, string& error)
+VectorAttribute * Quota::get_quota(const string& id)
 {
-    Quota tmp("GENERIC_QUOTA");
+    map<string, Attribute *>::iterator it;
+    VectorAttribute * q;
 
-    if ( tmp.parse_str_or_xml(quota_str, error) != 0 )
+    if ( id.empty() )
     {
-        return -1;
+        return 0;
     }
 
-    multimap<string, Attribute *>::iterator  it;
-
-    pair<multimap<string, Attribute *>::iterator,
-         multimap<string, Attribute *>::iterator> actual;
-
-    Attribute * quota;
-
-    for ( it = tmp.attributes.begin(); it != tmp.attributes.end(); it++)
+    for ( it = attributes.begin(); it != attributes.end(); it++)
     {
-        quota  = get_quota(it->second);
+        q = static_cast<VectorAttribute *>(it->second);
 
-        if ( quota == 0 ) //Quota not set yet.
+        if (q->vector_value("ID") == id)
         {
-            Attribute * nq;
-
-            if ((nq = new_quota(it->second)) == 0)
-            {
-                goto error_limits;
-            }
-
-            attributes.insert(make_pair(nq->name(),nq));
-        }
-        else
-        {
-            if (update_limits(quota, it->second))
-            {
-                goto error_limits;
-            }   
+            return q;
         }
     }
 
-error_limits:
-    ostringstream oss;
-    oss <<  "Negative limits or bad format in quota " << it->first
-        <<  " = " << it->second->marshall();
-
-    error = oss.str();
-    return -1;        
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Quota::add_to_quota(SingleAttribute * attr, float num)
+void Quota::add(VectorAttribute * nq)
 {
-    istringstream iss;
-    ostringstream oss;
-    float         total;
+    string id;
 
-    iss.str(attr->value());
+    id = nq->vector_value("ID");
 
-    iss >> total;
+    if ( id.empty() )
+    {
+        return;
+    }
 
-    total += num;
-
-    oss << total;
-
-    attr->replace(oss.str());
+    attributes.insert(make_pair(nq->name(), nq));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -107,3 +78,52 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, int num)
 
     attr->replace(va_name, oss.str());
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Quota::set(vector<VectorAttribute*> * new_quotas, string& error)
+{
+    vector<VectorAttribute *>::iterator  it;
+
+    VectorAttribute * tq;
+    string            id;
+
+    for ( it = new_quotas->begin(); it != new_quotas->end(); it++)
+    {
+        id = (*it)->vector_value("ID");
+
+        tq = get_quota(id);
+
+        if ( tq == 0 )
+        {
+            VectorAttribute * nq;
+
+            if ((nq = new_quota(*it)) == 0)
+            {
+                goto error_limits;
+            }
+
+            add(nq);
+        }
+        else
+        {
+            if (update_limits(tq, *it))
+            {
+                goto error_limits;
+            }   
+        }
+    }
+    
+    return 0;
+
+error_limits:
+    ostringstream oss;
+    oss <<  "Negative limits or bad format in quota " << (*it)->marshall();
+
+    error = oss.str();
+    return -1;        
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

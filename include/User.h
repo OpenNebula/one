@@ -177,7 +177,7 @@ public:
      */
      bool datastore_quota_check(Template * tmpl, string& reason)
      {
-        return datastore_quota.check_add(tmpl, reason);
+        return datastore_quota.check(tmpl, reason);
      }
 
     /**
