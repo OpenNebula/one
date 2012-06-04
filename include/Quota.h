@@ -59,14 +59,51 @@ protected:
     
     virtual ~Quota(){};
 
-    /** 
-     *  Sets new limit values for the quota
-     *    @param quota to be updated
-     *    @param va attribute with the new limits
-     *    @return 0 on success or -1 if wrong limits
+    /**
+     *  Generic Quota Names 
+     *
+     *  template_name = [
+     *      ID              = "ID to identify the resource",
+     *      metrics[0]      = "Limit for the first metric"
+     *      metrics[0]_USED = "Usage for metric"
+     *  ]
+     *
+     *  ID & counter fields are optional
      */
-    virtual int update_limits(VectorAttribute* quota, 
-                              const VectorAttribute* va) = 0;
+
+    /**
+     *  Name of the quota used in the templates
+     */
+    char *  template_name;
+
+    /**
+     *  The name of the quota metrics
+     */
+    char ** metrics;
+
+    /**
+     *  Length o
+     */
+    int num_metrics;
+
+    /** 
+     *  Check a given quota for an usage request and update counters if the 
+     *  request does not exceed quota limits
+     *    @param qid id that identifies the quota, to be used by get_quota
+     *    @param usage_req usage for each metric
+     *    @return true if the request does not exceed current limits
+     */
+    bool check_quota(const string& qid, 
+                     map<string, int>& usage_req,
+                     string& error);
+
+    /**
+     *  Reduce usage from a given quota based on the current consumption
+     *    @param qid id that identifies the quota, to be used by get_quota
+     *    @param usage_req usage for each metric
+     */
+    void del_quota(const string& qid, 
+                   map<string, int>& usage_req);
 
     /**
      *  Creates an empty quota based on the given attribute. The attribute va
@@ -81,7 +118,7 @@ protected:
      *    @param id of the quota
      *    @return a pointer to the quota or 0 if not found
      */
-    virtual VectorAttribute * get_quota(const string& id);
+    virtual int get_quota(const string& id, VectorAttribute **va);
 
     /**
      *  Adds a new quota, it also updates an internal index for fast accessing
@@ -97,6 +134,21 @@ protected:
      *    @param num value to add to the current quota;
      */
     void add_to_quota(VectorAttribute * attr, const string& va_name, int num);
+
+    /** 
+     *  Sets new limit values for the quota
+     *    @param quota to be updated
+     *    @param va attribute with the new limits
+     *    @return 0 on success or -1 if wrong limits
+     */
+    int update_limits(VectorAttribute* quota, const VectorAttribute* va);
+
+    /**
+     *  Extract the limits from a given attribute
+     *    @param va the attribute with the limits
+     *    @param
+     */
+    int get_limits(const VectorAttribute * va, map<string, string>& limits);
 };
 
 #endif /*QUOTA_H_*/

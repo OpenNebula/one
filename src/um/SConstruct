@@ -25,7 +25,7 @@ source_files=[
     'User.cc',
     'UserPool.cc',
     'Quota.cc',
-    'QuotaDatastore.cc'
+#   'QuotaDatastore.cc'
 ]
 
 # Build library

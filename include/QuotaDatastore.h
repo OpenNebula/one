@@ -63,8 +63,8 @@ protected:
      *    @param va attribute with the new limits
      *    @return 0 on success or -1 if wrong limits
      */
-    int update_limits(VectorAttribute* quota, 
-                      const VectorAttribute* va);
+    /*int update_limits(VectorAttribute* quota, 
+                      const VectorAttribute* va);*/
 
     /**
      *  Creates an empty quota based on the given attribute. The attribute va
