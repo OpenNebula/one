@@ -219,7 +219,7 @@ opts = OptionParser.new do |opts|
             options[:group]=ext
     end
 
-    opts.on("-h", "--host host", String,
+    opts.on("-H", "--host hostname", String,
         "Host id to filter the results" ) do |ext|
             options[:host]=ext
     end
@@ -242,6 +242,11 @@ opts = OptionParser.new do |opts|
     opts.on("--split",
         "Split the output in a table for each VM" ) do |ext|
             options[:split]=ext
+    end
+
+    opts.on("-h", "--help", "Show this message" ) do
+        puts opts
+        exit
     end
 
     opts.on()
