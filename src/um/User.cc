@@ -227,7 +227,7 @@ int User::from_xml(const string& xml)
 
     if (!content.empty())
     {
-        rc += network_quota.from_xml_node(content[0]);
+        rc += vm_quota.from_xml_node(content[0]);
     }
 
     ObjectXML::free_nodes(content);

@@ -221,7 +221,7 @@ int VirtualMachinePool::allocate (
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
-    *oid = PoolSQL::allocate(vm,error_str);
+    *oid = PoolSQL::allocate(vm, error_str);
 
     return *oid;
 }

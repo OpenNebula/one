@@ -35,9 +35,9 @@ class QuotaNetwork :  public Quota
 public:
     
     QuotaNetwork():Quota("NETWORK_QUOTA",
-                           "NETWORK",
-                           NET_METRICS, 
-                           NUM_NET_METRICS)
+                         "NETWORK",
+                         NET_METRICS, 
+                         NUM_NET_METRICS)
     {};
 
     ~QuotaNetwork(){};

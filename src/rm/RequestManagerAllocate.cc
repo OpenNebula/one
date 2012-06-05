@@ -274,12 +274,14 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     VirtualMachineTemplate * ttmpl= static_cast<VirtualMachineTemplate *>(tmpl);
     VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
 
+    Template tmpl_back(*tmpl);
+
     int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
                 error_str, false);
 
-    if ( rc != 0 )
+    if ( rc < 0 )
     {
-        quota_rollback(tmpl, att);
+        quota_rollback(&tmpl_back, att);
     }
 
     return rc;

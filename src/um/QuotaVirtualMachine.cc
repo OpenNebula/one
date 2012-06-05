@@ -21,7 +21,7 @@
 
 const char * QuotaVirtualMachine::VM_METRICS[] = {"VMS", "CPU", "MEMORY"};
 
-const int QuotaVirtualMachine::NUM_VM_METRICS  = 2;
+const int QuotaVirtualMachine::NUM_VM_METRICS  = 3;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

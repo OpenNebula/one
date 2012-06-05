@@ -38,9 +38,9 @@ class QuotaVirtualMachine :  public Quota
 public:
     
     QuotaVirtualMachine():Quota("VM_QUOTA",
-                           "VM",
-                           VM_METRICS, 
-                           NUM_VM_METRICS)
+                                "VM",
+                                VM_METRICS, 
+                                NUM_VM_METRICS)
     {};
 
     ~QuotaVirtualMachine(){};
@@ -61,7 +61,7 @@ public:
     void del(Template* tmpl);
 
     /**
-     *  Gets a quota identified by its ID.
+     *  Gets a quota, overrides base to not to use ID.
      *    @param id of the quota
      *    @return a pointer to the quota or 0 if not found
      */
