@@ -40,7 +40,7 @@ var acls_tab_content = '\
 </table>\
 <div class="legend_div">\
   <span>?</span>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns.")+'\
   </p>\
 </div>\

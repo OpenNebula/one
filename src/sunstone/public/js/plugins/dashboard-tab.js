@@ -14,92 +14,123 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-/** HISTORY_LENGTH currently ignored on server, but it does not harm to have it**/
-var HISTORY_LENGTH=40;
-var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
-
-var graph1 = {
-    title : "graph1",
-    monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-    history_length : HISTORY_LENGTH
-};
-
-var graph2 = {
-    title : "graph2",
-    monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-    history_length : HISTORY_LENGTH
-};
-
-var graph3 = {
-    title : "graph3",
-    monitor_resources : "total,active,error",
-    history_length : HISTORY_LENGTH
-};
-
-var graph4 = {
-    title : "graph4",
-    monitor_resources : "NET_TX,NET_RX",
-    history_length : HISTORY_LENGTH
-};
-
 var dashboard_tab_content =
 '<table class="dashboard_table">\
 <tr>\
-<td style="width:40%">\
-<table id="information_table" style="width:100%">\
+<td style="width:50%">\
+<table style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
-<h3>' + tr("Summary of resources") + '</h3>\
+<h3>' + tr("Hosts") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h3>\
         <div class="panel_info">\
 \
           <table class="info_table">\
             <tr>\
-              <td class="key_td">' + tr("Hosts (total/active)") + '</td>\
-              <td class="value_td"><span id="total_hosts"></span><span id="active_hosts" class="green"></span></td>\
+              <td class="key_td">' + tr("Total Hosts") + '</td>\
+              <td class="value_td" id="totalHosts"></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("State") + '</td>\
+              <td class="key_td">' + tr("Global CPU Usage") + '</td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Clusters") + '</td>\
-              <td class="value_td"><span id="total_clusters"></span></td>\
+              <td colspan="2"><div id="statePie" style="width:50%;float:left;height:100px"></div><div id="globalCpuUsage" style="width:50%;float:right;height:100px"></div></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Used vs. Max CPU") + '</td>\
+              <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Groups") + '</td>\
-              <td class="value_td"><span id="total_groups"></span></td>\
+              <td colspan="2">\
+               <div id="cpuUsageBar" style="float:left;width:70%;height:50px"></div>\
+               <div id="cpuUsageBar_legend" style="float:right"></div>\
+              </td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Allocated CPU per cluster") + '</td>\
+              <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("VM Templates") + '</td>\
-              <td class="value_td"><span id="total_templates"></span></td>\
+              <td colspan="2"><div id="cpuPerCluster" style="width:100%;height:100px"></div></td>\
+            </tr>\
+\
+\
+            <tr>\
+              <td class="key_td">' + tr("Used vs. Max Memory") + '</td>\
+              <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td class="key_td">' +
-    tr("VM Instances")+ ' (' +
-    tr("total") + '/<span class="green">' +
-    tr("running") + '</span>/<span class="red">' +
-    tr("failed") + '</span>)</td>\
-              <td class="value_td"><span id="total_vms"></span><span id="running_vms" class="green"></span><span id="failed_vms" class="red"></span></td>\
+              <td colspan="2">\
+               <div id="memoryUsageBar" style="float:left;width:70%;height:50px"></div>\
+               <div id="memoryUsageBar_legend" style="float:right;"></div>\
+              </td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Virtual Networks") + '</td>\
-              <td class="value_td"><span id="total_vnets"></span></td>\
+              <td class="key_td">' + tr("Allocated Memory per cluster") + '</td>\
+              <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td class="key_td">' + tr("Datastores") + '</td>\
-              <td class="value_td"><span id="total_datastores"></span></td>\
+              <td colspan="2"><div id="memoryPerCluster" style="width:100%;height:100px"></div></td>\
             </tr>\
-            <tr>\
-              <td class="key_td">' + tr("Images") + '</td>\
-              <td class="value_td"><span id="total_images"></span></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">' + tr("Users")+'</td>\
-              <td class="value_td"><span id="total_users"></span></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">' + tr("ACL Rules") + '</td>\
-              <td class="value_td"><span id="total_acls"></span></td>\
-            </tr>\
+\
           </table>\
 \
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+</table>\
+</td>\
+<td style="width:50%">\
+<table style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Virtual Machines") + '<i class="icon-refresh action_button" value="VM.refresh" style="float:right;cursor:pointer"></i></h3>\
+        <div class="panel_info">\
+          <table class="info_table">\
+\
+            <tr>\
+              <td class="key_td">' + tr("Total VMs") + '</td>\
+              <td class="value_td" id="totalVMs"></td>\
+            </tr>\
+\
+\
+            <tr>\
+              <td class="key_td">' + tr("State") + '</td>\
+              <td class="value_td"></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2"><div id="vmStatePie" style="width:100%;height:100px"></div></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Global transfer rates") + '</td>\
+              <td class="value_td"></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2">\
+               <div id="netUsageBar" style="float:left;width:70%;height:50px"></div>\
+               <div id="netUsageBar_legend" style="float:right;"></div>\
+              </td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Estimated global bandwidth - Upload") + '</td>\
+              <td class="key_td">' + tr("Download") + '</td>\
+            </tr>\
+            <tr>\
+              <td colspan="2">\
+               <div id="bandwidth_up" class="big_text" style="text-align:center;float:left;width:50%;"></div>\
+               <div id="bandwidth_down" class="big_text" style="text-align:center;"></div>\
+              </td>\
+            </tr>\
+\
+          </table>\
         </div>\
       </div>\
     </td>\
@@ -107,49 +138,35 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3>' + tr("Quickstart") + '</h3>\
-           <div class="panel_info">\
-              <p><br/>'+tr("Create new")+':<br/>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Host")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#clusters_tab" value="Cluster.create_dialog">'+tr("Cluster")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vms_tab" value="VM.create_dialog">'+tr("VM Instance")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#templates_tab" value="Template.create_dialog">'+tr("VM Template")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Virtual Network")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Datastore")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#images_tab" value="Image.create_dialog">'+tr("Image")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#users_tab" value="User.create_dialog">'+tr("User")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#groups_tab" value="Group.create_dialog">'+tr("Group")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#acls_tab" value="Acl.create_dialog">'+tr("ACL")+'</a></br>\
-              </p>\
-           </div>\
-      </div>\
-    </td>\
-  </tr>\
-</table>\
-</td>\
-<td style="width:60%">\
-<table id="historical_table" style="width:100%">\
-  <tr>\
-    <td>\
-      <div class="panel">\
-        <h3>' + tr("Historical monitoring information") + '</h3>\
+        <h3>' + tr("System Information") + '</h3>\
         <div class="panel_info">\
-<!--\
           <table class="info_table">\
-            <tr><td class="key_td graph_td">' + tr("Hosts CPU") + '</td>\
-                <td class="graph_td" id="graph1_legend"></td></tr>\
-            <tr><td id="graph1" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">' + tr("Hosts memory") + '</td>\
-                <td class="graph_td" id="graph2_legend"></td></tr>\
-            <tr><td id="graph2" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">' + tr("Total VM count") + '</td>\
-                <td class="graph_td" id="graph3_legend"></td></tr>\
-            <tr><td id="graph3" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">' + tr("VM Network stats") + '</td>\
-                <td class="graph_td" id="graph4_legend"></td></tr>\
-            <tr><td id="graph4" colspan="2">'+spinner+'</td></tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Total Users") + '</td>\
+              <td class="value_td" id="totalUsers"></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Total Groups") + '</td>\
+              <td class="value_td" id="totalGroups"></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Total ACLs") + '</td>\
+              <td class="value_td" id="totalAcls"></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Users per group") + '</td>\
+              <td class="value_td"><i class="icon-refresh action_button" value="User.refresh" style="float:right;cursor:pointer"></i></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2"><div id="usersPerGroup" style="width:100%;height:100px"></div></td>\
+            </tr>\
+\
+\
           </table>\
--->\
         </div>\
       </div>\
     </td>\
@@ -165,6 +182,90 @@ var dashboard_tab = {
 }
 
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);
+
+var $dashboard;
+
+function updateDashboard(){
+    //mock
+}
+
+function plotHostMonitoring(monitoring){
+    $('#totalHosts', $dashboard).text(monitoring['totalHosts'])
+    delete monitoring['totalHosts']
+
+    if (!$dashboard.is(':visible')) return;
+    
+    for (plotID in monitoring){
+        var container = $('div#'+plotID,$dashboard);
+        SunstoneMonitoring.plot("HOST",
+                                plotID,
+                                container,
+                                monitoring[plotID]);
+    };
+}
+
+function plotUserMonitoring(monitoring){
+    $('#totalUsers', $dashboard).text(monitoring['totalUsers'])
+
+    if (!$dashboard.is(':visible')) return;
+
+    var container = $('div#usersPerGroup',$dashboard);
+    SunstoneMonitoring.plot('USER',
+                            'usersPerGroup',
+                            container,
+                            monitoring['usersPerGroup']);
+}
+
+function plotAclMonitoring(monitoring){
+    $('#totalAcls', $dashboard).text(monitoring['totalAcls'])
+}
+
+function plotGroupMonitoring(monitoring){
+    $('#totalGroups', $dashboard).text(monitoring['totalGroups'])
+}
+
+//Permanent storage for last value of aggregated network usage
+//Used to calculate bandwidth
+var netUsage = {
+    time : new Date().getTime(),
+    up : 0,
+    down : 0
+}
+
+function plotVMMonitoring(monitoring){
+    $('#totalVMs', $dashboard).text(monitoring['totalVMs'])
+
+    var t = ((new Date().getTime()) - netUsage.time) / 1000 //in secs
+    var bandwidth_up = monitoring['netUsageBar'][1].data[0][0] - netUsage.up
+    bandwidth_up /= t
+    var bandwidth_up_str = humanize_size(bandwidth_up) + "/s" //bytes /sec
+    var bandwidth_down = monitoring['netUsageBar'][0].data[0][0] - netUsage.down
+    bandwidth_down /= t
+    var bandwidth_down_str = humanize_size(bandwidth_down) + "/s" //bytes /sec
+    
+    if (bandwidth_up >= 0)
+        $('#bandwidth_up', $dashboard).text(bandwidth_up_str)
+    if (bandwidth_down >= 0)
+        $('#bandwidth_down', $dashboard).text(bandwidth_down_str)
+
+    netUsage.time = new Date().getTime()
+    netUsage.up = monitoring['netUsageBar'][1].data[0][0]
+    netUsage.down = monitoring['netUsageBar'][0].data[0][0]
+
+    if (!$dashboard.is(':visible')) return;
+
+    var container = $('div#vmStatePie',$dashboard);
+    SunstoneMonitoring.plot('VM',
+                            'statePie',
+                            container,
+                            monitoring['statePie']);
+
+    container = $('div#netUsageBar',$dashboard);
+    SunstoneMonitoring.plot('VM',
+                            'netUsageBar',
+                            container,
+                            monitoring['netUsageBar']);
+}
 
 function plot_global_graph(data,info){
     var context = $('#historical_table',main_tabs_context);
@@ -212,95 +313,7 @@ function plot_global_graph(data,info){
     $.plot($('#'+id+'_graph',context),series,options);
 }
 
-function graph_autorefresh(){
-    setInterval(function(){
-        refresh_graphs();
-    },GRAPH_AUTOREFRESH_INTERVAL+someTime());
-
-}
-
-function refresh_graphs(){
-    Sunstone.runAction("Host.monitor_all", graph1);
-    Sunstone.runAction("Host.monitor_all", graph2);
-    Sunstone.runAction("VM.monitor_all", graph3);
-    Sunstone.runAction("VM.monitor_all", graph4);
-}
 
 $(document).ready(function(){
-    emptyDashboard();
-
-//    refresh_graphs();
-//    graph_autorefresh();
-
+        $dashboard = $('#dashboard_tab', main_tabs_context);
 });
-
-//puts the dashboard values into "retrieving"
-function emptyDashboard(){
-    $("#dashboard_tab .value_td span",main_tabs_context).html(spinner);
-}
-
-
-function updateDashboard(what,json_info){
-    var db = $('#dashboard_tab',main_tabs_context);
-    switch (what){
-    case "hosts":
-        var total_hosts=json_info.length;
-        var active_hosts=0;
-        $.each(json_info,function(){
-            if (parseInt(this.HOST.STATE) < 3){
-                active_hosts++;}
-        });
-        $('#total_hosts',db).html(total_hosts+'&nbsp;/&nbsp;');
-        $('#active_hosts',db).html(active_hosts);
-        break;
-    case "groups":
-        var total_groups=json_info.length;
-        $('#total_groups',db).html(total_groups);
-        break;
-    case "vms":
-        var total_vms=json_info.length;
-        var running_vms=0;
-            failed_vms=0;
-        $.each(json_info,function(){
-            vm_state = parseInt(this.VM.STATE);
-            if (vm_state == 3){
-                running_vms++;
-            }
-            else if (vm_state == 7) {
-                failed_vms++;
-            }
-        });
-        $('#total_vms',db).html(total_vms+'&nbsp;/&nbsp;');
-        $('#running_vms',db).html(running_vms+'&nbsp;/&nbsp;');
-        $('#failed_vms',db).html(failed_vms);
-        break;
-    case "vnets":
-        var total_vnets=json_info.length;
-        $('#total_vnets',db).html(total_vnets);
-        break;
-    case "users":
-        var total_users=json_info.length;
-        $('#total_users',db).html(total_users);
-        break;
-    case "images":
-        var total_images=json_info.length;
-        $('#total_images',db).html(total_images);
-        break;
-    case "templates":
-        var total_templates=json_info.length;
-        $('#total_templates',db).html(total_templates);
-        break;
-    case "acls":
-        var total_acls=json_info.length;
-        $('#total_acls',db).html(total_acls);
-        break;
-    case "clusters":
-        var total_clusters=json_info.length;
-        $('#total_clusters',db).html(total_clusters);
-        break;
-    case "datastores":
-        var total_datastores=json_info.length;
-        $('#total_datastores',db).html(total_datastores);
-        break;
-    }
-};

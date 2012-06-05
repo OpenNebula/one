@@ -40,7 +40,7 @@ var vnets_tab_content = '\
 </table>\
 <div class="legend_div">\
   <span>?</span>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("Tip: edit the leases of a network by clicking on one and going to the lease management tab.")+'\
   </p>\
 </div>\

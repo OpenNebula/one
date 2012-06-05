@@ -37,10 +37,10 @@ var templates_tab_content = '\
 </table>\
 <div class="legend_div">\
   <span>?</span>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("Clicking `instantiate` will instantly create new Virtual Machines from the selected templates and name one-id. If you want to assign a specific name to a new VM, or launch several instances at once, use Virtual Machines->New button.")+'\
   </p>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("You can clone a template to obtain a copy from an existing template. This copy will be owned by you.")+'\
   </p>\
 </div>\

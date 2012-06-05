@@ -59,13 +59,13 @@ var hosts_tab_content = '\
 </table>\
 <div class="legend_div">\
   <span>?</span>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)")+'\
   </p>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("Memory use is calculated according to the information provided by the host monitoring driver.")+'\
   </p>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available.")+'\
   </p>\
 </div>\
