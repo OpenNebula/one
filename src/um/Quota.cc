@@ -48,14 +48,6 @@ int Quota::get_quota(const string& id, VectorAttribute ** va)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Quota::add(VectorAttribute * nq)
-{
-    attributes.insert(make_pair(nq->name(), nq));
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, int num)
 {
     istringstream iss;
@@ -304,3 +296,42 @@ int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+VectorAttribute * Quota::new_quota(VectorAttribute * va)
+{
+    map<string,string> limits;
+
+    string limit;
+    int    limit_i;
+
+    for (int i=0; i < num_metrics; i++)
+    {
+        string metrics_used = metrics[i];
+            
+        metrics_used += "_USED";
+
+        limit = va->vector_value(metrics[i], limit_i);
+
+        if ( limit.empty() )
+        {
+            limit = "0";
+        }
+        else if ( limit_i < 0 )
+        {
+            return 0;
+        }
+
+        limits.insert(make_pair(metrics[i], limit));
+        limits.insert(make_pair(metrics_used, "0"));
+    }
+
+    string id = va->vector_value("ID");
+
+    if ( !id.empty() )
+    {
+        limits.insert(make_pair("ID", id));
+    }
+
+    return new VectorAttribute(template_name,limits);
+}
+

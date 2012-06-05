@@ -55,7 +55,14 @@ public:
 
 protected:
 
-    Quota(const char * quota_name): Template(false, '=', quota_name) {};
+    Quota(const char *  quota_name,
+          const char *  _template_name,
+          const char ** _metrics,
+          int           _num_metrics)
+        : Template(false, '=', quota_name),
+          template_name(_template_name),
+          metrics(_metrics),
+          num_metrics(_num_metrics){};
     
     virtual ~Quota(){};
 
@@ -74,15 +81,15 @@ protected:
     /**
      *  Name of the quota used in the templates
      */
-    char *  template_name;
+    const char *  template_name;
 
     /**
      *  The name of the quota metrics
      */
-    char ** metrics;
+    const char ** metrics;
 
     /**
-     *  Length o
+     *  Length
      */
     int num_metrics;
 
@@ -106,26 +113,30 @@ protected:
                    map<string, int>& usage_req);
 
     /**
+     *  Gets a quota identified by its ID.
+     *    @param id of the quota
+     *    @return a pointer to the quota or 0 if not found
+     */
+    virtual int get_quota(const string& id, VectorAttribute **va);    
+
+private:
+    /**
      *  Creates an empty quota based on the given attribute. The attribute va
      *  contains the limits for the quota.
      *    @param va limits for the new quota if 0 limits will be 0
      *    @return a new attribute representing the quota
      */
-    virtual VectorAttribute * new_quota(VectorAttribute* va) = 0;
-
-    /**
-     *  Gets a quota identified by its ID.
-     *    @param id of the quota
-     *    @return a pointer to the quota or 0 if not found
-     */
-    virtual int get_quota(const string& id, VectorAttribute **va);
+    VectorAttribute * new_quota(VectorAttribute* va);
 
     /**
      *  Adds a new quota, it also updates an internal index for fast accessing
      *  the quotas
      *    @param quota is the new quota, allocated in the HEAP
      */
-    virtual void add(VectorAttribute * quota);
+    void add(VectorAttribute * nq)
+    {
+       attributes.insert(make_pair(nq->name(), nq));
+    }
 
     /**
      *  Adds a given value to the current quota (vector)
@@ -144,9 +155,10 @@ protected:
     int update_limits(VectorAttribute* quota, const VectorAttribute* va);
 
     /**
-     *  Extract the limits from a given attribute
+     *  Extract the limits for the defined quota metrics from a given attribute
      *    @param va the attribute with the limits
-     *    @param
+     *    @param limits stores the known limits
+     *    @return 0 on success
      */
     int get_limits(const VectorAttribute * va, map<string, string>& limits);
 };

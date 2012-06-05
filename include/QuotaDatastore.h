@@ -36,7 +36,11 @@ class QuotaDatastore :  public Quota
 {
 public:
     
-    QuotaDatastore():Quota("DATASTORE_QUOTA"){};
+    QuotaDatastore():Quota("DATASTORE_QUOTA",
+                           "DATASTORE",
+                           DS_METRICS, 
+                           NUM_DS_METRICS)
+    {};
 
     ~QuotaDatastore(){};
 
@@ -56,39 +60,9 @@ public:
     void del(Template* tmpl);
 
 protected:
+    static const char * DS_METRICS[];
 
-    /** 
-     *  Sets new limit values for the quota
-     *    @param quota to be updated
-     *    @param va attribute with the new limits
-     *    @return 0 on success or -1 if wrong limits
-     */
-    /*int update_limits(VectorAttribute* quota, 
-                      const VectorAttribute* va);*/
-
-    /**
-     *  Creates an empty quota based on the given attribute. The attribute va
-     *  contains the limits for the quota.
-     *    @param va limits for the new quota if 0 limits will be 0
-     *    @return a new attribute representing the quota
-     */
-    VectorAttribute * new_quota(VectorAttribute * va);
-
-private:
-
-    /**
-     *  Return the limits for image and size stored in the a given quota.
-     *    @param va_ptr the attribute that stores the quota
-     *    @param ds the id of the DATASTORE quota
-     *    @param imgs the limit for the number of images
-     *    @param size the limit for the total storage size
-     *
-     *    @return -1 if the limits are wrong 0 otherwise
-     */
-    int get_limits(const VectorAttribute* va, 
-                   string& ds, 
-                   string& imgs, 
-                   string& size);
+    static const int NUM_DS_METRICS;
 };
 
 #endif /*QUOTA_DATASTORE_H_*/
