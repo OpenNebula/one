@@ -1150,7 +1150,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevnet.yaml \
                 src/cli/etc/oneacl.yaml \
                 src/cli/etc/onedatastore.yaml \
-                src/cli/etc/onecluster.yaml"
+                src/cli/etc/onecluster.yaml \
+                src/cli/etc/oneacct.yaml"
 
 ETC_CLIENT_FILES="src/cli/etc/group.default"
 

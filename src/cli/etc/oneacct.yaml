@@ -1,0 +1,53 @@
+--- 
+:VID:
+  :desc: Virtual Machine ID
+  :size: 4
+
+:SEQ:
+  :desc: History record sequence number
+  :size: 3
+
+:HOSTNAME:
+  :desc: Host name
+  :size: 15
+  :left: true
+
+:REASON:
+  :desc: VM state change reason
+  :size: 4
+  :left: true
+
+:START_TIME:
+  :desc: Start time
+  :size: 14
+
+:END_TIME:
+  :desc: End time
+  :size: 14
+
+:MEMORY:
+  :desc: Assigned memory
+  :size: 6
+
+:CPU:
+  :desc: Number of CPUs
+  :size: 3
+
+:NET_RX:
+  :desc: Data received from the network
+  :size: 6
+
+:NET_TX:
+  :desc: Data sent to the network
+  :size: 6
+
+:default:
+- :VID
+- :HOSTNAME
+- :REASON
+- :START_TIME
+- :END_TIME
+- :MEMORY
+- :CPU
+- :NET_RX
+- :NET_TX
