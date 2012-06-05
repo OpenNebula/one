@@ -22,6 +22,7 @@
 #include "QuotaDatastore.h"
 #include "QuotaNetwork.h"
 #include "QuotaVirtualMachine.h"
+#include "QuotaImage.h"
 
 using namespace std;
 
@@ -233,6 +234,27 @@ public:
         return vm_quota.del(tmpl);
      }
 
+    /**
+     *  Check IMAGE quotas, it updates usage counters if quotas are not 
+     *  exceeded.
+     *    @param tmpl template for the VirtualMachine
+     *    @param reason string describing the error
+     *    @return true if image can be allocated, false otherwise
+     */
+     bool image_quota_check(Template * tmpl, string& reason)
+     {
+        return image_quota.check(tmpl, reason);
+     }
+
+    /**
+     *  Delete usage from quota counters.
+     *    @param tmpl template for the image, with usage
+     */
+     void image_quota_del(Template * tmpl)
+     {
+        return image_quota.del(tmpl);
+     }
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -265,6 +287,7 @@ private:
      QuotaDatastore      datastore_quota;
      QuotaNetwork        network_quota;
      QuotaVirtualMachine vm_quota;
+     QuotaImage          image_quota;
 
     // *************************************************************************
     // Authentication session (Private)

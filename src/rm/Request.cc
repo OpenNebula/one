@@ -143,6 +143,16 @@ bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
                 {
                     user->network_quota_del(tmpl);
                 }
+                else
+                {
+                    rc = user->image_quota_check(tmpl, error_str);
+
+                    if ( rc == false )
+                    {
+                        user->network_quota_del(tmpl);
+                        user->vm_quota_del(tmpl);
+                    }   
+                }
             }
             break;
 
@@ -194,6 +204,7 @@ void Request::quota_rollback(Template * tmpl, RequestAttributes& att)
         case PoolObjectSQL::VM:
             user->network_quota_del(tmpl);
             user->vm_quota_del(tmpl);
+            user->image_quota_del(tmpl);
             break;
 
         default:

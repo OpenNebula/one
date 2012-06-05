@@ -136,11 +136,13 @@ error_common:
 
 string& User::to_xml(string& xml) const
 {
-    ostringstream   oss;
-    string          template_xml;
-    string          ds_quota_xml;
-    string          net_quota_xml;
-    string          vm_quota_xml;
+    ostringstream oss;
+
+    string template_xml;
+    string ds_quota_xml;
+    string net_quota_xml;
+    string vm_quota_xml;
+    string image_quota_xml;
 
     int  enabled_int = enabled?1:0;
 
@@ -157,6 +159,7 @@ string& User::to_xml(string& xml) const
         datastore_quota.to_xml(ds_quota_xml)              <<
         network_quota.to_xml(net_quota_xml)               <<
         vm_quota.to_xml(vm_quota_xml)                     <<
+        image_quota.to_xml(image_quota_xml)               <<
     "</USER>";
 
     xml = oss.str();
@@ -228,6 +231,16 @@ int User::from_xml(const string& xml)
     if (!content.empty())
     {
         rc += vm_quota.from_xml_node(content[0]);
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    ObjectXML::get_nodes("/USER/IMAGE_QUOTA", content);
+
+    if (!content.empty())
+    {
+        rc += image_quota.from_xml_node(content[0]);
     }
 
     ObjectXML::free_nodes(content);
