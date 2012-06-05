@@ -133,6 +133,17 @@ bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
             break;
 
         case PoolObjectSQL::VM:
+            rc = user->network_quota_check(tmpl, error_str);
+
+            if ( rc == true )
+            {
+                rc = user->vm_quota_check(tmpl, error_str);
+
+                if ( rc == false )
+                {
+                    user->network_quota_del(tmpl);
+                }
+            }
             break;
 
         default:
@@ -181,6 +192,8 @@ void Request::quota_rollback(Template * tmpl, RequestAttributes& att)
             break;
 
         case PoolObjectSQL::VM:
+            user->network_quota_del(tmpl);
+            user->vm_quota_del(tmpl);
             break;
 
         default:

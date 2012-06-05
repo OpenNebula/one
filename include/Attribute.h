@@ -304,7 +304,19 @@ public:
      *  Replace the value of the given vector attribute
      */
     void replace(const string& name, const string& value);
-    
+
+    /**
+     *  Replace the value of the given vector attribute
+     */
+    void replace(const string& name, int value)
+    {
+        ostringstream oss;
+
+        oss << value;
+
+        replace(name, oss.str());
+    } 
+
     /**
      *  Returns the attribute type
      */

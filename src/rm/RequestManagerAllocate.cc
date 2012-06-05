@@ -79,7 +79,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
-    // Check template for restricted attributes
+    // ------------ Check template for restricted attributes -------------------
 
     if ( att.uid != 0 && att.gid != GroupPool::ONEADMIN_ID )
     {
@@ -97,6 +97,8 @@ bool VirtualMachineAllocate::allocate_authorization(
         }
     }
 
+    // ------------------ Authorize VM create operation ------------------------
+
     ar.add_create_auth(auth_object, tmpl->to_xml(t64));
 
     VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
@@ -107,6 +109,13 @@ bool VirtualMachineAllocate::allocate_authorization(
                 authorization_error(ar.message, att),
                 att);
 
+        return false;
+    }
+
+    // -------------------------- Check Quotas  ----------------------------
+
+    if ( quota_authorization(tmpl, att) == false )
+    {
         return false;
     }
 
@@ -265,8 +274,15 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     VirtualMachineTemplate * ttmpl= static_cast<VirtualMachineTemplate *>(tmpl);
     VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
 
-    return vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
-            error_str, false);
+    int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
+                error_str, false);
+
+    if ( rc != 0 )
+    {
+        quota_rollback(tmpl, att);
+    }
+
+    return rc;
 }
 
 

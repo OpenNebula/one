@@ -20,6 +20,8 @@
 #include "PoolSQL.h"
 #include "UserTemplate.h"
 #include "QuotaDatastore.h"
+#include "QuotaNetwork.h"
+#include "QuotaVirtualMachine.h"
 
 using namespace std;
 
@@ -187,7 +189,50 @@ public:
      void datastore_quota_del(Template * tmpl)
      {
         return datastore_quota.del(tmpl);
-     } 
+     }
+
+    /**
+     *  Check Network quotas, it updates usage counters if quotas are not 
+     *  exceeded.
+     *    @param tmpl template for the VirtualMachine
+     *    @param reason string describing the error
+     *    @return true if image can be allocated, false otherwise
+     */
+     bool network_quota_check(Template * tmpl, string& reason)
+     {
+        return network_quota.check(tmpl, reason);
+     }
+
+    /**
+     *  Delete usage from quota counters.
+     *    @param tmpl template for the image, with usage
+     */
+     void network_quota_del(Template * tmpl)
+     {
+        return network_quota.del(tmpl);
+     }
+
+    /**
+     *  Check VM  quotas, it updates usage counters if quotas are not 
+     *  exceeded.
+     *    @param tmpl template for the VirtualMachine
+     *    @param reason string describing the error
+     *    @return true if image can be allocated, false otherwise
+     */
+     bool vm_quota_check(Template * tmpl, string& reason)
+     {
+        return vm_quota.check(tmpl, reason);
+     }
+
+    /**
+     *  Delete usage from quota counters.
+     *    @param tmpl template for the image, with usage
+     */
+     void vm_quota_del(Template * tmpl)
+     {
+        return vm_quota.del(tmpl);
+     }
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -217,7 +262,9 @@ private:
     /**
      * Usage Counters and Quotas 
      */
-     QuotaDatastore datastore_quota;
+     QuotaDatastore      datastore_quota;
+     QuotaNetwork        network_quota;
+     QuotaVirtualMachine vm_quota;
 
     // *************************************************************************
     // Authentication session (Private)
