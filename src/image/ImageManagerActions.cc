@@ -20,6 +20,8 @@
 #include "SSLTools.h"
 #include "SyncRequest.h"
 #include "Template.h"
+#include "Nebula.h"
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -261,10 +263,20 @@ int ImageManager::enable_image(int iid, bool to_enable)
 
 int ImageManager::delete_image(int iid, const string& ds_data)
 {
-    Image *     img;
-    string      source;
-    string      img_tmpl;
-    string *    drv_msg;
+    Image * img;
+
+    string   source;
+    string   img_tmpl;
+    string * drv_msg;
+
+    int size;
+    int ds_id;
+
+    int    uid;
+    User * user;
+
+    Nebula&    nd    = Nebula::instance();
+    UserPool * upool = nd.get_upool();
 
     img = ipool->get(iid,true);
 
@@ -305,7 +317,10 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
     source  = img->get_source();
-
+    size    = img->get_size();
+    ds_id   = img->get_ds_id();
+    uid     = img->get_uid();
+    
     if (source.empty())
     {
         string err_str;
@@ -327,6 +342,20 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     img->unlock();
 
     delete drv_msg;
+
+    user = upool->get(uid, true);
+
+    if ( user != 0 )
+    {
+        Template img_usage;
+
+        img_usage.add("DATASTORE", ds_id);
+        img_usage.add("SIZE", size);
+
+        user->datastore_quota_del(&img_usage);
+
+        user->unlock();
+    }
 
     return 0;
 }

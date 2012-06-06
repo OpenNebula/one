@@ -684,6 +684,11 @@ int DispatchManager::finalize(
 {
     VirtualMachine * vm;
     ostringstream    oss;
+    Template *       tmpl;
+    User *           user;
+    
+    int uid;
+
     VirtualMachine::VmState state;
 
     vm = vmpool->get(vid,true);
@@ -701,6 +706,7 @@ int DispatchManager::finalize(
     Nebula&            nd  = Nebula::instance();
     TransferManager *  tm  = nd.get_tm();
     LifeCycleManager * lcm = nd.get_lcm();
+    UserPool * upool       = nd.get_upool();
 
     switch (state)
     {
@@ -722,16 +728,35 @@ int DispatchManager::finalize(
             vmpool->update(vm);
 
             vm->log("DiM", Log::INFO, "New VM state is DONE.");
+
+            uid  = vm->get_uid();
+            tmpl = vm->clone_template();
+    
+            vm->unlock();
+
+            user = upool->get(uid, true);
+
+            if ( user != 0 )
+            {
+                user->network_quota_del(tmpl);
+                user->vm_quota_del(tmpl);
+                user->image_quota_del(tmpl);
+
+                user->unlock();
+            }
+
+            delete tmpl;
         break;
 
         case VirtualMachine::ACTIVE:
             lcm->trigger(LifeCycleManager::DELETE,vid);
+            vm->unlock();
         break;
+
         case VirtualMachine::DONE:
+            vm->unlock();
         break;
     }
-
-    vm->unlock();
 
     return 0;
 }

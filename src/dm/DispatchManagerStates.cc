@@ -17,6 +17,8 @@
 #include "DispatchManager.h"
 #include "NebulaLog.h"
 
+#include "Nebula.h"
+
 void  DispatchManager::suspend_success_action(int vid)
 {
     VirtualMachine *    vm;
@@ -97,10 +99,18 @@ void  DispatchManager::stop_success_action(int vid)
 
 void  DispatchManager::done_action(int vid)
 {
-    VirtualMachine *         vm;
+    VirtualMachine * vm;
+    Template *       tmpl;
+
+    int uid;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
+
+    Nebula&    nd    = Nebula::instance();
+    UserPool * upool = nd.get_upool();
+
+    User * user;
 
     vm = vmpool->get(vid,true);
 
@@ -130,6 +140,24 @@ void  DispatchManager::done_action(int vid)
         vm->release_network_leases();
 
         vm->release_disk_images();
+
+        uid  = vm->get_uid();
+        tmpl = vm->clone_template();
+    
+        vm->unlock();
+
+        user = upool->get(uid, true);
+
+        if ( user != 0 )
+        {
+            user->network_quota_del(tmpl);
+            user->vm_quota_del(tmpl);
+            user->image_quota_del(tmpl);
+
+            user->unlock();
+        }
+
+        delete tmpl;
     }
     else
     {
@@ -137,10 +165,10 @@ void  DispatchManager::done_action(int vid)
 
         oss << "done action received but VM " << vid << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+
+        vm->unlock();
     }
-
-    vm->unlock();
-
+    
     return;
 }
 

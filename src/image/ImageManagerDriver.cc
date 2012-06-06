@@ -334,16 +334,15 @@ static void rm_action(istringstream& is,
 
     source = image->get_source();
 
-    if ( result == "FAILURE" )
-    {
-       goto error; 
-    }
-
     rc = ipool->drop(image, tmp_error);
 
     image->unlock();
 
-    if ( rc < 0 )
+    if ( result == "FAILURE" )
+    {
+       goto error; 
+    }
+    else if ( rc < 0 )
     {
         goto error_drop;
     }
@@ -360,7 +359,8 @@ error_drop:
     return;
 
 error:
-    oss << "Error removing image from datastore";
+    oss << "Error removing image from datastore. Manually remove image source "
+        << source << " to completely delete the image";
 
     getline(is,info);
 

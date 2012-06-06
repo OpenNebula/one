@@ -202,6 +202,7 @@ void Request::quota_rollback(Template * tmpl, RequestAttributes& att)
             break;
 
         case PoolObjectSQL::VM:
+        case PoolObjectSQL::TEMPLATE:
             user->network_quota_del(tmpl);
             user->vm_quota_del(tmpl);
             user->image_quota_del(tmpl);
