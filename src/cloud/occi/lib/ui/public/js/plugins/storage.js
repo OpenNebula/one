@@ -261,7 +261,7 @@ var image_create_panel = {
 };
 
 var images_tab = {
-    title: tr("Storage"),
+    title: '<i class="icon-folder-open"></i>'+tr("Storage"),
     content: images_tab_content,
     buttons: image_buttons
 }

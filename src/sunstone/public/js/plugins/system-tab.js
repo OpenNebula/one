@@ -84,7 +84,7 @@ var system_tab_content =
 </tr></table>';
 
 var system_tab = {
-    title: tr("System"),
+    title: '<i class="icon-cogs"></i>'+tr("System"),
     content: system_tab_content
 }
 
