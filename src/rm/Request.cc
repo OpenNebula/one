@@ -106,7 +106,9 @@ bool Request::basic_authorization(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
+bool Request::quota_authorization(Template * tmpl, 
+                                  PoolObjectSQL::ObjectType object,
+                                  RequestAttributes& att)
 {
     Nebula& nd        = Nebula::instance();
     UserPool * upool  = nd.get_upool();
@@ -126,7 +128,7 @@ bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
         return false;
     }
 
-    switch (auth_object)
+    switch (object)
     {
         case PoolObjectSQL::IMAGE:
             rc = user->datastore_quota_check(tmpl, error_str);
@@ -181,7 +183,9 @@ bool Request::quota_authorization(Template * tmpl, RequestAttributes& att)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::quota_rollback(Template * tmpl, RequestAttributes& att)
+void Request::quota_rollback(Template * tmpl, 
+                             PoolObjectSQL::ObjectType object, 
+                             RequestAttributes& att)
 {
     Nebula& nd        = Nebula::instance();
     UserPool * upool  = nd.get_upool();
@@ -195,7 +199,7 @@ void Request::quota_rollback(Template * tmpl, RequestAttributes& att)
         return;
     }
 
-    switch (auth_object)
+    switch (object)
     {
         case PoolObjectSQL::IMAGE:
             user->datastore_quota_del(tmpl);

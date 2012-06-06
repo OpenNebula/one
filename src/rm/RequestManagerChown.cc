@@ -118,7 +118,6 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         old_uid  = object->get_uid();
 
         object->set_user(noid,nuname);
-
     }
 
     if ( ngid != -1 )

@@ -132,14 +132,41 @@ protected:
                              RequestAttributes& att);
 
     /**
-     *  Performs a basic quota check for this request using the uid/gid
-     *  from the request.  Usage counters are updated for the user/group.
+     *  Performs a basic quota check for this request using the uid/gid and 
+     *  object type from the request.  Usage counters are updated for the 
+     *  user/group.
      *    @param tmpl describing the object
      *    @param att the specific request attributes
      *
      *    @return true if the user is authorized.
      */
-    bool quota_authorization(Template * tmpl, RequestAttributes& att);
+    bool quota_authorization(Template * tmpl, RequestAttributes& att)
+    {
+        return quota_authorization(tmpl, auth_object, att);        
+    }
+
+    /**
+     *  Performs a basic quota check for this request using the uid/gid
+     *  from the request.  Usage counters are updated for the user/group.
+     *    @param tmpl describing the object
+     *    @param object type of the object
+     *    @param att the specific request attributes
+     *
+     *    @return true if the user is authorized.
+     */
+    bool quota_authorization(Template * tmpl,
+                             PoolObjectSQL::ObjectType object,
+                             RequestAttributes& att);
+    /**
+     *  Performs rollback on usage counters for a previous  quota check operation
+     *  for the request.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    void quota_rollback(Template * tmpl, RequestAttributes& att)
+    {
+        quota_rollback(tmpl, auth_object, att);
+    }
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -147,7 +174,9 @@ protected:
      *    @param tmpl describing the object
      *    @param att the specific request attributes
      */
-    void quota_rollback(Template * tmpl, RequestAttributes& att);
+    void quota_rollback(Template * tmpl,
+                        PoolObjectSQL::ObjectType object,
+                        RequestAttributes& att);
 
     /**
      *  Actual Execution method for the request. Must be implemented by the

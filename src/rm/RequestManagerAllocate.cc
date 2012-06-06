@@ -336,6 +336,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     ImageManager *  imagem = nd.get_imagem();
     
     ImageTemplate * tmpl = new ImageTemplate;
+    Template        img_usage;
 
     Datastore *     ds;
     Image::DiskType ds_disk_type;
@@ -413,6 +414,9 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     tmpl->add("SIZE", size_str);
 
     // ------------- Set authorization request for non-oneadmin's --------------
+    
+    img_usage.add("DATASTORE", ds_id);
+    img_usage.add("SIZE", size_str);
 
     if ( att.uid != 0 )
     {
@@ -420,8 +424,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         string  tmpl_str;
 
         // ------------------ Check permissions and ACLs  ----------------------
-        tmpl->add("DATASTORE", ds_id);
-
         tmpl->to_xml(tmpl_str);
 
         ar.add_create_auth(auth_object, tmpl_str); // CREATE IMAGE
@@ -440,13 +442,11 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         // -------------------------- Check Quotas  ----------------------------
 
-        if ( quota_authorization(tmpl, att) == false )
+        if ( quota_authorization(&img_usage, att) == false )
         {
             delete tmpl;
             return;   
         }
-
-        tmpl->erase("DATASTORE");
     }
 
     rc = ipool->allocate(att.uid, 
@@ -462,11 +462,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          error_str);
     if ( rc < 0 )
     {
-        Template img_usage;
-
-        img_usage.add("DATASTORE", ds_id);
-        img_usage.add("SIZE", size_str);
-
         quota_rollback(&img_usage, att);
 
         failure_response(INTERNAL, allocate_error(error_str), att);
