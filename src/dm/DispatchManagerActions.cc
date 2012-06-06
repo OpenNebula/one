@@ -742,6 +742,8 @@ int DispatchManager::finalize(
                 user->vm_quota_del(tmpl);
                 user->image_quota_del(tmpl);
 
+                upool->update(user);
+
                 user->unlock();
             }
 

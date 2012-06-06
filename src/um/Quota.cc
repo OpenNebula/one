@@ -68,16 +68,24 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, int num)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Quota::set(vector<VectorAttribute*> * new_quotas, string& error)
+int Quota::set(vector<Attribute*> * new_quotas, string& error)
 {
-    vector<VectorAttribute *>::iterator  it;
+    vector<Attribute *>::iterator  it;
 
+    VectorAttribute * iq;
     VectorAttribute * tq;
     string            id;
 
     for ( it = new_quotas->begin(); it != new_quotas->end(); it++)
     {
-        id = (*it)->vector_value("ID");
+        iq = dynamic_cast<VectorAttribute *>(*it);
+
+        if ( iq == 0 )
+        {
+            goto error_limits;
+        }
+
+        id = iq->vector_value("ID");
 
         if ( get_quota(id, &tq) == -1 )
         {
@@ -88,7 +96,7 @@ int Quota::set(vector<VectorAttribute*> * new_quotas, string& error)
         {
             VectorAttribute * nq;
 
-            if ((nq = new_quota(*it)) == 0)
+            if ((nq = new_quota(iq)) == 0)
             {
                 goto error_limits;
             }
@@ -97,7 +105,7 @@ int Quota::set(vector<VectorAttribute*> * new_quotas, string& error)
         }
         else
         {
-            if (update_limits(tq, *it))
+            if (update_limits(tq, iq))
             {
                 goto error_limits;
             } 
@@ -108,7 +116,7 @@ int Quota::set(vector<VectorAttribute*> * new_quotas, string& error)
 
 error_limits:
     ostringstream oss;
-    oss <<  "Negative limits or bad format in quota " << (*it)->marshall();
+    oss <<  "Negative limits or bad format in quota " << iq->marshall();
 
     error = oss.str();
     return -1;        

@@ -171,6 +171,64 @@ public:
         return new UserTemplate;
     }
 
+    // -------------------------------------------------------------------------
+    // Quota Interface
+    // -------------------------------------------------------------------------
+
+    /**
+     *  Set the user quotas
+     *    @param tmpl contains the user quota limits
+     *    @param error describes error when setting the quotas
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int set_quota(Template *tmpl, string& error)
+    {
+        vector<Attribute *> vquotas;
+
+        if ( tmpl->get(datastore_quota.get_quota_name(), vquotas) > 0 )
+        {
+            if ( datastore_quota.set(&vquotas, error) != 0 )
+            {
+                return -1;
+            }
+        
+            vquotas.clear();
+        }
+
+        if ( tmpl->get(network_quota.get_quota_name(), vquotas) > 0 )
+        {
+            if ( network_quota.set(&vquotas, error) != 0 )
+            {
+                return -1;
+            }
+        
+            vquotas.clear();
+        }
+
+        if ( tmpl->get(image_quota.get_quota_name(), vquotas) > 0 )
+        {
+            if ( image_quota.set(&vquotas, error) != 0 )
+            {
+                return -1;
+            }
+        
+            vquotas.clear();
+        }
+
+        if ( tmpl->get(vm_quota.get_quota_name(), vquotas) > 0 )
+        {
+            if ( vm_quota.set(&vquotas, error) != 0 )
+            {
+                return -1;
+            }
+        
+            vquotas.clear();
+        }
+
+        return 0;
+    }
+
     /**
      *  Check Datastore quotas, it updates usage counters if quotas are not 
      *  exceeded.

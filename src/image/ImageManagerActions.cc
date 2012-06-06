@@ -354,6 +354,8 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
         user->datastore_quota_del(&img_usage);
 
+        upool->update(user);
+
         user->unlock();
     }
 

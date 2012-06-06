@@ -35,7 +35,7 @@ public:
      *    @param error describe the error in case of error
      *    @return 0 on success -1 otherwise
      */
-    int set(vector<VectorAttribute*> * quotas, string& error);
+    int set(vector<Attribute*> * quotas, string& error);
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not 
@@ -51,6 +51,15 @@ public:
      *    @param tmpl template for the resource
      */
     virtual void del(Template* tmpl) = 0;
+
+
+    /**
+     * Returns the name that identifies the quota in a template
+     */
+     const char * get_quota_name()
+     {
+        return template_name;
+     }
 
 
 protected:

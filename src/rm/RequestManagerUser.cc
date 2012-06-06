@@ -133,6 +133,39 @@ int UserChangeAuth::user_action(int     user_id,
     return rc;
 }
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+int UserSetQuota::user_action(int     user_id, 
+                              xmlrpc_c::paramList const& paramList,
+                              string& error_str)
+{
+
+    string   quota_str = xmlrpc_c::value_string(paramList.getString(2));
+    Template quota_tmpl;
+
+    int    rc;
+    User * user;
+
+    rc = quota_tmpl.parse_str_or_xml(quota_str, error_str);
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    user = static_cast<User *>(pool->get(user_id,true));
+
+    if ( user == 0 )
+    {
+        return -1;
+    }
+
+    rc = user->set_quota(&quota_tmpl, error_str);
+
+    pool->update(user);
+
+    user->unlock();
+
+    return rc;
+}
