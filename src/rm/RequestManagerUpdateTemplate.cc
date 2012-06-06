@@ -38,7 +38,7 @@ void RequestManagerUpdateTemplate::request_execute(
         return;
     }
 
-    object = pool->get(oid,true);
+    object = get_obj(oid, true);
 
     if ( object == 0 )                             
     {                                            

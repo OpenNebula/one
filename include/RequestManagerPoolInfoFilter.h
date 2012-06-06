@@ -160,17 +160,29 @@ public:
 class TemplatePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    TemplatePoolInfo():
+    TemplatePoolInfo(int type):
         RequestManagerPoolInfoFilter("TemplatePoolInfo",
                                      "Returns the virtual machine template pool",
                                      "A:siii")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
+
+        this->type  = type;
     };
 
     ~TemplatePoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    /* -------------------------------------------------------------------- */
+
+private:
+    int type;
 };
 
 /* ------------------------------------------------------------------------- */

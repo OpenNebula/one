@@ -167,6 +167,30 @@ void VirtualMachinePoolMonitoring::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void TemplatePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
+
+    int obj_type = type;
+
+    if ( obj_type == -1 )
+    {
+        obj_type = xmlrpc_c::value_int(paramList.getInt(4));
+    }
+
+    ostringstream oss;
+    oss << "type = " << obj_type;
+
+    dump(att, filter_flag, start_id, end_id, oss.str(), "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void HostPoolInfo::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)

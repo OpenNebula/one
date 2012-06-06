@@ -77,7 +77,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid,true);
+    object = get_obj(oid, paramList);
 
     if ( object == 0 )                             
     {                                            

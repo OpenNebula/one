@@ -28,9 +28,11 @@ VMTemplate::VMTemplate(int id,
                        int _gid,
                        const string& _uname,
                        const string& _gname,
+                       int _type,
                        VirtualMachineTemplate * _template_contents):
         PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,table),
-        regtime(time(0))
+        regtime(time(0)),
+        type(_type)
 {
     if (_template_contents != 0)
     {
@@ -60,12 +62,13 @@ VMTemplate::~VMTemplate()
 const char * VMTemplate::table = "template_pool";
 
 const char * VMTemplate::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
+        "oid, name, body, type, uid, gid, owner_u, group_u, other_u";
 
 const char * VMTemplate::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+    "name VARCHAR(128), body TEXT, type INTEGER, uid INTEGER, gid INTEGER, "
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
+    "UNIQUE(name,uid,type))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -156,6 +159,7 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<            oid        << ","
         << "'"     << sql_name   << "',"
         << "'"     << sql_xml    << "',"
+        <<            type       << ","
         <<            uid        << ","
         <<            gid        << ","
         <<            owner_u    << ","
@@ -207,6 +211,7 @@ string& VMTemplate::to_xml(string& xml) const
             << "<UNAME>"    << uname      << "</UNAME>" 
             << "<GNAME>"    << gname      << "</GNAME>" 
             << "<NAME>"     << name       << "</NAME>"
+            << "<TYPE>"     << type       << "</TYPE>"
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
             << obj_template->to_xml(template_xml)
@@ -235,6 +240,7 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(uname,      "/VMTEMPLATE/UNAME",   "not_found");
     rc += xpath(gname,      "/VMTEMPLATE/GNAME",   "not_found");
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
+    rc += xpath(type,       "/VMTEMPLATE/TYPE",     0);
     rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);
 
     // Permissions

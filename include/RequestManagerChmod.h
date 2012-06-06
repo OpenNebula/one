@@ -40,6 +40,14 @@ protected:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
+
+    /* -------------------------------------------------------------------- */
+
+    virtual PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
+    {
+        return pool->get(oid,true);
+    };
+
 };
 
 /* ------------------------------------------------------------------------- */
@@ -66,7 +74,7 @@ public:
 class TemplateChmod : public RequestManagerChmod
 {
 public:
-    TemplateChmod():
+    TemplateChmod(int type):
         RequestManagerChmod("TemplateChmod",
                             "Changes permission bits of a virtual machine template")
     {    
@@ -76,6 +84,26 @@ public:
     };
 
     ~TemplateChmod(){};
+
+    /* -------------------------------------------------------------------- */
+
+    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
+    {
+        int obj_type = type;
+
+        if ( obj_type == -1 )
+        {
+            obj_type = xmlrpc_c::value_int(paramList.getInt(11));
+        }
+
+        VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
+        return tpool->get(oid, obj_type, true);
+    };
+
+    /* -------------------------------------------------------------------- */
+
+private:
+    int type;
 };
 
 /* ------------------------------------------------------------------------- */

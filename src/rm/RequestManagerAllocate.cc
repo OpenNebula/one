@@ -417,18 +417,28 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
+int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
                                     Template * tmpl,
                                     int& id, 
                                     string& error_str,
                                     RequestAttributes& att)
 {
+    int obj_type = type;
+
+    if ( obj_type == -1 )
+    {
+        obj_type = xmlrpc_c::value_int(paramList.getInt(2));
+
+        // TODO: check type is >= 100, to reserve the
+        // other types for internal usage
+    }
+
     VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
 
     VirtualMachineTemplate * ttmpl=static_cast<VirtualMachineTemplate *>(tmpl);
 
-    return tpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
-            error_str);
+    return tpool->allocate(att.uid, att.gid, att.uname, att.gname, obj_type,
+            ttmpl, &id, error_str);
 }
 
 /* -------------------------------------------------------------------------- */

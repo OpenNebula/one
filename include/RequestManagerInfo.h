@@ -45,6 +45,13 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
+    virtual PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
+    {
+        return pool->get(oid,true);
+    };
+
+    /* -------------------------------------------------------------------- */
+
     virtual void to_xml(PoolObjectSQL * object, string& str)
     {
         object->to_xml(str);
@@ -83,16 +90,38 @@ public:
 class TemplateInfo : public RequestManagerInfo
 {
 public:
-    TemplateInfo():
+    TemplateInfo(int type):
         RequestManagerInfo("TemplateInfo",
                            "Returns virtual machine template information")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
+
+        this->type  = type;
     };
 
     ~TemplateInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
+    {
+        int obj_type = type;
+
+        if ( obj_type == -1 )
+        {
+            obj_type = xmlrpc_c::value_int(paramList.getInt(2));
+        }
+
+        VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
+        return tpool->get(oid, obj_type, true);
+    };
+
+    /* -------------------------------------------------------------------- */
+
+private:
+    int type;
 };
 
 /* ------------------------------------------------------------------------- */
