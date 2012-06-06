@@ -29,6 +29,10 @@ export XM_LIST="sudo $XM_PATH list"
 export XM_SHUTDOWN="sudo $XM_PATH shutdown"
 export XM_POLL="sudo /usr/sbin/xentop -bi2"
 
+# In xen 4.1 the credit scheduler command is called sched-credit,
+# uncomment this line if you are using this version
+#export XM_CREDITS="sudo $XM_PATH sched-credit"
+
 # Seconds to wait after shutdown until timeout
 export SHUTDOWN_TIMEOUT=300
 
