@@ -23,6 +23,96 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+PoolObjectSQL * RequestManagerChown::get_and_quota(
+    int                       oid,
+    int                       new_uid,
+    int                       new_gid,
+    RequestAttributes&        att)
+{
+    Template * tmpl;
+
+    int old_uid;
+    int old_gid;
+
+    PoolObjectSQL * object;
+
+    object = pool->get(oid,true);
+
+    if ( object == 0 ) 
+    {
+        failure_response(NO_EXISTS,
+                         get_error(object_name(auth_object), oid),
+                         att);         
+        return 0;
+    }
+
+    if ( new_uid < 0 )
+    {
+        return object;
+    }
+
+    if ( auth_object == PoolObjectSQL::VM )
+    {
+        tmpl = (static_cast<VirtualMachine*>(object))->clone_template();
+    }
+    else
+    {
+        Image * img = static_cast<Image *>(object);
+        tmpl        = new Template;
+
+        tmpl->add("DATASTORE", img->get_ds_id());
+        tmpl->add("SIZE", img->get_size());
+    }
+
+    old_uid = object->get_uid();
+    old_gid = object->get_gid();
+
+    object->unlock();
+    
+    RequestAttributes att_new(new_uid, new_gid, att);
+    RequestAttributes att_old(old_uid, old_gid, att);
+
+    if ( new_uid != 0 )
+    {
+        if ( quota_authorization(tmpl, att_new) == false )
+        {
+            delete tmpl;
+            return 0;
+        }
+    }
+
+    if ( old_uid != 0 )
+    {
+        quota_rollback(tmpl, att_old);
+    }
+
+    object = pool->get(oid,true);
+
+    if ( object == 0 )
+    {
+        if ( new_uid != 0 )
+        {
+            quota_rollback(tmpl, att_new);    
+        }
+        
+        if ( old_uid != 0 )
+        {
+            quota_authorization(tmpl, att_old);    
+        }
+
+        failure_response(NO_EXISTS,
+                         get_error(object_name(auth_object), oid),
+                         att);   
+    }
+
+    delete tmpl;
+
+    return object;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
                                           RequestAttributes& att)
 {
@@ -102,13 +192,27 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    // ------------- Update the object ---------------------
+    // --------------- Update the object and check quotas ----------------------
 
-    object = pool->get(oid,true);
+    if ( auth_object == PoolObjectSQL::VM || 
+         auth_object == PoolObjectSQL::IMAGE )
+    {
+        object = get_and_quota(oid, noid, ngid, att);
+    }
+    else
+    {
+        object = pool->get(oid,true);
 
-    if ( object == 0 ) 
-    {                                            
-        failure_response(NO_EXISTS,get_error(object_name(auth_object),oid),att);
+        if ( object == 0 )
+        {
+            failure_response(NO_EXISTS,
+                             get_error(object_name(auth_object), oid),
+                             att);
+        }
+    }
+
+    if ( object == 0 )
+    {
         return;
     }
 

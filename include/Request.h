@@ -75,6 +75,32 @@ protected:
         string session;           /**< Session from ONE XML-RPC API */
 
         xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
+
+        RequestAttributes(){};
+
+        RequestAttributes(const RequestAttributes& ra)
+        {
+            uid = ra.uid;
+            gid = ra.gid;
+
+            uname = ra.uname;
+            gname = ra.gname;
+
+            session  = ra.session;
+            retval   = ra.retval;
+        };
+
+        RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
+        {
+            uid = _uid;
+            gid = _gid;
+
+            uname = "";
+            gname = "";
+
+            session  = ra.session;
+            retval   = ra.retval;
+        };
     };
 
     /* -------- Static (shared among request of the same method) -------- */

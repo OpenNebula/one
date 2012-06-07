@@ -197,6 +197,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    #---------------------------------------------------------------------------
+    #  Tables to format user quotas
+    #---------------------------------------------------------------------------
     def format_ds_quota()
         table = CLIHelper::ShowTable.new(nil, self) do
             column :"DATASTORE ID", "", :left, :size=>12 do |d|
