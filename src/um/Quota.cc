@@ -226,12 +226,12 @@ bool Quota::check_quota(const string& qid,
         {
             ostringstream oss;
 
-            oss << "Limit (" << limit << ") reached for " << metrics[i]
-                << " in quota " << template_name;
+            oss << "Limit of " << limit << " reached for " << metrics[i]
+                << " quota in " << template_name;
 
             if ( !qid.empty() ) 
             {
-                oss << "with ID: " << qid;
+                oss << " with ID: " << qid;
             }
 
             error = oss.str();
@@ -309,11 +309,11 @@ int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
     {
         limit = va->vector_value_str(metrics[i], limit_i);
 
-        if ( limit_i < 0 )
+        if ( limit_i < 0 ) //No quota, NaN or negative
         {
             return -1;
         }
-        else if ( !limit.empty() )
+        else
         {
             quota->replace(metrics[i], limit);
         }
@@ -340,11 +340,7 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         limit = va->vector_value_str(metrics[i], limit_i);
         
-        if ( limit_i < 0 )
-        {
-            return 0;
-        }
-        else if ( limit.empty() )
+        if ( limit_i < 0 ) //No quota, NaN or negative
         {
             limit = "0";
         }
