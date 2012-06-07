@@ -250,6 +250,12 @@ string VectorAttribute::vector_value_str(const char *name, int& value) const
     istringstream iss(it->second);
     iss >> value;
 
+    if (iss.fail() || !iss.eof())
+    {
+        value = -1;
+        return "";
+    }
+
     return it->second;
 }
 

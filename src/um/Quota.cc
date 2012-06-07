@@ -24,9 +24,19 @@ int Quota::get_quota(const string& id, VectorAttribute ** va)
     map<string, Attribute *>::iterator it;
     VectorAttribute * q;
 
+    istringstream iss(id);
+    int           id_i;
+
     *va = 0;
 
     if ( id.empty() )
+    {
+        return -1;
+    }
+
+    iss >> id_i;
+
+    if (iss.fail() || !iss.eof())
     {
         return -1;
     }
@@ -105,7 +115,7 @@ int Quota::set(vector<Attribute*> * new_quotas, string& error)
         }
         else
         {
-            if (update_limits(tq, iq))
+            if (update_limits(tq, iq) != 0)
             {
                 goto error_limits;
             } 
@@ -116,9 +126,20 @@ int Quota::set(vector<Attribute*> * new_quotas, string& error)
 
 error_limits:
     ostringstream oss;
-    oss <<  "Negative limits or bad format in quota " << iq->marshall();
 
+    oss <<  "Negative limits or bad format in quota " << template_name;
+
+    if ( iq != 0 )
+    {
+        string * quota_str = iq->marshall(",");
+
+        oss << " = [ " << *quota_str << " ]";
+
+        delete quota_str;
+    }
+     
     error = oss.str();
+
     return -1;        
 }
 
@@ -286,15 +307,14 @@ int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
 
     for (int i=0; i < num_metrics; i++)
     {
-        limit = va->vector_value(metrics[i], limit_i);
+        limit = va->vector_value_str(metrics[i], limit_i);
 
-        if ( !limit.empty() )
+        if ( limit_i < 0 )
         {
-            if ( limit_i < 0 )
-            {
-                return -1;
-            }
-
+            return -1;
+        }
+        else if ( !limit.empty() )
+        {
             quota->replace(metrics[i], limit);
         }
     }
@@ -318,15 +338,15 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
             
         metrics_used += "_USED";
 
-        limit = va->vector_value(metrics[i], limit_i);
-
-        if ( limit.empty() )
-        {
-            limit = "0";
-        }
-        else if ( limit_i < 0 )
+        limit = va->vector_value_str(metrics[i], limit_i);
+        
+        if ( limit_i < 0 )
         {
             return 0;
+        }
+        else if ( limit.empty() )
+        {
+            limit = "0";
         }
 
         limits.insert(make_pair(metrics[i], limit));

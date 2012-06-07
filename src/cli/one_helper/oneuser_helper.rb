@@ -173,6 +173,74 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    HELP_QUOTA = <<-EOT.unindent
+        #-----------------------------------------------------------------------
+        # Supported quota limits for users
+        #-----------------------------------------------------------------------
+        #  DATASTORE = [
+        #    ID     = <ID of the datastore>
+        #    IMAGES = <Max. number of images in the datastore>
+        #    SIZE   = <Max. storage capacity (Mb) used in the datastore>
+        #  ]
+        #
+        #  VM = [
+        #    VMS    = <Max. number of VMs>
+        #    MEMORY = <Max. allocated memory (Mb)>
+        #    CPU    = <Max. allocated CPU>
+        #  ]
+        #
+        #  NETWORK = [
+        #    ID     = <ID of the network>
+        #    LEASES = <Max. number of IP leases from the network>
+        #  ]
+        #
+        #  IMAGE = [
+        #    ID        = <ID of the image>
+        #    INSTANCES = <Max. number of VMs using the image>
+        #  ]
+        #
+        #  In any quota 0 means unlimited. The usage counters "*_USED" are
+        #  shown for information purposes and will NOT be modified.
+        #-----------------------------------------------------------------------
+    EOT
+
+    def self.set_quota(id, resource, path)
+        unless path
+            require 'tempfile'
+
+            tmp  = Tempfile.new(id.to_s)
+            path = tmp.path
+
+            rc = resource.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            tmp << HELP_QUOTA
+            tmp << resource.template_like_str("DATASTORE_QUOTA") << "\n"
+            tmp << resource.template_like_str("VM_QUOTA") << "\n"
+            tmp << resource.template_like_str("NETWORK_QUOTA") << "\n"
+            tmp << resource.template_like_str("IMAGE_QUOTA") << "\n"
+
+            tmp.flush
+
+            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+            system("#{editor_path} #{path}")
+
+            unless $?.exitstatus == 0
+                puts "Editor not defined"
+                exit -1
+            end
+
+            tmp.close
+        end
+
+        str = File.read(path)
+        str
+    end
+
     private
 
     def factory(id=nil)
