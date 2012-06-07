@@ -163,11 +163,123 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d["AUTH_DRIVER"]
             end
 
+            column :VMS, "Number of VMS", :size=>8 do |d|             
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['VMS']
+                else
+                    "0"
+                end                
+            end
+
+            column :MEMORY, "Total memory allocated to user VMs", :size=>8 do |d|
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['MEMORY_USED']
+                else
+                    "0"
+                end
+            end
+
+            column :CPU, "Total CPU allocated to user VMs", :size=>8 do |d|
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['CPU_USED']
+                else
+                    "0"
+                end
+            end
+
             column :PASSWORD, "Password of the User", :size=>50 do |d|
                 d['PASSWORD']
             end
 
-            default :ID, :GROUP, :NAME, :AUTH, :PASSWORD
+            default :ID, :GROUP, :NAME, :AUTH, :VMS, :MEMORY, :CPU
+        end
+
+        table
+    end
+
+    def format_ds_quota()
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :"DATASTORE ID", "", :left, :size=>12 do |d|
+                d["ID"] if !d.nil?
+            end
+
+            column :"IMAGES (used)", "", :right, :size=>14 do |d|
+                d["IMAGES_USED"] if !d.nil?
+            end
+
+            column :"IMAGES (limit)", "", :right, :size=>14 do |d|
+                d["IMAGES"] if !d.nil?
+            end
+
+            column :"SIZE (used)", "", :right, :size=>14 do |d|
+                d["SIZE_USED"] if !d.nil?
+            end
+
+            column :"SIZE (limit)", "", :right, :size=>14 do |d|
+                d["SIZE"] if !d.nil?
+            end
+        end
+
+        table
+    end
+
+    def format_net_quota()
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :"NETWORK ID", "", :left, :size=>12 do |d|
+                d["ID"] if !d.nil?
+            end
+
+            column :"LEASES (used)", "", :right, :size=>14 do |d|
+                d["LEASES_USED"] if !d.nil?
+            end
+
+            column :"LEASES (limit)", "", :right, :size=>14 do |d|
+                d["LEASES"] if !d.nil?
+            end
+        end
+
+        table
+    end
+
+    def format_vm_quota()
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :"VMS", "", :left, :size=>12 do |d|
+                d["VMS"] if !d.nil?
+            end
+
+            column :"MEMORY (used)", "", :right, :size=>14 do |d|
+                d["MEMORY_USED"] if !d.nil?
+            end
+
+            column :"MEMORY (limit)", "", :right, :size=>14 do |d|
+                d["MEMORY"] if !d.nil?
+            end
+
+            column :"CPU (used)", "", :right, :size=>14 do |d|
+                d["CPU_USED"] if !d.nil?
+            end
+
+            column :"CPU (limit)", "", :right, :size=>14 do |d|
+                d["CPU"] if !d.nil?
+            end
+        end
+
+        table
+    end
+
+    def format_image_quota()
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :"IMAGE ID", "", :left, :size=>12 do |d|
+                d["ID"] if !d.nil?
+            end
+
+            column :"RVMS (used)", "", :right, :size=>14 do |d|
+                d["INSTANCES_USED"] if !d.nil?
+            end
+
+            column :"RVMS (limit)", "", :right, :size=>14 do |d|
+                d["INSTANCES"] if !d.nil?
+            end
         end
 
         table
@@ -196,7 +308,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         #
         #  IMAGE = [
         #    ID        = <ID of the image>
-        #    INSTANCES = <Max. number of VMs using the image>
+        #    RVMS = <Max. number of VMs using the image>
         #  ]
         #
         #  In any quota 0 means unlimited. The usage counters "*_USED" are
@@ -275,5 +387,41 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
         puts user.template_str
+
+        user_hash = user.to_hash
+
+        puts
+
+        CLIHelper.print_header(str_h1 % "RESOURCE USAGE & QUOTAS",false)
+
+        puts
+
+        ds_quotas = [user_hash['USER']['DATASTORE_QUOTA']['DATASTORE']].flatten
+        if !ds_quotas[0].nil?
+            table_ds = format_ds_quota
+            table_ds.show(ds_quotas, {})
+            puts
+        end
+
+        vm_quotas = [user_hash['USER']['VM_QUOTA']['VM']].flatten
+        if !vm_quotas[0].nil?
+            table_net = format_vm_quota
+            table_net.show(vm_quotas, {})
+            puts
+        end
+
+        net_quotas = [user_hash['USER']['NETWORK_QUOTA']['NETWORK']].flatten
+        if !net_quotas[0].nil?
+            table_net = format_net_quota
+            table_net.show(net_quotas, {})
+            puts
+        end
+
+        image_quotas = [user_hash['USER']['IMAGE_QUOTA']['IMAGE']].flatten
+        if !image_quotas[0].nil?
+            table_image = format_image_quota
+            table_image.show(image_quotas, {})
+        end
+
     end
 end

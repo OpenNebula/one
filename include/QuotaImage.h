@@ -22,9 +22,9 @@
 /**
  *  Image Quotas, defined as:
  *    IMAGE = [
- *        ID     = <ID of the image>
- *        INSTANCES      = <Max. number times the image can be instantiated>
- *        INSTANCES_USED = Current number of VMs using the image
+ *        ID   = <ID of the image>
+ *        RVMS       = <Max. number times the image can be instantiated>
+ *        RVMS _USED = Current number of VMs using the image
  *    ]
  *
  *   0 = unlimited, default if missing

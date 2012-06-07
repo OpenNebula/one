@@ -19,7 +19,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * QuotaImage::IMAGE_METRICS[] = {"INSTANCES"};
+const char * QuotaImage::IMAGE_METRICS[] = {"RVMS"};
 
 const int QuotaImage::NUM_IMAGE_METRICS  = 1;
 
@@ -36,7 +36,7 @@ bool QuotaImage::check(Template * tmpl,  string& error)
 
     map<string, int> image_request;
 
-    image_request.insert(make_pair("INSTANCES",1));
+    image_request.insert(make_pair("RVMS",1));
 
     num = tmpl->get("DISK", disks);
 
@@ -74,7 +74,7 @@ void QuotaImage::del(Template * tmpl)
 
     map<string, int> image_request;
 
-    image_request.insert(make_pair("INSTANCES",1));
+    image_request.insert(make_pair("RVMS",1));
 
     num = tmpl->get("DISK", disks);
 

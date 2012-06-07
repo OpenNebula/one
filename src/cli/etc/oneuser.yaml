@@ -18,6 +18,18 @@
   :size: 8
   :left: true
 
+:VMS: 
+  :desc: Number of VMS
+  :size: 8 
+
+:MEMORY:
+  :desc: Total memory allocated to user VMs
+  :size: 8
+
+:CPU:
+  :desc: Total CPU allocated to user VMs
+  :size: 8
+
 :PASSWORD: 
   :desc: Password of the User
   :size: 50
@@ -27,4 +39,7 @@
 - :GROUP
 - :NAME
 - :AUTH
-- :PASSWORD
+- :VMS
+- :MEMORY
+- :CPU
+
