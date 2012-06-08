@@ -52,6 +52,13 @@ protected:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
+
+
+    virtual PoolObjectSQL * get_obj(
+            int oid, xmlrpc_c::paramList const& paramList)
+    {
+        return pool->get(oid,true);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -170,6 +177,34 @@ public:
 
     ~DatastoreChown(){};
 
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentChown : public RequestManagerChown
+{
+public:
+    DocumentChown():
+        RequestManagerChown("DocumentChown",
+                            "Changes ownership of a generic document",
+                            "A:siiii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentChown(){};
+
+    /* -------------------------------------------------------------------- */
+
+    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
+    {
+        int obj_type = xmlrpc_c::value_int(paramList.getInt(4));
+
+        return static_cast<DocumentPool*>(pool)->get(oid, obj_type, true);
+    };
 };
 
 /* -------------------------------------------------------------------------- */

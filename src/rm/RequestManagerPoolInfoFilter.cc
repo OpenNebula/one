@@ -243,6 +243,24 @@ void ClusterPoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void DocumentPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
+    int type        = xmlrpc_c::value_int(paramList.getInt(4));
+
+    ostringstream oss;
+    oss << "type = " << type;
+
+    dump(att, filter_flag, start_id, end_id, oss.str(), "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void RequestManagerPoolInfoFilter::where_filter(
         RequestAttributes& att,
         int                filter_flag,

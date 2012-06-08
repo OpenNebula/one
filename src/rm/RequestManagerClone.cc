@@ -14,80 +14,60 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManagerVMTemplate.h"
+#include "RequestManagerClone.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList,
-                                            RequestAttributes& att)
+void RequestManagerClone::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
 {
-    int    id   = xmlrpc_c::value_int(paramList.getInt(1));
-    string name = xmlrpc_c::value_string(paramList.getString(2));
+    int    source_id = xmlrpc_c::value_int(paramList.getInt(1));
+    string name      = xmlrpc_c::value_string(paramList.getString(2));
 
-    int rc, vid;
+    int rc, new_id;
 
-    PoolObjectAuth perms;
+    PoolObjectAuth  perms;
 
-    Nebula& nd = Nebula::instance();
-    VirtualMachinePool* vmpool = nd.get_vmpool();
-    VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
+    Template *      tmpl;
+    PoolObjectSQL * source_obj;
 
-    VirtualMachineTemplate * tmpl;
-    VMTemplate *             rtmpl;
+    string          error_str;
 
-    string error_str;
-    string aname;
+    source_obj = get_obj(source_id, paramList);
 
-    rtmpl = tpool->get(id,true);
-
-    if ( rtmpl == 0 )
+    if ( source_obj == 0 )
     {
         failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
+                get_error(object_name(auth_object),source_id),
                 att);
 
         return;
     }
 
-    tmpl  = rtmpl->clone_template();
+    tmpl = clone_template(source_obj);
 
-    rtmpl->get_permissions(perms);
+    source_obj->get_permissions(perms);
 
-    rtmpl->unlock();
-
-    // Check template for restricted attributes, but only if the Template owner
-    // is not oneadmin
-
-    if ( perms.uid != UserPool::ONEADMIN_ID && perms.gid != GroupPool::ONEADMIN_ID )
-    {
-        if (tmpl->check(aname))
-        {
-            ostringstream oss;
-
-            oss << "VM Template includes a restricted attribute " << aname;
-
-            failure_response(AUTHORIZATION,
-                    authorization_error(oss.str(), att),
-                    att);
-
-            delete tmpl;
-            return;
-        }
-    }
+    source_obj->unlock();
 
     tmpl->erase("NAME");
     tmpl->set(new SingleAttribute("NAME",name));
 
     if ( att.uid != 0 )
     {
+        string tmpl_str = "";
+
         AuthRequest ar(att.uid, att.gid);
 
-        ar.add_auth(auth_op, perms); //USE TEMPLATE
+        ar.add_auth(auth_op, perms); //USE OBJECT
 
-        VirtualMachine::set_auth_request(att.uid, ar, tmpl);
+        tmpl->to_xml(tmpl_str);
+
+        ar.add_create_auth(auth_object, tmpl_str);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -100,19 +80,15 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
     }
 
-    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
-            error_str, false);
+    rc = pool_allocate(paramList, tmpl, new_id, error_str, att);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL,
-                allocate_error(PoolObjectSQL::VM,error_str),
-                att);
-
+        failure_response(INTERNAL, allocate_error(error_str), att);
         return;
     }
-    
-    success_response(vid, att);
+
+    success_response(new_id, att);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -31,8 +31,9 @@ class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
-                         const string& help)
-        :Request(method_name,"A:si",help)
+                         const string& help,
+                         const string& signature="A:si")
+        :Request(method_name,signature,help)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -48,10 +49,17 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    bool delete_authorization(int                oid,
-                              RequestAttributes& att);
+    bool delete_authorization(int                           oid,
+                              RequestAttributes&            att,
+                              xmlrpc_c::paramList const&    paramList);
                               
     /* -------------------------------------------------------------------- */
+
+    virtual PoolObjectSQL * get_obj(
+            int oid, xmlrpc_c::paramList const& paramList)
+    {
+        return pool->get(oid,true);
+    };
 
     virtual int drop(int oid, PoolObjectSQL * object, string& error_msg);
 
@@ -268,6 +276,34 @@ public:
     };
 
     ~ClusterDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentDelete : public RequestManagerDelete
+{
+public:
+    DocumentDelete():
+        RequestManagerDelete("DocumentDelete",
+                             "Deletes a generic document",
+                             "A:sii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentDelete(){};
+
+    /* -------------------------------------------------------------------- */
+
+    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
+    {
+        int obj_type = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return static_cast<DocumentPool*>(pool)->get(oid, obj_type, true);
+    };
 };
 
 /* -------------------------------------------------------------------------- */

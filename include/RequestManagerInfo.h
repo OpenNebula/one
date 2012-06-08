@@ -30,8 +30,9 @@ class RequestManagerInfo: public Request
 {
 protected:
     RequestManagerInfo(const string& method_name,
-                       const string& help)
-        :Request(method_name,"A:si",help)
+                       const string& help,
+                       const string& signature = "A:si")
+        :Request(method_name,signature,help)
     {
         auth_op = AuthRequest::USE;
     };
@@ -48,6 +49,12 @@ protected:
     virtual void to_xml(PoolObjectSQL * object, string& str)
     {
         object->to_xml(str);
+    };
+
+    virtual PoolObjectSQL * get_obj(
+            int oid, xmlrpc_c::paramList const& paramList)
+    {
+        return pool->get(oid,true);
     };
 };
 
@@ -229,6 +236,34 @@ public:
     };
 
     ~ClusterInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentInfo : public RequestManagerInfo
+{
+public:
+    DocumentInfo():
+        RequestManagerInfo("DocumentInfo",
+                           "Returns generic document information",
+                           "A:sii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
+    {
+        int obj_type = xmlrpc_c::value_int(paramList.getInt(2));
+
+        return static_cast<DocumentPool*>(pool)->get(oid, obj_type, true);
+    };
 };
 
 /* -------------------------------------------------------------------------- */

@@ -21,8 +21,10 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerDelete::delete_authorization(int                oid,
-                                                RequestAttributes& att)
+bool RequestManagerDelete::delete_authorization(
+        int                         oid,
+        RequestAttributes&          att,
+        xmlrpc_c::paramList const&  paramList)
 {
     PoolObjectSQL * object;
     PoolObjectAuth  perms;
@@ -32,7 +34,7 @@ bool RequestManagerDelete::delete_authorization(int                oid,
         return true;
     }
 
-    object = pool->get(oid,true);
+    object = get_obj(oid, paramList);
 
     if ( object == 0 )
     {
@@ -72,12 +74,12 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectSQL * object;
     string          error_msg;
 
-    if ( delete_authorization(oid, att) == false )
+    if ( delete_authorization(oid, att, paramList) == false )
     {
         return;
     }
 
-    object = pool->get(oid,true);
+    object = get_obj(oid, paramList);
 
     if ( object == 0 )                             
     {                                            
