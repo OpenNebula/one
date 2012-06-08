@@ -198,6 +198,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/occi \
+          $LIB_LOCATION/ruby/cloud/marketplace \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/mads \
@@ -342,6 +343,10 @@ LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cloud/occi"
 
+LIB_MARKET_CLIENT_DIRS="$LIB_LOCATION/ruby \
+                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/cloud/marketplace"
+
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula"
 
@@ -351,7 +356,7 @@ LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
 CONF_CLI_DIRS="$ETC_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS \
+    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION $OZONES_CLIENT_DIRS $SELF_SERVICE_DIRS"
 elif [ "$SUNSTONE" = "yes" ]; then
@@ -428,6 +433,8 @@ INSTALL_FILES=(
     ECO_BIN_FILES:$BIN_LOCATION
     OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi
     OCCI_BIN_FILES:$BIN_LOCATION
+    MARKET_LIB_FILES:$LIB_LOCATION/ruby/cloud/marketplace
+    MARKET_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
@@ -440,6 +447,8 @@ INSTALL_CLIENT_FILES=(
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
     OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occi
     OCCI_BIN_CLIENT_FILES:$BIN_LOCATION
+    MARKET_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/marketplace
+    MARKET_BIN_CLIENT_FILES:$BIN_LOCATION
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
@@ -1111,6 +1120,19 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
                     src/cloud/occi/etc/templates/network.erb \
                     src/cloud/occi/etc/templates/large.erb"
 
+#-------------------------------------------------------------------------------
+# Marketplace Client
+#-------------------------------------------------------------------------------
+
+MARKET_LIB_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
+
+MARKET_LIB_CLIENT_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
+
+MARKET_BIN_FILES="src/cloud/marketplace/bin/onemarket-app"
+
+MARKET_BIN_CLIENT_FILES="src/cloud/marketplace/bin/onemarket-app"
+
+
 #-----------------------------------------------------------------------------
 # CLI files
 #-----------------------------------------------------------------------------
@@ -1169,6 +1191,7 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
+                       src/sunstone/models/SunstoneMarketplace.rb \
                        src/sunstone/models/SunstonePlugins.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
@@ -1212,6 +1235,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/vms-tab.js \
                         src/sunstone/public/js/plugins/acls-tab.js \
                         src/sunstone/public/js/plugins/vnets-tab.js \
+                        src/sunstone/public/js/plugins/marketplace-tab.js \
                         src/sunstone/public/js/plugins/config-tab.js"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \

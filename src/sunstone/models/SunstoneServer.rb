@@ -23,12 +23,16 @@ require 'OpenNebulaVNC'
 require 'OpenNebulaJSON/JSONUtils'
 include JSONUtils
 
+require 'SunstoneMarketplace'
+
 class SunstoneServer < CloudServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_ALL
 
     # Secs to sleep between checks to see if image upload to repo is finished
     IMAGE_POLL_SLEEP_TIME = 5
+
+    include SunstoneMarketplace
 
     def initialize(client, config, logger)
         super(config, logger)
@@ -139,7 +143,7 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(ds_id)
             return [500, ds_id.to_json]
         end
-        
+
         new_template = {
             :image => image_hash,
             :ds_id => ds_id,

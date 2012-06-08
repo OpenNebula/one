@@ -1,8 +1,51 @@
-/*Users tab plugin*/
+/*Marketpplace tab plugin*/
 var dataTable_marketplace;
-/*var users_select="";
-var $create_user_dialog;
-var $update_pw_dialog;*/
+
+
+$.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallback, bStandingRedraw )
+{
+    if ( typeof sNewSource != 'undefined' && sNewSource != null )
+    {
+        oSettings.sAjaxSource = sNewSource;
+    }
+    this.oApi._fnProcessingDisplay( oSettings, true );
+    var that = this;
+    var iStart = oSettings._iDisplayStart;
+    var aData = [];
+
+    this.oApi._fnServerParams( oSettings, aData );
+
+    oSettings.fnServerData( oSettings.sAjaxSource, aData, function(json) {
+        /* Clear the old information from the table */
+        that.oApi._fnClearTable( oSettings );
+
+        /* Got the data - add it to the table */
+        var aData =  (oSettings.sAjaxDataProp !== "") ?
+            that.oApi._fnGetObjectDataFn( oSettings.sAjaxDataProp )( json ) : json;
+
+        for ( var i=0 ; i<aData.length ; i++ )
+        {
+            that.oApi._fnAddData( oSettings, aData[i] );
+        }
+
+        oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+        that.fnDraw();
+
+        if ( typeof bStandingRedraw != 'undefined' && bStandingRedraw === true )
+        {
+            oSettings._iDisplayStart = iStart;
+            that.fnDraw( false );
+        }
+
+        that.oApi._fnProcessingDisplay( oSettings, false );
+
+        /* Callback user function - for event handlers etc */
+        if ( typeof fnCallback == 'function' && fnCallback != null )
+        {
+            fnCallback( oSettings );
+        }
+    }, oSettings );
+}
 
 function infoListenerMarket(dataTable){
     $('tbody tr',dataTable).live("click",function(e){
@@ -11,7 +54,7 @@ function infoListenerMarket(dataTable){
         var aData = dataTable.fnGetData(this);
         var id = aData["_id"]["$oid"];
         if (!id) return true;
-console.log(id);
+
         popDialogLoading();
 
         $.ajax({
@@ -19,11 +62,11 @@ console.log(id);
             type: "GET",
             dataType: "json",
             success: function(response){
-                return updateMarketInfo(null,response);
+                return updateMarketInfo(null, response);
             },
             error: function(response)
             {
-                return null;
+                return onError(null, OpenNebula.Error(response));
             }
         });
 
@@ -31,40 +74,49 @@ console.log(id);
     });
 }
 
-var user_actions = {
+var market_actions = {
     "Marketplace.refresh" : {
         type: "custom",
         call: function () {
-            waitingNodes(dataTable_users);
-            Sunstone.runAction("User.list");
-        },
-    },
-    "Marketplace.autorefresh" : {
-        type: "custom",
-        call: function(){
-            OpenNebula.User.list({
-                timeout: true,
-                success: updateUsersView,
-                error: onError
-            });
+            dataTable_marketplace.fnReloadAjax();
         }
     },
-    "Marketplace.showinfo" : {
+    "Marketplace.import" : {
         type: "single",
-        call: OpenNebula.User.show,
-        callback: updateUserInfo,
-        error: onError
-    },
+        call: function () {
+            var app_id = getSelectedNodes(dataTable_marketplace)[0];
+
+            $.ajax({
+                url: "/marketplace/" + app_id,
+                type: "GET",
+                dataType: "json",
+                success: function(response){
+                    document.getElementById("img_name").value = response['name'];
+                    document.getElementById("img_path").value = 'http://marketplace.c12g.com/appliance/' + response['_id']['$oid'] + '/download';
+                    popUpCreateImageDialog();
+                },
+                error: function(response)
+                {
+                    return onError(null, OpenNebula.Error(response));
+                }
+            });
+        }
+    }
 }
 
-var user_buttons = {
+var market_buttons = {
     "Marketplace.refresh" : {
         type: "image",
         text: tr("Refresh list"),
         img: "images/Refresh-icon.png"
+    },
+    "Marketplace.import" : {
+        type: "action",
+        text: tr('Import to local infrastructure')
     }
 };
 
+Sunstone.addActions(market_actions);
 
 var marketplace_tab_content = '\
 <h2>'+tr("OpenNebula Marketplace")+'</h2>\
@@ -74,6 +126,7 @@ var marketplace_tab_content = '\
 <table id="datatable_marketplace" class="display">\
   <thead>\
     <tr>\
+      <th class="check"></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Publisher")+'</th>\
@@ -89,11 +142,12 @@ var marketplace_tab_content = '\
 
 
 var marketplace_tab = {
-    title: tr("Marketplace"),
-    content: marketplace_tab_content
+    title: '<i class="icon-shopping-cart"></i>' + tr("Marketplace"),
+    content: marketplace_tab_content,
+    buttons: market_buttons,
 };
 
-Sunstone.addMainTab('marketplace_tab',marketplace_tab);
+Sunstone.addMainTab('marketplace_tab', marketplace_tab);
 
 
 
@@ -104,7 +158,7 @@ var marketplace_info_panel = {
     },
 };
 
-Sunstone.addInfoPanel("marketplace_info_panel",marketplace_info_panel);
+Sunstone.addInfoPanel("marketplace_info_panel", marketplace_info_panel);
 
 
 
@@ -129,40 +183,39 @@ function updateMarketInfo(request,app){
                 <td class="key_td">' + tr("Downloads") + '</td>\
                 <td class="value_td">'+app['downloads']+'</td>\
               </tr>\
-                 </tbody>\
-                </table>\
-                <table id="info_marketplace_table2" class="info_table">\
-                   <thead>\
-                     <tr><th colspan="2">'+tr("Description")+'</th></tr>\
-                   </thead>\
-                   <tbody>\
-                      <tr>\
-                        <td class="value_td">'+app['description']+'</td>\
-                      </tr>\
-                    </tbody>\
-                </table>'
+            </tbody>\
+        </table>\
+        <table id="info_marketplace_table2" class="info_table">\
+           <thead>\
+             <tr><th colspan="2">'+tr("Description")+'</th></tr>\
+           </thead>\
+           <tbody>\
+              <tr>\
+                <td class="value_td">'+app['description'].replace(/\n/g, "<br />")+'</td>\
+              </tr>\
+            </tbody>\
+        </table>'
     };
 
-    Sunstone.updateInfoPanelTab("marketplace_info_panel","marketplace_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);
     Sunstone.popUpInfoPanel("marketplace_info_panel");
 };
 
 
 $(document).ready(function(){
-
-    //prepare host datatable
-    dataTable_marketplace = $("#datatable_marketplace",main_tabs_context).dataTable({
+    dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "sDom" : '<"H"lfrC>t<"F"ip>',
         "sAjaxSource": "/marketplace",
         "sAjaxDataProp": "appliances",
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
         "bAutoWidth":false,
         "aoColumns": [
+            { "bSortable": false,
+              "fnRender": function ( o, val ) {
+                  return '<input class="check_item" type="checkbox" id="marketplace_'+o.aData['_id']['$oid']+'" name="selected_items" value="'+o.aData['_id']['$oid']+'"/>'
+            } },
             { "mDataProp": "_id.$oid", "bVisible": false },
             { "mDataProp": "name" },
             { "mDataProp": "publisher" },
@@ -175,6 +228,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+
+    initCheckAllBoxes(dataTable_marketplace);
+    tableCheckboxesListener(dataTable_marketplace);
 
     infoListenerMarket(dataTable_marketplace);
 });

@@ -302,20 +302,21 @@ get '/:resource/:id/monitor' do
 end
 
 ##############################################################################
-# GET Pool information
+# Marketplace
 ##############################################################################
 get '/marketplace' do
-    body `curl http://marketplace.c12g.com/appliance`
+    @SunstoneServer.get_appliance_pool
 end
 
 get '/marketplace/:id' do
-    body `curl http://marketplace.c12g.com/appliance/#{params[:id]}`
+    @SunstoneServer.get_appliance(params[:id])
 end
 
-
+##############################################################################
+# GET Pool information
+##############################################################################
 get '/:pool' do
-    @SunstoneServer.get_pool(params[:pool],
-                             session[:user_gid])
+    @SunstoneServer.get_pool(params[:pool], session[:user_gid])
 end
 
 ##############################################################################
