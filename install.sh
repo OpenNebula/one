@@ -588,6 +588,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onedatastore \
            src/cli/onecluster \
            src/onedb/onedb \
+           src/onedb/onezonedb/onezonedb \
            src/authm_mad/remotes/quota/onequota \
            src/mad/utils/tty_expect \
            share/scripts/one"

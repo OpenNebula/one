@@ -1,0 +1,54 @@
+#!/bin/bash
+
+if [ "$1" != "sqlite" -a "$1" != "mysql" -a "$1" != "postgres" ]; then
+    echo "$0: The first command needs to be one of {sqlite, mysql}"
+    exit 1
+fi
+
+MIGRATE_CMDS=$(cat <<EOF
+drop table zones;
+
+create table zones as select id as ID, name as NAME, onename as ONENAME, onepass as ONEPASS, endpoint as ENDPOI$
+
+drop table o_zones_zones;
+
+drop table vdcs;
+
+create table vdcs as select id as ID, name as NAME, group_id as GROUP_ID, vdcadminname as VDCADMINNAME, vdcadmi$
+
+drop table o_zones_vdcs;
+EOF
+) 
+
+if [ "$1" == "sqlite" ]; then
+    if [ ! -f $2 ]; then
+        echo "$0: A valid sqlite DB file needs to be provided as second argument"
+        exit 1
+    fi
+
+    sqlite3 $2 < <(echo $MIGRATE_CMDS)
+fi
+
+if [ "$1" == "mysql" ]; then
+    if [ -z $2 -a -z $3 ]; then
+        echo "$0: A valid username and password for mysql server needs to be provided"
+        echo "Usage: $0 username password <mysql_server_location>"
+        echo "       where <mysql_server_location> is optional and defaults to localhost"
+        exit 1
+    fi
+
+    if [ -z $4 ]; then
+        MYSQL_SERVER="localhost"
+    else
+        MYSQL_SERVER=$4
+    fi
+
+    mysql -u $2 --password=$3 -h $MYSQL_SERVER ozones < <(echo $MIGRATE_CMDS)
+fi
+
+if [ $? -ne 0 ]; then
+    echo "There was an error during migration"
+else
+    echo "Migration successful"
+fi
+
