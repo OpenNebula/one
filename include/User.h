@@ -19,10 +19,7 @@
 
 #include "PoolSQL.h"
 #include "UserTemplate.h"
-#include "QuotaDatastore.h"
-#include "QuotaNetwork.h"
-#include "QuotaVirtualMachine.h"
-#include "QuotaImage.h"
+#include "Quotas.h"
 
 using namespace std;
 
@@ -171,147 +168,10 @@ public:
         return new UserTemplate;
     }
 
-    // -------------------------------------------------------------------------
-    // Quota Interface
-    // -------------------------------------------------------------------------
-
     /**
-     *  Set the user quotas
-     *    @param tmpl contains the user quota limits
-     *    @param error describes error when setting the quotas
-     *
-     *    @return 0 on success, -1 otherwise
+     *  Object quotas, provides set and check interface
      */
-    int set_quota(Template *tmpl, string& error)
-    {
-        vector<Attribute *> vquotas;
-
-        if ( tmpl->get(datastore_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( datastore_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        if ( tmpl->get(network_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( network_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        if ( tmpl->get(image_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( image_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        if ( tmpl->get(vm_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( vm_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        return 0;
-    }
-
-    /**
-     *  Check Datastore quotas, it updates usage counters if quotas are not 
-     *  exceeded.
-     *    @param tmpl template for the image
-     *    @param reason string describing the error
-     *    @return true if image can be allocated, false otherwise
-     */
-     bool datastore_quota_check(Template * tmpl, string& reason)
-     {
-        return datastore_quota.check(tmpl, reason);
-     }
-
-    /**
-     *  Delete usage from quota counters.
-     *    @param tmpl template for the image, with usage
-     */
-     void datastore_quota_del(Template * tmpl)
-     {
-        return datastore_quota.del(tmpl);
-     }
-
-    /**
-     *  Check Network quotas, it updates usage counters if quotas are not 
-     *  exceeded.
-     *    @param tmpl template for the VirtualMachine
-     *    @param reason string describing the error
-     *    @return true if image can be allocated, false otherwise
-     */
-     bool network_quota_check(Template * tmpl, string& reason)
-     {
-        return network_quota.check(tmpl, reason);
-     }
-
-    /**
-     *  Delete usage from quota counters.
-     *    @param tmpl template for the image, with usage
-     */
-     void network_quota_del(Template * tmpl)
-     {
-        return network_quota.del(tmpl);
-     }
-
-    /**
-     *  Check VM  quotas, it updates usage counters if quotas are not 
-     *  exceeded.
-     *    @param tmpl template for the VirtualMachine
-     *    @param reason string describing the error
-     *    @return true if image can be allocated, false otherwise
-     */
-     bool vm_quota_check(Template * tmpl, string& reason)
-     {
-        return vm_quota.check(tmpl, reason);
-     }
-
-    /**
-     *  Delete usage from quota counters.
-     *    @param tmpl template for the image, with usage
-     */
-     void vm_quota_del(Template * tmpl)
-     {
-        return vm_quota.del(tmpl);
-     }
-
-    /**
-     *  Check IMAGE quotas, it updates usage counters if quotas are not 
-     *  exceeded.
-     *    @param tmpl template for the VirtualMachine
-     *    @param reason string describing the error
-     *    @return true if image can be allocated, false otherwise
-     */
-     bool image_quota_check(Template * tmpl, string& reason)
-     {
-        return image_quota.check(tmpl, reason);
-     }
-
-    /**
-     *  Delete usage from quota counters.
-     *    @param tmpl template for the image, with usage
-     */
-     void image_quota_del(Template * tmpl)
-     {
-        return image_quota.del(tmpl);
-     }
+    Quotas quota;
 
 private:
     // -------------------------------------------------------------------------
@@ -338,14 +198,6 @@ private:
      * Flag marking user enabled/disabled
      */
     bool        enabled;
-
-    /**
-     * Usage Counters and Quotas 
-     */
-     QuotaDatastore      datastore_quota;
-     QuotaNetwork        network_quota;
-     QuotaVirtualMachine vm_quota;
-     QuotaImage          image_quota;
 
     // *************************************************************************
     // Authentication session (Private)
@@ -443,6 +295,10 @@ protected:
          const string& _auth_driver,
          bool          _enabled):
         PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,table),
+        quota("/USER/DATASTORE_QUOTA",
+            "/USER/NETWORK_QUOTA",
+            "/USER/IMAGE_QUOTA",
+            "/USER/VM_QUOTA"),
         password(_password),
         auth_driver(_auth_driver),
         enabled(_enabled),

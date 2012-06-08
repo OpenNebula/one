@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/oneuser_helper'
+require 'one_helper/onequota_helper'
 
 require 'uri'
 
@@ -205,7 +206,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper = OneUserHelper.new
 
         helper.perform_action(args[0], options, "modified") do |user|
-            str = OneUserHelper.set_quota(args[0], user, args[1])
+            str = OneQuotaHelper.set_quota(user, args[1])
             rc  = user.set_quota(str)
 
             if OpenNebula.is_error?(rc)

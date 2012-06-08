@@ -131,31 +131,11 @@ bool Request::quota_authorization(Template * tmpl,
     switch (object)
     {
         case PoolObjectSQL::IMAGE:
-            rc = user->datastore_quota_check(tmpl, error_str);
+            rc = user->quota.ds_check(tmpl, error_str);
             break;
 
         case PoolObjectSQL::VM:
-            rc = user->network_quota_check(tmpl, error_str);
-
-            if ( rc == true )
-            {
-                rc = user->vm_quota_check(tmpl, error_str);
-
-                if ( rc == false )
-                {
-                    user->network_quota_del(tmpl);
-                }
-                else
-                {
-                    rc = user->image_quota_check(tmpl, error_str);
-
-                    if ( rc == false )
-                    {
-                        user->network_quota_del(tmpl);
-                        user->vm_quota_del(tmpl);
-                    }   
-                }
-            }
+            rc = user->quota.vm_check(tmpl, error_str);
             break;
 
         default:
@@ -202,14 +182,12 @@ void Request::quota_rollback(Template * tmpl,
     switch (object)
     {
         case PoolObjectSQL::IMAGE:
-            user->datastore_quota_del(tmpl);
+            user->quota.ds_del(tmpl);
             break;
 
         case PoolObjectSQL::VM:
         case PoolObjectSQL::TEMPLATE:
-            user->network_quota_del(tmpl);
-            user->vm_quota_del(tmpl);
-            user->image_quota_del(tmpl);
+            user->quota.vm_del(tmpl);
             break;
 
         default:

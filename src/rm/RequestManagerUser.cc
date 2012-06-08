@@ -161,7 +161,7 @@ int UserSetQuota::user_action(int     user_id,
         return -1;
     }
 
-    rc = user->set_quota(&quota_tmpl, error_str);
+    rc = user->quota.set(&quota_tmpl, error_str);
 
     pool->update(user);
 

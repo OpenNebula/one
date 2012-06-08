@@ -139,10 +139,7 @@ string& User::to_xml(string& xml) const
     ostringstream oss;
 
     string template_xml;
-    string ds_quota_xml;
-    string net_quota_xml;
-    string vm_quota_xml;
-    string image_quota_xml;
+    string quota_xml;
 
     int  enabled_int = enabled?1:0;
 
@@ -156,10 +153,7 @@ string& User::to_xml(string& xml) const
          "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         obj_template->to_xml(template_xml)                <<
-        datastore_quota.to_xml(ds_quota_xml)              <<
-        network_quota.to_xml(net_quota_xml)               <<
-        vm_quota.to_xml(vm_quota_xml)                     <<
-        image_quota.to_xml(image_quota_xml)               <<
+        quota.to_xml(quota_xml)                           <<
     "</USER>";
 
     xml = oss.str();
@@ -203,48 +197,8 @@ int User::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
-
-    // Get associated quota for the user
-    ObjectXML::get_nodes("/USER/DATASTORE_QUOTA", content);
-
-    if (!content.empty())
-    {
-        rc += datastore_quota.from_xml_node(content[0]);
-    }
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    ObjectXML::get_nodes("/USER/NETWORK_QUOTA", content);
-
-    if (!content.empty())
-    {
-        rc += network_quota.from_xml_node(content[0]);
-    }
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    ObjectXML::get_nodes("/USER/VM_QUOTA", content);
-
-    if (!content.empty())
-    {
-        rc += vm_quota.from_xml_node(content[0]);
-    }
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    ObjectXML::get_nodes("/USER/IMAGE_QUOTA", content);
-
-    if (!content.empty())
-    {
-        rc += image_quota.from_xml_node(content[0]);
-    }
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+   
+    rc += quota.from_xml(this); 
 
     if (rc != 0)
     {

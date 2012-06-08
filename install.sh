@@ -1115,6 +1115,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/oneimage_helper.rb \
                    src/cli/one_helper/onetemplate_helper.rb \
                    src/cli/one_helper/oneuser_helper.rb \
+                   src/cli/one_helper/onequota_helper.rb \
                    src/cli/one_helper/onevm_helper.rb \
                    src/cli/one_helper/onevnet_helper.rb \
                    src/cli/one_helper/oneacl_helper.rb \

@@ -352,7 +352,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
         img_usage.add("DATASTORE", ds_id);
         img_usage.add("SIZE", size);
 
-        user->datastore_quota_del(&img_usage);
+        user->quota.ds_del(&img_usage);
 
         upool->update(user);
 

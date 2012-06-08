@@ -738,9 +738,7 @@ int DispatchManager::finalize(
 
             if ( user != 0 )
             {
-                user->network_quota_del(tmpl);
-                user->vm_quota_del(tmpl);
-                user->image_quota_del(tmpl);
+                user->quota.vm_del(tmpl);
 
                 upool->update(user);
 
