@@ -40,6 +40,7 @@ SCP=scp
 SED=sed
 SSH=ssh
 SUDO=sudo
+SYNC=sync
 TAR=tar
 TGTADM=tgtadm
 VMKFSTOOLS=/usr/sbin/vmkfstools
