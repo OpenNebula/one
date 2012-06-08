@@ -659,6 +659,8 @@ ul.action_list li a:hover{
 
 .big_text {
     color: #333333;
-    font-size: 2em;
+    font-size: 5em;
     font-family: serif;
+    text-align:center;
+    vertical-align:middle;
 }

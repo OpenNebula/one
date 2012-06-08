@@ -230,7 +230,7 @@ var SunstoneMonitoringConfig = {
                     yaxis: { show: false },
                     xaxis: { min:0 },
                     legend: {
-                        noColumns: 1,
+                        noColumns: 3,
                         container: '#cpuUsageBar_legend',
                         labelFormatter: function(label, series){
                             return label[1].toLowerCase()
@@ -258,7 +258,7 @@ var SunstoneMonitoringConfig = {
                         min: 0
                     },
                     legend: {
-                        noColumns: 1,
+                        noColumns: 3,
                         container: '#memoryUsageBar_legend',
                         labelFormatter: function(label, series){
                             return label[1].toLowerCase()
@@ -364,7 +364,7 @@ var SunstoneMonitoringConfig = {
                         },
                     },
                     legend: {
-                        noColumns: 1,
+                        noColumns: 3,
                         container: '#netUsageBar_legend',
                         labelFormatter: function(label, series){
                             return label + " - " + humanize_size(series.data[0][0])

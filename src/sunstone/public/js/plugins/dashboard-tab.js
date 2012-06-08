@@ -17,64 +17,76 @@
 var dashboard_tab_content =
 '<table class="dashboard_table">\
 <tr>\
-<td style="width:50%">\
+<td>\
 <table style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
-<h3>' + tr("Hosts") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h3>\
+         <h3>' + tr("Hosts") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h3>\
         <div class="panel_info">\
-\
           <table class="info_table">\
+\
             <tr>\
               <td class="key_td">' + tr("Total Hosts") + '</td>\
-              <td class="value_td" id="totalHosts"></td>\
-            </tr>\
-\
-            <tr>\
               <td class="key_td">' + tr("State") + '</td>\
               <td class="key_td">' + tr("Global CPU Usage") + '</td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="statePie" style="width:50%;float:left;height:100px"></div><div id="globalCpuUsage" style="width:50%;float:right;height:100px"></div></td>\
+              <td id="totalHosts" class="big_text"></td>\
+              <td colspan="2"><div id="statePie" style="width:45%;display:inline-block;height:100px;"></div>\
+                  <div id="globalCpuUsage" style="display:inline-block;width:50%;height:100px;"></div></td>\
             </tr>\
 \
             <tr>\
               <td class="key_td">' + tr("Used vs. Max CPU") + '</td>\
-              <td class="value_td"></td>\
+              <td></td>\
+              <td><div id="cpuUsageBar_legend"></div></td>\
             </tr>\
             <tr>\
-              <td colspan="2">\
-               <div id="cpuUsageBar" style="float:left;width:70%;height:50px"></div>\
-               <div id="cpuUsageBar_legend" style="float:right"></div>\
+              <td colspan="3">\
+               <div id="cpuUsageBar" style="width:95%;height:50px"></div>\
+              </td>\
+           </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Used vs. Max Memory") + '</td>\
+              <td></td>\
+              <td><div id="memoryUsageBar_legend"></td>\
+            </tr>\
+            <tr>\
+              <td colspan="3">\
+               <div id="memoryUsageBar" style="width:95%;height:50px"></div>\
               </td>\
             </tr>\
+\
+          </table>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr>\
+    <td>\
+      <div class="panel">\
+         <h3>' + tr("Clusters") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h3>\
+        <div class="panel_info">\
+\
+          <table class="info_table">\
 \
             <tr>\
               <td class="key_td">' + tr("Allocated CPU per cluster") + '</td>\
               <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="cpuPerCluster" style="width:100%;height:100px"></div></td>\
+              <td colspan="2"><div id="cpuPerCluster" style="width:97%;height:100px"></div></td>\
             </tr>\
 \
-\
-            <tr>\
-              <td class="key_td">' + tr("Used vs. Max Memory") + '</td>\
-              <td class="value_td"></td>\
-            </tr>\
-            <tr>\
-              <td colspan="2">\
-               <div id="memoryUsageBar" style="float:left;width:70%;height:50px"></div>\
-               <div id="memoryUsageBar_legend" style="float:right;"></div>\
-              </td>\
-            </tr>\
             <tr>\
               <td class="key_td">' + tr("Allocated Memory per cluster") + '</td>\
               <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="memoryPerCluster" style="width:100%;height:100px"></div></td>\
+              <td colspan="2"><div id="memoryPerCluster" style="width:97%;height:100px"></div></td>\
             </tr>\
 \
           </table>\
@@ -85,7 +97,7 @@ var dashboard_tab_content =
   </tr>\
 </table>\
 </td>\
-<td style="width:50%">\
+<td>\
 <table style="width:100%">\
   <tr>\
     <td>\
@@ -96,37 +108,32 @@ var dashboard_tab_content =
 \
             <tr>\
               <td class="key_td">' + tr("Total VMs") + '</td>\
-              <td class="value_td" id="totalVMs"></td>\
+              <td class="key_td">' + tr("Bandwidth - Upload") + '</td>\
+              <td class="key_td">' + tr("Bandwidth - Download") + '</td>\
             </tr>\
 \
+            <tr>\
+              <td id="totalVMs" class="big_text"></td>\
+              <td id="bandwidth_up" class="big_text"></td>\
+              <td id="bandwidth_down" class="big_text"></td>\
+            </tr>\
 \
             <tr>\
               <td class="key_td">' + tr("State") + '</td>\
               <td class="value_td"></td>\
+              <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="vmStatePie" style="width:100%;height:100px"></div></td>\
+              <td colspan="3"><div id="vmStatePie" style="width:100%;height:100px"></div></td>\
             </tr>\
 \
             <tr>\
               <td class="key_td">' + tr("Global transfer rates") + '</td>\
-              <td class="value_td"></td>\
+              <td colspan="2"><div id="netUsageBar_legend" style="float:right;"></div></td>\
             </tr>\
             <tr>\
-              <td colspan="2">\
-               <div id="netUsageBar" style="float:left;width:70%;height:50px"></div>\
-               <div id="netUsageBar_legend" style="float:right;"></div>\
-              </td>\
-            </tr>\
-\
-            <tr>\
-              <td class="key_td">' + tr("Estimated global bandwidth - Upload") + '</td>\
-              <td class="key_td">' + tr("Download") + '</td>\
-            </tr>\
-            <tr>\
-              <td colspan="2">\
-               <div id="bandwidth_up" class="big_text" style="text-align:center;float:left;width:50%;"></div>\
-               <div id="bandwidth_down" class="big_text" style="text-align:center;"></div>\
+              <td colspan="3">\
+               <div id="netUsageBar" style="float:left;width:92%;height:50px"></div>\
               </td>\
             </tr>\
 \
@@ -144,27 +151,23 @@ var dashboard_tab_content =
 \
             <tr>\
               <td class="key_td">' + tr("Total Users") + '</td>\
-              <td class="value_td" id="totalUsers"></td>\
-            </tr>\
-\
-            <tr>\
               <td class="key_td">' + tr("Total Groups") + '</td>\
-              <td class="value_td" id="totalGroups"></td>\
-            </tr>\
-\
-            <tr>\
               <td class="key_td">' + tr("Total ACLs") + '</td>\
-              <td class="value_td" id="totalAcls"></td>\
             </tr>\
 \
             <tr>\
-              <td class="key_td">' + tr("Users per group") + '</td>\
+              <td class="big_text" id="totalUsers"></td>\
+              <td class="big_text" id="totalGroups"></td>\
+              <td class="big_text" id="totalAcls"></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td" colspan="2">' + tr("Users per group") + '</td>\
               <td class="value_td"><i class="icon-refresh action_button" value="User.refresh" style="float:right;cursor:pointer"></i></td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="usersPerGroup" style="width:100%;height:100px"></div></td>\
+              <td colspan="3"><div id="usersPerGroup" style="width:100%;height:100px"></div></td>\
             </tr>\
-\
 \
           </table>\
         </div>\
