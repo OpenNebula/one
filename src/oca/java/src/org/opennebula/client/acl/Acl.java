@@ -66,6 +66,7 @@ public class Acl extends PoolElement{
         tmpResources.put("GROUP"    , 0x0000040000000000L);
         tmpResources.put("DATASTORE", 0x0000100000000000L);
         tmpResources.put("CLUSTER"  , 0x0000200000000000L);
+        tmpResources.put("DOCUMENT" , 0x0000400000000000L);
 
         RESOURCES = Collections.unmodifiableMap(tmpResources);
 

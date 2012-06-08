@@ -243,6 +243,7 @@ void Nebula::start()
             rc += AclManager::bootstrap(db);
             rc += DatastorePool::bootstrap(db);
             rc += ClusterPool::bootstrap(db);
+            rc += DocumentPool::bootstrap(db);
 
             // Create the versioning table only if bootstrap went well
             if ( rc == 0 )
@@ -279,6 +280,7 @@ void Nebula::start()
         vector<const Attribute *> img_restricted_attrs;
 
         clpool  = new ClusterPool(db);
+        docpool = new DocumentPool(db);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK", host_hooks);

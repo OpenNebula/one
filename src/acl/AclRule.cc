@@ -246,6 +246,7 @@ void AclRule::build_str()
 
     oss << " ";
 
+    int n_objects = 10;
     PoolObjectSQL::ObjectType objects[] = {
             PoolObjectSQL::VM,
             PoolObjectSQL::HOST,
@@ -255,12 +256,13 @@ void AclRule::build_str()
             PoolObjectSQL::TEMPLATE,
             PoolObjectSQL::GROUP,
             PoolObjectSQL::DATASTORE,
-            PoolObjectSQL::CLUSTER
+            PoolObjectSQL::CLUSTER,
+            PoolObjectSQL::DOCUMENT
     };
 
     bool prefix = false;
 
-    for ( int i = 0; i < 9; i++ )
+    for ( int i = 0; i < n_objects; i++ )
     {
         if ( (resource & objects[i]) != 0 )
         {

@@ -79,6 +79,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/authm',
     cwd+'/src/acl',
     cwd+'/src/xml',
+    cwd+'/src/document',
 ])
 
 # Compile flags
@@ -212,6 +213,7 @@ build_scripts=[
     'src/authm/SConstruct',
     'src/acl/SConstruct',
     'src/xml/SConstruct',
+    'src/document/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
     'src/cloud/occi/lib/ui/locale/languages/SConstruct'

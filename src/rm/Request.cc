@@ -187,6 +187,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "datastore";
         case PoolObjectSQL::CLUSTER:
             return "cluster";
+        case PoolObjectSQL::DOCUMENT:
+            return "document";
         default:
             return "-";
       }
