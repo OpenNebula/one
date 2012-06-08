@@ -311,7 +311,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
-    xmlrpc_c::methodPtr docpool_info(new DocumentInfo());
+    xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
