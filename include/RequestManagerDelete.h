@@ -53,11 +53,6 @@ protected:
                               
     /* -------------------------------------------------------------------- */
 
-    virtual PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
-    {
-        return pool->get(oid,true);
-    };
-
     virtual int drop(int oid, PoolObjectSQL * object, string& error_msg);
 
     virtual int get_cluster_id(PoolObjectSQL * object)
@@ -82,7 +77,7 @@ protected:
 class TemplateDelete : public RequestManagerDelete
 {
 public:
-    TemplateDelete(int type):
+    TemplateDelete():
         RequestManagerDelete("TemplateDelete",
                              "Deletes a virtual machine template")
     {
@@ -92,26 +87,6 @@ public:
     };
 
     ~TemplateDelete(){};
-
-    /* -------------------------------------------------------------------- */
-
-    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
-    {
-        int obj_type = type;
-
-        if ( obj_type == -1 )
-        {
-            obj_type = xmlrpc_c::value_int(paramList.getInt(2));
-        }
-
-        VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
-        return tpool->get(oid, obj_type, true);
-    };
-
-    /* -------------------------------------------------------------------- */
-
-private:
-    int type;
 };
 
 /* ------------------------------------------------------------------------- */

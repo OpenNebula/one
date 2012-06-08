@@ -217,7 +217,7 @@ public:
 class TemplateAllocate : public RequestManagerAllocate
 {
 public:
-    TemplateAllocate(int type):
+    TemplateAllocate():
         RequestManagerAllocate("TemplateAllocate",
                                "Allocates a new virtual machine template",
                                "A:ss",
@@ -226,8 +226,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
-
-        this->type  = type;
     };
 
     ~TemplateAllocate(){};
@@ -235,7 +233,7 @@ public:
     /* --------------------------------------------------------------------- */
 
     Template * get_object_template() 
-    {
+    { 
         return new VirtualMachineTemplate; 
     };
 
@@ -244,10 +242,6 @@ public:
                       int& id, 
                       string& error_str,
                       RequestAttributes& att);
-    /* --------------------------------------------------------------------- */
-
-private:
-    int type;
 };
 
 /* ------------------------------------------------------------------------- */

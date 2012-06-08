@@ -36,9 +36,6 @@ public:
      *  allocated for the object.
      *    @param uid user id (the owner of the Template)
      *    @param gid the id of the group this object is assigned to
-     *    @param uname name of the owner user
-     *    @param gname name of the group
-     *    @param type for the new template
      *    @param template_contents a VM Template object
      *    @param oid the id assigned to the Template
      *    @param error_str Returns the error reason, if any
@@ -49,7 +46,6 @@ public:
                  int                      gid,
                  const string&            uname,
                  const string&            gname,
-                 int                      type,
                  VirtualMachineTemplate * template_contents,
                  int *                    oid,
                  string&                  error_str);
@@ -62,21 +58,9 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VMTemplate * get(int oid, int type, bool lock)
+    VMTemplate * get(int oid, bool lock)
     {
-        VMTemplate* tmpl = static_cast<VMTemplate *>(PoolSQL::get(oid,lock));
-
-        if ( tmpl != 0 && tmpl->get_template_type() != type )
-        {
-            if ( lock )
-            {
-                tmpl->unlock();
-            }
-
-            return 0;
-        }
-
-        return tmpl;
+        return static_cast<VMTemplate *>(PoolSQL::get(oid,lock));
     };
 
     /**
@@ -134,7 +118,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VMTemplate(-1,-1,-1,"","",0,0);
+        return new VMTemplate(-1,-1,-1,"","",0);
     };
 };
 

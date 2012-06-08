@@ -59,16 +59,6 @@ public:
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
 
-    /**
-     * Returns the template type, 0 for VM Templates
-     *
-     * @return the template type
-     */
-    int get_template_type()
-    {
-        return type;
-    };
-
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -84,12 +74,6 @@ private:
      *  Registration time
      */
     time_t      regtime;
-
-    /**
-     *  Template type, to implement generic objects.
-     *  The default VM templates are type 0
-     */
-    int         type;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -133,7 +117,6 @@ protected:
                int gid,
                const string& uname,
                const string& gname,
-               int type,
                VirtualMachineTemplate * _template_contents);
 
     ~VMTemplate();

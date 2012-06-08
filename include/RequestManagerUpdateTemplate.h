@@ -42,13 +42,6 @@ protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
-
-    /* -------------------------------------------------------------------- */
-
-    virtual PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
-    {
-        return pool->get(oid,true);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -57,38 +50,16 @@ protected:
 class TemplateUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:
-    TemplateUpdateTemplate(int type):
+    TemplateUpdateTemplate():
         RequestManagerUpdateTemplate("TemplateUpdateTemplate",
                                      "Updates a virtual machine template")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
-
-        this->type  = type;
     };
 
     ~TemplateUpdateTemplate(){};
-
-    /* -------------------------------------------------------------------- */
-
-    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
-    {
-        int obj_type = type;
-
-        if ( obj_type == -1 )
-        {
-            obj_type = xmlrpc_c::value_int(paramList.getInt(3));
-        }
-
-        VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
-        return tpool->get(oid, obj_type, true);
-    };
-
-    /* -------------------------------------------------------------------- */
-
-private:
-    int type;
 };
 
 /* ------------------------------------------------------------------------- */

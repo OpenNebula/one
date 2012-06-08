@@ -236,8 +236,7 @@ void RequestManager::register_xml_methods()
 
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
-    xmlrpc_c::methodPtr template_clone(new VMTemplateClone(0));
-    xmlrpc_c::methodPtr generic_clone(new VMTemplateClone(-1));
+    xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
 
     // VirtualMachine Methods
     xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
@@ -256,47 +255,43 @@ void RequestManager::register_xml_methods()
 
     // Update Template Methods
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
-    xmlrpc_c::methodPtr template_update(new TemplateUpdateTemplate(0));
+    xmlrpc_c::methodPtr template_update(new TemplateUpdateTemplate());
     xmlrpc_c::methodPtr host_update(new HostUpdateTemplate());
     xmlrpc_c::methodPtr vn_update(new VirtualNetworkUpdateTemplate());
     xmlrpc_c::methodPtr user_update(new UserUpdateTemplate());
     xmlrpc_c::methodPtr datastore_update(new DatastoreUpdateTemplate());
-    xmlrpc_c::methodPtr generic_update(new TemplateUpdateTemplate(-1));
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
     xmlrpc_c::methodPtr image_allocate(new ImageAllocate());
     xmlrpc_c::methodPtr vn_allocate(new VirtualNetworkAllocate());
     xmlrpc_c::methodPtr group_allocate(new GroupAllocate());
-    xmlrpc_c::methodPtr template_allocate(new TemplateAllocate(0));
+    xmlrpc_c::methodPtr template_allocate(new TemplateAllocate());
     xmlrpc_c::methodPtr host_allocate(new HostAllocate());
     xmlrpc_c::methodPtr user_allocate(new  UserAllocate());
     xmlrpc_c::methodPtr datastore_allocate(new DatastoreAllocate());
     xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
-    xmlrpc_c::methodPtr generic_allocate(new TemplateAllocate(-1));
 
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
-    xmlrpc_c::methodPtr template_delete(new TemplateDelete(0));
+    xmlrpc_c::methodPtr template_delete(new TemplateDelete());
     xmlrpc_c::methodPtr group_delete(new GroupDelete());
     xmlrpc_c::methodPtr vn_delete(new VirtualNetworkDelete());
     xmlrpc_c::methodPtr user_delete(new UserDelete());
     xmlrpc_c::methodPtr image_delete(new ImageDelete());
     xmlrpc_c::methodPtr datastore_delete(new DatastoreDelete());
     xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
-    xmlrpc_c::methodPtr generic_delete(new TemplateDelete(-1));
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
     xmlrpc_c::methodPtr host_info(new HostInfo());
-    xmlrpc_c::methodPtr template_info(new TemplateInfo(0));
+    xmlrpc_c::methodPtr template_info(new TemplateInfo());
     xmlrpc_c::methodPtr group_info(new GroupInfo());
     xmlrpc_c::methodPtr vn_info(new VirtualNetworkInfo());
     xmlrpc_c::methodPtr user_info(new UserInfo());
     xmlrpc_c::methodPtr image_info(new ImageInfo());
     xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
     xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
-    xmlrpc_c::methodPtr generic_info(new TemplateInfo(-1));
 
     // PoolInfo Methods 
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -304,11 +299,10 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
     xmlrpc_c::methodPtr datastorepool_info(new DatastorePoolInfo());
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
-    xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo(0));
+    xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
-    xmlrpc_c::methodPtr generic_pool_info(new TemplatePoolInfo(-1));
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -322,20 +316,18 @@ void RequestManager::register_xml_methods()
 
     // Chown Methods
     xmlrpc_c::methodPtr vm_chown(new VirtualMachineChown());
-    xmlrpc_c::methodPtr template_chown(new TemplateChown(0));
+    xmlrpc_c::methodPtr template_chown(new TemplateChown());
     xmlrpc_c::methodPtr vn_chown(new VirtualNetworkChown());
     xmlrpc_c::methodPtr image_chown(new ImageChown());
     xmlrpc_c::methodPtr user_chown(new UserChown());
     xmlrpc_c::methodPtr datastore_chown(new DatastoreChown());
-    xmlrpc_c::methodPtr generic_chown(new TemplateChown(-1));
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
-    xmlrpc_c::methodPtr template_chmod(new TemplateChmod(0));
+    xmlrpc_c::methodPtr template_chmod(new TemplateChmod());
     xmlrpc_c::methodPtr vn_chmod(new VirtualNetworkChmod());
     xmlrpc_c::methodPtr image_chmod(new ImageChmod());
     xmlrpc_c::methodPtr datastore_chmod(new DatastoreChmod());
-    xmlrpc_c::methodPtr generic_chmod(new TemplateChmod(-1));
 
     // ACL Methods
     xmlrpc_c::methodPtr acl_addrule(new AclAddRule());
@@ -376,17 +368,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.clone", template_clone);
 
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
-
-    /* Generic objects related methods*/
-    RequestManagerRegistry.addMethod("one.generic.allocate",generic_allocate);
-    RequestManagerRegistry.addMethod("one.generic.delete",  generic_delete);
-    RequestManagerRegistry.addMethod("one.generic.info",    generic_info);
-    RequestManagerRegistry.addMethod("one.generic.update",  generic_update);
-    RequestManagerRegistry.addMethod("one.generic.chown",   generic_chown);
-    RequestManagerRegistry.addMethod("one.generic.chmod",   generic_chmod);
-    RequestManagerRegistry.addMethod("one.generic.clone",   generic_clone);
-
-    RequestManagerRegistry.addMethod("one.genericpool.info",generic_pool_info);
 
     /* Host related methods*/
     RequestManagerRegistry.addMethod("one.host.enable", host_enable);

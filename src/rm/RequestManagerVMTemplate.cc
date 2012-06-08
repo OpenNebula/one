@@ -41,7 +41,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     string error_str;
     string aname;
 
-    rtmpl = tpool->get(id, 0, true);
+    rtmpl = tpool->get(id,true);
 
     if ( rtmpl == 0 )
     {
@@ -135,14 +135,7 @@ void VMTemplateClone::request_execute(xmlrpc_c::paramList const& paramList,
 
     string error_str;
 
-    int obj_type = type;
-
-    if ( obj_type == -1 )
-    {
-        obj_type = xmlrpc_c::value_int(paramList.getInt(3));
-    }
-
-    source_tmpl = tpool->get(source_id, obj_type, true);
+    source_tmpl = tpool->get(source_id,true);
 
     if ( source_tmpl == 0 )
     {
@@ -185,7 +178,7 @@ void VMTemplateClone::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    rc = tpool->allocate(att.uid, att.gid, att.uname, att.gname, obj_type,
+    rc = tpool->allocate(att.uid, att.gid, att.uname, att.gname,
                          tmpl, &new_id, error_str);
 
     if ( rc < 0 )
