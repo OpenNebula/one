@@ -177,15 +177,35 @@ module OpenNebula
         # Common XML-RPC Methods for all the Pool Element Types
         #######################################################################
 
+        # Common client call wrapper. Checks that @pe_id is defined, and
+        # returns nil instead of the response if it is successful
+        #
+        # @param [String] xml_method xml-rpc method
+        # @param [Array] args any arguments for the xml-rpc method
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def call(xml_method, *args)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(xml_method, *args)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
         # Calls to the corresponding info method to retreive the element
         # detailed information in XML format
-        # xml_method:: _String_ the name of the XML-RPC method
-        # root_element:: _String_ Base XML element
-        # [return] nil in case of success or an Error object
+        #
+        # @param [String] xml_method the name of the XML-RPC method
+        # @param [String] root_element Base XML element name
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
         def info(xml_method, root_element)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(xml_method,@pe_id)
+            rc = @client.call(xml_method, @pe_id)
 
             if !OpenNebula.is_error?(rc)
                 initialize_xml(rc, root_element)
@@ -221,14 +241,9 @@ module OpenNebula
         # new_template:: _String_ the new template contents
         # [return] nil in case of success or an Error object
         def update(xml_method, new_template)
-            return Error.new('ID not defined') if !@pe_id
-
             new_template ||= template_xml
 
-            rc = @client.call(xml_method,@pe_id, new_template)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+            return call(xml_method, @pe_id, new_template)
         end
 
         # Calls to the corresponding delete method to remove this element
@@ -236,12 +251,7 @@ module OpenNebula
         # xml_method:: _String_ the name of the XML-RPC method
         # [return] nil in case of success or an Error object
         def delete(xml_method)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(xml_method,@pe_id)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+            return call(xml_method,@pe_id)
         end
 
         # Calls to the corresponding chown method to modify
@@ -251,12 +261,7 @@ module OpenNebula
         # gid:: _Integer_ the new group id. Set to -1 to leave the current one
         # [return] nil in case of success or an Error object
         def chown(xml_method, uid, gid)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(xml_method,@pe_id, uid, gid)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+            return call(xml_method, @pe_id, uid, gid)
         end
 
         # Calls to the corresponding chmod method to modify
@@ -290,14 +295,9 @@ module OpenNebula
         #   otherwise
         def chmod(xml_method, owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
                 other_m, other_a)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(xml_method, @pe_id, owner_u, owner_m,
+            return call(xml_method, @pe_id, owner_u, owner_m,
                             owner_a, group_u, group_m, group_a, other_u,
                             other_m, other_a)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
         end
 
 
