@@ -130,14 +130,18 @@ string& Group::to_xml(string& xml) const
 {
     ostringstream   oss;
     string          collection_xml;
+    string          quota_xml;
 
     ObjectCollection::to_xml(collection_xml);
+    
+    quota.to_xml(quota_xml);
 
     oss <<
     "<GROUP>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
         collection_xml <<
+        quota_xml <<
     "</GROUP>";
 
     xml = oss.str();
@@ -178,6 +182,8 @@ int Group::from_xml(const string& xml)
     rc += ObjectCollection::from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+
+    rc += quota.from_xml(this); 
 
     if (rc != 0)
     {

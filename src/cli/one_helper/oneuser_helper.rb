@@ -168,15 +168,15 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
                     d['VM_QUOTA']['VM']['VMS']
                 else
-                    "0"
-                end                
+                    "-"
+                end 
             end
 
             column :MEMORY, "Total memory allocated to user VMs", :size=>8 do |d|
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
                     d['VM_QUOTA']['VM']['MEMORY_USED']
                 else
-                    "0"
+                    "-"
                 end
             end
 
@@ -184,7 +184,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
                     d['VM_QUOTA']['VM']['CPU_USED']
                 else
-                    "0"
+                    "-"
                 end
             end
 

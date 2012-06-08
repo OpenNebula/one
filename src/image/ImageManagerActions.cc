@@ -273,10 +273,13 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     int ds_id;
 
     int    uid;
+    int    gid;
+    Group* group;
     User * user;
 
     Nebula&    nd    = Nebula::instance();
     UserPool * upool = nd.get_upool();
+    GroupPool* gpool = nd.get_gpool();
 
     img = ipool->get(iid,true);
 
@@ -320,6 +323,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     size    = img->get_size();
     ds_id   = img->get_ds_id();
     uid     = img->get_uid();
+    gid     = img->get_gid();
     
     if (source.empty())
     {
@@ -343,20 +347,39 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     delete drv_msg;
 
-    user = upool->get(uid, true);
+    /* -------------------- Update Group & User quota counters -------------- */
+    
+    Template img_usage;
 
-    if ( user != 0 )
+    img_usage.add("DATASTORE", ds_id);
+    img_usage.add("SIZE", size);
+
+    if ( uid != UserPool::ONEADMIN_ID )
     {
-        Template img_usage;
+        user = upool->get(uid, true);
 
-        img_usage.add("DATASTORE", ds_id);
-        img_usage.add("SIZE", size);
+        if ( user != 0 )
+        {
+            user->quota.ds_del(&img_usage);
 
-        user->quota.ds_del(&img_usage);
+            upool->update(user);
 
-        upool->update(user);
+            user->unlock();
+        } 
+    }
 
-        user->unlock();
+    if ( gid != GroupPool::ONEADMIN_ID )
+    {
+        group = gpool->get(gid, true);
+
+        if ( group != 0 )
+        {
+            group->quota.ds_del(&img_usage);
+
+            gpool->update(group);
+
+            group->unlock();
+        }        
     }
 
     return 0;

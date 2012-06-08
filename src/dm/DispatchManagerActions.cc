@@ -683,11 +683,14 @@ int DispatchManager::finalize(
     int vid)
 {
     VirtualMachine * vm;
-    ostringstream    oss;
-    Template *       tmpl;
-    User *           user;
+    ostringstream oss;
+    Template *    tmpl;
+
+    User *  user;
+    Group * group;
     
     int uid;
+    int gid;
 
     VirtualMachine::VmState state;
 
@@ -707,6 +710,7 @@ int DispatchManager::finalize(
     TransferManager *  tm  = nd.get_tm();
     LifeCycleManager * lcm = nd.get_lcm();
     UserPool * upool       = nd.get_upool();
+    GroupPool * gpool      = nd.get_gpool();
 
     switch (state)
     {
@@ -730,19 +734,38 @@ int DispatchManager::finalize(
             vm->log("DiM", Log::INFO, "New VM state is DONE.");
 
             uid  = vm->get_uid();
+            gid  = vm->get_gid();
             tmpl = vm->clone_template();
     
             vm->unlock();
 
-            user = upool->get(uid, true);
-
-            if ( user != 0 )
+            if ( uid != UserPool::ONEADMIN_ID )
             {
-                user->quota.vm_del(tmpl);
 
-                upool->update(user);
+                user = upool->get(uid, true);
 
-                user->unlock();
+                if ( user != 0 )
+                {
+                    user->quota.vm_del(tmpl);
+
+                    upool->update(user);
+
+                    user->unlock();
+                }
+            }
+            
+            if ( gid != GroupPool::ONEADMIN_ID )
+            {
+                group = gpool->get(gid, true);
+
+                if ( group != 0 )
+                {
+                    group->quota.vm_del(tmpl);
+
+                    gpool->update(group);
+
+                    group->unlock();
+                } 
             }
 
             delete tmpl;

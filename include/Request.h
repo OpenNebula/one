@@ -312,6 +312,27 @@ protected:
                   RequestAttributes&        att,
                   PoolObjectAuth&           perms,
                   string&                   name);
+private:
+
+    /* ------------- Functions to manage user and group quotas -------------- */
+
+    bool user_quota_authorization(Template * tmpl,
+                                  PoolObjectSQL::ObjectType object,
+                                  RequestAttributes& att,
+                                  string& error_str);
+
+    bool group_quota_authorization(Template * tmpl,
+                                   PoolObjectSQL::ObjectType object,
+                                   RequestAttributes& att,
+                                   string& error_str);
+
+    void user_quota_rollback(Template * tmpl,
+                             PoolObjectSQL::ObjectType object,
+                             RequestAttributes& att);
+
+    void group_quota_rollback(Template * tmpl,
+                              PoolObjectSQL::ObjectType object,
+                              RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

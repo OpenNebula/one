@@ -44,7 +44,7 @@ void RequestManagerUser::
 
     if ( user_action(id,paramList,error_str) < 0 )
     {
-        failure_response(INTERNAL, request_error(error_str,""), att);
+        failure_response(ACTION, request_error(error_str,""), att);
         return;
     }
  
@@ -146,6 +146,12 @@ int UserSetQuota::user_action(int     user_id,
 
     int    rc;
     User * user;
+
+    if ( user_id == UserPool::ONEADMIN_ID )
+    {
+        error_str = "Cannot set quotas for oneadmin user";
+        return -1;
+    }
 
     rc = quota_tmpl.parse_str_or_xml(quota_str, error_str);
 
