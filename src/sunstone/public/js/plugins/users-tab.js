@@ -41,12 +41,12 @@ var users_tab_content = '\
 </table>\
 <div class="legend_div">\
 <span>?</span>\
-<p class="legend">\
+<p class="legend_p">\
 '+
     tr("Tip: You can save any information in the user template, in the form of VAR=VAL.")+
 '\
 </p>\
-<p class="legend">\
+<p class="legend_p">\
 '+
     tr("Tip: SSH authentication method is not available for web UI access.")+
 '\

@@ -1195,6 +1195,7 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js \
                         src/sunstone/public/js/opennebula.js \
+                        src/sunstone/public/js/monitoring.js \
                         src/sunstone/public/js/locale.js"
 
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
@@ -1269,6 +1270,7 @@ SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
 SUNSTONE_PUBLIC_VENDOR_FLOT="\
 src/sunstone/public/vendor/flot/jquery.flot.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
 src/sunstone/public/vendor/flot/NOTICE \
 src/sunstone/public/vendor/flot/README.txt"

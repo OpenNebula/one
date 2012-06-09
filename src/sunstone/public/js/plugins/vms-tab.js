@@ -74,10 +74,10 @@ var vms_tab_content = '\
 </table>\
 <div class="legend_div">\
   <span>?</span>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab.")+'\
   </p>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information.")+'\
   </p>\
 </div>\

@@ -51,10 +51,10 @@ var config_tab_content =
 </table>\
 <div class="legend_div" style="position:relative;left:13px;bottom:5px;">\
   <span>?</span>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("These options are stored in your OpenNebula user template.")+'\
   </p>\
-  <p class="legend">\
+  <p class="legend_p">\
 '+tr("WSS connection requires additional configuration of Sunstone Server and that the SSL certificate is considered valid by your browser.")+'\
   </p>\
 </div>\

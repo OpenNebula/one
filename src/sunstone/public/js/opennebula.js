@@ -249,8 +249,10 @@ var OpenNebula = {
                 data: {timeout: timeout},
                 dataType: "json",
                 success: function(response){
+                    var list = OpenNebula.Helper.pool(resource,response)
+                    SunstoneMonitoring.monitor(resource, list)
                     return callback ?
-                        callback(request, OpenNebula.Helper.pool(resource,response)) : null;
+                        callback(request, list) : null;
                 },
                 error: function(response)
                 {

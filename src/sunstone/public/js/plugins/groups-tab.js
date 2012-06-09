@@ -37,7 +37,7 @@ var groups_tab_content = '\
 </table>\
 <div class="legend_div">\
   <span>?</span>\
-<p class="legend">\
+<p class="legend_p">\
 '+tr("Tip: Refresh the list if it only shows user ids in the Users column.")+'\
 </p>\
 </div>\

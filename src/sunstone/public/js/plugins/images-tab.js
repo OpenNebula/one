@@ -44,7 +44,7 @@ var images_tab_content = '\
 </table>\
 <div class="legend_div">\
   <span>?</span>\
-<p class="legend">\
+<p class="legend_p">\
 '+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
 </p>\
 </div>\
