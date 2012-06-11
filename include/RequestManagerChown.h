@@ -52,6 +52,11 @@ protected:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
+
+    PoolObjectSQL * get_and_quota(int                       oid,
+                                  int                       new_uid,
+                                  int                       new_gid,
+                                  RequestAttributes&        att);
 };
 
 /* ------------------------------------------------------------------------- */

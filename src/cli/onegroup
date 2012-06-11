@@ -97,4 +97,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.show_resource(group,options)
     end
 
+    quota_desc = <<-EOT.unindent
+        Set the quota limits for the group. If a path is not provided the editor 
+        will be launched to modify the current quotas.
+    EOT
+
+    command :quota, quota_desc, :groupid, [:file, nil] do
+        helper.perform_action(args[0], options, "modified") do |group|
+            str = OneQuotaHelper.set_quota(group, args[1])
+            rc  = group.set_quota(str)
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+        end
+    end  
 end

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,16 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Database URI
-#:db: sqlite:///var/one/onequota.db
-
-#-------------------------------------------------------------------------------
-# Default quotas, these apply to all users. Leave empty to disable quota for 
-# a given metric.
-#-------------------------------------------------------------------------------
-:defaults:
-  :CPU:
-  :MEMORY:
-  :NUM_VMS:
-  :STORAGE:
-
+echo "1024"

@@ -18,6 +18,7 @@
 #define ACL_MANAGER_H_
 
 #include "AuthManager.h"
+#include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 #include "AclRule.h"
 

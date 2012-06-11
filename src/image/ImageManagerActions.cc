@@ -18,6 +18,10 @@
 #include "NebulaLog.h"
 #include "ImagePool.h"
 #include "SSLTools.h"
+#include "SyncRequest.h"
+#include "Template.h"
+#include "Nebula.h"
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -259,10 +263,23 @@ int ImageManager::enable_image(int iid, bool to_enable)
 
 int ImageManager::delete_image(int iid, const string& ds_data)
 {
-    Image *     img;
-    string      source;
-    string      img_tmpl;
-    string *    drv_msg;
+    Image * img;
+
+    string   source;
+    string   img_tmpl;
+    string * drv_msg;
+
+    int size;
+    int ds_id;
+
+    int    uid;
+    int    gid;
+    Group* group;
+    User * user;
+
+    Nebula&    nd    = Nebula::instance();
+    UserPool * upool = nd.get_upool();
+    GroupPool* gpool = nd.get_gpool();
 
     img = ipool->get(iid,true);
 
@@ -303,7 +320,11 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
     source  = img->get_source();
-
+    size    = img->get_size();
+    ds_id   = img->get_ds_id();
+    uid     = img->get_uid();
+    gid     = img->get_gid();
+    
     if (source.empty())
     {
         string err_str;
@@ -325,6 +346,41 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     img->unlock();
 
     delete drv_msg;
+
+    /* -------------------- Update Group & User quota counters -------------- */
+    
+    Template img_usage;
+
+    img_usage.add("DATASTORE", ds_id);
+    img_usage.add("SIZE", size);
+
+    if ( uid != UserPool::ONEADMIN_ID )
+    {
+        user = upool->get(uid, true);
+
+        if ( user != 0 )
+        {
+            user->quota.ds_del(&img_usage);
+
+            upool->update(user);
+
+            user->unlock();
+        } 
+    }
+
+    if ( gid != GroupPool::ONEADMIN_ID )
+    {
+        group = gpool->get(gid, true);
+
+        if ( group != 0 )
+        {
+            group->quota.ds_del(&img_usage);
+
+            gpool->update(group);
+
+            group->unlock();
+        }        
+    }
 
     return 0;
 }
@@ -394,6 +450,80 @@ int ImageManager::register_image(int iid, const string& ds_data)
     delete drv_msg;
 
     return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::stat_image(Template*     img_tmpl, 
+                             const string& ds_data, 
+                             string&       res)
+{
+    const ImageManagerDriver* imd = get();
+
+    string* drv_msg;
+    string  type_att;
+
+    ostringstream  img_data;
+
+    SyncRequest sr;
+
+    int rc = 0;
+
+    img_tmpl->get("TYPE", type_att);
+
+    switch (Image::str_to_type(type_att))
+    {
+        case Image::OS:
+        case Image::CDROM:
+            img_tmpl->get("SOURCE", res);
+
+            if (!res.empty())
+            {
+                res = "0";
+                return 0;
+            }
+
+            img_tmpl->get("PATH", res);
+
+            if (res.empty())
+            {
+                res = "Either PATH or SOURCE are required for " + type_att;
+                return -1;
+            }
+
+            img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
+            break;
+
+        case Image::DATABLOCK:
+            img_tmpl->get("SIZE", res);
+
+            if (res.empty())
+            {
+                res = "SIZE attribute is mandatory for DATABLOCK.";
+                return -1;
+            }
+            
+            return 0;
+    }
+
+    add_request(&sr);
+     
+    drv_msg = format_message(img_data.str(), ds_data);
+
+    imd->stat(sr.id, *drv_msg);
+
+    sr.wait();
+
+    delete drv_msg;
+
+    res = sr.message;
+
+    if ( sr.result != true )
+    {
+        rc = -1;
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'one_helper/onequota_helper'
 
 class OneGroupHelper < OpenNebulaHelper::OneHelper
     def self.rname
@@ -56,7 +57,31 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            default :ID, :NAME
+            column :VMS, "Total number of VMS", :size=>8 do |d|             
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['VMS']
+                else
+                    "-"
+                end                
+            end
+
+            column :MEMORY, "Total memory allocated to group VMs", :size=>8 do |d|
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['MEMORY_USED']
+                else
+                    "-"
+                end
+            end
+
+            column :CPU, "Total CPU allocated to group VMs", :size=>8 do |d|
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['CPU_USED']
+                else
+                    "-"
+                end
+            end
+
+            default :ID, :NAME, :VMS, :MEMORY, :CPU
         end
 
         table
@@ -92,5 +117,9 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         group.user_ids.each do |uid|
             puts "%-15s" % [uid]
         end
+
+        group_hash = group.to_hash
+
+        OneQuotaHelper.format_quota(group_hash['GROUP'])
     end
 end

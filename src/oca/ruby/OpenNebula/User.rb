@@ -30,7 +30,8 @@ module OpenNebula
             :passwd   => "user.passwd",
             :chgrp    => "user.chgrp",
             :update   => "user.update",
-            :chauth   => "user.chauth"
+            :chauth   => "user.chauth",
+            :quota    => "user.quota"
         }
 
         SELF      = -1
@@ -139,6 +140,20 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(USER_METHODS[:chauth],@pe_id, auth, password)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Sets the user quota limits
+        # @param quota [String] a template (XML or txt) with the new quota limits 
+        # 
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def set_quota(quota)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(USER_METHODS[:quota],@pe_id, quota)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

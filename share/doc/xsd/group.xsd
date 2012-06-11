@@ -13,6 +13,63 @@
                 </xs:sequence>
               </xs:complexType>
         </xs:element>
+        <xs:element name="DATASTORE_QUOTA" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:element name="DATASTORE" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ID" type="xs:string"/>
+                <xs:element name="IMAGES" type="xs:string"/>
+                <xs:element name="IMAGES_USED" type="xs:string"/>
+                <xs:element name="SIZE" type="xs:string"/>
+                <xs:element name="SIZE_USED" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+            </xs:element>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="VM_QUOTA" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:element name="VM" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="VMS" type="xs:string"/>
+                <xs:element name="VMS_USED" type="xs:string"/>                
+                <xs:element name="MEMORY" type="xs:string"/>
+                <xs:element name="MEMORY_USED" type="xs:string"/>
+                <xs:element name="CPU" type="xs:string"/>
+                <xs:element name="CPU_USED" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+            </xs:element>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="NETWORK_QUOTA" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:element name="NETWORK" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ID" type="xs:string"/>
+                <xs:element name="LEASES" type="xs:string"/>
+                <xs:element name="LEASES_USED" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+            </xs:element>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="IMAGE_QUOTA" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:element name="IMAGE" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ID" type="xs:string"/>
+                <xs:element name="RVMS" type="xs:string"/>
+                <xs:element name="RVMS_USED" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+            </xs:element>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

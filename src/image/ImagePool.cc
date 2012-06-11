@@ -349,6 +349,11 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
         }
 
         img = get(source , uiid, true);
+
+        if ( img != 0 )
+        {
+            disk->replace("IMAGE_ID", img->get_oid());
+        }
     }
     else if (!(source = disk->vector_value("IMAGE_ID")).empty())
     {

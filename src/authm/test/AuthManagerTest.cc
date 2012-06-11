@@ -65,7 +65,7 @@ public:
 
         t->get("AUTH_MAD", am_mads);
 
-        return new AuthManager(1,3,am_mads);
+        return new AuthManager(1,am_mads);
     };
 };
 
@@ -144,7 +144,7 @@ public:
     /* ********************************************************************* */
     /* ********************************************************************* */
 
-    //This test needs a driver that takes more than 3 secs to AUTHENTICATE
+    //This test needs a driver that takes more than 90 secs to AUTHENTICATE
     void timeout()
     {
         AuthRequest ar(2, 2);
@@ -157,8 +157,6 @@ public:
 
         CPPUNIT_ASSERT(ar.result==false);
         CPPUNIT_ASSERT(ar.timeout==true);
-
-        am->discard_request(ar.id);
     }
 
     void authenticate()

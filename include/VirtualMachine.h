@@ -569,6 +569,17 @@ public:
         return new VirtualMachineTemplate;
     }
 
+    /**
+     *  Returns a copy of the VirtualMachineTemplate
+     *    @return A copy of the VirtualMachineTemplate
+     */
+    VirtualMachineTemplate * clone_template() const
+    {
+        return new VirtualMachineTemplate(
+                *(static_cast<VirtualMachineTemplate *>(obj_template)));
+    };
+
+
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------

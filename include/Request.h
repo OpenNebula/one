@@ -21,7 +21,7 @@
 #include <xmlrpc-c/registry.hpp>
 
 #include "RequestManager.h"
-#include "AuthManager.h"
+#include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 
 using namespace std;
@@ -75,6 +75,32 @@ protected:
         string session;           /**< Session from ONE XML-RPC API */
 
         xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
+
+        RequestAttributes(){};
+
+        RequestAttributes(const RequestAttributes& ra)
+        {
+            uid = ra.uid;
+            gid = ra.gid;
+
+            uname = ra.uname;
+            gname = ra.gname;
+
+            session  = ra.session;
+            retval   = ra.retval;
+        };
+
+        RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
+        {
+            uid = _uid;
+            gid = _gid;
+
+            uname = "";
+            gname = "";
+
+            session  = ra.session;
+            retval   = ra.retval;
+        };
     };
 
     /* -------- Static (shared among request of the same method) -------- */
@@ -130,7 +156,54 @@ protected:
      */
     bool basic_authorization(int oid, AuthRequest::Operation op,
                              RequestAttributes& att);
-            
+
+    /**
+     *  Performs a basic quota check for this request using the uid/gid and 
+     *  object type from the request.  Usage counters are updated for the 
+     *  user/group.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     *
+     *    @return true if the user is authorized.
+     */
+    bool quota_authorization(Template * tmpl, RequestAttributes& att)
+    {
+        return quota_authorization(tmpl, auth_object, att);        
+    }
+
+    /**
+     *  Performs a basic quota check for this request using the uid/gid
+     *  from the request.  Usage counters are updated for the user/group.
+     *    @param tmpl describing the object
+     *    @param object type of the object
+     *    @param att the specific request attributes
+     *
+     *    @return true if the user is authorized.
+     */
+    bool quota_authorization(Template * tmpl,
+                             PoolObjectSQL::ObjectType object,
+                             RequestAttributes& att);
+    /**
+     *  Performs rollback on usage counters for a previous  quota check operation
+     *  for the request.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    void quota_rollback(Template * tmpl, RequestAttributes& att)
+    {
+        quota_rollback(tmpl, auth_object, att);
+    }
+
+    /**
+     *  Performs rollback on usage counters for a previous  quota check operation
+     *  for the request.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    void quota_rollback(Template * tmpl,
+                        PoolObjectSQL::ObjectType object,
+                        RequestAttributes& att);
+
     /**
      *  Actual Execution method for the request. Must be implemented by the
      *  XML-RPC requests
@@ -239,6 +312,27 @@ protected:
                   RequestAttributes&        att,
                   PoolObjectAuth&           perms,
                   string&                   name);
+private:
+
+    /* ------------- Functions to manage user and group quotas -------------- */
+
+    bool user_quota_authorization(Template * tmpl,
+                                  PoolObjectSQL::ObjectType object,
+                                  RequestAttributes& att,
+                                  string& error_str);
+
+    bool group_quota_authorization(Template * tmpl,
+                                   PoolObjectSQL::ObjectType object,
+                                   RequestAttributes& att,
+                                   string& error_str);
+
+    void user_quota_rollback(Template * tmpl,
+                             PoolObjectSQL::ObjectType object,
+                             RequestAttributes& att);
+
+    void group_quota_rollback(Template * tmpl,
+                              PoolObjectSQL::ObjectType object,
+                              RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

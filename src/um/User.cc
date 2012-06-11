@@ -136,8 +136,10 @@ error_common:
 
 string& User::to_xml(string& xml) const
 {
-    ostringstream   oss;
-    string          template_xml;
+    ostringstream oss;
+
+    string template_xml;
+    string quota_xml;
 
     int  enabled_int = enabled?1:0;
 
@@ -151,6 +153,7 @@ string& User::to_xml(string& xml) const
          "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         obj_template->to_xml(template_xml)                <<
+        quota.to_xml(quota_xml)                           <<
     "</USER>";
 
     xml = oss.str();
@@ -194,6 +197,8 @@ int User::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+   
+    rc += quota.from_xml(this); 
 
     if (rc != 0)
     {

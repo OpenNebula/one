@@ -109,11 +109,6 @@ int XenDriver::deployment_description(
 
     vm->get_template_attribute("MEMORY",memory);
 
-    if (memory.empty())
-    {
-        get_default("MEMORY",memory);
-    }
-
     if (!memory.empty())
     {
         file << "memory  = '" << memory << "'" << endl;

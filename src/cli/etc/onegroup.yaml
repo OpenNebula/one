@@ -8,7 +8,21 @@
   :size: 15
   :left: true
 
+:VMS: 
+  :desc: Number of VMS
+  :size: 8 
+
+:MEMORY:
+  :desc: Total memory allocated to user VMs
+  :size: 8
+
+:CPU:
+  :desc: Total CPU allocated to user VMs
+  :size: 8
+
 :default:
 - :ID
 - :NAME
-
+- :VMS
+- :MEMORY
+- :CPU

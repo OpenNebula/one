@@ -97,6 +97,27 @@ public:
                     string&                    err);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserSetQuota : public RequestManagerUser
+{
+public:
+    UserSetQuota():
+        RequestManagerUser("UserSetQuota",
+                           "Sets user quota limits",
+                           "A:sis")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    ~UserSetQuota(){};
+
+    int user_action(int                        user_id,
+                    xmlrpc_c::paramList const& _paramList, 
+                    string&                    err);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
