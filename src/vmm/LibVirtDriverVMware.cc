@@ -119,11 +119,6 @@ int LibVirtDriver::deployment_description_vmware(
 
     vm->get_template_attribute("MEMORY",memory);
 
-    if (memory.empty())
-    {
-        get_default("MEMORY",memory);
-    }
-
     if (!memory.empty())
     {
         memory_in_kb = atoi(memory.c_str()) * 1024;
