@@ -122,7 +122,7 @@ int ImagePool::allocate (
         Nebula&        nd     = Nebula::instance();
         ImageManager * imagem = nd.get_imagem();
 
-        if (cloning_id != -1)
+        if (cloning_id == -1)
         {
             if ( imagem->register_image(*oid, ds_data) == -1 )
             {

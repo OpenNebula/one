@@ -181,7 +181,7 @@ static void cp_action(istringstream& is,
     return;
 
 error:
-    oss << "Error copying image in the repository";
+    oss << "Error copying image in the datastore";
 
     getline(is, info);
 
@@ -198,6 +198,88 @@ error:
     ipool->update(image);
 
     image->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+
+static void clone_action(istringstream& is, 
+                         ImagePool*     ipool, 
+                         int            id, 
+                         const string&  result)
+{
+    int     cloning_id;
+    string  source;
+    string  info;
+
+    Image * image;
+
+    ostringstream oss;
+
+    Nebula& nd        = Nebula::instance();
+    ImageManager * im = nd.get_imagem();
+
+    image = ipool->get(id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    cloning_id = image->get_cloning_id();
+
+    if ( result == "FAILURE" )
+    {
+       goto error; 
+    }
+
+    if ( is.good() )
+    {
+        is >> source >> ws;
+    }
+
+    if ( is.fail() )
+    {
+        goto error;
+    }
+    
+    image->set_source(source);
+
+    image->set_state(Image::READY);
+
+    ipool->update(image);
+
+    image->clear_cloning_id();
+
+    image->unlock();
+
+    NebulaLog::log("ImM", Log::INFO, "Image cloned and ready to use.");
+
+    im ->release_cloning_image(cloning_id);        
+
+    return;
+
+error:
+    oss << "Error cloning image ";
+
+    getline(is, info);
+
+    if (!info.empty() && (info[0] != '-'))
+    {
+        oss << ": " << info;
+    }
+    
+    NebulaLog::log("ImM", Log::ERROR, oss);
+
+    image->set_template_error_message(oss.str());
+    image->set_state(Image::ERROR);
+
+    ipool->update(image);
+
+    image->unlock();
+
+    im ->release_cloning_image(cloning_id);
 
     return;
 }
@@ -463,6 +545,10 @@ void ImageManagerDriver::protocol(
     {
         cp_action(is, ipool, id, result);
     }
+    else if ( action == "CLONE" )
+    {
+        clone_action(is, ipool, id, result);
+    }    
     else if ( action == "MKFS" )
     {
         mkfs_action(is, ipool, id, result);

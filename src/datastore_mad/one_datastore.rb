@@ -44,11 +44,12 @@ class DatastoreDriver < OpenNebulaDriver
 
     # Image Driver Protocol constants
     ACTION = {
-        :cp   => "CP",
-        :rm   => "RM",
-        :mkfs => "MKFS",
-        :log  => "LOG",
-        :stat => "STAT"
+        :cp    => "CP",
+        :rm    => "RM",
+        :mkfs  => "MKFS",
+        :log   => "LOG",
+        :stat  => "STAT",
+        :clone => "CLONE"
     }
 
     # Register default actions for the protocol
@@ -61,7 +62,8 @@ class DatastoreDriver < OpenNebulaDriver
                 ACTION[:stat] => nil,
                 ACTION[:cp]   => nil,
                 ACTION[:rm]   => nil,
-                ACTION[:mkfs] => nil
+                ACTION[:mkfs] => nil,
+                ACTION[:clone]=> nil
             }
         }.merge!(options)
 
@@ -80,7 +82,8 @@ class DatastoreDriver < OpenNebulaDriver
         register_action(ACTION[:cp].to_sym,   method("cp"))
         register_action(ACTION[:rm].to_sym,   method("rm"))
         register_action(ACTION[:mkfs].to_sym, method("mkfs"))
-        register_action(ACTION[:stat].to_sym, method("stat"))    
+        register_action(ACTION[:stat].to_sym, method("stat"))
+        register_action(ACTION[:clone].to_sym,method("clone"))
     end
 
     ############################################################################
@@ -105,6 +108,11 @@ class DatastoreDriver < OpenNebulaDriver
     def stat(id, drv_message)
         ds = get_ds_type(drv_message)
         do_image_action(id, ds, :stat, "#{drv_message} #{id}")
+    end
+
+    def clone(id, drv_message)
+        ds = get_ds_type(drv_message)
+        do_image_action(id, ds, :clone, "#{drv_message} #{id}")
     end
 
     private
