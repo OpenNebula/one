@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "UserTemplate.h"
+#include "Quotas.h"
 
 using namespace std;
 
@@ -166,7 +167,12 @@ public:
     {
         return new UserTemplate;
     }
-    
+
+    /**
+     *  Object quotas, provides set and check interface
+     */
+    Quotas quota;
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -289,6 +295,10 @@ protected:
          const string& _auth_driver,
          bool          _enabled):
         PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,table),
+        quota("/USER/DATASTORE_QUOTA",
+            "/USER/NETWORK_QUOTA",
+            "/USER/IMAGE_QUOTA",
+            "/USER/VM_QUOTA"),
         password(_password),
         auth_driver(_auth_driver),
         enabled(_enabled),

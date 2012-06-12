@@ -245,7 +245,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/ldap \
           $VAR_LOCATION/remotes/auth/server_x509 \
           $VAR_LOCATION/remotes/auth/server_cipher \
-          $VAR_LOCATION/remotes/auth/quota \
           $VAR_LOCATION/remotes/auth/dummy"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
@@ -392,7 +391,6 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
-    AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
@@ -589,7 +587,6 @@ BIN_FILES="src/nebula/oned \
            src/cli/onecluster \
            src/onedb/onedb \
            src/onedb/onezonedb/onezonedb \
-           src/authm_mad/remotes/quota/onequota \
            src/mad/utils/tty_expect \
            share/scripts/one"
 
@@ -616,7 +613,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
-                src/authm_mad/remotes/quota/quota.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
                 src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
                 src/authm_mad/remotes/ldap/ldap_auth.rb \
@@ -747,8 +743,6 @@ AUTH_DUMMY_FILES="src/authm_mad/remotes/dummy/authenticate"
 
 AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 
-AUTH_QUOTA_FILES="src/authm_mad/remotes/quota/authorize"
-
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers to be installed under $REMOTES_LOCATION/vnm
 #-------------------------------------------------------------------------------
@@ -869,23 +863,28 @@ DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
 
 DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/mkfs \
+                         src/datastore_mad/remotes/dummy/stat \
                          src/datastore_mad/remotes/dummy/rm"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
+                         src/datastore_mad/remotes/fs/stat \
                          src/datastore_mad/remotes/fs/rm"
 
 DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
                          src/datastore_mad/remotes/vmware/mkfs \
+                         src/datastore_mad/remotes/vmware/stat \
                          src/datastore_mad/remotes/vmware/rm"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
+                         src/datastore_mad/remotes/iscsi/stat \
                          src/datastore_mad/remotes/iscsi/rm \
                          src/datastore_mad/remotes/iscsi/iscsi.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/mkfs \
+                         src/datastore_mad/remotes/lvm/stat \
                          src/datastore_mad/remotes/lvm/rm \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
@@ -952,7 +951,6 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 #-------------------------------------------------------------------------------
 
 AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
-                src/authm_mad/remotes/quota/quota.conf \
                 src/authm_mad/remotes/ldap/ldap_auth.conf \
                 src/authm_mad/remotes/x509/x509_auth.conf"
 
@@ -1124,6 +1122,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onehost_helper.rb \
                    src/cli/one_helper/oneimage_helper.rb \
                    src/cli/one_helper/onetemplate_helper.rb \
+                   src/cli/one_helper/onequota_helper.rb \
                    src/cli/one_helper/oneuser_helper.rb \
                    src/cli/one_helper/onevm_helper.rb \
                    src/cli/one_helper/onevnet_helper.rb \

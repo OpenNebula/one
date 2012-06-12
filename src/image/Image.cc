@@ -97,7 +97,9 @@ int Image::insert(SqlDB *db, string& error_str)
     string dev_prefix;
     string source_attr;
     string saved_id;
+    string size_attr;
 
+    istringstream iss;
     ostringstream oss;
 
     // ---------------------------------------------------------------------
@@ -141,6 +143,13 @@ int Image::insert(SqlDB *db, string& error_str)
         obj_template->set(dev_att);
     }
 
+    // ------------ SIZE --------------------
+    
+    erase_template_attribute("SIZE", size_attr);
+
+    iss.str(size_attr);
+    iss >> size_mb;
+
     // ------------ PATH & SOURCE --------------------
 
     erase_template_attribute("PATH", path);
@@ -150,25 +159,12 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         if ( source.empty() && path.empty() )
         {
-            string        size_attr;
-            istringstream iss;
-
-            erase_template_attribute("SIZE",   size_attr);
             erase_template_attribute("FSTYPE", fs_type);
 
-            // DATABLOCK image needs SIZE and FSTYPE
-            if (type != DATABLOCK || size_attr.empty() || fs_type.empty())
+            // DATABLOCK image needs FSTYPE
+            if (type != DATABLOCK || fs_type.empty())
             {
                 goto error_no_path;
-            }
-
-            iss.str(size_attr);
-
-            iss >> size_mb;
-
-            if (iss.fail() == true)
-            {
-                goto error_size_format;
             }
         }
         else if ( !source.empty() && !path.empty() )
@@ -178,20 +174,7 @@ int Image::insert(SqlDB *db, string& error_str)
     }
     else
     {
-        string        size_attr;
-        istringstream iss;
-
         fs_type = "save_as";
-        erase_template_attribute("SIZE",   size_attr);
-
-        iss.str(size_attr);
-
-        iss >> size_mb;
-
-        if (iss.fail() == true)
-        {
-            goto error_size_format;
-        }
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -218,10 +201,6 @@ error_no_path:
     {
         error_str = "No PATH in template.";
     }
-    goto error_common;
-
-error_size_format:
-    error_str = "Wrong number in SIZE.";
     goto error_common;
 
 error_path_and_source:
@@ -464,7 +443,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     get_template_attribute("DEV_PREFIX", dev_prefix);
 
-    if (dev_prefix.empty())//Removed from image template, get it again from defaults
+    if (dev_prefix.empty())//Removed from image template, get it again
     {
         dev_prefix = ImagePool::default_dev_prefix();
     }
@@ -561,3 +540,30 @@ int Image::set_type(string& _type)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+Image::ImageType Image::str_to_type(string& str_type)
+{
+    Image::ImageType it = OS;
+
+    if (str_type.empty())
+    {
+        str_type = ImagePool::default_type();
+    }
+
+    TO_UPPER(str_type);
+
+    if ( str_type == "OS" )
+    {
+        it = OS;
+    }
+    else if ( str_type == "CDROM" )
+    {
+        it = CDROM;
+    }
+    else if ( str_type == "DATABLOCK" )
+    {
+        it = DATABLOCK;
+    }
+
+    return it;
+}

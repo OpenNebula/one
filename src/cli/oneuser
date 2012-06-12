@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/oneuser_helper'
+require 'one_helper/onequota_helper'
 
 require 'uri'
 
@@ -196,6 +197,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    quota_desc = <<-EOT.unindent
+        Set the quota limits for the user. If a path is not provided the editor 
+        will be launched to modify the current quotas.
+    EOT
+
+    command :quota, quota_desc, :userid, [:file, nil] do
+        helper = OneUserHelper.new
+
+        helper.perform_action(args[0], options, "modified") do |user|
+            str = OneQuotaHelper.set_quota(user, args[1])
+            rc  = user.set_quota(str)
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+        end
+    end
+
     login_desc = <<-EOT.unindent
         Creates the Login token for authentication
         Examples:
@@ -237,7 +258,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :userid_list] do
         helper = OneUserHelper.new
-        helper.perform_actions(args[0],options,"deleted") do |user|
+        helper.perform_actions(args[0], options, "deleted") do |user|
             user.delete
         end
     end

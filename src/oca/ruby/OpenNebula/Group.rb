@@ -23,11 +23,11 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
-
         GROUP_METHODS = {
-            :info       => "group.info",
-            :allocate   => "group.allocate",
-            :delete     => "group.delete"
+            :info     => "group.info",
+            :allocate => "group.allocate",
+            :delete   => "group.delete",
+            :quota    => "group.quota"
         }
 
         # Flag for requesting connected user's group info
@@ -118,6 +118,20 @@ module OpenNebula
         # Deletes the Group
         def delete()
             super(GROUP_METHODS[:delete])
+        end
+
+        # Sets the group quota limits
+        # @param quota [String] a template (XML or txt) with the new quota limits 
+        # 
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def set_quota(quota)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(GROUP_METHODS[:quota],@pe_id, quota)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         # ---------------------------------------------------------------------

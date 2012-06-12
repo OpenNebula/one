@@ -22,6 +22,7 @@
 #include <sstream>
 
 #include "MadManager.h"
+#include "SyncRequest.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -335,4 +336,111 @@ void MadManager::listener()
             }
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void MadManager::check_time_outs_action()
+{
+    map<int, SyncRequest *>::iterator it;
+
+    time_t the_time = time(0);
+
+    lock();
+
+    it = sync_requests.begin();
+
+    while ( it != sync_requests.end())
+    {
+        if ((it->second->time_out != 0) && (the_time > it->second->time_out))
+        {
+            SyncRequest * ar = it->second;
+            sync_requests.erase(it++);
+
+            ar->result  = false;
+            ar->timeout = true;
+            ar->message = "Request timeout";
+
+            ar->notify();
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    unlock();
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void MadManager::add_request(SyncRequest *ar)
+{
+    static int request_id = 0;
+
+    lock();
+
+    ar->id = request_id++;
+
+    sync_requests.insert(sync_requests.end(),make_pair(ar->id,ar));
+
+    unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+SyncRequest * MadManager::get_request(int id)
+{
+    SyncRequest * ar = 0;
+    map<int,SyncRequest *>::iterator it;
+    ostringstream oss;
+
+    lock();
+
+    it = sync_requests.find(id);
+
+    if ( it != sync_requests.end())
+    {
+        ar = it->second;
+
+        sync_requests.erase(it);
+    }
+
+    unlock();
+
+    return ar;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void MadManager::notify_request(int id, bool result, const string& message)
+{
+
+    SyncRequest * ar;
+
+    ar = get_request(id);
+
+    if ( ar == 0 )
+    {
+        return;
+    }
+
+    ar->result = result;
+
+    if ( message != "-" )
+    {
+        if ( !ar->message.empty() )
+        {
+            ar->message.append("; ");
+        }
+
+        ar->message.append(message);
+    }
+
+    ar->notify();
 }

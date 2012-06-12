@@ -23,7 +23,12 @@ lib_name='nebula_um'
 # Sources to generate the library
 source_files=[
     'User.cc',
-    'UserPool.cc'
+    'UserPool.cc',
+    'Quota.cc',
+    'QuotaDatastore.cc',
+    'QuotaNetwork.cc',
+    'QuotaVirtualMachine.cc',
+    'QuotaImage.cc'
 ]
 
 # Build library

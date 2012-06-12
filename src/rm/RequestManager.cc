@@ -34,6 +34,7 @@
 #include "RequestManagerUser.h"
 #include "RequestManagerAcl.h"
 #include "RequestManagerCluster.h"
+#include "RequestManagerGroup.h"
 
 #include <sys/signal.h>
 #include <sys/socket.h>
@@ -233,6 +234,10 @@ void RequestManager::register_xml_methods()
     // User Methods
     xmlrpc_c::methodPtr user_change_password(new UserChangePassword());
     xmlrpc_c::methodPtr user_change_auth(new UserChangeAuth());
+    xmlrpc_c::methodPtr user_set_quota(new UserSetQuota());
+
+    // Group Methods
+    xmlrpc_c::methodPtr group_set_quota(new GroupSetQuota());
 
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
@@ -384,6 +389,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
     RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
     RequestManagerRegistry.addMethod("one.group.info",      group_info);
+    RequestManagerRegistry.addMethod("one.group.quota",     group_set_quota);
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 
@@ -409,6 +415,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chgrp", user_chown);
     RequestManagerRegistry.addMethod("one.user.chauth", user_change_auth);
+    RequestManagerRegistry.addMethod("one.user.quota", user_set_quota);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     

@@ -683,7 +683,15 @@ int DispatchManager::finalize(
     int vid)
 {
     VirtualMachine * vm;
-    ostringstream    oss;
+    ostringstream oss;
+    Template *    tmpl;
+
+    User *  user;
+    Group * group;
+    
+    int uid;
+    int gid;
+
     VirtualMachine::VmState state;
 
     vm = vmpool->get(vid,true);
@@ -701,6 +709,8 @@ int DispatchManager::finalize(
     Nebula&            nd  = Nebula::instance();
     TransferManager *  tm  = nd.get_tm();
     LifeCycleManager * lcm = nd.get_lcm();
+    UserPool * upool       = nd.get_upool();
+    GroupPool * gpool      = nd.get_gpool();
 
     switch (state)
     {
@@ -722,16 +732,54 @@ int DispatchManager::finalize(
             vmpool->update(vm);
 
             vm->log("DiM", Log::INFO, "New VM state is DONE.");
+
+            uid  = vm->get_uid();
+            gid  = vm->get_gid();
+            tmpl = vm->clone_template();
+    
+            vm->unlock();
+
+            if ( uid != UserPool::ONEADMIN_ID )
+            {
+
+                user = upool->get(uid, true);
+
+                if ( user != 0 )
+                {
+                    user->quota.vm_del(tmpl);
+
+                    upool->update(user);
+
+                    user->unlock();
+                }
+            }
+            
+            if ( gid != GroupPool::ONEADMIN_ID )
+            {
+                group = gpool->get(gid, true);
+
+                if ( group != 0 )
+                {
+                    group->quota.vm_del(tmpl);
+
+                    gpool->update(group);
+
+                    group->unlock();
+                } 
+            }
+
+            delete tmpl;
         break;
 
         case VirtualMachine::ACTIVE:
             lcm->trigger(LifeCycleManager::DELETE,vid);
+            vm->unlock();
         break;
+
         case VirtualMachine::DONE:
+            vm->unlock();
         break;
     }
-
-    vm->unlock();
 
     return 0;
 }

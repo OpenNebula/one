@@ -286,6 +286,11 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
     if (!(network = nic->vector_value("NETWORK")).empty())
     {
         vnet = get_nic_by_name (nic, network, uid, error);
+
+        if ( vnet != 0 )
+        {
+            nic->replace("NETWORK_ID", vnet->get_oid());
+        }
     }
     else if (!(network = nic->vector_value("NETWORK_ID")).empty())
     {

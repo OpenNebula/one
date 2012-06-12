@@ -30,6 +30,8 @@
 
 using namespace std;
 
+class SyncRequest;
+
 extern "C" void * mad_manager_listener(void * _mm);
 
 /**
@@ -54,7 +56,12 @@ public:
      *   sudo application. 
      */
     virtual void load_mads(int uid) = 0;
-      
+
+    /**
+     *  Notify the result of an auth request
+     */
+    void notify_request(int id, bool result, const string& message);
+
 protected:
 
     MadManager(vector<const Attribute *>& _mads);
@@ -93,7 +100,28 @@ protected:
      *    @return 0 on success.
      */
     int add(Mad *mad);
-    
+
+    /**
+     *  This function can be periodically executed to check time_outs on 
+     *  request. It will fail requests with an expired timeout and will notify 
+     *  the clients.
+     */
+    void check_time_outs_action();
+
+    /**
+     *  Add a new request to the Request map
+     *    @param ar pointer to the request
+     *    @return the id for the request
+     */
+    void add_request(SyncRequest *ar);
+
+    /**
+     *  Gets request from the Request map
+     *    @param id for the request
+     *    @return pointer to the Request
+     */
+    SyncRequest * get_request(int id);
+
 private:
     /**
      *  Function to lock the Manager
@@ -155,11 +183,16 @@ private:
      *  can be free upon listener thread cancellation.
      */
     ostringstream           buffer;
+
+    /**
+     *  List of pending requests
+     */
+    map<int, SyncRequest *> sync_requests;
     
     /**
      *  Listener thread implementation.
      */
-    void listener();        
+    void listener();
 };
 
 #endif /*MAD_MANAGER_H_*/

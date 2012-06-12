@@ -126,4 +126,3 @@ void ImageManager::do_action(const string &action, void * arg)
         NebulaLog::log("ImM", Log::ERROR, oss);
     }
 }
-

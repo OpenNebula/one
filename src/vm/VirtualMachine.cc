@@ -212,8 +212,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    rc;
     string name;
 
-    string              value;
-    ostringstream       oss;
+    string        value;
+    ostringstream oss;
 
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -241,6 +241,24 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     this->name = name;
 
+    // ------------------------------------------------------------------------
+    // Check for CPU and MEMORY attributes
+    // ------------------------------------------------------------------------
+
+    get_template_attribute("MEMORY", value);
+
+    if ( value.empty())
+    {
+        goto error_no_memory;
+    }
+
+    get_template_attribute("CPU", value);
+
+    if ( value.empty())
+    {
+        goto error_no_cpu;
+    }
+    
     // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
@@ -321,9 +339,16 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
+error_no_cpu:
+    error_str = "CPU attribute missing.";
+    goto error_common;
+
+error_no_memory:
+    error_str = "MEMORY attribute missing.";
+    goto error_common;
+
 error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    error_str = oss.str(); 
+    error_str = "NAME is too long; max length is 128 chars."; 
     goto error_common;
 
 error_common:
