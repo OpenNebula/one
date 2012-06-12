@@ -38,6 +38,17 @@ void ImageManagerDriver::cp(int           oid,
 
 /* -------------------------------------------------------------------------- */
 
+void ImageManagerDriver::clone(int           oid, 
+                               const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "CLONE " << oid << " " << drv_msg << endl;
+
+    write(os);
+}
+
+/* -------------------------------------------------------------------------- */
 void ImageManagerDriver::stat(int           oid, 
                               const string& drv_msg) const
 {

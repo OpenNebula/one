@@ -126,6 +126,19 @@ public:
     int register_image(int iid, const string& ds_data);
 
     /**
+     *  Clone an existing image to the repository
+     *    @param new_id of the new image
+     *    @param cloning_id of the image to be cloned
+     *    @param ds_data data of the associated datastore in XML format
+     *    @param error describing the error
+     *    @return 0 on success
+     */
+    int clone_image(int new_id, 
+                    int cloning_id,
+                    const string& ds_data,
+                    string& error);
+    
+    /**
      *  Deletes an image from the repository and the DB
      *    @param iid id of image
      *    @return 0 on success

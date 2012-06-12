@@ -69,7 +69,7 @@ int ImagePool::allocate (
         const string&   ds_name,
         Image::DiskType disk_type,
         const string&   ds_data,
-        int             source_img_id,
+        int             cloning_id,
         int *           oid,
         string&         error_str)
 {
@@ -107,9 +107,9 @@ int ImagePool::allocate (
     
     img->disk_type = disk_type;
 
-    if ( source_img_id != -1 )
+    if ( cloning_id != -1 )
     {
-        img->set_cloning_id(source_img_id);
+        img->set_cloning_id(cloning_id);
     }
 
     // ---------------------------------------------------------------------
@@ -122,11 +122,21 @@ int ImagePool::allocate (
         Nebula&        nd     = Nebula::instance();
         ImageManager * imagem = nd.get_imagem();
 
-        if ( imagem->register_image(*oid, ds_data) == -1 )
+        if (cloning_id != -1)
         {
-            error_str = "Failed to copy image to repository. "
-                        "Image left in ERROR state.";
-            return -1;
+            if ( imagem->register_image(*oid, ds_data) == -1 )
+            {
+                error_str = "Failed to copy image to repository. "
+                            "Image left in ERROR state.";
+                return -1;
+            }
+        }
+        else
+        {
+            if (imagem->clone_image(*oid, cloning_id, ds_data, error_str) == -1)
+            {
+                return -1;
+            }
         }
     }
 

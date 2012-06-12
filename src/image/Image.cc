@@ -568,7 +568,7 @@ ImageTemplate * Image::clone_template(const string& new_name) const
         tmpl->replace("PERSISTENT", "NO");
     }
 
-    return 0;
+    return tmpl;
 }
 
 /* ------------------------------------------------------------------------ */

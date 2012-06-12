@@ -583,6 +583,17 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
+    ds = dspool->get(ds_id, true);
+
+    if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
+    {
+        ds->add_image(iid);
+
+        dspool->update(ds);
+
+        ds->unlock();
+    }
+
     // Return the new allocated Image ID
     success_response(iid, att);
 }

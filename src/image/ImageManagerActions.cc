@@ -457,10 +457,111 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     /* --------------- Update cloning image if needed ----------------------- */
 
-    if ( cloning_id != -1 ) // An Image clone was in progress
+    if ( cloning_id != -1 )
     {
         release_cloning_image(cloning_id);
     }
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::clone_image(int   new_id, 
+                              int   cloning_id,
+                              const string& ds_data,
+                              string& error)
+{
+    const ImageManagerDriver* imd = get();
+
+    ostringstream oss;
+    Image *       img;
+
+    string  path;
+    string  img_tmpl;
+    string* drv_msg;
+
+    if ( imd == 0 )
+    {
+        error = "Could not get datastore driver";
+
+        NebulaLog::log("ImM", Log::ERROR, error);
+        return -1;
+    }
+
+    img = ipool->get(cloning_id, true);
+
+    if (img == 0)
+    {
+        error = "Cannot clone image, it does not exist";
+        return -1;
+    }
+
+    switch(img->get_state())
+    {
+        case Image::READY:
+            img->inc_cloning();
+
+            if (img->isPersistent())
+            {
+                img->set_state(Image::CLONE);
+            }
+            else
+            {
+                img->set_state(Image::USED);
+            }
+
+            ipool->update(img);
+
+            img->unlock();
+        break; 
+
+        case Image::USED_PERS:
+            img->inc_cloning();
+
+            ipool->update(img);
+
+            img->unlock();
+        break;
+
+        case Image::USED:
+        case Image::CLONE:
+        case Image::INIT:
+        case Image::DISABLED:
+        case Image::ERROR:
+        case Image::DELETE:
+        case Image::LOCKED:
+            ostringstream oss;
+            oss << "Cannot clone image in state: "
+                << Image::state_to_str(img->get_state());
+
+            error = oss.str();
+            img->unlock();
+            return -1;
+        break;
+    }
+
+    img = ipool->get(new_id,true);
+ 
+    if (img == 0) //TODO: Rollback clonning counter
+    {
+        error = "Target image deleted during clonning operation";
+        return -1;
+    }
+
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+
+    imd->clone(img->get_oid(), *drv_msg);
+
+    oss << "Cloning image " << img->get_path() 
+        <<" to repository as image "<<img->get_oid();
+    
+    NebulaLog::log("ImM", Log::INFO, oss);
+
+    img->unlock();
+
+    delete drv_msg;
+
     return 0;
 }
 
