@@ -39,6 +39,12 @@ var datastores_tab_content = '\
   <tbody id="tbodydatastores">\
   </tbody>\
 </table>\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend_p">\
+'+tr("Datatables are sets of images which share a common transfer driver. i.e. Images in a SSH datastore will be copied to the hosts using SSH when deploying a Virtual Machine.")+'\
+  </p>\
+</div>\
 </form>';
 
 var create_datastore_tmpl =
@@ -265,6 +271,14 @@ var datastore_actions = {
         notify:true,
     },
 
+    "Datastore.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#datastores_tab div.legend_div').slideToggle();
+        }
+    },
+
 };
 
 var datastore_buttons = {
@@ -309,6 +323,12 @@ var datastore_buttons = {
         type: "confirm",
         text: tr("Delete"),
         condition: mustBeAdmin
+    },
+
+    "Datastore.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 }
 
@@ -695,4 +715,6 @@ $(document).ready(function(){
     $('div#menu li#li_datastores_tab').live('click',function(){
         dataTable_datastores.fnFilter('',5);
     });
+
+    $('div#datastores_tab div.legend_div').hide();
 })

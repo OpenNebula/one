@@ -2,29 +2,26 @@
 
 require 'pp'
 
-DEFAULT=%w{optional sunstone quota cloud ozones_server acct auth_ldap}
+$nokogiri='nokogiri'
+
+DEFAULT=%w{sunstone quota cloud ozones_server auth_ldap}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
-
 else
     SQLITE='sqlite3-ruby --version 1.2.0'
 end
 
 GROUPS={
-    :optional => ['nokogiri'],
     :quota => [SQLITE, 'sequel'],
     :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
     :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
     :ozones_client => %w{json},
-    :ozones_server => %w{json data_mapper dm-sqlite-adapter dm-mysql-adapter}+[
+    :ozones_server => %w{json sequel}+[
         SQLITE, 'mysql'
     ],
-    :ozones_server_sqlite => %w{json data_mapper dm-sqlite-adapter}<<SQLITE,
-    :ozones_server_mysql => %w{json data_mapper dm-mysql-adapter mysql},
-    :acct => ['sequel', SQLITE, 'mysql'],
-    :acct_sqlite => ['sequel', SQLITE],
-    :acct_mysql => ['sequel', 'mysql'],
+    :ozones_server_sqlite => %w{json sequel}<<SQLITE,
+    :ozones_server_mysql => %w{json sequel mysql},
     :auth_ldap => 'net-ldap'
 }
 
@@ -223,12 +220,14 @@ def help
     puts DEFAULT.join(' ')
     puts
     puts "Use --check parameter to search for non installed libraries."
+    puts "Use --no-nokogiri parameter if you don't want to install"
+    puts "nokogiri gem."
 end
 
 def get_gems(packages)
-    packages.map do |package|
+    (packages.map do |package|
         GROUPS[package.to_sym]
-    end.flatten.uniq-installed_gems
+    end+[$nokogiri]).flatten.uniq-installed_gems
 end
 
 def detect_distro
@@ -429,6 +428,11 @@ install_rubygems
 
 command=''
 params=ARGV
+
+if params.include?('--no-nokogiri')
+    params-=['--no-nokogiri']
+    $nokogiri=nil
+end
 
 if params.include?('-h')
     params-=['-h']

@@ -180,7 +180,10 @@ void ImageClone::request_execute(
     Image *         source_img;
     Datastore *     ds;
 
-    ImagePool * ipool = static_cast<ImagePool *>(pool);
+    Nebula&  nd       = Nebula::instance();    
+
+    DatastorePool * dspool = nd.get_dspool();
+    ImagePool *     ipool  = static_cast<ImagePool *>(pool);
 
     // ------------------------- Get source Image info -------------------------
 
@@ -195,8 +198,8 @@ void ImageClone::request_execute(
         return;
     }
 
-    rc = source_img->clone_template(name, tmpl, error_str);
-
+    //TODO: UPDATE THIS rc = source_img->clone_template(name, tmpl, error_str);
+    //TODO: ADD QUOTA AUTH
     if ( rc != 0 )
     {
         source_img->unlock();

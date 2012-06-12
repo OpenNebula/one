@@ -39,11 +39,19 @@ var users_tab_content = '\
   <tbody id="tbodyusers">\
   </tbody>\
 </table>\
-<p class="legend">\
-<!--'+
-    tr("Tip: select Core authentication for new Sunstone/Self-Service regular users.")+
-'-->\
+<div class="legend_div">\
+<span>?</span>\
+<p class="legend_p">\
+'+
+    tr("Tip: You can save any information in the user template, in the form of VAR=VAL.")+
+'\
 </p>\
+<p class="legend_p">\
+'+
+    tr("Tip: SSH authentication method is not available for web UI access.")+
+'\
+</p>\
+</div>\
 </form>';
 
 var create_user_tmpl =
@@ -244,7 +252,15 @@ var user_actions = {
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
-    }
+    },
+
+    "User.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#users_tab div.legend_div').slideToggle();
+        }
+    },
 
 }
 
@@ -301,7 +317,13 @@ var user_buttons = {
     "User.delete" : {
         type: "confirm",
         text: tr("Delete")
+    },
+    "User.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
+
 };
 
 var user_info_panel = {
@@ -558,4 +580,6 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_users);
     //shortenedInfoFields('#datatable_users');
     infoListener(dataTable_users,'User.showinfo');
+
+    $('div#users_tab div.legend_div').hide();
 });

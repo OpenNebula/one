@@ -99,9 +99,18 @@ const char * VirtualMachine::db_names =
     "owner_u, group_u, other_u";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-        "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
-        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
-        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
+    "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+
+const char * VirtualMachine::monit_table = "vm_monitoring";
+
+const char * VirtualMachine::monit_db_names = "vmid, last_poll, body";
+
+const char * VirtualMachine::monit_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+    "vm_monitoring (vmid INTEGER, last_poll INTEGER, body TEXT, "
+    "PRIMARY KEY(vmid, last_poll))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -203,8 +212,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    rc;
     string name;
 
-    string              value;
-    ostringstream       oss;
+    string        value;
+    ostringstream oss;
 
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -232,6 +241,24 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     this->name = name;
 
+    // ------------------------------------------------------------------------
+    // Check for CPU and MEMORY attributes
+    // ------------------------------------------------------------------------
+
+    get_template_attribute("MEMORY", value);
+
+    if ( value.empty())
+    {
+        goto error_no_memory;
+    }
+
+    get_template_attribute("CPU", value);
+
+    if ( value.empty())
+    {
+        goto error_no_cpu;
+    }
+    
     // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
@@ -312,9 +339,16 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
+error_no_cpu:
+    error_str = "CPU attribute missing.";
+    goto error_common;
+
+error_no_memory:
+    error_str = "MEMORY attribute missing.";
+    goto error_common;
+
 error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    error_str = oss.str(); 
+    error_str = "NAME is too long; max length is 128 chars."; 
     goto error_common;
 
 error_common:
@@ -640,22 +674,14 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     int             rc;
 
     string xml_body;
-    char * sql_deploy_id;
     char * sql_name;
     char * sql_xml;
-
-    sql_deploy_id = db->escape_str(deploy_id.c_str());
-
-    if ( sql_deploy_id == 0 )
-    {
-        goto error_generic;
-    }
 
     sql_name =  db->escape_str(name.c_str());
 
     if ( sql_name == 0 )
     {
-        goto error_name;
+        goto error_generic;
     }
 
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
@@ -692,7 +718,6 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          group_u         << ","
         <<          other_u         << ")";
 
-    db->free_str(sql_deploy_id);
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
@@ -701,7 +726,6 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     return rc;
 
 error_xml:
-    db->free_str(sql_deploy_id);
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
@@ -710,17 +734,66 @@ error_xml:
     goto error_common;
 
 error_body:
-    db->free_str(sql_deploy_id);
     db->free_str(sql_name);
-    goto error_generic;
-
-error_name:
-    db->free_str(sql_deploy_id);
     goto error_generic;
 
 error_generic:
     error_str = "Error inserting VM in DB.";
 error_common:
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::update_monitoring(SqlDB * db)
+{
+    ostringstream   oss;
+    int             rc;
+
+    string xml_body;
+    string error_str;
+    char * sql_xml;
+
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+
+    if ( sql_xml == 0 )
+    {
+        goto error_body;
+    }
+
+    if ( validate_xml(sql_xml) != 0 )
+    {
+        goto error_xml;
+    }
+
+    oss << "INSERT INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
+        <<          oid             << ","
+        <<          last_poll       << ","
+        << "'" <<   sql_xml         << "')";
+
+    db->free_str(sql_xml);
+
+    rc = db->exec(oss);
+
+    return rc;
+
+error_xml:
+    db->free_str(sql_xml);
+
+    error_str = "could not transform the VM to XML.";
+
+    goto error_common;
+
+error_body:
+    error_str = "could not insert the VM in the DB.";
+
+error_common:
+    oss.str("");
+    oss << "Error updating VM monitoring information, " << error_str;
+
+    NebulaLog::log("ONE",Log::ERROR, oss);
+
     return -1;
 }
 

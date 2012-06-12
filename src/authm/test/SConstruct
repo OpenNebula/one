@@ -45,4 +45,6 @@ env.Prepend(LIBS=[
     'crypto'
 ])
 
-env.Program('test','AuthManagerTest.cc')
+nt = env.Object('NebulaTemplate.o','../../nebula/NebulaTemplate.cc')
+
+env.Program('test',[nt,'AuthManagerTest.cc'])

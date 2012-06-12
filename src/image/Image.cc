@@ -50,7 +50,7 @@ Image::Image(int             _uid,
         state(INIT),
         running_vms(0),
         cloning_ops(0),
-        source_img_id(-1),
+        cloning_id(-1),
         ds_id(-1),
         ds_name("")
 {
@@ -99,7 +99,9 @@ int Image::insert(SqlDB *db, string& error_str)
     string dev_prefix;
     string source_attr;
     string saved_id;
+    string size_attr;
 
+    istringstream iss;
     ostringstream oss;
 
     // ---------------------------------------------------------------------
@@ -143,6 +145,13 @@ int Image::insert(SqlDB *db, string& error_str)
         obj_template->set(dev_att);
     }
 
+    // ------------ SIZE --------------------
+    
+    erase_template_attribute("SIZE", size_attr);
+
+    iss.str(size_attr);
+    iss >> size_mb;
+
     // ------------ PATH & SOURCE --------------------
 
     erase_template_attribute("PATH", path);
@@ -152,25 +161,12 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         if ( source.empty() && path.empty() )
         {
-            string        size_attr;
-            istringstream iss;
-
-            erase_template_attribute("SIZE",   size_attr);
             erase_template_attribute("FSTYPE", fs_type);
 
-            // DATABLOCK image needs SIZE and FSTYPE
-            if (type != DATABLOCK || size_attr.empty() || fs_type.empty())
+            // DATABLOCK image needs FSTYPE
+            if (type != DATABLOCK || fs_type.empty())
             {
                 goto error_no_path;
-            }
-
-            iss.str(size_attr);
-
-            iss >> size_mb;
-
-            if (iss.fail() == true)
-            {
-                goto error_size_format;
             }
         }
         else if ( !source.empty() && !path.empty() )
@@ -180,20 +176,7 @@ int Image::insert(SqlDB *db, string& error_str)
     }
     else
     {
-        string        size_attr;
-        istringstream iss;
-
         fs_type = "save_as";
-        erase_template_attribute("SIZE",   size_attr);
-
-        iss.str(size_attr);
-
-        iss >> size_mb;
-
-        if (iss.fail() == true)
-        {
-            goto error_size_format;
-        }
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -220,10 +203,6 @@ error_no_path:
     {
         error_str = "No PATH in template.";
     }
-    goto error_common;
-
-error_size_format:
-    error_str = "Wrong number in SIZE.";
     goto error_common;
 
 error_path_and_source:
@@ -358,7 +337,7 @@ string& Image::to_xml(string& xml) const
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
             "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
-            "<SOURCE_IMG>"     << source_img_id   << "</SOURCE_IMG>"  <<
+            "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             obj_template->to_xml(template_xml)                        <<
@@ -404,7 +383,7 @@ int Image::from_xml(const string& xml)
     rc += xpath(int_state,      "/IMAGE/STATE",         0);
     rc += xpath(running_vms,    "/IMAGE/RUNNING_VMS",   -1);
     rc += xpath(cloning_ops,    "/IMAGE/CLONING_OPS",   -1);
-    rc += xpath(source_img_id,  "/IMAGE/SOURCE_IMG",    -1);
+    rc += xpath(cloning_id,     "/IMAGE/CLONING_ID",    -1);
 
     rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
     rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");
@@ -470,7 +449,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     get_template_attribute("DEV_PREFIX", dev_prefix);
 
-    if (dev_prefix.empty())//Removed from image template, get it again from defaults
+    if (dev_prefix.empty())//Removed from image template, get it again
     {
         dev_prefix = ImagePool::default_dev_prefix();
     }
@@ -568,52 +547,17 @@ int Image::set_type(string& _type)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::clone_template(string& new_name,
-        ImageTemplate * &tmpl, string& error_str) const
+ImageTemplate * Image::clone_template(const string& new_name) const
 {
-    if ( get_state() != READY )
-    {
-        // Persistent Images can have several simultaneous clone operations,
-        // but not if there is a VM using it.
-        if ( isPersistent() && (get_state() != USED || running_vms > 0) )
-        {
-            ostringstream oss;
 
-            oss << "Image [" << oid << "] is in state "
-                << state_to_str( get_state() )
-                << "; persistent Images can only be cloned in the "
-                << state_to_str( READY ) << " state.";
-
-            error_str = oss.str();
-            return -1;
-        }
-        else if ( get_state() != USED )
-        {
-            ostringstream oss;
-
-            oss << "Image [" << oid << "] is in state "
-                << state_to_str( get_state() )
-                << "; non-persistent Images can only be cloned in the "
-                << state_to_str( READY ) << " or "
-                << state_to_str(USED) << " states.";
-
-            error_str = oss.str();
-            return -1;
-        }
-    }
-
-    tmpl = new ImageTemplate(
+    ImageTemplate * tmpl = new ImageTemplate(
             *(static_cast<ImageTemplate *>(obj_template)));
 
     tmpl->replace("NAME",   new_name);
     tmpl->replace("TYPE",   type_to_str(type));
     tmpl->replace("PATH",   source);
     tmpl->replace("FSTYPE", fs_type);
-
-    ostringstream oss;
-    oss << size_mb;
-
-    tmpl->replace("SIZE",   oss.str());
+    tmpl->replace("SIZE",   size_mb);
 
     if ( isPersistent() )
     {
@@ -629,3 +573,30 @@ int Image::clone_template(string& new_name,
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+Image::ImageType Image::str_to_type(string& str_type)
+{
+    Image::ImageType it = OS;
+
+    if (str_type.empty())
+    {
+        str_type = ImagePool::default_type();
+    }
+
+    TO_UPPER(str_type);
+
+    if ( str_type == "OS" )
+    {
+        it = OS;
+    }
+    else if ( str_type == "CDROM" )
+    {
+        it = CDROM;
+    }
+    else if ( str_type == "DATABLOCK" )
+    {
+        it = DATABLOCK;
+    }
+
+    return it;
+}

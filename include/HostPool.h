@@ -38,7 +38,8 @@ public:
     HostPool(SqlDB *                   db,
              vector<const Attribute *> hook_mads,
              const string&             hook_location,
-             const string&             remotes_location);
+             const string&             remotes_location,
+             time_t                    expire_time);
 
     ~HostPool(){};
 
@@ -196,6 +197,60 @@ public:
         return PoolSQL::search(oids, Host::table, where);
     };
 
+    /**
+     *  Dumps the host monitoring information entries in XML format. A filter
+     *  can be also added to the query.
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        const string&  where);
+
+    /**
+     *  Dumps the HOST monitoring information for a single HOST
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param hostid id of the target HOST
+     *
+     *  @return 0 on success
+     */
+    int dump_monitoring(ostringstream& oss,
+                        int            hostid)
+    {
+        ostringstream filter;
+
+        filter << "oid = " << hostid;
+
+        return dump_monitoring(oss, filter.str());
+    }
+
+    /**
+     * Inserts the last monitoring, and deletes old monitoring entries for this
+     * host
+     *
+     * @param host pointer to the host object
+     * @return 0 on success
+     */
+    int update_monitoring(Host * host)
+    {
+        if ( _monitor_expiration <= 0 )
+        {
+            return 0;
+        }
+
+        return host->update_monitoring(db);
+    };
+
+    /**
+     * Deletes the expired monitoring entries for all hosts
+     *
+     * @return 0 on success
+     */
+    int clean_expired_monitoring();
+
 private:
 
     /**
@@ -216,6 +271,18 @@ private:
      *    @return 0 on success
      */
     int discover_cb(void * _map, int num, char **values, char **names);
+
+    /**
+     * Deletes all monitoring entries for all hosts
+     *
+     * @return 0 on success
+     */
+    int clean_all_monitoring();
+
+    /**
+     * Size, in seconds, of the historical monitoring information
+     */
+    static time_t _monitor_expiration;
 };
 
 #endif /*HOST_POOL_H_*/

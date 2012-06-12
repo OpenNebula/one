@@ -614,9 +614,53 @@ ul.action_list li a:hover{
     font-size: 1em;
 }
 
-.legend {
+
+.legend_div {
+    border: 1px #A3A3A3 solid;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 5px;
+    padding-right: 50px;
+    width: 40%;
+    min-width: 400px;
+    z-index: -3;
+    position: absolute;
+    bottom: 10px;
+
+    background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.09) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.09))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.09) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.09) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.09) 100%); /* IE10+ */
+    background: linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.09) 100%); /* W3C */
+}
+
+.legend_div span {
+    position:relative;
+    color: #A3A3A3;
+    float: right;
+    font-size: 3em;
+    left: 27px;
+    font-family: serif;
+}
+
+.legend_p {
     color: #636663;
     margin-left: 10px;
-    margin-top: 5px;
-    font-style: italic;
+    margin-top: 3px;
+/*    padding-bottom: 9px; */
+    text-align: justify;
+/*    border-bottom: 1px solid #A3A3A3; */
+}
+
+.legend_p:before {
+    content: '⇨ ';
+}
+
+.big_text {
+    color: #333333;
+    font-size: 5em;
+    font-family: serif;
+    text-align:center;
+    vertical-align:middle;
 }

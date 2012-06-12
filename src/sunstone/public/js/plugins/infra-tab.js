@@ -89,7 +89,7 @@ var infra_tab_content =
 </tr></table>';
 
 var infra_tab = {
-    title: tr("Infrastructure"),
+    title: '<i class="icon-random"></i>'+tr("Infrastructure"),
     content: infra_tab_content
 }
 

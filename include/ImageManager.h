@@ -26,6 +26,7 @@ using namespace std;
 extern "C" void * image_action_loop(void *arg);
 
 class Image;
+class Template;
 
 class ImageManager : public MadManager, public ActionListener
 {
@@ -103,6 +104,12 @@ public:
      */
     void release_image(int iid, bool failed);
 
+    /** 
+     *  Closes any cloning operation on the image, updating the state if needed
+     *    @param iid image id of the image to be released
+     */
+    void release_cloning_image(int iid);    
+
     /**
      *  Enables the image
      *    @param to_enable true will enable the image.
@@ -124,6 +131,18 @@ public:
      *    @return 0 on success
      */
     int delete_image(int iid, const string& ds_data);
+
+    /**
+     *  Gets the size of an image by calling the STAT action of the associated
+     *  datastore driver.
+     *
+     *  @param img_tmpl the template for the image
+     *  @param ds_tmpl the template for the datastore
+     *  @oaram result with a string representation of the size or if an error 
+     *         occurred describing the error.
+     *  @result 0 on success
+     */
+     int stat_image(Template* img_tmpl, const string& ds_tmpl, string& res);
 
 private:
     /**
@@ -196,4 +215,3 @@ private:
 };
 
 #endif /*IMAGE_MANAGER_H*/
-

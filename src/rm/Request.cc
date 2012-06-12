@@ -61,11 +61,6 @@ bool Request::basic_authorization(int oid,
     PoolObjectSQL * object;
     PoolObjectAuth  perms;
 
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
-
     if ( oid >= 0 )
     {
         object = pool->get(oid,true);
@@ -78,12 +73,23 @@ bool Request::basic_authorization(int oid,
             return false;
         }
 
+        if ( att.uid == 0 )
+        {
+            object->unlock();
+            return true;
+        }
+
         object->get_permissions(perms);
 
         object->unlock();
     }
     else
     {
+        if ( att.uid == 0 )
+        {
+            return true;
+        }
+
         perms.obj_type = auth_object;
     }
 
@@ -101,6 +107,246 @@ bool Request::basic_authorization(int oid,
     }
 
     return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Request::user_quota_authorization (Template * tmpl, 
+                                        PoolObjectSQL::ObjectType object,
+                                        RequestAttributes& att,
+                                        string& error_str)
+{
+    Nebula& nd        = Nebula::instance();
+    UserPool *  upool = nd.get_upool();
+    User *      user;
+
+    bool   rc = false;
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        error_str = "User not found";
+        return false;
+    }
+
+    switch (object)
+    {
+        case PoolObjectSQL::IMAGE:
+            rc = user->quota.ds_check(tmpl, error_str);
+            break;
+
+        case PoolObjectSQL::VM:
+        case PoolObjectSQL::TEMPLATE:
+            rc = user->quota.vm_check(tmpl, error_str);
+            break;
+
+        default:
+            break;
+    }
+
+    if (rc == true)
+    {
+        upool->update(user);
+    }
+
+    user->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool Request::group_quota_authorization (Template * tmpl, 
+                                         PoolObjectSQL::ObjectType object,
+                                         RequestAttributes& att,
+                                         string& error_str)
+{
+    Nebula&     nd    = Nebula::instance();
+    GroupPool * gpool = nd.get_gpool();
+    Group *     group;
+
+    bool   rc = false;
+
+    group = gpool->get(att.gid, true);
+
+    if ( group == 0 )
+    {
+        error_str = "Group not found";
+        return false;
+    }
+
+    switch (object)
+    {
+        case PoolObjectSQL::IMAGE:
+            rc = group->quota.ds_check(tmpl, error_str);
+            break;
+
+        case PoolObjectSQL::VM:
+        case PoolObjectSQL::TEMPLATE:
+            rc = group->quota.vm_check(tmpl, error_str);
+            break;
+
+        default:
+            break;
+    }
+
+    if (rc == true)
+    {
+        gpool->update(group);
+    }
+
+    group->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void Request::user_quota_rollback(Template * tmpl, 
+                                  PoolObjectSQL::ObjectType object, 
+                                  RequestAttributes& att)
+{
+    Nebula& nd        = Nebula::instance();
+    UserPool * upool  = nd.get_upool();
+
+    User * user;
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        return;
+    }
+
+    switch (object)
+    {
+        case PoolObjectSQL::IMAGE:
+            user->quota.ds_del(tmpl);
+            break;
+
+        case PoolObjectSQL::VM:
+        case PoolObjectSQL::TEMPLATE:
+            user->quota.vm_del(tmpl);
+            break;
+
+        default:
+            break;
+    }
+
+    upool->update(user);
+
+    user->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+
+void Request::group_quota_rollback(Template * tmpl, 
+                                   PoolObjectSQL::ObjectType object, 
+                                   RequestAttributes& att)
+{
+    Nebula& nd        = Nebula::instance();
+    GroupPool * gpool = nd.get_gpool();
+
+    Group * group;
+
+    group = gpool->get(att.gid, true);
+
+    if ( group == 0 )
+    {
+        return;
+    }
+
+    switch (object)
+    {
+        case PoolObjectSQL::IMAGE:
+            group->quota.ds_del(tmpl);
+            break;
+
+        case PoolObjectSQL::VM:
+        case PoolObjectSQL::TEMPLATE:
+            group->quota.vm_del(tmpl);
+            break;
+        default:
+            break;
+    }
+
+    gpool->update(group);
+
+    group->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Request::quota_authorization(Template * tmpl, 
+                                  PoolObjectSQL::ObjectType object,
+                                  RequestAttributes& att)
+{
+    string error_str;
+
+    if (object != PoolObjectSQL::IMAGE &&
+        object != PoolObjectSQL::VM    &&
+        object != PoolObjectSQL::TEMPLATE)
+    {
+        return true;
+    }
+
+    // uid/gid == -1 means do not update user/group
+    if ( att.uid != UserPool::ONEADMIN_ID && att.uid != -1) 
+    {
+        if ( user_quota_authorization(tmpl, object, att, error_str) == false )
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(error_str, att),
+                    att);
+
+            return false;
+        }
+    }
+
+    if ( att.gid != GroupPool::ONEADMIN_ID && att.gid != -1)
+    {
+        if ( group_quota_authorization(tmpl, object, att, error_str) == false )
+        {
+            user_quota_rollback(tmpl, object, att);
+
+            failure_response(AUTHORIZATION,
+                             authorization_error(error_str, att),
+                             att);
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Request::quota_rollback(Template * tmpl, 
+                             PoolObjectSQL::ObjectType object, 
+                             RequestAttributes& att)
+{
+     if (object != PoolObjectSQL::IMAGE &&
+         object != PoolObjectSQL::VM    &&
+         object != PoolObjectSQL::TEMPLATE)
+    {
+        return;
+    }
+    
+    // uid/gid == -1 means do not update user/group
+    if ( att.uid != UserPool::ONEADMIN_ID && att.uid != -1 )
+    {
+        user_quota_rollback(tmpl, object, att);
+    }
+
+    if ( att.gid != GroupPool::ONEADMIN_ID && att.gid != -1 )
+    {
+        group_quota_rollback(tmpl, object, att);;
+    }
 }
 
 /* -------------------------------------------------------------------------- */

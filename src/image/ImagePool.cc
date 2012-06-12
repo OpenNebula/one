@@ -109,7 +109,7 @@ int ImagePool::allocate (
 
     if ( source_img_id != -1 )
     {
-        img->set_source_img(source_img_id);
+        img->set_cloning_id(source_img_id);
     }
 
     // ---------------------------------------------------------------------
@@ -355,6 +355,11 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
         }
 
         img = get(source , uiid, true);
+
+        if ( img != 0 )
+        {
+            disk->replace("IMAGE_ID", img->get_oid());
+        }
     }
     else if (!(source = disk->vector_value("IMAGE_ID")).empty())
     {

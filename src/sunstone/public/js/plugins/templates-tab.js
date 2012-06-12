@@ -35,6 +35,15 @@ var templates_tab_content = '\
   <tbody id="tbodytemplates">\
   </tbody>\
 </table>\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend_p">\
+'+tr("Clicking `instantiate` will instantly create new Virtual Machines from the selected templates and name one-id. If you want to assign a specific name to a new VM, or launch several instances at once, use Virtual Machines->New button.")+'\
+  </p>\
+  <p class="legend_p">\
+'+tr("You can clone a template to obtain a copy from an existing template. This copy will be owned by you.")+'\
+  </p>\
+</div>\
 </form>';
 
 var create_template_tmpl = '<div id="template_create_tabs">\
@@ -772,6 +781,23 @@ var template_actions = {
         error: onError,
         notify: true
     },
+    "Template.clone_dialog" : {
+        type: "custom",
+        call: popUpTemplateCloneDialog
+    },
+    "Template.clone" : {
+        type: "single",
+        call: OpenNebula.Template.clone,
+        error: onError,
+        notify: true
+    },
+    "Template.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#templates_tab div.legend_div').slideToggle();
+        }
+    },
 }
 
 var template_buttons = {
@@ -807,10 +833,19 @@ var template_buttons = {
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
-
+    "Template.clone_dialog" : {
+        type: "action",
+        text: tr("Clone"),
+    },
     "Template.delete" : {
         type: "confirm",
         text: tr("Delete")
+    },
+
+    "Template.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 }
 
@@ -1196,7 +1231,7 @@ function setupCreateTemplateDialog(){
             var field = $(this);
             if (!(field.parents(".vm_param").attr('disabled')) &&
                 field.val().length){
-                //Pick up parent's ID if we do not have one
+                //Pick up parents ID if we do not have one
                 id = field.attr('id').length ? field.attr('id') : field.parent().attr('id');
                 value[id] = field.val();
             };
@@ -2114,6 +2149,78 @@ function popUpTemplateTemplateUpdateDialog(){
 
 };
 
+function setupTemplateCloneDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="template_clone_dialog" title="'+tr("Clone a template")+'"></div>');
+    var dialog = $('#template_clone_dialog',dialogs_context);
+
+    //Put HTML in place
+
+    var html = '<form><fieldset>\
+<div class="clone_one">'+tr("Choose a new name for the template")+':</div>\
+<div class="clone_several">'+tr("Several templates are selected, please choose prefix to name the new copies")+':</div>\
+<br />\
+<label class="clone_one">'+tr("Name")+':</label>\
+<label class="clone_several">'+tr("Prefix")+':</label>\
+<input type="text" name="name"></input>\
+<div class="form_buttons">\
+  <button class="button" id="template_clone_button" value="Template.clone">\
+'+tr("Clone")+'\
+  </button>\
+</div></fieldset></form>\
+';
+
+    dialog.html(html);
+
+    //Convert into jQuery
+    dialog.dialog({
+        autoOpen:false,
+        width:375,
+        modal:true,
+        resizable:false,
+    });
+
+    $('button',dialog).button();
+
+    $('form',dialog).submit(function(){
+        var name = $('input', this).val();
+        var sel_elems = templateElements();
+        if (!name || !sel_elems.length)
+            notifyError('A name or prefix is needed!');
+        if (sel_elems.length > 1){
+            for (var i=0; i< sel_elems.length; i++)
+                Sunstone.runAction('Template.clone',
+                                   sel_elems[i],
+                                   name+getTemplateName(sel_elems[i]));
+        } else {
+            Sunstone.runAction('Template.clone',sel_elems[0],name)
+        };
+        $(this).parents('#template_clone_dialog').dialog('close');
+        setTimeout(function(){
+            Sunstone.runAction('Template.refresh');
+        }, 1500);
+        return false;
+    });
+}
+
+function popUpTemplateCloneDialog(){
+    var dialog = $('#template_clone_dialog');
+    var sel_elems = templateElements();
+    //show different text depending on how many elements are selected
+    if (sel_elems.length > 1){
+        $('.clone_one',dialog).hide();
+        $('.clone_several',dialog).show();
+        $('input',dialog).val('Copy of ');
+    }
+    else {
+        $('.clone_one',dialog).show();
+        $('.clone_several',dialog).hide();
+        $('input',dialog).val('Copy of '+getTemplateName(sel_elems[0]));
+    };
+
+    $(dialog).dialog('open');
+}
+
 // Set the autorefresh interval for the datatable
 function setTemplateAutorefresh() {
     setInterval(function(){
@@ -2134,6 +2241,9 @@ $(document).ready(function(){
         "bSortClasses": false,
         "bAutoWidth":false,
         "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
@@ -2156,9 +2266,12 @@ $(document).ready(function(){
 
     setupCreateTemplateDialog();
     setupTemplateTemplateUpdateDialog();
+    setupTemplateCloneDialog();
     setTemplateAutorefresh();
 
     initCheckAllBoxes(dataTable_templates);
     tableCheckboxesListener(dataTable_templates);
     infoListener(dataTable_templates,'Template.showinfo');
+
+    $('div#templates_tab div.legend_div').hide();
 });

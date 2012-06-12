@@ -464,6 +464,13 @@ function getHostName(id){
     return id;
 };
 
+function getTemplateName(id){
+    if (typeof(dataTable_templates) != "undefined"){
+        return getName(id,dataTable_templates,4);
+    }
+    return id;
+};
+
 function getName(id,dataTable,name_col){
     var name = id;
     if (typeof(dataTable) == "undefined") {
@@ -583,7 +590,7 @@ function makeSelectOptions(dataTable,
     return select;
 }
 
-//Escape " in a string and return it
+//Escape doublequote in a string and return it
 function escapeDoubleQuotes(string){
     string = string.replace(/\\"/g,'"');
     return string.replace(/"/g,'\\"');
@@ -605,6 +612,7 @@ function generateMonitoringDivs(graphs, id_prefix){
     $.each(graphs,function(){
         label = this.monitor_resources;
         id_suffix=label.replace(/,/g,'_');
+        id_suffix=id_suffix.replace(/\//g,'_');
         id = id_prefix+id_suffix;
         str+='<table class="info_table">\
                 <thead><tr><th colspan="1">'+this.title+'</th></tr></thead>\
@@ -628,6 +636,7 @@ function plot_graph(data,context,id_prefix,info){
     var humanize = info.humanize_figures ?
         humanize_size : function(val){ return val };
     var id_suffix = labels.replace(/,/g,'_');
+    id_suffix = id_suffix.replace(/\//g,'_');
     var labels_array = labels.split(',');
     var monitoring = data.monitoring
     var series = [];
@@ -661,7 +670,8 @@ function plot_graph(data,context,id_prefix,info){
         yaxis : { labelWidth: 40,
                   tickFormatter: function(val, axis) {
                       return humanize(val);
-                  }
+                  },
+                  min: 0
                 }
     };
 

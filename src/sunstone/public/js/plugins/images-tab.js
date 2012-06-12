@@ -42,9 +42,12 @@ var images_tab_content = '\
   <tbody id="tbodyimages">\
   </tbody>\
 </table>\
-<p class="legend">\
+<div class="legend_div">\
+  <span>?</span>\
+<p class="legend_p">\
 '+tr("Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image.")+'\
 </p>\
+</div>\
 </form>';
 
 var create_image_tmpl =
@@ -117,7 +120,7 @@ var create_image_tmpl =
               </fieldset>\
               <fieldset>\
                  <div class="" id="src_path_select">\
-                   <label style="height:4em;">'+tr("Image location")+':</label>\
+                   <label style="height:5em;">'+tr("Image location")+':</label>\
 \
                    <input type="radio" name="src_path" id="path_img" value="path" />\
                    <label style="float:none">'+tr("Provide a path")+'</label><br />\
@@ -432,6 +435,13 @@ var image_actions = {
         elements: imageElements,
         error: onError,
         notify: true
+    },
+    "Image.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#images_tab div.legend_div').slideToggle();
+        }
     }
 };
 
@@ -489,6 +499,11 @@ var image_buttons = {
     "Image.delete" : {
         type: "confirm",
         text: tr("Delete")
+    },
+    "Image.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 }
 
@@ -1163,4 +1178,6 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_images);
     tableCheckboxesListener(dataTable_images);
     infoListener(dataTable_images,'Image.showinfo');
+
+    $('div#images_tab div.legend_div').hide();
 });

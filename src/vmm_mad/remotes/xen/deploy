@@ -50,7 +50,9 @@ if [ "x$?" = "x0" ]; then
     
     $XM_CREDITS -d $name -w $credits
     
-    error_exit $? "Unable to set VM credits"
+    if [ "x$?" != "x0" ]; then
+        log_error "Unable to set VM credits"
+    fi
 fi
 
 echo $domain_name

@@ -1,0 +1,95 @@
+#!/bin/bash
+
+
+usage()
+{
+cat << EOF
+usage: $0 options
+
+This script upgrades oZones DB from 3.4 to 3.6
+
+OPTIONS:
+   -h      Show this message
+   -t      DB type, can be "mysql" or "sqlite". Compulsory
+   -s      Server address (for mysql only, "localhost" if not defined)
+   -u      User name (for mysql only, compulsory)
+   -p      User password (for mysql only, compulsory)
+   -l      DB path (for sqlite only, compulsory)
+EOF
+}
+
+
+while getopts “t:u:p:s:l:h” OPTION
+do
+     case $OPTION in
+         h)
+             usage
+             exit 1
+             ;;
+         t)
+             TYPE=$OPTARG
+             ;;
+         s)
+             SERVER=$OPTARG
+             ;;
+         u)
+             USERNAME=$OPTARG
+             ;;
+         p)
+             PASSWD=$OPTARG
+             ;;
+         l)
+             DB_PATH=$OPTARG
+             ;;             
+         ?)
+             usage
+             exit
+             ;;
+     esac
+done
+
+MIGRATE_CMDS=$(cat <<EOF
+drop table zones;
+
+create table zones as select id as ID, name as NAME, onename as ONENAME, onepass as ONEPASS, endpoint as ENDPOI$
+
+drop table o_zones_zones;
+
+drop table vdcs;
+
+create table vdcs as select id as ID, name as NAME, group_id as GROUP_ID, vdcadminname as VDCADMINNAME, vdcadmi$
+
+drop table o_zones_vdcs;
+EOF
+) 
+
+if [ $TYPE == "sqlite" ]; then
+    if [ -z "$DB_PATH" -o ! -f "$DB_PATH" ]; then
+        usage
+        exit 1
+    fi
+
+    sqlite3 $DB_PATH < <(echo $MIGRATE_CMDS)
+    RC=$?
+fi
+
+if [ $TYPE == "mysql" ]; then
+    if [ -z $USERNAME -a -z $PASSWD ]; then
+        usage
+        exit 1
+    fi
+
+    if [ -z $SERVER ]; then
+        SERVER="localhost"
+    fi
+
+    mysql -u $USERNAME --password=$PASSWD -h $SERVER ozones < <(echo $MIGRATE_CMDS)
+    RC=$?
+fi
+
+if [ $RC -ne 0 ]; then
+    echo "There was an error during migration"
+else
+    echo "Migration successful"
+fi
+

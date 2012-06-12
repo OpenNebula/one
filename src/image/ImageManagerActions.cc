@@ -18,6 +18,10 @@
 #include "NebulaLog.h"
 #include "ImagePool.h"
 #include "SSLTools.h"
+#include "SyncRequest.h"
+#include "Template.h"
+#include "Nebula.h"
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -92,32 +96,27 @@ int ImageManager::acquire_image(Image *img, string& error)
             ipool->update(img);
         break;
 
-        case Image::USED:
-             if (img->isPersistent())
-             {
-                 error = "Cannot acquire persistent image, it is already in use";
-                 rc    = -1;
-             }
-             else
-             {
-                 img->inc_running();
-                 ipool->update(img);
-             }
+        case Image::USED_PERS:
+            error = "Cannot acquire persistent image, it is already in use";
+            rc    = -1;
         break;
 
+        case Image::USED:
+            img->inc_running();
+            ipool->update(img);
+        break;
+
+        case Image::INIT:
         case Image::DISABLED:
-             error = "Cannot acquire image, it is disabled";
-             rc    = -1;
-        break;
         case Image::LOCKED:
-             error = "Cannot acquire image, it is locked";
-             rc    = -1;
-        break;
         case Image::ERROR:
-             error = "Cannot acquire image, it is in an error state";
-             rc    = -1;
-        break;
-        default:
+        case Image::DELETE:
+        case Image::CLONE:
+           ostringstream oss;
+           oss << "Cannot acquire image in state: " 
+               << Image::state_to_str(img->get_state());
+
+           error = oss.str();
            rc    = -1;
         break;
     }
@@ -130,8 +129,6 @@ int ImageManager::acquire_image(Image *img, string& error)
 
 void ImageManager::release_image(int iid, bool failed)
 {
-    int rvms;
-
     Image * img;
 
     ostringstream disk_file;
@@ -145,21 +142,25 @@ void ImageManager::release_image(int iid, bool failed)
 
     switch (img->get_state())
     {
-        case Image::USED:
-            rvms = img->dec_running();
+        case Image::USED_PERS:
+            img->dec_running();
 
-            if (img->isPersistent())
+            if (failed == true)
             {
-                if (failed == true)
-                {
-                    img->set_state(Image::ERROR);
-                }
-                else
-                {                
-                    img->set_state(Image::READY);
-                }
+                img->set_state(Image::ERROR);
             }
-            else if ( rvms == 0  && img->get_cloning() == 0 )
+            else
+            {                
+                img->set_state(Image::READY);
+            }
+
+            ipool->update(img);
+
+            img->unlock();
+        break;
+
+        case Image::USED:
+            if ( img->dec_running() == 0  && img->get_cloning() == 0 )
             {
                 img->set_state(Image::READY);
             }
@@ -169,8 +170,8 @@ void ImageManager::release_image(int iid, bool failed)
             img->unlock();
         break;
 
-        case Image::LOCKED: //SAVE_AS images are LOCKED till released
-            if ( img->isSaving() )
+        case Image::LOCKED:        
+            if ( img->isSaving() ) //SAVE_AS images are LOCKED till released
             {
                 if (failed == true)
                 {
@@ -185,20 +186,84 @@ void ImageManager::release_image(int iid, bool failed)
             }
             else
             {
-                NebulaLog::log("ImM",Log::ERROR,
-                    "Trying to release image in wrong state.");
+                stringstream oss;
+                oss << "Releasing image in wrong state: "
+                    << Image::state_to_str(img->get_state());
+
+                NebulaLog::log("ImM", Log::ERROR, oss.str());
             }
 
             img->unlock();
-            break;
+        break;
 
+        case Image::CLONE:
+        case Image::DELETE:
+        case Image::INIT:
+        case Image::DISABLED:
+        case Image::READY:
+        case Image::ERROR:        
+           ostringstream oss;
+           oss << "Releasing image in wrong state: " 
+               << Image::state_to_str(img->get_state());
+
+           NebulaLog::log("ImM", Log::ERROR, oss.str());
+
+           img->unlock();
+        break;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::release_cloning_image(int iid)
+{
+    Image * img;
+
+    ostringstream disk_file;
+
+    img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        return;
+    }
+
+    switch (img->get_state())
+    {
+        case Image::CLONE:
+            img->dec_cloning();
+            img->set_state(Image::READY);
+
+            ipool->update(img);
+            img->unlock();
+        break;
+
+        case Image::USED:
+            if ( img->dec_cloning() == 0  && img->get_running() == 0 )
+            {
+                img->set_state(Image::READY);
+            }
+
+            ipool->update(img);
+            img->unlock();
+        break;
+        
+        case Image::DELETE:
+        case Image::INIT:
         case Image::DISABLED:
         case Image::READY:
         case Image::ERROR:
-            NebulaLog::log("ImM",Log::ERROR,
-                "Trying to release image in wrong state.");
-        default:
-            img->unlock();
+        case Image::USED_PERS:
+        case Image::LOCKED:
+
+           ostringstream oss;
+           oss << "Releasing image in wrong state: "
+               << Image::state_to_str(img->get_state());
+
+           NebulaLog::log("ImM", Log::ERROR, oss.str());
+
+           img->unlock();
         break;
     }
 }
@@ -259,11 +324,26 @@ int ImageManager::enable_image(int iid, bool to_enable)
 
 int ImageManager::delete_image(int iid, const string& ds_data)
 {
-    Image *     img;
-    string      source;
-    string      img_tmpl;
-    string *    drv_msg;
-    int         source_id;
+    Image * img;
+
+    string   source;
+    string   img_tmpl;
+    string * drv_msg;
+
+    int size;
+    int ds_id;
+
+    int uid;
+    int gid;
+    int cloning_id = -1;
+
+    Group* group;
+    User * user;
+
+    Nebula&    nd    = Nebula::instance();
+    UserPool * upool = nd.get_upool();
+    GroupPool* gpool = nd.get_gpool();
+
 
     img = ipool->get(iid,true);
 
@@ -275,7 +355,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     switch(img->get_state())
     {
         case Image::READY:
-            if ( img->get_running() != 0 || img->get_cloning() > 0 )
+            if ( img->get_running() != 0 )
             {
                 img->unlock();
                 return -1; //Cannot remove images in use
@@ -283,55 +363,25 @@ int ImageManager::delete_image(int iid, const string& ds_data)
         break; 
 
         case Image::USED:
+        case Image::USED_PERS:
+        case Image::CLONE:
             img->unlock();
             return -1; //Cannot remove images in use
         break;
 
         case Image::INIT:
         case Image::DISABLED:
-        case Image::LOCKED:
         case Image::ERROR:
+        case Image::DELETE:
         break;
+
+        case Image::LOCKED:
+            cloning_id = img->get_cloning_id();
+        break;
+
     }
 
-    source_id = img->get_source_img();
-
-    if ( source_id != -1 ) // An Image clone was in progress
-    {
-        Image * source_image;
-
-        // Unlock to avoid death-locks with source_image
-        img->unlock();
-
-        source_image = ipool->get(source_id, true);
-
-        if ( source_image != 0 )
-        {
-            source_image->dec_cloning();
-
-            if ( source_image->get_state() == Image::USED &&
-                 source_image->get_running() == 0 &&
-                 source_image->get_cloning() == 0 )
-            {
-                source_image->set_state(Image::READY);
-            }
-
-            ipool->update(source_image);
-            source_image->unlock();
-        }
-
-        // Lock the image again
-        img = ipool->get(iid,true);
-
-        if ( img == 0 )
-        {
-            return -1;
-        }
-
-        img->unset_source_img();
-
-        ipool->update(img);
-    }
+    /* ------------------- Send RM operation request to the DS -------------- */
 
     const ImageManagerDriver* imd = get();
 
@@ -343,7 +393,11 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
     source  = img->get_source();
-
+    size    = img->get_size();
+    ds_id   = img->get_ds_id();
+    uid     = img->get_uid();
+    gid     = img->get_gid();
+    
     if (source.empty())
     {
         string err_str;
@@ -366,6 +420,47 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     delete drv_msg;
 
+    /* -------------------- Update Group & User quota counters -------------- */
+    
+    Template img_usage;
+
+    img_usage.add("DATASTORE", ds_id);
+    img_usage.add("SIZE", size);
+
+    if ( uid != UserPool::ONEADMIN_ID )
+    {
+        user = upool->get(uid, true);
+
+        if ( user != 0 )
+        {
+            user->quota.ds_del(&img_usage);
+
+            upool->update(user);
+
+            user->unlock();
+        } 
+    }
+
+    if ( gid != GroupPool::ONEADMIN_ID )
+    {
+        group = gpool->get(gid, true);
+
+        if ( group != 0 )
+        {
+            group->quota.ds_del(&img_usage);
+
+            gpool->update(group);
+
+            group->unlock();
+        }        
+    }
+
+    /* --------------- Update cloning image if needed ----------------------- */
+
+    if ( cloning_id != -1 ) // An Image clone was in progress
+    {
+        release_cloning_image(cloning_id);
+    }
     return 0;
 }
 
@@ -434,6 +529,80 @@ int ImageManager::register_image(int iid, const string& ds_data)
     delete drv_msg;
 
     return 0;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::stat_image(Template*     img_tmpl, 
+                             const string& ds_data, 
+                             string&       res)
+{
+    const ImageManagerDriver* imd = get();
+
+    string* drv_msg;
+    string  type_att;
+
+    ostringstream  img_data;
+
+    SyncRequest sr;
+
+    int rc = 0;
+
+    img_tmpl->get("TYPE", type_att);
+
+    switch (Image::str_to_type(type_att))
+    {
+        case Image::OS:
+        case Image::CDROM:
+            img_tmpl->get("SOURCE", res);
+
+            if (!res.empty())
+            {
+                res = "0";
+                return 0;
+            }
+
+            img_tmpl->get("PATH", res);
+
+            if (res.empty())
+            {
+                res = "Either PATH or SOURCE are required for " + type_att;
+                return -1;
+            }
+
+            img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
+            break;
+
+        case Image::DATABLOCK:
+            img_tmpl->get("SIZE", res);
+
+            if (res.empty())
+            {
+                res = "SIZE attribute is mandatory for DATABLOCK.";
+                return -1;
+            }
+            
+            return 0;
+    }
+
+    add_request(&sr);
+     
+    drv_msg = format_message(img_data.str(), ds_data);
+
+    imd->stat(sr.id, *drv_msg);
+
+    sr.wait();
+
+    delete drv_msg;
+
+    res = sr.message;
+
+    if ( sr.result != true )
+    {
+        rc = -1;
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
 #include "User.h"
+#include "Quotas.h"
 
 using namespace std;
 
@@ -65,6 +66,11 @@ public:
         return del_collection_id(id);
     }
 
+    /**
+     *  Object quotas, provides set and check interface
+     */
+    Quotas quota;
+
 private:
 
     // -------------------------------------------------------------------------
@@ -79,7 +85,11 @@ private:
 
     Group(int id, const string& name):
         PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
-        ObjectCollection("USERS")
+        ObjectCollection("USERS"),
+        quota("/GROUP/DATASTORE_QUOTA",
+            "/GROUP/NETWORK_QUOTA",
+            "/GROUP/IMAGE_QUOTA",
+            "/GROUP/VM_QUOTA")
     {
         // Allow users in this group to see it
         group_u = 1;

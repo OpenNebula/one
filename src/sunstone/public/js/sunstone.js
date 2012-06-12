@@ -72,7 +72,8 @@ var Sunstone = {
     //Updates the content of an info tab and refreshes the DOM if wanted.
     "updateMainTabContent" : function(tab_id,content_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["content"]=content_arg;
-        if (refresh){ //if not present it won't be updated
+        //if not present it will not be updated
+        if (refresh){ 
             $('div#'+tab_id, main_tabs_context).html(content_arg);
         }
     },

@@ -33,6 +33,7 @@ public class Host extends PoolElement{
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String ENABLE          = METHOD_PREFIX + "enable";
     private static final String UPDATE          = METHOD_PREFIX + "update";
+    private static final String MONITORING      = METHOD_PREFIX + "monitoring";
 
     private static final String[] HOST_STATES =
         {"INIT", "MONITORING_MONITORED", "MONITORED", "ERROR", "DISABLED",
@@ -173,6 +174,19 @@ public class Host extends PoolElement{
         return client.call(UPDATE, id, new_template);
     }
 
+    /**
+     * Retrieves the monitoring information of the given host, in XML
+     *
+     * @param client XML-RPC Client.
+     * @param id The host id (hid) of the target machine.
+     * @return If successful the message contains the string
+     * with the monitoring information returned by OpenNebula.
+     */
+    public static OneResponse monitoring(Client client, int id)
+    {
+        return client.call(MONITORING, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -239,6 +253,17 @@ public class Host extends PoolElement{
     public OneResponse update(String new_template)
     {
         return update(client, id, new_template);
+    }
+
+    /**
+     * Retrieves the monitoring information of the given host, in XML
+     *
+     * @return If successful the message contains the string
+     * with the monitoring information returned by OpenNebula.
+     */
+    public OneResponse monitoring()
+    {
+        return monitoring(client, id);
     }
 
     // =================================

@@ -21,20 +21,16 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerVirtualMachine::vm_authorization(int oid,
-                                                    ImageTemplate *        tmpl,
-                                                    RequestAttributes&     att,
-                                                    PoolObjectAuth *       host_perm,
-                                                    PoolObjectAuth *       ds_perm,
-                                                    AuthRequest::Operation op)
+bool RequestManagerVirtualMachine::vm_authorization(
+        int                    oid,
+        ImageTemplate *        tmpl,
+        RequestAttributes&     att,
+        PoolObjectAuth *       host_perm,
+        PoolObjectAuth *       ds_perm,
+        AuthRequest::Operation op)
 {
     PoolObjectSQL * object;
     PoolObjectAuth vm_perms;
-
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
 
     object = pool->get(oid,true);
 
@@ -45,6 +41,12 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
                 att);
 
         return false;
+    }
+
+    if ( att.uid == 0 )
+    {
+        object->unlock();
+        return true;
     }
 
     object->get_permissions(vm_perms);
@@ -139,6 +141,7 @@ VirtualMachine * RequestManagerVirtualMachine::get_vm(int id,
 
     return vm;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -174,6 +177,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
@@ -514,39 +518,44 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Create a template for the new Image
     // -------------------------------------------------------------------------
-    ImageTemplate *  itemplate;
-    ostringstream    oss;
+    ImageTemplate * itemplate = new ImageTemplate;
+    Template        img_usage;
 
-    oss << "NAME    = \"" << img_name << "\"" << endl;
-    oss << "SIZE    = "   << size << endl;
+    itemplate->add("NAME", img_name);
+    itemplate->add("SIZE", size);
 
-    oss << "SAVED_IMAGE_ID = " << iid_orig << endl;
-    oss << "SAVED_DISK_ID  = " << disk_id << endl;
-    oss << "SAVED_VM_ID    = " <<  id << endl;
+    itemplate->add("SAVED_IMAGE_ID",iid_orig);
+    itemplate->add("SAVED_DISK_ID",disk_id);
+    itemplate->add("SAVED_VM_ID", id);
 
     if ( img_type.empty() )
     {
-        oss << "TYPE = " << Image::type_to_str(type) << endl;
+        itemplate->add("TYPE", Image::type_to_str(type));
     }
     else
     {
-        oss << "TYPE = " << img_type << endl;
+        itemplate->add("TYPE", img_type);
     }
-
-    itemplate = new ImageTemplate;
-
-    itemplate->parse_str_or_xml(oss.str(), error_str);
 
     itemplate->set_saving();
 
+    img_usage.add("SIZE",      size);
+    img_usage.add("DATASTORE", ds_id);
+
     // -------------------------------------------------------------------------
-    // Authorize the operation
+    // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
 
     if ( vm_authorization(id, itemplate, att, 0, &ds_perms, auth_op) == false )
     {
         delete itemplate;
         return;
+    }
+
+    if ( quota_authorization(&img_usage, PoolObjectSQL::IMAGE, att) == false )
+    {
+        delete itemplate;
+        return;   
     }
 
     // -------------------------------------------------------------------------
@@ -567,6 +576,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          error_str);
     if (rc < 0)
     {
+        quota_rollback(&img_usage, PoolObjectSQL::IMAGE, att);
+
         failure_response(INTERNAL,
                 allocate_error(PoolObjectSQL::IMAGE, error_str), att);
         return;
@@ -574,6 +585,38 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // Return the new allocated Image ID
     success_response(iid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineMonitoring::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int  id = xmlrpc_c::value_int(paramList.getInt(1));
+    int  rc;
+
+    ostringstream oss;
+
+    bool auth = vm_authorization(id, 0, att, 0, 0, auth_op);
+
+    if ( auth == false )
+    {
+        return;
+    }
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, id);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -111,18 +111,12 @@ public:
                 "A:sis")
     {
         auth_op = AuthRequest::USE;
-
-        Nebula&  nd  = Nebula::instance();
-        dspool = nd.get_dspool();
     };
 
     ~ImageClone(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
-
-private:
-    DatastorePool * dspool;
 };
 
 /* -------------------------------------------------------------------------- */

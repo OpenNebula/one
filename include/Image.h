@@ -56,6 +56,13 @@ public:
     };
 
     /**
+     *  Return the string representation of an ImageType
+     *    @param ob the type
+     *    @return the string
+     */ 
+    static ImageType str_to_type(string& str_type);    
+
+    /**
      *  Type of Disks (used by the VMM_MAD). Values: BLOCK, CDROM or 
      *  FILE
      */
@@ -92,7 +99,10 @@ public:
         USED      = 2, /** < Image in use */
         DISABLED  = 3, /** < Image can not be instantiated by a VM */
         LOCKED    = 4, /** < FS operation for the Image in process */
-        ERROR     = 5  /** < Error state the operation FAILED*/
+        ERROR     = 5, /** < Error state the operation FAILED*/
+        CLONE     = 6, /** < Image is being cloned */
+        DELETE    = 7, /** < DS is deleting the image */
+        USED_PERS = 8  /** < Image is in use and persistent */
     };
 
     /**
@@ -110,6 +120,9 @@ public:
             case DISABLED:  return "DISABLED";  break;
             case LOCKED:    return "LOCKED";    break;
             case ERROR:     return "ERROR";     break;
+            case CLONE:     return "CLONE";     break;
+            case DELETE:    return "DELETE";    break;
+            case USED_PERS: return "USED";      break;
             default:        return "";
         }
     };
@@ -198,7 +211,7 @@ public:
      *  Returns the type of the image
      *     @return type
      */
-    ImageType get_type()
+    ImageType get_type() const
     {
         return type;
     }
@@ -221,30 +234,49 @@ public:
     }
 
     /**
-     *
+     *  Return the ID of the image we are cloning this one from (if any)
      */
+    int get_cloning_id() const
+    {
+        return cloning_id;
+    }
+
+    /**
+     *  Sets the ID of the image we are cloning this one from (if any)
+     */
+    void set_cloning_id(int id)
+    {
+        cloning_id = id;
+    }
+
+    /**
+     *  Clear the cloning state of the image
+     */
+    void clear_cloning_id()
+    {
+        cloning_id = -1;
+    }    
+
+    /* ---------------------------------------------------------------------- */
+    /*   Acess Image Counters (running vms and clonning operations )          */
+    /* ---------------------------------------------------------------------- */
+
     int dec_running ()
     {
         return --running_vms;
     }
 
-    /**
-     *
-     */
     int inc_running()
     {
         return ++running_vms;
     }
 
-    /**
-     *
-     */
-    int get_running()
+    int get_running() const
     {
         return running_vms;
     }
 
-    int get_cloning()
+    int get_cloning() const
     {
         return cloning_ops;
     }
@@ -257,21 +289,6 @@ public:
     int inc_cloning()
     {
         return ++cloning_ops;
-    }
-
-    int get_source_img()
-    {
-        return source_img_id;
-    }
-
-    void set_source_img(int id)
-    {
-        source_img_id = id;
-    }
-
-    void unset_source_img()
-    {
-        source_img_id = -1;
     }
 
     /**
@@ -416,15 +433,12 @@ public:
     };
 
     /**
-     * Prepares a template to allocate a clone of this Image
-     *
+     * Clones this image template including image specific attributes: NAME, 
+     * TYPE, PATH, FSTYPE, SIZE and PERSISTENT
      * @param new_name Value for the NAME attribute
-     * @param tmpl Will contain the resulting template, if any
-     * @param error_str Returns the error reason, if any
-     * @return 0 in case of success, -1 otherwise
+     * @return Pointer to the new tempalte 0 in case of success
      */
-    int clone_template(string& new_name,
-            ImageTemplate * &tmpl, string& error_str) const;
+    ImageTemplate * clone_template(const string& new_name) const;
 
 private:
 
@@ -497,7 +511,7 @@ private:
      * Indicates if this Image is a clone of another one.
      * Once the clone process is complete, it should be set to -1
      */
-    int source_img_id;
+    int cloning_id;
 
     /**
      * Datastore ID

@@ -93,7 +93,7 @@ var vres_tab_content =
 </tr></table>';
 
 var vres_tab = {
-    title: tr("Virtual Resources"),
+    title: '<i class="icon-list-alt"></i>'+tr("Virtual Resources"),
     content: vres_tab_content
 }
 

@@ -203,8 +203,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
-          $LIB_LOCATION/ruby/cli/one_helper \
-          $LIB_LOCATION/ruby/acct"
+          $LIB_LOCATION/ruby/cli/one_helper"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
@@ -246,7 +245,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/ldap \
           $VAR_LOCATION/remotes/auth/server_x509 \
           $VAR_LOCATION/remotes/auth/server_cipher \
-          $VAR_LOCATION/remotes/auth/quota \
           $VAR_LOCATION/remotes/auth/dummy"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
@@ -271,6 +269,9 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/vendor/jGrowl \
                $SUNSTONE_LOCATION/public/vendor/flot \
                $SUNSTONE_LOCATION/public/vendor/fileuploader \
+               $SUNSTONE_LOCATION/public/vendor/FontAwesome \
+               $SUNSTONE_LOCATION/public/vendor/FontAwesome/css \
+               $SUNSTONE_LOCATION/public/vendor/FontAwesome/font \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/templates \
                $SUNSTONE_LOCATION/views"
@@ -287,6 +288,9 @@ OZONES_DIRS="$OZONES_LOCATION/lib \
              $OZONES_LOCATION/public/vendor/jQueryUI \
              $OZONES_LOCATION/public/vendor/jQueryUI/images \
              $OZONES_LOCATION/public/vendor/jGrowl \
+             $OZONES_LOCATION/public/vendor/FontAwesome \
+             $OZONES_LOCATION/public/vendor/FontAwesome/css \
+             $OZONES_LOCATION/public/vendor/FontAwesome/font \
              $OZONES_LOCATION/public/js \
              $OZONES_LOCATION/public/js/plugins \
              $OZONES_LOCATION/public/images \
@@ -317,7 +321,10 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/flot \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/crypto-js \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/fileuploader \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json"
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/css \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font"
 
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
@@ -384,7 +391,6 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
-    AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
@@ -423,8 +429,6 @@ INSTALL_FILES=(
     MAN_FILES:$MAN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    ACCT_LIB_FILES:$LIB_LOCATION/ruby/acct
-    ACCT_BIN_FILES:$BIN_LOCATION
 )
 
 INSTALL_CLIENT_FILES=(
@@ -471,6 +475,9 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER:$SUNSTONE_LOCATION/public/vendor/fileuploader
+    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME:$SUNSTONE_LOCATION/public/vendor/FontAwesome
+    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/FontAwesome/font
+    SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/FontAwesome/css
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
     SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
@@ -501,6 +508,9 @@ INSTALL_OZONES_FILES=(
     OZONES_PUBLIC_VENDOR_JQUERYUI:$OZONES_LOCATION/public/vendor/jQueryUI
     OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES:$OZONES_LOCATION/public/vendor/jQueryUI/images
     OZONES_PUBLIC_VENDOR_JQUERYLAYOUT:$OZONES_LOCATION/public/vendor/jQueryLayout
+    OZONES_PUBLIC_VENDOR_FONTAWESOME:$OZONES_LOCATION/public/vendor/FontAwesome
+    OZONES_PUBLIC_VENDOR_FONTAWESOME_FONT:$OZONES_LOCATION/public/vendor/FontAwesome/font
+    OZONES_PUBLIC_VENDOR_FONTAWESOME_CSS:$OZONES_LOCATION/public/vendor/FontAwesome/css
     OZONES_PUBLIC_JS_FILES:$OZONES_LOCATION/public/js
     OZONES_PUBLIC_IMAGES_FILES:$OZONES_LOCATION/public/images
     OZONES_PUBLIC_CSS_FILES:$OZONES_LOCATION/public/css
@@ -533,6 +543,9 @@ INSTALL_SELF_SERVICE_FILES=(
     SELF_SERVICE_PUBLIC_VENDOR_CRYPTOJS:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/crypto-js
     SELF_SERVICE_PUBLIC_VENDOR_FILEUPLOADER:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/fileuploader
     SELF_SERVICE_PUBLIC_VENDOR_XML2JSON:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/xml2json
+    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome
+    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_CSS:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/css
+    SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_FONT:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font
     SELF_SERVICE_PUBLIC_IMAGES_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/images
     SELF_SERVICE_PUBLIC_LOCALE_EN_US:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US
     SELF_SERVICE_PUBLIC_LOCALE_ES_ES:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES
@@ -553,7 +566,6 @@ INSTALL_ETC_FILES=(
     OCCI_ETC_FILES:$ETC_LOCATION
     OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
     CLI_CONF_FILES:$ETC_LOCATION/cli
-    ACCT_ETC_FILES:$ETC_LOCATION
 )
 
 #-------------------------------------------------------------------------------
@@ -574,7 +586,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onedatastore \
            src/cli/onecluster \
            src/onedb/onedb \
-           src/authm_mad/remotes/quota/onequota \
+           src/onedb/onezonedb/onezonedb \
            src/mad/utils/tty_expect \
            share/scripts/one"
 
@@ -601,7 +613,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
-                src/authm_mad/remotes/quota/quota.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
                 src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
                 src/authm_mad/remotes/ldap/ldap_auth.rb \
@@ -732,8 +743,6 @@ AUTH_DUMMY_FILES="src/authm_mad/remotes/dummy/authenticate"
 
 AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 
-AUTH_QUOTA_FILES="src/authm_mad/remotes/quota/authorize"
-
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers to be installed under $REMOTES_LOCATION/vnm
 #-------------------------------------------------------------------------------
@@ -854,23 +863,28 @@ DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
 
 DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/mkfs \
+                         src/datastore_mad/remotes/dummy/stat \
                          src/datastore_mad/remotes/dummy/rm"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
+                         src/datastore_mad/remotes/fs/stat \
                          src/datastore_mad/remotes/fs/rm"
 
 DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
                          src/datastore_mad/remotes/vmware/mkfs \
+                         src/datastore_mad/remotes/vmware/stat \
                          src/datastore_mad/remotes/vmware/rm"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
+                         src/datastore_mad/remotes/iscsi/stat \
                          src/datastore_mad/remotes/iscsi/rm \
                          src/datastore_mad/remotes/iscsi/iscsi.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/mkfs \
+                         src/datastore_mad/remotes/lvm/stat \
                          src/datastore_mad/remotes/lvm/rm \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
@@ -937,7 +951,6 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 #-------------------------------------------------------------------------------
 
 AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
-                src/authm_mad/remotes/quota/quota.conf \
                 src/authm_mad/remotes/ldap/ldap_auth.conf \
                 src/authm_mad/remotes/x509/x509_auth.conf"
 
@@ -1109,6 +1122,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onehost_helper.rb \
                    src/cli/one_helper/oneimage_helper.rb \
                    src/cli/one_helper/onetemplate_helper.rb \
+                   src/cli/one_helper/onequota_helper.rb \
                    src/cli/one_helper/oneuser_helper.rb \
                    src/cli/one_helper/onevm_helper.rb \
                    src/cli/one_helper/onevnet_helper.rb \
@@ -1136,7 +1150,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevnet.yaml \
                 src/cli/etc/oneacl.yaml \
                 src/cli/etc/onedatastore.yaml \
-                src/cli/etc/onecluster.yaml"
+                src/cli/etc/onecluster.yaml \
+                src/cli/etc/oneacct.yaml"
 
 ETC_CLIENT_FILES="src/cli/etc/group.default"
 
@@ -1179,6 +1194,7 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/sunstone.js \
                         src/sunstone/public/js/sunstone-util.js \
                         src/sunstone/public/js/opennebula.js \
+                        src/sunstone/public/js/monitoring.js \
                         src/sunstone/public/js/locale.js"
 
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
@@ -1253,6 +1269,7 @@ SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
 SUNSTONE_PUBLIC_VENDOR_FLOT="\
 src/sunstone/public/vendor/flot/jquery.flot.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
 src/sunstone/public/vendor/flot/NOTICE \
 src/sunstone/public/vendor/flot/README.txt"
@@ -1269,6 +1286,22 @@ src/sunstone/public/vendor/fileuploader/fileuploader.js"
 SUNSTONE_PUBLIC_VENDOR_XML2JSON="\
 src/sunstone/public/vendor/xml2json/NOTICE \
 src/sunstone/public/vendor/xml2json/jquery.xml2json.pack.js"
+
+SUNSTONE_PUBLIC_VENDOR_FONTAWESOME="\
+src/sunstone/public/vendor/FontAwesome/NOTICE \
+"
+
+SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS="\
+src/sunstone/public/vendor/FontAwesome/css/font-awesome.css \
+"
+
+SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT="\
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.eot \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.woff \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.ttf \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svgz \
+src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
+"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/login_over.png \
@@ -1290,27 +1323,25 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
 "
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
-src/sunstone/public/locale/en_US/en_US.js \
-src/sunstone/public/locale/en_US/en_datatable.txt \
+src/sunstone/locale/languages/en_US.js \
+src/sunstone/locale/languages/en_datatable.txt \
 "
 
 SUNSTONE_PUBLIC_LOCALE_RU="
-src/sunstone/public/locale/ru/ru.js \
-src/sunstone/public/locale/ru/ru_datatable.txt"
+src/sunstone/locale/languages/ru.js \
+src/sunstone/locale/languages/ru_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_IT_IT="
-src/sunstone/public/locale/it_IT/it_IT.js \
-src/sunstone/public/locale/it_IT/it_datatable.txt"
+src/sunstone/locale/languages/it_IT.js \
+src/sunstone/locale/languages/it_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PT_PT="
-src/sunstone/public/locale/pt_PT/pt_PT.js \
-src/sunstone/public/locale/pt_PT/pt_datatable.txt"
+src/sunstone/locale/languages/pt_PT.js \
+src/sunstone/locale/languages/pt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_FR_FR="
-src/sunstone/public/locale/fr_FR/fr_FR.js \
-src/sunstone/public/locale/fr_FR/fr_datatable.txt"
-
-
+src/sunstone/locale/languages/fr_FR.js \
+src/sunstone/locale/languages/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # Ozones files
@@ -1366,6 +1397,12 @@ OZONES_PUBLIC_VENDOR_JQUERYUI=$SUNSTONE_PUBLIC_VENDOR_JQUERYUI
 OZONES_PUBLIC_VENDOR_JQUERYUIIMAGES=$SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES
 
 OZONES_PUBLIC_VENDOR_JQUERYLAYOUT=$SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT
+
+OZONES_PUBLIC_VENDOR_FONTAWESOME=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME
+
+OZONES_PUBLIC_VENDOR_FONTAWESOME_FONT=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT
+
+OZONES_PUBLIC_VENDOR_FONTAWESOME_CSS=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS
 
 OZONES_PUBLIC_JS_FILES="src/ozones/Server/public/js/ozones.js \
                         src/ozones/Server/public/js/login.js \
@@ -1441,6 +1478,9 @@ SELF_SERVICE_PUBLIC_VENDOR_FLOT=$SUNSTONE_PUBLIC_VENDOR_FLOT
 SELF_SERVICE_PUBLIC_VENDOR_CRYPTOJS=$SUNSTONE_PUBLIC_VENDOR_CRYPTOJS
 SELF_SERVICE_PUBLIC_VENDOR_FILEUPLOADER=$SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER
 SELF_SERVICE_PUBLIC_VENDOR_XML2JSON=$SUNSTONE_PUBLIC_VENDOR_XML2JSON
+SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME
+SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_FONT=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT
+SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_CSS=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS
 
 SELF_SERVICE_PUBLIC_IMAGES_FILES="\
 src/cloud/occi/lib/ui/public/images/ajax-loader.gif \
@@ -1465,28 +1505,13 @@ src/cloud/occi/lib/ui/public/images/vnc_off.png \
 src/cloud/occi/lib/ui/public/images/vnc_on.png \
 src/cloud/occi/lib/ui/public/images/yellow_bullet.png"
 
-SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/public/locale/en_US/en_US.js"
-SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/public/locale/es_ES/es_ES.js \
-                                  src/cloud/occi/lib/ui/public/locale/es_ES/es_datatable.txt"
-SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/public/locale/fr_FR/fr_FR.js \
-                                  src/cloud/occi/lib/ui/public/locale/fr_FR/fr_datatable.txt"
-SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/public/locale/fr_CA/fr_CA.js \
-                                  src/cloud/occi/lib/ui/public/locale/fr_CA/fr_datatable.txt"
-
-#-----------------------------------------------------------------------------
-# ACCT files
-#-----------------------------------------------------------------------------
-
-ACCT_BIN_FILES="src/acct/oneacctd"
-
-ACCT_LIB_FILES="src/acct/monitoring.rb \
-                src/acct/accounting.rb \
-                src/acct/acctd.rb \
-                src/acct/oneacct.rb \
-                src/acct/watch_helper.rb \
-                src/acct/watch_client.rb"
-
-ACCT_ETC_FILES="src/acct/etc/acctd.conf"
+SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/locale/languages/en_US.js"
+SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/locale/languages/es_ES.js \
+                                  src/cloud/occi/lib/ui/locale/languages/es_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/locale/languages/fr_FR.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
+SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/locale/languages/fr_CA.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # MAN files

@@ -651,7 +651,7 @@ function clusterResourceViewListeners(){
 };
 
 /*
-//Updates the host info panel tab's content and pops it up
+//Updates the host info panel tab content and pops it up
 function updateHostInfo(request,host){
     var host_info = host.HOST;
 
@@ -791,7 +791,7 @@ function setupCreateClusterDialog(){
         };
 
         //Create the OpenNebula.Host.
-        //If it's successfull we refresh the list.
+        //If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
         $create_cluster_dialog.dialog('close');
         return false;

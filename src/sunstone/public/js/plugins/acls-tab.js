@@ -38,9 +38,12 @@ var acls_tab_content = '\
   <tbody id="tbodyaclss">\
   </tbody>\
 </table>\
-<p class="legend">\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend_p">\
 '+tr("This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns.")+'\
-</p>\
+  </p>\
+</div>\
 </form>';
 
 var create_acl_tmpl =
@@ -140,6 +143,14 @@ var acl_actions = {
         error: onError,
         notify: true
     },
+
+    "Acl.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#acls_tab div.legend_div').slideToggle();
+        }
+    },
 }
 
 var acl_buttons = {
@@ -155,7 +166,13 @@ var acl_buttons = {
     "Acl.delete" : {
         type: "confirm",
         text: tr("Delete")
+    },
+    "Acl.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
+
 }
 
 var acls_tab = {
@@ -498,10 +515,10 @@ $(document).ready(function(){
             { "sWidth": "35px", "aTargets": [1] },
             { "bVisible": false, "aTargets": [6]}
         ],
-	"oLanguage": (datatable_lang != "") ?
-	    {
-		sUrl: "locale/"+lang+"/"+datatable_lang
-	    } : ""
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
     });
     dataTable_acls.fnClearTable();
     addElement([
@@ -518,4 +535,6 @@ $(document).ready(function(){
     //shortenedInfoFields('#datatable_acls');
 
     infoListener(dataTable_acls);
+
+    $('div#acls_tab div.legend_div').hide();
 })

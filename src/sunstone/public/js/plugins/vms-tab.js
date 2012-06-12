@@ -26,22 +26,22 @@ loadVNC();
 
 var vm_graphs = [
     { title : tr("CPU"),
-      monitor_resources : "cpu_usage",
+      monitor_resources : "CPU",
       humanize_figures : false,
       history_length : VM_HISTORY_LENGTH
     },
     { title : tr("Memory"),
-      monitor_resources : "mem_usage",
+      monitor_resources : "MEMORY",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     },
     { title : tr("Network transmission"),
-      monitor_resources : "net_tx",
+      monitor_resources : "NET_TX",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     },
     { title : tr("Network reception"),
-      monitor_resources : "net_rx",
+      monitor_resources : "NET_RX",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     }
@@ -72,12 +72,15 @@ var vms_tab_content = '\
   <tbody id="tbodyvmachines">\
   </tbody>\
 </table>\
-<p class="legend">\
-'+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab (oneacctd needs to be running for this information to be up to date)")+'\
-</p>\
-<p class="legend">\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend_p">\
+'+tr("CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab.")+'\
+  </p>\
+  <p class="legend_p">\
 '+tr("VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information.")+'\
-</p>\
+  </p>\
+</div>\
 </form>';
 
 var create_vm_tmpl ='<form id="create_vm_form" action="">\
@@ -96,7 +99,7 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
            <div>\
              <label for="vm_n_times">'+tr("Deploy # VMs")+':</label>\
              <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-             <div class="tip">'+tr("You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them")+'.</div>\
+             <div class="tip">'+tr("You can use the wildcard &#37;. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them")+'.</div>\
            </div>\
         </div>\
         </fieldset>\
@@ -468,6 +471,13 @@ var vm_actions = {
         error: onError,
         notify: true
     },
+    "VM.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#vms_tab div.legend_div').slideToggle();
+        }
+    },
 };
 
 
@@ -599,6 +609,12 @@ var vm_buttons = {
         type: "confirm",
         text: tr("Delete"),
         tip: tr("This will delete the selected VMs from the database")
+    },
+
+    "VM.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 }
 
@@ -984,7 +1000,9 @@ function setupCreateVMDialog(){
             };
         };
 
-        Sunstone.runAction("VM.list");
+        setTimeout(function(){
+            Sunstone.runAction("VM.list");
+        },1500);
         $create_vm_dialog.dialog('close');
         return false;
     });
@@ -1409,4 +1427,6 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);
     infoListener(dataTable_vMachines,'VM.showinfo');
+
+    $('div#vms_tab div.legend_div').hide();
 })

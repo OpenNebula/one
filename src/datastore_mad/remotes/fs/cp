@@ -84,8 +84,4 @@ http://*)
     ;;
 esac
 
-# ---------------- Get the size of the image ------------
-
-SIZE=`fs_du $DST`
-
-echo "$DST $SIZE"
+echo "$DST"

@@ -20,13 +20,13 @@ var HOST_HISTORY_LENGTH = 40;
 var host_graphs = [
     {
         title : tr("CPU Monitoring information"),
-        monitor_resources : "cpu_usage,used_cpu,max_cpu",
+        monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
         humanize_figures : false,
         history_length : HOST_HISTORY_LENGTH
     },
     {
         title: tr("Memory monitoring information"),
-        monitor_resources : "mem_usage,used_mem,max_mem",
+        monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
         humanize_figures : true,
         history_length : HOST_HISTORY_LENGTH
     }
@@ -57,15 +57,18 @@ var hosts_tab_content = '\
   <tbody id="tbodyhosts">\
   </tbody>\
 </table>\
-<p class="legend">\
-'+tr("CPU Use is calculated as the maximum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)")+'\
-</p>\
-<p class="legend">\
+<div class="legend_div">\
+  <span>?</span>\
+  <p class="legend_p">\
+'+tr("CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)")+'\
+  </p>\
+  <p class="legend_p">\
 '+tr("Memory use is calculated according to the information provided by the host monitoring driver.")+'\
-</p>\
-<p class="legend">\
+  </p>\
+  <p class="legend_p">\
 '+tr("You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available.")+'\
-</p>\
+  </p>\
+</div>\
 </form>';
 
 var create_host_tmpl =
@@ -111,7 +114,7 @@ var create_host_tmpl =
          <option value="dummy">' + tr("Default (dummy)") +'</option>\
          <option value="fw">'+tr("Firewall")+'</option>\
          <option value="802.1Q">'+tr("802.1Q")+'</option>\
-         <option value="ebtables">'+tr("Ebtables")+'</option>\
+         <option value="ebtables">'+tr("ebtables")+'</option>\
          <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
          <option value="vmware">'+tr("VMware")+'</option>\
          <option value="custom">' + tr("Custom") + '</option>\
@@ -288,6 +291,14 @@ var host_actions = {
         notify:true,
     },
 
+    "Host.help" : {
+        type: "custom",
+        call: function() {
+            hideDialog();
+            $('div#hosts_tab div.legend_div').slideToggle();
+        }
+    }
+
 };
 
 var host_buttons = {
@@ -328,6 +339,11 @@ var host_buttons = {
         type: "confirm",
         text: tr("Delete host"),
         condition: mustBeAdmin
+    },
+    "Host.help" : {
+        type: "action",
+        text: '?',
+        alwaysActive: true
     }
 };
 
@@ -431,7 +447,7 @@ function updateHostSelect(){
                                      1,//id_col
                                      2,//name_col
                                      [7,7],//status_cols
-                                     ["ERROR","OFF"]//bad_st
+                                     [tr("ERROR"),tr("OFF"),tr("RETRY")]//bad_st
                                     );
 }
 
@@ -473,7 +489,7 @@ function updateHostsView (request,host_list){
     updateInfraDashboard("hosts",host_list);
 }
 
-//Updates the host info panel tab's content and pops it up
+//Updates the host info panel tab content and pops it up
 function updateHostInfo(request,host){
     var host_info = host.HOST;
 
@@ -531,7 +547,7 @@ function updateHostInfo(request,host){
                </tr>\
                <tr>\
                   <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
+                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
                </tr>\
                <tr>\
                   <td class="key_td">' + tr("Max CPU") + '</td>\
@@ -651,7 +667,7 @@ function setupCreateHostDialog(){
         };
 
         //Create the OpenNebula.Host.
-        //If it's successfull we refresh the list.
+        //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
         $create_host_dialog.dialog('close');
         return false;
@@ -732,4 +748,6 @@ $(document).ready(function(){
     $('div#menu li#li_hosts_tab').live('click',function(){
         dataTable_hosts.fnFilter('',3);
     });
+
+    $('div#hosts_tab div.legend_div',main_tabs_context).hide();
 });

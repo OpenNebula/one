@@ -679,6 +679,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         break;
 
         case VirtualMachine::FAILURE:
+            vmpool->update_history(vm);
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
         
