@@ -72,7 +72,7 @@ class VmmAction
         get_data(:dest_driver, :MIGR_NET_DRV)
 
         # For disk hotplugging
-        get_data(:target)
+        get_data(:disk_target_path)
         get_data(:tm_command)
 
         # Initialize streams and vnm
@@ -222,7 +222,9 @@ class VmmAction
             path=name.to_s.upcase
         end
 
-        @data[name]=@xml_data.elements[path].text
+        if (elem = @xml_data.elements[path])
+            @data[name]=elem.text
+        end
     end
 end
 
@@ -503,6 +505,11 @@ class ExecDriver < VirtualMachineDriver
     # ATTACHDISK action, attaches a disk to a running VM
     #
     def attach_disk(id, drv_message)
+        xml_data = decode(drv_message)
+        disk_id  = xml_data.elements['DISK_ID'].text
+        disk     = xml_data.elements["VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']"]
+        target   = disk.elements['TARGET'].text
+
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
         steps = [
@@ -514,7 +521,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vmm,
                 :action       => :attach_disk,
-                :parameters   => [:deploy_id, :source, :target]
+                :parameters   => [:deploy_id, :disk_target_path, target]
             }
         ]
 
@@ -525,14 +532,19 @@ class ExecDriver < VirtualMachineDriver
     # DETACHDISK action, attaches a disk to a running VM
     #
     def detach_disk(id, drv_message)
-        action = VmmAction.new(self, id, :attach_disk, drv_message)
+        xml_data = decode(drv_message)
+        disk_id  = xml_data.elements['DISK_ID'].text
+        disk     = xml_data.elements["VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']"]
+        target   = disk.elements['TARGET'].text
+
+        action = VmmAction.new(self, id, :detach_disk, drv_message)
 
         steps = [
             # Run the detach vmm script
             {
                 :driver       => :vmm,
                 :action       => :attach_disk,
-                :parameters   => [:deploy_id, :target]
+                :parameters   => [:deploy_id, target]
             },
             # Perform a PROLOG on the disk
             {
