@@ -1,26 +1,20 @@
 <?xml version="1.0"?>
-<DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/"> 
-	<imagesSet>
-	   	<% impool.each do |im| %>
-	 	<item>
-		   	<imageId>ami-<%= sprintf('%08i', im.id) %></imageId> 
-		   	<imageLocation><%= im['SOURCE'].split('/').last %></imageLocation> 
-			<% if im['STATE'] == '3' || im['STATE'] == '5' %>
-			<imageState>failed</imageState>
-			<% elsif im['STATE'] == '1' || im['STATE'] == '2' %>
-			<imageState>available</imageState>
-			<% elsif im['STATE'] == '4'%>
-			<imageState>pending</imageState>
-			<% end %>
-			<imageOwnerId><%= im['UNAME'] %></imageOwnerId>
-			<% if im['PUBLIC'] == '0' %>
-			<isPublic>false</isPublic>
-			<% elsif im['PUBLIC'] == '1' %>
-			<isPublic>true</isPublic>
-			<% end %>
-			<architecture>i386</architecture>
-			<imageType>machine</imageType>
-		</item>
-		<% end %>
-	</imagesSet>
+<DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
+    <imagesSet>
+        <% impool.each do |im| %>
+            <% if state_image = render_image_state(im) %>
+            <item>
+                <imageId>ami-<%= sprintf('%08i', im.id) %></imageId>
+                <imageLocation><%= im['SOURCE'].split('/').last %></imageLocation>
+                <imageState><%= state_image %></imageState>
+                <imageOwnerId><%= im['UNAME'] %></imageOwnerId>
+                <isPublic><%= im.public? ? "true" : "false" %></isPublic>
+                <architecture>i386</architecture>
+                <imageType>machine</imageType>
+            </item>
+            <% else
+                next
+            end
+        end %>
+    </imagesSet>
 </DescribeImagesResponse>
