@@ -22,7 +22,7 @@
 #include <libxml/tree.h>
 
 #include "PoolObjectSQL.h"
-#include "AuthManager.h"
+#include "AuthRequest.h"
 
 using namespace std;
 
