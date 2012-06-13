@@ -620,3 +620,75 @@ void VirtualMachineMonitoring::request_execute(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
+                                            RequestAttributes& att)
+{
+    Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+
+    VirtualMachine * vm;
+    VirtualMachineTemplate * tmpl;
+    PoolObjectAuth host_perms;
+
+    int rc;
+    string error_str;
+
+    int     id       = xmlrpc_c::value_int(paramList.getInt(1));
+    string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
+    tmpl = new VirtualMachineTemplate();
+
+    rc   = tmpl->parse_str_or_xml(str_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, "", att);    // TODO: error message
+        delete tmpl;
+
+        return;
+    }
+
+    // TODO: auth & quotas
+
+    // TODO: set vm state HOTPLUG & vm->set_resched(false); // Cancel re-scheduling actions
+
+    vm = get_vm(id, att);
+
+    if ( vm == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+        delete tmpl;
+
+        return;
+    }
+
+    rc = vm->attach_disk(tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, "", att);    // TODO: error message
+
+        vm->unlock();
+        delete tmpl;
+
+        return;
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    dm->attach(id);
+
+
+    delete tmpl;
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

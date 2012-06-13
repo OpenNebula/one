@@ -166,6 +166,23 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAttach : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttach():
+        RequestManagerVirtualMachine("VirtualMachineAttach",
+                           "Attaches a new disk to the virtual machine",
+                           "A:sis"){};
+
+    ~VirtualMachineAttach(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
