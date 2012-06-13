@@ -172,13 +172,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         if CloudClient::is_error?(response)
             [response.code.to_i, response.to_s]
         else
-            if options[:json]
-                [0,response.body]
-            else
-                array_list = JSON.parse(response.body)
-                TABLE.show(array_list['appliances'])
-                0
-            end
+            [0,response.body]
         end
     end
 end
