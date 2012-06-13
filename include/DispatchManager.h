@@ -239,6 +239,17 @@ public:
         int  vid,
         bool do_resched);
 
+    /**
+     * Starts the attach disk action. The VM must be prepared before, calling
+     * VirtualMachine::attach_disk
+     *
+     * @param vid VirtualMachine identification
+     * @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
+    int attach(
+        int vid);
+
 private:
     /**
      *  Thread id for the Dispatch Manager

@@ -841,3 +841,48 @@ int DispatchManager::resubmit(int vid)
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::attach(int vid)
+{
+    VirtualMachine *    vm;
+    ostringstream       oss;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    oss << "Attaching a new disk to VM " << vid;
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        vmm->trigger(VirtualMachineManager::ATTACH,vid);
+    }
+    else
+    {
+        goto error;
+    }
+
+    vm->unlock();
+
+    return 0;
+
+error:
+    oss.str("");
+    oss << "Could not attach a new disk to VM " << vid << ", wrong state.";
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    vm->unlock();
+
+    return -2;
+}
