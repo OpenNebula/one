@@ -38,7 +38,7 @@ module OpenNebula
             :clone       => "image.clone"
         }
 
-        IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR}
+        IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
 
         SHORT_IMAGE_STATES={
             "INIT"      => "init",
@@ -46,7 +46,10 @@ module OpenNebula
             "USED"      => "used",
             "DISABLED"  => "disa",
             "LOCKED"    => "lock",
-            "ERROR"     => "err"
+            "ERROR"     => "err",
+            "CLONE"     => "clon",
+            "DELETE"    => "dele",
+            "USED_PERS" => "used"
         }
 
         IMAGE_TYPES=%w{OS CDROM DATABLOCK}
