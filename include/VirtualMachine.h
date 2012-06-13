@@ -762,11 +762,11 @@ public:
     VectorAttribute* get_attach_disk();
 
     /**
-     * Cleans the ATTACH = YES attribute from the disk
+     * Cleans the ATTACH = YES attribute from the disks
      *
      * @return 0 on success
      */
-    int end_attach_operation(int disk_id);
+    int end_attach_operation();
 
 private:
 

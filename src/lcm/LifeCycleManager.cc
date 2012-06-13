@@ -272,13 +272,11 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "ATTACH_SUCCESS")
     {
-        // TODO
-//        attach_success_action(vid);
+        attach_success_action(vid);
     }
     else if (action == "ATTACH_FAILURE")
     {
-        // TODO
-//        attach_failure_action(vid);
+        attach_failure_action(vid);
     }
     else if (action == "DEPLOY")
     {

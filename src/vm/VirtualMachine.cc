@@ -1309,12 +1309,11 @@ VectorAttribute* VirtualMachine::get_attach_disk()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::end_attach_operation(int disk_id)
+int VirtualMachine::end_attach_operation()
 {
     int                  num_disks;
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
-    int                  value;
 
     ostringstream    oss;
 
@@ -1329,16 +1328,13 @@ int VirtualMachine::end_attach_operation(int disk_id)
             continue;
         }
 
-        disk->vector_value("DISK_ID", value);
-
-        if ( value  == disk_id )
+        if ( disk->vector_value("ATTACH") == "YES" )
         {
             disk->remove("ATTACH");
-            return 0;
         }
     }
 
-    return -1;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

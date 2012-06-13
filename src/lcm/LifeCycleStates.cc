@@ -834,3 +834,38 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_success_action(int vid)
+{
+    VirtualMachine *    vm;
+    VectorAttribute *   disk;
+    int                 disk_id;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->end_attach_operation();
+
+    vmpool->update(vm);
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_failure_action(int vid)
+{
+    // TODO: For now, on success or failure the LCM just cleans the ATTACH
+    // attribute of the VM disk.
+    attach_success_action(vid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+

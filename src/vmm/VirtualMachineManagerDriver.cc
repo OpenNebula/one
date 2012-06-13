@@ -340,18 +340,6 @@ void VirtualMachineManagerDriver::protocol(
         Nebula              &ne  = Nebula::instance();
         LifeCycleManager    *lcm = ne.get_lcm();
 
-        int disk_id;
-        istringstream tiss;
-
-        string disk_id_str = is.str();
-
-        tiss.clear();
-        tiss.str(disk_id_str);
-
-        tiss >> disk_id;
-
-        // TODO: check disk_id is correctly returned by the driver
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM",Log::ERROR,"VM Disk Successfully attached.");

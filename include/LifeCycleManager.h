@@ -174,6 +174,10 @@ private:
 
     void epilog_failure_action(int vid);
 
+    void attach_success_action(int vid);
+
+    void attach_failure_action(int vid);
+
     void deploy_action(int vid);
 
     void suspend_action(int vid);
