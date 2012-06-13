@@ -50,16 +50,9 @@ protected:
                          RequestAttributes& att);
 
     bool delete_authorization(int                           oid,
-                              RequestAttributes&            att,
-                              xmlrpc_c::paramList const&    paramList);
+                              RequestAttributes&            att);
                               
     /* -------------------------------------------------------------------- */
-
-    virtual PoolObjectSQL * get_obj(
-            int oid, xmlrpc_c::paramList const& paramList)
-    {
-        return pool->get(oid,true);
-    };
 
     virtual int drop(int oid, PoolObjectSQL * object, string& error_msg);
 
@@ -295,15 +288,6 @@ public:
     };
 
     ~DocumentDelete(){};
-
-    /* -------------------------------------------------------------------- */
-
-    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
-    {
-        int obj_type = xmlrpc_c::value_int(paramList.getInt(2));
-
-        return static_cast<DocumentPool*>(pool)->get(oid, obj_type, true);
-    };
 };
 
 /* -------------------------------------------------------------------------- */

@@ -270,12 +270,11 @@ module OpenNebula
         # @param [String] xml_method the name of the XML-RPC method
         # @param [Integer] uid the new owner id. Set to -1 to leave the current one
         # @param [Integer] gid the new goup id. Set to -1 to leave the current one
-        # @param [Array] args any extra arguments for the xml-rpc method
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def chown(xml_method, uid, gid, *args)
-            return call(xml_method, @pe_id, uid, gid, *args)
+        def chown(xml_method, uid, gid)
+            return call(xml_method, @pe_id, uid, gid)
         end
 
         # Calls to the corresponding chmod method to modify
@@ -286,7 +285,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def chmod_octet(xml_method, octet, *args)
+        def chmod_octet(xml_method, octet)
             owner_u = octet[0..0].to_i & 4 != 0 ? 1 : 0
             owner_m = octet[0..0].to_i & 2 != 0 ? 1 : 0
             owner_a = octet[0..0].to_i & 1 != 0 ? 1 : 0
@@ -298,7 +297,7 @@ module OpenNebula
             other_a = octet[2..2].to_i & 1 != 0 ? 1 : 0
 
             chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
-                other_m, other_a, *args)
+                other_m, other_a)
         end
 
         # Calls to the corresponding chmod method to modify
@@ -310,10 +309,10 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod(xml_method, owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
-                other_m, other_a, *args)
+                other_m, other_a)
             return call(xml_method, @pe_id, owner_u, owner_m,
                             owner_a, group_u, group_m, group_a, other_u,
-                            other_m, other_a, *args)
+                            other_m, other_a)
         end
 
 

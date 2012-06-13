@@ -50,12 +50,6 @@ protected:
     {
         object->to_xml(str);
     };
-
-    virtual PoolObjectSQL * get_obj(
-            int oid, xmlrpc_c::paramList const& paramList)
-    {
-        return pool->get(oid,true);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -255,15 +249,6 @@ public:
     };
 
     ~DocumentInfo(){};
-
-    /* -------------------------------------------------------------------- */
-
-    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
-    {
-        int obj_type = xmlrpc_c::value_int(paramList.getInt(2));
-
-        return static_cast<DocumentPool*>(pool)->get(oid, obj_type, true);
-    };
 };
 
 /* -------------------------------------------------------------------------- */

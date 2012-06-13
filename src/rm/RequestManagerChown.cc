@@ -104,7 +104,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Update the object ---------------------
 
-    object = get_obj(oid, paramList);
+    object = pool->get(oid,true);
 
     if ( object == 0 ) 
     {                                            

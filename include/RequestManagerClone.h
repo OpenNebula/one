@@ -42,12 +42,6 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
 
-    virtual PoolObjectSQL * get_obj(
-            int oid, xmlrpc_c::paramList const& paramList)
-    {
-        return pool->get(oid,true);
-    };
-
     virtual Template * clone_template(PoolObjectSQL* obj) = 0;
 
     virtual int pool_allocate(

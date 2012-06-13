@@ -27,7 +27,7 @@ class DocumentPool : public PoolSQL
 {
 public:
 
-    DocumentPool(SqlDB * db) : PoolSQL(db, Document::table, true){};
+    DocumentPool(SqlDB * db) : PoolSQL(db, Document::table, false){};
 
     ~DocumentPool(){};
 
@@ -52,48 +52,26 @@ public:
                  int                      type,
                  Template *               template_contents,
                  int *                    oid,
-                 string&                  error_str);
+                 string&                  error_str)
+    {
+        *oid = PoolSQL::allocate(
+            new Document(-1, uid, gid, uname, gname, type, template_contents),
+            error_str);
+
+        return *oid;
+    }
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
      *   @param oid the object unique identifier
-     *   @param type the document type
      *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    Document * get(int oid, int type, bool lock)
+    Document * get(int oid, bool lock)
     {
-        Document* tmpl = static_cast<Document *>(PoolSQL::get(oid,lock));
-
-        if ( tmpl != 0 && tmpl->get_document_type() != type )
-        {
-            if ( lock )
-            {
-                tmpl->unlock();
-            }
-
-            return 0;
-        }
-
-        return tmpl;
-    };
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param uid id of owner
-     *   @param type the document type
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    Document * get(const string& name, int uid, int type, bool lock)
-    {
-        // TODO: use type
-        return static_cast<Document *>(PoolSQL::get(name,uid,lock));
+        return static_cast<Document *>(PoolSQL::get(oid,lock));
     };
 
     /**

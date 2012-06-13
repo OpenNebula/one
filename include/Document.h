@@ -81,11 +81,6 @@ private:
     // -------------------------------------------------------------------------
 
     /**
-     *  Registration time
-     */
-    time_t      regtime;
-
-    /**
      *  Document type, to implement generic objects.
      */
     int         type;

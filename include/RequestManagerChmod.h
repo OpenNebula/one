@@ -30,9 +30,8 @@ class RequestManagerChmod : public Request
 {
 protected:
     RequestManagerChmod(const string& method_name,
-                        const string& help,
-                        const string& params = "A:siiiiiiiiii")
-        :Request(method_name,params,help){};
+                        const string& help)
+        :Request(method_name, "A:siiiiiiiiii", help){};
 
     ~RequestManagerChmod(){};
 
@@ -40,12 +39,6 @@ protected:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
-
-    virtual PoolObjectSQL * get_obj(
-            int oid, xmlrpc_c::paramList const& paramList)
-    {
-        return pool->get(oid,true);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -149,8 +142,7 @@ class DocumentChmod : public RequestManagerChmod
 public:
     DocumentChmod():
         RequestManagerChmod("DocumentChmod",
-                            "Changes permission bits of a generic document",
-                            "A:siiiiiiiiiii")
+                            "Changes permission bits of a generic document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();
@@ -158,16 +150,8 @@ public:
     };
 
     ~DocumentChmod(){};
-
-    /* -------------------------------------------------------------------- */
-
-    PoolObjectSQL * get_obj(int oid, xmlrpc_c::paramList const& paramList)
-    {
-        int obj_type = xmlrpc_c::value_int(paramList.getInt(11));
-
-        return static_cast<DocumentPool*>(pool)->get(oid, obj_type, true);
-    };
 };
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

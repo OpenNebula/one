@@ -37,12 +37,12 @@ void RequestManagerClone::request_execute(
 
     string          error_str;
 
-    source_obj = get_obj(source_id, paramList);
+    source_obj = pool->get(source_id, true);
 
     if ( source_obj == 0 )
     {
         failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),source_id),
+                get_error(object_name(auth_object), source_id),
                 att);
 
         return;

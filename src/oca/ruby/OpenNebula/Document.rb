@@ -139,7 +139,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chown(uid, gid)
-            super(DOCUMENT_METHODS[:chown], uid, gid, TYPE)
+            super(DOCUMENT_METHODS[:chown], uid, gid)
         end
 
         # Changes the Document permissions.
@@ -149,7 +149,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod_octet(octet)
-            super(DOCUMENT_METHODS[:chmod], octet, TYPE)
+            super(DOCUMENT_METHODS[:chmod], octet)
         end
 
         # Changes the Document permissions.
@@ -160,7 +160,7 @@ module OpenNebula
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
                 other_m, other_a)
             super(DOCUMENT_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
-                group_m, group_a, other_u, other_m, other_a, TYPE)
+                group_m, group_a, other_u, other_m, other_a)
         end
 
         # Clones this Document into a new one

@@ -49,7 +49,7 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
         AuthRequest::Operation op = AuthRequest::MANAGE;
         PoolObjectAuth  perms;
 
-        object = get_obj(oid, paramList);
+        object = pool->get(oid,true);
 
         if ( object == 0 )
         {
@@ -128,7 +128,7 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Update the object ---------------------
 
-    object = get_obj(oid, paramList);
+    object = pool->get(oid,true);
 
     if ( object == 0 )                             
     {                                            

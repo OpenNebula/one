@@ -27,9 +27,7 @@ Document::Document( int id,
                     const string& _gname,
                     int _type,
                     Template * _template_contents):
-        PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,table),
-        regtime(time(0)),
-        type(_type)
+        PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,table), type(_type)
 {
     if (_template_contents != 0)
     {
@@ -64,8 +62,7 @@ const char * Document::db_names =
 const char * Document::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS document_pool (oid INTEGER PRIMARY KEY, "
     "name VARCHAR(128), body TEXT, type INTEGER, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
-    "UNIQUE(name,uid,type))";
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -204,7 +201,6 @@ string& Document::to_xml(string& xml) const
             << "<NAME>"     << name       << "</NAME>"
             << "<TYPE>"     << type       << "</TYPE>"
             << perms_to_xml(perm_str)
-            << "<REGTIME>"  << regtime    << "</REGTIME>"
             << obj_template->to_xml(template_xml)
         << "</DOCUMENT>";
 
@@ -232,7 +228,6 @@ int Document::from_xml(const string& xml)
     rc += xpath(gname,      "/DOCUMENT/GNAME",   "not_found");
     rc += xpath(name,       "/DOCUMENT/NAME",    "not_found");
     rc += xpath(type,       "/DOCUMENT/TYPE",     0);
-    rc += xpath(regtime,    "/DOCUMENT/REGTIME", 0);
 
     // Permissions
     rc += perms_from_xml();
