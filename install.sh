@@ -1128,9 +1128,9 @@ MARKET_LIB_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
 
 MARKET_LIB_CLIENT_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
 
-MARKET_BIN_FILES="src/cloud/marketplace/bin/onemarket-app"
+MARKET_BIN_FILES="src/cloud/marketplace/bin/onemarket"
 
-MARKET_BIN_CLIENT_FILES="src/cloud/marketplace/bin/onemarket-app"
+MARKET_BIN_CLIENT_FILES="src/cloud/marketplace/bin/onemarket"
 
 
 #-----------------------------------------------------------------------------

@@ -4,8 +4,8 @@ require 'cloud/CloudClient'
 module Market
     class Client
         def initialize(username, password, url)
-            @username = username || 'admin'
-            @password = password || 'password'
+            @username = username
+            @password = password
             url ||= 'http://localhost:9292/'
 
             @uri = URI.parse(url)
