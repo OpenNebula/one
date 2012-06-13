@@ -30,9 +30,8 @@ class RequestManagerChmod : public Request
 {
 protected:
     RequestManagerChmod(const string& method_name,
-                        const string& help,
-                        const string& params = "A:siiiiiiiiii")
-        :Request(method_name,params,help){};
+                        const string& help)
+        :Request(method_name, "A:siiiiiiiiii", help){};
 
     ~RequestManagerChmod(){};
 
@@ -133,6 +132,24 @@ public:
 
     ~DatastoreChmod(){};
 
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentChmod : public RequestManagerChmod
+{
+public:
+    DocumentChmod():
+        RequestManagerChmod("DocumentChmod",
+                            "Changes permission bits of a generic document")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentChmod(){};
 };
 
 /* -------------------------------------------------------------------------- */

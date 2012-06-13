@@ -21,8 +21,9 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerDelete::delete_authorization(int                oid,
-                                                RequestAttributes& att)
+bool RequestManagerDelete::delete_authorization(
+        int                         oid,
+        RequestAttributes&          att)
 {
     PoolObjectSQL * object;
     PoolObjectAuth  perms;

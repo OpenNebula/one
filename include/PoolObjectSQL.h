@@ -58,7 +58,8 @@ public:
         GROUP       = 0x0000040000000000LL,
         ACL         = 0x0000080000000000LL,
         DATASTORE   = 0x0000100000000000LL,
-        CLUSTER     = 0x0000200000000000LL
+        CLUSTER     = 0x0000200000000000LL,
+        DOCUMENT    = 0x0000400000000000LL
     };
 
     static string type_to_str(ObjectType ob)
@@ -75,6 +76,7 @@ public:
             case ACL:       return "ACL" ; break;
             case DATASTORE: return "DATASTORE" ; break;
             case CLUSTER:   return "CLUSTER" ; break;
+            case DOCUMENT:  return "DOCUMENT" ; break;
             default:        return "";
         }
     };

@@ -72,6 +72,7 @@ public:
     bool need_group_pool;
     bool need_datastore_pool;
     bool need_cluster_pool;
+    bool need_document_pool;
 
     bool need_vmm;
     bool need_im;
@@ -115,6 +116,8 @@ public:
     virtual DatastorePool* create_dspool(SqlDB* db);
 
     virtual ClusterPool* create_clpool(SqlDB* db);
+
+    virtual DocumentPool* create_docpool(SqlDB* db);
 
     // ------------------------------------------------------------------------
     // Managers

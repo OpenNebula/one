@@ -356,6 +356,30 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    DocumentPoolInfo():
+        RequestManagerPoolInfoFilter("DocumentPoolInfo",
+                                     "Returns the generic document pool",
+                                     "A:siiii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentPoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -21,6 +21,9 @@
 #include <string>
 #include <libxml/tree.h>
 
+#include "PoolObjectSQL.h"
+#include "AuthManager.h"
+
 using namespace std;
 
 /**
@@ -224,6 +227,20 @@ private:
      *  Builds the human representation of the ACL
      */
     void build_str();
+
+    /**
+     *  Array of PoolObjectSQL types to iterate over all types
+     */
+    static const int num_pool_objects;
+
+    static const PoolObjectSQL::ObjectType pool_objects[];
+
+    /**
+     *  Array of Auth operation types to iterate over all types
+     */
+    static const int num_auth_operations;
+
+    static const AuthRequest::Operation auth_operations[];
 };
 
 #endif /*ACL_RULE_H*/

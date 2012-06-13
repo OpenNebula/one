@@ -72,6 +72,11 @@ ClusterPool* NebulaTest::create_clpool(SqlDB* db)
     return new ClusterPool(db);
 }
 
+DocumentPool* NebulaTest::create_docpool(SqlDB* db)
+{
+    return new DocumentPool(db);
+}
+
 // -----------------------------------------------------------
 // Managers
 // -----------------------------------------------------------

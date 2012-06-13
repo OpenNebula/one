@@ -32,7 +32,7 @@ class RequestManagerDelete: public Request
 protected:
     RequestManagerDelete(const string& method_name,
                          const string& help)
-        :Request(method_name,"A:si",help)
+        :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -48,8 +48,8 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    bool delete_authorization(int                oid,
-                              RequestAttributes& att);
+    bool delete_authorization(int                           oid,
+                              RequestAttributes&            att);
                               
     /* -------------------------------------------------------------------- */
 
@@ -268,6 +268,24 @@ public:
     };
 
     ~ClusterDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentDelete : public RequestManagerDelete
+{
+public:
+    DocumentDelete():
+        RequestManagerDelete("DocumentDelete",
+                             "Deletes a generic document")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentDelete(){};
 };
 
 /* -------------------------------------------------------------------------- */

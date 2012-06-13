@@ -27,6 +27,28 @@ const long long AclRule::ALL_ID         = 0x0000000400000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
+const int AclRule::num_pool_objects = 10;
+const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
+            PoolObjectSQL::VM,
+            PoolObjectSQL::HOST,
+            PoolObjectSQL::NET,
+            PoolObjectSQL::IMAGE,
+            PoolObjectSQL::USER,
+            PoolObjectSQL::TEMPLATE,
+            PoolObjectSQL::GROUP,
+            PoolObjectSQL::DATASTORE,
+            PoolObjectSQL::CLUSTER,
+            PoolObjectSQL::DOCUMENT
+};
+
+const int AclRule::num_auth_operations = 4;
+const AuthRequest::Operation AclRule::auth_operations[] = {
+            AuthRequest::USE,
+            AuthRequest::MANAGE,
+            AuthRequest::ADMIN,
+            AuthRequest::CREATE
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -246,30 +268,18 @@ void AclRule::build_str()
 
     oss << " ";
 
-    PoolObjectSQL::ObjectType objects[] = {
-            PoolObjectSQL::VM,
-            PoolObjectSQL::HOST,
-            PoolObjectSQL::NET,
-            PoolObjectSQL::IMAGE,
-            PoolObjectSQL::USER,
-            PoolObjectSQL::TEMPLATE,
-            PoolObjectSQL::GROUP,
-            PoolObjectSQL::DATASTORE,
-            PoolObjectSQL::CLUSTER
-    };
-
     bool prefix = false;
 
-    for ( int i = 0; i < 9; i++ )
+    for ( int i = 0; i < num_pool_objects; i++ )
     {
-        if ( (resource & objects[i]) != 0 )
+        if ( (resource & pool_objects[i]) != 0 )
         {
             if ( prefix )
             {
                 oss << "+";
             }
 
-            oss << PoolObjectSQL::type_to_str( objects[i] );
+            oss << PoolObjectSQL::type_to_str( pool_objects[i] );
             prefix = true;
         }
     }
@@ -292,30 +302,21 @@ void AclRule::build_str()
     {
         oss << "??";
     }
-
-
+    
     oss << " ";
-
-
-    AuthRequest::Operation operations[] = {
-            AuthRequest::USE,
-            AuthRequest::MANAGE,
-            AuthRequest::ADMIN,
-            AuthRequest::CREATE
-    };
 
     prefix = false;
 
-    for ( int i = 0; i < 4; i++ )
+    for ( int i = 0; i < num_auth_operations; i++ )
     {
-        if ( (rights & operations[i]) != 0 )
+        if ( (rights & auth_operations[i]) != 0 )
         {
             if ( prefix )
             {
                 oss << "+";
             }
 
-            oss << AuthRequest::operation_to_str( operations[i] );
+            oss << AuthRequest::operation_to_str( auth_operations[i] );
             prefix = true;
         }
     }
@@ -397,4 +398,3 @@ int AclRule::from_xml(xmlNodePtr node)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-

@@ -22,14 +22,13 @@
 JUNIT_JAR="/usr/share/java/junit4.jar"
 
 if [ -z $ONE_LOCATION ]; then
-    echo "ONE_LOCATION not defined."
-    exit -1
+    DB_LOCATION="/var/lib/one/one.db"
+else
+    DB_LOCATION="$ONE_LOCATION/var/one.db"
 fi
 
-VAR_LOCATION="$ONE_LOCATION/var"
-
-if [ -f $VAR_LOCATION/one.db ]; then
-    echo "$VAR_LOCATION/one.db has to be overwritten, move it to a safe place."
+if [ -f $DB_LOCATION ]; then
+    echo "$DB_LOCATION has to be overwritten, move it to a safe place."
     exit -1
 fi
 
@@ -50,6 +49,6 @@ CODE=$?
 pkill -P $PID oned
 sleep 4s;
 pkill -9 -P $PID oned
-rm -f $VAR_LOCATION/one.db
+rm -f $DB_LOCATION
 
 exit $CODE

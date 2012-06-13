@@ -1,4 +1,4 @@
-# SConstruct for src/rm
+# SConstruct for src/document
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -18,29 +18,11 @@
 
 Import('env')
 
-lib_name='nebula_rm'
+lib_name='nebula_document'
 
-#Sources to generate the library
+# Sources to generate the library
 source_files=[
-    'Request.cc',
-    'RequestManager.cc',
-    'RequestManagerInfo.cc',
-    'RequestManagerPoolInfoFilter.cc',
-    'RequestManagerDelete.cc',
-    'RequestManagerAllocate.cc',
-    'RequestManagerVirtualNetwork.cc',
-    'RequestManagerVirtualMachine.cc',
-    'RequestManagerVMTemplate.cc',
-    'RequestManagerUpdateTemplate.cc',
-    'RequestManagerUser.cc',
-    'RequestManagerGroup.cc',
-    'RequestManagerHost.cc',
-    'RequestManagerImage.cc',
-    'RequestManagerChown.cc',
-    'RequestManagerAcl.cc',
-    'RequestManagerChmod.cc',
-    'RequestManagerCluster.cc',
-    'RequestManagerClone.cc'
+    'Document.cc'
 ]
 
 # Build library

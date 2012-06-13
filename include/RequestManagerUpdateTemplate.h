@@ -31,7 +31,7 @@ class RequestManagerUpdateTemplate: public Request
 protected:
     RequestManagerUpdateTemplate(const string& method_name,
                                  const string& help)
-        :Request(method_name,"A:sis",help)
+        :Request(method_name, "A:sis", help)
     {
         auth_op = AuthRequest::MANAGE;
     };
@@ -150,6 +150,24 @@ public:
     };
 
     ~DatastoreUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    DocumentUpdateTemplate():
+        RequestManagerUpdateTemplate("DocumentUpdateTemplate",
+                                     "Updates a document template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentUpdateTemplate(){};
 };
 
 /* -------------------------------------------------------------------------- */

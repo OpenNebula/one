@@ -993,6 +993,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/ImagePool.rb \
                            src/oca/ruby/OpenNebula/Template.rb \
                            src/oca/ruby/OpenNebula/TemplatePool.rb \
+                           src/oca/ruby/OpenNebula/Document.rb \
+                           src/oca/ruby/OpenNebula/DocumentPool.rb \
                            src/oca/ruby/OpenNebula/Group.rb \
                            src/oca/ruby/OpenNebula/GroupPool.rb \
                            src/oca/ruby/OpenNebula/Acl.rb \

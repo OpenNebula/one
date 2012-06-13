@@ -17,18 +17,21 @@
 #--------------------------------------------------------------------------- #
 
 if [ -z $ONE_LOCATION ]; then
-    echo "ONE_LOCATION not defined."
-    exit -1
+    ONEDCONF_LOCATION="/etc/one/oned.conf"
+else
+    ONEDCONF_LOCATION="$ONE_LOCATION/etc/oned.conf"
 fi
-
-ONEDCONF_LOCATION="$ONE_LOCATION/etc/oned.conf"
 
 if [ -f $ONEDCONF_LOCATION ]; then
     echo "$ONEDCONF_LOCATION has to be overwritten, move it to a safe place."
     exit -1
 fi
 
-cp oned.conf $ONEDCONF_LOCATION
+if [ -z $ONE_LOCATION ]; then
+    sudo cp oned.conf $ONEDCONF_LOCATION
+else
+    cp oned.conf $ONEDCONF_LOCATION
+fi
 
 export ONE_XMLRPC=http://localhost:2666/RPC2
 
@@ -59,6 +62,9 @@ let RC=RC+$?
 let RC=RC+$?
 
 ./test.sh AclTest
+let RC=RC+$?
+
+./test.sh DocumentTest
 let RC=RC+$?
 
 exit $RC

@@ -177,6 +177,25 @@ public:
 
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentChown : public RequestManagerChown
+{
+public:
+    DocumentChown():
+        RequestManagerChown("DocumentChown",
+                            "Changes ownership of a generic document",
+                            "A:siiii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentChown(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

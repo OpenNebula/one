@@ -108,7 +108,7 @@ public abstract class Pool{
         return xmlrpcInfo(client, infoMethod, MINE_GROUP, -1, -1);
     }
 
-    private static OneResponse xmlrpcInfo(Client client, String infoMethod, Object...args)
+    protected static OneResponse xmlrpcInfo(Client client, String infoMethod, Object...args)
     {
         return client.call(infoMethod, args);
     }
@@ -153,7 +153,7 @@ public abstract class Pool{
      * representation of the pool.
      * @param info The XML-RPC *pool.info response
      */
-    public void processInfo(OneResponse info)
+    protected void processInfo(OneResponse info)
     {
         if (info.isError())
         {

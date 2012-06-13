@@ -606,3 +606,20 @@ int ClusterAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 
     return clpool->allocate(name, &id, error_str);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DocumentAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
+                                    Template * tmpl,
+                                    int& id,
+                                    string& error_str,
+                                    RequestAttributes& att)
+{
+    int type = xmlrpc_c::value_int(paramList.getInt(2));
+
+    DocumentPool * docpool = static_cast<DocumentPool *>(pool);
+
+    return docpool->allocate(att.uid, att.gid, att.uname, att.gname, type,
+            tmpl, &id, error_str);
+}

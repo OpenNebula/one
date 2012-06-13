@@ -97,6 +97,11 @@ void Nebula::start()
         delete clpool;
     }
 
+    if ( docpool != 0)
+    {
+        delete docpool;
+    }
+
     if ( vmm != 0)
     {
         delete vmm;
@@ -215,6 +220,11 @@ void Nebula::start()
         if (tester->need_cluster_pool)
         {
             clpool = tester->create_clpool(db);
+        }
+
+        if (tester->need_document_pool)
+        {
+            docpool = tester->create_docpool(db);
         }
 
         if (tester->need_vm_pool)

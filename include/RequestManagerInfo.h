@@ -31,7 +31,7 @@ class RequestManagerInfo: public Request
 protected:
     RequestManagerInfo(const string& method_name,
                        const string& help)
-        :Request(method_name,"A:si",help)
+        :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::USE;
     };
@@ -229,6 +229,24 @@ public:
     };
 
     ~ClusterInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class DocumentInfo : public RequestManagerInfo
+{
+public:
+    DocumentInfo():
+        RequestManagerInfo("DocumentInfo",
+                           "Returns generic document information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_docpool();
+        auth_object = PoolObjectSQL::DOCUMENT;
+    };
+
+    ~DocumentInfo(){};
 };
 
 /* -------------------------------------------------------------------------- */

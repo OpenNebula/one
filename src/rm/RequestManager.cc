@@ -25,6 +25,7 @@
 #include "RequestManagerUpdateTemplate.h"
 #include "RequestManagerChown.h"
 #include "RequestManagerChmod.h"
+#include "RequestManagerClone.h"
 
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
@@ -241,7 +242,6 @@ void RequestManager::register_xml_methods()
 
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
-    xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
 
     // VirtualMachine Methods
     xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
@@ -265,6 +265,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_update(new VirtualNetworkUpdateTemplate());
     xmlrpc_c::methodPtr user_update(new UserUpdateTemplate());
     xmlrpc_c::methodPtr datastore_update(new DatastoreUpdateTemplate());
+    xmlrpc_c::methodPtr doc_update(new DocumentUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -276,6 +277,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_allocate(new  UserAllocate());
     xmlrpc_c::methodPtr datastore_allocate(new DatastoreAllocate());
     xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
+    xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
+
+    // Clone Methods
+    xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
+    xmlrpc_c::methodPtr doc_clone(new DocumentClone());
 
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
@@ -286,6 +292,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_delete(new ImageDelete());
     xmlrpc_c::methodPtr datastore_delete(new DatastoreDelete());
     xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
+    xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -297,6 +304,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_info(new ImageInfo());
     xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
     xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
+    xmlrpc_c::methodPtr doc_info(new DocumentInfo());
 
     // PoolInfo Methods 
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -308,6 +316,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
+    xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -326,6 +335,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_chown(new ImageChown());
     xmlrpc_c::methodPtr user_chown(new UserChown());
     xmlrpc_c::methodPtr datastore_chown(new DatastoreChown());
+    xmlrpc_c::methodPtr doc_chown(new DocumentChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -333,6 +343,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_chmod(new VirtualNetworkChmod());
     xmlrpc_c::methodPtr image_chmod(new ImageChmod());
     xmlrpc_c::methodPtr datastore_chmod(new DatastoreChmod());
+    xmlrpc_c::methodPtr doc_chmod(new DocumentChmod());
 
     // ACL Methods
     xmlrpc_c::methodPtr acl_addrule(new AclAddRule());
@@ -460,6 +471,17 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.delvnet", cluster_delvnet);
 
     RequestManagerRegistry.addMethod("one.clusterpool.info",clusterpool_info);
+
+    /* Generic Document objects related methods*/
+    RequestManagerRegistry.addMethod("one.document.allocate",doc_allocate);
+    RequestManagerRegistry.addMethod("one.document.delete",  doc_delete);
+    RequestManagerRegistry.addMethod("one.document.info",    doc_info);
+    RequestManagerRegistry.addMethod("one.document.update",  doc_update);
+    RequestManagerRegistry.addMethod("one.document.chown",   doc_chown);
+    RequestManagerRegistry.addMethod("one.document.chmod",   doc_chmod);
+    RequestManagerRegistry.addMethod("one.document.clone",   doc_clone);
+
+    RequestManagerRegistry.addMethod("one.documentpool.info",docpool_info);
 };
 
 /* -------------------------------------------------------------------------- */
