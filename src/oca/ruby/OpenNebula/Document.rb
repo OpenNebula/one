@@ -84,7 +84,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def info()
-            super(DOCUMENT_METHODS[:info], 'DOCUMENT', TYPE)
+            super(DOCUMENT_METHODS[:info], 'DOCUMENT')
         end
 
         # Allocates a new Document in OpenNebula
@@ -102,7 +102,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete()
-            return call(DOCUMENT_METHODS[:delete], @pe_id, TYPE)
+            return call(DOCUMENT_METHODS[:delete], @pe_id)
         end
 
         # Replaces the template contents
@@ -112,23 +112,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def update(new_template)
-            super(DOCUMENT_METHODS[:update], new_template, TYPE)
-        end
-
-        # Publishes the Document, to be used by other users
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def publish
-            set_publish(true)
-        end
-
-        # Unplubishes the Document
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def unpublish
-            set_publish(false)
+            super(DOCUMENT_METHODS[:update], new_template)
         end
 
         # Changes the owner/group

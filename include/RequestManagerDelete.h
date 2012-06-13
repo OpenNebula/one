@@ -31,9 +31,8 @@ class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
-                         const string& help,
-                         const string& signature="A:si")
-        :Request(method_name,signature,help)
+                         const string& help)
+        :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -279,8 +278,7 @@ class DocumentDelete : public RequestManagerDelete
 public:
     DocumentDelete():
         RequestManagerDelete("DocumentDelete",
-                             "Deletes a generic document",
-                             "A:sii")
+                             "Deletes a generic document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();

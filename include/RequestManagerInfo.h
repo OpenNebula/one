@@ -30,9 +30,8 @@ class RequestManagerInfo: public Request
 {
 protected:
     RequestManagerInfo(const string& method_name,
-                       const string& help,
-                       const string& signature = "A:si")
-        :Request(method_name,signature,help)
+                       const string& help)
+        :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::USE;
     };
@@ -240,8 +239,7 @@ class DocumentInfo : public RequestManagerInfo
 public:
     DocumentInfo():
         RequestManagerInfo("DocumentInfo",
-                           "Returns generic document information",
-                           "A:sii")
+                           "Returns generic document information")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();

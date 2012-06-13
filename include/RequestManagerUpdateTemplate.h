@@ -30,9 +30,8 @@ class RequestManagerUpdateTemplate: public Request
 {
 protected:
     RequestManagerUpdateTemplate(const string& method_name,
-                                 const string& help,
-                                 const string& signature = "A:sis")
-        :Request(method_name,signature,help)
+                                 const string& help)
+        :Request(method_name, "A:sis", help)
     {
         auth_op = AuthRequest::MANAGE;
     };
@@ -161,8 +160,7 @@ class DocumentUpdateTemplate : public RequestManagerUpdateTemplate
 public:
     DocumentUpdateTemplate():
         RequestManagerUpdateTemplate("DocumentUpdateTemplate",
-                                     "Updates a document template",
-                                     "A:sisi")
+                                     "Updates a document template")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();
