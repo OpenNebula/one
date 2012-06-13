@@ -162,6 +162,10 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = ACTION_FINALIZE;
         break;
 
+    case ATTACH:
+        aname = "ATTACH";
+        break;
+
     default:
         delete vid;
         return;
@@ -238,6 +242,10 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     {
         driver_cancel_action(vid);
     }
+    else if (action == "ATTACH")
+    {
+        attach_action(vid);
+    }
     else if (action == ACTION_TIMER)
     {
         timer_action();
@@ -270,6 +278,9 @@ string * VirtualMachineManager::format_message(
     const string& ldfile,
     const string& rdfile,
     const string& cfile,
+    int           disk_id,
+    const string& tm_command,
+    const string& disk_target_path,
     const string& tmpl)
 {
     ostringstream oss;
@@ -315,6 +326,19 @@ string * VirtualMachineManager::format_message(
     else
     {
         oss << "<CHECKPOINT_FILE/>";
+    }
+
+    if ( !tm_command.empty() )
+    {
+        oss << "<TM_COMMAND>"       << tm_command       << "</TM_COMMAND>"
+            << "<DISK_ID>"          << disk_id          << "</DISK_ID>"
+            << "<DISK_TARGET_PATH>" << disk_target_path << "</DISK_TARGET_PATH>";
+    }
+    else
+    {
+        oss << "<TM_COMMAND/>"
+            << "<DISK_ID/>"
+            << "<DISK_TARGET_PATH/>";
     }
 
     oss << tmpl 
@@ -379,6 +403,9 @@ void VirtualMachineManager::deploy_action(int vid)
         "",
         vm->get_deployment_file(),
         vm->get_remote_deployment_file(),
+        "",
+        0,
+        "",
         "",
         vm->to_xml(vm_tmpl));
 
@@ -477,6 +504,9 @@ void VirtualMachineManager::save_action(
         "",
         "",
         vm->get_checkpoint_file(),
+        0,
+        "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->save(vid, *drv_msg);
@@ -556,6 +586,9 @@ void VirtualMachineManager::shutdown_action(
         "",
         "",
         "",
+        0,
+        "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->shutdown(vid, *drv_msg);
@@ -630,6 +663,9 @@ void VirtualMachineManager::reboot_action(
         "",
         "",
         "",
+        0,
+        "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->reboot(vid, *drv_msg);
@@ -697,6 +733,9 @@ void VirtualMachineManager::reset_action(
         "",
         vm->get_deploy_id(),
         "",
+        "",
+        "",
+        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -767,6 +806,9 @@ void VirtualMachineManager::cancel_action(
         "",
         vm->get_deploy_id(),
         "",
+        "",
+        "",
+        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -847,6 +889,9 @@ void VirtualMachineManager::cancel_previous_action(
         "",
         "",
         "",
+        0,
+        "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->cancel(vid, *drv_msg);
@@ -919,6 +964,9 @@ void VirtualMachineManager::migrate_action(
         vm->get_vnm_mad(),
         vm->get_deploy_id(),
         "",
+        "",
+        "",
+        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -1001,6 +1049,9 @@ void VirtualMachineManager::restore_action(
         "",
         "",
         vm->get_checkpoint_file(),
+        0,
+        "",
+        "",
         vm->to_xml(vm_tmpl));
 
     vmd->restore(vid, *drv_msg);
@@ -1074,6 +1125,9 @@ void VirtualMachineManager::poll_action(
         "",
         vm->get_deploy_id(),
         "",
+        "",
+        "",
+        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -1236,6 +1290,9 @@ void VirtualMachineManager::timer_action()
             "",
             "",
             "",
+            0,
+            "",
+            "",
             vm->to_xml(vm_tmpl));
 
         vmd->poll(*it, *drv_msg);
@@ -1247,6 +1304,125 @@ void VirtualMachineManager::timer_action()
         vm->unlock();
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::attach_action(
+    int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+    string        vm_tmpl;
+    string *      drv_msg;
+    string        tm_command;
+    string        system_tm_mad;
+    string        opennebula_hostname;
+    string        prolog_cmd;
+    string        disk_path;
+    string        error_str;
+
+    const VectorAttribute * disk;
+    int disk_id;
+
+    Nebula&          nd = Nebula::instance();
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    disk = vm->get_attach_disk();
+
+    if ( disk == 0 )
+    {
+        return;
+    }
+
+    system_tm_mad = nd.get_system_ds_tm_mad();
+    opennebula_hostname = nd.get_nebula_hostname();
+
+    disk_id = disk->vector_value("DISK_ID", disk_id);
+
+    Nebula::instance().get_tm()->prolog_transfer_command(
+            vm,
+            disk,
+            disk_id,
+            system_tm_mad,
+            opennebula_hostname,
+            os,
+            error_str);
+
+    prolog_cmd = os.str();
+
+    os.str("");
+    os << vm->get_remote_system_dir() << "/disk." << disk_id;
+
+    disk_path = os.str();
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        disk_id,
+        prolog_cmd,
+        disk_path,
+        vm->to_xml(vm_tmpl));
+
+
+    vmd->attach(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "attach_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "attach_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::ATTACH_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+}
+
 
 /* ************************************************************************** */
 /* MAD Loading                                                                */

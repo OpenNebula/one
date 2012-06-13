@@ -737,6 +737,37 @@ public:
     static void set_auth_request(int uid, 
                                  AuthRequest& ar, 
                                  VirtualMachineTemplate *tmpl);
+
+    // ------------------------------------------------------------------------
+    // Hotplug related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Attaches a new disk. It will acquire the Image used, if any, and add the
+     * disk to the VM template. The VM must be updated in the DB afterwards.
+     *
+     * @param tmpl Template containing a single DISK vector attribute. The
+     * caller must delete this template
+     * @param error_str Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int attach_disk(VirtualMachineTemplate * tmpl, string& error_str);
+
+    /**
+     * Returns the disk that is waiting for an attachment action
+     *
+     * @return the disk waiting for an attachment action, or 0
+     */
+    VectorAttribute* get_attach_disk();
+
+    /**
+     * Cleans the ATTACH = YES attribute from the disk
+     *
+     * @return 0 on success
+     */
+    int end_attach_operation(int disk_id);
+
 private:
 
     // -------------------------------------------------------------------------

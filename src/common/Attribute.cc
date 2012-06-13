@@ -185,6 +185,21 @@ void VectorAttribute::replace(const string& name, const string& value)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VectorAttribute::remove(const string& name)
+{
+    map<string,string>::iterator it;
+
+    it = attribute_value.find(name);
+
+    if ( it != attribute_value.end() )
+    {
+        attribute_value.erase(it);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string VectorAttribute::vector_value(const char *name) const
 {
     map<string,string>::const_iterator it;

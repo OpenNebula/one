@@ -232,6 +232,18 @@ private:
 
     }
 
+    /**
+     *  Sends an attach request to the MAD: "ATTACH ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void attach (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("ATTACH", oid, drv_msg);
+    }
+
 private:
 
     void write_drv(const char * aname, const int oid, const string& msg) const
