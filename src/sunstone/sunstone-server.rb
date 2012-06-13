@@ -268,7 +268,7 @@ post '/config' do
     rescue Exception => e
         msg = "Error parsing configuration JSON"
         logger.error { msg }
-        logger.error { e.message } 
+        logger.error { e.message }
         [500, OpenNebula::Error.new(msg).to_json]
     end
 
@@ -302,11 +302,21 @@ get '/:resource/:id/monitor' do
 end
 
 ##############################################################################
+# Marketplace
+##############################################################################
+get '/marketplace' do
+    @SunstoneServer.get_appliance_pool
+end
+
+get '/marketplace/:id' do
+    @SunstoneServer.get_appliance(params[:id])
+end
+
+##############################################################################
 # GET Pool information
 ##############################################################################
 get '/:pool' do
-    @SunstoneServer.get_pool(params[:pool],
-                             session[:user_gid])
+    @SunstoneServer.get_pool(params[:pool], session[:user_gid])
 end
 
 ##############################################################################

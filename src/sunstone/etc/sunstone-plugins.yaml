@@ -70,3 +70,7 @@
     :ALL: true
     :user:
     :group:
+- plugins/marketplace-tab.js:
+    :ALL: true
+    :user:
+    :group:
