@@ -52,8 +52,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/MD5 \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/SHA1)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1)
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
@@ -70,11 +70,11 @@ DST=`generate_image_path`
 
 HASHES=""
 
-if [ -n "$MD5"]; then
+if [ -n "$MD5" ]; then
     HASHES="$HASHES --md5 $MD5"
 fi
 
-if [ -n "$SHA1"]; then
+if [ -n "$SHA1" ]; then
     HASHES="$HASHES --sha1 $SHA1"
 fi
 
