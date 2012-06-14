@@ -60,7 +60,6 @@ DEV="/dev/$VG_NAME/$LV_NAME"
 let TID=ID+BASE_TID
 
 RM_COMMAND=$(cat <<EOF
-    $SUDO $(tgtadm_target_delete "$TID")
     $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME
 EOF
 )
