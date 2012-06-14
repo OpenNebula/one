@@ -55,6 +55,7 @@ int LibVirtDriver::deployment_description_vmware(
     string  source     = "";
     string  datastore  = "";
     string  driver     = "";
+    int     disk_id;
     string  default_driver = "";
     bool    readonly;
 
@@ -199,6 +200,7 @@ int LibVirtDriver::deployment_description_vmware(
         bus    = disk->vector_value("BUS");
         source = disk->vector_value("SOURCE");
         driver = disk->vector_value("DRIVER");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
         {
@@ -226,19 +228,19 @@ int LibVirtDriver::deployment_description_vmware(
         {
             file << "\t\t<disk type='block' device='disk'>" << endl;
             file << "\t\t\t<source file=[" <<  datastore << "] " << vm->get_oid()
-                << "/disk."  << i << "'/>"  << endl;
+                << "/disk."  << disk_id << "'/>"  << endl;
         }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
             file << "\t\t\t<source file=[" <<  datastore << "] " << vm->get_oid()
-                << "/disk."  << i << ".iso'/>"  << endl;
+                << "/disk."  << disk_id << ".iso'/>"  << endl;
         }
         else
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
                  << "\t\t\t<source file='[" <<  datastore <<"] " << vm->get_oid()
-                 << "/disk." << i << "/disk.vmdk'/>" << endl;
+                 << "/disk." << disk_id << "/disk.vmdk'/>" << endl;
         }
 
         file << "\t\t\t<target dev='" << target << "'";

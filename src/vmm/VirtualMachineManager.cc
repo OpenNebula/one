@@ -1368,7 +1368,7 @@ void VirtualMachineManager::attach_action(
     system_tm_mad = nd.get_system_ds_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
-    disk_id = disk->vector_value("DISK_ID", disk_id);
+    disk->vector_value("DISK_ID", disk_id);
 
     Nebula::instance().get_tm()->prolog_transfer_command(
             vm,
@@ -1490,7 +1490,7 @@ void VirtualMachineManager::detach_action(
     system_tm_mad = nd.get_system_ds_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
-    disk_id = disk->vector_value("DISK_ID", disk_id);
+    disk->vector_value("DISK_ID", disk_id);
 
     Nebula::instance().get_tm()->epilog_transfer_command(vm,disk,os,error_str);
 

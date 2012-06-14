@@ -50,6 +50,7 @@ int XenDriver::deployment_description(
     string ro         = "";
     string type       = "";
     string driver     = "";
+    int    disk_id;
     string default_driver = "";
     string mode;
 
@@ -237,6 +238,7 @@ int XenDriver::deployment_description(
         type   = disk->vector_value("TYPE");
         ro     = disk->vector_value("READONLY");
         driver = disk->vector_value("DRIVER");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if ( target.empty() )
         {
@@ -276,7 +278,7 @@ int XenDriver::deployment_description(
             }
         }
 
-        file << vm->get_remote_system_dir() << "/disk." << i << ","
+        file << vm->get_remote_system_dir() << "/disk." << disk_id << ","
              << target << ","
              << mode
              << "'," << endl;
