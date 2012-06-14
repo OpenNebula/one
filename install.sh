@@ -873,6 +873,7 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
 #-------------------------------------------------------------------------------
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
+                             src/datastore_mad/remotes/downloader.rb \
                              src/datastore_mad/remotes/libfs.sh"
 
 DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
