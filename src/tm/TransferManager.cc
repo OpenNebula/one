@@ -201,6 +201,145 @@ void TransferManager::do_action(const string &action, void * arg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int TransferManager::prolog_transfer_command(
+        VirtualMachine *        vm,
+        const VectorAttribute * disk,
+        string&                 system_tm_mad,
+        string&                 opennebula_hostname,
+        ostream&                xfr,
+        string&                 error_str)
+{
+    string source;
+    string type;
+    string clon;
+    string size;
+    string format;
+    string tm_mad;
+    string ds_id;
+    int    disk_index;
+
+    ostringstream os;
+
+    disk->vector_value("DISK_ID", disk_index);
+
+    type = disk->vector_value("TYPE");
+
+    transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+
+    if ( type == "SWAP" )
+    {
+        // -----------------------------------------------------------------
+        // Generate a swap disk image
+        // -----------------------------------------------------------------
+        size = disk->vector_value("SIZE");
+
+        if ( size.empty() )
+        {
+            vm->log("TM",Log::WARNING,"No size in swap image, skipping");
+            goto skip;
+        }
+
+        //MKSWAP tm_mad size host:remote_system_dir/disk.i vmid dsid(=0)
+        xfr << "MKSWAP "
+            << system_tm_mad << " "
+            << size   << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_oid() << " "
+            << "0";
+    }
+    else if ( type == "FS" )
+    {
+        // -----------------------------------------------------------------
+        // Create a clean file system disk image
+        // -----------------------------------------------------------------
+        size   = disk->vector_value("SIZE");
+        format = disk->vector_value("FORMAT");
+
+        if ( size.empty() || format.empty() )
+        {
+            vm->log("TM",Log::WARNING, "No size or format in FS, skipping");
+            goto skip;
+        }
+
+        //MKIMAGE tm_mad size format host:remote_system_dir/disk.i vmid dsid(=0)
+        xfr << "MKIMAGE "
+            << system_tm_mad << " "
+            << size   << " "
+            << format << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_oid() << " "
+            << "0";
+    }
+    else
+    {
+        // -----------------------------------------------------------------
+        // Get transfer attributes & check errors
+        // -----------------------------------------------------------------
+        tm_mad = disk->vector_value("TM_MAD");
+        ds_id  = disk->vector_value("DATASTORE_ID");
+        source = disk->vector_value("SOURCE");
+        clon   = disk->vector_value("CLONE");
+
+        if ( source.empty() ||
+             tm_mad.empty() ||
+             ds_id.empty()  ||
+             clon.empty() )
+        {
+            goto error_attributes;
+        }
+
+        transform(clon.begin(),clon.end(),clon.begin(),(int(*)(int))toupper);
+
+        // -----------------------------------------------------------------
+        // CLONE or LINK disk images
+        // -----------------------------------------------------------------
+
+        // <CLONE|LN> tm_mad fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+        if (clon == "YES")
+        {
+            xfr << "CLONE ";
+        }
+        else
+        {
+            xfr << "LN ";
+        }
+
+        xfr << tm_mad << " ";
+
+        if ( source.find(":") == string::npos ) //Regular file
+        {
+            xfr << opennebula_hostname << ":" << source << " ";
+        }
+        else //TM Plugin specific protocol
+        {
+            xfr << source << " ";
+        }
+
+        xfr << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_oid() << " "
+            << ds_id;
+    }
+
+    return 0;
+
+error_attributes:
+    os << "prolog, missing DISK mandatory attributes "
+       << "(SOURCE, TM_MAD, CLONE, DATASTORE_ID) for VM " << vm->get_oid()
+       << ", DISK " << disk->vector_value("DISK_ID");
+
+    error_str = os.str();
+    return -1;
+
+skip:
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void TransferManager::prolog_action(int vid)
 {
     ofstream      xfr;
@@ -208,14 +347,12 @@ void TransferManager::prolog_action(int vid)
     string        xfr_name;
 
     const VectorAttribute * disk;
-    string source;
-    string type;
-    string clon;
-    string files;
-    string size;
-    string format;
-    string tm_mad, system_tm_mad;
-    string ds_id;
+
+    string  files;
+    string  system_tm_mad;
+    string  opennebula_hostname;
+    int     rc;
+    string  error_str;
 
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
@@ -261,6 +398,8 @@ void TransferManager::prolog_action(int vid)
         goto error_file;
     }
 
+    opennebula_hostname = nd.get_nebula_hostname();
+
     // -------------------------------------------------------------------------
     // Image Transfer Commands
     // -------------------------------------------------------------------------
@@ -275,106 +414,15 @@ void TransferManager::prolog_action(int vid)
             continue;
         }
 
-        type = disk->vector_value("TYPE");
+        rc = prolog_transfer_command(vm, disk, system_tm_mad,
+                opennebula_hostname, xfr, error_str);
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-        
-        if ( type == "SWAP" )
+        if ( rc != 0 )
         {
-            // -----------------------------------------------------------------
-            // Generate a swap disk image
-            // -----------------------------------------------------------------
-            size = disk->vector_value("SIZE");
-
-            if ( size.empty() )
-            {
-                vm->log("TM",Log::WARNING,"No size in swap image, skipping");
-                continue;
-            }
-
-            //MKSWAP tm_mad size host:remote_system_dir/disk.i vmid dsid(=0)
-            xfr << "MKSWAP " 
-                << system_tm_mad << " "
-                << size   << " " 
-                << vm->get_hostname() << ":"
-                << vm->get_remote_system_dir() << "/disk." << i << " "
-                << vm->get_oid() << " "
-                << "0" << endl;
+            goto error_attributes;
         }
-        else if ( type == "FS" )
-        {
-            // -----------------------------------------------------------------
-            // Create a clean file system disk image
-            // -----------------------------------------------------------------
-            size   = disk->vector_value("SIZE");
-            format = disk->vector_value("FORMAT");
 
-            if ( size.empty() || format.empty() )
-            {
-                vm->log("TM",Log::WARNING, "No size or format in FS, skipping");
-                continue;
-            }
-
-            //MKIMAGE tm_mad size format host:remote_system_dir/disk.i vmid dsid(=0)
-            xfr << "MKIMAGE " 
-                << system_tm_mad << " "
-                << size   << " " 
-                << format << " "
-                << vm->get_hostname() << ":" 
-                << vm->get_remote_system_dir() << "/disk." << i << " "
-                << vm->get_oid() << " "
-                << "0" << endl;
-        }
-        else
-        {
-            // -----------------------------------------------------------------
-            // Get transfer attributes & check errors
-            // -----------------------------------------------------------------
-            tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
-            source = disk->vector_value("SOURCE");
-            clon   = disk->vector_value("CLONE");
-
-            if ( source.empty() || 
-                 tm_mad.empty() || 
-                 ds_id.empty()  || 
-                 clon.empty() )
-            {
-                goto error_attributes;
-            }
-
-            transform(clon.begin(),clon.end(),clon.begin(),(int(*)(int))toupper);
-
-            // -----------------------------------------------------------------
-            // CLONE or LINK disk images
-            // -----------------------------------------------------------------
-
-            // <CLONE|LN> tm_mad fe:SOURCE host:remote_system_ds/disk.i vmid dsid
-            if (clon == "YES")
-            {
-                xfr << "CLONE ";
-            }
-            else
-            {
-                xfr << "LN ";
-            }
-
-            xfr << tm_mad << " ";
-
-            if ( source.find(":") == string::npos ) //Regular file
-            {
-                xfr << nd.get_nebula_hostname() << ":" << source << " ";
-            }
-            else //TM Plugin specific protocol
-            {
-                xfr << source << " ";
-            }
-            
-            xfr << vm->get_hostname() << ":" 
-                << vm->get_remote_system_dir() << "/disk." << i << " "
-                << vm->get_oid() << " " 
-                << ds_id << endl;
-        }
+        xfr << endl;
     }
 
     // -------------------------------------------------------------------------
@@ -423,9 +471,7 @@ error_file:
     goto error_common;
 
 error_attributes:
-    os.str("");
-    os << "prolog, missing DISK mandatory attributes " 
-       << "(SOURCE, TM_MAD, CLONE, DATASTORE_ID) for VM " << vid;
+    os.str(error_str);
 
     xfr.close();
     goto error_common;
@@ -458,6 +504,7 @@ void TransferManager::prolog_migr_action(int vid)
     string tm_mad;
     string system_tm_mad;
     string ds_id;
+    int    disk_id;
 
     vector<const Attribute *> attrs;
     int                       num;
@@ -518,6 +565,7 @@ void TransferManager::prolog_migr_action(int vid)
 
         tm_mad = disk->vector_value("TM_MAD");
         ds_id  = disk->vector_value("DATASTORE_ID");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if ( tm_mad.empty() ||  ds_id.empty() )
         {
@@ -528,9 +576,9 @@ void TransferManager::prolog_migr_action(int vid)
         xfr << "MV "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":" 
-            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id << endl;
     }
@@ -583,6 +631,7 @@ void TransferManager::prolog_resume_action(int vid)
     string tm_mad;
     string system_tm_mad;
     string ds_id;
+    int    disk_id;
 
     vector<const Attribute *> attrs;
     int                       num;
@@ -642,6 +691,7 @@ void TransferManager::prolog_resume_action(int vid)
 
         tm_mad = disk->vector_value("TM_MAD");
         ds_id  = disk->vector_value("DATASTORE_ID");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if ( tm_mad.empty() || ds_id.empty() )
         {
@@ -652,9 +702,9 @@ void TransferManager::prolog_resume_action(int vid)
         xfr << "MV "
             << tm_mad << " "
             << nd.get_nebula_hostname() << ":" 
-            << vm->get_system_dir() << "/disk." << i << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id << endl;
     }
@@ -695,17 +745,85 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int TransferManager::epilog_transfer_command(
+        VirtualMachine *        vm,
+        const VectorAttribute * disk,
+        ostream&                xfr,
+        string&                 error_str)
+{
+    string save;
+    string tm_mad;
+    string ds_id;
+    int    disk_index;
+
+    save   = disk->vector_value("SAVE");
+    ds_id  = disk->vector_value("DATASTORE_ID");
+    tm_mad = disk->vector_value("TM_MAD");
+
+    if ( save.empty() || ds_id.empty() || tm_mad.empty() )
+    {
+        return -2;
+    }
+
+    disk->vector_value("DISK_ID", disk_index);
+
+    transform(save.begin(),save.end(),save.begin(),(int(*)(int))toupper);
+
+    if ( save == "YES" )
+    {
+        string source;
+        string save_source;
+
+        source      = disk->vector_value("SOURCE");
+        save_source = disk->vector_value("SAVE_AS_SOURCE");
+
+        if (source.empty() && save_source.empty())
+        {
+            error_str = "No SOURCE to save disk image";
+            return -1;
+        }
+
+        if (!save_source.empty())//Use the save_as_source instead
+        {
+            source = save_source;
+        }
+
+        //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
+        xfr << "MVDS "
+            << tm_mad << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << source << " "
+            << vm->get_oid() << " "
+            << ds_id;
+    }
+    else //No saving disk
+    {
+        //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
+        xfr << "DELETE "
+            << tm_mad << " "
+            << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_oid() << " "
+            << ds_id;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void TransferManager::epilog_action(int vid)
 {
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
     string          system_tm_mad;
-    string          tm_mad;
-    string          ds_id;
+    string          error_str;
+    int             rc;
 
     const VectorAttribute * disk;
-    string          save;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
@@ -763,55 +881,19 @@ void TransferManager::epilog_action(int vid)
             continue;
         }
 
-        save   = disk->vector_value("SAVE");
-        ds_id  = disk->vector_value("DATASTORE_ID");
-        tm_mad = disk->vector_value("TM_MAD");
+        rc = epilog_transfer_command(vm, disk, xfr, error_str);
 
-        if ( save.empty() || ds_id.empty() || tm_mad.empty() )
+        if ( rc == -2 )
         {
             continue;
         }
-        
-        transform(save.begin(),save.end(),save.begin(),(int(*)(int))toupper);
 
-        if ( save == "YES" )
+        if ( rc == -1 )
         {
-            string source;
-            string save_source;
-
-            source      = disk->vector_value("SOURCE");
-            save_source = disk->vector_value("SAVE_AS_SOURCE");
-
-            if (source.empty() && save_source.empty())
-            {
-                vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
-                continue;
-            }
-
-            if (!save_source.empty())//Use the save_as_source instead
-            {
-                source = save_source;
-            }
-
-            //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
-            xfr << "MVDS " 
-                << tm_mad << " "
-                << vm->get_hostname() << ":" 
-                << vm->get_remote_system_dir() << "/disk." << i << " "
-                << source << " "
-                << vm->get_oid() << " "
-                << ds_id << endl;
+            vm->log("TM", Log::ERROR, error_str);
         }
-        else //No saving disk
-        {
-            //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
-            xfr << "DELETE "
-                << tm_mad << " "
-                << vm->get_hostname() << ":"
-                << vm->get_remote_system_dir() << "/disk." << i << " "
-                << vm->get_oid() << " "
-                << ds_id << endl;
-        }
+
+        xfr << endl;
     }
 
     //DELETE system_tm_mad hostname:remote_system_dir vmid ds_id
@@ -857,6 +939,7 @@ void TransferManager::epilog_stop_action(int vid)
     string        tm_mad;
     string        system_tm_mad;
     string        ds_id;
+    int           disk_id;
 
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
@@ -917,6 +1000,7 @@ void TransferManager::epilog_stop_action(int vid)
 
         tm_mad = disk->vector_value("TM_MAD");
         ds_id  = disk->vector_value("DATASTORE_ID");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if (tm_mad.empty() || ds_id.empty())
         {
@@ -927,9 +1011,9 @@ void TransferManager::epilog_stop_action(int vid)
         xfr << "MV "
             << tm_mad << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << nd.get_nebula_hostname() << ":" 
-            << vm->get_system_dir() << "/disk." << i << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id << endl;
     }
@@ -980,6 +1064,7 @@ void TransferManager::epilog_delete_action(int vid)
     string        system_tm_mad;
     string        tm_mad;
     string        ds_id;
+    int           disk_id;
 
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
@@ -1040,6 +1125,7 @@ void TransferManager::epilog_delete_action(int vid)
 
         tm_mad = disk->vector_value("TM_MAD");
         ds_id = disk->vector_value("DATASTORE_ID");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if ( tm_mad.empty() || ds_id.empty() )
         {
@@ -1050,7 +1136,7 @@ void TransferManager::epilog_delete_action(int vid)
         xfr << "DELETE "
             << tm_mad << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id << endl;
     }
@@ -1100,6 +1186,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
     string        system_tm_mad;
     string        tm_mad;
     string        ds_id;
+    int           disk_id;
 
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
@@ -1160,6 +1247,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
 
         tm_mad = disk->vector_value("TM_MAD");
         ds_id  = disk->vector_value("DATASTORE_ID");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if (tm_mad.empty() || ds_id.empty())
         {
@@ -1170,7 +1258,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
         xfr << "DELETE "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << i << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id << endl;
     }

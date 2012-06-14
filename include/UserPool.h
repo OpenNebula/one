@@ -131,7 +131,8 @@ public:
                       string&       uname,
                       string&       gname);
     /**
-     * Returns whether there is a user with given username/password or not
+     * Returns whether the operations described in a authorization request are
+     * authorized ot not.
      *   @param ar, an Authorization Request
      *   @return -1 if authz failed, 0 otherwise
      */

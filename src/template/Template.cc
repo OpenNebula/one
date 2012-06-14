@@ -281,6 +281,34 @@ int Template::erase(const string& name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Template::erase(Attribute * att)
+{
+    multimap<string, Attribute *>::iterator         i;
+
+    pair<
+        multimap<string, Attribute *>::iterator,
+        multimap<string, Attribute *>::iterator
+        >                                           index;
+
+    index = attributes.equal_range( att->name() );
+
+    for ( i = index.first; i != index.second; i++ )
+    {
+        if ( i->second == att )
+        {
+            delete att;
+            attributes.erase(i);
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Template::get(
     const string& name,
     vector<const Attribute*>& values) const

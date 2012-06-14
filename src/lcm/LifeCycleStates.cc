@@ -834,3 +834,102 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_success_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->attach_success();
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_failure_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->attach_failure();
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // TODO: update quotas, here or in VirtualMachine::attach_failure
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::detach_success_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->detach_success();
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // TODO: update quotas
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::detach_failure_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->detach_failure();
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+

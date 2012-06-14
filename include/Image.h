@@ -56,6 +56,13 @@ public:
     };
 
     /**
+     *  Return the string representation of an ImageType
+     *    @param ob the type
+     *    @return the string
+     */ 
+    static ImageType str_to_type(string& str_type);    
+
+    /**
      *  Type of Disks (used by the VMM_MAD). Values: BLOCK, CDROM or 
      *  FILE
      */

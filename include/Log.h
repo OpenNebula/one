@@ -80,6 +80,14 @@ public:
         const MessageType       type,
         const char *            message);
 
+    virtual void log(
+        const char *           module,
+        const Log::MessageType type,
+        const string&          message)
+    {
+        log(module,type,message.c_str());
+    };
+
 private:
     char * log_file;
 };

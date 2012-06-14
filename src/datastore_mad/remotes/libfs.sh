@@ -88,36 +88,29 @@ EOF
 #   @param $1 - Path to the image
 #   @return size of the image in Mb
 #-------------------------------------------------------------------------------
-function fs_du {
-	if [ -d "$1" ]; then
-		SIZE=`du -sb "$1" | cut -f1`
+function fs_size {
+
+	case $1 in
+	http://*)
+		SIZE=`curl --head $1 2>/dev/null | grep Length  | cut -d: -f`
 		error=$?
-	else
-		SIZE=`stat -c %s "$1"`
-		error=$?
-	fi
+	    ;;
+	*)
+		if [ -d "$1" ]; then
+			SIZE=`du -sb "$1" | cut -f1`
+			error=$?
+		else
+			SIZE=`stat -c %s "$1"`
+			error=$?
+		fi
+		;;
+	esac
 
 	if [ $error -ne 0 ]; then
 		SIZE=0
 	else
 		SIZE=$((($SIZE+1048575)/1048576))
 	fi
-
-	echo "$SIZE"
-}
-
-#-------------------------------------------------------------------------------
-# Computes the size of an image
-#   @param $1 - Path to the image
-#   @return size of the image in Mb
-#-------------------------------------------------------------------------------
-function qemu_size {
-	DISK="$1"
-
-	SIZE=`$QEMU_IMG info $DISK|grep "^virtual size:"|\
-        sed 's/^.*(\([0-9]\+\) bytes.*$/\1/g'`
-
-	SIZE=$((($SIZE+1048575)/1048576))
 
 	echo "$SIZE"
 }

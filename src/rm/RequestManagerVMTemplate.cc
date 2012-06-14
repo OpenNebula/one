@@ -98,7 +98,15 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             delete tmpl;
             return;
         }
+
+        if ( quota_authorization(tmpl, att) == false )
+        {
+            delete tmpl;
+            return;
+        }
     }
+
+    Template tmpl_back(*tmpl);
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
             error_str, false);
@@ -109,6 +117,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                 allocate_error(PoolObjectSQL::VM,error_str),
                 att);
 
+        quota_rollback(&tmpl_back, att);
+        
         return;
     }
     

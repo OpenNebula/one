@@ -68,7 +68,7 @@ DST=`generate_image_path`
 # ------------ Image to save_as disk, no need to create a FS ------------
 
 if [ "$FSTYPE" = "save_as" ]; then
-    echo "$DST $SIZE"
+    echo "$DST"
     exit 0
 fi
 
@@ -81,4 +81,4 @@ exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
 exec_and_log "$MKFS_CMD" \
     "Unable to create filesystem $FSTYPE in $DST"
 
-echo "$DST $SIZE"
+echo "$DST"

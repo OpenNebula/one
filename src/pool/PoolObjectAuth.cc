@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "PoolObjectAuth.h"
-#include "AuthManager.h"
+#include "AuthRequest.h"
 #include "AclRule.h"
 
 void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,

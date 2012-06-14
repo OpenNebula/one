@@ -212,8 +212,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    rc;
     string name;
 
-    string              value;
-    ostringstream       oss;
+    string        value;
+    ostringstream oss;
 
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -241,6 +241,24 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     this->name = name;
 
+    // ------------------------------------------------------------------------
+    // Check for CPU and MEMORY attributes
+    // ------------------------------------------------------------------------
+
+    get_template_attribute("MEMORY", value);
+
+    if ( value.empty())
+    {
+        goto error_no_memory;
+    }
+
+    get_template_attribute("CPU", value);
+
+    if ( value.empty())
+    {
+        goto error_no_cpu;
+    }
+    
     // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
@@ -321,9 +339,16 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
+error_no_cpu:
+    error_str = "CPU attribute missing.";
+    goto error_common;
+
+error_no_memory:
+    error_str = "MEMORY attribute missing.";
+    goto error_common;
+
 error_name_length:
-    oss << "NAME is too long; max length is 128 chars.";
-    error_str = oss.str(); 
+    error_str = "NAME is too long; max length is 128 chars."; 
     goto error_common;
 
 error_common:
@@ -897,6 +922,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 
     return;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1078,6 +1104,358 @@ error_common:
     }
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+// TODO: this method requires the VM to be locked, and then it locks the Image
+// to acquire. Check if this can be troublesome
+
+int VirtualMachine::attach_disk(VirtualMachineTemplate * tmpl, string& error_str)
+{
+    int                  num_disks, rc;
+    vector<Attribute  *> disks;
+    ImagePool *          ipool;
+    VectorAttribute *    disk;
+    VectorAttribute *    new_disk;
+    vector<int>          acquired_images;
+
+    int     new_disk_id;
+    int     image_id;
+    string  dev_prefix;
+    string  target;
+
+    queue<pair <string, VectorAttribute *> > disks_queue;
+
+    set<string> used_targets;
+
+    ostringstream    oss;
+    Image::ImageType img_type;
+
+    Nebula& nd = Nebula::instance();
+    ipool      = nd.get_ipool();
+
+    // -------------------------------------------------------------------------
+    // Get the DISK attribute from the template
+    // -------------------------------------------------------------------------
+
+    num_disks = tmpl->get("DISK", disks);
+
+    if ( num_disks != 1 )
+    {
+        goto error_no_disk;
+    }
+
+    new_disk = new VectorAttribute( *(dynamic_cast<VectorAttribute * >(disks[0])) );
+
+    // -------------------------------------------------------------------------
+    // See if there is a CONTEXT cdrom, and get the target it is using
+    // -------------------------------------------------------------------------
+    num_disks = obj_template->get("CONTEXT", disks);
+
+    if ( num_disks > 0 )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[0]);
+
+        if ( disk != 0 )
+        {
+            target = disk->vector_value("TARGET");
+
+            if ( !target.empty() )
+            {
+                used_targets.insert(target);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Check the used targets
+    // -------------------------------------------------------------------------
+    disks.clear();
+    num_disks = obj_template->get("DISK", disks);
+
+    if ( num_disks >= 20 )
+    {
+        goto error_max_disks;
+    }
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        target = disk->vector_value("TARGET");
+
+        if ( !target.empty() )
+        {
+            used_targets.insert(target);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Acquire the new disk image
+    // -------------------------------------------------------------------------
+
+    // num_disks +1 because the context is not a DISK, but it takes the
+    // ds/<vm_id>/disk.num_disks file
+    new_disk_id = num_disks + 1;
+
+    rc = ipool->disk_attribute(new_disk,
+                               new_disk_id,
+                               img_type,
+                               dev_prefix,
+                               uid,
+                               image_id,
+                               error_str);
+    if ( rc == 0 )
+    {
+        acquired_images.push_back(image_id);
+
+        target = new_disk->vector_value("TARGET");
+
+        if ( !target.empty() )
+        {
+            if (  used_targets.insert(target).second == false )
+            {
+                goto error_duplicated_target;
+            }
+        }
+        else
+        {
+            disks_queue.push( make_pair(dev_prefix, new_disk) );
+        }
+    }
+    else
+    {
+        goto error_common;
+    }
+
+    assign_disk_targets(disks_queue, used_targets);
+
+    // -------------------------------------------------------------------------
+    // Add the disk to the VM template
+    // -------------------------------------------------------------------------
+
+    new_disk->replace("ATTACH", "YES");
+
+    obj_template->set(new_disk);
+
+    return 0;
+
+error_no_disk:
+    error_str = "The template must contain one DISK attribute";
+    return -1;
+
+error_max_disks:
+    error_str = "Exceeded the maximum number of disks (20)";
+    return -1;
+
+error_duplicated_target:
+    oss << "Two disks have defined the same target " << target;
+    error_str = oss.str();
+
+error_common:
+    ImageManager *  imagem  = nd.get_imagem();
+
+    vector<int>::iterator it;
+
+    for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
+    {
+        imagem->release_image(*it, false);
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+// TODO: this method requires the VM to be locked, and then it locks the Image
+// to acquire. Check if this can be troublesome
+
+int VirtualMachine::detach_disk(int disk_id, string& error_str)
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+    bool                 found = false;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    int i = 0;
+    int d_id;
+
+    while( !found && i<num_disks )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        i++;
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        disk->vector_value("DISK_ID", d_id);
+        if ( d_id == disk_id )
+        {
+            disk->replace("ATTACH", "YES");
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute* VirtualMachine::get_attach_disk()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    ostringstream    oss;
+
+    // -------------------------------------------------------------------------
+    // Set DISK attributes & Targets
+    // -------------------------------------------------------------------------
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("ATTACH") == "YES" )
+        {
+            return disk;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::attach_success()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+    bool                 removed;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("ATTACH") == "YES" )
+        {
+            disk->remove("ATTACH");
+            removed = true;
+        }
+    }
+
+    if ( removed )
+    {
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+// TODO: this method requires the VM to be locked, and then it locks the Image
+// to release. Check if this can be troublesome
+
+int VirtualMachine::attach_failure()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+    bool                 found = false;
+    bool                 uses_image = false;
+    int                  iid;
+
+    Nebula&         nd      = Nebula::instance();
+    ImageManager *  imagem  = nd.get_imagem();
+
+    num_disks = obj_template->get("DISK", disks);
+
+    int i = 0;
+
+    while( !found && i<num_disks )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        i++;
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("ATTACH") == "YES" )
+        {
+            uses_image = ( disk->vector_value("IMAGE_ID", iid) != -1 );
+
+            obj_template->erase(disk);
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        return -1;
+    }
+
+    if ( uses_image )
+    {
+        imagem->release_image(iid, false);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::detach_success()
+{
+    return attach_failure();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::detach_failure()
+{
+    return attach_success();
 }
 
 /* -------------------------------------------------------------------------- */

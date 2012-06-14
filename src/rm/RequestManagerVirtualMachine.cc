@@ -518,39 +518,44 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Create a template for the new Image
     // -------------------------------------------------------------------------
-    ImageTemplate *  itemplate;
-    ostringstream    oss;
+    ImageTemplate * itemplate = new ImageTemplate;
+    Template        img_usage;
 
-    oss << "NAME    = \"" << img_name << "\"" << endl;
-    oss << "SIZE    = "   << size << endl;
+    itemplate->add("NAME", img_name);
+    itemplate->add("SIZE", size);
 
-    oss << "SAVED_IMAGE_ID = " << iid_orig << endl;
-    oss << "SAVED_DISK_ID  = " << disk_id << endl;
-    oss << "SAVED_VM_ID    = " <<  id << endl;
+    itemplate->add("SAVED_IMAGE_ID",iid_orig);
+    itemplate->add("SAVED_DISK_ID",disk_id);
+    itemplate->add("SAVED_VM_ID", id);
 
     if ( img_type.empty() )
     {
-        oss << "TYPE = " << Image::type_to_str(type) << endl;
+        itemplate->add("TYPE", Image::type_to_str(type));
     }
     else
     {
-        oss << "TYPE = " << img_type << endl;
+        itemplate->add("TYPE", img_type);
     }
-
-    itemplate = new ImageTemplate;
-
-    itemplate->parse_str_or_xml(oss.str(), error_str);
 
     itemplate->set_saving();
 
+    img_usage.add("SIZE",      size);
+    img_usage.add("DATASTORE", ds_id);
+
     // -------------------------------------------------------------------------
-    // Authorize the operation
+    // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
 
     if ( vm_authorization(id, itemplate, att, 0, &ds_perms, auth_op) == false )
     {
         delete itemplate;
         return;
+    }
+
+    if ( quota_authorization(&img_usage, PoolObjectSQL::IMAGE, att) == false )
+    {
+        delete itemplate;
+        return;   
     }
 
     // -------------------------------------------------------------------------
@@ -570,6 +575,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          error_str);
     if (rc < 0)
     {
+        quota_rollback(&img_usage, PoolObjectSQL::IMAGE, att);
+
         failure_response(INTERNAL,
                 allocate_error(PoolObjectSQL::IMAGE, error_str), att);
         return;
@@ -609,6 +616,110 @@ void VirtualMachineMonitoring::request_execute(
     success_response(oss.str(), att);
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
+                                            RequestAttributes& att)
+{
+    Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+
+    VirtualMachine * vm;
+    VirtualMachineTemplate * tmpl;
+    PoolObjectAuth host_perms;
+
+    int rc;
+    string error_str;
+
+    int     id       = xmlrpc_c::value_int(paramList.getInt(1));
+    string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    tmpl = new VirtualMachineTemplate();
+
+    rc   = tmpl->parse_str_or_xml(str_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, "", att);    // TODO: error message
+        delete tmpl;
+
+        return;
+    }
+
+    // TODO: auth & quotas
+
+    vm = get_vm(id, att);
+
+    if ( vm == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+        delete tmpl;
+
+        return;
+    }
+
+    rc = dm->attach(vm, tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+
+        return;
+    }
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
+                                            RequestAttributes& att)
+{
+    Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+
+    VirtualMachine * vm;
+    PoolObjectAuth host_perms;
+
+    int rc;
+    string error_str;
+
+    int     id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int     disk_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // TODO: auth & quotas
+
+    vm = get_vm(id, att);
+
+    if ( vm == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
+        return;
+    }
+
+    rc = dm->detach(vm, disk_id, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+
+        return;
+    }
+
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */

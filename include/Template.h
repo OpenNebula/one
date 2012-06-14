@@ -135,6 +135,30 @@ public:
     virtual void set(Attribute * attr);
 
     /**
+     *  Adds a new single attribute to the template.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
+     void add(const string& name, const string& value)
+     {
+        set(new SingleAttribute(name, value));
+     }
+
+    /**
+     *  Adds a new single attribute to the template.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
+     void add(const string& name, int value)
+     {
+        ostringstream oss;
+
+        oss << value;
+
+        set(new SingleAttribute(name, oss.str()));
+     }
+
+    /**
      *  Removes an attribute from the template. The attributes are returned. The
      *  attributes MUST be freed by the calling funtion
      *    @param name of the attribute
@@ -151,6 +175,13 @@ public:
      *    @return the number of attributes removed
      */
     virtual int erase(const string& name);
+
+    /**
+     *  Removes an attribute from the template, and frees the attributes.
+     *    @param att Attribute to remove. It will be deleted
+     *    @return the number of attributes removed
+     */
+    virtual int erase(Attribute * att);
 
     /**
      *  Gets all the attributes with the given name.

@@ -56,7 +56,9 @@ public:
         POLL,
         TIMER,
         DRIVER_CANCEL,
-        FINALIZE
+        FINALIZE,
+        ATTACH,
+        DETACH
     };
 
     /**
@@ -199,6 +201,9 @@ private:
      *    @param domain domain id as returned by the hypervisor
      *    @param dfile deployment file to boot the VM
      *    @param cfile checkpoint file to save the VM
+     *    @param disk_id Disk to attach/detach, if any
+     *    @param tm_command Transfer Manager command to attach/detach, if any
+     *    @param disk_target_path Path of the disk to attach, if any
      *    @param tmpl the VM information in XML
      */
     string * format_message(
@@ -210,6 +215,9 @@ private:
         const string& ldfile,
         const string& rdfile,
         const string& cfile,
+        int           disk_id,
+        const string& tm_command,
+        const string& disk_target_path,
         const string& tmpl);
  
     /**
@@ -289,6 +297,22 @@ private:
      *  This function is executed periodically to poll the running VMs
      */
     void timer_action();
+
+    /**
+     * Attaches a new disk to a VM. The VM must have a disk with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void attach_action(
+        int vid);
+
+    /**
+     * Detaches a disk from a VM. The VM must have a disk with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void detach_action(
+        int vid);
 
     /**
      *  This function cancels the current driver operation

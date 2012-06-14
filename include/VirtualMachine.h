@@ -79,7 +79,8 @@ public:
         CANCEL         = 13,
         FAILURE        = 14,
         CLEANUP        = 15,
-        UNKNOWN        = 16
+        UNKNOWN        = 16,
+        HOTPLUG        = 17
     };
 
     // -------------------------------------------------------------------------
@@ -109,6 +110,21 @@ public:
         const char *            module,
         const Log::MessageType  type,
         const char *            message) const
+    {
+        if (_log != 0)
+        {
+            _log->log(module,type,message);
+        }
+    };
+
+    /**
+     *  writes a log message in vm.log. The class lock should be locked and
+     *  the VM MUST BE obtained through the VirtualMachinePool get() method.
+     */
+    void log(
+        const char *           module,
+        const Log::MessageType type,
+        const string&          message) const
     {
         if (_log != 0)
         {
@@ -569,6 +585,17 @@ public:
         return new VirtualMachineTemplate;
     }
 
+    /**
+     *  Returns a copy of the VirtualMachineTemplate
+     *    @return A copy of the VirtualMachineTemplate
+     */
+    VirtualMachineTemplate * clone_template() const
+    {
+        return new VirtualMachineTemplate(
+                *(static_cast<VirtualMachineTemplate *>(obj_template)));
+    };
+
+
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------
@@ -726,6 +753,67 @@ public:
     static void set_auth_request(int uid, 
                                  AuthRequest& ar, 
                                  VirtualMachineTemplate *tmpl);
+
+    // ------------------------------------------------------------------------
+    // Hotplug related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Attaches a new disk. It will acquire the Image used, if any, and add the
+     * disk to the VM template. The VM must be updated in the DB afterwards.
+     *
+     * @param tmpl Template containing a single DISK vector attribute. The
+     * caller must delete this template
+     * @param error_str Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int attach_disk(VirtualMachineTemplate * tmpl, string& error_str);
+
+    /**
+     *
+     * @param disk_id
+     * @param error_str
+     * @return
+     */
+    int detach_disk(int disk_id, string& error_str);
+
+    /**
+     * Returns the disk that is waiting for an attachment action
+     *
+     * @return the disk waiting for an attachment action, or 0
+     */
+    VectorAttribute* get_attach_disk();
+
+    /**
+     * Cleans the ATTACH = YES attribute from the disks
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int attach_success();
+
+    /**
+     * Deletes the DISK that was in the process of being attached, and releases
+     * the image, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int attach_failure();
+
+    /**
+     * Cleans the ATTACH = YES attribute from the disks
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int detach_success();
+
+    /**
+     * Cleans the ATTACH = YES attribute from the disks
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int detach_failure();
+
 private:
 
     // -------------------------------------------------------------------------

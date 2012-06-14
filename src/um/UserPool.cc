@@ -762,4 +762,3 @@ int UserPool::authorize(AuthRequest& ar)
 
     return rc;
 }
-

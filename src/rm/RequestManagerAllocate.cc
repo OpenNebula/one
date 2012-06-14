@@ -15,7 +15,6 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerAllocate.h"
-#include "NebulaLog.h"
 
 #include "Nebula.h"
 #include "PoolObjectSQL.h"
@@ -80,7 +79,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
-    // Check template for restricted attributes
+    // ------------ Check template for restricted attributes -------------------
 
     if ( att.uid != 0 && att.gid != GroupPool::ONEADMIN_ID )
     {
@@ -98,6 +97,8 @@ bool VirtualMachineAllocate::allocate_authorization(
         }
     }
 
+    // ------------------ Authorize VM create operation ------------------------
+
     ar.add_create_auth(auth_object, tmpl->to_xml(t64));
 
     VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
@@ -108,6 +109,13 @@ bool VirtualMachineAllocate::allocate_authorization(
                 authorization_error(ar.message, att),
                 att);
 
+        return false;
+    }
+
+    // -------------------------- Check Quotas  ----------------------------
+
+    if ( quota_authorization(tmpl, att) == false )
+    {
         return false;
     }
 
@@ -266,8 +274,17 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     VirtualMachineTemplate * ttmpl= static_cast<VirtualMachineTemplate *>(tmpl);
     VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
 
-    return vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
-            error_str, false);
+    Template tmpl_back(*tmpl);
+
+    int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
+                error_str, false);
+
+    if ( rc < 0 )
+    {
+        quota_rollback(&tmpl_back, att);
+    }
+
+    return rc;
 }
 
 
@@ -297,8 +314,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                                              RequestAttributes& att)
 {
     string error_str;
+    string size_str;
+
+    int           size_mb;
+    istringstream iss;
+
     string ds_name;
     string ds_data;
+
     int    rc, id;
 
     PoolObjectAuth ds_perms;
@@ -309,9 +332,12 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     Nebula&  nd  = Nebula::instance();
 
     DatastorePool * dspool = nd.get_dspool();
-    ImagePool * ipool      = static_cast<ImagePool *>(pool);
-
+    ImagePool *     ipool  = static_cast<ImagePool *>(pool);
+    ImageManager *  imagem = nd.get_imagem();
+    
     ImageTemplate * tmpl = new ImageTemplate;
+    Template        img_usage;
+
     Datastore *     ds;
     Image::DiskType ds_disk_type;
 
@@ -359,13 +385,45 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds->unlock();
 
+    // --------------- Get the SIZE for the Image, (DS driver) -----------------
+
+    rc = imagem->stat_image(tmpl, ds_data, size_str);
+
+    if ( rc == -1 )
+    {
+        failure_response(INTERNAL, 
+                         request_error("Cannot determine Image SIZE", size_str), 
+                         att);
+        delete tmpl;
+        return;
+    }
+
+    iss.str(size_str);
+    iss >> size_mb;
+
+    if ( iss.fail() )
+    {
+        failure_response(INTERNAL, 
+                         request_error("Cannot parse SIZE", size_str), 
+                         att);
+        delete tmpl;
+        return;   
+    }
+
+    tmpl->erase("SIZE");
+    tmpl->add("SIZE", size_str);
+
     // ------------- Set authorization request for non-oneadmin's --------------
+    
+    img_usage.add("DATASTORE", ds_id);
+    img_usage.add("SIZE", size_str);
 
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.gid);
-        string      tmpl_str = "";
+        string  tmpl_str;
 
+        // ------------------ Check permissions and ACLs  ----------------------
         tmpl->to_xml(tmpl_str);
 
         ar.add_create_auth(auth_object, tmpl_str); // CREATE IMAGE
@@ -380,6 +438,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
             delete tmpl;
             return;
+        }
+
+        // -------------------------- Check Quotas  ----------------------------
+
+        if ( quota_authorization(&img_usage, att) == false )
+        {
+            delete tmpl;
+            return;   
         }
     }
 
@@ -396,6 +462,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          error_str);
     if ( rc < 0 )
     {
+        quota_rollback(&img_usage, att);
+
         failure_response(INTERNAL, allocate_error(error_str), att);
         return;
     }
@@ -454,9 +522,6 @@ int HostAllocate::pool_allocate(
                            cluster_id, cluster_name, error_str);
 
 }
-
-/* -------------------------------------------------------------------------- */
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

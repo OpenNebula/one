@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'one_helper/onequota_helper'
 
 class OneUserHelper < OpenNebulaHelper::OneHelper
     def self.rname
@@ -163,11 +164,35 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d["AUTH_DRIVER"]
             end
 
+            column :VMS, "Number of VMS", :size=>8 do |d|             
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['VMS']
+                else
+                    "-"
+                end 
+            end
+
+            column :MEMORY, "Total memory allocated to user VMs", :size=>8 do |d|
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['MEMORY_USED']
+                else
+                    "-"
+                end
+            end
+
+            column :CPU, "Total CPU allocated to user VMs", :size=>8 do |d|
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    d['VM_QUOTA']['VM']['CPU_USED']
+                else
+                    "-"
+                end
+            end
+
             column :PASSWORD, "Password of the User", :size=>50 do |d|
                 d['PASSWORD']
             end
 
-            default :ID, :GROUP, :NAME, :AUTH, :PASSWORD
+            default :ID, :GROUP, :NAME, :AUTH, :VMS, :MEMORY, :CPU
         end
 
         table
@@ -207,5 +232,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
         puts user.template_str
+
+        user_hash = user.to_hash
+
+        OneQuotaHelper.format_quota(user_hash['USER'])
     end
 end

@@ -166,6 +166,40 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAttach : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttach():
+        RequestManagerVirtualMachine("VirtualMachineAttach",
+                           "Attaches a new disk to the virtual machine",
+                           "A:sis"){};
+
+    ~VirtualMachineAttach(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineDetach : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDetach():
+        RequestManagerVirtualMachine("VirtualMachineDetach",
+                           "Detaches a disk from a virtual machine",
+                           "A:sii"){};
+
+    ~VirtualMachineDetach(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
