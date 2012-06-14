@@ -64,11 +64,15 @@ class Stream
     end
 
     def open_output_file
-        begin
-            @output_file=File.open(@to, "w")
-        rescue
-            STDERR.puts "Error opening output file '#{@to}"
-            exit(-1)
+        if @to=='-'
+            @output_file=STDOUT
+        else
+            begin
+                @output_file=File.open(@to, "w")
+            rescue
+                STDERR.puts "Error opening output file '#{@to}"
+                exit(-1)
+            end
         end
     end
 
@@ -175,6 +179,8 @@ class Stream
 
         begin
             case @from
+            when '-'
+                io=STDIN
             when /^https?:\/\//
                 io=wget_downloader(@from)
             when /^file:\/\/(.*)$/
@@ -220,7 +226,7 @@ class Stream
 
         check_hashes
 
-        postprocess
+        postprocess if @to!='-'
     end
 
     def postprocess
