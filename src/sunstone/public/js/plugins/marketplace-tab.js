@@ -90,6 +90,19 @@ var market_actions = {
                 success: function(response){
                     document.getElementById("img_name").value = response['name'];
                     document.getElementById("img_path").value = response['links']['download']['href'];
+
+                    var md5 = response['files'][0]['checksum']['md5']
+                    if ( md5 ) {
+                        option = '<option value=\''+md5+'\' name="MD5">MD5='+md5+'</option>';
+                        $("#custom_var_image_box").append(option);
+                    }
+
+                    var sha1 = response['files'][0]['checksum']['sha1']
+                    if ( sha1 ) {
+                        option = '<option value=\''+sha1+'\' name="SHA1">SHA1='+sha1+'</option>';
+                        $("#custom_var_image_box").append(option);
+                    }
+
                     popUpCreateImageDialog();
                 },
                 error: function(response)
