@@ -240,15 +240,19 @@ public:
         bool do_resched);
 
     /**
-     * Starts the attach disk action. The VM must be prepared before, calling
-     * VirtualMachine::attach_disk
+     * Starts the attach disk action.
      *
-     * @param vid VirtualMachine identification
-     * @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
+     * @param vm pointer to a VirtualMachine with its mutex locked. It will be
+     * unlocked
+     * @param tmpl Template containing the new DISK attribute.
+     * It will be deleted
+     * @param error_str Error reason, if any
+     * @return 0 on success, -1 action error, -2 if the VM is in a wrong a state
      */
     int attach(
-        int vid);
+        VirtualMachine *         vm,
+        VirtualMachineTemplate * tmpl,
+        string &                 error_str);
 
 private:
     /**

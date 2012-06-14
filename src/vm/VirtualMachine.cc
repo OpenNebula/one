@@ -1140,7 +1140,7 @@ int VirtualMachine::attach_disk(VirtualMachineTemplate * tmpl, string& error_str
     // Get the DISK attribute from the template
     // -------------------------------------------------------------------------
 
-    num_disks = obj_template->get("DISK", disks);
+    num_disks = tmpl->get("DISK", disks);
 
     if ( num_disks != 1 )
     {
@@ -1309,13 +1309,12 @@ VectorAttribute* VirtualMachine::get_attach_disk()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::end_attach_operation()
+int VirtualMachine::attach_success()
 {
     int                  num_disks;
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
-
-    ostringstream    oss;
+    bool                 removed;
 
     num_disks = obj_template->get("DISK", disks);
 
@@ -1331,7 +1330,68 @@ int VirtualMachine::end_attach_operation()
         if ( disk->vector_value("ATTACH") == "YES" )
         {
             disk->remove("ATTACH");
+            removed = true;
         }
+    }
+
+    if ( removed )
+    {
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+// TODO: this method requires the VM to be locked, and then it locks the Image
+// to release. Check if this can be troublesome
+
+int VirtualMachine::attach_failure()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+    bool                 found = false;
+    bool                 uses_image = false;
+    int                  iid;
+
+    Nebula&         nd      = Nebula::instance();
+    ImageManager *  imagem  = nd.get_imagem();
+
+    num_disks = obj_template->get("DISK", disks);
+
+    int i = 0;
+
+    while( !found && i<num_disks )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        i++;
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("ATTACH") == "YES" )
+        {
+            uses_image = ( disk->vector_value("IMAGE_ID", iid) != -1 );
+
+            obj_template->erase(disk);
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        return -1;
+    }
+
+    if ( uses_image )
+    {
+        imagem->release_image(iid, false);
     }
 
     return 0;

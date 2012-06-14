@@ -1354,7 +1354,7 @@ void VirtualMachineManager::attach_action(
 
     if ( disk == 0 )
     {
-        return;
+        goto error_disk;
     }
 
     system_tm_mad = nd.get_system_ds_tm_mad();
@@ -1401,6 +1401,11 @@ void VirtualMachineManager::attach_action(
     vm->unlock();
 
     return;
+
+error_disk:
+    os.str("");
+    os << "attach_action, could not find disk to attach";
+    goto error_common;
 
 error_history:
     os.str("");

@@ -637,8 +637,6 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     int     id       = xmlrpc_c::value_int(paramList.getInt(1));
     string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
 
-    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
-
     tmpl = new VirtualMachineTemplate();
 
     rc   = tmpl->parse_str_or_xml(str_tmpl, error_str);
@@ -667,26 +665,17 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = vm->attach_disk(tmpl, error_str);
+    rc = dm->attach(vm, tmpl, error_str);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, "", att);    // TODO: error message
-
-        vm->unlock();
-        delete tmpl;
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
 
         return;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
-    dm->attach(id);
-
-
-    delete tmpl;
     success_response(id, att);
 }
 

@@ -838,8 +838,6 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
 void LifeCycleManager::attach_success_action(int vid)
 {
     VirtualMachine *    vm;
-    VectorAttribute *   disk;
-    int                 disk_id;
 
     vm = vmpool->get(vid,true);
 
@@ -848,7 +846,9 @@ void LifeCycleManager::attach_success_action(int vid)
         return;
     }
 
-    vm->end_attach_operation();
+    vm->attach_success();
+
+    vm->set_state(VirtualMachine::RUNNING);
 
     vmpool->update(vm);
 
@@ -860,9 +860,24 @@ void LifeCycleManager::attach_success_action(int vid)
 
 void LifeCycleManager::attach_failure_action(int vid)
 {
-    // TODO: For now, on success or failure the LCM just cleans the ATTACH
-    // attribute of the VM disk.
-    attach_success_action(vid);
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->attach_failure();
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // TODO: update quotas, here or in VirtualMachine::attach_failure
 }
 
 /* -------------------------------------------------------------------------- */

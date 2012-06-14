@@ -845,44 +845,59 @@ int DispatchManager::resubmit(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::attach(int vid)
+int DispatchManager::attach(
+        VirtualMachine *            vm,
+        VirtualMachineTemplate *    tmpl,
+        string &                    error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream   oss;
+    int             rc;
+    int             vid = vm->get_oid();
 
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
+    Nebula&                 nd = Nebula::instance();
+    VirtualMachineManager * vmm = nd.get_vmm();
 
     oss << "Attaching a new disk to VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    if ( vm->get_state() != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
-        vmm->trigger(VirtualMachineManager::ATTACH,vid);
+        goto error_state;
     }
-    else
+
+    rc = vm->attach_disk(tmpl, error_str);
+
+    if ( rc != 0 )
     {
         goto error;
     }
 
+    vm->set_state(VirtualMachine::HOTPLUG);
+    vmpool->update(vm);
+
     vm->unlock();
+    delete tmpl;
+
+    vmm->trigger(VirtualMachineManager::ATTACH,vid);
 
     return 0;
 
 error:
+    vm->unlock();
+    delete tmpl;
+
+    return -1;
+
+error_state:
     oss.str("");
     oss << "Could not attach a new disk to VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    error_str = oss.str();
+
+    NebulaLog::log("DiM", Log::ERROR, error_str);
 
     vm->unlock();
+    delete tmpl;
 
     return -2;
 }

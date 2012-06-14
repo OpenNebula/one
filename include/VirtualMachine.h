@@ -79,7 +79,8 @@ public:
         CANCEL         = 13,
         FAILURE        = 14,
         CLEANUP        = 15,
-        UNKNOWN        = 16
+        UNKNOWN        = 16,
+        HOTPLUG        = 17
     };
 
     // -------------------------------------------------------------------------
@@ -764,9 +765,17 @@ public:
     /**
      * Cleans the ATTACH = YES attribute from the disks
      *
-     * @return 0 on success
+     * @return 0 on success, -1 otherwise
      */
-    int end_attach_operation();
+    int attach_success();
+
+    /**
+     * Deletes the DISK that was in the process of being attached, and releases
+     * the image, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int attach_failure();
 
 private:
 
