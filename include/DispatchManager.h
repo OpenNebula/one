@@ -247,12 +247,28 @@ public:
      * @param tmpl Template containing the new DISK attribute.
      * It will be deleted
      * @param error_str Error reason, if any
+     *
      * @return 0 on success, -1 action error, -2 if the VM is in a wrong a state
      */
     int attach(
         VirtualMachine *         vm,
         VirtualMachineTemplate * tmpl,
         string &                 error_str);
+
+    /**
+     * Starts the detach disk action.
+     *
+     * @param vm pointer to a VirtualMachine with its mutex locked. It will be
+     * unlocked
+     * @param disk_id Disk to detach
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 action error, -2 if the VM is in a wrong a state
+     */
+    int detach(
+        VirtualMachine* vm,
+        int             disk_id,
+        string &        error_str);
 
 private:
     /**

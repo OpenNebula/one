@@ -1275,6 +1275,51 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+// TODO: this method requires the VM to be locked, and then it locks the Image
+// to acquire. Check if this can be troublesome
+
+int VirtualMachine::detach_disk(int disk_id, string& error_str)
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+    bool                 found = false;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    int i = 0;
+    int d_id;
+
+    while( !found && i<num_disks )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        i++;
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        disk->vector_value("DISK_ID", d_id);
+        if ( d_id == disk_id )
+        {
+            disk->replace("ATTACH", "YES");
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 VectorAttribute* VirtualMachine::get_attach_disk()
 {
     int                  num_disks;
@@ -1395,6 +1440,22 @@ int VirtualMachine::attach_failure()
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::detach_success()
+{
+    return attach_failure();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::detach_failure()
+{
+    return attach_success();
 }
 
 /* -------------------------------------------------------------------------- */

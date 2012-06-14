@@ -354,6 +354,25 @@ void VirtualMachineManagerDriver::protocol(
             lcm->trigger(LifeCycleManager::ATTACH_FAILURE, id);
         }
     }
+    else if ( action == "DETACH" )
+    {
+        Nebula              &ne  = Nebula::instance();
+        LifeCycleManager    *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM",Log::ERROR,"VM Disk Successfully detached.");
+
+            lcm->trigger(LifeCycleManager::DETACH_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm,os,is,"Error detaching VM Disk");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::DETACH_FAILURE, id);
+        }
+    }
     else if ( action == "POLL" )
     {
         if (result == "SUCCESS")

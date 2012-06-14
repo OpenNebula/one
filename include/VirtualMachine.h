@@ -118,6 +118,21 @@ public:
     };
 
     /**
+     *  writes a log message in vm.log. The class lock should be locked and
+     *  the VM MUST BE obtained through the VirtualMachinePool get() method.
+     */
+    void log(
+        const char *           module,
+        const Log::MessageType type,
+        const string&          message) const
+    {
+        if (_log != 0)
+        {
+            _log->log(module,type,message);
+        }
+    };
+
+    /**
      * Function to print the VirtualMachine object into a string in
      * XML format
      *  @param xml the resulting XML string
@@ -756,6 +771,14 @@ public:
     int attach_disk(VirtualMachineTemplate * tmpl, string& error_str);
 
     /**
+     *
+     * @param disk_id
+     * @param error_str
+     * @return
+     */
+    int detach_disk(int disk_id, string& error_str);
+
+    /**
      * Returns the disk that is waiting for an attachment action
      *
      * @return the disk waiting for an attachment action, or 0
@@ -776,6 +799,20 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int attach_failure();
+
+    /**
+     * Cleans the ATTACH = YES attribute from the disks
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int detach_success();
+
+    /**
+     * Cleans the ATTACH = YES attribute from the disks
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int detach_failure();
 
 private:
 

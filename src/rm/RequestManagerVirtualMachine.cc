@@ -651,8 +651,6 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     // TODO: auth & quotas
 
-    // TODO: set vm state HOTPLUG & vm->set_resched(false); // Cancel re-scheduling actions
-
     vm = get_vm(id, att);
 
     if ( vm == 0 )
@@ -666,6 +664,51 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     rc = dm->attach(vm, tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+
+        return;
+    }
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
+                                            RequestAttributes& att)
+{
+    Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+
+    VirtualMachine * vm;
+    PoolObjectAuth host_perms;
+
+    int rc;
+    string error_str;
+
+    int     id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int     disk_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // TODO: auth & quotas
+
+    vm = get_vm(id, att);
+
+    if ( vm == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
+        return;
+    }
+
+    rc = dm->detach(vm, disk_id, error_str);
 
     if ( rc != 0 )
     {
