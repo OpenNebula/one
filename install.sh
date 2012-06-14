@@ -882,12 +882,14 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
                          src/datastore_mad/remotes/iscsi/stat \
                          src/datastore_mad/remotes/iscsi/rm \
+                         src/datastore_mad/remotes/iscsi/clone \
                          src/datastore_mad/remotes/iscsi/iscsi.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/mkfs \
                          src/datastore_mad/remotes/lvm/stat \
                          src/datastore_mad/remotes/lvm/rm \
+                         src/datastore_mad/remotes/lvm/clone \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
 #-------------------------------------------------------------------------------

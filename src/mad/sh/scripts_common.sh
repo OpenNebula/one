@@ -318,12 +318,12 @@ function tgtadm_target_new {
     IQN="$2"
 
     echo "$TGTADM --lld iscsi --op new --mode target --tid $ID "\
-        "--targetname $IQN;"
+        "--targetname $IQN"
 }
 
 function tgtadm_target_bind_all {
     ID="$1"
-    echo "$TGTADM  --lld iscsi --op bind --mode target --tid $ID -I ALL"
+    echo "$TGTADM --lld iscsi --op bind --mode target --tid $ID -I ALL"
 }
 
 function tgtadm_logicalunit_new {
