@@ -89,9 +89,18 @@ class Stream
 
     def process(data)
         begin
-            @compr_in.write(data)
-            @compr_in.flush
-        rescue Errno::EPIPE
+            try=5
+            begin
+                @compr_in.write(data)
+                @compr_in.flush
+            rescue
+                if try>0
+                    try-=1
+                    sleep 0.1
+                    retry
+                end
+            end
+        rescue
             STDERR.puts "Error uncompressing image."
             exit(-1)
         end
