@@ -142,48 +142,82 @@ int Quotas::from_xml(ObjectXML * object_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Quotas::vm_del(int uid, int gid, Template * tmpl)
+void Quotas::quota_del(QuotaType type, Template *tmpl)
 {
-    Nebula&     nd    = Nebula::instance();
-    UserPool *  upool = nd.get_upool();
-    GroupPool * gpool = nd.get_gpool();
-
-    User *  user;
-    Group * group;
-
-    if ( uid != UserPool::ONEADMIN_ID )
+    switch (type)
     {
-        user = upool->get(uid, true);
+        case DATASTORE:
+            datastore_quota.del(tmpl);
+        break;
 
-        if ( user != 0 )
-        {
-            user->quota.vm_del(tmpl);
+        case NETWORK:
+            network_quota.del(tmpl);
+        break;
 
-            upool->update(user);
+        case IMAGE:
+            image_quota.del(tmpl);
+        break;
 
-            user->unlock();
-        }
+        case VM:
+            vm_quota.del(tmpl);
+        break;
+
+        case VIRTUALMACHINE:
+            network_quota.del(tmpl);
+            vm_quota.del(tmpl);
+            image_quota.del(tmpl);
+        break;
     }
-    
-    if ( gid != GroupPool::ONEADMIN_ID )
-    {
-        group = gpool->get(gid, true);
-
-        if ( group != 0 )
-        {
-            group->quota.vm_del(tmpl);
-
-            gpool->update(group);
-
-            group->unlock();
-        } 
-   }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Quotas::ds_del(int uid, int gid, Template * tmpl)
+bool Quotas::quota_check(QuotaType type, Template *tmpl, string& error_str)
+{
+    switch (type)
+    {
+        case DATASTORE:
+            return datastore_quota.check(tmpl, error_str);
+
+        case NETWORK:
+            return network_quota.check(tmpl, error_str);
+
+        case IMAGE:
+            return image_quota.check(tmpl, error_str);
+
+        case VM:
+            return vm_quota.check(tmpl, error_str);
+
+        case VIRTUALMACHINE:
+            if ( network_quota.check(tmpl, error_str) == false )
+            {
+                return false;
+            }
+
+            if ( vm_quota.check(tmpl, error_str) == false )
+            {
+                network_quota.del(tmpl);
+                return false;
+            }
+
+            if ( image_quota.check(tmpl, error_str) == false )
+            {
+                network_quota.del(tmpl);
+                vm_quota.del(tmpl);
+                return false;
+            }
+
+            return true;
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
 {
     Nebula&     nd    = Nebula::instance();
     UserPool *  upool = nd.get_upool();
@@ -198,7 +232,7 @@ void Quotas::ds_del(int uid, int gid, Template * tmpl)
 
         if ( user != 0 )
         {
-            user->quota.ds_del(tmpl);
+            user->quota.quota_del(type, tmpl);
 
             upool->update(user);
 
@@ -212,7 +246,7 @@ void Quotas::ds_del(int uid, int gid, Template * tmpl)
 
         if ( group != 0 )
         {
-            group->quota.ds_del(tmpl);
+            group->quota.quota_del(type, tmpl);
 
             gpool->update(group);
 

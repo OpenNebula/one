@@ -113,7 +113,7 @@ bool Request::basic_authorization(int oid,
 /* -------------------------------------------------------------------------- */
 
 bool Request::user_quota_authorization (Template * tmpl, 
-                                        PoolObjectSQL::ObjectType object,
+                                        Quotas::QuotaType  qtype,
                                         RequestAttributes& att,
                                         string& error_str)
 {
@@ -131,20 +131,7 @@ bool Request::user_quota_authorization (Template * tmpl,
         return false;
     }
 
-    switch (object)
-    {
-        case PoolObjectSQL::IMAGE:
-            rc = user->quota.ds_check(tmpl, error_str);
-            break;
-
-        case PoolObjectSQL::VM:
-        case PoolObjectSQL::TEMPLATE:
-            rc = user->quota.vm_check(tmpl, error_str);
-            break;
-
-        default:
-            break;
-    }
+    rc = user->quota.quota_check(qtype, tmpl, error_str);
 
     if (rc == true)
     {
@@ -159,7 +146,7 @@ bool Request::user_quota_authorization (Template * tmpl,
 /* -------------------------------------------------------------------------- */
 
 bool Request::group_quota_authorization (Template * tmpl, 
-                                         PoolObjectSQL::ObjectType object,
+                                         Quotas::QuotaType  qtype,
                                          RequestAttributes& att,
                                          string& error_str)
 {
@@ -177,20 +164,7 @@ bool Request::group_quota_authorization (Template * tmpl,
         return false;
     }
 
-    switch (object)
-    {
-        case PoolObjectSQL::IMAGE:
-            rc = group->quota.ds_check(tmpl, error_str);
-            break;
-
-        case PoolObjectSQL::VM:
-        case PoolObjectSQL::TEMPLATE:
-            rc = group->quota.vm_check(tmpl, error_str);
-            break;
-
-        default:
-            break;
-    }
+    rc = group->quota.quota_check(qtype, tmpl, error_str);
 
     if (rc == true)
     {
@@ -204,8 +178,8 @@ bool Request::group_quota_authorization (Template * tmpl,
 
 /* -------------------------------------------------------------------------- */
 
-void Request::user_quota_rollback(Template * tmpl, 
-                                  PoolObjectSQL::ObjectType object, 
+void Request::user_quota_rollback(Template *         tmpl, 
+                                  Quotas::QuotaType  qtype,
                                   RequestAttributes& att)
 {
     Nebula& nd        = Nebula::instance();
@@ -220,20 +194,7 @@ void Request::user_quota_rollback(Template * tmpl,
         return;
     }
 
-    switch (object)
-    {
-        case PoolObjectSQL::IMAGE:
-            user->quota.ds_del(tmpl);
-            break;
-
-        case PoolObjectSQL::VM:
-        case PoolObjectSQL::TEMPLATE:
-            user->quota.vm_del(tmpl);
-            break;
-
-        default:
-            break;
-    }
+    user->quota.quota_del(qtype, tmpl);
 
     upool->update(user);
 
@@ -242,8 +203,8 @@ void Request::user_quota_rollback(Template * tmpl,
 
 /* -------------------------------------------------------------------------- */
 
-void Request::group_quota_rollback(Template * tmpl, 
-                                   PoolObjectSQL::ObjectType object, 
+void Request::group_quota_rollback(Template *         tmpl, 
+                                   Quotas::QuotaType  qtype,
                                    RequestAttributes& att)
 {
     Nebula& nd        = Nebula::instance();
@@ -258,19 +219,7 @@ void Request::group_quota_rollback(Template * tmpl,
         return;
     }
 
-    switch (object)
-    {
-        case PoolObjectSQL::IMAGE:
-            group->quota.ds_del(tmpl);
-            break;
-
-        case PoolObjectSQL::VM:
-        case PoolObjectSQL::TEMPLATE:
-            group->quota.vm_del(tmpl);
-            break;
-        default:
-            break;
-    }
+    group->quota.quota_del(qtype, tmpl);
 
     gpool->update(group);
 
@@ -280,23 +229,17 @@ void Request::group_quota_rollback(Template * tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::quota_authorization(Template * tmpl, 
-                                  PoolObjectSQL::ObjectType object,
+bool Request::quota_authorization(Template *         tmpl, 
+                                  Quotas::QuotaType  qtype,
                                   RequestAttributes& att)
 {
     string error_str;
 
-    if (object != PoolObjectSQL::IMAGE &&
-        object != PoolObjectSQL::VM    &&
-        object != PoolObjectSQL::TEMPLATE)
-    {
-        return true;
-    }
-
     // uid/gid == -1 means do not update user/group
+
     if ( att.uid != UserPool::ONEADMIN_ID && att.uid != -1) 
     {
-        if ( user_quota_authorization(tmpl, object, att, error_str) == false )
+        if ( user_quota_authorization(tmpl, qtype, att, error_str) == false )
         {
             failure_response(AUTHORIZATION,
                     authorization_error(error_str, att),
@@ -308,9 +251,9 @@ bool Request::quota_authorization(Template * tmpl,
 
     if ( att.gid != GroupPool::ONEADMIN_ID && att.gid != -1)
     {
-        if ( group_quota_authorization(tmpl, object, att, error_str) == false )
+        if ( group_quota_authorization(tmpl, qtype, att, error_str) == false )
         {
-            user_quota_rollback(tmpl, object, att);
+            user_quota_rollback(tmpl, qtype, att);
 
             failure_response(AUTHORIZATION,
                              authorization_error(error_str, att),
@@ -326,26 +269,20 @@ bool Request::quota_authorization(Template * tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::quota_rollback(Template * tmpl, 
-                             PoolObjectSQL::ObjectType object, 
+void Request::quota_rollback(Template *         tmpl, 
+                             Quotas::QuotaType  qtype, 
                              RequestAttributes& att)
 {
-     if (object != PoolObjectSQL::IMAGE &&
-         object != PoolObjectSQL::VM    &&
-         object != PoolObjectSQL::TEMPLATE)
-    {
-        return;
-    }
-    
     // uid/gid == -1 means do not update user/group
+
     if ( att.uid != UserPool::ONEADMIN_ID && att.uid != -1 )
     {
-        user_quota_rollback(tmpl, object, att);
+        user_quota_rollback(tmpl, qtype, att);
     }
 
     if ( att.gid != GroupPool::ONEADMIN_ID && att.gid != -1 )
     {
-        group_quota_rollback(tmpl, object, att);;
+        group_quota_rollback(tmpl, qtype, att);;
     }
 }
 

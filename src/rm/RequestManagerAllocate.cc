@@ -114,7 +114,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     // -------------------------- Check Quotas  ----------------------------
 
-    if ( quota_authorization(tmpl, att) == false )
+    if ( quota_authorization(tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {
         return false;
     }
@@ -281,7 +281,7 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 
     if ( rc < 0 )
     {
-        quota_rollback(&tmpl_back, att);
+        quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
     }
 
     return rc;
@@ -442,7 +442,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         // -------------------------- Check Quotas  ----------------------------
 
-        if ( quota_authorization(&img_usage, att) == false )
+        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
         {
             delete tmpl;
             return;   
@@ -462,7 +462,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          error_str);
     if ( rc < 0 )
     {
-        quota_rollback(&img_usage, att);
+        quota_rollback(&img_usage, Quotas::DATASTORE, att);
 
         failure_response(INTERNAL, allocate_error(error_str), att);
         return;

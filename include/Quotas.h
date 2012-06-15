@@ -40,6 +40,17 @@ public:
     virtual ~Quotas(){};
 
     /**
+     *  Different quota types
+     */
+    enum QuotaType {
+        DATASTORE,      /**< Checks Datastore usage */
+        VM,             /**< Checks VM usage (MEMORY, CPU and VMS) */
+        NETWORK,        /**< Checks Network usage (leases) */
+        IMAGE,          /**< Checks Image usage (RVMs using it) */
+        VIRTUALMACHINE  /**< Checks all VM associated resources VM, NETWORK, IMAGE */
+    };
+
+    /**
      *  Set the quotas
      *    @param tmpl contains the user quota limits
      *    @param error describes error when setting the quotas
@@ -66,7 +77,7 @@ public:
      */
      void ds_del(Template * tmpl)
      {
-        return datastore_quota.del(tmpl);
+        datastore_quota.del(tmpl);
      }
 
     /**
@@ -78,26 +89,7 @@ public:
      */
      bool vm_check(Template * tmpl, string& error_str)
      {
-
-        if ( network_quota.check(tmpl, error_str) == false )
-        {
-            return false;
-        }
-
-        if ( vm_quota.check(tmpl, error_str) == false )
-        {
-            network_quota.del(tmpl);
-            return false;
-        }
-
-        if ( image_quota.check(tmpl, error_str) == false )
-        {
-            network_quota.del(tmpl);
-            vm_quota.del(tmpl);
-            return false;
-        }
-
-        return true;
+        return quota_check(VIRTUALMACHINE, tmpl, error_str);
      }
 
     /**
@@ -110,6 +102,22 @@ public:
         vm_quota.del(tmpl);
         image_quota.del(tmpl);
      }
+
+    /**
+     *  Check quota, it updates  usage counters if quotas are not exceeded.
+     *    @param type the quota to work with
+     *    @param tmpl template for the VirtualMachine
+     *    @param error_str string describing the error
+     *    @return true if VM can be allocated, false otherwise
+     */
+    bool quota_check(QuotaType type, Template *tmpl, string& error_str);
+
+    /**
+     *  Delete usage from the given quota counters.
+     *    @param type the quota to work with
+     *    @param tmpl template for the image, with usage
+     */
+    void quota_del(QuotaType type, Template *tmpl);
 
     /**
      *  Generates a string representation of the quotas in XML format
@@ -132,7 +140,10 @@ public:
      *    @param gid of the group
      *    @param tmpl template for the image, with usage
      */
-    static void vm_del(int uid, int gid, Template * tmpl);
+    static void vm_del(int uid, int gid, Template * tmpl)
+    {
+        quota_del(VIRTUALMACHINE, uid, gid, tmpl);
+    }
 
     /**
      *  Delete Datastore related usage from quota counters.
@@ -141,7 +152,20 @@ public:
      *    @param gid of the group
      *    @param tmpl template for the image, with usage
      */
-    static void ds_del(int uid, int gid, Template * tmpl);
+    static void ds_del(int uid, int gid, Template * tmpl)
+    {
+        quota_del(DATASTORE, uid, gid, tmpl);
+    }
+
+    /**
+     *  Delete usage from the given quota counters.
+     *  for the given user and group
+     *    @param type the quota to work with
+     *    @param uid of the user
+     *    @param gid of the group
+     *    @param tmpl template for the image, with usage
+     */
+    static void quota_del(QuotaType type, int uid, int gid, Template * tmpl);
 
 private:
     //--------------------------------------------------------------------------
