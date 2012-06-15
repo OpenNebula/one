@@ -150,6 +150,9 @@ class VmmAction
                     ssh  = @ssh_src
                 end
 
+puts get_parameters(step[:parameters]).inspect
+puts ssh.inspect
+
                 result, info = @vmm.do_action(get_parameters(step[:parameters]),
                                               @id,
                                               host,
@@ -241,6 +244,12 @@ class ExecDriver < VirtualMachineDriver
             :threaded => true
         }.merge!(options)
 
+        if options[:shell]
+            @shell=options[:shell]
+        else
+            @shell='bash'
+        end
+
         super("vmm/#{hypervisor}", @options)
 
         @hypervisor  = hypervisor
@@ -256,7 +265,7 @@ class ExecDriver < VirtualMachineDriver
         if not action_is_local?(aname)
             stream = SshStreamCommand.new(host,
                                           @remote_scripts_base_path,
-                                          log_method(id))
+                                          log_method(id), nil, @shell)
         else
             return nil
         end
@@ -565,12 +574,14 @@ end
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--shell',      '-s', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 hypervisor      = ''
 retries         = 0
 threads         = 15
+shell           = 'bash'
 local_actions   = {}
 
 begin
@@ -582,6 +593,8 @@ begin
                 threads   = arg.to_i
             when '--local'
                 local_actions=OpenNebulaDriver.parse_actions_list(arg)
+            when '--shell'
+                shell   = arg
         end
     end
 rescue Exception => e
@@ -597,6 +610,7 @@ end
 exec_driver = ExecDriver.new(hypervisor,
                 :concurrency => threads,
                 :retries => retries,
-                :local_actions => local_actions)
+                :local_actions => local_actions,
+                :shell => shell)
 
 exec_driver.start_driver

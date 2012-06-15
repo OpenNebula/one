@@ -78,7 +78,8 @@ public class VirtualMachine extends PoolElement{
         "CANCEL",
         "FAILURE",
         "CLEANUP",
-        "UNKNOWN" };
+        "UNKNOWN".
+        "HOTPLUG" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -98,7 +99,8 @@ public class VirtualMachine extends PoolElement{
         "shut",
         "fail",
         "dele",
-        "unkn" };
+        "unkn",
+        "hotp" };
 
     /**
      * Creates a new VM representation.
