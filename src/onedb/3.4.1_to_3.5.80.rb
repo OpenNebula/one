@@ -56,11 +56,6 @@ module Migrator
         @db.fetch("SELECT * FROM old_image_pool") do |row|
             doc = Document.new(row[:body])
 
-            ds_id = ""
-            doc.root.each_element("DATASTORE_ID") { |e|
-                ds_id = e.text
-            }
-
             doc.root.add_element("DISK_TYPE").text = "0"
 
             @db[:image_pool].insert(
@@ -144,8 +139,199 @@ module Migrator
 
         @db.run "DROP TABLE old_history;"
 
+
+        @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
+        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        # oneadmin does not have quotas
+        @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
+            doc = Document.new(row[:body])
+
+            ds_quota = doc.root.add_element("DATASTORE_QUOTA")
+            net_quota = doc.root.add_element("NETWORK_QUOTA")
+            vm_quota  = doc.root.add_element("VM_QUOTA")
+            img_quota = doc.root.add_element("IMAGE_QUOTA")
+
+            @db[:user_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
+            doc = Document.new(row[:body])
+
+            calculate_quotas(doc, "uid=#{row[:oid]}")
+
+            @db[:user_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_user_pool;"
+
+
+        @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
+        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+
+        # oneadmin group does not have quotas
+        @db.fetch("SELECT * FROM old_group_pool WHERE oid=0") do |row|
+            doc = Document.new(row[:body])
+
+            ds_quota = doc.root.add_element("DATASTORE_QUOTA")
+            net_quota = doc.root.add_element("NETWORK_QUOTA")
+            vm_quota  = doc.root.add_element("VM_QUOTA")
+            img_quota = doc.root.add_element("IMAGE_QUOTA")
+
+            @db[:group_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
+            doc = Document.new(row[:body])
+
+            calculate_quotas(doc, "gid=#{row[:oid]}")
+
+            @db[:group_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_group_pool;"
+
+
         @db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
+        @db.run "CREATE TABLE host_monitoring (hid INTEGER, last_mon_time INTEGER, body TEXT, PRIMARY KEY(hid, last_mon_time));"
+        @db.run "CREATE TABLE vm_monitoring (vmid INTEGER, last_poll INTEGER, body TEXT, PRIMARY KEY(vmid, last_poll));"
+
         return true
+    end
+
+    def calculate_quotas(doc, where_filter)
+                    ds_quota  = doc.root.add_element("DATASTORE_QUOTA")
+            net_quota = doc.root.add_element("NETWORK_QUOTA")
+            vm_quota  = doc.root.add_element("VM_QUOTA")
+            img_quota = doc.root.add_element("IMAGE_QUOTA")
+
+            # VM quotas
+            cpu_used = 0
+            mem_used = 0
+            vms_used = 0
+
+            # VNet quotas
+            vnet_usage = {}
+
+            # Image quotas
+            img_usage = {}
+
+            @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state!=6") do |vm_row|
+                vmdoc = Document.new(vm_row[:body])
+
+                # VM quotas
+                vmdoc.root.each_element("TEMPLATE/CPU") { |e|
+                    cpu_used += e.text.to_i
+                }
+
+                vmdoc.root.each_element("TEMPLATE/MEMORY") { |e|
+                    mem_used += e.text.to_i
+                }
+
+                vms_used += 1
+
+                # VNet quotas
+                vmdoc.root.each_element("TEMPLATE/NIC/NETWORK_ID") { |e|
+                    vnet_usage[e.text] = 0 if vnet_usage[e.text].nil?
+                    vnet_usage[e.text] += 1
+                }
+
+                # Image quotas
+                vmdoc.root.each_element("TEMPLATE/DISK/IMAGE_ID") { |e|
+                    img_usage[e.text] = 0 if img_usage[e.text].nil?
+                    img_usage[e.text] += 1
+                }
+            end
+
+            # VM quotas
+            vm_elem = vm_quota.add_element("VM")
+
+            vm_elem.add_element("CPU").text = "0"
+            vm_elem.add_element("CPU_USED").text = cpu_used.to_s
+
+            vm_elem.add_element("MEMORY").text = "0"
+            vm_elem.add_element("MEMORY_USED").text = mem_used.to_s
+
+            vm_elem.add_element("VMS").text = "0"
+            vm_elem.add_element("VMS_USED").text = vms_used.to_s
+
+            # VNet quotas
+            vnet_usage.each { |vnet_id, usage|
+                new_elem = net_quota.add_element("NETWORK")
+
+                new_elem.add_element("ID").text = vnet_id
+                new_elem.add_element("LEASES").text = "0"
+                new_elem.add_element("LEASES_USED").text = usage.to_s
+            }
+
+            # Image quotas
+            img_usage.each { |img_id, usage|
+                new_elem = img_quota.add_element("IMAGE")
+
+                new_elem.add_element("ID").text = img_id
+                new_elem.add_element("RVMS").text = "0"
+                new_elem.add_element("RVMS_USED").text = usage.to_s
+            }
+
+            # Datastore quotas
+            ds_usage = {}
+
+            @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
+                img_doc = Document.new(img_row[:body])
+
+                img_doc.root.each_element("DATASTORE_ID") { |e|
+                    ds_usage[e.text] = [0,0] if ds_usage[e.text].nil?
+                    ds_usage[e.text][0] += 1
+
+                    img_doc.root.each_element("SIZE") { |size|
+                        ds_usage[e.text][1] += size.text.to_i
+                    }
+                }
+            end
+
+            ds_usage.each { |ds_id, usage|
+                new_elem = ds_quota.add_element("DATASTORE")
+
+                new_elem.add_element("ID").text = ds_id
+                new_elem.add_element("IMAGES").text = "0"
+                new_elem.add_element("IMAGES_USED").text = usage[0].to_s
+                new_elem.add_element("SIZE").text = "0"
+                new_elem.add_element("SIZE_USED").text = usage[1].to_s
+            }
+
     end
 end
