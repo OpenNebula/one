@@ -477,13 +477,6 @@ error:
     
     NebulaLog::log("ImM", Log::ERROR, oss);
 
-    image->set_template_error_message(oss.str());
-    image->set_state(Image::ERROR);
-
-    ipool->update(image);
-
-    image->unlock();
-
     return;
 }
 
