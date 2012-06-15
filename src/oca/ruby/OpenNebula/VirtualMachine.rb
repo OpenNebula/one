@@ -33,7 +33,9 @@ module OpenNebula
             :savedisk   => "vm.savedisk",
             :chown      => "vm.chown",
             :chmod      => "vm.chmod",
-            :monitoring => "vm.monitoring"
+            :monitoring => "vm.monitoring",
+            :attach     => "vm.attach",
+            :detach     => "vm.detach"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED}
@@ -154,7 +156,7 @@ module OpenNebula
         def reset
             action('reset')
         end
-        
+
         # Cancels a running VM
         def cancel
             action('cancel')
@@ -183,6 +185,26 @@ module OpenNebula
         # Resumes the execution of a saved VM
         def resume
             action('resume')
+        end
+
+        # Attaches a disk to a running VM
+        def attachdisk(disk)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VM_METHODS[:attach], @pe_id, disk)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Detaches a disk from a running VM
+        def detachdisk(disk)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VM_METHODS[:detach], @pe_id, disk)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         # Deletes a VM from the pool
@@ -291,7 +313,7 @@ module OpenNebula
         # @example
         #   vm.monitoring( ['CPU', 'NET_TX', 'TEMPLATE/CUSTOM_PROBE'] )
         #
-        #   { "NET_TX" => 
+        #   { "NET_TX" =>
         #       [["1337264510", "210"],
         #        ["1337264553", "220"],
         #        ["1337264584", "230"]],
