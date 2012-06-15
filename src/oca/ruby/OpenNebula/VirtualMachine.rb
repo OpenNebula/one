@@ -42,7 +42,7 @@ module OpenNebula
 
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
-            SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN}
+            SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN HOTPLUG}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -71,7 +71,8 @@ module OpenNebula
             "CANCEL"        => "shut",
             "FAILURE"       => "fail",
             "CLEANUP"       => "clea",
-            "UNKNOWN"       => "unkn"
+            "UNKNOWN"       => "unkn",
+            "HOTPLUG"       => "hotp"
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
