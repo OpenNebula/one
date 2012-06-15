@@ -846,7 +846,7 @@ void LifeCycleManager::attach_success_action(int vid)
         return;
     }
 
-    vm->attach_success();
+    vm->clear_attach_disk();
 
     vm->set_state(VirtualMachine::RUNNING);
 
@@ -860,7 +860,11 @@ void LifeCycleManager::attach_success_action(int vid)
 
 void LifeCycleManager::attach_failure_action(int vid)
 {
-    VirtualMachine *    vm;
+    VirtualMachine *  vm;
+    VectorAttribute * disk;
+
+    int uid;
+    int gid;
 
     vm = vmpool->get(vid,true);
 
@@ -869,7 +873,9 @@ void LifeCycleManager::attach_failure_action(int vid)
         return;
     }
 
-    vm->attach_failure();
+    disk = vm->delete_attach_disk();
+    uid  = vm->get_uid();
+    gid  = vm->get_gid();
 
     vm->set_state(VirtualMachine::RUNNING);
 
@@ -877,7 +883,14 @@ void LifeCycleManager::attach_failure_action(int vid)
 
     vm->unlock();
 
-    // TODO: update quotas, here or in VirtualMachine::attach_failure
+    if ( disk != 0 )
+    {
+        Template tmpl;
+
+        tmpl.set(disk);
+
+        Quotas::vm_del(uid, gid, &tmpl);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

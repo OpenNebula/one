@@ -232,6 +232,7 @@ public:
      *  Set the re-scheduling flag for the VM (must be in RUNNING state)
      *    @param vid VirtualMachine identification
      *    @param do_resched set or unset the flag
+     *
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
@@ -240,19 +241,14 @@ public:
         bool do_resched);
 
     /**
-     * Starts the attach disk action.
+     *  Starts the attach disk action.
+     *    @param vid VirtualMachine identification
+     *    @param tmpl Template containing the new DISK attribute.
+     *    @param error_str Error reason, if any
      *
-     * @param vm pointer to a VirtualMachine with its mutex locked. It will be
-     * unlocked
-     * @param tmpl Template containing the new DISK attribute.
-     * It will be deleted
-     * @param error_str Error reason, if any
-     * @return 0 on success, -1 action error, -2 if the VM is in a wrong a state
+     *    @return 0 on success, -1 otherwise
      */
-    int attach(
-        VirtualMachine *         vm,
-        VirtualMachineTemplate * tmpl,
-        string &                 error_str);
+    int attach(int vid, VirtualMachineTemplate * tmpl, string & error_str);
 
 private:
     /**

@@ -22,12 +22,13 @@
 /* -------------------------------------------------------------------------- */
 
 bool RequestManagerVirtualMachine::vm_authorization(
-        int                    oid,
-        ImageTemplate *        tmpl,
-        RequestAttributes&     att,
-        PoolObjectAuth *       host_perm,
-        PoolObjectAuth *       ds_perm,
-        AuthRequest::Operation op)
+        int                     oid,
+        ImageTemplate *         tmpl,
+        VirtualMachineTemplate* vtmpl,
+        RequestAttributes&      att,
+        PoolObjectAuth *        host_perm,
+        PoolObjectAuth *        ds_perm,
+        AuthRequest::Operation  op)
 {
     PoolObjectSQL * object;
     PoolObjectAuth vm_perms;
@@ -67,6 +68,11 @@ bool RequestManagerVirtualMachine::vm_authorization(
         string t_xml;
 
         ar.add_create_auth(PoolObjectSQL::IMAGE, tmpl->to_xml(t_xml));
+    }
+
+    if ( vtmpl != 0 )
+    {
+        VirtualMachine::set_auth_request(att.uid, ar, vtmpl);
     }
 
     if ( ds_perm != 0 )
@@ -196,7 +202,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         op = AuthRequest::ADMIN;
     }
 
-    if ( vm_authorization(id, 0, att, 0, 0, op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, op) == false )
     {
         return;
     }
@@ -313,7 +319,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    auth = vm_authorization(id, 0, att, &host_perms, 0, auth_op);
+    auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
     if ( auth == false )
     {
@@ -375,7 +381,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    auth = vm_authorization(id, 0, att, &host_perms, 0, auth_op);
+    auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
     if ( auth == false )
     {
@@ -546,7 +552,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, itemplate, att, 0, &ds_perms, auth_op) == false )
+    if ( vm_authorization(id, itemplate, 0, att, 0, &ds_perms, auth_op) == false )
     {
         delete itemplate;
         return;
@@ -598,7 +604,7 @@ void VirtualMachineMonitoring::request_execute(
 
     ostringstream oss;
 
-    bool auth = vm_authorization(id, 0, att, 0, 0, auth_op);
+    bool auth = vm_authorization(id, 0, 0, att, 0, 0, auth_op);
 
     if ( auth == false )
     {
@@ -624,59 +630,66 @@ void VirtualMachineMonitoring::request_execute(
 void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
                                             RequestAttributes& att)
 {
-    Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
 
-    VirtualMachine * vm;
-    VirtualMachineTemplate * tmpl;
-    PoolObjectAuth host_perms;
+    VirtualMachine *         vm;
+    VirtualMachineTemplate * tmpl = new VirtualMachineTemplate();
+    PoolObjectAuth           host_perms;
 
-    int rc;
+    int    rc;
     string error_str;
 
     int     id       = xmlrpc_c::value_int(paramList.getInt(1));
     string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
 
-    tmpl = new VirtualMachineTemplate();
+    // -------------------------------------------------------------------------
+    // Parse Disk template
+    // -------------------------------------------------------------------------
 
-    rc   = tmpl->parse_str_or_xml(str_tmpl, error_str);
+    rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, "", att);    // TODO: error message
+        failure_response(INTERNAL, error_str, att);
         delete tmpl;
 
         return;
     }
 
-    // TODO: auth & quotas
-
-    // TODO: set vm state HOTPLUG & vm->set_resched(false); // Cancel re-scheduling actions
-
-    vm = get_vm(id, att);
-
-    if ( vm == 0 )
+    // -------------------------------------------------------------------------
+    // Authorize the operation & check quotas
+    // -------------------------------------------------------------------------
+        
+    if ( vm_authorization(id, 0, tmpl, att, 0, 0, auth_op) == false )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
         delete tmpl;
-
         return;
     }
 
-    rc = dm->attach(vm, tmpl, error_str);
+    if ( quota_authorization(tmpl, att) == false )
+    {
+        delete tmpl;
+        return;   
+    }
+
+    rc = dm->attach(id, tmpl, error_str);
 
     if ( rc != 0 )
     {
+        quota_rollback(tmpl, att);
+
         failure_response(ACTION,
                 request_error(error_str, ""),
                 att);
-
-        return;
+    }
+    else
+    {
+        success_response(id, att);    
     }
 
-    success_response(id, att);
+    delete tmpl;
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -49,11 +49,12 @@ protected:
             RequestAttributes& att) = 0;
 
     bool vm_authorization(int id, 
-                          ImageTemplate *        tmpl,
-                          RequestAttributes&     att, 
-                          PoolObjectAuth *       host_perms, 
-                          PoolObjectAuth *       ds_perm,
-                          AuthRequest::Operation op);
+                          ImageTemplate *         tmpl,
+                          VirtualMachineTemplate* vtmpl,
+                          RequestAttributes&      att, 
+                          PoolObjectAuth *        host_perms, 
+                          PoolObjectAuth *        ds_perm,
+                          AuthRequest::Operation  op);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
             RequestAttributes& att, PoolObjectAuth& host_perms);

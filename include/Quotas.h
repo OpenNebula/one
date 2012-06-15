@@ -22,6 +22,8 @@
 #include "QuotaVirtualMachine.h"
 #include "QuotaImage.h"
 
+class ObjectXML;
+
 class Quotas
 {
 public:
@@ -44,52 +46,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int set(Template *tmpl, string& error)
-    {
-        vector<Attribute *> vquotas;
-
-        if ( tmpl->get(datastore_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( datastore_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        if ( tmpl->get(network_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( network_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        if ( tmpl->get(image_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( image_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        if ( tmpl->get(vm_quota.get_quota_name(), vquotas) > 0 )
-        {
-            if ( vm_quota.set(&vquotas, error) != 0 )
-            {
-                return -1;
-            }
-        
-            vquotas.clear();
-        }
-
-        return 0;
-    }
+    int set(Template *tmpl, string& error);
 
     /**
      *  Check Datastore quotas, it updates usage counters if quotas are not 
@@ -159,76 +116,32 @@ public:
      *    @param xml the string to store the XML
      *    @return the same xml string to use it in << compounds
      */
-    string& to_xml(string& xml) const
-    {
-        ostringstream oss;
-
-        string ds_quota_xml;
-        string net_quota_xml;
-        string vm_quota_xml;
-        string image_quota_xml;
-
-        oss << datastore_quota.to_xml(ds_quota_xml)
-            << network_quota.to_xml(net_quota_xml)
-            << vm_quota.to_xml(vm_quota_xml)
-            << image_quota.to_xml(image_quota_xml);
-
-        xml = oss.str();
-
-        return xml;
-    }
+    string& to_xml(string& xml) const;
 
     /**
      *  Builds quota object from an ObjectXML
      *    @param object_xml pointer to the ObjectXML 
      *    @return 0 if success
      */
-    int from_xml(ObjectXML * object_xml)
-    {
-        vector<xmlNodePtr> content;
-        int                rc = 0;
+    int from_xml(ObjectXML * object_xml);
 
-        object_xml->get_nodes(ds_xpath, content);
+    /**
+     *  Delete VM related usage (network, image and compute) from quota counters.
+     *  for the given user and group
+     *    @param uid of the user
+     *    @param gid of the group
+     *    @param tmpl template for the image, with usage
+     */
+    static void vm_del(int uid, int gid, Template * tmpl);
 
-        if (!content.empty())
-        {
-            rc += datastore_quota.from_xml_node(content[0]);
-        }
-
-        object_xml->free_nodes(content);
-        content.clear();
-
-        object_xml->get_nodes(net_xpath, content);
-
-        if (!content.empty())
-        {
-            rc += network_quota.from_xml_node(content[0]);
-        }
-
-        object_xml->free_nodes(content);
-        content.clear();
-
-        object_xml->get_nodes(vm_xpath, content);
-
-        if (!content.empty())
-        {
-            rc += vm_quota.from_xml_node(content[0]);
-        }
-
-        object_xml->free_nodes(content);
-        content.clear();
-
-        object_xml->get_nodes(img_xpath, content);
-
-        if (!content.empty())
-        {
-            rc += image_quota.from_xml_node(content[0]);
-        }
-
-        object_xml->free_nodes(content);
-
-        return rc;
-    }
+    /**
+     *  Delete Datastore related usage from quota counters.
+     *  for the given user and group
+     *    @param uid of the user
+     *    @param gid of the group
+     *    @param tmpl template for the image, with usage
+     */
+    static void ds_del(int uid, int gid, Template * tmpl);
 
 private:
     //--------------------------------------------------------------------------
@@ -238,17 +151,17 @@ private:
     /**
      * Datastore Quotas 
      */     
-     QuotaDatastore      datastore_quota;
+     QuotaDatastore datastore_quota;
 
     /**
      * Network Quotas 
      */
-     QuotaNetwork        network_quota;
+     QuotaNetwork network_quota;
 
     /**
      * Image Quotas 
      */     
-     QuotaImage          image_quota;
+     QuotaImage image_quota;
 
     /**
      * Virtual Machine Quotas 
