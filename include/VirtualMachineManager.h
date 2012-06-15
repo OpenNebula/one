@@ -57,7 +57,8 @@ public:
         TIMER,
         DRIVER_CANCEL,
         FINALIZE,
-        ATTACH
+        ATTACH,
+        DETACH
     };
 
     /**
@@ -303,6 +304,14 @@ private:
      *    @param vid the id of the VM.
      */
     void attach_action(
+        int vid);
+
+    /**
+     * Detaches a disk from a VM. The VM must have a disk with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void detach_action(
         int vid);
 
     /**

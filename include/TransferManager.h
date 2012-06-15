@@ -110,9 +110,27 @@ public:
     int prolog_transfer_command(
             VirtualMachine *        vm,
             const VectorAttribute * disk,
-            int                     disk_index,
             string&                 system_tm_mad,
             string&                 opennebula_hostname,
+            ostream&                xfr,
+            string&                 error_str);
+
+    /**
+     * Inserts a transfer command in the xfs stream
+     *
+     * @param vm The VM
+     * @param disk Disk to transfer
+     * @param disk_index Disk index
+     * @param xfr Stream where the transfer command will be written
+     * @param error_str Error reason, if any
+     *
+     * @return 0 if the command was written to xfr, -1 if there is an
+     * error (and error reason in error_str), -2 if the disk didn't need
+     * a transfer command
+     */
+    int epilog_transfer_command(
+            VirtualMachine *        vm,
+            const VectorAttribute * disk,
             ostream&                xfr,
             string&                 error_str);
 

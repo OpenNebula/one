@@ -896,4 +896,53 @@ void LifeCycleManager::attach_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void LifeCycleManager::detach_success_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->detach_success();
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // TODO: update quotas
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::detach_failure_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    vm->detach_failure();
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 

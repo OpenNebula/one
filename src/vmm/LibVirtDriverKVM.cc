@@ -54,6 +54,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  ro         = "";
     string  driver     = "";
     string  cache      = "";
+    int     disk_id;
     string  default_driver       = "";
     string  default_driver_cache = "";
     bool    readonly;
@@ -306,6 +307,7 @@ int LibVirtDriver::deployment_description_kvm(
         bus    = disk->vector_value("BUS");
         driver = disk->vector_value("DRIVER");
         cache  = disk->vector_value("CACHE");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
         {
@@ -335,19 +337,19 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t<disk type='block' device='disk'>" << endl
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir() 
-                 << "/disk." << i << "'/>" << endl;
+                 << "/disk." << disk_id << "'/>" << endl;
         }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl
                  << "\t\t\t<source file='" << vm->get_remote_system_dir() 
-                 << "/disk." << i << "'/>" << endl;
+                 << "/disk." << disk_id << "'/>" << endl;
         }
         else
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
                  << "\t\t\t<source file='" << vm->get_remote_system_dir() 
-                 << "/disk." << i << "'/>" << endl;
+                 << "/disk." << disk_id << "'/>" << endl;
         }
 
         // ---- target device to map the disk ----
