@@ -919,7 +919,7 @@ int DispatchManager::detach(
     int             disk_id,
     string &        error_str)
 {
-    ostringstream   oss;
+  /*  ostringstream   oss;
     int             rc;
     int             vid = vm->get_oid();
 
@@ -942,8 +942,8 @@ int DispatchManager::detach(
         goto error;
     }
 
-    // TODO: Cancel resched?
-    // vm->set_resched(false);
+     TODO: Cancel resched?
+     vm->set_resched(false);
 
     vm->set_state(VirtualMachine::HOTPLUG);
     vmpool->update(vm);
@@ -968,5 +968,5 @@ error_state:
 
     vm->unlock();
 
-    return -2;
+    return -2;*/
 }

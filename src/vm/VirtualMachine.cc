@@ -1238,9 +1238,10 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
 // TODO: this method requires the VM to be locked, and then it locks the Image
 // to acquire. Check if this can be troublesome
-
+    /*
 int VirtualMachine::detach_disk(int disk_id, string& error_str)
 {
+
     int                  num_disks;
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
@@ -1276,8 +1277,9 @@ int VirtualMachine::detach_disk(int disk_id, string& error_str)
     }
 
     return 0;
-}
 
+}
+    */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1368,7 +1370,8 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
 
 int VirtualMachine::detach_success()
 {
-    return attach_failure();
+    return 0;
+    /*return attach_failure();*/
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1376,7 +1379,8 @@ int VirtualMachine::detach_success()
 
 int VirtualMachine::detach_failure()
 {
-    return attach_success();
+    return 0;
+    /*return attach_success();*/
 }
 
 /* -------------------------------------------------------------------------- */
