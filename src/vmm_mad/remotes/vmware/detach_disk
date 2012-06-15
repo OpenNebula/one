@@ -20,7 +20,8 @@ source $PWD/scripts_common_sh.sh
 
 DEPLOYID="$1"
 IMAGE_PATH="$2"
-UNIT_NUMBER="$3"
+UNIT="$3"
+UNIT_NUMBER="$4"
 
 CONTROLLER_NUMBER=0 # Only one controller at the moment (up to 16 devices)
 
