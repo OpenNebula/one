@@ -241,7 +241,7 @@ private:
         const int     oid,
         const string& drv_msg) const
     {
-        write_drv("ATTACH", oid, drv_msg);
+        write_drv("ATTACHDISK", oid, drv_msg);
     }
 
     /**
@@ -253,7 +253,7 @@ private:
         const int     oid,
         const string& drv_msg) const
     {
-        write_drv("DETACH", oid, drv_msg);
+        write_drv("DETACHDISK", oid, drv_msg);
     }
 
 private:
