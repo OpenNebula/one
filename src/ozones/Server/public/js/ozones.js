@@ -89,7 +89,8 @@ var oZones = {
                             "CANCEL",
                             "FAILURE",
                             "CLEANUP",
-                            "UNKNOWN"][value];
+                            "UNKNOWN",
+                            "HOTPLUG"][value];
                     break;
                 case "IMAGE","image":
                     return ["INIT",

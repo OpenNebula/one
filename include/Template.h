@@ -170,6 +170,15 @@ public:
         vector<Attribute *>& values);
 
     /**
+     *  Removes an attribute from the template, but it DOES NOT free the 
+     *  attribute.
+     *    @param att Attribute to remove. It will be deleted
+     *    @return pointer to the removed attribute or 0 if non attribute was 
+     *    removed
+     */
+    virtual Attribute * remove(Attribute * att);
+
+    /**
      *  Removes an attribute from the template, and frees the attributes.
      *    @param name of the attribute
      *    @return the number of attributes removed

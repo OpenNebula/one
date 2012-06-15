@@ -93,7 +93,8 @@ var OpenNebula = {
                                "CANCEL",
                                "FAILURE",
                                "CLEANUP",
-                               "UNKNOWN"][value]);
+                               "UNKNOWN"
+                               "HOTPLUG"][value]);
                     break;
                 case "IMAGE":
                 case "image":

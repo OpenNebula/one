@@ -28,7 +28,8 @@ source_files=[
     'QuotaDatastore.cc',
     'QuotaNetwork.cc',
     'QuotaVirtualMachine.cc',
-    'QuotaImage.cc'
+    'QuotaImage.cc',
+    'Quotas.cc'
 ]
 
 # Build library

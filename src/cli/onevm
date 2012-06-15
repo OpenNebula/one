@@ -77,6 +77,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
+    set :format, :diskid, "Integer" do |arg|
+        format_int(arg)
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -206,7 +210,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             vm.reset
         end
     end
-    
+
     deploy_desc = <<-EOT.unindent
         Deploys the given VM in the specified Host. This command forces the
         deployment, in a standard installation the Scheduler is in charge
@@ -334,6 +338,49 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    attachdisk_desc = <<-EOT.unindent
+        Attaches a disk to a running VM
+
+        States: RUNNING
+    EOT
+
+    command :attachdisk, attachdisk_desc, :vmid, [:file, nil], :options => OneVMHelper::IMAGE do
+
+        template_file = args[1]
+
+        if template_file.nil? and options[:image].nil?
+            STDERR.puts "Provide a template file or an image:"
+            STDERR.puts "\t<template_file>"
+            STDERR.puts "\t--image <image>"
+            exit -1
+        end
+
+        if template_file.nil?
+            image_id = options[:image]
+            template = "DISK = [ IMAGE_ID = #{image_id} ]"
+        else
+            template = File.read(template_file)
+        end
+
+        helper.perform_action(args[0],options,"Attach disk") do |vm|
+            vm.attachdisk(template)
+        end
+    end
+
+    detachdisk_desc = <<-EOT.unindent
+        Detaches a disk from a running VM
+
+        States: RUNNING
+    EOT
+
+    command :detachdisk, detachdisk_desc, :vmid, :diskid do
+        diskid = args[1].to_i
+
+        helper.perform_action(args[0],options,"Detach disk") do |vm|
+            vm.detachdisk(diskid)
+        end
+    end
+
     chgrp_desc = <<-EOT.unindent
         Changes the VM group
     EOT
@@ -367,7 +414,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     resched_desc = <<-EOT.unindent
-        Sets the rescheduling flag for the VM. 
+        Sets the rescheduling flag for the VM.
 
         States: RUNNING
     EOT
@@ -379,7 +426,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     unresched_desc = <<-EOT.unindent
-        Clears the rescheduling flag for the VM. 
+        Clears the rescheduling flag for the VM.
 
         States: RUNNING
     EOT

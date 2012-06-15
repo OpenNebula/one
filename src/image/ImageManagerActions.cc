@@ -274,13 +274,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     int    uid;
     int    gid;
-    Group* group;
-    User * user;
-
-    Nebula&    nd    = Nebula::instance();
-    UserPool * upool = nd.get_upool();
-    GroupPool* gpool = nd.get_gpool();
-
+    
     img = ipool->get(iid,true);
 
     if ( img == 0 )
@@ -354,33 +348,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size);
 
-    if ( uid != UserPool::ONEADMIN_ID )
-    {
-        user = upool->get(uid, true);
-
-        if ( user != 0 )
-        {
-            user->quota.ds_del(&img_usage);
-
-            upool->update(user);
-
-            user->unlock();
-        } 
-    }
-
-    if ( gid != GroupPool::ONEADMIN_ID )
-    {
-        group = gpool->get(gid, true);
-
-        if ( group != 0 )
-        {
-            group->quota.ds_del(&img_usage);
-
-            gpool->update(group);
-
-            group->unlock();
-        }        
-    }
+    Quotas::ds_del(uid, gid, &img_usage);
 
     return 0;
 }
