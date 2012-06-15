@@ -58,7 +58,11 @@ class OneQuotaHelper
     end
 
     TABLE_VM = CLIHelper::ShowTable.new(nil, self) do
-        column :"VMS", "", :left, :size=>12 do |d|
+        column :"VMS (used)", "", :left, :size=>12 do |d|
+            d["VMS_USED"] if !d.nil?
+        end
+
+        column :"VMS (limit)", "", :left, :size=>12 do |d|
             d["VMS"] if !d.nil?
         end
 

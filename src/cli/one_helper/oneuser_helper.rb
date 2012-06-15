@@ -166,7 +166,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
             column :VMS, "Number of VMS", :size=>8 do |d|             
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    d['VM_QUOTA']['VM']['VMS']
+                    d['VM_QUOTA']['VM']['VMS_USED']
                 else
                     "-"
                 end 
