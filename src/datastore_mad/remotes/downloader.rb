@@ -213,7 +213,7 @@ class Stream
         process(header)
 
         while(!io.eof?)
-            @popen[2].read_nonblock(BLOCK_SIZE, download_stderr)
+            @popen[2].read_nonblock(BLOCK_SIZE, download_stderr) if @popen
             data=io.read(BLOCK_SIZE)
             process(data)
         end
