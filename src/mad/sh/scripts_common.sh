@@ -251,7 +251,10 @@ function mkfs_command {
             ;;
         "vmdk_*")
             VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 1`
-            echo "sudo $VMKFSTOOLS -U $DST/disk.vmdk ; sudo $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST_PATH/disk.vmdk"
+            echo "WHICH_SUDO=`which sudo` ; \
+                  [ ! -z \"$WHICH_SUDO\" -a -f \"$WHICH_SUDO\" ] && SUDO=\"sudo\" ; \
+                  $SUDO $VMKFSTOOLS -U $DST/disk.vmdk; \ 
+                  $SUDO $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST_PATH/disk.vmdk"
             return 0
             ;;
         *)

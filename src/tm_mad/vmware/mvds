@@ -60,7 +60,13 @@ DST_READLN=eval "$READLINK -f $DST_PATH"
 if [ \( -L $SRC \) -a \( "$SRC_READLN" = "$DST_READLN" \) ] ; then
 	echo "Not moving files to image repo, they are the same"
 else
-	$VMKFSTOOLS -i $SRC_PATH -d thin $DST_PATH
+	WHICH_SUDO=`which sudo`
+
+	if [ ! -z "$WHICH_SUDO" -a -f "$WHICH_SUDO" ]; then
+		SUDO="sudo "
+	fi
+
+	$SUDO $VMKFSTOOLS -i $SRC_PATH -d thin $DST_PATH
 fi
 
 if [ -d $DST_PATH ]; then

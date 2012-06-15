@@ -57,8 +57,15 @@ log "Cloning $SRC_PATH in $DST"
 
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR
-$VMKFSTOOLS -U $DST_PATH/disk.vmdk
-$VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
+
+WHICH_SUDO=`which sudo`
+
+if [ ! -z "$WHICH_SUDO" -a -f "$WHICH_SUDO" ]; then
+  SUDO="sudo "
+fi
+
+$SUDO $VMKFSTOOLS -U $DST_PATH/disk.vmdk
+$SUDO $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
 EOF
 )
 
