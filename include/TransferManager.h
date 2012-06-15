@@ -103,7 +103,7 @@ public:
      * @param system_tm_mad The Transfer Manager for the system datastore
      * @param opennebula_hostname The front-end hostname
      * @param xfr Stream where the transfer command will be written
-     * @param error_str Error reason, if any
+     * @param error Error reason, if any
      *
      * @return 0 on success
      */
@@ -113,7 +113,7 @@ public:
             string&                 system_tm_mad,
             string&                 opennebula_hostname,
             ostream&                xfr,
-            string&                 error_str);
+            ostringstream&          error);
 
     /**
      * Inserts a transfer command in the xfs stream
@@ -122,19 +122,13 @@ public:
      * @param disk Disk to transfer
      * @param disk_index Disk index
      * @param xfr Stream where the transfer command will be written
-     * @param error_str Error reason, if any
-     *
-     * @return 0 if the command was written to xfr, -1 if there is an
-     * error (and error reason in error_str), -2 if the disk didn't need
-     * a transfer command
      */
-    int epilog_transfer_command(
+    void epilog_transfer_command(
             VirtualMachine *        vm,
             const VectorAttribute * disk,
-            ostream&                xfr,
-            string&                 error_str);
+            ostream&                xfr);
 
-private:    
+private:
     /**
      *  Thread id for the Transfer Manager
      */

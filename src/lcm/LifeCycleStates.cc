@@ -898,7 +898,11 @@ void LifeCycleManager::attach_failure_action(int vid)
 
 void LifeCycleManager::detach_success_action(int vid)
 {
-    VirtualMachine *    vm;
+    VirtualMachine *  vm;
+    VectorAttribute * disk;
+
+    int uid;
+    int gid;
 
     vm = vmpool->get(vid,true);
 
@@ -907,7 +911,9 @@ void LifeCycleManager::detach_success_action(int vid)
         return;
     }
 
-    vm->detach_success();
+    disk = vm->delete_attach_disk();
+    uid  = vm->get_uid();
+    gid  = vm->get_gid();
 
     vm->set_state(VirtualMachine::RUNNING);
 
@@ -915,7 +921,14 @@ void LifeCycleManager::detach_success_action(int vid)
 
     vm->unlock();
 
-    // TODO: update quotas
+    if ( disk != 0 )
+    {
+        Template tmpl;
+
+        tmpl.set(disk);
+
+        Quotas::vm_del(uid, gid, &tmpl);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -932,17 +945,15 @@ void LifeCycleManager::detach_failure_action(int vid)
         return;
     }
 
-    vm->detach_failure();
+    vm->clear_attach_disk();
 
     vm->set_state(VirtualMachine::RUNNING);
 
     vmpool->update(vm);
 
-    vm->unlock();
+    vm->unlock();    
 
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-

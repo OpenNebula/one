@@ -207,7 +207,7 @@ int TransferManager::prolog_transfer_command(
         string&                 system_tm_mad,
         string&                 opennebula_hostname,
         ostream&                xfr,
-        string&                 error_str)
+        ostringstream&          os)
 {
     string source;
     string type;
@@ -217,8 +217,6 @@ int TransferManager::prolog_transfer_command(
     string tm_mad;
     string ds_id;
     int    disk_index;
-
-    ostringstream os;
 
     disk->vector_value("DISK_ID", disk_index);
 
@@ -235,8 +233,9 @@ int TransferManager::prolog_transfer_command(
 
         if ( size.empty() )
         {
-            vm->log("TM",Log::WARNING,"No size in swap image, skipping");
-            goto skip;
+            os << "No size in swap image";
+            vm->log("TM", Log::WARNING, "No size in swap image, skipping");
+            return 0;
         }
 
         //MKSWAP tm_mad size host:remote_system_dir/disk.i vmid dsid(=0)
@@ -246,7 +245,8 @@ int TransferManager::prolog_transfer_command(
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
             << vm->get_oid() << " "
-            << "0";
+            << "0"
+            << endl;
     }
     else if ( type == "FS" )
     {
@@ -258,8 +258,9 @@ int TransferManager::prolog_transfer_command(
 
         if ( size.empty() || format.empty() )
         {
-            vm->log("TM",Log::WARNING, "No size or format in FS, skipping");
-            goto skip;
+            os << "No size or format in FS";
+            vm->log("TM", Log::WARNING, "No size or format in FS, skipping");
+            return 0;
         }
 
         //MKIMAGE tm_mad size format host:remote_system_dir/disk.i vmid dsid(=0)
@@ -270,7 +271,8 @@ int TransferManager::prolog_transfer_command(
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
             << vm->get_oid() << " "
-            << "0";
+            << "0"
+            << endl;
     }
     else
     {
@@ -320,21 +322,18 @@ int TransferManager::prolog_transfer_command(
         xfr << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
             << vm->get_oid() << " "
-            << ds_id;
+            << ds_id
+            << endl;
     }
 
     return 0;
 
 error_attributes:
-    os << "prolog, missing DISK mandatory attributes "
+    os << "missing DISK mandatory attributes "
        << "(SOURCE, TM_MAD, CLONE, DATASTORE_ID) for VM " << vm->get_oid()
        << ", DISK " << disk->vector_value("DISK_ID");
 
-    error_str = os.str();
     return -1;
-
-skip:
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -343,7 +342,7 @@ skip:
 void TransferManager::prolog_action(int vid)
 {
     ofstream      xfr;
-    ostringstream os;
+    ostringstream os("prolog, ");
     string        xfr_name;
 
     const VectorAttribute * disk;
@@ -414,15 +413,16 @@ void TransferManager::prolog_action(int vid)
             continue;
         }
 
-        rc = prolog_transfer_command(vm, disk, system_tm_mad,
-                opennebula_hostname, xfr, error_str);
-
+        rc = prolog_transfer_command(vm, 
+                                     disk, 
+                                     system_tm_mad,
+                                     opennebula_hostname, 
+                                     xfr, 
+                                     os);
         if ( rc != 0 )
         {
             goto error_attributes;
         }
-
-        xfr << endl;
     }
 
     // -------------------------------------------------------------------------
@@ -461,24 +461,19 @@ void TransferManager::prolog_action(int vid)
     return;
 
 error_history:
-    os.str("");
-    os << "prolog, VM " << vid << " has no history";
+    os << "VM " << vid << " has no history";
     goto error_common;
 
 error_file:
-    os.str("");
-    os << "prolog, could not open file: " << xfr_name;
+    os << "could not open file: " << xfr_name;
     goto error_common;
 
 error_attributes:
-    os.str(error_str);
-
     xfr.close();
     goto error_common;
 
 error_context:
-    os.str("");
-    os << "prolog, could not write context file for VM " << vid;
+    os << "could not write context file for VM " << vid;
 
     xfr.close();
     goto error_common;
@@ -745,11 +740,10 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TransferManager::epilog_transfer_command(
+void TransferManager::epilog_transfer_command(
         VirtualMachine *        vm,
         const VectorAttribute * disk,
-        ostream&                xfr,
-        string&                 error_str)
+        ostream&                xfr)
 {
     string save;
     string tm_mad;
@@ -762,7 +756,7 @@ int TransferManager::epilog_transfer_command(
 
     if ( save.empty() || ds_id.empty() || tm_mad.empty() )
     {
-        return -2;
+        return;
     }
 
     disk->vector_value("DISK_ID", disk_index);
@@ -779,8 +773,8 @@ int TransferManager::epilog_transfer_command(
 
         if (source.empty() && save_source.empty())
         {
-            error_str = "No SOURCE to save disk image";
-            return -1;
+            vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
+            return;
         }
 
         if (!save_source.empty())//Use the save_as_source instead
@@ -795,7 +789,8 @@ int TransferManager::epilog_transfer_command(
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
             << source << " "
             << vm->get_oid() << " "
-            << ds_id;
+            << ds_id
+            << endl;
     }
     else //No saving disk
     {
@@ -805,10 +800,9 @@ int TransferManager::epilog_transfer_command(
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
             << vm->get_oid() << " "
-            << ds_id;
+            << ds_id 
+            << endl;
     }
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -821,7 +815,6 @@ void TransferManager::epilog_action(int vid)
     string          xfr_name;
     string          system_tm_mad;
     string          error_str;
-    int             rc;
 
     const VectorAttribute * disk;
 
@@ -881,19 +874,7 @@ void TransferManager::epilog_action(int vid)
             continue;
         }
 
-        rc = epilog_transfer_command(vm, disk, xfr, error_str);
-
-        if ( rc == -2 )
-        {
-            continue;
-        }
-
-        if ( rc == -1 )
-        {
-            vm->log("TM", Log::ERROR, error_str);
-        }
-
-        xfr << endl;
+        epilog_transfer_command(vm, disk, xfr);
     }
 
     //DELETE system_tm_mad hostname:remote_system_dir vmid ds_id

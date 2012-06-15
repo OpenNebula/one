@@ -633,7 +633,6 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    VirtualMachine *         vm;
     VirtualMachineTemplate * tmpl = new VirtualMachineTemplate();
     PoolObjectAuth           host_perms;
 
@@ -670,7 +669,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     if ( quota_authorization(tmpl, att) == false )
     {
         delete tmpl;
-        return;   
+        return; 
     }
 
     rc = dm->attach(id, tmpl, error_str);
@@ -701,40 +700,35 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
 
-    VirtualMachine * vm;
-    PoolObjectAuth host_perms;
-
     int rc;
     string error_str;
 
     int     id      = xmlrpc_c::value_int(paramList.getInt(1));
     int     disk_id = xmlrpc_c::value_int(paramList.getInt(2));
 
-    // TODO: auth & quotas
-
-    vm = get_vm(id, att);
-
-    if ( vm == 0 )
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+        
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
-
         return;
     }
 
-    rc = dm->detach(vm, disk_id, error_str);
+    rc = dm->detach(id, disk_id, error_str);
 
     if ( rc != 0 )
     {
         failure_response(ACTION,
                 request_error(error_str, ""),
                 att);
-
-        return;
+    }
+    else
+    {
+        success_response(id, att);    
     }
 
-    success_response(id, att);
+    return;    
 }
 
 /* -------------------------------------------------------------------------- */

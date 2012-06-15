@@ -839,7 +839,7 @@ int DispatchManager::attach(int vid,
         return -1;
     }
 
-    if ( vm->get_state() != VirtualMachine::ACTIVE ||
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
          vm->get_lcm_state() != VirtualMachine::RUNNING )
     {
         oss << "Could not attach a new disk to VM " << vid << ", wrong state.";
@@ -852,9 +852,6 @@ int DispatchManager::attach(int vid,
     }
     
     vm->get_disk_info(num_disks, used_targets);
-
-    // TODO: Cancel resched?
-    // vm->set_resched(false);
 
     vm->set_state(VirtualMachine::HOTPLUG);
 
@@ -899,7 +896,7 @@ int DispatchManager::attach(int vid,
     }
     else
     {
-        vm->attach_disk(disk);
+        vm->set_attach_disk(disk);
     }
 
     vmpool->update(vm);
@@ -915,37 +912,50 @@ int DispatchManager::attach(int vid,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::detach(
-    VirtualMachine* vm,
-    int             disk_id,
-    string &        error_str)
+    int      vid,
+    int      disk_id,
+    string&  error_str)
 {
-  /*  ostringstream   oss;
-    int             rc;
-    int             vid = vm->get_oid();
 
-    Nebula&                 nd = Nebula::instance();
-    VirtualMachineManager * vmm = nd.get_vmm();
+    ostringstream oss;
 
-    oss << "Detaching disk " << disk_id << " from VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    Nebula&           nd       = Nebula::instance();
+    VirtualMachineManager* vmm = nd.get_vmm();
 
-    if ( vm->get_state() != VirtualMachine::ACTIVE ||
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "VirtualMachine " << vid << " no longer exists";
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
          vm->get_lcm_state() != VirtualMachine::RUNNING )
     {
-        goto error_state;
+        oss << "Could not detach disk from VM " << vid << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
     }
-
-    rc = vm->detach_disk(disk_id, error_str);
-
-    if ( rc != 0 )
+   
+    if ( vm->set_attach_disk(disk_id) == -1 )
     {
-        goto error;
-    }
+        oss << "Could not detach disk with DISK_ID " << disk_id 
+            << ", it does not exists.";
+        error_str = oss.str();
 
-     TODO: Cancel resched?
-     vm->set_resched(false);
+        vm->unlock();
+        return -1;     
+    } 
 
     vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->set_resched(false);
+
     vmpool->update(vm);
 
     vm->unlock();
@@ -953,20 +963,4 @@ int DispatchManager::detach(
     vmm->trigger(VirtualMachineManager::DETACH,vid);
 
     return 0;
-
-error:
-    vm->unlock();
-
-    return -1;
-
-error_state:
-    oss.str("");
-    oss << "Could not attach a new disk to VM " << vid << ", wrong state.";
-    error_str = oss.str();
-
-    NebulaLog::log("DiM", Log::ERROR, error_str);
-
-    vm->unlock();
-
-    return -2;*/
 }

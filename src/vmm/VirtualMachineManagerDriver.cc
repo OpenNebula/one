@@ -305,7 +305,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            log_error(vm,os,is,"Error live migrating VM");
+            log_error(vm, os, is, "Error live migrating VM");
             vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
@@ -337,18 +337,18 @@ void VirtualMachineManagerDriver::protocol(
     }
     else if ( action == "ATTACH" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
+        Nebula           &ne  = Nebula::instance();
+        LifeCycleManager *lcm = ne.get_lcm();
 
         if ( result == "SUCCESS" )
         {
-            vm->log("VMM",Log::ERROR,"VM Disk Successfully attached.");
+            vm->log("VMM", Log::ERROR, "VM Disk Successfully attached.");
 
             lcm->trigger(LifeCycleManager::ATTACH_SUCCESS, id);
         }
         else
         {
-            log_error(vm,os,is,"Error attaching new VM Disk");
+            log_error(vm, os, is, "Error attaching new VM Disk");
             vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::ATTACH_FAILURE, id);

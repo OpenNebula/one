@@ -248,22 +248,23 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int attach(int vid, VirtualMachineTemplate * tmpl, string & error_str);
+    int attach(
+        int                      vid, 
+        VirtualMachineTemplate * tmpl, 
+        string&                  error_str);
 
     /**
      * Starts the detach disk action.
+     *    @param vid VirtualMachine identification
+     *    @param disk_id Disk to detach
+     *    @param error_str Error reason, if any
      *
-     * @param vm pointer to a VirtualMachine with its mutex locked. It will be
-     * unlocked
-     * @param disk_id Disk to detach
-     * @param error_str Error reason, if any
-     *
-     * @return 0 on success, -1 action error, -2 if the VM is in a wrong a state
+     *    @return 0 on success, -1 otherwise
      */
     int detach(
-        VirtualMachine* vm,
-        int             disk_id,
-        string &        error_str);
+        int      id,
+        int      disk_id,
+        string&  error_str);
 
 private:
     /**

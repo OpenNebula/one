@@ -1236,27 +1236,20 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-// TODO: this method requires the VM to be locked, and then it locks the Image
-// to acquire. Check if this can be troublesome
-    /*
-int VirtualMachine::detach_disk(int disk_id, string& error_str)
+int VirtualMachine::set_attach_disk(int disk_id)
 {
 
-    int                  num_disks;
+    int num_disks;
+    int d_id;
+
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
-    bool                 found = false;
 
     num_disks = obj_template->get("DISK", disks);
 
-    int i = 0;
-    int d_id;
-
-    while( !found && i<num_disks )
+    for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
-
-        i++;
 
         if ( disk == 0 )
         {
@@ -1264,22 +1257,17 @@ int VirtualMachine::detach_disk(int disk_id, string& error_str)
         }
 
         disk->vector_value("DISK_ID", d_id);
+
         if ( d_id == disk_id )
         {
             disk->replace("ATTACH", "YES");
-            found = true;
+            return 0;
         }
     }
 
-    if ( !found )
-    {
-        return -1;
-    }
-
-    return 0;
-
+    return -1;
 }
-    */
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1363,24 +1351,6 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
     }
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::detach_success()
-{
-    return 0;
-    /*return attach_failure();*/
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::detach_failure()
-{
-    return 0;
-    /*return attach_success();*/
 }
 
 /* -------------------------------------------------------------------------- */

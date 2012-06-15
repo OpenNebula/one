@@ -338,9 +338,9 @@ string * VirtualMachineManager::format_message(
 
     if ( !tm_command.empty() )
     {
-        oss << "<TM_COMMAND><![CDATA["  << tm_command   << "]]></TM_COMMAND>"
-            << "<DISK_ID>"          << disk_id          << "</DISK_ID>"
-            << "<DISK_TARGET_PATH>" << disk_target_path << "</DISK_TARGET_PATH>";
+        oss << "<TM_COMMAND><![CDATA[" << tm_command   << "]]></TM_COMMAND>"
+            << "<DISK_ID>"         << disk_id          << "</DISK_ID>"
+            << "<DISK_TARGET_PATH>"<< disk_target_path << "</DISK_TARGET_PATH>";
     }
     else
     {
@@ -1322,20 +1322,21 @@ void VirtualMachineManager::attach_action(
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
 
-    ostringstream os;
-    string        vm_tmpl;
-    string *      drv_msg;
-    string        tm_command;
-    string        system_tm_mad;
-    string        opennebula_hostname;
-    string        prolog_cmd;
-    string        disk_path;
-    string        error_str;
+    ostringstream os, error_os;
 
+    string  vm_tmpl;
+    string* drv_msg;
+    string  tm_command;
+    string  system_tm_mad;
+    string  opennebula_hostname;
+    string  prolog_cmd;
+    string  disk_path;
+    
     const VectorAttribute * disk;
     int disk_id;
+    int rc;
 
-    Nebula&          nd = Nebula::instance();
+    Nebula& nd = Nebula::instance();
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -1365,22 +1366,28 @@ void VirtualMachineManager::attach_action(
         goto error_disk;
     }
 
-    system_tm_mad = nd.get_system_ds_tm_mad();
+    system_tm_mad       = nd.get_system_ds_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
-    disk->vector_value("DISK_ID", disk_id);
-
-    Nebula::instance().get_tm()->prolog_transfer_command(
+    rc = Nebula::instance().get_tm()->prolog_transfer_command(
             vm,
             disk,
             system_tm_mad,
             opennebula_hostname,
             os,
-            error_str);
+            error_os);
 
     prolog_cmd = os.str();
 
+    if ( prolog_cmd.empty() || rc != 0 )
+    {
+        goto error_no_tm_command;
+    }
+
     os.str("");
+
+    disk->vector_value("DISK_ID", disk_id);
+
     os << vm->get_remote_system_dir() << "/disk." << disk_id;
 
     disk_path = os.str();
@@ -1422,6 +1429,11 @@ error_history:
 error_driver:
     os.str("");
     os << "attach_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_no_tm_command:
+    os.str("");
+    os << "Cannot set disk to attach it to VM: " << error_os;
     goto error_common;
 
 error_common:
@@ -1487,12 +1499,12 @@ void VirtualMachineManager::detach_action(
         goto error_disk;
     }
 
-    system_tm_mad = nd.get_system_ds_tm_mad();
+    system_tm_mad       = nd.get_system_ds_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
     disk->vector_value("DISK_ID", disk_id);
 
-    Nebula::instance().get_tm()->epilog_transfer_command(vm,disk,os,error_str);
+    Nebula::instance().get_tm()->epilog_transfer_command(vm, disk, os);
 
     epilog_cmd = os.str();
 
@@ -1515,7 +1527,6 @@ void VirtualMachineManager::detach_action(
         epilog_cmd,
         disk_path,
         vm->to_xml(vm_tmpl));
-
 
     vmd->detach(vid, *drv_msg);
 

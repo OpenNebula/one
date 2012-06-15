@@ -99,7 +99,7 @@ void  LifeCycleManager::suspend_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd = Nebula::instance();
@@ -145,7 +145,7 @@ void  LifeCycleManager::stop_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd = Nebula::instance();
@@ -191,7 +191,7 @@ void  LifeCycleManager::migrate_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd  = Nebula::instance();
@@ -247,7 +247,7 @@ void  LifeCycleManager::live_migrate_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd = Nebula::instance();
@@ -302,7 +302,7 @@ void  LifeCycleManager::shutdown_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd = Nebula::instance();
@@ -408,7 +408,7 @@ void  LifeCycleManager::cancel_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd = Nebula::instance();
@@ -454,7 +454,7 @@ void  LifeCycleManager::restart_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
+    if (vm->get_state()      == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT))
     {
@@ -529,6 +529,7 @@ void  LifeCycleManager::delete_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 void  LifeCycleManager::clean_action(int vid)
 {
     VirtualMachine * vm;
@@ -602,6 +603,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::CANCEL:
+        case VirtualMachine::HOTPLUG:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
 
@@ -686,6 +688,4 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         default: //LCM_INIT,CLEANUP
         break;
     }
-
-
 }

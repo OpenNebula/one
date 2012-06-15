@@ -186,13 +186,6 @@ public:
     virtual int erase(const string& name);
 
     /**
-     *  Removes an attribute from the template, and frees the attributes.
-     *    @param att Attribute to remove. It will be deleted
-     *    @return the number of attributes removed
-     */
-    virtual int erase(Attribute * att);
-
-    /**
      *  Gets all the attributes with the given name.
      *    @param name the attribute name.
      *    @return the number of elements in the vector
