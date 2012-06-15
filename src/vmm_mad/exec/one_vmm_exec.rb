@@ -90,10 +90,7 @@ class VmmAction
                             :ssh_stream     => @ssh_dst)
         end
 
-        # Initialize TM driver
-        if !@data[:tm_command].nil?
-            @tm = TransferManagerDriver.new(nil)
-        end
+        @tm = TransferManagerDriver.new(nil)
     end
 
     #Execute a set of steps defined with
@@ -167,8 +164,7 @@ class VmmAction
                 result, info = vnm.do_action(@id, step[:action],
                             :parameters => get_parameters(step[:parameters]))
             when :tm
-                # If this driver is called it will always run <TM_COMMAND>
-                result, info = @tm.do_transfer_action(@id, @data[:tm_command].split)
+                result, info = @tm.do_transfer_action(@id, step[:parameters])
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
                 info   = "No driver in #{step[:action]}"
@@ -511,17 +507,23 @@ class ExecDriver < VirtualMachineDriver
     # ATTACHDISK action, attaches a disk to a running VM
     #
     def attach_disk(id, drv_message)
+        action   = ACTION[:attach_disk]
         xml_data = decode(drv_message)
-        disk_id  = xml_data.elements['DISK_ID'].text
-        disk     = xml_data.elements["VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']"]
-        target   = disk.elements['TARGET'].text
+
+        disk_id    = ensure_xpath(xml_data, id, action, 'DISK_ID') || return
+        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+
+        disk_xpath = "VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']/TARGET"
+        target     = ensure_xpath(xml_data, id, action, disk_xpath) || return
 
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
         steps = [
             # Perform a PROLOG on the disk
             {
-                :driver => :tm
+                :driver     => :tm,
+                :parameters => tm_command.split
+
             },
             # Run the attach vmm script
             {
@@ -538,10 +540,14 @@ class ExecDriver < VirtualMachineDriver
     # DETACHDISK action, attaches a disk to a running VM
     #
     def detach_disk(id, drv_message)
+        action   = ACTION[:detach_disk]
         xml_data = decode(drv_message)
-        disk_id  = xml_data.elements['DISK_ID'].text
-        disk     = xml_data.elements["VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']"]
-        target   = disk.elements['TARGET'].text
+
+        disk_id    = ensure_xpath(xml_data, id, action, 'DISK_ID') || return
+        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+
+        disk_xpath = "VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']/TARGET"
+        target     = ensure_xpath(xml_data, id, action, disk_xpath) || return
 
         action = VmmAction.new(self, id, :detach_disk, drv_message)
 
@@ -552,14 +558,30 @@ class ExecDriver < VirtualMachineDriver
                 :action       => :attach_disk,
                 :parameters   => [:deploy_id, target]
             },
-            # Perform a PROLOG on the disk
+            # Perform an EPILOG on the disk
             {
-                :driver => :tm
+                :driver     => :tm,
+                :parameters => tm_command.split
             }
         ]
 
         action.run(steps)
     end
+
+private
+
+    def ensure_xpath(xml_data, id, action, xpath)
+        begin
+            value = xml_data.elements[xpath].text.strip
+            raise if value.empty?
+            value
+        rescue
+            send_message(ACTION[:attach_disk],RESULT[:failure],id,
+                "Cannot perform #{action}, expecting #{xpath}")
+            nil
+        end
+    end
+
 end
 
 ################################################################################
