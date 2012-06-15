@@ -150,9 +150,6 @@ class VmmAction
                     ssh  = @ssh_src
                 end
 
-puts get_parameters(step[:parameters]).inspect
-puts ssh.inspect
-
                 result, info = @vmm.do_action(get_parameters(step[:parameters]),
                                               @id,
                                               host,

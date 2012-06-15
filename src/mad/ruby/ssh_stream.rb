@@ -36,7 +36,7 @@ class SshStream
     #
     def initialize(host, shell="bash")
         @host  = host
-	@shell = shell
+        @shell = shell
     end
 
     def opened?
