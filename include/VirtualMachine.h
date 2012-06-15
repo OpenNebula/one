@@ -119,21 +119,6 @@ public:
     };
 
     /**
-     *  writes a log message in vm.log. The class lock should be locked and
-     *  the VM MUST BE obtained through the VirtualMachinePool get() method.
-     */
-    void log(
-        const char *           module,
-        const Log::MessageType type,
-        const string&          message) const
-    {
-        if (_log != 0)
-        {
-            _log->log(module,type,message);
-        }
-    };
-
-    /**
      * Function to print the VirtualMachine object into a string in
      * XML format
      *  @param xml the resulting XML string
