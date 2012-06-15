@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,15 +16,30 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+source $PWD/scripts_common_sh.sh
 
-DOMAIN="$1"
+DEPLOYID="$1"
 SOURCE="$2"
 TARGET="$3"
-TARGET_INDEX="$4"
+TARGET_NUMBER="$4"
+CONTROLLER_NUMBER=0 # Only one controller at the moment (up to 16 devices)
 
-ATTACH_PARAMS="--domain $DOMAIN --source $SOURCE --target $TARGET"
 
-exec_and_log "virsh --connect $LIBVIRT_URI attach-disk $ATTACH_PARAMS" \
+DISK_NAME=`basename $SOURCE`
+TEMP_PATH=`dirname $SOURCE`
+VM_ID=`basename $TEMP_PATH`
+TEMP_PATH=`dirname $TEMP_PATH`
+DATASTORE=`basename $TEMP_PATH`
+
+DISK_PATH="/vmfs/volumes/$DATASTORE/$VM_ID/$DISK_NAME/disk.vmdk" 
+
+# Get the VMware ID corresponding to the deploy_id
+VMWAREID=`vim-cmd vmsvc/getallvms|grep $DEPLOYID|cut -d' ' -f 1`
+
+ATTACH_PARAMS="$VMWAREID $DISK_PATH $CONTROLLER_NUMBER $TARGET_NUMBER $DATASTORE"
+
+exec_and_log "$SUDO vim-cmd vmsvc/device.diskaddexisting $ATTACH_PARAMS" \
     "Could not attach $SOURCE ($TARGET) to $DOMAIN"
+
+ 
+

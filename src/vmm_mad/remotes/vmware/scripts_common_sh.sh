@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,15 +14,46 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+error_message()
+{
+    (
+        echo "ERROR MESSAGE --8<------"
+        echo "$1"
+        echo "ERROR MESSAGE ------>8--"
+    ) 1>&2
+}
 
-DOMAIN="$1"
-SOURCE="$2"
-TARGET="$3"
-TARGET_INDEX="$4"
+log_function()
+{
+    echo "$1: $SCRIPT_NAME: $2" 1>&2
+}
 
-ATTACH_PARAMS="--domain $DOMAIN --source $SOURCE --target $TARGET"
+log_error()
+{
+    log_function "ERROR" "$1"
+}
 
-exec_and_log "virsh --connect $LIBVIRT_URI attach-disk $ATTACH_PARAMS" \
-    "Could not attach $SOURCE ($TARGET) to $DOMAIN"
+exec_and_log()
+{
+    message=$2
+
+    EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
+    EXEC_LOG_RC=$?
+
+    if [ $EXEC_LOG_RC -ne 0 ]; then
+        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+
+        if [ -n "$2" ]; then
+            error_message "$2"
+        else
+            error_message "Error executing $1: $EXEC_LOG_ERR"
+        fi
+        exit $EXEC_LOG_RC
+    fi
+}
+
+WHICH_SUDO=`which sudo`
+
+if [ ! -z "$WHICH_SUDO" -a -f "$WHICH_SUDO" ]; then
+  SUDO="sudo "
+fi

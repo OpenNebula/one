@@ -16,15 +16,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+source $PWD/scripts_common_sh.sh
 
-DOMAIN="$1"
-SOURCE="$2"
-TARGET="$3"
-TARGET_INDEX="$4"
+DEPLOYID="$1"
+IMAGE_PATH="$2"
+UNIT="$3"
+UNIT_NUMBER="$4"
 
-ATTACH_PARAMS="--domain $DOMAIN --source $SOURCE --target $TARGET"
+CONTROLLER_NUMBER=0 # Only one controller at the moment (up to 16 devices)
 
-exec_and_log "virsh --connect $LIBVIRT_URI attach-disk $ATTACH_PARAMS" \
-    "Could not attach $SOURCE ($TARGET) to $DOMAIN"
+# Get the VMware ID corresponding to the deploy_id
+VMWAREID=`vim-cmd vmsvc/getallvms|grep $DEPLOYID|cut -d' ' -f 1`
+
+DETACH_PARAMS="$VMWAREID $CONTROLLER_NUMBER $UNIT_NUMBER $IMAGE_PATH"
+
+exec_and_log "$SUDO vim-cmd vmsvc/device.diskremove $DETACH_PARAMS" \
+    "Could not detach $TARGET from $DOMAIN"

@@ -20,7 +20,9 @@ source $(dirname $0)/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN="$1"
-TARGET="$2"
+SOURCE="$2"
+TARGET="$3"
+TARGET_INDEX="$4"
 
 DETACH_PARAMS="--domain $DOMAIN --target $TARGET"
 
