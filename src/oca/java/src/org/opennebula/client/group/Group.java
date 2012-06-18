@@ -31,7 +31,7 @@ public class Group extends PoolElement{
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
-
+    private static final String QUOTA           = METHOD_PREFIX + "quota";
 
     /**
      * Creates a new Group representation.
@@ -95,6 +95,19 @@ public class Group extends PoolElement{
         return client.call(DELETE, id);
     }
 
+    /**
+     * Replaces the group quota template contents.
+     *
+     * @param client XML-RPC Client.
+     * @param id The group id of the target group we want to modify.
+     * @param quota_template New quota template contents.
+     * @return If successful the message contains the group id.
+     */
+    public static OneResponse setQuota(Client client, int id, String quota_template)
+    {
+        return client.call(QUOTA, id, quota_template);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -120,6 +133,17 @@ public class Group extends PoolElement{
     public OneResponse delete()
     {
         return delete(client, id);
+    }
+
+    /**
+     * Replaces the group quota template contents.
+     *
+     * @param quota_template New quota template contents.
+     * @return If successful the message contains the group id.
+     */
+    public OneResponse setQuota(String quota_template)
+    {
+        return setQuota(client, id, quota_template);
     }
 
     // =================================

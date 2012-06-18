@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,20 +35,21 @@ public class User extends PoolElement{
     private static final String CHGRP           = METHOD_PREFIX + "chgrp";
     private static final String CHAUTH          = METHOD_PREFIX + "chauth";
     private static final String UPDATE          = METHOD_PREFIX + "update";
-    
+    private static final String QUOTA           = METHOD_PREFIX + "quota";
+
     /**
      * Creates a new User representation.
-     * 
+     *
      * @param id The user id (uid).
      * @param client XML-RPC Client.
      */
-    public User(int id, Client client) 
+    public User(int id, Client client)
     {
         super(id, client);
     }
 
     /**
-     * @see PoolElement 
+     * @see PoolElement
      */
     protected User(Node xmlElement, Client client)
     {
@@ -62,10 +63,10 @@ public class User extends PoolElement{
 
     /**
      * Allocates a new user in OpenNebula.
-     * 
+     *
      * @param client XML-RPC Client.
      * @param username Username for the new user.
-     * @param password Password for the new user 
+     * @param password Password for the new user
      * @return If successful the message contains
      * the associated id (int uid) generated for this user.
      */
@@ -95,7 +96,7 @@ public class User extends PoolElement{
     }
 
     /** Retrieves the information of the given user.
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The user id (uid) for the user to
      * retrieve the information from.
@@ -109,9 +110,9 @@ public class User extends PoolElement{
 
     /**
      * Deletes a user from OpenNebula.
-     * 
+     *
      * @param client XML-RPC Client.
-     * @param id The user id (uid) of the target user we want to delete. 
+     * @param id The user id (uid) of the target user we want to delete.
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse delete(Client client, int id)
@@ -121,7 +122,7 @@ public class User extends PoolElement{
 
     /**
      * Changes the password for the given user.
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The user id (uid) of the target user we want to modify.
      * @param password The new password.
@@ -134,7 +135,7 @@ public class User extends PoolElement{
 
     /**
      * Changes the main group of the given user
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The user id (uid) of the target user we want to modify.
      * @param gid The new group ID.
@@ -147,7 +148,7 @@ public class User extends PoolElement{
 
     /**
      * Changes the auth driver and the password of the given user
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The user id (uid) of the target user we want to modify.
      * @param auth The new auth driver.
@@ -176,6 +177,19 @@ public class User extends PoolElement{
         return client.call(UPDATE, id, new_template);
     }
 
+    /**
+     * Replaces the user quota template contents.
+     *
+     * @param client XML-RPC Client.
+     * @param id The user id of the target user we want to modify.
+     * @param quota_template New quota template contents.
+     * @return If successful the message contains the user id.
+     */
+    public static OneResponse setQuota(Client client, int id, String quota_template)
+    {
+        return client.call(QUOTA, id, quota_template);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -183,7 +197,7 @@ public class User extends PoolElement{
     /**
      * Loads the xml representation of the user.
      * The info is also stored internally.
-     * 
+     *
      * @see User#info(Client, int)
      */
     public OneResponse info()
@@ -196,7 +210,7 @@ public class User extends PoolElement{
 
     /**
      * Deletes the user from OpenNebula.
-     * 
+     *
      * @see User#delete(Client, int)
      */
     public OneResponse delete()
@@ -206,7 +220,7 @@ public class User extends PoolElement{
 
     /**
      * Changes the password for the user.
-     * 
+     *
      * @param password The new password.
      * @return If an error occurs the error message contains the reason.
      */
@@ -217,7 +231,7 @@ public class User extends PoolElement{
 
     /**
      * Changes the main group of the given user
-     * 
+     *
      * @param gid The new group ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -228,7 +242,7 @@ public class User extends PoolElement{
 
     /**
      * Changes the auth driver and the password of the given user
-     * 
+     *
      * @param auth The new auth driver.
      * @param password The new password. If it is an empty string,
      * the user password is not changed
@@ -241,7 +255,7 @@ public class User extends PoolElement{
 
     /**
      * Changes the auth driver of the given user
-     * 
+     *
      * @param auth The new auth driver.
      * @return If an error occurs the error message contains the reason.
      */
@@ -261,13 +275,24 @@ public class User extends PoolElement{
         return update(client, id, new_template);
     }
 
+    /**
+     * Replaces the user quota template contents.
+     *
+     * @param quota_template New quota template contents.
+     * @return If successful the message contains the user id.
+     */
+    public OneResponse setQuota(String quota_template)
+    {
+        return setQuota(client, id, quota_template);
+    }
+
     // =================================
     // Helpers
     // =================================
 
     /**
      * Returns true if the user is enabled.
-     * 
+     *
      * @return True if the user is enabled.
      */
     public boolean isEnabled()
