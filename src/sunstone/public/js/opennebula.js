@@ -250,7 +250,6 @@ var OpenNebula = {
                 dataType: "json",
                 success: function(response){
                     var list = OpenNebula.Helper.pool(resource,response)
-                    SunstoneMonitoring.monitor(resource, list)
                     return callback ?
                         callback(request, list) : null;
                 },

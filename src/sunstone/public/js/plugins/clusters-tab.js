@@ -219,6 +219,108 @@ var clusters_tab = {
     parentTab: "infra_tab",
 };
 
+SunstoneMonitoringConfig['CLUSTER_HOST'] = {
+    plot: function(monitoring){
+        var cluster_id = SunstoneMonitoringConfig.CLUSTER_HOST.cluster_id
+        if (cluster_id == '-1') cluster_id = '-';
+
+        for (plotID in monitoring){
+            var container = $('div#'+plotID+cluster_id,main_tabs_context);
+            SunstoneMonitoring.plot("CLUSTER_HOST",
+                                    plotID,
+                                    container,
+                                    monitoring[plotID]);
+        };
+    },
+    monitor : {
+        "statePie" : {
+            partitionPath: "STATE",
+            operation: SunstoneMonitoring.ops.partition,
+            dataType: "pie",
+            colorize: function(state){
+                switch (state) {
+                case '0': return "rgb(239,201,86)" //yellow
+                case '1': return "rgb(175,216,248)" //blue
+                case '2': return "rgb(108,183,108)" //green
+                case '3': return "rgb(203,75,75)" //red
+                case '4': return "rgb(71,71,71)" //gray
+                case '5': return "rgb(160,160,160)" //light gray
+                }
+            },
+            plotOptions : {
+                series: { pie: { show: true  } },
+                legend : {
+                    labelFormatter: function(label, series){
+                        return OpenNebula.Helper.resource_state("host_simple",label) +
+                            ' - ' + series.data[0][1] + ' (' +
+                            Math.floor(series.percent) + '%' + ')';
+                    }
+                }
+            }
+        },
+        "globalCpuUsage" : {
+            partitionPath: ["HOST_SHARE", "USED_CPU"],
+            dataType: "pie",
+            operation: SunstoneMonitoring.ops.hostCpuUsagePartition,
+            plotOptions: {
+                series: { pie: { show: true  } },
+            }
+        },
+        "cpuUsageBar" : {
+            paths: [
+                ["HOST_SHARE","MAX_CPU"],
+                ["HOST_SHARE","USED_CPU"],
+                ["HOST_SHARE","CPU_USAGE"],
+            ],
+            operation: SunstoneMonitoring.ops.singleBar,
+            plotOptions: {
+                series: { bars: { show: true,
+                                  horizontal: true,
+                                  barWidth: 0.5 }
+                        },
+                yaxis: { show: false },
+                xaxis: { min:0 },
+                legend: {
+                    noColumns: 3,
+                    margin: [-25,-35],
+                    labelFormatter: function(label, series){
+                        return label[1].toLowerCase()
+                    }
+                }
+            }
+        },
+        "memoryUsageBar" : {
+            paths: [
+                ["HOST_SHARE","MAX_MEM"],
+                ["HOST_SHARE","USED_MEM"],
+                ["HOST_SHARE","MEM_USAGE"],
+            ],
+            operation: SunstoneMonitoring.ops.singleBar,
+            plotOptions: {
+                series: { bars: { show: true,
+                                  horizontal: true,
+                                  barWidth: 0.5 }
+                        },
+                yaxis: { show: false },
+                xaxis: {
+                    tickFormatter : function(val,axis) {
+                        return humanize_size(val);
+                    },
+                    min: 0
+                },
+                legend: {
+                    noColumns: 3,
+                    margin: [-25,-35],
+                    labelFormatter: function(label, series){
+                        return label[1].toLowerCase()
+                    }
+                }
+            }
+        },
+    }
+}
+
+
 Sunstone.addActions(cluster_actions);
 Sunstone.addMainTab('clusters_tab',clusters_tab);
 //Sunstone.addInfoPanel("host_info_panel",host_info_panel);
@@ -280,6 +382,7 @@ function updateClusterElement(request, element_json){
 //callback for actions deleting a host element
 function deleteClusterElement(req){
     deleteElement(dataTable_clusters,'#cluster_'+req.request.data);
+    $('div#cluster_tab_'+req.request.data,main_tabs_context).remove();
     updateClusterSelect();
 }
 
@@ -305,7 +408,6 @@ function updateClustersView (request,list){
     updateView(list_array,dataTable_clusters);
     updateClusterSelect();
     //dependency with the dashboard plugin
-    updateDashboard("clusters",list);
     updateInfraDashboard("clusters",list);
     newClusterMenu(list);
 };
@@ -377,7 +479,7 @@ function clusterTabContent(cluster_json) {
   <tr>\
     <td>\
       <div class="panel">\
-<h3>' + tr("Cluster information") + '</h3>\
+<h3>' + tr("Cluster information") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h3>\
         <div class="panel_info">\
 \
           <table class="info_table">\
@@ -389,12 +491,44 @@ function clusterTabContent(cluster_json) {
               <td class="key_td">' + tr("Name") + '</td>\
               <td class="value_td">'+cluster.NAME+'</td>\
             </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Hosts state") + '</td>\
+              <td class="key_td">' + tr("Hosts CPU Usage") + '</td>\
+            </tr>\
+            <tr>\
+              <td colspan="2"><div id="globalCpuUsage'+cluster.ID+'" style="float:left;width:50%;height:100px;"></div>\
+                              <div id="statePie'+cluster.ID+'" style="float:right;width:50%;height:100px;"></div></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Used vs. Max CPU") + '</td>\
+              <td></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2">\
+               <div id="cpuUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+              </td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Used vs. Max Memory") + '</td>\
+              <td></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2">\
+               <div id="memoryUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+              </td>\
+            </tr>\
           </table>\
 \
         </div>\
       </div>\
     </td>\
   </tr>\
+</table>\
+</td>\
+<td style="width:50%">\
+<table style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
@@ -407,10 +541,6 @@ function clusterTabContent(cluster_json) {
       </div>\
     </td>\
   </tr>\
-</table>\
-</td>\
-<td style="width:50%">\
-<table style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
@@ -442,7 +572,7 @@ function clusterTabContent(cluster_json) {
         return html_code;
     };
 
-    //end cluster none special html
+    //end cluster 'none' special html
 
     var html_code = '\
 <table class="dashboard_table">\
@@ -452,7 +582,7 @@ function clusterTabContent(cluster_json) {
   <tr>\
     <td>\
       <div class="panel">\
-<h3>' + tr("Cluster information") + '</h3>\
+<h3>' + tr("Cluster information") + '<i class="icon-refresh action_button" value="Host.list" style="float:right;cursor:pointer"></i></h3>\
         <div class="panel_info">\
 \
           <table class="info_table">\
@@ -464,12 +594,44 @@ function clusterTabContent(cluster_json) {
               <td class="key_td">' + tr("Name") + '</td>\
               <td class="value_td">'+cluster.NAME+'</td>\
             </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Hosts state") + '</td>\
+              <td class="key_td">' + tr("Hosts CPU Usage") + '</td>\
+            </tr>\
+            <tr>\
+              <td colspan="2"><div id="globalCpuUsage'+cluster.ID+'" style="float:left;width:50%;height:100px;"></div>\
+                              <div id="statePie'+cluster.ID+'" style="float:right;width:50%;height:100px;"></div></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Used vs. Max CPU") + '</td>\
+              <td><div class="cpuUsageBar_legend"></div></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2">\
+               <div id="cpuUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+              </td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Used vs. Max Memory") + '</td>\
+              <td><div class="memoryUsageBar_legend"></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2">\
+               <div id="memoryUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+              </td>\
+            </tr>\
           </table>\
 \
         </div>\
       </div>\
     </td>\
   </tr>\
+</table>\
+</td>\
+<td style="width:50%">\
+<table style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
@@ -483,10 +645,6 @@ function clusterTabContent(cluster_json) {
       </div>\
     </td>\
   </tr>\
-</table>\
-</td>\
-<td style="width:50%">\
-<table style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
@@ -596,6 +754,11 @@ function newClusterMenuElement(element){
     };
 */
     Sunstone.addMainTab('cluster_tab_'+cluster.ID,menu_cluster,true);
+    $('li#li_cluster_tab_'+cluster.ID).click(function(){
+        $('div#cluster_tab_'+cluster.ID+' div.plot').trigger('resize');
+    });
+
+
 //    Sunstone.addMainTab('cluster_hosts_tab_'+cluster.ID,submenu_hosts,true);
 //    Sunstone.addMainTab('cluster_datastores_tab_'+cluster.ID,submenu_datastores,true);
 //    Sunstone.addMainTab('cluster_vnets_tab_'+cluster.ID,submenu_vnets,true);
@@ -802,6 +965,21 @@ function setupCreateClusterDialog(){
 function popUpCreateClusterDialog(){
     $create_cluster_dialog.dialog('open');
     return false;
+}
+
+function monitorClusters(list){
+    clustered_hosts = {}
+    for (var i = 0; i < list.length; i++){
+        var cluster_id = list[i].HOST.CLUSTER_ID;
+        if (!clustered_hosts[cluster_id])
+            clustered_hosts[cluster_id] = [{ CLUSTER_HOST : list[i].HOST }];
+        else
+            clustered_hosts[cluster_id].push({ CLUSTER_HOST : list[i].HOST })
+    }
+    for (cluster in clustered_hosts){
+        SunstoneMonitoringConfig.CLUSTER_HOST.cluster_id = cluster;
+        SunstoneMonitoring.monitor('CLUSTER_HOST', clustered_hosts[cluster]);
+    }
 }
 
 //Prepares the autorefresh for hosts

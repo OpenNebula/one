@@ -165,6 +165,18 @@ var groups_tab = {
     parentTab: 'system_tab'
 };
 
+
+SunstoneMonitoringConfig['GROUP'] = {
+    plot: function(monitoring){
+        $('#totalGroups', $dashboard).text(monitoring['totalGroups'])
+    },
+    monitor: {
+        "totalGroups" : {
+            operation: SunstoneMonitoring.ops.totalize
+        }
+    },
+}
+
 Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups_tab',groups_tab);
 
@@ -229,10 +241,9 @@ function updateGroupsView(request, group_list){
     $.each(group_list,function(){
         group_list_array.push(groupElementArray(this));
     });
-
     updateView(group_list_array,dataTable_groups);
     updateGroupSelect(group_list);
-    updateDashboard("groups",group_list);
+    SunstoneMonitoring.monitor('GROUP', group_list)
     updateSystemDashboard("groups",group_list);
 }
 

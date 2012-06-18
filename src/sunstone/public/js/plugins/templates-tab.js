@@ -937,7 +937,6 @@ function updateTemplatesView(request, templates_list){
 
     updateView(template_list_array,dataTable_templates);
     updateTemplateSelect();
-    updateDashboard("templates",templates_list);
     updateVResDashboard("templates",templates_list);
 }
 

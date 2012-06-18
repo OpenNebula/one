@@ -597,7 +597,6 @@ function updateImagesView(request, images_list){
     });
 
     updateView(image_list_array,dataTable_images);
-    updateDashboard("images",images_list);
     updateVResDashboard("images",images_list);
 }
 

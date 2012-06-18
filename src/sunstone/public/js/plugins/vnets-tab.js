@@ -546,7 +546,6 @@ function updateVNetworksView(request, network_list){
 
     updateView(network_list_array,dataTable_vNetworks);
     //dependency with dashboard
-    updateDashboard("vnets",network_list);
     updateInfraDashboard("vnets",network_list);
 
 }

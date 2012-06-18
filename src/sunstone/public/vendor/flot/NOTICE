@@ -4,3 +4,5 @@ THIRD-PARTY SOFTWARE
  * Info:        http://code.google.com/p/flot/
  * Copyright:   Copyright (c) 2007-2012 IOLA and Ole Laursen
  * License:     MIT License: http://www.opensource.org/licenses/mit-license.php (or LICENSE.txt)
+
+ Note: The change proposed at https://github.com/flot/flot/pull/7/files has been applied to pie plugin.

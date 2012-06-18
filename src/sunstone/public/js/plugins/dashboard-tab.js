@@ -29,32 +29,36 @@ var dashboard_tab_content =
             <tr>\
               <td class="key_td">' + tr("Total Hosts") + '</td>\
               <td class="key_td">' + tr("State") + '</td>\
-              <td class="key_td">' + tr("Global CPU Usage") + '</td>\
             </tr>\
             <tr>\
-              <td id="totalHosts" class="big_text"></td>\
-              <td colspan="2"><div id="statePie" style="width:45%;display:inline-block;height:100px;"></div>\
-                  <div id="globalCpuUsage" style="display:inline-block;width:50%;height:100px;"></div></td>\
+              <td colspan="2"><div id="totalHosts" class="big_text" style="float:left;width:50%;padding-top:12px;"></div>\
+                 <div id="statePie" style="float:right;width:50%;height:100px;"></div></td>\
+            </tr>\
+\
+            <tr>\
+              <td class="key_td">' + tr("Global CPU Usage") + '</td>\
+              <td></td>\
+            </tr>\
+            <tr>\
+              <td colspan="2"><div id="globalCpuUsage" style="width:100%;height:100px;"></div></td>\
             </tr>\
 \
             <tr>\
               <td class="key_td">' + tr("Used vs. Max CPU") + '</td>\
-              <td></td>\
               <td><div id="cpuUsageBar_legend"></div></td>\
             </tr>\
             <tr>\
-              <td colspan="3">\
+              <td colspan="2">\
                <div id="cpuUsageBar" style="width:95%;height:50px"></div>\
               </td>\
            </tr>\
 \
             <tr>\
               <td class="key_td">' + tr("Used vs. Max Memory") + '</td>\
-              <td></td>\
-              <td><div id="memoryUsageBar_legend"></td>\
+              <td><div id="memoryUsageBar_legend"></div></td>\
             </tr>\
             <tr>\
-              <td colspan="3">\
+              <td colspan="2">\
                <div id="memoryUsageBar" style="width:95%;height:50px"></div>\
               </td>\
             </tr>\
@@ -78,7 +82,7 @@ var dashboard_tab_content =
               <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="cpuPerCluster" style="width:97%;height:100px"></div></td>\
+              <td colspan="2"><div id="cpuPerCluster" style="width:100%;height:100px;overflow:hidden;"></div></td>\
             </tr>\
 \
             <tr>\
@@ -86,7 +90,7 @@ var dashboard_tab_content =
               <td class="value_td"></td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="memoryPerCluster" style="width:97%;height:100px"></div></td>\
+              <td colspan="2"><div id="memoryPerCluster" style="width:100%;height:100px;overflow:hidden;"></div></td>\
             </tr>\
 \
           </table>\
@@ -108,23 +112,21 @@ var dashboard_tab_content =
 \
             <tr>\
               <td class="key_td">' + tr("Total VMs") + '</td>\
+              <td class="key_td">' + tr("State") + '</td>\
+            </tr>\
+\
+            <tr>\
+              <td colspan="2"><div id="totalVMs" class="big_text" style="float:left;width:50%;padding-top:12px;"></div>\
+                  <div id="vmStatePie" style="float:right;width:50%;height:100px"></div></td>\
+            </tr>\
+\
+            <tr>\
               <td class="key_td">' + tr("Bandwidth - Upload") + '</td>\
               <td class="key_td">' + tr("Bandwidth - Download") + '</td>\
             </tr>\
-\
             <tr>\
-              <td id="totalVMs" class="big_text"></td>\
               <td id="bandwidth_up" class="big_text"></td>\
               <td id="bandwidth_down" class="big_text"></td>\
-            </tr>\
-\
-            <tr>\
-              <td class="key_td">' + tr("State") + '</td>\
-              <td class="value_td"></td>\
-              <td class="value_td"></td>\
-            </tr>\
-            <tr>\
-              <td colspan="3"><div id="vmStatePie" style="width:100%;height:100px"></div></td>\
             </tr>\
 \
             <tr>\
@@ -152,21 +154,19 @@ var dashboard_tab_content =
             <tr>\
               <td class="key_td">' + tr("Total Users") + '</td>\
               <td class="key_td">' + tr("Total Groups") + '</td>\
-              <td class="key_td">' + tr("Total ACLs") + '</td>\
             </tr>\
 \
             <tr>\
               <td class="big_text" id="totalUsers"></td>\
               <td class="big_text" id="totalGroups"></td>\
-              <td class="big_text" id="totalAcls"></td>\
             </tr>\
 \
             <tr>\
-              <td class="key_td" colspan="2">' + tr("Users per group") + '</td>\
+              <td class="key_td">' + tr("Users per group") + '</td>\
               <td class="value_td"><i class="icon-refresh action_button" value="User.refresh" style="float:right;cursor:pointer"></i></td>\
             </tr>\
             <tr>\
-              <td colspan="3"><div id="usersPerGroup" style="width:100%;height:100px"></div></td>\
+              <td colspan="2"><div id="usersPerGroup" style="width:100%;height:100px;overflow:hidden;"></div></td>\
             </tr>\
 \
           </table>\
@@ -187,88 +187,6 @@ var dashboard_tab = {
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 var $dashboard;
-
-function updateDashboard(){
-    //mock
-}
-
-function plotHostMonitoring(monitoring){
-    $('#totalHosts', $dashboard).text(monitoring['totalHosts'])
-    delete monitoring['totalHosts']
-
-    if (!$dashboard.is(':visible')) return;
-    
-    for (plotID in monitoring){
-        var container = $('div#'+plotID,$dashboard);
-        SunstoneMonitoring.plot("HOST",
-                                plotID,
-                                container,
-                                monitoring[plotID]);
-    };
-}
-
-function plotUserMonitoring(monitoring){
-    $('#totalUsers', $dashboard).text(monitoring['totalUsers'])
-
-    if (!$dashboard.is(':visible')) return;
-
-    var container = $('div#usersPerGroup',$dashboard);
-    SunstoneMonitoring.plot('USER',
-                            'usersPerGroup',
-                            container,
-                            monitoring['usersPerGroup']);
-}
-
-function plotAclMonitoring(monitoring){
-    $('#totalAcls', $dashboard).text(monitoring['totalAcls'])
-}
-
-function plotGroupMonitoring(monitoring){
-    $('#totalGroups', $dashboard).text(monitoring['totalGroups'])
-}
-
-//Permanent storage for last value of aggregated network usage
-//Used to calculate bandwidth
-var netUsage = {
-    time : new Date().getTime(),
-    up : 0,
-    down : 0
-}
-
-function plotVMMonitoring(monitoring){
-    $('#totalVMs', $dashboard).text(monitoring['totalVMs'])
-
-    var t = ((new Date().getTime()) - netUsage.time) / 1000 //in secs
-    var bandwidth_up = monitoring['netUsageBar'][1].data[0][0] - netUsage.up
-    bandwidth_up /= t
-    var bandwidth_up_str = humanize_size(bandwidth_up) + "/s" //bytes /sec
-    var bandwidth_down = monitoring['netUsageBar'][0].data[0][0] - netUsage.down
-    bandwidth_down /= t
-    var bandwidth_down_str = humanize_size(bandwidth_down) + "/s" //bytes /sec
-    
-    if (bandwidth_up >= 0)
-        $('#bandwidth_up', $dashboard).text(bandwidth_up_str)
-    if (bandwidth_down >= 0)
-        $('#bandwidth_down', $dashboard).text(bandwidth_down_str)
-
-    netUsage.time = new Date().getTime()
-    netUsage.up = monitoring['netUsageBar'][1].data[0][0]
-    netUsage.down = monitoring['netUsageBar'][0].data[0][0]
-
-    if (!$dashboard.is(':visible')) return;
-
-    var container = $('div#vmStatePie',$dashboard);
-    SunstoneMonitoring.plot('VM',
-                            'statePie',
-                            container,
-                            monitoring['statePie']);
-
-    container = $('div#netUsageBar',$dashboard);
-    SunstoneMonitoring.plot('VM',
-                            'netUsageBar',
-                            container,
-                            monitoring['netUsageBar']);
-}
 
 function plot_global_graph(data,info){
     var context = $('#historical_table',main_tabs_context);

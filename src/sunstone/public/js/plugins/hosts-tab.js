@@ -373,6 +373,157 @@ var hosts_tab = {
     showOnTopMenu: false,
 };
 
+SunstoneMonitoringConfig['HOST'] = {
+    plot: function(monitoring){
+        $('#totalHosts', $dashboard).text(monitoring['totalHosts'])
+        delete monitoring['totalHosts']
+
+        if (!$dashboard.is(':visible')) return;
+
+        for (plotID in monitoring){
+            var container = $('div#'+plotID,$dashboard);
+            if (!container.length) continue;
+            SunstoneMonitoring.plot("HOST",
+                                    plotID,
+                                    container,
+                                    monitoring[plotID]);
+        };
+    },
+    monitor : {
+        "statePie" : {
+            partitionPath: "STATE",
+            operation: SunstoneMonitoring.ops.partition,
+            dataType: "pie",
+            colorize: function(state){
+                switch (state) {
+                case '0': return "rgb(239,201,86)" //yellow
+                case '1': return "rgb(175,216,248)" //blue
+                case '2': return "rgb(108,183,108)" //green
+                case '3': return "rgb(203,75,75)" //red
+                case '4': return "rgb(71,71,71)" //gray
+                case '5': return "rgb(160,160,160)" //light gray
+                }
+            },
+            plotOptions : {
+                series: { pie: { show: true  } },
+                legend : {
+                    labelFormatter: function(label, series){
+                        return OpenNebula.Helper.resource_state("host_simple",label) +
+                            ' - ' + series.data[0][1] + ' (' +
+                            Math.floor(series.percent) + '%' + ')';
+                    }
+                }
+            }
+        },
+        "cpuPerCluster" : {
+            path: ["HOST_SHARE","CPU_USAGE"],
+            partitionPath: "CLUSTER_ID",
+            operation: SunstoneMonitoring.ops.partition,
+            dataType: "bars",
+            plotOptions: {
+                series: { bars: {show: true, barWidth: 0.5, align: 'center' }},
+                xaxis: { show: true, customLabels: true },
+                yaxis: { min: 0 },
+                legend : {
+                    show: false,
+                    noColumns: 2,
+                    labelFormatter: function(label){
+                        if (label == "-1") return "none"
+                        return getClusterName(label)
+                    }
+                }
+            }
+        },
+        "memoryPerCluster" : {
+            path: ["HOST_SHARE","MEM_USAGE"],
+            partitionPath: "CLUSTER_ID",
+            operation: SunstoneMonitoring.ops.partition,
+            dataType: "bars",
+            plotOptions: {
+                series: { bars: {show: true, barWidth: 0.5, align: 'center' }},
+                xaxis: { show: true, customLabels: true },
+                yaxis: {
+                    tickFormatter : function(val,axis) {
+                        return humanize_size(val);
+                    },
+                    min: 0
+                },
+                legend : {
+                    show: false,
+                    noColumns: 2,
+                    labelFormatter: function(label){
+                        if (label == "-1") return "none"
+                        return getClusterName(label)
+                    }
+                }
+            }
+        },
+        "globalCpuUsage" : {
+            partitionPath: ["HOST_SHARE", "USED_CPU"],
+            dataType: "pie",
+            operation: SunstoneMonitoring.ops.hostCpuUsagePartition,
+            plotOptions: {
+                series: { pie: { show: true  } },
+            }
+        },
+        "totalHosts" : {
+            operation: SunstoneMonitoring.ops.totalize
+        },
+        "cpuUsageBar" : {
+            paths: [
+                ["HOST_SHARE","MAX_CPU"],
+                ["HOST_SHARE","USED_CPU"],
+                ["HOST_SHARE","CPU_USAGE"],
+            ],
+            operation: SunstoneMonitoring.ops.singleBar,
+            plotOptions: {
+                series: { bars: { show: true,
+                                  horizontal: true,
+                                  barWidth: 0.5 }
+                        },
+                yaxis: { show: false },
+                xaxis: { min:0 },
+                legend: {
+                    noColumns: 3,
+                    container: '#cpuUsageBar_legend',
+                    labelFormatter: function(label, series){
+                        return label[1].toLowerCase()
+                    }
+                }
+            }
+        },
+        "memoryUsageBar" : {
+            paths: [
+                ["HOST_SHARE","MAX_MEM"],
+                ["HOST_SHARE","USED_MEM"],
+                ["HOST_SHARE","MEM_USAGE"],
+            ],
+            operation: SunstoneMonitoring.ops.singleBar,
+            plotOptions: {
+                series: { bars: { show: true,
+                                  horizontal: true,
+                                  barWidth: 0.5 }
+                        },
+                yaxis: { show: false },
+                xaxis: {
+                    tickFormatter : function(val,axis) {
+                        return humanize_size(val);
+                    },
+                    min: 0
+                },
+                legend: {
+                    noColumns: 3,
+                    container: '#memoryUsageBar_legend',
+                    labelFormatter: function(label, series){
+                        return label[1].toLowerCase()
+                    }
+                }
+            }
+        },
+    }
+}
+
+
 Sunstone.addActions(host_actions);
 Sunstone.addMainTab('hosts_tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
@@ -482,10 +633,11 @@ function updateHostsView (request,host_list){
         host_list_array.push(hostElementArray(this));
     });
 
+    SunstoneMonitoring.monitor('HOST', host_list)
+    if (typeof(monitorClusters) != 'undefined') monitorClusters(host_list)
     updateView(host_list_array,dataTable_hosts);
     updateHostSelect();
     //dependency with the dashboard plugin
-    updateDashboard("hosts",host_list);
     updateInfraDashboard("hosts",host_list);
 }
 

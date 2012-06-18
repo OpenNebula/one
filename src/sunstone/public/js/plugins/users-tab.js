@@ -341,6 +341,42 @@ var users_tab = {
     parentTab: 'system_tab'
 };
 
+
+SunstoneMonitoringConfig['USER'] = {
+    plot: function(monitoring){
+        $('#totalUsers', $dashboard).text(monitoring['totalUsers'])
+
+        if (!$dashboard.is(':visible')) return;
+
+        var container = $('div#usersPerGroup',$dashboard);
+        SunstoneMonitoring.plot('USER',
+                                'usersPerGroup',
+                                container,
+                                monitoring['usersPerGroup']);
+    },
+    monitor: {
+        "usersPerGroup" : {
+            partitionPath: "GNAME",
+            operation: SunstoneMonitoring.ops.partition,
+            dataType: "bars",
+            plotOptions: {
+                series: { bars: {show: true, barWidth: 0.5, align: 'center' }},
+                xaxis: { show: true, customLabels: true },
+                yaxis: { tickDecimals: 0,
+                         min: 0 },
+                legend : {
+                    show: false,
+                    noColumns: 2,
+                }
+            }
+        },
+        "totalUsers" : {
+            operation: SunstoneMonitoring.ops.totalize
+        },
+    }
+}
+
+
 Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users_tab',users_tab);
 Sunstone.addInfoPanel("user_info_panel",user_info_panel);
@@ -401,7 +437,7 @@ function updateUsersView(request,users_list){
         user_list_array.push(userElementArray(this));
     });
     updateView(user_list_array,dataTable_users);
-    updateDashboard("users",users_list);
+    SunstoneMonitoring.monitor('USER', users_list)
     updateSystemDashboard("users",users_list);
     updateUserSelect();
 };
