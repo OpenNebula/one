@@ -885,11 +885,20 @@ void LifeCycleManager::attach_failure_action(int vid)
 
     if ( disk != 0 )
     {
+        Nebula&       nd     = Nebula::instance();
+        ImageManager* imagem = nd.get_imagem();
+
         Template tmpl;
+        int      image_id;
 
         tmpl.set(disk);
 
         Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+
+        if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
+        {
+            imagem->release_image(image_id, false);
+        }
     }
 }
 
@@ -898,37 +907,7 @@ void LifeCycleManager::attach_failure_action(int vid)
 
 void LifeCycleManager::detach_success_action(int vid)
 {
-    VirtualMachine *  vm;
-    VectorAttribute * disk;
-
-    int uid;
-    int gid;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    disk = vm->delete_attach_disk();
-    uid  = vm->get_uid();
-    gid  = vm->get_gid();
-
-    vm->set_state(VirtualMachine::RUNNING);
-
-    vmpool->update(vm);
-
-    vm->unlock();
-
-    if ( disk != 0 )
-    {
-        Template tmpl;
-
-        tmpl.set(disk);
-
-        Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
-    }
+    attach_failure_action(vid);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -936,23 +915,7 @@ void LifeCycleManager::detach_success_action(int vid)
 
 void LifeCycleManager::detach_failure_action(int vid)
 {
-    VirtualMachine *    vm;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    vm->clear_attach_disk();
-
-    vm->set_state(VirtualMachine::RUNNING);
-
-    vmpool->update(vm);
-
-    vm->unlock();    
-
+    attach_success_action(vid);
 }
 
 /* -------------------------------------------------------------------------- */
