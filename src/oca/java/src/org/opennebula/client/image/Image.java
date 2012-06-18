@@ -40,10 +40,11 @@ public class Image extends PoolElement
     private static final String CLONE       = METHOD_PREFIX + "clone";
 
     private static final String[] IMAGE_STATES =
-        {"INIT", "READY", "USED", "DISABLED", "LOCKED", "ERROR"};
+        {"INIT", "READY", "USED", "DISABLED", "LOCKED",
+        "ERROR", "CLONE", "DELETE", "USED_PERS"};
 
     private static final String[] SHORT_IMAGE_STATES =
-        {"init", "rdy", "used", "disa", "lock", "err"};
+        {"init", "rdy", "used", "disa", "lock", "err", "clon", "dele", "used"};
 
     private static final String[] IMAGE_TYPES =
         {"OS", "CDROM", "DATABLOCK"};
