@@ -58,9 +58,9 @@ log "Cloning $SRC_PATH in $DST"
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR
 
-WHICH_SUDO=`which sudo`
+WHICH_SUDO=\$(which sudo)
 
-if [ ! -z "$WHICH_SUDO" -a -f "$WHICH_SUDO" ]; then
+if [ ! -z "\$WHICH_SUDO" -a -f "\$WHICH_SUDO" ]; then
   SUDO="sudo "
 fi
 
