@@ -454,7 +454,7 @@ var datastores_buttons = {
 };
 
 var hosts_tab = {
-    title: "Hosts",
+    title: '<i class="icon-hdd"></i>'+"Hosts",
     content: aggregated_hosts_tab_content,
     buttons: hosts_buttons,
     tabClass: "subTab",
@@ -462,7 +462,7 @@ var hosts_tab = {
 };
 
 var vms_tab = {
-    title: "Virtual Machines",
+    title: '<i class="icon-cloud"></i>'+"Virtual Machines",
     content: aggregated_vms_tab_content,
     buttons: vms_buttons,
     tabClass: "subTab",
@@ -470,7 +470,7 @@ var vms_tab = {
 };
 
 var vns_tab = {
-    title: "Virtual Networks",
+    title: '<i class="icon-sitemap"></i>'+"Virtual Networks",
     content: aggregated_vns_tab_content,
     buttons: vns_buttons,
     tabClass: "subTab",
@@ -479,7 +479,7 @@ var vns_tab = {
 };
 
 var images_tab = {
-    title: "Images",
+    title: '<i class="icon-upload"></i>'+"Images",
     content: aggregated_images_tab_content,
     buttons: images_buttons,
     tabClass: "subTab",
@@ -487,7 +487,7 @@ var images_tab = {
 };
 
 var users_tab = {
-    title: "Users",
+    title: '<i class="icon-user"></i>'+"Users",
     content: aggregated_users_tab_content,
     buttons: users_buttons,
     tabClass: "subTab",
@@ -495,7 +495,7 @@ var users_tab = {
 };
 
 var templates_tab = {
-    title: "Templates",
+    title: '<i class="icon-file"></i>'+"Templates",
     content: aggregated_templates_tab_content,
     buttons: templates_buttons,
     tabClass: "subTab",
@@ -503,7 +503,7 @@ var templates_tab = {
 };
 
 var clusters_tab = {
-    title: "Clusters",
+    title: '<i class="icon-tags"></i>'+"Clusters",
     content: aggregated_clusters_tab_content,
     buttons: clusters_buttons,
     tabClass: "subTab",
@@ -511,7 +511,7 @@ var clusters_tab = {
 };
 
 var datastores_tab = {
-    title: "Datastores",
+    title: '<i class="icon-folder-open"></i>'+"Datastores",
     content: aggregated_datastores_tab_content,
     buttons: datastores_buttons,
     tabClass: "subTab",

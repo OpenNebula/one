@@ -406,7 +406,7 @@ var vm_create_panel = {
 };
 
 var vms_tab = {
-    title: '<i class="icon-bar-chart"></i>'+tr("Compute"),
+    title: '<i class="icon-cloud"></i>'+tr("Compute"),
     content: vms_tab_content,
     buttons: vm_buttons
 }

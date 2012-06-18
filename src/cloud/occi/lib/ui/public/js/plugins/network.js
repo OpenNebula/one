@@ -196,7 +196,7 @@ var vnet_create_panel = {
 }
 
 var vnets_tab = {
-    title: '<i class="icon-resize-small"></i>'+tr("Networks"),
+    title: '<i class="icon-sitemap"></i>'+tr("Networks"),
     content: vnets_tab_content,
     buttons: vnet_buttons
 }

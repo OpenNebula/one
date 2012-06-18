@@ -119,7 +119,7 @@ var dashboard_tab_content =
 </tr></table>';
 
 var dashboard_tab = {
-    title: '<i class="icon-home"></i>'+tr("Dashboard"),
+    title: '<i class="icon-dashboard"></i>'+tr("Dashboard"),
     content: dashboard_tab_content,
     showOnTopMenu: false,
 }

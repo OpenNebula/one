@@ -53,7 +53,7 @@ var config_actions = {
 };
 
 var config_tab = {
-    title: '<i class="icon-cogs"></i>'+tr("Configuration"),
+    title: '<i class="icon-wrench"></i>'+tr("Configuration"),
     content: config_tab_content
 }
 
