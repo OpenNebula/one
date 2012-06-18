@@ -27,7 +27,6 @@ module OpenNebula
         VN_METHODS = {
             :info       => "vn.info",
             :allocate   => "vn.allocate",
-            :publish    => "vn.publish",
             :delete     => "vn.delete",
             :addleases  => "vn.addleases",
             :rmleases   => "vn.rmleases",

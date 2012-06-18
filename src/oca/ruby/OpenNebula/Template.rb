@@ -29,7 +29,6 @@ module OpenNebula
             :instantiate => "template.instantiate",
             :info        => "template.info",
             :update      => "template.update",
-            :publish     => "template.publish",
             :delete      => "template.delete",
             :chown       => "template.chown",
             :chmod       => "template.chmod",
