@@ -36,8 +36,8 @@
 
 :default:
 - :ID
-- :GROUP
 - :NAME
+- :GROUP
 - :AUTH
 - :VMS
 - :MEMORY

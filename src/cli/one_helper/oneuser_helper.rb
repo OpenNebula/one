@@ -192,7 +192,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d['PASSWORD']
             end
 
-            default :ID, :GROUP, :NAME, :AUTH, :VMS, :MEMORY, :CPU
+            default :ID, :NAME, :GROUP, :AUTH, :VMS, :MEMORY, :CPU
         end
 
         table
