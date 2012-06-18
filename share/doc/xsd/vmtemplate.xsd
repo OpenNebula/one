@@ -9,7 +9,7 @@
         <xs:element name="UNAME" type="xs:string"/>
         <xs:element name="GNAME" type="xs:string"/>
         <xs:element name="NAME" type="xs:string"/>
-        <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
+        <xs:element name="PERMISSIONS" minOccurs="1" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="OWNER_U" type="xs:integer"/>
