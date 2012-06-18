@@ -76,6 +76,14 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:migrate],RESULT[:success],id)
     end
 
+    def attach_disk(id, drv_message)
+        send_message(ACTION[:attach_disk],RESULT[:success],id)
+    end
+
+    def detach_disk(id, drv_message)
+        send_message(ACTION[:detach_disk],RESULT[:success],id)
+    end
+
     def poll(id, drv_message)
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
         # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES

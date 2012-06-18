@@ -558,7 +558,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    if ( quota_authorization(&img_usage, PoolObjectSQL::IMAGE, att) == false )
+    if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
     {
         delete itemplate;
         return;   
@@ -581,7 +581,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          error_str);
     if (rc < 0)
     {
-        quota_rollback(&img_usage, PoolObjectSQL::IMAGE, att);
+        quota_rollback(&img_usage, Quotas::DATASTORE, att);
 
         failure_response(INTERNAL,
                 allocate_error(PoolObjectSQL::IMAGE, error_str), att);
@@ -666,7 +666,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( quota_authorization(tmpl, att) == false )
+    if ( quota_authorization(tmpl, Quotas::IMAGE, att) == false )
     {
         delete tmpl;
         return; 
@@ -676,7 +676,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( rc != 0 )
     {
-        quota_rollback(tmpl, att);
+        quota_rollback(tmpl, Quotas::IMAGE, att);
 
         failure_response(ACTION,
                 request_error(error_str, ""),

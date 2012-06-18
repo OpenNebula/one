@@ -516,6 +516,8 @@ class ExecDriver < VirtualMachineDriver
         disk_xpath = "VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']/TARGET"
         target     = ensure_xpath(xml_data, id, action, disk_xpath) || return
 
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
+
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
         steps = [
@@ -529,7 +531,12 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vmm,
                 :action       => :attach_disk,
-                :parameters   => [:deploy_id, :disk_target_path, target]
+                :parameters   => [
+                        :deploy_id,
+                        :disk_target_path,
+                        target,
+                        target_index
+                ]
             }
         ]
 
@@ -549,6 +556,8 @@ class ExecDriver < VirtualMachineDriver
         disk_xpath = "VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']/TARGET"
         target     = ensure_xpath(xml_data, id, action, disk_xpath) || return
 
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
+
         action = VmmAction.new(self, id, :detach_disk, drv_message)
 
         steps = [
@@ -556,7 +565,12 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vmm,
                 :action       => :attach_disk,
-                :parameters   => [:deploy_id, target]
+                :parameters   => [
+                        :deploy_id,
+                        :disk_target_path,
+                        target,
+                        target_index
+                ]
             },
             # Perform an EPILOG on the disk
             {

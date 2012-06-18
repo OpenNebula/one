@@ -889,7 +889,7 @@ void LifeCycleManager::attach_failure_action(int vid)
 
         tmpl.set(disk);
 
-        Quotas::vm_del(uid, gid, &tmpl);
+        Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
     }
 }
 
@@ -927,7 +927,7 @@ void LifeCycleManager::detach_success_action(int vid)
 
         tmpl.set(disk);
 
-        Quotas::vm_del(uid, gid, &tmpl);
+        Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
     }
 }
 

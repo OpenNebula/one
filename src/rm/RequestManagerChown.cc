@@ -34,7 +34,8 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     int old_uid;
     int old_gid;
 
-    PoolObjectSQL * object;
+    PoolObjectSQL *   object;
+    Quotas::QuotaType qtype;
 
     object = pool->get(oid,true);
 
@@ -48,15 +49,18 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     if ( auth_object == PoolObjectSQL::VM )
     {
-        tmpl = (static_cast<VirtualMachine*>(object))->clone_template();
+        tmpl  = (static_cast<VirtualMachine*>(object))->clone_template();
+        qtype = Quotas::VIRTUALMACHINE;
     }
-    else
+    else 
     {
         Image * img = static_cast<Image *>(object);
         tmpl        = new Template;
 
         tmpl->add("DATASTORE", img->get_ds_id());
         tmpl->add("SIZE", img->get_size());
+
+        qtype = Quotas::DATASTORE;
     }
 
     if ( new_uid == -1 )
@@ -82,28 +86,28 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     RequestAttributes att_new(new_uid, new_gid, att);
     RequestAttributes att_old(old_uid, old_gid, att);
 
-    if ( quota_authorization(tmpl, att_new) == false )
+    if ( quota_authorization(tmpl, qtype, att_new) == false )
     {
         delete tmpl;
         return 0;
     }
 
-    quota_rollback(tmpl, att_old);
+    quota_rollback(tmpl, qtype, att_old);
 
     object = pool->get(oid,true);
 
     if ( object == 0 )
     {
-        quota_rollback(tmpl, att_new);    
+        quota_rollback(tmpl, qtype, att_new);    
 
-        quota_authorization(tmpl, att_old);    
+        quota_authorization(tmpl, qtype, att_old);    
 
         failure_response(NO_EXISTS,
                          get_error(object_name(auth_object), oid),
                          att);   
     }
 
-    delete tmpl;
+    delete tmpl; 
 
     return object;
 }

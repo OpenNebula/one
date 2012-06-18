@@ -335,7 +335,7 @@ void VirtualMachineManagerDriver::protocol(
             vmpool->update(vm);
         }
     }
-    else if ( action == "ATTACH" )
+    else if ( action == "ATTACHDISK" )
     {
         Nebula           &ne  = Nebula::instance();
         LifeCycleManager *lcm = ne.get_lcm();
@@ -354,7 +354,7 @@ void VirtualMachineManagerDriver::protocol(
             lcm->trigger(LifeCycleManager::ATTACH_FAILURE, id);
         }
     }
-    else if ( action == "DETACH" )
+    else if ( action == "DETACHDISK" )
     {
         Nebula              &ne  = Nebula::instance();
         LifeCycleManager    *lcm = ne.get_lcm();
