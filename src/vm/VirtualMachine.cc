@@ -343,7 +343,7 @@ int VirtualMachine::parse_context(string& error_str)
     else if ( num > 1 )
     {
         error_str = "Only one CONTEXT attribute can be defined.";
-        return -1;
+        goto error_cleanup;
     }
 
     context = dynamic_cast<VectorAttribute *>(array_context[0]);
@@ -351,7 +351,7 @@ int VirtualMachine::parse_context(string& error_str)
     if ( context == 0 )
     {
         error_str = "Wrong format for CONTEXT attribute.";
-        return -1;
+        goto error_cleanup;
     }
 
     str = context->marshall(" @^_^@ ");
@@ -359,7 +359,7 @@ int VirtualMachine::parse_context(string& error_str)
     if (str == 0)
     {
         NebulaLog::log("ONE",Log::ERROR, "Cannot marshall CONTEXT");
-        return -1;
+        goto error_cleanup;
     }
 
     rc = parse_template_attribute(*str,parsed);
@@ -399,6 +399,17 @@ int VirtualMachine::parse_context(string& error_str)
     }
 
     return rc;
+
+error_cleanup:
+    for (int i = 0; i < num ; i++)
+    {
+        if (array_context[i] != 0)
+        {
+            delete array_context[i];
+        }
+    }
+
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -467,7 +478,7 @@ int VirtualMachine::parse_requirements(string& error_str)
     else if ( num > 1 )
     {
         error_str = "Only one REQUIREMENTS attribute can be defined.";
-        return -1;
+        goto error_cleanup;
     }
 
     reqs = dynamic_cast<SingleAttribute *>(array_reqs[0]);
@@ -475,7 +486,7 @@ int VirtualMachine::parse_requirements(string& error_str)
     if ( reqs == 0 )
     {
         error_str = "Wrong format for REQUIREMENTS attribute.";
-        return -1;
+        goto error_cleanup;
     }
 
     rc = parse_template_attribute(reqs->value(),parsed);
@@ -499,6 +510,17 @@ int VirtualMachine::parse_requirements(string& error_str)
     }
 
     return rc;
+
+error_cleanup:
+    for (int i = 0; i < num ; i++)
+    {
+        if (array_reqs[i] != 0)
+        {
+            delete array_reqs[i];
+        }
+    }
+
+    return -1;
 }
 
 /* ------------------------------------------------------------------------ */
