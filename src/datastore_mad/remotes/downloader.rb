@@ -65,7 +65,7 @@ class Stream
 
     def open_output_file
         if @to=='-'
-            @output_file=STDOUT
+            @output_file=STDOUT.dup
         else
             begin
                 @output_file=File.open(@to, "w")
@@ -122,13 +122,11 @@ class Stream
     def set_compress(header)
         t=type(header)
 
-        compr=TYPES[t]
+        compr=TYPES[t]||"cat"
 
-        if compr
-            @uncompress_proc=Open3.popen3(compr)
-        else
-            @uncompress_proc=Open3.popen3("cat")
-        end
+        compr="#{compr} >&#{@output_file.fileno}"
+
+        @uncompress_proc=Open3.popen3(compr)
 
         @compr_in=@uncompress_proc[0]
         @compr_out=@uncompress_proc[1]
@@ -149,20 +147,8 @@ class Stream
         end
     end
 
-    def http_downloader(url)
-        uri=URI(url)
-
-        Net::HTTP.start(uri.host, uri.port) do |http|
-            request=Net::HTTP::Get.new(uri.request_uri)
-
-            http.request(request) do |response|
-                response.read_body(&process)
-            end
-        end
-    end
-
     def wget_downloader(url)
-        @popen=Open3.popen3("wget -O -  '#{url}'")
+        @popen=Open3.popen3("wget -O - '#{url}'")
         @popen[0].close
         @popen[1]
     end
@@ -215,14 +201,15 @@ class Stream
         open_output_file
 
         set_compress(header)
-        start_file_writer
 
         download_stderr=""
 
         process(header)
 
         while(!io.eof?)
-            @popen[2].read_nonblock(BLOCK_SIZE, download_stderr) if @popen
+            if defined?(@popen)
+                @popen[2].read_nonblock(BLOCK_SIZE, download_stderr)
+            end
             data=io.read(BLOCK_SIZE)
             process(data)
         end
@@ -230,8 +217,6 @@ class Stream
         @finished=true
 
         @compr_in.close_write
-
-        @writer_thread.join
 
         check_hashes
 
