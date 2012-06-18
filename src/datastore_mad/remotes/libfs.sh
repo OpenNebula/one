@@ -92,7 +92,7 @@ function fs_size {
 
 	case $1 in
 	http://*)
-		SIZE=`curl --head $1 2>/dev/null | grep Length  | cut -d: -f`
+		SIZE=`curl --head $1 2>/dev/null | grep Length  | cut -d':' -f2`
 		error=$?
 	    ;;
 	*)
