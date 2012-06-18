@@ -694,6 +694,8 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 #-------------------------------------------------------------------------------
 
 VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
+                         src/vmm_mad/remotes/vmware/attach_disk \
+                         src/vmm_mad/remotes/vmware/detach_disk \
                          src/vmm_mad/remotes/vmware/deploy \
                          src/vmm_mad/remotes/vmware/migrate \
                          src/vmm_mad/remotes/vmware/restore \
