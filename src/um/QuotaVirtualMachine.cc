@@ -86,12 +86,12 @@ void QuotaVirtualMachine::del(Template * tmpl)
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
-        return;
+        memory = 0;
     }
 
     if ( tmpl->get("CPU", cpu) == false )
     {
-        return;
+        cpu = 0;
     }
 
     vm_request.insert(make_pair("VMS",1));
