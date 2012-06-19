@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $PWD/scripts_common_sh.sh
+source $(dirname $0)/scripts_common_sh.sh
 
 DEPLOYID="$1"
 IMAGE_PATH="$2"
