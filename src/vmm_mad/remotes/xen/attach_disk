@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,31 +16,57 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-export LANG=C
+source $(dirname $0)/xenrc
+source $(dirname $0)/../../scripts_common.sh
 
-export XM_PATH="/usr/sbin/xm"
-export XM_CANCEL="sudo $XM_PATH destroy"
-export XM_CREATE="sudo $XM_PATH create"
-export XM_CREDITS="sudo $XM_PATH sched-cred"
-export XM_MIGRATE="sudo $XM_PATH migrate -l"
-export XM_SAVE="sudo $XM_PATH save"
-export XM_REBOOT="sudo $XM_PATH reboot"
-export XM_RESET="sudo $XM_PATH reset"
-export XM_RESTORE="sudo $XM_PATH restore"
-export XM_LIST="sudo $XM_PATH list"
-export XM_SHUTDOWN="sudo $XM_PATH shutdown"
-export XM_POLL="sudo /usr/sbin/xentop -bi2"
-export XM_ATTACH_DISK="sudo $XM_PATH block-attach"
-export XM_DETACH_DISK="sudo $XM_PATH block-detach"
+DRIVER_PATH=$(dirname $0)
 
-# In xen 4.1 the credit scheduler command is called sched-credit,
-# uncomment this line if you are using this version
-#export XM_CREDITS="sudo $XM_PATH sched-credit"
+DOMAIN="$1"
+SOURCE="$2"
+TARGET="$3"
+TARGET_INDEX="$4"
+DRV_ACTION="$5"
 
-# Seconds to wait after shutdown until timeout
-export SHUTDOWN_TIMEOUT=300
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
-# Uncomment this line to force VM cancellation after shutdown timeout
-#export FORCE_DESTROY=yes
+unset i XPATH_ELEMENTS
 
+DISK_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']"
 
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     $DISK_XPATH/DRIVER \
+                    $DISK_XPATH/TYPE \
+                    $DISK_XPATH/READONLY \
+                    $DISK_XPATH/BUS \
+                    $DISK_XPATH/CACHE)
+
+DRIVER="${XPATH_ELEMENTS[0]:-$DEFAULT_TYPE}"
+TYPE="${XPATH_ELEMENTS[1]}"
+READONLY="${XPATH_ELEMENTS[2]}"
+BUS="${XPATH_ELEMENTS[3]}"
+CACHE="${XPATH_ELEMENTS[4]}"
+
+case "$TYPE" in
+block)
+    FILE_PREFIX="phy"
+    ;;
+*)
+    FILE_PREFIX="tap:aio"
+    ;;
+esac
+
+if [ -n "$DRIVER" ]; then
+    FILE_PREFIX="$DRIVER"
+fi
+
+FULL_DISK="$FILE_PREFIX:$SOURCE"
+
+if [ "$READONLY" = "YES" ]; then
+    MODE="r"
+else
+    MODE="w"
+fi
+
+exec_and_log "$XM_ATTACH_DISK $DOMAIN $FULL_DISK /dev/$TARGET $MODE" \
+    "Could not attach $FULL_DISK ($TARGET) to $DOMAIN"
