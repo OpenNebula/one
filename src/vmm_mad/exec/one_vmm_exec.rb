@@ -564,7 +564,7 @@ class ExecDriver < VirtualMachineDriver
             # Run the detach vmm script
             {
                 :driver       => :vmm,
-                :action       => :attach_disk,
+                :action       => :detach_disk,
                 :parameters   => [
                         :deploy_id,
                         :disk_target_path,
