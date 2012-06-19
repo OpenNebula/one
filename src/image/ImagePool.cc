@@ -258,7 +258,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
             ostringstream oss;
 
             oss << "User " << uid << " does not own an image with name: "
-                << source << ". Set IMAGE_UNAME or IMAGE_UID of owner in DISK.";
+                << source << " . Set IMAGE_UNAME or IMAGE_UID of owner in DISK.";
             error_str =  oss.str();
 
             return -1; 

@@ -193,7 +193,7 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
     {
         ostringstream oss;
         oss << "User " << uid << " does not own a network with name: " << name
-            << "Set NETWORK_UNAME or NETWORK_UID of owner in NIC.";
+            << " . Set NETWORK_UNAME or NETWORK_UID of owner in NIC.";
 
         error = oss.str(); 
     }
