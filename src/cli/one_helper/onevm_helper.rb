@@ -43,6 +43,21 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
     }
 
+    FILE = {
+        :name   => "file",
+        :short  => "-f file",
+        :large  => "--file file" ,
+        :description => "Selects the template file",
+        :format => String,
+        :proc   => lambda { |o, options|
+            if File.file?(o)
+                options[:file] = o
+            else
+                exit -1
+            end
+        }
+    }
+
     def self.rname
         "VM"
     end
