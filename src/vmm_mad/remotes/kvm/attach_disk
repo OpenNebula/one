@@ -21,6 +21,8 @@ source $(dirname $0)/../../scripts_common.sh
 
 DRIVER_PATH=$(dirname $0)
 
+DEFAULT_TYPE="raw"
+
 DOMAIN="$1"
 SOURCE="$2"
 TARGET="$3"
@@ -36,17 +38,56 @@ DISK_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']"
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     $DISK_XPATH/DRIVER \
+                    $DISK_XPATH/TYPE \
+                    $DISK_XPATH/READONLY \
                     $DISK_XPATH/BUS \
                     $DISK_XPATH/CACHE)
 
-DRIVER="${XPATH_ELEMENTS[0]}"
-BUS="${XPATH_ELEMENTS[1]}" # TODO: unused
-CACHE="${XPATH_ELEMENTS[2]}"
+DRIVER="${XPATH_ELEMENTS[0]:-$DEFAULT_TYPE}"
+TYPE="${XPATH_ELEMENTS[1]}"
+READONLY="${XPATH_ELEMENTS[2]}"
+BUS="${XPATH_ELEMENTS[3]}"
+CACHE="${XPATH_ELEMENTS[4]}"
 
-ATTACH_PARAMS="--domain $DOMAIN --source $SOURCE --target $TARGET"
+TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
-[ -n "$CACHE" ]  && ATTACH_PARAMS="$ATTACH_PARAMS --cache $CACHE"
-[ -n "$DRIVER" ] && ATTACH_PARAMS="$ATTACH_PARAMS --type $DRIVER"
+case "$TYPE" in
+block)
+    TYPE
+    TYPE_SOURCE="dev"
+    DEVICE="disk"
+    ;;
+cdrom)
+    TYPE_SOURCE="file"
+    DEVICE="cdrom"
+    ;;
+*)
+    TYPE_SOURCE="file"
+    DEVICE="disk"
+    ;;
+esac
 
-exec_and_log "virsh --connect $LIBVIRT_URI attach-disk $ATTACH_PARAMS" \
+[ -n "$CACHE" ] && CACHE="cache='$CACHE'"
+[ -n "$BUS" ]   && BUS="bus='$BUS'"
+
+if [ "$READONLY" = "YES" ]; then
+    READONLY="<readonly/>"
+else
+    READONLY=""
+fi
+
+ATTACH_FILE="$SOURCE.attach"
+
+cat <<EOF > $ATTACH_FILE
+<disk type='$TYPE' device='$DEVICE'>
+  <driver name='qemu' type='$DRIVER' $CACHE/>
+  <source $TYPE_SOURCE='$SOURCE'/>
+  <target dev='$TARGET' $BUS/>
+  $READONLY
+</disk>
+EOF
+
+exec_and_log "virsh --connect $LIBVIRT_URI attach-device $DOMAIN $ATTACH_FILE" \
     "Could not attach $SOURCE ($TARGET) to $DOMAIN"
+
+rm -f "$ATTACH_FILE"
