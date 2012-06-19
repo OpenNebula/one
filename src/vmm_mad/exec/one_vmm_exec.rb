@@ -165,6 +165,7 @@ class VmmAction
                             :parameters => get_parameters(step[:parameters]))
             when :tm
                 result, info = @tm.do_transfer_action(@id, step[:parameters])
+
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
                 info   = "No driver in #{step[:action]}"
@@ -510,11 +511,10 @@ class ExecDriver < VirtualMachineDriver
         action   = ACTION[:attach_disk]
         xml_data = decode(drv_message)
 
-        disk_id    = ensure_xpath(xml_data, id, action, 'DISK_ID') || return
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
-        disk_xpath = "VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']/TARGET"
-        target     = ensure_xpath(xml_data, id, action, disk_xpath) || return
+        target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
+        target     = ensure_xpath(xml_data, id, action, target_xpath) || return
 
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
@@ -524,8 +524,8 @@ class ExecDriver < VirtualMachineDriver
             # Perform a PROLOG on the disk
             {
                 :driver     => :tm,
+                :action     => :tm_attach,
                 :parameters => tm_command.split
-
             },
             # Run the attach vmm script
             {
@@ -535,7 +535,8 @@ class ExecDriver < VirtualMachineDriver
                         :deploy_id,
                         :disk_target_path,
                         target,
-                        target_index
+                        target_index,
+                        drv_message
                 ]
             }
         ]
@@ -550,11 +551,10 @@ class ExecDriver < VirtualMachineDriver
         action   = ACTION[:detach_disk]
         xml_data = decode(drv_message)
 
-        disk_id    = ensure_xpath(xml_data, id, action, 'DISK_ID') || return
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
-        disk_xpath = "VM/TEMPLATE/DISK[DISK_ID='#{disk_id}']/TARGET"
-        target     = ensure_xpath(xml_data, id, action, disk_xpath) || return
+        target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
+        target     = ensure_xpath(xml_data, id, action, target_xpath) || return
 
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
@@ -575,6 +575,7 @@ class ExecDriver < VirtualMachineDriver
             # Perform an EPILOG on the disk
             {
                 :driver     => :tm,
+                :action     => :tm_detach,
                 :parameters => tm_command.split
             }
         ]

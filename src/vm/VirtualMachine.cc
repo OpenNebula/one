@@ -175,7 +175,7 @@ int VirtualMachine::select(SqlDB * db)
 
     mkdir(oss.str().c_str(), 0700);
     chmod(oss.str().c_str(), 0700);
-    
+
     //--------------------------------------------------------------------------
     //Create Log support for this VM
     //--------------------------------------------------------------------------
@@ -258,7 +258,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     {
         goto error_no_cpu;
     }
-    
+
     // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
@@ -348,7 +348,7 @@ error_no_memory:
     goto error_common;
 
 error_name_length:
-    error_str = "NAME is too long; max length is 128 chars."; 
+    error_str = "NAME is too long; max length is 128 chars.";
     goto error_common;
 
 error_common:
@@ -1023,12 +1023,12 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, 
+        rc = ipool->disk_attribute(disk,
                                    i,
                                    img_type,
                                    dev_prefix,
-                                   uid, 
-                                   image_id, 
+                                   uid,
+                                   image_id,
                                    error_str);
         if (rc == 0 )
         {
@@ -1049,7 +1049,7 @@ int VirtualMachine::get_disk_images(string& error_str)
                 {
                     case Image::OS:
                         // The first OS disk gets the first device (a),
-                        // other OS's will be managed as DATABLOCK's 
+                        // other OS's will be managed as DATABLOCK's
                         if ( os_disk.empty() )
                         {
                             os_disk.push( make_pair(dev_prefix, disk) );
@@ -1176,7 +1176,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     Image::ImageType img_type;
 
     image_id = -1;
-    
+
     // -------------------------------------------------------------------------
     // Get the DISK attribute from the template
     // -------------------------------------------------------------------------
@@ -1192,7 +1192,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     // -------------------------------------------------------------------------
     // Acquire the new disk image
     // -------------------------------------------------------------------------
-    
+
     int rc = ipool->disk_attribute(new_disk,
                                    num_disks + 1, //Preserv CONTEXT disk.i file
                                    img_type,
@@ -1202,6 +1202,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
                                    error_str);
     if ( rc != 0 )
     {
+        delete new_disk;
         return 0;
     }
 
@@ -1215,11 +1216,12 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
             oss << "Target " << target << "is already in use.";
             error_str = oss.str();
-            
-            imagem->release_image(image_id, false);
-        }
 
-        return 0;
+            imagem->release_image(image_id, false);
+
+            delete new_disk;
+            return 0;
+        }
     }
     else
     {
@@ -1643,7 +1645,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::save_disk(const string& disk_id, 
+int VirtualMachine::save_disk(const string& disk_id,
                               const string& source,
                               int           img_id)
 {
@@ -1692,7 +1694,7 @@ int VirtualMachine::save_disk(const string& disk_id,
 
 void VirtualMachine::set_auth_request(int uid,
                                       AuthRequest& ar,
-                                      VirtualMachineTemplate *tmpl) 
+                                      VirtualMachineTemplate *tmpl)
 {
     int                   num;
     vector<Attribute  * > vectors;
@@ -1818,8 +1820,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
         << "<GID>"       << gid       << "</GID>"
-        << "<UNAME>"     << uname     << "</UNAME>" 
-        << "<GNAME>"     << gname     << "</GNAME>" 
+        << "<UNAME>"     << uname     << "</UNAME>"
+        << "<GNAME>"     << gname     << "</GNAME>"
         << "<NAME>"      << name      << "</NAME>"
         << perms_to_xml(perm_xml)
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"

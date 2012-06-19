@@ -671,6 +671,8 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/poll_ganglia \
+                    src/vmm_mad/remotes/kvm/attach_disk \
+                    src/vmm_mad/remotes/kvm/detach_disk \
                     src/vmm_mad/remotes/kvm/shutdown"
 
 #-------------------------------------------------------------------------------
@@ -687,6 +689,8 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/poll_ganglia \
+                    src/vmm_mad/remotes/xen/attach_disk \
+                    src/vmm_mad/remotes/xen/detach_disk \
                     src/vmm_mad/remotes/xen/shutdown"
 
 #-------------------------------------------------------------------------------
@@ -706,6 +710,8 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/poll \
                          src/vmm_mad/remotes/vmware/checkpoint \
                          src/vmm_mad/remotes/vmware/shutdown \
+                         src/vmm_mad/remotes/vmware/attach_disk \
+                         src/vmm_mad/remotes/vmware/detach_disk \
                          src/vmm_mad/remotes/vmware/vmware_driver.rb"
 
 #-------------------------------------------------------------------------------

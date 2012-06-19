@@ -344,22 +344,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: RUNNING
     EOT
 
-    command :attachdisk, attachdisk_desc, :vmid, [:file, nil], :options => OneVMHelper::IMAGE do
+    command :attachdisk, attachdisk_desc, :vmid,
+            :options => [OneVMHelper::FILE, OneVMHelper::IMAGE] do
 
-        template_file = args[1]
-
-        if template_file.nil? and options[:image].nil?
+        if options[:file].nil? and options[:image].nil?
             STDERR.puts "Provide a template file or an image:"
-            STDERR.puts "\t<template_file>"
+            STDERR.puts "\t--file  <file>"
             STDERR.puts "\t--image <image>"
             exit -1
         end
 
-        if template_file.nil?
-            image_id = options[:image]
-            template = "DISK = [ IMAGE_ID = #{image_id} ]"
+        if options[:file]
+            template = File.read(options[:file])
         else
-            template = File.read(template_file)
+            image_id = options[:image]
+            template = "DISK = [ IMAGE_ID = #{image_id}, DEV_PREFIX = 'sd' ]"
         end
 
         helper.perform_action(args[0],options,"Attach disk") do |vm|
