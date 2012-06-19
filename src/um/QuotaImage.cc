@@ -51,9 +51,9 @@ bool QuotaImage::check(Template * tmpl,  string& error)
 
         image_id = disk->vector_value("IMAGE_ID");
         
-        if ( !check_quota(image_id, image_request, error) )
+        if ( !image_id.empty() )
         {
-            return false;
+            return check_quota(image_id, image_request, error);
         }
     }
 

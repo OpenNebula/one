@@ -50,10 +50,10 @@ bool QuotaNetwork::check(Template * tmpl,  string& error)
         }
 
         net_id = nic->vector_value("NETWORK_ID");
-        
-        if ( !check_quota(net_id, net_request, error) )
+
+        if ( !net_id.empty() )
         {
-            return false;
+            return check_quota(net_id, net_request, error);
         }
     }
 
