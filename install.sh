@@ -1302,8 +1302,7 @@ src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.resize.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
-src/sunstone/public/vendor/flot/NOTICE \
-src/sunstone/public/vendor/flot/README.txt"
+src/sunstone/public/vendor/flot/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_CRYPTOJS="\
 src/sunstone/public/vendor/crypto-js/NOTICE \
@@ -1330,7 +1329,6 @@ SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT="\
 src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.eot \
 src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.woff \
 src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.ttf \
-src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svgz \
 src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
 "
 
