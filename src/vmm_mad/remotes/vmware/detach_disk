@@ -1,4 +1,4 @@
-# SConstruct for src/vm
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,21 +16,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+source $(dirname $0)/scripts_common_sh.sh
 
-lib_name='nebula_um'
+DEPLOYID="$1"
+IMAGE_PATH="$2"
+UNIT="$3"
+UNIT_NUMBER="$4"
 
-# Sources to generate the library
-source_files=[
-    'User.cc',
-    'UserPool.cc',
-    'Quota.cc',
-    'QuotaDatastore.cc',
-    'QuotaNetwork.cc',
-    'QuotaVirtualMachine.cc',
-    'QuotaImage.cc',
-    'Quotas.cc'
-]
+CONTROLLER_NUMBER=0 # Only one controller at the moment (up to 16 devices)
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+# Get the VMware ID corresponding to the deploy_id
+VMWAREID=`vim-cmd vmsvc/getallvms|grep $DEPLOYID|cut -d' ' -f 1`
+
+DETACH_PARAMS="$VMWAREID $CONTROLLER_NUMBER $UNIT_NUMBER $IMAGE_PATH"
+
+exec_and_log "$SUDO vim-cmd vmsvc/device.diskremove $DETACH_PARAMS" \
+    "Could not detach $TARGET from $DOMAIN"

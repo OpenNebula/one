@@ -1,5 +1,3 @@
-# SConstruct for src/vm
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,21 +14,46 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+error_message()
+{
+    (
+        echo "ERROR MESSAGE --8<------"
+        echo "$1"
+        echo "ERROR MESSAGE ------>8--"
+    ) 1>&2
+}
 
-lib_name='nebula_um'
+log_function()
+{
+    echo "$1: $SCRIPT_NAME: $2" 1>&2
+}
 
-# Sources to generate the library
-source_files=[
-    'User.cc',
-    'UserPool.cc',
-    'Quota.cc',
-    'QuotaDatastore.cc',
-    'QuotaNetwork.cc',
-    'QuotaVirtualMachine.cc',
-    'QuotaImage.cc',
-    'Quotas.cc'
-]
+log_error()
+{
+    log_function "ERROR" "$1"
+}
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+exec_and_log()
+{
+    message=$2
+
+    EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
+    EXEC_LOG_RC=$?
+
+    if [ $EXEC_LOG_RC -ne 0 ]; then
+        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+
+        if [ -n "$2" ]; then
+            error_message "$2"
+        else
+            error_message "Error executing $1: $EXEC_LOG_ERR"
+        fi
+        exit $EXEC_LOG_RC
+    fi
+}
+
+WHICH_SUDO=`which sudo`
+
+if [ ! -z "$WHICH_SUDO" -a -f "$WHICH_SUDO" ]; then
+  SUDO="sudo "
+fi

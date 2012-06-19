@@ -262,7 +262,7 @@ void ImageClone::request_execute(
 
         // -------------------------- Check Quotas  ----------------------------
 
-        if ( quota_authorization(&img_usage, att) == false )
+        if ( quota_authorization(&img_usage, Quotas::IMAGE, att) == false )
         {
             delete tmpl;
             return;   
@@ -283,7 +283,7 @@ void ImageClone::request_execute(
                          error_str);
     if ( rc < 0 )
     {
-        quota_rollback(&img_usage, att);
+        quota_rollback(&img_usage, Quotas::IMAGE, att);
 
         failure_response(INTERNAL, allocate_error(error_str), att);
         return;

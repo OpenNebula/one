@@ -94,7 +94,41 @@ public:
         return tm_thread;
     };
 
-private:    
+    /**
+     * Inserts a transfer command in the xfs stream
+     *
+     * @param vm The VM
+     * @param disk Disk to transfer
+     * @param disk_index Disk index
+     * @param system_tm_mad The Transfer Manager for the system datastore
+     * @param opennebula_hostname The front-end hostname
+     * @param xfr Stream where the transfer command will be written
+     * @param error Error reason, if any
+     *
+     * @return 0 on success
+     */
+    int prolog_transfer_command(
+            VirtualMachine *        vm,
+            const VectorAttribute * disk,
+            string&                 system_tm_mad,
+            string&                 opennebula_hostname,
+            ostream&                xfr,
+            ostringstream&          error);
+
+    /**
+     * Inserts a transfer command in the xfs stream
+     *
+     * @param vm The VM
+     * @param disk Disk to transfer
+     * @param disk_index Disk index
+     * @param xfr Stream where the transfer command will be written
+     */
+    void epilog_transfer_command(
+            VirtualMachine *        vm,
+            const VectorAttribute * disk,
+            ostream&                xfr);
+
+private:
     /**
      *  Thread id for the Transfer Manager
      */

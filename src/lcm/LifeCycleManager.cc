@@ -129,6 +129,22 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "EPILOG_FAILURE";
         break;
 
+    case ATTACH_SUCCESS:
+        aname = "ATTACH_SUCCESS";
+        break;
+
+    case ATTACH_FAILURE:
+        aname = "ATTACH_FAILURE";
+        break;
+
+    case DETACH_SUCCESS:
+        aname = "DETACH_SUCCESS";
+        break;
+
+    case DETACH_FAILURE:
+        aname = "DETACH_FAILURE";
+        break;
+
     case DEPLOY:
         aname = "DEPLOY";
         break;
@@ -261,6 +277,22 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "EPILOG_FAILURE")
     {
         epilog_failure_action(vid);
+    }
+    else if (action == "ATTACH_SUCCESS")
+    {
+        attach_success_action(vid);
+    }
+    else if (action == "ATTACH_FAILURE")
+    {
+        attach_failure_action(vid);
+    }
+    else if (action == "DETACH_SUCCESS")
+    {
+        detach_success_action(vid);
+    }
+    else if (action == "DETACH_FAILURE")
+    {
+        detach_failure_action(vid);
     }
     else if (action == "DEPLOY")
     {

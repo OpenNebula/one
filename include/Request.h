@@ -23,6 +23,7 @@
 #include "RequestManager.h"
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
+#include "Quotas.h"
 
 using namespace std;
 
@@ -158,20 +159,6 @@ protected:
                              RequestAttributes& att);
 
     /**
-     *  Performs a basic quota check for this request using the uid/gid and 
-     *  object type from the request.  Usage counters are updated for the 
-     *  user/group.
-     *    @param tmpl describing the object
-     *    @param att the specific request attributes
-     *
-     *    @return true if the user is authorized.
-     */
-    bool quota_authorization(Template * tmpl, RequestAttributes& att)
-    {
-        return quota_authorization(tmpl, auth_object, att);        
-    }
-
-    /**
      *  Performs a basic quota check for this request using the uid/gid
      *  from the request.  Usage counters are updated for the user/group.
      *    @param tmpl describing the object
@@ -181,7 +168,7 @@ protected:
      *    @return true if the user is authorized.
      */
     bool quota_authorization(Template * tmpl,
-                             PoolObjectSQL::ObjectType object,
+                             Quotas::QuotaType qtype,
                              RequestAttributes& att);
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -189,19 +176,8 @@ protected:
      *    @param tmpl describing the object
      *    @param att the specific request attributes
      */
-    void quota_rollback(Template * tmpl, RequestAttributes& att)
-    {
-        quota_rollback(tmpl, auth_object, att);
-    }
-
-    /**
-     *  Performs rollback on usage counters for a previous  quota check operation
-     *  for the request.
-     *    @param tmpl describing the object
-     *    @param att the specific request attributes
-     */
-    void quota_rollback(Template * tmpl,
-                        PoolObjectSQL::ObjectType object,
+    void quota_rollback(Template *         tmpl,
+                        Quotas::QuotaType  qtype,
                         RequestAttributes& att);
 
     /**
@@ -317,21 +293,21 @@ private:
     /* ------------- Functions to manage user and group quotas -------------- */
 
     bool user_quota_authorization(Template * tmpl,
-                                  PoolObjectSQL::ObjectType object,
+                                  Quotas::QuotaType  qtype,
                                   RequestAttributes& att,
                                   string& error_str);
 
     bool group_quota_authorization(Template * tmpl,
-                                   PoolObjectSQL::ObjectType object,
+                                   Quotas::QuotaType  qtype,
                                    RequestAttributes& att,
                                    string& error_str);
 
     void user_quota_rollback(Template * tmpl,
-                             PoolObjectSQL::ObjectType object,
+                             Quotas::QuotaType  qtype,
                              RequestAttributes& att);
 
     void group_quota_rollback(Template * tmpl,
-                              PoolObjectSQL::ObjectType object,
+                              Quotas::QuotaType  qtype,
                               RequestAttributes& att);
 };
 

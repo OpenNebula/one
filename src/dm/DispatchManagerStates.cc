@@ -108,13 +108,6 @@ void  DispatchManager::done_action(int vid)
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
 
-    Nebula&    nd    = Nebula::instance();
-    UserPool * upool = nd.get_upool();
-    GroupPool* gpool = nd.get_gpool();
-
-    User *  user;
-    Group * group;
-
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -150,35 +143,7 @@ void  DispatchManager::done_action(int vid)
     
         vm->unlock();
 
-        /* ---------------- Update Group & User quota counters -------------- */
-
-        if ( uid != UserPool::ONEADMIN_ID )
-        {
-            user = upool->get(uid, true);
-
-            if ( user != 0 )
-            {
-                user->quota.vm_del(tmpl);
-                
-                upool->update(user);
-                 
-                user->unlock();
-            }
-        }
-
-        if ( gid != GroupPool::ONEADMIN_ID )
-        {
-            group = gpool->get(gid, true);
-
-            if ( group != 0 )
-            {
-                group->quota.vm_del(tmpl);
-
-                gpool->update(group);
-
-                group->unlock();
-            } 
-        }
+        Quotas::vm_del(uid, gid, tmpl);
         
         delete tmpl;
     }

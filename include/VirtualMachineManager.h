@@ -36,8 +36,8 @@ public:
         VirtualMachinePool *      _vmpool,
         HostPool *                _hpool,
         time_t                    _timer_period,
-        time_t                    _poll_period,        
-        int                       _vm_limit,        
+        time_t                    _poll_period,
+        int                       _vm_limit,
         vector<const Attribute*>& _mads);
 
     ~VirtualMachineManager(){};
@@ -56,14 +56,16 @@ public:
         POLL,
         TIMER,
         DRIVER_CANCEL,
-        FINALIZE
+        FINALIZE,
+        ATTACH,
+        DETACH
     };
 
     /**
      *  Triggers specific actions to the Virtual Machine Manager. This function
      *  wraps the ActionManager trigger function.
      *    @param action the VMM action
-     *    @param vid VM unique id. This is the argument of the passed to the 
+     *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
      */
     virtual void trigger(
@@ -71,7 +73,7 @@ public:
         int     vid);
 
     /**
-     *  This functions starts the associated listener thread, and creates a 
+     *  This functions starts the associated listener thread, and creates a
      *  new thread for the Virtual Machine Manager. This thread will wait in
      *  an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
@@ -86,15 +88,15 @@ public:
     {
         return vmm_thread;
     };
-    
+
     /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula 
+     *   @param uid of the user executing the driver. When uid is 0 the nebula
      *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application. 
+     *   sudo application.
      */
     void load_mads(int uid);
-    
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager
@@ -110,7 +112,7 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool *              hpool;
-        
+
     /**
      *  Timer period for the Virtual Machine Manager.
      */
@@ -132,7 +134,7 @@ private:
     ActionManager           am;
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread 
+     *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
     friend void * vmm_action_loop(void *arg);
@@ -154,7 +156,7 @@ private:
     };
 
     /**
-     *  Returns a pointer to a Virtual Machine Manager driver. The driver is 
+     *  Returns a pointer to a Virtual Machine Manager driver. The driver is
      *  searched by its name.
      *    @param name the name of the driver
      *    @return the VM driver owned by uid with attribute name equal to value
@@ -167,7 +169,7 @@ private:
         return static_cast<const VirtualMachineManagerDriver *>
                (MadManager::get(0,_name,name));
     };
-    
+
     /**
      *  The action function executed when an action is triggered.
      *    @param action the name of the action
@@ -195,10 +197,13 @@ private:
      *    @param hostname of the host to perform the action
      *    @param net_drv name of the vlan driver
      *    @param m_hostname name of the host to migrate the VM
-     *    @param m_net_drv name of the vlan driver 
+     *    @param m_net_drv name of the vlan driver
      *    @param domain domain id as returned by the hypervisor
      *    @param dfile deployment file to boot the VM
      *    @param cfile checkpoint file to save the VM
+     *    @param disk_id Disk to attach/detach, if any
+     *    @param tm_command Transfer Manager command to attach/detach, if any
+     *    @param disk_target_path Path of the disk to attach, if any
      *    @param tmpl the VM information in XML
      */
     string * format_message(
@@ -210,8 +215,10 @@ private:
         const string& ldfile,
         const string& rdfile,
         const string& cfile,
+        const string& tm_command,
+        const string& disk_target_path,
         const string& tmpl);
- 
+
     /**
      *  Function executed when a DEPLOY action is received. It deploys a VM on
      *  a Host.
@@ -221,7 +228,7 @@ private:
         int vid);
 
     /**
-     *  Function to stop a running VM and generate a checkpoint file. This 
+     *  Function to stop a running VM and generate a checkpoint file. This
      *  function is executed when a SAVE action is triggered.
      *    @param vid the id of the VM.
      */
@@ -270,7 +277,7 @@ private:
      */
     void reboot_action(
         int vid);
-    
+
     /**
      *  Resets a running VM.
      *    @param vid the id of the VM.
@@ -284,11 +291,27 @@ private:
      */
     void poll_action(
         int vid);
-    
+
     /**
      *  This function is executed periodically to poll the running VMs
      */
     void timer_action();
+
+    /**
+     * Attaches a new disk to a VM. The VM must have a disk with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void attach_action(
+        int vid);
+
+    /**
+     * Detaches a disk from a VM. The VM must have a disk with the
+     * attribute ATTACH = YES
+     *    @param vid the id of the VM.
+     */
+    void detach_action(
+        int vid);
 
     /**
      *  This function cancels the current driver operation

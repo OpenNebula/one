@@ -25,6 +25,39 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :description => "Instance multiple VMs"
     }
 
+    IMAGE = {
+        :name   => "image",
+        :short  => "-i id|name",
+        :large  => "--image id|name" ,
+        :description => "Selects the image",
+        :format => String,
+        :proc   => lambda { |o, options|
+            rc, imid = OpenNebulaHelper.rname_to_id(o, "IMAGE")
+            if rc == 0
+                options[:image] = imid
+            else
+                puts imid
+                puts "option image: Parsing error"
+                exit -1
+            end
+        }
+    }
+
+    FILE = {
+        :name   => "file",
+        :short  => "-f file",
+        :large  => "--file file" ,
+        :description => "Selects the template file",
+        :format => String,
+        :proc   => lambda { |o, options|
+            if File.file?(o)
+                options[:file] = o
+            else
+                exit -1
+            end
+        }
+    }
+
     def self.rname
         "VM"
     end

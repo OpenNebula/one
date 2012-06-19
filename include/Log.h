@@ -79,7 +79,7 @@ public:
         const char *            module,
         const MessageType       type,
         const char *            message);
-
+    
 private:
     char * log_file;
 };

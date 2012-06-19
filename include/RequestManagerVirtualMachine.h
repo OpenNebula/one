@@ -49,11 +49,12 @@ protected:
             RequestAttributes& att) = 0;
 
     bool vm_authorization(int id, 
-                          ImageTemplate *        tmpl,
-                          RequestAttributes&     att, 
-                          PoolObjectAuth *       host_perms, 
-                          PoolObjectAuth *       ds_perm,
-                          AuthRequest::Operation op);
+                          ImageTemplate *         tmpl,
+                          VirtualMachineTemplate* vtmpl,
+                          RequestAttributes&      att, 
+                          PoolObjectAuth *        host_perms, 
+                          PoolObjectAuth *        ds_perm,
+                          AuthRequest::Operation  op);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
             RequestAttributes& att, PoolObjectAuth& host_perms);
@@ -164,6 +165,40 @@ public:
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAttach : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttach():
+        RequestManagerVirtualMachine("VirtualMachineAttach",
+                           "Attaches a new disk to the virtual machine",
+                           "A:sis"){};
+
+    ~VirtualMachineAttach(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineDetach : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDetach():
+        RequestManagerVirtualMachine("VirtualMachineDetach",
+                           "Detaches a disk from a virtual machine",
+                           "A:sii"){};
+
+    ~VirtualMachineDetach(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

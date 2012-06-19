@@ -99,7 +99,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
-        if ( quota_authorization(tmpl, att) == false )
+        if ( quota_authorization(tmpl, Quotas::VIRTUALMACHINE, att) == false )
         {
             delete tmpl;
             return;
@@ -117,7 +117,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                 allocate_error(PoolObjectSQL::VM,error_str),
                 att);
 
-        quota_rollback(&tmpl_back, att);
+        quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
         
         return;
     }

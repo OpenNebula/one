@@ -53,7 +53,7 @@ class InformationManagerDriver < OpenNebulaDriver
 
     # Execute the run_probes in the remote host
     def action_monitor(number, host, do_update)
-        if !action_is_local?(:MONITOR)
+        if @options[:force_copy] || !action_is_local?(:MONITOR)
             if do_update == "1"
                 # Use SCP to sync:
                 sync_cmd = "scp -r #{@local_scripts_base_path}/. " \
@@ -82,13 +82,15 @@ end
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',      '-l', GetoptLong::NO_ARGUMENT ]
+    [ '--local',      '-l', GetoptLong::NO_ARGUMENT ],
+    [ '--force-copy', '-c', GetoptLong::NO_ARGUMENT ]
 )
 
 hypervisor      = ''
 retries         = 0
 threads         = 15
 local_actions   = {}
+force_copy      = false
 
 begin
     opts.each do |opt, arg|
@@ -99,6 +101,8 @@ begin
                 threads = arg.to_i
             when '--local'
                 local_actions={ 'MONITOR' => nil }
+            when '--force-copy'
+                force_copy=true          
         end
     end
 rescue Exception => e
@@ -112,6 +116,7 @@ end
 im = InformationManagerDriver.new(hypervisor,
     :concurrency => threads,
     :retries => retries,
-    :local_actions => local_actions)
+    :local_actions => local_actions,
+    :force_copy => force_copy)
 
 im.start_driver

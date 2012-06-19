@@ -30,16 +30,18 @@ class VirtualMachineDriver < OpenNebulaDriver
 
     # Virtual Machine Driver Protocol constants
     ACTION = {
-        :deploy     => "DEPLOY",
-        :shutdown   => "SHUTDOWN",
-        :reboot     => "REBOOT",
-        :reset      => "RESET",
-        :cancel     => "CANCEL",
-        :save       => "SAVE",
-        :restore    => "RESTORE",
-        :migrate    => "MIGRATE",
-        :poll       => "POLL",
-        :log        => "LOG"
+        :deploy      => "DEPLOY",
+        :shutdown    => "SHUTDOWN",
+        :reboot      => "REBOOT",
+        :reset       => "RESET",
+        :cancel      => "CANCEL",
+        :save        => "SAVE",
+        :restore     => "RESTORE",
+        :migrate     => "MIGRATE",
+        :poll        => "POLL",
+        :log         => "LOG",
+        :attach_disk => "ATTACHDISK",
+        :detach_disk => "DETACHDISK",
     }
 
     POLL_ATTRIBUTE = {
@@ -76,15 +78,17 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         @hosts   = Array.new
 
-        register_action(ACTION[:deploy].to_sym,   method("deploy"))
-        register_action(ACTION[:shutdown].to_sym, method("shutdown"))
-        register_action(ACTION[:reboot].to_sym,   method("reboot"))
-        register_action(ACTION[:reset].to_sym,    method("reset"))
-        register_action(ACTION[:cancel].to_sym,   method("cancel"))
-        register_action(ACTION[:save].to_sym,     method("save"))
-        register_action(ACTION[:restore].to_sym,  method("restore"))
-        register_action(ACTION[:migrate].to_sym,  method("migrate"))
-        register_action(ACTION[:poll].to_sym,     method("poll"))
+        register_action(ACTION[:deploy].to_sym,      method("deploy"))
+        register_action(ACTION[:shutdown].to_sym,    method("shutdown"))
+        register_action(ACTION[:reboot].to_sym,      method("reboot"))
+        register_action(ACTION[:reset].to_sym,       method("reset"))
+        register_action(ACTION[:cancel].to_sym,      method("cancel"))
+        register_action(ACTION[:save].to_sym,        method("save"))
+        register_action(ACTION[:restore].to_sym,     method("restore"))
+        register_action(ACTION[:migrate].to_sym,     method("migrate"))
+        register_action(ACTION[:poll].to_sym,        method("poll"))
+        register_action(ACTION[:attach_disk].to_sym, method("attach_disk"))
+        register_action(ACTION[:detach_disk].to_sym, method("detach_disk"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -152,6 +156,16 @@ class VirtualMachineDriver < OpenNebulaDriver
     def poll(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:poll],RESULT[:failure],id,error)
+    end
+
+    def attach_disk(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:attach_disk],RESULT[:failure],id,error)
+    end
+
+    def detach_disk(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:detach_disk],RESULT[:failure],id,error)
     end
 
 private

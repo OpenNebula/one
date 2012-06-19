@@ -1,4 +1,4 @@
-# SConstruct for src/vm
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,21 +16,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
-lib_name='nebula_um'
+DOMAIN="$1"
+SOURCE="$2"
+TARGET="$3"
+TARGET_INDEX="$4"
 
-# Sources to generate the library
-source_files=[
-    'User.cc',
-    'UserPool.cc',
-    'Quota.cc',
-    'QuotaDatastore.cc',
-    'QuotaNetwork.cc',
-    'QuotaVirtualMachine.cc',
-    'QuotaImage.cc',
-    'Quotas.cc'
-]
+DETACH_PARAMS="--domain $DOMAIN --target $TARGET"
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+exec_and_log "virsh --connect $LIBVIRT_URI detach-disk $DETACH_PARAMS" \
+    "Could not detach $TARGET from $DOMAIN"

@@ -318,6 +318,12 @@ public:
     } 
 
     /**
+     * Removes given the vector attribute
+     * @param name of the vector attribute
+     */
+    void remove(const string& name);
+
+    /**
      *  Returns the attribute type
      */
     AttributeType type()

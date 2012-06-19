@@ -22,16 +22,20 @@ ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    MAD_LOCATION      = "/usr/lib/one/mads"
     ETC_LOCATION      = "/etc/one/"
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
+    MAD_LOCATION      = ONE_LOCATION + "/lib/mads"
     ETC_LOCATION      = ONE_LOCATION + "/etc/"
 end
 
 $: << RUBY_LIB_LOCATION
+$: << MAD_LOCATION
 
 require "VirtualMachineDriver"
 require 'one_vnm'
+require 'one_tm'
 require 'getoptlong'
 require 'ssh_stream'
 
@@ -67,6 +71,10 @@ class VmmAction
         get_data(:dest_host, :MIGR_HOST)
         get_data(:dest_driver, :MIGR_NET_DRV)
 
+        # For disk hotplugging
+        get_data(:disk_target_path)
+        get_data(:tm_command)
+
         # Initialize streams and vnm
         @ssh_src = @vmm.get_ssh_stream(action, @data[:host], @id)
         @vnm_src = VirtualNetworkDriver.new(@data[:net_drv],
@@ -81,6 +89,8 @@ class VmmAction
                             :message        => @xml_data,
                             :ssh_stream     => @ssh_dst)
         end
+
+        @tm = TransferManagerDriver.new(nil)
     end
 
     #Execute a set of steps defined with
@@ -112,7 +122,8 @@ class VmmAction
 
     DRIVER_NAMES = {
         :vmm => "virtualization driver",
-        :vnm => "network driver"
+        :vnm => "network driver",
+        :tm => "transfer manager driver"
     }
 
     # Executes a set of steps. If one step fails any recover action is performed
@@ -122,7 +133,7 @@ class VmmAction
     # information associated to each step (by :<action>_info). In case of
     # failure information is also in [:failed_info]
     def execute_steps(steps)
-	result = DriverExecHelper.const_get(:RESULT)[:failure]
+        result = DriverExecHelper.const_get(:RESULT)[:failure]
 
         steps.each do |step|
             # Execute Step
@@ -152,6 +163,9 @@ class VmmAction
 
                 result, info = vnm.do_action(@id, step[:action],
                             :parameters => get_parameters(step[:parameters]))
+            when :tm
+                result, info = @tm.do_transfer_action(@id, step[:parameters])
+
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
                 info   = "No driver in #{step[:action]}"
@@ -179,7 +193,7 @@ class VmmAction
         return result
     end
 
-    # Prepare the parameters for the action step generating a blanck separated
+    # Prepare the parameters for the action step generating a blank separated
     # list of command arguments
     # @param [Hash] an action step
     def get_parameters(step_params)
@@ -205,7 +219,9 @@ class VmmAction
             path=name.to_s.upcase
         end
 
-        @data[name]=@xml_data.elements[path].text
+        if (elem = @xml_data.elements[path])
+            @data[name]=elem.text
+        end
     end
 end
 
@@ -222,6 +238,12 @@ class ExecDriver < VirtualMachineDriver
             :threaded => true
         }.merge!(options)
 
+        if options[:shell]
+            @shell=options[:shell]
+        else
+            @shell='bash'
+        end
+
         super("vmm/#{hypervisor}", @options)
 
         @hypervisor  = hypervisor
@@ -233,11 +255,11 @@ class ExecDriver < VirtualMachineDriver
     # @return [SshStreamCommand]
     def get_ssh_stream(aname, host, id)
         stream = nil
-         
+
         if not action_is_local?(aname)
             stream = SshStreamCommand.new(host,
                                           @remote_scripts_base_path,
-                                          log_method(id))
+                                          log_method(id), nil, @shell)
         else
             return nil
         end
@@ -481,6 +503,100 @@ class ExecDriver < VirtualMachineDriver
 
         do_action("#{deploy_id} #{host}", id, host, ACTION[:reset])
     end
+
+    #
+    # ATTACHDISK action, attaches a disk to a running VM
+    #
+    def attach_disk(id, drv_message)
+        action   = ACTION[:attach_disk]
+        xml_data = decode(drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+
+        target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
+        target     = ensure_xpath(xml_data, id, action, target_xpath) || return
+
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
+
+        action = VmmAction.new(self, id, :attach_disk, drv_message)
+
+        steps = [
+            # Perform a PROLOG on the disk
+            {
+                :driver     => :tm,
+                :action     => :tm_attach,
+                :parameters => tm_command.split
+            },
+            # Run the attach vmm script
+            {
+                :driver       => :vmm,
+                :action       => :attach_disk,
+                :parameters   => [
+                        :deploy_id,
+                        :disk_target_path,
+                        target,
+                        target_index,
+                        drv_message
+                ]
+            }
+        ]
+
+        action.run(steps)
+    end
+
+    #
+    # DETACHDISK action, attaches a disk to a running VM
+    #
+    def detach_disk(id, drv_message)
+        action   = ACTION[:detach_disk]
+        xml_data = decode(drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+
+        target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
+        target     = ensure_xpath(xml_data, id, action, target_xpath) || return
+
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
+
+        action = VmmAction.new(self, id, :detach_disk, drv_message)
+
+        steps = [
+            # Run the detach vmm script
+            {
+                :driver       => :vmm,
+                :action       => :detach_disk,
+                :parameters   => [
+                        :deploy_id,
+                        :disk_target_path,
+                        target,
+                        target_index
+                ]
+            },
+            # Perform an EPILOG on the disk
+            {
+                :driver     => :tm,
+                :action     => :tm_detach,
+                :parameters => tm_command.split
+            }
+        ]
+
+        action.run(steps)
+    end
+
+private
+
+    def ensure_xpath(xml_data, id, action, xpath)
+        begin
+            value = xml_data.elements[xpath].text.strip
+            raise if value.empty?
+            value
+        rescue
+            send_message(ACTION[:attach_disk],RESULT[:failure],id,
+                "Cannot perform #{action}, expecting #{xpath}")
+            nil
+        end
+    end
+
 end
 
 ################################################################################
@@ -492,12 +608,14 @@ end
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--shell',      '-s', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 hypervisor      = ''
 retries         = 0
 threads         = 15
+shell           = 'bash'
 local_actions   = {}
 
 begin
@@ -509,6 +627,8 @@ begin
                 threads   = arg.to_i
             when '--local'
                 local_actions=OpenNebulaDriver.parse_actions_list(arg)
+            when '--shell'
+                shell   = arg
         end
     end
 rescue Exception => e
@@ -524,6 +644,7 @@ end
 exec_driver = ExecDriver.new(hypervisor,
                 :concurrency => threads,
                 :retries => retries,
-                :local_actions => local_actions)
+                :local_actions => local_actions,
+                :shell => shell)
 
 exec_driver.start_driver

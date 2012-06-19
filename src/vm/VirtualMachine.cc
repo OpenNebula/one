@@ -175,7 +175,7 @@ int VirtualMachine::select(SqlDB * db)
 
     mkdir(oss.str().c_str(), 0700);
     chmod(oss.str().c_str(), 0700);
-    
+
     //--------------------------------------------------------------------------
     //Create Log support for this VM
     //--------------------------------------------------------------------------
@@ -258,7 +258,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     {
         goto error_no_cpu;
     }
-    
+
     // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
@@ -348,7 +348,7 @@ error_no_memory:
     goto error_common;
 
 error_name_length:
-    error_str = "NAME is too long; max length is 128 chars."; 
+    error_str = "NAME is too long; max length is 128 chars.";
     goto error_common;
 
 error_common:
@@ -944,6 +944,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 
     return;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1044,12 +1045,12 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, 
+        rc = ipool->disk_attribute(disk,
                                    i,
                                    img_type,
                                    dev_prefix,
-                                   uid, 
-                                   image_id, 
+                                   uid,
+                                   image_id,
                                    error_str);
         if (rc == 0 )
         {
@@ -1070,7 +1071,7 @@ int VirtualMachine::get_disk_images(string& error_str)
                 {
                     case Image::OS:
                         // The first OS disk gets the first device (a),
-                        // other OS's will be managed as DATABLOCK's 
+                        // other OS's will be managed as DATABLOCK's
                         if ( os_disk.empty() )
                         {
                             os_disk.push( make_pair(dev_prefix, disk) );
@@ -1125,6 +1126,255 @@ error_common:
     }
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::get_disk_info(int&         num_disks,
+                                   set<string>& used_targets)
+{
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    string target;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        target = disk->vector_value("TARGET");
+
+        if ( !target.empty() )
+        {
+            used_targets.insert(target);
+        }
+    }
+
+    if ( obj_template->get("CONTEXT", disks) > 0 )
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[0]);
+
+        if ( disk != 0 )
+        {
+            target = disk->vector_value("TARGET");
+
+            if ( !target.empty() )
+            {
+                used_targets.insert(target);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * VirtualMachine::set_up_attach_disk(
+                VirtualMachineTemplate * tmpl,
+                set<string>&             used_targets,
+                int                      num_disks,
+                int                      uid,
+                int&                     image_id,
+                string&                  error_str)
+{
+    vector<Attribute  *> disks;
+    VectorAttribute *    new_disk;
+
+    string target;
+
+    Nebula&       nd     = Nebula::instance();
+    ImagePool *   ipool  = nd.get_ipool();
+    ImageManager* imagem = nd.get_imagem();
+
+    string           dev_prefix;
+    Image::ImageType img_type;
+
+    image_id = -1;
+
+    // -------------------------------------------------------------------------
+    // Get the DISK attribute from the template
+    // -------------------------------------------------------------------------
+
+    if ( tmpl->get("DISK", disks) != 1 )
+    {
+        error_str = "The template must contain one DISK attribute";
+        return 0;
+    }
+
+    new_disk = new VectorAttribute(*(dynamic_cast<VectorAttribute * >(disks[0])));
+
+    // -------------------------------------------------------------------------
+    // Acquire the new disk image
+    // -------------------------------------------------------------------------
+
+    int rc = ipool->disk_attribute(new_disk,
+                                   num_disks + 1, //Preserv CONTEXT disk.i file
+                                   img_type,
+                                   dev_prefix,
+                                   uid,
+                                   image_id,
+                                   error_str);
+    if ( rc != 0 )
+    {
+        delete new_disk;
+        return 0;
+    }
+
+    target = new_disk->vector_value("TARGET");
+
+    if ( !target.empty() )
+    {
+        if (  used_targets.insert(target).second == false )
+        {
+            ostringstream oss;
+
+            oss << "Target " << target << "is already in use.";
+            error_str = oss.str();
+
+            imagem->release_image(image_id, false);
+
+            delete new_disk;
+            return 0;
+        }
+    }
+    else
+    {
+        queue<pair <string, VectorAttribute *> > disks_queue;
+
+        disks_queue.push(make_pair(dev_prefix, new_disk));
+
+        assign_disk_targets(disks_queue, used_targets);
+    }
+
+    return new_disk;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_attach_disk(int disk_id)
+{
+
+    int num_disks;
+    int d_id;
+
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        disk->vector_value("DISK_ID", d_id);
+
+        if ( d_id == disk_id )
+        {
+            disk->replace("ATTACH", "YES");
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute* VirtualMachine::get_attach_disk()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("ATTACH") == "YES" )
+        {
+            return disk;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_attach_disk()
+{
+    int                  num_disks;
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("ATTACH") == "YES" )
+        {
+            disk->remove("ATTACH");
+            return;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * VirtualMachine::delete_attach_disk()
+{
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("ATTACH") == "YES" )
+        {
+            return static_cast<VectorAttribute * >(obj_template->remove(disk));
+        }
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1417,7 +1667,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::save_disk(const string& disk_id, 
+int VirtualMachine::save_disk(const string& disk_id,
                               const string& source,
                               int           img_id)
 {
@@ -1466,7 +1716,7 @@ int VirtualMachine::save_disk(const string& disk_id,
 
 void VirtualMachine::set_auth_request(int uid,
                                       AuthRequest& ar,
-                                      VirtualMachineTemplate *tmpl) 
+                                      VirtualMachineTemplate *tmpl)
 {
     int                   num;
     vector<Attribute  * > vectors;
@@ -1592,8 +1842,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
         << "<GID>"       << gid       << "</GID>"
-        << "<UNAME>"     << uname     << "</UNAME>" 
-        << "<GNAME>"     << gname     << "</GNAME>" 
+        << "<UNAME>"     << uname     << "</UNAME>"
+        << "<GNAME>"     << gname     << "</GNAME>"
         << "<NAME>"      << name      << "</NAME>"
         << perms_to_xml(perm_xml)
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"

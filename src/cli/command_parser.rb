@@ -405,6 +405,10 @@ EOT
             arg.instance_of?(String) ? [0,arg] : [-1]
         end
 
+        def format_int(arg)
+            arg.match(/^\d+$/) ? [0,arg] : [-1]
+        end
+
         def format_file(arg)
             File.file?(arg) ? [0,arg] : [-1]
         end

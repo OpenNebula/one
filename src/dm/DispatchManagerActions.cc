@@ -676,6 +676,7 @@ error:
 
     return -2;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -686,9 +687,6 @@ int DispatchManager::finalize(
     ostringstream oss;
     Template *    tmpl;
 
-    User *  user;
-    Group * group;
-    
     int uid;
     int gid;
 
@@ -709,8 +707,6 @@ int DispatchManager::finalize(
     Nebula&            nd  = Nebula::instance();
     TransferManager *  tm  = nd.get_tm();
     LifeCycleManager * lcm = nd.get_lcm();
-    UserPool * upool       = nd.get_upool();
-    GroupPool * gpool      = nd.get_gpool();
 
     switch (state)
     {
@@ -736,37 +732,10 @@ int DispatchManager::finalize(
             uid  = vm->get_uid();
             gid  = vm->get_gid();
             tmpl = vm->clone_template();
-    
+
             vm->unlock();
 
-            if ( uid != UserPool::ONEADMIN_ID )
-            {
-
-                user = upool->get(uid, true);
-
-                if ( user != 0 )
-                {
-                    user->quota.vm_del(tmpl);
-
-                    upool->update(user);
-
-                    user->unlock();
-                }
-            }
-            
-            if ( gid != GroupPool::ONEADMIN_ID )
-            {
-                group = gpool->get(gid, true);
-
-                if ( group != 0 )
-                {
-                    group->quota.vm_del(tmpl);
-
-                    gpool->update(group);
-
-                    group->unlock();
-                } 
-            }
+            Quotas::vm_del(uid, gid, tmpl);
 
             delete tmpl;
         break;
@@ -840,4 +809,175 @@ int DispatchManager::resubmit(int vid)
     vm->unlock();
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
+int DispatchManager::attach(int vid,
+                            VirtualMachineTemplate * tmpl,
+                            string &                 error_str)
+{
+    ostringstream oss;
+
+    int num_disks;
+    int uid;
+    int image_id;
+
+    set<string>       used_targets;
+    VectorAttribute * disk;
+
+    Nebula&           nd       = Nebula::instance();
+    VirtualMachineManager* vmm = nd.get_vmm();
+
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not attach a new disk to VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not attach a new disk to VM " << vid << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->get_disk_info(num_disks, used_targets);
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->set_resched(false);
+
+    uid = vm->get_uid();
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    disk = VirtualMachine::set_up_attach_disk(tmpl,
+                                              used_targets,
+                                              num_disks,
+                                              uid,
+                                              image_id,
+                                              error_str);
+    vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        Nebula&       nd     = Nebula::instance();
+        ImageManager* imagem = nd.get_imagem();
+
+        if ( image_id != -1 )
+        {
+            imagem->release_image(image_id, false);
+        }
+
+        oss << "Could not attach a new disk to VM " << vid
+            << ", VM does not exist after setting its state to HOTPLUG." ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( disk == 0 )
+    {
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+
+        vm->unlock();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+        return -1;
+    }
+    else
+    {
+        vm->set_attach_disk(disk);
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::ATTACH,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::detach(
+    int      vid,
+    int      disk_id,
+    string&  error_str)
+{
+
+    ostringstream oss;
+
+    Nebula&           nd       = Nebula::instance();
+    VirtualMachineManager* vmm = nd.get_vmm();
+
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "VirtualMachine " << vid << " no longer exists";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not detach disk from VM " << vid << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    if ( vm->set_attach_disk(disk_id) == -1 )
+    {
+        oss << "Could not detach disk with DISK_ID " << disk_id
+            << ", it does not exist.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->set_resched(false);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::DETACH,vid);
+
+    return 0;
 }

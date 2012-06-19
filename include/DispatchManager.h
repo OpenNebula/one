@@ -232,12 +232,39 @@ public:
      *  Set the re-scheduling flag for the VM (must be in RUNNING state)
      *    @param vid VirtualMachine identification
      *    @param do_resched set or unset the flag
+     *
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
     int resched(
         int  vid,
         bool do_resched);
+
+    /**
+     *  Starts the attach disk action.
+     *    @param vid VirtualMachine identification
+     *    @param tmpl Template containing the new DISK attribute.
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int attach(
+        int                      vid, 
+        VirtualMachineTemplate * tmpl, 
+        string&                  error_str);
+
+    /**
+     * Starts the detach disk action.
+     *    @param vid VirtualMachine identification
+     *    @param disk_id Disk to detach
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int detach(
+        int      id,
+        int      disk_id,
+        string&  error_str);
 
 private:
     /**

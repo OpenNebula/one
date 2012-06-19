@@ -34,8 +34,9 @@ class SshStream
     #
     #
     #
-    def initialize(host)
-        @host = host
+    def initialize(host, shell="bash")
+        @host  = host
+        @shell = shell
     end
 
     def opened?
@@ -47,7 +48,7 @@ class SshStream
     end
 
     def open
-        @stdin, @stdout, @stderr=Open3::popen3("#{SSH_CMD} #{@host} bash -s ; echo #{SSH_RC_STR} $? 1>&2")
+        @stdin, @stdout, @stderr=Open3::popen3("#{SSH_CMD} #{@host} #{@shell} -s ; echo #{SSH_RC_STR} $? 1>&2")
 
         @stream_out = ""
         @stream_err = ""
@@ -155,11 +156,11 @@ end
 
 
 class SshStreamCommand < RemotesCommand
-    def initialize(host, remote_dir, logger=nil, stdin=nil)
+    def initialize(host, remote_dir, logger=nil, stdin=nil, shell='bash')
         super('true', host, logger, stdin)
 
         @remote_dir = remote_dir
-        @stream     = SshStream.new(host)
+        @stream     = SshStream.new(host, shell)
 
         @stream.open
     end

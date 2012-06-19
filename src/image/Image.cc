@@ -433,10 +433,11 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     ostringstream iid;
 
-    img_type = type;
-    bus      = disk->vector_value("BUS");
-    target   = disk->vector_value("TARGET");
-    driver   = disk->vector_value("DRIVER");
+    img_type   = type;
+    bus        = disk->vector_value("BUS");
+    target     = disk->vector_value("TARGET");
+    driver     = disk->vector_value("DRIVER");
+    dev_prefix = disk->vector_value("DEV_PREFIX");
     iid << oid;
 
     string template_bus;
@@ -447,11 +448,17 @@ int Image::disk_attribute(  VectorAttribute * disk,
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
 
-    get_template_attribute("DEV_PREFIX", dev_prefix);
-
-    if (dev_prefix.empty())//Removed from image template, get it again
+   //---------------------------------------------------------------------------
+   //                       DEV_PREFIX ATTRIBUTE
+   //---------------------------------------------------------------------------
+    if ( dev_prefix.empty() ) //DEV_PEFIX not in DISK, check for it in IMAGE
     {
-        dev_prefix = ImagePool::default_dev_prefix();
+        get_template_attribute("DEV_PREFIX", dev_prefix);
+
+        if (dev_prefix.empty())//Removed from image template, get it again
+        {
+            dev_prefix = ImagePool::default_dev_prefix();
+        }        
     }
 
    //---------------------------------------------------------------------------

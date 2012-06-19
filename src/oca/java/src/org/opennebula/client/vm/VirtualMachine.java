@@ -37,6 +37,8 @@ public class VirtualMachine extends PoolElement{
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String MONITORING = METHOD_PREFIX + "monitoring";
+    private static final String ATTACH  = METHOD_PREFIX + "attach";
+    private static final String DETACH  = METHOD_PREFIX + "detach";
 
     private static final String[] VM_STATES =
     {
@@ -78,7 +80,8 @@ public class VirtualMachine extends PoolElement{
         "CANCEL",
         "FAILURE",
         "CLEANUP",
-        "UNKNOWN" };
+        "UNKNOWN",
+        "HOTPLUG" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -97,8 +100,9 @@ public class VirtualMachine extends PoolElement{
         "shut",
         "shut",
         "fail",
-        "clea",
-        "unkn" };
+        "dele",
+        "unkn",
+        "hotp" };
 
     /**
      * Creates a new VM representation.
@@ -228,6 +232,34 @@ public class VirtualMachine extends PoolElement{
     public static OneResponse monitoring(Client client, int id)
     {
         return client.call(MONITORING, id);
+    }
+
+    /**
+     * Attaches a disk to a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param diskTemplate Template containing the new DISK definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse attachdisk(Client client, int id,
+            String diskTemplate)
+    {
+        return client.call(ATTACH, id, diskTemplate);
+    }
+
+    /**
+     * Detaches a disk to a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param diskId The DISK_ID of the disk to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse detachdisk(Client client, int id,
+            int diskId)
+    {
+        return client.call(DETACH, id, diskId);
     }
 
     // =================================
@@ -418,6 +450,28 @@ public class VirtualMachine extends PoolElement{
     public OneResponse monitoring()
     {
         return monitoring(client, id);
+    }
+
+    /**
+     * Attaches a disk to a running VM
+     *
+     * @param diskTemplate Template containing the new DISK definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse attachdisk(String diskTemplate)
+    {
+        return attachdisk(client, id, diskTemplate);
+    }
+
+    /**
+     * Detaches a disk to a running VM
+     *
+     * @param diskId The DISK_ID of the disk to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse detachdisk(int diskId)
+    {
+        return detachdisk(client, id, diskId);
     }
 
     // =================================
