@@ -160,3 +160,147 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
 
     success_response(id, att);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImageClone::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int    clone_id = xmlrpc_c::value_int(paramList.getInt(1));
+    string name     = xmlrpc_c::value_string(paramList.getString(2));
+
+    int             rc, new_id, ds_id, size;
+    string          error_str, ds_name, ds_data;
+
+    Image::DiskType disk_type;
+    PoolObjectAuth  perms, ds_perms;
+
+    ImageTemplate * tmpl;
+    Template        img_usage;
+    Image *         img;
+    Datastore *     ds;
+
+    Nebula&  nd = Nebula::instance();    
+
+    DatastorePool * dspool = nd.get_dspool();
+    ImagePool *     ipool  = static_cast<ImagePool *>(pool);
+
+    // ------------------------- Get source Image info -------------------------
+
+    img = ipool->get(clone_id, true);
+
+    if ( img == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object), clone_id),
+                att);
+
+        return;
+    }
+
+    tmpl = img->clone_template(name);
+    
+    img->get_permissions(perms);
+
+    ds_id   = img->get_ds_id();
+    ds_name = img->get_ds_name();
+    size    = img->get_size();
+
+    img->unlock();
+
+    // ------------------------- Get Datastore info ----------------------------
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
+                att);
+
+        delete tmpl;
+        return;
+    }
+
+    ds->get_permissions(ds_perms);
+
+    disk_type = ds->get_disk_type();
+
+    ds->to_xml(ds_data);
+
+    ds->unlock();
+
+    // ------------- Set authorization request ---------------------------------
+    
+    img_usage.add("DATASTORE", ds_id);
+    img_usage.add("SIZE", size);
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.gid);
+        string      tmpl_str;
+
+        // ------------------ Check permissions and ACLs  ----------------------
+
+        tmpl->to_xml(tmpl_str);
+
+        ar.add_create_auth(auth_object, tmpl_str); // CREATE IMAGE
+
+        ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            delete tmpl;
+            return;
+        }
+
+        // -------------------------- Check Quotas  ----------------------------
+
+        if ( quota_authorization(&img_usage, att) == false )
+        {
+            delete tmpl;
+            return;   
+        }        
+    }
+
+    rc = ipool->allocate(att.uid, 
+                         att.gid, 
+                         att.uname, 
+                         att.gname,
+                         tmpl, 
+                         ds_id, 
+                         ds_name, 
+                         disk_type,
+                         ds_data, 
+                         clone_id, 
+                         &new_id, 
+                         error_str);
+    if ( rc < 0 )
+    {
+        quota_rollback(&img_usage, att);
+
+        failure_response(INTERNAL, allocate_error(error_str), att);
+        return;
+    }
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
+    {
+        ds->add_image(new_id);
+
+        dspool->update(ds);
+
+        ds->unlock();
+    }
+
+    success_response(new_id, att);
+}
+
+

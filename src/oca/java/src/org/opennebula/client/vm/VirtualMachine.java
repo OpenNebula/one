@@ -97,7 +97,7 @@ public class VirtualMachine extends PoolElement{
         "shut",
         "shut",
         "fail",
-        "dele",
+        "clea",
         "unkn" };
 
     /**
@@ -523,7 +523,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse restart()
     {
-        return action("shutdown");
+        return action("restart");
     }
 
     /**

@@ -873,11 +873,13 @@ DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
 DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/mkfs \
                          src/datastore_mad/remotes/dummy/stat \
+                         src/datastore_mad/remotes/dummy/clone \
                          src/datastore_mad/remotes/dummy/rm"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
                          src/datastore_mad/remotes/fs/stat \
+                         src/datastore_mad/remotes/fs/clone \
                          src/datastore_mad/remotes/fs/rm"
 
 DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
@@ -889,12 +891,14 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
                          src/datastore_mad/remotes/iscsi/stat \
                          src/datastore_mad/remotes/iscsi/rm \
+                         src/datastore_mad/remotes/iscsi/clone \
                          src/datastore_mad/remotes/iscsi/iscsi.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/mkfs \
                          src/datastore_mad/remotes/lvm/stat \
                          src/datastore_mad/remotes/lvm/rm \
+                         src/datastore_mad/remotes/lvm/clone \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
 #-------------------------------------------------------------------------------

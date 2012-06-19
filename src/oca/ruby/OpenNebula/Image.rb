@@ -34,10 +34,11 @@ module OpenNebula
             :delete      => "image.delete",
             :chown       => "image.chown",
             :chmod       => "image.chmod",
-            :chtype      => "image.chtype"
+            :chtype      => "image.chtype",
+            :clone       => "image.clone"
         }
 
-        IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR}
+        IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
 
         SHORT_IMAGE_STATES={
             "INIT"      => "init",
@@ -45,7 +46,10 @@ module OpenNebula
             "USED"      => "used",
             "DISABLED"  => "disa",
             "LOCKED"    => "lock",
-            "ERROR"     => "err"
+            "ERROR"     => "err",
+            "CLONE"     => "clon",
+            "DELETE"    => "dele",
+            "USED_PERS" => "used"
         }
 
         IMAGE_TYPES=%w{OS CDROM DATABLOCK}
@@ -179,6 +183,20 @@ module OpenNebula
 
             rc = @client.call(IMAGE_METHODS[:chtype], @pe_id, type)
             rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Clones this Image into a new one
+        #
+        # @param [String] name for the new Image.
+        #
+        # @return [Integer, OpenNebula::Error] The new Image ID in case
+        #   of success, Error otherwise
+        def clone(name)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(IMAGE_METHODS[:clone], @pe_id, name)
 
             return rc
         end

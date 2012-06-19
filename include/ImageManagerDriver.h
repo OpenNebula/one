@@ -65,17 +65,19 @@ private:
      */
     ImagePool * ipool;
 
-	/**	
-	 *  Configuration file for the driver
-	 */
-	//Template	driver_conf;
-
     /**
      * Sends a copy request to the MAD.
      *    @param oid the image id.
      *    @param drv_msg xml data for the mad operation.
      */
     void cp(int oid, const string& drv_msg) const;
+
+    /**
+     * Sends a clone request to the MAD.
+     *    @param oid the image id.
+     *    @param drv_msg xml data for the mad operation.
+     */
+    void clone(int oid, const string& drv_msg) const;
 
     /**
      *  Sends a stat  request to the MAD.

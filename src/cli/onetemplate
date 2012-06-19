@@ -98,6 +98,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             if !OpenNebula.is_error?(res)
                 puts "ID: #{res}"
+            else
+                puts res.message
             end
         end
     end

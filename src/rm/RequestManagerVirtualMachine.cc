@@ -571,6 +571,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          ds_name,
                          ds_disk_type,
                          ds_data,
+                         -1,
                          &iid,
                          error_str);
     if (rc < 0)
@@ -580,6 +581,17 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         failure_response(INTERNAL,
                 allocate_error(PoolObjectSQL::IMAGE, error_str), att);
         return;
+    }
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
+    {
+        ds->add_image(iid);
+
+        dspool->update(ds);
+
+        ds->unlock();
     }
 
     // Return the new allocated Image ID

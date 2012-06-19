@@ -458,6 +458,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          ds_name,
                          ds_disk_type,
                          ds_data, 
+                         -1,
                          &id,
                          error_str);
     if ( rc < 0 )

@@ -57,6 +57,8 @@ module Migrator
             doc = Document.new(row[:body])
 
             doc.root.add_element("DISK_TYPE").text = "0"
+            doc.root.add_element("CLONING_ID").text = "-1"
+            doc.root.add_element("CLONING_OPS").text = "0"
 
             @db[:image_pool].insert(
                 :oid        => row[:oid],

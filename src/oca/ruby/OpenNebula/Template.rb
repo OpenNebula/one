@@ -143,12 +143,12 @@ module OpenNebula
                 group_m, group_a, other_u, other_m, other_a)
         end
 
-        # Clones this template into a new one
+        # Clones this Template into a new one
         #
-        # @param name [String] Name for the new Template.
+        # @param [String] name for the new Template.
         #
         # @return [Integer, OpenNebula::Error] The new Template ID in case
-        # of success, Error otherwise
+        #   of success, Error otherwise
         def clone(name)
             return Error.new('ID not defined') if !@pe_id
 

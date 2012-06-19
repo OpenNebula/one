@@ -327,6 +327,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_persistent(new ImagePersistent());
     xmlrpc_c::methodPtr image_enable(new ImageEnable());
     xmlrpc_c::methodPtr image_chtype(new ImageChangeType());
+    xmlrpc_c::methodPtr image_clone(new ImageClone());
 
     // Chown Methods
     xmlrpc_c::methodPtr vm_chown(new VirtualMachineChown());
@@ -440,6 +441,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.chown", image_chown);
     RequestManagerRegistry.addMethod("one.image.chmod", image_chmod);
     RequestManagerRegistry.addMethod("one.image.chtype", image_chtype);
+    RequestManagerRegistry.addMethod("one.image.clone", image_clone);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 

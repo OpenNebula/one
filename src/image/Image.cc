@@ -49,6 +49,8 @@ Image::Image(int             _uid,
         size_mb(0),
         state(INIT),
         running_vms(0),
+        cloning_ops(0),
+        cloning_id(-1),
         ds_id(-1),
         ds_name("")
 {
@@ -334,6 +336,8 @@ string& Image::to_xml(string& xml) const
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
+            "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
+            "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             obj_template->to_xml(template_xml)                        <<
@@ -360,27 +364,29 @@ int Image::from_xml(const string& xml)
     update_from_str(xml);
 
     // Get class base attributes
-    rc += xpath(oid, "/IMAGE/ID",  -1);
-    rc += xpath(uid, "/IMAGE/UID", -1);
-    rc += xpath(gid, "/IMAGE/GID", -1);
+    rc += xpath(oid,    "/IMAGE/ID",  -1);
+    rc += xpath(uid,    "/IMAGE/UID", -1);
+    rc += xpath(gid,    "/IMAGE/GID", -1);
 
-    rc += xpath(uname, "/IMAGE/UNAME", "not_found");
-    rc += xpath(gname, "/IMAGE/GNAME", "not_found");
+    rc += xpath(uname,  "/IMAGE/UNAME", "not_found");
+    rc += xpath(gname,  "/IMAGE/GNAME", "not_found");
 
-    rc += xpath(name, "/IMAGE/NAME", "not_found");
+    rc += xpath(name,   "/IMAGE/NAME", "not_found");
 
-    rc += xpath(int_type, "/IMAGE/TYPE", 0);
-    rc += xpath(int_disk_type, "/IMAGE/DISK_TYPE", 0);
-    rc += xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
-    rc += xpath(regtime, "/IMAGE/REGTIME", 0);
+    rc += xpath(int_type,       "/IMAGE/TYPE",      0);
+    rc += xpath(int_disk_type,  "/IMAGE/DISK_TYPE", 0);
+    rc += xpath(persistent_img, "/IMAGE/PERSISTENT",0);
+    rc += xpath(regtime,        "/IMAGE/REGTIME",   0);
 
-    rc += xpath(source, "/IMAGE/SOURCE", "not_found");
-    rc += xpath(size_mb, "/IMAGE/SIZE", 0);
-    rc += xpath(int_state, "/IMAGE/STATE", 0);
-    rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
+    rc += xpath(source,         "/IMAGE/SOURCE",        "not_found");
+    rc += xpath(size_mb,        "/IMAGE/SIZE",          0);
+    rc += xpath(int_state,      "/IMAGE/STATE",         0);
+    rc += xpath(running_vms,    "/IMAGE/RUNNING_VMS",   -1);
+    rc += xpath(cloning_ops,    "/IMAGE/CLONING_OPS",   -1);
+    rc += xpath(cloning_id,     "/IMAGE/CLONING_ID",    -1);
 
-    rc += xpath(ds_id,  "/IMAGE/DATASTORE_ID", -1);
-    rc += xpath(ds_name,"/IMAGE/DATASTORE", "not_found");
+    rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
+    rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");
 
     // Permissions
     rc += perms_from_xml();
@@ -536,6 +542,33 @@ int Image::set_type(string& _type)
     }
 
     return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+ImageTemplate * Image::clone_template(const string& new_name) const
+{
+
+    ImageTemplate * tmpl = new ImageTemplate(
+            *(static_cast<ImageTemplate *>(obj_template)));
+
+    tmpl->replace("NAME",   new_name);
+    tmpl->replace("TYPE",   type_to_str(type));
+    tmpl->replace("PATH",   source);
+    tmpl->replace("FSTYPE", fs_type);
+    tmpl->replace("SIZE",   size_mb);
+
+    if ( isPersistent() )
+    {
+        tmpl->replace("PERSISTENT", "YES");
+    }
+    else
+    {
+        tmpl->replace("PERSISTENT", "NO");
+    }
+
+    return tmpl;
 }
 
 /* ------------------------------------------------------------------------ */

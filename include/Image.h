@@ -99,7 +99,32 @@ public:
         USED      = 2, /** < Image in use */
         DISABLED  = 3, /** < Image can not be instantiated by a VM */
         LOCKED    = 4, /** < FS operation for the Image in process */
-        ERROR     = 5  /** < Error state the operation FAILED*/
+        ERROR     = 5, /** < Error state the operation FAILED*/
+        CLONE     = 6, /** < Image is being cloned */
+        DELETE    = 7, /** < DS is deleting the image */
+        USED_PERS = 8  /** < Image is in use and persistent */
+    };
+
+    /**
+     * Returns the string representation of an ImageState
+     * @param state The state
+     * @return the string representation
+     */
+    static string state_to_str(ImageState state)
+    {
+        switch(state)
+        {
+            case INIT:      return "INIT";      break;
+            case READY:     return "READY";     break;
+            case USED:      return "USED";      break;
+            case DISABLED:  return "DISABLED";  break;
+            case LOCKED:    return "LOCKED";    break;
+            case ERROR:     return "ERROR";     break;
+            case CLONE:     return "CLONE";     break;
+            case DELETE:    return "DELETE";    break;
+            case USED_PERS: return "USED";      break;
+            default:        return "";
+        }
     };
 
     // *************************************************************************
@@ -186,7 +211,7 @@ public:
      *  Returns the type of the image
      *     @return type
      */
-    ImageType get_type()
+    ImageType get_type() const
     {
         return type;
     }
@@ -194,7 +219,7 @@ public:
      *  Returns the image state
      *     @return state of image
      */
-    ImageState get_state()
+    ImageState get_state() const
     {
         return state;
     }
@@ -209,27 +234,61 @@ public:
     }
 
     /**
-     *
+     *  Return the ID of the image we are cloning this one from (if any)
      */
+    int get_cloning_id() const
+    {
+        return cloning_id;
+    }
+
+    /**
+     *  Sets the ID of the image we are cloning this one from (if any)
+     */
+    void set_cloning_id(int id)
+    {
+        cloning_id = id;
+    }
+
+    /**
+     *  Clear the cloning state of the image
+     */
+    void clear_cloning_id()
+    {
+        cloning_id = -1;
+    }    
+
+    /* ---------------------------------------------------------------------- */
+    /*   Acess Image Counters (running vms and clonning operations )          */
+    /* ---------------------------------------------------------------------- */
+
     int dec_running ()
     {
         return --running_vms;
     }
 
-    /**
-     *
-     */
     int inc_running()
     {
         return ++running_vms;
     }
 
-    /**
-     *
-     */
-    int get_running()
+    int get_running() const
     {
         return running_vms;
+    }
+
+    int get_cloning() const
+    {
+        return cloning_ops;
+    }
+
+    int dec_cloning()
+    {
+        return --cloning_ops;
+    }
+
+    int inc_cloning()
+    {
+        return ++cloning_ops;
     }
 
     /**
@@ -372,7 +431,15 @@ public:
     {
         return ds_name;
     };
-    
+
+    /**
+     * Clones this image template including image specific attributes: NAME, 
+     * TYPE, PATH, FSTYPE, SIZE and PERSISTENT
+     * @param new_name Value for the NAME attribute
+     * @return Pointer to the new tempalte 0 in case of success
+     */
+    ImageTemplate * clone_template(const string& new_name) const;
+
 private:
 
     // -------------------------------------------------------------------------
@@ -434,6 +501,17 @@ private:
      * Number of VMs using the image
      */
     int running_vms;
+
+    /**
+     * Number of pending cloning operations
+     */
+    int cloning_ops;
+
+    /**
+     * Indicates if this Image is a clone of another one.
+     * Once the clone process is complete, it should be set to -1
+     */
+    int cloning_id;
 
     /**
      * Datastore ID

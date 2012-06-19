@@ -59,6 +59,18 @@ class EC2QueryServer < CloudServer
         'unkn' => :terminated
     }
 
+    EC2_IMAGE_STATES={
+        "INIT"      => "pending",
+        "READY"     => "available",
+        "USED"      => "available",
+        "DISABLED"  => nil,
+        "LOCKED"    => "pending",
+        "ERROR"     => "failed",
+        "CLONE"     => "available",
+        "DELETE"    => nil,
+        "USED_PERS" => "available"
+    }
+
     ###########################################################################
 
     def initialize(client, oneadmin_client, config, logger)
@@ -249,6 +261,10 @@ class EC2QueryServer < CloudServer
 
         return "<code>#{ec2_state[:code]}</code>
         <name>#{ec2_state[:name]}</name>"
+    end
+
+    def render_image_state(image)
+        EC2_IMAGE_STATES[image.state_str]
     end
 
     def render_launch_time(vm)

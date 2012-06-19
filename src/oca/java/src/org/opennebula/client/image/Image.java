@@ -28,20 +28,23 @@ public class Image extends PoolElement
 {
 
     private static final String METHOD_PREFIX = "image.";
-    private static final String ALLOCATE = METHOD_PREFIX + "allocate";
-    private static final String INFO     = METHOD_PREFIX + "info";
-    private static final String DELETE   = METHOD_PREFIX + "delete";
-    private static final String UPDATE   = METHOD_PREFIX + "update";
-    private static final String ENABLE   = METHOD_PREFIX + "enable";
-    private static final String CHOWN    = METHOD_PREFIX + "chown";
-    private static final String CHMOD    = METHOD_PREFIX + "chmod";
-    private static final String CHTYPE   = METHOD_PREFIX + "chtype";
+    private static final String ALLOCATE    = METHOD_PREFIX + "allocate";
+    private static final String INFO        = METHOD_PREFIX + "info";
+    private static final String DELETE      = METHOD_PREFIX + "delete";
+    private static final String UPDATE      = METHOD_PREFIX + "update";
+    private static final String ENABLE      = METHOD_PREFIX + "enable";
+    private static final String PERSISTENT  = METHOD_PREFIX + "persistent";
+    private static final String CHOWN       = METHOD_PREFIX + "chown";
+    private static final String CHMOD       = METHOD_PREFIX + "chmod";
+    private static final String CHTYPE      = METHOD_PREFIX + "chtype";
+    private static final String CLONE       = METHOD_PREFIX + "clone";
 
     private static final String[] IMAGE_STATES =
-        {"INIT", "READY", "USED", "DISABLED"};
+        {"INIT", "READY", "USED", "DISABLED", "LOCKED",
+        "ERROR", "CLONE", "DELETE", "USED_PERS"};
 
     private static final String[] SHORT_IMAGE_STATES =
-        {"init", "rdy", "used", "disa"};
+        {"init", "rdy", "used", "disa", "lock", "err", "clon", "dele", "used"};
 
     private static final String[] IMAGE_TYPES =
         {"OS", "CDROM", "DATABLOCK"};
@@ -76,7 +79,7 @@ public class Image extends PoolElement
      *
      * @param client XML-RPC Client.
      * @param description A string containing the template of the image.
-     * @param clusterId The cluster ID. If it is -1, this image
+     * @param datastoreId The cluster ID. If it is -1, this image
      * won't be added to any cluster.
      *
      * @return If successful the message contains the associated
@@ -85,22 +88,9 @@ public class Image extends PoolElement
     public static OneResponse allocate(
             Client client,
             String description,
-            int    clusterId)
+            int    datastoreId)
     {
-        return client.call(ALLOCATE, description, clusterId);
-    }
-
-    /**
-     * Allocates a new Image in OpenNebula.
-     *
-     * @param client XML-RPC Client.
-     * @param description A string containing the template of the image.
-     * @return If successful the message contains the associated
-     * id generated for this Image.
-     */
-    public static OneResponse allocate(Client client, String description)
-    {
-        return allocate(client, description, -1);
+        return client.call(ALLOCATE, description, datastoreId);
     }
 
     /**
@@ -152,6 +142,19 @@ public class Image extends PoolElement
     public static OneResponse enable(Client client, int id, boolean enable)
     {
         return client.call(ENABLE, id, enable);
+    }
+
+    /**
+     * Sets the Image as persistent or not persistent.
+     *
+     * @param client XML-RPC Client.
+     * @param id The image id of the target image we want to modify.
+     * @param persistent True to make it persistent, false non-persistent
+     * @return If successful the message contains the image id.
+     */
+    public static OneResponse persistent(Client client, int id, boolean persistent)
+    {
+        return client.call(PERSISTENT, id, persistent);
     }
 
     /**
@@ -249,6 +252,19 @@ public class Image extends PoolElement
         return client.call(CHTYPE, id, type);
     }
 
+    /**
+     * Clones this Image into a new one
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id of the target Image.
+     * @param name Name for the new Image.
+     * @return If successful the message contains the new Image ID.
+     */
+    public static OneResponse clone(Client client, int id, String name)
+    {
+        return client.call(CLONE, id, name);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -316,6 +332,37 @@ public class Image extends PoolElement
     public OneResponse disable()
     {
         return enable(false);
+    }
+
+    /**
+     * Sets the Image as persistent or not persistent.
+     *
+     * @param persistent True for enabling, false for disabling.
+     * @return If successful the message contains the image id.
+     */
+    public OneResponse persistent(boolean persistent)
+    {
+        return persistent(client, id, persistent);
+    }
+
+    /**
+     * Sets the Image as persistent
+     *
+     * @return If successful the message contains the image id.
+     */
+    public OneResponse persistent()
+    {
+        return persistent(true);
+    }
+
+    /**
+     * Sets the Image as persistent or not persistent.
+     *
+     * @return If successful the message contains the image id.
+     */
+    public OneResponse nonpersistent()
+    {
+        return persistent(false);
     }
 
     /**
@@ -438,6 +485,17 @@ public class Image extends PoolElement
     public OneResponse chtype(String type)
     {
         return chtype(client, id, type);
+    }
+
+    /**
+     * Clones this Image into a new one
+     *
+     * @param name Name for the new Image.
+     * @return If successful the message contains the new Image ID.
+     */
+    public OneResponse clone(String name)
+    {
+        return clone(client, id, name);
     }
 
     // =================================

@@ -104,6 +104,12 @@ public:
      */
     void release_image(int iid, bool failed);
 
+    /** 
+     *  Closes any cloning operation on the image, updating the state if needed
+     *    @param iid image id of the image to be released
+     */
+    void release_cloning_image(int iid);    
+
     /**
      *  Enables the image
      *    @param to_enable true will enable the image.
@@ -119,6 +125,19 @@ public:
      */
     int register_image(int iid, const string& ds_data);
 
+    /**
+     *  Clone an existing image to the repository
+     *    @param new_id of the new image
+     *    @param cloning_id of the image to be cloned
+     *    @param ds_data data of the associated datastore in XML format
+     *    @param error describing the error
+     *    @return 0 on success
+     */
+    int clone_image(int new_id, 
+                    int cloning_id,
+                    const string& ds_data,
+                    string& error);
+    
     /**
      *  Deletes an image from the repository and the DB
      *    @param iid id of image
@@ -209,4 +228,3 @@ private:
 };
 
 #endif /*IMAGE_MANAGER_H*/
-

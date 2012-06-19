@@ -18,6 +18,7 @@ package org.opennebula.client.datastore;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.PoolElement;
+import org.opennebula.client.cluster.ClusterPool;
 import org.w3c.dom.Node;
 
 /**
@@ -62,12 +63,27 @@ public class Datastore extends PoolElement
      *
      * @param client XML-RPC Client.
      * @param description A string containing the template of the datastore.
+     * @param clusterId Id of the cluster
+     * @return If successful the message contains the associated
+     * id generated for this Datastore.
+     */
+    public static OneResponse allocate(Client client,
+            String description, int clusterId)
+    {
+        return client.call(ALLOCATE, description, clusterId);
+    }
+
+    /**
+     * Allocates a new Datastore in OpenNebula.
+     *
+     * @param client XML-RPC Client.
+     * @param description A string containing the template of the datastore.
      * @return If successful the message contains the associated
      * id generated for this Datastore.
      */
     public static OneResponse allocate(Client client, String description)
     {
-        return client.call(ALLOCATE, description);
+        return allocate(client, description, ClusterPool.NONE_CLUSTER_ID);
     }
 
     /**
@@ -125,7 +141,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target datastore we want to modify.
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
@@ -139,7 +155,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the datastore permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target datastore.
      * @param owner_u 1 to allow, 0 deny, -1 do not change
@@ -166,7 +182,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octet, e.g. 640
@@ -179,7 +195,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -261,7 +277,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
      * @param gid The new group ID. Set it to -1 to leave the current one.
      * @return If an error occurs the error message contains the reason.
@@ -273,7 +289,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the owner
-     * 
+     *
      * @param uid The new owner user ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -284,7 +300,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the group
-     * 
+     *
      * @param gid The new group ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -295,7 +311,7 @@ public class Datastore extends PoolElement
 
     /**
      * Changes the datastore permissions
-     * 
+     *
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
      * @param owner_a 1 to allow, 0 deny, -1 do not change

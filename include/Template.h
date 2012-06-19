@@ -135,7 +135,33 @@ public:
     virtual void set(Attribute * attr);
 
     /**
-     *  Adds a new single attribute to the template.
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined)
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace(const string& name, const string& value);
+
+    /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined)
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace(const string& name, int value)
+    {
+        ostringstream oss;
+
+        oss << value;
+
+        return replace(name, oss.str());        
+    }
+
+    /* 
+     *  Adds a new single attribute to the template. It will replace an existing
+     *  one if replace_mode was set to true
      *    @param name of the attribute
      *    @param value of the attribute
      */

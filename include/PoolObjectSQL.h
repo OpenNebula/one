@@ -326,13 +326,7 @@ public:
         const string& name,
         const string& value)
     {
-        SingleAttribute * sattr = new SingleAttribute(name,value);
-
-        obj_template->erase(sattr->name());
-
-        obj_template->set(sattr);
-
-        return 0;
+        return obj_template->replace(name, value);
     }
 
     /**
