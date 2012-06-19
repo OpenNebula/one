@@ -1202,6 +1202,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
                                    error_str);
     if ( rc != 0 )
     {
+        delete new_disk;
         return 0;
     }
 
@@ -1218,6 +1219,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
             imagem->release_image(image_id, false);
 
+            delete new_disk;
             return 0;
         }
     }
