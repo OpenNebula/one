@@ -192,7 +192,7 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
         {
             return;
         }
-        
+
         vid = -1;
     }
     else
@@ -286,17 +286,16 @@ string * VirtualMachineManager::format_message(
     const string& ldfile,
     const string& rdfile,
     const string& cfile,
-    int           disk_id,
     const string& tm_command,
     const string& disk_target_path,
     const string& tmpl)
 {
     ostringstream oss;
-   
+
     oss << "<VMM_DRIVER_ACTION_DATA>"
         <<   "<HOST>"    << hostname << "</HOST>"
         <<   "<NET_DRV>" << net_drv  << "</NET_DRV>";
-    
+
     if (!m_hostname.empty())
     {
         oss << "<MIGR_HOST>"   << m_hostname << "</MIGR_HOST>"
@@ -304,7 +303,7 @@ string * VirtualMachineManager::format_message(
     }
     else
     {
-        oss << "<MIGR_HOST/><MIGR_NET_DRV/>"; 
+        oss << "<MIGR_HOST/><MIGR_NET_DRV/>";
     }
 
     if (!domain.empty())
@@ -339,17 +338,15 @@ string * VirtualMachineManager::format_message(
     if ( !tm_command.empty() )
     {
         oss << "<TM_COMMAND><![CDATA[" << tm_command   << "]]></TM_COMMAND>"
-            << "<DISK_ID>"         << disk_id          << "</DISK_ID>"
             << "<DISK_TARGET_PATH>"<< disk_target_path << "</DISK_TARGET_PATH>";
     }
     else
     {
         oss << "<TM_COMMAND/>"
-            << "<DISK_ID/>"
             << "<DISK_TARGET_PATH/>";
     }
 
-    oss << tmpl 
+    oss << tmpl
         << "</VMM_DRIVER_ACTION_DATA>";
 
     return SSLTools::base64_encode(oss.str());
@@ -412,7 +409,6 @@ void VirtualMachineManager::deploy_action(int vid)
         vm->get_deployment_file(),
         vm->get_remote_deployment_file(),
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -512,13 +508,12 @@ void VirtualMachineManager::save_action(
         "",
         "",
         vm->get_checkpoint_file(),
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
 
     vmd->save(vid, *drv_msg);
-    
+
     delete drv_msg;
 
     vm->unlock();
@@ -560,7 +555,7 @@ void VirtualMachineManager::shutdown_action(
     const VirtualMachineManagerDriver * vmd;
 
     string        vm_tmpl;
-    string *      drv_msg; 
+    string *      drv_msg;
     ostringstream os;
 
     // Get the VM from the pool
@@ -594,7 +589,6 @@ void VirtualMachineManager::shutdown_action(
         "",
         "",
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -637,7 +631,7 @@ void VirtualMachineManager::reboot_action(
     const VirtualMachineManagerDriver * vmd;
 
     string        vm_tmpl;
-    string *      drv_msg; 
+    string *      drv_msg;
     ostringstream os;
 
     // Get the VM from the pool
@@ -671,7 +665,6 @@ void VirtualMachineManager::reboot_action(
         "",
         "",
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -709,7 +702,7 @@ void VirtualMachineManager::reset_action(
     const VirtualMachineManagerDriver * vmd;
 
     string        vm_tmpl;
-    string *      drv_msg; 
+    string *      drv_msg;
     ostringstream os;
 
     // Get the VM from the pool
@@ -743,7 +736,6 @@ void VirtualMachineManager::reset_action(
         "",
         "",
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -782,7 +774,7 @@ void VirtualMachineManager::cancel_action(
 
     string   vm_tmpl;
     string * drv_msg;
-      
+
     const VirtualMachineManagerDriver *   vmd;
 
     // Get the VM from the pool
@@ -816,7 +808,6 @@ void VirtualMachineManager::cancel_action(
         "",
         "",
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -897,7 +888,6 @@ void VirtualMachineManager::cancel_previous_action(
         "",
         "",
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -907,7 +897,7 @@ void VirtualMachineManager::cancel_previous_action(
     delete drv_msg;
 
     vm->unlock();
-    
+
     return;
 
 error_history:
@@ -936,7 +926,7 @@ void VirtualMachineManager::migrate_action(
 
     ostringstream os;
     string   vm_tmpl;
-    string * drv_msg; 
+    string * drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -974,7 +964,6 @@ void VirtualMachineManager::migrate_action(
         "",
         "",
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -1024,7 +1013,7 @@ void VirtualMachineManager::restore_action(
     ostringstream os;
 
     string   vm_tmpl;
-    string * drv_msg; 
+    string * drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -1057,7 +1046,6 @@ void VirtualMachineManager::restore_action(
         "",
         "",
         vm->get_checkpoint_file(),
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -1135,7 +1123,6 @@ void VirtualMachineManager::poll_action(
         "",
         "",
         "",
-        0,
         "",
         "",
         vm->to_xml(vm_tmpl));
@@ -1145,7 +1132,7 @@ void VirtualMachineManager::poll_action(
     delete drv_msg;
 
     vm->unlock();
-    
+
     return;
 
 error_history:
@@ -1298,7 +1285,6 @@ void VirtualMachineManager::timer_action()
             "",
             "",
             "",
-            0,
             "",
             "",
             vm->to_xml(vm_tmpl));
@@ -1331,7 +1317,7 @@ void VirtualMachineManager::attach_action(
     string  opennebula_hostname;
     string  prolog_cmd;
     string  disk_path;
-    
+
     const VectorAttribute * disk;
     int disk_id;
     int rc;
@@ -1402,7 +1388,6 @@ void VirtualMachineManager::attach_action(
         "",
         "",
         "",
-        disk_id,
         prolog_cmd,
         disk_path,
         vm->to_xml(vm_tmpl));
@@ -1523,7 +1508,6 @@ void VirtualMachineManager::detach_action(
         "",
         "",
         "",
-        disk_id,
         epilog_cmd,
         disk_path,
         vm->to_xml(vm_tmpl));
