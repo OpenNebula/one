@@ -19,9 +19,11 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Quota::get_quota(const string& id, VectorAttribute ** va)
+int Quota::get_quota(
+        const string& id,
+        VectorAttribute ** va,
+        map<string, Attribute *>::iterator& it)
 {
-    map<string, Attribute *>::iterator it;
     VectorAttribute * q;
 
     istringstream iss(id);
@@ -269,8 +271,12 @@ void Quota::del_quota(const string& qid, map<string, int>& usage_req)
 {
     VectorAttribute * q;
     map<string, int>::iterator it;
+    map<string, Attribute *>::iterator q_it;
 
-    if ( get_quota(qid, &q) == -1)
+    int limit, limit_tmp;
+    int usage, usage_tmp;
+
+    if ( get_quota(qid, &q, q_it) == -1)
     {
         return;
     }
@@ -279,6 +285,9 @@ void Quota::del_quota(const string& qid, map<string, int>& usage_req)
     {
         return;
     } 
+
+    limit = 0;
+    usage = 0;
 
     for (int i=0; i < num_metrics; i++)
     {
@@ -294,6 +303,17 @@ void Quota::del_quota(const string& qid, map<string, int>& usage_req)
         }
 
         add_to_quota(q, metrics_used, -it->second);
+
+        q->vector_value(metrics[i],             limit_tmp);
+        q->vector_value(metrics_used.c_str(),   usage_tmp);
+
+        limit += limit_tmp;
+        usage += usage_tmp;
+    }
+
+    if ( limit == 0 && usage == 0 )
+    {
+        del(q_it);
     }
 }
 

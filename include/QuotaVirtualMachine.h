@@ -62,10 +62,36 @@ public:
 
     /**
      *  Gets a quota, overrides base to not to use ID.
-     *    @param id of the quota
+     *    @param id of the quota, ignored
+     *    @param va The quota
+     *
      *    @return a pointer to the quota or 0 if not found
      */
     int get_quota(const string& id, VectorAttribute **va);
+
+    /**
+     * Gets a quota, overrides base to not to use ID.
+     *
+     *    @param id of the quota, ignored
+     *    @param va The quota
+     *    @param it The quota iterator, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int get_quota(
+            const string& id,
+            VectorAttribute **va,
+            map<string, Attribute *>::iterator& it)
+    {
+        it = attributes.end();
+        return get_quota(id, va);
+    }
+
+    /**
+     * Overrides base to not delete anything
+     *    @param it The quota iterator, ignored
+     */
+    void del(map<string, Attribute *>::iterator& it){}
 
 protected:
     static const char * VM_METRICS[];

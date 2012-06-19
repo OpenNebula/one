@@ -124,9 +124,40 @@ protected:
     /**
      *  Gets a quota identified by its ID.
      *    @param id of the quota
-     *    @return a pointer to the quota or 0 if not found
+     *    @param va The quota, if it is found
+     *    @return 0 on success, -1 if not found
      */
-    virtual int get_quota(const string& id, VectorAttribute **va);    
+    virtual int get_quota(const string& id, VectorAttribute **va)
+    {
+        map<string, Attribute *>::iterator it;
+        return get_quota(id, va, it);
+    }
+
+    /**
+     * Gets a quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *    @param it The quota iterator, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    virtual int get_quota(
+            const string& id,
+            VectorAttribute **va,
+            map<string, Attribute *>::iterator& it);
+
+    /**
+     * Deletes a quota from the index. The quota pointer is freed.
+     *    @param it The quota iterator, as returned by Quota::get_quota
+     */
+    virtual void del(map<string, Attribute *>::iterator& it)
+    {
+        Attribute * attr = it->second;
+        delete attr;
+
+        attributes.erase(it);
+    }
 
 private:
     /**
