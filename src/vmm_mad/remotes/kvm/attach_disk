@@ -19,12 +19,34 @@
 source $(dirname $0)/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
+DRIVER_PATH=$(dirname $0)
+
 DOMAIN="$1"
 SOURCE="$2"
 TARGET="$3"
 TARGET_INDEX="$4"
+DRV_ACTION="$5"
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+DISK_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']"
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     $DISK_XPATH/DRIVER \
+                    $DISK_XPATH/BUS \
+                    $DISK_XPATH/CACHE)
+
+DRIVER="${XPATH_ELEMENTS[0]}"
+BUS="${XPATH_ELEMENTS[1]}" # TODO: unused
+CACHE="${XPATH_ELEMENTS[2]}"
 
 ATTACH_PARAMS="--domain $DOMAIN --source $SOURCE --target $TARGET"
+
+[ -n "$CACHE" ]  && ATTACH_PARAMS="$ATTACH_PARAMS --cache $CACHE"
+[ -n "$DRIVER" ] && ATTACH_PARAMS="$ATTACH_PARAMS --type $DRIVER"
 
 exec_and_log "virsh --connect $LIBVIRT_URI attach-disk $ATTACH_PARAMS" \
     "Could not attach $SOURCE ($TARGET) to $DOMAIN"
