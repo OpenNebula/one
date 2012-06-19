@@ -59,7 +59,7 @@ log "Cloning $SRC_PATH in $DST"
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR
 
-if which ls > /dev/null; then
+if which sudo > /dev/null; then
   SUDO_CMD="sudo "
 fi
 
