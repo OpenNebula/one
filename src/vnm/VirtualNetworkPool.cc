@@ -192,7 +192,8 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
     if (vnet == 0)
     {
         ostringstream oss;
-        oss << "Virtual network " << name << " does not exist for user " << uid;
+        oss << "User " << uid << " does not own a network with name: " << name
+            << "Set NETWORK_UNAME or NETWORK_UID of owner in NIC.";
 
         error = oss.str(); 
     }

@@ -255,7 +255,12 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
        
         if ( uiid == -1)
         {
-            error_str = "Cannot get user set in IMAGE_UID or IMAGE_UNAME.";
+            ostringstream oss;
+
+            oss << "User " << uid << " does not own an image with name: "
+                << source << ". Set IMAGE_UNAME or IMAGE_UID of owner in DISK.";
+            error_str =  oss.str();
+
             return -1; 
         }
 
