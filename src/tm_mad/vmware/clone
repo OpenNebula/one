@@ -48,6 +48,7 @@ DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
+
 ssh_make_path $DST_HOST $DST_PATH
 
 #-------------------------------------------------------------------------------
@@ -58,14 +59,12 @@ log "Cloning $SRC_PATH in $DST"
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR
 
-WHICH_SUDO=\$(which sudo)
-
-if [ ! -z "\$WHICH_SUDO" -a -f "\$WHICH_SUDO" ]; then
-  SUDO="sudo "
+if which ls > /dev/null; then
+  SUDO_CMD="sudo "
 fi
 
-$SUDO $VMKFSTOOLS -U $DST_PATH/disk.vmdk
-$SUDO $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
+\$SUDO_CMD $VMKFSTOOLS -U $DST_PATH/disk.vmdk
+\$SUDO_CMD $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
 EOF
 )
 
