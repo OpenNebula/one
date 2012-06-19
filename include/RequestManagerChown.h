@@ -185,8 +185,7 @@ class DocumentChown : public RequestManagerChown
 public:
     DocumentChown():
         RequestManagerChown("DocumentChown",
-                            "Changes ownership of a generic document",
-                            "A:siiii")
+                            "Changes ownership of a generic document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();

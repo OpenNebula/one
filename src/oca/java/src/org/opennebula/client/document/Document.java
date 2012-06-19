@@ -116,7 +116,7 @@ public abstract class Document extends PoolElement
      */
     public OneResponse info()
     {
-        return client.call(INFO, id, type());
+        return client.call(INFO, id);
     }
 
     /**
@@ -126,7 +126,7 @@ public abstract class Document extends PoolElement
      */
     public OneResponse delete()
     {
-        return client.call(DELETE, id, type());
+        return client.call(DELETE, id);
     }
 
     /**
@@ -137,7 +137,7 @@ public abstract class Document extends PoolElement
      */
     public OneResponse update(String new_document)
     {
-        return client.call(UPDATE, id, new_document, type());
+        return client.call(UPDATE, id, new_document);
     }
 
     /**
@@ -162,7 +162,7 @@ public abstract class Document extends PoolElement
      */
     public OneResponse chown(int uid, int gid)
     {
-        return client.call(CHOWN, id, uid, gid, type());
+        return client.call(CHOWN, id, uid, gid);
     }
 
     /**
