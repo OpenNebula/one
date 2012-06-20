@@ -156,7 +156,7 @@ helpers do
 
             #end user options
 
-            if params[:remember]
+            if params[:remember] == "true"
                 env['rack.session.options'][:expire_after] = 30*60*60*24
             end
 
