@@ -100,7 +100,7 @@ public class VirtualMachine extends PoolElement{
         "shut",
         "shut",
         "fail",
-        "dele",
+        "clea",
         "unkn",
         "hotp" };
 
