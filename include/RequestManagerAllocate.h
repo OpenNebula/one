@@ -205,10 +205,6 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
-
-    bool allocate_authorization(Template *          obj_template,
-                                RequestAttributes&  att,
-                                PoolObjectAuth *    cluster_perms);
 };
 
 /* ------------------------------------------------------------------------- */
