@@ -125,39 +125,6 @@ bool VirtualMachineAllocate::allocate_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool ImageAllocate::allocate_authorization(
-        Template *          tmpl,
-        RequestAttributes&  att,
-        PoolObjectAuth *    cluster_perms)
-{
-    string      aname;
-
-    ImageTemplate * itmpl = static_cast<ImageTemplate *>(tmpl);
-
-    // Check template for restricted attributes
-
-    if ( att.uid != 0 && att.gid != GroupPool::ONEADMIN_ID )
-    {
-        if (itmpl->check(aname))
-        {
-            ostringstream oss;
-
-            oss << "Template includes a restricted attribute " << aname;
-
-            failure_response(AUTHORIZATION,
-                    authorization_error(oss.str(), att),
-                    att);
-
-            return false;
-        }
-    }
-
-    return RequestManagerAllocate::allocate_authorization(tmpl, att, cluster_perms);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
                                              RequestAttributes& att)
 {
@@ -422,6 +389,26 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         AuthRequest ar(att.uid, att.gid);
         string  tmpl_str;
+        string  aname;
+
+        // ------------ Check template for restricted attributes  --------------
+
+        if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+        {
+            if (tmpl->check(aname))
+            {
+                ostringstream oss;
+
+                oss << "Template includes a restricted attribute " << aname;
+
+                failure_response(AUTHORIZATION,
+                        authorization_error(oss.str(), att),
+                        att);
+
+                delete tmpl;
+                return;
+            }
+        }
 
         // ------------------ Check permissions and ACLs  ----------------------
         tmpl->to_xml(tmpl_str);
