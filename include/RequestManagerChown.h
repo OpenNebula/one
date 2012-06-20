@@ -57,6 +57,20 @@ protected:
                                   int                       new_uid,
                                   int                       new_gid,
                                   RequestAttributes&        att);
+
+    /**
+     * Checks if the new owner cannot has other object with the same name (if
+     * the pool does not allow it)
+     *
+     * @param oid Object id
+     * @param noid New owner user id
+     * @param error_str Error reason, if any
+     *
+     * @return 0 if the operation is allowed, -1 otherwise
+     */
+    virtual int check_name_unique(int oid, int noid, string& error_str);
+
+    virtual PoolObjectSQL * get(const string& name, int uid, bool lock) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -75,6 +89,16 @@ public:
     };
 
     ~VirtualMachineChown(){};
+
+    int check_name_unique(int oid, int noid, string& error_str)
+    {
+        return 0;
+    };
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return 0;
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -86,13 +110,18 @@ public:
     TemplateChown():
         RequestManagerChown("TemplateChown",
                             "Changes ownership of a virtual machine template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
     ~TemplateChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VMTemplatePool*>(pool)->get(name, uid, lock);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -113,6 +142,10 @@ public:
 
     ~VirtualNetworkChown(){};
 
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VirtualNetworkPool*>(pool)->get(name, uid, lock);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -132,6 +165,10 @@ public:
 
     ~ImageChown(){};
 
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<ImagePool*>(pool)->get(name, uid, lock);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -156,6 +193,11 @@ public:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return 0;
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -175,6 +217,10 @@ public:
 
     ~DatastoreChown(){};
 
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return 0;
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -193,6 +239,11 @@ public:
     };
 
     ~DocumentChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return 0;
+    };
 };
 
 /* -------------------------------------------------------------------------- */

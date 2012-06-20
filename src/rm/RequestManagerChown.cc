@@ -115,6 +115,41 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int RequestManagerChown::check_name_unique(int oid, int noid, string& error_str)
+{
+    PoolObjectSQL *     object;
+    string          name;
+    int             obj_oid;
+    ostringstream   oss;
+
+    object = pool->get(oid, true);
+
+    name = object->get_name();
+
+    object->unlock();
+
+    object = get(name, noid, true);
+
+    if ( object != 0 )
+    {
+        obj_oid = object->get_oid();
+        object->unlock();
+
+        oss << PoolObjectSQL::type_to_str(PoolObjectSQL::USER)
+            << " [" << noid << "] already owns "
+            << PoolObjectSQL::type_to_str(auth_object) << " ["
+            << obj_oid << "] with NAME " << name;
+
+        error_str = oss.str();
+        return -1;
+    }
+
+    return 0;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
                                           RequestAttributes& att)
 {
@@ -123,6 +158,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     int ngid = xmlrpc_c::value_int(paramList.getInt(3));
 
     int rc;
+    string error_str;
    
     string oname;
     string nuname;
@@ -190,6 +226,17 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
                              authorization_error(ar.message, att),
                              att);
 
+            return;
+        }
+    }
+
+    // --------------- Check name uniqueness -----------------------------------
+
+    if ( noid != -1 )
+    {
+        if ( check_name_unique(oid, noid, error_str) != 0 )
+        {
+            failure_response(INTERNAL, request_error(error_str, ""), att);
             return;
         }
     }
