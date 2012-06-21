@@ -206,9 +206,8 @@ EOT
                 else
                     rc = OneHelper.name_to_id(name, pool, poolname)
 
-                    if rc.first==-1
-                        return -1, "OpenNebula #{poolname} #{name} " <<
-                                   "not found, use the ID instead"
+                    if rc.first == -1
+                        return rc[0], rc[1]
                     end
 
                     rc[1]
