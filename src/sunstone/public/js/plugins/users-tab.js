@@ -18,6 +18,7 @@
 var dataTable_users;
 var users_select="";
 var $create_user_dialog;
+var $user_quotas_dialog;
 var $update_pw_dialog;
 
 var users_tab_content = '\
@@ -97,6 +98,69 @@ var update_pw_tmpl = '<form id="update_user_pw_form" action="">\
                 <button class="button" id="update_pw_submit" value="User.update">'+tr("Change")+'</button>\
                 <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
+</fieldset>\
+</form>';
+
+var user_quotas_tmpl = '<form id="user_quotas_form" action="">\
+   <fieldset>\
+     <div>'+tr("Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them")+'.</div>\
+     <div>'+tr("Add quota")+':</div>\
+     <div id="quota_types">\
+           <label>'+tr("Quota type")+':</label>\
+           <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
+           <input type="radio" name="quota_type" value="datastore">'+tr("Datastore")+'</input>\
+           <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
+           <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
+      </div>\
+      <div id="vm_quota">\
+          <label>'+tr("Max VMs")+':</label>\
+          <input type="text" name="VMS"></input><br />\
+          <label>'+tr("Max Memory (MB)")+':</label>\
+          <input type="text" name="MEMORY"></input><br />\
+          <label>'+tr("Max CPU")+':</label>\
+          <input type="text" name="CPU"></input>\
+      </div>\
+      <div id="datastore_quota">\
+          <label>'+tr("Datastore")+'</label>\
+          <select name="ID"></select><br />\
+          <label>'+tr("Max size (MB)")+':</label>\
+          <input type="text" name="SIZE"></input><br />\
+          <label>'+tr("Max images")+':</label>\
+          <input type="text" name="IMAGES"></input>\
+      </div>\
+      <div id="image_quota">\
+          <label>'+tr("Image")+'</label>\
+          <select name="ID"></select><br />\
+          <label>'+tr("Max RVMs")+'</label>\
+          <input type="text" name="RVMS"></input>\
+      </div>\
+      <div id="network_quota">\
+          <label>'+tr("Network")+'</label>\
+          <select name="ID"></select><br />\
+          <label>'+tr("Max leases")+'</label>\
+          <input type="text" name="LEASES"></input>\
+      </div>\
+      <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
+      <div class="clear"></div>\
+      <div class="clear"></div>\
+      <div>'+tr("Current quotas")+':</div>\
+      <div class="current_quotas">\
+         <label>'+tr("VM quota")+':</label><br />\
+         <ul id="quotas_ul_vm">\
+         </ul>\
+         <label>'+tr("Datastore quotas")+':</label><br />\
+         <ul id="quotas_ul_datastore">\
+         </ul>\
+         <label>'+tr("Image quotas")+':</label><br />\
+         <ul id="quotas_ul_image">\
+         </ul>\
+         <label>'+tr("Network quotas")+':</label><br />\
+         <ul id="quotas_ul_network">\
+         </ul>\
+      </div>\
+      <div class="form_buttons">\
+           <button class="button" type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
+      </div>\
 </fieldset>\
 </form>';
 
@@ -254,6 +318,34 @@ var user_actions = {
         error: onError
     },
 
+    "User.fetch_quotas" : {
+        type: "single",
+        call: OpenNebula.User.show,
+        callback: function (request,response) {
+            var parsed = parseQuotas(response.USER);
+            $('ul#quotas_ul_vm',$user_quotas_dialog).html(parsed.VM)
+            $('ul#quotas_ul_datastore',$user_quotas_dialog).html(parsed.DATASTORE)
+            $('ul#quotas_ul_image',$user_quotas_dialog).html(parsed.IMAGE)
+            $('ul#quotas_ul_network',$user_quotas_dialog).html(parsed.NETWORK)
+        },
+        error: onError
+    },
+
+    "User.quotas_dialog" : {
+        type: "custom",
+        call: popUpUserQuotasDialog
+    },
+
+    "User.set_quota" : {
+        type: "multiple",
+        call: OpenNebula.User.set_quota,
+        elements: userElements,
+        callback: function() {
+            notifyMessage(tr("Quotas updated correctly"));
+        },
+        error: onError
+    },
+
     "User.help" : {
         type: "custom",
         call: function() {
@@ -282,6 +374,10 @@ var user_buttons = {
     "User.update_password" : {
         type : "action",
         text : tr("Change password"),
+    },
+    "User.quotas_dialog" : {
+        type : "action",
+        text : tr("Update quotas")
     },
     "User.chgrp" : {
         type: "confirm_with_select",
@@ -329,6 +425,10 @@ var user_buttons = {
 var user_info_panel = {
     "user_info_tab" : {
         title: tr("User information"),
+        content:""
+    },
+    "user_quotas_tab" : {
+        title: tr("User quotas"),
         content:""
     },
 };
@@ -473,7 +573,25 @@ function updateUserInfo(request,user){
         '</table>'
     };
 
+    var quotas_tab = {
+        title : tr("User quotas"),
+        content : '\
+          <table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.DATASTORE_QUOTA)+'</tbody>\
+          </table>\
+          <table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.VM_QUOTA)+'</tbody>\
+          </table>\
+          <table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.IMAGE_QUOTA)+'</tbody>\
+          </table>\
+          <table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.NETWORK_QUOTA)+'</tbody>\
+          </table>'
+    };
+
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     Sunstone.popUpInfoPanel("user_info_panel");
 };
 
@@ -554,8 +672,22 @@ function setupUpdatePasswordDialog(){
     });
 };
 
+function setupUserQuotasDialog(){
+    dialogs_context.append('<div title="'+tr("User quotas")+'" id="user_quotas_dialog"></div>');
+    $user_quotas_dialog = $('#user_quotas_dialog',dialogs_context);
+    var dialog = $user_quotas_dialog;
+    dialog.html(user_quotas_tmpl);
+
+    setupQuotasDialog(dialog);
+}
+
+function popUpUserQuotasDialog(){
+    popUpQuotasDialog($user_quotas_dialog, 'User', userElements())
+}
+
 function popUpCreateUserDialog(){
     $create_user_dialog.dialog('open');
+
 }
 
 
@@ -563,8 +695,6 @@ function popUpUpdatePasswordDialog(){
     $('#new_password',$update_pw_dialog).val("");
     $update_pw_dialog.dialog('open');
 }
-
-
 
 // Prepare the autorefresh of the list
 function setUserAutorefresh(){
@@ -610,6 +740,7 @@ $(document).ready(function(){
 
     setupCreateUserDialog();
     setupUpdatePasswordDialog();
+    setupUserQuotasDialog();
     setUserAutorefresh();
 
     initCheckAllBoxes(dataTable_users);

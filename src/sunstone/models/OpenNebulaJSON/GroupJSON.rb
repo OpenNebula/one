@@ -45,7 +45,8 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "chown"    then self.chown(action_hash['params'])
+                 when "chown"       then self.chown(action_hash['params'])
+                 when "set_quota"   then self.set_quota(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -55,6 +56,12 @@ module OpenNebulaJSON
 
         def chown(params=Hash.new)
             super(params['owner_id'].to_i)
+        end
+
+        def set_quota(params=Hash.new)
+            quota_json = params['quotas']
+            quota_template = template_to_str(quota_json)
+            super(quota_template)
         end
     end
 end

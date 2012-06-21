@@ -693,6 +693,13 @@ var OpenNebula = {
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.Group.resource);
+        },
+        "set_quota" : function(params){
+            var action_obj = { quotas :  params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Group.resource,"set_quota",action_obj);
+        },
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Group.resource);
         }
     },
 
@@ -736,6 +743,11 @@ var OpenNebula = {
         "fetch_template" : function(params){
             OpenNebula.Action.show(params,OpenNebula.User.resource,"template");
         },
+        "set_quota" : function(params){
+            var action_obj = { quotas :  params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.User.resource,"set_quota",action_obj);
+        },
+
         // "addgroup" : function(params){
         //     var action_obj = {"group_id": params.data.extra_param };
         //     OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
