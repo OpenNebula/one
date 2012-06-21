@@ -649,7 +649,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
                 if (res.empty())
                 {
-                    res = "SIZE or PATH attributes are mandatory for DATABLOCK.";
+                    res = "Either SIZE or PATH are mandatory for DATABLOCK.";
                     return -1;
                 }
 
