@@ -333,6 +333,21 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( oid == UserPool::ONEADMIN_ID )
+    {
+        ostringstream oss;
+
+        oss << PoolObjectSQL::type_to_str(PoolObjectSQL::USER)
+            << " [" << UserPool::ONEADMIN_ID << "] " << UserPool::oneadmin_name
+            << " cannot be moved outside of the "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::GROUP)
+            << " [" << GroupPool::ONEADMIN_ID << "] "
+            << GroupPool::ONEADMIN_NAME;
+
+        failure_response(INTERNAL, request_error(oss.str(), ""), att);
+        return;
+    }
+
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.gid);

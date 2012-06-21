@@ -28,6 +28,87 @@ module Migrator
 
     def up
 
+        oneadmin_row = nil
+        @db.fetch("SELECT * FROM user_pool WHERE oid = 0") do |row|
+            oneadmin_row = row
+        end
+
+        if oneadmin_row[:gid] != 0
+
+            puts  "    > Oneadmin user will be moved to the oneadmin group"
+
+            # Change user group
+
+            doc = Document.new(oneadmin_row[:body])
+
+            doc.root.each_element("GID") { |e|
+                e.text = "0"
+            }
+
+            doc.root.each_element("GNAME") { |e|
+                e.text = "oneadmin"
+            }
+
+            @db[:user_pool].filter(:oid=>0).delete
+
+            @db[:user_pool].insert(
+                :oid        => oneadmin_row[:oid],
+                :name       => oneadmin_row[:name],
+                :body       => doc.root.to_s,
+                :uid        => oneadmin_row[:oid],
+                :gid        => 0,
+                :owner_u    => oneadmin_row[:owner_u],
+                :group_u    => oneadmin_row[:group_u],
+                :other_u    => oneadmin_row[:other_u])
+
+            # Remove oneadmin's id from previous group
+
+            group_row = nil
+
+            @db.fetch("SELECT * FROM group_pool WHERE oid = #{oneadmin_row[:gid]}") do |row|
+                group_row = row
+            end
+
+            doc = Document.new(group_row[:body])
+
+            doc.root.delete_element("USERS/ID[.=0]")
+
+            @db[:group_pool].filter(:oid=>group_row[:oid]).delete
+
+            @db[:group_pool].insert(
+                :oid        => group_row[:oid],
+                :name       => group_row[:name],
+                :body       => doc.root.to_s,
+                :uid        => group_row[:oid],
+                :gid        => group_row[:gid],
+                :owner_u    => group_row[:owner_u],
+                :group_u    => group_row[:group_u],
+                :other_u    => group_row[:other_u])
+
+            # Add oneadmin's id to oneadmin group
+
+            @db.fetch("SELECT * FROM group_pool WHERE oid = 0") do |row|
+                group_row = row
+            end
+
+            doc = Document.new(group_row[:body])
+
+            doc.root.get_elements("USERS")[0].add_element("ID").text = "0"
+
+            @db[:group_pool].filter(:oid=>group_row[:oid]).delete
+
+            @db[:group_pool].insert(
+                :oid        => group_row[:oid],
+                :name       => group_row[:name],
+                :body       => doc.root.to_s,
+                :uid        => group_row[:oid],
+                :gid        => group_row[:gid],
+                :owner_u    => group_row[:owner_u],
+                :group_u    => group_row[:group_u],
+                :other_u    => group_row[:other_u])
+        end
+
+
         @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
         @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
