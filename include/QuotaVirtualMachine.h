@@ -60,6 +60,7 @@ public:
      */
     void del(Template* tmpl);
 
+protected:
     /**
      *  Gets a quota, overrides base to not to use ID.
      *    @param id of the quota, ignored
@@ -87,7 +88,6 @@ public:
         return get_quota(id, va);
     }
 
-protected:
     static const char * VM_METRICS[];
 
     static const int NUM_VM_METRICS;
