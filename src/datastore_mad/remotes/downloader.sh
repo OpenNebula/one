@@ -154,9 +154,10 @@ export HASH_FILE="/tmp/downloader.hash.$$"
 
 case "$FROM" in
 http://*|https://*)
-    # -k so it does not check the certificate
-    # -L to follow redirects
-    command="curl -k -L $FROM"
+    # -k  so it does not check the certificate
+    # -L  to follow redirects
+    # -sS to hide output except on failure
+    command="curl -sS -k -L $FROM"
     ;;
 *)
     command="cat $FROM"
