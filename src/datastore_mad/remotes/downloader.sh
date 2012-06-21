@@ -1,12 +1,31 @@
 #!/bin/bash
 
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# Execute a command (first parameter) and use the first kb of stdout
+# to determine the file type
 function get_type
 {
     command=$1
 
-    ( $command | head -1024 | file -b --mime-type - ) 2>/dev/null
+    ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
 }
 
+# Gets the command needed to decompress an stream.
 function get_decompressor
 {
     type=$1
@@ -24,27 +43,35 @@ function get_decompressor
     esac
 }
 
+# Function called to decompress a stream. The first parameter is the command
+# used to decompress the stream. Second parameter is the output file or
+# - for stdout.
 function decompress
 {
     command="$1"
     to="$2"
 
-    if [ "x$to" = "x-" ]; then
+    if [ "$to" = "-" ]; then
         $command
     else
         $command > "$to"
     fi
 }
 
+# Function called to hash a stream. First parameter is the algorithm name.
 function hasher
 {
     algo=$1
 
     if [ -n "$algo" ]; then
         openssl dgst -$algo > $HASH_FILE
+    else
+        # Needs something consuming stdin or the pipe will break
+        cat >/dev/null
     fi
 }
 
+# Unarchives a tar or a zip a file to a directpry with the same name.
 function unarchive
 {
     TO="$1"
@@ -53,8 +80,9 @@ function unarchive
 
     tmp="$TO"
 
-    if [ ${tmp:0:1} = "/" ]; then
-        $tmp="$PWD/$tmp"
+    # Add full path if it is relative
+    if [ ${tmp:0:1} != "/" ]; then
+        tmp="$PWD/$tmp"
     fi
 
     IN="$tmp.tmp"
@@ -118,14 +146,17 @@ while true; do
     esac
 done
 
-FROM=$1
-TO=$2
+FROM="$1"
+TO="$2"
 
+# File used by the hasher function to store the resulting hash
 export HASH_FILE="/tmp/downloader.hash.$$"
 
 case "$FROM" in
-http://*)
-    command="curl -L $FROM"
+http://*|https://*)
+    # -k so it does not check the certificate
+    # -L to follow redirects
+    command="curl -k -L $FROM"
     ;;
 *)
     command="cat $FROM"
@@ -152,6 +183,7 @@ if [ -n "$HASH_TYPE" ]; then
     fi
 fi
 
+# Unarchive only if the destination is filesystem
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
 fi
