@@ -89,16 +89,14 @@ module OpenNebula
             if NOKOGIRI
                 element=@xml.xpath(key.to_s)
 
-                if element.size == 0
-                    return nil
-                end
+                return nil if element.size == 0
             else
                 element=@xml.elements[key.to_s]
+
+                return "" if element && !element.has_text?
             end
 
-            if element
-                element.text
-            end
+            element.text if element
         end
 
         # Delete an element from the xml
