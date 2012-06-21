@@ -91,16 +91,18 @@ var market_actions = {
                     document.getElementById("img_name").value = response['name'];
                     document.getElementById("img_path").value = response['links']['download']['href'];
 
+                    $("#custom_var_image_box",$create_image_dialog).empty();
+
                     var md5 = response['files'][0]['checksum']['md5']
                     if ( md5 ) {
                         option = '<option value=\''+md5+'\' name="MD5">MD5='+md5+'</option>';
-                        $("#custom_var_image_box").append(option);
+                        $("#custom_var_image_box",$create_image_dialog).append(option);
                     }
 
                     var sha1 = response['files'][0]['checksum']['sha1']
                     if ( sha1 ) {
                         option = '<option value=\''+sha1+'\' name="SHA1">SHA1='+sha1+'</option>';
-                        $("#custom_var_image_box").append(option);
+                        $("#custom_var_image_box",$create_image_dialog).append(option);
                     }
 
                     popUpCreateImageDialog();
@@ -237,6 +239,13 @@ function infoListenerMarket(dataTable){
         var id = aData["_id"]["$oid"];
         if (!id) return true;
 
+        var count = $('tbody .check_item:checked', dataTable).length;
+
+        if (e.ctrlKey || count >= 1){
+            $('.check_item',this).trigger('click');
+            return false;
+        }
+
         popDialogLoading();
 
         $.ajax({
@@ -263,11 +272,9 @@ function infoListenerMarket(dataTable){
 
 function onlyOneCheckboxListener(dataTable) {
     $('tbody input.check_item', dataTable).live("change", function(){
-        var checked = $('input.check_item:checked', $('tr', dataTable));
-        var self = this;
-        checked.each(function(){
-          if(this!=self) this.checked = ''
-        })
+        var checked = $(this).is(':checked');
+        $('input.check_item:checked', dataTable).removeAttr('checked');
+        $(this).attr('checked', checked);
     });
 }
 
