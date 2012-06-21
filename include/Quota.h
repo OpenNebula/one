@@ -159,6 +159,13 @@ protected:
         attributes.erase(it);
     }
 
+    /**
+     * Checks if a quota has 0 limit and usage, and deletes it
+     *
+     * @param qid id of the quota
+     */
+    void cleanup_quota(const string& qid);
+
 private:
     /**
      *  Creates an empty quota based on the given attribute. The attribute va
