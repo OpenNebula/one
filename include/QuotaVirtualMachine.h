@@ -83,15 +83,9 @@ public:
             VectorAttribute **va,
             map<string, Attribute *>::iterator& it)
     {
-        it = attributes.end();
+        it = attributes.begin();
         return get_quota(id, va);
     }
-
-    /**
-     * Overrides base to not delete anything
-     *    @param it The quota iterator, ignored
-     */
-    void del(map<string, Attribute *>::iterator& it){}
 
 protected:
     static const char * VM_METRICS[];
