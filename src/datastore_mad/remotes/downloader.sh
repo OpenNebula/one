@@ -64,7 +64,7 @@ function hasher
     algo=$1
 
     if [ -n "$algo" ]; then
-        openssl dgst -$algo > $HASH_FILE
+        openssl dgst -$algo | awk '{print $NF}' > $HASH_FILE
     else
         # Needs something consuming stdin or the pipe will break
         cat >/dev/null
@@ -121,7 +121,7 @@ if [ $? != 0 ] ; then
     echo "Arguments error"
     exit -1
 fi
-    
+
 eval set -- "$TEMP"
 
 while true; do
