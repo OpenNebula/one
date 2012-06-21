@@ -92,7 +92,16 @@ int ImageManager::acquire_image(Image *img, string& error)
     {
         case Image::READY:
             img->inc_running();
-            img->set_state(Image::USED);
+
+            if ( img->isPersistent() )
+            {
+                img->set_state(Image::USED_PERS);
+            }
+            else
+            {
+                img->set_state(Image::USED);
+            }
+
             ipool->update(img);
         break;
 
