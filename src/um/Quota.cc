@@ -343,7 +343,9 @@ void Quota::cleanup_quota(const string& qid)
 
     if ( limit == 0 && usage == 0 )
     {
-        del(q_it);
+        delete static_cast<Attribute *>(q_it->second);
+
+        attributes.erase(q_it);
     }
 }
 
