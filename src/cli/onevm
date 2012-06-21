@@ -45,6 +45,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Type of the new Image"
     }
 
+    TARGET={
+        :name => "target",
+        :short => "-t type",
+        :large => "--target type",
+        :format => String,
+        :description => "Device where the image will be attached"
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -345,7 +353,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :attachdisk, attachdisk_desc, :vmid,
-            :options => [OneVMHelper::FILE, OneVMHelper::IMAGE] do
+            :options => [OneVMHelper::FILE, OneVMHelper::IMAGE, TARGET] do
 
         if options[:file].nil? and options[:image].nil?
             STDERR.puts "Provide a template file or an image:"
@@ -358,7 +366,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             template = File.read(options[:file])
         else
             image_id = options[:image]
-            template = "DISK = [ IMAGE_ID = #{image_id}, DEV_PREFIX = sd ]"
+            target = options[:target]
+            if target
+                template =
+                    "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target} ]"
+            else
+                template =
+                    "DISK = [ IMAGE_ID = #{image_id}, DEV_PREFIX = sd ]"
+            end
         end
 
         helper.perform_action(args[0],options,"Attach disk") do |vm|
