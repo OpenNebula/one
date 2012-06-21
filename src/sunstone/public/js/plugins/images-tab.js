@@ -436,6 +436,16 @@ var image_actions = {
         error: onError,
         notify: true
     },
+    "Image.clone_dialog" : {
+        type: "custom",
+        call: popUpImageCloneDialog
+    },
+    "Image.clone" : {
+        type: "single",
+        call: OpenNebula.Image.clone,
+        error: onError,
+        notify: true
+    },
     "Image.help" : {
         type: "custom",
         call: function() {
@@ -495,6 +505,10 @@ var image_buttons = {
                 text: tr("Make non persistent")
             }
         }
+    },
+    "Image.clone_dialog" : {
+        type: "action",
+        text: tr("Clone"),
     },
     "Image.delete" : {
         type: "confirm",
@@ -1136,6 +1150,78 @@ function setupImageActionCheckboxes(){
 
 }
 
+function setupImageCloneDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="image_clone_dialog" title="'+tr("Clone an image")+'"></div>');
+    var dialog = $('#image_clone_dialog',dialogs_context);
+
+    //Put HTML in place
+
+    var html = '<form><fieldset>\
+<div class="clone_one">'+tr("Choose a new name for the image")+':</div>\
+<div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
+<br />\
+<label class="clone_one">'+tr("Name")+':</label>\
+<label class="clone_several">'+tr("Prefix")+':</label>\
+<input type="text" name="name"></input>\
+<div class="form_buttons">\
+  <button class="button" id="image_clone_button" value="Image.clone">\
+'+tr("Clone")+'\
+  </button>\
+</div></fieldset></form>\
+';
+
+    dialog.html(html);
+
+    //Convert into jQuery
+    dialog.dialog({
+        autoOpen:false,
+        width:375,
+        modal:true,
+        resizable:false,
+    });
+
+    $('button',dialog).button();
+
+    $('form',dialog).submit(function(){
+        var name = $('input', this).val();
+        var sel_elems = imageElements();
+        if (!name || !sel_elems.length)
+            notifyError('A name or prefix is needed!');
+        if (sel_elems.length > 1){
+            for (var i=0; i< sel_elems.length; i++)
+                Sunstone.runAction('Image.clone',
+                                   sel_elems[i],
+                                   name+getImageName(sel_elems[i]));
+        } else {
+            Sunstone.runAction('Image.clone',sel_elems[0],name)
+        };
+        dialog.dialog('close');
+        setTimeout(function(){
+            Sunstone.runAction('Image.refresh');
+        }, 1500);
+        return false;
+    });
+}
+
+function popUpImageCloneDialog(){
+    var dialog = $('#image_clone_dialog');
+    var sel_elems = imageElements();
+    //show different text depending on how many elements are selected
+    if (sel_elems.length > 1){
+        $('.clone_one',dialog).hide();
+        $('.clone_several',dialog).show();
+        $('input',dialog).val('Copy of ');
+    }
+    else {
+        $('.clone_one',dialog).show();
+        $('.clone_several',dialog).hide();
+        $('input',dialog).val('Copy of '+getImageName(sel_elems[0]));
+    };
+
+    $(dialog).dialog('open');
+}
+
 //The DOM is ready at this point
 $(document).ready(function(){
 
@@ -1172,6 +1258,7 @@ $(document).ready(function(){
     setupImageTemplateUpdateDialog();
     setupTips($create_image_dialog);
     setupImageActionCheckboxes();
+    setupImageCloneDialog();
     setImageAutorefresh();
 
     initCheckAllBoxes(dataTable_images);
