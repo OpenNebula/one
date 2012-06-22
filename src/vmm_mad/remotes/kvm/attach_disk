@@ -53,7 +53,6 @@ TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
 case "$TYPE" in
 block)
-    TYPE
     TYPE_SOURCE="dev"
     DEVICE="disk"
     ;;
