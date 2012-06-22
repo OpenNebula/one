@@ -22,7 +22,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
-import org.opennebula.client.datastore.Datastore;
 import org.opennebula.client.image.*;
 
 
@@ -52,7 +51,7 @@ public class ImageTest
      *  Wait until the Image changes to the specified state.
      *  There is a time-out of 10 seconds.
      */
-    void waitAssert(Image img, String state)
+    static void waitAssert(Image img, String state)
     {
         int n_steps     = 10;
         int step        = 1000;

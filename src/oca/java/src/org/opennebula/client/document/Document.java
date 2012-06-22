@@ -34,11 +34,6 @@ import org.w3c.dom.Node;
  * {
  *     private static final int TYPE = 200;
  *
- *     protected int type()
- *     {
- *         return TYPE;
- *     }
- *
  *     public GenericObjA(int id, Client client)
  *     {
  *         super(id, client);
@@ -88,8 +83,6 @@ public abstract class Document extends PoolElement
     {
         super(xmlElement, client);
     }
-
-    protected abstract int type();
 
     // =================================
     // Static XML-RPC methods
@@ -219,7 +212,7 @@ public abstract class Document extends PoolElement
      */
     public OneResponse clone(String name)
     {
-        return client.call(CLONE, id, name, type());
+        return client.call(CLONE, id, name);
     }
 
     // =================================

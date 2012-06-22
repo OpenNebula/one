@@ -80,7 +80,7 @@ void RequestManagerClone::request_execute(
         }
     }
 
-    rc = pool_allocate(paramList, tmpl, new_id, error_str, att);
+    rc = pool_allocate(source_id, tmpl, new_id, error_str, att);
 
     if ( rc < 0 )
     {

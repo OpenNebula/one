@@ -7,12 +7,6 @@ public class GenericObjB extends Document
 {
     private static final int TYPE = 201;
 
-    @Override
-    protected int type()
-    {
-        return TYPE;
-    }
-
     public GenericObjB(int id, Client client)
     {
         super(id, client);
