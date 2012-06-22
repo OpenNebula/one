@@ -31,7 +31,7 @@ class RequestManagerClone: public Request
 protected:
     RequestManagerClone(const string& method_name,
                              const string& help,
-                             const string& params)
+                             const string& params = "A:sis")
         :Request(method_name,params,help)
     {};
 
@@ -45,7 +45,7 @@ protected:
     virtual Template * clone_template(PoolObjectSQL* obj) = 0;
 
     virtual int pool_allocate(
-            xmlrpc_c::paramList const&  paramList,
+            int                         source_id,
             Template *                  tmpl,
             int&                        id,
             string&                     error_str,
@@ -60,8 +60,7 @@ class VMTemplateClone : public RequestManagerClone
 public:
     VMTemplateClone():
         RequestManagerClone("VMTemplateClone",
-                            "Clone an existing virtual machine template",
-                            "A:sis")
+                            "Clone an existing virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -80,7 +79,7 @@ public:
     };
 
     int pool_allocate(
-            xmlrpc_c::paramList const&  paramList,
+            int                         source_id,
             Template *                  tmpl,
             int&                        id,
             string&                     error_str,
@@ -105,8 +104,7 @@ class DocumentClone : public RequestManagerClone
 public:
     DocumentClone():
         RequestManagerClone("DocumentClone",
-                            "Clone an existing generic document",
-                            "A:sisi")
+                            "Clone an existing generic document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();
@@ -125,18 +123,17 @@ public:
     };
 
     int pool_allocate(
-            xmlrpc_c::paramList const&  paramList,
+            int                         source_id,
             Template *                  tmpl,
             int&                        id,
             string&                     error_str,
             RequestAttributes&          att)
     {
-        int type = xmlrpc_c::value_int(paramList.getInt(3));
-
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
+        Document * doc = docpool->get(source_id, true);
 
-        return docpool->allocate(att.uid, att.gid, att.uname, att.gname, type,
-                tmpl, &id, error_str);
+        return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
+                doc->get_document_type(), tmpl, &id, error_str);
     };
 };
 

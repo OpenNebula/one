@@ -17,11 +17,14 @@
 require 'marketplace/marketplace_client'
 
 module SunstoneMarketplace
+    USER_AGENT = "Sunstone"
+
     def get_appliance_pool
         client = Market::ApplianceClient.new(
                     @config[:marketplace_username],
                     @config[:marketplace_password],
-                    @config[:marketplace_url])
+                    @config[:marketplace_url],
+                    USER_AGENT)
 
         response = client.list
 
@@ -37,7 +40,8 @@ module SunstoneMarketplace
         client = Market::ApplianceClient.new(
                     @config[:marketplace_username],
                     @config[:marketplace_password],
-                    @config[:marketplace_url])
+                    @config[:marketplace_url],
+                    USER_AGENT)
 
         response = client.show(app_id)
 

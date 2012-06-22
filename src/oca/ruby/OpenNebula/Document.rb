@@ -156,7 +156,7 @@ module OpenNebula
         def clone(name)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(DOCUMENT_METHODS[:clone], @pe_id, name, TYPE)
+            rc = @client.call(DOCUMENT_METHODS[:clone], @pe_id, name)
 
             return rc
         end

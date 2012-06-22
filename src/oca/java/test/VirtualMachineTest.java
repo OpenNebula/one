@@ -24,6 +24,7 @@ import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.datastore.Datastore;
 import org.opennebula.client.host.Host;
+import org.opennebula.client.image.Image;
 import org.opennebula.client.vm.VirtualMachine;
 import org.opennebula.client.vm.VirtualMachinePool;
 
@@ -45,7 +46,7 @@ public class VirtualMachineTest
     /**
      *  Wait until the VM changes to the specified state.
      *  There is a time-out of 10 seconds.
-    */
+     */
     void waitAssert(VirtualMachine vm, String state, String lcmState)
     {
         int n_steps     = 100;
@@ -108,6 +109,7 @@ public class VirtualMachineTest
     {
         String template = "NAME = " + name + "\n"+
                           "MEMORY = 512\n" +
+                          "CPU = 1\n" +
                           "CONTEXT = [DNS = 192.169.1.4]";
 
         res = VirtualMachine.allocate(client, template);
@@ -132,7 +134,7 @@ public class VirtualMachineTest
     public void allocate()
     {
         res = vmPool.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         boolean found = false;
         for(VirtualMachine vm : vmPool)
@@ -147,7 +149,7 @@ public class VirtualMachineTest
     public void update()
     {
         res = vm.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( vm.getName().equals(name) );
     }
@@ -156,7 +158,7 @@ public class VirtualMachineTest
     public void hold()
     {
         res = vm.hold();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "HOLD", "-");
     }
 
@@ -166,7 +168,7 @@ public class VirtualMachineTest
         vm.hold();
 
         res = vm.release();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "PENDING", "-");
     }
 
@@ -174,7 +176,7 @@ public class VirtualMachineTest
     public void deploy()
     {
         res = vm.deploy(hid_A);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
@@ -185,7 +187,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.migrate(hid_B);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
@@ -196,7 +198,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.liveMigrate(hid_B);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
@@ -207,7 +209,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.shutdown();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "DONE", "-");
     }
 
@@ -218,7 +220,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.cancel();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "DONE", "-");
     }
 
@@ -229,7 +231,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.stop();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "STOPPED", "-");
     }
 
@@ -240,7 +242,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.suspend();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "SUSPENDED", "-");
     }
 
@@ -254,7 +256,7 @@ public class VirtualMachineTest
         waitAssert(vm, "SUSPENDED", "-");
 
         res = vm.resume();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
@@ -265,7 +267,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
         res = vm.finalizeVM();
 
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "DONE", "-");
     }
 
@@ -282,7 +284,7 @@ public class VirtualMachineTest
         waitAssert(vm, "ACTIVE", "RUNNING");
         res = vm.resubmit();
 
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "PENDING", "-");
     }
 
@@ -290,7 +292,7 @@ public class VirtualMachineTest
     public void attributes()
     {
         res = vm.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( vm.xpath("NAME").equals(name) );
         assertTrue( vm.xpath("TEMPLATE/MEMORY").equals("512") );
@@ -299,29 +301,44 @@ public class VirtualMachineTest
         assertTrue( vm.xpath("TEMPLATE/CONTEXT/DNS").equals("192.169.1.4") );
     }
 
-//  TODO
-//    @Test
+    @Test
     public void savedisk()
     {
+        String img_template =
+                "NAME = \"test_img\"\n" +
+                "PATH = /etc/hosts\n" +
+                "ATT1 = \"VAL1\"\n" +
+                "ATT2 = \"VAL2\"";
+
+        res = Image.allocate(client, img_template, 1);
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        int imgid = Integer.parseInt(res.getMessage());
+
+        Image img = new Image(imgid, client);
+        ImageTest.waitAssert(img, "READY");
+
+
         String template = "NAME = savedisk_vm\n"+
                           "MEMORY = 512\n" +
+                          "CPU = 1\n" +
                           "CONTEXT = [DNS = 192.169.1.4]\n" +
-                          "DISK = [ TYPE = fs, SIZE = 4, " +
-                          "FORMAT = ext3, TARGET = sdg ]";
+                          "DISK = [ IMAGE = test_img ]";
 
         res = VirtualMachine.allocate(client, template);
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
         int vmid = !res.isError() ? Integer.parseInt(res.getMessage()) : -1;
 
         vm = new VirtualMachine(vmid, client);
 
         res = vm.savedisk(0, "New_image");
-        assertTrue( !res.isError() );
-        assertTrue( res.getMessage().equals("0") );
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        int new_imgid = Integer.parseInt(res.getMessage());
+        assertTrue( new_imgid == imgid+1 );
 
         res = vm.info();
-        assertTrue( !res.isError() );
-
-        assertTrue( vm.xpath("TEMPLATE/DISK/SAVE_AS").equals(("0")) );
-
+        assertTrue( res.getErrorMessage(), !res.isError() );
     }
 }
