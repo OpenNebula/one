@@ -61,10 +61,8 @@ function decompress
 # Function called to hash a stream. First parameter is the algorithm name.
 function hasher
 {
-    algo=$1
-
-    if [ -n "$algo" ]; then
-        openssl dgst -$algo | awk '{print $NF}' > $HASH_FILE
+    if [ -n "$1" ]; then
+        openssl dgst -$1 | awk '{print $NF}' > $HASH_FILE
     else
         # Needs something consuming stdin or the pipe will break
         cat >/dev/null
