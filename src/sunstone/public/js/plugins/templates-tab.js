@@ -85,7 +85,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <input type="text" id="MEMORY" name="memory" size="4" />\
                                   <div class="tip">'+tr("Amount of RAM required for the VM, in Megabytes.")+'</div>\
                             </div>\
-                    <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <div class="vm_param kvm xen vmware">\
                                 <label for="CPU">'+tr("CPU")+':</label>\
                                   <input type="text" id="CPU" name="cpu" size="2"/>\
                                   <div class="tip">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</div>\
