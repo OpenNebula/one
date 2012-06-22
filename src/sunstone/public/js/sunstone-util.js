@@ -1067,11 +1067,6 @@ function setupQuotaIcons(){
         $(this).parents('li').fadeOut(function(){$(this).remove()});
         return false;
     });
-
-    $('.quota_remove_icon').live('click',function(){
-        $(this).parents('li').fadeOut(function(){$(this).remove()});
-        return false;
-    });
 }
 
 function parseQuotas(elem){
@@ -1155,6 +1150,6 @@ function quotaListItem(quota_json){
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
-    str += '<i class="quota_edit_icon icon-pencil"></i> <i class="quota_remove_icon icon-remove"></i></pre></li>';
+    str += '<i class="quota_edit_icon icon-pencil"></i></pre></li>';
     return str;
 }

@@ -742,6 +742,11 @@ $(document).ready(function(){
     setupUpdatePasswordDialog();
     setupUserQuotasDialog();
     setUserAutorefresh();
+    //Setup quota icons
+    //Also for group tab
+    setupQuotaIcons();
+
+
 
     initCheckAllBoxes(dataTable_users);
     tableCheckboxesListener(dataTable_users);
