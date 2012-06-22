@@ -954,3 +954,207 @@ function buildOctet(permTable){
 
     return ""+owner+group+other;
 };
+
+function setupQuotasDialog(dialog){
+
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+
+    //Prepare jquery dialog
+    dialog.dialog({
+        autoOpen: false,
+        modal:true,
+        width: 740,
+        height: height
+    });
+
+    $('button',dialog).button();
+    $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();
+
+    $('#quota_types input',dialog).click(function(){
+        $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();
+        $('#'+$(this).val()+'_quota',dialog).show();
+        $('#add_quota_button',dialog).show();
+    })
+
+    $('#add_quota_button',dialog).hide();
+
+    $('#add_quota_button',dialog).click(function(){
+        var sel = $('#quota_types input:checked',dialog).val();
+        var fields = $('div#'+sel+'_quota input,div#'+sel+'_quota select',dialog);
+        var json = {};
+
+        for (var i = 0; i < fields.length; i++){
+            var field = $(fields[i]);
+            var name = field.attr('name');
+            var value = field.val();
+            if (name == 'ID' && !value.length){
+                notifyError(tr("Please select an element"));
+                return false;
+            };
+            if (!value) value = 0;
+            json[name] = value;
+        };
+
+        json['TYPE'] = sel.toUpperCase();
+
+        var li = quotaListItem(json)
+        $('ul#quotas_ul_'+sel,dialog).append($(li).hide().fadeIn());
+        return false;
+    });
+
+    $('form', dialog).submit(function(){
+        var obj = {};
+        $('ul li',this).each(function(){
+            var json = JSON.parse($(this).attr('quota'));
+            var type = json['TYPE'];
+            delete json['TYPE'];
+            obj[type.toUpperCase()] = json;
+        });
+
+        var action = $('div.form_buttons button',this).val();
+        var sel_elems = SunstoneCfg["actions"][action].elements();
+        Sunstone.runAction(action,sel_elems,obj);
+        dialog.dialog('close');
+        return false;
+    });
+}
+
+function popUpQuotasDialog(dialog, resource, sel_elems){
+    var im_sel = makeSelectOptions(dataTable_images,1,4,[],[]);
+    var vn_sel = makeSelectOptions(dataTable_vNetworks,1,4,[],[]);
+    $('#datastore_quota select',dialog).html(datastores_sel());
+    $('#image_quota select',dialog).html(im_sel);
+    $('#network_quota select',dialog).html(vn_sel);
+
+
+    //If only one user is selected we fecth the user's quotas, otherwise we do nothing.
+    if (sel_elems.length == 1){
+        var id = sel_elems[0];
+        Sunstone.runAction(resource + '.fetch_quotas',id);
+    } else {
+        $('ul',dialog).empty();
+    };
+
+    dialog.dialog('open');
+}
+
+function setupQuotaIcons(){
+    $('.quota_edit_icon').live('click',function(){
+        var dialog = $(this).parents('form');
+        var li = $(this).parents('li');
+        var quota = JSON.parse(li.attr('quota'));
+        switch (quota.TYPE){
+            case "VM":
+            $('div#vm_quota input[name="VMS"]',dialog).val(quota.VMS);
+            $('div#vm_quota input[name="MEMORY"]',dialog).val(quota.MEMORY);
+            $('div#vm_quota input[name="CPU"]',dialog).val(quota.CPU);
+            break;
+            case "DATASTORE":
+            $('div#datastore_quota select[name="ID"]',dialog).val(quota.ID);
+            $('div#datastore_quota input[name="SIZE"]',dialog).val(quota.SIZE);
+            $('div#datastore_quota input[name="IMAGES"]').val(quota.IMAGES);
+            break;
+            case "IMAGE":
+            $('div#image_quota select[name="ID"]',dialog).val(quota.ID);
+            $('div#image_quota input[name="RVMS"]',dialog).val(quota.RVMS);
+            break;
+            case "NETWORK":
+            $('div#network_quota select[name="ID"]',dialog).val(quota.ID);
+            $('div#network_quota input[name="LEASES"]',dialog).val(quota.LEASES);
+            break;
+        }
+        $('div#quota_types input[value="'+quota.TYPE.toLowerCase()+'"]',dialog).trigger('click');
+        $(this).parents('li').fadeOut(function(){$(this).remove()});
+        return false;
+    });
+
+    $('.quota_remove_icon').live('click',function(){
+        $(this).parents('li').fadeOut(function(){$(this).remove()});
+        return false;
+    });
+}
+
+function parseQuotas(elem){
+    var quotas = [];
+    var results = {
+        VM : "",
+        DATASTORE : "",
+        IMAGE : "",
+        NETWORK : ""
+    }
+    //max 1 vm quota
+    if (!$.isEmptyObject(elem.VM_QUOTA)){
+        elem.VM_QUOTA.VM.TYPE = 'VM'
+        quotas.push(elem.VM_QUOTA.VM)
+    }
+
+    var ds_arr = []
+    if ($.isArray(elem.DATASTORE_QUOTA.DATASTORE)){
+        ds_arr = elem.DATASTORE_QUOTA.DATASTORE
+    } else if (!$.isEmptyObject(elem.DATASTORE_QUOTA)){
+        ds_arr = [elem.DATASTORE_QUOTA.DATASTORE]
+    }
+
+    for (var i = 0; i < ds_arr.length; i++){
+        ds_arr[i].TYPE = 'DATASTORE';
+        quotas.push(ds_arr[i]);
+    }
+
+    var im_arr = []
+    if ($.isArray(elem.IMAGE_QUOTA.IMAGE)){
+        im_arr = elem.IMAGE_QUOTA.IMAGE
+    } else if (!$.isEmptyObject(elem.IMAGE_QUOTA)){
+        im_arr = [elem.IMAGE_QUOTA.IMAGE]
+    }
+
+    for (var i = 0; i < im_arr.length; i++){
+        im_arr[i].TYPE = 'IMAGE';
+        quotas.push(im_arr[i]);
+    }
+
+    var vn_arr = []
+    if ($.isArray(elem.NETWORK_QUOTA)){
+        vn_arr = elem.NETWORK_QUOTA.NETWORK
+    } else if (!$.isEmptyObject(elem.NETWORK_QUOTA)){
+        vn_arr = [elem.NETWORK_QUOTA.NETWORK]
+    }
+
+    for (var i = 0; i < vn_arr.length; i++){
+        vn_arr[i].TYPE = 'NETWORK';
+        quotas.push(vn_arr[i]);
+    }
+
+    for (var i = 0; i < quotas.length; i++){
+        var li = quotaListItem(quotas[i]);
+        results[quotas[i].TYPE] += li;
+    }
+    return results;
+}
+
+//Receives a quota json object. Returns a nice string out of it.
+function quotaListItem(quota_json){
+    var value = JSON.stringify(quota_json)
+    var str = '<li quota=\''+value+'\'><pre style="margin:0;">';
+    switch(quota_json.TYPE){
+    case "VM":
+        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") +
+               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' (' + quota_json.MEMORY_USED + '). ' : ". ") +
+               'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ");
+        break;
+    case "DATASTORE":
+        str +=  'ID: ' + getDatastoreName(quota_json.ID) + '. ' +
+               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' (' + quota_json.SIZE_USED + '). ' : ". ") +
+               'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
+        break;
+    case "IMAGE":
+        str +=  'ID: ' + getImageName(quota_json.ID) + '. ' +
+               'RVMs: ' + quota_json.RVMS +  (quota_json.RVMS_USED ? ' (' + quota_json.RVMS_USED + '). ' : ". ");
+        break;
+    case "NETWORK":
+        str +=  'ID: ' + getVNetName(quota_json.ID) + '. ' +
+               'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
+        break;
+    }
+    str += '<i class="quota_edit_icon icon-pencil"></i> <i class="quota_remove_icon icon-remove"></i></pre></li>';
+    return str;
+}

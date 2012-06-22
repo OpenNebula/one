@@ -92,7 +92,16 @@ int ImageManager::acquire_image(Image *img, string& error)
     {
         case Image::READY:
             img->inc_running();
-            img->set_state(Image::USED);
+
+            if ( img->isPersistent() )
+            {
+                img->set_state(Image::USED_PERS);
+            }
+            else
+            {
+                img->set_state(Image::USED);
+            }
+
             ipool->update(img);
         break;
 
@@ -641,15 +650,24 @@ int ImageManager::stat_image(Template*     img_tmpl,
             break;
 
         case Image::DATABLOCK:
-            img_tmpl->get("SIZE", res);
+            img_tmpl->get("PATH", res);
 
-            if (res.empty())
+            if (res.empty())//no PATH
             {
-                res = "SIZE attribute is mandatory for DATABLOCK.";
-                return -1;
+                img_tmpl->get("SIZE", res);
+
+                if (res.empty())
+                {
+                    res = "Either SIZE or PATH are mandatory for DATABLOCK.";
+                    return -1;
+                }
+
+                return 0;
             }
-            
-            return 0;
+            else
+            {
+                img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
+            }
     }
 
     add_request(&sr);

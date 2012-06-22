@@ -90,7 +90,7 @@ if [ -n "$SHA1" ]; then
     HASHES="$HASHES --sha1 $SHA1"
 fi
 
-COPY_COMMAND="$UTILS_PATH/downloader.rb $HASHES $SRC -"
+COPY_COMMAND="$UTILS_PATH/downloader.sh $HASHES $SRC -"
 
 case $SRC in
 http://*)

@@ -60,6 +60,7 @@ public:
      */
     void del(Template* tmpl);
 
+protected:
     /**
      *  Gets a quota, overrides base to not to use ID.
      *    @param id of the quota, ignored
@@ -83,17 +84,10 @@ public:
             VectorAttribute **va,
             map<string, Attribute *>::iterator& it)
     {
-        it = attributes.end();
+        it = attributes.begin();
         return get_quota(id, va);
     }
 
-    /**
-     * Overrides base to not delete anything
-     *    @param it The quota iterator, ignored
-     */
-    void del(map<string, Attribute *>::iterator& it){}
-
-protected:
     static const char * VM_METRICS[];
 
     static const int NUM_VM_METRICS;

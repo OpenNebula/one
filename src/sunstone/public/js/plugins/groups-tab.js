@@ -17,6 +17,7 @@
 var groups_select="";
 var dataTable_groups;
 var $create_group_dialog;
+var $group_quotas_dialog;
 
 var groups_tab_content = '\
 <h2>'+tr("Groups")+'</h2>\
@@ -57,6 +58,69 @@ var create_group_tmpl =
         <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
       </div>\
   </fieldset>\
+</form>';
+
+var group_quotas_tmpl = '<form id="group_quotas_form" action="">\
+   <fieldset>\
+     <div>'+tr("Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them")+'.</div>\
+     <div>'+tr("Add quota")+':</div>\
+     <div id="quota_types">\
+           <label>'+tr("Quota type")+':</label>\
+           <input type="radio" name="quota_type" value="vm">'+tr("Virtual Machine")+'</input>\
+           <input type="radio" name="quota_type" value="datastore">'+tr("Datastore")+'</input>\
+           <input type="radio" name="quota_type" value="image">'+tr("Image")+'</input>\
+           <input type="radio" name="quota_type" value="network">'+tr("Network")+'</input>\
+      </div>\
+      <div id="vm_quota">\
+          <label>'+tr("Max VMs")+':</label>\
+          <input type="text" name="VMS"></input><br />\
+          <label>'+tr("Max Memory (MB)")+':</label>\
+          <input type="text" name="MEMORY"></input><br />\
+          <label>'+tr("Max CPU")+':</label>\
+          <input type="text" name="CPU"></input>\
+      </div>\
+      <div id="datastore_quota">\
+          <label>'+tr("Datastore")+'</label>\
+          <select name="ID"></select><br />\
+          <label>'+tr("Max size (MB)")+':</label>\
+          <input type="text" name="SIZE"></input><br />\
+          <label>'+tr("Max images")+':</label>\
+          <input type="text" name="IMAGES"></input>\
+      </div>\
+      <div id="image_quota">\
+          <label>'+tr("Image")+'</label>\
+          <select name="ID"></select><br />\
+          <label>'+tr("Max RVMs")+'</label>\
+          <input type="text" name="RVMS"></input>\
+      </div>\
+      <div id="network_quota">\
+          <label>'+tr("Network")+'</label>\
+          <select name="ID"></select><br />\
+          <label>'+tr("Max leases")+'</label>\
+          <input type="text" name="LEASES"></input>\
+      </div>\
+      <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
+      <div class="clear"></div>\
+      <div class="clear"></div>\
+      <div>'+tr("Current quotas")+':</div>\
+      <div class="current_quotas">\
+         <label>'+tr("VM quota")+':</label><br />\
+         <ul id="quotas_ul_vm">\
+         </ul>\
+         <label>'+tr("Datastore quotas")+':</label><br />\
+         <ul id="quotas_ul_datastore">\
+         </ul>\
+         <label>'+tr("Image quotas")+':</label><br />\
+         <ul id="quotas_ul_image">\
+         </ul>\
+         <label>'+tr("Network quotas")+':</label><br />\
+         <ul id="quotas_ul_network">\
+         </ul>\
+      </div>\
+      <div class="form_buttons">\
+           <button class="button" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
+      </div>\
+</fieldset>\
 </form>';
 
 
@@ -119,6 +183,34 @@ var group_actions = {
     //     error : onError,
     //     notify:true
     // },
+
+    "Group.fetch_quotas" : {
+        type: "single",
+        call: OpenNebula.Group.show,
+        callback: function (request,response) {
+            var parsed = parseQuotas(response.GROUP);
+            $('ul#quotas_ul_vm',$group_quotas_dialog).html(parsed.VM)
+            $('ul#quotas_ul_datastore',$group_quotas_dialog).html(parsed.DATASTORE)
+            $('ul#quotas_ul_image',$group_quotas_dialog).html(parsed.IMAGE)
+            $('ul#quotas_ul_network',$group_quotas_dialog).html(parsed.NETWORK)
+        },
+        error: onError
+    },
+
+    "Group.quotas_dialog" : {
+        type: "custom",
+        call: popUpGroupQuotasDialog
+    },
+
+    "Group.set_quota" : {
+        type: "multiple",
+        call: OpenNebula.Group.set_quota,
+        elements: groupElements,
+        callback: function() {
+            notifyMessage(tr("Quotas updated correctly"));
+        },
+        error: onError
+    },
     "Group.help" : {
         type: "custom",
         call: function() {
@@ -145,7 +237,10 @@ var group_buttons = {
     //     tip: "Select the new group owner:",
     //     condition : True
     // },
-
+    "Group.quotas_dialog" : {
+        type : "action",
+        text : tr("Update quotas")
+    },
     "Group.delete" : {
         type: "confirm",
         text: tr("Delete")
@@ -276,6 +371,19 @@ function popUpCreateGroupDialog(){
     return false;
 }
 
+function setupGroupQuotasDialog(){
+    dialogs_context.append('<div title="'+tr("Group quotas")+'" id="group_quotas_dialog"></div>');
+    $group_quotas_dialog = $('#group_quotas_dialog',dialogs_context);
+    var dialog = $group_quotas_dialog;
+    dialog.html(group_quotas_tmpl);
+
+    setupQuotasDialog(dialog);
+}
+
+function popUpGroupQuotasDialog(){
+    popUpQuotasDialog($group_quotas_dialog, 'Group', groupElements())
+}
+
 //Prepares the autorefresh
 function setGroupAutorefresh(){
     setInterval(function(){
@@ -312,6 +420,7 @@ $(document).ready(function(){
 
     Sunstone.runAction("Group.list");
     setupCreateGroupDialog();
+    setupGroupQuotasDialog();
     setGroupAutorefresh();
 
     initCheckAllBoxes(dataTable_groups);

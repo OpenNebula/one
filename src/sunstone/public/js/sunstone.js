@@ -309,6 +309,11 @@ $(document).ready(function(){
     //This dialog is shared to update templates
     setupTemplateUpdateDialog();
 
+    //Setup quota icons
+    //Live listeners not working when being added in specific
+    //context of users/groups dialog. Adding them globally then.
+    setupQuotaIcons();
+
     //Listen for .action_buttons
     //An action buttons runs a predefined action. If it has type
     //"multiple" it runs that action on the elements of a datatable.
@@ -372,6 +377,8 @@ $(document).ready(function(){
         hideDialog();
         return false;
     });
+
+
 
     //Start with the dashboard (supposing we have one).
     showTab('dashboard_tab');

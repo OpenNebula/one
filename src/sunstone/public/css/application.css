@@ -664,3 +664,11 @@ ul.action_list li a:hover{
     text-align:center;
     vertical-align:middle;
 }
+
+.quota_edit_icon:hover, .quota_remove_icon:hover {
+    cursor: pointer;
+}
+
+div.current_quotas ul{
+    list-style: none;
+}

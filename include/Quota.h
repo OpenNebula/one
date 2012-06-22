@@ -148,16 +148,11 @@ protected:
             map<string, Attribute *>::iterator& it);
 
     /**
-     * Deletes a quota from the index. The quota pointer is freed.
-     *    @param it The quota iterator, as returned by Quota::get_quota
+     * Checks if a quota has 0 limit and usage, and deletes it
+     *
+     * @param qid id of the quota
      */
-    virtual void del(map<string, Attribute *>::iterator& it)
-    {
-        Attribute * attr = it->second;
-        delete attr;
-
-        attributes.erase(it);
-    }
+    void cleanup_quota(const string& qid);
 
 private:
     /**
