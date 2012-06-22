@@ -40,14 +40,12 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     $DISK_XPATH/DRIVER \
                     $DISK_XPATH/TYPE \
                     $DISK_XPATH/READONLY \
-                    $DISK_XPATH/BUS \
                     $DISK_XPATH/CACHE)
 
 DRIVER="${XPATH_ELEMENTS[0]:-$DEFAULT_TYPE}"
 TYPE="${XPATH_ELEMENTS[1]}"
 READONLY="${XPATH_ELEMENTS[2]}"
-BUS="${XPATH_ELEMENTS[3]}"
-CACHE="${XPATH_ELEMENTS[4]}"
+CACHE="${XPATH_ELEMENTS[3]}"
 
 TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
@@ -68,7 +66,6 @@ cdrom)
 esac
 
 [ -n "$CACHE" ] && CACHE="cache='$CACHE'"
-[ -n "$BUS" ]   && BUS="bus='$BUS'"
 
 if [ "$READONLY" = "YES" ]; then
     READONLY="<readonly/>"
@@ -82,7 +79,7 @@ cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE' device='$DEVICE'>
   <driver name='qemu' type='$DRIVER' $CACHE/>
   <source $TYPE_SOURCE='$SOURCE'/>
-  <target dev='$TARGET' $BUS/>
+  <target dev='$TARGET'/>
   $READONLY
 </disk>
 EOF
