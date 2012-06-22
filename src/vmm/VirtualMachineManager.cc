@@ -1418,7 +1418,7 @@ error_driver:
 
 error_no_tm_command:
     os.str("");
-    os << "Cannot set disk to attach it to VM: " << error_os;
+    os << "Cannot set disk to attach it to VM: " << error_os.str();
     goto error_common;
 
 error_common:
