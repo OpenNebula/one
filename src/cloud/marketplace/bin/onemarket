@@ -37,6 +37,8 @@ require 'cli/cli_helper'
 require 'rubygems'
 require 'json'
 
+USER_AGENT = "CLI"
+
 #
 # Options
 #
@@ -113,7 +115,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         client = Market::ApplianceClient.new(
                     options[:username],
                     options[:password],
-                    options[:server])
+                    options[:server],
+                    USER_AGENT)
 
         response = client.list
 
@@ -142,7 +145,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         client = Market::ApplianceClient.new(
                     options[:username],
                     options[:password],
-                    options[:server])
+                    options[:server],
+                    USER_AGENT)
 
         response = client.create(File.read(args[0]))
 
@@ -165,7 +169,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         client = Market::ApplianceClient.new(
                     options[:username],
                     options[:password],
-                    options[:server])
+                    options[:server],
+                    USER_AGENT)
 
         response = client.show(args[0])
 

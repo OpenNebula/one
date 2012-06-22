@@ -19,12 +19,14 @@ require 'cloud/CloudClient'
 
 module Market
     class Client
-        def initialize(username, password, url)
+        def initialize(username, password, url, user_agent="Ruby")
             @username = username
             @password = password
-            url ||= 'http://localhost:9292/'
 
+            url ||= 'http://localhost:9292/'
             @uri = URI.parse(url)
+
+            @user_agent = "OpenNebula 3.5.80 (#{user_agent})"
         end
 
         def get(path)
@@ -47,6 +49,8 @@ module Market
                 req.basic_auth @username, @password
             end
 
+            req['User-Agent'] = @user_agent
+
             res = CloudClient::http_start(@uri, @timeout) do |http|
                 http.request(req)
             end
@@ -57,8 +61,8 @@ module Market
 
 
     class ApplianceClient < Client
-        def initialize(user, password, url)
-            super(user, password, url)
+        def initialize(user, password, url, agent)
+            super(user, password, url, agent)
         end
 
         def list
