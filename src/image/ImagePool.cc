@@ -296,15 +296,20 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
 
         transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
-        if ( type == "SWAP" || type == "FS" ) 
-        {
-            dev_prefix = _default_dev_prefix;
-            img_type   = Image::DATABLOCK;
-        }
-        else
+        if ( type != "SWAP" && type != "FS" ) 
         {
             error_str = "Unknown disk type " + type;
             return -1;
+        }
+
+        img_type   = Image::DATABLOCK;
+        dev_prefix = disk->vector_value("DEV_PREFIX");
+
+        if ( dev_prefix.empty() ) //DEV_PEFIX not in DISK, get default
+        {
+            dev_prefix = _default_dev_prefix;
+
+            disk->replace("DEV_PREFIX", dev_prefix);
         }
     }
 

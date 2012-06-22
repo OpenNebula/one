@@ -50,7 +50,6 @@ int LibVirtDriver::deployment_description_vmware(
 
     string  type       = "";
     string  target     = "";
-    string  bus        = "";
     string  ro         = "";
     string  source     = "";
     string  datastore  = "";
@@ -197,7 +196,6 @@ int LibVirtDriver::deployment_description_vmware(
         type   = disk->vector_value("TYPE");
         target = disk->vector_value("TARGET");
         ro     = disk->vector_value("READONLY");
-        bus    = disk->vector_value("BUS");
         source = disk->vector_value("SOURCE");
         driver = disk->vector_value("DRIVER");
         disk->vector_value_str("DISK_ID", disk_id);
@@ -224,6 +222,8 @@ int LibVirtDriver::deployment_description_vmware(
             transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
         }
 
+        // ---- Disk type and source for the image ----
+
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl;
@@ -243,16 +243,11 @@ int LibVirtDriver::deployment_description_vmware(
                  << "/disk." << disk_id << "/disk.vmdk'/>" << endl;
         }
 
-        file << "\t\t\t<target dev='" << target << "'";
+        // ---- target device to map the disk ----
 
-        if (!bus.empty())
-        {
-            file << " bus='" << bus << "'/>" << endl;
-        }
-        else
-        {
-            file << "/>" << endl;
-        }
+        file << "\t\t\t<target dev='" << target << "'/>" << endl;
+        
+        // ---- Image Format using qemu driver ----
 
         if ( !driver.empty() )
         {
@@ -266,6 +261,8 @@ int LibVirtDriver::deployment_description_vmware(
                         default_driver << "'/>" << endl;
             }
         }
+
+        // ---- readonly attribute for the disk ----
 
         if (readonly)
         {

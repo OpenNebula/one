@@ -394,7 +394,6 @@ public:
     /**
      * Modifies the given disk attribute adding the following attributes:
      *  * SOURCE: the file-path.
-     *  * BUS:    will only be set if the Image's definition includes it.
      *  * TARGET: will only be set if the Image's definition includes it.
      *
      * @param disk attribute for the VM template

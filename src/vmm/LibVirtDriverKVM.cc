@@ -304,7 +304,6 @@ int LibVirtDriver::deployment_description_kvm(
         type   = disk->vector_value("TYPE");
         target = disk->vector_value("TARGET");
         ro     = disk->vector_value("READONLY");
-        bus    = disk->vector_value("BUS");
         driver = disk->vector_value("DRIVER");
         cache  = disk->vector_value("CACHE");
         disk->vector_value_str("DISK_ID", disk_id);
@@ -354,18 +353,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- target device to map the disk ----
 
-        file << "\t\t\t<target dev='" << target << "'";
-
-        // ---- bus ----
-
-        if (!bus.empty())
-        {
-            file << " bus='" << bus << "'/>" << endl;
-        }
-        else
-        {
-            file << "/>" << endl;
-        }
+        file << "\t\t\t<target dev='" << target << "'/>" << endl;
 
         // ---- readonly attribute for the disk ----
 

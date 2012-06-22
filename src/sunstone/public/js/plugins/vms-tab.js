@@ -1249,7 +1249,6 @@ function hotpluggingOps(){
             }
             disk_obj.IMAGE_ID = $('select[name="IMAGE_ID"]',this).val();
             disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
-            disk_obj.BUS = 'scsi';
             break;
         case "volatile":
             disk_obj.SIZE = $('input[name="SIZE"]',this).val();
