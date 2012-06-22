@@ -426,7 +426,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
                             ImageType&        img_type,
                             string&           dev_prefix)
 {
-    string bus;
     string target;
     string driver;
     string disk_attr_type;
@@ -434,17 +433,14 @@ int Image::disk_attribute(  VectorAttribute * disk,
     ostringstream iid;
 
     img_type   = type;
-    bus        = disk->vector_value("BUS");
     target     = disk->vector_value("TARGET");
     driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
     iid << oid;
 
-    string template_bus;
     string template_target;
     string template_driver;
 
-    get_template_attribute("BUS",    template_bus);
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
 
@@ -467,11 +463,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     disk->replace("IMAGE",    name);
     disk->replace("IMAGE_ID", iid.str());
     disk->replace("SOURCE",   source);
-
-    if (bus.empty() && !template_bus.empty()) //BUS in Image, not in DISK
-    {
-        disk->replace("BUS",template_bus);
-    }
 
     if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {
