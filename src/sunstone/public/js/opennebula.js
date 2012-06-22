@@ -679,6 +679,16 @@ var OpenNebula = {
         },
         "monitor_all" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.VM.resource,true);
+        },
+        "attachdisk" : function(params){
+            var action_obj = {"disk_template": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "attachdisk",action_obj);
+        },
+        "detachdisk" : function(params){
+            var action_obj = {"disk_id": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "detachdisk",action_obj);
         }
     },
 

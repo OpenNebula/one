@@ -665,7 +665,8 @@ ul.action_list li a:hover{
     vertical-align:middle;
 }
 
-.quota_edit_icon:hover, .quota_remove_icon:hover {
+.quota_edit_icon:hover, .quota_remove_icon:hover,
+.detach_disk:hover, .attach_disk:hover{
     cursor: pointer;
 }
 

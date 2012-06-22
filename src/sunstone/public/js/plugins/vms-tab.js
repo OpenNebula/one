@@ -88,6 +88,9 @@ var vms_tab_content = '\
   <p class="legend_p">\
 '+tr("VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information.")+'\
   </p>\
+  <p class="legend_p">\
+'+tr("You can hotplug and detach existing disks from running VMs from the Disks & Hotplugging tab in the VM information dialog.")+'\
+  </p>\
 </div>\
 </form>';
 
@@ -479,6 +482,22 @@ var vm_actions = {
         error: onError,
         notify: true
     },
+    "VM.attachdisk" : {
+        type: "single",
+        call: OpenNebula.VM.attachdisk,
+        callback: vmShow,
+        error: onError,
+        notify: true
+    },
+    "VM.detachdisk" : {
+        type: "single",
+        call: OpenNebula.VM.detachdisk,
+        callback: function(req,res){
+            setTimeout(vmShow,1000,req);
+        },
+        error: onError,
+        notify: true
+    },
     "VM.help" : {
         type: "custom",
         call: function() {
@@ -629,6 +648,10 @@ var vm_buttons = {
 var vm_info_panel = {
     "vm_info_tab" : {
         title: tr("Virtual Machine information"),
+        content: ""
+    },
+    "vm_hotplugging_tab" : {
+        title: tr("Disks & Hotplugging"),
         content: ""
     },
     "vm_template_tab" : {
@@ -821,6 +844,11 @@ function updateVMachineElement(request, vm_json){
     var id = vm_json.VM.ID;
     var element = vMachineElementArray(vm_json);
     updateSingleElement(element,dataTable_vMachines,'#vm_'+id)
+
+    //we update this too, even if it is not shown.
+    var $hotplugging_tab = $('div#vm_info_panel div#vm_hotplugging_tab');
+    $('#hotplugging_form',$hotplugging_tab).replaceWith(printDisks(vm_json.VM));
+    $('tr.at_volatile',$hotplugging_tab).hide();
 }
 
 // Callback to delete a single element from the list
@@ -1014,6 +1042,11 @@ function updateVMInfo(request,vm){
                 </table>'
     };
 
+    var hotplugging_tab = {
+        title: tr("Disks & Hotplugging"),
+        content: printDisks(vm_info)
+    };
+
     var template_tab = {
         title: tr("VM Template"),
         content:
@@ -1039,6 +1072,7 @@ function updateVMInfo(request,vm){
     };
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_history_tab",history_tab);
@@ -1050,6 +1084,187 @@ function updateVMInfo(request,vm){
     for (var i=0; i<vm_graphs.length; i++){
         Sunstone.runAction("VM.monitor",vm_info.ID,vm_graphs[i]);
     };
+
+    var $hotplugging_tab = $('div#vm_info_panel div#vm_hotplugging_tab');
+    $('tr.at_volatile',$hotplugging_tab).hide();
+    $('tr.at_image',$hotplugging_tab).show();
+}
+
+//Generates the HTML for the hotplugging tab
+function printDisks(vm_info){
+    var im_sel = makeSelectOptions(dataTable_images,
+                                   1, //id col - trick -> reference by name!
+                                   4, //name col
+                                   [10,10,10],
+                                   [tr("DISABLED"),tr("LOCKED"),tr("ERROR")]
+                                  );
+   var html ='\
+   <form style="display:inline-block;width:80%" id="hotplugging_form" vmid="'+vm_info.ID+'">\
+     <table class="info_table">\
+       <thead>\
+         <tr><th colspan="2">'+tr("Disks information")+'</th></tr>\
+       </thead>\
+       <tbody>\
+       ';
+
+
+    var disks = []
+    if ($.isArray(vm_info.TEMPLATE.DISK))
+        disks = vm_info.TEMPLATE.DISK
+    else if (!$.isEmptyObject(vm_info.TEMPLATE.DISK))
+        disks = [vm_info.TEMPLATE.DISK]
+
+    if (!disks.length){
+        html += '<tr id="no_disks_tr"><td class="key_td">\
+                   '+tr("No disks to show")+'\
+                   </td><td class="value_td"></td></tr>';
+        html += '</tbody></table></form>';
+        return html;
+    }
+
+    for (var i = 0; i < disks.length; i++){
+        var disk = disks[i];
+        html += '<tr disk_id="'+(disk.DISK_ID)+'"><td class="key_td">';
+        html += disk.DISK_ID + ' - ' +
+            (disk.IMAGE ? disk.IMAGE : "Volatile") + '</td>';
+        html += '<td class="value_td"><span>'+disk.TYPE+'</span>';
+        html += ' <i class="icon-trash detach_disk"></i></td></tr>';
+    }
+
+    html += '</tbody>\
+     </table>';
+
+    if (vm_info.STATE != "3"){
+        html +='</form>';
+        return html;
+    }
+
+    html += '<table class="info_table">\
+       <thead>\
+         <tr><th colspan="2">'+tr("Attach disk to running VM")+'</th></tr>\
+       </thead>\
+       <tbody>\
+         <tr><td class="key_td"><label>'+tr("Type")+':</label></td>\
+             <td class="value_td">\
+                 <select id="attach_disk_type">\
+                    <option value="image">'+tr("Existing image")+'</option>\
+<!--             <option value="volatile">'+tr("Volatile disk")+'</option>-->\
+                 </select>\
+             </td>\
+        </tr>\
+         <tr class="at_image"><td class="key_td"><label>'+tr("Select image")+':</label></td>\
+             <td class="value_td">\
+                   <select name="IMAGE_ID">\
+                   '+im_sel+'\
+                   </select>\
+             </td>\
+         </tr>\
+         <tr class="at_volatile"><td class="key_td"><label>'+tr("Size")+':</label></td>\
+             <td class="value_td">\
+                <input type="text" name="SIZE"></input>\
+             </td>\
+         </tr>\
+         <tr class="at_volatile"><td class="key_td"><label>'+tr("Format")+':</label></td>\
+             <td class="value_td">\
+                <input type="text" name="FORMAT"></input>\
+             </td>\
+         </tr>\
+         <tr class="at_volatile"><td class="key_td"><label>'+tr("Type")+':</label></td>\
+             <td class="value_td">\
+                   <select name="TYPE">\
+                       <option value="swap">'+tr("swap")+'</option>\
+                       <option value="fs">'+tr("fs")+'</option>\
+                   </select>\
+             </td>\
+         </tr>\
+         <tr class="at_volatile at_image"><td class="key_td"><label>'+tr("Device prefix")+':</label></td>\
+             <td class="value_td">\
+                <input type="text" name="DEV_PREFIX" value="sd"></input>\
+             </td>\
+         </tr>\
+         <tr class="at_volatile"><td class="key_td"><label>'+tr("Readonly")+':</label></td>\
+             <td class="value_td">\
+                   <select name="READONLY">\
+                       <option value="NO">'+tr("No")+'</option>\
+                       <option value="YES">'+tr("Yes")+'</option>\
+                   </select>\
+             </td>\
+        </tr>\
+        <tr class="at_volatile"><td class="key_td"><label>'+tr("Save")+':</label></td>\
+             <td class="value_td">\
+                   <select name="SAVE">\
+                       <option value="NO">'+tr("No")+'</option>\
+                       <option value="YES">'+tr("Yes")+'</option>\
+                   </select>\
+             </td>\
+        </tr>\
+        <tr><td class="key_td"></td>\
+             <td class="value_td">\
+                   <button type="submit" value="VM.attachdisk">Attach</button>\
+             </td>\
+        </tr>\
+       </tbody>\
+     </table></form>';
+
+    return html;
+}
+
+function hotpluggingOps(){
+    $('i.detach_disk').live('click', function(){
+        var i = $(this);
+        var vm_id = i.parents('form').attr('vmid');
+        var disk_id = i.parents('tr').attr('disk_id');
+        var parent = i.parent();
+
+        Sunstone.runAction('VM.detachdisk', vm_id, disk_id);
+
+        i.remove();
+        parent.append(spinner);
+        return false;
+    });
+
+    $('select#attach_disk_type').live('change',function(){
+        var context = $(this).parents('form');
+        switch ($(this).val()){
+        case "image":
+            $('tr.at_volatile',context).hide();
+            $('tr.at_image',context).show();
+            break;
+        case "volatile":
+            $('tr.at_image',context).hide();
+            $('tr.at_volatile',context).show();
+            break;
+        };
+    });
+
+    $('#hotplugging_form').live('submit',function(){
+        var vm_id = $(this).attr('vmid');
+        var disk_obj = {};
+        switch($('select#attach_disk_type',this).val()){
+        case "image":
+            var im_id = $('select[name="IMAGE_ID"]',this).val();
+            if (!im_id) {
+                notifyError(tr("Please select an image to attach"));
+                return false;
+            }
+            disk_obj.IMAGE_ID = $('select[name="IMAGE_ID"]',this).val();
+            disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
+            disk_obj.BUS = 'scsi';
+            break;
+        case "volatile":
+            disk_obj.SIZE = $('input[name="SIZE"]',this).val();
+            disk_obj.FORMAT = $('input[name="FORMAT"]',this).val();
+            disk_obj.TYPE = $('select[name="TYPE"]',this).val();
+            disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
+            disk_obj.READONLY = $('select[name="READONLY"]',this).val();
+            disk_obj.SAVE = $('save[name="SAVE"]',this).val();
+            break;
+        }
+
+        var obj = { DISK : disk_obj };
+        Sunstone.runAction("VM.attachdisk", vm_id, obj);
+        return false;
+    });
 }
 
 // Sets up the create-template dialog and all the processing associated to it,
@@ -1526,6 +1741,7 @@ $(document).ready(function(){
     setupSaveasDialog();
     setVMAutorefresh();
     setupVNC();
+    hotpluggingOps();
 
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

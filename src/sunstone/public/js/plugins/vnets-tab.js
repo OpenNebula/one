@@ -617,8 +617,6 @@ function updateVNetworkInfo(request,vn){
          '</table>';
 
 
-    var leases_tab_content = printLeases(vn_info);
-
     var info_tab = {
         title: tr("Virtual Network information"),
         content: info_tab_content
@@ -626,7 +624,7 @@ function updateVNetworkInfo(request,vn){
 
     var leases_tab = {
         title: "Lease management",
-        content: leases_tab_content
+        content: printLeases(vn_info)
     };
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
@@ -675,6 +673,7 @@ function printLeases(vn_info){
                    </td>\
                <td class="value_td">\
                    </td></tr>';
+        html += '</tbody></table></form>';
         return html;
     }
     else if (leases.constructor != Array) //>1 lease
