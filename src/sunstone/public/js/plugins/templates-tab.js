@@ -188,7 +188,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 \
 \
                           <!--disks section using image or declaring\
-                          image, image ID, bus, target, driver\
+                          image, image ID, target, driver\
                           type, source, size, format, clone, save,\
                           readonly  SEVERAL DISKS-->\
                           <div class="vm_section" id="disks">\
@@ -210,12 +210,6 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   </select>\
                                   <div class="tip">'+tr("Name of the image to use")+'</div>\
                                   <input type="hidden" id="IMAGE_UNAME" name="image_uname" value=""/>\
-                            </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="BUS">'+tr("Bus")+':</label>\
-                                  <select id="BUS" name="bus">\
-                                  </select>\
-                                  <div class="tip">'+tr("Type of disk device to emulate: ide, scsi")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="TARGET">'+tr("Target")+':</label>\
@@ -1020,7 +1014,6 @@ function setupCreateTemplateDialog(){
         //empty selects
         $('select#BOOT',section_os_boot).empty();
         $('select#TYPE',section_disks).empty();
-        $('select#BUS',section_disks).empty();
 
         //hide options about boot method
         $('div#kernel_bootloader',section_os_boot).show();
@@ -1082,7 +1075,6 @@ function setupCreateTemplateDialog(){
         //KVM particularities:
         // * Add custom disk types
         // * Add custom boot options
-        // * Add custom bus options
         // * Show boot options
         // * Set the raw type to kvm
         // * Show the inputs and graphics section
@@ -1108,13 +1100,6 @@ function setupCreateTemplateDialog(){
         $('select#BOOT',section_os_boot).parent().show();
         $('select#boot_method option#no_boot',section_os_boot).html(tr("Driver default"));
 
-        var bus_opts =
-                '<option value="ide">'+tr("IDE")+'</option>\
-                <option value="scsi">'+tr("SCSI")+'</option>\
-                <option value="virtio">'+tr("Virtio")+'</option>';
-
-        $('select#BUS',section_disks).html(bus_opts);
-
         $('input#TYPE', section_raw).val("kvm");
 
         $(section_inputs).show();
@@ -1130,7 +1115,6 @@ function setupCreateTemplateDialog(){
         // XEN particularities:
         // * Add custom disk types
         // * Remove driver default boot method
-        // * Add custom bus types
         // * Set the raw section to XEN
         // * Show the graphics section
 
@@ -1146,12 +1130,6 @@ function setupCreateTemplateDialog(){
 
         $('select#boot_method option#no_boot',section_os_boot).html(tr("Please choose"));
 
-        var bus_opts =
-                '<option value="ide">'+tr("IDE")+'</option>\
-                <option value="scsi">'+tr("SCSI")+'</option>';
-
-        $('select#BUS',section_disks).html(bus_opts);
-
         $('input#TYPE', section_raw).val("xen");
     };
 
@@ -1165,7 +1143,6 @@ function setupCreateTemplateDialog(){
         //VMWARE particularities
         // * Add custom disk types
         // * Hide boot method field
-        // * Add custom bus types
         // * Set the raw type to vmware
 
         var type_opts =
@@ -1177,11 +1154,6 @@ function setupCreateTemplateDialog(){
 
         $('div#kernel_bootloader',section_os_boot).hide();
 
-        var bus_opts =
-                '<option value="ide">'+tr("IDE")+'</option>\
-                <option value="scsi">'+tr("SCSI")+'</option>';
-
-        $('select#BUS',section_disks).html(bus_opts);
         $('input#TYPE', section_raw).val("vmware");
     };
 

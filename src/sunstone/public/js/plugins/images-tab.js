@@ -99,15 +99,6 @@ var create_image_tmpl =
                   <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</div>\
                </div>\
                <div class="img_param">\
-                 <label for="img_bus">'+tr("Bus")+':</label>\
-                 <select name="img_bus" id="img_bus">\
-                    <option value="ide">'+tr("IDE")+'</option>\
-                    <option value="scsi">'+tr("SCSI")+'</option>\
-                    <option value="virtio">'+tr("Virtio (KVM)")+'</option>\
-                 </select>\
-                 <div class="tip">'+tr("Type of disk device to emulate.")+'</div>\
-                 </div>\
-               <div class="img_param">\
                   <label for="img_driver">'+tr("Driver")+':</label>\
                   <input type="text" name="img_driver" id="img_driver" />\
                   <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
@@ -908,9 +899,6 @@ function setupCreateImageDialog(){
         if (dev_prefix.length){
             img_json["DEV_PREFIX"] = dev_prefix;
         }
-
-        var bus = $('#img_bus',this).val();
-        img_json["BUS"] = bus;
 
         var driver = $('#img_driver',this).val();
         if (driver.length)
