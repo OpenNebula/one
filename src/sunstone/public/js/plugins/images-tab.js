@@ -17,7 +17,7 @@
 /*Images tab plugin*/
 
 var images_tab_content = '\
-<h2>'+tr("Images")+'</h2>\
+<h2><i class="icon-upload"></i> '+tr("Images")+'</h2>\
 <form id="image_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\

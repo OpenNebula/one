@@ -53,12 +53,12 @@ var infra_tab_content =
       <div class="panel">\
         <h3>' + tr("Quickstart") + '</h3>\
         <div class="panel_info dashboard_p">\
-             <p></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon cluster_related" /><a class="action_button cluster_related" href="#clusters_tab" value="Cluster.create_dialog">'+tr("Create new Cluster")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new Host")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new Datastore")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new Virtual Network")+'</a></br>\
-             </p>\
+             <ul>\
+               <li><a class="action_button cluster_related" href="#clusters_tab" value="Cluster.create_dialog">'+tr("Create new Cluster")+'</a></li>\
+               <li><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new Host")+'</a></li>\
+               <li><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new Datastore")+'</a></li>\
+               <li><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new Virtual Network")+'</a></li>\
+             </ul>\
         </div>\
       </div>\
     </td>\
@@ -75,10 +75,10 @@ var infra_tab_content =
             <p><img src="images/network_icon.png" style="float:right;" alt="network icon"/>'+tr("The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well.")+'</p>\
             <p>'+tr("You can find further information on the following links:")+'</p>\
             <ul>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:hostsubsystem" target="_blank">Host subsystem</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:host_guide" target="_blank">Managing Hosts</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:nm" target="_blank">Networking subsystem</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:cluster_guide" target="_blank">Managing Clusters</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:hostsubsystem" target="_blank">Host subsystem</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:host_guide" target="_blank">Managing Hosts</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:nm" target="_blank">Networking subsystem</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:cluster_guide" target="_blank">Managing Clusters</a></li>\
             </ul>\
         </div>\
       </div>\

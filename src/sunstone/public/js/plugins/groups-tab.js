@@ -20,7 +20,7 @@ var $create_group_dialog;
 var $group_quotas_dialog;
 
 var groups_tab_content = '\
-<h2>'+tr("Groups")+'</h2>\
+<h2><i class="icon-group"></i> '+tr("Groups")+'</h2>\
 <form id="group_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\

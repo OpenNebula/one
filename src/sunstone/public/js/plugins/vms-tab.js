@@ -56,7 +56,7 @@ var netUsage = {
 }
 
 var vms_tab_content = '\
-<h2>'+tr("Virtual Machines")+'</h2>\
+<h2><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h2>\
 <form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
@@ -441,15 +441,7 @@ var vm_actions = {
         },
         error: vmMonitorError
     },
-    "VM.monitor_all" : {
-        type: "monitor_global",
-        call: OpenNebula.VM.monitor_all,
-        callback: function(req,response) {
-            var info = req.request.data[0].monitor;
-            plot_global_graph(response,info);
-        },
-        error: onError
-    },
+
     "VM.chown" : {
         type: "multiple",
         call: OpenNebula.VM.chown,
@@ -697,7 +689,7 @@ SunstoneMonitoringConfig['VM'] = {
         netUsage.up = monitoring['netUsageBar'][1].data[0][0]
         netUsage.down = monitoring['netUsageBar'][0].data[0][0]
 
-        if (!$dashboard.is(':visible')) return;
+        //if (!$dashboard.is(':visible')) return;
 
         var container = $('div#vmStatePie',$dashboard);
         SunstoneMonitoring.plot('VM',
@@ -1085,7 +1077,8 @@ function updateVMInfo(request,vm){
         Sunstone.runAction("VM.monitor",vm_info.ID,vm_graphs[i]);
     };
 
-    var $hotplugging_tab = $('div#vm_info_panel div#vm_hotplugging_tab');
+    var $info_panel = $('div#vm_info_panel');
+    var $hotplugging_tab = $('div#vm_hotplugging_tab', $info_panel);
     $('tr.at_volatile',$hotplugging_tab).hide();
     $('tr.at_image',$hotplugging_tab).show();
 }
@@ -1099,7 +1092,7 @@ function printDisks(vm_info){
                                    [tr("DISABLED"),tr("LOCKED"),tr("ERROR")]
                                   );
    var html ='\
-   <form style="display:inline-block;width:80%" id="hotplugging_form" vmid="'+vm_info.ID+'">\
+   <form style="display:inline-block;width:100%" id="hotplugging_form" vmid="'+vm_info.ID+'">\
      <table class="info_table">\
        <thead>\
          <tr><th colspan="2">'+tr("Disks information")+'</th></tr>\
@@ -1146,7 +1139,7 @@ function printDisks(vm_info){
        <tbody>\
          <tr><td class="key_td"><label>'+tr("Type")+':</label></td>\
              <td class="value_td">\
-                 <select id="attach_disk_type">\
+                 <select id="attach_disk_type" style="width:12em;">\
                     <option value="image">'+tr("Existing image")+'</option>\
 <!--             <option value="volatile">'+tr("Volatile disk")+'</option>-->\
                  </select>\
@@ -1154,24 +1147,24 @@ function printDisks(vm_info){
         </tr>\
          <tr class="at_image"><td class="key_td"><label>'+tr("Select image")+':</label></td>\
              <td class="value_td">\
-                   <select name="IMAGE_ID">\
+                   <select name="IMAGE_ID" style="width:12em;">\
                    '+im_sel+'\
                    </select>\
              </td>\
          </tr>\
          <tr class="at_volatile"><td class="key_td"><label>'+tr("Size")+':</label></td>\
              <td class="value_td">\
-                <input type="text" name="SIZE"></input>\
+                <input type="text" name="SIZE" style="width:8em;"></input>\
              </td>\
          </tr>\
          <tr class="at_volatile"><td class="key_td"><label>'+tr("Format")+':</label></td>\
              <td class="value_td">\
-                <input type="text" name="FORMAT"></input>\
+                <input type="text" name="FORMAT" style="width:8em;"></input>\
              </td>\
          </tr>\
          <tr class="at_volatile"><td class="key_td"><label>'+tr("Type")+':</label></td>\
              <td class="value_td">\
-                   <select name="TYPE">\
+                   <select name="TYPE" style="width:12em;">\
                        <option value="swap">'+tr("swap")+'</option>\
                        <option value="fs">'+tr("fs")+'</option>\
                    </select>\
@@ -1179,12 +1172,12 @@ function printDisks(vm_info){
          </tr>\
          <tr class="at_volatile at_image"><td class="key_td"><label>'+tr("Device prefix")+':</label></td>\
              <td class="value_td">\
-                <input type="text" name="DEV_PREFIX" value="sd"></input>\
+                <input type="text" name="DEV_PREFIX" value="sd" style="width:8em;"></input>\
              </td>\
          </tr>\
          <tr class="at_volatile"><td class="key_td"><label>'+tr("Readonly")+':</label></td>\
              <td class="value_td">\
-                   <select name="READONLY">\
+                   <select name="READONLY" style="width:12em;">\
                        <option value="NO">'+tr("No")+'</option>\
                        <option value="YES">'+tr("Yes")+'</option>\
                    </select>\
@@ -1192,7 +1185,7 @@ function printDisks(vm_info){
         </tr>\
         <tr class="at_volatile"><td class="key_td"><label>'+tr("Save")+':</label></td>\
              <td class="value_td">\
-                   <select name="SAVE">\
+                   <select name="SAVE" style="width:12em;">\
                        <option value="NO">'+tr("No")+'</option>\
                        <option value="YES">'+tr("Yes")+'</option>\
                    </select>\

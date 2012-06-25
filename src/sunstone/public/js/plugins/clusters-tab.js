@@ -18,7 +18,7 @@
 
 
 var clusters_tab_content = '\
-<h2>'+tr("Clusters")+'</h2>\
+<h2><i class="icon-copy"></i> '+tr("Clusters")+'</h2>\
 <form id="form_cluters" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
@@ -496,8 +496,8 @@ function clusterTabContent(cluster_json) {
               <td class="key_td">' + tr("Hosts CPU Usage") + '</td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="globalCpuUsage'+cluster.ID+'" style="float:left;width:50%;height:100px;"></div>\
-                              <div id="statePie'+cluster.ID+'" style="float:right;width:50%;height:100px;"></div></td>\
+              <td colspan="2"><div id="statePie'+cluster.ID+'" style="float:left;width:50%;height:100px;"></div>\
+                              <div id="globalCpuUsage'+cluster.ID+'" style="float:right;width:50%;height:100px;"></div></td>\
             </tr>\
 \
             <tr>\
@@ -534,10 +534,11 @@ function clusterTabContent(cluster_json) {
       <div class="panel">\
         <h3>' + tr("Hosts") + '</h3>\
         <div class="panel_info">\
-<br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new host")+'</a><br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#hosts_tab">'+tr("Manage unclustered hosts")+'</a><br /></p>\
-\
+          <ul>\
+             <li><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new host")+'</a></li>\
+             <li><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new host")+'</a></li>\
+             <li><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#hosts_tab">'+tr("Manage unclustered hosts")+'</a></li>\
+          </ul>\
       </div>\
     </td>\
   </tr>\
@@ -546,9 +547,10 @@ function clusterTabContent(cluster_json) {
       <div class="panel">\
         <h3>' + tr("Datastores") + '</h3>\
         <div class="panel_info">\
-<br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new datastore")+'</a><br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#datastores_tab">'+tr("Manage unclustered datastores")+'</a><br /></p>\
+            <ul>\
+                <li><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new datastore")+'</a></li>\
+                <li><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#datastores_tab">'+tr("Manage unclustered datastores")+'</a></li>\
+            </ul>\
         </div>\
       </div>\
     </td>\
@@ -558,9 +560,10 @@ function clusterTabContent(cluster_json) {
       <div class="panel">\
         <h3>' + tr("Virtual Networks") + '</h3>\
         <div class="panel_info">\
-<br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new virtual network")+'</a><br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#vnets_tab">'+tr("Manage unclustered virtual networks")+'</a><br /></p>\
+          <ul>\
+             <li><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new virtual network")+'</a></li>\
+             <li><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#vnets_tab">'+tr("Manage unclustered virtual networks")+'</a></li>\
+          </ul>\
         </div>\
       </div>\
     </td>\
@@ -599,8 +602,9 @@ function clusterTabContent(cluster_json) {
               <td class="key_td">' + tr("Hosts CPU Usage") + '</td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="globalCpuUsage'+cluster.ID+'" style="float:left;width:50%;height:100px;"></div>\
-                              <div id="statePie'+cluster.ID+'" style="float:right;width:50%;height:100px;"></div></td>\
+              <td colspan="2">\
+                   <div id="statePie'+cluster.ID+'" style="float:left;width:50%;height:100px;">'+tr("No monitoring information available")+'</div>\
+                   <div id="globalCpuUsage'+cluster.ID+'" style="float:right;width:50%;height:100px;">'+tr("No monitoring information available")+'</div></td>\
             </tr>\
 \
             <tr>\
@@ -639,8 +643,9 @@ function clusterTabContent(cluster_json) {
         <div class="panel_info">\
 \
           <p><br />'+tr("Current number of hosts in this cluster")+': '+hosts_n+'.</p><p>\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new host")+'</a><br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#hosts_tab">'+tr("Manage cluster hosts")+'</a><br /></p>\
+          <ul>\
+             <li><a class="action_button" href="#hosts_tab" value="Host.create_dialog">'+tr("Create new host")+'</a></li>\
+             <li><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#hosts_tab">'+tr("Manage cluster hosts")+'</a></li>\
 \
       </div>\
     </td>\
@@ -653,8 +658,10 @@ function clusterTabContent(cluster_json) {
 \
            <p><br />'+tr("Current number of datastores in this cluster")+': '+dss_n+'.</p><p>\
 \
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new datastore")+'</a><br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#datastores_tab">'+tr("Manage cluster datastores")+'</a><br /></p>\
+          <ul>\
+             <li><a class="action_button" href="#datastores_tab" value="Datastore.create_dialog">'+tr("Create new datastore")+'</a></li>\
+             <li><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#datastores_tab">'+tr("Manage cluster datastores")+'</a></li>\
+          </ul>\
         </div>\
       </div>\
     </td>\
@@ -667,8 +674,10 @@ function clusterTabContent(cluster_json) {
 \
            <p><br />'+tr("Current number of virtual networks in this cluster")+': '+vnets_n+'.</p><p>\
 \
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new virtual network")+'</a><br />\
-          <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#vnets_tab">'+tr("Manage cluster virtual networks")+'</a><br /></p>\
+          <ul>\
+             <li><a class="action_button" href="#vnets_tab" value="Network.create_dialog">'+tr("Create new virtual network")+'</a></li>\
+             <li><a class="show_tab_button" filter_id="'+cluster.ID+'" href="#vnets_tab">'+tr("Manage cluster virtual networks")+'</a></li>\
+          </ul>\
         </div>\
       </div>\
     </td>\
@@ -754,10 +763,6 @@ function newClusterMenuElement(element){
     };
 */
     Sunstone.addMainTab('cluster_tab_'+cluster.ID,menu_cluster,true);
-    $('li#li_cluster_tab_'+cluster.ID).click(function(){
-        $('div#cluster_tab_'+cluster.ID+' div.plot').trigger('resize');
-    });
-
 
 //    Sunstone.addMainTab('cluster_hosts_tab_'+cluster.ID,submenu_hosts,true);
 //    Sunstone.addMainTab('cluster_datastores_tab_'+cluster.ID,submenu_datastores,true);
@@ -813,118 +818,6 @@ function clusterResourceViewListeners(){
 */
 };
 
-/*
-//Updates the host info panel tab content and pops it up
-function updateHostInfo(request,host){
-    var host_info = host.HOST;
-
-    //Information tab
-    var info_tab = {
-        title : tr("Host information"),
-        content :
-        '<table id="info_host_table" class="info_table">\
-            <thead>\
-               <tr><th colspan="2">' + tr("Host information") + ' - '+host_info.NAME+'</th></tr>\
-            </thead>\
-            <tbody>\
-            <tr>\
-                <td class="key_td">' + tr("id") + '</td>\
-                <td class="value_td">'+host_info.ID+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Name") + '</td>\
-                <td class="value_td">'+host_info.NAME+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Cluster") + '</td>\
-                <td class="value_td">'+host_info.CLUSTER+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("State") + '</td>\
-                <td class="value_td">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("IM MAD") + '</td>\
-                <td class="value_td">'+host_info.IM_MAD+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">' + tr("VM MAD") + '</td>\
-                <td class="value_td">'+host_info.VM_MAD+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">'+ tr("VN MAD") +'</td>\
-                <td class="value_td">'+host_info.VN_MAD+'</td>\
-            </tr>\
-            <tr>\
-                <td class="key_td">'+ tr("TM MAD") +'</td>\
-                <td class="value_td">'+host_info.TM_MAD+'</td>\
-            </tr>\
-            </tbody>\
-         </table>\
-         <table id="host_shares_table" class="info_table">\
-            <thead>\
-               <tr><th colspan="2">' + tr("Host shares") + '</th></tr>\
-            </thead>\
-            <tbody>\
-               <tr>\
-                  <td class="key_td">' + tr("Max Mem") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used Mem (real)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used CPU (real)") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Running VMs") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
-               </tr>\
-            </tbody>\
-          </table>'
-    }
-
-    //Template tab
-    var template_tab = {
-        title : tr("Host template"),
-        content :
-        '<table id="host_template_table" class="info_table" style="width:80%">\
-                <thead><tr><th colspan="2">' + tr("Host template") + '</th></tr></thead>'+
-                prettyPrintJSON(host_info.TEMPLATE)+
-                '</table>'
-    }
-
-    var monitor_tab = {
-        title: tr("Monitoring information"),
-        content : generateMonitoringDivs(host_graphs,"host_monitor_")
-    }
-
-    //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",template_tab);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
-
-    Sunstone.popUpInfoPanel("host_info_panel");
-    //pop up panel while we retrieve the graphs
-    for (var i=0; i<host_graphs.length; i++){
-        Sunstone.runAction("Host.monitor",host_info.ID,host_graphs[i]);
-    };
-
-
-}
-
-*/
-
 //Prepares the host creation dialog
 function setupCreateClusterDialog(){
     dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
@@ -968,7 +861,15 @@ function popUpCreateClusterDialog(){
 }
 
 function monitorClusters(list){
-    clustered_hosts = {}
+    var clustered_hosts = { "-" : []}
+
+    //extract current clusters from table
+    //and initialize the object in which hosts will be divided
+    var cluster_list = dataTable_clusters.fnGetData();
+    $.each(cluster_list,function(){
+        clustered_hosts[this[1]] = []
+    });
+
     for (var i = 0; i < list.length; i++){
         var cluster_id = list[i].HOST.CLUSTER_ID;
         if (!clustered_hosts[cluster_id])

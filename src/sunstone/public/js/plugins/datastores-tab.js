@@ -18,7 +18,7 @@
 
 
 var datastores_tab_content = '\
-<h2>'+tr("Datastores")+'</h2>\
+<h2><i class="icon-folder-open"></i> '+tr("Datastores")+'</h2>\
 <form id="form_datastores" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\

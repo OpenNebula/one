@@ -37,7 +37,14 @@ var SunstoneMonitoring = {
     plot : function(resource,plotID,container,series){
         var config = SunstoneMonitoringConfig[resource].monitor[plotID]
         var options = config.plotOptions
-        $.plot(container,series,options)
+
+        if (!series.length){
+            $(container).unbind();
+            $(container).text(tr("No monitoring information available"));
+        }
+        else {
+            $.plot(container,series,options)
+        }
     },
     ops : {
         partition : function(resource,list,config){
@@ -95,13 +102,15 @@ var SunstoneMonitoring = {
             return series
         },
         hostCpuUsagePartition : function(resource,list,config){
-            partitions = {
+            var partitions = {
                 "Idle" : 0,
                 "Ok" : 0,
                 "Used" : 0,
                 "Working" : 0,
                 "Overloaded" : 0
             }
+
+            if (!list.length) return [];
 
             for (var i=0; i< list.length; i++){
                 var elem = list[i][resource]
@@ -119,7 +128,7 @@ var SunstoneMonitoring = {
                     partitions["Idle"]++
             }
 
-            series = [];
+            var series = [];
             for (partition in partitions) {
                 var data = partitions[partition]
                 var color = config.colorize ? config.colorize(partition) : null

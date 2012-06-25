@@ -17,7 +17,7 @@
 /*Templates tab plugin*/
 
 var templates_tab_content = '\
-<h2>'+tr("Templates")+'</h2>\
+<h2><i class="icon-file"></i> '+tr("Templates")+'</h2>\
 <form id="template_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
