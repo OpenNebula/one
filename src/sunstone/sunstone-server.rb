@@ -183,7 +183,7 @@ end
 
 after do
     unless request.path=='/login' || request.path=='/'
-        unless session[:remember]
+        unless session[:remember] == "true"
             if params[:timeout] == true
                 env['rack.session.options'][:defer] = true
             else
