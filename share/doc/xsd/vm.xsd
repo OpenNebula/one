@@ -28,7 +28,7 @@
         <xs:element name="LAST_POLL" type="xs:integer"/>
 
         <!-- STATE values,
-        see http://opennebula.org/_media/documentation:rel3.2:states-complete.png
+        see http://opennebula.org/_media/documentation:rel3.6:states-complete.png
 
           INIT      = 0
           PENDING   = 1
@@ -61,6 +61,7 @@
           FAILURE        = 14
           CLEANUP        = 15
           UNKNOWN        = 16
+          HOTPLUG        = 17
         -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="RESCHED" type="xs:integer"/>

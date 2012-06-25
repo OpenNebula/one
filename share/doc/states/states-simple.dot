@@ -21,7 +21,8 @@ digraph OpenNebula {
     subgraph { rank = min; user}
 #    subgraph { rank = same; pending; hold; color="white"}
     subgraph { rank = same; prolog; boot; color="white" }
-    subgraph { rank = same; migrate; save; shutdown; unknown; color="white" }
+    subgraph { rank = same; migrate; save; shutdown; unknown; hotplug; 
+        color="white" }
     subgraph { rank = max; suspended; done; failure; stopped; color="white" }
 
 #   create
@@ -75,8 +76,12 @@ digraph OpenNebula {
     unknown     -> boot [label="restart"];
     boot        -> boot [label="restart"];
 
-#   reboot
-    running     -> running [label="reboot"];
+#   reboot, reset
+    running     -> running [label="reboot / reset"];
+
+#   attachdisk
+    running     -> hotplug [label="attachdisk / detachdisk"]
+    hotplug     -> running [style="dashed"];
 
 #   resubmit
     "ANY \\ {suspended,done}" -> pending [label="resubmit"];
