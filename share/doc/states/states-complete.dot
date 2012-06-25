@@ -81,8 +81,12 @@ digraph OpenNebula {
     unknown     -> boot [label="restart"];
     boot        -> boot [label="restart"];
 
-#   reboot
-    running     -> running [label="reboot"];
+#   reboot, reset
+    running     -> running [label="reboot / reset"];
+
+#   attachdisk
+    running     -> hotplug [label="attachdisk / detachdisk"]
+    hotplug     -> running [style="dashed"];
 
 #   resubmit
     "ANY \\ {suspended,done}" -> pending [label="resubmit"];

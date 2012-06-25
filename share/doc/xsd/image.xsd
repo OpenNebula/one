@@ -32,6 +32,18 @@
         <xs:element name="PATH" type="xs:string"/>
         <xs:element name="FSTYPE" type="xs:string"/>
         <xs:element name="SIZE" type="xs:integer"/>
+
+        <!-- STATE values,
+          INIT      = 0, Initialization state
+          READY     = 1, Image ready to use
+          USED      = 2, Image in use
+          DISABLED  = 3, Image can not be instantiated by a VM
+          LOCKED    = 4, FS operation for the Image in process
+          ERROR     = 5, Error state the operation FAILED
+          CLONE     = 6, Image is being cloned
+          DELETE    = 7, DS is deleting the image
+          USED_PERS = 8, Image is in use and persistent
+        -->
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="RUNNING_VMS" type="xs:integer"/>
         <xs:element name="CLONING_OPS" type="xs:integer"/>
