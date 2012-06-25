@@ -129,7 +129,7 @@ var market_buttons = {
 };
 
 var marketplace_tab_content = '\
-<h2>'+tr("OpenNebula Marketplace")+'</h2>\
+<h2><i class="icon-shopping-cart"></i> '+tr("OpenNebula Marketplace")+'</h2>\
 <form id="marketplace_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\

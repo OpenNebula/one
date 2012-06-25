@@ -115,6 +115,11 @@ div.panel_info table.info_table td.value_td {
     text-align: right;
 }
 
+div.panel_info ul {
+    list-style: circle;
+    margin-left: 25px;
+}
+
 .green {
     color: green!important;
 }

@@ -34,7 +34,7 @@ var host_graphs = [
 
 
 var hosts_tab_content = '\
-<h2>'+tr("Hosts")+'</h2>\
+<h2><i class="icon-hdd"></i> '+tr("Hosts")+'</h2>\
 <form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
@@ -237,16 +237,6 @@ var host_actions = {
         error: hostMonitorError
     },
 
-    "Host.monitor_all" : {
-        type: "monitor_global",
-        call: OpenNebula.Host.monitor_all,
-        callback: function(req,response) {
-            var info = req.request.data[0].monitor;
-            plot_global_graph(response,info);
-        },
-        error: onError
-    },
-
     "Host.fetch_template" : {
         type: "single",
         call: OpenNebula.Host.fetch_template,
@@ -378,7 +368,7 @@ SunstoneMonitoringConfig['HOST'] = {
         $('#totalHosts', $dashboard).text(monitoring['totalHosts'])
         delete monitoring['totalHosts']
 
-        if (!$dashboard.is(':visible')) return;
+        //if (!$dashboard.is(':visible')) return;
 
         for (plotID in monitoring){
             var container = $('div#'+plotID,$dashboard);

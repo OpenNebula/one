@@ -17,7 +17,7 @@
 /*Virtual networks tab plugin*/
 
 var vnets_tab_content = '\
-<h2>'+tr("Virtual Networks")+'</h2>\
+<h2><i class="icon-sitemap"></i> '+tr("Virtual Networks")+'</h2>\
 <form id="virtualNetworks_form" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\

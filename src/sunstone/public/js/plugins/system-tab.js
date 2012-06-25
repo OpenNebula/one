@@ -49,11 +49,11 @@ var system_tab_content =
       <div class="panel">\
         <h3>' + tr("Quickstart") + '</h3>\
         <div class="panel_info dashboard_p">\
-             <p></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#groups_tab" value="Group.create_dialog">'+tr("Create new Group")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#users_tab" value="User.create_dialog">'+tr("Create new User")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#acls_tab" value="Acl.create_dialog">'+tr("Create new ACL")+'</a></br>\
-             </p>\
+             <ul>\
+                <li><a class="action_button" href="#groups_tab" value="Group.create_dialog">'+tr("Create new Group")+'</a></li>\
+                <li><a class="action_button" href="#users_tab" value="User.create_dialog">'+tr("Create new User")+'</a></li>\
+                <li><a class="action_button" href="#acls_tab" value="Acl.create_dialog">'+tr("Create new ACL")+'</a></li>\
+             </ul>\
         </div>\
       </div>\
     </td>\
@@ -70,10 +70,11 @@ var system_tab_content =
             <p><img src="images/system_icon.png" style="float:right;" alt="user" width="128" height="128" />'+tr("System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs.")+'</p>\
             <p>'+tr("You can find further information on the following links:")+'</p>\
             <ul>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:auth_overview" target="_blank">Users & Groups subsystem</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:manage_users" target="_blank">Managing users and groups</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:chmod" target="_blank">Managing permissions</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:manage_acl" target="_blank">Using ACLs</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:auth_overview" target="_blank">Users & Groups subsystem</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:manage_users" target="_blank">Managing users and groups</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:chmod" target="_blank">Managing permissions</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:quota_auth" target="_blank">Managing quotas</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:manage_acl" target="_blank">Using ACLs</a></li>\
             </ul>\
         </div>\
       </div>\

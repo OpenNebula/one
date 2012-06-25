@@ -58,11 +58,11 @@ var vres_tab_content =
       <div class="panel">\
         <h3>' + tr("Quickstart") + '</h3>\
         <div class="panel_info dashboard_p">\
-             <p></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#vms_tab" value="VM.create_dialog">'+tr("Create new Virtual Machine")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#templates_tab" value="Template.create_dialog">'+tr("Create new VM Template")+'</a></br>\
-             <span class="ui-icon ui-icon-arrowreturnthick-1-e inline-icon" /><a class="action_button" href="#images_tab" value="Image.create_dialog">'+tr("Create new Image")+'</a></br>\
-             </p>\
+             <ul>\
+                <li><a class="action_button" href="#vms_tab" value="VM.create_dialog">'+tr("Create new Virtual Machine")+'</a></li>\
+                <li><a class="action_button" href="#templates_tab" value="Template.create_dialog">'+tr("Create new VM Template")+'</a></li>\
+                <li><a class="action_button" href="#images_tab" value="Image.create_dialog">'+tr("Create new Image")+'</a></li>\
+             </ul>\
         </div>\
       </div>\
     </td>\
@@ -80,9 +80,9 @@ var vres_tab_content =
             <p>'+tr("Virtual Machine templates can be instantiated as many times as you want. You can do it from the Templates tab or by creating a new VM in the VM tab. The second method allows you to customize the name and the number of VMs you want to launch.")+'</p>\
             <p>'+tr("You can find further information on the following links:")+'</p>\
             <ul>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:vm_guide" target="_blank">Creating Virtual Machines</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:vm_guide_2" target="_blank">Managing Virtual Machines</a></li>\
-               <li><a href="http://opennebula.org/documentation:rel3.4:img_guide" target="_blank">Managing Virtual Machine Images</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:vm_guide" target="_blank">Creating Virtual Machines</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:vm_guide_2" target="_blank">Managing Virtual Machines</a></li>\
+               <li><a href="http://opennebula.org/documentation:documentation:img_guide" target="_blank">Managing Virtual Machine Images</a></li>\
             </ul>\
         </div>\
       </div>\

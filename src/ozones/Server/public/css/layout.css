@@ -133,14 +133,14 @@ body {
     line-height:        1.8em;
     font-size:          12px;
     text-align:         left;
-    padding-left:       30px;
+    padding-left:       40px;
 }
 
 .navigation li.subsubTab {
     line-height:        1.7em;
     font-size:          11px;
     text-align:         left;
-    padding-left:       40px;
+    padding-left:       33px;
 }
 
 .navigation li.topTab span.plusIcon,

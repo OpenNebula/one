@@ -22,7 +22,7 @@ var $user_quotas_dialog;
 var $update_pw_dialog;
 
 var users_tab_content = '\
-<h2>'+tr("Users")+'</h2>\
+<h2><i class="icon-user"></i> '+tr("Users")+'</h2>\
 <form id="user_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
@@ -446,7 +446,7 @@ SunstoneMonitoringConfig['USER'] = {
     plot: function(monitoring){
         $('#totalUsers', $dashboard).text(monitoring['totalUsers'])
 
-        if (!$dashboard.is(':visible')) return;
+        //if (!$dashboard.is(':visible')) return;
 
         var container = $('div#usersPerGroup',$dashboard);
         SunstoneMonitoring.plot('USER',
