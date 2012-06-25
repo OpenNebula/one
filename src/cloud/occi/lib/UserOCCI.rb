@@ -18,8 +18,6 @@ require 'OpenNebula'
 
 include OpenNebula
 
-require 'quota'
-
 class UserOCCI < User
     FORCE_USAGE = true
 
@@ -28,20 +26,6 @@ class UserOCCI < User
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
             <GROUP><%= self['GNAME'] %></GROUP>
-            <QUOTA>
-            <% user_quota.each { |key,value|
-                key_s = key.to_s.upcase
-                value_i = value.to_i %>
-                <<%= key_s %>><%= value_i %></<%= key_s %>>
-            <% } %>
-            </QUOTA>
-            <USAGE>
-            <% user_usage.each { |key,value|
-                key_s = key.to_s.upcase
-                value_i = value.to_i %>
-                <<%= key_s %>><%= value_i %></<%= key_s %>>
-            <% } %>
-            </USAGE>
         </USER>
     }
 
@@ -52,13 +36,6 @@ class UserOCCI < User
 
     # Creates the OCCI representation of a User
     def to_occi(base_url, verbose=false)
-        quota = Quota.new
-        user_usage = quota.get_usage(self.id, nil, FORCE_USAGE)
-        user_usage.delete(:uid)
-
-        user_quota = quota.get_quota(self.id)
-        user_quota.delete(:uid)
-
         occi = ERB.new(OCCI_USER)
         return occi.result(binding).gsub(/\n\s*/,'')
     end
