@@ -26,7 +26,7 @@ UNIT_NUMBER="$4"
 CONTROLLER_NUMBER=0 # Only one controller at the moment (up to 16 devices)
 
 # Get the VMware ID corresponding to the deploy_id
-VMWAREID=`vim-cmd vmsvc/getallvms|grep $DEPLOYID|cut -d' ' -f 1`
+VMWAREID=`$SUDO vim-cmd vmsvc/getallvms|grep $DEPLOYID|cut -d' ' -f 1`
 
 DETACH_PARAMS="$VMWAREID $CONTROLLER_NUMBER $UNIT_NUMBER $IMAGE_PATH"
 
