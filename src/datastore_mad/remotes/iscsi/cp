@@ -56,6 +56,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VG_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BASE_IQN \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BASE_TID \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/TARGET_CONF \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
@@ -69,10 +70,11 @@ DST_HOST="${XPATH_ELEMENTS[4]:-$HOST}"
 VG_NAME="${XPATH_ELEMENTS[5]:-$VG_NAME}"
 BASE_IQN="${XPATH_ELEMENTS[6]:-$BASE_IQN}"
 BASE_TID="${XPATH_ELEMENTS[7]:-$BASE_TID}"
-SRC="${XPATH_ELEMENTS[8]}"
-SIZE="${XPATH_ELEMENTS[9]}"
-MD5="${XPATH_ELEMENTS[10]}"
-SHA1="${XPATH_ELEMENTS[11]}"
+TARGET_CONF="${XPATH_ELEMENTS[8]:-$TARGET_CONF}"
+SRC="${XPATH_ELEMENTS[9]}"
+SIZE="${XPATH_ELEMENTS[10]}"
+MD5="${XPATH_ELEMENTS[11]}"
+SHA1="${XPATH_ELEMENTS[12]}"
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
@@ -80,14 +82,18 @@ LV_NAME="lv-one-${ID}"
 IQN="$BASE_IQN:$DST_HOST.$VG_NAME.$LV_NAME"
 DEV="/dev/$VG_NAME/$LV_NAME"
 
-let TID=ID+BASE_TID
-
 REGISTER_CMD=$(cat <<EOF
     set -e
     $SUDO $LVCREATE -L${SIZE}M ${VG_NAME} -n ${LV_NAME}
-    $SUDO $(tgtadm_target_new "$TID" "$IQN")
-    $SUDO $(tgtadm_target_bind_all "$TID")
-    $SUDO $(tgtadm_logicalunit_new "$TID" "$DEV")
+
+    TID=\$($SUDO $(tgtadm_next_tid))
+
+    [ -z "\$TID" ] && TID=$BASE_TID
+
+    $SUDO $(tgtadm_target_new "\$TID" "$IQN")
+    $SUDO $(tgtadm_target_bind_all "\$TID")
+    $SUDO $(tgtadm_logicalunit_new "\$TID" "$DEV")
+    $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 EOF
 )
 

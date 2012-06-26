@@ -58,10 +58,12 @@ LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
 VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
 DEV="/dev/$VG_NAME/$LV_NAME"
 
-let TID=ID+BASE_TID
+IQN="$BASE_IQN:$DST_HOST.$VG_NAME.$LV_NAME"
 
 RM_COMMAND=$(cat <<EOF
-    $SUDO $(tgtadm_target_delete "$TID")
+    TID=\$($SUDO $(tgtadm_get_tid_for_iqn "$IQN"))
+
+    $SUDO $(tgtadm_target_delete "\$TID")
     $SUDO $SYNC
     $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME
 EOF
