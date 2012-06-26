@@ -30,7 +30,7 @@ module SunstoneMarketplace
 
         if CloudClient::is_error?(response)
             error = Error.new(response.to_s)
-            return [response.code, error.to_json]
+            return [response.code.to_i, error.to_json]
         end
 
         [200, response.body]
@@ -47,7 +47,7 @@ module SunstoneMarketplace
 
         if CloudClient::is_error?(response)
             error = Error.new(response.to_s)
-            return [response.code, error.to_json]
+            return [response.code.to_i, error.to_json]
         end
 
         [200, response.body]
