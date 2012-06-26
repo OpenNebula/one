@@ -984,4 +984,34 @@ var OpenNebula = {
             OpenNebula.Action.show(params,OpenNebula.Datastore.resource,"template");
         },
     },
+
+    "Marketplace" : {
+        "resource" : "MARKETPLACE",
+
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Marketplace.resource);
+        },
+        "list" : function(params){
+            //Custom list request function, since the contents do not come
+            //in the same format as the rest of opennebula resources.
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+            var request = OpenNebula.Helper.request('MARKETPLACE','list');
+
+            $.ajax({
+                url: 'marketplace',
+                type: 'GET',
+                data: {timeout: timeout},
+                dataType: "json",
+                success: function(response){
+                    return callback ?
+                        callback(request, response) : null;
+                },
+                error: function(res){
+                    return callback_error ? callback_error(request, OpenNebula.Error(res)) : null;
+                },
+            });
+        },
+    },
 }

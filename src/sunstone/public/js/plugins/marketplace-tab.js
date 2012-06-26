@@ -17,102 +17,61 @@
 /* Marketpplace tab plugin */
 var dataTable_marketplace;
 
-/*
- * fnReloadAjax: re-read the Ajax source and update the table
- */
-
-$.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallback, bStandingRedraw )
-{
-    if ( typeof sNewSource != 'undefined' && sNewSource != null )
-    {
-        oSettings.sAjaxSource = sNewSource;
-    }
-    this.oApi._fnProcessingDisplay( oSettings, true );
-    var that = this;
-    var iStart = oSettings._iDisplayStart;
-    var aData = [];
-
-    this.oApi._fnServerParams( oSettings, aData );
-
-    oSettings.fnServerData( oSettings.sAjaxSource, aData, function(json) {
-        /* Clear the old information from the table */
-        that.oApi._fnClearTable( oSettings );
-
-        /* Got the data - add it to the table */
-        var aData =  (oSettings.sAjaxDataProp !== "") ?
-            that.oApi._fnGetObjectDataFn( oSettings.sAjaxDataProp )( json ) : json;
-
-        for ( var i=0 ; i<aData.length ; i++ )
-        {
-            that.oApi._fnAddData( oSettings, aData[i] );
-        }
-
-        oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-        that.fnDraw();
-
-        if ( typeof bStandingRedraw != 'undefined' && bStandingRedraw === true )
-        {
-            oSettings._iDisplayStart = iStart;
-            that.fnDraw( false );
-        }
-
-        that.oApi._fnProcessingDisplay( oSettings, false );
-
-        /* Callback user function - for event handlers etc */
-        if ( typeof fnCallback == 'function' && fnCallback != null )
-        {
-            fnCallback( oSettings );
-        }
-    }, oSettings );
-}
-
-
-/*
- * MAIN TAB
- */
-
 var market_actions = {
+    "Marketplace.list" : {
+        type: "list",
+        call: OpenNebula.Marketplace.list,
+        callback: function(req,res){
+            //data can be added to the table directly, without further
+            //processing
+            updateView(res.appliances,dataTable_marketplace);
+        },
+        error: onError
+    },
     "Marketplace.refresh" : {
         type: "custom",
         call: function () {
-            dataTable_marketplace.fnReloadAjax();
+            Sunstone.runAction('Marketplace.list');
         }
     },
     "Marketplace.import" : {
+        //fetches images information and fills in the image creation
+        //dialog with it.
+        type: "multiple",
+        elements: marketplaceElements,
+        call: OpenNebula.Marketplace.show,
+        callback: function(request,response){
+            $('#img_name', $create_image_dialog).val(response['name']);
+            $('#img_path', $create_image_dialog).val(response['links']['download']['href']);
+
+            //remove any options from the custom vars dialog box
+            $("#custom_var_image_box",$create_image_dialog).empty();
+
+            var md5 = response['files'][0]['checksum']['md5']
+            if ( md5 ) {
+                option = '<option value=\'' +
+                    md5 + '\' name="MD5">MD5=' +
+                    md5 + '</option>';
+                $("#custom_var_image_box",$create_image_dialog).append(option);
+            }
+
+            var sha1 = response['files'][0]['checksum']['sha1']
+            if ( sha1 ) {
+                option = '<option value=\'' +
+                    sha1 + '\' name="SHA1">SHA1=' +
+                    sha1 + '</option>';
+                $("#custom_var_image_box",$create_image_dialog).append(option);
+            }
+
+            popUpCreateImageDialog();
+        },
+        error: onError
+    },
+    "Marketplace.showinfo" : {
         type: "single",
-        call: function () {
-            var app_id = getSelectedNodes(dataTable_marketplace)[0];
-
-            $.ajax({
-                url: "/marketplace/" + app_id,
-                type: "GET",
-                dataType: "json",
-                success: function(response){
-                    document.getElementById("img_name").value = response['name'];
-                    document.getElementById("img_path").value = response['links']['download']['href'];
-
-                    $("#custom_var_image_box",$create_image_dialog).empty();
-
-                    var md5 = response['files'][0]['checksum']['md5']
-                    if ( md5 ) {
-                        option = '<option value=\''+md5+'\' name="MD5">MD5='+md5+'</option>';
-                        $("#custom_var_image_box",$create_image_dialog).append(option);
-                    }
-
-                    var sha1 = response['files'][0]['checksum']['sha1']
-                    if ( sha1 ) {
-                        option = '<option value=\''+sha1+'\' name="SHA1">SHA1='+sha1+'</option>';
-                        $("#custom_var_image_box",$create_image_dialog).append(option);
-                    }
-
-                    popUpCreateImageDialog();
-                },
-                error: function(response)
-                {
-                    return onError(null, OpenNebula.Error(response));
-                }
-            });
-        }
+        call: OpenNebula.Marketplace.show,
+        callback: updateMarketInfo,
+        error: onError
     }
 }
 
@@ -175,6 +134,9 @@ var marketplace_info_panel = {
 
 Sunstone.addInfoPanel("marketplace_info_panel", marketplace_info_panel);
 
+function marketplaceElements(){
+    return getSelectedNodes(dataTable_marketplace);
+}
 
 function updateMarketInfo(request,app){
     var info_tab = {
@@ -241,6 +203,8 @@ function infoListenerMarket(dataTable){
 
         var count = $('tbody .check_item:checked', dataTable).length;
 
+        //If ctrl is pressed we check the column instead of
+        //doing showinfo()
         if (e.ctrlKey || count >= 1){
             $('.check_item',this).trigger('click');
             return false;
@@ -248,19 +212,7 @@ function infoListenerMarket(dataTable){
 
         popDialogLoading();
 
-        $.ajax({
-            url: "/marketplace/" + id,
-            type: "GET",
-            dataType: "json",
-            success: function(response){
-                return updateMarketInfo(null, response);
-            },
-            error: function(response)
-            {
-                return onError(null, OpenNebula.Error(response));
-            }
-        });
-
+        Sunstone.runAction('Marketplace.showinfo',id);
         return false;
     });
 }
@@ -288,20 +240,23 @@ $(document).ready(function(){
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "sDom" : '<"H"lfrC>t<"F"ip>',
-        "sAjaxSource": "/marketplace",
-        "sAjaxDataProp": "appliances",
         "bAutoWidth":false,
         "aoColumns": [
             { "bSortable": false,
               "fnRender": function ( o, val ) {
-                  return '<input class="check_item" type="checkbox" id="marketplace_'+o.aData['_id']['$oid']+'" name="selected_items" value="'+o.aData['_id']['$oid']+'"/>'
-            } },
-            { "mDataProp": "_id.$oid", "bVisible": false },
+                  return '<input class="check_item" type="checkbox" id="marketplace_'+
+                      o.aData['_id']['$oid']+
+                      '" name="selected_items" value="'+
+                      o.aData['_id']['$oid']+'"/>'
+              },
+              "sWidth" : "60px"
+            },
+            { "mDataProp": "_id.$oid", "bVisible": false, "sWidth" : "200px" },
             { "mDataProp": "name" },
             { "mDataProp": "publisher" },
-            { "mDataProp": "files.0.hypervisor"},
-            { "mDataProp": "files.0.os-arch"},
-            { "mDataProp": "files.0.format"},
+            { "mDataProp": "files.0.hypervisor", "sWidth" : "100px"},
+            { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
+            { "mDataProp": "files.0.format", "sWidth" : "100px"},
             { "mDataProp": "tags", "bVisible": false}
           ],
         "oLanguage": (datatable_lang != "") ?
@@ -311,9 +266,10 @@ $(document).ready(function(){
     });
 
 
-    initCheckAllBoxes(dataTable_marketplace);
     tableCheckboxesListener(dataTable_marketplace);
     onlyOneCheckboxListener(dataTable_marketplace);
 
     infoListenerMarket(dataTable_marketplace);
+
+    Sunstone.runAction('Marketplace.list');
 });
