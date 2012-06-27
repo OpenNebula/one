@@ -31,6 +31,7 @@ var market_actions = {
     "Marketplace.refresh" : {
         type: "custom",
         call: function () {
+            waitingNodes(dataTable_marketplace);
             Sunstone.runAction('Marketplace.list');
         }
     },
