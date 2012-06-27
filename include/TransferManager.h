@@ -53,6 +53,7 @@ public:
         EPILOG_STOP,
         EPILOG_DELETE,
         EPILOG_DELETE_PREVIOUS,
+        EPILOG_DELETE_STOP,
         CHECKPOINT,
         DRIVER_CANCEL,
         FINALIZE
@@ -239,7 +240,23 @@ private:
     /**
      *  This function starts the epilog_delete sequence
      */
-    void epilog_delete_action(int vid);
+    void epilog_delete_action(int vid)
+    {
+        epilog_delete_action(false, vid);
+    }
+
+    /**
+     *  This function starts the epilog_delete_stop sequence on the local host
+     */
+    void epilog_delete_stop_action(int vid)
+    {
+        epilog_delete_action(true, vid);
+    }
+
+    /**
+     *  This function starts the epilog_delete sequence
+     */
+    void epilog_delete_action(bool local, int vid);
 
     /**
      *  This function starts the epilog_delete sequence on the previous host

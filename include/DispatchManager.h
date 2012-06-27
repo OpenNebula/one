@@ -302,6 +302,13 @@ private:
         const string &  action,
         void *          arg);
 
+    /**
+     * Called from finalize(). Releases the images and networks acquired by this
+     * vm, and unlocks it.
+     *   @param vm the VM
+     */
+    void finalize_cleanup(VirtualMachine * vm);
+
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
     //--------------------------------------------------------------------------
