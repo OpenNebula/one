@@ -107,6 +107,10 @@ void TransferManager::trigger(Actions action, int _vid)
         aname = "EPILOG_DELETE";
         break;
 
+    case EPILOG_DELETE_STOP:
+        aname = "EPILOG_DELETE_STOP";
+        break;
+
     case EPILOG_DELETE_PREVIOUS:
         aname = "EPILOG_DELETE_PREVIOUS";
         break;
@@ -170,6 +174,10 @@ void TransferManager::do_action(const string &action, void * arg)
     else if (action == "EPILOG_DELETE")
     {
         epilog_delete_action(vid);
+    }
+    else if (action == "EPILOG_DELETE_STOP")
+    {
+        epilog_delete_stop_action(vid);
     }
     else if (action == "EPILOG_DELETE_PREVIOUS")
     {
@@ -1033,11 +1041,10 @@ error_common:
     return;
 }
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TransferManager::epilog_delete_action(int vid)
+void TransferManager::epilog_delete_action(bool local, int vid)
 {
     ofstream      xfr;
     ostringstream os;
@@ -1113,21 +1120,46 @@ void TransferManager::epilog_delete_action(int vid)
             continue;
         }
 
-        //DELETE tm_mad host:remote_system_dir/disk.i vmid dsid
-        xfr << "DELETE "
-            << tm_mad << " "
-            << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-            << vm->get_oid() << " "
-            << ds_id << endl;
+        if ( local )
+        {
+            //DELETE tm_mad fe:system_dir/disk.i vmid dsid
+            xfr << "DELETE "
+                << tm_mad << " "
+                << nd.get_nebula_hostname() << ":"
+                << vm->get_system_dir() << "/disk." << disk_id << " "
+                << vm->get_oid() << " "
+                << ds_id << endl;
+        }
+        else
+        {
+            //DELETE tm_mad host:remote_system_dir/disk.i vmid dsid
+            xfr << "DELETE "
+                << tm_mad << " "
+                << vm->get_hostname() << ":"
+                << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+                << vm->get_oid() << " "
+                << ds_id << endl;
+        }
     }
 
-    //DELETE system_tm_mad hostname:remote_system_dir vmid dsid(=0)
-    xfr << "DELETE " 
-        << system_tm_mad << " "
-        << vm->get_hostname() <<":"<< vm->get_remote_system_dir() << " "
-        << vm->get_oid() << " "
-        << "0";
+    if ( local )
+    {
+        //DELETE system_tm_mad fe:system_dir vmid dsid(=0)
+        xfr << "DELETE "
+            << system_tm_mad << " "
+            << nd.get_nebula_hostname() <<":"<< vm->get_system_dir() << " "
+            << vm->get_oid() << " "
+            << "0";
+    }
+    else
+    {
+        //DELETE system_tm_mad hostname:remote_system_dir vmid dsid(=0)
+        xfr << "DELETE "
+            << system_tm_mad << " "
+            << vm->get_hostname() <<":"<< vm->get_remote_system_dir() << " "
+            << vm->get_oid() << " "
+            << "0";
+    }
 
     xfr.close();
 

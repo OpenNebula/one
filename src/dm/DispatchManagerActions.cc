@@ -680,15 +680,43 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void DispatchManager::finalize_cleanup(VirtualMachine * vm)
+{
+    Template *    tmpl;
+
+    int uid;
+    int gid;
+
+    vm->release_network_leases();
+    vm->release_disk_images();
+
+    vm->set_exit_time(time(0));
+
+    vm->set_state(VirtualMachine::LCM_INIT);
+    vm->set_state(VirtualMachine::DONE);
+    vmpool->update(vm);
+
+    vm->log("DiM", Log::INFO, "New VM state is DONE.");
+
+    uid  = vm->get_uid();
+    gid  = vm->get_gid();
+    tmpl = vm->clone_template();
+
+    vm->unlock();
+
+    Quotas::vm_del(uid, gid, tmpl);
+
+    delete tmpl;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int DispatchManager::finalize(
     int vid)
 {
     VirtualMachine * vm;
     ostringstream oss;
-    Template *    tmpl;
-
-    int uid;
-    int gid;
 
     VirtualMachine::VmState state;
 
@@ -711,33 +739,20 @@ int DispatchManager::finalize(
     switch (state)
     {
         case VirtualMachine::SUSPENDED:
-        case VirtualMachine::STOPPED:
         case VirtualMachine::FAILED:
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            finalize_cleanup(vm);
+        break;
+
+        case VirtualMachine::STOPPED:
+            tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
+            finalize_cleanup(vm);
+        break;
 
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
-            vm->release_network_leases();
-            vm->release_disk_images();
-
-            vm->set_exit_time(time(0));
-
-            vm->set_state(VirtualMachine::LCM_INIT);
-            vm->set_state(VirtualMachine::DONE);
-            vmpool->update(vm);
-
-            vm->log("DiM", Log::INFO, "New VM state is DONE.");
-
-            uid  = vm->get_uid();
-            gid  = vm->get_gid();
-            tmpl = vm->clone_template();
-
-            vm->unlock();
-
-            Quotas::vm_del(uid, gid, tmpl);
-
-            delete tmpl;
+            finalize_cleanup(vm);
         break;
 
         case VirtualMachine::ACTIVE:
