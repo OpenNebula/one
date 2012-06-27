@@ -85,10 +85,36 @@ class DummyDriver < VirtualMachineDriver
     end
 
     def poll(id, drv_message)
+
+        msg = decode(drv_message)
+
+        max_memory = 256
+        if msg.elements["VM/TEMPLATE/MEMORY"]
+            max_memory = msg.elements["VM/TEMPLATE/MEMORY"].text.to_i
+        end
+
+        max_cpu = 100
+        if msg.elements["VM/TEMPLATE/CPU"]
+            max_cpu = msg.elements["VM/TEMPLATE/CPU"].text.to_i * 100
+        end
+
+        prev_nettx = 0
+        if msg.elements["VM/NET_TX"]
+            prev_nettx = msg.elements["VM/NET_TX"].text.to_i
+        end
+
+        prev_netrx = 0
+        if msg.elements["VM/NET_RX"]
+            prev_netrx = msg.elements["VM/NET_RX"].text.to_i
+        end
+
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
         # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES
         monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} " \
-                       "#{POLL_ATTRIBUTE[:nettx]}=12345"
+                       "#{POLL_ATTRIBUTE[:nettx]}=#{prev_nettx+(50*rand(3))} " \
+                       "#{POLL_ATTRIBUTE[:netrx]}=#{prev_netrx+(100*rand(4))} " \
+                       "#{POLL_ATTRIBUTE[:usedmemory]}=#{max_memory * (rand(80)+20)/100} " \
+                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100}" 
 
         send_message(ACTION[:poll],RESULT[:success],id,monitor_info)
     end
