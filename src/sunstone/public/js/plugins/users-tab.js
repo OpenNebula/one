@@ -34,6 +34,9 @@ var users_tab_content = '\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Authentication driver")+'</th>\
+      <th>'+tr("VMs")+'</th>\
+      <th>'+tr("Memory used")+'</th>\
+      <th>'+tr("CPU used")+'</th>\
       <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\
@@ -490,12 +493,26 @@ function userElements(){
 function userElementArray(user_json){
     var user = user_json.USER;
 
+    var vms = "-";
+    var memory = "-";
+    var cpu = "-";
+
+    if (!$.isEmptyObject(user.VM_QUOTA)){
+        vms = user.VM_QUOTA.VM.VMS_USED;
+        memory = user.VM_QUOTA.VM.MEMORY_USED;
+        cpu = user.VM_QUOTA.VM.CPU_USED;
+    }
+
+
     return [
         '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
         user.ID,
         user.NAME,
         user.GNAME,
         user.AUTH_DRIVER,
+        vms,
+        memory,
+        cpu,
         user.GID
     ]
 };
@@ -722,9 +739,9 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,5] },
+            { "sWidth": "35px", "aTargets": [1,5,6,7,8] },
             { "sWidth": "150px", "aTargets": [4] },
-            { "bVisible": false, "aTargets": [5]}
+            { "bVisible": false, "aTargets": [8]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -734,7 +751,7 @@ $(document).ready(function(){
     dataTable_users.fnClearTable();
     addElement([
         spinner,
-        '','','','',''],dataTable_users);
+        '','','','','','','',''],dataTable_users);
 
     Sunstone.runAction("User.list");
 
