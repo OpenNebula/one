@@ -409,10 +409,7 @@ function onError(request,error_json) {
 //Replaces the checkboxes of a datatable with a ajax-loading spinner.
 //Used when refreshing elements of a datatable.
 function waitingNodes(dataTable){
-    var nodes = dataTable.fnGetData();
-    for (var i=0;i<nodes.length;i++){
-        dataTable.fnUpdate(spinner,i,0);
-    };
+    $('tr input.check_item:visible',dataTable).replaceWith(spinner);
 }
 
 function getUserName(uid){
