@@ -31,6 +31,9 @@ var groups_tab_content = '\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Users")+'</th>\
+      <th>'+tr("VMs")+'</th>\
+      <th>'+tr("Memory used")+'</th>\
+      <th>'+tr("CPU used")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
@@ -293,11 +296,25 @@ function groupElementArray(group_json){
         users_str=getUserName(group.USERS.ID);
     };
 
+    var vms = "-";
+    var memory = "-";
+    var cpu = "-";
+
+    if (!$.isEmptyObject(group.VM_QUOTA)){
+        vms = group.VM_QUOTA.VM.VMS_USED;
+        memory = group.VM_QUOTA.VM.MEMORY_USED;
+        cpu = group.VM_QUOTA.VM.CPU_USED;
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
         group.ID,
         group.NAME,
-        users_str ];
+        users_str,
+        vms,
+        memory,
+        cpu
+    ];
 }
 
 function updateGroupSelect(){
@@ -405,7 +422,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [1,4,5,6] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -416,7 +433,7 @@ $(document).ready(function(){
     dataTable_groups.fnClearTable();
     addElement([
         spinner,
-        '','',''],dataTable_groups);
+        '','','','','',''],dataTable_groups);
 
     Sunstone.runAction("Group.list");
     setupCreateGroupDialog();
