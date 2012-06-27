@@ -51,15 +51,17 @@ class DummyInformationManager < OpenNebulaDriver
         results =  "HYPERVISOR=dummy,"
         results << "HOSTNAME=#{host},"
 
-        results << "TOTALCPU=800,"
         results << "CPUSPEED=2.2GHz,"
 
+        used_memory = rand(16777216)
         results << "TOTALMEMORY=16777216,"
-        results << "USEDMEMORY=0,"
-        results << "FREEMEMORY=16777216,"
+        results << "USEDMEMORY=#{used_memory},"
+        results << "FREEMEMORY=#{16777216-used_memory},"
 
-        results << "FREECPU=800,"
-        results << "USEDCPU=0"
+        used_cpu = rand(800)
+        results << "TOTALCPU=800,"
+        results << "USEDCPU=#{used_cpu},"
+        results << "FREECPU=#{800-used_cpu}"
 
         send_message("MONITOR", RESULT[:success], number, results)
     end
