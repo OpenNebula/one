@@ -173,7 +173,6 @@ var update_vm_tmpl =
 var vmachine_list_json = {};
 var dataTable_vMachines;
 var $create_vm_dialog;
-var $saveas_vm_dialog;
 var $vnc_dialog;
 var rfb;
 
@@ -342,26 +341,12 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.saveasmultiple" : {
-        type: "custom",
-        call: function(){
-            var elems = vmElements();
-            popUpSaveasDialog(elems);
-        }
-    },
-
     "VM.saveas" : {
         type: "single",
         call: OpenNebula.VM.saveas,
         callback: vmShow,
-        error:onError
-    },
-
-    "VM.saveas_disks" : {
-        type: "single",
-        call: OpenNebula.VM.show,
-        callback: saveasDisksCallback,
-        error: onError
+        error:onError,
+        notify: true
     },
 
     "VM.shutdown" : {
@@ -611,10 +596,6 @@ var vm_buttons = {
                 type: "confirm",
                 text: tr("Reset"),
                 tip: tr("This will perform a hard reboot on selected VMs")
-            },
-            "VM.saveasmultiple" : {
-                type: "action",
-                text: tr("Save as")
             },
             "VM.cancel" : {
                 type: "confirm",
@@ -1120,8 +1101,10 @@ function printDisks(vm_info){
         html += '<tr disk_id="'+(disk.DISK_ID)+'"><td class="key_td">';
         html += disk.DISK_ID + ' - ' +
             (disk.IMAGE ? disk.IMAGE : "Volatile") + '</td>';
-        html += '<td class="value_td"><span>'+disk.TYPE+'</span>';
-        html += ' <i class="icon-trash detach_disk"></i></td></tr>';
+        html += '<td class="value_td">\
+                    <button value="VM.detachdisk" class="detachdisk" style="float:right;color:#555555;height:26px;"><i class="icon-trash icon-large"></i></button>\
+                    <button value="VM.saveas" class="saveas" style="float:right;margin-right:10px;color:#555555;height:26px;"><i class="icon-download icon-large"></i></button>\
+                 </td>';
     }
 
     html += '</tbody>\
@@ -1203,16 +1186,34 @@ function printDisks(vm_info){
 }
 
 function hotpluggingOps(){
-    $('i.detach_disk').live('click', function(){
-        var i = $(this);
-        var vm_id = i.parents('form').attr('vmid');
-        var disk_id = i.parents('tr').attr('disk_id');
-        var parent = i.parent();
+    $('button.detachdisk').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var disk_id = b.parents('tr').attr('disk_id');
+        var parent = b.parent();
 
         Sunstone.runAction('VM.detachdisk', vm_id, disk_id);
 
-        i.remove();
-        parent.append(spinner);
+        b.html(spinner);
+        return false;
+    });
+
+    $('button.saveas').live('click', function(){
+        var b = $(this);
+        var vm_id = b.parents('form').attr('vmid');
+        var disk_id = b.parents('tr').attr('disk_id');
+        var parent = b.parent();
+        var image_name = 'saveas_'+vm_id+'_'+disk_id;
+
+        var obj = {
+            disk_id : disk_id,
+            image_name : image_name,
+            type: ""
+        };
+
+        Sunstone.runAction('VM.saveas', vm_id, obj);
+
+        b.html(spinner);
         return false;
     });
 
@@ -1322,142 +1323,6 @@ function setupCreateVMDialog(){
 function popUpCreateVMDialog(){
     $create_vm_dialog.dialog('open');
 }
-
-//Prepares a dialog to saveas a VM
-function setupSaveasDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="saveas_vm_dialog" title=\"'+tr("VM Save As")+'\"></div>');
-    $saveas_vm_dialog = $('#saveas_vm_dialog',dialogs_context);
-    var dialog = $saveas_vm_dialog;
-
-    //Put HTML in place
-    dialog.html('\
-        <form id="saveas_vm_form" action="javascript:alert(\'js error!\');">\
-            <div id="saveas_tabs">\
-            </div>\
-            <div class="form_buttons">\
-                <button id="vm_saveas_proceed" value="">'+tr("OK")+'</button>\
-                <button id="vm_saveas_cancel" value="">'+tr("Cancel")+'</button>\
-            </div>\
-            </fieldset>\
-       </form>');
-
-    dialog.dialog({
-        autoOpen:false,
-        width:600,
-        modal:true,
-        height:350,
-        resizable:true,
-    });
-
-    $('#saveas_vm_form',dialog).submit(function(){
-        var elems = $('#saveas_tabs div.saveas_tab',this);
-        var args = [];
-        $.each(elems,function(){
-            var id = $('#vm_id',this).text();
-            var disk_id = $('#vm_disk_id',this).val();
-            var image_name = $('#image_name',this).val();
-            var type = $('#image_type',this).val();
-
-            if (!id.length || !disk_id.length || !image_name.length) {
-                notifyError(tr("Skipping VM ")+id+". "+
-                            tr("No disk id or image name specified"));
-            }
-            else {
-                var obj = {
-                    disk_id : disk_id,
-                    image_name : image_name,
-                    type: type
-                };
-                args.push(id);
-                Sunstone.runAction("VM.saveas",id,obj);
-            }
-        });
-        if (args.length > 0){
-            notifySubmit("VM.saveas",args);
-        }
-
-        $saveas_vm_dialog.dialog('close');
-        return false;
-    });
-
-    $('#vm_saveas_cancel',dialog).click(function(){
-        $saveas_vm_dialog.dialog('close');
-        return false;
-    });
-
-}
-
-function popUpSaveasDialog(elems){
-    var dialog = $saveas_vm_dialog;
-    $('#saveas_tabs',dialog).tabs('destroy');
-    $('#saveas_tabs',dialog).empty();
-    $('#saveas_tabs',dialog).html('<ul></ul>');
-
-    $.each(elems,function(){
-        var li = '<li><a href="#saveas_tab_'+this+'">VM '+this+'</a></li>'
-        $('#saveas_tabs ul',dialog).append(li);
-        var tab = '<div class="saveas_tab" id="saveas_tab_'+this+'">\
-        <div id="vm_id_text">'+tr("Saveas for VM with ID")+' <span id="vm_id">'+this+'</span></div>\
-            <fieldset>\
-            <div>\
-                <label for="vm_disk_id">'+tr("Select disk")+':</label>\
-                <select id="vm_disk_id" name="vm_disk_id">\
-                    <option value="">'+tr("Retrieving")+'...</option>\
-                </select>\
-            </div>\
-            <div>\
-                <label for="image_name">'+tr("Image name")+':</label>\
-                <input type="text" id="image_name" name="image_name" value="" />\
-            </div>\
-            <div>\
-                <label for="img_attr_value">'+tr("Type")+':</label>\
-                <select id="image_type" name="image_type">\
-                    <option value="">'+tr("Default (current image type)")+'</option>\
-                    <option value="os">'+tr("OS")+'</option>\
-                    <option value="datablock">'+tr("Datablock")+'</option>\
-                    <option value="cdrom">'+tr("CD-ROM")+'</option>\
-                </select>\
-            </div>\
-            </fieldset>\
-        </div>';
-        $('#saveas_tabs',dialog).append(tab);
-        Sunstone.runAction("VM.saveas_disks",this);
-    });
-    $('#saveas_tabs',dialog).tabs();
-    $('button',dialog).button();
-    dialog.dialog('open');
-}
-
-function saveasDisksCallback(req,response){
-    var vm_info = response.VM;
-    var id=vm_info.ID;
-    var select="";
-
-    var gen_option = function(id, name, source){
-        if (name){
-            return '<option value="'+id+'">'+name+" ("+tr("disk id")+"): "+id+')</option>';
-        }
-        else {
-            return '<option value="'+id+'">'+source+" ("+tr("disk id")+"): "+id+')</option>';
-        }
-    }
-
-    var disks = vm_info.TEMPLATE.DISK;
-    if (!disks) { select = '<option value="">'+tr("No disks defined")+'</option>';}
-    else if (disks.constructor == Array) //several disks
-    {
-        for (var i=0;i<disks.length;i++){
-            select += gen_option(disks[i].DISK_ID,disks[i].IMAGE,disks[i].SOURCE);
-        }
-    } else {
-        select+= gen_option(disks.DISK_ID,disks.IMAGE,disks.SOURCE);
-    }
-    //introduce options in the right tab
-    $('#saveas_tabs #saveas_tab_'+id+' #vm_disk_id',$saveas_vm_dialog).html(select);
-
-};
-
 
 function setupVMTemplateUpdateDialog(){
     //Append to DOM
@@ -1730,7 +1595,6 @@ $(document).ready(function(){
 
     setupCreateVMDialog();
     setupVMTemplateUpdateDialog();
-    setupSaveasDialog();
     setVMAutorefresh();
     setupVNC();
     hotpluggingOps();
