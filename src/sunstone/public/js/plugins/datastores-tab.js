@@ -283,9 +283,9 @@ var datastore_actions = {
 
 var datastore_buttons = {
     "Datastore.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Datastore.create_dialog" : {
         type: "create_dialog",

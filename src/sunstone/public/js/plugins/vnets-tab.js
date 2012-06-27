@@ -414,9 +414,9 @@ var vnet_actions = {
 
 var vnet_buttons = {
     "Network.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
 
     "Network.create_dialog" : {

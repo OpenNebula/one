@@ -796,9 +796,9 @@ var template_actions = {
 
 var template_buttons = {
     "Template.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Template.create_dialog" : {
         type: "create_dialog",

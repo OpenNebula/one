@@ -293,10 +293,10 @@ var host_actions = {
 
 var host_buttons = {
     "Host.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
-        },
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
+    },
     "Host.create_dialog" : {
         type: "create_dialog",
         text: tr("+ New"),

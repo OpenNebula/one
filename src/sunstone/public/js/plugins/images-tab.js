@@ -449,9 +449,9 @@ var image_actions = {
 
 var image_buttons = {
     "Image.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Image.create_dialog" : {
         type: "create_dialog",

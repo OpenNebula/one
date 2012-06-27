@@ -177,10 +177,10 @@ var cluster_actions = {
 
 var cluster_buttons = {
     "Cluster.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
-        },
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
+    },
     "Cluster.create_dialog" : {
         type: "create_dialog",
         text: tr("+ New")

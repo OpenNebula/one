@@ -78,9 +78,9 @@ var market_actions = {
 
 var market_buttons = {
     "Marketplace.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Marketplace.import" : {
         type: "action",

@@ -222,9 +222,9 @@ var group_actions = {
 
 var group_buttons = {
     "Group.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Group.create_dialog" : {
         type: "create_dialog",
