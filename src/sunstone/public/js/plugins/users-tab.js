@@ -358,9 +358,9 @@ var user_actions = {
 
 var user_buttons = {
     "User.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "User.create_dialog" : {
         type: "create_dialog",

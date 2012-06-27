@@ -503,9 +503,9 @@ var vm_actions = {
 
 var vm_buttons = {
     "VM.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
 
     "VM.create_dialog" : {
@@ -675,10 +675,10 @@ SunstoneMonitoringConfig['VM'] = {
         var t = ((new Date().getTime()) - netUsage.time) / 1000 //in secs
         var bandwidth_up = monitoring['netUsageBar'][1].data[0][0] - netUsage.up
         bandwidth_up /= t
-        var bandwidth_up_str = humanize_size(bandwidth_up) + "/s" //bytes /sec
+        var bandwidth_up_str = humanize_size(bandwidth_up) + "b/s" //bytes /sec
         var bandwidth_down = monitoring['netUsageBar'][0].data[0][0] - netUsage.down
         bandwidth_down /= t
-        var bandwidth_down_str = humanize_size(bandwidth_down) + "/s" //bytes /sec
+        var bandwidth_down_str = humanize_size(bandwidth_down) + "b/s" //bytes /sec
 
         if (bandwidth_up >= 0)
             $('#bandwidth_up', $dashboard).text(bandwidth_up_str)

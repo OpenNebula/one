@@ -663,7 +663,15 @@ ul.action_list li a:hover{
 
 .big_text {
     color: #333333;
-    font-size: 5em;
+    font-size: 3.5em;
+    font-family: serif;
+    text-align:center;
+    vertical-align:middle;
+}
+
+.medium_text {
+    color: #333333;
+    font-size: 2.0em;
     font-family: serif;
     text-align:center;
     vertical-align:middle;

@@ -155,9 +155,9 @@ var acl_actions = {
 
 var acl_buttons = {
     "Acl.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Acl.create_dialog" : {
         type: "create_dialog",
