@@ -711,13 +711,13 @@ int DispatchManager::finalize(
     switch (state)
     {
         case VirtualMachine::SUSPENDED:
+        case VirtualMachine::STOPPED:
         case VirtualMachine::FAILED:
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
 
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
-        case VirtualMachine::STOPPED:
             vm->release_network_leases();
             vm->release_disk_images();
 
