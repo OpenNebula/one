@@ -40,6 +40,8 @@ DRIVER_PATH=$(dirname $0)
 
 . $TMCOMMON
 
+source ${DRIVER_PATH}/../../datastore/iscsi/iscsi.conf
+
 SRC_HOST=`arg_host $SRC`
 NEW_IQN="$DST"
 
