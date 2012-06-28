@@ -173,4 +173,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             cluster.delvnet(args[1].to_i)
         end
     end
+
+    update_desc = <<-EOT.unindent
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :clusterid, [:file, nil] do
+        helper.perform_action(args[0],options,"modified") do |obj|
+            str = OpenNebulaHelper.update_template(args[0], obj, args[1])
+            obj.update(str)
+        end
+    end
 end

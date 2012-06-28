@@ -30,6 +30,7 @@ public class Cluster extends PoolElement{
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String INFO            = METHOD_PREFIX + "info";
+    private static final String UPDATE          = METHOD_PREFIX + "update";
     private static final String ADDHOST         = METHOD_PREFIX + "addhost";
     private static final String DELHOST         = METHOD_PREFIX + "delhost";
     private static final String ADDDATASTORE    = METHOD_PREFIX + "adddatastore";
@@ -97,6 +98,19 @@ public class Cluster extends PoolElement{
     public static OneResponse delete(Client client, int id)
     {
         return client.call(DELETE, id);
+    }
+
+    /**
+     * Replaces the cluster contents.
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target cluster we want to modify.
+     * @param new_template New template contents.
+     * @return If successful the message contains the cluster id.
+     */
+    public static OneResponse update(Client client, int id, String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
     }
 
     /**
@@ -208,6 +222,17 @@ public class Cluster extends PoolElement{
     public OneResponse delete()
     {
         return delete(client, id);
+    }
+
+    /**
+     * Replaces the cluster template.
+     *
+     * @param new_template New cluster template.
+     * @return If successful the message contains the cluster id.
+     */
+    public OneResponse update(String new_template)
+    {
+        return update(client, id, new_template);
     }
 
     /**

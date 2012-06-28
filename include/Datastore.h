@@ -203,7 +203,7 @@ private:
     }
 
     /**
-     *  Factory method for virtual network templates
+     *  Factory method for datastore templates
      */
     Template * get_new_template() const
     {

@@ -170,6 +170,24 @@ public:
     ~DocumentUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    ClusterUpdateTemplate():
+        RequestManagerUpdateTemplate("ClusterUpdateTemplate",
+                                     "Updates a cluster template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_clpool();
+        auth_object = PoolObjectSQL::CLUSTER;
+    };
+
+    ~ClusterUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
