@@ -160,16 +160,39 @@ protected:
 
     /**
      *  Performs a basic quota check for this request using the uid/gid
-     *  from the request.  Usage counters are updated for the user/group.
+     *  from the request. Usage counters are updated for the user/group.
+     *  On case of error, the failure_response return values are set
+     *
      *    @param tmpl describing the object
      *    @param object type of the object
      *    @param att the specific request attributes
      *
      *    @return true if the user is authorized.
      */
-    bool quota_authorization(Template * tmpl,
-                             Quotas::QuotaType qtype,
-                             RequestAttributes& att);
+    bool quota_authorization(
+            Template *          tmpl,
+            Quotas::QuotaType   qtype,
+            RequestAttributes&  att);
+
+    /**
+     *  Performs a basic quota check for this request using the uid/gid
+     *  from the request. Usage counters are updated for the user/group.
+     *  On case of error, the failure_response return values is not set, instead
+     *  the error reason is returned in error_str
+     *
+     *    @param tmpl describing the object
+     *    @param object type of the object
+     *    @param att the specific request attributes
+     *
+     *    @param error_str Error reason, if any
+     *    @return true if the user is authorized.
+     */
+    bool quota_authorization(
+            Template *          tmpl,
+            Quotas::QuotaType   qtype,
+            RequestAttributes&  att,
+            string&             error_str);
+
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
      *  for the request.

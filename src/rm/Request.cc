@@ -137,6 +137,15 @@ bool Request::user_quota_authorization (Template * tmpl,
     {
         upool->update(user);
     }
+    else
+    {
+        ostringstream oss;
+
+        oss << object_name(PoolObjectSQL::USER) << " [" << att.uid << "] "
+            << error_str;
+
+        error_str = oss.str();
+    }
 
     user->unlock();
 
@@ -169,6 +178,15 @@ bool Request::group_quota_authorization (Template * tmpl,
     if (rc == true)
     {
         gpool->update(group);
+    }
+    else
+    {
+        ostringstream oss;
+
+        oss << object_name(PoolObjectSQL::GROUP) << " [" << att.gid << "] "
+            << error_str;
+
+        error_str = oss.str();
     }
 
     group->unlock();
@@ -229,35 +247,54 @@ void Request::group_quota_rollback(Template *         tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::quota_authorization(Template *         tmpl, 
+bool Request::quota_authorization(Template *         tmpl,
                                   Quotas::QuotaType  qtype,
                                   RequestAttributes& att)
 {
     string error_str;
 
+    bool auth = quota_authorization(tmpl, qtype, att, error_str);
+
+    if ( auth == false )
+    {
+        failure_response(AUTHORIZATION,
+                         request_error(error_str, ""),
+                         att);
+    }
+
+    return auth;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Request::quota_authorization(
+        Template *          tmpl,
+        Quotas::QuotaType   qtype,
+        RequestAttributes&  att,
+        string&             error_str)
+{
     // uid/gid == -1 means do not update user/group
 
-    if ( att.uid != UserPool::ONEADMIN_ID && att.uid != -1) 
+    bool do_user_quota = att.uid != UserPool::ONEADMIN_ID && att.uid != -1;
+    bool do_group_quota = att.gid != GroupPool::ONEADMIN_ID && att.gid != -1;
+
+    if ( do_user_quota )
     {
         if ( user_quota_authorization(tmpl, qtype, att, error_str) == false )
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(error_str, att),
-                    att);
-
             return false;
         }
     }
 
-    if ( att.gid != GroupPool::ONEADMIN_ID && att.gid != -1)
+    if ( do_group_quota )
     {
         if ( group_quota_authorization(tmpl, qtype, att, error_str) == false )
         {
-            user_quota_rollback(tmpl, qtype, att);
-
-            failure_response(AUTHORIZATION,
-                             authorization_error(error_str, att),
-                             att);
+            if ( do_user_quota )
+            {
+                user_quota_rollback(tmpl, qtype, att);
+            }
 
             return false;
         }
