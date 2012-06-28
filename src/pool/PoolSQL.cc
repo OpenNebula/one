@@ -168,6 +168,12 @@ PoolObjectSQL * PoolSQL::get(
     PoolObjectSQL *                     objectsql;
     int                                 rc;
 
+    if ( oid < 0 )
+    {
+        objectsql = 0;
+        return objectsql;
+    }
+
     lock();
 
     index = pool.find(oid);
@@ -212,6 +218,7 @@ PoolObjectSQL * PoolSQL::get(
 
             unlock();
 
+            objectsql = 0;
             return 0;
         }
 
