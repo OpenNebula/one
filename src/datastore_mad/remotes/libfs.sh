@@ -91,8 +91,8 @@ EOF
 function fs_size {
 
 	case $1 in
-	http://*)
-		SIZE=`wget -S --spider $1 2>&1 | grep Content-Length  | cut -d':' -f2`
+	http://*|https://*)
+		SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
 		error=$?
 	    ;;
 	*)
