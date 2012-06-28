@@ -150,9 +150,12 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
     }
     else
     {
-        char * error_char = 0;
+        char *        error_char = 0;
+        ostringstream oss;
 
-        rc = parse(parse_str, &error_char);
+        oss << parse_str << endl;
+
+        rc = parse(oss.str(), &error_char);
 
         if ( rc != 0 )
         {
