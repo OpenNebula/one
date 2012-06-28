@@ -1076,7 +1076,7 @@ function printDisks(vm_info){
    <form style="display:inline-block;width:100%" id="hotplugging_form" vmid="'+vm_info.ID+'">\
      <table class="info_table">\
        <thead>\
-         <tr><th colspan="2">'+tr("Disks information")+'</th></tr>\
+         <tr><th colspan="2">'+tr("Disks information - Save As and Detach")+'</th></tr>\
        </thead>\
        <tbody>\
        ';
@@ -1104,6 +1104,7 @@ function printDisks(vm_info){
         html += '<td class="value_td">\
                     <button value="VM.detachdisk" class="detachdisk" style="float:right;color:#555555;height:26px;"><i class="icon-trash icon-large"></i></button>\
                     <button value="VM.saveas" class="saveas" style="float:right;margin-right:10px;color:#555555;height:26px;"><i class="icon-download icon-large"></i></button>\
+                    <input style="float:right;width:9em;margin-right:10px;margin-top:3px;" type="text" value="saveas_'+vm_info.ID+'_'+disk.DISK_ID+'" name="saveas_name"></input>\
                  </td>';
     }
 
@@ -1203,7 +1204,11 @@ function hotpluggingOps(){
         var vm_id = b.parents('form').attr('vmid');
         var disk_id = b.parents('tr').attr('disk_id');
         var parent = b.parent();
-        var image_name = 'saveas_'+vm_id+'_'+disk_id;
+        var image_name = $('input[name="saveas_name"]',parent).val();
+        if (!image_name){
+            notifyError('Please provide a name for the new image');
+            return false;
+        }
 
         var obj = {
             disk_id : disk_id,
