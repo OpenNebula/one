@@ -55,7 +55,7 @@ DST_DIR=`dirname $DST_PATH`
 #-------------------------------------------------------------------------------
 
 IQN=$SRC
-NEW_IQN=$IQN-$VM_ID
+NEW_IQN=$IQN-$VMID
 
 VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
 LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
@@ -76,7 +76,7 @@ CLONE_CMD=$(cat <<EOF
     SIZE=\$($SUDO $LVS --noheadings -o lv_size "$SOURCE_DEV")
 
     # create lv
-    $SUDO $LVCREATE -L${SIZE} ${VG_NAME} -n ${TARGET_LV_NAME}
+    $SUDO $LVCREATE -L\${SIZE} ${VG_NAME} -n ${TARGET_LV_NAME}
 
     # clone lv with dd
     $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=64k
@@ -84,7 +84,7 @@ CLONE_CMD=$(cat <<EOF
     # new iscsi target
     TID=\$($SUDO $(tgtadm_next_tid))
 
-    $SUDO $(tgtadm_target_new "\$TID" "$IQN")
+    $SUDO $(tgtadm_target_new "\$TID" "$NEW_IQN")
     $SUDO $(tgtadm_target_bind_all "\$TID")
     $SUDO $(tgtadm_logicalunit_new "\$TID" "$TARGET_DEV")
     $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
