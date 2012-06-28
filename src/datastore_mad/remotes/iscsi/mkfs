@@ -77,7 +77,7 @@ REGISTER_CMD=$(cat <<EOF
     $SUDO $LVCREATE -L${SIZE}M ${VG_NAME} -n ${LV_NAME}
 
     TID=\$($SUDO $(tgtadm_next_tid))
-    [ -z "\$TID" ] && TID=$BASE_TID
+    [ -z "\$TID" ] && TID=1
 
     $SUDO $(tgtadm_target_new "\$TID" "$IQN")
     $SUDO $(tgtadm_target_bind_all "\$TID")
