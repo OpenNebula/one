@@ -106,7 +106,12 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
 
-    Host * host;
+    Host *      host;
+    Cluster *   cluster;
+    Datastore * ds;
+
+    int cluster_id;
+    int ds_id;
 
     host = hpool->get(hid,true);
 
@@ -122,11 +127,43 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     name = host->get_name();
     vmm  = host->get_vmm_mad();
     vnm  = host->get_vnm_mad();
-    tm   = ""; // TODO host->get_cluster_id, get DS from Cluster, get TM from DS
 
     host->get_permissions(host_perms);
 
+    cluster_id = host->get_cluster_id();
+
     host->unlock();
+
+    cluster = nd.get_clpool()->get(cluster_id, true);
+
+    if ( cluster == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
+                att);
+
+        return -1;
+    }
+
+    // TODO: ds_id = cluster->get_datastore()
+    ds_id = DatastorePool::SYSTEM_DS_ID;
+
+    cluster->unlock();
+
+    ds = nd.get_dspool()->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE),ds_id),
+                att);
+
+        return -1;
+    }
+
+    tm = ds->get_tm_mad();
+
+    ds->unlock();
 
     return 0;
 }

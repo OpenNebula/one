@@ -212,7 +212,7 @@ void TransferManager::do_action(const string &action, void * arg)
 int TransferManager::prolog_transfer_command(
         VirtualMachine *        vm,
         const VectorAttribute * disk,
-        string&                 system_tm_mad,
+        string&                 vm_tm_mad,
         string&                 opennebula_hostname,
         ostream&                xfr,
         ostringstream&          os)
@@ -248,7 +248,7 @@ int TransferManager::prolog_transfer_command(
 
         //MKSWAP tm_mad size host:remote_system_dir/disk.i vmid dsid(=0)
         xfr << "MKSWAP "
-            << system_tm_mad << " "
+            << vm_tm_mad << " "
             << size   << " "
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
@@ -273,7 +273,7 @@ int TransferManager::prolog_transfer_command(
 
         //MKIMAGE tm_mad size format host:remote_system_dir/disk.i vmid dsid(=0)
         xfr << "MKIMAGE "
-            << system_tm_mad << " "
+            << vm_tm_mad << " "
             << size   << " "
             << format << " "
             << vm->get_hostname() << ":"
@@ -356,7 +356,7 @@ void TransferManager::prolog_action(int vid)
     const VectorAttribute * disk;
 
     string  files;
-    string  system_tm_mad;
+    string  vm_tm_mad;
     string  opennebula_hostname;
     int     rc;
     string  error_str;
@@ -374,17 +374,6 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
-    system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "prolog, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
-
-        return;
-    }
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -395,6 +384,14 @@ void TransferManager::prolog_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    vm_tm_mad   = vm->get_tm_mad();
+    tm_md       = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
     }
 
     xfr_name = vm->get_transfer_file() + ".prolog";
@@ -423,7 +420,7 @@ void TransferManager::prolog_action(int vid)
 
         rc = prolog_transfer_command(vm, 
                                      disk, 
-                                     system_tm_mad,
+                                     vm_tm_mad,
                                      opennebula_hostname, 
                                      xfr, 
                                      os);
@@ -447,7 +444,7 @@ void TransferManager::prolog_action(int vid)
     {
         //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
         xfr << "CONTEXT " 
-            << system_tm_mad << " "
+            << vm_tm_mad << " "
             << vm->get_context_file() << " ";
 
         if (!files.empty())
@@ -470,6 +467,11 @@ void TransferManager::prolog_action(int vid)
 
 error_history:
     os << "VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "prolog, error getting drivers.";
     goto error_common;
 
 error_file:
@@ -505,7 +507,7 @@ void TransferManager::prolog_migr_action(int vid)
 
     const VectorAttribute * disk;
     string tm_mad;
-    string system_tm_mad;
+    string vm_tm_mad;
     string ds_id;
     int    disk_id;
 
@@ -520,17 +522,6 @@ void TransferManager::prolog_migr_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
-    system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "prolog_migr, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
-
-        return;
-    }
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -538,9 +529,17 @@ void TransferManager::prolog_migr_action(int vid)
         return;
     }
 
-    if (!vm->hasHistory())
+    if (!vm->hasHistory() || !vm->hasPreviousHistory())
     {
         goto error_history;
+    }
+
+    vm_tm_mad   = vm->get_tm_mad();
+    tm_md       = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
     }
 
     xfr_name = vm->get_transfer_file() + ".migrate";
@@ -588,7 +587,7 @@ void TransferManager::prolog_migr_action(int vid)
 
     //MV tm_mad prev_host:remote_system_dir host:remote_system_dir VMID 0
     xfr << "MV "
-        << system_tm_mad << " "
+        << vm_tm_mad << " "
         << vm->get_previous_hostname() << ":" 
         << vm->get_remote_system_dir() << " "
         << vm->get_hostname() << ":" 
@@ -606,6 +605,11 @@ void TransferManager::prolog_migr_action(int vid)
 error_history:
     os.str("");
     os << "prolog_migr, VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "prolog_migr, error getting drivers.";
     goto error_common;
 
 error_file:
@@ -632,7 +636,7 @@ void TransferManager::prolog_resume_action(int vid)
 
     const VectorAttribute * disk;
     string tm_mad;
-    string system_tm_mad;
+    string vm_tm_mad;
     string ds_id;
     int    disk_id;
 
@@ -647,17 +651,6 @@ void TransferManager::prolog_resume_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
-    system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "prolog_resume, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
-
-        return;
-    }
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -668,6 +661,14 @@ void TransferManager::prolog_resume_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    vm_tm_mad   = vm->get_tm_mad();
+    tm_md       = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
     }
 
     xfr_name = vm->get_transfer_file() + ".resume";
@@ -714,7 +715,7 @@ void TransferManager::prolog_resume_action(int vid)
 
     //MV tm_mad fe:system_dir host:remote_system_dir vmid 0
     xfr << "MV "
-        << system_tm_mad << " "
+        << vm_tm_mad << " "
         << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir()<< " "
         << vm->get_oid() << " "
@@ -730,6 +731,11 @@ void TransferManager::prolog_resume_action(int vid)
 error_history:
     os.str("");
     os << "prolog_resume, VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "prolog_resume, error getting drivers.";
     goto error_common;
 
 error_file:
@@ -821,7 +827,7 @@ void TransferManager::epilog_action(int vid)
     ofstream        xfr;
     ostringstream   os;
     string          xfr_name;
-    string          system_tm_mad;
+    string          vm_tm_mad;
     string          error_str;
 
     const VectorAttribute * disk;
@@ -837,17 +843,6 @@ void TransferManager::epilog_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -858,6 +853,14 @@ void TransferManager::epilog_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    vm_tm_mad   = vm->get_tm_mad();
+    tm_md       = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
     }
 
     xfr_name = vm->get_transfer_file() + ".epilog";
@@ -885,9 +888,9 @@ void TransferManager::epilog_action(int vid)
         epilog_transfer_command(vm, disk, xfr);
     }
 
-    //DELETE system_tm_mad hostname:remote_system_dir vmid ds_id
+    //DELETE vm_tm_mad hostname:remote_system_dir vmid ds_id
     xfr << "DELETE " 
-        << system_tm_mad << " "
+        << vm_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
         << vm->get_oid() << " "
         << "0" << endl;
@@ -902,6 +905,11 @@ void TransferManager::epilog_action(int vid)
 error_history:
     os.str("");
     os << "epilog, VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "epilog, error getting drivers.";
     goto error_common;
 
 error_file:
@@ -926,7 +934,7 @@ void TransferManager::epilog_stop_action(int vid)
     ostringstream os;
     string        xfr_name;
     string        tm_mad;
-    string        system_tm_mad;
+    string        vm_tm_mad;
     string        ds_id;
     int           disk_id;
 
@@ -942,17 +950,6 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog_stop, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -963,6 +960,14 @@ void TransferManager::epilog_stop_action(int vid)
     if (!vm->hasHistory())
     {
         goto error_history;
+    }
+
+    vm_tm_mad   = vm->get_tm_mad();
+    tm_md       = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
     }
 
     xfr_name = vm->get_transfer_file() + ".stop";
@@ -1007,9 +1012,9 @@ void TransferManager::epilog_stop_action(int vid)
             << ds_id << endl;
     }
 
-    //MV system_tm_mad hostname:remote_system_dir fe:system_dir
+    //MV vm_tm_mad hostname:remote_system_dir fe:system_dir
     xfr << "MV "
-        << system_tm_mad << " "
+        << vm_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
         << nd.get_nebula_hostname() << ":" << vm->get_system_dir() << " "
         << vm->get_oid() << " "
@@ -1026,6 +1031,11 @@ void TransferManager::epilog_stop_action(int vid)
 error_history:
     os.str("");
     os << "epilog_stop, VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "epilog_stop, error getting drivers.";
     goto error_common;
 
 error_file:
@@ -1049,7 +1059,7 @@ void TransferManager::epilog_delete_action(bool local, int vid)
     ofstream      xfr;
     ostringstream os;
     string        xfr_name;
-    string        system_tm_mad;
+    string        vm_tm_mad;
     string        tm_mad;
     string        ds_id;
     int           disk_id;
@@ -1066,17 +1076,6 @@ void TransferManager::epilog_delete_action(bool local, int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog_delete, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -1088,7 +1087,15 @@ void TransferManager::epilog_delete_action(bool local, int vid)
     {
         goto error_history;
     }
-    
+
+    vm_tm_mad   = vm->get_tm_mad();
+    tm_md       = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
+    }
+
     xfr_name = vm->get_transfer_file() + ".delete";
     xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
@@ -1144,18 +1151,18 @@ void TransferManager::epilog_delete_action(bool local, int vid)
 
     if ( local )
     {
-        //DELETE system_tm_mad fe:system_dir vmid dsid(=0)
+        //DELETE vm_tm_mad fe:system_dir vmid dsid(=0)
         xfr << "DELETE "
-            << system_tm_mad << " "
+            << vm_tm_mad << " "
             << nd.get_nebula_hostname() <<":"<< vm->get_system_dir() << " "
             << vm->get_oid() << " "
             << "0";
     }
     else
     {
-        //DELETE system_tm_mad hostname:remote_system_dir vmid dsid(=0)
+        //DELETE vm_tm_mad hostname:remote_system_dir vmid dsid(=0)
         xfr << "DELETE "
-            << system_tm_mad << " "
+            << vm_tm_mad << " "
             << vm->get_hostname() <<":"<< vm->get_remote_system_dir() << " "
             << vm->get_oid() << " "
             << "0";
@@ -1171,6 +1178,11 @@ void TransferManager::epilog_delete_action(bool local, int vid)
 error_history:
     os.str("");
     os << "epilog_delete, VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "epilog_delete, error getting drivers.";
     goto error_common;
 
 error_file:
@@ -1196,7 +1208,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
     ofstream      xfr;
     ostringstream os;
     string        xfr_name;
-    string        system_tm_mad;
+    string        vm_tm_mad;
     string        tm_mad;
     string        ds_id;
     int           disk_id;
@@ -1213,17 +1225,6 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    system_tm_mad = nd.get_system_ds_tm_mad();
-    tm_md         = get();
-
-    if ( tm_md == 0 || system_tm_mad.empty() )
-    {
-        NebulaLog::log("TM", Log::ERROR, "epilog_delete, error getting drivers.");
-        (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
-
-        return;
-    }
-
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -1234,6 +1235,14 @@ void TransferManager::epilog_delete_previous_action(int vid)
     if (!vm->hasHistory() || !vm->hasPreviousHistory())
     {
         goto error_history;
+    }
+
+    vm_tm_mad   = vm->get_previous_tm_mad();
+    tm_md       = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
     }
 
     xfr_name = vm->get_transfer_file() + ".delete_prev";
@@ -1276,9 +1285,9 @@ void TransferManager::epilog_delete_previous_action(int vid)
             << ds_id << endl;
     }
 
-    //DELTE system_tm_mad prev_host:remote_system_dir vmid ds_id(=0)
+    //DELTE vm_tm_mad prev_host:remote_system_dir vmid ds_id(=0)
     xfr << "DELETE " 
-        << system_tm_mad << " "
+        << vm_tm_mad << " "
         << vm->get_previous_hostname() <<":"<< vm->get_remote_system_dir()
         << " " << vm->get_oid() << " "
         << "0" << endl;
@@ -1295,9 +1304,14 @@ error_history:
     os << "epilog_delete_previous, VM " << vid << " has no history";
     goto error_common;
 
+error_drivers:
+    os.str("");
+    os << "epilog_delete_previous, error getting drivers.";
+    goto error_common;
+
 error_file:
     os.str("");
-    os << "epilog_delete, could not open file: " << xfr_name;
+    os << "epilog_delete_previous, could not open file: " << xfr_name;
     os << ". You may need to manually clean " << vm->get_previous_hostname() 
        << ":" << vm->get_remote_system_dir();
     goto error_common;
