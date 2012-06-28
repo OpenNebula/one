@@ -64,6 +64,7 @@ RM_COMMAND=$(cat <<EOF
     $SUDO $(tgtadm_target_delete "\$TID")
     $SUDO $SYNC
     $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME
+    $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 EOF
 )
 

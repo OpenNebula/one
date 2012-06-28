@@ -85,6 +85,7 @@ CLONE_CMD=$(cat <<EOF
     $SUDO $(tgtadm_target_new "$TID" "$IQN")
     $SUDO $(tgtadm_target_bind_all "$TID")
     $SUDO $(tgtadm_logicalunit_new "$TID" "$DEV")
+    $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 EOF
 )
 
