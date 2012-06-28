@@ -826,7 +826,8 @@ void VirtualMachine::add_history(
     int   hid,
     const string& hostname,
     const string& vmm_mad,
-    const string& vnm_mad)
+    const string& vnm_mad,
+    const string& tm_mad)
 {
     ostringstream os;
     int           seq;
@@ -851,6 +852,7 @@ void VirtualMachine::add_history(
                           hostname,
                           vmm_mad,
                           vnm_mad,
+                          tm_mad,
                           vm_xml);
 
     history_records.push_back(history);
@@ -877,6 +879,7 @@ void VirtualMachine::cp_history()
                        history->hostname,
                        history->vmm_mad_name,
                        history->vnm_mad_name,
+                       history->tm_mad_name,
                        vm_xml);
 
     previous_history = history;
@@ -906,6 +909,7 @@ void VirtualMachine::cp_previous_history()
                        previous_history->hostname,
                        previous_history->vmm_mad_name,
                        previous_history->vnm_mad_name,
+                       previous_history->tm_mad_name,
                        vm_xml);
 
     previous_history = history;

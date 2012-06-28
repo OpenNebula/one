@@ -46,6 +46,7 @@ public:
         const string& hostname,
         const string& vmm,
         const string& vnm,
+        const string& tmm,
         const string& vm_info);
 
     ~History(){};
@@ -89,6 +90,7 @@ private:
 
     string  vmm_mad_name;
     string  vnm_mad_name;
+    string  tm_mad_name;
 
     time_t  stime;
     time_t  etime;

@@ -44,6 +44,7 @@ History::History(
         hid(-1),
         vmm_mad_name(""),
         vnm_mad_name(""),
+        tm_mad_name(""),
         stime(0),
         etime(0),
         prolog_stime(0),
@@ -64,6 +65,7 @@ History::History(
     const string& _hostname,
     const string& _vmm,
     const string& _vnm,
+    const string& _tmm,
     const string& _vm_info):
         oid(_oid),
         seq(_seq),
@@ -71,6 +73,7 @@ History::History(
         hid(_hid),
         vmm_mad_name(_vmm),
         vnm_mad_name(_vnm),
+        tm_mad_name(_tmm),
         stime(0),
         etime(0),
         prolog_stime(0),
@@ -292,6 +295,7 @@ string& History::to_xml(string& xml, bool database) const
           "<ETIME>"             << etime             << "</ETIME>" <<
           "<VMMMAD>"            << vmm_mad_name      << "</VMMMAD>"<<
           "<VNMMAD>"            << vnm_mad_name      << "</VNMMAD>"<<
+          "<TMMAD>"             << tm_mad_name       << "</TMMAD>" <<
           "<PSTIME>"            << prolog_stime      << "</PSTIME>"<<
           "<PETIME>"            << prolog_etime      << "</PETIME>"<<
           "<RSTIME>"            << running_stime     << "</RSTIME>"<<
@@ -328,6 +332,10 @@ int History::rebuild_attributes()
     rc += xpath(etime            , "/HISTORY/ETIME",    0);
     rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",   "not_found");
           xpath(vnm_mad_name     , "/HISTORY/VNMMAD",   "dummy");
+
+    // TODO: add TMMAD element in onedb migrator
+    rc += xpath(tm_mad_name     , "/HISTORY/TMMAD",     "not_found");
+
     rc += xpath(prolog_stime     , "/HISTORY/PSTIME",   0);
     rc += xpath(prolog_etime     , "/HISTORY/PETIME",   0);
     rc += xpath(running_stime    , "/HISTORY/RSTIME",   0);
