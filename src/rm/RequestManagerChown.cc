@@ -37,6 +37,8 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     PoolObjectSQL *   object;
     Quotas::QuotaType qtype;
 
+    string error_str;
+
     object = pool->get(oid,true);
 
     if ( object == 0 ) 
@@ -86,8 +88,12 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     RequestAttributes att_new(new_uid, new_gid, att);
     RequestAttributes att_old(old_uid, old_gid, att);
 
-    if ( quota_authorization(tmpl, qtype, att_new) == false )
+    if ( quota_authorization(tmpl, qtype, att_new, error_str) == false )
     {
+        failure_response(AUTHORIZATION,
+                request_error(error_str, ""),
+                att);
+
         delete tmpl;
         return 0;
     }
@@ -100,7 +106,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     {
         quota_rollback(tmpl, qtype, att_new);    
 
-        quota_authorization(tmpl, qtype, att_old);    
+        quota_authorization(tmpl, qtype, att_old, error_str);
 
         failure_response(NO_EXISTS,
                          get_error(object_name(auth_object), oid),

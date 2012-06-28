@@ -230,7 +230,7 @@ bool Quota::check_quota(const string& qid,
         {
             ostringstream oss;
 
-            oss << "Limit of " << limit << " reached for " << metrics[i]
+            oss << "limit of " << limit << " reached for " << metrics[i]
                 << " quota in " << template_name;
 
             if ( !qid.empty() ) 
