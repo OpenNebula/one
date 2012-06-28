@@ -36,8 +36,76 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-. $TMCOMMON
+DRIVER_PATH=$(dirname $0)
 
-log_error "CLONE not supported for TM_ISCSI. Use persistent images"
+ . $TMCOMMON
 
-exit 1
+#-------------------------------------------------------------------------------
+# Set src, dst path and dir
+#-------------------------------------------------------------------------------
+
+TARGET=`arg_path $SRC`
+
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+
+#-------------------------------------------------------------------------------
+# IQN and TARGETs
+#-------------------------------------------------------------------------------
+
+IQN=$SRC
+NEW_IQN=$IQN-$VM_ID
+
+VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
+LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
+SOURCE_DEV="/dev/$VG_NAME/$LV_NAME"
+
+TARGET_LV_NAME=`echo $LV_NAME-$VMID`
+TARGET_DEV="/dev/${VG_NAME}/${TARGET_LV_NAME}"
+TARGET_HOST="${TARGET%.$VG_NAME.$LV_NAME}"
+
+#-------------------------------------------------------------------------------
+# Clone script
+#-------------------------------------------------------------------------------
+
+CLONE_CMD=$(cat <<EOF
+    set -e
+
+    # get size
+    SIZE=\$($SUDO $LVS --noheadings -o lv_size "$SOURCE_DEV")
+
+    # create lv
+    $SUDO $LVCREATE -L${SIZE} ${VG_NAME} -n ${TARGET_LV_NAME}
+
+    # clone lv with dd
+    $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=64k
+
+    # new iscsi target
+    TID=\$($SUDO $(tgtadm_next_tid))
+
+    $SUDO $(tgtadm_target_new "\$TID" "$IQN")
+    $SUDO $(tgtadm_target_bind_all "\$TID")
+    $SUDO $(tgtadm_logicalunit_new "\$TID" "$TARGET_DEV")
+    $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
+EOF
+)
+
+ssh_exec_and_log "$TARGET_HOST" "$CLONE_CMD" \
+        "Error cloning $DST_HOST:$TARGET_DEV"
+
+DISCOVERY_CMD=$(cat <<EOF
+    set -e
+    mkdir -p $DST_DIR
+    $SUDO $(iscsiadm_discovery "$TARGET_HOST")
+    $SUDO $(iscsiadm_login "$NEW_IQN" "$TARGET_HOST")
+    sleep 2
+    DISK_BY_PATH=\$(ls /dev/disk/by-path/*$NEW_IQN-lun-1)
+    ln -s "\$DISK_BY_PATH" "$DST_PATH"
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$DISCOVERY_CMD" \
+        "Error discovering $NEW_IQN in $DST_HOST"
+
+exit 0

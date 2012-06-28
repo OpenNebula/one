@@ -35,6 +35,10 @@ fi
 
 . $TMCOMMON
 
+DRIVER_PATH=$(dirname $0)
+
+source ${DRIVER_PATH}/../../datastore/iscsi/iscsi.conf
+
 #-------------------------------------------------------------------------------
 # Return if deleting a disk, we will delete them when removing the
 # remote_system_ds directory for the VM (remotely)
@@ -42,21 +46,80 @@ fi
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 
-if [ `is_disk $DST_PATH` -eq 1 ]; then
-    # Disk
-    LOGOUT_CMD=$(cat <<EOF
-    set -e
-    IQN=\$(readlink $DST_PATH |grep -o 'iqn.*$')
-    IQN=\${IQN%-lun-1}
-    $SUDO $(iscsiadm_logout "\$IQN")
-EOF
-)
-    ssh_exec_and_log "$DST_HOST" "$LOGOUT_CMD" \
-        "Error logging out $IQN"
-else
+#-------------------------------------------------------------------------------
+# Get IQN information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
+
+IQN="${XPATH_ELEMENTS[0]}"
+PERSISTENT="${XPATH_ELEMENTS[1]}"
+
+TARGET=`arg_path $IQN`
+VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
+LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
+DEV="/dev/$VG_NAME/$LV_NAME"
+TARGET_HOST="${TARGET%.$VG_NAME.$LV_NAME}"
+
+#-------------------------------------------------------------------------------
+# Remove directory if dst_path is a directory
+#-------------------------------------------------------------------------------
+
+if [ `is_disk $DST_PATH` -eq 0 ]; then
     # Directory
     log "Deleting $DST_PATH"
     ssh_exec_and_log "$DST_HOST" "rm -rf $DST_PATH" "Error deleting $DST_PATH"
+    exit 0
 fi
+
+#-------------------------------------------------------------------------------
+# Logout from the iSCSI target in the hypervisor
+#-------------------------------------------------------------------------------
+
+LOGOUT_CMD=$(cat <<EOF
+    set -e
+    $SUDO $(iscsiadm_logout "$IQN")
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$LOGOUT_CMD" \
+    "Error logging out $IQN"
+
+if [ "$PERSISTENT" = "YES" ]; then
+    exit 0
+fi
+
+#-------------------------------------------------------------------------------
+# Remove target and LV in the iSCSI server
+#-------------------------------------------------------------------------------
+
+DELETE_CMD=$(cat <<EOF
+    set -e
+    # get tid for IQN
+    TID=\$($SUDO $(tgtadm_get_tid_for_iqn "$IQN"))
+
+    # remove iscsi target
+    $SUDO $(tgtadm_target_delete "\$TID")
+
+    # dump configuration
+    $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
+
+    # remove lv
+    $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$LOGOUT_CMD" \
+    "Error logging out $IQN"
 
 exit 0

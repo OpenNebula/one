@@ -36,10 +36,33 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
+DRIVER_PATH=$(dirname $0)
+
 . $TMCOMMON
 
 SRC_HOST=`arg_host $SRC`
-IQN=$DST
+NEW_IQN="$DST"
+
+DISK_ID=$(echo $SRC|awk -F. '{print $NF}')
+
+#-------------------------------------------------------------------------------
+# Get image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SAVE_AS \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
+
+IQN="${XPATH_ELEMENTS[0]}"
+SAVE_AS="${XPATH_ELEMENTS[1]}"
+PERSISTENT="${XPATH_ELEMENTS[2]}"
 
 log "Logging out $IQN"
 
@@ -52,4 +75,37 @@ EOF
 ssh_exec_and_log "$SRC_HOST" "$LOGOUT_CMD" \
     "Error logging out $IQN"
 
-exit 0
+# Exit if not save_as. We are finished if this was a persistent image.
+[ -z "$SAVE_AS" ] && exit 0
+
+#-------------------------------------------------------------------------------
+# IQN and TARGETs
+#-------------------------------------------------------------------------------
+
+LV_NAME=`echo $IQN|$AWK -F. '{print $(NF)}'`
+VG_NAME=`echo $IQN|$AWK -F. '{print $(NF-1)}'`
+SOURCE_DEV="/dev/$VG_NAME/$LV_NAME"
+
+TARGET_LV_NAME=`echo $NEW_IQN|$AWK -F. '{print $(NF)}'`
+TARGET_DEV="/dev/$VG_NAME/$TARGET_LV_NAME"
+
+CLONE_CMD=$(cat <<EOF
+    set -e
+
+    # clone lv with dd
+    $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=64k
+
+    # remove if source_dev is not persistent
+    if [ "$PERSISTENT" != "YES" ]; then
+        TID=\$($SUDO $(tgtadm_get_tid_for_iqn "$IQN"))
+
+        $SUDO $(tgtadm_target_delete "\$TID")
+        $SUDO $SYNC
+        $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME
+        $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
+    fi
+EOF
+)
+
+ssh_exec_and_log "$TARGET_HOST" "$CLONE_CMD" \
+        "Error cloning $DST_HOST:$TARGET_DEV or removing nonpersistent $IQN"
