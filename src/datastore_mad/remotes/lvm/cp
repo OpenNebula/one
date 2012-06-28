@@ -93,7 +93,7 @@ fi
 COPY_COMMAND="$UTILS_PATH/downloader.sh $HASHES $SRC -"
 
 case $SRC in
-http://*)
+http://*|https://*)
     log "Downloading $SRC to the image repository"
 
     DUMP="$COPY_COMMAND"
