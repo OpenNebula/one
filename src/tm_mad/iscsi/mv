@@ -70,7 +70,6 @@ if [ "$SRC" == "$DST" ]; then
     log "Not moving $SRC to $DST, they are the same path"
 	exit 0
 fi
-
 #-------------------------------------------------------------------------------
 # Get image information
 #-------------------------------------------------------------------------------
@@ -79,12 +78,16 @@ XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
 unset i XPATH_ELEMENTS
 
+DISK_ID=$(echo "$SRC_PATH" | $AWK -F. '{print $NF}')
+
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
 
-PERSISTENT="${XPATH_ELEMENTS[0]}"
+IQN="${XPATH_ELEMENTS[0]}"
+PERSISTENT="${XPATH_ELEMENTS[1]}"
 
 if [ -z "$PERSISTENT" ]; then
     IQN=$IQN-$VMID
@@ -122,8 +125,8 @@ if is_iscsi "$DST_HOST"; then
 EOF
 )
 
-    ssh_exec_and_log "$DST_HOST" "$LOGIN_CMD" \
-        "Error logging in $IQN"
+ssh_exec_and_log "$DST_HOST" "$LOGIN_CMD" \
+    "Error logging in $IQN"
 fi
 
 exit 0

@@ -84,7 +84,9 @@ REGISTER_CMD=$(cat <<EOF
     $SUDO $(tgtadm_logicalunit_new "\$TID" "$DEV")
     $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 
-    [ "$FSTYPE" != "save_as" ] && $SUDO $(mkfs_command "$DEV" "$FSTYPE")
+    if [ "$FSTYPE" != "save_as" ]; then
+        $SUDO $(mkfs_command "$DEV" "$FSTYPE")
+    fi
 EOF
 )
 

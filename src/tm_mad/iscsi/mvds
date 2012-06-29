@@ -66,6 +66,10 @@ IQN="${XPATH_ELEMENTS[0]}"
 SAVE_AS="${XPATH_ELEMENTS[1]}"
 PERSISTENT="${XPATH_ELEMENTS[2]}"
 
+if [ -z "$PERSISTENT" ]; then
+    IQN=$IQN-$VMID
+fi
+
 log "Logging out $IQN"
 
 LOGOUT_CMD=$(cat <<EOF
@@ -88,8 +92,10 @@ LV_NAME=`echo $IQN|$AWK -F. '{print $(NF)}'`
 VG_NAME=`echo $IQN|$AWK -F. '{print $(NF-1)}'`
 SOURCE_DEV="/dev/$VG_NAME/$LV_NAME"
 
+TARGET=`arg_path $IQN`
 TARGET_LV_NAME=`echo $NEW_IQN|$AWK -F. '{print $(NF)}'`
 TARGET_DEV="/dev/$VG_NAME/$TARGET_LV_NAME"
+TARGET_HOST="${TARGET%.$VG_NAME.$LV_NAME}"
 
 CLONE_CMD=$(cat <<EOF
     set -e
@@ -98,7 +104,7 @@ CLONE_CMD=$(cat <<EOF
     $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=64k
 
     # remove if source_dev is not persistent
-    if [ "$PERSISTENT" != "YES" ]; then
+    if [ -z "$PERSISTENT" ]; then
         TID=\$($SUDO $(tgtadm_get_tid_for_iqn "$IQN"))
 
         $SUDO $(tgtadm_target_delete "\$TID")
