@@ -135,6 +135,11 @@ private:
     string base_path;
 
     /**
+     * 1 if this is a system DS
+     */
+    int    system_ds;
+
+    /**
      * Disk types for the Images created in this datastore
      */
      Image::DiskType disk_type;

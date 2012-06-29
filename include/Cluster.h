@@ -31,6 +31,23 @@ class Cluster : public PoolObjectSQL
 {
 public:
 
+    /**
+     * Returns the SYSTEM_DS attribute, or the system DS id if it is not defined
+     *
+     * @return the SYSTEM_DS attribute, or the system DS id if it is not defined
+     */
+    int get_ds_id()
+    {
+        int ds_id;
+
+        if ( obj_template->get("SYSTEM_DS", ds_id) == false )
+        {
+            ds_id = DatastorePool::SYSTEM_DS_ID;
+        }
+
+        return ds_id;
+    }
+
     // *************************************************************************
     // Object Collections (Public)
     // *************************************************************************

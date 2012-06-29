@@ -145,8 +145,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
         return -1;
     }
 
-    // TODO: ds_id = cluster->get_datastore()
-    ds_id = DatastorePool::SYSTEM_DS_ID;
+    ds_id = cluster->get_ds_id();
 
     cluster->unlock();
 
