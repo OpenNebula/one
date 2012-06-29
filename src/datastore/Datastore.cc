@@ -49,7 +49,8 @@ Datastore::Datastore(
             Clusterable(cluster_id, cluster_name),
             ds_mad(""),
             tm_mad(""),
-            base_path("")
+            base_path(""),
+            system_ds(0)
 {
     group_u = 1;
 
@@ -395,10 +396,15 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     get_template_attribute("DS_MAD", new_ds_mad);
     get_template_attribute("SYSTEM", s_system_ds);
 
-    TO_UPPER(s_system_ds);
 
-    if ( !s_system_ds.empty() )
+    if ( oid == DatastorePool::SYSTEM_DS_ID )
     {
+        system_ds = 1;
+    }
+    else if ( !s_system_ds.empty() )
+    {
+        TO_UPPER(s_system_ds);
+
         system_ds = (s_system_ds == "YES");
     }
 

@@ -160,6 +160,24 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
         return -1;
     }
 
+    if ( ds->is_system() == false )
+    {
+        ostringstream oss;
+
+        ds->unlock();
+
+        oss << object_name(PoolObjectSQL::CLUSTER)
+            << " [" << cluster_id << "] has its SYSTEM_DS set to "
+            << object_name(PoolObjectSQL::DATASTORE)
+            << " [" << ds_id << "], but it is not a system one.";
+
+        failure_response(INTERNAL,
+                request_error(oss.str(),""),
+                att);
+
+        return -1;
+    }
+
     tm = ds->get_tm_mad();
 
     ds->unlock();

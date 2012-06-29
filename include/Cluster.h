@@ -96,6 +96,7 @@ public:
      */
     int add_datastore(int id, string& error_msg)
     {
+        // TODO: should fail for any system DS?
         if ( id == DatastorePool::SYSTEM_DS_ID )
         {
             ostringstream oss;

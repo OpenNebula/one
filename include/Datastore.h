@@ -91,6 +91,16 @@ public:
     {
         return disk_type;
     };
+
+    /**
+     * Returns true if this is a system datastore
+     *    @return true if this is a system datastore
+     */
+    bool is_system() const
+    {
+        return system_ds == 1;
+    };
+
     /**
      * Modifies the given VM disk attribute adding the relevant datastore
      * attributes
