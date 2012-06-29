@@ -336,11 +336,8 @@ int History::rebuild_attributes()
     rc += xpath(etime            , "/HISTORY/ETIME",    0);
     rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",   "not_found");
           xpath(vnm_mad_name     , "/HISTORY/VNMMAD",   "dummy");
-
-    // TODO: add TMMAD element in onedb migrator
     rc += xpath(tm_mad_name      , "/HISTORY/TMMAD",    "not_found");
     rc += xpath(ds_id            , "/HISTORY/DS_ID",    0);
-
     rc += xpath(prolog_stime     , "/HISTORY/PSTIME",   0);
     rc += xpath(prolog_etime     , "/HISTORY/PETIME",   0);
     rc += xpath(running_stime    , "/HISTORY/RSTIME",   0);
