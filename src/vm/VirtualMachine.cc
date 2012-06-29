@@ -827,7 +827,8 @@ void VirtualMachine::add_history(
     const string& hostname,
     const string& vmm_mad,
     const string& vnm_mad,
-    const string& tm_mad)
+    const string& tm_mad,
+    int           ds_id)
 {
     ostringstream os;
     int           seq;
@@ -853,6 +854,7 @@ void VirtualMachine::add_history(
                           vmm_mad,
                           vnm_mad,
                           tm_mad,
+                          ds_id,
                           vm_xml);
 
     history_records.push_back(history);
@@ -880,6 +882,7 @@ void VirtualMachine::cp_history()
                        history->vmm_mad_name,
                        history->vnm_mad_name,
                        history->tm_mad_name,
+                       history->ds_id,
                        vm_xml);
 
     previous_history = history;
@@ -910,6 +913,7 @@ void VirtualMachine::cp_previous_history()
                        previous_history->vmm_mad_name,
                        previous_history->vnm_mad_name,
                        previous_history->tm_mad_name,
+                       previous_history->ds_id,
                        vm_xml);
 
     previous_history = history;
@@ -1984,7 +1988,7 @@ string VirtualMachine::get_remote_system_dir() const
     Nebula& nd = Nebula::instance();
 
     nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
-    oss << ds_location << "/" << DatastorePool::SYSTEM_DS_ID << "/" << oid;
+    oss << ds_location << "/" << history->ds_id << "/" << oid;
 
     return oss.str();
 }
@@ -1997,7 +2001,7 @@ string VirtualMachine::get_system_dir() const
     ostringstream oss;
     Nebula&       nd = Nebula::instance();
 
-    oss << nd.get_ds_location() << DatastorePool::SYSTEM_DS_ID << "/"<< oid;
+    oss << nd.get_ds_location() << history->ds_id << "/"<< oid;
 
     return oss.str();
 };

@@ -57,7 +57,8 @@ protected:
                           AuthRequest::Operation  op);
 
     int get_host_information(int hid, string& name, string& vmm, string& vnm,
-            string& tm, RequestAttributes& att, PoolObjectAuth& host_perms);
+            string& tm, int& ds_id, RequestAttributes& att,
+            PoolObjectAuth& host_perms);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
@@ -65,6 +66,7 @@ protected:
                     const string&    vmm_mad,
                     const string&    vnm_mad,
                     const string&    tm_mad,
+                    int              ds_id,
                     RequestAttributes& att);
 
     VirtualMachine * get_vm(int id, RequestAttributes& att);

@@ -243,7 +243,8 @@ public:
         const string& hostname,
         const string& vmm_mad,
         const string& vnm_mad,
-        const string& tm_mad);
+        const string& tm_mad,
+        int           ds_id);
 
     /**
      *  Duplicates the last history record. Only the host related fields are

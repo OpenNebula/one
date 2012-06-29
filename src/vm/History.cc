@@ -45,6 +45,7 @@ History::History(
         vmm_mad_name(""),
         vnm_mad_name(""),
         tm_mad_name(""),
+        ds_id(0),
         stime(0),
         etime(0),
         prolog_stime(0),
@@ -66,6 +67,7 @@ History::History(
     const string& _vmm,
     const string& _vnm,
     const string& _tmm,
+    int           _ds_id,
     const string& _vm_info):
         oid(_oid),
         seq(_seq),
@@ -74,6 +76,7 @@ History::History(
         vmm_mad_name(_vmm),
         vnm_mad_name(_vnm),
         tm_mad_name(_tmm),
+        ds_id(_ds_id),
         stime(0),
         etime(0),
         prolog_stime(0),
@@ -126,7 +129,7 @@ void History::non_persistent_data()
     os.str("");
 
     nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
-    os << ds_location << "/" << DatastorePool::SYSTEM_DS_ID << "/" << oid;
+    os << ds_location << "/" << ds_id << "/" << oid;
 
     vm_rhome = os.str();
 
@@ -296,6 +299,7 @@ string& History::to_xml(string& xml, bool database) const
           "<VMMMAD>"            << vmm_mad_name      << "</VMMMAD>"<<
           "<VNMMAD>"            << vnm_mad_name      << "</VNMMAD>"<<
           "<TMMAD>"             << tm_mad_name       << "</TMMAD>" <<
+          "<DS_ID>"             << ds_id             << "</DS_ID>" <<
           "<PSTIME>"            << prolog_stime      << "</PSTIME>"<<
           "<PETIME>"            << prolog_etime      << "</PETIME>"<<
           "<RSTIME>"            << running_stime     << "</RSTIME>"<<
@@ -334,7 +338,8 @@ int History::rebuild_attributes()
           xpath(vnm_mad_name     , "/HISTORY/VNMMAD",   "dummy");
 
     // TODO: add TMMAD element in onedb migrator
-    rc += xpath(tm_mad_name     , "/HISTORY/TMMAD",     "not_found");
+    rc += xpath(tm_mad_name      , "/HISTORY/TMMAD",    "not_found");
+    rc += xpath(ds_id            , "/HISTORY/DS_ID",    0);
 
     rc += xpath(prolog_stime     , "/HISTORY/PSTIME",   0);
     rc += xpath(prolog_etime     , "/HISTORY/PETIME",   0);
