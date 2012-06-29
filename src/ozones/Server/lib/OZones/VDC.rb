@@ -170,7 +170,10 @@ module OZones
 
             rc   = resources_in_cluster?(rsrc)
 
-            return rc if OpenNebula.is_error?(rc)
+            if OpenNebula.is_error?(rc)
+                @vdc.delete
+                return rc 
+            end
 
             #-------------------------------------------------------------------
             # Create a group in the zone with the VDC name
@@ -178,7 +181,10 @@ module OZones
             group = OpenNebula::Group.new(OpenNebula::Group.build_xml, @client)
             rc    = group.allocate(@vdc.NAME)
 
-            return rc if OpenNebula.is_error?(rc)
+            if OpenNebula.is_error?(rc)
+                @vdc.delete
+                return rc 
+            end
 
             @vdc.GROUP_ID = group.id
 
@@ -190,7 +196,11 @@ module OZones
             user = OpenNebula::User.new(OpenNebula::User.build_xml, @client)
             rc   = user.allocate(@vdc.VDCADMINNAME, vdcpass)
 
-            return rollback(group, nil, nil, rc) if OpenNebula.is_error?(rc)
+
+            if OpenNebula.is_error?(rc)
+                @vdc.delete
+                return rollback(group, nil, nil, rc) 
+            end
 
             @vdc.VDCADMIN_ID = user.id
 
@@ -200,7 +210,11 @@ module OZones
             # Change primary group of the admin user to the VDC group
             #-------------------------------------------------------------------
             rc = user.chgrp(group.id)
-            return rollback(group, user, nil, rc) if OpenNebula.is_error?(rc)
+
+            if OpenNebula.is_error?(rc)
+                @vdc.delete
+                return rollback(group, user, nil, rc) 
+            end
 
             #-------------------------------------------------------------------
             # Add ACLs
@@ -210,7 +224,11 @@ module OZones
             OzonesServer::logger.debug {"Creating ACLs #{rules}..."}
 
             rc, acl_ids = create_acls(rules)
-            return rollback(group, user, acl_ids,rc) if OpenNebula.is_error?(rc)
+
+            if OpenNebula.is_error?(rc)
+                @vdc.delete
+                return rollback(group, user, acl_ids,rc) 
+            end
 
             OzonesServer::logger.debug {"ACLs #{acl_ids} created"}
 
