@@ -48,7 +48,7 @@ var market_actions = {
             //remove any options from the custom vars dialog box
             $("#custom_var_image_box",$create_image_dialog).empty();
 
-            var md5 = response['files'][0]['checksum']['md5']
+            var md5 = response['files'][0]['md5']
             if ( md5 ) {
                 option = '<option value=\'' +
                     md5 + '\' name="MD5">MD5=' +
@@ -56,7 +56,7 @@ var market_actions = {
                 $("#custom_var_image_box",$create_image_dialog).append(option);
             }
 
-            var sha1 = response['files'][0]['checksum']['sha1']
+            var sha1 = response['files'][0]['sha1']
             if ( sha1 ) {
                 option = '<option value=\'' +
                     sha1 + '\' name="SHA1">SHA1=' +
