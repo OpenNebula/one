@@ -591,7 +591,7 @@ private
             raise if value.empty?
             value
         rescue
-            send_message(ACTION[:attach_disk],RESULT[:failure],id,
+            send_message(action, RESULT[:failure], id,
                 "Cannot perform #{action}, expecting #{xpath}")
             nil
         end
