@@ -52,14 +52,18 @@ TYPE=$(echo "$TYPE"|tr A-Z a-z)
 case "$TYPE" in
 block)
     TYPE_SOURCE="dev"
+    TYPE_XML="block"
     DEVICE="disk"
     ;;
 cdrom)
     TYPE_SOURCE="file"
+    TYPE_XML="file"
     DEVICE="cdrom"
     ;;
-*)
+*) 
+    #NOTE: This includes TYPE=FS and TYPE=SWAP
     TYPE_SOURCE="file"
+    TYPE_XML="file"
     DEVICE="disk"
     ;;
 esac
@@ -75,7 +79,7 @@ fi
 ATTACH_FILE="$SOURCE.attach"
 
 cat <<EOF > $ATTACH_FILE
-<disk type='$TYPE' device='$DEVICE'>
+<disk type='$TYPE_XML' device='$DEVICE'>
   <driver name='qemu' type='$DRIVER' $CACHE/>
   <source $TYPE_SOURCE='$SOURCE'/>
   <target dev='$TARGET'/>
