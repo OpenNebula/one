@@ -67,7 +67,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     }
 
     CREAT_OPTIONS = [ IM, VMM, VNET, OneClusterHelper::CLUSTER ]
-    
+
     ########################################################################
     # Formatters for arguments
     ########################################################################
@@ -100,7 +100,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 
         helper.create_resource(options) do |host|
-                host.allocate(args[0], 
+                host.allocate(args[0],
                               options[:im],
                               options[:vmm],
                               options[:vnm],
@@ -190,5 +190,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :top, top_desc,
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
         helper.list_pool(options, true)
+    end
+
+    flush_desc = <<-EOT.unindent
+        Reschedules the VMS so the host is freed.
+    EOT
+
+    command :flush, top_desc, [:range,:hostid_list] do
+        helper.perform_actions(args[0],options,"flush") do |host|
+            host.flush
+        end
     end
 end
