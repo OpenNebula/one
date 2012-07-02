@@ -33,6 +33,29 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
+/* ************************************************************************ */
+/* Cluster :: Constructor/Destructor                                        */
+/* ************************************************************************ */
+
+Cluster::Cluster(
+        int id,
+        const string& name,
+        ClusterTemplate*  cl_template):
+            PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
+            hosts("HOSTS"),
+            datastores("DATASTORES"),
+            vnets("VNETS")
+{
+    if (cl_template != 0)
+    {
+        obj_template = cl_template;
+    }
+    else
+    {
+        obj_template = new ClusterTemplate;
+    }
+}
+
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
@@ -170,6 +193,7 @@ string& Cluster::to_xml(string& xml) const
     string          host_collection_xml;
     string          ds_collection_xml;
     string          vnet_collection_xml;
+    string          template_xml;
 
     oss <<
     "<CLUSTER>"  <<
@@ -179,7 +203,7 @@ string& Cluster::to_xml(string& xml) const
         hosts.to_xml(host_collection_xml)    <<
         datastores.to_xml(ds_collection_xml) <<
         vnets.to_xml(vnet_collection_xml)    <<
-
+        obj_template->to_xml(template_xml)   <<
     "</CLUSTER>";
 
     xml = oss.str();
@@ -255,6 +279,18 @@ int Cluster::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
     content.clear();
+
+    // Get associated classes
+    ObjectXML::get_nodes("/CLUSTER/TEMPLATE", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

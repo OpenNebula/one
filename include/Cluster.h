@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
 #include "DatastorePool.h"
+#include "ClusterTemplate.h"
 
 using namespace std;
 
@@ -29,6 +30,23 @@ using namespace std;
 class Cluster : public PoolObjectSQL
 {
 public:
+
+    /**
+     * Returns the SYSTEM_DS attribute, or the system DS id if it is not defined
+     *
+     * @return the SYSTEM_DS attribute, or the system DS id if it is not defined
+     */
+    int get_ds_id()
+    {
+        int ds_id;
+
+        if ( obj_template->get("SYSTEM_DS", ds_id) == false )
+        {
+            ds_id = DatastorePool::SYSTEM_DS_ID;
+        }
+
+        return ds_id;
+    }
 
     // *************************************************************************
     // Object Collections (Public)
@@ -78,6 +96,7 @@ public:
      */
     int add_datastore(int id, string& error_msg)
     {
+        // TODO: should fail for any system DS?
         if ( id == DatastorePool::SYSTEM_DS_ID )
         {
             ostringstream oss;
@@ -184,11 +203,9 @@ private:
     // Constructor
     // *************************************************************************
 
-    Cluster(int id, const string& name):
-        PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
-        hosts("HOSTS"),
-        datastores("DATASTORES"),
-        vnets("VNETS"){};
+    Cluster(int id,
+            const string& name,
+            ClusterTemplate*  cl_template);
 
     virtual ~Cluster(){};
 
@@ -259,6 +276,14 @@ private:
      * @return 0 if cluster can be dropped, -1 otherwise
      */
     int check_drop(string& error_msg);
+
+    /**
+     *  Factory method for cluster templates
+     */
+    Template * get_new_template() const
+    {
+        return new ClusterTemplate;
+    }
 };
 
 #endif /*CLUSTER_H_*/

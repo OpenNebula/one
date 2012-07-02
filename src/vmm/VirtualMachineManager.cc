@@ -1313,7 +1313,7 @@ void VirtualMachineManager::attach_action(
     string  vm_tmpl;
     string* drv_msg;
     string  tm_command;
-    string  system_tm_mad;
+    string  vm_tm_mad;
     string  opennebula_hostname;
     string  prolog_cmd;
     string  disk_path;
@@ -1352,13 +1352,13 @@ void VirtualMachineManager::attach_action(
         goto error_disk;
     }
 
-    system_tm_mad       = nd.get_system_ds_tm_mad();
+    vm_tm_mad = vm->get_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
     rc = Nebula::instance().get_tm()->prolog_transfer_command(
             vm,
             disk,
-            system_tm_mad,
+            vm_tm_mad,
             opennebula_hostname,
             os,
             error_os);
@@ -1445,7 +1445,7 @@ void VirtualMachineManager::detach_action(
     string        vm_tmpl;
     string *      drv_msg;
     string        tm_command;
-    string        system_tm_mad;
+    string        vm_tm_mad;
     string        opennebula_hostname;
     string        epilog_cmd;
     string        disk_path;
@@ -1484,7 +1484,7 @@ void VirtualMachineManager::detach_action(
         goto error_disk;
     }
 
-    system_tm_mad       = nd.get_system_ds_tm_mad();
+    vm_tm_mad = vm->get_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
     disk->vector_value("DISK_ID", disk_id);

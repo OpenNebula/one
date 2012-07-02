@@ -99,13 +99,19 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
                                                 string& name, 
                                                 string& vmm,
                                                 string& vnm,
+                                                string& tm,
+                                                int&    ds_id,
                                                 RequestAttributes& att,
                                                 PoolObjectAuth&    host_perms)
 {
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
 
-    Host * host;
+    Host *      host;
+    Cluster *   cluster;
+    Datastore * ds;
+
+    int cluster_id;
 
     host = hpool->get(hid,true);
 
@@ -124,7 +130,64 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
 
     host->get_permissions(host_perms);
 
+    cluster_id = host->get_cluster_id();
+
     host->unlock();
+
+    if ( cluster_id != -1 )
+    {
+        cluster = nd.get_clpool()->get(cluster_id, true);
+
+        if ( cluster == 0 )
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
+                    att);
+
+            return -1;
+        }
+
+        ds_id = cluster->get_ds_id();
+
+        cluster->unlock();
+    }
+    else
+    {
+        ds_id = DatastorePool::SYSTEM_DS_ID;
+    }
+
+    ds = nd.get_dspool()->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE),ds_id),
+                att);
+
+        return -1;
+    }
+
+    if ( ds->is_system() == false )
+    {
+        ostringstream oss;
+
+        ds->unlock();
+
+        oss << object_name(PoolObjectSQL::CLUSTER)
+            << " [" << cluster_id << "] has its SYSTEM_DS set to "
+            << object_name(PoolObjectSQL::DATASTORE)
+            << " [" << ds_id << "], but it is not a system one.";
+
+        failure_response(INTERNAL,
+                request_error(oss.str(),""),
+                att);
+
+        return -1;
+    }
+
+    tm = ds->get_tm_mad();
+
+    ds->unlock();
 
     return 0;
 }
@@ -156,6 +219,8 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        const string&    hostname,
                                        const string&    vmm_mad,
                                        const string&    vnm_mad,
+                                       const string&    tm_mad,
+                                       int              ds_id,
                                        RequestAttributes& att)
 {
     string  vmdir;
@@ -163,7 +228,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
-    vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+    vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
     rc = vmpool->update_history(vm);
 
@@ -308,13 +373,16 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string hostname;
     string vmm_mad;
     string vnm_mad;
+    string tm_mad;
+    int    ds_id;
 
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
     int hid = xmlrpc_c::value_int(paramList.getInt(2));
 
     bool auth = false;
 
-    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,att, host_perms) != 0)
+    if (get_host_information(
+            hid,hostname,vmm_mad,vnm_mad,tm_mad, ds_id, att, host_perms) != 0)
     {
         return;
     }
@@ -341,7 +409,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,att) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id,att) != 0)
     {
         vm->unlock();
         return;
@@ -369,6 +437,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string hostname;
     string vmm_mad;
     string vnm_mad;
+    string tm_mad;
+    int    ds_id;
 
     int  id   = xmlrpc_c::value_int(paramList.getInt(1));
     int  hid  = xmlrpc_c::value_int(paramList.getInt(2));
@@ -376,7 +446,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     bool auth = false;
 
-    if (get_host_information(hid,hostname,vmm_mad,vnm_mad,att, host_perms) != 0)
+    if (get_host_information(
+            hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id, att, host_perms) != 0)
     {
         return;
     }
@@ -405,7 +476,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,att) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id,att) != 0)
     {
         vm->unlock();
         return;
