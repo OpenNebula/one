@@ -37,11 +37,11 @@ module OpenNebula
 
         SHORT_HOST_STATES={
             "INIT"                 => "init",
-            "MONITORING_MONITORED" => "update",          
+            "MONITORING_MONITORED" => "update",
             "MONITORED"            => "on",
             "ERROR"                => "err",
             "DISABLED"             => "off",
-            "MONITORING_ERROR"     => "retry", 
+            "MONITORING_ERROR"     => "retry",
         }
 
         # Creates a Host description with just its identifier
@@ -72,7 +72,7 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Host
         #######################################################################
-        
+
         # Retrieves the information of the given Host.
         def info()
             super(HOST_METHODS[:info], 'HOST')
@@ -107,6 +107,26 @@ module OpenNebula
             set_enabled(false)
         end
 
+        def flush()
+            self.disable
+
+            vm_pool = OpenNebula::VirtualMachinePool.new(@client,
+                                                VirtualMachinePool::INFO_ALL_VM)
+
+            rc = vm_pool.info
+            if OpenNebula.is_error?(rc)
+                 puts rc.message
+                 exit -1
+            end
+
+            vm_pool.each do |vm|
+                hid = vm['HISTORY_RECORDS/HISTORY[last()]/HID']
+                if hid == self['ID']
+                    vm.resched
+                end
+            end
+        end
+
         # Replaces the template contents
         #
         # +new_template+ New template contents
@@ -125,12 +145,12 @@ module OpenNebula
         #   host.monitoring( ['HOST_SHARE/FREE_CPU', 'HOST_SHARE/RUNNING_VMS'] )
         #
         #   { "HOST_SHARE/RUNNING_VMS" =>
-        #       [["1337266000", "1"], 
-        #        ["1337266044", "1"], 
+        #       [["1337266000", "1"],
+        #        ["1337266044", "1"],
         #        ["1337266088", "3"]],
         #     "HOST_SHARE/FREE_CPU" =>
-        #       [["1337266000", "800"], 
-        #        ["1337266044", "800"], 
+        #       [["1337266000", "800"],
+        #        ["1337266044", "800"],
         #        ["1337266088", "800"]]
         #   }
         def monitoring(xpath_expressions)
