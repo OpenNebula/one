@@ -54,8 +54,8 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
-        cpu_threshold(0.9),
-        mem_threshold(1),
+        cpu_threshold(0),
+        mem_threshold(0),
         client(0)
     {
         am.addListener(this);
