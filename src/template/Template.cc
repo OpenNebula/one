@@ -436,6 +436,29 @@ bool Template::get(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool Template::get(
+        const string&   name,
+        float&          value) const
+{
+    string sval;
+
+    get(name, sval);
+
+    if ( sval == "" )
+    {
+        value = 0;
+        return false;
+    }
+
+    istringstream iss(sval);
+
+    iss >> value;
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& Template::to_xml(string& xml) const
 {
     multimap<string,Attribute *>::const_iterator  it;
