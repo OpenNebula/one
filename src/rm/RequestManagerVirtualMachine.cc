@@ -134,20 +134,27 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
 
     host->unlock();
 
-    cluster = nd.get_clpool()->get(cluster_id, true);
-
-    if ( cluster == 0 )
+    if ( cluster_id != -1 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
-                att);
+        cluster = nd.get_clpool()->get(cluster_id, true);
 
-        return -1;
+        if ( cluster == 0 )
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
+                    att);
+
+            return -1;
+        }
+
+        ds_id = cluster->get_ds_id();
+
+        cluster->unlock();
     }
-
-    ds_id = cluster->get_ds_id();
-
-    cluster->unlock();
+    else
+    {
+        ds_id = DatastorePool::SYSTEM_DS_ID;
+    }
 
     ds = nd.get_dspool()->get(ds_id, true);
 
