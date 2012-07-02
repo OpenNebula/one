@@ -23,18 +23,20 @@ void HostXML::get_capacity(int& cpu, int& memory,
 {
     vector<string> result;
 
-    memory      = free_mem;
-    cpu         = free_cpu;
+    cpu = free_cpu;
 
-    /* eg. 96.7 >= 0.9 * 100, We need to round */
+    /* eg. 96.7 >= 0.9 * 100, Round so 96.7 free is 100 (and CPU = 1, fits)*/
     if ( cpu >= static_cast<int>(cpu_threshold * static_cast<float>(max_cpu)) )
     {
         cpu = static_cast<int>(ceil(static_cast<float>(cpu)/100.0) * 100);
     }
 
-    if ( memory >= static_cast<int>(mem_threshold * static_cast<float>(max_mem)) )
+    memory = free_mem - static_cast<int>(mem_threshold * static_cast<float>(max_mem));
+
+    /* sanity check in case the free_mem goes below the threshold */
+    if ( memory < 0 )
     {
-        memory = static_cast<int>(ceil(static_cast<float>(memory)/100.0) * 100);
+        memory = 0;
     }
 }
 
