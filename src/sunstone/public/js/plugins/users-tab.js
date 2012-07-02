@@ -146,20 +146,15 @@ var user_quotas_tmpl = '<form id="user_quotas_form" action="">\
       <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
       <div class="clear"></div>\
       <div class="clear"></div>\
-      <div>'+tr("Current quotas")+':</div>\
       <div class="current_quotas">\
-         <label>'+tr("VM quota")+':</label><br />\
-         <ul id="quotas_ul_vm">\
-         </ul>\
-         <label>'+tr("Datastore quotas")+':</label><br />\
-         <ul id="quotas_ul_datastore">\
-         </ul>\
-         <label>'+tr("Image quotas")+':</label><br />\
-         <ul id="quotas_ul_image">\
-         </ul>\
-         <label>'+tr("Network quotas")+':</label><br />\
-         <ul id="quotas_ul_network">\
-         </ul>\
+         <table class="info_table" style="width:640px;margin-top:0;">\
+            <thead><tr>\
+                 <th>'+tr("Type")+'</th>\
+                 <th style="width:100%;">'+tr("Quota")+'</th>\
+                 <th>'+tr("Edit")+'</th></tr></thead>\
+            <tbody>\
+            </tbody>\
+         </table>\
       </div>\
       <div class="form_buttons">\
            <button class="button" type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
@@ -329,10 +324,10 @@ var user_actions = {
             // quota objects with html code (<li>) that can be inserted
             // in the dialog
             var parsed = parseQuotas(response.USER);
-            $('ul#quotas_ul_vm',$user_quotas_dialog).html(parsed.VM)
-            $('ul#quotas_ul_datastore',$user_quotas_dialog).html(parsed.DATASTORE)
-            $('ul#quotas_ul_image',$user_quotas_dialog).html(parsed.IMAGE)
-            $('ul#quotas_ul_network',$user_quotas_dialog).html(parsed.NETWORK)
+            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.VM);
+            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.DATASTORE);
+            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.IMAGE);
+            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.NETWORK);
         },
         error: onError
     },
@@ -597,21 +592,31 @@ function updateUserInfo(request,user){
         '</table>'
     };
 
+    var quotas_tab_html = '';
+
+    if (!$.isEmptyObject(user_info.VM_QUOTA))
+        quotas_tab_html += '<table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.VM_QUOTA)+'</tbody>\
+          </table>'
+
+    if (!$.isEmptyObject(user_info.DATASTORE_QUOTA))
+        quotas_tab_html += '<table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.DATASTORE_QUOTA)+'</tbody>\
+          </table>'
+
+    if (!$.isEmptyObject(user_info.IMAGE_QUOTA))
+        quotas_tab_html += '<table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.IMAGE_QUOTA)+'</tbody>\
+          </table>';
+
+    if (!$.isEmptyObject(user_info.NETWORK_QUOTA))
+        quotas_tab_html += '<table class="info_table">\
+            <tbody>'+prettyPrintJSON(user_info.NETWORK_QUOTA)+'</tbody>\
+          </table>';
+
     var quotas_tab = {
         title : tr("User quotas"),
-        content : '\
-          <table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.DATASTORE_QUOTA)+'</tbody>\
-          </table>\
-          <table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.VM_QUOTA)+'</tbody>\
-          </table>\
-          <table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.IMAGE_QUOTA)+'</tbody>\
-          </table>\
-          <table class="info_table">\
-            <tbody>'+prettyPrintJSON(user_info.NETWORK_QUOTA)+'</tbody>\
-          </table>'
+        content : quotas_tab_html
     };
 
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);

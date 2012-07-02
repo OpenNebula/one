@@ -105,21 +105,15 @@ var group_quotas_tmpl = '<form id="group_quotas_form" action="">\
       <button style="width:100px!important;" class="add_remove_button add_button" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
       <div class="clear"></div>\
       <div class="clear"></div>\
-      <div>'+tr("Current quotas")+':</div>\
       <div class="current_quotas">\
-         <label>'+tr("VM quota")+':</label><br />\
-         <ul id="quotas_ul_vm">\
-         </ul>\
-         <label>'+tr("Datastore quotas")+':</label><br />\
-         <ul id="quotas_ul_datastore">\
-         </ul>\
-         <label>'+tr("Image quotas")+':</label><br />\
-         <ul id="quotas_ul_image">\
-         </ul>\
-         <label>'+tr("Network quotas")+':</label><br />\
-         <ul id="quotas_ul_network">\
-         </ul>\
-      </div>\
+         <table class="info_table" style="width:640px;margin-top:0;">\
+            <thead><tr>\
+                 <th>'+tr("Type")+'</th>\
+                 <th style="width:100%;">'+tr("Quota")+'</th>\
+                 <th>'+tr("Edit")+'</th></tr></thead>\
+            <tbody>\
+            </tbody>\
+         </table>\
       <div class="form_buttons">\
            <button class="button" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
       </div>\
@@ -192,10 +186,10 @@ var group_actions = {
         call: OpenNebula.Group.show,
         callback: function (request,response) {
             var parsed = parseQuotas(response.GROUP);
-            $('ul#quotas_ul_vm',$group_quotas_dialog).html(parsed.VM)
-            $('ul#quotas_ul_datastore',$group_quotas_dialog).html(parsed.DATASTORE)
-            $('ul#quotas_ul_image',$group_quotas_dialog).html(parsed.IMAGE)
-            $('ul#quotas_ul_network',$group_quotas_dialog).html(parsed.NETWORK)
+            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.VM);
+            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.DATASTORE);
+            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.IMAGE);
+            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.NETWORK);
         },
         error: onError
     },
