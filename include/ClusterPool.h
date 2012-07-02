@@ -151,7 +151,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Cluster(-1,"");
+        return new Cluster(-1,"",0);
     };
 };
 

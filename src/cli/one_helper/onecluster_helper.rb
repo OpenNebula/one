@@ -99,6 +99,11 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", cluster.name]
         puts
 
+        CLIHelper.print_header(str_h1 % "CLUSTER TEMPLATE", false)
+        puts cluster.template_str
+
+        puts
+
         CLIHelper.print_header("%-15s" % ["HOSTS"])
         cluster.host_ids.each do |id|
             puts "%-15s" % [id]
