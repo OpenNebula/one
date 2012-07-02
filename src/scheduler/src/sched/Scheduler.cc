@@ -139,6 +139,9 @@ void Scheduler::start()
 
     conf.get("MAX_HOST", host_dispatch_limit);
 
+    conf.get("CPU_THRESHOLD", cpu_threshold);
+    conf.get("MEM_THRESHOLD", mem_threshold);
+
     conf.get("LIVE_RESCHEDS", live_rescheds);
    
     oss.str("");
@@ -425,7 +428,7 @@ void Scheduler::match()
 
             vm->get_requirements(vm_cpu,vm_memory,vm_disk);
 
-            host->get_capacity(host_cpu, host_memory, threshold);
+            host->get_capacity(host_cpu, host_memory, cpu_threshold, mem_threshold);
 
             if ((vm_memory <= host_memory) && (vm_cpu <= host_cpu))
             {

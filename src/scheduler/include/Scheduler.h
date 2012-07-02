@@ -54,7 +54,8 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
-        threshold(0.9),
+        cpu_threshold(0.9),
+        mem_threshold(1),
         client(0)
     {
         am.addListener(this);
@@ -158,7 +159,12 @@ private:
     /**
      *  Threshold value to round up freecpu
      */
-    float threshold;
+    float cpu_threshold;
+
+    /**
+     *  Threshold value to round up freemem
+     */
+    float mem_threshold;
 
     /**
      *  XML_RPC client

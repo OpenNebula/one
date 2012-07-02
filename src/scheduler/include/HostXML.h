@@ -44,9 +44,11 @@ public:
      *  Gets the current host capacity
      *    @param cpu the host free cpu, scaled according to a given threshold
      *    @param memory the host free memory
-     *    @param threshold to consider the host totally free
+     *    @param cpu_threshold to consider the host totally free
+     *    @param mem_threshold to consider the host totally free
      */
-    void get_capacity(int& cpu, int& memory, float threshold) const;
+    void get_capacity(int& cpu, int& memory,
+            float cpu_threshold, float mem_threshold) const;
 
     /**
      *  Tests whether a new VM can be hosted by the host or not

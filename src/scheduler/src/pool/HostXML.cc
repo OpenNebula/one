@@ -18,7 +18,8 @@
 #include "HostXML.h"
 
 
-void HostXML::get_capacity(int& cpu, int& memory, float threshold) const
+void HostXML::get_capacity(int& cpu, int& memory,
+        float cpu_threshold, float mem_threshold) const
 {
     vector<string> result;
 
@@ -26,9 +27,14 @@ void HostXML::get_capacity(int& cpu, int& memory, float threshold) const
     cpu         = free_cpu;
 
     /* eg. 96.7 >= 0.9 * 100, We need to round */
-    if ( cpu >= static_cast<int>(threshold * static_cast<float>(max_cpu)) )
+    if ( cpu >= static_cast<int>(cpu_threshold * static_cast<float>(max_cpu)) )
     {
         cpu = static_cast<int>(ceil(static_cast<float>(cpu)/100.0) * 100);
+    }
+
+    if ( memory >= static_cast<int>(mem_threshold * static_cast<float>(max_mem)) )
+    {
+        memory = static_cast<int>(ceil(static_cast<float>(memory)/100.0) * 100);
     }
 }
 

@@ -251,6 +251,18 @@ public:
         const string& name,
         int&    value) const;
 
+    /**
+     *  Gets the value of a Single attributes (float) with the given name.
+     *    @param name the attribute name.
+     *    @param value the attribute value, an int, 0 if the attribute is not
+     *    defined or not Single
+     *
+     *    @return True if the Single attribute was found
+     */
+    virtual bool get(
+        const string&   name,
+        float&          value) const;
+
     friend ostream& operator<<(ostream& os, const Template& t);
 
     /**
