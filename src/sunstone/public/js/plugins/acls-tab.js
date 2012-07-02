@@ -183,7 +183,7 @@ var acls_tab = {
     parentTab: 'system_tab'
 }
 
-
+//Monitoring for ACLs - just count how many
 SunstoneMonitoringConfig['ACL'] = {
     plot: function(monitoring){
         //$('#totalAcls', $dashboard).text(monitoring['totalAcls'])
@@ -358,12 +358,14 @@ function setupCreateAclDialog(){
         height: height
     });
 
+    //Default selected options
     $('#res_subgroup_all',dialog).attr('checked','checked');
     $('#res_id',dialog).attr('disabled','disabled');
     $('#belonging_to',dialog).attr('disabled','disabled');
 
     $('button',dialog).button();
 
+    //Resource subset radio buttons
     $('.res_subgroup',dialog).click(function(){
         var value = $(this).val();
         var context = $(this).parent();
@@ -383,6 +385,7 @@ function setupCreateAclDialog(){
         };
     });
 
+    //trigger ACL string preview on keyup
     $('input#res_id',dialog).keyup(function(){
         $(this).trigger("change");
     });
@@ -480,12 +483,12 @@ function setupCreateAclDialog(){
 // required: we have to put the right options in the
 // selects.
 function popUpCreateAclDialog(){
-    var users = $('<select>'+users_select+'</select>');
+    var users = $('<select>'+users_sel()+'</select>');
     $('.empty_value',users).remove();
     $('option',users).addClass("user");
     users.prepend('<option value="">---'+tr("Users")+'---</option>');
 
-    var groups = $('<select>'+groups_select+'</select>');
+    var groups = $('<select>'+groups_sel()+'</select>');
     $('.empty_value',groups).remove();
     $('option',groups).addClass("group");
     groups.prepend('<option value="">---'+tr("Groups")+'---</option>');

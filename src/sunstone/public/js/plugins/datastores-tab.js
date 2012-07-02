@@ -508,8 +508,7 @@ function updateDatastoreInfo(request,ds){
     Sunstone.popUpInfoPanel("datastore_info_panel");
 }
 
-// Sets up the create-template dialog and all the processing associated to it,
-// which is a lot.
+// Set up the create datastore dialog
 function setupCreateDatastoreDialog(){
 
     dialogs_context.append('<div title=\"'+tr("Create Datastore")+'\" id="create_datastore_dialog"></div>');
@@ -624,6 +623,9 @@ function setupDatastoreTemplateUpdateDialog(){
     });
 };
 
+// Standard template edition dialog
+// If one element is selected auto fecth template
+// otherwise let user select
 function popUpDatastoreTemplateUpdateDialog(){
     var select = makeSelectOptions(dataTable_datastores,
                                    1,//id_col
@@ -711,6 +713,8 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_datastores);
     infoListener(dataTable_datastores,'Datastore.showinfo');
 
+    // Reset filter in case the view was filtered because it was accessed
+    // from a single cluster.
     $('div#menu li#li_datastores_tab').live('click',function(){
         dataTable_datastores.fnFilter('',5);
     });

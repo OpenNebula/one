@@ -219,8 +219,14 @@ var clusters_tab = {
     parentTab: "infra_tab",
 };
 
+
+// Cluster monitoring configuration. This config controls the monitoring
+// which is plotted in the cluster dashboards.
+// It operations are run for every cluster and are related to hosts in that
+// cluster
 SunstoneMonitoringConfig['CLUSTER_HOST'] = {
     plot: function(monitoring){
+        //plot the series calculated for the hosts in a specific cluster
         var cluster_id = SunstoneMonitoringConfig.CLUSTER_HOST.cluster_id
         if (cluster_id == '-1') cluster_id = '-';
 
@@ -232,6 +238,9 @@ SunstoneMonitoringConfig['CLUSTER_HOST'] = {
                                     monitoring[plotID]);
         };
     },
+    // Monitor configuration are the same those in the HOST
+    // configuration (except for cluster partitions)
+    // the difference is that these are plotted somewhere else.
     monitor : {
         "statePie" : {
             partitionPath: "STATE",
@@ -325,7 +334,7 @@ Sunstone.addActions(cluster_actions);
 Sunstone.addMainTab('clusters_tab',clusters_tab);
 //Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
-
+//return lists of selected elements in cluster list
 function clusterElements(){
     return getSelectedNodes(dataTable_clusters);
 }
@@ -341,25 +350,8 @@ function clusterElementArray(element_json){
     ];
 }
 
-/*
-//Listen to clicks on the tds of the tables and shows the info dialogs.
-function hostInfoListener(){
-    $('#tbodyhosts tr',dataTable_hosts).live("click",function(e){
-        //do nothing if we are clicking a checkbox!
-        if ($(e.target).is('input')) {return true;}
 
-        var aData = dataTable_hosts.fnGetData(this);
-        var id = $(aData[0]).val();
-        if (!id) return true;
-
-        popDialogLoading();
-        Sunstone.runAction("Host.showinfo",id);
-        return false;
-    });
-}
-*/
-
-//updates the host select by refreshing the options in it
+//updates the cluster select by refreshing the options in it
 function updateClusterSelect(){
     clusters_select = '<option value="-1">Default (none)</option>';
     clusters_select += makeSelectOptions(dataTable_clusters,
@@ -371,7 +363,7 @@ function updateClusterSelect(){
                                         );
 }
 
-//callback for an action affecting a host element
+//callback for an action affecting a cluster element
 function updateClusterElement(request, element_json){
     var id = element_json.CLUSTER.ID;
     var element = clusterElementArray(element_json);
@@ -379,14 +371,14 @@ function updateClusterElement(request, element_json){
     updateClusterSelect();
 }
 
-//callback for actions deleting a host element
+//callback for actions deleting a cluster element
 function deleteClusterElement(req){
     deleteElement(dataTable_clusters,'#cluster_'+req.request.data);
     $('div#cluster_tab_'+req.request.data,main_tabs_context).remove();
     updateClusterSelect();
 }
 
-//call back for actions creating a host element
+//call back for actions creating a cluster element
 function addClusterElement(request,element_json){
     var id = element_json.CLUSTER.ID;
     var element = clusterElementArray(element_json);
@@ -394,31 +386,34 @@ function addClusterElement(request,element_json){
     updateClusterSelect();
 }
 
-//callback to update the list of hosts.
+//callback to update the list of clusters.
 function updateClustersView (request,list){
     var list_array = [];
 
     $.each(list,function(){
-        //Grab table data from the host_list
+        //Grab table data from the list
         list_array.push(clusterElementArray(this));
     });
 
+    //Remove the menus as we recreate them again.
     removeClusterMenus();
+    newClusterMenu(list);
 
     updateView(list_array,dataTable_clusters);
     updateClusterSelect();
-    //dependency with the dashboard plugin
+    //dependency with the infraestructure dashboard plugin
     updateInfraDashboard("clusters",list);
-    newClusterMenu(list);
 };
 
-
+//generates the HTML for the dashboard of a specific cluster
 function clusterTabContent(cluster_json) {
     var cluster = cluster_json.CLUSTER;
     var hosts_n = 0;
     var dss_n = 0;
     var vnets_n = 0;
 
+
+    // Count resources in cluster
     if (cluster.DATASTORES.ID &&
         cluster.DATASTORES.ID.constructor == Array){
         dss_n = cluster.DATASTORES.ID.length;
@@ -496,8 +491,8 @@ function clusterTabContent(cluster_json) {
               <td class="key_td">' + tr("Hosts CPU Usage") + '</td>\
             </tr>\
             <tr>\
-              <td colspan="2"><div id="statePie'+cluster.ID+'" style="float:left;width:50%;height:100px;"></div>\
-                              <div id="globalCpuUsage'+cluster.ID+'" style="float:right;width:50%;height:100px;"></div></td>\
+              <td colspan="2"><div id="statePie'+cluster.ID+'" style="float:left;width:50%;height:100px;">'+tr("No monitoring information available")+'</div>\
+                              <div id="globalCpuUsage'+cluster.ID+'" style="float:right;width:50%;height:100px;">'+tr("No monitoring information available")+'</div></td>\
             </tr>\
 \
             <tr>\
@@ -506,7 +501,7 @@ function clusterTabContent(cluster_json) {
             </tr>\
             <tr>\
               <td colspan="2">\
-               <div id="cpuUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+               <div id="cpuUsageBar'+cluster.ID+'" style="width:95%;height:50px">'+tr("No monitoring information available")+'</div>\
               </td>\
             </tr>\
 \
@@ -516,7 +511,7 @@ function clusterTabContent(cluster_json) {
             </tr>\
             <tr>\
               <td colspan="2">\
-               <div id="memoryUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+               <div id="memoryUsageBar'+cluster.ID+'" style="width:95%;height:50px">'+tr("No monitoring information available")+'</div>\
               </td>\
             </tr>\
           </table>\
@@ -613,7 +608,7 @@ function clusterTabContent(cluster_json) {
             </tr>\
             <tr>\
               <td colspan="2">\
-               <div id="cpuUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+               <div id="cpuUsageBar'+cluster.ID+'" style="width:95%;height:50px">'+tr("No monitoring information available")+'</div>\
               </td>\
             </tr>\
 \
@@ -623,7 +618,7 @@ function clusterTabContent(cluster_json) {
             </tr>\
             <tr>\
               <td colspan="2">\
-               <div id="memoryUsageBar'+cluster.ID+'" style="width:95%;height:50px"></div>\
+               <div id="memoryUsageBar'+cluster.ID+'" style="width:95%;height:50px">'+tr("No monitoring information available")+'</div>\
               </td>\
             </tr>\
           </table>\
@@ -690,6 +685,7 @@ function clusterTabContent(cluster_json) {
     return html_code;
 };
 
+//Removes the clusters from the submenu
 function removeClusterMenus(){
     var data = dataTable_clusters.fnGetData();
 
@@ -707,7 +703,8 @@ function removeClusterMenus(){
     };
 };
 
-
+// Creates new cluster submenus
+// insert cluster none manually
 function newClusterMenu(list){
     var cluster_none = {
         'CLUSTER' : {
@@ -728,11 +725,15 @@ function newClusterMenu(list){
     $('div#menu li#li_clusters_tab span').addClass('ui-icon-circle-plus');
 };
 
+// Create new cluster menu
 function newClusterMenuElement(element){
     var cluster = element.CLUSTER;
+
+    //trim long cluster names
     var menu_name = cluster.NAME.length > 10 ?
         cluster.NAME.substring(0,9)+'...' : cluster.NAME;
 
+    // Menu object
     var menu_cluster = {
         title: menu_name + ' (id ' + cluster.ID + ')',
         content: clusterTabContent(element),
@@ -762,6 +763,7 @@ function newClusterMenuElement(element){
         parentTab: "cluster_tab_" + cluster.ID
     };
 */
+    // Add to sunstone
     Sunstone.addMainTab('cluster_tab_'+cluster.ID,menu_cluster,true);
 
 //    Sunstone.addMainTab('cluster_hosts_tab_'+cluster.ID,submenu_hosts,true);
@@ -769,6 +771,8 @@ function newClusterMenuElement(element){
 //    Sunstone.addMainTab('cluster_vnets_tab_'+cluster.ID,submenu_vnets,true);
 };
 
+// Basicly, we show the hosts/datastore/vnets tab, but before we set
+// a filter on the cluster column, so it only shows the cluster we want.
 function clusterResourceViewListeners(){
     //hack  the menu selection
     $('.show_tab_button').live('click',function(){
@@ -860,6 +864,11 @@ function popUpCreateClusterDialog(){
     return false;
 }
 
+
+// Receives the list of hosts, divides them into clusters.
+// For each cluster, it calls the monitoring action for the hosts
+// on that cluster. The monitoring is then plotted in the cluster dashboard.
+// This is called from hosts plugin.
 function monitorClusters(list){
     var clustered_hosts = { "-" : []}
 
@@ -933,7 +942,7 @@ $(document).ready(function(){
     addElement([
         spinner,
         '','',''],dataTable_clusters);
-    Sunstone.runAction("Cluster.list");
+//    Sunstone.runAction("Cluster.list");
 
     setupCreateClusterDialog();
 

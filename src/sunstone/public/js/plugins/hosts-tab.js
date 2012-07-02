@@ -17,6 +17,7 @@
 /*Host tab plugin*/
 /* HOST_HISTORY_LENGTH is ignored by server */
 var HOST_HISTORY_LENGTH = 40;
+// Configuration object for historical graphs of individual hosts
 var host_graphs = [
     {
         title : tr("CPU Monitoring information"),
@@ -363,29 +364,34 @@ var hosts_tab = {
     showOnTopMenu: false,
 };
 
+
+// Configuration object for plots related to hosts in the dashboard
 SunstoneMonitoringConfig['HOST'] = {
     plot: function(monitoring){
+        // Write the total hosts and discard this value
         $('#totalHosts', $dashboard).text(monitoring['totalHosts'])
         delete monitoring['totalHosts']
 
         //if (!$dashboard.is(':visible')) return;
 
+        //Plot each of the monitored series
         for (plotID in monitoring){
             var container = $('div#'+plotID,$dashboard);
             if (!container.length) continue;
             SunstoneMonitoring.plot("HOST",
                                     plotID,
                                     container,
-                                    monitoring[plotID]);
+                                    monitoring[plotID]); //serie
         };
     },
     monitor : {
+        // Config to extract data to make state pie
         "statePie" : {
-            partitionPath: "STATE",
+            partitionPath: "STATE", //we partition hosts acc. to STATE
             operation: SunstoneMonitoring.ops.partition,
-            dataType: "pie",
+            dataType: "pie", //we want to paint a pie
             colorize: function(state){
-                switch (state) {
+                switch (state) { //This is how we color each pie sector
                 case '0': return "rgb(239,201,86)" //yellow
                 case '1': return "rgb(175,216,248)" //blue
                 case '2': return "rgb(108,183,108)" //green
@@ -394,7 +400,7 @@ SunstoneMonitoringConfig['HOST'] = {
                 case '5': return "rgb(160,160,160)" //light gray
                 }
             },
-            plotOptions : {
+            plotOptions : { //jquery.flot plotting options
                 series: { pie: { show: true  } },
                 legend : {
                     labelFormatter: function(label, series){
@@ -405,13 +411,16 @@ SunstoneMonitoringConfig['HOST'] = {
                 }
             }
         },
-        "cpuPerCluster" : {
-            path: ["HOST_SHARE","CPU_USAGE"],
-            partitionPath: "CLUSTER_ID",
+        "cpuPerCluster" : { //cpu used in each cluster
+            path: ["HOST_SHARE","CPU_USAGE"], //totalize cpu
+            partitionPath: "CLUSTER_ID", //in each cluster
             operation: SunstoneMonitoring.ops.partition,
-            dataType: "bars",
+            dataType: "bars", //we want to paint vertical bars
             plotOptions: {
                 series: { bars: {show: true, barWidth: 0.5, align: 'center' }},
+                //customLabels is a custom option, means a ticks array will
+                //be added to this configuration with the labels (cluster
+                //names) when it is ready.
                 xaxis: { show: true, customLabels: true },
                 yaxis: { min: 0 },
                 legend : {
@@ -424,7 +433,7 @@ SunstoneMonitoringConfig['HOST'] = {
                 }
             }
         },
-        "memoryPerCluster" : {
+        "memoryPerCluster" : { //memory used in each cluster. same as above.
             path: ["HOST_SHARE","MEM_USAGE"],
             partitionPath: "CLUSTER_ID",
             operation: SunstoneMonitoring.ops.partition,
@@ -448,7 +457,7 @@ SunstoneMonitoringConfig['HOST'] = {
                 }
             }
         },
-        "globalCpuUsage" : {
+        "globalCpuUsage" : { //pie according to cpu usage.
             partitionPath: ["HOST_SHARE", "USED_CPU"],
             dataType: "pie",
             operation: SunstoneMonitoring.ops.hostCpuUsagePartition,
@@ -456,10 +465,11 @@ SunstoneMonitoringConfig['HOST'] = {
                 series: { pie: { show: true  } },
             }
         },
-        "totalHosts" : {
+        "totalHosts" : { //count number of hosts
             operation: SunstoneMonitoring.ops.totalize
         },
-        "cpuUsageBar" : {
+        "cpuUsageBar" : { //horizontal bar with cpu usage
+            // we want the following values to be totalized in the same bar
             paths: [
                 ["HOST_SHARE","MAX_CPU"],
                 ["HOST_SHARE","USED_CPU"],
@@ -482,7 +492,7 @@ SunstoneMonitoringConfig['HOST'] = {
                 }
             }
         },
-        "memoryUsageBar" : {
+        "memoryUsageBar" : { //same as above
             paths: [
                 ["HOST_SHARE","MAX_MEM"],
                 ["HOST_SHARE","USED_MEM"],
@@ -518,7 +528,7 @@ Sunstone.addActions(host_actions);
 Sunstone.addMainTab('hosts_tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
-
+// return selected elements from hosts datatable
 function hostElements(){
     return getSelectedNodes(dataTable_hosts);
 }
@@ -624,7 +634,11 @@ function updateHostsView (request,host_list){
     });
 
     SunstoneMonitoring.monitor('HOST', host_list)
-    if (typeof(monitorClusters) != 'undefined') monitorClusters(host_list)
+
+    //if clusters_sel is there, it means the clusters have arrived.
+    //Otherwise do not attempt to monitor them.
+    if (typeof(monitorClusters) != 'undefined' && clusters_sel())
+        monitorClusters(host_list)
     updateView(host_list_array,dataTable_hosts);
     updateHostSelect();
     //dependency with the dashboard plugin
@@ -755,6 +769,8 @@ function setupCreateHostDialog(){
 
     $('button',dialog).button();
 
+
+    // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
        'input[name="custom_im_mad"],'+
        'input[name="custom_vnm_mad"]',dialog).parent().hide();
@@ -834,6 +850,7 @@ function setHostAutorefresh() {
     },INTERVAL+someTime());
 }
 
+// Call back when individual host history monitoring fails
 function hostMonitorError(req,error_json){
     var message = error_json.error.message;
     var info = req.request.data[0].monitor;
@@ -853,7 +870,7 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "sDom" : '<"H"lfrC>t<"F"ip>',
-        "oColVis": {
+        "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
         "bAutoWidth":false,
@@ -887,9 +904,14 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_hosts);
     infoListener(dataTable_hosts, "Host.showinfo");
 
+    // This listener removes any filter on hosts table when its menu item is
+    // selected. The cluster plugins will filter hosts when the hosts
+    // in a cluster are shown. So we have to make sure no filter has been
+    // left in place when we want to see all hosts.
     $('div#menu li#li_hosts_tab').live('click',function(){
         dataTable_hosts.fnFilter('',3);
     });
 
+    // Hide help
     $('div#hosts_tab div.legend_div',main_tabs_context).hide();
 });

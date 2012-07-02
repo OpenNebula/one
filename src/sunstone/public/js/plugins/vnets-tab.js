@@ -488,7 +488,7 @@ Sunstone.addActions(vnet_actions);
 Sunstone.addMainTab('vnets_tab',vnets_tab);
 Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
 
-
+// return list of selected elements in list
 function vnElements(){
     return getSelectedNodes(dataTable_vNetworks);
 }
@@ -634,6 +634,9 @@ function updateVNetworkInfo(request,vn){
 
 }
 
+// Prints the lis of leases depending on the Vnet TYPE
+// It adds the "add lease", "hold lease" fields, and each lease comes with
+// hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){
     var html ='<form style="display:inline-block;width:80%" id="leases_form" vnid="'+vn_info.ID+'"><table id="vn_leases_info_table" class="info_table" style="width:100%;">\
                <thead>\
@@ -881,6 +884,8 @@ function setupCreateVNetDialog() {
         var vlan = $('#vlan',this).val();
         var vlan_id = $('#vlan_id',this).val();
 
+        //Depending on network mode we include certain params in the
+        //template
         switch (network_mode) {
         case "default":
             if (!bridge && !phydev){
@@ -1066,6 +1071,9 @@ function setupVNetTemplateUpdateDialog(){
     });
 };
 
+
+// When 1 elem in the list is selected then fetch template automaticly
+// Otherwise include selected elements in the select and let user choose
 function popUpVNetTemplateUpdateDialog(){
     var select = makeSelectOptions(dataTable_vNetworks,
                                    1,//id_col
@@ -1103,6 +1111,8 @@ function popUpVNetTemplateUpdateDialog(){
 
 }
 
+// Listeners to the add, hold, release, delete leases operations in the
+// extended information panel.
 function setupLeasesOps(){
     $('button#panel_add_lease_button').live("click",function(){
         var lease = $(this).prev().val();
@@ -1115,6 +1125,7 @@ function setupLeasesOps(){
         return false;
     });
 
+    //ranged networks hold lease
     $('button#panel_hold_lease_button').live("click",function(){
         var lease = $(this).prev().val();
         //var mac = $(this).previous().val();
@@ -1136,6 +1147,7 @@ function setupLeasesOps(){
         return false;
     });
 
+    //fixed networks hold lease
     $('a.hold_lease').live("click",function(){
         var lease = $(this).parents('tr').attr('ip');
         var id = $(this).parents('form').attr('vnid');
@@ -1209,6 +1221,8 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_vNetworks);
     infoListener(dataTable_vNetworks,'Network.showinfo');
 
+    // Reset list filter in case it was set because we were lookin
+    // at a single cluster view
     $('div#menu li#li_vnets_tab').live('click',function(){
         dataTable_vNetworks.fnFilter('',5);
     });
