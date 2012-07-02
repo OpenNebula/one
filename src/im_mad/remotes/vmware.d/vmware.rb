@@ -148,8 +148,8 @@ if vm_ids_array
     end
 end
 
-# 80% of the total free calculated memory to take hypervisor into account
-free_memory = ($total_memory.to_i - used_memory) * 0.8
+# Scheduler will take hypervisor memory usage into account
+free_memory = ($total_memory.to_i - used_memory)
 # assume all the host's CPU is devoted to running Virtual Machines
 free_cpu    = ($total_cpu.to_f    - used_cpu)
 
