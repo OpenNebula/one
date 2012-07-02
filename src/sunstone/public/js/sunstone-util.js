@@ -1008,14 +1008,14 @@ function setupQuotasDialog(dialog){
 
         json['TYPE'] = sel.toUpperCase();
 
-        var li = quotaListItem(json)
-        $('ul#quotas_ul_'+sel,dialog).append($(li).hide().fadeIn());
+        var tr = quotaListItem(json)
+        $('.current_quotas table tbody',dialog).append($(tr).hide().fadeIn());
         return false;
     });
 
     $('form', dialog).submit(function(){
         var obj = {};
-        $('ul li',this).each(function(){
+        $('table tbody tr',this).each(function(){
             var json = JSON.parse($(this).attr('quota'));
             var type = json['TYPE'];
             delete json['TYPE'];
@@ -1037,13 +1037,11 @@ function popUpQuotasDialog(dialog, resource, sel_elems){
     $('#image_quota select',dialog).html(im_sel);
     $('#network_quota select',dialog).html(vn_sel);
 
-
+    $('table tbody',dialog).empty();
     //If only one user is selected we fecth the user's quotas, otherwise we do nothing.
     if (sel_elems.length == 1){
         var id = sel_elems[0];
         Sunstone.runAction(resource + '.fetch_quotas',id);
-    } else {
-        $('ul',dialog).empty();
     };
 
     dialog.dialog('open');
@@ -1054,8 +1052,8 @@ function popUpQuotasDialog(dialog, resource, sel_elems){
 function setupQuotaIcons(){
     $('.quota_edit_icon').live('click',function(){
         var dialog = $(this).parents('form');
-        var li = $(this).parents('li');
-        var quota = JSON.parse(li.attr('quota'));
+        var tr = $(this).parents('tr');
+        var quota = JSON.parse(tr.attr('quota'));
         switch (quota.TYPE){
             case "VM":
             $('div#vm_quota input[name="VMS"]',dialog).val(quota.VMS);
@@ -1077,7 +1075,7 @@ function setupQuotaIcons(){
             break;
         }
         $('div#quota_types input[value="'+quota.TYPE.toLowerCase()+'"]',dialog).trigger('click');
-        $(this).parents('li').fadeOut(function(){$(this).remove()});
+        tr.fadeOut(function(){$(this).remove()});
         return false;
     });
 }
@@ -1134,8 +1132,8 @@ function parseQuotas(elem){
     }
 
     for (var i = 0; i < quotas.length; i++){
-        var li = quotaListItem(quotas[i]);
-        results[quotas[i].TYPE] += li;
+        var tr = quotaListItem(quotas[i]);
+        results[quotas[i].TYPE] += tr;
     }
     return results;
 }
@@ -1143,7 +1141,9 @@ function parseQuotas(elem){
 //Receives a quota json object. Returns a nice string out of it.
 function quotaListItem(quota_json){
     var value = JSON.stringify(quota_json)
-    var str = '<li quota=\''+value+'\'><pre style="margin:0;">';
+    var str = '<tr quota=\''+value+'\'><td>'+
+        quota_json.TYPE+
+        '</td><td style="width:100%;"><pre style="margin:0;">';
     switch(quota_json.TYPE){
     case "VM":
         str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") +
@@ -1164,6 +1164,6 @@ function quotaListItem(quota_json){
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
-    str += '<i class="quota_edit_icon icon-pencil"></i></pre></li>';
+    str += '</td><td><i class="quota_edit_icon icon-pencil"></i></pre></td></tr>';
     return str;
 }

@@ -651,7 +651,19 @@ var vms_tab = {
 
 SunstoneMonitoringConfig['VM'] = {
     plot: function(monitoring){
+        // we have the monitoring information and we need to
+        // send it somewhere to be plotted
+
+        // Write total VMs
         $('#totalVMs', $dashboard).text(monitoring['totalVMs'])
+
+        // Calculate bandwidth
+        // netUsage object is global variable and stores last values of
+        // BU, BD and the time they were stored.
+        // According to the current values and time, we can calculate
+        // how much bandwith we are using.
+        // Once done, we update the netUsage object with the new values
+        // for the next time.
 
         var t = ((new Date().getTime()) - netUsage.time) / 1000 //in secs
         var bandwidth_up = monitoring['netUsageBar'][1].data[0][0] - netUsage.up
@@ -672,6 +684,7 @@ SunstoneMonitoringConfig['VM'] = {
 
         //if (!$dashboard.is(':visible')) return;
 
+        // plot these two graphs
         var container = $('div#vmStatePie',$dashboard);
         SunstoneMonitoring.plot('VM',
                                 'statePie',
@@ -717,6 +730,7 @@ SunstoneMonitoringConfig['VM'] = {
             }
         },
         "netUsageBar" : {
+            // Show in a single var the values from netrx and nettx
             paths: [ "NET_RX", "NET_TX" ],
             operation: SunstoneMonitoring.ops.singleBar,
             plotOptions: {
@@ -762,6 +776,8 @@ function str_start_time(vm){
     return pretty_time(vm.STIME);
 };
 
+
+// Return the IP or several IPs of a VM
 function ip_str(vm){
     var nic = vm.TEMPLATE.NIC;
     var ip = '--';
@@ -850,6 +866,10 @@ function updateVMachinesView(request, vmachine_list){
     updateVResDashboard("vms",vmachine_list);
 };
 
+
+// Returns the html code for a nice formatted VM history
+// Some calculations are performed, inspired from what is done
+// in the CLI
 function generateHistoryTable(vm){
     var html = ' <table id="vm_history_table" class="info_table" style="width:80%">\
                    <thead>\
@@ -1064,7 +1084,9 @@ function updateVMInfo(request,vm){
     $('tr.at_image',$hotplugging_tab).show();
 }
 
-//Generates the HTML for the hotplugging tab
+// Generates the HTML for the hotplugging tab
+// This is a list of disks with the save_as, detach options.
+// And a form to attach a new disk to the VM, if it is running.
 function printDisks(vm_info){
     var im_sel = makeSelectOptions(dataTable_images,
                                    1, //id col - trick -> reference by name!
@@ -1102,20 +1124,25 @@ function printDisks(vm_info){
         html += disk.DISK_ID + ' - ' +
             (disk.IMAGE ? disk.IMAGE : "Volatile") + '</td>';
         html += '<td class="value_td">\
+'+(vm_info.STATE == "3" ? '\
                     <button value="VM.detachdisk" class="detachdisk" style="float:right;color:#555555;height:26px;"><i class="icon-trash icon-large"></i></button>\
+' : '')+'\
                     <button value="VM.saveas" class="saveas" style="float:right;margin-right:10px;color:#555555;height:26px;"><i class="icon-download icon-large"></i></button>\
-                    <input style="float:right;width:9em;margin-right:10px;margin-top:3px;" type="text" value="saveas_'+vm_info.ID+'_'+disk.DISK_ID+'" name="saveas_name"></input>\
+                    <input style="float:right;width:9em;margin-right:10px;margin-top:3px;" type="text" value="saveas_'+vm_info.ID+'_'+disk.DISK_ID+'" name="saveas_name"></input>'
++'\
                  </td>';
     }
 
     html += '</tbody>\
      </table>';
 
+    // If VM is not RUNNING, then we forget about the attach disk form.
     if (vm_info.STATE != "3"){
         html +='</form>';
         return html;
     }
 
+    // Attach disk form
     html += '<table class="info_table">\
        <thead>\
          <tr><th colspan="2">'+tr("Attach disk to running VM")+'</th></tr>\
@@ -1125,7 +1152,7 @@ function printDisks(vm_info){
              <td class="value_td">\
                  <select id="attach_disk_type" style="width:12em;">\
                     <option value="image">'+tr("Existing image")+'</option>\
-<!--             <option value="volatile">'+tr("Volatile disk")+'</option>-->\
+                    <option value="volatile">'+tr("Volatile disk")+'</option>\
                  </select>\
              </td>\
         </tr>\
@@ -1186,6 +1213,7 @@ function printDisks(vm_info){
     return html;
 }
 
+// Listeners to the disks operations (detach, saveas, attach)
 function hotpluggingOps(){
     $('button.detachdisk').live('click', function(){
         var b = $(this);
@@ -1433,7 +1461,7 @@ function setVMAutorefresh(){
      },INTERVAL+someTime());
 }
 
-
+//This is taken from noVNC examples
 function updateVNCState(rfb, state, oldstate, msg) {
     var s, sb, cad, klass;
     s = $D('VNC_status');
@@ -1557,6 +1585,8 @@ function vncIcon(vm){
     return gr_icon;
 }
 
+
+// Special error callback in case historical monitoring of VM fails
 function vmMonitorError(req,error_json){
     var message = error_json.error.message;
     var info = req.request.data[0].monitor;
