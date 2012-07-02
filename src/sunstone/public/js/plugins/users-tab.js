@@ -325,6 +325,9 @@ var user_actions = {
         type: "single",
         call: OpenNebula.User.show,
         callback: function (request,response) {
+            // when we receive quotas we parse them and create an
+            // quota objects with html code (<li>) that can be inserted
+            // in the dialog
             var parsed = parseQuotas(response.USER);
             $('ul#quotas_ul_vm',$user_quotas_dialog).html(parsed.VM)
             $('ul#quotas_ul_datastore',$user_quotas_dialog).html(parsed.DATASTORE)
@@ -391,6 +394,7 @@ var user_buttons = {
     "User.chauth" : {
         type: "confirm_with_select",
         text: tr("Change authentication"),
+        //We insert our custom select there.
         select: function() {
             return   '<option value="core" selected="selected">'+tr("Core")+'</option>\
                      <option value="ssh">'+tr("SSH")+'</option>\
@@ -447,10 +451,12 @@ var users_tab = {
 
 SunstoneMonitoringConfig['USER'] = {
     plot: function(monitoring){
+        //plot the number of total users
         $('#totalUsers', $dashboard).text(monitoring['totalUsers'])
 
         //if (!$dashboard.is(':visible')) return;
 
+        //plot users per group
         var container = $('div#usersPerGroup',$dashboard);
         SunstoneMonitoring.plot('USER',
                                 'usersPerGroup',
@@ -459,6 +465,7 @@ SunstoneMonitoringConfig['USER'] = {
     },
     monitor: {
         "usersPerGroup" : {
+            //we want to monitor users divided by GNAME to paint bars.
             partitionPath: "GNAME",
             operation: SunstoneMonitoring.ops.partition,
             dataType: "bars",
@@ -636,6 +643,7 @@ function setupCreateUserDialog(){
             $('input[name="custom_auth"]',dialog).parent().hide();
     });
 
+
     $('#create_user_form',dialog).submit(function(){
         var user_name=$('#username',this).val();
         var user_password=$('#pass',this).val();
@@ -689,6 +697,8 @@ function setupUpdatePasswordDialog(){
     });
 };
 
+
+//add a setup quota dialog and call the sunstone-util.js initialization
 function setupUserQuotasDialog(){
     dialogs_context.append('<div title="'+tr("User quotas")+'" id="user_quotas_dialog"></div>');
     $user_quotas_dialog = $('#user_quotas_dialog',dialogs_context);

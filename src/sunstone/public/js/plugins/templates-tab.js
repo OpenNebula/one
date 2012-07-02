@@ -1682,11 +1682,7 @@ function setupCreateTemplateDialog(){
             return false;
         });
 
-        //Chrome workaround
         $('select#TYPE',section_graphics).change(function(){
-            $(this).trigger("click");
-        });
-        $('select#TYPE',section_graphics).click(function(){
             g_type = $(this).val();
             switch (g_type) {
             case "vnc":
@@ -2120,6 +2116,8 @@ function popUpTemplateTemplateUpdateDialog(){
 
 };
 
+
+// Template clone dialog
 function setupTemplateCloneDialog(){
     //Append to DOM
     dialogs_context.append('<div id="template_clone_dialog" title="'+tr("Clone a template")+'"></div>');
@@ -2160,6 +2158,7 @@ function setupTemplateCloneDialog(){
             notifyError('A name or prefix is needed!');
         if (sel_elems.length > 1){
             for (var i=0; i< sel_elems.length; i++)
+                //use name as prefix if several items selected
                 Sunstone.runAction('Template.clone',
                                    sel_elems[i],
                                    name+getTemplateName(sel_elems[i]));

@@ -18,7 +18,7 @@
 /* Some useful functions for Sunstone default plugins */
 var INTERVAL=60000; //milisecs
 
-function someTime(){
+function someTime(){ //some time under 30secs
     return Math.floor(Math.random()*30000);
 }
 
@@ -46,6 +46,7 @@ function pretty_time(time_seconds)
     return hour + ":" + mins +":" + secs + "&nbsp;" + month + "/" + day + "/" + year;
 }
 
+// Format time for plot axis
 function pretty_time_axis(time){
     var d = new Date();
     d.setTime(time*1000);
@@ -412,6 +413,10 @@ function waitingNodes(dataTable){
     $('tr input.check_item:visible',dataTable).replaceWith(spinner);
 }
 
+
+//The following functions extract the value of a specific column
+//in a dataTable. If the order of datatable columns is changed this
+//should be the only place to adjust.
 function getUserName(uid){
     if (typeof(dataTable_users) != "undefined"){
         return getName(uid,dataTable_users,2);
@@ -468,6 +473,8 @@ function getTemplateName(id){
     return id;
 };
 
+// Returns the value of the column with the resource of specified
+// id in the dataTable.
 function getName(id,dataTable,name_col){
     var name = id;
     if (typeof(dataTable) == "undefined") {
@@ -484,8 +491,9 @@ function getName(id,dataTable,name_col){
     return name;
 };
 
-//Search a datatable record matching the filter_str in the filter_col. Returns
-//the value of that record in the desired value column.
+// A more general version of the above.
+// Search a datatable record matching the filter_str in the filter_col. Returns
+// the value of that record in the desired value column.
 function getValue(filter_str,filter_col,value_col,dataTable){
     var value="";
     if (typeof(dataTable) == "undefined") return value;
@@ -806,6 +814,8 @@ function infoListener(dataTable, info_action){
 
         var count = $('tbody .check_item:checked', dataTable).length;
 
+        //If ctrl is hold down or there is already some item selected
+        //then just select.
         if (info_action){
             if (e.ctrlKey || count >= 1)
                 $('.check_item',this).trigger('click');
@@ -845,7 +855,7 @@ function datastores_sel() {
     return datastores_select;
 }
 
-
+/* Below functions to easier permission management */
 
 function ownerUse(resource){
     return parseInt(resource.PERMISSIONS.OWNER_U);
@@ -923,6 +933,7 @@ function setPermissionsTable(resource,context){
         $('.other_a',context).attr('checked','checked');
 };
 
+//Returns an octet given a permission table with checkboxes
 function buildOctet(permTable){
     var owner=0;
     var group=0;
@@ -952,6 +963,9 @@ function buildOctet(permTable){
     return ""+owner+group+other;
 };
 
+
+// Sets up a dialog to edit and update user and group quotas
+// Called from user/group plugins
 function setupQuotasDialog(dialog){
 
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
@@ -1035,6 +1049,8 @@ function popUpQuotasDialog(dialog, resource, sel_elems){
     dialog.dialog('open');
 }
 
+
+//Action to be performed when an edit quota icon is clicked.
 function setupQuotaIcons(){
     $('.quota_edit_icon').live('click',function(){
         var dialog = $(this).parents('form');
@@ -1066,6 +1082,7 @@ function setupQuotaIcons(){
     });
 }
 
+// Returns an object with quota information in form of list items
 function parseQuotas(elem){
     var quotas = [];
     var results = {

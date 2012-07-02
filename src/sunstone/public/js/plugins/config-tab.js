@@ -79,7 +79,7 @@ var config_tab = {
 Sunstone.addActions(config_actions);
 Sunstone.addMainTab('config_tab',config_tab);
 
-
+// Callback when configuration list is received
 function updateConfig(request,response){
     var config = response['user_config'];
 
@@ -89,6 +89,13 @@ function updateConfig(request,response){
     };
 };
 
+// Update secure websockets configuration
+// First we perform a User.show(). In the callback we update the user template
+// to include this parameter.
+// Then we post to the server configuration so that it is saved for the session
+// Note: the session is originally initialized to the user VNC_WSS if present
+// otherwise it is set according to sunstone configuration
+// TO DO improve this, server side should take care
 function updateWss(){
     var user_info_req = {
         data : {
@@ -125,7 +132,7 @@ $(document).ready(function(){
     if (lang)
         $('table#config_table #lang_sel option[value="'+lang+'"]').attr('selected','selected');
 
-    //Listener to change language
+    //Listener to change language. setLang in locale.js
     $('table#config_table #lang_sel').change(function(){
         setLang($(this).val());
     });

@@ -128,6 +128,8 @@ Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 var $dashboard;
 
+// Monitoring calls and config in Sunstone plugins
+
 $(document).ready(function(){
         $dashboard = $('#dashboard_tab', main_tabs_context);
 });

@@ -388,6 +388,7 @@ function popUpCreateGroupDialog(){
     return false;
 }
 
+// Add groups quotas dialog and calls common setup() in sunstone utils.
 function setupGroupQuotasDialog(){
     dialogs_context.append('<div title="'+tr("Group quotas")+'" id="group_quotas_dialog"></div>');
     $group_quotas_dialog = $('#group_quotas_dialog',dialogs_context);

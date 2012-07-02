@@ -557,6 +557,7 @@ function imageElementArray(image_json){
     var value = OpenNebula.Helper.image_type(image.TYPE);
     $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+tr(value)+'</option>');
 
+    //add also persistent/non-persistent selects, type select.
     return [
         '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
@@ -813,6 +814,7 @@ function setupCreateImageDialog(){
 
     var img_obj;
 
+    // Upload is handled by FileUploader vendor plugin
     var uploader = new qq.FileUploaderBasic({
         button: $('#file-uploader',$create_image_dialog)[0],
         action: 'upload',
@@ -823,10 +825,14 @@ function setupCreateImageDialog(){
             //notifyMessage(message);
         },
         onSubmit: function(id, fileName){
+            //set url params
+            //since the body is the upload, we need the pass
+            //the image info here
             uploader.setParams({
                 img : JSON.stringify(img_obj),
                 file: fileName
             });
+            //we pop up an upload progress dialog
             var pos_top = $(window).height() - 120;
             var pos_left = 190;
             var pb_dialog = $('<div id="pb_dialog" title="'+
@@ -845,9 +851,11 @@ function setupCreateImageDialog(){
             $('#upload-progress',pb_dialog).progressbar({value:0});
         },
         onProgress: function(id, fileName, loaded, total){
+            //update upload dialog with current progress
             $('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
         },
         onComplete: function(id, fileName, responseJSON){
+            //Inform complete upload, destroy upload dialog, refresh img list
             notifyMessage("Image uploaded correctly");
             $('div#pb_dialog').dialog('destroy');
             Sunstone.runAction("Image.list");
@@ -938,6 +946,9 @@ function setupCreateImageDialog(){
         img_obj = { "image" : img_json,
                     "ds_id" : ds_id};
 
+
+        //we this is an image upload we trigger FileUploader
+        //to start the upload
         if (upload){
             uploader._onInputChange(file_input);
         } else {
@@ -1178,6 +1189,8 @@ function setupImageCloneDialog(){
             notifyError('A name or prefix is needed!');
         if (sel_elems.length > 1){
             for (var i=0; i< sel_elems.length; i++)
+                //If we are cloning several images we
+                //use the name as prefix
                 Sunstone.runAction('Image.clone',
                                    sel_elems[i],
                                    name+getImageName(sel_elems[i]));
