@@ -193,10 +193,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     flush_desc = <<-EOT.unindent
-        Reschedules the VMS so the host is freed.
+        Disables the host and reschedules all the running VMs in it.
     EOT
 
-    command :flush, top_desc, [:range,:hostid_list] do
+    command :flush, flush_desc, [:range,:hostid_list] do
         helper.perform_actions(args[0],options,"flush") do |host|
             host.flush
         end
