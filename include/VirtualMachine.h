@@ -320,6 +320,35 @@ public:
         return previous_history->vnm_mad_name;
     };
 
+
+    /**
+     *  Returns the datastore ID of the system DS for the host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the ds id
+     */
+    string get_ds_id() const
+    {
+        ostringstream oss;
+
+        oss << history->ds_id;
+
+        return oss.str();
+    };
+
+    /**
+     *  Returns the datastore ID of the system DS for the previous host. 
+     *  The hasPreviousHistory() function MUST be called before this one.
+     *    @return the TM mad name
+     */
+    string get_previous_ds_id() const
+    {
+        ostringstream oss;
+
+        oss << previous_history->ds_id;
+        
+        return oss.str();
+    };
+
     /**
      *  Returns the TM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
