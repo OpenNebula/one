@@ -43,6 +43,7 @@ SUDO=sudo
 SYNC=sync
 TAR=tar
 TGTADM=tgtadm
+TGTADMIN=tgt-admin
 VMKFSTOOLS=/usr/sbin/vmkfstools
 WGET=wget
 
@@ -340,6 +341,23 @@ function tgtadm_logicalunit_new {
 function tgtadm_target_delete {
     ID="$1"
     echo "$TGTADM --lld iscsi --op delete --mode target --tid $ID"
+}
+
+function tgtadm_get_tid_for_iqn {
+    IQN="$1"
+    echo "$TGTADM --lld iscsi --op show --mode target | \
+        grep \"$IQN\" | awk '{split(\$2,tmp,\":\"); print(tmp[1]);}'"
+}
+
+function tgtadm_next_tid {
+    echo "$TGTADM --lld iscsi --op show --mode target | \
+            $GREP \"Target\" | tail -n 1 | \
+            $AWK '{split(\$2,tmp,\":\"); print tmp[1]+1;}'"
+}
+
+function tgt_admin_dump_config {
+    FILE_PATH="$1"
+    echo "$TGTADMIN --dump |sudo tee $FILE_PATH >& /dev/null"
 }
 
 ###

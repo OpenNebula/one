@@ -38,6 +38,9 @@ fi
 
 . $TMCOMMON
 
+DRIVER_PATH=$(dirname $0)
+
+source ${DRIVER_PATH}/../../datastore/iscsi/iscsi.conf
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
@@ -60,7 +63,7 @@ DISCOVER_CMD=$(cat <<EOF
     mkdir -p $DST_DIR
     $SUDO $(iscsiadm_discovery "$TARGET_HOST")
     $SUDO $(iscsiadm_login "$IQN" "$TARGET_HOST")
-    sleep 1
+    sleep 2
     DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)
     ln -s "\$DISK_BY_PATH" "$DST_PATH"
 EOF
@@ -68,4 +71,5 @@ EOF
 
 ssh_exec_and_log "$DST_HOST" "$DISCOVER_CMD" \
         "Error registering $DST_HOST:$DEV"
+
 exit 0

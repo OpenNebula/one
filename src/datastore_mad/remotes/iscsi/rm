@@ -45,12 +45,10 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BASE_TID)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/HOST)
 
 SRC="${XPATH_ELEMENTS[0]}"
 DST_HOST="${XPATH_ELEMENTS[1]:-$HOST}"
-BASE_TID="${XPATH_ELEMENTS[2]:-$BASE_TID}"
 
 BASE_IQN=`echo $SRC|$CUT -d: -f1`
 TARGET=`echo $SRC|$CUT -d: -f2`
@@ -58,12 +56,15 @@ LV_NAME=`echo $TARGET|$AWK -F. '{print $(NF)}'`
 VG_NAME=`echo $TARGET|$AWK -F. '{print $(NF-1)}'`
 DEV="/dev/$VG_NAME/$LV_NAME"
 
-let TID=ID+BASE_TID
+IQN="$BASE_IQN:$DST_HOST.$VG_NAME.$LV_NAME"
 
 RM_COMMAND=$(cat <<EOF
-    $SUDO $(tgtadm_target_delete "$TID")
+    TID=\$($SUDO $(tgtadm_get_tid_for_iqn "$IQN"))
+
+    $SUDO $(tgtadm_target_delete "\$TID")
     $SUDO $SYNC
     $SUDO $LVREMOVE -f $VG_NAME/$LV_NAME
+    $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 EOF
 )
 

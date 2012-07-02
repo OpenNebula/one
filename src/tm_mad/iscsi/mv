@@ -70,33 +70,47 @@ if [ "$SRC" == "$DST" ]; then
     log "Not moving $SRC to $DST, they are the same path"
 	exit 0
 fi
+#-------------------------------------------------------------------------------
+# Get image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i XPATH_ELEMENTS
+
+DISK_ID=$(echo "$SRC_PATH" | $AWK -F. '{print $NF}')
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
+
+IQN="${XPATH_ELEMENTS[0]}"
+PERSISTENT="${XPATH_ELEMENTS[1]}"
+
+if [ -z "$PERSISTENT" ]; then
+    IQN=$IQN-$VMID
+fi
+
+#-------------------------------------------------------------------------------
+# Start actions
+#-------------------------------------------------------------------------------
 
 if is_iscsi "$SRC_HOST"; then
    log "Logging out of $IQN in $SRC_HOST"
 
     LOGOUT_CMD=$(cat <<EOF
         set -e
-        IQN=\$(readlink $SRC_PATH |grep -o 'iqn.*$')
-        IQN=\${IQN%-lun-1}
-        $SUDO $(iscsiadm_logout "\$IQN")
+        $SUDO $(iscsiadm_logout "$IQN")
 EOF
 )
     ssh_exec_and_log "$SRC_HOST" "$LOGOUT_CMD" \
-        "Error logging out $SRC_HOST:$SRC_PATH (IQN)"
+        "Error logging out $SRC_HOST:$SRC_PATH ($IQN)"
 fi
 
 if is_iscsi "$DST_HOST"; then
-    log "Logging in to IQN in $SRC_HOST"
-
-    log "Getting IQN from $SRC_HOST:$SRC_PATH"
-
-    IQN=$($SSH "$SRC_HOST" "readlink $SRC_PATH |grep -o 'iqn.*$'" )
-    IQN=${IQN%-lun-1}
-
-    if [ -z "$IQN" ]; then
-        log_error "Error getting IQN"
-        exit 1
-    fi
+    log "Logging in to $IQN in $SRC_HOST"
 
     TARGET_HOST=$(iqn_get_host "$IQN")
 
@@ -111,9 +125,8 @@ if is_iscsi "$DST_HOST"; then
 EOF
 )
 
-    ssh_exec_and_log "$DST_HOST" "$LOGIN_CMD" \
-        "Error logging in $IQN"
+ssh_exec_and_log "$DST_HOST" "$LOGIN_CMD" \
+    "Error logging in $IQN"
 fi
-
 
 exit 0
