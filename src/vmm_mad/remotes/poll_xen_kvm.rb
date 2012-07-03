@@ -224,8 +224,8 @@ module XEN
             dom_hash[:state]=get_state(dom_data[1])
             dom_hash[:usedcpu]=dom_data[3]
             dom_hash[:usedmemory]=dom_data[4]
-            dom_hash[:nettx]=dom_data[10]
-            dom_hash[:netrx]=dom_data[11]
+            dom_hash[:nettx]=dom_data[10].to_i * 1024
+            dom_hash[:netrx]=dom_data[11].to_i * 1024
 
             domains[dom_hash[:name]]=dom_hash
         end
