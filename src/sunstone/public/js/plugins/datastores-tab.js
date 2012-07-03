@@ -34,6 +34,7 @@ var datastores_tab_content = '\
       <th>'+tr("Basepath")+'</th>\
       <th>'+tr("TM MAD")+'</th>\
       <th>'+tr("DS MAD")+'</th>\
+      <th>'+tr("System")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodydatastores">\
@@ -52,10 +53,14 @@ var create_datastore_tmpl =
   <fieldset>\
   <label for="name">' + tr("Name") + ':</label>\
   <input type="text" name="name" id="name" />\
+  <div class="clear"></div>\
+  <label for="system">' + tr("System datastore") + ':</label>\
+  <input id="sys_ds" type="checkbox" name="system" value="YES" />\
+  <div class="clear"></div>\
   <label for="cluster">' + tr("Cluster") + ':</label>\
   <select id="cluster_id" name="cluster_id">\
   </select>\
-  <label>' + tr("Datastore manager") + ':</label>\
+  <label for="ds_mad">' + tr("Datastore manager") + ':</label>\
   <select id="ds_mad" name="ds_mad">\
         <option value="fs">' + tr("Filesystem") + '</option>\
         <option value="vmware">' + tr("VMware") + '</option>\
@@ -372,8 +377,9 @@ function datastoreElementArray(element_json){
         element.NAME,
         element.CLUSTER.length ? element.CLUSTER : "-",
         element.BASE_PATH,
-        element.TEMPLATE.TM_MAD,
-        element.TEMPLATE.DS_MAD
+        element.TM_MAD,
+        element.DS_MAD,
+        element.SYSTEM == '1' ? 'Yes' : 'No'
     ];
 }
 
@@ -381,8 +387,8 @@ function updateDatastoreSelect(){
     datastores_select = makeSelectOptions(dataTable_datastores,
                                           1,
                                           4,
-                                          [1],
-                                          [0], //do not include sys datastores
+                                          [9],//system ds
+                                          ['Yes'], //filter sys datastores
                                           true
                                          );
 };
@@ -527,9 +533,17 @@ function setupCreateDatastoreDialog(){
     $('button',dialog).button();
     setupTips(dialog);
 
+    $('#sys_ds').click(function(){
+        if ($(this).is(':checked'))
+            $('label[for="ds_mad"],select#ds_mad',$(this).parent()).fadeOut();
+        else
+            $('label[for="ds_mad"],select#ds_mad',$(this).parent()).fadeIn();
+    });
+
     $('#create_datastore_form',dialog).submit(function(){
         var name = $('#name',this).val();
         var cluster_id = $('#cluster_id',this).val();
+        var system = $('#sys_ds',this).is(':checked');
         var ds_mad = $('#ds_mad',this).val();
         var tm_mad = $('#tm_mad',this).val();
         var type = $('#disk_type',this).val();
@@ -542,12 +556,18 @@ function setupCreateDatastoreDialog(){
         var ds_obj = {
             "datastore" : {
                 "name" : name,
-                "ds_mad" : ds_mad,
                 "tm_mad" : tm_mad,
                 "disk_type" : type
             },
             "cluster_id" : cluster_id
         };
+
+        // If we are adding a system datastore then
+        // we don't use ds_mad
+        if (system)
+            ds_obj.datastore.system = "YES";
+        else
+            ds_obj.datastore.ds_mad = ds_mad;
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
@@ -689,9 +709,9 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [1,9] },
             { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
-            { "bVisible": false, "aTargets": [6,7,8] }
+            { "bVisible": false, "aTargets": [6,7,8,9] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -702,7 +722,7 @@ $(document).ready(function(){
     dataTable_datastores.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','',''],dataTable_datastores);
+        '','','','','','','','',''],dataTable_datastores);
     Sunstone.runAction("Datastore.list");
 
     setupCreateDatastoreDialog();
