@@ -1391,9 +1391,10 @@ function setupCreateTemplateDialog(){
 
         //Auto-set IMAGE_UNAME hidden field value
         $('#IMAGE', section_disks).change(function(){
-            var uname = getValue($(this).val(),4,2,dataTable_images);
+            var option = $('option:selected',this);
+            var uname = getValue(option.attr('elem_id'),1,2,dataTable_images);
             $('input#IMAGE_UNAME',section_disks).val(uname);
-            var target = getValue($(this).val(),4,12,dataTable_images);
+            var target = getValue(option.attr('elem_id'),1,12,dataTable_images);
             if (target && target != "--")
                 $('input#TARGET',section_disks).val(target);
             else
@@ -1555,7 +1556,8 @@ function setupCreateTemplateDialog(){
 
         //Auto-set IMAGE_UNAME hidden field value
         $('#NETWORK', section_networks).change(function(){
-            var uname = getValue($(this).val(),4,2,dataTable_vNetworks);
+            var option = $('option:selected',this);
+            var uname = getValue(option.attr('elem_id'),1,2,dataTable_vNetworks);
             $('input#NETWORK_UNAME',section_networks).val(uname);
         });
 

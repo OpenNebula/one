@@ -35,8 +35,8 @@ var users_tab_content = '\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Authentication driver")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Memory used")+'</th>\
-      <th>'+tr("CPU used")+'</th>\
+      <th>'+tr("Used memory")+'</th>\
+      <th>'+tr("Used CPU")+'</th>\
       <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\
@@ -323,7 +323,7 @@ var user_actions = {
             // when we receive quotas we parse them and create an
             // quota objects with html code (<li>) that can be inserted
             // in the dialog
-            var parsed = parseQuotas(response.USER);
+            var parsed = parseQuotas(response.USER,quotaListItem);
             $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.VM);
             $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.DATASTORE);
             $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.IMAGE);
@@ -365,7 +365,8 @@ var user_buttons = {
     },
     "User.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New")
+        text: tr("+ New"),
+        condition: mustBeAdmin
     },
     "User.update_dialog" : {
         type: "action",
@@ -378,13 +379,15 @@ var user_buttons = {
     },
     "User.quotas_dialog" : {
         type : "action",
-        text : tr("Update quotas")
+        text : tr("Update quotas"),
+        condition: mustBeAdmin
     },
     "User.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
-        tip: tr("This will change the main group of the selected users. Select the new group")+":"
+        tip: tr("This will change the main group of the selected users. Select the new group")+":",
+        condition: mustBeAdmin
     },
     "User.chauth" : {
         type: "confirm_with_select",
@@ -396,7 +399,8 @@ var user_buttons = {
                      <option value="x509">'+tr("x509")+'</option>\
                      <option value="public">'+tr("Public")+'</option>'
         },
-        tip: tr("Please choose the new type of authentication for the selected users")+":"
+        tip: tr("Please choose the new type of authentication for the selected users")+":",
+        condition: mustBeAdmin
     },
     // "User.addgroup" : {
     //     type: "confirm_with_select",
@@ -414,7 +418,8 @@ var user_buttons = {
     // },
     "User.delete" : {
         type: "confirm",
-        text: tr("Delete")
+        text: tr("Delete"),
+        condition: mustBeAdmin
     },
     "User.help" : {
         type: "action",
@@ -440,12 +445,25 @@ var users_tab = {
     content: users_tab_content,
     buttons: user_buttons,
     tabClass: 'subTab',
-    parentTab: 'system_tab'
+    parentTab: 'system_tab',
+    condition: mustBeAdmin,
 };
+
+var users_tab_non_admin = {
+    title: tr("User info"),
+    content: users_tab_content,
+    buttons: user_buttons,
+    tabClass: 'subTab',
+    parentTab: 'dashboard_tab',
+    condition: mustNotBeAdmin,
+}
 
 
 SunstoneMonitoringConfig['USER'] = {
     plot: function(monitoring){
+        //plot only when i am admin
+        if (!mustBeAdmin()) return;
+
         //plot the number of total users
         $('#totalUsers', $dashboard).text(monitoring['totalUsers'])
 
@@ -484,6 +502,7 @@ SunstoneMonitoringConfig['USER'] = {
 
 Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users_tab',users_tab);
+Sunstone.addMainTab('users_tab_non_admin',users_tab_non_admin);
 Sunstone.addInfoPanel("user_info_panel",user_info_panel);
 
 function userElements(){
@@ -553,11 +572,14 @@ function updateUsersView(request,users_list){
     var user_list_array = [];
 
     $.each(users_list,function(){
+        if (this.USER.ID == uid)
+            dashboardQuotasHTML(this.USER);
         user_list_array.push(userElementArray(this));
     });
     updateView(user_list_array,dataTable_users);
     SunstoneMonitoring.monitor('USER', users_list)
-    updateSystemDashboard("users",users_list);
+    if (mustBeAdmin())
+        updateSystemDashboard("users",users_list);
     updateUserSelect();
 };
 
@@ -573,7 +595,7 @@ function updateUserInfo(request,user){
             </thead>\
             <tbody>\
             <tr>\
-                <td class="key_td">' + tr("id") + '</td>\
+                <td class="key_td">' + tr("ID") + '</td>\
                 <td class="value_td">'+user_info.ID+'</td>\
             </tr>\
             <tr>\
@@ -786,4 +808,5 @@ $(document).ready(function(){
     infoListener(dataTable_users,'User.showinfo');
 
     $('div#users_tab div.legend_div').hide();
+    $('div#users_tab_non_admin div.legend_div').hide();
 });

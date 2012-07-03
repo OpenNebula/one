@@ -255,7 +255,11 @@ get '/config' do
     uconf = {
         :user_config => {
             :lang => session[:lang],
-            :wss  => session[:wss]
+            :wss  => session[:wss],
+            :marketplace_url => settings.config[:marketplace_url]
+        },
+        :system_config => {
+            :marketplace_url => settings.config[:marketplace_url]
         }
     }
 

@@ -22,46 +22,10 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-         <h3>' + tr("Hosts") + '<i class="icon-refresh action_button" value="Host.refresh" style="float:right;cursor:pointer"></i></h3>\
+         <h3>' + tr("User information") + '</h3>\
         <div class="panel_info">\
-          <table class="info_table">\
+          <table id="dashboard_user_info" class="info_table">\
 \
-            <tr>\
-              <td class="key_td">' + tr("Total Hosts") + '</td>\
-              <td class="key_td">' + tr("State") + '</td>\
-            </tr>\
-            <tr>\
-              <td colspan="2"><div id="totalHosts" class="big_text" style="float:left;width:50%;padding-top:12px;"></div>\
-                 <div id="statePie" style="float:right;width:50%;height:100px;"></div></td>\
-            </tr>\
-\
-            <tr>\
-              <td class="key_td">' + tr("Global CPU Usage") + '</td>\
-              <td></td>\
-            </tr>\
-            <tr>\
-              <td colspan="2"><div id="globalCpuUsage" style="width:100%;height:100px;"></div></td>\
-            </tr>\
-\
-            <tr>\
-              <td class="key_td">' + tr("Used vs. Max CPU") + '</td>\
-              <td><div id="cpuUsageBar_legend"></div></td>\
-            </tr>\
-            <tr>\
-              <td colspan="2">\
-               <div id="cpuUsageBar" style="width:95%;height:50px"></div>\
-              </td>\
-           </tr>\
-\
-            <tr>\
-              <td class="key_td">' + tr("Used vs. Max Memory") + '</td>\
-              <td><div id="memoryUsageBar_legend"></div></td>\
-            </tr>\
-            <tr>\
-              <td colspan="2">\
-               <div id="memoryUsageBar" style="width:95%;height:50px"></div>\
-              </td>\
-            </tr>\
 \
           </table>\
 \
@@ -128,8 +92,98 @@ Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 var $dashboard;
 
-// Monitoring calls and config in Sunstone plugins
+
+function dashboardQuotaRow(quota_json){
+    var row = '';
+
+    switch (quota_json.TYPE){
+    case "VM":
+        row += '<tr><td class="padding1">'+tr("VMS")+'</td>';
+        row += '<td class="value_td">'+quota_json.VMS_USED+' / '+quota_json.VMS+'</td></tr>';
+        row += '<tr><td class="padding1">'+tr("Memory")+'</td>';
+        row += '<td class="value_td">'+quota_json.MEMORY_USED+' / '+quota_json.MEMORY+'</td></tr>';
+        row += '<tr><td class="padding1">'+tr("CPU")+'</td>';
+        row += '<td class="value_td">'+quota_json.CPU_USED+' / '+quota_json.CPU+'</td></tr>';
+        break;
+    case "DATASTORE":
+        row += '<tr><td class="padding1">'+tr("Datastore")+' id '+quota_json.ID+':</td><td></td></tr>';
+
+        row += '<tr><td class="padding2">'+tr("Size")+'</td>';
+        row += '<td class="value_td">'+quota_json.SIZE_USED+' / '+quota_json.SIZE+'</td>';
+
+        row += '<tr><td class="padding2">'+tr("Images")+'</td>';
+        row += '<td class="value_td">'+quota_json.IMAGES_USED+' / '+quota_json.IMAGES+'</td>';
+        break;
+    case "IMAGE":
+        row += '<tr><td class="padding1">'+tr("Image")+' id '+quota_json.ID+':</td><td></td></tr>';
+
+        row += '<tr><td class="padding2">'+tr("RVMs")+'</td>';
+        row += '<td class="value_td">'+quota_json.RVMS_USED+' / '+quota_json.RVMS+'</td>';
+        break;
+    case "NETWORK":
+        row += '<tr><td class="padding1">'+tr("Network")+' id '+quota_json.ID+':</td><td></td></tr>';
+
+        row += '<tr><td class="padding2">'+tr("Leases")+'</td>';
+        row += '<td class="value_td">'+quota_json.RVMS_USED+' / '+quota_json.RVMS+'</td>';
+        break;
+    }
+    return row
+}
+
+function dashboardQuotasHTML(user){
+    var html = '<tr>\
+                   <td class="key_td">' + tr("Resource quotas") + '</td>\
+                   <td class="value_td">' + tr("Used&nbsp;/&nbsp;Allowed") + '</td>\
+                </tr>\
+                <tr>\
+                  <td class="key_td"></td><td class="value_td"></td>\
+                </tr>';
+
+    var results = parseQuotas(user, dashboardQuotaRow);
+
+    html += '<tr><td class="key_td">'+tr("VM quota")+':</td>\
+                 <td class="value_td">'+
+        (results.VM.length ? "" : tr("None"))+'</td></tr>'
+
+    html += results.VM;
+
+    html += '<tr>\
+                <td class="key_td"></td><td class="value_td"></td>\
+              </tr>';
+
+    html += '<tr><td class="key_td">'+tr("Datastore quotas")+':</td>\
+                 <td class="value_td">'+
+        (results.DATASTORE.length ? "" : tr("None"))+'</td></tr>'
+
+    html += results.DATASTORE;
+
+    html += '<tr>\
+                <td class="key_td"></td><td class="value_td"></td>\
+              </tr>';
+
+    html += '<tr><td class="key_td">'+tr("Image quotas")+':</td>\
+                 <td class="value_td">'+
+        (results.IMAGE.length ? "" : tr("None"))+'</td></tr>'
+
+    html += results.IMAGE;
+
+    html += '<tr>\
+                <td class="key_td"></td><td class="value_td"></td>\
+              </tr>';
+
+    html += '<tr><td class="key_td">'+tr("Network quotas")+':</td>\
+                 <td class="value_td">'+
+        (results.NETWORK.length ? "" : tr("None"))+'</td></tr>'
+
+    html += results.NETWORK;
+
+    html += '<tr>\
+                <td class="key_td"></td><td class="value_td"></td>\
+              </tr>';
+
+    $('#dashboard_user_info', $dashboard).html(html);
+}
 
 $(document).ready(function(){
-        $dashboard = $('#dashboard_tab', main_tabs_context);
+    $dashboard = $('#dashboard_tab', main_tabs_context);
 });

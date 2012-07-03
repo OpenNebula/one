@@ -153,6 +153,10 @@ function updateMarketInfo(request,app){
                 <td class="value_td">'+app['_id']["$oid"]+'</td>\
               </tr>\
               <tr>\
+                <td class="key_td">' + tr("URL") + '</td>\
+                <td class="value_td"><a href="'+config_response.system_config.marketplace_url+'/'+app['_id']["$oid"]+'" target="_blank">'+config_response.system_config.marketplace_url+'/'+app['_id']["$oid"]+'</a></td>\
+              </tr>\
+              <tr>\
                 <td class="key_td">' + tr("Publisher") + '</td>\
                 <td class="value_td">'+app['publisher']+'</td>\
               </tr>\
@@ -170,7 +174,7 @@ function updateMarketInfo(request,app){
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Size") + '</td>\
-                <td class="value_td">'+app['files'][0]['size']+'</td>\
+                <td class="value_td">'+humanize_size(app['files'][0]['size'],true)+'</td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Hypervisor") + '</td>\
