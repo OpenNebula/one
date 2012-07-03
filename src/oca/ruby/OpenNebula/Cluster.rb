@@ -32,7 +32,8 @@ module OpenNebula
             :adddatastore   => "cluster.adddatastore",
             :deldatastore   => "cluster.deldatastore",
             :addvnet        => "cluster.addvnet",
-            :delvnet        => "cluster.delvnet"
+            :delvnet        => "cluster.delvnet",
+            :update         => "cluster.update",
         }
 
         # Creates a Cluster description with just its identifier
@@ -154,6 +155,16 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
+        end
+
+        # Replaces the template contents
+        #
+        # @param new_template [String] New template contents
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(new_template)
+            super(CLUSTER_METHODS[:update], new_template)
         end
 
         # ---------------------------------------------------------------------

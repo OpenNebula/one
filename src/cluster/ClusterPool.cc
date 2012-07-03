@@ -72,7 +72,7 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
     }
 
     // Build a new Cluster object
-    cluster = new Cluster(-1, name);
+    cluster = new Cluster(-1, name, 0);
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(cluster, error_str);

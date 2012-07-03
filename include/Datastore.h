@@ -91,6 +91,16 @@ public:
     {
         return disk_type;
     };
+
+    /**
+     * Returns true if this is a system datastore
+     *    @return true if this is a system datastore
+     */
+    bool is_system() const
+    {
+        return system_ds == 1;
+    };
+
     /**
      * Modifies the given VM disk attribute adding the relevant datastore
      * attributes
@@ -133,6 +143,11 @@ private:
      * Base path for the storage
      */
     string base_path;
+
+    /**
+     * 1 if this is a system DS
+     */
+    int    system_ds;
 
     /**
      * Disk types for the Images created in this datastore
@@ -203,7 +218,7 @@ private:
     }
 
     /**
-     *  Factory method for virtual network templates
+     *  Factory method for datastore templates
      */
     Template * get_new_template() const
     {

@@ -53,7 +53,7 @@ DatastorePool::DatastorePool(SqlDB * db):
         // ---------------------------------------------------------------------
 
         oss << "NAME      = " << SYSTEM_DS_NAME << endl
-            << "DS_MAD    = -" << endl
+            << "SYSTEM    = YES" << endl
             << "TM_MAD    = shared";
 
         ds_tmpl = new DatastoreTemplate;

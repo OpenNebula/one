@@ -138,6 +138,24 @@ static void cp_action(istringstream& is,
 
     if ( image == 0 )
     {
+        if (result == "SUCCESS")
+        {
+            ostringstream oss;
+
+            if ( is.good())
+            {
+                is >> source >> ws;    
+            }
+
+            if (!source.empty())
+            {
+                oss << "CP operation succeeded but image no longer exists."
+                    << " Source image: " << source << ", may be left in datastore";
+
+                NebulaLog::log("ImM", Log::ERROR, oss);                
+            }
+        }
+
         return;
     }
 
@@ -224,6 +242,24 @@ static void clone_action(istringstream& is,
 
     if ( image == 0 )
     {
+        if (result == "SUCCESS")
+        {
+            ostringstream oss;
+
+            if ( is.good())
+            {
+                is >> source >> ws;    
+            }
+
+            if (!source.empty())
+            {
+                oss << "CLONE operation succeeded but image no longer exists."
+                    << " Source image: " << source << ", may be left in datastore";
+
+                NebulaLog::log("ImM", Log::ERROR, oss);                
+            }
+        }
+
         return;
     }
 
@@ -310,6 +346,24 @@ static void mkfs_action(istringstream& is,
 
     if ( image == 0 )
     {
+        if (result == "SUCCESS")
+        {
+            ostringstream oss;
+
+            if ( is.good())
+            {
+                is >> source >> ws;    
+            }
+
+            if (!source.empty())
+            {
+                oss << "MkFS operation succeeded but image no longer exists."
+                    << " Source image: " << source << ", may be left in datastore";
+
+                NebulaLog::log("ImM", Log::ERROR, oss);                
+            }
+        }
+        
         return;
     }
 

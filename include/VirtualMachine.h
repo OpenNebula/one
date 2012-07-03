@@ -242,7 +242,9 @@ public:
         int     hid,
         const string& hostname,
         const string& vmm_mad,
-        const string& vnm_mad);
+        const string& vnm_mad,
+        const string& tm_mad,
+        int           ds_id);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
@@ -316,6 +318,55 @@ public:
     const string & get_previous_vnm_mad() const
     {
         return previous_history->vnm_mad_name;
+    };
+
+
+    /**
+     *  Returns the datastore ID of the system DS for the host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the ds id
+     */
+    string get_ds_id() const
+    {
+        ostringstream oss;
+
+        oss << history->ds_id;
+
+        return oss.str();
+    };
+
+    /**
+     *  Returns the datastore ID of the system DS for the previous host. 
+     *  The hasPreviousHistory() function MUST be called before this one.
+     *    @return the TM mad name
+     */
+    string get_previous_ds_id() const
+    {
+        ostringstream oss;
+
+        oss << previous_history->ds_id;
+        
+        return oss.str();
+    };
+
+    /**
+     *  Returns the TM driver name for the current host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the TM mad name
+     */
+    const string & get_tm_mad() const
+    {
+        return history->tm_mad_name;
+    };
+
+    /**
+     *  Returns the TM driver name for the previous host. The
+     *  hasPreviousHistory() function MUST be called before this one.
+     *    @return the TM mad name
+     */
+    const string & get_previous_tm_mad() const
+    {
+        return previous_history->tm_mad_name;
     };
 
     /**

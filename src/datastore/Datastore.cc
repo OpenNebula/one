@@ -19,6 +19,8 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+
 const char * Datastore::table = "datastore_pool";
 
 const char * Datastore::db_names =
@@ -47,7 +49,8 @@ Datastore::Datastore(
             Clusterable(cluster_id, cluster_name),
             ds_mad(""),
             tm_mad(""),
-            base_path("")
+            base_path(""),
+            system_ds(0)
 {
     group_u = 1;
 
@@ -97,6 +100,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
     int           rc;
     ostringstream oss;
     string        s_disk_type;
+    string        s_system_ds;
 
     Nebula& nd = Nebula::instance();
 
@@ -108,8 +112,22 @@ int Datastore::insert(SqlDB *db, string& error_str)
     // NAME is checked in DatastorePool::allocate
 
     get_template_attribute("DS_MAD", ds_mad);
+    get_template_attribute("SYSTEM", s_system_ds);
 
-    if ( ds_mad.empty() == true )
+    TO_UPPER(s_system_ds);
+
+    system_ds = (s_system_ds == "YES");
+
+    if ( system_ds == 1 )
+    {
+        if ( !ds_mad.empty() )
+        {
+            goto error_exclusive;
+        }
+
+        ds_mad = "-";
+    }
+    else if ( ds_mad.empty() == true )
     {
         goto error_ds;
     }
@@ -151,6 +169,10 @@ int Datastore::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
+
+error_exclusive:
+    error_str = "SYSTEM datastores cannot have DS_MAD defined.";
+    goto error_common;
 
 error_ds:
     error_str = "No DS_MAD in template.";
@@ -273,6 +295,7 @@ string& Datastore::to_xml(string& xml) const
         "<DS_MAD>"      << ds_mad       << "</DS_MAD>"      <<
         "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
+        "<SYSTEM>"      << system_ds    << "</SYSTEM>"      <<
         "<DISK_TYPE>"   << disk_type    << "</DISK_TYPE>"   <<
         "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
         "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
@@ -307,6 +330,7 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(ds_mad,       "/DATASTORE/DS_MAD",    "not_found");
     rc += xpath(tm_mad,       "/DATASTORE/TM_MAD",    "not_found");
     rc += xpath(base_path,    "/DATASTORE/BASE_PATH", "not_found");
+    rc += xpath(system_ds,    "/DATASTORE/SYSTEM",    -1);
     rc += xpath(int_disk_type,"/DATASTORE/DISK_TYPE", -1);
 
     rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
@@ -354,14 +378,15 @@ int Datastore::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Datastore::replace_template(const string& tmpl_str, string& error)
+int Datastore::replace_template(const string& tmpl_str, string& error_str)
 {
     string new_ds_mad;
     string new_tm_mad;
+    string s_system_ds;
 
     int rc;
 
-    rc = PoolObjectSQL::replace_template(tmpl_str, error);
+    rc = PoolObjectSQL::replace_template(tmpl_str, error_str);
 
     if ( rc != 0 )
     {
@@ -369,15 +394,37 @@ int Datastore::replace_template(const string& tmpl_str, string& error)
     }
 
     get_template_attribute("DS_MAD", new_ds_mad);
+    get_template_attribute("SYSTEM", s_system_ds);
+
+
+    if ( oid == DatastorePool::SYSTEM_DS_ID )
+    {
+        system_ds = 1;
+    }
+    else if ( !s_system_ds.empty() )
+    {
+        TO_UPPER(s_system_ds);
+
+        system_ds = (s_system_ds == "YES");
+    }
+
+    if ( system_ds == 1 )
+    {
+        replace_template_attribute("SYSTEM", "YES");
+
+        new_ds_mad = "-";
+    }
+    else
+    {
+        obj_template->erase("SYSTEM");
+    }
 
     if ( !new_ds_mad.empty() )
     {
         ds_mad = new_ds_mad;
     }
-    else
-    {
-        replace_template_attribute("DS_MAD", ds_mad);
-    }
+
+    replace_template_attribute("DS_MAD", ds_mad);
 
     get_template_attribute("TM_MAD", new_tm_mad);
 

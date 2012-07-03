@@ -54,8 +54,7 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
-        cpu_threshold(0.9),
-        mem_threshold(1),
+        hypervisor_mem(0),
         client(0)
     {
         am.addListener(this);
@@ -157,14 +156,9 @@ private:
     unsigned int host_dispatch_limit;
 
     /**
-     *  Threshold value to round up freecpu
+     *  Memory reserved for the hypervisor
      */
-    float cpu_threshold;
-
-    /**
-     *  Threshold value to round up freemem
-     */
-    float mem_threshold;
+    float hypervisor_mem;
 
     /**
      *  XML_RPC client

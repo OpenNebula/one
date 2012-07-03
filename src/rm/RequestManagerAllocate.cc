@@ -322,17 +322,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // ------------------------- Check Datastore exists ------------------------
 
-    if ( ds_id == DatastorePool::SYSTEM_DS_ID )
-    {
-        ostringstream oss;
-
-        oss << "New images cannot be allocated in the system datastore.";
-        failure_response(INTERNAL, allocate_error(oss.str()), att);
-
-        delete tmpl;
-        return;
-    }
-
     if ((ds = dspool->get(ds_id,true)) == 0 )
     {
         failure_response(NO_EXISTS,
@@ -340,6 +329,20 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                 att);
 
         delete tmpl;
+        return;
+    }
+
+    if ( ds->is_system() )
+    {
+        ostringstream oss;
+
+        ds->unlock();
+
+        oss << "New images cannot be allocated in a system datastore.";
+        failure_response(INTERNAL, allocate_error(oss.str()), att);
+
+        delete tmpl;
+
         return;
     }
 

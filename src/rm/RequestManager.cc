@@ -268,6 +268,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_update(new UserUpdateTemplate());
     xmlrpc_c::methodPtr datastore_update(new DatastoreUpdateTemplate());
     xmlrpc_c::methodPtr doc_update(new DocumentUpdateTemplate());
+    xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -468,6 +469,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.allocate",cluster_allocate);
     RequestManagerRegistry.addMethod("one.cluster.delete",  cluster_delete);
     RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
+    RequestManagerRegistry.addMethod("one.cluster.update",  cluster_update);
 
     RequestManagerRegistry.addMethod("one.cluster.addhost", cluster_addhost);
     RequestManagerRegistry.addMethod("one.cluster.delhost", cluster_delhost);

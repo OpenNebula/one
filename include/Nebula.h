@@ -244,30 +244,6 @@ public:
     };
 
     /**
-     *  Returns the Transfer Manager for the system datastore
-     *      @return the tm name.
-     */
-    string get_system_ds_tm_mad()
-    {
-        Datastore * ds;
-        string      tm_mad = "";
-
-        ds = dspool->get(DatastorePool::SYSTEM_DS_ID, true);
-
-        if ( ds == 0 )
-        {
-            NebulaLog::log("DaS", Log::ERROR, "Can not get system datastore");
-            return tm_mad;
-        }
-
-        tm_mad = ds->get_tm_mad();
-
-        ds->unlock();
-
-        return tm_mad;
-    };
-    
-    /**
      *  Returns the path of the log file for a VM, depending where OpenNebula is
      *  installed,
      *     $ONE_LOCATION/var/$VM_ID/vm.log

@@ -33,8 +33,8 @@ onegroup create newgroup
 
 
 # Host
-onehost create host01 --im im_test --vm vmm_test --net dummy
-onehost create host02 --im im_test --vm vmm_test --net dummy
+onehost create host01 --im im_dummy --vm vmm_dummy --net dummy
+onehost create host02 --im im_dummy --vm vmm_dummy --net dummy
 
 onecluster addhost newcluster host02
 
