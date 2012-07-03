@@ -119,7 +119,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
             end
 
-            column :HOSTNAME, "Host where the VM is running", :size=>15 do |d|
+            column :HOST, "Host where the VM is running", :size=>15 do |d|
                 if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
                     state_str = VirtualMachine::VM_STATE[d['STATE'].to_i]
                     if %w{ACTIVE SUSPENDED}.include? state_str
@@ -135,7 +135,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.period_to_str(dtime)
             end
 
-            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME,
+            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOST,
                 :TIME
         end
 
@@ -170,7 +170,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["STATE", vm.state_str]
         puts str % ["LCM_STATE", vm.lcm_state_str]
         puts str % ["RESCHED", OpenNebulaHelper.boolean_to_str(vm['RESCHED'])]
-        puts str % ["HOSTNAME",
+        puts str % ["HOST",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
                 %w{ACTIVE SUSPENDED}.include? vm.state_str
         puts str % ["START TIME",
@@ -222,7 +222,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["SEQ"]
             end
 
-            column :HOSTNAME, "Host name", :size=>15 do |d|
+            column :HOST, "Host name of the VM container", :size=>15 do |d|
                 d["HOSTNAME"]
             end
 
@@ -252,7 +252,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.period_to_str(dtime)
             end
 
-            default :SEQ, :HOSTNAME, :REASON, :START, :TIME, :PTIME
+            default :SEQ, :HOST, :REASON, :START, :TIME, :PTIME
         end
 
         vm_hash=vm.to_hash

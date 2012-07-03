@@ -30,7 +30,7 @@
   :desc: Memory used by the VM
   :size: 7
 
-:HOSTNAME: 
+:HOST: 
   :desc: Host where the VM is running
   :size: 15
 
@@ -46,5 +46,5 @@
 - :STAT
 - :CPU
 - :MEM
-- :HOSTNAME
+- :HOST
 - :TIME
