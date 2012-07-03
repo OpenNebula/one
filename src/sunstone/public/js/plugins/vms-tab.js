@@ -1334,7 +1334,7 @@ function setupCreateVMDialog(){
         };
 
         if (!vm_name.length){
-            vm_name = $('#template_id option:selected',this).text();
+            vm_name = getTemplateName(template_id);
         };
 
         if (vm_name.indexOf("%i") == -1){ //no wildcard
