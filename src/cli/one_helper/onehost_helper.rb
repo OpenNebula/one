@@ -133,13 +133,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "HOST SHARES", false)
 
-        puts str % ["MAX MEM", host['HOST_SHARE/MAX_MEM']]
-        puts str % ["USED MEM (REAL)", host['HOST_SHARE/USED_MEM']]
-        puts str % ["USED MEM (ALLOCATED)", host['HOST_SHARE/MEM_USAGE']]
-        puts str % ["MAX CPU", host['HOST_SHARE/MAX_CPU']]
+        puts str % ["TOTAL MEM", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MAX_MEM'].to_i, {})]
+        puts str % ["USED MEM (REAL)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/USED_MEM'].to_i, {})]
+        puts str % ["USED MEM (ALLOCATED)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MEM_USAGE'].to_i, {})]
+        puts str % ["TOTAL CPU", host['HOST_SHARE/MAX_CPU']]
         puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
         puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
-        puts str % ["MAX DISK", host['HOST_SHARE/MAX_DISK']]
+        puts str % ["TOTAL DISK", host['HOST_SHARE/MAX_DISK']]
         puts str % ["USED DISK (REAL)", host['HOST_SHARE/USED_DISK']]
         puts str % ["USED DISK (ALLOCATED)", host['HOST_SHARE/DISK_USAGE']]
         puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
