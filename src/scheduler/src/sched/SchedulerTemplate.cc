@@ -41,6 +41,8 @@ void SchedulerTemplate::set_conf_default()
 #  MAX_HOST
 #  DEFAULT_SCHED
 #  LIVE_RESCHEDS
+#  CPU_FREE_THRESHOLD
+#  HYPERVISOR_MEM
 #-------------------------------------------------------------------------------
 */
     // ONED_PORT
@@ -85,6 +87,18 @@ void SchedulerTemplate::set_conf_default()
 
     vattribute = new VectorAttribute("DEFAULT_SCHED",vvalue);
     conf_default.insert(make_pair(attribute->name(),vattribute));
+
+    //CPU_FREE_THRESHOLD
+    value = "0.9";
+
+    attribute = new SingleAttribute("CPU_FREE_THRESHOLD",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //HYPERVISOR_MEM
+    value = "0.1";
+
+    attribute = new SingleAttribute("HYPERVISOR_MEM",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
 }
 
 /* -------------------------------------------------------------------------- */

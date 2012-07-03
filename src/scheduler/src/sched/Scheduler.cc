@@ -139,8 +139,9 @@ void Scheduler::start()
 
     conf.get("MAX_HOST", host_dispatch_limit);
 
-    conf.get("CPU_THRESHOLD", cpu_threshold);
-    conf.get("MEM_THRESHOLD", mem_threshold);
+    conf.get("CPU_FREE_THRESHOLD", cpu_threshold);
+
+    conf.get("HYPERVISOR_MEM", mem_threshold);
 
     conf.get("LIVE_RESCHEDS", live_rescheds);
    
@@ -441,8 +442,12 @@ void Scheduler::match()
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid() << 
-                    " filtered out. It does not have enough capacity.";
+                oss << "Host " << host->get_hid() << " filtered out. "
+                    << "Not enough capacity: " << endl
+                    << "\t free cpu: " << host_cpu 
+                    << " vm cpu: " << vm_cpu << endl
+                    << "\t free mem: " << host_memory 
+                    << " vm mem: " << vm_memory << endl;
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 
