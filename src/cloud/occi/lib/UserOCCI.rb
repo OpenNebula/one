@@ -26,6 +26,10 @@ class UserOCCI < User
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
             <GROUP><%= self['GNAME'] %></GROUP>
+            <%= self.element_xml('DATASTORE_QUOTA') %>
+            <%= self.element_xml('NETWORK_QUOTA') %>
+            <%= self.element_xml('VM_QUOTA') %>
+            <%= self.element_xml('IMAGE_QUOTA') %>
         </USER>
     }
 
