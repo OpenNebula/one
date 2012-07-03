@@ -21,7 +21,7 @@ include OpenNebula
 
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
-OpenNebula 3.5.80
+OpenNebula #{OpenNebula::VERSION}
 Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
