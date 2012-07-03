@@ -22,11 +22,11 @@
   :desc: Actual status
   :size: 4
 
-:CPU: 
+:UCPU: 
   :desc: CPU percentage used by the VM
   :size: 3
 
-:MEM: 
+:UMEM: 
   :desc: Memory used by the VM
   :size: 7
 
@@ -44,7 +44,7 @@
 - :GROUP
 - :NAME
 - :STAT
-- :CPU
-- :MEM
+- :UCPU
+- :UMEM
 - :HOST
 - :TIME

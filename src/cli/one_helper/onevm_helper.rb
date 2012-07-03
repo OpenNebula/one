@@ -111,11 +111,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OneVMHelper.state_to_str(d["STATE"], d["LCM_STATE"])
             end
 
-            column :CPU, "CPU percentage used by the VM", :size=>3 do |d|
+            column :UCPU, "CPU percentage used by the VM", :size=>3 do |d|
                 d["CPU"]
             end
 
-            column :MEM, "Memory used by the VM", :size=>7 do |d|
+            column :UMEM, "Memory used by the VM", :size=>7 do |d|
                 OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
             end
 
@@ -135,7 +135,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.period_to_str(dtime)
             end
 
-            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOST,
+            default :ID, :USER, :GROUP, :NAME, :STAT, :UCPU, :UMEM, :HOST,
                 :TIME
         end
 
@@ -188,8 +188,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             "USED CPU" => "CPU",
             "NET_TX" => "NET_TX",
             "NET_RX" => "NET_RX"
+        }      
+
+        poll_attrs.each { |k,v| 
+            if k == "USED CPU"
+                puts str % [k,vm[v]] 
+            elsif k == "USED MEMORY"
+                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]           
+            else
+                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i/1024, {})]
+            end
         }
-        poll_attrs.each { |k,v| puts str % [k,vm[v]] }
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
