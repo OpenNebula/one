@@ -44,7 +44,7 @@ SYNC=sync
 TAR=tar
 TGTADM=tgtadm
 TGTADMIN=tgt-admin
-VMKFSTOOLS=/usr/sbin/vmkfstools
+VMKFSTOOLS=vmkfstools
 WGET=wget
 
 if [ "x$(uname -s)" = "xLinux" ]; then
