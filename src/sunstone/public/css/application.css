@@ -685,3 +685,11 @@ ul.action_list li a:hover{
 div.current_quotas ul{
     list-style: none;
 }
+
+.padding1 {
+    padding-left: 30px!important;
+}
+
+.padding2 {
+    padding-left: 55px!important;
+}

@@ -14,6 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var config_response;
 var config_tab_content =
 '<form>\
 <table id="config_table" style="width:100%">\
@@ -81,10 +82,10 @@ Sunstone.addMainTab('config_tab',config_tab);
 
 // Callback when configuration list is received
 function updateConfig(request,response){
-    var config = response['user_config'];
+    config_response = response
 
     //Set wss checkbox to correct value
-    if (config["wss"] == "yes"){
+    if (config_response['user_config']["wss"] == "yes"){
         $('table#config_table input#wss_checkbox').attr('checked','checked');
     };
 };

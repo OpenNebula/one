@@ -76,11 +76,13 @@ function pretty_time_runtime(time){
 }
 
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
-function humanize_size(value) {
+//if no from_bytes, assumes value comes in Ks
+function humanize_size(value,from_bytes) {
     if (typeof(value) === "undefined") {
         value = 0;
     }
-    var binarySufix = ["K", "M", "G", "T" ];
+    var binarySufix = from_bytes ? 
+        ["", "K", "M", "G", "T" ] : ["K", "M", "G", "T" ];
     var i=0;
     while (value > 1024 && i < 3){
         value = value / 1024;
@@ -561,12 +563,18 @@ function getSelectedNodes(dataTable){
     return selected_nodes;
 }
 
-//returns a HTML string with a select input code generated from
-//a dataTable. Allows filtering elements.
+//returns a HTML string with options for 
+//a select input code generated from a dataTable. 
+//Allows filtering elements specifing status columns
+//and bad status (if the values of the columns match the bad status)
+//then this elem is skipped.
+//no_empty_obj allows to skip adding a Please Select option
 function makeSelectOptions(dataTable,
-                           id_col,name_col,
+                           option_value_col,
+                           option_name_col,
                            status_cols,
-                           bad_status_values,no_empty_opt){
+                           bad_status_values,
+                           no_empty_opt){
     var nodes = dataTable.fnGetData();
     var select = "";
     if (!no_empty_opt)
@@ -574,8 +582,12 @@ function makeSelectOptions(dataTable,
     var array;
     for (var j=0; j<nodes.length;j++){
         var elem = nodes[j];
-        var id = elem[id_col];
-        var name = elem[name_col];
+        var value = elem[option_value_col];
+
+        //ASSUMPTION: elem id in column 1
+        var id = elem[1];
+            
+        var name = elem[option_name_col];
         var status, bad_status;
         var ok=true;
         for (var i=0;i<status_cols.length;i++){
@@ -589,7 +601,7 @@ function makeSelectOptions(dataTable,
             };
         };
         if (ok){
-            select +='<option value="'+id+'">'+name+'</option>';
+            select +='<option elem_id="'+id+'" value="'+value+'">'+name+' (id:'+id+')</option>';
         };
     };
     return select;
@@ -607,9 +619,9 @@ function escapeDoubleQuotes(string){
 //of plotting comes, we can put the data in the right place.
 function generateMonitoringDivs(graphs, id_prefix){
     var str = "";
-    //43% of the width of the screen minus
+    //40% of the width of the screen minus
     //181px (left menu size)
-    var width = ($(window).width()-181)*40/100;
+    var width = ($(window).width()-200)*39/100;
     var id_suffix="";
     var label="";
     var id="";
@@ -640,6 +652,7 @@ function plot_graph(data,context,id_prefix,info){
     var labels = info.monitor_resources;
     var humanize = info.humanize_figures ?
         humanize_size : function(val){ return val };
+    var convert_from_bytes = info.convert_from_bytes;
     var id_suffix = labels.replace(/,/g,'_');
     id_suffix = id_suffix.replace(/\//g,'_');
     var labels_array = labels.split(',');
@@ -652,7 +665,8 @@ function plot_graph(data,context,id_prefix,info){
     //labels array.
     for (var i=0; i<labels_array.length; i++) {
         serie = {
-            label: labels_array[i],
+            //Turns label TEMPLATE/BLABLA into BLABLA
+            label: labels_array[i].split('/').pop(),
             data: monitoring[labels_array[i]]
         };
         series.push(serie);
@@ -664,7 +678,7 @@ function plot_graph(data,context,id_prefix,info){
     // * Axis options: print time and sizes correctly
     var options = {
         legend : { show : true,
-                   noColumns: mon_count++,
+                   noColumns: mon_count+1,
                    container: $('#legend_'+id_suffix)
                  },
         xaxis : {
@@ -674,7 +688,7 @@ function plot_graph(data,context,id_prefix,info){
         },
         yaxis : { labelWidth: 40,
                   tickFormatter: function(val, axis) {
-                      return humanize(val);
+                      return humanize(val, convert_from_bytes);
                   },
                   min: 0
                 }
@@ -833,6 +847,10 @@ function infoListener(dataTable, info_action){
 
 function mustBeAdmin(){
     return gid == 0;
+}
+
+function mustNotBeAdmin(){
+    return !mustBeAdmin();
 }
 
 function users_sel(){
@@ -1008,6 +1026,13 @@ function setupQuotasDialog(dialog){
 
         json['TYPE'] = sel.toUpperCase();
 
+        if (json['TYPE'] == "VM" &&
+            $('.current_quotas table tbody tr.vm_quota', dialog).length){
+            notifyError("Only 1 VM quota is allowed")
+            return false;
+        }
+
+
         var tr = quotaListItem(json)
         $('.current_quotas table tbody',dialog).append($(tr).hide().fadeIn());
         return false;
@@ -1081,7 +1106,7 @@ function setupQuotaIcons(){
 }
 
 // Returns an object with quota information in form of list items
-function parseQuotas(elem){
+function parseQuotas(elem, formatter_f){
     var quotas = [];
     var results = {
         VM : "",
@@ -1132,7 +1157,7 @@ function parseQuotas(elem){
     }
 
     for (var i = 0; i < quotas.length; i++){
-        var tr = quotaListItem(quotas[i]);
+        var tr = formatter_f(quotas[i]);
         results[quotas[i].TYPE] += tr;
     }
     return results;
@@ -1141,29 +1166,34 @@ function parseQuotas(elem){
 //Receives a quota json object. Returns a nice string out of it.
 function quotaListItem(quota_json){
     var value = JSON.stringify(quota_json)
-    var str = '<tr quota=\''+value+'\'><td>'+
+    var str = '<tr quota=\''+value+'\' ';
+
+    if (quota_json.TYPE == "VM")
+        str += ' class="vm_quota" ';
+
+    str += '><td>'+
         quota_json.TYPE+
         '</td><td style="width:100%;"><pre style="margin:0;">';
     switch(quota_json.TYPE){
     case "VM":
         str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") +
-               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' (' + quota_json.MEMORY_USED + '). ' : ". ") +
+               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? 'MB (' + quota_json.MEMORY_USED + 'MB). ' : ". ") +
                'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ");
         break;
     case "DATASTORE":
-        str +=  'ID: ' + getDatastoreName(quota_json.ID) + '. ' +
-               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' (' + quota_json.SIZE_USED + '). ' : ". ") +
+        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' +
+               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? 'MB (' + quota_json.SIZE_USED + 'MB). ' : ". ") +
                'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
         break;
     case "IMAGE":
-        str +=  'ID: ' + getImageName(quota_json.ID) + '. ' +
+        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' +
                'RVMs: ' + quota_json.RVMS +  (quota_json.RVMS_USED ? ' (' + quota_json.RVMS_USED + '). ' : ". ");
         break;
     case "NETWORK":
-        str +=  'ID: ' + getVNetName(quota_json.ID) + '. ' +
+        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' +
                'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
         break;
     }
-    str += '</td><td><i class="quota_edit_icon icon-pencil"></i></pre></td></tr>';
+    str += '</td><td><button class="quota_edit_icon"><i class="icon-pencil"></i></button></pre></td></tr>';
     return str;
 }

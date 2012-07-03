@@ -19,15 +19,13 @@
     :group:
         oneadmin: true
 - plugins/users-tab.js:
-    :ALL: false
+    :ALL: true
     :user:
     :group:
-        oneadmin: true
 - plugins/groups-tab.js:
-    :ALL: false
+    :ALL: true
     :user:
     :group:
-        oneadmin: true
 - plugins/acls-tab.js:
     :ALL: false
     :user:
@@ -59,9 +57,10 @@
     :group:
         oneadmin: true
 - plugins/hosts-tab.js:
-    :ALL: true
+    :ALL: false
     :user:
     :group:
+        oneadmin: true
 - plugins/datastores-tab.js:
     :ALL: true
     :user:

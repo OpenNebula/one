@@ -190,6 +190,8 @@ var $dashboard;
 
 // All monitoring calls and config are called from the Sunstone plugins.
 
+function dashboardQuotasHTML(){}
+
 $(document).ready(function(){
         $dashboard = $('#dashboard_tab', main_tabs_context);
 });

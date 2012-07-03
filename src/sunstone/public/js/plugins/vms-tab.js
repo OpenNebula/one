@@ -38,11 +38,13 @@ var vm_graphs = [
     { title : tr("Network transmission"),
       monitor_resources : "NET_TX",
       humanize_figures : true,
+      convert_from_bytes : true,
       history_length : VM_HISTORY_LENGTH
     },
     { title : tr("Network reception"),
       monitor_resources : "NET_RX",
       humanize_figures : true,
+      convert_from_bytes : true,
       history_length : VM_HISTORY_LENGTH
     }
 ];
@@ -668,10 +670,10 @@ SunstoneMonitoringConfig['VM'] = {
         var t = ((new Date().getTime()) - netUsage.time) / 1000 //in secs
         var bandwidth_up = monitoring['netUsageBar'][1].data[0][0] - netUsage.up
         bandwidth_up /= t
-        var bandwidth_up_str = humanize_size(bandwidth_up) + "b/s" //bytes /sec
+        var bandwidth_up_str = humanize_size(bandwidth_up,true) + "B/s" //bytes /sec
         var bandwidth_down = monitoring['netUsageBar'][0].data[0][0] - netUsage.down
         bandwidth_down /= t
-        var bandwidth_down_str = humanize_size(bandwidth_down) + "b/s" //bytes /sec
+        var bandwidth_down_str = humanize_size(bandwidth_down,true) + "B/s" //bytes /sec
 
         if (bandwidth_up >= 0)
             $('#bandwidth_up', $dashboard).text(bandwidth_up_str)
@@ -742,14 +744,14 @@ SunstoneMonitoringConfig['VM'] = {
                 xaxis: {
                     min: 0,
                     tickFormatter : function(val,axis) {
-                        return humanize_size(val);
+                        return humanize_size(val,true);
                     },
                 },
                 legend: {
                     noColumns: 3,
                     container: '#netUsageBar_legend',
                     labelFormatter: function(label, series){
-                        return label + " - " + humanize_size(series.data[0][0])
+                        return label + " - " + humanize_size(series.data[0][0],true)
                     }
                 }
             }
@@ -1114,27 +1116,28 @@ function printDisks(vm_info){
         html += '<tr id="no_disks_tr"><td class="key_td">\
                    '+tr("No disks to show")+'\
                    </td><td class="value_td"></td></tr>';
-        html += '</tbody></table></form>';
-        return html;
     }
+    else {
 
-    for (var i = 0; i < disks.length; i++){
-        var disk = disks[i];
-        html += '<tr disk_id="'+(disk.DISK_ID)+'"><td class="key_td">';
-        html += disk.DISK_ID + ' - ' +
-            (disk.IMAGE ? disk.IMAGE : "Volatile") + '</td>';
-        html += '<td class="value_td">\
+        for (var i = 0; i < disks.length; i++){
+            var disk = disks[i];
+            html += '<tr disk_id="'+(disk.DISK_ID)+'"><td class="key_td">';
+            html += disk.DISK_ID + ' - ' +
+                (disk.IMAGE ? disk.IMAGE : "Volatile") + '</td>';
+            html += '<td class="value_td">\
 '+(vm_info.STATE == "3" ? '\
-                    <button value="VM.detachdisk" class="detachdisk" style="float:right;color:#555555;height:26px;"><i class="icon-trash icon-large"></i></button>\
+                       <button value="VM.detachdisk" class="detachdisk" style="float:right;color:#555555;height:26px;">'+tr("Detach")+' <i class="icon-remove icon-large"></i></button>\
 ' : '')+'\
-                    <button value="VM.saveas" class="saveas" style="float:right;margin-right:10px;color:#555555;height:26px;"><i class="icon-download icon-large"></i></button>\
-                    <input style="float:right;width:9em;margin-right:10px;margin-top:3px;" type="text" value="saveas_'+vm_info.ID+'_'+disk.DISK_ID+'" name="saveas_name"></input>'
-+'\
-                 </td>';
+                       <button value="VM.saveas" class="saveas" style="float:right;margin-right:10px;color:#555555;height:26px;">'+tr("Save")+' <i class="icon-download icon-large"></i></button>\
+                       <input style="float:right;width:9em;margin-right:10px;margin-top:3px;" type="text" value="saveas_'+vm_info.ID+'_'+disk.DISK_ID+'" name="saveas_name"></input>\
+            <label style="float:right;margin-top:4px;">'+tr("Save_as name")+':</label>'
+                +'\
+</td>';
+        }
     }
 
     html += '</tbody>\
-     </table>';
+          </table>';
 
     // If VM is not RUNNING, then we forget about the attach disk form.
     if (vm_info.STATE != "3"){
@@ -1163,7 +1166,7 @@ function printDisks(vm_info){
                    </select>\
              </td>\
          </tr>\
-         <tr class="at_volatile"><td class="key_td"><label>'+tr("Size")+':</label></td>\
+         <tr class="at_volatile"><td class="key_td"><label>'+tr("Size")+' (MB):</label></td>\
              <td class="value_td">\
                 <input type="text" name="SIZE" style="width:8em;"></input>\
              </td>\
@@ -1186,6 +1189,7 @@ function printDisks(vm_info){
                 <input type="text" name="DEV_PREFIX" value="sd" style="width:8em;"></input>\
              </td>\
          </tr>\
+<!--\
          <tr class="at_volatile"><td class="key_td"><label>'+tr("Readonly")+':</label></td>\
              <td class="value_td">\
                    <select name="READONLY" style="width:12em;">\
@@ -1202,6 +1206,7 @@ function printDisks(vm_info){
                    </select>\
              </td>\
         </tr>\
+-->\
         <tr><td class="key_td"></td>\
              <td class="value_td">\
                    <button type="submit" value="VM.attachdisk">Attach</button>\
@@ -1282,8 +1287,8 @@ function hotpluggingOps(){
             disk_obj.FORMAT = $('input[name="FORMAT"]',this).val();
             disk_obj.TYPE = $('select[name="TYPE"]',this).val();
             disk_obj.DEV_PREFIX = $('input[name="DEV_PREFIX"]',this).val();
-            disk_obj.READONLY = $('select[name="READONLY"]',this).val();
-            disk_obj.SAVE = $('save[name="SAVE"]',this).val();
+//            disk_obj.READONLY = $('select[name="READONLY"]',this).val();
+//            disk_obj.SAVE = $('save[name="SAVE"]',this).val();
             break;
         }
 

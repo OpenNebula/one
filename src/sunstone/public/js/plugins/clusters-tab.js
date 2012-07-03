@@ -61,7 +61,10 @@ var cluster_actions = {
     "Cluster.create" : {
         type: "create",
         call : OpenNebula.Cluster.create,
-        callback : addClusterElement,
+        callback : function(){
+            //addClusterElement,
+            Sunstone.runAction('Cluster.list');
+        },
         error : onError,
         notify: true
     },
@@ -911,7 +914,7 @@ function setupCreateClusterDialog(){
             }
         };
 
-        //Create the OpenNebula.Host.
+        //Create the OpenNebula.Cluster.
         //If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
         $create_cluster_dialog.dialog('close');

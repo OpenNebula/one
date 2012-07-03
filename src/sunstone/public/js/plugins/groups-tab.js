@@ -32,8 +32,8 @@ var groups_tab_content = '\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Users")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Memory used")+'</th>\
-      <th>'+tr("CPU used")+'</th>\
+      <th>'+tr("Used memory")+'</th>\
+      <th>'+tr("Used CPU")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
@@ -142,10 +142,19 @@ var group_actions = {
         error: onError,
     },
 
-    // "Group.showinfo" : {
-    //     type: "custom",
-    //     call: updateGroupInfo
-    // },
+    "Group.show" : {
+        type: "single",
+        call: OpenNebula.Group.show,
+        callback: updateGroupElement,
+        error: onError
+    },
+
+    "Group.showinfo" : {
+        type: "single",
+        call: OpenNebula.Group.show,
+        callback: updateGroupInfo,
+        error: onError
+    },
 
     "Group.autorefresh" : {
         type: "custom",
@@ -185,7 +194,7 @@ var group_actions = {
         type: "single",
         call: OpenNebula.Group.show,
         callback: function (request,response) {
-            var parsed = parseQuotas(response.GROUP);
+            var parsed = parseQuotas(response.GROUP,quotaListItem);
             $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.VM);
             $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.DATASTORE);
             $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.IMAGE);
@@ -225,7 +234,8 @@ var group_buttons = {
     },
     "Group.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New Group")
+        text: tr("+ New Group"),
+        condition: mustBeAdmin
     },
     // "Group.chown" : {
     //     type: "confirm_with_select",
@@ -236,11 +246,13 @@ var group_buttons = {
     // },
     "Group.quotas_dialog" : {
         type : "action",
-        text : tr("Update quotas")
+        text : tr("Update quotas"),
+        condition: mustBeAdmin,
     },
     "Group.delete" : {
         type: "confirm",
-        text: tr("Delete")
+        text: tr("Delete"),
+        condition: mustBeAdmin
     },
     "Group.help" : {
         type: "action",
@@ -249,17 +261,35 @@ var group_buttons = {
     }
 };
 
+var group_info_panel = {
+    "group_info_tab" : {
+        title: tr("Group information"),
+        content:""
+    },
+};
+
 var groups_tab = {
     title: tr("Groups"),
     content: groups_tab_content,
     buttons: group_buttons,
     tabClass: 'subTab',
-    parentTab: 'system_tab'
+    parentTab: 'system_tab',
+    condition: mustBeAdmin
 };
+
+var groups_tab_non_admin = {
+    title: tr("Group info"),
+    content: groups_tab_content,
+    buttons: group_buttons,
+    tabClass: 'subTab',
+    parentTab: 'dashboard_tab',
+    condition: mustNotBeAdmin
+}
 
 
 SunstoneMonitoringConfig['GROUP'] = {
     plot: function(monitoring){
+        if (!mustBeAdmin()) return;
         $('#totalGroups', $dashboard).text(monitoring['totalGroups'])
     },
     monitor: {
@@ -271,6 +301,8 @@ SunstoneMonitoringConfig['GROUP'] = {
 
 Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups_tab',groups_tab);
+Sunstone.addMainTab('groups_tab_non_admin',groups_tab_non_admin);
+Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
 function groupElements(){
     return getSelectedNodes(dataTable_groups);
@@ -350,8 +382,62 @@ function updateGroupsView(request, group_list){
     updateView(group_list_array,dataTable_groups);
     updateGroupSelect(group_list);
     SunstoneMonitoring.monitor('GROUP', group_list)
-    updateSystemDashboard("groups",group_list);
+    if (mustBeAdmin())
+        updateSystemDashboard("groups",group_list);
 }
+
+function updateGroupInfo(request,group){
+    var info = group.GROUP;
+
+    var info_tab_html = '\
+        <table id="info_group_table" class="info_table" style="width:80%">\
+            <thead>\
+               <tr><th colspan="2">' + tr("Group information") + ' - '+info.NAME+'</th></tr>\
+            </thead>\
+            <tbody>\
+            <tr>\
+                <td class="key_td">' + tr("ID") + '</td>\
+                <td class="value_td">'+info.ID+'</td>\
+            </tr>\
+            </tbody>\
+         </table>\
+         <table class="info_table" style="width:80%;margin-top:0;margin-bottom:0;">\
+            <thead>\
+               <tr><th colspan="2">' + tr("Quota information") +'</th></tr>\
+            </thead>\
+            <tbody><tr><td class="key_td"></td><td class="value_td"></td></tr></tbody>\
+         </table>';
+
+    if (!$.isEmptyObject(info.VM_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
+            <tbody>'+prettyPrintJSON(info.VM_QUOTA)+'</tbody>\
+          </table>'
+
+    if (!$.isEmptyObject(info.DATASTORE_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;%">\
+            <tbody>'+prettyPrintJSON(info.DATASTORE_QUOTA)+'</tbody>\
+          </table>'
+
+    if (!$.isEmptyObject(info.IMAGE_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
+            <tbody>'+prettyPrintJSON(info.IMAGE_QUOTA)+'</tbody>\
+          </table>';
+
+    if (!$.isEmptyObject(info.NETWORK_QUOTA))
+        info_tab_html += '<table class="info_table" style="width:70%;margin-top:0;margin-left:40px;">\
+            <tbody>'+prettyPrintJSON(info.NETWORK_QUOTA)+'</tbody>\
+          </table>';
+
+    var info_tab = {
+        title : tr("Group information"),
+        content : info_tab_html
+    };
+
+    Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
+    Sunstone.popUpInfoPanel("group_info_panel");
+}
+
+
 
 //Prepares the dialog to create
 function setupCreateGroupDialog(){
@@ -437,7 +523,8 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_groups);
     tableCheckboxesListener(dataTable_groups);
-    infoListener(dataTable_groups);
+    infoListener(dataTable_groups, 'Group.showinfo');
 
     $('div#groups_tab div.legend_div').hide();
+    $('div#groups_tab_non_admin div.legend_div').hide();
 })
