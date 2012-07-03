@@ -18,27 +18,7 @@
 #include "HostXML.h"
 
 
-void HostXML::get_capacity(int& cpu, int& memory,
-        float cpu_threshold, float mem_threshold) const
-{
-    vector<string> result;
-
-    cpu = free_cpu;
-
-    /* eg. 96.7 >= 0.9 * 100, Round so 96.7 free is 100 (and CPU = 1, fits)*/
-    if ( cpu >= static_cast<int>(cpu_threshold * static_cast<float>(max_cpu)) )
-    {
-        cpu = static_cast<int>(ceil(static_cast<float>(cpu)/100.0) * 100);
-    }
-
-    memory = free_mem - static_cast<int>(mem_threshold * static_cast<float>(max_mem));
-
-    /* sanity check in case the free_mem goes below the threshold */
-    if ( memory < 0 )
-    {
-        memory = 0;
-    }
-}
+float HostXML::hypervisor_mem; 
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -55,11 +35,10 @@ void HostXML::init_attributes()
     max_mem     = atoi(((*this)["/HOST/HOST_SHARE/MAX_MEM"])[0].c_str());
     max_cpu     = atoi(((*this)["/HOST/HOST_SHARE/MAX_CPU"])[0].c_str());
 
-    free_disk   = atoi(((*this)["/HOST/HOST_SHARE/FREE_DISK"])[0].c_str());
-    free_mem    = atoi(((*this)["/HOST/HOST_SHARE/FREE_MEM"])[0].c_str());
-    free_cpu    = atoi(((*this)["/HOST/HOST_SHARE/FREE_CPU"])[0].c_str());
-
     running_vms = atoi(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
+
+    //Reserve memory for the hypervisor
+    max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
 }
 
 /* -------------------------------------------------------------------------- */

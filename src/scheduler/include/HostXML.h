@@ -41,16 +41,6 @@ public:
     };
 
     /**
-     *  Gets the current host capacity
-     *    @param cpu the host free cpu, scaled according to a given threshold
-     *    @param memory the host free memory
-     *    @param cpu_threshold to consider the host totally free
-     *    @param mem_threshold to consider the host totally free
-     */
-    void get_capacity(int& cpu, int& memory,
-            float cpu_threshold, float mem_threshold) const;
-
-    /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in Kb)
@@ -81,6 +71,14 @@ public:
         running_vms++;
     };
 
+    /**
+     *  Sets the memory fraction reserved for the hypervisor. This function
+     *  should be called before using the host pool.
+     */
+    static void set_hypervisor_mem(float mem)
+    {
+        hypervisor_mem = 1.0 - mem;
+    };
 
 private:
     int oid;
@@ -94,11 +92,9 @@ private:
     int max_mem;    /**< Total memory capacity (in Mb)         */
     int max_cpu;    /**< Total cpu capacity (in percentage)    */
 
-    int free_disk;  /**< Free disk from the IM monitor         */
-    int free_mem;   /**< Free memory from the IM monitor       */
-    int free_cpu;   /**< Free cpu from the IM monitor          */
-
     int running_vms; /**< Number of running VMs in this Host   */
+
+    static float hypervisor_mem; /**< Fraction of memory for the VMs */
 
     void init_attributes();
 };
