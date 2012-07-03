@@ -48,6 +48,10 @@ end
 # Cloud Client
 ###############################################################################
 module CloudClient
+
+    # OpenNebula version
+    VERSION = '3.5.80'
+
     # #########################################################################
     # Default location for the authentication file
     # #########################################################################
@@ -152,7 +156,7 @@ module CloudCLI
         begin
             doc = REXML::Document.new(xml_text)
         rescue REXML::ParseException => e
-            return e.message, -1 
+            return e.message, -1
         end
 
         xml = doc.root
@@ -170,18 +174,18 @@ module CloudCLI
         else
             str = xml.to_s
         end
-        
+
         return str, 0
     end
-    
+
     # Returns the command name
     def cmd_name
         File.basename($0)
     end
-    
+
     def version_text
         version=<<EOT
-OpenNebula 3.5.80
+OpenNebula #{CloudClient::VERSION}
 Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may

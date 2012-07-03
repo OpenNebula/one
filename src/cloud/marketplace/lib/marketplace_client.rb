@@ -26,7 +26,8 @@ module Market
             url ||= 'http://localhost:9292/'
             @uri = URI.parse(url)
 
-            @user_agent = "OpenNebula 3.5.80 (#{user_agent})"
+            @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
+            pp @user_agent
         end
 
         def get(path)
