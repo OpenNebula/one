@@ -440,6 +440,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string tm_mad;
     int    ds_id;
 
+    PoolObjectAuth aux_perms;
+    int     current_ds_id;
+    string  aux_st;
+    int     current_hid;
+
     int  id   = xmlrpc_c::value_int(paramList.getInt(1));
     int  hid  = xmlrpc_c::value_int(paramList.getInt(2));
     bool live = xmlrpc_c::value_boolean(paramList.getBoolean(3));
@@ -473,6 +478,39 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                 att);
 
         vm->unlock();
+        return;
+    }
+
+    current_hid = vm->get_hid();
+
+    vm->unlock();
+
+    if (get_host_information(
+            current_hid,aux_st,aux_st,aux_st,
+            aux_st,current_ds_id, att, aux_perms) != 0)
+    {
+        return;
+    }
+
+    if ( current_ds_id != ds_id )
+    {
+        ostringstream oss;
+
+        oss << "Cannot migrate to a different cluster with different system "
+        << "datastore. Current " << object_name(PoolObjectSQL::HOST)
+        << " [" << current_hid << "] uses system datastore [" << current_ds_id
+        << "], new " << object_name(PoolObjectSQL::HOST) << " [" << hid
+        << "] uses system datastore [" << ds_id << "]";
+
+        failure_response(ACTION,
+                request_error(oss.str(),""),
+                att);
+
+        return;
+    }
+
+    if ( (vm = get_vm(id, att)) == 0 )
+    {
         return;
     }
 
