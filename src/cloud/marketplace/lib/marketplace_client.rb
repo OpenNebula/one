@@ -27,7 +27,6 @@ module Market
             @uri = URI.parse(url)
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
-            pp @user_agent
         end
 
         def get(path)
