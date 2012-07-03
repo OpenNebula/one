@@ -944,6 +944,16 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
                                             "delvnet",action_obj);
         },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Cluster.resource,"template");
+        },
+        "update" : function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Cluster.resource,
+                                            "update",
+                                            action_obj);
+        }
     },
     "Datastore" : {
         "resource" : "DATASTORE",

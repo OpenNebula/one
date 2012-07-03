@@ -28,6 +28,9 @@ var clusters_tab_content = '\
       <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
       <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
+      <th>' + tr("Hosts") + '</th>\
+      <th>' + tr("Virtual Networks") + '</th>\
+      <th>' + tr("Datastores") + '</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyclusters">\
@@ -173,6 +176,37 @@ var cluster_actions = {
         error : onError,
         notify:true
     },
+
+    "Cluster.update" : {
+        type: "single",
+        call: OpenNebula.Cluster.update,
+        callback: function(){
+            notifyMessage(tr("Template updated correctly"));
+        },
+        error: onError
+    },
+
+    "Cluster.fetch_template" : {
+        type: "single",
+        call: OpenNebula.Cluster.fetch_template,
+        callback: function(request,response){
+            $('#template_update_dialog #template_update_textarea').val(response.template);
+        },
+        error: onError
+    },
+
+    "Cluster.update_dialog" : {
+        type: "custom",
+        call: function() {
+            popUpTemplateUpdateDialog("Cluster",
+                                      makeSelectOptions(dataTable_clusters,
+                                                        1,//idcol
+                                                        2,//namecol
+                                                        [],
+                                                        []),
+                                      clusterElements());
+        },
+    },
 };
 
 var cluster_buttons = {
@@ -184,6 +218,11 @@ var cluster_buttons = {
     "Cluster.create_dialog" : {
         type: "create_dialog",
         text: tr("+ New")
+    },
+    "Cluster.update_dialog" : {
+        type : "action",
+        text : tr("Update properties"),
+        alwaysActive: true
     },
     "Cluster.delete" : {
         type: "confirm",
@@ -343,10 +382,32 @@ function clusterElementArray(element_json){
 
     var element = element_json.CLUSTER;
 
+    var hosts = 0;
+    if ($.isArray(element.HOSTS.ID))
+        hosts = element.HOSTS.ID.length;
+    else if (!$.isEmptyObject(element.HOSTS.ID))
+        hosts = 1;
+
+    var vnets = 0;
+    if ($.isArray(element.VNETS.ID))
+        vnets = element.VNETS.ID.length;
+    else if (!$.isEmptyObject(element.VNETS.ID))
+        vnets = 1;
+
+    var dss = 0;
+    if ($.isArray(element.DATASTORES.ID))
+        dss = element.DATASTORES.ID.length;
+    else if (!$.isEmptyObject(element.DATASTORES.ID))
+        dss = 1;
+
+
     return [
         '<input class="check_item" type="checkbox" id="cluster_'+element.ID+'" name="selected_items" value="'+element.ID+'"/>',
         element.ID,
         element.NAME,
+        hosts,
+        vnets,
+        dss
     ];
 }
 
@@ -929,7 +990,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [1,3,4,5] },
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -941,8 +1002,8 @@ $(document).ready(function(){
     dataTable_clusters.fnClearTable();
     addElement([
         spinner,
-        '','',''],dataTable_clusters);
-//    Sunstone.runAction("Cluster.list");
+        '','','','',''],dataTable_clusters);
+    Sunstone.runAction("Cluster.list");
 
     setupCreateClusterDialog();
 
