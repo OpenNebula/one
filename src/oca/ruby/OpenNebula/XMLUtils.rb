@@ -261,6 +261,15 @@ module OpenNebula
             end
         end
 
+        # Returns the xml of an element
+        def element_xml(xpath)
+            if NOKOGIRI
+                @xml.xpath(xpath).to_s
+            else
+                @xml.elements[xpath].to_s
+            end
+        end
+
         # Returns elements in text form
         # root_element:: _String_ base element
         # indent:: _Boolean_ indents the resulting string, default true
@@ -368,14 +377,14 @@ module OpenNebula
         end
 
     private
-    
+
         #
         #
         #
         def attr_to_str(attr)
             attr.gsub!('"',"\\\"")
             attr = "\"#{attr}\""
-            
+
             return attr
         end
     end
