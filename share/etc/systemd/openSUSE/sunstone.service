@@ -8,12 +8,10 @@ BindTo=one.service
 !ConditionFileExists=/var/lock/one/.sunstone.lock
 
 [Service]
-ExecStart=/bin/bash -c "/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb > /var/log/one/sunstone.log 2>&1"
+ExecStart=/bin/bash -c "/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb > /var/log/one/sunstone.log 2>/var/log/one/sunstone.error"
 ExecStop=/bin/kill -INT $MAINPID
 PIDFile=/var/run/one/sunstone.pid
 Type=simple
-
-[Exec]
 Group=cloud
 User=oneadmin
 

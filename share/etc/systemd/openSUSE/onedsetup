@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 # One time setup for oned
-KILL_9_SECONDS=5
+KILL_9_SECONDS=10
 
 LOCK_FILE=/var/lock/one/one
 LOCK_FILE_DIR=/var/lock/one
