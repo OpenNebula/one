@@ -90,7 +90,7 @@ class DummyDriver < VirtualMachineDriver
 
         max_memory = 256
         if msg.elements["VM/TEMPLATE/MEMORY"]
-            max_memory = msg.elements["VM/TEMPLATE/MEMORY"].text.to_i
+            max_memory = msg.elements["VM/TEMPLATE/MEMORY"].text.to_i * 1024
         end
 
         max_cpu = 100
