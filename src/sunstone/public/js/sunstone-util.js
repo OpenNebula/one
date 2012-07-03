@@ -734,7 +734,7 @@ function setupTemplateUpdateDialog(){
         autoOpen:false,
         width:700,
         modal:true,
-        height:410,
+        height:430,
         resizable:false,
     });
 
