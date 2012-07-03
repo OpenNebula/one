@@ -139,11 +139,9 @@ void Scheduler::start()
 
     conf.get("MAX_HOST", host_dispatch_limit);
 
-    conf.get("CPU_FREE_THRESHOLD", cpu_threshold);
-
-    conf.get("HYPERVISOR_MEM", mem_threshold);
-
     conf.get("LIVE_RESCHEDS", live_rescheds);
+
+    conf.get("HYPERVISOR_MEM", hypervisor_mem);
    
     oss.str("");
      
@@ -176,7 +174,7 @@ void Scheduler::start()
     // Pools
     // -----------------------------------------------------------
 
-    hpool  = new HostPoolXML(client);
+    hpool  = new HostPoolXML(client, hypervisor_mem);
     vmpool = new VirtualMachinePoolXML(client, 
                                        machines_limit,
                                        (live_rescheds == 1));
@@ -429,28 +427,18 @@ void Scheduler::match()
 
             vm->get_requirements(vm_cpu,vm_memory,vm_disk);
 
-            host->get_capacity(host_cpu, host_memory, cpu_threshold, mem_threshold);
-
-            if ((vm_memory <= host_memory) && (vm_cpu <= host_cpu))
+            if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
             {
-                if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
-                {
-                	vm->add_host(host->get_hid());
-                }
+            	vm->add_host(host->get_hid());
             }
             else
             {
                 ostringstream oss;
 
                 oss << "Host " << host->get_hid() << " filtered out. "
-                    << "Not enough capacity: " << endl
-                    << "\t free cpu: " << host_cpu 
-                    << " vm cpu: " << vm_cpu << endl
-                    << "\t free mem: " << host_memory 
-                    << " vm mem: " << vm_memory << endl;
+                    << "Not enough capacity. " << endl;
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
-                
             }
         }
     }
