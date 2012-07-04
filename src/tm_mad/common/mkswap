@@ -31,5 +31,3 @@ DSID=$4
 
 CMD="`dirname $0`/mkimage $SIZE swap $DST $VMID $DSID"
 `$CMD`
-
-exit 0
