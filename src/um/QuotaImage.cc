@@ -53,7 +53,10 @@ bool QuotaImage::check(Template * tmpl,  string& error)
         
         if ( !image_id.empty() )
         {
-            return check_quota(image_id, image_request, error);
+            if ( !check_quota(image_id, image_request, error) )
+            {
+                return false;
+            }
         }
     }
 
