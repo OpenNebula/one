@@ -152,19 +152,19 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the User", :left, :size=>15 do |d|
+            column :NAME, "Name of the User", :left, :size=>18 do |d|
                 d["NAME"]
             end
 
-            column :GROUP, "Group of the User", :left, :size=>8 do |d|
+            column :GROUP, "Group of the User", :left, :size=>15 do |d|
                 helper.group_name(d, options)
             end
 
-            column :AUTH, "Auth driver of the User", :left, :size=>8 do |d|
+            column :AUTH, "Auth driver of the User", :left, :size=>15 do |d|
                 d["AUTH_DRIVER"]
             end
 
-            column :VMS, "Number of VMS", :size=>8 do |d|             
+            column :VMS, "Number of VMS", :size=>6 do |d|             
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
                     d['VM_QUOTA']['VM']['VMS_USED']
                 else

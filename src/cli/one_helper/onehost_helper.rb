@@ -40,54 +40,54 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Host", :left, :size=>12 do |d|
+            column :NAME, "Name of the Host", :left, :size=>15 do |d|
                 d["NAME"]
             end
 
-            column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
+            column :CLUSTER, "Name of the Cluster", :left, :size=>9 do |d|
                 OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end
 
-            column :RVM, "Number of Virtual Machines running", :size=>6 do |d|
+            column :RVM, "Number of Virtual Machines running", :size=>3 do |d|
                 d["HOST_SHARE"]["RUNNING_VMS"]
             end
 
-            column :TCPU, "Total CPU percentage", :size=>6 do |d|
+            column :TCPU, "Total CPU percentage", :size=>4 do |d|
                 d["HOST_SHARE"]["MAX_CPU"]
             end
 
-            column :FCPU, "Free CPU percentage", :size=>6 do |d|
+            column :FCPU, "Free CPU percentage", :size=>4 do |d|
                 d["HOST_SHARE"]["MAX_CPU"].to_i-
                     d["HOST_SHARE"]["USED_CPU"].to_i
             end
 
             column :ACPU, "Available cpu percentage (not reserved by VMs)",
-                    :size=>6 do |d|
+                    :size=>4 do |d|
                 max_cpu=d["HOST_SHARE"]["MAX_CPU"].to_i
                 max_cpu=100 if max_cpu==0
                 max_cpu-d["HOST_SHARE"]["CPU_USAGE"].to_i
             end
 
-            column :TMEM, "Total Memory", :size=>6 do |d|
+            column :TMEM, "Total Memory", :size=>7 do |d|
                 OpenNebulaHelper.unit_to_str(
                     d["HOST_SHARE"]["MAX_MEM"].to_i,
                     options)
             end
 
-            column :FMEM, "Free Memory", :size=>6 do |d|
+            column :FMEM, "Free Memory", :size=>7 do |d|
                 OpenNebulaHelper.unit_to_str(
                     d["HOST_SHARE"]["FREE_MEM"].to_i,
                     options)
             end
 
             column :AMEM, "Available Memory (not reserved by VMs)",
-                    :size=>6 do |d|
+                    :size=>7 do |d|
                 acpu=d["HOST_SHARE"]["MAX_MEM"].to_i-
                     d["HOST_SHARE"]["MEM_USAGE"].to_i
                 OpenNebulaHelper.unit_to_str(acpu,options)
             end
 
-            column :STAT, "Host status", :size=>7 do |d|
+            column :STAT, "Host status", :left, :size=>6 do |d|
                 OneHostHelper.state_to_str(d["STATE"])
             end
 

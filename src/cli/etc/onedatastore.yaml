@@ -5,27 +5,26 @@
 
 :NAME: 
   :desc: Name of the Datastore
-  :size: 15
+  :size: 25
   :left: true
 
 :CLUSTER: 
   :desc: Name of the Cluster
-  :size: 8
+  :size: 15
   :left: true
 
 :IMAGES: 
   :desc: Number of Images
   :size: 6
-  :left: true
 
 :TYPE:
   :desc: Datastore driver
-  :size: 6
+  :size: 8
   :left: true
 
 :TM:
   :desc: Transfer driver
-  :size: 6
+  :size: 8
   :left: true
 
 :default:

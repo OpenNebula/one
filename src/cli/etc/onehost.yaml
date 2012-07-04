@@ -5,45 +5,46 @@
 
 :NAME: 
   :desc: Name of the Host
-  :size: 12
+  :size: 15
   :left: true
 
 :CLUSTER: 
   :desc: Name of the Cluster
-  :size: 8
+  :size: 9
   :left: true
 
 :RVM: 
   :desc: Number of Virtual Machines running
-  :size: 6
+  :size: 3
 
 :TCPU: 
   :desc: Total CPU percentage
-  :size: 6
+  :size: 4
 
 :FCPU: 
   :desc: Free CPU percentage
-  :size: 6
+  :size: 4
 
 :ACPU: 
   :desc: Available cpu percentage (not reserved by VMs)
-  :size: 6
+  :size: 4
 
 :TMEM: 
   :desc: Total Memory
-  :size: 6
+  :size: 7
 
 :FMEM: 
   :desc: Free Memory
-  :size: 6
+  :size: 7
 
 :AMEM: 
   :desc: Available Memory (not reserved by VMs)
-  :size: 6
+  :size: 7
 
 :STAT: 
   :desc: Host status
-  :size: 7
+  :size: 6
+  :left: true
 
 :default:
 - :ID

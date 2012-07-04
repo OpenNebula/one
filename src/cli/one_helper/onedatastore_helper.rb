@@ -52,15 +52,15 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Datastore", :left, :size=>12 do |d|
+            column :NAME, "Name of the Datastore", :left, :size=>25 do |d|
                 d["NAME"]
             end
 
-            column :CLUSTER, "Name of the Cluster", :left, :size=>8 do |d|
+            column :CLUSTER, "Name of the Cluster", :left, :size=>15 do |d|
                 OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end
 
-            column :IMAGES, "Number of Images", :left, :size=>6 do |d|
+            column :IMAGES, "Number of Images", :size=>6 do |d|
                 if d["IMAGES"]["ID"].nil?
                     "0"
                 else
@@ -68,15 +68,15 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :TYPE, "Datastore driver", :left, :size=>6 do |d|
+            column :TYPE, "Datastore driver", :left, :size=>8 do |d|
                 d["DS_MAD"]
             end
 
-            column :TM, "Transfer driver", :left, :size=>6 do |d|
+            column :TM, "Transfer driver", :left, :size=>8 do |d|
                 d["TM_MAD"]
             end
 
-            default :ID, :CLUSTER, :NAME, :IMAGES, :TYPE, :TM
+            default :ID, :NAME, :CLUSTER, :IMAGES, :TYPE, :TM
         end
 
         table

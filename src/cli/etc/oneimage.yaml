@@ -5,17 +5,17 @@
 
 :USER: 
   :desc: Username of the Virtual Machine owner
-  :size: 8
+  :size: 10
   :left: true
 
 :GROUP: 
   :desc: Group of the Virtual Machine
-  :size: 8
+  :size: 10
   :left: true
 
 :NAME: 
   :desc: Name of the Image
-  :size: 12
+  :size: 15
   :left: true
 
 :DATASTORE: 
@@ -30,10 +30,11 @@
 :TYPE: 
   :desc: Type of the Image
   :size: 4
+  :left: true
 
 :REGTIME: 
   :desc: Registration time of the Image
-  :size: 16
+  :size: 15
 
 :PERSISTENT: 
   :desc: Whether the Image is persistent or not
@@ -42,10 +43,11 @@
 :STAT: 
   :desc: State of the Image
   :size: 4
+  :left: true
 
 :RVMS: 
   :desc: Number of VMs currently running from this Image
-  :size: 5
+  :size: 4
 
 :default:
 - :ID

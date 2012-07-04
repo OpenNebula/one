@@ -49,23 +49,23 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         config_file = self.class.table_conf
 
         table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the Cluster", :size=>4 do |d|
+            column :ID, "ONE identifier for the Cluster", :size=>5 do |d|
                 d["ID"]
             end
 
-            column :NAME, "Name of the Cluster", :left, :size=>15 do |d|
+            column :NAME, "Name of the Cluster", :left, :size=>25 do |d|
                 d["NAME"]
             end
 
-            column :HOSTS, "Number of Hosts", :left, :size=>5 do |d|
+            column :HOSTS, "Number of Hosts", :size=>5 do |d|
                 d["HOSTS"]["ID"] ? d["HOSTS"]["ID"].size : 0
             end
 
-            column :VNETS, "Number of Networks", :left, :size=>5 do |d|
+            column :VNETS, "Number of Networks", :size=>5 do |d|
                 d["VNETS"]["ID"] ? d["VNETS"]["ID"].size : 0
             end
 
-            column :DATASTORES, "Number of Datastores", :left, :size=>10 do |d|
+            column :DATASTORES, "Number of Datastores", :size=>10 do |d|
                 d["DATASTORES"]["ID"] ? d["DATASTORES"]["ID"].size : 0
             end
 

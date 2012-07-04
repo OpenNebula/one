@@ -369,13 +369,17 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.period_to_str(time)
+    def OpenNebulaHelper.period_to_str(time, print_seconds=true)
         seconds=time.to_i
         minutes, seconds=seconds.divmod(60)
         hours, minutes=minutes.divmod(60)
         days, hours=hours.divmod(24)
 
-        "%4dd %02d:%02d:%02d" % [days, hours, minutes, seconds]
+        if print_seconds
+            "%3dd %02d:%02d:%02d" % [days, hours, minutes, seconds]
+        else
+            "%3dd %02d:%02d" % [days, hours, minutes]
+        end
     end
 
     BinarySufix = ["K", "M", "G", "T" ]

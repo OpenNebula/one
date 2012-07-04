@@ -45,30 +45,30 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :USER, "Username of the Virtual Machine owner", :left,
-                    :size=>8 do |d|
+            column :USER, "Username of the Image owner", :left,
+                    :size=>10 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Virtual Machine", :left,
-                    :size=>8 do |d|
+            column :GROUP, "Group of the Image", :left,
+                    :size=>10 do |d|
                 helper.group_name(d, options)
             end
 
-            column :NAME, "Name of the Image", :left, :size=>12 do |d|
+            column :NAME, "Name of the Image", :left, :size=>15 do |d|
                 d["NAME"]
             end
 
-            column :DATASTORE, "Name of the Image", :left, :size=>10 do |d|
+            column :DATASTORE, "Name of the Datastore", :left, :size=>10 do |d|
                 d["DATASTORE"]
             end
 
-            column :TYPE, "Type of the Image", :size=>4 do |d,e|
+            column :TYPE, "Type of the Image", :left, :size=>4 do |d,e|
                 OneImageHelper.type_to_str(d["TYPE"])
             end
 
             column :REGTIME, "Registration time of the Image",
-                    :size=>20 do |d|
+                    :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
             
@@ -77,12 +77,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])
             end
 
-            column :STAT, "State of the Image", :size=>4 do |d|
+            column :STAT, "State of the Image", :left, :size=>4 do |d|
                 OneImageHelper.state_to_str(d["STATE"])
             end
 
             column :RVMS, "Number of VMs currently running from this Image",
-                    :size=>5 do |d|
+                    :size=>4 do |d|
                 d['RUNNING_VMS']
             end
 

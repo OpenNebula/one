@@ -1,11 +1,11 @@
 --- 
 :ID: 
   :desc: ONE identifier for the Cluster
-  :size: 4
+  :size: 5
 
 :NAME: 
   :desc: Name of the Cluster
-  :size: 15
+  :size: 25
   :left: true
 
 :HOSTS:
