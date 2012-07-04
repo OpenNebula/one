@@ -47,7 +47,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     list_options << OpenNebulaHelper::NUMERIC
 
     READ_FILE={
-        :name => "read_file",
+        :name => "read-file",
         :short => "-r",
         :large => "--read-file",
         :description => "Read password from file"
