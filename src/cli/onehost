@@ -51,7 +51,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     }
 
     VMM = {
-    :name   => "vmm",
+    :name   => "vm",
     :short  => "-v vmm_mad",
     :large  => "--vm vmm_mad" ,
     :description => "Set the virtualization driver for the host",
@@ -59,7 +59,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     }
 
     VNET = {
-    :name   => "vnm",
+    :name   => "net",
     :short  => "-n vnet_mad",
     :large  => "--net vnet_mad" ,
     :description => "Set the network driver for the host",
