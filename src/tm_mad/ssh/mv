@@ -41,6 +41,9 @@ fi
 # Return if moving a disk, we will move them when moving the whole system_ds
 # directory for the VM
 #-------------------------------------------------------------------------------
+SRC=`fix_dir_slashes $SRC`
+DST=`fix_dir_slashes $DST`
+
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
 
