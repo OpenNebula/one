@@ -89,7 +89,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, create_desc, :hostname, :options=>CREAT_OPTIONS do
-        if options[:im].nil? or options[:vmm].nil? or options[:vnm].nil?
+        if options[:im].nil? or options[:vm].nil? or options[:net].nil?
             STDERR.puts "Drivers are mandatory to create a host:"
             STDERR.puts "\t -i information driver"
             STDERR.puts "\t -v hypervisor driver"
@@ -102,8 +102,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.create_resource(options) do |host|
                 host.allocate(args[0],
                               options[:im],
-                              options[:vmm],
-                              options[:vnm],
+                              options[:vm],
+                              options[:net],
                               cid)
         end
     end
