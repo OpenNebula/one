@@ -311,9 +311,15 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/js/plugins \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/de \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES \
-                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/it_IT \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_BR \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_PT \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/sk_SK \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/zh_TW \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/jQueryLayout \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/dataTables \
@@ -561,9 +567,15 @@ INSTALL_SELF_SERVICE_FILES=(
     SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_FONT:$LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font
     SELF_SERVICE_PUBLIC_IMAGES_FILES:$LIB_LOCATION/ruby/cloud/occi/ui/public/images
     SELF_SERVICE_PUBLIC_LOCALE_EN_US:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US
+    SELF_SERVICE_PUBLIC_LOCALE_DE:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/de
     SELF_SERVICE_PUBLIC_LOCALE_ES_ES:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES
-    SELF_SERVICE_PUBLIC_LOCALE_FR_FR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR
     SELF_SERVICE_PUBLIC_LOCALE_FR_CA:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA
+    SELF_SERVICE_PUBLIC_LOCALE_FR_FR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR
+    SELF_SERVICE_PUBLIC_LOCALE_IT_IT:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/it_IT
+    SELF_SERVICE_PUBLIC_LOCALE_PT_BR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_BR
+    SELF_SERVICE_PUBLIC_LOCALE_PT_PT:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/pt_PT
+    SELF_SERVICE_PUBLIC_LOCALE_SK_SK:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/sk_SK
+    SELF_SERVICE_PUBLIC_LOCALE_ZH_TW:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/zh_TW
 )
 
 INSTALL_ETC_FILES=(
@@ -1555,13 +1567,35 @@ src/cloud/occi/lib/ui/public/images/vnc_off.png \
 src/cloud/occi/lib/ui/public/images/vnc_on.png \
 src/cloud/occi/lib/ui/public/images/yellow_bullet.png"
 
-SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/locale/languages/en_US.js"
+SELF_SERVICE_PUBLIC_LOCALE_EN_US="src/cloud/occi/lib/ui/locale/languages/en_US.js \
+                                  src/cloud/occi/lib/ui/locale/languages/en_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_DE="src/cloud/occi/lib/ui/locale/languages/de.js \
+                                  src/cloud/occi/lib/ui/locale/languages/de_datatable.txt"
+
 SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/locale/languages/es_ES.js \
                                   src/cloud/occi/lib/ui/locale/languages/es_datatable.txt"
-SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/locale/languages/fr_FR.js \
-                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
+
 SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/locale/languages/fr_CA.js \
                                   src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_FR_FR="src/cloud/occi/lib/ui/locale/languages/fr_FR.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_IT_IT="src/cloud/occi/lib/ui/locale/languages/it_IT.js \
+                                  src/cloud/occi/lib/ui/locale/languages/it_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_PT_BR="src/cloud/occi/lib/ui/locale/languages/pt_BR.js \
+                                  src/cloud/occi/lib/ui/locale/languages/pt_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_PT_PT="src/cloud/occi/lib/ui/locale/languages/pt_PT.js \
+                                  src/cloud/occi/lib/ui/locale/languages/pt_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_SK_SK="src/cloud/occi/lib/ui/locale/languages/sk_SK.js \
+                                  src/cloud/occi/lib/ui/locale/languages/sk_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_ZH_TW="src/cloud/occi/lib/ui/locale/languages/zh_TW.js \
+                                  src/cloud/occi/lib/ui/locale/languages/zh_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # MAN files

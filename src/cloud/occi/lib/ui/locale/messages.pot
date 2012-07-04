@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-26 22:00+0200\n"
+"POT-Creation-Date: 2012-07-04 14:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -524,7 +524,7 @@ msgid "English"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:32
-msgid "Spanish"
+msgid "Chinese"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:33
@@ -535,7 +535,31 @@ msgstr ""
 msgid "French (CA)"
 msgstr ""
 
-#: ../public/js/plugins/configuration.js:56
+#: ../public/js/plugins/configuration.js:35
+msgid "German"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:36
+msgid "Italian"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:37
+msgid "Portuguese (PT)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:38
+msgid "Portuguese (BR)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:39
+msgid "Slovak"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:40
+msgid "Spanish"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:62
 msgid "Configuration"
 msgstr ""
 
@@ -560,53 +584,53 @@ msgstr ""
 msgid "You need to select something."
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:203
+#: ../../../../../sunstone/public/js/sunstone-util.js:206
 msgid "Submitted"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:220
+#: ../../../../../sunstone/public/js/sunstone-util.js:223
 msgid "Error"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:226
+#: ../../../../../sunstone/public/js/sunstone-util.js:229
 msgid "Info"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:358
+#: ../../../../../sunstone/public/js/sunstone-util.js:361
 msgid "Cannot contact server: is it running and reachable?"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:366
+#: ../../../../../sunstone/public/js/sunstone-util.js:369
 msgid "Network is unreachable: is OpenNebula running?"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:387
+#: ../../../../../sunstone/public/js/sunstone-util.js:390
 msgid "Unauthorized"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:568
-#: ../../../../../sunstone/public/js/sunstone-util.js:782
+#: ../../../../../sunstone/public/js/sunstone-util.js:581
+#: ../../../../../sunstone/public/js/sunstone-util.js:801
 msgid "Please select"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:705
+#: ../../../../../sunstone/public/js/sunstone-util.js:724
 msgid "Update template"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:711
+#: ../../../../../sunstone/public/js/sunstone-util.js:730
 msgid "Please, choose and modify the template you want to update"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:713
-#: ../../../../../sunstone/public/js/sunstone-util.js:716
+#: ../../../../../sunstone/public/js/sunstone-util.js:732
+#: ../../../../../sunstone/public/js/sunstone-util.js:735
 msgid "Select a template"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:721
+#: ../../../../../sunstone/public/js/sunstone-util.js:740
 msgid "Update"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:991
+#: ../../../../../sunstone/public/js/sunstone-util.js:1020
 msgid "Please select an element"
 msgstr ""
 
@@ -651,7 +675,7 @@ msgid "You can also manage compute resources and perform actions such as stop, r
 msgstr ""
 
 #: ../public/customize/custom.js:83
-msgid "Additionally, you can take a 'snapshot' of the storage attached to these resources. They will be saved as new resources, visible from the Storage view and re-usable."
+msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
 msgstr ""
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
