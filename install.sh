@@ -257,10 +257,12 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/locale \
                $SUNSTONE_LOCATION/public/locale/en_US \
-               $SUNSTONE_LOCATION/public/locale/ru \
+               $SUNSTONE_LOCATION/public/locale/fr_FR \
                $SUNSTONE_LOCATION/public/locale/it_IT \
                $SUNSTONE_LOCATION/public/locale/pt_PT \
-               $SUNSTONE_LOCATION/public/locale/fr_FR \
+               $SUNSTONE_LOCATION/public/locale/ru \
+               $SUNSTONE_LOCATION/public/locale/sk_SK \
+               $SUNSTONE_LOCATION/public/locale/zh_TW \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
@@ -489,10 +491,12 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/FontAwesome/css
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
-    SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
+    SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/fr_FR
     SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
     SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/pt_PT
-    SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/fr_FR
+    SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
+    SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/sk_SK
+    SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/zh_TW
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -1362,24 +1366,32 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
 src/sunstone/locale/languages/en_US.js \
-src/sunstone/locale/languages/en_datatable.txt \
-"
+src/sunstone/locale/languages/en_datatable.txt"
 
-SUNSTONE_PUBLIC_LOCALE_RU="
-src/sunstone/locale/languages/ru.js \
-src/sunstone/locale/languages/ru_datatable.txt"
+SUNSTONE_PUBLIC_LOCALE_FR_FR="\
+src/sunstone/locale/languages/fr_FR.js \
+src/sunstone/locale/languages/fr_datatable.txt"
 
-SUNSTONE_PUBLIC_LOCALE_IT_IT="
+SUNSTONE_PUBLIC_LOCALE_IT_IT="\
 src/sunstone/locale/languages/it_IT.js \
 src/sunstone/locale/languages/it_datatable.txt"
 
-SUNSTONE_PUBLIC_LOCALE_PT_PT="
+SUNSTONE_PUBLIC_LOCALE_PT_PT="\
 src/sunstone/locale/languages/pt_PT.js \
 src/sunstone/locale/languages/pt_datatable.txt"
 
-SUNSTONE_PUBLIC_LOCALE_FR_FR="
-src/sunstone/locale/languages/fr_FR.js \
-src/sunstone/locale/languages/fr_datatable.txt"
+SUNSTONE_PUBLIC_LOCALE_RU="\
+src/sunstone/locale/languages/ru.js \
+src/sunstone/locale/languages/ru_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_SK_SK="\
+src/sunstone/locale/languages/sk_SK.js \
+src/sunstone/locale/languages/sk_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_ZH_TW="\
+src/sunstone/locale/languages/zh_TW.js \
+src/sunstone/locale/languages/zh_datatable.txt"
+
 
 #-----------------------------------------------------------------------------
 # Ozones files
