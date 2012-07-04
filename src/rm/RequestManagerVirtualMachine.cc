@@ -561,6 +561,10 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     int           rc;
     string        error_str;
 
+    string driver;
+    string target;
+    string dev_prefix;
+
     // -------------------------------------------------------------------------
     // Prepare and check the VM/DISK to be saved_as
     // -------------------------------------------------------------------------
@@ -607,6 +611,10 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     Image::ImageType type = img->get_type();
 
+    img->get_template_attribute("DRIVER", driver);
+    img->get_template_attribute("TARGET", target);
+    img->get_template_attribute("DEV_PREFIX", dev_prefix);
+
     img->unlock();
 
     if ((ds = dspool->get(ds_id, true)) == 0 )
@@ -650,6 +658,21 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     else
     {
         itemplate->add("TYPE", img_type);
+    }
+
+    if ( driver.empty() == false )
+    {
+        itemplate->add("DRIVER", driver);
+    }
+
+    if ( target.empty() == false )
+    {
+        itemplate->add("TARGET", target);
+    }
+
+    if ( dev_prefix.empty() == false )
+    {
+        itemplate->add("DEV_PREFIX", dev_prefix);
     }
 
     itemplate->set_saving();
