@@ -128,7 +128,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts str % ["IM_MAD", host['IM_MAD']]
         puts str % ["VM_MAD", host['VM_MAD']]
         puts str % ["VN_MAD", host['VN_MAD']]
-        puts str % ["LAST MONITORING TIME", host['LAST_MON_TIME']]
+        puts str % ["LAST MONITORING TIME", OpenNebulaHelper.time_to_str(host['LAST_MON_TIME'])]
         puts
 
         CLIHelper.print_header(str_h1 % "HOST SHARES", false)
@@ -139,9 +139,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts str % ["TOTAL CPU", host['HOST_SHARE/MAX_CPU']]
         puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
         puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
-        puts str % ["TOTAL DISK", host['HOST_SHARE/MAX_DISK']]
-        puts str % ["USED DISK (REAL)", host['HOST_SHARE/USED_DISK']]
-        puts str % ["USED DISK (ALLOCATED)", host['HOST_SHARE/DISK_USAGE']]
         puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
         puts
 
