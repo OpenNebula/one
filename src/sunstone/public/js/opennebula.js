@@ -103,7 +103,10 @@ var OpenNebula = {
                                "USED",
                                "DISABLED",
                                "LOCKED",
-                               "ERROR"][value]);
+                               "ERROR",
+                               "CLONE",
+                               "DELETE",
+                               "USED_PERS"][value]);
                     break;
                 case "VM_MIGRATE_REASON":
                 case "vm_migrate_reason":
