@@ -563,7 +563,7 @@ function setupCreateDatastoreDialog(){
         };
 
         // If we are adding a system datastore then
-        // we don't use ds_mad
+        // we do not use ds_mad
         if (system)
             ds_obj.datastore.system = "YES";
         else
