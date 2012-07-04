@@ -131,7 +131,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["SOURCE",image['SOURCE']]
         puts str % ["PATH",image['PATH']] if image['PATH'] && !image['PATH'].empty?
         puts str % ["FSTYPE",image['FSTYPE']] if image['FSTYPE'] && !image['FSTYPE'].empty?
-        puts str % ["SIZE",  image['SIZE']]
+        puts str % ["SIZE",  OpenNebulaHelper.unit_to_str(image['SIZE'].to_i,{},"M")]
         puts str % ["STATE", image.short_state_str]
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
         puts
