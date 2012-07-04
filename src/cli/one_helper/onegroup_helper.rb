@@ -53,11 +53,11 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Group", :left, :size=>15 do |d|
+            column :NAME, "Name of the Group", :left, :size=>25 do |d|
                 d["NAME"]
             end
 
-            column :VMS, "Total number of VMS", :size=>8 do |d|             
+            column :VMS, "Total number of VMS", :size=>6 do |d|             
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
                     d['VM_QUOTA']['VM']['VMS_USED']
                 else

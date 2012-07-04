@@ -5,22 +5,22 @@
 
 :NAME: 
   :desc: Name of the User
-  :size: 15
+  :size: 18
   :left: true
 
 :GROUP: 
   :desc: Group of the User
-  :size: 8
+  :size: 15
   :left: true
 
 :AUTH: 
   :desc: Auth driver of the User
-  :size: 8
+  :size: 15
   :left: true
 
 :VMS: 
   :desc: Number of VMS
-  :size: 8 
+  :size: 6
 
 :MEMORY:
   :desc: Total memory allocated to user VMs

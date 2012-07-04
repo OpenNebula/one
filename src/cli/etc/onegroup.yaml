@@ -5,12 +5,12 @@
 
 :NAME: 
   :desc: Name of the Group
-  :size: 15
+  :size: 25
   :left: true
 
 :VMS: 
   :desc: Number of VMS
-  :size: 8 
+  :size: 6 
 
 :MEMORY:
   :desc: Total memory allocated to user VMs

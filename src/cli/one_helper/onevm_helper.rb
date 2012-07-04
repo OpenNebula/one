@@ -111,7 +111,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OneVMHelper.state_to_str(d["STATE"], d["LCM_STATE"])
             end
 
-            column :UCPU, "CPU percentage used by the VM", :size=>3 do |d|
+            column :UCPU, "CPU percentage used by the VM", :size=>4 do |d|
                 d["CPU"]
             end
 
@@ -119,7 +119,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
             end
 
-            column :HOST, "Host where the VM is running", :size=>15 do |d|
+            column :HOST, "Host where the VM is running", :left, :size=>10 do |d|
                 if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
                     state_str = VirtualMachine::VM_STATE[d['STATE'].to_i]
                     if %w{ACTIVE SUSPENDED}.include? state_str
@@ -128,11 +128,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :TIME, "Time since the VM was submitted", :size=>11 do |d|
+            column :TIME, "Time since the VM was submitted", :size=>10 do |d|
                 stime = d["STIME"].to_i
                 etime = d["ETIME"]=="0" ? Time.now.to_i : d["ETIME"].to_i
                 dtime = etime-stime
-                OpenNebulaHelper.period_to_str(dtime)
+                OpenNebulaHelper.period_to_str(dtime, false)
             end
 
             default :ID, :USER, :GROUP, :NAME, :STAT, :UCPU, :UMEM, :HOST,

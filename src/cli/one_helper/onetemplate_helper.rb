@@ -53,21 +53,21 @@ EOT
                 d["ID"]
             end
 
-            column :NAME, "Name of the Template", :left, :size=>15 do |d|
+            column :NAME, "Name of the Template", :left, :size=>27 do |d|
                 d["NAME"]
             end
 
             column :USER, "Username of the Template owner", :left,
-                    :size=>8 do |d|
+                    :size=>15 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Template", :left, :size=>8 do |d|
+            column :GROUP, "Group of the Template", :left, :size=>15 do |d|
                 helper.group_name(d, options)
             end
 
             column :REGTIME, "Registration time of the Template",
-                    :size=>20 do |d|
+                    :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
 
