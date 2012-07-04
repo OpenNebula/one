@@ -57,14 +57,12 @@ bool QuotaVirtualMachine::check(Template * tmpl,  string& error)
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
-        error = "MEMORY not defined for VM";
-        return false;
+        memory = 0;
     }
 
     if ( tmpl->get("CPU", cpu) == false )
     {
-        error = "CPU not defined for VM";
-        return false;
+        cpu = 0;
     }
 
     vm_request.insert(make_pair("VMS",1));
