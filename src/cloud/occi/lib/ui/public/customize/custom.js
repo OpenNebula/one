@@ -80,7 +80,7 @@ var network_box_html = '<p>'+tr("Your compute resources connectivity is performe
 var compute_dashboard_image = "images/one-compute.png";
 var compute_dashboard_html = '<p>' + tr("This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking \'new\' and filling-in an easy wizard.")+'</p>\
 <p>'+tr("You can also manage compute resources and perform actions such as stop, resume, shutdown or cancel.")+'</p>\
-<p>'+tr("Additionally, you can take a \'snapshot\' of the storage attached to these resources. They will be saved as new resources, visible from the Storage view and re-usable.")+'</p>\
+<p>'+tr("Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable.")+'</p>\
 <p>'+tr("There are currently")+' <b>'+$vm_count+'</b> '+
     tr("virtual machines")+'.</p>';
 

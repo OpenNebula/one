@@ -3,52 +3,53 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Giovanni Toraldo <me@gionn.net>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-04 14:58+0200\n"
-"PO-Revision-Date: 2012-06-27 09:03+0000\n"
-"Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
+"PO-Revision-Date: 2012-06-28 17:49+0000\n"
+"Last-Translator: Giovanni Toraldo <me@gionn.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: fr_CA\n"
+"Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: ../public/js/locale.js:34
 msgid "Changing language"
-msgstr "Modification de la langue"
+msgstr "Cambiando lingua"
 
 #: ../public/js/locale.js:35
 msgid "Loading new language... please wait"
-msgstr "Chargement d'une nouvelle langue... veuillez patienter"
+msgstr "Caricamento della nuova lingua... sii paziente"
 
 #: ../public/js/locale.js:53 ../public/customize/custom.js:51
 msgid "Documentation"
-msgstr "Documentation"
+msgstr "Documentazione"
 
 #: ../public/js/locale.js:54 ../public/customize/custom.js:54
 msgid "Support"
-msgstr "Support"
+msgstr "Supporto"
 
 #: ../public/js/locale.js:55 ../public/customize/custom.js:57
 msgid "Community"
-msgstr "Communauté"
+msgstr "Comunità"
 
 #: ../public/js/locale.js:56
 msgid "Welcome"
-msgstr "Bienvenue"
+msgstr "Benvenuto"
 
 #: ../public/js/locale.js:57
 msgid "Sign out"
-msgstr "Déconnecter"
+msgstr "Esci"
 
 #: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
 #: ../public/js/plugins/compute.js:63
 msgid "All"
-msgstr "Tout "
+msgstr "Tutti"
 
 #: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:345
 #: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
@@ -63,36 +64,36 @@ msgstr "ID"
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:542
 #: ../public/js/plugins/compute.js:587 ../public/js/plugins/compute.js:632
 msgid "Name"
-msgstr "Nom"
+msgstr "Nome"
 
 #: ../public/js/plugins/storage.js:41
 msgid "Fields marked with"
-msgstr "Champs marqués par"
+msgstr "Campi marcati con"
 
 #: ../public/js/plugins/storage.js:42
 msgid "are mandatory"
-msgstr "sont obligatoire"
+msgstr "sono obbligatori"
 
 #: ../public/js/plugins/storage.js:47
 msgid "Name that the Image will get."
-msgstr "Nom que l'Image va avoir."
+msgstr "Nome che l'immagine avrà."
 
 #: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:353
 msgid "Description"
-msgstr "Description"
+msgstr "Descrizione"
 
 #: ../public/js/plugins/storage.js:52
 msgid "Human readable description of the image."
-msgstr "Description humainement lisible de l'image."
+msgstr "Descrizione estesa dell'immagine."
 
 #: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:357
 #: ../public/js/plugins/compute.js:595
 msgid "Type"
-msgstr "Type"
+msgstr "Tipo"
 
 #: ../public/js/plugins/storage.js:59
 msgid "OS"
-msgstr "OS"
+msgstr "SO"
 
 #: ../public/js/plugins/storage.js:60
 msgid "CD-ROM"
@@ -100,212 +101,212 @@ msgstr "CD-ROM"
 
 #: ../public/js/plugins/storage.js:61
 msgid "Datablock"
-msgstr "Block de données"
+msgstr "Datablock"
 
 #: ../public/js/plugins/storage.js:63
 msgid "Type of the image"
-msgstr "Type de l'image"
+msgstr "Tipo immagine"
 
 #: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
 msgid "Size"
-msgstr "Taille"
+msgstr "Dimensioni"
 
 #: ../public/js/plugins/storage.js:68
 msgid "Size of the datablock in MB."
-msgstr "Taille du bloc de données en MB."
+msgstr "Dimensione del datablock in MB."
 
 #: ../public/js/plugins/storage.js:71
 msgid "FS type"
-msgstr "Type de FS"
+msgstr "Tipo FS"
 
 #: ../public/js/plugins/storage.js:73
 msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr "Type de système de fichier à créer. Ce peut être n'importe quelle valeur comprise par la commande unix mkfs."
+msgstr "Tipo di file system da utilizzare. Può esser settato a qualsiasi valore riconosciuto dall'utility mkfs presente sul sistema host."
 
 #: ../public/js/plugins/storage.js:76
 msgid "Select image to upload"
-msgstr "Sélectionner une image à téléverser"
+msgstr "Seleziona una immagine da caricare"
 
 #: ../public/js/plugins/storage.js:83
 msgid "Public"
-msgstr "Publique"
+msgstr "Pubblico"
 
 #: ../public/js/plugins/storage.js:85
 msgid "Public scope of the image"
-msgstr "Visibilité publique de l'image"
+msgstr ""
 
 #: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:361
 msgid "Persistent"
-msgstr "Persistant"
+msgstr "Persistente"
 
 #: ../public/js/plugins/storage.js:90
 msgid "Persistence of the image"
-msgstr "Persistance de l'image"
+msgstr "Persistenza dell'immagine"
 
 #: ../public/js/plugins/storage.js:95 ../public/js/plugins/network.js:56
 #: ../public/js/plugins/compute.js:103
 msgid "Close"
-msgstr "Fermer"
+msgstr "Chiudi"
 
 #: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
 #: ../public/js/plugins/compute.js:104
 msgid "Create"
-msgstr "Créer"
+msgstr "Crea"
 
 #: ../public/js/plugins/storage.js:214 ../public/js/plugins/network.js:158
 #: ../public/js/plugins/compute.js:323
 msgid "Refresh list"
-msgstr "Rafraîchir la liste"
+msgstr "Aggiorna lista"
 
 #: ../public/js/plugins/storage.js:219 ../public/js/plugins/network.js:164
 #: ../public/js/plugins/compute.js:329
 msgid "+ New"
-msgstr "+ Nouveau"
+msgstr "+ Nuovo"
 
 #: ../public/js/plugins/storage.js:223
 msgid "Make persistent"
-msgstr "Rendre persistant"
+msgstr "Rendi persistente"
 
 #: ../public/js/plugins/storage.js:227
 msgid "Make non persistent"
-msgstr "Rendre non-persistant"
+msgstr "Rendi non persistente"
 
 #: ../public/js/plugins/storage.js:234 ../public/js/plugins/network.js:169
 msgid "Publish"
-msgstr "Publier"
+msgstr "Pubblica"
 
 #: ../public/js/plugins/storage.js:238 ../public/js/plugins/network.js:174
 msgid "Unpublish"
-msgstr "Retirer"
+msgstr "Nascondi"
 
 #: ../public/js/plugins/storage.js:244 ../public/js/plugins/network.js:179
 #: ../public/js/plugins/compute.js:381
 msgid "Delete"
-msgstr "Supprimer"
+msgstr "Rimuovi"
 
 #: ../public/js/plugins/storage.js:250 ../public/js/plugins/storage.js:337
 msgid "Image information"
-msgstr "Information de l'image"
+msgstr "Informazioni immagine"
 
 #: ../public/js/plugins/storage.js:258
 msgid "Add storage"
-msgstr "Ajouter des images"
+msgstr "Aggiungi storage"
 
 #: ../public/js/plugins/storage.js:264 ../public/js/plugins/dashboard.js:46
 #: ../public/customize/custom.js:68
 msgid "Storage"
-msgstr "Stockage"
+msgstr "Storage"
 
 #: ../public/js/plugins/storage.js:341
 msgid "Image"
-msgstr "Image"
+msgstr "Immagine"
 
 #: ../public/js/plugins/storage.js:342 ../public/js/plugins/network.js:275
 msgid "information"
-msgstr "information"
+msgstr "informazioni"
 
 #: ../public/js/plugins/storage.js:365
 msgid "Filesystem type"
-msgstr "Type de système de fichiers"
+msgstr "Tipo filesystem"
 
 #: ../public/js/plugins/storage.js:369
 msgid "Size (Mb)"
-msgstr "Taille (Mb)"
+msgstr "Dimensioni (Mb)"
 
 #: ../public/js/plugins/storage.js:503
 msgid "You must specify a name"
-msgstr "Vous devez spécifier un nom"
+msgstr "Devi specificare un nome"
 
 #: ../public/js/plugins/storage.js:521
 msgid "You must specify size and FS type"
-msgstr "Vous devez spécifier une taille et un type de Système de Fichiers"
+msgstr "Devi specificare le dimensioni e il tipo di filesystem"
 
 #: ../public/js/plugins/storage.js:528
 msgid "You must select a file to upload"
-msgstr "Vous devez sélectionner un fichier à téléverser"
+msgstr "Devi scegliere un file da caricare"
 
 #: ../public/js/plugins/network.js:47
 msgid "Network Address"
-msgstr "Adresse réseau"
+msgstr "Indirizzo di rete"
 
 #: ../public/js/plugins/network.js:49
 msgid "Network Size"
-msgstr "Taille du réseau"
+msgstr "Dimensioni rete"
 
 #: ../public/js/plugins/network.js:185
 msgid "Network information"
-msgstr "Information réseau"
+msgstr "Informazioni rete"
 
 #: ../public/js/plugins/network.js:193
 msgid "Create network"
-msgstr "Créer le réseau"
+msgstr "Crea rete"
 
 #: ../public/js/plugins/network.js:199 ../public/js/plugins/compute.js:91
 #: ../public/js/plugins/compute.js:396 ../public/js/plugins/compute.js:655
 msgid "Networks"
-msgstr "Réseaux"
+msgstr "Reti"
 
 #: ../public/js/plugins/network.js:274
 msgid "Virtual Network"
-msgstr "Réseau Virtuel"
+msgstr "Rete virtuale"
 
 #: ../public/js/plugins/network.js:286
 msgid "Used leases"
-msgstr "Baux utilisés"
+msgstr "Lease in uso"
 
 #: ../public/js/plugins/network.js:293
 msgid "Address"
-msgstr "Adresse "
+msgstr "Indirizzo"
 
 #: ../public/js/plugins/network.js:307
 msgid "Virtual Network information"
-msgstr "Informations sur le Réseau Virtuel"
+msgstr "Informazioni Rete Virtuale"
 
 #: ../public/js/plugins/network.js:353
 msgid "Virtual Network name missing!"
-msgstr "Le nom du Réseau Virtuel est manquant!"
+msgstr "Nome Rete Virtuale mancante!"
 
 #: ../public/js/plugins/network.js:365
 msgid "Please provide a network address"
-msgstr "Veuillez renseigner une adresse réseau"
+msgstr "Inserisci un indirizzo di rete"
 
 #: ../public/js/plugins/dashboard.js:37
 msgid "Current resources"
-msgstr "Ressources actuelles"
+msgstr "Risorse attuali"
 
 #: ../public/js/plugins/dashboard.js:42 ../public/js/plugins/compute.js:409
 #: ../public/customize/custom.js:64
 msgid "Compute"
-msgstr "Machines&nbsp;virtuelles"
+msgstr "Calcolo"
 
 #: ../public/js/plugins/dashboard.js:50 ../public/customize/custom.js:72
 msgid "Network"
-msgstr "Réseau"
+msgstr "Rete"
 
 #: ../public/js/plugins/dashboard.js:62
 msgid "Useful links"
-msgstr "Liens utiles"
+msgstr "Link utili"
 
 #: ../public/js/plugins/dashboard.js:81
 msgid "Create new compute resource"
-msgstr "Créer une nouvelle ressource de calcul"
+msgstr "Crea nuova risorsa di calcolo"
 
 #: ../public/js/plugins/dashboard.js:82 ../public/js/plugins/dashboard.js:96
 #: ../public/js/plugins/dashboard.js:110
 msgid "See more"
-msgstr "Voir plus"
+msgstr "Dettagli"
 
 #: ../public/js/plugins/dashboard.js:95
 msgid "Create new storage resource"
-msgstr "Créer une nouvelle ressource de stockage"
+msgstr "Crea nuova risorsa di spazio"
 
 #: ../public/js/plugins/dashboard.js:109
 msgid "Create new network resource"
-msgstr "Créer une nouvelle ressource réseau"
+msgstr "Crea nuova risorsa di rete"
 
 #: ../public/js/plugins/dashboard.js:120
 msgid "Dashboard"
-msgstr "Tableau de bord"
+msgstr "Dashboard"
 
 #: ../public/js/plugins/compute.js:32 ../public/js/plugins/compute.js:554
 msgid "CPU"
@@ -313,19 +314,19 @@ msgstr "CPU"
 
 #: ../public/js/plugins/compute.js:37 ../public/js/plugins/compute.js:558
 msgid "Memory"
-msgstr "Mémoire"
+msgstr "Memoria"
 
 #: ../public/js/plugins/compute.js:42
 msgid "Network transmission"
-msgstr "Transmission réseau"
+msgstr "Dati in uscita"
 
 #: ../public/js/plugins/compute.js:47
 msgid "Network reception"
-msgstr "Réception réseau"
+msgstr "Dati in ricezione"
 
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:550
 msgid "State"
-msgstr "État"
+msgstr "Stato"
 
 #: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:636
 msgid "IP"
@@ -333,121 +334,121 @@ msgstr "IP"
 
 #: ../public/js/plugins/compute.js:76
 msgid "VM Name"
-msgstr "Nom MV"
+msgstr "Nome VM"
 
 #: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:546
 msgid "Instance type"
-msgstr "Type d'instance"
+msgstr "Tipo istanza"
 
 #: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1010
 msgid "Loading"
-msgstr "Chargement"
+msgstr "Caricamento"
 
 #: ../public/js/plugins/compute.js:86
 msgid "Images"
-msgstr "Images"
+msgstr "Immagini"
 
 #: ../public/js/plugins/compute.js:97
 msgid "Create # VMs"
-msgstr "Créer # MVs"
+msgstr "Crea # VM"
 
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;. When creating several VMs, &#37; will be replaced with a different number starting from 0 in each of them"
-msgstr ""
+msgstr "Puoi utilizzare il carattere wildcard &#37;. Quando stai creando diverse VM, il carattere &#37; viene rimpiazzato con un numero intero maggiore di 0."
 
 #: ../public/js/plugins/compute.js:335
 msgid "Shutdown"
-msgstr "Éteindre"
+msgstr "Spegnimento"
 
 #: ../public/js/plugins/compute.js:336
 msgid "This will shutdown the selected VMs"
-msgstr "Ceci va éteindre les MVs sélectionnées"
+msgstr "Questo arresterà le VM selezionate"
 
 #: ../public/js/plugins/compute.js:344
 msgid "Suspend"
-msgstr "Suspendre"
+msgstr "Sospendi"
 
 #: ../public/js/plugins/compute.js:345
 msgid "This will suspend the selected VMs"
-msgstr "Ceci va mettre en pause les MVs sélectionnées"
+msgstr "Questo sospenderà le VM selezionate"
 
 #: ../public/js/plugins/compute.js:349
 msgid "Resume"
-msgstr "Reprendre"
+msgstr "Riprendi"
 
 #: ../public/js/plugins/compute.js:350
 msgid "This will resume the selected VMs in stopped or suspended states"
-msgstr "Ceci va reprendre les MVs sélectionnées qui sont stoppées ou en pause"
+msgstr "Questo riprenderà le VM selezionate che sono in stato Ferme o Sospese"
 
 #: ../public/js/plugins/compute.js:354
 msgid "Stop"
-msgstr "Arrêter"
+msgstr "Ferma"
 
 #: ../public/js/plugins/compute.js:359
 msgid "Reboot"
-msgstr ""
+msgstr "Riavvia"
 
 #: ../public/js/plugins/compute.js:364
 msgid "Reset"
-msgstr ""
+msgstr "Resetta"
 
 #: ../public/js/plugins/compute.js:369 ../public/js/plugins/compute.js:837
 #: ../../../../../sunstone/public/js/sunstone.js:663
 #: ../../../../../sunstone/public/js/sunstone.js:695
 msgid "Cancel"
-msgstr "Annuler"
+msgstr "Annulla"
 
 #: ../public/js/plugins/compute.js:370
 msgid "This will cancel selected VMs"
-msgstr "Ceci va annuler les MVs sélectionnées"
+msgstr "Questo interromperà le VM selezionate"
 
 #: ../public/js/plugins/compute.js:374 ../public/js/plugins/compute.js:826
 msgid "Take snapshot"
-msgstr "Prendre un instantané"
+msgstr "Esegui snapshot"
 
 #: ../public/js/plugins/compute.js:382
 msgid "This will delete the selected VMs from the database"
-msgstr "Ceci va supprimer les MVs sélectionnées de la base de données"
+msgstr "Questo eliminerà le VM selezionate dal database"
 
 #: ../public/js/plugins/compute.js:388
 msgid "Compute resource"
-msgstr "Ressource de calcul"
+msgstr "Risorsa di calcolo"
 
 #: ../public/js/plugins/compute.js:392 ../public/js/plugins/compute.js:610
 msgid "Disks"
-msgstr "Disques"
+msgstr "Dischi"
 
 #: ../public/js/plugins/compute.js:403
 msgid "Create Virtual Machine"
-msgstr "Créer une machine virtuelle"
+msgstr "Crea Macchina Virtuale"
 
 #: ../public/js/plugins/compute.js:530
 msgid "VM information"
-msgstr "Information MV"
+msgstr "Informazioni VM"
 
 #: ../public/js/plugins/compute.js:534
 msgid "Virtual Machine information"
-msgstr "Informations sur la machine virtuelle"
+msgstr "Informazioni VM"
 
 #: ../public/js/plugins/compute.js:562
 msgid "Launch VNC session"
-msgstr "Exécuter une session VNC"
+msgstr "Lancia sessione VNC"
 
 #: ../public/js/plugins/compute.js:573
 msgid "Disks information"
-msgstr "Informations des disques"
+msgstr "Informazioni dischi"
 
 #: ../public/js/plugins/compute.js:591
 msgid "Target"
-msgstr "Cible"
+msgstr "Destinazione"
 
 #: ../public/js/plugins/compute.js:602 ../public/js/plugins/compute.js:933
 msgid "No disks defined"
-msgstr "Aucun disque défini"
+msgstr "Nessun disco definito"
 
 #: ../public/js/plugins/compute.js:616
 msgid "Networks information"
-msgstr "Informations réseaux"
+msgstr "Informationi network"
 
 #: ../public/js/plugins/compute.js:640
 msgid "MAC"
@@ -455,11 +456,11 @@ msgstr "MAC"
 
 #: ../public/js/plugins/compute.js:647
 msgid "No networks defined"
-msgstr "Aucun réseau défini"
+msgstr "Nessun network definito"
 
 #: ../public/js/plugins/compute.js:661
 msgid "Monitoring information"
-msgstr "Information de surveillance"
+msgstr "Informazioni di monitoraggio"
 
 #: ../public/js/plugins/compute.js:836
 #: ../../../../../sunstone/public/js/sunstone.js:662
@@ -469,59 +470,59 @@ msgstr "OK"
 
 #: ../public/js/plugins/compute.js:859
 msgid "Skipping VM "
-msgstr "Passer la MV"
+msgstr "Salto VM"
 
 #: ../public/js/plugins/compute.js:860
 msgid "No disk id or image name specified"
-msgstr "Aucun identifiant de disque ou nom d'image"
+msgstr "Nessun id o nome immagine specificata"
 
 #: ../public/js/plugins/compute.js:896
 msgid "Saveas for VM with ID"
-msgstr "Sauvegarder sous pour une MV avec ID"
+msgstr ""
 
 #: ../public/js/plugins/compute.js:899
 msgid "Select disk"
-msgstr "Sélectionner un disque"
+msgstr "Seleziona disco"
 
 #: ../public/js/plugins/compute.js:901
 msgid "Retrieving"
-msgstr "Récupération"
+msgstr "Recupero"
 
 #: ../public/js/plugins/compute.js:905
 msgid "Image name"
-msgstr "Nom de l'image"
+msgstr "Nome immagine"
 
 #: ../public/js/plugins/compute.js:925 ../public/js/plugins/compute.js:928
 msgid "disk id"
-msgstr "identifiant disque"
+msgstr "Id disco"
 
 #: ../public/js/plugins/compute.js:1003
 msgid "VNC connection"
-msgstr "Connexion VNC"
+msgstr "Connessione VNC"
 
 #: ../public/js/plugins/compute.js:1018
 msgid "Canvas not supported."
-msgstr "Modèle non supporté."
+msgstr "Canvas non supportato."
 
 #: ../public/js/plugins/compute.js:1079 ../public/js/plugins/compute.js:1095
 msgid "Open VNC Session"
-msgstr "Ouvrir une session VNC"
+msgstr "Apri Sessione VNC"
 
 #: ../public/js/plugins/compute.js:1082 ../public/js/plugins/compute.js:1098
 msgid "VNC Disabled"
-msgstr "VNC désactivé"
+msgstr "VNC Disabilitato"
 
 #: ../public/js/plugins/configuration.js:23
 msgid "Self-Service UI Configuration"
-msgstr "Configuration de l'interface utilisateur du Libre-Service"
+msgstr "Configurazione Interfaccia Self-Service"
 
 #: ../public/js/plugins/configuration.js:28
 msgid "Language"
-msgstr "Langue"
+msgstr "Lingua"
 
 #: ../public/js/plugins/configuration.js:31
 msgid "English"
-msgstr "Anglais"
+msgstr "Inglese"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "Chinese"
@@ -529,11 +530,11 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:33
 msgid "French (FR)"
-msgstr ""
+msgstr "Francese (FR)"
 
 #: ../public/js/plugins/configuration.js:34
 msgid "French (CA)"
-msgstr ""
+msgstr "Francese (CA)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
@@ -557,161 +558,160 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:40
 msgid "Spanish"
-msgstr "Espagnol"
+msgstr "Spagnolo"
 
 #: ../public/js/plugins/configuration.js:62
 msgid "Configuration"
-msgstr "Configuration"
+msgstr "Configurazione"
 
 #: ../../../../../sunstone/public/js/sunstone.js:588
 msgid "Previous action"
-msgstr "Action précédente"
+msgstr "Azione precedente"
 
 #: ../../../../../sunstone/public/js/sunstone.js:651
 #: ../../../../../sunstone/public/js/sunstone.js:685
 msgid "Confirmation of action"
-msgstr "Confirmation de l'action"
+msgstr "Conferma azione"
 
 #: ../../../../../sunstone/public/js/sunstone.js:657
 msgid "You have to confirm this action."
-msgstr "Vous devez confirmer cette action."
+msgstr "Devi confermare questa azione."
 
 #: ../../../../../sunstone/public/js/sunstone.js:659
 msgid "Do you want to proceed?"
-msgstr "Souhaitez-vous continuer ?"
+msgstr "Vuoi procedere?"
 
 #: ../../../../../sunstone/public/js/sunstone.js:690
 msgid "You need to select something."
-msgstr "Vous devez sélectionner quelque chose."
+msgstr "Prima devi effettuare una selezione."
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:206
 msgid "Submitted"
-msgstr "Soumis"
+msgstr "Inviato"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:223
 msgid "Error"
-msgstr "Erreur"
+msgstr "Errore"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:229
 msgid "Info"
-msgstr "Info."
+msgstr "Informazioni"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:361
 msgid "Cannot contact server: is it running and reachable?"
-msgstr "Impossible de contacter le serveur: est-il en cours d'exécution et accessible ?"
+msgstr "Impossibile contattare il server: è in esecuzione e raggiungibile?"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:369
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr "Le réseau est injoignable: est-ce qu'OpenNebula tourne ?"
+msgstr "La rete è irraggiungibile: OpenNebula è in esecuzione?"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:390
 msgid "Unauthorized"
-msgstr "Non autorisé"
+msgstr "Non autorizzato"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:581
 #: ../../../../../sunstone/public/js/sunstone-util.js:801
 msgid "Please select"
-msgstr "Veuillez sélectionner"
+msgstr "Seleziona"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:724
 msgid "Update template"
-msgstr "Mettre à jour le modèle"
+msgstr "Aggiorna template"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:730
 msgid "Please, choose and modify the template you want to update"
-msgstr "Veuillez choisir et modifier le modèle que vous souhaitez mettre à jour"
+msgstr "Seleziona e modifica il template che vuoi aggiornare"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:732
 #: ../../../../../sunstone/public/js/sunstone-util.js:735
 msgid "Select a template"
-msgstr "Sélectionner un modèle"
+msgstr "Seleziona un template"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:740
 msgid "Update"
-msgstr "Mettre à jour"
+msgstr "Aggiorna"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:1020
 msgid "Please select an element"
-msgstr ""
+msgstr "Per favore seleziona un elemento"
 
 #: ../public/customize/custom.js:18
 msgid "String"
-msgstr "Chaîne"
+msgstr "Stringa"
 
 #: ../public/customize/custom.js:39
 msgid "Welcome to OpenNebula Self-Service"
-msgstr "Bienvenue au Libre-Service OpenNebula"
+msgstr "Benvenuto in OpenNebula Self-Service"
 
 #: ../public/customize/custom.js:41
 msgid "OpenNebula Self-Service is a simplified user interface to manage OpenNebula compute, storage and network resources. It is focused on easiness and usability and features a limited set of operations directed towards end-users."
-msgstr "OpenNebula Libre-Service est une interface utilisateur simplifiée pour gérer les ressources de calcul, stockage et réseau OpenNebula. Il est axé sur la facilité et la convivialité d'un nombre limité d'opérations destinées aux utilisateurs finaux."
+msgstr "OpenNebula Self-Service è una interfaccia utente semplificata per gestire le risorse di calcolo, storage e rete di OpenNebula. Si focalizza sulla facilità d'uso e usabilità, fornendo un insieme limitato di operazioni indirizzate agli utenti finali."
 
 #: ../public/customize/custom.js:42
 msgid "Additionally, OpenNebula Self-Service allows easy customization of the interface (e.g. this text) and brings multi-language support."
-msgstr "Aditionnellement, OpenNebula Libre-Service permet une personalisation aisée de l'interface (ex.: ce texte) et apporte un support multilingue."
+msgstr "Inoltre, OpenNebula Self-Service consente una facile personalizzazione dell'interfaccia (come questo testo che stai leggendo) e fornisce supporto multilingua."
 
 #: ../public/customize/custom.js:43
 msgid "Have a cloudy experience!"
-msgstr "Ayez une expérience dans le Nuage!"
+msgstr "Buona fortuna con la nuvola!"
 
 #: ../public/customize/custom.js:66
 msgid "Compute resources are Virtual Machines attached to storage and network resources. OpenNebula Self-Service allows you to easily create, remove and manage them, including the possibility of pausing a Virtual Machine or taking a snapshot of one of their disks."
-msgstr "Les ressources de calculs sont des machines virtuelles attachées aux ressources de stockage et de réseau. OpenNebula Libre-Service vous permet d'aiséement les créer, supprimer et gérer, incluant la possibilité de mettre en pause une machine virtuelle ou de prendre un instantané d'un de leur disques."
+msgstr ""
 
 #: ../public/customize/custom.js:70
 msgid "Storage pool is formed by several images. These images can contain from full operating systems to be used as base for compute resources, to simple data. OpenNebula Self-Service offers you the possibility to create or upload your own images."
-msgstr "Le dépot de stockage est formé par plusieurs images. Ces images peuvent contenir du système d'exploitation complet pour être utilisé comme base pour les ressources de calculs, à de simple données. Open-Nebula Libre-Service vous offre la possibilité de créer ou de téléverser vos propres images."
+msgstr ""
 
 #: ../public/customize/custom.js:74
 msgid "Your compute resources connectivity is performed using pre-defined virtual networks. You can create and manage these networks using OpenNebula Self-Service."
-msgstr "Votre connectivité de ressources de calculs est effectuée des réseaux virtuels pré-définis. Vous pouvez créer et gérer ces réseaux en utilisant OpenNebula Libre-Service"
+msgstr ""
 
 #: ../public/customize/custom.js:81
 msgid "This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking 'new' and filling-in an easy wizard."
-msgstr "Ceci est une liste de vos ressources de calculs actuelles. Les machines virtuelles utilisent des images et réseaux prédéfinis. Vous pouvez facilement créer un nouvel élément de calcul en cliquant sur 'Nouveau' et en remplissant un assistant."
+msgstr ""
 
 #: ../public/customize/custom.js:82
 msgid "You can also manage compute resources and perform actions such as stop, resume, shutdown or cancel."
-msgstr "Vous pouvez aussi gérer les ressources de calculs et exécuter des actions telles qu'arrêter, reprendre, éteindre ou annuler."
+msgstr ""
 
 #: ../public/customize/custom.js:83
-#, fuzzy
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr "De plus, vous pouvez prendre un 'instantané' d'une image raccordée à ces ressources. Elles seront sauvegardées en tant que nouvelles ressources, visibles depuis la vue 'Images' et réutilisables."
+msgstr ""
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104
 msgid "There are currently"
-msgstr "Il y a présentement"
+msgstr "Attualmente ci sono"
 
 #: ../public/customize/custom.js:85
 msgid "virtual machines"
-msgstr "machines virtuelles"
+msgstr "macchine virtuali"
 
 #: ../public/customize/custom.js:91
 msgid "The Storage view offers you an overview of your current images. Storage elements are attached to compute resources at creation time. They can also be extracted from running virtual machines by taking an snapshot."
-msgstr "La vue de stockage vous offre un aperçu de vos images actuelles. Les éléments de stockage sont attachés aux ressources de calculs lors de la création. Ils peuvent également être extrait d'une machine virtuelle en cours d'exécution en prenant un instantané."
+msgstr ""
 
 #: ../public/customize/custom.js:92
 msgid "You can add new storages by clicking 'new'. Image files will be uploaded to OpenNebula and set ready to be used."
-msgstr "Vous pouvez ajouter de nouveaux stockages en cliquant sur 'Nouveau'. Les fichiers image seront téléversés à OpenNebula et prêts à être utilisés."
+msgstr ""
 
 #: ../public/customize/custom.js:93
 msgid "Additionally, you can run several operations on defined storages, such as defining their persistance. Persistent images can only be used by 1 virtual machine, and the changes made by it have effect on the base image. Non-persistent images are cloned before being used in a Virtual Machine, therefore changes are lost unless a snapshot is taken prior to Virtual Machine shutdown."
-msgstr "En outre, vous pouvez exécuter plusieurs opérations sur une image définie, tel que définir leur persistance. Les images persistantes peuvent seulement être utilisées par une machine virtuelle et les changements effectués auront un effet sur l'image de base. Les images non-persistantes sont clonées avant d'être utilisées dans une machine virtuelle, mais les changements sont perdus en moins qu'un instantané soit pris avant l'extinction de la machine virtuelle."
+msgstr ""
 
 #: ../public/customize/custom.js:95
 msgid "images"
-msgstr "images"
+msgstr "immagini"
 
 #: ../public/customize/custom.js:101
 msgid "In this view you can easily manage OpenNebula Network resources. You can add or remove virtual networks."
-msgstr "Dans cette vue vous pouvez aisément gérer les ressources Réseau d'OpenNebula. Vous pouvez ajouter ou supprimer des réseaux virtuels."
+msgstr ""
 
 #: ../public/customize/custom.js:102
 msgid "Compute resources can be attached to these networks at creation time. Virtual machines will be provided with an IP and the correct parameters to ensure connectivity."
-msgstr "Les ressources de calculs peuvent être rattachées à ces réseaux lors de la création. Une adresse IP ainsi que les paramètres corrects afin d'assurer une connectivité seront fournis aux machines virtuelles."
+msgstr ""
 
 #: ../public/customize/custom.js:105
 msgid "networks"
-msgstr "réseaux"
+msgstr "reti"
