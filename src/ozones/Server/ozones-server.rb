@@ -190,6 +190,7 @@ helpers do
 end
 
 before do
+    cache_control :no_store
     unless request.path=='/login' || request.path=='/'
 
         unless authorized?

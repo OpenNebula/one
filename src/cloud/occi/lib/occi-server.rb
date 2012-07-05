@@ -129,6 +129,7 @@ set :cloud_auth, cloud_auth
 ##############################################################################
 
 before do
+    cache_control :no_store
     unless request.path=='/ui/login' || request.path=='/ui'
         if !authorized?
             begin

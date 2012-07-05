@@ -171,7 +171,7 @@ helpers do
 end
 
 before do
-    cache_control :private, :must_revalidate
+    cache_control :no_store
     unless request.path=='/login' || request.path=='/'
         halt 401 unless authorized?
 
