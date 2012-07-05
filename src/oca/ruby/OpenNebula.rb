@@ -50,7 +50,7 @@ require 'OpenNebula/ClusterPool'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '3.5.80'
+    VERSION = '3.6.0'
 
     # The Error Class represents a generic error in the OpenNebula
     # library. It contains a readable representation of the error.
