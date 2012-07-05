@@ -29,7 +29,7 @@ var config_tab_content =
               <td class="value_td">\
                    <select id="lang_sel" style="width:20em;">\
                        <option value="en_US">'+tr("English")+'</option>\
-                       <option value="zh_TW">'+tr("Chinese")+'</option>\
+                       <option value="zh_TW">'+tr("Chinese")+' (TW)</option>\
                        <option value="fr_FR">'+tr("French (FR)")+'</option>\
                        <option value="fr_CA">'+tr("French (CA)")+'</option>\
                        <option value="de">'+tr("German")+'</option>\
