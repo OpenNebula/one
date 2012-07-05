@@ -136,15 +136,19 @@ public
             CLIHelper.scr_bold
             CLIHelper.scr_underline
 
-            username =
-                xmldoc.retrieve_elements(["HISTORY/VM[UID=#{uid}]/UNAME"]).uniq;
-            puts "# User #{uid} #{username}    "
+            username_elems =
+                xmldoc.retrieve_elements(["HISTORY/VM[UID=#{uid}]/UNAME"])
+
+            username = username_elems.nil? ? "" : username_elems.uniq
+
+            puts "# User #{uid} #{username}".ljust(80)
             CLIHelper.scr_restore
             puts
 
             history_elems.clear
 
             vm_ids = xmldoc.retrieve_elements("HISTORY/VM[UID=#{uid}]/ID")
+            vm_ids = [] if vm_ids.nil?
             vm_ids.uniq!
 
             vm_ids.each do |vid|
