@@ -64,11 +64,11 @@ protected:
      *
      * @param oid Object id
      * @param noid New owner user id
-     * @param error_str Error reason, if any
+     * @param att the specific request attributes
      *
      * @return 0 if the operation is allowed, -1 otherwise
      */
-    virtual int check_name_unique(int oid, int noid, string& error_str);
+    virtual int check_name_unique(int oid, int noid, RequestAttributes& att);
 
     virtual PoolObjectSQL * get(const string& name, int uid, bool lock) = 0;
 };
@@ -90,7 +90,7 @@ public:
 
     ~VirtualMachineChown(){};
 
-    int check_name_unique(int oid, int noid, string& error_str)
+    int check_name_unique(int oid, int noid, RequestAttributes& att)
     {
         return 0;
     };

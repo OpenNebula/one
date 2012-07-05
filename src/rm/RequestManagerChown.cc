@@ -121,7 +121,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RequestManagerChown::check_name_unique(int oid, int noid, string& error_str)
+int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes& att)
 {
     PoolObjectSQL *     object;
     string          name;
@@ -129,6 +129,15 @@ int RequestManagerChown::check_name_unique(int oid, int noid, string& error_str)
     ostringstream   oss;
 
     object = pool->get(oid, true);
+
+    if ( object == 0 )
+    {
+        failure_response(NO_EXISTS,
+                         get_error(object_name(auth_object), oid),
+                         att);
+
+        return -1;
+    }
 
     name = object->get_name();
 
@@ -146,7 +155,7 @@ int RequestManagerChown::check_name_unique(int oid, int noid, string& error_str)
             << PoolObjectSQL::type_to_str(auth_object) << " ["
             << obj_oid << "] with NAME " << name;
 
-        error_str = oss.str();
+        failure_response(INTERNAL, request_error(oss.str(), ""), att);
         return -1;
     }
 
@@ -164,7 +173,6 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     int ngid = xmlrpc_c::value_int(paramList.getInt(3));
 
     int rc;
-    string error_str;
    
     string oname;
     string nuname;
@@ -240,9 +248,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( noid != -1 )
     {
-        if ( check_name_unique(oid, noid, error_str) != 0 )
+        if ( check_name_unique(oid, noid, att) != 0 )
         {
-            failure_response(INTERNAL, request_error(error_str, ""), att);
             return;
         }
     }
