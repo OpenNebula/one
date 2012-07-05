@@ -46,7 +46,8 @@ var oZones = {
         {
             switch(type)
             {
-                case "HOST","host":
+                case "HOST":
+                case "host":
                     return ["INIT",
                             "MONITORING_MONITORED",
                             "MONITORED",
@@ -54,7 +55,8 @@ var oZones = {
                             "DISABLED",
                             "MONITORING_ERROR"][value];
                     break;
-                case "HOST_SIMPLE","host_simple":
+                case "HOST_SIMPLE":
+                case "host_simple":
                     return ["INIT",
                             "UPDATE",
                             "ON",
@@ -62,7 +64,8 @@ var oZones = {
                             "OFF",
                             "RETRY"][value];
                     break;
-                case "VM","vm":
+                case "VM":
+                case "vm":
                     return ["INIT",
                             "PENDING",
                             "HOLD",
@@ -72,7 +75,8 @@ var oZones = {
                             "DONE",
                             "FAILED"][value];
                     break;
-                case "VM_LCM","vm_lcm":
+                case "VM_LCM":
+                case "vm_lcm":
                     return ["LCM_INIT",
                             "PROLOG",
                             "BOOT",
@@ -92,13 +96,25 @@ var oZones = {
                             "UNKNOWN",
                             "HOTPLUG"][value];
                     break;
-                case "IMAGE","image":
+                case "IMAGE":
+                case "image":
                     return ["INIT",
                             "READY",
                             "USED",
                             "DISABLED",
                             "LOCKED",
-                            "ERROR"][value];
+                            "ERROR",
+                            "CLONE",
+                            "DELETE",
+                            "USED_PERS"][value];
+                    break;
+                case "VM_MIGRATE_REASON":
+                case "vm_migrate_reason":
+                    return ["NONE",
+                            "ERROR",
+                            "STOP_RESUME",
+                            "USER",
+                            "CANCEL"][value];
                     break;
                 default:
                     return;
