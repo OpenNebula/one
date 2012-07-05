@@ -101,7 +101,7 @@ public class VirtualNetworkTest
 //                            "NETWORK_ADDRESS = 192.168.0.0\n";
 //
 //        res = VirtualNetwork.allocate(client, template);
-//        assertTrue( !res.isError() );
+//        assertTrue( res.getErrorMessage(), !res.isError() );
 //        assertTrue( res.getMessage().equals("0") );
 
         vnetPool.info();
@@ -119,7 +119,7 @@ public class VirtualNetworkTest
     public void info()
     {
         res = vnet.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
 //        assertTrue( vnet.getId().equals("0") );
 //        assertTrue( vnet.id() == 0 );
@@ -130,7 +130,7 @@ public class VirtualNetworkTest
     public void attributes()
     {
         res = vnet.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
 //        assertTrue( vnet.xpath("ID").equals("0") );
         assertTrue( vnet.xpath("NAME").equals(name) );
@@ -141,7 +141,7 @@ public class VirtualNetworkTest
     public void delete()
     {
         res = vnet.delete();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = vnet.info();
         assertTrue( res.isError() );
@@ -151,16 +151,16 @@ public class VirtualNetworkTest
     public void addLeases()
     {
         res = VirtualNetwork.allocate(client, fixed_template);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         VirtualNetwork fixed_vnet =
             new VirtualNetwork(Integer.parseInt(res.getMessage()), client);
 
         res = fixed_vnet.addLeases("130.10.0.5");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = fixed_vnet.addLeases("130.10.0.6", "50:20:20:20:20:20");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = fixed_vnet.addLeases("130.10.0.6");
         assertTrue( res.isError() );
@@ -172,13 +172,13 @@ public class VirtualNetworkTest
     public void rmLeases()
     {
         res = VirtualNetwork.allocate(client, fixed_template);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         VirtualNetwork fixed_vnet =
             new VirtualNetwork(Integer.parseInt(res.getMessage()), client);
 
         res = fixed_vnet.rmLeases("130.10.0.1");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = fixed_vnet.rmLeases("130.10.0.5");
         assertTrue( res.isError() );
@@ -190,19 +190,19 @@ public class VirtualNetworkTest
     public void holdFixed()
     {
         res = VirtualNetwork.allocate(client, fixed_template);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         VirtualNetwork fixed_vnet =
             new VirtualNetwork(Integer.parseInt(res.getMessage()), client);
 
         res = fixed_vnet.hold("130.10.0.1");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = fixed_vnet.hold("130.10.0.5");
         assertTrue( res.isError() );
 
         res = fixed_vnet.release("130.10.0.1");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = fixed_vnet.release("130.10.0.1");
         assertTrue( res.isError() );
@@ -217,13 +217,13 @@ public class VirtualNetworkTest
     public void holdRanged()
     {
         res = vnet.hold("192.168.0.10");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = vnet.hold("192.168.100.1");
         assertTrue( res.isError() );
 
         res = vnet.release("192.168.0.10");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = vnet.release("192.168.0.10");
         assertTrue( res.isError() );
@@ -241,10 +241,10 @@ public class VirtualNetworkTest
                 "ATT3 = VAL3";
 
         res = vnet.update(new_template);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = vnet.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         assertTrue( vnet.xpath("TEMPLATE/ATT1").equals( "" ) );
         assertTrue( vnet.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
         assertTrue( vnet.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );

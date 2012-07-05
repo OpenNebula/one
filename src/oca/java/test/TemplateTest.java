@@ -43,6 +43,8 @@ public class TemplateTest
 
     private static String template_str =
         "NAME = \"" + name + "\"\n" +
+        "CPU  = \"1\"\n" +
+        "MEMORY = \"128\"\n" +
         "ATT1 = \"VAL1\"\n" +
         "ATT2 = \"VAL2\"";
 
@@ -91,7 +93,7 @@ public class TemplateTest
         template.delete();
 
         res = Template.allocate(client, template_str);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         int oid = res.isError() ? -1 : Integer.parseInt(res.getMessage());
         template = new Template(oid, client);
@@ -112,7 +114,7 @@ public class TemplateTest
     public void info()
     {
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
 //        assertTrue( template.getId().equals("0") );
 //        assertTrue( template.id() == 0 );
@@ -123,7 +125,7 @@ public class TemplateTest
     public void update()
     {
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( template.xpath("TEMPLATE/ATT1").equals( "VAL1" ) );
         assertTrue( template.xpath("TEMPLATE/ATT2").equals( "VAL2" ) );
@@ -132,11 +134,11 @@ public class TemplateTest
                                 "ATT3 = VAL3";
 
         res = template.update(new_template);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
 
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         assertTrue( template.xpath("TEMPLATE/ATT1").equals( "" ) );
         assertTrue( template.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
         assertTrue( template.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
@@ -146,7 +148,7 @@ public class TemplateTest
     public void publish()
     {
         res = template.publish();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         template.info();
         assertTrue( template.xpath("PERMISSIONS/GROUP_U").equals("1") );
@@ -156,7 +158,7 @@ public class TemplateTest
     public void unpublish()
     {
         res = template.unpublish();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         template.info();
         assertTrue( template.xpath("PERMISSIONS/GROUP_U").equals("0") );
@@ -166,16 +168,16 @@ public class TemplateTest
     public void chmod()
     {
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         String owner_a = template.xpath("PERMISSIONS/OWNER_A");
         String group_a = template.xpath("PERMISSIONS/GROUP_A");
 
         res = template.chmod(0, 1, -1, 1, 0, -1, 1, 1, 0);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( template.xpath("PERMISSIONS/OWNER_U").equals("0") );
         assertTrue( template.xpath("PERMISSIONS/OWNER_M").equals("1") );
@@ -192,13 +194,13 @@ public class TemplateTest
     public void chmod_octet()
     {
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = template.chmod(640);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( template.xpath("PERMISSIONS/OWNER_U").equals("1") );
         assertTrue( template.xpath("PERMISSIONS/OWNER_M").equals("1") );
@@ -211,10 +213,10 @@ public class TemplateTest
         assertTrue( template.xpath("PERMISSIONS/OTHER_A").equals("0") );
 
         res = template.chmod("147");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( template.xpath("PERMISSIONS/OWNER_U").equals("0") );
         assertTrue( template.xpath("PERMISSIONS/OWNER_M").equals("0") );
@@ -231,7 +233,7 @@ public class TemplateTest
     public void attributes()
     {
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
 //        assertTrue( template.xpath("ID").equals("0") );
         assertTrue( template.xpath("NAME").equals(name) );
@@ -241,7 +243,7 @@ public class TemplateTest
     public void delete()
     {
         res = template.delete();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = template.info();
         assertTrue( res.isError() );
@@ -252,26 +254,26 @@ public class TemplateTest
     {
         // Create a new User and Group
         res = User.allocate(client, "template_test_user", "password");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         int uid = Integer.parseInt(res.getMessage());
 
         res = Group.allocate(client, "template_test_group");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         int gid = Integer.parseInt(res.getMessage());
 
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( template.uid() == 0 );
         assertTrue( template.gid() == 0 );
 
         res = template.chown(uid, gid);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( template.uid() == uid );
         assertTrue( template.gid() == gid );
@@ -279,7 +281,7 @@ public class TemplateTest
         res = template.chgrp(0);
 
         res = template.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( template.uid() == uid );
         assertTrue( template.gid() == 0 );
@@ -289,13 +291,13 @@ public class TemplateTest
     public void instantiate()
     {
         res = template.instantiate("new_vm_name");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         int vm_id = Integer.parseInt(res.getMessage());
         VirtualMachine vm = new VirtualMachine(vm_id, client);
 
         res = vm.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( vm.getName().equals( "new_vm_name" ) );
     }
