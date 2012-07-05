@@ -136,10 +136,10 @@ public class UserTest
                 "ATT3 = VAL3";
 
         res = user.update(new_template);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = user.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         assertTrue( user.xpath("TEMPLATE/ATT1").equals( "" ) );
         assertTrue( user.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
         assertTrue( user.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );

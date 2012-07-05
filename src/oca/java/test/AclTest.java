@@ -79,7 +79,7 @@ public class AclTest
     public void defaultRules()
     {
         res = aclPool.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertEquals(2, aclPool.getLength());
     }
@@ -89,7 +89,7 @@ public class AclTest
     {
         // Allocate rule "#1 VM+HOST/@1 INFO+CREATE"
         res = Acl.allocate(client, "0x100000001", "0x3200000001", "0x8");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         aclPool.info();
         acl = aclPool.getById( res.getIntMessage() );
@@ -108,7 +108,7 @@ public class AclTest
     {
         // Allocate rule "#1 VM+HOST/@1 USE"
         res = Acl.allocate(client, 0x100000001L, 214748364801L, 0x1L);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         aclPool.info();
         acl = aclPool.getById( res.getIntMessage() );
@@ -128,7 +128,7 @@ public class AclTest
         try
         {
             res = Acl.allocate(client, "@507 IMAGE/#456 MANAGE");
-            assertTrue( !res.isError() );
+            assertTrue( res.getErrorMessage(), !res.isError() );
 
             aclPool.info();
             acl = aclPool.getById( res.getIntMessage() );
@@ -191,7 +191,7 @@ public class AclTest
             try
             {
                 res = Acl.allocate(client, rules[i]);
-                assertTrue( !res.isError() );
+                assertTrue( res.getErrorMessage(), !res.isError() );
 
                 aclPool.info();
                 acl = aclPool.getById( res.getIntMessage() );
@@ -220,13 +220,13 @@ public class AclTest
         try
         {
             res = Acl.allocate(client, "#1 HOST/@2 USE");
-            assertTrue( !res.isError() );
+            assertTrue( res.getErrorMessage(), !res.isError() );
 
             aclPool.info();
             assertTrue( aclPool.getLength() == 3 );
 
             res = Acl.delete(client, res.getIntMessage());
-            assertTrue( !res.isError() );
+            assertTrue( res.getErrorMessage(), !res.isError() );
 
             aclPool.info();
             assertTrue( aclPool.getLength() == 2 );

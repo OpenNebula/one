@@ -84,7 +84,7 @@ public class HostTest
         String name = "allocate_test";
 
         res = Host.allocate(client, name, "im_dummy", "vmm_dummy", "dummy");
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 //        assertTrue( res.getMessage().equals("0") );
 
         hostPool.info();
@@ -102,7 +102,7 @@ public class HostTest
     public void info()
     {
         res = host.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         
 //        assertTrue( host.getId().equals("0") );
         assertTrue( host.id() >= 0 );
@@ -114,7 +114,7 @@ public class HostTest
     public void enable()
     {
         res = host.enable();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         host.info();
         assertTrue( host.isEnabled() );
@@ -124,7 +124,7 @@ public class HostTest
     public void disable()
     {
         res = host.disable();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         host.info();
         assertTrue( !host.isEnabled() );
@@ -136,13 +136,13 @@ public class HostTest
         String name = host.getName();
 
         res = host.delete();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = host.info();
         assertTrue( res.isError() );
 
         res = hostPool.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         boolean found = false;
         for(Host h : hostPool)
@@ -157,7 +157,7 @@ public class HostTest
     public void update()
     {
         res = host.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( host.xpath("TEMPLATE/ATT1").equals( "" ) );
         assertTrue( host.xpath("TEMPLATE/ATT2").equals( "" ) );
@@ -166,11 +166,11 @@ public class HostTest
                         "ATT3 = VAL3";
 
         res = host.update(new_template);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
 
         res = host.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
         assertTrue( host.xpath("TEMPLATE/ATT1").equals( "" ) );
         assertTrue( host.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
         assertTrue( host.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );

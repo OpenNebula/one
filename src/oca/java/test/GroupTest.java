@@ -82,7 +82,7 @@ public class GroupTest
         group.delete();
 
         res = Group.allocate(client, group_name);
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         int group_id = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
         group = new Group(group_id, client);
@@ -103,7 +103,7 @@ public class GroupTest
     public void info()
     {
         res = group.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( group.id() >= 100 );
         assertTrue( group.getName().equals(group_name) );
@@ -113,13 +113,13 @@ public class GroupTest
     public void delete()
     {
         res = group.delete();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = group.info();
         assertTrue( res.isError() );
 
         res = groupPool.info();
-        assertTrue( !res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         boolean found = false;
         for(Group g : groupPool)
@@ -143,14 +143,14 @@ public class GroupTest
         for(String name : names)
         {
             res = User.allocate(client, "user_"+name, "password");
-            assertTrue( !res.isError() );
+            assertTrue( res.getErrorMessage(), !res.isError() );
 
             users.put(  name,
                         new User(Integer.parseInt(res.getMessage()), client )
                     );
 
             res = Group.allocate(client, "group_"+name);
-            assertTrue( !res.isError() );
+            assertTrue( res.getErrorMessage(), !res.isError() );
 
             groups.put(  name,
                     new Group(Integer.parseInt(res.getMessage()), client )
