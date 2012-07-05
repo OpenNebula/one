@@ -376,9 +376,9 @@ EOT
         days, hours=hours.divmod(24)
 
         if print_seconds
-            "%3dd %02d:%02d:%02d" % [days, hours, minutes, seconds]
+            "%3dd %02dh%02dm%02ds" % [days, hours, minutes, seconds]
         else
-            "%3dd %02d:%02d" % [days, hours, minutes]
+            "%3dd %02dh%02dm" % [days, hours, minutes]
         end
     end
 
