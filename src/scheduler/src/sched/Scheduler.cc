@@ -323,8 +323,6 @@ void Scheduler::match()
     string reqs;
 
     HostXML * host;
-    int       host_memory;
-    int       host_cpu;
     char *    error;
     bool      matched;
 
