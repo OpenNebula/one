@@ -152,37 +152,39 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the User", :left, :size=>18 do |d|
+            column :NAME, "Name of the User", :left, :size=>15 do |d|
                 d["NAME"]
             end
 
-            column :GROUP, "Group of the User", :left, :size=>15 do |d|
+            column :GROUP, "Group of the User", :left, :size=>10 do |d|
                 helper.group_name(d, options)
             end
 
-            column :AUTH, "Auth driver of the User", :left, :size=>15 do |d|
+            column :AUTH, "Auth driver of the User", :left, :size=>8 do |d|
                 d["AUTH_DRIVER"]
             end
 
-            column :VMS, "Number of VMS", :size=>6 do |d|             
+            column :VMS , "Number of VMS", :size=>9 do |d|             
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    d['VM_QUOTA']['VM']['VMS_USED']
+                    "%3d / %3d" % [d['VM_QUOTA']['VM']["VMS_USED"], d['VM_QUOTA']['VM']["VMS"]]
                 else
                     "-"
                 end 
             end
 
-            column :MEMORY, "Total memory allocated to user VMs", :size=>8 do |d|
+            column :MEMORY, "Total memory allocated to user VMs", :size=>17 do |d|
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
                     d['VM_QUOTA']['VM']['MEMORY_USED']
+                    "%7s / %7s" % [OpenNebulaHelper.unit_to_str(d['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
+                    OpenNebulaHelper.unit_to_str(d['VM_QUOTA']['VM']["MEMORY"].to_i,{},"M")]
                 else
                     "-"
                 end
             end
 
-            column :CPU, "Total CPU allocated to user VMs", :size=>8 do |d|
+            column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    d['VM_QUOTA']['VM']['CPU_USED']
+                    "%4d / %4d" % [d['VM_QUOTA']['VM']["CPU_USED"], d['VM_QUOTA']['VM']["CPU"]]
                 else
                     "-"
                 end

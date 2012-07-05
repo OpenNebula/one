@@ -24,78 +24,53 @@ class OneQuotaHelper
     #  Tables to format user quotas
     #---------------------------------------------------------------------------
     TABLE_DS = CLIHelper::ShowTable.new(nil, self) do
-        column :"DATASTORE ID", "", :left, :size=>12 do |d|
+        column :"DATASTORE ID", "", :size=>12 do |d|
             d["ID"] if !d.nil?
         end
 
-        column :"IMAGES (used)", "", :right, :size=>14 do |d|
-            d["IMAGES_USED"] if !d.nil?
+        column :"IMAGES", "", :right, :size=>20 do |d|
+            "%8d / %8d" % [d["IMAGES_USED"], d["IMAGES"]] if !d.nil?
         end
 
-        column :"IMAGES (limit)", "", :right, :size=>14 do |d|
-            d["IMAGES"] if !d.nil?
-        end
-
-        column :"SIZE (used)", "", :right, :size=>14 do |d|
-            d["SIZE_USED"] if !d.nil?
-        end
-
-        column :"SIZE (limit)", "", :right, :size=>14 do |d|
-            d["SIZE"] if !d.nil?
+        column :"SIZE", "", :right, :size=>19 do |d|
+            "%8s / %8s" % [OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M"),
+                OpenNebulaHelper.unit_to_str(d["SIZE"].to_i,{},"M")] if !d.nil?
         end
     end
 
     TABLE_NET = CLIHelper::ShowTable.new(nil, self) do
-        column :"NETWORK ID", "", :left, :size=>12 do |d|
+        column :"NETWORK ID", "", :size=>12 do |d|
             d["ID"] if !d.nil?
         end
 
-        column :"LEASES (used)", "", :right, :size=>14 do |d|
-            d["LEASES_USED"] if !d.nil?
-        end
-
-        column :"LEASES (limit)", "", :right, :size=>14 do |d|
-            d["LEASES"] if !d.nil?
+        column :"LEASES", "", :right, :size=>20 do |d|
+            "%8d / %8d" % [d["LEASES_USED"], d["LEASES"]] if !d.nil?
         end
     end
 
     TABLE_VM = CLIHelper::ShowTable.new(nil, self) do
-        column :"VMS (used)", "", :left, :size=>12 do |d|
-            d["VMS_USED"] if !d.nil?
+
+        column :"NUMBER OF VMS", "", :right, :size=>20 do |d|
+            "%8d / %8d" % [d["VMS_USED"], d["VMS"]] if !d.nil?
         end
 
-        column :"VMS (limit)", "", :left, :size=>12 do |d|
-            d["VMS"] if !d.nil?
+        column :"MEMORY", "", :right, :size=>20 do |d|
+            "%8s / %8s" % [OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M"),
+                OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i,{},"M")] if !d.nil?
         end
 
-        column :"MEMORY (used)", "", :right, :size=>14 do |d|
-            d["MEMORY_USED"] if !d.nil?
-        end
-
-        column :"MEMORY (limit)", "", :right, :size=>14 do |d|
-            d["MEMORY"] if !d.nil?
-        end
-
-        column :"CPU (used)", "", :right, :size=>14 do |d|
-            d["CPU_USED"] if !d.nil?
-        end
-
-        column :"CPU (limit)", "", :right, :size=>14 do |d|
-            d["CPU"] if !d.nil?
+        column :"CPU", "", :right, :size=>20 do |d|
+            "%4d / %4d" % [d["CPU_USED"], d["CPU"]] if !d.nil?
         end
     end
 
     TABLE_IMG = CLIHelper::ShowTable.new(nil, self) do
-        column :"IMAGE ID", "", :left, :size=>12 do |d|
+        column :"IMAGE ID", "", :size=>12 do |d|
             d["ID"] if !d.nil?
         end
 
-        column :"RVMS (used)", "", :right, :size=>14 do |d|
-            d["RVMS_USED"] if !d.nil?
-        end
-
-        column :"RVMS (limit)", "", :right, :size=>14 do |d|
-            d["RVMS"] if !d.nil?
+        column :"RUNNING VMS", "", :right, :size=>20 do |d|
+            "%8d / %8d" % [d["RVMS_USED"], d["RVMS"]] if !d.nil?
         end
     end
 
@@ -189,15 +164,15 @@ class OneQuotaHelper
 
         puts
 
-        ds_quotas = [qh['DATASTORE_QUOTA']['DATASTORE']].flatten
-        if !ds_quotas[0].nil?
-            TABLE_DS.show(ds_quotas, {})
-            puts
-        end
-
         vm_quotas = [qh['VM_QUOTA']['VM']].flatten
         if !vm_quotas[0].nil?
             TABLE_VM.show(vm_quotas, {})
+            puts
+        end
+
+        ds_quotas = [qh['DATASTORE_QUOTA']['DATASTORE']].flatten
+        if !ds_quotas[0].nil?
+            TABLE_DS.show(ds_quotas, {})
             puts
         end
 

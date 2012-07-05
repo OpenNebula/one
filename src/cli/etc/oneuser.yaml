@@ -5,30 +5,30 @@
 
 :NAME: 
   :desc: Name of the User
-  :size: 18
+  :size: 15
   :left: true
 
 :GROUP: 
   :desc: Group of the User
-  :size: 15
+  :size: 10
   :left: true
 
 :AUTH: 
   :desc: Auth driver of the User
-  :size: 15
+  :size: 8
   :left: true
 
 :VMS: 
   :desc: Number of VMS
-  :size: 6
+  :size: 9
 
 :MEMORY:
   :desc: Total memory allocated to user VMs
-  :size: 8
+  :size: 17
 
 :CPU:
   :desc: Total CPU allocated to user VMs
-  :size: 8
+  :size: 11
 
 :PASSWORD: 
   :desc: Password of the User

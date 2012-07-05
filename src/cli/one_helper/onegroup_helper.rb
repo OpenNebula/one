@@ -53,35 +53,44 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Group", :left, :size=>25 do |d|
+            column :NAME, "Name of the Group", :left, :size=>29 do |d|
                 d["NAME"]
             end
 
-            column :VMS, "Total number of VMS", :size=>6 do |d|             
-                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    d['VM_QUOTA']['VM']['VMS_USED']
+            column :USERS, "Number of Users in this group", :size=>5 do |d|
+                if d["USERS"]["ID"].nil?
+                    "0"
                 else
-                    "-"
-                end                
+                    d["USERS"]["ID"].size
+                end
             end
 
-            column :MEMORY, "Total memory allocated to group VMs", :size=>8 do |d|
+            column :VMS , "Number of VMS", :size=>9 do |d|             
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    d['VM_QUOTA']['VM']['MEMORY_USED']
+                    "%3d / %3d" % [d['VM_QUOTA']['VM']["VMS_USED"], d['VM_QUOTA']['VM']["VMS"]]
                 else
                     "-"
                 end
             end
 
-            column :CPU, "Total CPU allocated to group VMs", :size=>8 do |d|
+            column :MEMORY, "Total memory allocated to user VMs", :size=>17 do |d|
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    d['VM_QUOTA']['VM']['CPU_USED']
+                    "%7s / %7s" % [OpenNebulaHelper.unit_to_str(d['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
+                    OpenNebulaHelper.unit_to_str(d['VM_QUOTA']['VM']["MEMORY"].to_i,{},"M")]
                 else
                     "-"
                 end
             end
 
-            default :ID, :NAME, :VMS, :MEMORY, :CPU
+            column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
+                if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
+                    "%4d / %4d" % [d['VM_QUOTA']['VM']["CPU_USED"], d['VM_QUOTA']['VM']["CPU"]]
+                else
+                    "-"
+                end
+            end
+
+            default :ID, :NAME, :USERS, :VMS, :MEMORY, :CPU
         end
 
         table
