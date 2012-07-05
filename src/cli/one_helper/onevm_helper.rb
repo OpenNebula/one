@@ -235,7 +235,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["HOSTNAME"]
             end
 
-            column :REASON, "VM state change reason", :size=>6 do |d|
+            column :REASON, "VM state change reason", :left, :size=>6 do |d|
                 VirtualMachine.get_reason d["REASON"]
             end
 

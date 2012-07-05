@@ -5,24 +5,29 @@
 
 :NAME: 
   :desc: Name of the Group
-  :size: 25
+  :size: 29
   :left: true
+
+:USERS:
+  :desc: Number of Users in this group
+  :size: 5
 
 :VMS: 
   :desc: Number of VMS
-  :size: 6 
+  :size: 9
 
 :MEMORY:
   :desc: Total memory allocated to user VMs
-  :size: 8
+  :size: 17
 
 :CPU:
   :desc: Total CPU allocated to user VMs
-  :size: 8
+  :size: 11
 
 :default:
 - :ID
 - :NAME
+- :USERS
 - :VMS
 - :MEMORY
 - :CPU
