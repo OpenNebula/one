@@ -394,7 +394,18 @@ var vnet_actions = {
         call: function(params){
             var cluster = params.data.extra_param;
             var vnet = params.data.id;
-            Sunstone.runAction("Cluster.addvnet",cluster,vnet);
+
+            if (cluster == -1){
+                //get cluster name
+                var current_cluster = getValue(vnet,1,5,dataTable_vNetworks);
+                //get cluster id
+                current_cluster = getValue(current_cluster,
+                                           2,1,dataTable_clusters);
+                if (!current_cluster) return;
+                Sunstone.runAction("Cluster.delvnet",current_cluster,vnet)
+            }
+            else
+                Sunstone.runAction("Cluster.addvnet",cluster,vnet);
         },
         callback: null,
         elements: vnElements,

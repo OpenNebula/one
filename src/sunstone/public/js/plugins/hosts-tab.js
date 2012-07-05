@@ -275,7 +275,18 @@ var host_actions = {
         call: function(params){
             var cluster = params.data.extra_param;
             var host = params.data.id;
-            Sunstone.runAction("Cluster.addhost",cluster,host);
+
+            if (cluster == -1){
+                //get cluster name
+                var current_cluster = getValue(host,1,3,dataTable_hosts);
+                //get cluster id
+                current_cluster = getValue(current_cluster,
+                                           2,1,dataTable_clusters);
+                if (!current_cluster) return;
+                Sunstone.runAction("Cluster.delhost",current_cluster,host)
+            }
+            else
+                Sunstone.runAction("Cluster.addhost",cluster,host);
         },
         callback: null,
         elements: hostElements,

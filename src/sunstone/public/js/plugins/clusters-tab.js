@@ -127,10 +127,9 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.delhost,
         callback : function (req) {
-            //Sunstone.runAction("Cluster.show",req.request.data[0]);
+            Sunstone.runAction("Host.show",req.request.data[0][1].host_id);
         },
-        error : onError,
-        notify: true
+        error : onError
     },
 
     "Cluster.adddatastore" : {
@@ -138,7 +137,6 @@ var cluster_actions = {
         call : OpenNebula.Cluster.adddatastore,
         callback : function (req) {
             Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
-            //Sunstone.runAction("Cluster.show",req.request.data[0]);
         },
         error : onError,
     },
@@ -147,7 +145,7 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.deldatastore,
         callback : function (req) {
-            //Sunstone.runAction("Cluster.show",req.request.data[0]);
+            Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
         },
         error : onError,
     },
@@ -165,10 +163,9 @@ var cluster_actions = {
         type: "single",
         call : OpenNebula.Cluster.delvnet,
         callback : function (req) {
-            //Sunstone.runAction("Cluster.show",req.request.data[0]);
+            Sunstone.runAction("Network.show",req.request.data[0][1].vnet_id);
         },
         error : onError,
-        notify: true
     },
 
     "Cluster.delete" : {
