@@ -124,7 +124,7 @@ function dashboardQuotaRow(quota_json){
         row += '<tr><td class="padding1">'+tr("Network")+' id '+quota_json.ID+':</td><td></td></tr>';
 
         row += '<tr><td class="padding2">'+tr("Leases")+'</td>';
-        row += '<td class="value_td">'+quota_json.RVMS_USED+' / '+quota_json.RVMS+'</td>';
+        row += '<td class="value_td">'+quota_json.LEASES_USED+' / '+quota_json.LEASES+'</td>';
         break;
     }
     return row
