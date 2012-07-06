@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-06 11:48+0200\n"
-"PO-Revision-Date: 2012-07-06 09:21+0000\n"
+"POT-Creation-Date: 2012-07-06 12:08+0200\n"
+"PO-Revision-Date: 2012-07-06 11:57+0000\n"
 "Last-Translator: davood <davood.gh2000@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: fa_IR\n"
@@ -234,7 +234,7 @@ msgstr "اطلاعات وسیله"
 
 #: ../public/js/plugins/marketplace-tab.js:156
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ../public/js/plugins/marketplace-tab.js:164
 msgid "Downloads"
@@ -566,7 +566,7 @@ msgstr "داشبورد"
 
 #: ../public/js/plugins/dashboard-users-tab.js:101
 msgid "VMS"
-msgstr ""
+msgstr "ماشین های مجازی"
 
 #: ../public/js/plugins/dashboard-users-tab.js:103
 #: ../public/js/plugins/vms-tab.js:33 ../public/js/plugins/vms-tab.js:75
@@ -601,7 +601,7 @@ msgstr "تصویر"
 
 #: ../public/js/plugins/dashboard-users-tab.js:120
 msgid "RVMs"
-msgstr ""
+msgstr "ماشین های مجازی"
 
 #: ../public/js/plugins/dashboard-users-tab.js:124
 #: ../public/js/plugins/templates-tab.js:294
@@ -614,19 +614,19 @@ msgstr "شبکه"
 
 #: ../public/js/plugins/dashboard-users-tab.js:126
 msgid "Leases"
-msgstr ""
+msgstr "اجاره ها"
 
 #: ../public/js/plugins/dashboard-users-tab.js:135
 msgid "Resource quotas"
-msgstr ""
+msgstr "سهمیه های منابع"
 
 #: ../public/js/plugins/dashboard-users-tab.js:136
 msgid "Used&nbsp;/&nbsp;Allowed"
-msgstr ""
+msgstr "Used&nbsp;/&nbsp;Allowed"
 
 #: ../public/js/plugins/dashboard-users-tab.js:144
 msgid "VM quota"
-msgstr ""
+msgstr "سهمیه ماشین مجازی"
 
 #: ../public/js/plugins/dashboard-users-tab.js:146
 #: ../public/js/plugins/dashboard-users-tab.js:156
@@ -638,15 +638,15 @@ msgstr "هیچکدام"
 
 #: ../public/js/plugins/dashboard-users-tab.js:154
 msgid "Datastore quotas"
-msgstr ""
+msgstr "سهمیه محیط ذخیره سازی"
 
 #: ../public/js/plugins/dashboard-users-tab.js:164
 msgid "Image quotas"
-msgstr ""
+msgstr "سهمیه تصویر"
 
 #: ../public/js/plugins/dashboard-users-tab.js:174
 msgid "Network quotas"
-msgstr ""
+msgstr "سهمیه شبکه"
 
 #: ../public/js/plugins/vnets-tab.js:29 ../public/js/plugins/vnets-tab.js:184
 #: ../public/js/plugins/vnets-tab.js:586 ../public/js/plugins/vnets-tab.js:611
@@ -1441,7 +1441,7 @@ msgstr "اشتباه"
 
 #: ../public/js/plugins/vms-tab.js:1103
 msgid "Disks information - Save As and Detach"
-msgstr ""
+msgstr "اطلاعات دیسک - ذخیره و جداسازی"
 
 #: ../public/js/plugins/vms-tab.js:1117
 msgid "No disks to show"
@@ -1449,7 +1449,7 @@ msgstr "هیج دیسکی برای نمایش دادن وجود ندارد"
 
 #: ../public/js/plugins/vms-tab.js:1129
 msgid "Detach"
-msgstr ""
+msgstr "جدا سازی"
 
 #: ../public/js/plugins/vms-tab.js:1131 ../public/js/plugins/vms-tab.js:1201
 #: ../public/js/plugins/templates-tab.js:261
@@ -1458,7 +1458,7 @@ msgstr "ذخیره کن"
 
 #: ../public/js/plugins/vms-tab.js:1133
 msgid "Save_as name"
-msgstr ""
+msgstr "نام ذخیره جدید"
 
 #: ../public/js/plugins/vms-tab.js:1151
 msgid "Attach disk to running VM"
@@ -1551,7 +1551,7 @@ msgstr "جداول داده ای، مجموعه ای از تصاویر هستن�
 
 #: ../public/js/plugins/datastores-tab.js:57
 msgid "System datastore"
-msgstr ""
+msgstr "محیط ذخیره سازی سیستم"
 
 #: ../public/js/plugins/datastores-tab.js:63
 msgid "Datastore manager"
@@ -1839,7 +1839,7 @@ msgstr "انگلیسی"
 
 #: ../public/js/plugins/config-tab.js:33
 msgid "Chinese (TW)"
-msgstr ""
+msgstr "چینی (TW)"
 
 #: ../public/js/plugins/config-tab.js:34
 msgid "French"
@@ -1863,7 +1863,7 @@ msgstr "روسی"
 
 #: ../public/js/plugins/config-tab.js:39
 msgid "Slovak"
-msgstr ""
+msgstr "اسلواکی"
 
 #: ../public/js/plugins/config-tab.js:44
 msgid "Secure websockets connection"
@@ -2607,11 +2607,11 @@ msgstr "درایور احراز هویت"
 
 #: ../public/js/plugins/users-tab.js:37 ../public/js/plugins/groups-tab.js:34
 msgid "VMs"
-msgstr ""
+msgstr "ماشین های مجازی"
 
 #: ../public/js/plugins/users-tab.js:38 ../public/js/plugins/groups-tab.js:35
 msgid "Used memory"
-msgstr ""
+msgstr "حافظه مورد استفاده"
 
 #: ../public/js/plugins/users-tab.js:40
 msgid "Group ID"
@@ -2663,64 +2663,64 @@ msgstr "تغییر بده"
 
 #: ../public/js/plugins/users-tab.js:109 ../public/js/plugins/groups-tab.js:68
 msgid "Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them"
-msgstr ""
+msgstr "لطفا سهمیه ها را اضافه/ویرایش/حذف کرده و بر روی دکمه اعمال تغییرات کلیک کنید. "
 
 #: ../public/js/plugins/users-tab.js:110 ../public/js/plugins/groups-tab.js:69
 msgid "Add quota"
-msgstr ""
+msgstr "اضافه کردن سهمیه"
 
 #: ../public/js/plugins/users-tab.js:112 ../public/js/plugins/groups-tab.js:71
 msgid "Quota type"
-msgstr ""
+msgstr "نوع سهمیه"
 
 #: ../public/js/plugins/users-tab.js:113 ../public/js/plugins/groups-tab.js:72
 msgid "Virtual Machine"
-msgstr ""
+msgstr "ماشین مجازی"
 
 #: ../public/js/plugins/users-tab.js:119 ../public/js/plugins/groups-tab.js:78
 msgid "Max VMs"
-msgstr ""
+msgstr "حد اکثر تعداد ماشین مجازی"
 
 #: ../public/js/plugins/users-tab.js:121 ../public/js/plugins/groups-tab.js:80
 msgid "Max Memory (MB)"
-msgstr ""
+msgstr "حد اکثر حافظه (مگابایت)"
 
 #: ../public/js/plugins/users-tab.js:129 ../public/js/plugins/groups-tab.js:88
 msgid "Max size (MB)"
-msgstr ""
+msgstr "حد اکثر حجم (مگابایت)"
 
 #: ../public/js/plugins/users-tab.js:131 ../public/js/plugins/groups-tab.js:90
 msgid "Max images"
-msgstr ""
+msgstr "حد اکثر تعداد تصاویر"
 
 #: ../public/js/plugins/users-tab.js:137 ../public/js/plugins/groups-tab.js:96
 msgid "Max RVMs"
-msgstr ""
+msgstr "حد اکثر ماشین های مجازی"
 
 #: ../public/js/plugins/users-tab.js:143
 #: ../public/js/plugins/groups-tab.js:102
 msgid "Max leases"
-msgstr ""
+msgstr "حد اکثر اجاره ها"
 
 #: ../public/js/plugins/users-tab.js:146
 #: ../public/js/plugins/groups-tab.js:105
 msgid "Add/edit quota"
-msgstr ""
+msgstr "اضافه کردن/ویرایش سهیمه"
 
 #: ../public/js/plugins/users-tab.js:153
 #: ../public/js/plugins/groups-tab.js:112
 msgid "Quota"
-msgstr ""
+msgstr "سهیمه"
 
 #: ../public/js/plugins/users-tab.js:154
 #: ../public/js/plugins/groups-tab.js:113
 msgid "Edit"
-msgstr ""
+msgstr "ویرایش"
 
 #: ../public/js/plugins/users-tab.js:160
 #: ../public/js/plugins/groups-tab.js:118
 msgid "Apply changes"
-msgstr ""
+msgstr "تغییرات را اعمال کن"
 
 #: ../public/js/plugins/users-tab.js:215
 msgid "Change password successful"
@@ -2729,7 +2729,7 @@ msgstr "تغییر رمز عبور با موفقیت صورت گرفت"
 #: ../public/js/plugins/users-tab.js:345
 #: ../public/js/plugins/groups-tab.js:216
 msgid "Quotas updated correctly"
-msgstr ""
+msgstr "سهمیه ها به درستی به روز شد"
 
 #: ../public/js/plugins/users-tab.js:378 ../public/js/plugins/users-tab.js:699
 msgid "Change password"
@@ -2738,7 +2738,7 @@ msgstr "تغییر رمز عبور"
 #: ../public/js/plugins/users-tab.js:382
 #: ../public/js/plugins/groups-tab.js:249
 msgid "Update quotas"
-msgstr ""
+msgstr "سهمیه را به روز کن"
 
 #: ../public/js/plugins/users-tab.js:389
 msgid "This will change the main group of the selected users. Select the new group"
@@ -2755,11 +2755,11 @@ msgstr "لطفا نحوه احراز هویت جدید برای کاربران �
 #: ../public/js/plugins/users-tab.js:438 ../public/js/plugins/users-tab.js:640
 #: ../public/js/plugins/users-tab.js:730
 msgid "User quotas"
-msgstr ""
+msgstr "سهمیه های کاربر"
 
 #: ../public/js/plugins/users-tab.js:453
 msgid "User info"
-msgstr ""
+msgstr "اطلاعات کاربر"
 
 #: ../public/js/plugins/users-tab.js:612
 msgid "User template"
@@ -2824,7 +2824,7 @@ msgstr "از روی قالب های ماشین های مجازی به تعداد
 
 #: ../public/js/plugins/groups-tab.js:45
 msgid "Tip: Refresh the list if it only shows user ids in the Users column."
-msgstr ""
+msgstr "نکنته: در صورتی که تنها مشخصه کاربران در ستون کاربران نشان داده می شود, دوباره لیست بگیرید"
 
 #: ../public/js/plugins/groups-tab.js:54
 msgid "Group name"
@@ -2838,15 +2838,15 @@ msgstr "+ گروه جدید"
 #: ../public/js/plugins/groups-tab.js:395
 #: ../public/js/plugins/groups-tab.js:432
 msgid "Group information"
-msgstr ""
+msgstr "اطلاعات گروه"
 
 #: ../public/js/plugins/groups-tab.js:281
 msgid "Group info"
-msgstr ""
+msgstr "اطلاعات گروه"
 
 #: ../public/js/plugins/groups-tab.js:406
 msgid "Quota information"
-msgstr ""
+msgstr "اطلاعات سهمیه"
 
 #: ../public/js/plugins/groups-tab.js:444
 msgid "Create group"
@@ -2854,7 +2854,7 @@ msgstr "گروه جدید بساز"
 
 #: ../public/js/plugins/groups-tab.js:473
 msgid "Group quotas"
-msgstr ""
+msgstr "سهمیه های گروه"
 
 #: ../public/js/plugins/images-tab.js:36 ../public/js/plugins/images-tab.js:92
 #: ../public/js/plugins/images-tab.js:207
@@ -3042,15 +3042,15 @@ msgstr "خصوصیات تصویر را به روز کن"
 
 #: ../public/js/plugins/images-tab.js:1154
 msgid "Clone an image"
-msgstr ""
+msgstr "کپی گرفتن از یک تصویر"
 
 #: ../public/js/plugins/images-tab.js:1160
 msgid "Choose a new name for the image"
-msgstr ""
+msgstr "یک نام جدید برای تصویر انتخاب کنید"
 
 #: ../public/js/plugins/images-tab.js:1161
 msgid "Several image are selected, please choose prefix to name the new copies"
-msgstr ""
+msgstr "چندین تصویر انتخاب شده, لطفا پسوندی برای نام گذاری کپی های جدید انتخاب کنید"
 
 #: ../public/js/plugins/system-tab.js:25
 msgid "Summary of system resources"
@@ -3090,24 +3090,24 @@ msgstr "استفاده پردازنده عمومی"
 
 #: ../public/js/plugins/dashboard-tab.js:81
 msgid "Allocated CPU per cluster"
-msgstr ""
+msgstr "پردازنده اختصاص داده شده به ازای هر خوشه"
 
 #: ../public/js/plugins/dashboard-tab.js:89
 msgid "Allocated Memory per cluster"
-msgstr ""
+msgstr "حافظه اختصاص داده شده به ازای هر خوشه"
 
 #: ../public/js/plugins/dashboard-tab.js:150
 msgid "System Information"
-msgstr ""
+msgstr "اطلاعات سیستم"
 
 #: ../public/js/plugins/dashboard-tab.js:155
 msgid "Total Users"
-msgstr ""
+msgstr "تعداد کل کاربران"
 
 #: ../public/js/plugins/dashboard-tab.js:156
 msgid "Total Groups"
-msgstr ""
+msgstr "تعداد کل گروه ها"
 
 #: ../public/js/plugins/dashboard-tab.js:165
 msgid "Users per group"
-msgstr ""
+msgstr "تعداد کاربران در هر گروه"
