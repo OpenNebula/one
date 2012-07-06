@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 14:58+0200\n"
+"POT-Creation-Date: 2012-07-06 10:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -528,11 +528,11 @@ msgid "Chinese"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:33
-msgid "French (FR)"
+msgid "French (CA)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:34
-msgid "French (CA)"
+msgid "French (FR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:35
@@ -544,7 +544,7 @@ msgid "Italian"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Portuguese (PT)"
+msgid "Persian (IR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
@@ -552,14 +552,18 @@ msgid "Portuguese (BR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Slovak"
+msgid "Portuguese (PT)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:40
+msgid "Slovak"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
 msgstr ""
 
-#: ../public/js/plugins/configuration.js:62
+#: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
 msgstr ""
 

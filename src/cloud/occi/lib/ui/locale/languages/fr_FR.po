@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+#   <hsanjuan@opennebula.org>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 14:58+0200\n"
-"PO-Revision-Date: 2012-06-27 09:03+0000\n"
+"POT-Creation-Date: 2012-07-06 10:30+0200\n"
+"PO-Revision-Date: 2012-07-06 08:20+0000\n"
 "Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: fr_FR\n"
@@ -353,7 +354,7 @@ msgstr "Créer # VMs"
 
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;. When creating several VMs, &#37; will be replaced with a different number starting from 0 in each of them"
-msgstr ""
+msgstr "Vous pouvez utiliser le joker &#37. Lors de la création de plusieurs VMs, &#37 sera remplacé par un nombre commençant à 0 dans chaqu'une d'entre elles."
 
 #: ../public/js/plugins/compute.js:335
 msgid "Shutdown"
@@ -525,41 +526,45 @@ msgstr "Anglais"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "Chinese"
-msgstr ""
+msgstr "Chinois"
 
 #: ../public/js/plugins/configuration.js:33
-msgid "French (FR)"
-msgstr ""
+msgid "French (CA)"
+msgstr "Français (CA)"
 
 #: ../public/js/plugins/configuration.js:34
-msgid "French (CA)"
-msgstr ""
+msgid "French (FR)"
+msgstr "Français (FR)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
-msgstr ""
+msgstr "Allemand"
 
 #: ../public/js/plugins/configuration.js:36
 msgid "Italian"
-msgstr ""
+msgstr "Italien"
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Portuguese (PT)"
+msgid "Persian (IR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Portuguese (BR)"
-msgstr ""
+msgstr "Portugais (BR)"
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Slovak"
-msgstr ""
+msgid "Portuguese (PT)"
+msgstr "Portugais (PT)"
 
 #: ../public/js/plugins/configuration.js:40
+msgid "Slovak"
+msgstr "Slovaque"
+
+#: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: ../public/js/plugins/configuration.js:62
+#: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
 msgstr "Configuration"
 
@@ -632,7 +637,7 @@ msgstr "Mettre à jour"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:1020
 msgid "Please select an element"
-msgstr ""
+msgstr "Choisissez un élément, svp"
 
 #: ../public/customize/custom.js:18
 msgid "String"
@@ -675,9 +680,8 @@ msgid "You can also manage compute resources and perform actions such as stop, r
 msgstr "Vous pouvez aussi gérer les machines virtuelles et exécuter des actions telles que arrêter, reprendre, éteindre ou annuler."
 
 #: ../public/customize/custom.js:83
-#, fuzzy
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr "De plus, vous pouvez prendre un « snapshot » des images attachées à ces ressources. Elles seront sauvegardées en tant que nouvelles images, visibles depuis l'onglet « Disques » et réutilisables."
+msgstr ""
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104

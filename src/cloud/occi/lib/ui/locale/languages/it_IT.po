@@ -4,13 +4,14 @@
 #
 # Translators:
 # Giovanni Toraldo <me@gionn.net>, 2012.
+# Ivan Rossi <rouge2507@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 14:58+0200\n"
-"PO-Revision-Date: 2012-06-28 17:49+0000\n"
-"Last-Translator: Giovanni Toraldo <me@gionn.net>\n"
+"POT-Creation-Date: 2012-07-06 10:30+0200\n"
+"PO-Revision-Date: 2012-07-05 13:33+0000\n"
+"Last-Translator: Ivan Rossi <rouge2507@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -529,12 +530,12 @@ msgid "Chinese"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:33
-msgid "French (FR)"
-msgstr "Francese (FR)"
-
-#: ../public/js/plugins/configuration.js:34
 msgid "French (CA)"
 msgstr "Francese (CA)"
+
+#: ../public/js/plugins/configuration.js:34
+msgid "French (FR)"
+msgstr "Francese (FR)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
@@ -545,7 +546,7 @@ msgid "Italian"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Portuguese (PT)"
+msgid "Persian (IR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
@@ -553,14 +554,18 @@ msgid "Portuguese (BR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Slovak"
+msgid "Portuguese (PT)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:40
+msgid "Slovak"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
 msgstr "Spagnolo"
 
-#: ../public/js/plugins/configuration.js:62
+#: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
 msgstr "Configurazione"
 
@@ -677,7 +682,7 @@ msgstr ""
 
 #: ../public/customize/custom.js:83
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr ""
+msgstr "Inoltre, puoi salvare lo spazio disco collegato a queste risorse come nuove immagini. Appariranno come nuove risorse, visibili dalla \"Storage view\" e riusabili"
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104

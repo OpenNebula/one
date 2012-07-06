@@ -4,12 +4,13 @@
 #
 # Translators:
 #   <andre.monteir@gmail.com>, 2012.
+# André Monteiro <andre.monteir@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 14:58+0200\n"
-"PO-Revision-Date: 2012-06-28 09:28+0000\n"
+"POT-Creation-Date: 2012-07-06 10:30+0200\n"
+"PO-Revision-Date: 2012-07-04 14:26+0000\n"
 "Last-Translator: André Monteiro <andre.monteir@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pt_PT\n"
@@ -526,41 +527,45 @@ msgstr "Inglês"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "Chinese"
-msgstr ""
+msgstr "Chinês"
 
 #: ../public/js/plugins/configuration.js:33
-msgid "French (FR)"
-msgstr "Francês (FR)"
-
-#: ../public/js/plugins/configuration.js:34
 msgid "French (CA)"
 msgstr "Francês (CA)"
 
+#: ../public/js/plugins/configuration.js:34
+msgid "French (FR)"
+msgstr "Francês (FR)"
+
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
-msgstr ""
+msgstr "Alemão"
 
 #: ../public/js/plugins/configuration.js:36
 msgid "Italian"
-msgstr ""
+msgstr "Italiano"
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Portuguese (PT)"
+msgid "Persian (IR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Portuguese (BR)"
-msgstr ""
+msgstr "Português (BR)"
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Slovak"
-msgstr ""
+msgid "Portuguese (PT)"
+msgstr "Português (PT)"
 
 #: ../public/js/plugins/configuration.js:40
+msgid "Slovak"
+msgstr "Eslovaco"
+
+#: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
 msgstr "Espanhol"
 
-#: ../public/js/plugins/configuration.js:62
+#: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
 msgstr "Configuração"
 
@@ -676,9 +681,8 @@ msgid "You can also manage compute resources and perform actions such as stop, r
 msgstr "Pode também gerir recursos computacionais e executar acções como parar, continuar, desligar e cancelar."
 
 #: ../public/customize/custom.js:83
-#, fuzzy
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr "Adicionalmente, pode tirar um 'snapshot' do armazenamento associado a estes recursos. Eles serão guardados como novos recursos, visíveis da vista Armazenamento e reutilizáveis."
+msgstr "Adicionalmente, pode guardar o armazenamento anexado a estes recursos como novas imagens. Elas aparecerão como novos recursos, visíveis da vista de Armazenamento e reutilizáveis."
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104

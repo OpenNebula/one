@@ -3,16 +3,16 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Hsi En Yu <yun@nchc.narl.org.tw>, 2012.
+#   <davood.gh2000@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-06 10:30+0200\n"
-"PO-Revision-Date: 2012-07-05 01:46+0000\n"
-"Last-Translator: Hsi En Yu <yun@nchc.narl.org.tw>\n"
+"PO-Revision-Date: 2012-07-05 07:38+0000\n"
+"Last-Translator: davood <davood.gh2000@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: zh_TW\n"
+"Language: fa_IR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,43 +20,43 @@ msgstr ""
 
 #: ../public/js/locale.js:34
 msgid "Changing language"
-msgstr "更改語系"
+msgstr "تغییر زبان"
 
 #: ../public/js/locale.js:35
 msgid "Loading new language... please wait"
-msgstr "載入新語系中...請稍候"
+msgstr "در حال بارگزاری زبان جدید... لطفا شکیبا باشید"
 
 #: ../public/js/locale.js:53 ../public/customize/custom.js:51
 msgid "Documentation"
-msgstr "文件"
+msgstr "مستندات"
 
 #: ../public/js/locale.js:54 ../public/customize/custom.js:54
 msgid "Support"
-msgstr "支援"
+msgstr "پشتیبانی"
 
 #: ../public/js/locale.js:55 ../public/customize/custom.js:57
 msgid "Community"
-msgstr "社群"
+msgstr "انجمن"
 
 #: ../public/js/locale.js:56
 msgid "Welcome"
-msgstr "歡迎"
+msgstr "خوش آمدید"
 
 #: ../public/js/locale.js:57
 msgid "Sign out"
-msgstr "登出"
+msgstr "خروج"
 
 #: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
 #: ../public/js/plugins/compute.js:63
 msgid "All"
-msgstr "全部"
+msgstr "همه"
 
 #: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:345
 #: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
 #: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:538
 #: ../public/js/plugins/compute.js:583 ../public/js/plugins/compute.js:628
 msgid "ID"
-msgstr "ID"
+msgstr "مشخصه"
 
 #: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
 #: ../public/js/plugins/storage.js:349 ../public/js/plugins/network.js:28
@@ -64,36 +64,36 @@ msgstr "ID"
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:542
 #: ../public/js/plugins/compute.js:587 ../public/js/plugins/compute.js:632
 msgid "Name"
-msgstr "名稱"
+msgstr "نام"
 
 #: ../public/js/plugins/storage.js:41
 msgid "Fields marked with"
-msgstr "標記"
+msgstr "موارد مشخص شده با"
 
 #: ../public/js/plugins/storage.js:42
 msgid "are mandatory"
-msgstr "為必填欄位"
+msgstr "الزامی است"
 
 #: ../public/js/plugins/storage.js:47
 msgid "Name that the Image will get."
-msgstr "磁碟影像檔的名稱"
+msgstr "نامی که به این تصویر اختصاص پیدا میکند"
 
 #: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:353
 msgid "Description"
-msgstr "描述"
+msgstr "توتضیحات"
 
 #: ../public/js/plugins/storage.js:52
 msgid "Human readable description of the image."
-msgstr "供其他使用者參閱的磁碟影像檔描述"
+msgstr "توضیحات قابل فهم برای کاربران"
 
 #: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:357
 #: ../public/js/plugins/compute.js:595
 msgid "Type"
-msgstr "種類"
+msgstr "نوع"
 
 #: ../public/js/plugins/storage.js:59
 msgid "OS"
-msgstr "OS"
+msgstr "سیستم عامل"
 
 #: ../public/js/plugins/storage.js:60
 msgid "CD-ROM"
@@ -101,212 +101,212 @@ msgstr "CD-ROM"
 
 #: ../public/js/plugins/storage.js:61
 msgid "Datablock"
-msgstr "Datablock"
+msgstr "بلوک داده"
 
 #: ../public/js/plugins/storage.js:63
 msgid "Type of the image"
-msgstr "磁碟影像檔種類"
+msgstr "نوع تصویر"
 
 #: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
 msgid "Size"
-msgstr "大小"
+msgstr "حجم"
 
 #: ../public/js/plugins/storage.js:68
 msgid "Size of the datablock in MB."
-msgstr "資料區塊大小 (MB)"
+msgstr "حجم بلوک داده به مگابایت"
 
 #: ../public/js/plugins/storage.js:71
 msgid "FS type"
-msgstr "檔案系統種類"
+msgstr "نوع فایل سیستم"
 
 #: ../public/js/plugins/storage.js:73
 msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr "資料區塊內的檔案系統種類。可填寫任何mkfs unix指令所接受的參數"
+msgstr "نوع فایل سیستمی که باید ساخته شود. این پارامتر باید توسط دستور mkfs در یونیکس قابل پشتیبانی باشد"
 
 #: ../public/js/plugins/storage.js:76
 msgid "Select image to upload"
-msgstr "選擇要上傳的磁碟影像檔"
+msgstr "انتخاب تصویر برای بارگزاری"
 
 #: ../public/js/plugins/storage.js:83
 msgid "Public"
-msgstr "Public"
+msgstr "عمومی"
 
 #: ../public/js/plugins/storage.js:85
 msgid "Public scope of the image"
-msgstr "磁碟影像檔公開範圍"
+msgstr "قلمرو عمومی این تصویر"
 
 #: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:361
 msgid "Persistent"
-msgstr "存續性"
+msgstr "ماندگار"
 
 #: ../public/js/plugins/storage.js:90
 msgid "Persistence of the image"
-msgstr "磁碟影像檔存續性"
+msgstr "ماندگاری تصویر"
 
 #: ../public/js/plugins/storage.js:95 ../public/js/plugins/network.js:56
 #: ../public/js/plugins/compute.js:103
 msgid "Close"
-msgstr "關閉"
+msgstr "ببند"
 
 #: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
 #: ../public/js/plugins/compute.js:104
 msgid "Create"
-msgstr "建立"
+msgstr "بساز"
 
 #: ../public/js/plugins/storage.js:214 ../public/js/plugins/network.js:158
 #: ../public/js/plugins/compute.js:323
 msgid "Refresh list"
-msgstr "重新整理列表"
+msgstr "به روزرسانی لیست"
 
 #: ../public/js/plugins/storage.js:219 ../public/js/plugins/network.js:164
 #: ../public/js/plugins/compute.js:329
 msgid "+ New"
-msgstr "+新增"
+msgstr "+ جدید"
 
 #: ../public/js/plugins/storage.js:223
 msgid "Make persistent"
-msgstr "可存續"
+msgstr "ماندگار شود"
 
 #: ../public/js/plugins/storage.js:227
 msgid "Make non persistent"
-msgstr "非存續"
+msgstr "ماندگار نشود"
 
 #: ../public/js/plugins/storage.js:234 ../public/js/plugins/network.js:169
 msgid "Publish"
-msgstr "共用"
+msgstr "منتشر کن"
 
 #: ../public/js/plugins/storage.js:238 ../public/js/plugins/network.js:174
 msgid "Unpublish"
-msgstr "非共用"
+msgstr "منتشر نکن"
 
 #: ../public/js/plugins/storage.js:244 ../public/js/plugins/network.js:179
 #: ../public/js/plugins/compute.js:381
 msgid "Delete"
-msgstr "刪除"
+msgstr "پاک کن"
 
 #: ../public/js/plugins/storage.js:250 ../public/js/plugins/storage.js:337
 msgid "Image information"
-msgstr "磁碟影像檔資訊"
+msgstr "اطلاعات تصویر"
 
 #: ../public/js/plugins/storage.js:258
 msgid "Add storage"
-msgstr "新增儲存空間"
+msgstr "فضای ذخیره سازی اضافه کن"
 
 #: ../public/js/plugins/storage.js:264 ../public/js/plugins/dashboard.js:46
 #: ../public/customize/custom.js:68
 msgid "Storage"
-msgstr "儲存空間"
+msgstr "فضای ذخیره سازی"
 
 #: ../public/js/plugins/storage.js:341
 msgid "Image"
-msgstr "磁碟影像檔"
+msgstr "تصویر"
 
 #: ../public/js/plugins/storage.js:342 ../public/js/plugins/network.js:275
 msgid "information"
-msgstr "資訊"
+msgstr "اطلاعات"
 
 #: ../public/js/plugins/storage.js:365
 msgid "Filesystem type"
-msgstr "檔案系統種類"
+msgstr "نوع فایل سیستم"
 
 #: ../public/js/plugins/storage.js:369
 msgid "Size (Mb)"
-msgstr "大小 (Mb)"
+msgstr "حجم (مگابایت)"
 
 #: ../public/js/plugins/storage.js:503
 msgid "You must specify a name"
-msgstr "您必須指定一個名稱"
+msgstr "مشخص کردن نام الزامی است"
 
 #: ../public/js/plugins/storage.js:521
 msgid "You must specify size and FS type"
-msgstr "您必須指定大小及檔案系統種類"
+msgstr "مشخص کردن حجم و نوع فایل سیستم الزامی است"
 
 #: ../public/js/plugins/storage.js:528
 msgid "You must select a file to upload"
-msgstr "您必須選擇一個檔案上傳"
+msgstr "لطفا یک فایل برای بارگزاری انتخاب کنید"
 
 #: ../public/js/plugins/network.js:47
 msgid "Network Address"
-msgstr "網路位址"
+msgstr "آدرس شبکه ای"
 
 #: ../public/js/plugins/network.js:49
 msgid "Network Size"
-msgstr "網路大小"
+msgstr "اندازه شبکه"
 
 #: ../public/js/plugins/network.js:185
 msgid "Network information"
-msgstr "網路資訊"
+msgstr "اطلاعات شبکه ای"
 
 #: ../public/js/plugins/network.js:193
 msgid "Create network"
-msgstr "建立網路"
+msgstr "ساختن شبکه"
 
 #: ../public/js/plugins/network.js:199 ../public/js/plugins/compute.js:91
 #: ../public/js/plugins/compute.js:396 ../public/js/plugins/compute.js:655
 msgid "Networks"
-msgstr "網路"
+msgstr "شبکه ها"
 
 #: ../public/js/plugins/network.js:274
 msgid "Virtual Network"
-msgstr "虛擬網路"
+msgstr "شبکه های مجازی"
 
 #: ../public/js/plugins/network.js:286
 msgid "Used leases"
-msgstr "租用中"
+msgstr "موارد اجاره شده"
 
 #: ../public/js/plugins/network.js:293
 msgid "Address"
-msgstr "位址"
+msgstr "آدرس"
 
 #: ../public/js/plugins/network.js:307
 msgid "Virtual Network information"
-msgstr "虛擬網路資訊"
+msgstr "اطلاعات شبکه مجازی"
 
 #: ../public/js/plugins/network.js:353
 msgid "Virtual Network name missing!"
-msgstr "未填寫虛擬網路名稱!"
+msgstr "نام شبکه مجازی از جا افتاده"
 
 #: ../public/js/plugins/network.js:365
 msgid "Please provide a network address"
-msgstr "請填寫一個網路位址"
+msgstr "لطفا یک آدرس شبکه ای ارائه کنید"
 
 #: ../public/js/plugins/dashboard.js:37
 msgid "Current resources"
-msgstr "目前資源"
+msgstr "منابع کنونی"
 
 #: ../public/js/plugins/dashboard.js:42 ../public/js/plugins/compute.js:409
 #: ../public/customize/custom.js:64
 msgid "Compute"
-msgstr "計算"
+msgstr "محاسبات"
 
 #: ../public/js/plugins/dashboard.js:50 ../public/customize/custom.js:72
 msgid "Network"
-msgstr "網路"
+msgstr "شبکه"
 
 #: ../public/js/plugins/dashboard.js:62
 msgid "Useful links"
-msgstr "有用的資訊"
+msgstr "پیوندهای به درد بخور"
 
 #: ../public/js/plugins/dashboard.js:81
 msgid "Create new compute resource"
-msgstr "建立新的計算資源"
+msgstr "یک منبع محاسباتی جدید بساز"
 
 #: ../public/js/plugins/dashboard.js:82 ../public/js/plugins/dashboard.js:96
 #: ../public/js/plugins/dashboard.js:110
 msgid "See more"
-msgstr "顯示更多"
+msgstr "بیشتر ببین"
 
 #: ../public/js/plugins/dashboard.js:95
 msgid "Create new storage resource"
-msgstr "建立新的儲存空間"
+msgstr "یک منبع ذخیره سازی جدید بساز"
 
 #: ../public/js/plugins/dashboard.js:109
 msgid "Create new network resource"
-msgstr "建立新的虛擬網路"
+msgstr "یک منبع شبکه ای جدید بساز"
 
 #: ../public/js/plugins/dashboard.js:120
 msgid "Dashboard"
-msgstr "主控台"
+msgstr "داشبورد"
 
 #: ../public/js/plugins/compute.js:32 ../public/js/plugins/compute.js:554
 msgid "CPU"
@@ -314,19 +314,19 @@ msgstr "CPU"
 
 #: ../public/js/plugins/compute.js:37 ../public/js/plugins/compute.js:558
 msgid "Memory"
-msgstr "記憶體"
+msgstr "حافظه"
 
 #: ../public/js/plugins/compute.js:42
 msgid "Network transmission"
-msgstr "網路傳送"
+msgstr "ارسال شبکه ای"
 
 #: ../public/js/plugins/compute.js:47
 msgid "Network reception"
-msgstr "網路接收"
+msgstr "دریافت شبکه ای"
 
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:550
 msgid "State"
-msgstr "狀態"
+msgstr "وضعیت"
 
 #: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:636
 msgid "IP"
@@ -334,215 +334,215 @@ msgstr "IP"
 
 #: ../public/js/plugins/compute.js:76
 msgid "VM Name"
-msgstr "VM名稱"
+msgstr "نام ماشین مجازی"
 
 #: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:546
 msgid "Instance type"
-msgstr "機器類型"
+msgstr "نوع مورد"
 
 #: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1010
 msgid "Loading"
-msgstr "載入中"
+msgstr "بارگزاری"
 
 #: ../public/js/plugins/compute.js:86
 msgid "Images"
-msgstr "磁碟影像檔"
+msgstr "تصاویر"
 
 #: ../public/js/plugins/compute.js:97
 msgid "Create # VMs"
-msgstr "VM創建數目"
+msgstr "ساختن # ماشین مجازی"
 
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;. When creating several VMs, &#37; will be replaced with a different number starting from 0 in each of them"
-msgstr "當建立n個VM時，你可以在VM名稱中使用通用變數 &#37;，%i將會被替換為0至n-1的不同數字"
+msgstr "میتوانید ازwildcard هم استفاده کنید. به عنوان مثال، زمانی که تعدادی ماشین مجازی میسازید، با استفاده از &#37; هرماشین شماره متفاوتی که از 0 شروع میشود میگیرد."
 
 #: ../public/js/plugins/compute.js:335
 msgid "Shutdown"
-msgstr "關機"
+msgstr "خاموش کن"
 
 #: ../public/js/plugins/compute.js:336
 msgid "This will shutdown the selected VMs"
-msgstr "所有被選取的VM將會關機"
+msgstr "ماشین مجازی انتخاب شده را خاموش میکند"
 
 #: ../public/js/plugins/compute.js:344
 msgid "Suspend"
-msgstr "暫停"
+msgstr "معلق کن"
 
 #: ../public/js/plugins/compute.js:345
 msgid "This will suspend the selected VMs"
-msgstr "所有被選取的VM將會暫停"
+msgstr "ماشین مجازی انتخاب شده را به حالت تعلیق می برد"
 
 #: ../public/js/plugins/compute.js:349
 msgid "Resume"
-msgstr "繼續"
+msgstr "ادامه بده"
 
 #: ../public/js/plugins/compute.js:350
 msgid "This will resume the selected VMs in stopped or suspended states"
-msgstr "所有被選取的停止或暫停中VM將會繼續"
+msgstr "ماشین مجازی انتخاب شده معلق یا ازکار افتاده را به کار می اندازد"
 
 #: ../public/js/plugins/compute.js:354
 msgid "Stop"
-msgstr "停止"
+msgstr "از کار بینداز"
 
 #: ../public/js/plugins/compute.js:359
 msgid "Reboot"
-msgstr "重新開機"
+msgstr "ازنو راه اندازی کن"
 
 #: ../public/js/plugins/compute.js:364
 msgid "Reset"
-msgstr "重設"
+msgstr "بازنشانی کن"
 
 #: ../public/js/plugins/compute.js:369 ../public/js/plugins/compute.js:837
 #: ../../../../../sunstone/public/js/sunstone.js:663
 #: ../../../../../sunstone/public/js/sunstone.js:695
 msgid "Cancel"
-msgstr "取消"
+msgstr "قلم بزن"
 
 #: ../public/js/plugins/compute.js:370
 msgid "This will cancel selected VMs"
-msgstr "所有被選取的VM將會取消"
+msgstr "ماشین مجازی انتخاب شده را قلم میزند"
 
 #: ../public/js/plugins/compute.js:374 ../public/js/plugins/compute.js:826
 msgid "Take snapshot"
-msgstr "進行快照"
+msgstr "تصویر لحظه ای بگیر"
 
 #: ../public/js/plugins/compute.js:382
 msgid "This will delete the selected VMs from the database"
-msgstr "選取的VM將會從資料庫刪除"
+msgstr "ماشین مجازی انتخاب شده را از پایگاه داده حذف میکند"
 
 #: ../public/js/plugins/compute.js:388
 msgid "Compute resource"
-msgstr "計算資源"
+msgstr "منبع محاسبات"
 
 #: ../public/js/plugins/compute.js:392 ../public/js/plugins/compute.js:610
 msgid "Disks"
-msgstr "磁碟"
+msgstr "دیسکها"
 
 #: ../public/js/plugins/compute.js:403
 msgid "Create Virtual Machine"
-msgstr "建立虛擬機器"
+msgstr "ماشین مجازی بساز"
 
 #: ../public/js/plugins/compute.js:530
 msgid "VM information"
-msgstr "VM資訊"
+msgstr "اطلاعات ماشین مجازی"
 
 #: ../public/js/plugins/compute.js:534
 msgid "Virtual Machine information"
-msgstr "虛擬機器資訊"
+msgstr "اطلاعات ماشین مجازی"
 
 #: ../public/js/plugins/compute.js:562
 msgid "Launch VNC session"
-msgstr "啟動VNC連線"
+msgstr "یک ارتباط VNC برقرار کن"
 
 #: ../public/js/plugins/compute.js:573
 msgid "Disks information"
-msgstr "磁碟資訊"
+msgstr "اطلاعات دیسک"
 
 #: ../public/js/plugins/compute.js:591
 msgid "Target"
-msgstr "目的裝置名稱"
+msgstr "هدف"
 
 #: ../public/js/plugins/compute.js:602 ../public/js/plugins/compute.js:933
 msgid "No disks defined"
-msgstr "未定義任何磁碟"
+msgstr "دیسکی تعریف نشده"
 
 #: ../public/js/plugins/compute.js:616
 msgid "Networks information"
-msgstr "網路資訊"
+msgstr "اطلاعات شبکه"
 
 #: ../public/js/plugins/compute.js:640
 msgid "MAC"
-msgstr "MAC"
+msgstr "آدرس فیزیکی شبکه"
 
 #: ../public/js/plugins/compute.js:647
 msgid "No networks defined"
-msgstr "未定義任何網路"
+msgstr "شبکه ای تعریف نکرده اید"
 
 #: ../public/js/plugins/compute.js:661
 msgid "Monitoring information"
-msgstr "監測資訊"
+msgstr "اطلاعات نظارتی"
 
 #: ../public/js/plugins/compute.js:836
 #: ../../../../../sunstone/public/js/sunstone.js:662
 #: ../../../../../sunstone/public/js/sunstone.js:694
 msgid "OK"
-msgstr "確定"
+msgstr "باشه"
 
 #: ../public/js/plugins/compute.js:859
 msgid "Skipping VM "
-msgstr "略過VM"
+msgstr "از قلم انداختن ماشین مجازی"
 
 #: ../public/js/plugins/compute.js:860
 msgid "No disk id or image name specified"
-msgstr "未指定任何磁碟id或影像檔"
+msgstr "هیچ مشخصه دیسک یا تصویری انتخاب نشده"
 
 #: ../public/js/plugins/compute.js:896
 msgid "Saveas for VM with ID"
-msgstr "將VM另存為磁碟影像檔: VM ID"
+msgstr "ذخیره سازی جدای ماشین با مشخصه"
 
 #: ../public/js/plugins/compute.js:899
 msgid "Select disk"
-msgstr "選擇磁碟"
+msgstr "انتخاب دیسک"
 
 #: ../public/js/plugins/compute.js:901
 msgid "Retrieving"
-msgstr "查詢中"
+msgstr "درحال بازیابی"
 
 #: ../public/js/plugins/compute.js:905
 msgid "Image name"
-msgstr "磁碟影像檔名稱"
+msgstr "نام تصویر"
 
 #: ../public/js/plugins/compute.js:925 ../public/js/plugins/compute.js:928
 msgid "disk id"
-msgstr "磁碟id"
+msgstr "مشخصه دیسک"
 
 #: ../public/js/plugins/compute.js:1003
 msgid "VNC connection"
-msgstr "VNC連線階段"
+msgstr "ارتباط VNC"
 
 #: ../public/js/plugins/compute.js:1018
 msgid "Canvas not supported."
-msgstr "不支援Canvas"
+msgstr "Canvas پشتیبانی نمی شود"
 
 #: ../public/js/plugins/compute.js:1079 ../public/js/plugins/compute.js:1095
 msgid "Open VNC Session"
-msgstr "開啟VNC連線"
+msgstr "ارتباط VNC برقرارکن"
 
 #: ../public/js/plugins/compute.js:1082 ../public/js/plugins/compute.js:1098
 msgid "VNC Disabled"
-msgstr "VNC已停用"
+msgstr "VNC ازکار افتاد"
 
 #: ../public/js/plugins/configuration.js:23
 msgid "Self-Service UI Configuration"
-msgstr "自助服務使用者介面設定"
+msgstr "پیکربندی محیط گرافیکی Self-Service"
 
 #: ../public/js/plugins/configuration.js:28
 msgid "Language"
-msgstr "語系"
+msgstr "زبان"
 
 #: ../public/js/plugins/configuration.js:31
 msgid "English"
-msgstr "English - 英文"
+msgstr "انگلیسی"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "Chinese"
-msgstr "Chinese - 正體中文(台灣)"
+msgstr "چینی"
 
 #: ../public/js/plugins/configuration.js:33
 msgid "French (CA)"
-msgstr "French (CA) - 法文(加拿大)"
+msgstr "فرانسوی (CA)"
 
 #: ../public/js/plugins/configuration.js:34
 msgid "French (FR)"
-msgstr "French (FR) - 法文(法國)"
+msgstr "فرانسوی (FR)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
-msgstr "German - 德文"
+msgstr "آلمانی"
 
 #: ../public/js/plugins/configuration.js:36
 msgid "Italian"
-msgstr "Italian - 義大利文"
+msgstr "ایتالیایی"
 
 #: ../public/js/plugins/configuration.js:37
 msgid "Persian (IR)"
@@ -550,172 +550,172 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Portuguese (BR)"
-msgstr "Portuguese(BR) - 葡萄牙文(巴西)"
+msgstr "پرتقالی (BR)"
 
 #: ../public/js/plugins/configuration.js:39
 msgid "Portuguese (PT)"
-msgstr "Portuguese(PT) - 葡萄牙文(葡萄牙)"
+msgstr "پرتقالی (PT)"
 
 #: ../public/js/plugins/configuration.js:40
 msgid "Slovak"
-msgstr "Slovak - 斯洛伐克文"
+msgstr "اسلواکی"
 
 #: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
-msgstr "Spanish - 西班牙文"
+msgstr "اسپانیایی"
 
 #: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
-msgstr "設定"
+msgstr "پیکربندی"
 
 #: ../../../../../sunstone/public/js/sunstone.js:588
 msgid "Previous action"
-msgstr "先前操作"
+msgstr "عمل قبلی"
 
 #: ../../../../../sunstone/public/js/sunstone.js:651
 #: ../../../../../sunstone/public/js/sunstone.js:685
 msgid "Confirmation of action"
-msgstr "操作確認"
+msgstr "تایید عمل"
 
 #: ../../../../../sunstone/public/js/sunstone.js:657
 msgid "You have to confirm this action."
-msgstr "請確認這個操作"
+msgstr "لازم است این عمل را تایید نمایید"
 
 #: ../../../../../sunstone/public/js/sunstone.js:659
 msgid "Do you want to proceed?"
-msgstr "您是否確定要繼續執行?"
+msgstr "آیا میخواهید ادامه دهید؟"
 
 #: ../../../../../sunstone/public/js/sunstone.js:690
 msgid "You need to select something."
-msgstr "未選取任何項目"
+msgstr "لازم است یکی را انتخاب کنید"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:206
 msgid "Submitted"
-msgstr "已執行"
+msgstr "ارائه شد"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:223
 msgid "Error"
-msgstr "錯誤"
+msgstr "خطا"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:229
 msgid "Info"
-msgstr "訊息"
+msgstr "اطلاعات"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:361
 msgid "Cannot contact server: is it running and reachable?"
-msgstr "無法連線至伺服器:請確認伺服器運行狀態或網路連線狀況?"
+msgstr "نمیتوان با سرور ارتباط برقرار کرد: آیا سرور عملیاتی و در دسترس است؟"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:369
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr "網路連線失敗: 請確認OpenNebula是否仍運行中?"
+msgstr "امکان دسترسی به شبکه نیست: آیا OpenNebula در حال اجرا است؟"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:390
 msgid "Unauthorized"
-msgstr "未經授權"
+msgstr "غیر مجاز است"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:581
 #: ../../../../../sunstone/public/js/sunstone-util.js:801
 msgid "Please select"
-msgstr "請選擇"
+msgstr "لطفا انتخاب کنید"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:724
 msgid "Update template"
-msgstr "修改範本"
+msgstr "به روز رسانی قالب"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:730
 msgid "Please, choose and modify the template you want to update"
-msgstr "請選擇您想修改的範本"
+msgstr "لطفا قالبی که میخواهید به روز رسانی کنید را انتخاب و تغییر دهید"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:732
 #: ../../../../../sunstone/public/js/sunstone-util.js:735
 msgid "Select a template"
-msgstr "選擇一個範本"
+msgstr "انتخاب یک قالب"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:740
 msgid "Update"
-msgstr "更新"
+msgstr "به روزرسانی کن"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:1020
 msgid "Please select an element"
-msgstr "請選擇一個元素"
+msgstr "لطفا یک عنصر انتخاب کنید"
 
 #: ../public/customize/custom.js:18
 msgid "String"
-msgstr "字串"
+msgstr "جریان"
 
 #: ../public/customize/custom.js:39
 msgid "Welcome to OpenNebula Self-Service"
-msgstr "歡迎使用 OpenNebula 自助服務"
+msgstr "به محیط Sel-Service کنترل پنل OpenNebula خوش آمدید"
 
 #: ../public/customize/custom.js:41
 msgid "OpenNebula Self-Service is a simplified user interface to manage OpenNebula compute, storage and network resources. It is focused on easiness and usability and features a limited set of operations directed towards end-users."
-msgstr "OpenNebula自助服務是一個用來管理OpenNebula計算、儲存及網路資源的操作介面。它可以提供使用者一個容易使用的操作環境"
+msgstr "Self-Service کنترل پنل OpenNebula، محیط گرافیکی ساده شده ای است تا کاربران بتوانند فضای محاسبات، ذخیره سازی و منابع شبکه ای را مدیریت کنند. سادگی و کار راه اندازی از جمله نقاط قوت این محیط است و کاربر نهایی را قادر میسازد تا عملیات لازم بر روی فضای خود انجام دهد."
 
 #: ../public/customize/custom.js:42
 msgid "Additionally, OpenNebula Self-Service allows easy customization of the interface (e.g. this text) and brings multi-language support."
-msgstr "此外，OpenNebula自助服務允許簡易地修改介面(例如這段文字)，並支援多國語系"
+msgstr "در مجموع، Self-Service کنترل پنل OpenNebula به شما امکان تغییر پیکربندی آسان محیط گرافیکی را می دهد(به عنوان مثال همین نوشته)، و از چندین زبان پشتیبانی میکند."
 
 #: ../public/customize/custom.js:43
 msgid "Have a cloudy experience!"
-msgstr "祝您有個愉快的雲端使用體驗!"
+msgstr "تجربه ابری ای داشته باشید!"
 
 #: ../public/customize/custom.js:66
 msgid "Compute resources are Virtual Machines attached to storage and network resources. OpenNebula Self-Service allows you to easily create, remove and manage them, including the possibility of pausing a Virtual Machine or taking a snapshot of one of their disks."
-msgstr "計算資源是附加了儲存空間及虛擬網路的虛擬機器。OpenNebula自助服務能讓您輕易的創建、關閉及管理計算資源，其中包含了暫停VM或是對計算資源的磁碟空間進行快照"
+msgstr "منابع محاسباتی، ماشین های مجازی ای هستند که به فضای ذخیره سازی و منابع شبکه ای متصل می شوند. Self-Service کنترل پنل OpenNebula به شما اجازه میدهد تا به راحتی این ماشین ها را بسازید، پاک کنید، و مدیریت کنید. ویژگی های دیگر نظیر توقف موقت ماشین, یا گرفت یک کپی از دیسک های آنها نیز طراحی شده."
 
 #: ../public/customize/custom.js:70
 msgid "Storage pool is formed by several images. These images can contain from full operating systems to be used as base for compute resources, to simple data. OpenNebula Self-Service offers you the possibility to create or upload your own images."
-msgstr "Storage存儲庫是由許多磁碟影像檔所集合而成。這些影像檔可能包含完整的作業系統供VM開機使用，也可能僅存放簡單的資料。OpenNebula 自助服務能夠讓您創建或是上傳您自己的磁碟影像檔"
+msgstr "منبع ذخیره سازی، از چندین تصویر ساخته می شود. این تصاویر میتوانند یک سیستم عامل کامل برای پایه یک ماشین محاسباتی، و یا یک فضای ذخیره سازی داده باشند. Self-Service کنترل پنل OpenNebula اجازه میدهند تا شما بتوانید تصاویر دلخواه خودتان را بسازید و یا از کامپیوتر شخصی خود بارگزاری کنید."
 
 #: ../public/customize/custom.js:74
 msgid "Your compute resources connectivity is performed using pre-defined virtual networks. You can create and manage these networks using OpenNebula Self-Service."
-msgstr "您的計算資源必須依靠預先定義好的虛擬網路來對外連線。您可以透過OpenNebula 自助服務來建立及管理虛擬網路"
+msgstr "ارتباطات منابع محاسباتی شما توسط شبکه های مجازی پیش ساخته ای انجام می شود. شما میتوانید از طریق محیط Self-Service کنترل پنل OpenNebula این شبکه های مجازی را مدیریت کنید."
 
 #: ../public/customize/custom.js:81
 msgid "This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking 'new' and filling-in an easy wizard."
-msgstr "這是您目前的計算資源使用列表，在使用虛擬機器之前必須先定義好磁碟影像檔及虛擬網路。您可以點選new並填寫表單，來快速的建立新的虛擬機器"
+msgstr "این لیستی از منابع محاسباتی کنونی شماست. ماشینهای مجازی از تصاویر و شبکه های از پیش تعریف شده استفاده میکنند. شما میتوانید به سادگی یک واحد محاسباتی بسازید. برای این کار بر روی 'جدید' کلیک کرده و فرم ساده پیش رو را پر نمایید."
 
 #: ../public/customize/custom.js:82
 msgid "You can also manage compute resources and perform actions such as stop, resume, shutdown or cancel."
-msgstr "您可以在左方的列表中輕鬆管理您所擁有的計算資源，例如停止, 繼續, 關機或取消等動作"
+msgstr "همچنین شما میتوانید منابع محاسباتی خود را مدیریت کرده و اعمالی نظیر از کار انداختن، به کار انداختن، خاموش کردن و یا پاک کردن را بر روی آنها انجام دهید."
 
 #: ../public/customize/custom.js:83
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr "此外，你可以將附掛在這些資源上的儲存空間另存為磁碟影像檔。它們將會成為新的儲存資源，您可以在儲存頁面中檢視並使用它們。"
+msgstr "همچنین میتوانید عناصر ذخیره سازی متصل به این منابع را به عنوان یک تصویر جدید ذخیره کنید. پس از این کار، این تصاویر جدید در نمای ذخیره سازی قابل مشاهده خواهند بود."
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104
 msgid "There are currently"
-msgstr "目前已有"
+msgstr "هم اکنون تعدادی"
 
 #: ../public/customize/custom.js:85
 msgid "virtual machines"
-msgstr "虛擬機器"
+msgstr "ماشین های مجازی"
 
 #: ../public/customize/custom.js:91
 msgid "The Storage view offers you an overview of your current images. Storage elements are attached to compute resources at creation time. They can also be extracted from running virtual machines by taking an snapshot."
-msgstr "Storage介面提供你目前所擁有的磁碟影像檔列表，當創建虛擬機器時，Storage可以被掛載至VM上。這些Storage可以在VM運行時進行snapshot"
+msgstr "نمای ذخیره سازی، یک دید کلی از تصاویر کنونی به شما می دهد. عناصر ذخیره ای در زمان ساخت منابع محاسباتی به آنها اضافه می شوند. در ضمن، میتوان با گرفتن یک تصویر آنی از فضای ذخیره سازی یک ماشین روشن, به اطلاعات داخل آن دست پیدا کرد."
 
 #: ../public/customize/custom.js:92
 msgid "You can add new storages by clicking 'new'. Image files will be uploaded to OpenNebula and set ready to be used."
-msgstr "請按下new鍵來創建新的的儲存空間。磁碟影像檔將會上傳至OpenNebula並註冊為可用狀態"
+msgstr "میتوانید با کلیک کردن بر روی 'جدید' یک منبع ذخیره سازی بسازید. فایل های تصاویر در زیرساخت OpenNebula بارگزاری میشود و پس از آن، با رفتن به حالت آماده, قابل استفاده خواهند بود."
 
 #: ../public/customize/custom.js:93
 msgid "Additionally, you can run several operations on defined storages, such as defining their persistance. Persistent images can only be used by 1 virtual machine, and the changes made by it have effect on the base image. Non-persistent images are cloned before being used in a Virtual Machine, therefore changes are lost unless a snapshot is taken prior to Virtual Machine shutdown."
-msgstr "此外，您可以對儲存空間進行某些動作，例如設定其存續性。可存續影像檔同一時間只能被一個虛擬機器所使用，所有的磁碟動作都會直接寫入影像檔。非存續影像檔則會在虛擬機器使用前，先行複製一份，當虛擬機器關機時，所有的磁碟異動也會隨著一併消滅"
+msgstr "در اضافه، میتوانید اعمال مختلفی بر روی منابع ذخیره سازی انجام دهید. به عنوان مثال میتوان به ماندگاری آنها اشاره کرد. تصاویر ماندگار، تنها از طریق 1 ماشین مجازی استفاده می شوند، و تغییراتی که بر روی آنها صورت میگیرد، بر روی تصویر پایه ذخیره می شود. تصاویر غیر ماندگار قبل از استفاده در ماشین های مجازی کپی گرفته می شوند، بنابراین تغییرات اعمال شده پس از خاموش شدن آن ماشین از بین می روند، مگر آنکه از قبل از خاموش شدن, از آن تصویر آنی گرفته شده باشد."
 
 #: ../public/customize/custom.js:95
 msgid "images"
-msgstr "磁碟影像檔"
+msgstr "تصاویر"
 
 #: ../public/customize/custom.js:101
 msgid "In this view you can easily manage OpenNebula Network resources. You can add or remove virtual networks."
-msgstr "在此頁面中，您可以輕易地管理OpenNebula虛擬網路資源。您可以新增或移除虛擬網路"
+msgstr "در این نما, شما می توانید به آسانی منابع شبکه ای OpenNebula را مدیریت کنید. به عنوان مثال قادرید شبکه های مجازی اضافه کنید یا حذف کنید."
 
 #: ../public/customize/custom.js:102
 msgid "Compute resources can be attached to these networks at creation time. Virtual machines will be provided with an IP and the correct parameters to ensure connectivity."
-msgstr "當建立計算資源時，可以附加虛擬網路。虛擬機器將會被分配到適當的IP，透過虛擬網路來對外連線"
+msgstr "منابع محاسباتی در هنگام ساخت به این شبکه ها اختصاص داده می شوند. به ماشین های مجازی پارامترهای صحیح شبکه ای مثل آدرس IP ارائه می شود تا از ارتباط آن اطمینان حاصل شود."
 
 #: ../public/customize/custom.js:105
 msgid "networks"
-msgstr "虛擬網路"
+msgstr "شبکه ها"

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 14:58+0200\n"
-"PO-Revision-Date: 2012-06-29 08:11+0000\n"
+"POT-Creation-Date: 2012-07-06 10:30+0200\n"
+"PO-Revision-Date: 2012-07-04 14:24+0000\n"
 "Last-Translator: Ján Beňadik <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sk_SK\n"
@@ -526,41 +526,45 @@ msgstr "Anglicky"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "Chinese"
-msgstr ""
+msgstr "Čínsky"
 
 #: ../public/js/plugins/configuration.js:33
-msgid "French (FR)"
-msgstr "Francúzsky (FR)"
-
-#: ../public/js/plugins/configuration.js:34
 msgid "French (CA)"
 msgstr "Francúzsky (CA)"
 
+#: ../public/js/plugins/configuration.js:34
+msgid "French (FR)"
+msgstr "Francúzsky (FR)"
+
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
-msgstr ""
+msgstr "Nemecky"
 
 #: ../public/js/plugins/configuration.js:36
 msgid "Italian"
-msgstr ""
+msgstr "Taliansky"
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Portuguese (PT)"
+msgid "Persian (IR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Portuguese (BR)"
-msgstr ""
+msgstr "Portugalsky (BR)"
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Slovak"
-msgstr ""
+msgid "Portuguese (PT)"
+msgstr "Portugalsky (PT)"
 
 #: ../public/js/plugins/configuration.js:40
+msgid "Slovak"
+msgstr "Slovensky"
+
+#: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
 msgstr "Španielsky"
 
-#: ../public/js/plugins/configuration.js:62
+#: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
 msgstr "Konfigurácia"
 
@@ -676,9 +680,8 @@ msgid "You can also manage compute resources and perform actions such as stop, r
 msgstr "Môžeš tiež manažovať zdroje a vykonávať akcie, ako zastaviť, znovu spustiť, shutdown alebo zrušiť."
 
 #: ../public/customize/custom.js:83
-#, fuzzy
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr "Navyše - môžeš urobiť snapshot disku pripojeného ku týmto zdrojom. Tento bude uložený ako nový zdroj, viditeľný zo storage a znovu použiteľný."
+msgstr "Navyše, storage pripojený k týmto zdrojom môžeš uložiť ako obraz. Ten sa objaví ako nový zdroj, viditeľný a znovu-použiteľný zo Storage pohľadu."
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104
