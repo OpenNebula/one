@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 12:51+0200\n"
-"PO-Revision-Date: 2012-07-03 17:22+0000\n"
-"Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
+"POT-Creation-Date: 2012-07-06 11:48+0200\n"
+"PO-Revision-Date: 2012-07-04 14:21+0000\n"
+"Last-Translator: Ján Beňadik <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sk_SK\n"
 "MIME-Version: 1.0\n"
@@ -130,14 +130,14 @@ msgstr "Úprava"
 msgid "Please select an element"
 msgstr "Vyber prvok"
 
-#: ../public/js/monitoring.js:99 ../public/js/plugins/clusters-tab.js:558
-#: ../public/js/plugins/clusters-tab.js:559
-#: ../public/js/plugins/clusters-tab.js:568
-#: ../public/js/plugins/clusters-tab.js:578
-#: ../public/js/plugins/clusters-tab.js:665
-#: ../public/js/plugins/clusters-tab.js:666
-#: ../public/js/plugins/clusters-tab.js:675
-#: ../public/js/plugins/clusters-tab.js:685
+#: ../public/js/monitoring.js:99 ../public/js/plugins/clusters-tab.js:555
+#: ../public/js/plugins/clusters-tab.js:556
+#: ../public/js/plugins/clusters-tab.js:565
+#: ../public/js/plugins/clusters-tab.js:575
+#: ../public/js/plugins/clusters-tab.js:662
+#: ../public/js/plugins/clusters-tab.js:663
+#: ../public/js/plugins/clusters-tab.js:672
+#: ../public/js/plugins/clusters-tab.js:682
 msgid "No monitoring information available"
 msgstr "Žiadne údaje z monitoringu nie sú dostupné"
 
@@ -152,13 +152,13 @@ msgstr "Obchodný trh OpenNebula"
 #: ../public/js/plugins/marketplace-tab.js:100
 #: ../public/js/plugins/marketplace-tab.js:152
 #: ../public/js/plugins/acls-tab.js:30 ../public/js/plugins/acls-tab.js:237
-#: ../public/js/plugins/vnets-tab.js:28 ../public/js/plugins/vnets-tab.js:563
+#: ../public/js/plugins/vnets-tab.js:28 ../public/js/plugins/vnets-tab.js:574
 #: ../public/js/plugins/clusters-tab.js:29
-#: ../public/js/plugins/clusters-tab.js:546
-#: ../public/js/plugins/clusters-tab.js:652 ../public/js/plugins/vms-tab.js:69
+#: ../public/js/plugins/clusters-tab.js:543
+#: ../public/js/plugins/clusters-tab.js:649 ../public/js/plugins/vms-tab.js:69
 #: ../public/js/plugins/vms-tab.js:961
 #: ../public/js/plugins/datastores-tab.js:29
-#: ../public/js/plugins/datastores-tab.js:451
+#: ../public/js/plugins/datastores-tab.js:462
 #: ../public/js/plugins/hosts-tab.js:46
 #: ../public/js/plugins/templates-tab.js:28
 #: ../public/js/plugins/templates-tab.js:949
@@ -172,17 +172,17 @@ msgstr "ID"
 
 #: ../public/js/plugins/marketplace-tab.js:101
 #: ../public/js/plugins/vnets-tab.js:31 ../public/js/plugins/vnets-tab.js:58
-#: ../public/js/plugins/vnets-tab.js:128 ../public/js/plugins/vnets-tab.js:567
+#: ../public/js/plugins/vnets-tab.js:128 ../public/js/plugins/vnets-tab.js:578
 #: ../public/js/plugins/clusters-tab.js:30
 #: ../public/js/plugins/clusters-tab.js:44
-#: ../public/js/plugins/clusters-tab.js:550
-#: ../public/js/plugins/clusters-tab.js:656 ../public/js/plugins/vms-tab.js:72
+#: ../public/js/plugins/clusters-tab.js:547
+#: ../public/js/plugins/clusters-tab.js:653 ../public/js/plugins/vms-tab.js:72
 #: ../public/js/plugins/vms-tab.js:965
 #: ../public/js/plugins/datastores-tab.js:32
 #: ../public/js/plugins/datastores-tab.js:54
-#: ../public/js/plugins/datastores-tab.js:455
+#: ../public/js/plugins/datastores-tab.js:466
 #: ../public/js/plugins/hosts-tab.js:47 ../public/js/plugins/hosts-tab.js:79
-#: ../public/js/plugins/hosts-tab.js:666
+#: ../public/js/plugins/hosts-tab.js:677
 #: ../public/js/plugins/templates-tab.js:31
 #: ../public/js/plugins/templates-tab.js:79
 #: ../public/js/plugins/templates-tab.js:481
@@ -234,7 +234,7 @@ msgstr "Info o zariadení"
 
 #: ../public/js/plugins/marketplace-tab.js:156
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ../public/js/plugins/marketplace-tab.js:164
 msgid "Downloads"
@@ -306,10 +306,10 @@ msgstr "Pravidlo aplikované na"
 
 #: ../public/js/plugins/acls-tab.js:57 ../public/js/plugins/acls-tab.js:269
 #: ../public/js/plugins/clusters-tab.js:31
-#: ../public/js/plugins/clusters-tab.js:594
-#: ../public/js/plugins/clusters-tab.js:701
-#: ../public/js/plugins/clusters-tab.js:810
-#: ../public/js/plugins/hosts-tab.js:38 ../public/js/plugins/hosts-tab.js:359
+#: ../public/js/plugins/clusters-tab.js:591
+#: ../public/js/plugins/clusters-tab.js:698
+#: ../public/js/plugins/clusters-tab.js:807
+#: ../public/js/plugins/hosts-tab.js:38 ../public/js/plugins/hosts-tab.js:370
 #: ../public/js/plugins/infra-tab.js:34
 #: ../public/js/plugins/dashboard-tab.js:25
 msgid "Hosts"
@@ -317,7 +317,7 @@ msgstr "Hosty"
 
 #: ../public/js/plugins/acls-tab.js:58 ../public/js/plugins/acls-tab.js:290
 #: ../public/js/plugins/clusters-tab.js:21
-#: ../public/js/plugins/clusters-tab.js:256
+#: ../public/js/plugins/clusters-tab.js:253
 #: ../public/js/plugins/infra-tab.js:30
 #: ../public/js/plugins/dashboard-tab.js:75
 msgid "Clusters"
@@ -325,11 +325,11 @@ msgstr "Clustre"
 
 #: ../public/js/plugins/acls-tab.js:59 ../public/js/plugins/acls-tab.js:293
 #: ../public/js/plugins/clusters-tab.js:33
-#: ../public/js/plugins/clusters-tab.js:607
-#: ../public/js/plugins/clusters-tab.js:715
-#: ../public/js/plugins/clusters-tab.js:817
+#: ../public/js/plugins/clusters-tab.js:604
+#: ../public/js/plugins/clusters-tab.js:712
+#: ../public/js/plugins/clusters-tab.js:814
 #: ../public/js/plugins/datastores-tab.js:21
-#: ../public/js/plugins/datastores-tab.js:352
+#: ../public/js/plugins/datastores-tab.js:363
 #: ../public/js/plugins/infra-tab.js:38
 msgid "Datastores"
 msgstr "Dátové sklady"
@@ -342,11 +342,11 @@ msgid "Virtual Machines"
 msgstr "Virtuálne stroje - VS"
 
 #: ../public/js/plugins/acls-tab.js:61 ../public/js/plugins/acls-tab.js:275
-#: ../public/js/plugins/vnets-tab.js:20 ../public/js/plugins/vnets-tab.js:479
+#: ../public/js/plugins/vnets-tab.js:20 ../public/js/plugins/vnets-tab.js:490
 #: ../public/js/plugins/clusters-tab.js:32
-#: ../public/js/plugins/clusters-tab.js:620
-#: ../public/js/plugins/clusters-tab.js:731
-#: ../public/js/plugins/clusters-tab.js:824
+#: ../public/js/plugins/clusters-tab.js:617
+#: ../public/js/plugins/clusters-tab.js:728
+#: ../public/js/plugins/clusters-tab.js:821
 #: ../public/js/plugins/infra-tab.js:42
 #: ../public/js/plugins/vresources-tab.js:43
 msgid "Virtual Networks"
@@ -354,7 +354,7 @@ msgstr "Virtuálne siete"
 
 #: ../public/js/plugins/acls-tab.js:62 ../public/js/plugins/acls-tab.js:278
 #: ../public/js/plugins/dashboard-users-tab.js:114
-#: ../public/js/plugins/datastores-tab.js:483
+#: ../public/js/plugins/datastores-tab.js:494
 #: ../public/js/plugins/vresources-tab.js:47
 #: ../public/js/plugins/images-tab.js:20
 #: ../public/js/plugins/images-tab.js:529
@@ -399,13 +399,13 @@ msgstr "Zdroj ID"
 
 #: ../public/js/plugins/acls-tab.js:75 ../public/js/plugins/acls-tab.js:241
 #: ../public/js/plugins/vnets-tab.js:30 ../public/js/plugins/vnets-tab.js:190
-#: ../public/js/plugins/vnets-tab.js:579 ../public/js/plugins/vnets-tab.js:604
+#: ../public/js/plugins/vnets-tab.js:590 ../public/js/plugins/vnets-tab.js:615
 #: ../public/js/plugins/vms-tab.js:71 ../public/js/plugins/vms-tab.js:148
 #: ../public/js/plugins/vms-tab.js:973 ../public/js/plugins/vms-tab.js:1002
 #: ../public/js/plugins/datastores-tab.js:31
 #: ../public/js/plugins/datastores-tab.js:112
-#: ../public/js/plugins/datastores-tab.js:463
-#: ../public/js/plugins/datastores-tab.js:492
+#: ../public/js/plugins/datastores-tab.js:474
+#: ../public/js/plugins/datastores-tab.js:503
 #: ../public/js/plugins/templates-tab.js:30
 #: ../public/js/plugins/templates-tab.js:616
 #: ../public/js/plugins/templates-tab.js:961
@@ -470,21 +470,21 @@ msgstr "ACL reťazce - prezeranie"
 msgid "Reset"
 msgstr "Reset"
 
-#: ../public/js/plugins/acls-tab.js:164 ../public/js/plugins/vnets-tab.js:424
-#: ../public/js/plugins/clusters-tab.js:223
+#: ../public/js/plugins/acls-tab.js:164 ../public/js/plugins/vnets-tab.js:435
+#: ../public/js/plugins/clusters-tab.js:220
 #: ../public/js/plugins/vms-tab.js:500
-#: ../public/js/plugins/datastores-tab.js:297
-#: ../public/js/plugins/hosts-tab.js:303
+#: ../public/js/plugins/datastores-tab.js:308
+#: ../public/js/plugins/hosts-tab.js:314
 #: ../public/js/plugins/templates-tab.js:805
 #: ../public/js/plugins/users-tab.js:368
 #: ../public/js/plugins/images-tab.js:458
 msgid "+ New"
 msgstr "+Nový"
 
-#: ../public/js/plugins/acls-tab.js:168 ../public/js/plugins/vnets-tab.js:457
-#: ../public/js/plugins/clusters-tab.js:232
+#: ../public/js/plugins/acls-tab.js:168 ../public/js/plugins/vnets-tab.js:468
+#: ../public/js/plugins/clusters-tab.js:229
 #: ../public/js/plugins/vms-tab.js:612
-#: ../public/js/plugins/datastores-tab.js:329
+#: ../public/js/plugins/datastores-tab.js:340
 #: ../public/js/plugins/templates-tab.js:836
 #: ../public/js/plugins/users-tab.js:421
 #: ../public/js/plugins/groups-tab.js:254
@@ -537,7 +537,7 @@ msgid "Total VMs"
 msgstr "Celkový počet virtuálnych strojov"
 
 #: ../public/js/plugins/dashboard-users-tab.js:49
-#: ../public/js/plugins/vms-tab.js:977 ../public/js/plugins/hosts-tab.js:674
+#: ../public/js/plugins/vms-tab.js:977 ../public/js/plugins/hosts-tab.js:685
 #: ../public/js/plugins/images-tab.js:669
 #: ../public/js/plugins/dashboard-tab.js:31
 #: ../public/js/plugins/dashboard-tab.js:115
@@ -566,7 +566,7 @@ msgstr "Dashboard"
 
 #: ../public/js/plugins/dashboard-users-tab.js:101
 msgid "VMS"
-msgstr ""
+msgstr "VS"
 
 #: ../public/js/plugins/dashboard-users-tab.js:103
 #: ../public/js/plugins/vms-tab.js:33 ../public/js/plugins/vms-tab.js:75
@@ -601,7 +601,7 @@ msgstr "Obraz"
 
 #: ../public/js/plugins/dashboard-users-tab.js:120
 msgid "RVMs"
-msgstr ""
+msgstr "RVMs"
 
 #: ../public/js/plugins/dashboard-users-tab.js:124
 #: ../public/js/plugins/templates-tab.js:294
@@ -614,15 +614,15 @@ msgstr "Sieť"
 
 #: ../public/js/plugins/dashboard-users-tab.js:126
 msgid "Leases"
-msgstr ""
+msgstr "Prenájmy"
 
 #: ../public/js/plugins/dashboard-users-tab.js:135
 msgid "Resource quotas"
-msgstr ""
+msgstr "Kvóty na zdroje"
 
 #: ../public/js/plugins/dashboard-users-tab.js:136
 msgid "Used&nbsp;/&nbsp;Allowed"
-msgstr ""
+msgstr "Využité&nbsp;/&nbsp;Využiteľné"
 
 #: ../public/js/plugins/dashboard-users-tab.js:144
 msgid "VM quota"
@@ -649,13 +649,13 @@ msgid "Network quotas"
 msgstr "Sieťové kvóty"
 
 #: ../public/js/plugins/vnets-tab.js:29 ../public/js/plugins/vnets-tab.js:184
-#: ../public/js/plugins/vnets-tab.js:575 ../public/js/plugins/vnets-tab.js:600
+#: ../public/js/plugins/vnets-tab.js:586 ../public/js/plugins/vnets-tab.js:611
 #: ../public/js/plugins/vms-tab.js:70 ../public/js/plugins/vms-tab.js:142
 #: ../public/js/plugins/vms-tab.js:969 ../public/js/plugins/vms-tab.js:998
 #: ../public/js/plugins/datastores-tab.js:30
 #: ../public/js/plugins/datastores-tab.js:106
-#: ../public/js/plugins/datastores-tab.js:459
-#: ../public/js/plugins/datastores-tab.js:488
+#: ../public/js/plugins/datastores-tab.js:470
+#: ../public/js/plugins/datastores-tab.js:499
 #: ../public/js/plugins/templates-tab.js:29
 #: ../public/js/plugins/templates-tab.js:610
 #: ../public/js/plugins/templates-tab.js:957
@@ -667,12 +667,12 @@ msgstr "Sieťové kvóty"
 msgid "Owner"
 msgstr "Vlastník"
 
-#: ../public/js/plugins/vnets-tab.js:32 ../public/js/plugins/vnets-tab.js:571
+#: ../public/js/plugins/vnets-tab.js:32 ../public/js/plugins/vnets-tab.js:582
 #: ../public/js/plugins/datastores-tab.js:33
 #: ../public/js/plugins/datastores-tab.js:60
-#: ../public/js/plugins/datastores-tab.js:467
+#: ../public/js/plugins/datastores-tab.js:478
 #: ../public/js/plugins/hosts-tab.js:48 ../public/js/plugins/hosts-tab.js:129
-#: ../public/js/plugins/hosts-tab.js:670
+#: ../public/js/plugins/hosts-tab.js:681
 msgid "Cluster"
 msgstr "Cluster"
 
@@ -688,7 +688,7 @@ msgid "Type"
 msgstr "Typ"
 
 #: ../public/js/plugins/vnets-tab.js:34 ../public/js/plugins/vnets-tab.js:71
-#: ../public/js/plugins/vnets-tab.js:583
+#: ../public/js/plugins/vnets-tab.js:594
 #: ../public/js/plugins/templates-tab.js:322
 msgid "Bridge"
 msgstr "Bridge"
@@ -740,11 +740,11 @@ msgstr "Open vSwitch"
 msgid "VMware"
 msgstr "VMware"
 
-#: ../public/js/plugins/vnets-tab.js:73 ../public/js/plugins/vnets-tab.js:591
+#: ../public/js/plugins/vnets-tab.js:73 ../public/js/plugins/vnets-tab.js:602
 msgid "Physical device"
 msgstr "Fyzické zariadenie"
 
-#: ../public/js/plugins/vnets-tab.js:75 ../public/js/plugins/vnets-tab.js:587
+#: ../public/js/plugins/vnets-tab.js:75 ../public/js/plugins/vnets-tab.js:598
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -764,7 +764,7 @@ msgstr "Áno"
 msgid "No"
 msgstr "Nie"
 
-#: ../public/js/plugins/vnets-tab.js:80 ../public/js/plugins/vnets-tab.js:595
+#: ../public/js/plugins/vnets-tab.js:80 ../public/js/plugins/vnets-tab.js:606
 msgid "VLAN ID"
 msgstr "VLAN ID"
 
@@ -789,7 +789,7 @@ msgid "Lease MAC (opt):"
 msgstr "Prenajatá MAC (voliteľné):"
 
 #: ../public/js/plugins/vnets-tab.js:98 ../public/js/plugins/vnets-tab.js:132
-#: ../public/js/plugins/vnets-tab.js:666
+#: ../public/js/plugins/vnets-tab.js:677
 #: ../public/js/plugins/templates-tab.js:277
 #: ../public/js/plugins/templates-tab.js:389
 #: ../public/js/plugins/templates-tab.js:424
@@ -825,11 +825,11 @@ msgstr "Sieťová maska"
 msgid "Define a subnet by IP range"
 msgstr "Definuj podsieť zadaním IP rozsahu"
 
-#: ../public/js/plugins/vnets-tab.js:117 ../public/js/plugins/vnets-tab.js:648
+#: ../public/js/plugins/vnets-tab.js:117 ../public/js/plugins/vnets-tab.js:659
 msgid "IP Start"
 msgstr "Štartovacia IP"
 
-#: ../public/js/plugins/vnets-tab.js:119 ../public/js/plugins/vnets-tab.js:652
+#: ../public/js/plugins/vnets-tab.js:119 ../public/js/plugins/vnets-tab.js:663
 msgid "IP End"
 msgstr "Ukončovacia IP"
 
@@ -857,10 +857,10 @@ msgstr "Vyber a zmodifikuj virtuálnu sieť, ktorú chceš upraviť"
 msgid "Select a network"
 msgstr "Vyber sieť"
 
-#: ../public/js/plugins/vnets-tab.js:179 ../public/js/plugins/vnets-tab.js:598
+#: ../public/js/plugins/vnets-tab.js:179 ../public/js/plugins/vnets-tab.js:609
 #: ../public/js/plugins/vms-tab.js:137
 #: ../public/js/plugins/datastores-tab.js:101
-#: ../public/js/plugins/datastores-tab.js:486
+#: ../public/js/plugins/datastores-tab.js:497
 #: ../public/js/plugins/templates-tab.js:605
 #: ../public/js/plugins/templates-tab.js:968
 #: ../public/js/plugins/images-tab.js:213
@@ -875,10 +875,10 @@ msgstr "Prístupové práva"
 msgid "Admin"
 msgstr "Administrátor"
 
-#: ../public/js/plugins/vnets-tab.js:196 ../public/js/plugins/vnets-tab.js:608
+#: ../public/js/plugins/vnets-tab.js:196 ../public/js/plugins/vnets-tab.js:619
 #: ../public/js/plugins/vms-tab.js:154 ../public/js/plugins/vms-tab.js:1006
 #: ../public/js/plugins/datastores-tab.js:118
-#: ../public/js/plugins/datastores-tab.js:496
+#: ../public/js/plugins/datastores-tab.js:507
 #: ../public/js/plugins/templates-tab.js:622
 #: ../public/js/plugins/templates-tab.js:978
 #: ../public/js/plugins/images-tab.js:230
@@ -895,271 +895,271 @@ msgstr "Ostatní"
 msgid "Template"
 msgstr "Šablóna"
 
-#: ../public/js/plugins/vnets-tab.js:429
-#: ../public/js/plugins/clusters-tab.js:227
+#: ../public/js/plugins/vnets-tab.js:440
+#: ../public/js/plugins/clusters-tab.js:224
 #: ../public/js/plugins/vms-tab.js:506
-#: ../public/js/plugins/datastores-tab.js:302
+#: ../public/js/plugins/datastores-tab.js:313
 #: ../public/js/plugins/templates-tab.js:809
 #: ../public/js/plugins/users-tab.js:373
 #: ../public/js/plugins/images-tab.js:462
 msgid "Update properties"
 msgstr "Uprav vlastnosti"
 
-#: ../public/js/plugins/vnets-tab.js:434
-#: ../public/js/plugins/datastores-tab.js:308
-#: ../public/js/plugins/hosts-tab.js:314
+#: ../public/js/plugins/vnets-tab.js:445
+#: ../public/js/plugins/datastores-tab.js:319
+#: ../public/js/plugins/hosts-tab.js:325
 msgid "Select cluster"
 msgstr "Vyber cluster"
 
-#: ../public/js/plugins/vnets-tab.js:436
-#: ../public/js/plugins/datastores-tab.js:310
-#: ../public/js/plugins/hosts-tab.js:316
+#: ../public/js/plugins/vnets-tab.js:447
+#: ../public/js/plugins/datastores-tab.js:321
+#: ../public/js/plugins/hosts-tab.js:327
 msgid "Select the destination cluster:"
 msgstr "Vyber cieľový cluster:"
 
-#: ../public/js/plugins/vnets-tab.js:441 ../public/js/plugins/vms-tab.js:512
-#: ../public/js/plugins/datastores-tab.js:315
+#: ../public/js/plugins/vnets-tab.js:452 ../public/js/plugins/vms-tab.js:512
+#: ../public/js/plugins/datastores-tab.js:326
 #: ../public/js/plugins/templates-tab.js:818
 #: ../public/js/plugins/images-tab.js:467
 msgid "Change owner"
 msgstr "Zmeň vlastníka"
 
-#: ../public/js/plugins/vnets-tab.js:443 ../public/js/plugins/vms-tab.js:514
-#: ../public/js/plugins/datastores-tab.js:317
+#: ../public/js/plugins/vnets-tab.js:454 ../public/js/plugins/vms-tab.js:514
+#: ../public/js/plugins/datastores-tab.js:328
 #: ../public/js/plugins/templates-tab.js:820
 #: ../public/js/plugins/images-tab.js:469
 msgid "Select the new owner"
 msgstr "Vyber nového vlastníka"
 
-#: ../public/js/plugins/vnets-tab.js:449 ../public/js/plugins/vms-tab.js:520
-#: ../public/js/plugins/datastores-tab.js:322
+#: ../public/js/plugins/vnets-tab.js:460 ../public/js/plugins/vms-tab.js:520
+#: ../public/js/plugins/datastores-tab.js:333
 #: ../public/js/plugins/templates-tab.js:825
 #: ../public/js/plugins/users-tab.js:387
 #: ../public/js/plugins/images-tab.js:474
 msgid "Change group"
 msgstr "Zmeň skupinu"
 
-#: ../public/js/plugins/vnets-tab.js:451 ../public/js/plugins/vms-tab.js:522
-#: ../public/js/plugins/datastores-tab.js:324
+#: ../public/js/plugins/vnets-tab.js:462 ../public/js/plugins/vms-tab.js:522
+#: ../public/js/plugins/datastores-tab.js:335
 #: ../public/js/plugins/templates-tab.js:827
 #: ../public/js/plugins/images-tab.js:476
 msgid "Select the new group"
 msgstr "Vyber novú skupinu"
 
-#: ../public/js/plugins/vnets-tab.js:469
+#: ../public/js/plugins/vnets-tab.js:480
 msgid "Virtual network information"
 msgstr "Informácie o virtuálnej sieti"
 
-#: ../public/js/plugins/vnets-tab.js:473
+#: ../public/js/plugins/vnets-tab.js:484
 msgid "Lease management"
 msgstr "Manažment prenájmov"
 
-#: ../public/js/plugins/vnets-tab.js:559
+#: ../public/js/plugins/vnets-tab.js:570
 msgid "Virtual Network"
 msgstr "Virtuálna sieť"
 
-#: ../public/js/plugins/vnets-tab.js:560
+#: ../public/js/plugins/vnets-tab.js:571
 #: ../public/js/plugins/templates-tab.js:946
 #: ../public/js/plugins/images-tab.js:618
 msgid "information"
 msgstr "Informácie"
 
-#: ../public/js/plugins/vnets-tab.js:615
+#: ../public/js/plugins/vnets-tab.js:626
 msgid "Virtual Network template (attributes)"
 msgstr "Šablóna virtuálnej siete (atribúty)"
 
-#: ../public/js/plugins/vnets-tab.js:621
+#: ../public/js/plugins/vnets-tab.js:632
 msgid "Virtual Network information"
 msgstr "Informácie o virtuálnej sieti"
 
-#: ../public/js/plugins/vnets-tab.js:643
+#: ../public/js/plugins/vnets-tab.js:654
 msgid "Leases information"
 msgstr "Informácie o prenájmoch"
 
-#: ../public/js/plugins/vnets-tab.js:656
+#: ../public/js/plugins/vnets-tab.js:667
 msgid "Network mask"
 msgstr "Sieťová maska"
 
-#: ../public/js/plugins/vnets-tab.js:660
+#: ../public/js/plugins/vnets-tab.js:671
 msgid "Hold lease"
 msgstr "Podrž prenájom"
 
-#: ../public/js/plugins/vnets-tab.js:661 ../public/js/plugins/vms-tab.js:559
+#: ../public/js/plugins/vnets-tab.js:672 ../public/js/plugins/vms-tab.js:559
 msgid "Hold"
 msgstr "Podrž"
 
-#: ../public/js/plugins/vnets-tab.js:665
+#: ../public/js/plugins/vnets-tab.js:676
 msgid "Add lease"
 msgstr "Pridaj prenájom"
 
-#: ../public/js/plugins/vnets-tab.js:675
+#: ../public/js/plugins/vnets-tab.js:686
 msgid "No leases to show"
 msgstr "Žiadne prenájmy na zobrazenie"
 
-#: ../public/js/plugins/vnets-tab.js:721
+#: ../public/js/plugins/vnets-tab.js:732
 msgid "hold"
 msgstr "Podrž"
 
-#: ../public/js/plugins/vnets-tab.js:721
+#: ../public/js/plugins/vnets-tab.js:732
 msgid "delete"
 msgstr "Zmaž"
 
-#: ../public/js/plugins/vnets-tab.js:724
+#: ../public/js/plugins/vnets-tab.js:735
 msgid "Used by VM"
 msgstr "Použité virtuálnym strojom"
 
-#: ../public/js/plugins/vnets-tab.js:727
+#: ../public/js/plugins/vnets-tab.js:738
 msgid "release"
 msgstr "Uvoľni"
 
-#: ../public/js/plugins/vnets-tab.js:740
+#: ../public/js/plugins/vnets-tab.js:751
 msgid "Create Virtual Network"
 msgstr "Vytvor virtuálnu sieť"
 
-#: ../public/js/plugins/vnets-tab.js:809
+#: ../public/js/plugins/vnets-tab.js:820
 msgid "Please provide a lease IP"
 msgstr "Zadaj IP na prenájom"
 
-#: ../public/js/plugins/vnets-tab.js:875
+#: ../public/js/plugins/vnets-tab.js:886
 msgid "Virtual Network name missing!"
 msgstr "Chýba meno virtuálnej siete!"
 
-#: ../public/js/plugins/vnets-tab.js:961
+#: ../public/js/plugins/vnets-tab.js:972
 msgid "There are missing network parameters"
 msgstr "Chýbajú sieťové parametre!"
 
-#: ../public/js/plugins/vnets-tab.js:1013
+#: ../public/js/plugins/vnets-tab.js:1024
 msgid "Update network properties"
 msgstr "Úprava sieťových vlastností"
 
-#: ../public/js/plugins/vnets-tab.js:1038 ../public/js/plugins/vms-tab.js:1514
-#: ../public/js/plugins/datastores-tab.js:611
+#: ../public/js/plugins/vnets-tab.js:1049 ../public/js/plugins/vms-tab.js:1514
+#: ../public/js/plugins/datastores-tab.js:622
 #: ../public/js/plugins/templates-tab.js:2048
 #: ../public/js/plugins/images-tab.js:1022
 msgid "Loading"
 msgstr "Nahrávam ..."
 
-#: ../public/js/plugins/clusters-tab.js:187
+#: ../public/js/plugins/clusters-tab.js:184
 #: ../public/js/plugins/hosts-tab.js:268
 #: ../public/js/plugins/templates-tab.js:705
 #: ../public/js/plugins/users-tab.js:314
 msgid "Template updated correctly"
 msgstr "Úprava šablóny prebehla korektne"
 
-#: ../public/js/plugins/clusters-tab.js:239
-#: ../public/js/plugins/hosts-tab.js:343 ../public/js/plugins/hosts-tab.js:654
-#: ../public/js/plugins/hosts-tab.js:658
+#: ../public/js/plugins/clusters-tab.js:236
+#: ../public/js/plugins/hosts-tab.js:354 ../public/js/plugins/hosts-tab.js:665
+#: ../public/js/plugins/hosts-tab.js:669
 msgid "Host information"
 msgstr "Informácie o hostovi"
 
-#: ../public/js/plugins/clusters-tab.js:244
-#: ../public/js/plugins/hosts-tab.js:348 ../public/js/plugins/hosts-tab.js:730
-#: ../public/js/plugins/hosts-tab.js:733
+#: ../public/js/plugins/clusters-tab.js:241
+#: ../public/js/plugins/hosts-tab.js:359 ../public/js/plugins/hosts-tab.js:741
+#: ../public/js/plugins/hosts-tab.js:744
 msgid "Host template"
 msgstr "Šablóna hosta"
 
-#: ../public/js/plugins/clusters-tab.js:248
+#: ../public/js/plugins/clusters-tab.js:245
 #: ../public/js/plugins/vms-tab.js:1013 ../public/js/plugins/vms-tab.js:1060
-#: ../public/js/plugins/hosts-tab.js:352 ../public/js/plugins/hosts-tab.js:739
+#: ../public/js/plugins/hosts-tab.js:363 ../public/js/plugins/hosts-tab.js:750
 msgid "Monitoring information"
 msgstr "Informácie z monitoringu"
 
-#: ../public/js/plugins/clusters-tab.js:500
+#: ../public/js/plugins/clusters-tab.js:497
 msgid "No datastores in this cluster"
 msgstr "V tomto clustri nie sú žiadne dátové sklady"
 
-#: ../public/js/plugins/clusters-tab.js:510
+#: ../public/js/plugins/clusters-tab.js:507
 msgid "No hosts in this cluster"
 msgstr "V tomto clustri nie sú žiadne hosty"
 
-#: ../public/js/plugins/clusters-tab.js:520
+#: ../public/js/plugins/clusters-tab.js:517
 msgid "No virtual networks in this cluster"
 msgstr "V tomto clustri nie sú žiadne virtuálne siete"
 
-#: ../public/js/plugins/clusters-tab.js:541
-#: ../public/js/plugins/clusters-tab.js:647
+#: ../public/js/plugins/clusters-tab.js:538
+#: ../public/js/plugins/clusters-tab.js:644
 msgid "Cluster information"
 msgstr "Info o clustri"
 
-#: ../public/js/plugins/clusters-tab.js:554
-#: ../public/js/plugins/clusters-tab.js:660
+#: ../public/js/plugins/clusters-tab.js:551
+#: ../public/js/plugins/clusters-tab.js:657
 msgid "Hosts state"
 msgstr "Stav hosta"
 
-#: ../public/js/plugins/clusters-tab.js:555
-#: ../public/js/plugins/clusters-tab.js:661
+#: ../public/js/plugins/clusters-tab.js:552
+#: ../public/js/plugins/clusters-tab.js:658
 msgid "Hosts CPU Usage"
 msgstr "Využitie CPU hosta"
 
-#: ../public/js/plugins/clusters-tab.js:563
-#: ../public/js/plugins/clusters-tab.js:670
+#: ../public/js/plugins/clusters-tab.js:560
+#: ../public/js/plugins/clusters-tab.js:667
 #: ../public/js/plugins/dashboard-tab.js:47
 msgid "Used vs. Max CPU"
 msgstr "Využité vs. max. CPU"
 
-#: ../public/js/plugins/clusters-tab.js:573
-#: ../public/js/plugins/clusters-tab.js:680
+#: ../public/js/plugins/clusters-tab.js:570
+#: ../public/js/plugins/clusters-tab.js:677
 #: ../public/js/plugins/dashboard-tab.js:57
 msgid "Used vs. Max Memory"
 msgstr "Využitá vs. max. RAM"
 
-#: ../public/js/plugins/clusters-tab.js:597
-#: ../public/js/plugins/clusters-tab.js:598
-#: ../public/js/plugins/clusters-tab.js:706
+#: ../public/js/plugins/clusters-tab.js:594
+#: ../public/js/plugins/clusters-tab.js:595
+#: ../public/js/plugins/clusters-tab.js:703
 msgid "Create new host"
 msgstr "Vytvor nového hosta"
 
-#: ../public/js/plugins/clusters-tab.js:599
+#: ../public/js/plugins/clusters-tab.js:596
 msgid "Manage unclustered hosts"
 msgstr "Manažuj neclustrované hosty"
 
-#: ../public/js/plugins/clusters-tab.js:610
-#: ../public/js/plugins/clusters-tab.js:721
+#: ../public/js/plugins/clusters-tab.js:607
+#: ../public/js/plugins/clusters-tab.js:718
 msgid "Create new datastore"
 msgstr "Vytvor nový dátový sklad"
 
-#: ../public/js/plugins/clusters-tab.js:611
+#: ../public/js/plugins/clusters-tab.js:608
 msgid "Manage unclustered datastores"
 msgstr "Manažuj neclustrované dátové sklady"
 
-#: ../public/js/plugins/clusters-tab.js:623
-#: ../public/js/plugins/clusters-tab.js:737
+#: ../public/js/plugins/clusters-tab.js:620
+#: ../public/js/plugins/clusters-tab.js:734
 msgid "Create new virtual network"
 msgstr "Vytvor novú virtuálnu sieť"
 
-#: ../public/js/plugins/clusters-tab.js:624
+#: ../public/js/plugins/clusters-tab.js:621
 msgid "Manage unclustered virtual networks"
 msgstr "Manažuj neclustrované virtuálne siete"
 
-#: ../public/js/plugins/clusters-tab.js:704
+#: ../public/js/plugins/clusters-tab.js:701
 msgid "Current number of hosts in this cluster"
 msgstr "Aktuálny počet hostov v tomto clustri"
 
-#: ../public/js/plugins/clusters-tab.js:707
+#: ../public/js/plugins/clusters-tab.js:704
 msgid "Manage cluster hosts"
 msgstr "Manažuj clustrované hosty"
 
-#: ../public/js/plugins/clusters-tab.js:718
+#: ../public/js/plugins/clusters-tab.js:715
 msgid "Current number of datastores in this cluster"
 msgstr "Aktuálny počet dátových skladov v tomto clustri"
 
-#: ../public/js/plugins/clusters-tab.js:722
+#: ../public/js/plugins/clusters-tab.js:719
 msgid "Manage cluster datastores"
 msgstr "Manažuj clustrované dátové sklady"
 
-#: ../public/js/plugins/clusters-tab.js:734
+#: ../public/js/plugins/clusters-tab.js:731
 msgid "Current number of virtual networks in this cluster"
 msgstr "Aktuálny počet virtuálnych sietí v tomto clustri"
 
-#: ../public/js/plugins/clusters-tab.js:738
+#: ../public/js/plugins/clusters-tab.js:735
 msgid "Manage cluster virtual networks"
 msgstr "Manažuj clustrované virtuálne siete"
 
-#: ../public/js/plugins/clusters-tab.js:891
+#: ../public/js/plugins/clusters-tab.js:888
 msgid "Create cluster"
 msgstr "Vytvor cluster"
 
-#: ../public/js/plugins/clusters-tab.js:907
+#: ../public/js/plugins/clusters-tab.js:904
 msgid "Cluster name missing!"
 msgstr "Chýba meno clustra!"
 
@@ -1434,7 +1434,7 @@ msgstr "VYPNUTÝ"
 msgid "LOCKED"
 msgstr "ZAMKNUTÝ"
 
-#: ../public/js/plugins/vms-tab.js:1097 ../public/js/plugins/hosts-tab.js:601
+#: ../public/js/plugins/vms-tab.js:1097 ../public/js/plugins/hosts-tab.js:612
 #: ../public/js/plugins/templates-tab.js:2006
 msgid "ERROR"
 msgstr "CHYBA"
@@ -1449,7 +1449,7 @@ msgstr "Žiadne informácie o diskoch"
 
 #: ../public/js/plugins/vms-tab.js:1129
 msgid "Detach"
-msgstr ""
+msgstr "Odpoj"
 
 #: ../public/js/plugins/vms-tab.js:1131 ../public/js/plugins/vms-tab.js:1201
 #: ../public/js/plugins/templates-tab.js:261
@@ -1458,7 +1458,7 @@ msgstr "Ulož"
 
 #: ../public/js/plugins/vms-tab.js:1133
 msgid "Save_as name"
-msgstr ""
+msgstr "Ulož ako meno"
 
 #: ../public/js/plugins/vms-tab.js:1151
 msgid "Attach disk to running VM"
@@ -1551,7 +1551,7 @@ msgstr "Dátové sklady sú skupiny obrazov zdieľajúcich spoločný transfer o
 
 #: ../public/js/plugins/datastores-tab.js:57
 msgid "System datastore"
-msgstr ""
+msgstr "Systémový dátový sklad"
 
 #: ../public/js/plugins/datastores-tab.js:63
 msgid "Datastore manager"
@@ -1617,38 +1617,38 @@ msgstr "Vyber dátový sklad"
 msgid "Datastore updated correctly"
 msgstr "Dátový sklad bol úspešne upravený"
 
-#: ../public/js/plugins/datastores-tab.js:342
-#: ../public/js/plugins/datastores-tab.js:443
-#: ../public/js/plugins/datastores-tab.js:447
+#: ../public/js/plugins/datastores-tab.js:353
+#: ../public/js/plugins/datastores-tab.js:454
+#: ../public/js/plugins/datastores-tab.js:458
 msgid "Datastore information"
 msgstr "Info o dátovom sklade"
 
-#: ../public/js/plugins/datastores-tab.js:346
-#: ../public/js/plugins/datastores-tab.js:507
+#: ../public/js/plugins/datastores-tab.js:357
+#: ../public/js/plugins/datastores-tab.js:518
 msgid "Datastore template"
 msgstr "Šablóna dátového skladu"
 
-#: ../public/js/plugins/datastores-tab.js:471
+#: ../public/js/plugins/datastores-tab.js:482
 msgid "DS Mad"
 msgstr "DS MAD"
 
-#: ../public/js/plugins/datastores-tab.js:475
+#: ../public/js/plugins/datastores-tab.js:486
 msgid "TM Mad"
 msgstr "TM MAD"
 
-#: ../public/js/plugins/datastores-tab.js:479
+#: ../public/js/plugins/datastores-tab.js:490
 msgid "Base path"
 msgstr "Cesta"
 
-#: ../public/js/plugins/datastores-tab.js:504
+#: ../public/js/plugins/datastores-tab.js:515
 msgid "Datastore Template"
 msgstr "Šablóna dátového skladu"
 
-#: ../public/js/plugins/datastores-tab.js:520
+#: ../public/js/plugins/datastores-tab.js:531
 msgid "Create Datastore"
 msgstr "Vytvor dátový sklad"
 
-#: ../public/js/plugins/datastores-tab.js:586
+#: ../public/js/plugins/datastores-tab.js:597
 msgid "Update Datastore properties"
 msgstr "Uprav vlastnosti dátového skladu"
 
@@ -1660,7 +1660,7 @@ msgstr "Monitoring - CPU"
 msgid "Memory monitoring information"
 msgstr "Monitoring - RAM"
 
-#: ../public/js/plugins/hosts-tab.js:49 ../public/js/plugins/hosts-tab.js:721
+#: ../public/js/plugins/hosts-tab.js:49 ../public/js/plugins/hosts-tab.js:732
 msgid "Running VMs"
 msgstr "Bežiace virtuálne stroje"
 
@@ -1672,11 +1672,11 @@ msgstr "Využitý CPU"
 msgid "Memory use"
 msgstr "Využitá RAM"
 
-#: ../public/js/plugins/hosts-tab.js:53 ../public/js/plugins/hosts-tab.js:678
+#: ../public/js/plugins/hosts-tab.js:53 ../public/js/plugins/hosts-tab.js:689
 msgid "IM MAD"
 msgstr "IM MAD"
 
-#: ../public/js/plugins/hosts-tab.js:54 ../public/js/plugins/hosts-tab.js:682
+#: ../public/js/plugins/hosts-tab.js:54 ../public/js/plugins/hosts-tab.js:693
 msgid "VM MAD"
 msgstr "VM MAD"
 
@@ -1750,78 +1750,78 @@ msgstr "Firewall"
 msgid "Custom VNM_MAD"
 msgstr "Užívateľský VNM_MAD"
 
-#: ../public/js/plugins/hosts-tab.js:308
+#: ../public/js/plugins/hosts-tab.js:319
 msgid "Update a template"
 msgstr "Úprava šablóny"
 
-#: ../public/js/plugins/hosts-tab.js:321
+#: ../public/js/plugins/hosts-tab.js:332
 #: ../public/js/plugins/templates-tab.js:172
 #: ../public/js/plugins/templates-tab.js:181
 #: ../public/js/plugins/images-tab.js:484
 msgid "Enable"
 msgstr "Aktivuj"
 
-#: ../public/js/plugins/hosts-tab.js:326
+#: ../public/js/plugins/hosts-tab.js:337
 #: ../public/js/plugins/templates-tab.js:173
 #: ../public/js/plugins/templates-tab.js:182
 #: ../public/js/plugins/images-tab.js:488
 msgid "Disable"
 msgstr "Deaktivuj"
 
-#: ../public/js/plugins/hosts-tab.js:331
+#: ../public/js/plugins/hosts-tab.js:342
 msgid "Delete host"
 msgstr "Zmaž hosta"
 
-#: ../public/js/plugins/hosts-tab.js:601
+#: ../public/js/plugins/hosts-tab.js:612
 msgid "OFF"
 msgstr "VYPNUTÝ"
 
-#: ../public/js/plugins/hosts-tab.js:601
+#: ../public/js/plugins/hosts-tab.js:612
 msgid "RETRY"
 msgstr "OPAKUJ"
 
-#: ../public/js/plugins/hosts-tab.js:662
+#: ../public/js/plugins/hosts-tab.js:673
 msgid "id"
 msgstr "ID"
 
-#: ../public/js/plugins/hosts-tab.js:686
+#: ../public/js/plugins/hosts-tab.js:697
 msgid "VN MAD"
 msgstr "VN MAD"
 
-#: ../public/js/plugins/hosts-tab.js:693
+#: ../public/js/plugins/hosts-tab.js:704
 msgid "Host shares"
 msgstr "Zdieľania hosta"
 
-#: ../public/js/plugins/hosts-tab.js:697
+#: ../public/js/plugins/hosts-tab.js:708
 msgid "Max Mem"
 msgstr "Max. RAM"
 
-#: ../public/js/plugins/hosts-tab.js:701
+#: ../public/js/plugins/hosts-tab.js:712
 msgid "Used Mem (real)"
 msgstr "Využitá RAM (realita)"
 
-#: ../public/js/plugins/hosts-tab.js:705
+#: ../public/js/plugins/hosts-tab.js:716
 msgid "Used Mem (allocated)"
 msgstr "Použitá RAM (alokovaná)"
 
-#: ../public/js/plugins/hosts-tab.js:709 ../public/js/plugins/users-tab.js:123
+#: ../public/js/plugins/hosts-tab.js:720 ../public/js/plugins/users-tab.js:123
 #: ../public/js/plugins/groups-tab.js:82
 msgid "Max CPU"
 msgstr "Maximálne CPU"
 
-#: ../public/js/plugins/hosts-tab.js:713
+#: ../public/js/plugins/hosts-tab.js:724
 msgid "Used CPU (real)"
 msgstr "Využitý CPU (realita)"
 
-#: ../public/js/plugins/hosts-tab.js:717
+#: ../public/js/plugins/hosts-tab.js:728
 msgid "Used CPU (allocated)"
 msgstr "Použitý CPU (alokovaný)"
 
-#: ../public/js/plugins/hosts-tab.js:759
+#: ../public/js/plugins/hosts-tab.js:770
 msgid "Create host"
 msgstr "Vytvor hosta"
 
-#: ../public/js/plugins/hosts-tab.js:803
+#: ../public/js/plugins/hosts-tab.js:814
 msgid "Host name missing!"
 msgstr "Chýba meno hosta!"
 
@@ -1839,7 +1839,7 @@ msgstr "Angličtina"
 
 #: ../public/js/plugins/config-tab.js:33
 msgid "Chinese (TW)"
-msgstr ""
+msgstr "Čínsky (Taiwan)"
 
 #: ../public/js/plugins/config-tab.js:34
 msgid "French"
@@ -1850,26 +1850,34 @@ msgid "Italian"
 msgstr "Taliančina"
 
 #: ../public/js/plugins/config-tab.js:36
+msgid "Persian (IR)"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:37
 msgid "Portuguese"
 msgstr "Portugalčina"
 
-#: ../public/js/plugins/config-tab.js:37
-msgid "Slovak"
-msgstr ""
+#: ../public/js/plugins/config-tab.js:38
+msgid "Russian"
+msgstr "Ruština"
 
-#: ../public/js/plugins/config-tab.js:42
+#: ../public/js/plugins/config-tab.js:39
+msgid "Slovak"
+msgstr "Slovensky"
+
+#: ../public/js/plugins/config-tab.js:44
 msgid "Secure websockets connection"
 msgstr "Zabezpečené pripojenie prostredníctvom websockets"
 
-#: ../public/js/plugins/config-tab.js:57
+#: ../public/js/plugins/config-tab.js:59
 msgid "These options are stored in your OpenNebula user template."
 msgstr "Tieto voľby sú uložené v Tvojej OpenNebula užívateľskej šablóne"
 
-#: ../public/js/plugins/config-tab.js:60
+#: ../public/js/plugins/config-tab.js:62
 msgid "WSS connection requires additional configuration of Sunstone Server and that the SSL certificate is considered valid by your browser."
 msgstr "WSS spojenie vyžaduje ďalšiu konfiguráciu Sunstone servera a SSL certifikát platný pre browser."
 
-#: ../public/js/plugins/config-tab.js:75
+#: ../public/js/plugins/config-tab.js:77
 msgid "Configuration"
 msgstr "Konfigurácia"
 
@@ -2605,7 +2613,7 @@ msgstr "Virtuálne stroje"
 
 #: ../public/js/plugins/users-tab.js:38 ../public/js/plugins/groups-tab.js:35
 msgid "Used memory"
-msgstr ""
+msgstr "Využitá RAM"
 
 #: ../public/js/plugins/users-tab.js:40
 msgid "Group ID"
@@ -2704,12 +2712,12 @@ msgstr "Pridaj / Edituj kvótu"
 #: ../public/js/plugins/users-tab.js:153
 #: ../public/js/plugins/groups-tab.js:112
 msgid "Quota"
-msgstr ""
+msgstr "Kvóta"
 
 #: ../public/js/plugins/users-tab.js:154
 #: ../public/js/plugins/groups-tab.js:113
 msgid "Edit"
-msgstr ""
+msgstr "Edituj"
 
 #: ../public/js/plugins/users-tab.js:160
 #: ../public/js/plugins/groups-tab.js:118
@@ -2753,7 +2761,7 @@ msgstr "Používateľské kvóty"
 
 #: ../public/js/plugins/users-tab.js:453
 msgid "User info"
-msgstr ""
+msgstr "Info o používateľovi"
 
 #: ../public/js/plugins/users-tab.js:612
 msgid "User template"
@@ -2832,15 +2840,15 @@ msgstr "+Pridaj skupinu"
 #: ../public/js/plugins/groups-tab.js:395
 #: ../public/js/plugins/groups-tab.js:432
 msgid "Group information"
-msgstr ""
+msgstr "Info o skupine"
 
 #: ../public/js/plugins/groups-tab.js:281
 msgid "Group info"
-msgstr ""
+msgstr "Info o skupine"
 
 #: ../public/js/plugins/groups-tab.js:406
 msgid "Quota information"
-msgstr ""
+msgstr "Info o kvótach"
 
 #: ../public/js/plugins/groups-tab.js:444
 msgid "Create group"
@@ -3107,6 +3115,3 @@ msgstr "Celkom skupín"
 #: ../public/js/plugins/dashboard-tab.js:165
 msgid "Users per group"
 msgstr "Používateľov na skupinu"
-
-#~ msgid "Russian"
-#~ msgstr "Ruština"

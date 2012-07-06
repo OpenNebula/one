@@ -33,6 +33,7 @@ var config_tab_content =
                        <option value="zh_TW">'+tr("Chinese (TW)")+'</option>\
                        <option value="fr_FR">'+tr("French")+'</option>\
                        <option value="it_IT">'+tr("Italian")+'</option>\
+                       <option value="fa_IR">'+tr("Persian (IR)")+'</option>\
                        <option value="pt_PT">'+tr("Portuguese")+'</option>\
                        <option value="ru">'+tr("Russian")+'</option>\
                        <option value="sk_SK">'+tr("Slovak")+'</option>\

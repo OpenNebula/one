@@ -25,6 +25,7 @@ po_bld = Builder(action = 'share/scons/po2json.rb $SOURCE > $TARGET',
 env.Append(BUILDERS = {'Po' : po_bld})
 
 env.Po('en_US.po')
+env.Po('fa_IR.po')
 env.Po('fr_FR.po')
 env.Po('it_IT.po')
 env.Po('pt_PT.po')
