@@ -137,7 +137,7 @@ public
             CLIHelper.scr_underline
 
             username_elems =
-                xmldoc.retrieve_elements(["HISTORY/VM[UID=#{uid}]/UNAME"])
+                xmldoc.retrieve_elements("HISTORY/VM[UID=#{uid}]/UNAME")
 
             username = username_elems.nil? ? "" : username_elems.uniq
 
