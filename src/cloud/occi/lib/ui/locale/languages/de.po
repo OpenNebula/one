@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 14:58+0200\n"
-"PO-Revision-Date: 2012-06-30 16:48+0000\n"
-"Last-Translator: Bastian Widmer <bastian.widmer@gmail.com>\n"
+"POT-Creation-Date: 2012-07-06 10:30+0200\n"
+"PO-Revision-Date: 2012-07-04 13:38+0000\n"
+"Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/one/language/de/)\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -532,12 +532,12 @@ msgid "Chinese"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:33
-msgid "French (FR)"
-msgstr "Französisch (FR)"
-
-#: ../public/js/plugins/configuration.js:34
 msgid "French (CA)"
 msgstr "Französisch (CA)"
+
+#: ../public/js/plugins/configuration.js:34
+msgid "French (FR)"
+msgstr "Französisch (FR)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
@@ -548,7 +548,7 @@ msgid "Italian"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Portuguese (PT)"
+msgid "Persian (IR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
@@ -556,14 +556,18 @@ msgid "Portuguese (BR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Slovak"
+msgid "Portuguese (PT)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:40
+msgid "Slovak"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
 msgstr "Spanisch"
 
-#: ../public/js/plugins/configuration.js:62
+#: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
 msgstr "Konfiguration"
 
@@ -679,9 +683,8 @@ msgid "You can also manage compute resources and perform actions such as stop, r
 msgstr "Sie können die Rechenressourcen auch verwalten und die virtuellen Maschinen stoppen, fortsetzen, herunterfahren und abbrechen."
 
 #: ../public/customize/custom.js:83
-#, fuzzy
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr "Zusätzlich können sie einen Snapshot von einer angehängten Speicherressource erstellen. Dieser wird als neue, wiederverwendbare Ressource abgelegt und in der Speicherübersicht angezeigt."
+msgstr ""
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104

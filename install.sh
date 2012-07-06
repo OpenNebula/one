@@ -313,6 +313,7 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/de \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES \
+                 $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fa_IR \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR \
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/locale/it_IT \
@@ -569,6 +570,7 @@ INSTALL_SELF_SERVICE_FILES=(
     SELF_SERVICE_PUBLIC_LOCALE_EN_US:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/en_US
     SELF_SERVICE_PUBLIC_LOCALE_DE:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/de
     SELF_SERVICE_PUBLIC_LOCALE_ES_ES:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/es_ES
+    SELF_SERVICE_PUBLIC_LOCALE_FA_IR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fa_IR
     SELF_SERVICE_PUBLIC_LOCALE_FR_CA:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_CA
     SELF_SERVICE_PUBLIC_LOCALE_FR_FR:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/fr_FR
     SELF_SERVICE_PUBLIC_LOCALE_IT_IT:$LIB_LOCATION/ruby/cloud/occi/ui/public/locale/it_IT
@@ -1575,6 +1577,9 @@ SELF_SERVICE_PUBLIC_LOCALE_DE="src/cloud/occi/lib/ui/locale/languages/de.js \
 
 SELF_SERVICE_PUBLIC_LOCALE_ES_ES="src/cloud/occi/lib/ui/locale/languages/es_ES.js \
                                   src/cloud/occi/lib/ui/locale/languages/es_datatable.txt"
+
+SELF_SERVICE_PUBLIC_LOCALE_FA_IR="src/cloud/occi/lib/ui/locale/languages/fa_IR.js \
+                                  src/cloud/occi/lib/ui/locale/languages/fa_datatable.txt"
 
 SELF_SERVICE_PUBLIC_LOCALE_FR_CA="src/cloud/occi/lib/ui/locale/languages/fr_CA.js \
                                   src/cloud/occi/lib/ui/locale/languages/fr_datatable.txt"

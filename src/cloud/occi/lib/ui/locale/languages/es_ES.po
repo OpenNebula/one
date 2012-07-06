@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-04 14:58+0200\n"
-"PO-Revision-Date: 2012-06-27 09:18+0000\n"
+"POT-Creation-Date: 2012-07-06 10:30+0200\n"
+"PO-Revision-Date: 2012-07-04 13:44+0000\n"
 "Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es_ES\n"
@@ -526,41 +526,45 @@ msgstr "Inglés"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "Chinese"
-msgstr ""
+msgstr "Chino"
 
 #: ../public/js/plugins/configuration.js:33
-msgid "French (FR)"
-msgstr "Francés (FR)"
-
-#: ../public/js/plugins/configuration.js:34
 msgid "French (CA)"
 msgstr "Francés (CA)"
 
+#: ../public/js/plugins/configuration.js:34
+msgid "French (FR)"
+msgstr "Francés (FR)"
+
 #: ../public/js/plugins/configuration.js:35
 msgid "German"
-msgstr ""
+msgstr "Alemán"
 
 #: ../public/js/plugins/configuration.js:36
 msgid "Italian"
-msgstr ""
+msgstr "Italiano"
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Portuguese (PT)"
+msgid "Persian (IR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Portuguese (BR)"
-msgstr ""
+msgstr "Portugués (BR)"
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Slovak"
-msgstr ""
+msgid "Portuguese (PT)"
+msgstr "Portugués (PT)"
 
 #: ../public/js/plugins/configuration.js:40
+msgid "Slovak"
+msgstr "Eslovaco"
+
+#: ../public/js/plugins/configuration.js:41
 msgid "Spanish"
 msgstr "Español"
 
-#: ../public/js/plugins/configuration.js:62
+#: ../public/js/plugins/configuration.js:63
 msgid "Configuration"
 msgstr "Configuración"
 
@@ -676,9 +680,8 @@ msgid "You can also manage compute resources and perform actions such as stop, r
 msgstr "También puede administrar las máquinas virtuales y realizar acciones como detener, reanudar, apagar o cancelar."
 
 #: ../public/customize/custom.js:83
-#, fuzzy
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
-msgstr "Además, puede tomar una 'instantánea' de los almacenamientos asociado a estos recursos. Ésta será salvaguardada como un nuevo recurso, visible y reutilizable desde la vista de almacenamientos."
+msgstr "Además, puede salvar las imágenes asociadas a estos recursos como nuevas. Apareceran como nuevos recursos, visibles y reutilizables desde la vista de almacenamiento."
 
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104
