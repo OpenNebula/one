@@ -16,10 +16,13 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+COPYRIGHT_HOLDER="2002-2012, OpenNebula Project Leads (OpenNebula.org)"
+PACKAGE_NAME="OpenNebula"
+
 find ../public/js -name \*.js > file_list.txt
 echo "../../../../../sunstone/public/js/sunstone.js" >> file_list.txt
 echo "../../../../../sunstone/public/js/sunstone-util.js" >> file_list.txt
 echo "../public/customize/custom.js" >> file_list.txt
-xgettext --from-code=utf-8 --no-wrap --keyword=tr -L python -f file_list.txt -p .
+xgettext --from-code=utf-8 --copyright-holder="$COPYRIGHT_HOLDER" --package-name="$PACKAGE_NAME" --no-wrap --keyword=tr -L python -f file_list.txt -p .
 mv messages.po messages.pot
 rm file_list.txt
