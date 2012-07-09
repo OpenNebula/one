@@ -184,7 +184,7 @@ end
 after do
     unless request.path=='/login' || request.path=='/'
         unless session[:remember] == "true"
-            if params[:timeout] == true
+            if params[:timeout] == "true"
                 env['rack.session.options'][:defer] = true
             else
                 env['rack.session.options'][:expire_after] = 60*10
