@@ -1,0 +1,67 @@
+
+
+digraph OpenNebula {
+    graph [
+        nodesep= 0.5,
+        ratio=1,
+        pad=1,
+    ];
+
+    node [fontname="Helvetica"];
+    edge [fontname="Menlo"];
+    
+    user [
+        fillcolor="black",
+        style="filled", shape="box",
+        fontcolor="white", fontsize= "24.0"];
+
+    end [ width=0.15, height=0.15, shape=point ];
+
+#    subgraph { rank = min; user; locked}
+#    subgraph { rank = same; ready; color="white"}
+#    subgraph { rank = same; used; clone; disabled; color="white"}
+#    subgraph { rank = same; delete; error; color="white"}
+#    subgraph { rank = max; end; color="white"}
+
+    subgraph { rank = min; user; locked}
+    subgraph { rank = same; ready; color="white"}
+    subgraph { rank = same; used; clone; color="white"}
+    subgraph { rank = same; error; disabled; color="white"}
+    subgraph { rank = same; delete; color="white"}
+    subgraph { rank = max; end; color="white"}
+
+#   create
+    user        -> locked [label="create"];
+    locked      -> ready [style="dashed"];
+
+#   enable & disable
+    ready       -> disabled [label="disable"];
+    error       -> disabled [label="disable"];
+    disabled    -> ready [label="enable"];
+    error       -> ready [label="enable"];
+
+#   template instantiate
+    ready       -> used [label="onetemplate\ninstantiate"];
+    used        -> ready [label="onevm\nshutdown"];
+#### ^ persis, v non-persis
+#    used        -> used [label="onetemplate\ninstantiate"];
+
+#   clone
+    ready       -> clone [label="clone"];
+    clone       -> ready [style="dashed"];
+#### ^ persis, v non-persis
+#    ready       -> used [label="clone"];
+#    used        -> used [label="clone"];
+#    used        -> ready [style="dashed"];
+
+#   delete
+    ready       -> delete [label="delete"];
+    disabled    -> delete [label="delete"];
+    locked      -> delete [label="delete"];
+    error       -> delete [label="delete"];
+    delete      -> end [style="dashed"];
+
+#   failures and misc.
+    ready       -> error [style="dotted"];
+    locked      -> error [style="dotted"];
+}

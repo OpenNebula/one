@@ -1,4 +1,4 @@
-These two .dot files are graphviz[1] DOT language graphs.
+These .dot files are graphviz[1] DOT language graphs.
 
 The complete state diagram uses the internal names for all the LifeCycleManager states, and the transitions triggered by the onevm commands. It is intended to be consulted by developers.
 
@@ -8,5 +8,7 @@ To generate png files, use the following commands:
 dot -Tpng states-complete.dot -o states-complete.png
 dot -Tpng states-simple.dot -o states-simple.png
 
+dot -Tpng image-persistent.dot -o image-persistent.png
+dot -Tpng image-nonpersistent.dot -o image-nonpersistent.png
 
 [1] http://www.graphviz.org/
