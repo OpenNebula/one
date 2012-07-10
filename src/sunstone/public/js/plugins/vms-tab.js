@@ -71,9 +71,9 @@ var vms_tab_content = '\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Status")+'</th>\
-      <th>'+tr("CPU")+'</th>\
-      <th>'+tr("Memory")+'</th>\
-      <th>'+tr("Hostname")+'</th>\
+      <th>'+tr("Used CPU")+'</th>\
+      <th>'+tr("Used Memory")+'</th>\
+      <th>'+tr("Host")+'</th>\
       <th>'+tr("IPs")+'</th>\
       <th>'+tr("Start Time")+'</th>\
       <th>'+tr("VNC Access")+'</th>\
@@ -877,7 +877,7 @@ function generateHistoryTable(vm){
                    <thead>\
                      <tr>\
                          <th>'+tr("Sequence")+'</th>\
-                         <th>'+tr("Hostname")+'</th>\
+                         <th>'+tr("Host")+'</th>\
                          <th>'+tr("Reason")+'</th>\
                          <th>'+tr("State change time")+'</th>\
                          <th>'+tr("Total time")+'</th>\
@@ -982,7 +982,7 @@ function updateVMInfo(request,vm){
                  <td class="value_td">'+tr(OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE))+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Hostname")+'</td>\
+                 <td class="key_td">'+tr("Host")+'</td>\
               <td class="value_td">'+ hostname +'</td>\
               </tr>\
               <tr>\

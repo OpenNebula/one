@@ -551,11 +551,11 @@ function updateVMInfo(request,vm){
                  <td class="value_td">'+tr(vm_info.STATE)+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("CPU")+'</td>\
+                 <td class="key_td">'+tr("Used CPU")+'</td>\
                  <td class="value_td">'+vm_info.CPU+'</td>\
               </tr>\
               <tr>\
-                 <td class="key_td">'+tr("Memory")+'</td>\
+                 <td class="key_td">'+tr("Used Memory")+'</td>\
                  <td class="value_td">'+vm_info.MEMORY+'</td>\
               </tr>\
               <tr>\

@@ -705,7 +705,7 @@ function updateHostInfo(request,host){
             </thead>\
             <tbody>\
                <tr>\
-                  <td class="key_td">' + tr("Max Mem") + '</td>\
+                  <td class="key_td">' + tr("Total Mem") + '</td>\
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
                </tr>\
                <tr>\
@@ -717,7 +717,7 @@ function updateHostInfo(request,host){
                   <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
                </tr>\
                <tr>\
-                  <td class="key_td">' + tr("Max CPU") + '</td>\
+                  <td class="key_td">' + tr("Total CPU") + '</td>\
                   <td class="value_td">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
                </tr>\
                <tr>\
