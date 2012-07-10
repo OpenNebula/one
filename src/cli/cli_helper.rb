@@ -168,13 +168,18 @@ module CLIHelper
         def print_data(data, options)
             ncolumns=@default_columns.length
             res_data=data_array(data, options)
-            print res_data.collect{|l|
-                (0..ncolumns-1).collect{ |i|
-                    dat=l[i]
-                    col=@default_columns[i]
-                    format_str(col, dat)
-                }.join(' ')
-            }.join("\n")
+
+            begin
+                print res_data.collect{|l|
+                    (0..ncolumns-1).collect{ |i|
+                        dat=l[i]
+                        col=@default_columns[i]
+                        format_str(col, dat)
+                    }.join(' ')
+                }.join("\n")
+            rescue Errno::EPIPE
+            end
+
             puts
         end
 
