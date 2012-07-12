@@ -357,7 +357,7 @@ function tgtadm_next_tid {
 
 function tgt_admin_dump_config {
     FILE_PATH="$1"
-    echo "$TGTADMIN --dump |sudo tee $FILE_PATH >& /dev/null"
+    echo "$TGTADMIN --dump |sudo tee $FILE_PATH > /dev/null 2>&1"
 }
 
 ###
