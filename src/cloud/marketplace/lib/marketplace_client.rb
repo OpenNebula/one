@@ -23,7 +23,7 @@ module Market
             @username = username
             @password = password
 
-            url ||= 'http://localhost:9292/'
+            url ||= 'http://marketplace.c12g.com/'
             @uri = URI.parse(url)
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
