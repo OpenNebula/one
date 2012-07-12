@@ -73,6 +73,7 @@ void  LifeCycleManager::save_success_action(int vid)
     {
         Nebula&             nd = Nebula::instance();
         DispatchManager *   dm = nd.get_dm();
+        int                 cpu,mem,disk;
         time_t              the_time = time(0);
 
         //----------------------------------------------------
@@ -86,6 +87,10 @@ void  LifeCycleManager::save_success_action(int vid)
         vm->set_reason(History::STOP_RESUME);
 
         vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
         //----------------------------------------------------
 

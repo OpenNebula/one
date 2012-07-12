@@ -343,6 +343,7 @@ void  LifeCycleManager::restore_action(int vid)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
+        int                     cpu,mem,disk;
         time_t                  the_time = time(0);
 
         vm->log("LCM", Log::INFO, "Restoring VM");
@@ -362,6 +363,10 @@ void  LifeCycleManager::restore_action(int vid)
         vm->set_running_stime(the_time);
 
         vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
 
         vm->log("LCM", Log::INFO, "New state is BOOT");
 
