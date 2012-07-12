@@ -113,6 +113,12 @@ module CloudClient
             str << "Server: #{url.host}:#{url.port}"
 
             return CloudClient::Error.new(str,"504")
+        rescue SocketError => e
+            str =  "Error timeout while connected to server (#{e.to_s}).\n"
+
+            return CloudClient::Error.new(str,"503")
+        rescue
+            return CloudClient::Error.new($!.to_s,"503")
         end
 
         if res.is_a?(Net::HTTPSuccess)
