@@ -26,24 +26,24 @@
             <xs:sequence>
               <xs:element name="DISK_USAGE" type="xs:integer"/>
               <xs:element name="MEM_USAGE" type="xs:integer"/>
-              <!--          ^^ Usage of MEMORY calculated by ONE as TOTAL_MEMORY - (summatory MEMORY requested by all VMs running in the host)   -->
+              <!-- ^^ KB, Usage of MEMORY calculated by ONE as the summatory MEMORY requested by all VMs running in the host   -->
               <xs:element name="CPU_USAGE" type="xs:integer"/>
-              <!--          ^^ Usage of CPU calculated by ONE as TOTAL_CPU - (summatory CPU requested by all VMs running in the host)   -->
+              <!-- ^^ Percentage, Usage of CPU calculated by ONE as the summatory CPU requested by all VMs running in the host   -->
               <xs:element name="MAX_DISK" type="xs:integer"/>
               <xs:element name="MAX_MEM" type="xs:integer"/>
-              <!--          ^^ Memory available in the host   -->
+              <!-- ^^ KB, Total memory in the host   -->
               <xs:element name="MAX_CPU" type="xs:integer"/>
-              <!--          ^^ CPU available in the host   -->
+              <!-- ^^ Percentage, Total CPU in the host (# cores * 100)  -->
               <xs:element name="FREE_DISK" type="xs:integer"/>
               <xs:element name="FREE_MEM" type="xs:integer"/>
-              <!--          ^^ Free MEMORY returned by the probes   -->              
+              <!-- ^^ KB, Free MEMORY returned by the probes   -->
               <xs:element name="FREE_CPU" type="xs:integer"/>
-              <!--          ^^ Free CPU as returned by the probes   -->
+              <!-- ^^ Percentage, Free CPU as returned by the probes   -->
               <xs:element name="USED_DISK" type="xs:integer"/>
               <xs:element name="USED_MEM" type="xs:integer"/>
-                  <!--          ^^ Memory used by all host processes (including VMs) over a total of MAX_MEM   -->
+              <!-- ^^ KB, Memory used by all host processes (including VMs) over a total of MAX_MEM   -->
               <xs:element name="USED_CPU" type="xs:integer"/>
-                  <!--          ^^ percentage of CPU used by all host processes (including VMs) over a total of # cores * 100   -->
+              <!-- ^^ Percentage of CPU used by all host processes (including VMs) over a total of # cores * 100   -->
               <xs:element name="RUNNING_VMS" type="xs:integer"/>
             </xs:sequence>
           </xs:complexType>

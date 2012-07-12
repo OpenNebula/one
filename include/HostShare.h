@@ -41,8 +41,8 @@ public:
 
     /**
      *  Add a new VM to this share
-     *    @param cpu requested by the VM
-     *    @param mem requested by the VM
+     *    @param cpu requested by the VM, in percentage
+     *    @param mem requested by the VM, in KB
      *    @param disk requested by the VM
      */
     void add(int cpu, int mem, int disk)
@@ -101,11 +101,11 @@ public:
 private:
 
     int disk_usage; /**< Disk allocated to VMs (in Mb).        */
-    int mem_usage;  /**< Memory allocated to VMs (in Mb)       */
+    int mem_usage;  /**< Memory allocated to VMs (in KB)       */
     int cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
     int max_disk;   /**< Total disk capacity (in Mb)           */
-    int max_mem;    /**< Total memory capacity (in Mb)         */
+    int max_mem;    /**< Total memory capacity (in KB)         */
     int max_cpu;    /**< Total cpu capacity (in percentage)    */
 
     int free_disk;  /**< Free disk from the IM monitor         */

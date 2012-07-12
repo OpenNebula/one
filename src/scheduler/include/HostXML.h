@@ -43,7 +43,7 @@ public:
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
-     *    @param mem needed by the VM (in Kb)
+     *    @param mem needed by the VM (in KB)
      *    @param disk needed by the VM
      *    @return true if the share can host the VM
      */
@@ -58,7 +58,7 @@ public:
      *  Adds a new VM to the given share by incrementing the cpu,mem and disk
      *  counters
      *    @param cpu needed by the VM (percentage)
-     *    @param mem needed by the VM (in Kb)
+     *    @param mem needed by the VM (in KB)
      *    @param disk needed by the VM
      *    @return 0 on success
      */
@@ -85,11 +85,11 @@ private:
 
     // Host share values
     int disk_usage; /**< Disk allocated to VMs (in Mb).        */
-    int mem_usage;  /**< Memory allocated to VMs (in Mb)       */
+    int mem_usage;  /**< Memory allocated to VMs (in KB)       */
     int cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
     int max_disk;   /**< Total disk capacity (in Mb)           */
-    int max_mem;    /**< Total memory capacity (in Mb)         */
+    int max_mem;    /**< Total memory capacity (in KB)         */
     int max_cpu;    /**< Total cpu capacity (in percentage)    */
 
     int running_vms; /**< Number of running VMs in this Host   */

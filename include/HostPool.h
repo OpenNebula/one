@@ -119,8 +119,8 @@ public:
     /**
      * Allocates a given capacity to the host
      *   @param oid the id of the host to allocate the capacity
-     *   @param cpu amount of CPU
-     *   @param mem amount of main memory
+     *   @param cpu amount of CPU, in percentage
+     *   @param mem amount of main memory, in KB
      *   @param disk amount of disk
      */
     void add_capacity(int oid,int cpu, int mem, int disk)

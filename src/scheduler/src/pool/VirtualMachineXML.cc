@@ -219,6 +219,6 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
     }
 
     cpu    = (int) (this->cpu * 100);//now in 100%
-    memory = this->memory * 1024;    //now in bytes
+    memory = this->memory * 1024;    //now in Kilobytes
     disk   = 0;
 }

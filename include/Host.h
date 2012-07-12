@@ -274,7 +274,7 @@ public:
      *  Adds a new VM to the given share by icrementing the cpu,mem and disk
      *  counters
      *    @param cpu needed by the VM (percentage)
-     *    @param mem needed by the VM (in Kb)
+     *    @param mem needed by the VM (in KB)
      *    @param disk needed by the VM
      *    @return 0 on success
      */

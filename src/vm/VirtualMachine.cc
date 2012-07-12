@@ -947,7 +947,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
     iss >> fcpu;
 
     cpu    = (int) (fcpu * 100);//now in 100%
-    memory = memory * 1024;     //now in bytes
+    memory = memory * 1024;     //now in Kilobytes
     disk   = 0;
 
     return;
