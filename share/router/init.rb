@@ -474,7 +474,6 @@ if router.privnet
     end
 
     if router.ntp
-        router.configure_ntp
         router.service("ntpd")
     end
 end
