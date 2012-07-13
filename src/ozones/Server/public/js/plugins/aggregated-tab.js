@@ -30,6 +30,9 @@ var aggregated_hosts_tab_content =
       <th>CPU Use</th>\
       <th>Memory use</th>\
       <th>Status</th>\
+      <th>IM MAD</th>\
+      <th>VM MAD</th>\
+      <th>Last monitored on</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -48,9 +51,10 @@ var aggregated_vms_tab_content =
       <th>Group</th>\
       <th>Name</th>\
       <th>Status</th>\
-      <th>CPU</th>\
-      <th>Memory</th>\
-      <th>Hostname</th>\
+      <th>Used CPU</th>\
+      <th>Used Memory</th>\
+      <th>Host</th>\
+      <th>IPs</th>\
       <th>Start Time</th>\
     </tr>\
   </thead>\
@@ -78,8 +82,9 @@ var aggregated_vns_tab_content =
   <tbody>\
   </tbody>\
 </table>';
-var aggregated_images_tab_content =
-'<div class="action_blocks">\
+
+var aggregated_images_tab_content = '\
+<div class="action_blocks">\
  </div>\
 <table id="datatable_agg_images" class="display">\
   <thead>\
@@ -90,11 +95,14 @@ var aggregated_images_tab_content =
       <th>Owner</th>\
       <th>Group</th>\
       <th>Name</th>\
+      <th>Datastore</th>\
+      <th>Size</th>\
       <th>Type</th>\
       <th>Registration time</th>\
       <th>Persistent</th>\
       <th>State</th>\
       <th>#VMS</th>\
+      <th>Target</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -110,6 +118,12 @@ var aggregated_users_tab_content =
       <th>Zone Name</th>\
       <th>ID</th>\
       <th>Name</th>\
+      <th>Group</th>\
+      <th>Auth driver</th>\
+      <th>VMS</th>\
+      <th>Memory</th>\
+      <th>CPU</th>\
+      <th>GID</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -144,6 +158,9 @@ var aggregated_clusters_tab_content =
       <th>Zone Name</th>\
       <th>ID</th>\
       <th>Name</th>\
+      <th>Hosts</th>\
+      <th>Virtual Networks</th>\
+      <th>Datastores</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -163,6 +180,10 @@ var aggregated_datastores_tab_content =
       <th>Group</th>\
       <th>Name</th>\
       <th>Cluster</th>\
+      <th>Basepath</th>\
+      <th>TM MAD</th>\
+      <th>DS MAD</th>\
+      <th>System</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -725,12 +746,14 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "sWidth": "60px", "aTargets": [5,8] },
             { "sWidth": "35px", "aTargets": [0,2] },
             { "sWidth": "160px", "aTargets": [6,7] },
-            { "sWidth": "100px", "aTargets": [1,4] }
+            { "sWidth": "100px", "aTargets": [1,4,9,10,11] },
+            { "bVisible" : false, "aTargets": [9,10,11] }
         ]
     });
 
@@ -739,10 +762,12 @@ $(document).ready(function(){
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,2] },
             { "sWidth": "60px", "aTargets": [7,8] },
-            { "sWidth": "100px", "aTargets": [1,3,4,6,10] }
+            { "sWidth": "100px", "aTargets": [1,3,4,6,10] },
+            { "bVisible" : false, "aTargets": [7,8,11] }
         ]
     });
 
@@ -751,10 +776,12 @@ $(document).ready(function(){
         "bSortClasses": false,
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
             { "sWidth": "60px", "aTargets": [7,8,9] },
             { "sWidth": "35px", "aTargets": [0,2] },
-            { "sWidth": "100px", "aTargets": [1,3,4,6] }
+            { "sWidth": "100px", "aTargets": [1,3,4,6] },
+            { "bVisible" : false, "aTargets": [8] }
         ]
     });
 
@@ -762,11 +789,13 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [9] },
-            { "sWidth": "35px", "aTargets": [0,2,8,10] },
-            { "sWidth": "100px", "aTargets": [1,3,4,6,7] }
+            { "sWidth": "60px", "aTargets": [11] },
+            { "sWidth": "35px", "aTargets": [0,2,7,10,12,13] },
+            { "sWidth": "100px", "aTargets": [1,3,4,6,8,9] },
+            { "bVisible" : false, "aTargets": [7,9,13] }
         ]
     });
 
@@ -774,6 +803,7 @@ $(document).ready(function(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,2] },
@@ -786,9 +816,12 @@ $(document).ready(function(){
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,2] },
-            { "sWidth": "100px", "aTargets": [1] }
+            { "sWidth": "35px", "aTargets": [0,2,6,7,8,9] },
+            { "sWidth": "100px", "aTargets": [1] },
+            { "sWidth": "150px", "aTargets": [5] },
+            { "bVisible" : false, "aTargets": [9] }
         ]
     });
 
@@ -797,8 +830,9 @@ $(document).ready(function(){
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,2] },
+            { "sWidth": "35px", "aTargets": [0,2,4,5,6] },
             { "sWidth": "100px", "aTargets": [1] }
         ]
     });
@@ -808,9 +842,11 @@ $(document).ready(function(){
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,2] },
-            { "sWidth": "100px", "aTargets": [1,3,4,6] }
+            { "sWidth": "100px", "aTargets": [1,3,4,6,8,9,10] },
+            { "bVisible" : false, "aTargets": [7,8,9,10] }
         ]
     });
 

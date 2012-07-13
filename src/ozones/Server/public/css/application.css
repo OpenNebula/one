@@ -568,7 +568,7 @@ ul.action_list li a:hover{
 .dd_lists{
     width:250px;
     display:inline-block;
-    height:200px;
+    height:100px;
     margin-left:2px;
     margin-bottom: 10px;
 }
@@ -605,4 +605,18 @@ ul.dd_left{
 .ui-layout-resizer-open-hover, /* hover-color to 'resize' */
 .ui-layout-resizer-dragging {
     background: #EEE;
+}
+
+.dataTables_length {
+    width: auto;
+}
+
+.ColVis {
+    margin: 0 10px 0 10px;
+    float: left;
+}
+
+.ColVis_Button {
+    padding: 5px;
+    font-size: 1em;
 }

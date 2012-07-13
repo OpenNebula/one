@@ -26,9 +26,9 @@ var vdcs_tab_content =
       <th>Name</th>\
       <th>Zone ID</th>\
       <th>Cluster ID</th>\
-      <th>Hosts</th>\
-      <th>Virtual Networks</th>\
-      <th>Datastores</th>\
+      <th>Hosts IDs</th>\
+      <th>Virtual Networks IDs</th>\
+      <th>Datastores IDs</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvdcs">\
@@ -57,31 +57,31 @@ var create_vdc_tmpl =
         <input type="checkbox" name="vdc_force" id="vdc_force" />\
         <div class="tip">Allows hosts, Vnets, datastores belonging to other VDCs to be re-added to this one. They will appear greyed-out in the lists.</div>\
         <div class="clear"></div>\
-        <label>Add resources:</label>\
-        <label style="margin-left:265px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
+        <label><b>VDC resources:</b></label><br /><hr style="border:none;height:1px;background-color:#CCCCCC" />\
+        <label style="margin-left:265px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label><br />\
         <label style="margin-left:243px;font-size:0.8em;color:#bbbbbb">Available / Selected</label><br />\
         <div class="clear"></div>\
-        <label><a href="#" class="vdc_show_hide">Hosts<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <label><a href="#" class="vdc_show_hide"><b>Hosts</b><span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
         <div id="vdc_hosts_lists" class="dd_lists">\
           <ul id="vdc_available_hosts_list" class="dd_list dd_left"></ul>\
           <ul id="vdc_selected_hosts_list" class="dd_list dd_right"></ul>\
-        </div>\
+        </div><br /><hr style="border:none;height:1px;background-color:#CCCCCC" />\
         <div class="clear"></div>\
-        <label><a href="#" class="vdc_show_hide">Virtual Networks<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <label><a href="#" class="vdc_show_hide"><b>Virtual Networks</b><span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
         <div id="vdc_vnets_lists" class="dd_lists">\
           <ul id="vdc_available_vnets_list" class="dd_list dd_left"></ul>\
           <ul id="vdc_selected_vnets_list" class="dd_list dd_right"></ul>\
-        </div>\
+        </div><br /><hr style="border:none;height:1px;background-color:#CCCCCC" />\
         <div class="clear"></div>\
-        <label><a href="#" class="vdc_show_hide">Datastores<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <label><a href="#" class="vdc_show_hide"><b>Datastores</b><span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
         <div id="vdc_datastores_lists" class="dd_lists">\
           <ul id="vdc_available_datastores_list" class="dd_list dd_left"></ul>\
           <ul id="vdc_selected_datastores_list" class="dd_list dd_right"></ul>\
-        </div>\
+        </div><br /><hr style="border:none;height:1px;background-color:#CCCCCC" />\
      </div>\
    </fieldset>\
-   <fieldset>\
-     <div class="form_buttons">\
+   <fieldset style="border-top:none;">\
+     <div class="form_buttons" style="margin-top:0;">\
         <button class="button" id="create_vdc_submit" value="VDC.create">Create</button>\
         <button class="button" type="reset" value="reset">Reset</button>\
      </div>\
@@ -100,29 +100,29 @@ var update_vdc_tmpl =
         <input type="checkbox" name="vdc_update_force" id="vdc_update_force" />\
         <div class="tip">Allows hosts, Vnets belonging to other VDCs to be re-added to this one. They will appear greyed-out in the list.</div>\
         <div class="clear"></div>\
-        <label style="margin-left:265px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
-        <label style="margin-left:243px;font-size:0.8em;color:#bbbbbb">Available / Current</label>\
-        <label><a href="#" class="vdc_show_hide">Hosts<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <label style="margin-left:265px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label><br />\
+        <label style="margin-left:243px;font-size:0.8em;color:#bbbbbb">Available / Current</label><br />\
+        <label><a href="#" class="vdc_show_hide"><b>Hosts</b><span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
         <div id="vdc_update_hosts_lists" class="dd_lists">\
           <ul id="vdc_update_available_hosts_list" class="dd_list dd_left"></ul>\
           <ul id="vdc_update_selected_hosts_list" class="dd_list dd_right"></ul>\
-        </div>\
+        </div><br /><hr style="border:none;height:1px;background-color:#CCCCCC" />\
         <div class="clear"></div>\
-        <label><a href="#" class="vdc_show_hide">Virtual Networks<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <label><a href="#" class="vdc_show_hide"><b>Virtual Networks</b><span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
         <div id="vdc_update_vnets_lists" class="dd_lists">\
           <ul id="vdc_update_available_vnets_list" class="dd_list dd_left"></ul>\
           <ul id="vdc_update_selected_vnets_list" class="dd_list dd_right"></ul>\
-        </div>\
+        </div><br /><hr style="border:none;height:1px;background-color:#CCCCCC" />\
         <div class="clear"></div>\
-        <label><a href="#" class="vdc_show_hide">Datastores<span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
+        <label><a href="#" class="vdc_show_hide"><b>Datastores</b><span class="inline_icon ui-icon ui-icon-triangle-1-s" /></a></label>\
         <div id="vdc_update_datastores_lists" class="dd_lists">\
           <ul id="vdc_update_available_datastores_list" class="dd_list dd_left"></ul>\
           <ul id="vdc_update_selected_datastores_list" class="dd_list dd_right"></ul>\
-        </div>\
+        </div><br /><hr style="border:none;height:1px;background-color:#CCCCCC" />\
      </div>\
    </fieldset>\
-   <fieldset>\
-     <div class="form_buttons">\
+   <fieldset style="border-top:none;">\
+     <div class="form_buttons" style="margin-top:0;">\
         <button class="button" id="update_vdc_submit" value="VDC.update">Update</button>\
         <button class="button" type="reset" value="reset">Reset</button>\
      </div>\
@@ -301,9 +301,9 @@ function vdcElementArray(vdc_json){
         vdc.NAME,
         vdc.ZONES_ID,
         vdc.CLUSTER_ID,
-        vdc.RESOURCES.HOSTS.length ? vdc.RESOURCES.HOSTS.join() : "none",
-        vdc.RESOURCES.NETWORKS.length ? vdc.RESOURCES.NETWORKS.join() : "none",
-        vdc.RESOURCES.DATASTORES.length ? vdc.RESOURCES.DATASTORES.join() : "none",
+        vdc.RESOURCES.HOSTS.length ? vdc.RESOURCES.HOSTS.join(', ') : "none",
+        vdc.RESOURCES.NETWORKS.length ? vdc.RESOURCES.NETWORKS.join(', ') : "none",
+        vdc.RESOURCES.DATASTORES.length ? vdc.RESOURCES.DATASTORES.join(', ') : "none",
     ];
 }
 
@@ -562,20 +562,35 @@ function setupCreateVDCDialog(){
     var dialog = $('div#create_vdc_dialog');
     dialog.html(create_vdc_tmpl);
 
-    var height = Math.floor($(window).height()*0.8);
-
     dialog.dialog({
         autoOpen: false,
         modal: true,
-        height: height,
         width: 500
     });
 
+
+    //Hide VDC resources selects
     $('div#vdc_hosts_lists,div#vdc_vnets_lists,div#vdc_datastores_lists',dialog).hide();
+
+    // Listen to labels of VDC resources
     $('.vdc_show_hide',dialog).click(function(){
+        // Switch triangle icon
         $('span',this).toggleClass('ui-icon-triangle-1-s ui-icon-triangle-1-n');
-        $(this).parent().next().toggle();
+
+        // The selects boxes' div
+        var list = $(this).parent().next();
+
+        // If visible, hide it. Otherwise hide all lists and show this one.
+        if (list.is(':visible')) list.fadeOut();
+        else {
+            $('.dd_lists', list.parent()).hide();
+            list.fadeIn();
+        }
+        return false;
     });
+
+    //Show hosts resources
+    $('.vdc_show_hide', dialog).first().trigger('click');
 
     $('button',dialog).button();
     $('#vdc_available_hosts_list',dialog).sortable({
@@ -729,11 +744,29 @@ function setupUpdateVDCDialog(){
         width: 500
     });
 
-    $('div#vdc_update_hosts_lists,div#vdc_update_vnets_lists,div#vdc_update_datastores_lists',dialog).hide();
+
+    //Hide VDC resources selects
+    $('div#vdc_hosts_lists,div#vdc_vnets_lists,div#vdc_datastores_lists',dialog).hide();
+
+    // Listen to labels of VDC resources
     $('.vdc_show_hide',dialog).click(function(){
+        // Switch triangle icon
         $('span',this).toggleClass('ui-icon-triangle-1-s ui-icon-triangle-1-n');
-        $(this).parent().next().toggle();
+
+        // The selects boxes' div
+        var list = $(this).parent().next();
+
+        // If visible, hide it. Otherwise hide all lists and show this one.
+        if (list.is(':visible')) list.fadeOut();
+        else {
+            $('.dd_lists', list.parent()).hide();
+            list.fadeIn();
+        }
+        return false;
     });
+
+    //Show hosts resources
+    $('.vdc_show_hide', dialog).first().trigger('click');
 
     $('button',dialog).button();
     $('#vdc_update_available_hosts_list',dialog).sortable({

@@ -178,11 +178,18 @@ function updateUsersList(req,list,tag, zone_id,zone_name){
 
     $.each(list,function(){
         var user = this.USER;
-        var name = "";
-        var group_str = "";
-        if (user.NAME && user.NAME != {}){
-            name = user.NAME;
+        //var group_str = "";
+
+        var vms = "-";
+        var memory = "-";
+        var cpu = "-";
+
+        if (!$.isEmptyObject(user.VM_QUOTA)){
+            vms = user.VM_QUOTA.VM.VMS_USED;
+            memory = user.VM_QUOTA.VM.MEMORY_USED+' MB';
+            cpu = user.VM_QUOTA.VM.CPU_USED;
         }
+
 
         // if (user.GROUPS.ID){
         //     $.each(user.GROUPS.ID,function() {
@@ -194,12 +201,24 @@ function updateUsersList(req,list,tag, zone_id,zone_name){
                 zone_id,
                 zone_name,
                 user.ID,
-                name
+                user.NAME,
+                user.GNAME,
+                user.AUTH_DRIVER,
+                vms,
+                memory,
+                cpu,
+                user.GID
             ]);
         } else {
             user_array.push([
                 user.ID,
-                name
+                user.NAME,
+                user.GNAME,
+                user.AUTH_DRIVER,
+                vms,
+                memory,
+                cpu,
+                user.GID
             ]);
         }
 
@@ -223,11 +242,14 @@ function updateImagesList(req,list,tag,zone_id,zone_name){
                 image.UNAME,
                 image.GNAME,
                 image.NAME,
+                image.DATASTORE,
+                image.SIZE,
                 oZones.Helper.image_type(image.TYPE),
                 pretty_time(image.REGTIME),
                 parseInt(image.PERSISTENT) ? "yes" : "no",
                 oZones.Helper.resource_state("image",image.STATE),
-                image.RUNNING_VMS
+                image.RUNNING_VMS,
+                image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
             ]);
         } else {
             image_array.push([
@@ -235,11 +257,14 @@ function updateImagesList(req,list,tag,zone_id,zone_name){
                 image.UNAME,
                 image.GNAME,
                 image.NAME,
+                image.DATASTORE,
+                image.SIZE,
                 oZones.Helper.image_type(image.TYPE),
                 pretty_time(image.REGTIME),
                 parseInt(image.PERSISTENT) ? "yes" : "no",
                 oZones.Helper.resource_state("image",image.STATE),
-                image.RUNNING_VMS
+                image.RUNNING_VMS,
+                image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
             ]);
         };
     });
@@ -300,7 +325,11 @@ function hostElementArray(host,zone_id,zone_name){
             host.HOST_SHARE.RUNNING_VMS, //rvm
             pb_cpu,
             pb_mem,
-            oZones.Helper.resource_state("host_simple",host.STATE) ];
+            oZones.Helper.resource_state("host_simple",host.STATE),
+            host.IM_MAD,
+            host.VM_MAD,
+            pretty_time(host.LAST_MON_TIME)
+        ];
     };
 
     return [
@@ -310,7 +339,11 @@ function hostElementArray(host,zone_id,zone_name){
         host.HOST_SHARE.RUNNING_VMS, //rvm
         pb_cpu,
         pb_mem,
-        oZones.Helper.resource_state("host_simple",host.STATE) ];
+        oZones.Helper.resource_state("host_simple",host.STATE),
+        host.IM_MAD,
+        host.VM_MAD,
+        pretty_time(host.LAST_MON_TIME)
+    ];
 };
 
 
@@ -321,17 +354,41 @@ function updateClustersList(req,list,tag, zone_id,zone_name){
     $.each(list,function(){
         var cluster = this.CLUSTER;
 
+        var hosts = 0;
+        if ($.isArray(cluster.HOSTS.ID))
+            hosts = cluster.HOSTS.ID.length;
+        else if (!$.isEmptyObject(cluster.HOSTS.ID))
+            hosts = 1;
+
+        var vnets = 0;
+        if ($.isArray(cluster.VNETS.ID))
+            vnets = cluster.VNETS.ID.length;
+        else if (!$.isEmptyObject(cluster.VNETS.ID))
+            vnets = 1;
+
+        var dss = 0;
+        if ($.isArray(cluster.DATASTORES.ID))
+            dss = cluster.DATASTORES.ID.length;
+        else if (!$.isEmptyObject(cluster.DATASTORES.ID))
+            dss = 1;
+
         if (zone_id){
             array.push([
                 zone_id,
                 zone_name,
                 cluster.ID,
-                cluster.NAME
+                cluster.NAME,
+                hosts,
+                vnets,
+                dss
             ]);
         } else {
             array.push([
                 cluster.ID,
-                cluster.NAME
+                cluster.NAME,
+                hosts,
+                vnets,
+                dss
             ]);
         };
 
@@ -356,6 +413,10 @@ function updateDatastoresList(req,list,tag, zone_id,zone_name){
                 ds.GNAME,
                 ds.NAME,
                 ds.CLUSTER.length ? ds.CLUSTER : "-",
+                ds.BASE_PATH,
+                ds.TM_MAD,
+                ds.DS_MAD,
+                ds.SYSTEM == '1' ? 'Yes' : 'No'
             ]);
         } else {
             array.push([
@@ -364,6 +425,10 @@ function updateDatastoresList(req,list,tag, zone_id,zone_name){
                 ds.GNAME,
                 ds.NAME,
                 ds.CLUSTER.length ? ds.CLUSTER : "-",
+                ds.BASE_PATH,
+                ds.TM_MAD,
+                ds.DS_MAD,
+                ds.SYSTEM == '1' ? 'Yes' : 'No'
             ]);
         };
 

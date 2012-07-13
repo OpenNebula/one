@@ -355,9 +355,12 @@ function updateZoneInfo(req,zone_json){
       <th>Name</th>\
       <th>Cluster</th>\
       <th>Running VMs</th>\
-      <th>CPU Use</th>\
-      <th>Memory use</th>\
+      <th>Used CPU</th>\
+      <th>Used Memory</th>\
       <th>Status</th>\
+      <th>IM MAD</th>\
+      <th>VM MAD</th>\
+      <th>Last monitored on</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -396,9 +399,9 @@ function updateZoneInfo(req,zone_json){
       <th>Group</th>\
       <th>Name</th>\
       <th>Status</th>\
-      <th>CPU</th>\
-      <th>Memory</th>\
-      <th>Hostname</th>\
+      <th>Used CPU</th>\
+      <th>Used Memory</th>\
+      <th>Host</th>\
       <th>IPs</th>\
       <th>Start Time</th>\
     </tr>\
@@ -441,11 +444,14 @@ function updateZoneInfo(req,zone_json){
       <th>Owner</th>\
       <th>Group</th>\
       <th>Name</th>\
+      <th>Datastore</th>\
+      <th>Size</th>\
       <th>Type</th>\
       <th>Registration time</th>\
       <th>Persistent</th>\
       <th>State</th>\
       <th>#VMS</th>\
+      <th>Target</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -462,6 +468,12 @@ function updateZoneInfo(req,zone_json){
     <tr>\
       <th>ID</th>\
       <th>Name</th>\
+      <th>Group</th>\
+      <th>Auth driver</th>\
+      <th>VMS</th>\
+      <th>Memory</th>\
+      <th>CPU</th>\
+      <th>GID</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -479,6 +491,9 @@ function updateZoneInfo(req,zone_json){
     <tr>\
       <th>ID</th>\
       <th>Name</th>\
+      <th>Hosts</th>\
+      <th>Virtual Networks</th>\
+      <th>Datastores</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -499,6 +514,10 @@ function updateZoneInfo(req,zone_json){
       <th>Group</th>\
       <th>Name</th>\
       <th>Cluster</th>\
+      <th>Basepath</th>\
+      <th>TM MAD</th>\
+      <th>DS MAD</th>\
+      <th>System</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -526,12 +545,14 @@ function updateZoneInfo(req,zone_json){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "sWidth": "60px", "aTargets": [3,6] },
-            { "sWidth": "100px", "aTargets": [2] },
+            { "sWidth": "100px", "aTargets": [2,7,8,9] },
             { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "200px", "aTargets": [4,5] }
+            { "sWidth": "200px", "aTargets": [4,5] },
+            { "bVisible" : false, "aTargets": [7,8,9] }
         ]
     });
 
@@ -540,10 +561,12 @@ function updateZoneInfo(req,zone_json){
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0] },
             { "sWidth": "60px", "aTargets": [5,6] },
-            { "sWidth": "100px", "aTargets": [1,2,4,8] }
+            { "sWidth": "100px", "aTargets": [1,2,4,8] },
+            { "bVisible" : false, "aTargets": [5,6,9] }
         ]
     });
 
@@ -553,10 +576,12 @@ function updateZoneInfo(req,zone_json){
         "bSortClasses": false,
         "bAutoWidth":false,
         "sPaginationType": "full_numbers",
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
             { "sWidth": "60px", "aTargets": [5,6,7] },
             { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [1,2,4] }
+            { "sWidth": "100px", "aTargets": [1,2,4] },
+            { "bVisible" : false, "aTargets": [6] }
         ]
     });
 
@@ -564,11 +589,13 @@ function updateZoneInfo(req,zone_json){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "60px", "aTargets": [7] },
-            { "sWidth": "35px", "aTargets": [0,6,8] },
-            { "sWidth": "100px", "aTargets": [1,2,4,5] }
+            { "sWidth": "60px", "aTargets": [9] },
+            { "sWidth": "35px", "aTargets": [0,5,8,10,11] },
+            { "sWidth": "100px", "aTargets": [1,2,4,6,7] },
+            { "bVisible" : false, "aTargets": [5,7,11] }
         ]
     });
 
@@ -576,6 +603,7 @@ function updateZoneInfo(req,zone_json){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0] },
@@ -588,8 +616,11 @@ function updateZoneInfo(req,zone_json){
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0] }
+            { "sWidth": "35px", "aTargets": [0,4,5,6,7] },
+            { "sWidth": "150px", "aTargets": [3] },
+            { "bVisible" : false, "aTargets": [7] }
         ]
     });
 
@@ -597,9 +628,10 @@ function updateZoneInfo(req,zone_json){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0] },
+            { "sWidth": "35px", "aTargets": [0,2,3,4] },
         ]
     });
 
@@ -607,10 +639,12 @@ function updateZoneInfo(req,zone_json){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [1,2,4] }
+            { "sWidth": "100px", "aTargets": [1,2,4,6,7,8] },
+            { "bVisible" : false, "aTargets": [5,6,7,8] }
         ]
     });
 
