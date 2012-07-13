@@ -116,26 +116,18 @@ var create_image_tmpl =
                    <input type="radio" name="src_path" id="path_img" value="path" />\
                    <label style="float:none">'+tr("Provide a path")+'</label><br />\
 \
-                   <input type="radio" name="src_path" id="source_img" value="source" />\
-                   <label style="float:none">'+tr("Provide a source")+'</label><br />\
-\
                    <input type="radio" name="src_path" id="upload_img" value="upload" />\
                    <label style="float:none">'+tr("Upload")+'</label><br />\
 \
                    <input type="radio" name="src_path" id="datablock_img" value="datablock" />\
                    <label style="float:none;vertical-align:top">'+tr("Create an empty datablock")+'</label>\
-                   <div class="tip">'+tr("Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.")+'</div><br />\
+                   <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div><br />\
 \
                  </div>\
                  <div class="img_param">\
                     <label for="img_path">'+tr("Path")+':</label>\
                     <input type="text" name="img_path" id="img_path" />\
                     <div class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</div>\
-                 </div>\
-                 <div class="img_param">\
-                    <label for="img_source">'+tr("Source")+':</label>\
-                    <input type="text" name="img_source" id="img_source" />\
-                    <div class="tip">'+tr("Source to be used in the DISK attribute. Useful for not file-based images.")+'</div>\
                  </div>\
                  <div class="img_size">\
                     <label for="img_size">'+tr("Size")+':</label>\
@@ -727,6 +719,7 @@ function setupCreateImageDialog(){
     $('#img_type option',dialog).first().attr('selected','selected');
     $('#datablock_img',dialog).attr('disabled','disabled');
 
+
     $('select#img_type',dialog).change(function(){
         var value = $(this).val();
         var context = $create_image_dialog;
@@ -737,42 +730,28 @@ function setupCreateImageDialog(){
         default:
             $('#datablock_img',context).attr('disabled','disabled');
             $('#path_img',context).attr('checked','checked');
-            $('#img_source,#img_fstype,#img_size,#file-uploader',context).parent().hide();
+            $('#img_fstype,#img_size,#file-uploader',context).parent().hide();
             $('#img_path',context).parent().show();
         }
     });
 
-    $('#img_source,#img_fstype,#img_size,#file-uploader',dialog).parent().hide();
-    $('#path_img',dialog).attr('checked','checked');
-    $('#img_path',dialog).parent().addClass("img_man");
+    $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).parent().hide();
 
     $('#src_path_select input').click(function(){
         var context = $create_image_dialog;
         var value = $(this).val();
         switch (value){
         case "path":
-            $('#img_source,#img_fstype,#img_size,#file-uploader',context).parent().hide();
-            $('#img_source,#img_fstype,#img_size,#file-uploader',context).parent().removeClass("img_man");
+            $('#img_fstype,#img_size,#file-uploader',context).parent().hide();
             $('#img_path',context).parent().show();
-            $('#img_path',context).parent().addClass("img_man");
-            break;
-        case "source":
-            $('#img_path,#img_fstype,#img_size,#file-uploader',context).parent().hide();
-            $('#img_path,#img_fstype,#img_size,#file-uploader',context).parent().removeClass("img_man");
-            $('#img_source',context).parent().show();
-            $('#img_source',context).parent().addClass("img_man");
             break;
         case "datablock":
-            $('#img_source,#img_path,#file-uploader',context).parent().hide();
-            $('#img_source,#img_path,#file-uploader',context).parent().removeClass("img_man");
+            $('#img_path,#file-uploader',context).parent().hide();
             $('#img_fstype,#img_size',context).parent().show();
-            $('#img_fstype,#img_size',context).parent().addClass("img_man");
             break;
         case "upload":
-            $('#img_path,#img_source,#img_fstype,#img_size',context).parent().hide();
-            $('#img_path,#img_source,#img_fstype,#img_size',context).parent().removeClass("img_man");
+            $('#img_path,#img_fstype,#img_size',context).parent().hide();
             $('#file-uploader',context).parent().show();
-            $('#file-uploader',context).parent().addClass("img_man");
             break;
         };
     });
@@ -919,17 +898,13 @@ function setupCreateImageDialog(){
         switch ($('#src_path_select input:checked',this).val()){
         case "path":
             path = $('#img_path',this).val();
-            img_json["PATH"] = path;
-            break;
-        case "source":
-            source = $('#img_source',this).val();
-            img_json["SOURCE"] = source;
+            if (path) img_json["PATH"] = path;
             break;
         case "datablock":
             size = $('#img_size',this).val();
             fstype = $('#img_fstype',this).val();
-            img_json["SIZE"] = size;
-            img_json["FSTYPE"] = fstype;
+            if (size) img_json["SIZE"] = size;
+            if (fstype) img_json["FSTYPE"] = fstype;
             break;
         case "upload":
             upload=true;
