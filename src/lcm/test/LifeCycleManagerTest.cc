@@ -48,6 +48,8 @@ static int     hid = 123;
 static string  hostname    = "test_hostname";
 static string  vmm_mad     = "vmm_mad";
 static string  vnm_mad     = "vnm_mad";
+static string  tm_mad      = "tm_mad";
+static int     ds_id       = 1;
 
 class LifeCycleManagerTest : public OneUnitTest
 {
@@ -224,7 +226,7 @@ private:
 
         vm->lock();
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
@@ -488,7 +490,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -572,7 +574,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -593,7 +595,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -614,7 +616,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -636,7 +638,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -660,7 +662,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -684,7 +686,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
 
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -748,7 +750,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
@@ -771,7 +773,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
@@ -794,7 +796,7 @@ public:
     {
         vm = allocate_running(0);
 
-        vm->add_history(hid,hostname,vmm_mad,vnm_mad);
+        vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
         rc = vmpool->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 

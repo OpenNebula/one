@@ -31,7 +31,7 @@
 class FriendHostPool : public HostPoolXML
 {
 public:
-    FriendHostPool(Client* client):HostPoolXML(client){};
+    FriendHostPool(Client* client):HostPoolXML(client, 0.1){};
 
     friend class HostXMLTest;
 
@@ -81,7 +81,7 @@ public:
                 (
                     Client* client,
                     unsigned int m_limit = 0
-                 ):VirtualMachinePoolXML(client, m_limit){};
+                 ):VirtualMachinePoolXML(client, m_limit, false){};
 
     friend class VirtualMachineXMLTest;
 

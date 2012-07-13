@@ -27,6 +27,7 @@ using namespace std;
 const int uids[] = {123, 261, 123};
 
 const string names[] = {"VM one", "Second VM", "VM one"};
+const string memory[] = {"128", "256", "1024"};
 
 const string templates[] =
 {
@@ -42,31 +43,6 @@ const string templates[] =
     "MEMORY = 1024\n"
     "CPU    = 1"
 };
-
-
-const string xmls[] =
-{
-    "<VM><ID>0</ID><UID>123</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM>",
-
-    "<VM><ID>1</ID><UID>261</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>Second VM</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM>",
-
-    "<VM><ID>0</ID><UID>123</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
-    "ATE>1</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ET"
-    "IME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX"
-    "><NET_RX>0</NET_RX><TEMPLATE><CPU>1</CPU><MEMORY>1024</MEMORY><NAME>VM one"
-    "</NAME><VMID>0</VMID></TEMPLATE><HISTORY_RECORDS/></VM>"
-};
-
-
-// This xml dump result has the STIMEs modified to 0000000000
-const string xml_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM><VM><ID>1</ID><UID>2</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>Second VM</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM></VM_POOL>";
-
-const string xml_dump_where =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM></VM_POOL>";
-
-const string xml_history_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM><VM><ID>1</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>Second VM</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE><HISTORY_RECORDS><HISTORY><SEQ>0</SEQ><HOSTNAME>A_hostname</HOSTNAME><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>A_vmm_mad</VMMMAD><VNMMAD>A_vnm_mad</VNMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></HISTORY_RECORDS></VM><VM><ID>2</ID><UID>0</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[2]]></VMID></TEMPLATE><HISTORY_RECORDS><HISTORY><SEQ>1</SEQ><HOSTNAME>C_hostname</HOSTNAME><HID>2</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>C_vmm_mad</VMMMAD><VNMMAD>C_vnm_mad</VNMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></HISTORY_RECORDS></VM><VM><ID>3</ID><UID>1</UID><GID>1</GID><UNAME>the_user</UNAME><GNAME>users</GNAME><NAME>VM one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><LAST_POLL>0</LAST_POLL><STATE>6</STATE><LCM_STATE>0</LCM_STATE><RESCHED>0</RESCHED><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[3]]></VMID></TEMPLATE><HISTORY_RECORDS/></VM></VM_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -136,9 +112,6 @@ class VirtualMachinePoolTest : public PoolTest
     CPPUNIT_TEST (wrong_get);
 
     CPPUNIT_TEST (update);
-    CPPUNIT_TEST (dump);
-    CPPUNIT_TEST (dump_where);
-    CPPUNIT_TEST (dump_history);
     CPPUNIT_TEST (history);
 
     CPPUNIT_TEST_SUITE_END ();
@@ -168,24 +141,18 @@ protected:
 
     void check(int index, PoolObjectSQL* obj)
     {
+        string st;
+
         CPPUNIT_ASSERT( obj != 0 );
 
-        string xml_str = "";
+        VirtualMachine* vm = static_cast<VirtualMachine*>(obj);
 
-        // Get the xml and replace the STIME to 0, so we can compare it
-        ((VirtualMachine*)obj)->to_xml(xml_str);
-        fix_stimes(xml_str);
+        ObjectXML xml(vm->to_xml(st));
 
-//*
-        if( xml_str != xmls[index] )
-        {
-            cout << endl << xml_str << endl << "========"
-                 << endl << xmls[index] << endl << "--------";
-        }
-//*/
+        CPPUNIT_ASSERT( vm->get_name() == names[index] );
 
-        CPPUNIT_ASSERT( ((VirtualMachine*)obj)->get_name() == names[index] );
-        CPPUNIT_ASSERT( xml_str == xmls[index]);
+        xml.xpath(st, "/VM/TEMPLATE/MEMORY", "-");
+        CPPUNIT_ASSERT( st == memory[index] );
     };
 
 public:
@@ -275,162 +242,6 @@ public:
         CPPUNIT_ASSERT( vm->get_state() == VirtualMachine::ACTIVE );
     };
 
-    void dump()
-    {
-        VirtualMachinePoolFriend * vmp =
-                                static_cast<VirtualMachinePoolFriend*>(pool);
-
-        ostringstream oss;
-        int oid, rc;
-
-        vmp->allocate(1, templates[0], &oid, false);
-        vmp->allocate(2, templates[1], &oid, true);
-
-        rc = vmp->dump(oss, "");
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-        fix_stimes(result);
-
-        if( result != xml_dump )
-        {
-            cout << endl << result << endl << "========"
-                 << endl << xml_dump << endl << "--------";
-        }
-
-        CPPUNIT_ASSERT( result == xml_dump );
-    }
-
-    void dump_where()
-    {
-        VirtualMachinePoolFriend * vmp =
-                                static_cast<VirtualMachinePoolFriend*>(pool);
-
-        int oid, rc;
-        ostringstream oss;
-        ostringstream where;
-
-        vmp->allocate(1, templates[0], &oid, false);
-        vmp->allocate(2, templates[1], &oid, true);
-
-        where << "uid < 2";
-        rc = vmp->dump(oss, where.str());
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-        fix_stimes(result);
-
-        if( result != xml_dump_where )
-        {
-            cout << endl << result << endl << "========"
-                 << endl << xml_dump_where << endl << "--------";
-        }
-
-        CPPUNIT_ASSERT( result == xml_dump_where );
-    }
-
-    void dump_history()
-    {
-        VirtualMachinePoolFriend * vmp =
-                                static_cast<VirtualMachinePoolFriend*>(pool);
-        VirtualMachine*      vm;
-
-        string hostnames[] = {"A_hostname", "B_hostname", "C_hostname"};
-        string vmm_mads[]  = {"A_vmm_mad", "B_vmm_mad", "C_vmm_mad"};
-        string vnm_mads[]  = {"A_vnm_mad", "B_vnm_mad", "C_vnm_mad"};
-
-        int oid, rc;
-        ostringstream oss;
-        ostringstream where;
-
-
-        // Allocate a VM
-        rc = vmp->allocate(0, templates[0], &oid, false);
-        CPPUNIT_ASSERT( rc == oid );
-        CPPUNIT_ASSERT( oid >= 0 );
-        //----------------------------------------------------------------------
-
-        // Allocate a VM with one history item
-        rc = vmp->allocate(0, templates[1], &oid, true);
-        CPPUNIT_ASSERT( rc == oid );
-        CPPUNIT_ASSERT( oid >= 0 );
-
-        vm = vmp->get(oid, false);
-        CPPUNIT_ASSERT( vm != 0 );
-
-        // Add a history item
-        vm->add_history(0, hostnames[0], vmm_mads[0], vnm_mads[0]);
-
-        rc = vmp->update(vm);
-        CPPUNIT_ASSERT( rc == 0 );
-
-        rc = vmp->update_history(vm);
-        CPPUNIT_ASSERT( rc == 0 );
-        //----------------------------------------------------------------------
-
-        // Allocate a VM with two history items
-        rc = vmp->allocate(0, templates[2], &oid, true);
-        CPPUNIT_ASSERT( rc == oid );
-        CPPUNIT_ASSERT( oid >= 0 );
-
-        vm = vmp->get(oid, false);
-        CPPUNIT_ASSERT( vm != 0 );
-
-        // Add a history item
-        vm->add_history(1, hostnames[1], vmm_mads[1], vnm_mads[1]);
-
-        rc = vmp->update(vm);
-        CPPUNIT_ASSERT( rc == 0 );
-
-        rc = vmp->update_history(vm);
-        CPPUNIT_ASSERT( rc == 0 );
-
-        // Add another history item
-        vm->add_history(2, hostnames[2], vmm_mads[2], vnm_mads[2]);
-
-        rc = vmp->update(vm);
-        CPPUNIT_ASSERT( rc == 0 );
-
-        rc = vmp->update_history(vm);
-        CPPUNIT_ASSERT( rc == 0 );
-        //----------------------------------------------------------------------
-
-        // Allocate a VM, will be set to DONE
-        rc = vmp->allocate(1, templates[0], &oid, false);
-        CPPUNIT_ASSERT( rc == oid );
-        CPPUNIT_ASSERT( oid >= 0 );
-
-        vm = vmp->get(oid, false);
-        CPPUNIT_ASSERT( vm != 0 );
-
-        vm->set_state(VirtualMachine::DONE);
-        vmp->update(vm);
-        //----------------------------------------------------------------------
-
-        // Call dump. Should return:
-        //    the first VM, with no history.
-        //    the second VM, with the first and only history item
-        //    the third VM, with only its last history item
-
-        where << "uid < 2";
-        rc = vmp->dump(oss, where.str());
-        CPPUNIT_ASSERT(rc == 0);
-
-        // Get the xml and replace the STIME to 0, so we can compare it
-        string result = oss.str();
-        fix_stimes(result);
-
-
-        if( result != xml_history_dump )
-        {
-            cout << endl << result << endl << "========"
-                 << endl << xml_history_dump << endl << "--------";
-        }
-
-
-        CPPUNIT_ASSERT( result == xml_history_dump );
-    }
-
     void history()
     {
         VirtualMachine *           vm;
@@ -443,6 +254,9 @@ public:
         string new_hostname = "new_hostname";
         string vmm_mad      = "vm_mad";
         string vnm_mad      = "vn_mad";
+        string tm_mad       = "tm_mad";
+        int ds_id           = 1;
+
 
         // Allocate a VM
         oid = allocate(0);
@@ -452,7 +266,8 @@ public:
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
-        vm->add_history(0, hostname, vmm_mad, vnm_mad);
+
+        vm->add_history(0, hostname, vmm_mad, vnm_mad, tm_mad, ds_id);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
@@ -460,7 +275,7 @@ public:
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
-        vm->add_history(0, new_hostname, vmm_mad, vnm_mad);
+        vm->add_history(0, new_hostname, vmm_mad, vnm_mad, tm_mad, ds_id);
 
         rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );

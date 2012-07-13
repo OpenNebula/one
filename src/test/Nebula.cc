@@ -202,6 +202,7 @@ void Nebula::start()
         AclManager::bootstrap(db);
         DatastorePool::bootstrap(db);
         ClusterPool::bootstrap(db);
+        DocumentPool::bootstrap(db);
     }
     catch (exception&)
     {

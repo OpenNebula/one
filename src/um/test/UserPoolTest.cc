@@ -36,12 +36,6 @@ const string passwords_db[] = {
 "db3ee01bfda41592247491d69bf4208d4e79c102",
 "3ecc357d5f8aa63b737e6201f05dfca11646ffbb"};
 
-const string dump_result =
-"<USER_POOL><USER><ID>0</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>serveradmin</NAME><PASSWORD>b733a2d3a611eddcd0925df26ab9deb21f94e567</PASSWORD><AUTH_DRIVER>server_cipher</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>516b9783fca517eecbd1d064da2d165310b19759</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name_2</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>6</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another_name</NAME><PASSWORD>e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>7</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>user</NAME><PASSWORD>7110eda4d09e062aa5e4a390b0a572ac0d2c0220</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER></USER_POOL>";
-
-const string dump_where_result =
-"<USER_POOL><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>516b9783fca517eecbd1d064da2d165310b19759</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name_2</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>5</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another_name</NAME><PASSWORD>e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER></USER_POOL>";
-
 #include "NebulaTest.h"
 
 class NebulaTestUser: public NebulaTest
@@ -75,8 +69,6 @@ class UserPoolTest : public PoolTest
     CPPUNIT_TEST (wrong_get_name);
     CPPUNIT_TEST (update);
     CPPUNIT_TEST (duplicates);
-    //CPPUNIT_TEST (dump);
-    CPPUNIT_TEST (dump_where);
     CPPUNIT_TEST (name_index);
 
     CPPUNIT_TEST_SUITE_END ();
@@ -317,63 +309,6 @@ public:
         rc = up->allocate(&oid, 0, usernames[0], "oneadmin", passwords[1],UserPool::CORE_AUTH,true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
-    }
-
-    void dump()
-    {
-        string d_names[] = {"a", "a_name", "a_name_2", "another_name", "user"};
-        string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
-
-        int oid;
-        string err;
-        
-        for(int i=0; i<5; i++)
-        {
-            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin", d_pass[i],UserPool::CORE_AUTH, true, err);
-        }
-
-        ostringstream oss;
-        ((UserPool*)pool)->dump(oss, "");
-
-//*
-        if( oss.str() != dump_result )
-        {
-            cout << endl << oss.str() << endl << "========"
-                 << endl << dump_result << endl << "--------";
-        }
-//*/
-
-        CPPUNIT_ASSERT( oss.str() == dump_result );
-    }
-
-    void dump_where()
-    {
-        string d_names[] = {"a", "a_name", "a_name_2", "another_name", "user"};
-        string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
-
-        int oid;
-        string err;
-
-        for(int i=0; i<5; i++)
-        {
-            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin",d_pass[i], UserPool::CORE_AUTH,true, err);
-        }
-
-        // Note: second parameter of dump is the WHERE constraint. The "order
-        // by" is a dirty fix (SQL injection, actually) because MySQL orders the
-        // results by user_name
-        ostringstream oss;
-        ((UserPool*)pool)->dump(oss, "name LIKE 'a%'");
-
-//*
-        if( oss.str() != dump_where_result )
-        {
-            cout << endl << oss.str() << endl << "========"
-                 << endl << dump_where_result << endl << "--------";
-        }
-//*/
-
-        CPPUNIT_ASSERT( oss.str() == dump_where_result );
     }
 
     void name_index()

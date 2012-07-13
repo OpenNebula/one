@@ -30,7 +30,7 @@
 class FriendHostPool : public HostPoolXML
 {
 public:
-    FriendHostPool(Client* client):HostPoolXML(client){};
+    FriendHostPool(Client* client):HostPoolXML(client, 0){};
 
     friend class HostXMLTest;
 
@@ -82,7 +82,6 @@ class HostXMLTest : public OneUnitTest
     CPPUNIT_TEST_SUITE( HostXMLTest );
 
     CPPUNIT_TEST( initialization );
-    CPPUNIT_TEST( get_capacity );
     CPPUNIT_TEST( test_capacity );
     CPPUNIT_TEST( add_capacity );
 
@@ -141,31 +140,6 @@ public:
         CPPUNIT_ASSERT( hp->objects.count(5) == 1);
         CPPUNIT_ASSERT( hp->objects.count(6) == 0);
         CPPUNIT_ASSERT( hp->objects.count(7) == 0);
-    };
-
-    void get_capacity()
-    {
-        int rc;
-
-
-        CPPUNIT_ASSERT( hp != 0 );
-
-        rc = hp->set_up();
-        CPPUNIT_ASSERT( rc == 0 );
-
-        CPPUNIT_ASSERT( hp->objects.size() == 4 );
-
-        // TODO QUÉ ES THRESHOLD?
-        int cpu, mem, threshold;
-        threshold = 100;
-
-        HostXML* host = (HostXML*) hp->objects[5];
-        CPPUNIT_ASSERT(host != 0);
-
-        host->get_capacity(cpu, mem, threshold);
-
-        CPPUNIT_ASSERT(mem == 384);
-        CPPUNIT_ASSERT(cpu == 180);
     };
 
     void test_capacity()

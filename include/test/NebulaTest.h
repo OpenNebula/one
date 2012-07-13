@@ -28,6 +28,7 @@
 #include "VMTemplatePool.h"
 #include "DatastorePool.h"
 #include "ClusterPool.h"
+#include "DocumentPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -48,7 +49,7 @@ protected:
                 need_vnet_pool(false), need_image_pool(false), 
                 need_user_pool(false), need_template_pool(false),
                 need_group_pool(false), need_datastore_pool(false),
-                need_cluster_pool(false),
+                need_cluster_pool(false), need_document_pool(false),
                 need_vmm(false),
                 need_im(false), need_tm(false),
                 need_lcm(false), need_dm(false),

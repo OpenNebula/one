@@ -23,106 +23,13 @@
 
 using namespace std;
 
-const string im_mad  = "im_mad";
+const string im_mads[]  = {"im_mad_one", "im_mad_2", "im_mad_3"};
+const string im_mad = im_mads[0];
 const string vmm_mad = "vmm_mad";
 const string vnm_mad = "vnm_mad";
 
 const string names[] = {"Host one", "Second host"};
 
-const string xmls[] =
-{
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE>"
-    "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD>"
-    "<LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE>"
-    "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
-    "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU>"
-    "<FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU>"
-    "<USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU>"
-    "<RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>",
-
-    "<HOST><ID>1</ID><NAME>Second host</NAME><STATE>0</STATE>"
-    "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD>"
-    "<LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE>"
-    "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
-    "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU>"
-    "<FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU>"
-    "<USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU>"
-    "<RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>"
-};
-
-// This xml dump result has the LAST_MON_TIMEs modified to 0000000000
-const string xml_dump =
-    "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
-    "M_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0"
-    "</LAST_MON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM"
-    "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
-    ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
-    "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
-    "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST>"
-    "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
-    "D>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_M"
-    "ON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
-    "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
-    "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
-    "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
-    "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>2</ID><N"
-    "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOS"
-    "T_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
-    "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
-    "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
-    "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
-    "NING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>3</ID><NAME>another "
-    "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHAR"
-    "E><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
-    ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
-    "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
-    "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
-    "MS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>4</ID><NAME>host</NAME><ST"
-    "ATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD>"
-    "<LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE>"
-    "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
-    "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0"
-    "</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED"
-    "_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_"
-    "VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST></HOST_POOL>";
-
-const string xml_dump_like_a =
-    "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
-    "M_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0"
-    "</LAST_MON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM"
-    "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
-    ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
-    "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
-    "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST>"
-    "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
-    "D>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_M"
-    "ON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
-    "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
-    "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
-    "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
-    "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>2</ID><N"
-    "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOS"
-    "T_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
-    "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
-    "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
-    "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
-    "NING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>3</ID><NAME>another "
-    "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHAR"
-    "E><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
-    ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
-    "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
-    "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
-    "MS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST></HOST_POOL>";
-
-const string host0_updated =
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE><ATT_A><![CDATA[VALUE_A]]></ATT_A><ATT_B><![CDATA[VALUE_B]]></ATT_B></TEMPLATE></HOST>";
-
-const string host_0_cluster =
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><VN_MAD>vnm_mad</VN_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>cluster_a</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>";
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -133,11 +40,8 @@ class HostPoolTest : public PoolTest
     ALL_POOLTEST_CPPUNIT_TESTS();
 
     CPPUNIT_TEST (update);
-    CPPUNIT_TEST (dump);
-    CPPUNIT_TEST (dump_where);
     CPPUNIT_TEST (discover);
     CPPUNIT_TEST (duplicates);
-    CPPUNIT_TEST (update_info);
     CPPUNIT_TEST (name_index);
 
 //    CPPUNIT_TEST (scale_test);
@@ -162,7 +66,7 @@ protected:
     {
         int    oid;
         string err;
-        return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
+        return ((HostPool*)pool)->allocate(&oid, names[index], im_mads[index],
                      vmm_mad, vnm_mad, 
                      ClusterPool::NONE_CLUSTER_ID,
                      ClusterPool::NONE_CLUSTER_NAME,err);
@@ -170,27 +74,19 @@ protected:
 
     void check(int index, PoolObjectSQL* obj)
     {
-        Host * host = static_cast<Host *>(obj);
+        string st;
 
         CPPUNIT_ASSERT( obj != 0 );
 
-        string xml_str = "";
-        string name = host->get_name();
+        Host * host = static_cast<Host *>(obj);
 
-        CPPUNIT_ASSERT( name == names[index] );
+        ObjectXML xml(host->to_xml(st));
 
-        // Get the xml
-        host->to_xml(xml_str);
+        CPPUNIT_ASSERT( host->get_name() == names[index] );
 
-//  A little help for debugging
-//*
-        if( xml_str != xmls[index] )
-        {
-            cout << endl << xml_str << endl << "========"
-                 << endl << xmls[index] << endl;
-        }
-//*/
-        CPPUNIT_ASSERT( xml_str == xmls[index]);
+        xml.xpath(st, "/HOST/IM_MAD", "-");
+
+        CPPUNIT_ASSERT( st == im_mads[index] );
     };
 
 
@@ -283,83 +179,6 @@ public:
         host = hp->get(oid_0, false);
         CPPUNIT_ASSERT( host != 0 );
         CPPUNIT_ASSERT( host->get_im_mad() == im_mad );
-    }
-
-    /* ********************************************************************* */
-
-    void dump()
-    {
-        string names[] = {"a", "a name", "a_name", "another name", "host"};
-        int rc, oid;
-        string err;
-
-        for(int i=0; i<5; i++)
-        {
-            ((HostPool*)pool)->allocate(&oid, 
-                          names[i], 
-                          im_mad, 
-                          vmm_mad, 
-                          vnm_mad, 
-                          ClusterPool::NONE_CLUSTER_ID,
-                          ClusterPool::NONE_CLUSTER_NAME,
-                          err);
-        }
-
-        ostringstream oss;
-
-        rc = ((HostPool*)pool)->dump(oss, "");
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-
-//  A little help for debugging
-/*
-        if( result != xml_dump )
-        {
-            cout << endl << result << endl << "========"
-                 << endl << xml_dump << endl;
-        }
-*/
-
-        CPPUNIT_ASSERT( result == xml_dump );
-    }
-
-    /* ********************************************************************* */
-
-    void dump_where()
-    {
-        string names[] = {"a", "a name", "a_name", "another name", "host"};
-        int rc, oid;
-        string err;
-
-        for(int i=0; i<5; i++)
-        {
-            ((HostPool*)pool)->allocate(&oid, 
-                          names[i], 
-                          im_mad, 
-                          vmm_mad, 
-                          vnm_mad, 
-                          ClusterPool::NONE_CLUSTER_ID,
-                          ClusterPool::NONE_CLUSTER_NAME,
-                          err);
-        }
-
-        ostringstream oss;
-        rc = ((HostPool*)pool)->dump(oss, "name LIKE 'a%'");
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-
-//  A little help for debugging
-/*
-        if( result != xml_dump_like_a )
-        {
-            cout << endl << result << endl << "========"
-                 << endl << xml_dump_like_a << endl;
-        }
-*/
-
-        CPPUNIT_ASSERT( result == xml_dump_like_a );
     }
 
     /* ********************************************************************* */
@@ -511,40 +330,6 @@ public:
 
             cout << "\t" << i << "\t" << time(0) - the_time << endl;
         }
-    }
-
-    /* ********************************************************************* */
-
-    void update_info()
-    {
-        int         rc;
-        int         oid_1;
-        HostPool *  hp = static_cast<HostPool *>(pool);
-        Host*       host;
-        string      str;
-
-        oid_1 = allocate(0);
-
-        host = hp->get(oid_1, false);
-        CPPUNIT_ASSERT( host != 0 );
-
-        string info = "ATT_A=VALUE_A ATT_B=VALUE_B";
-        rc = host->update_info(info);
-
-        CPPUNIT_ASSERT(rc == 0);
-
-        pool->update(host);
-
-        host = hp->get(oid_1,false);
-        CPPUNIT_ASSERT( host != 0 );
-        CPPUNIT_ASSERT( host->to_xml(str) == host0_updated );
-
-        //Now force access to DB
-        pool->clean();
-        host = hp->get(oid_1,false);
-
-        CPPUNIT_ASSERT( host != 0 );
-        CPPUNIT_ASSERT( host->to_xml(str) == host0_updated );
     }
 
     /* ********************************************************************* */

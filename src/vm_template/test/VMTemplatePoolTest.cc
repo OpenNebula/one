@@ -26,38 +26,25 @@ using namespace std;
 const int uids[] = {0,1,2};
 
 const string names[] = {"Template one", "Second Template", "Third Template"};
+const string mojo[] = {"1", "2", "3"};
 
 const string templates[] =
 {
     "NAME   = \"Template one\"\n"
     "MEMORY = 128\n"
-    "CPU    = 1",
+    "CPU    = 1\n"
+    "MOJO   = 1",
 
     "NAME   = \"Second Template\"\n"
     "MEMORY = 256\n"
-    "CPU    = 2",
+    "CPU    = 2\n"
+    "MOJO   = 2",
 
     "NAME   = \"Third Template\"\n"
     "MEMORY = 1024\n"
-    "CPU    = 3"
+    "CPU    = 3\n"
+    "MOJO   = 3",
 };
-
-
-const string xmls[] =
-{
-    "<VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>",
-
-    "<VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>",
-
-    "<VMTEMPLATE><ID>2</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Third Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME><TEMPLATE_ID><![CDATA[2]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE>"
-};
-
-
-// This xml dump result has the STIMEs modified to 0000000000
-const string xml_dump =
-    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>2</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Third Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME><TEMPLATE_ID><![CDATA[2]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
-const string xml_dump_where =
-    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Template one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME><TEMPLATE_ID><![CDATA[0]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Second Template</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME><TEMPLATE_ID><![CDATA[1]]></TEMPLATE_ID></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
 
 class VMTemplatePoolFriend : public VMTemplatePool
 {
@@ -108,8 +95,6 @@ class VMTemplatePoolTest : public PoolTest
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
     CPPUNIT_TEST ( duplicates );
-    CPPUNIT_TEST ( dump );
-    CPPUNIT_TEST ( dump_where );
     CPPUNIT_TEST ( name_index );
     CPPUNIT_TEST ( chown_name_index );
 
@@ -138,24 +123,18 @@ protected:
 
     void check(int index, PoolObjectSQL* obj)
     {
+        string st;
+
         CPPUNIT_ASSERT( obj != 0 );
 
-        string xml_str = "";
+        VMTemplate* tmpl = static_cast<VMTemplate*>(obj);
 
-        // Get the xml and replace the REGTIME to 0, so we can compare
-        // it.
-        ((VMTemplate*)obj)->to_xml(xml_str);
-        fix_regtimes( xml_str );
+        ObjectXML xml(tmpl->to_xml(st));
 
-//*
-        if( xml_str != xmls[index] )
-        {
-            cout << endl << xml_str << endl << xmls[index] << endl;
-        }
-//*/
+        CPPUNIT_ASSERT( tmpl->get_name() == names[index] );
 
-        CPPUNIT_ASSERT( obj->get_name() == names[index] );
-        CPPUNIT_ASSERT( xml_str == xmls[index]);
+        xml.xpath(st, "/VMTEMPLATE/TEMPLATE/MOJO", "-");
+        CPPUNIT_ASSERT( st == mojo[index] );
     };
 
 public:
@@ -312,18 +291,20 @@ public:
     {
         int oid_0, oid_1;
 
+        VMTemplatePool * tpool = static_cast<VMTemplatePool*>(pool);
+
         // Allocate two objects
         oid_0 = allocate(0);
         oid_1 = allocate(1);
 
         // ---------------------------------
         // Get first object and check its integrity
-        obj = pool->get(oid_0, false);
+        obj = tpool->get(oid_0, false);
         CPPUNIT_ASSERT( obj != 0 );
         check(0, obj);
 
         // Get using its name
-        obj = pool->get(names[1], uids[1], true);
+        obj = tpool->get(names[1], uids[1], true);
         CPPUNIT_ASSERT( obj != 0 );
         obj->unlock();
 
@@ -332,14 +313,14 @@ public:
 
         // ---------------------------------
         // Clean the cache, forcing the pool to read the objects from the DB
-        pool->clean();
+        tpool->clean();
 
         // Get first object and check its integrity
-        obj = pool->get(names[0], uids[0], false);
+        obj = tpool->get(names[0], uids[0], false);
         check(0, obj);
 
         // Get using its name
-        obj = pool->get(oid_1, false);
+        obj = tpool->get(oid_1, false);
         check(1, obj);
     };
 
@@ -348,16 +329,18 @@ public:
 
     void wrong_get_name()
     {
+        VMTemplatePool * tpool = static_cast<VMTemplatePool*>(tpool);
+
         // The pool is empty
         // Non existing name
-        obj = pool->get("Wrong name", 0, true);
+        obj = tpool->get("Wrong name", 0, true);
         CPPUNIT_ASSERT( obj == 0 );
 
         // Allocate an object
         allocate(0);
 
         // Ask again for a non-existing name
-        obj = pool->get("Non existing name",uids[0], true);
+        obj = tpool->get("Non existing name",uids[0], true);
         CPPUNIT_ASSERT( obj == 0 );
     }
 
@@ -383,70 +366,6 @@ public:
         rc = tpool->allocate(uids[1], templates[0], &oid);
         CPPUNIT_ASSERT( rc  >= 0 );
         CPPUNIT_ASSERT( oid == rc );
-    }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-    void dump()
-    {
-        VMTemplatePool * tpool = static_cast<VMTemplatePool*>(pool);
-
-        ostringstream   oss;
-        int             rc;
-        string          nan;
-
-        allocate(0);
-        allocate(1);
-        allocate(2);
-
-        rc = tpool->dump(oss,nan);
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-        fix_regtimes(result);
-
-//*
-        if( result != xml_dump )
-        {
-            cout << endl << result << endl << xml_dump << endl;
-        }
-//*/
-
-        CPPUNIT_ASSERT( result == xml_dump );
-    }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-    void dump_where()
-    {
-        VMTemplatePool * tpool = static_cast<VMTemplatePool*>(pool);
-
-        int             rc;
-        ostringstream   oss;
-        ostringstream   where;
-
-        allocate(0);
-        allocate(1);
-        allocate(2);
-
-        where << "uid < 2";
-
-        rc = tpool->dump(oss, where.str());
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-        fix_regtimes(result);
-
-//*
-        if( result != xml_dump_where )
-        {
-            cout << endl << result << endl << xml_dump_where << endl;
-        }
-//*/
-
-        CPPUNIT_ASSERT( result == xml_dump_where );
     }
 
 /* -------------------------------------------------------------------------- */

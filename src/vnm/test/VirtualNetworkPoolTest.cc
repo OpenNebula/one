@@ -31,6 +31,7 @@ using namespace std;
 const int uids[] = {123, 261, 133, 78};
 
 const string names[] = {"Net number one", "A virtual network","Net number two"};
+const string bridges[] = {"br1", "br2","br3"};
 
 const string templates[] =
 {
@@ -41,13 +42,13 @@ const string templates[] =
 
             "NAME            = \"A virtual network\"\n"
             "TYPE            = RANGED\n"
-            "BRIDGE          = br0\n"
+            "BRIDGE          = br2\n"
             "NETWORK_SIZE    = C\n"
             "NETWORK_ADDRESS = 192.168.0.0",
 
             "NAME   = \"Net number two\"\n"
             "TYPE   = fixed\n"
-            "BRIDGE = br1\n"
+            "BRIDGE = br3\n"
             "LEASES = [IP=130.10.2.1, MAC=50:20:20:20:20:20]",
 
             "NAME   = \"Net number three\"\n"
@@ -67,21 +68,6 @@ const string templates[] =
            "BRIDGE          = br0\n"
            "NETWORK_SIZE    = C\n"
 };
-
-const string xmls[] =
-{
-    "<VNET><ID>0</ID><UID>123</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
-
-    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE><LEASES></LEASES></VNET>",
-
-    "<VNET><ID>0</ID><UID>133</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number two</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
-};
-
-const string xml_dump =
-    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>Net number one</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE></VNET></VNET_POOL>";
-
-const string xml_dump_where =
-    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>A virtual network</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><VLAN>0</VLAN><PHYDEV/><VLAN_ID/><RANGE><IP_START>192.168.0.1</IP_START><IP_END>192.168.0.254</IP_END></RANGE><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><NETWORK_MASK><![CDATA[255.255.255.0]]></NETWORK_MASK></TEMPLATE></VNET></VNET_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -153,11 +139,8 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (allocate_rcs);
     CPPUNIT_TEST (use_phydev);
     CPPUNIT_TEST (wrong_get_name);
-    CPPUNIT_TEST (update);
     CPPUNIT_TEST (size);
     CPPUNIT_TEST (duplicates);
-    CPPUNIT_TEST (dump);
-    CPPUNIT_TEST (dump_where);
     CPPUNIT_TEST (fixed_leases);
     CPPUNIT_TEST (ranged_leases);
     CPPUNIT_TEST (wrong_leases);
@@ -210,22 +193,19 @@ protected:
 
     void check(int index, PoolObjectSQL* obj)
     {
+        string st;
+
         CPPUNIT_ASSERT( obj != 0 );
 
-        string xml_str;
+        VirtualNetwork* vnet = static_cast<VirtualNetwork*>(obj);
 
-        ((VirtualNetwork*)obj)->to_xml_extended(xml_str);
+        ObjectXML xml(vnet->to_xml(st));
 
-//*
-        if( xml_str != xmls[index] )
-        {
-            cout << endl << xml_str << endl << "========"
-                 << endl << xmls[index] << endl << "--------";
-        }
-//*/
+        CPPUNIT_ASSERT( vnet->get_name() == names[index] );
+        CPPUNIT_ASSERT( vnet->get_uid() == uids[index] );
 
-        CPPUNIT_ASSERT( ((VirtualNetwork*)obj)->get_uid() == uids[index] );
-        CPPUNIT_ASSERT( xml_str == xmls[index] );
+        xml.xpath(st, "/VNET/BRIDGE", "-");
+        CPPUNIT_ASSERT( st == bridges[index] );
     };
 
 
@@ -298,7 +278,8 @@ public:
 
         int rc,oid;
 
-        ostringstream       oss;
+        ostringstream   oss;
+        string          st;
 
         string xml_str;
         string phydev_templates[] = {
@@ -314,10 +295,9 @@ public:
             "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n",
             };
 
-        string phydev_xml[] = {
-            "<VNET><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>BRIDGE and PHYDEV</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>1</TYPE><BRIDGE>br0</BRIDGE><VLAN>1</VLAN><PHYDEV>eth0</PHYDEV><VLAN_ID/><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
-            "<VNET><ID>1</ID><UID>0</UID><GID>0</GID><UNAME>the_user</UNAME><GNAME>oneadmin</GNAME><NAME>No BRIDGE only PHYDEV</NAME><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>0</OWNER_A><GROUP_U>0</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>0</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TYPE>1</TYPE><BRIDGE>onebr1</BRIDGE><VLAN>1</VLAN><PHYDEV>eth0</PHYDEV><VLAN_ID/><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
-        };
+        string bridges[] = {"br0", "onebr1"};
+        string phydevs[] = {"eth0", "eth0"};
+
 
         // test vm with bridge and phydev
         rc   = vnpool->allocate(0,phydev_templates[0], &oid);
@@ -326,17 +306,14 @@ public:
 
         CPPUNIT_ASSERT( vn != 0 );
 
-        ((VirtualNetwork*)vn)->to_xml_extended(xml_str);
+        ObjectXML xml(vn->to_xml(st));
 
-//*
-        if( xml_str != phydev_xml[0] )
-        {
-            cout << endl << xml_str << endl << "========"
-                 << endl << phydev_xml[0] << endl << "--------";
-        }
-//*/
+        xml.xpath(st, "/VNET/BRIDGE", "-");
+        CPPUNIT_ASSERT( st == bridges[0] );
 
-        CPPUNIT_ASSERT( xml_str == phydev_xml[0] );
+        xml.xpath(st, "/VNET/PHYDEV", "-");
+        CPPUNIT_ASSERT( st == phydevs[0] );
+
 
         // test vm with phydev only
         oss.str("");
@@ -346,18 +323,13 @@ public:
         vn = vnpool->get(rc, false);
 
         CPPUNIT_ASSERT( vn != 0 );
+        xml.update_from_str(vn->to_xml(st));
 
-        ((VirtualNetwork*)vn)->to_xml_extended(xml_str);
+        xml.xpath(st, "/VNET/BRIDGE", "-");
+        CPPUNIT_ASSERT( st == bridges[1] );
 
-//*
-        if( xml_str != phydev_xml[1] )
-        {
-            cout << endl << xml_str << endl << "========"
-                 << endl << phydev_xml[1] << endl << "--------";
-        }
-//*/
-
-        CPPUNIT_ASSERT( xml_str == phydev_xml[1] );
+        xml.xpath(st, "/VNET/PHYDEV", "-");
+        CPPUNIT_ASSERT( st == phydevs[1] );
     }
 
 /* -------------------------------------------------------------------------- */
@@ -379,14 +351,6 @@ public:
         vn = vnpool->get(23, true);
         CPPUNIT_ASSERT( vn == 0 );
     }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-    void update()
-    {
-        // TODO
-    };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -522,67 +486,6 @@ public:
         vnet = vnpool->get(oid_0, false);
         check(0, vnet);
     }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-    void dump()
-    {
-        VirtualNetworkPoolFriend * vnpool =
-                                static_cast<VirtualNetworkPoolFriend*>(pool);
-        int oid, rc;
-        ostringstream oss;
-
-        vnpool->allocate(1, templates[0], &oid);
-        vnpool->allocate(2, templates[1], &oid);
-
-        rc = pool->dump(oss, "");
-
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-
-//*
-        if( result != xml_dump )
-        {
-            cout << endl << result << endl << "========"
-                 << endl << xml_dump << endl << "--------";
-        }
-//*/
-
-        CPPUNIT_ASSERT( result == xml_dump );
-    };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-    void dump_where()
-    {
-        VirtualNetworkPoolFriend * vnpool =
-                                static_cast<VirtualNetworkPoolFriend*>(pool);
-        int oid, rc;
-        ostringstream oss;
-
-        vnpool->allocate(1, templates[0], &oid);
-        vnpool->allocate(2, templates[1], &oid);
-
-        string where = "name LIKE '%virtual%'";
-        rc = pool->dump(oss, where);
-
-        CPPUNIT_ASSERT(rc == 0);
-
-        string result = oss.str();
-
-//*
-        if( result != xml_dump_where )
-        {
-            cout << endl << result << endl << "========"
-                 << endl << xml_dump_where << endl << "--------";
-        }
-//*/
-
-        CPPUNIT_ASSERT( result == xml_dump_where );
-    };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

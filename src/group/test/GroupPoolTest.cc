@@ -23,17 +23,7 @@
 
 using namespace std;
 
-const int uids[] = {0,1,2};
 const string names[] = {"First name", "Second name"};
-
-const string xmls[] =
-{
-    "<GROUP><ID>100</ID><NAME>First name</NAME><USERS></USERS></GROUP>",
-    "<GROUP><ID>101</ID><NAME>Second name</NAME><USERS></USERS></GROUP>"
-};
-
-const string group_xml_dump =
-    "<GROUP_POOL><GROUP><ID>0</ID><NAME>oneadmin</NAME><USERS></USERS></GROUP><GROUP><ID>1</ID><NAME>users</NAME><USERS></USERS></GROUP><GROUP><ID>100</ID><NAME>group_a</NAME><USERS></USERS></GROUP><GROUP><ID>102</ID><NAME>group_c</NAME><USERS></USERS></GROUP><GROUP><ID>103</ID><NAME>group_d</NAME><USERS></USERS></GROUP></GROUP_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -65,7 +55,6 @@ class GroupPoolTest : public PoolTest
     CPPUNIT_TEST (drop_and_get);
 
     CPPUNIT_TEST (duplicates);
-    CPPUNIT_TEST (dump);
 
     CPPUNIT_TEST (name_index);
 
@@ -103,23 +92,8 @@ protected:
 
         CPPUNIT_ASSERT( obj != 0 );
 
-        string xml_str = "";
         string name = group->get_name();
-
         CPPUNIT_ASSERT( name == names[index] );
-
-        // Get the xml
-        group->to_xml(xml_str);
-
-//  A little help for debugging
-/*
-        if( xml_str != xmls[index] )
-        {
-            cout << endl << xml_str << endl << "========"
-                 << endl << xmls[index];
-        }
-//*/
-        CPPUNIT_ASSERT( xml_str == xmls[index]);
     };
 
 private:
@@ -181,48 +155,6 @@ public:
         rc = gpool->allocate(names[0], &oid, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
-    }
-
-    /* ********************************************************************* */
-
-    void dump()
-    {
-        Group *         group;
-        int             oid, rc;
-        ostringstream   oss;
-        string          err;
-
-        // Allocate some groups
-        rc = gpool->allocate("group_a", &oid, err);
-        CPPUNIT_ASSERT( rc == 100 );
-
-        rc = gpool->allocate("group_b", &oid, err);
-        CPPUNIT_ASSERT( rc == 101 );
-
-        rc = gpool->allocate("group_c", &oid, err);
-        CPPUNIT_ASSERT( rc == 102 );
-
-        rc = gpool->allocate("group_d", &oid, err);
-        CPPUNIT_ASSERT( rc == 103 );
-
-        // Drop one of them
-        group = gpool->get(101, false);
-        CPPUNIT_ASSERT( group != 0 );
-
-        rc = gpool->drop(group, err);
-        CPPUNIT_ASSERT( rc == 0 );
-
-        // dump the pool
-        rc = gpool->dump(oss,"");
-/*
-        if( oss.str() != group_xml_dump )
-        {
-            cout << endl << oss.str() << endl << "========"
-                 << endl << group_xml_dump;
-        }
-//*/
-        CPPUNIT_ASSERT( oss.str() == group_xml_dump );
-
     }
 
     /* ********************************************************************* */

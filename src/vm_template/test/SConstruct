@@ -17,25 +17,7 @@
 Import('env')
 
 env.Prepend(LIBS=[
-    'nebula_image',
-    'nebula_um',
-    'nebula_vm',
-    'nebula_vmtemplate',
-    'nebula_hm',
-    'nebula_cluster',
-    'nebula_datastore',
-    'nebula_vnm',
-    'nebula_authm',
-    'nebula_acl',
-    'nebula_template',
-    'nebula_pool',
-    'nebula_mad',
-    'nebula_common',
-    'nebula_core',
-    'nebula_sql',
-    'nebula_log',
-    'nebula_xml',
-    'crypto'
+    'nebula_core_test'
 ])
 
 env.Program('test','VMTemplatePoolTest.cc')
