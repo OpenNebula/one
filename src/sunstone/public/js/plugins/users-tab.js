@@ -520,7 +520,7 @@ function userElementArray(user_json){
 
     if (!$.isEmptyObject(user.VM_QUOTA)){
         vms = user.VM_QUOTA.VM.VMS_USED;
-        memory = user.VM_QUOTA.VM.MEMORY_USED;
+        memory = user.VM_QUOTA.VM.MEMORY_USED+' MB';
         cpu = user.VM_QUOTA.VM.CPU_USED;
     }
 

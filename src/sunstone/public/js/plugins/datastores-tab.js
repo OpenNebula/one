@@ -59,26 +59,26 @@ var create_datastore_tmpl =
   <div class="clear"></div>\
   <label for="cluster">' + tr("Cluster") + ':</label>\
   <select id="cluster_id" name="cluster_id">\
-  </select>\
+  </select><br />\
   <label for="ds_mad">' + tr("Datastore manager") + ':</label>\
   <select id="ds_mad" name="ds_mad">\
         <option value="fs">' + tr("Filesystem") + '</option>\
         <option value="vmware">' + tr("VMware") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="lvm">' + tr("LVM") + '</option>\
-  </select>\
+  </select><br name="ds_mad" />\
   <label>' + tr("Transfer manager") + ':</label>\
   <select id="tm_mad" name="tm_mad">\
         <option value="shared">' + tr("Shared") + '</option>\
         <option value="ssh">' + tr("SSH") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="dummy">' + tr("Dummy") + '</option>\
-  </select>\
+  </select><br />\
   <label>' + tr("Disk type") + ':</label>\
   <select id="disk_type" name="disk_type">\
         <option value="file">' + tr("File") + '</option>\
         <option value="block">' + tr("Block") + '</option>\
-  </select>\
+  </select><br />\
   </fieldset>\
   <fieldset>\
     <div class="form_buttons">\
@@ -546,9 +546,9 @@ function setupCreateDatastoreDialog(){
 
     $('#sys_ds').click(function(){
         if ($(this).is(':checked'))
-            $('label[for="ds_mad"],select#ds_mad',$(this).parent()).fadeOut();
+            $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeOut();
         else
-            $('label[for="ds_mad"],select#ds_mad',$(this).parent()).fadeIn();
+            $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeIn();
     });
 
     $('#create_datastore_form',dialog).submit(function(){

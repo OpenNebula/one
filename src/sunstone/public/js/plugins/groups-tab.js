@@ -328,7 +328,7 @@ function groupElementArray(group_json){
 
     if (!$.isEmptyObject(group.VM_QUOTA)){
         vms = group.VM_QUOTA.VM.VMS_USED;
-        memory = group.VM_QUOTA.VM.MEMORY_USED;
+        memory = group.VM_QUOTA.VM.MEMORY_USED+' MB';
         cpu = group.VM_QUOTA.VM.CPU_USED;
     }
 

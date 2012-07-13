@@ -99,32 +99,32 @@ function dashboardQuotaRow(quota_json){
     switch (quota_json.TYPE){
     case "VM":
         row += '<tr><td class="padding1">'+tr("VMS")+'</td>';
-        row += '<td class="value_td">'+quota_json.VMS_USED+' / '+quota_json.VMS+'</td></tr>';
+        row += '<td class="value_td">'+quota_json.VMS_USED+'&nbsp;/&nbsp;'+quota_json.VMS+'</td></tr>';
         row += '<tr><td class="padding1">'+tr("Memory")+'</td>';
-        row += '<td class="value_td">'+quota_json.MEMORY_USED+' / '+quota_json.MEMORY+'</td></tr>';
+        row += '<td class="value_td">'+quota_json.MEMORY_USED+'&nbsp;MB&nbsp;/&nbsp;'+quota_json.MEMORY+'&nbsp;MB</td></tr>';
         row += '<tr><td class="padding1">'+tr("CPU")+'</td>';
-        row += '<td class="value_td">'+quota_json.CPU_USED+' / '+quota_json.CPU+'</td></tr>';
+        row += '<td class="value_td">'+quota_json.CPU_USED+'&nbsp;/&nbsp;'+quota_json.CPU+'</td></tr>';
         break;
     case "DATASTORE":
         row += '<tr><td class="padding1">'+tr("Datastore")+' id '+quota_json.ID+':</td><td></td></tr>';
 
         row += '<tr><td class="padding2">'+tr("Size")+'</td>';
-        row += '<td class="value_td">'+quota_json.SIZE_USED+' / '+quota_json.SIZE+'</td>';
+        row += '<td class="value_td">'+quota_json.SIZE_USED+'&nbsp;MB&nbsp;/&nbsp;'+quota_json.SIZE+'&nbsp;MB</td>';
 
         row += '<tr><td class="padding2">'+tr("Images")+'</td>';
-        row += '<td class="value_td">'+quota_json.IMAGES_USED+' / '+quota_json.IMAGES+'</td>';
+        row += '<td class="value_td">'+quota_json.IMAGES_USED+'&nbsp;/&nbsp;'+quota_json.IMAGES+'</td>';
         break;
     case "IMAGE":
         row += '<tr><td class="padding1">'+tr("Image")+' id '+quota_json.ID+':</td><td></td></tr>';
 
         row += '<tr><td class="padding2">'+tr("RVMs")+'</td>';
-        row += '<td class="value_td">'+quota_json.RVMS_USED+' / '+quota_json.RVMS+'</td>';
+        row += '<td class="value_td">'+quota_json.RVMS_USED+'&nbsp;/&nbsp;'+quota_json.RVMS+'</td>';
         break;
     case "NETWORK":
-        row += '<tr><td class="padding1">'+tr("Network")+' id '+quota_json.ID+':</td><td></td></tr>';
+        row += '<tr><td class="padding1">'+tr("Network")+'&nbsp;id&nbsp;'+quota_json.ID+':</td><td></td></tr>';
 
         row += '<tr><td class="padding2">'+tr("Leases")+'</td>';
-        row += '<td class="value_td">'+quota_json.LEASES_USED+' / '+quota_json.LEASES+'</td>';
+        row += '<td class="value_td">'+quota_json.LEASES_USED+'&nbsp;/&nbsp;'+quota_json.LEASES+'</td>';
         break;
     }
     return row

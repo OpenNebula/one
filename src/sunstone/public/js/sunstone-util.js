@@ -1177,12 +1177,12 @@ function quotaListItem(quota_json){
     switch(quota_json.TYPE){
     case "VM":
         str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") +
-               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? 'MB (' + quota_json.MEMORY_USED + 'MB). ' : ". ") +
+               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") +
                'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ");
         break;
     case "DATASTORE":
         str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' +
-               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? 'MB (' + quota_json.SIZE_USED + 'MB). ' : ". ") +
+               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") +
                'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
         break;
     case "IMAGE":
