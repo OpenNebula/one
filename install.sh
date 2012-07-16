@@ -1071,12 +1071,18 @@ ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
                src/cloud/ec2/lib/EC2QueryServer.rb \
                src/cloud/ec2/lib/ImageEC2.rb \
                src/cloud/ec2/lib/elastic_ip.rb \
+               src/cloud/ec2/lib/ebs.rb \
                src/cloud/ec2/lib/econe-server.rb"
 
 ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"
 
 ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
                     src/cloud/ec2/lib/views/describe_instances.erb \
+                    src/cloud/ec2/lib/views/create_volume.erb \
+                    src/cloud/ec2/lib/views/describe_volumes.erb \
+                    src/cloud/ec2/lib/views/attach_volume.erb \
+                    src/cloud/ec2/lib/views/detach_volume.erb \
+                    src/cloud/ec2/lib/views/delete_volume.erb \
                     src/cloud/ec2/lib/views/register_image.erb \
                     src/cloud/ec2/lib/views/run_instances.erb \
                     src/cloud/ec2/lib/views/allocate_address.erb \

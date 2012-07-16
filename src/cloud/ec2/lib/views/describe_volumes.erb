@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<DescribeVolumesResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
+   <requestId/>
+   <volumeSet>
+        <% impool.each do |im| %>
+            <% if state_image = im.render_state %>
+            <item>
+               <volumeId>vol-<%= sprintf('%08i', im.id) %></volumeId>
+               <size><%= im.render_size %></size>
+               <snapshotId/>
+               <availabilityZone/>
+               <status><%= state_image %></status>
+               <createTime><%= im.render_create_time %></createTime>
+               <attachmentSet/>
+               <tagSet/>
+            </item>
+            <% else
+                next
+            end
+        end %>
+   </volumeSet>
+</DescribeVolumesResponse>

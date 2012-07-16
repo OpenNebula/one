@@ -2,7 +2,7 @@
 <DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
     <imagesSet>
         <% impool.each do |im| %>
-            <% if state_image = render_image_state(im) %>
+            <% if state_image = im.render_state %>
             <item>
                 <imageId>ami-<%= sprintf('%08i', im.id) %></imageId>
                 <imageLocation><%= im['SOURCE'].split('/').last %></imageLocation>

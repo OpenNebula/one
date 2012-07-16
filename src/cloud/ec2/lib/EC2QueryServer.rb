@@ -59,18 +59,6 @@ class EC2QueryServer < CloudServer
         'unkn' => :terminated
     }
 
-    EC2_IMAGE_STATES={
-        "INIT"      => "pending",
-        "READY"     => "available",
-        "USED"      => "available",
-        "DISABLED"  => nil,
-        "LOCKED"    => "pending",
-        "ERROR"     => "failed",
-        "CLONE"     => "available",
-        "DELETE"    => nil,
-        "USED_PERS" => "available"
-    }
-
     ###########################################################################
 
     def initialize(client, oneadmin_client, config, logger)
@@ -85,6 +73,9 @@ class EC2QueryServer < CloudServer
             require 'elastic_ip'
             extend ElasticIP
         end
+
+        require 'ebs'
+        extend EBS
     end
 
     ###########################################################################
@@ -92,7 +83,10 @@ class EC2QueryServer < CloudServer
     ###########################################################################
 
     def upload_image(params)
-        image = ImageEC2.new(Image.build_xml, @client, params['file'])
+        image = ImageEC2.new(Image.build_xml,
+                    @client,
+                    params['file'],
+                    {:type => "OS"})
 
         template = image.to_one_template
         if OpenNebula.is_error?(template)
@@ -132,7 +126,7 @@ class EC2QueryServer < CloudServer
 
     def describe_images(params)
         user_flag = OpenNebula::Pool::INFO_ALL
-        impool = ImagePool.new(@client, user_flag)
+        impool = ImageEC2Pool.new(@client, user_flag)
         impool.info
 
         erb_version = params['Version']
@@ -263,9 +257,7 @@ class EC2QueryServer < CloudServer
         <name>#{ec2_state[:name]}</name>"
     end
 
-    def render_image_state(image)
-        EC2_IMAGE_STATES[image.state_str]
-    end
+
 
     def render_launch_time(vm)
         return "<launchTime>#{Time.at(vm["STIME"].to_i).xmlschema}</launchTime>"

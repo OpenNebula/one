@@ -207,6 +207,16 @@ def do_http_request(params)
             result,rc = @econe_server.release_address(params)
         when 'DescribeAddresses'
             result,rc = @econe_server.describe_addresses(params)
+        when 'CreateVolume'
+            result,rc = @econe_server.create_volume(params)
+        when 'DescribeVolumes'
+            result,rc = @econe_server.describe_volumes(params)
+        when 'AttachVolume'
+            result,rc = @econe_server.attach_volume(params)
+        when 'DetachVolume'
+            result,rc = @econe_server.detach_volume(params)
+        when 'DeleteVolume'
+            result,rc = @econe_server.delete_volume(params)
     end
 
     if OpenNebula::is_error?(result)
