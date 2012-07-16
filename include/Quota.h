@@ -119,7 +119,7 @@ protected:
      *    @param usage_req usage for each metric
      */
     void del_quota(const string& qid, 
-                   map<string, int>& usage_req);
+                   map<string, float>& usage_req);
 
     /**
      *  Gets a quota identified by its ID.

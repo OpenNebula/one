@@ -77,7 +77,7 @@ bool QuotaVirtualMachine::check(Template * tmpl,  string& error)
 
 void QuotaVirtualMachine::del(Template * tmpl)
 {
-    map<string, int> vm_request;
+    map<string, float> vm_request;
 
     int memory;
     float cpu;

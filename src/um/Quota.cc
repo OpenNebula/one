@@ -269,10 +269,10 @@ bool Quota::check_quota(const string& qid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Quota::del_quota(const string& qid, map<string, int>& usage_req)
+void Quota::del_quota(const string& qid, map<string, float>& usage_req)
 {
     VectorAttribute * q;
-    map<string, int>::iterator it;
+    map<string, float>::iterator it;
 
     if ( get_quota(qid, &q) == -1)
     {
@@ -309,11 +309,10 @@ void Quota::del_quota(const string& qid, map<string, int>& usage_req)
 void Quota::cleanup_quota(const string& qid)
 {
     VectorAttribute * q;
-    map<string, int>::iterator it;
     map<string, Attribute *>::iterator q_it;
 
-    int limit, limit_tmp;
-    int usage, usage_tmp;
+    float limit, limit_tmp;
+    float usage, usage_tmp;
 
     if ( get_quota(qid, &q, q_it) == -1)
     {
@@ -355,7 +354,7 @@ void Quota::cleanup_quota(const string& qid)
 int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
 {        
     string limit;
-    int    limit_i;
+    float  limit_i;
 
     for (int i=0; i < num_metrics; i++)
     {

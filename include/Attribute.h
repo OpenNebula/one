@@ -278,6 +278,17 @@ public:
     string vector_value_str(const char *name, int& value) const;
 
     /**
+     * Returns the float value
+     *
+     * @param name Name of the attribute
+     * @param value Float value, if an error occurred the string returned is
+     * empty and value set to -1;
+     *
+     * @return the value in string form on success, "" otherwise
+     */
+    string vector_value_str(const char *name, float& value) const;
+
+    /**
      *  Marshall the attribute in a single string. The string MUST be freed
      *  by the calling function. The string is in the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".

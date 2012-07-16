@@ -75,7 +75,7 @@ void QuotaImage::del(Template * tmpl)
     string image_id;
     int num;
 
-    map<string, int> image_request;
+    map<string, float> image_request;
 
     image_request.insert(make_pair("RVMS",1));
 
