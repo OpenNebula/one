@@ -739,6 +739,15 @@ int DispatchManager::finalize(
     switch (state)
     {
         case VirtualMachine::SUSPENDED:
+            int cpu, mem, disk;
+
+            vm->get_requirements(cpu,mem,disk);
+            hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            finalize_cleanup(vm);
+        break;
+
         case VirtualMachine::FAILED:
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
             finalize_cleanup(vm);
