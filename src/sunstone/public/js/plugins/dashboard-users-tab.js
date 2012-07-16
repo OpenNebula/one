@@ -22,7 +22,7 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-         <h3>' + tr("User information") + '</h3>\
+         <h3>' + tr("User quotas") + '<i class="icon-refresh action_button" value="User.refresh" style="float:right;cursor:pointer"></i></h3>\
         <div class="panel_info">\
           <table id="dashboard_user_info" class="info_table">\
 \
@@ -96,48 +96,121 @@ var $dashboard;
 function dashboardQuotaRow(quota_json){
     var row = '';
 
+   var label = function(used, max, unit){
+        max = parseInt(max,10) ? max : "unlimited";
+
+        if (unit)
+            return used+'&nbsp;'+unit+'&nbsp;/&nbsp'+max+'&nbsp;'+unit;
+
+        return used + '&nbsp;/&nbsp'+ max
+
+    }
+
     switch (quota_json.TYPE){
     case "VM":
-        row += '<tr><td class="padding1">'+tr("VMS")+'</td>';
-        row += '<td class="value_td">'+quota_json.VMS_USED+'&nbsp;/&nbsp;'+quota_json.VMS+'</td></tr>';
-        row += '<tr><td class="padding1">'+tr("Memory")+'</td>';
-        row += '<td class="value_td">'+quota_json.MEMORY_USED+'&nbsp;MB&nbsp;/&nbsp;'+quota_json.MEMORY+'&nbsp;MB</td></tr>';
-        row += '<tr><td class="padding1">'+tr("CPU")+'</td>';
-        row += '<td class="value_td">'+quota_json.CPU_USED+'&nbsp;/&nbsp;'+quota_json.CPU+'</td></tr>';
+        row += '<tr class="quotas"><td class="padding1">'+tr("Virtual Machines")+'</td>';
+
+        var vms_used = quota_json.VMS_USED;
+        var vms = quota_json.VMS;
+        var vms_ratio = vms_used * 100 / vms;
+
+        row += '<td class="value_td">'+
+            progressBar(vms_ratio,
+                        { width: '200px', height: '15px',
+                          label: label(vms_used,vms),
+                          fontSize: '1em', labelVPos: '0px' }) +
+            '</td></tr>';
+        var memory_used = quota_json.MEMORY_USED;
+        var memory = quota_json.MEMORY;
+        var memory_ratio = memory_used * 100 / memory;
+
+        row += '<tr class="quotas"><td class="padding1">'+tr("Memory")+'</td>';
+        row += '<td class="value_td">'+
+            progressBar(memory_ratio,
+                        { width: '200px', height: '15px',
+                          label: label(memory_used, memory, 'MB'),
+                          fontSize: '1em', labelVPos: '0px',
+                          labelHPos: '65px' }) +
+            '</td></tr>';
+
+        var cpu_used = quota_json.CPU_USED;
+        var cpu = quota_json.CPU;
+        var cpu_ratio = cpu_used * 100 / cpu;
+
+        row += '<tr class="quotas"><td class="padding1">'+tr("CPU")+'</td>';
+        row += '<td class="value_td">'+
+            progressBar(cpu_ratio,
+                        { width: '200px', height: '15px',
+                          label: label(cpu_used, cpu),
+                          fontSize: '1em', labelVPos: '0px' }) +
+            '</td></tr>';
         break;
     case "DATASTORE":
         row += '<tr><td class="padding1">'+tr("Datastore")+' id '+quota_json.ID+':</td><td></td></tr>';
 
-        row += '<tr><td class="padding2">'+tr("Size")+'</td>';
-        row += '<td class="value_td">'+quota_json.SIZE_USED+'&nbsp;MB&nbsp;/&nbsp;'+quota_json.SIZE+'&nbsp;MB</td>';
+        var size_used = quota_json.SIZE_USED;
+        var size = quota_json.SIZE;
+        var size_ratio = parseInt(size,10) ? size_used * 100 / size: 0;
+        row += '<tr class="quotas"><td class="padding2">'+tr("Storage size")+'</td>';
+        row += '<td class="value_td">'+
+            progressBar(size_ratio,
+                        { width: '200px', height: '15px',
+                          label: label(size_used, size, 'MB'),
+                          fontSize: '1em', labelVPos: '0px',
+                          labelHPos: '65px' }) +
+            '</td></tr>';
 
-        row += '<tr><td class="padding2">'+tr("Images")+'</td>';
-        row += '<td class="value_td">'+quota_json.IMAGES_USED+'&nbsp;/&nbsp;'+quota_json.IMAGES+'</td>';
+        var images_used = quota_json.IMAGES_USED;
+        var images = quota_json.IMAGES;
+        var images_ratio = images_used * 100 / images;
+
+        row += '<tr class="quotas"><td class="padding2">'+tr("Number of images")+'</td>';
+        row += '<td class="value_td">'+
+            progressBar(images_ratio,
+                        { width: '200px', height: '15px',
+                          label: label(images_used, images),
+                          fontSize: '1em', labelVPos: '0px' }) +
+            '</td></tr>';
         break;
+
+
     case "IMAGE":
         row += '<tr><td class="padding1">'+tr("Image")+' id '+quota_json.ID+':</td><td></td></tr>';
 
-        row += '<tr><td class="padding2">'+tr("RVMs")+'</td>';
-        row += '<td class="value_td">'+quota_json.RVMS_USED+'&nbsp;/&nbsp;'+quota_json.RVMS+'</td>';
+        var rvms_used = quota_json.RVMS_USED;
+        var rvms = quota_json.RVMS;
+        var rvms_ratio = parseInt(rvms,10) ? rvms_used * 100 / rvms : 0;
+
+        row += '<tr class="quotas"><td class="padding2">'+tr("RVMs")+'</td>';
+        row += '<td class="value_td">'+
+            progressBar(rvms_ratio,
+                        { width: '200px', height: '15px',
+                          label: label(rvms_used, rvms),
+                          fontSize: '1em', labelVPos: '0px' }) +
+            '</td></tr>';
         break;
     case "NETWORK":
         row += '<tr><td class="padding1">'+tr("Network")+'&nbsp;id&nbsp;'+quota_json.ID+':</td><td></td></tr>';
 
-        row += '<tr><td class="padding2">'+tr("Leases")+'</td>';
-        row += '<td class="value_td">'+quota_json.LEASES_USED+'&nbsp;/&nbsp;'+quota_json.LEASES+'</td>';
+        var leases_used = quota_json.LEASES_USED
+        var leases = quota_json.LEASES
+        var leases_ratio = leases_used * 100 / leases;
+
+        row += '<tr class="quotas"><td class="padding2">'+tr("Leases")+'</td>';
+
+        row += '<td class="value_td">'+
+            progressBar(leases_ratio,
+                        { width: '200px', height: '15px',
+                          label: label(leases_used, leases),
+                          fontSize: '1em', labelVPos: '0px' }) +
+            '</td></tr>';
         break;
     }
     return row
 }
 
 function dashboardQuotasHTML(user){
-    var html = '<tr>\
-                   <td class="key_td">' + tr("Resource quotas") + '</td>\
-                   <td class="value_td">' + tr("Used&nbsp;/&nbsp;Allowed") + '</td>\
-                </tr>\
-                <tr>\
-                  <td class="key_td"></td><td class="value_td"></td>\
-                </tr>';
+    var html = '';
 
     var results = parseQuotas(user, dashboardQuotaRow);
 
