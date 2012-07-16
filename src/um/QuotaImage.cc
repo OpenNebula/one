@@ -34,7 +34,7 @@ bool QuotaImage::check(Template * tmpl,  string& error)
     string image_id;
     int num;
 
-    map<string, int> image_request;
+    map<string, float> image_request;
 
     image_request.insert(make_pair("RVMS",1));
 

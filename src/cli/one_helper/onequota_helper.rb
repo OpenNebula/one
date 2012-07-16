@@ -60,7 +60,7 @@ class OneQuotaHelper
         end
 
         column :"CPU", "", :right, :size=>20 do |d|
-            "%4d / %4d" % [d["CPU_USED"], d["CPU"]] if !d.nil?
+            "%8.2f / %8.2f" % [d["CPU_USED"], d["CPU"]] if !d.nil?
         end
     end
 

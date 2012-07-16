@@ -110,7 +110,7 @@ protected:
      *    @return true if the request does not exceed current limits
      */
     bool check_quota(const string& qid, 
-                     map<string, int>& usage_req,
+                     map<string, float>& usage_req,
                      string& error);
 
     /**
@@ -179,7 +179,7 @@ private:
      *    @param va_name name of the quota in the vector attribute
      *    @param num value to add to the current quota;
      */
-    void add_to_quota(VectorAttribute * attr, const string& va_name, int num);
+    void add_to_quota(VectorAttribute * attr, const string& va_name, float num);
 
     /** 
      *  Sets new limit values for the quota

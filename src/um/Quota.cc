@@ -60,7 +60,7 @@ int Quota::get_quota(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, int num)
+void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float num)
 {
     istringstream iss;
     ostringstream oss;
@@ -151,15 +151,15 @@ error_limits:
 /* -------------------------------------------------------------------------- */
 
 bool Quota::check_quota(const string& qid, 
-                        map<string, int>& usage_req, 
+                        map<string, float>& usage_req,
                         string& error)
 {
     VectorAttribute * q;
-    map<string, int>::iterator it;
+    map<string, float>::iterator it;
 
     bool check;
-    int  limit;
-    int  usage;
+    float limit;
+    float usage;
 
     if ( get_quota(qid, &q) == -1 )
     {
