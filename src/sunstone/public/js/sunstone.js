@@ -408,6 +408,7 @@ function setLogin(){
         break;
     case "selfservice":
         username = cookie["occi-user"];
+        uid = cookie["occi-user-id"];
         break;
     };
 

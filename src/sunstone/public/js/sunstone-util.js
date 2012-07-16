@@ -1197,3 +1197,29 @@ function quotaListItem(quota_json){
     str += '</td><td><button class="quota_edit_icon"><i class="icon-pencil"></i></button></pre></td></tr>';
     return str;
 }
+
+/* Returns the code of a jquery progress bar
+   Options: object with width, height, label and fontSize as keys
+*/
+function progressBar(value, opts){
+    if (!opts) opts = {};
+
+    if (!opts.width) opts.width = 'auto';
+
+    if (!opts.label) opts.label = "";
+
+    if (!opts.height) opts.height = '10px';
+
+    if (!opts.fontSize) opts.fontSize = '0.6em';
+
+    if (!opts.labelVPos) opts.labelVPos = '-4px';
+
+    if (!opts.labelHPos) opts.labelHPos = '90px';
+
+    return '<div style="height:'+opts.height+';width:'+opts.width+';" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+value+'">\
+           <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+value+'%;">\
+             <span style="position:relative;left:'+opts.labelHPos+';font-weight:normal;top:'+opts.labelVPos+';font-size:'+opts.fontSize+';">'+opts.label+'</span>\
+           </div>\
+           </div>\
+         </div>';
+}

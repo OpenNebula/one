@@ -590,4 +590,15 @@ var OCCI = {
         },
     },
 
+    "User" : {
+        "resource" : "USER",
+        "list" : function(params){
+            OCCI.Action.list(params,OCCI.User.resource);
+        },
+        "show" : function(params){
+            OCCI.Action.show(params,OCCI.User.resource);
+        },
+
+    },
+
 }

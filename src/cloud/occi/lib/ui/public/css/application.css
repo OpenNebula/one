@@ -592,3 +592,10 @@ ul.action_list li a:hover{
     border:0;
 }
 
+.padding1 {
+    padding-left: 30px!important;
+}
+
+.padding2 {
+    padding-left: 55px!important;
+}

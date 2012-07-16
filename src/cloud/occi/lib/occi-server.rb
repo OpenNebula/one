@@ -199,6 +199,7 @@ helpers do
 
             session[:ip] = request.ip
             session[:user] = username
+            session[:user_id] = user['ID']
             session[:remember] = params[:remember]
 
             if params[:remember]
@@ -399,6 +400,9 @@ get '/ui' do
     time = Time.now + 60*10
     response.set_cookie("occi-user",
                         :value=>"#{session[:user]}",
+                        :expires=>time)
+    response.set_cookie("occi-user-id",
+                        :value=>"#{session[:user_id]}",
                         :expires=>time)
 
     erb :index
