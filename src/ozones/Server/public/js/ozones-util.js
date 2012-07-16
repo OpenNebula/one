@@ -301,19 +301,9 @@ function hostElementArray(host,zone_id,zone_name){
 
 
     //progressbars html code - hardcoded jquery html result
-     var pb_mem =
-'<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_mem+'">\
-    <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+ratio_mem+'%;"/>\
-    <span style="position:relative;left:68px;top:-4px;font-size:0.6em">'+ratio_mem+'%</span>\
-    </div>\
-</div>';
+     var pb_mem = progressBar(ratio_mem, {label: ratio_mem + '%', labelHPos: '65px'});
 
-    var pb_cpu =
-'<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_cpu+'">\
-    <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+ratio_cpu+'%;"/>\
-    <span style="position:relative;left:68px;top:-4px;font-size:0.6em">'+ratio_cpu+'%</span>\
-    </div>\
-</div>';
+    var pb_cpu = progressBar(ratio_cpu, {label: ratio_cpu + '%', labelHPos: '65px'});
 
     if (zone_id){
         return [
