@@ -257,10 +257,20 @@ public:
     int vector_value(const char *name, int& value) const;
 
     /**
+     * Returns the float value
+     *
+     * @param name Name of the attribute
+     * @param value Float value
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int vector_value(const char *name, float& value) const;
+
+    /**
      * Returns the integer value
      *
      * @param name Name of the attribute
-     * @param value Integer value, if an error ocurred the string returned is 
+     * @param value Integer value, if an error occurred the string returned is
      * empty and value set to -1;
      *
      * @return the value in string form on success, "" otherwise

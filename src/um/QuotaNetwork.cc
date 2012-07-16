@@ -34,7 +34,7 @@ bool QuotaNetwork::check(Template * tmpl,  string& error)
     string net_id;
     int num;
 
-    map<string, int> net_request;
+    map<string, float> net_request;
 
     net_request.insert(make_pair("LEASES",1));
 

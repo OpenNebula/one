@@ -184,7 +184,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
             column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
                 if d.has_key?('VM_QUOTA') and d['VM_QUOTA'].has_key?('VM')
-                    "%4d / %4d" % [d['VM_QUOTA']['VM']["CPU_USED"], d['VM_QUOTA']['VM']["CPU"]]
+                    "%4.0f / %4.0f" % [d['VM_QUOTA']['VM']["CPU_USED"], d['VM_QUOTA']['VM']["CPU"]]
                 else
                     "-"
                 end
