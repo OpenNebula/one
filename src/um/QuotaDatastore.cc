@@ -28,7 +28,7 @@ const int QuotaDatastore::NUM_DS_METRICS  = 2;
 
 bool QuotaDatastore::check(Template * tmpl,  string& error)
 {
-    map<string, int> ds_request;
+    map<string, float> ds_request;
 
     string ds_id;
     int    size;

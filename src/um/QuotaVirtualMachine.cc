@@ -50,10 +50,10 @@ int QuotaVirtualMachine::get_quota(const string& id, VectorAttribute **va)
 
 bool QuotaVirtualMachine::check(Template * tmpl,  string& error)
 {
-    map<string, int> vm_request;
+    map<string, float> vm_request;
 
     int memory;
-    int cpu;
+    float cpu;
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
@@ -80,7 +80,7 @@ void QuotaVirtualMachine::del(Template * tmpl)
     map<string, int> vm_request;
 
     int memory;
-    int cpu;
+    float cpu;
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
