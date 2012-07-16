@@ -58,7 +58,7 @@ bool QuotaDatastore::check(Template * tmpl,  string& error)
 
 void QuotaDatastore::del(Template * tmpl)
 {
-    map<string, int> ds_request;
+    map<string, float> ds_request;
 
     string ds_id;
     int    size;
