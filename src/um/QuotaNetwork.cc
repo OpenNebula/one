@@ -75,7 +75,7 @@ void QuotaNetwork::del(Template * tmpl)
     string net_id;
     int num;
 
-    map<string, int> net_request;
+    map<string, float> net_request;
 
     net_request.insert(make_pair("LEASES",1));
 
