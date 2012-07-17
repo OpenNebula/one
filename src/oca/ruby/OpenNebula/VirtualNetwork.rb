@@ -88,7 +88,8 @@ module OpenNebula
 
         # Replaces the template contents
         #
-        # +new_template+ New template contents
+        # +new_template+ New template contents. If no argument is provided
+        #   the object will be updated using the @xml variable
         def update(new_template=nil)
             super(VN_METHODS[:update], new_template)
         end

@@ -18,6 +18,9 @@ module EBS
 
         target = params['Device']
 
+
+        # Detach
+
         vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
         rc = vm.info
 
@@ -32,6 +35,24 @@ module EBS
         rc = vm.detachdisk(disk_id.to_i)
 
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+
+
+        # Update IMAGE metadata
+
+        image = Image.new(Image.build_xml(image_id), @client)
+        rc = image.info
+
+        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+
+        image.delete_element("TEMPLATE/EBS[INSTANCE_ID=\"#{params['InstanceId']}\"]")
+        rc = image.update
+        if OpenNebula::is_error?(rc)
+            logger.error {rc.message}
+            return OpenNebula::Error.new('Unsupported'),400
+        end
+
+
+        # Response
 
         erb_version = params['Version']
 
@@ -60,6 +81,9 @@ module EBS
             target = m[1]
         end
 
+
+        # Attach
+
         vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
         rc = vm.info
 
@@ -69,6 +93,29 @@ module EBS
         vm.attachdisk(template)
 
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+
+
+        # Update IMAGE metadata
+
+        image = Image.new(Image.build_xml(image_id), @client)
+        rc = image.info
+
+        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+
+        xml_hash = {'EBS' => {
+            'INSTANCE_ID' => params['InstanceId'],
+            "DEVICE" => params['Device']}
+        }
+
+        image.add_element('TEMPLATE', xml_hash)
+        rc = image.update
+        if OpenNebula::is_error?(rc)
+            logger.error rc.message
+            return OpenNebula::Error.new('Unsupported'),400
+        end
+
+
+        # Response
 
         erb_version = params['Version']
 

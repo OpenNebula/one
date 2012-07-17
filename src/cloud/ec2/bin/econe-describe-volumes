@@ -119,13 +119,20 @@ volumes = rc['volumeSet']['item']
 fmt = "%-15s %-10s %s"
 
 if headers
-    puts fmt % ["volumeId", "size", "createTime"]
+    puts fmt % ["volumeId", "size", "instanceId"]
     puts "------------------------------------------------------------------------------"
 end
 
 if volumes
     volumes.each { |vol|
-        puts fmt % [vol['volumeId'], vol['size'], vol['createTime']]
+        instances = ""
+        if vol['attachmentSet']['item']
+            instances = vol['attachmentSet']['item'].collect{ |item|
+                item['instanceId']
+            }.join(',')
+        end
+
+        puts fmt % [vol['volumeId'], vol['size'], instances]
     }
 end
 
