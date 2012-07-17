@@ -245,7 +245,8 @@ public:
      *    @param value the attribute value, an int, 0 if the attribute is not
      *    defined or not Single
      *
-     *    @return True if the Single attribute was found
+     *    @return True if the Single attribute was found and is a valid integer
+     *    value
      */
     virtual bool get(
         const string& name,
@@ -257,7 +258,8 @@ public:
      *    @param value the attribute value, an int, 0 if the attribute is not
      *    defined or not Single
      *
-     *    @return True if the Single attribute was found
+     *    @return True if the Single attribute was found and is a valid float
+     *    value
      */
     virtual bool get(
         const string&   name,
