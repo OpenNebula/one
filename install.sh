@@ -1094,8 +1094,13 @@ ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
 
 ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
                src/cloud/ec2/bin/econe-describe-images \
+               src/cloud/ec2/bin/econe-describe-volumes \
                src/cloud/ec2/bin/econe-describe-instances \
                src/cloud/ec2/bin/econe-register \
+               src/cloud/ec2/bin/econe-attach-volume \
+               src/cloud/ec2/bin/econe-detach-volume \
+               src/cloud/ec2/bin/econe-delete-volume \
+               src/cloud/ec2/bin/econe-create-volume \
                src/cloud/ec2/bin/econe-run-instances \
                src/cloud/ec2/bin/econe-terminate-instances \
                src/cloud/ec2/bin/econe-describe-addresses \
@@ -1107,7 +1112,12 @@ ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
 
 ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
                src/cloud/ec2/bin/econe-describe-instances \
+               src/cloud/ec2/bin/econe-describe-volumes \
                src/cloud/ec2/bin/econe-register \
+               src/cloud/ec2/bin/econe-attach-volume \
+               src/cloud/ec2/bin/econe-detach-volume \
+               src/cloud/ec2/bin/econe-delete-volume \
+               src/cloud/ec2/bin/econe-create-volume \
                src/cloud/ec2/bin/econe-run-instances \
                src/cloud/ec2/bin/econe-terminate-instances \
                src/cloud/ec2/bin/econe-describe-addresses \
