@@ -50,7 +50,7 @@ Options:
 
     --headers, -H
         Display column headers
-        
+
 EOT
 
 require 'econe/EC2QueryClient'
@@ -96,7 +96,7 @@ begin
     end
 rescue Exception => e
     exit -1
-end 
+end
 
 auth = "#{access}:#{secret}" if secret && access
 
@@ -116,16 +116,16 @@ end
 
 addresses = rc['addressesSet']['item']
 
-fmt = "%-12s %s"  
+fmt = "%-12s %s"
 
 if headers
     puts fmt % ["publicIP", "instanceId"]
-    puts "------------------------------------------------------------------------------" 
+    puts "------------------------------------------------------------------------------"
 end
 
-if addresses 
+if addresses
     addresses.each { |addr|
-        puts fmt % [addr['publicIP'],addr['instanceID']]
+        puts fmt % [addr['publicIp'],addr['instanceId']]
     }
 end
 
