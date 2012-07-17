@@ -307,12 +307,31 @@ public:
      *    @param name of the attribute
      *    @param value of the attribute (an int), will be 0 if not defined or
      *    not a single attribute
+     *
+     *    @return True if the Single attribute was found and is a valid integer
+     *    value
      */
-    void get_template_attribute(
+    bool get_template_attribute(
         const char *    name,
         int&            value) const
     {
-        obj_template->get(name,value);
+        return obj_template->get(name,value);
+    }
+
+    /**
+     *  Gets a float based attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (a float), will be 0 if not defined or
+     *    not a single attribute
+     *
+     *    @return True if the Single attribute was found and is a valid float
+     *    value
+     */
+    bool get_template_attribute(
+        const char *    name,
+        float&          value) const
+    {
+        return obj_template->get(name,value);
     }
 
     /**
@@ -327,6 +346,23 @@ public:
         const string& value)
     {
         return obj_template->replace(name, value);
+    }
+
+    /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined), the object's mutex SHOULD be locked
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace_template_attribute(
+        const string& name,
+        const int&    value)
+    {
+        ostringstream oss;
+        oss << value;
+
+        return replace_template_attribute(name, oss.str());
     }
 
     /**

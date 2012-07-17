@@ -41,9 +41,9 @@ bool QuotaDatastore::check(Template * tmpl,  string& error)
         return false;
     }
 
-    if ( tmpl->get("SIZE", size) == false )
+    if ( tmpl->get("SIZE", size) == false || size < 0 )
     {
-        error = "Size not defined for image";
+        error = "Image size must be a positive integer value";
         return false;
     }
 

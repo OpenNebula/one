@@ -55,14 +55,16 @@ bool QuotaVirtualMachine::check(Template * tmpl,  string& error)
     int memory;
     float cpu;
 
-    if ( tmpl->get("MEMORY", memory) == false )
+    if ( tmpl->get("MEMORY", memory) == false  || memory <= 0 )
     {
-        memory = 0;
+        error = "MEMORY attribute must be a positive integer value";
+        return false;
     }
 
-    if ( tmpl->get("CPU", cpu) == false )
+    if ( tmpl->get("CPU", cpu) == false || cpu <= 0 )
     {
-        cpu = 0;
+        error = "CPU attribute must be a positive float or integer value";
+        return false;
     }
 
     vm_request.insert(make_pair("VMS",1));
