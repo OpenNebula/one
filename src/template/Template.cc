@@ -430,6 +430,13 @@ bool Template::get(
     istringstream iss(sval);
 
     iss >> value;
+
+    if ( iss.fail() )
+    {
+        value = 0;
+        return false;
+    }
+
     return true;
 }
 
@@ -453,6 +460,13 @@ bool Template::get(
     istringstream iss(sval);
 
     iss >> value;
+
+    if ( iss.fail() )
+    {
+        value = 0;
+        return false;
+    }
+
     return true;
 }
 

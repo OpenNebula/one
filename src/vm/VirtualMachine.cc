@@ -213,6 +213,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string name;
 
     string        value;
+    int           ivalue;
+    float         fvalue;
     ostringstream oss;
 
     // ------------------------------------------------------------------------
@@ -242,21 +244,31 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     this->name = name;
 
     // ------------------------------------------------------------------------
-    // Check for CPU and MEMORY attributes
+    // Check for CPU, VCPU and MEMORY attributes
     // ------------------------------------------------------------------------
 
-    get_template_attribute("MEMORY", value);
-
-    if ( value.empty())
+    if ( get_template_attribute("MEMORY", ivalue) == false || ivalue <= 0 )
     {
-        goto error_no_memory;
+        goto error_memory;
     }
 
-    get_template_attribute("CPU", value);
+    replace_template_attribute("MEMORY", ivalue);
 
-    if ( value.empty())
+    if ( get_template_attribute("CPU", fvalue) == false || fvalue <= 0 )
     {
-        goto error_no_cpu;
+        goto error_cpu;
+    }
+
+    get_template_attribute("VCPU", value);
+
+    if ( value.empty() == false )
+    {
+        if ( get_template_attribute("VCPU", ivalue) == false || ivalue <= 0 )
+        {
+            goto error_vcpu;
+        }
+
+        replace_template_attribute("VCPU", ivalue);
     }
 
     // ------------------------------------------------------------------------
@@ -339,12 +351,16 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
-error_no_cpu:
-    error_str = "CPU attribute missing.";
+error_cpu:
+    error_str = "CPU attribute must be a positive float or integer value.";
     goto error_common;
 
-error_no_memory:
-    error_str = "MEMORY attribute missing.";
+error_vcpu:
+    error_str = "VCPU attribute must be a positive integer value.";
+    goto error_common;
+
+error_memory:
+    error_str = "MEMORY attribute must be a positive integer value.";
     goto error_common;
 
 error_name_length:
