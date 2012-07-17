@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DescribeAddressesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">    
+<DescribeAddressesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
    <requestId>4ac62eaf-e266-4058-a970-2c01568cd417</requestId>
    <addressesSet>
    <% vnet.each("LEASES/LEASE[USED=1 and VID=-1]") do |eip| %>
@@ -8,7 +8,7 @@
        <publicIp><%= eip["IP"] %></publicIp>
        <domain>standard</domain>
        <% if vm_id = vnet["TEMPLATE/EC2_ADDRESSES[IP=\"#{eip["IP"]}\"]/VMID"] %>
-       <instanceId><%= vm_id %></instanceId>
+       <instanceId>i-<%= sprintf('%08i', vm_id) %></instanceId>
        <% else %>
        <instanceId/>
        <% end %>
