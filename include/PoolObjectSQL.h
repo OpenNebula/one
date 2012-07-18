@@ -349,23 +349,6 @@ public:
     }
 
     /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined), the object's mutex SHOULD be locked
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int replace_template_attribute(
-        const string& name,
-        const int&    value)
-    {
-        ostringstream oss;
-        oss << value;
-
-        return replace_template_attribute(name, oss.str());
-    }
-
-    /**
      *  Generates a XML string for the template of the Object
      *    @param xml the string to store the XML description.
      */
