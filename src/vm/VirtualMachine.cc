@@ -252,14 +252,10 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_memory;
     }
 
-    replace_template_attribute("MEMORY", ivalue);
-
     if ( get_template_attribute("CPU", fvalue) == false || fvalue <= 0 )
     {
         goto error_cpu;
     }
-
-    get_template_attribute("VCPU", value);
 
     if ( value.empty() == false )
     {
@@ -267,8 +263,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         {
             goto error_vcpu;
         }
-
-        replace_template_attribute("VCPU", ivalue);
     }
 
     // ------------------------------------------------------------------------
