@@ -44,22 +44,26 @@ fi
 #-------------------------------------------------------------------------------
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
 
-ssh_make_path $DST_HOST $DST_PATH
+ssh_make_path $DST_HOST $DST_DIR
 
 #-------------------------------------------------------------------------------
 # Make the new image (file-based)
 #-------------------------------------------------------------------------------
 MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
 
+CREATE_IMAGE="mkdir -p $DST_PATH"
+ 
 MKSCRIPT=$(cat <<EOF
 export PATH=/usr/sbin:/sbin:\$PATH
+$CREATE_IMAGE
 $MKFS_CMD
 EOF
 )
 
 log "Making filesystem of ${SIZE}M and type $FSTYPE at $DST"
 
-ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH/disk.vmdk"
+ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH"
 
 exit 0

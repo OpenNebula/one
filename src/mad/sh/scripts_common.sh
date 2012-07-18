@@ -250,12 +250,12 @@ function mkfs_command {
             echo "$MKSWAP $DST"
             return 0
             ;;
-        "vmdk_*")
-            VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 1`
+        "vmdk_"*)
+            VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
             echo "WHICH_SUDO=\$(which sudo) ; \
                   [ ! -z \"\$WHICH_SUDO\" -a -f \"\$WHICH_SUDO\" ] && SUDO=\"sudo\" ; \
-                  $SUDO $VMKFSTOOLS -U $DST/disk.vmdk; \
-                  $SUDO $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST_PATH/disk.vmdk"
+                  \$SUDO $VMKFSTOOLS -U $DST/disk.vmdk; \
+                  \$SUDO $VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk"
             return 0
             ;;
         *)
