@@ -150,7 +150,7 @@ var acl_actions = {
             hideDialog();
             $('div#acls_tab div.legend_div').slideToggle();
         }
-    },
+    }
 }
 
 var acl_buttons = {
@@ -172,7 +172,6 @@ var acl_buttons = {
         text: '?',
         alwaysActive: true
     }
-
 }
 
 var acls_tab = {
@@ -192,7 +191,7 @@ SunstoneMonitoringConfig['ACL'] = {
         "totalAcls" : {
             operation: SunstoneMonitoring.ops.totalize
         }
-    },
+    }
 }
 
 

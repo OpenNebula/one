@@ -222,7 +222,7 @@ var SunstoneMonitoring = {
                 var data = partitions[partition]
                 var color = config.colorize ? config.colorize(partition) : null
                 series.push({ label: partition,
-                              data: data,
+                              data: data
                             })
             }
             return series
@@ -261,7 +261,7 @@ var SunstoneMonitoring = {
                     data: [[totals[i],0]], //we paint on 0 value of y axis
                     // y axis labels will be hidden
                     label: paths[i],
-                    color: config.colorize? config.colorize(paths[i]) : null,
+                    color: config.colorize? config.colorize(paths[i]) : null
                 })
             }
             return series

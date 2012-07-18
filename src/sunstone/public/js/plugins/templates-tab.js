@@ -683,7 +683,7 @@ var template_actions = {
         call: function () {
             waitingNodes(dataTable_templates);
             Sunstone.runAction("Template.list");
-        },
+        }
     },
 
     "Template.autorefresh" : {
@@ -791,7 +791,7 @@ var template_actions = {
             hideDialog();
             $('div#templates_tab div.legend_div').slideToggle();
         }
-    },
+    }
 }
 
 var template_buttons = {
@@ -829,7 +829,7 @@ var template_buttons = {
     },
     "Template.clone_dialog" : {
         type: "action",
-        text: tr("Clone"),
+        text: tr("Clone")
     },
     "Template.delete" : {
         type: "confirm",
@@ -2034,7 +2034,7 @@ function setupTemplateTemplateUpdateDialog(){
         width:700,
         modal:true,
         height:height,
-        resizable:false,
+        resizable:false
     });
 
     $('button',dialog).button();
@@ -2148,7 +2148,7 @@ function setupTemplateCloneDialog(){
         autoOpen:false,
         width:375,
         modal:true,
-        resizable:false,
+        resizable:false
     });
 
     $('button',dialog).button();

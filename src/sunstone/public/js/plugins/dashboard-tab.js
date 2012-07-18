@@ -181,7 +181,7 @@ var dashboard_tab_content =
 var dashboard_tab = {
     title: '<i class="icon-dashboard"></i>'+tr("Dashboard"),
     content: dashboard_tab_content,
-    showOnTopMenu: false,
+    showOnTopMenu: false
 }
 
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);

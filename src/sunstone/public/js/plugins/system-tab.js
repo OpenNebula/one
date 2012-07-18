@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var system_tab_content =
-'<table class="dashboard_table" style=>\
+var system_tab_content = '\
+<table class="dashboard_table" style=>\
 <tr>\
 <td style="width:50%">\
 <table id="system_information_table" style="width:100%">\

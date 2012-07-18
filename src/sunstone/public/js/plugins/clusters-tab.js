@@ -120,7 +120,7 @@ var cluster_actions = {
         callback : function (req) {
             Sunstone.runAction("Host.show",req.request.data[0][1].host_id);
         },
-        error : onError,
+        error : onError
     },
 
     "Cluster.delhost" : {
@@ -138,7 +138,7 @@ var cluster_actions = {
         callback : function (req) {
             Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
         },
-        error : onError,
+        error : onError
     },
 
     "Cluster.deldatastore" : {
@@ -147,7 +147,7 @@ var cluster_actions = {
         callback : function (req) {
             Sunstone.runAction("Datastore.show",req.request.data[0][1].ds_id);
         },
-        error : onError,
+        error : onError
     },
 
     "Cluster.addvnet" : {
@@ -156,7 +156,7 @@ var cluster_actions = {
         callback : function (req) {
             Sunstone.runAction("Network.show",req.request.data[0][1].vnet_id);
         },
-        error : onError,
+        error : onError
     },
 
     "Cluster.delvnet" : {
@@ -165,7 +165,7 @@ var cluster_actions = {
         callback : function (req) {
             Sunstone.runAction("Network.show",req.request.data[0][1].vnet_id);
         },
-        error : onError,
+        error : onError
     },
 
     "Cluster.delete" : {
@@ -205,8 +205,8 @@ var cluster_actions = {
                                                         [],
                                                         []),
                                       clusterElements());
-        },
-    },
+        }
+    }
 };
 
 var cluster_buttons = {
@@ -255,7 +255,7 @@ var clusters_tab = {
     buttons: cluster_buttons,
     showOnTopMenu: false,
     tabClass: "topTab subTab",
-    parentTab: "infra_tab",
+    parentTab: "infra_tab"
 };
 
 
@@ -311,7 +311,7 @@ SunstoneMonitoringConfig['CLUSTER_HOST'] = {
             dataType: "pie",
             operation: SunstoneMonitoring.ops.hostCpuUsagePartition,
             plotOptions: {
-                series: { pie: { show: true  } },
+                series: { pie: { show: true  } }
             }
         },
         "cpuUsageBar" : {
@@ -364,7 +364,7 @@ SunstoneMonitoringConfig['CLUSTER_HOST'] = {
                     }
                 }
             }
-        },
+        }
     }
 }
 
@@ -907,7 +907,7 @@ function setupCreateClusterDialog(){
 
         var cluster_json = {
             "cluster": {
-                "name": $('#name',this).val(),
+                "name": $('#name',this).val()
             }
         };
 
@@ -990,7 +990,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,3,4,5] },
+            { "sWidth": "35px", "aTargets": [1,3,4,5] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {

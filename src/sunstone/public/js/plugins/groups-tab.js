@@ -139,7 +139,7 @@ var group_actions = {
         type: "list",
         call: OpenNebula.Group.list,
         callback: updateGroupsView,
-        error: onError,
+        error: onError
     },
 
     "Group.show" : {
@@ -223,7 +223,7 @@ var group_actions = {
             hideDialog();
             $('div#groups_tab div.legend_div').slideToggle();
         }
-    },
+    }
 }
 
 var group_buttons = {
@@ -247,7 +247,7 @@ var group_buttons = {
     "Group.quotas_dialog" : {
         type : "action",
         text : tr("Update quotas"),
-        condition: mustBeAdmin,
+        condition: mustBeAdmin
     },
     "Group.delete" : {
         type: "confirm",
@@ -265,7 +265,7 @@ var group_info_panel = {
     "group_info_tab" : {
         title: tr("Group information"),
         content:""
-    },
+    }
 };
 
 var groups_tab = {
@@ -296,7 +296,7 @@ SunstoneMonitoringConfig['GROUP'] = {
         "totalGroups" : {
             operation: SunstoneMonitoring.ops.totalize
         }
-    },
+    }
 }
 
 Sunstone.addActions(group_actions);

@@ -266,6 +266,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/locale/zh_TW \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/crypto-js \
+               $SUNSTONE_LOCATION/public/vendor/explorercanvas \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
                $SUNSTONE_LOCATION/public/vendor/dataTables \
                $SUNSTONE_LOCATION/public/vendor/jQueryUI \
@@ -489,6 +490,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_JS_PLUGINS_FILES:$SUNSTONE_LOCATION/public/js/plugins
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_CRYPTOJS:$SUNSTONE_LOCATION/public/vendor/crypto-js
+    SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS:$SUNSTONE_LOCATION/public/vendor/explorercanvas
     SUNSTONE_PUBLIC_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/dataTables
     SUNSTONE_PUBLIC_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/jGrowl
     SUNSTONE_PUBLIC_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/jQuery
@@ -1344,6 +1346,11 @@ src/sunstone/public/vendor/crypto-js/sha1-min.js \
 src/sunstone/public/vendor/crypto-js/core-min.js \
 src/sunstone/public/vendor/crypto-js/enc-base64-min.js \
 src/sunstone/public/vendor/crypto-js/NEW-BSD-LICENSE.txt"
+
+SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS="\
+src/sunstone/public/vendor/explorercanvas/excanvas.compiled.js \
+src/sunstone/public/vendor/explorercanvas/NOTICE \
+src/sunstone/public/vendor/explorercanvas/LICENSE.txt"
 
 SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER="\
 src/sunstone/public/vendor/fileuploader/NOTICE \

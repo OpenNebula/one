@@ -70,14 +70,14 @@ var config_actions = {
         call: OpenNebula.Config.list,
         callback: updateConfig,
         error: onError
-    },
+    }
 };
 
 var config_tab = {
     title: tr("Configuration"),
     content: config_tab_content,
     tabClass: "subTab",
-    parentTab: "dashboard_tab",
+    parentTab: "dashboard_tab"
 };
 
 Sunstone.addActions(config_actions);
@@ -103,7 +103,7 @@ function updateConfig(request,response){
 function updateWss(){
     var user_info_req = {
         data : {
-            id: uid,
+            id: uid
         },
         success: function(req,user_json) {
             var template = user_json.USER.TEMPLATE;
@@ -123,7 +123,7 @@ function updateWss(){
                 error: onError
             };
             OpenNebula.User.update(request);
-        },
+        }
     };
     OpenNebula.User.show(user_info_req);
     $.post('config',JSON.stringify({wss : ($('#config_table #wss_checkbox').is(':checked') ? "yes" : "no")}));
