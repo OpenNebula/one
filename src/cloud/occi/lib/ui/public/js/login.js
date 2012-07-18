@@ -80,12 +80,13 @@ function getInternetExplorerVersion(){
 function checkVersion(){
     var ver = getInternetExplorerVersion();
 
-    if ( ver > -1 )
+    if ( ver > -1 ){
         msg = ver <= 7.0 ? "You are using an old version of IE. \
-Please upgrade or use Firefox or Chrome for full compatibility." : 
+Please upgrade or use Firefox or Chrome for full compatibility." :
         "OpenNebula Self-Service is best seen with Chrome or Firefox";
-    $("#error_box").text(msg);
-    $("#error_box").fadeIn('slow');
+        $("#error_box").text(msg);
+        $("#error_box").fadeIn('slow');
+    }
 }
 
 $(document).ready(function(){

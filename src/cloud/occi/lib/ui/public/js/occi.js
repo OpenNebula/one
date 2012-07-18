@@ -308,7 +308,7 @@ var OCCI = {
                 beforeSend : function(req) {
                     var token = username + ':' + password;
                     var authString = 'Basic ';
-                    if (typeof(btoa) === 'function') 
+                    if (typeof(btoa) === 'function')
                         authString += btoa(token)
                     else {
                         token = CryptoJS.enc.Utf8.parse(token);
