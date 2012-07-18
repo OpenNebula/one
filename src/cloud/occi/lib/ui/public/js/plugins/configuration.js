@@ -56,7 +56,7 @@ var config_actions = {
         call : OCCI.Config.list,
         callback : updateConfig,
         error : onError
-    },
+    }
 };
 
 var config_tab = {

@@ -130,7 +130,7 @@ var vm_actions = {
 
     "VM.create_dialog" : {
         type: "custom",
-        call: popUpCreateVMDialog,
+        call: popUpCreateVMDialog
     },
 
     "VM.list" : {
@@ -159,14 +159,14 @@ var vm_actions = {
         call : function (){
             waitingNodes(dataTable_vMachines);
             Sunstone.runAction("VM.list");
-        },
+        }
     },
 
     "VM.autorefresh" : {
         type: "custom",
         call : function() {
             OCCI.VM.list({timeout: true, success: updateVMachinesView,error: onError});
-        },
+        }
     },
 
     "VM.suspend" : {
@@ -262,6 +262,7 @@ var vm_actions = {
         callback: saveasDisksCallback,
         error: onError
     },
+
     "VM.getInstanceTypes" : {
         type: "list",
         call: OCCI.Instance_type.list,
@@ -292,7 +293,7 @@ var vm_actions = {
         call: OCCI.VM.stopvnc,
         error: onError,
         notify: true
-    },
+    }
 
 /*
     "VM.monitor" : {
@@ -319,9 +320,9 @@ var vm_actions = {
 
 var vm_buttons = {
     "VM.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
 
     "VM.create_dialog" : {
@@ -395,14 +396,14 @@ var vm_info_panel = {
     "vm_networks_tab" : {
         title: tr("Networks"),
         content: ""
-    },
+    }
 }
 
 var vm_create_panel = {
     "vm_create_panel" : {
         title: tr("Create Virtual Machine"),
         content: create_vm_tmpl
-    },
+    }
 };
 
 var vms_tab = {
@@ -723,7 +724,7 @@ function popUpCreateVMDialog(){
 
     $('#network_box',dialog).html(net_select);
     $('#network_box option',dialog).each(function(){
-        $(this).text('☐ '+$(this).text()+' (id:'+$(this).val()+')');
+        $(this).text('☐ '+$(this).text());
     });
 
 
@@ -736,7 +737,7 @@ function popUpCreateVMDialog(){
 
     $('#disk_box',dialog).html(image_select);
     $('#disk_box option',dialog).each(function(){
-        $(this).text('☐ '+$(this).text()+' (id:'+$(this).val()+')');
+        $(this).text('☐ '+$(this).text());
     });
 
 
@@ -771,7 +772,7 @@ function popUpCreateVMDialog(){
 
         var vm = {
             "NAME" : vm_name,
-            "INSTANCE_TYPE" : instance_type,
+            "INSTANCE_TYPE" : instance_type
         };
 
         var href = location.protocol + "//" + location.host;
@@ -844,7 +845,7 @@ function setupSaveasDialog(){
         width:600,
         modal:true,
         height:350,
-        resizable:true,
+        resizable:true
     });
 
     $('#saveas_vm_form',dialog).submit(function(){
@@ -862,7 +863,7 @@ function setupSaveasDialog(){
             else {
                 var obj = {
                     disk_id : disk_id,
-                    image_name : image_name,
+                    image_name : image_name
                 };
                 args.push(id);
                 Sunstone.runAction("VM.saveas",id,obj);
@@ -1126,7 +1127,7 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "110px", "aTargets": [3] },
+            { "sWidth": "110px", "aTargets": [3] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {

@@ -148,15 +148,15 @@ var vnet_actions = {
         elements: vnElements,
         error: onError,
         notify: true
-    },
+    }
 };
 
 
 var vnet_buttons = {
     "Network.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
 
     "Network.create_dialog" : {
@@ -184,7 +184,7 @@ var vnet_info_panel = {
     "vnet_info_tab" : {
         title: tr("Network information"),
         content: ""
-    },
+    }
 }
 
 
@@ -192,7 +192,7 @@ var vnet_create_panel = {
     "vnet_create_panel" : {
         title: tr("Create network"),
         content: create_vn_tmpl
-    },
+    }
 }
 
 var vnets_tab = {
@@ -409,7 +409,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [1] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {

@@ -149,7 +149,7 @@ var image_actions = {
         call: function () {
             waitingNodes(dataTable_images);
             Sunstone.runAction("Image.list");
-        },
+        }
     },
 
     "Image.autorefresh" : {
@@ -204,15 +204,15 @@ var image_actions = {
         elements: imageElements,
         error: onError,
         notify: true
-    },
+    }
 }
 
 
 var image_buttons = {
     "Image.refresh" : {
-        type: "image",
-        text: tr("Refresh list"),
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Image.create_dialog" : {
         type: "create_dialog",
@@ -249,15 +249,14 @@ var image_info_panel = {
     "image_info_tab" : {
         title: tr("Image information"),
         content: ""
-    },
-
+    }
 };
 
 var image_create_panel = {
     "image_create_panel" : {
         title: tr("Add storage"),
         content: create_image_tmpl
-    },
+    }
 };
 
 var images_tab = {
@@ -448,7 +447,7 @@ function popUpCreateImageDialog(){
         width: "258px",
 //        left: "133px",
         height: "15px",
-        display: "inline-block",
+        display: "inline-block"
     });
     $('#upload-progress div',dialog).css("border","1px solid #AAAAAA");
 
@@ -482,7 +481,7 @@ function popUpCreateImageDialog(){
             return false;
         },
         onCancel: function(id, fileName){
-        },
+        }
     });
 
     var file_input = false;
@@ -593,7 +592,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [1] }
         ],
         "oLanguage": (datatable_lang != "") ?
             {

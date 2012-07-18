@@ -42,7 +42,7 @@ $.ajaxSetup({
     converters: {
         "xml ONEjson": function(xml){
             return $.xml2json(xml);
-        },
+        }
     }
 });
 
@@ -255,7 +255,7 @@ var OCCI = {
                         callback_error(request, OCCI.Error(response)) : null;
                 }
             });
-        },
+        }
 /*
         "monitor": function(params,resource,all){
             var callback = params.success;
@@ -306,9 +306,16 @@ var OCCI = {
                 type: "POST",
                 data: {remember: remember, lang: lang},
                 beforeSend : function(req) {
-                    req.setRequestHeader( "Authorization",
-                                        "Basic " + btoa(username + ":" + password)
-                                        )
+                    var token = username + ':' + password;
+                    var authString = 'Basic ';
+                    if (typeof(btoa) === 'function') 
+                        authString += btoa(token)
+                    else {
+                        token = CryptoJS.enc.Utf8.parse(token);
+                        authString += CryptoJS.enc.Base64.stringify(token)
+                    }
+
+                    req.setRequestHeader( "Authorization", authString);
                 },
                 success: function(response){
                     return callback ? callback(request, response) : null;
@@ -389,7 +396,7 @@ var OCCI = {
         "unpublish": function(params){
             params.data.body = { "PUBLIC": "NO" };
             OCCI.Action.update(params,OCCI.Network.resource,"unpublish");
-        },
+        }
     },
 
     "VM": {
@@ -474,7 +481,7 @@ var OCCI = {
         "stopvnc" : function(params){
             OCCI.VM.vnc(params,"stopvnc");
 
-        },
+        }
 /*
         "monitor" : function(params){
             OCCI.Action.monitor(params,OCCI.VM.resource,false);
@@ -534,7 +541,7 @@ var OCCI = {
         "nonpersistent": function(params){
             params.data.body = { "PERSISTENT":"NO" };
             OCCI.Action.update(params,OCCI.Image.resource,"nonpersistent");
-        },
+        }
     },
 
     "Template" : {
@@ -587,7 +594,7 @@ var OCCI = {
         "resource" : "INSTANCE_TYPE",
         "list" : function(params){
             OCCI.Action.list(params,OCCI.Instance_type.resource);
-        },
+        }
     },
 
     "User" : {
@@ -597,8 +604,7 @@ var OCCI = {
         },
         "show" : function(params){
             OCCI.Action.show(params,OCCI.User.resource);
-        },
+        }
 
-    },
-
+    }
 }
