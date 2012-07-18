@@ -203,18 +203,6 @@ module Migrator
             vms_used += 1
         end
 
-##
-puts "where : #{where_filter}"
-puts "CPU           #{cpu_limit}"
-puts "CPU_USED      #{cpu_used.to_s}"
-puts "MEMORY        #{mem_limit}"
-puts "MEMORY_USED   #{mem_used.to_s}"
-puts "VMS           #{vms_limit}"
-puts "VMS_USED      #{vms_used.to_s}"
-puts
-puts
-##
-
         # VM quotas
         vm_elem = vm_quota.add_element("VM")
 
