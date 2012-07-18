@@ -140,6 +140,7 @@ div#login input#login_btn:hover {
   position: relative;
   top: 80px;
   font-size:1.0em;
+  padding: 2px 15px;
 }
 
 #login_spinner {

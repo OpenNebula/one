@@ -167,7 +167,7 @@ var vdc_actions = {
         type: "list",
         call: oZones.VDC.list,
         callback: updateVDCsView,
-        error: onError,
+        error: onError
     },
 
     "VDC.refresh" : {
@@ -183,7 +183,7 @@ var vdc_actions = {
         type: "custom",
         call: function(){
             oZones.VDC.list({timeout: true, success: updateVDCsView, error: onError});
-        },
+        }
     },
 
     "VDC.delete" : {
@@ -248,24 +248,23 @@ var vdc_actions = {
             $('div#create_vdc_dialog select#clusterid').html(options);
         },
         error: onError
-    },
-
+    }
 };
 
 var vdc_buttons = {
     "VDC.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "VDC.create_dialog" : {
         type: "action",
         text: "+ New",
-        alwaysActive:true
+        alwaysActive: true
     },
     "VDC.update_dialog" : {
         type: "action",
-        text: "Update VDC resources",
+        text: "Update VDC resources"
     },
     "VDC.delete" : {
         type: "action",
@@ -711,8 +710,8 @@ function setupCreateVDCDialog(){
                 "RESOURCES" : {
                     "HOSTS" : hosts,
                     "DATASTORES" : datastores,
-                    "NETWORKS" : vnets,
-                },
+                    "NETWORKS" : vnets
+                }
             }
         };
 
@@ -864,9 +863,9 @@ function setupUpdateVDCDialog(){
                 "RESOURCES": {
                     "HOSTS": hosts,
                     "NETWORKS": vnets,
-                    "DATASTORES": datastores,
+                    "DATASTORES": datastores
                 }
-            },
+            }
         };
 
         Sunstone.runAction("VDC.update",id,vdc_json);
