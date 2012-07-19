@@ -228,34 +228,18 @@ class SunstoneServer < CloudServer
     ########################################################################
     # VNC
     ########################################################################
-    def startvnc(id, config)
+    def startvnc(id, vnc)
         resource = retrieve_resource("vm", id)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         end
 
-        vnc_proxy = OpenNebulaVNC.new(config, logger)
-        return vnc_proxy.start(resource)
+        return vnc.proxy(resource)
     end
 
-    ############################################################################
+    ########################################################################
     #
-    ############################################################################
-    def stopvnc(pipe)
-        begin
-            OpenNebulaVNC.stop(pipe)
-        rescue Exception => e
-            logger.error {e.message}
-            error = Error.new("Error stopping VNC. Please check server logs.")
-            return [500, error.to_json]
-        end
-
-        return [200, nil]
-    end
-
-    ############################################################################
-    #
-    ############################################################################
+    ########################################################################
     def get_pool_monitoring(resource, meters)
         #pool_element
         pool = case resource

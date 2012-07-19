@@ -14,16 +14,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'json'
-require 'OpenNebula'
-
 #
 # This class provides support for launching and stopping a websockify proxy
 #
+
+require 'json'
+require 'OpenNebula'
+
+TOKEN_EXPIRE_SECONDS = 4
+
 class OpenNebulaVNC
-    def initialize(config, logger, opt={:json_errors => true})
-        @proxy_path      = config[:vnc_proxy_path]
-        @proxy_base_port = config[:vnc_proxy_base_port].to_i
+
+    attr_reader :proxy_port
+
+    def initialize(config, logger,  opts={
+                       :json_errors => true,
+                       :token_folder_name => 'sunstone_vnc_tokens'})
+        @pipe = nil
+        @token_folder = File.join(VAR_LOCATION, opts[:token_folder_name])
+        @proxy_path = config[:vnc_proxy_path]
+        @proxy_port = config[:vnc_proxy_port] ||
+                      config[:vnc_proxy_base_port] #deprecated
 
         @wss = config[:vnc_proxy_support_wss]
 
@@ -34,34 +45,25 @@ class OpenNebulaVNC
         else
             @enable_wss = false
         end
-
-        @options = opt
+        @options = opts
         @logger = logger
+
+        begin
+            Dir.mkdir(@token_folder)
+        rescue Exception => e
+            @logger.error "Cannot create token folder"
+            @logger.error e.message
+        end
+
     end
 
-    # Start a VNC proxy
-    def start(vm_resource)
-        # Check configurations and VM attributes
-
+    def start
         if @proxy_path == nil || @proxy_path.empty?
-            return error(403,"VNC proxy not configured")
+            @logger.info "VNC proxy not configured"
+            return
         end
 
-        if vm_resource['LCM_STATE'] != "3"
-            return error(403,"VM is not running")
-        end
-
-        if vm_resource['TEMPLATE/GRAPHICS/TYPE'] != "vnc"
-            return error(403,"VM has no VNC configured")
-        end
-
-        # Proxy data
-        host     = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
-        vnc_port = vm_resource['TEMPLATE/GRAPHICS/PORT']
-
-        proxy_port = @proxy_base_port + vnc_port.to_i
-
-        proxy_options = ""
+        proxy_options = "--target-config=#{@token_folder} "
 
         if @enable_wss
             proxy_options << " --cert #{@cert}"
@@ -69,25 +71,86 @@ class OpenNebulaVNC
             proxy_options << " --ssl-only" if @wss == "only"
         end
 
-        cmd ="#{@proxy_path} #{proxy_options} #{proxy_port} #{host}:#{vnc_port}"
+        cmd ="python #{@proxy_path} #{proxy_options} #{@proxy_port}"
 
         begin
-            @logger.info { "Starting vnc proxy: #{cmd}" }
-            pipe = IO.popen(cmd)
+            @logger.info { "Starting VNC proxy: #{cmd}" }
+            @pipe = IO.popen(cmd,'r')
         rescue Exception => e
-            return [500, OpenNebula::Error.new(e.message).to_json]
+            @logger.error e.message
+            return
         end
-
-        vnc_pw = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
-        info   = {:pipe => pipe, :port => proxy_port, :password => vnc_pw}
-
-        return [200, info]
     end
 
-    # Stop a VNC proxy handle exceptions outside
-    def self.stop(pipe)
-        Process.kill('KILL',pipe.pid)
-        pipe.close
+    def proxy(vm_resource)
+        # Check configurations and VM attributes
+        if !@pipe
+            return error(400, "VNC Proxy is not running")
+        end
+
+        if vm_resource['LCM_STATE'] != "3"
+            return error(400,"VM is not running")
+        end
+
+        if vm_resource['TEMPLATE/GRAPHICS/TYPE'] != "vnc"
+            return error(400,"VM has no VNC configured")
+        end
+
+        # Proxy data
+        host     = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+        vnc_port = vm_resource['TEMPLATE/GRAPHICS/PORT']
+        vnc_pw = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+
+        # Generate token random_str: host:port
+        random_str = rand(36**20).to_s(36) #random string a-z0-9 length 20
+        token = "#{random_str}: #{host}:#{vnc_port}"
+        token_file = 'one-'+vm_resource['ID']
+
+        # Create token file
+        begin
+            f = File.open(File.join(@token_folder, token_file), 'w')
+            f.write(token)
+            f.close
+        rescue Exception => e
+            @logger.error e.message
+            return error(500, "Cannot create VNC proxy token")
+        end
+
+        info   = {
+            :password => vnc_pw,
+            :token => random_str,
+        }
+
+        # Delete token soon after
+        Thread.new do
+            sleep TOKEN_EXPIRE_SECONDS
+            delete_token(token_file)
+        end
+
+        return [200, info.to_json]
+    end
+
+    # Delete proxy token file
+    def delete_token(filename)
+        begin
+            File.delete(File.join(@token_folder, filename))
+        rescue => e
+            @logger.error "Error deleting token file for VM #{vm_id}"
+            @logger.error e.message
+        end
+    end
+
+    def stop
+        if !@pipe then return end
+        @logger.info "Killing VNC proxy"
+        Process.kill('TERM',@pipe.pid)
+        @pipe.close
+        begin
+            Dir.rmdir(@token_folder)
+        rescue => e
+            @logger.error "Error deleting token folder"
+            @logger.error e.message
+        end
     end
 
     private
@@ -99,6 +162,5 @@ class OpenNebulaVNC
             return [code,msg]
         end
     end
-
 
 end

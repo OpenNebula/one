@@ -411,13 +411,6 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.stopvnc" : {
-        type: "single",
-        call: OpenNebula.VM.stopvnc,
-        error: onError,
-        notify: true
-    },
-
     "VM.monitor" : {
         type: "monitor",
         call : OpenNebula.VM.monitor,
@@ -1538,17 +1531,13 @@ function setupVNC(){
     });
 
     dialog.bind( "dialogclose", function(event, ui) {
-        var id = $vnc_dialog.attr('vm_id');
         rfb.disconnect();
-        Sunstone.runAction("VM.stopvnc",id);
     });
 
     $('.vnc').live("click",function(){
-        //Which VM is it?
         var id = $(this).attr('vm_id');
-        //Set attribute to dialog
-        $vnc_dialog.attr('vm_id',id);
-        //Request proxy server start
+
+        //Ask server for connection params
         Sunstone.runAction("VM.startvnc",id);
         return false;
     });
@@ -1561,19 +1550,14 @@ function vncCallback(request,response){
                    'local_cursor': true,
                    'shared':       true,
                    'updateState':  updateVNCState});
-    //fetch things from clicked element host - port - password
-    vnc_port = response["port"];
 
-    //Hopefully this is returning sunstone server address, where
-    //the proxy is running
-    vnc_host = window.location.hostname;
-    vnc_pw = response["password"];
-
-    setTimeout(function(){
-        rfb.connect(vnc_host, vnc_port, vnc_pw);
-        $vnc_dialog.dialog('open');
-    },4000);
-
+    var proxy_host = window.location.hostname;
+    var proxy_port = config_response['system_config']['vnc_proxy_port'];
+    var pw = response["password"];
+    var token = response["token"];
+    var path = '?token='+token;
+    rfb.connect(proxy_host, proxy_port, pw, path);
+    $vnc_dialog.dialog('open');
 }
 
 function vncIcon(vm){

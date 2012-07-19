@@ -678,9 +678,6 @@ var OpenNebula = {
         "startvnc" : function(params){
             OpenNebula.VM.vnc(params,"startvnc");
         },
-        "stopvnc" : function(params){
-            OpenNebula.VM.vnc(params,"stopvnc");
-        },
         "monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.VM.resource,false);
         },

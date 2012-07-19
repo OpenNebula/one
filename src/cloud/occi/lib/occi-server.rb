@@ -124,6 +124,26 @@ end
 
 set :cloud_auth, cloud_auth
 
+#start VNC proxy
+
+configure do
+    set :run, false
+
+    if settings.config[:vnc_enable]
+        opts = {
+            :json_errors => false,
+            :token_folder_name => 'selfservice_vnc_tokens'
+        }
+        set :vnc, OpenNebulaVNC.new(settings.config,
+                                    settings.logger,
+                                    opts)
+        settings.vnc.start()
+        Kernel.at_exit do
+            settings.vnc.stop
+        end
+    end
+end
+
 ##############################################################################
 # Helpers
 ##############################################################################
@@ -359,6 +379,9 @@ get '/ui/config' do
     config << "  <LANG>#{session[:lang]}</LANG>"
     config << "  <WSS>#{wss}</WSS>"
     config << "  <VNC>#{vnc}</VNC>"
+    if vnc == "yes"
+        config << "  <VNC_PROXY_PORT>#{settings.vnc.proxy_port}</VNC_PROXY_PORT>"
+    end
     config << "</UI_CONFIGURARION>"
 
     return [200, config]
@@ -416,53 +439,8 @@ post '/ui/upload' do
 end
 
 post '/ui/startvnc/:id' do
-    if !settings.config[:vnc_enable]
-        return [403, "VNC sessions are disabled"]
-    end
-
     vm_id    = params[:id]
-    vnc_hash = session['vnc']
-
-    if !vnc_hash
-        session['vnc'] = {}
-    elsif vnc_hash[vm_id]
-        #return existing information
-        info = vnc_hash[vm_id].clone
-        info.delete(:pipe)
-
-        return [200, info.to_json]
-    end
-
-    rc = @occi_server.startvnc(vm_id, settings.config)
-
-    if rc[0] == 200
-        info = rc[1]
-        session['vnc'][vm_id] = info.clone
-        info.delete(:pipe)
-
-        rc = [200, info.to_json]
-    end
-
-    return rc
+    @occi_server.startvnc(vm_id, settings.vnc)
 end
 
-post '/ui/stopvnc/:id' do
-    if !settings.config[:vnc_enable]
-        return [403, "VNC sessions are disabled"]
-    end
-
-    vm_id    = params[:id]
-    vnc_hash = session['vnc']
-
-    if !vnc_hash || !vnc_hash[vm_id]
-        return [403, "It seems there is no VNC proxy running for this machine"]
-    end
-
-    rc = @occi_server.stopvnc(vnc_hash[vm_id][:pipe])
-
-    if rc[0] == 200
-        session['vnc'].delete(vm_id)
-    end
-
-    return rc
-end
+Sinatra::Application.run!
