@@ -24,17 +24,21 @@ module EBS
         vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
         rc = vm.info
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        return rc if OpenNebula::is_error?(rc)
 
         disk_id = vm["TEMPLATE/DISK[IMAGE_ID=#{image_id.to_i}]/DISK_ID"]
 
         logger.debug { "Detaching DISK: #{disk_id} VM: #{vm_id} IMAGE: #{image_id}"  }
 
-        return OpenNebula::Error.new('Unsupported'),400 if disk_id.nil?
+        if disk_id.nil?
+            rc = OpenNebula::Error.new("There is no disk to be detached")
+            logger.error {rc.message}
+            return rc
+        end
 
         rc = vm.detachdisk(disk_id.to_i)
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        return rc if OpenNebula::is_error?(rc)
 
 
         # Update IMAGE metadata
@@ -42,13 +46,13 @@ module EBS
         image = Image.new(Image.build_xml(image_id), @client)
         rc = image.info
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        return rc if OpenNebula::is_error?(rc)
 
         image.delete_element("TEMPLATE/EBS[INSTANCE_ID=\"#{params['InstanceId']}\"]")
         rc = image.update
         if OpenNebula::is_error?(rc)
             logger.error {rc.message}
-            return OpenNebula::Error.new('Unsupported'),400
+            return rc
         end
 
 
@@ -87,12 +91,12 @@ module EBS
         vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
         rc = vm.info
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        return rc if OpenNebula::is_error?(rc)
 
         template = "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target} ]"
         vm.attachdisk(template)
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        return rc if OpenNebula::is_error?(rc)
 
 
         # Update IMAGE metadata
@@ -100,7 +104,7 @@ module EBS
         image = Image.new(Image.build_xml(image_id), @client)
         rc = image.info
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        return rc if OpenNebula::is_error?(rc)
 
         xml_hash = {'EBS' => {
             'INSTANCE_ID' => params['InstanceId'],
@@ -111,7 +115,7 @@ module EBS
         rc = image.update
         if OpenNebula::is_error?(rc)
             logger.error rc.message
-            return OpenNebula::Error.new('Unsupported'),400
+            return rc
         end
 
 
@@ -148,12 +152,12 @@ module EBS
 
         template = image.to_one_template
         if OpenNebula.is_error?(template)
-            return OpenNebula::Error.new('Unsupported'), 400
+            return template
         end
 
         rc = image.allocate(template, @config[:datastore_id]||1)
         if OpenNebula.is_error?(rc)
-            return OpenNebula::Error.new('Unsupported'), 400
+            return rc
         end
 
         erb_version = params['Version']
@@ -175,7 +179,7 @@ module EBS
         image = ImageEC2.new(Image.build_xml(image_id), @client)
         rc = image.delete
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        return rc if OpenNebula::is_error?(rc)
 
         erb_version = params['Version']
 

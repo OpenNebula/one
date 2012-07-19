@@ -23,6 +23,20 @@ require 'CloudServer'
 
 require 'ImageEC2'
 
+module OpenNebula
+    class Error
+        attr_accessor :ec2_code
+
+        def to_ec2
+            xml = "<Response><Errors><Error><Code>"
+            xml << @ec2_code||"Unsupported"
+            xml << "</Code><Message>"
+            xml << @message
+            xml << "<RequestId/></Response>"
+        end
+    end
+end
+
 ###############################################################################
 # The EC2Query Server implements a EC2 compatible server based on the
 # OpenNebula Engine
@@ -90,12 +104,12 @@ class EC2QueryServer < CloudServer
 
         template = image.to_one_template
         if OpenNebula.is_error?(template)
-            return OpenNebula::Error.new('Unsupported'), 400
+            return template
         end
 
         rc = image.allocate(template, @config[:datastore_id]||1)
         if OpenNebula.is_error?(rc)
-            return OpenNebula::Error.new('Unsupported'), 400
+            return rc
         end
 
         erb_version = params['Version']
@@ -113,7 +127,8 @@ class EC2QueryServer < CloudServer
         # Enable the new Image
         rc = image.info
         if OpenNebula.is_error?(rc)
-            return OpenNebula::Error.new('InvalidAMIID.NotFound'), 400
+            rc.ec2_code = "InvalidAMIID.NotFound"
+            return rc
         end
 
         image.enable
@@ -169,7 +184,7 @@ class EC2QueryServer < CloudServer
 
         rc = vm.allocate(template_text)
         if OpenNebula::is_error?(rc)
-            return OpenNebula::Error.new('Unsupported'),400
+            return rc
         end
 
         vm.info
@@ -205,7 +220,9 @@ class EC2QueryServer < CloudServer
         vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),@client)
         rc = vm.info
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        if OpenNebula::is_error?(rc)
+            return rc
+        end
 
         if vm.status == 'runn'
             rc = vm.shutdown
@@ -213,7 +230,9 @@ class EC2QueryServer < CloudServer
             rc = vm.finalize
         end
 
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
+        if OpenNebula::is_error?(rc)
+            return rc
+        end
 
         erb_version = params['Version']
 
@@ -225,23 +244,23 @@ class EC2QueryServer < CloudServer
     # Elastic IP
     ###########################################################################
     def allocate_address(params)
-        return OpenNebula::Error.new('Unsupported'),400
+        return OpenNebula::Error.new('Unsupported')
     end
 
     def release_address(params)
-        return OpenNebula::Error.new('Unsupported'),400
+        return OpenNebula::Error.new('Unsupported')
     end
 
     def describe_addresses(params)
-        return OpenNebula::Error.new('Unsupported'),400
+        return OpenNebula::Error.new('Unsupported')
     end
 
     def associate_address(params)
-        return OpenNebula::Error.new('Unsupported'),400
+        return OpenNebula::Error.new('Unsupported')
     end
 
     def disassociate_address(params)
-        return OpenNebula::Error.new('Unsupported'),400
+        return OpenNebula::Error.new('Unsupported')
     end
 
     ###########################################################################

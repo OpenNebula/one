@@ -136,42 +136,23 @@ before do
         username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
         logger.error {e.message}
-        error 500, error_xml("AuthFailure", 0)
+        rc = OpenNebula::Error.new(e.message)
+        rc.ec2_code = "AuthFailure"
+        error 401, rc.to_ec2
     end
 
     if username.nil?
-        error 401, error_xml("AuthFailure", 0)
+        rc = OpenNebula::Error.new("The username or password is not correct")
+        rc.ec2_code = "AuthFailure"
+        error 401, rc.to_ec2
     else
         client          = settings.cloud_auth.client(username)
         oneadmin_client = settings.cloud_auth.client
-        @econe_server = EC2QueryServer.new(client, oneadmin_client, settings.config, settings.logger)
-    end
-end
-
-helpers do
-    def error_xml(code,id)
-        message = ''
-
-        case code
-        when 'AuthFailure'
-            message = 'User not authorized'
-        when 'InvalidAMIID.NotFound'
-            message = 'Specified AMI ID does not exist'
-        when 'Unsupported'
-            message = 'The instance type or feature is not supported in your requested Availability Zone.'
-        else
-            message = code
-        end
-
-        xml = "<Response><Errors><Error><Code>"+
-                    code +
-                    "</Code><Message>" +
-                    message +
-                    "</Message></Error></Errors><RequestID>" +
-                    id.to_s +
-                    "</RequestID></Response>"
-
-        return xml
+        @econe_server   = EC2QueryServer.new(
+                            client,
+                            oneadmin_client,
+                            settings.config,
+                            settings.logger)
     end
 end
 
@@ -221,10 +202,14 @@ def do_http_request(params)
 
     if OpenNebula::is_error?(result)
         logger.error(result.message)
-        error rc, error_xml(result.message, 0)
+        error CloudServer::HTTP_ERROR_CODE[result.errno], result.to_ec2
     end
 
     headers['Content-Type'] = 'application/xml'
+
+    if rc
+        status rc
+    end
 
     result
 end
