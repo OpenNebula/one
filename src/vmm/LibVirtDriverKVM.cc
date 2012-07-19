@@ -20,6 +20,9 @@
 #include <sstream>
 #include <fstream>
 #include <libgen.h>
+#include <math.h>
+
+const float LibVirtDriver::CGROUP_BASE_CPU_SHARES = 1024;
 
 int LibVirtDriver::deployment_description_kvm(
         const VirtualMachine *  vm,
@@ -31,9 +34,8 @@ int LibVirtDriver::deployment_description_kvm(
     vector<const Attribute *>   attrs;
 
     string  vcpu;
-    string  memory;
-
-    int     memory_in_kb = 0;
+    float   cpu;
+    int     memory;
 
     string  emulator_path = "";
 
@@ -111,7 +113,7 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t<name>one-" << vm->get_oid() << "</name>" << endl;
 
     // ------------------------------------------------------------------------
-    // CPU
+    // CPU & Memory
     // ------------------------------------------------------------------------
 
     vm->get_template_attribute("VCPU", vcpu);
@@ -126,17 +128,19 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t<vcpu>" << vcpu << "</vcpu>" << endl;
     }
 
-    // ------------------------------------------------------------------------
-    // Memory
-    // ------------------------------------------------------------------------
-
-    vm->get_template_attribute("MEMORY",memory);
-
-    if (!memory.empty())
+    //Every process gets 1024 shares by default (cgroups), scale this with CPU
+    if(vm->get_template_attribute("CPU", cpu)) 
     {
-        memory_in_kb = atoi(memory.c_str()) * 1024;
+        file << "\t<cputune>" << endl
+             << "\t\t<shares>"<< ceil( cpu * CGROUP_BASE_CPU_SHARES ) 
+             << "</shares>"   << endl
+             << "\t</cputune>"<< endl;
+    }
 
-        file << "\t<memory>" << memory_in_kb << "</memory>" << endl;
+    // Memory must be expressed in Kb
+    if (vm->get_template_attribute("MEMORY",memory))
+    {
+        file << "\t<memory>" << memory * 1024 << "</memory>" << endl;
     }
     else
     {
