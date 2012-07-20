@@ -37,10 +37,11 @@ puts "datatable_lang=\"#{datatable_lang}_datatable.txt\""
 puts "locale={"
 
 msgid = nil
+tr_lines = []
 po_file.each do |line|
     if msgid
         msgstr = line.sub("msgstr ", "").chomp
-        puts "    #{msgid}:#{msgstr},"
+        tr_lines << "    #{msgid}:#{msgstr}"
         msgid = nil
         next
     end
@@ -54,5 +55,11 @@ po_file.each do |line|
     end
 
 end
+
+tr_lines[0..-2].each do |line|
+    puts line+','
+end
+# last line must not have an ending , for IE7 JS compatibility
+puts tr_lines[-1]
 
 puts "}"

@@ -290,7 +290,7 @@ var host_actions = {
         },
         callback: null,
         elements: hostElements,
-        notify:true,
+        notify:true
     },
 
     "Host.help" : {
@@ -372,7 +372,7 @@ var hosts_tab = {
     buttons: host_buttons,
     tabClass: "subTab",
     parentTab: "infra_tab",
-    showOnTopMenu: false,
+    showOnTopMenu: false
 };
 
 
@@ -473,7 +473,7 @@ SunstoneMonitoringConfig['HOST'] = {
             dataType: "pie",
             operation: SunstoneMonitoring.ops.hostCpuUsagePartition,
             plotOptions: {
-                series: { pie: { show: true  } },
+                series: { pie: { show: true  } }
             }
         },
         "totalHosts" : { //count number of hosts
@@ -530,7 +530,7 @@ SunstoneMonitoringConfig['HOST'] = {
                     }
                 }
             }
-        },
+        }
     }
 }
 

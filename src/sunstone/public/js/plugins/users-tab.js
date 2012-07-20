@@ -189,7 +189,7 @@ var user_actions = {
         call: function () {
             waitingNodes(dataTable_users);
             Sunstone.runAction("User.list");
-        },
+        }
     },
 
     "User.autorefresh" : {
@@ -215,7 +215,7 @@ var user_actions = {
             notifyMessage(tr("Change password successful"));
         },
         elements: userElements,
-        error: onError,
+        error: onError
     },
     "User.chgrp" : {
         type: "multiple",
@@ -353,8 +353,7 @@ var user_actions = {
             hideDialog();
             $('div#users_tab div.legend_div').slideToggle();
         }
-    },
-
+    }
 }
 
 var user_buttons = {
@@ -375,7 +374,7 @@ var user_buttons = {
     },
     "User.update_password" : {
         type : "action",
-        text : tr("Change password"),
+        text : tr("Change password")
     },
     "User.quotas_dialog" : {
         type : "action",
@@ -437,7 +436,7 @@ var user_info_panel = {
     "user_quotas_tab" : {
         title: tr("User quotas"),
         content:""
-    },
+    }
 };
 
 var users_tab = {
@@ -446,7 +445,7 @@ var users_tab = {
     buttons: user_buttons,
     tabClass: 'subTab',
     parentTab: 'system_tab',
-    condition: mustBeAdmin,
+    condition: mustBeAdmin
 };
 
 var users_tab_non_admin = {
@@ -455,7 +454,7 @@ var users_tab_non_admin = {
     buttons: user_buttons,
     tabClass: 'subTab',
     parentTab: 'dashboard_tab',
-    condition: mustNotBeAdmin,
+    condition: mustNotBeAdmin
 }
 
 
@@ -489,13 +488,13 @@ SunstoneMonitoringConfig['USER'] = {
                          min: 0 },
                 legend : {
                     show: false,
-                    noColumns: 2,
+                    noColumns: 2
                 }
             }
         },
         "totalUsers" : {
             operation: SunstoneMonitoring.ops.totalize
-        },
+        }
     }
 }
 

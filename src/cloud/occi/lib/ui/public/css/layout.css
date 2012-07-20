@@ -107,6 +107,7 @@ body {
     padding-left:   0;
     border:0;
     border-right: 1px solid #353735;
+
     background: #636663; /* Old browsers */
     background: -moz-linear-gradient(left, #636663 95%, #353735 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, right top, color-stop(95%,#636663), color-stop(100%,#353735)); /* Chrome,Safari4+ */

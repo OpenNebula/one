@@ -431,7 +431,7 @@ bool Template::get(
 
     iss >> value;
 
-    if ( iss.fail() )
+    if (iss.fail() || !iss.eof())
     {
         value = 0;
         return false;
@@ -461,7 +461,7 @@ bool Template::get(
 
     iss >> value;
 
-    if ( iss.fail() )
+    if (iss.fail() || !iss.eof())
     {
         value = 0;
         return false;

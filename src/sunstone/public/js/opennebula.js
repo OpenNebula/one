@@ -389,9 +389,16 @@ var OpenNebula = {
                 type: "POST",
                 data: {remember: remember},
                 beforeSend : function(req) {
-                    req.setRequestHeader( "Authorization",
-                                        "Basic " + btoa(username + ":" + password)
-                                        )
+                    var token = username + ':' + password;
+                    var authString = 'Basic ';
+                    if (typeof(btoa) === 'function')
+                        authString += btoa(token)
+                    else {
+                        token = CryptoJS.enc.Utf8.parse(token);
+                        authString += CryptoJS.enc.Base64.stringify(token)
+                    }
+
+                    req.setRequestHeader( "Authorization", authString);
                 },
                 success: function(response){
                     return callback ? callback(request, response) : null;
@@ -484,7 +491,7 @@ var OpenNebula = {
         },
         "monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.Host.resource,false);
-        },
+        }
     },
 
     "Network": {
@@ -558,7 +565,7 @@ var OpenNebula = {
         },
         "fetch_template" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Network.resource,"template");
-        },
+        }
     },
 
     "VM": {
@@ -753,7 +760,7 @@ var OpenNebula = {
         "set_quota" : function(params){
             var action_obj = { quotas :  params.data.extra_param };
             OpenNebula.Action.simple_action(params,OpenNebula.User.resource,"set_quota",action_obj);
-        },
+        }
 
         // "addgroup" : function(params){
         //     var action_obj = {"group_id": params.data.extra_param };
@@ -995,7 +1002,7 @@ var OpenNebula = {
         },
         "fetch_template" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Datastore.resource,"template");
-        },
+        }
     },
 
     "Marketplace" : {
@@ -1023,8 +1030,8 @@ var OpenNebula = {
                 },
                 error: function(res){
                     return callback_error ? callback_error(request, OpenNebula.Error(res)) : null;
-                },
+                }
             });
-        },
-    },
+        }
+    }
 }

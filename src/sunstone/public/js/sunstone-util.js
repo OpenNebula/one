@@ -684,7 +684,7 @@ function plot_graph(data,context,id_prefix,info){
         xaxis : {
             tickFormatter: function(val,axis){
                 return pretty_time_axis(val);
-            },
+            }
         },
         yaxis : { labelWidth: 40,
                   tickFormatter: function(val, axis) {
@@ -749,7 +749,7 @@ function setupTemplateUpdateDialog(){
         width:700,
         modal:true,
         height:430,
-        resizable:false,
+        resizable:false
     });
 
     $('button',dialog).button();

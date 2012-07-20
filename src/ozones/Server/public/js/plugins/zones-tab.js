@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var zones_tab_content =
-'<form id="form_zones" action="javascript:alert(\'js errors?!\')">\
+var zones_tab_content = '\
+<form id="form_zones" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
 <table id="datatable_zones" class="display">\
@@ -33,8 +33,8 @@ var zones_tab_content =
 </form>';
 
 
-var create_zone_tmpl =
-'<form id="create_zone_form" action="">\
+var create_zone_tmpl = '\
+<form id="create_zone_form" action="">\
   <fieldset>\
      <div>\
         <label for="name">Name:</label>\
@@ -194,14 +194,14 @@ var zone_actions = {
             updateDatastoresList(req,json,'#datatable_zone_datastores');
         },
         error: onError
-    },
+    }
 }
 
 var zone_buttons = {
     "Zone.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     },
     "Zone.create_dialog" : {
         type: "action",
@@ -257,7 +257,7 @@ var zone_info_panel = {
     "zone_vnets_tab" : {
         title : "Virtual Networks",
         content : ""
-    },
+    }
 };
 
 Sunstone.addActions(zone_actions);
@@ -346,8 +346,8 @@ function updateZoneInfo(req,zone_json){
     };
     var hosts_tab = {
         title : "Hosts",
-        content :
-'<div style="padding: 10px 10px;">\
+        content : '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_hosts" class="display">\
   <thead>\
     <tr>\
@@ -370,8 +370,8 @@ function updateZoneInfo(req,zone_json){
 
     var templates_tab = {
         title: "Templates",
-        content :
-'<div style="padding: 10px 10px;">\
+        content : '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_templates" class="display">\
   <thead>\
     <tr>\
@@ -389,8 +389,8 @@ function updateZoneInfo(req,zone_json){
 
     var vms_tab = {
         title : "Virtual Machines",
-        content :
-'<div style="padding: 10px 10px;">\
+        content : '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_vms" class="display">\
   <thead>\
     <tr>\
@@ -413,8 +413,8 @@ function updateZoneInfo(req,zone_json){
 
     var vnets_tab = {
         title : "Virtual Networks",
-        content :
-'<div style="padding: 10px 10px;">\
+        content : '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_vnets" class="display">\
   <thead>\
     <tr>\
@@ -435,8 +435,8 @@ function updateZoneInfo(req,zone_json){
 
     var images_tab = {
         title : "Images",
-        content :
-'<div style="padding: 10px 10px;">\
+        content : '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_images" class="display">\
   <thead>\
     <tr>\
@@ -461,8 +461,8 @@ function updateZoneInfo(req,zone_json){
 
     var users_tab = {
         title: "Users",
-        content:
-'<div style="padding: 10px 10px;">\
+        content: '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_users" class="display">\
   <thead>\
     <tr>\
@@ -484,8 +484,8 @@ function updateZoneInfo(req,zone_json){
 
     var clusters_tab = {
         title: "Clusters",
-        content:
-'<div style="padding: 10px 10px;">\
+        content: '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_clusters" class="display">\
   <thead>\
     <tr>\
@@ -504,8 +504,8 @@ function updateZoneInfo(req,zone_json){
 
     var datastores_tab = {
         title: "Datastores",
-        content:
-'<div style="padding: 10px 10px;">\
+        content: '\
+<div style="padding: 10px 10px;">\
 <table id="datatable_zone_datastores" class="display">\
   <thead>\
     <tr>\
@@ -631,7 +631,7 @@ function updateZoneInfo(req,zone_json){
         "sDom" : '<"H"lfrC>t<"F"ip>',
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,2,3,4] },
+            { "sWidth": "35px", "aTargets": [0,2,3,4] }
         ]
     });
 
@@ -715,7 +715,7 @@ function setupCreateZoneDialog(){
                 "ONENAME": onename,
                 "ONEPASS": onepass,
                 "SUNSENDPOINT" : se,
-                "SELFENDPOINT" : ss,
+                "SELFENDPOINT" : ss
             }
         };
 

@@ -63,7 +63,7 @@ function setLang(lang_str){
                 $.post('config',JSON.stringify({lang:lang_tmp}),function(){
                     window.location.href = ".";
                 });
-            },
+            }
         };
         OpenNebula.User.update(obj);
 
@@ -74,7 +74,7 @@ function setLang(lang_str){
     if (whichUI() == "sunstone"){
         var obj = {
             data : {
-                id: uid,
+                id: uid
             },
             success: updateUserTemplate
         };

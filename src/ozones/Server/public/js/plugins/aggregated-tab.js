@@ -15,8 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 
-var aggregated_hosts_tab_content =
-'<div class="action_blocks">\
+var aggregated_hosts_tab_content = '\
+<div class="action_blocks">\
  </div>\
 <table id="datatable_agg_hosts" class="display">\
   <thead>\
@@ -38,8 +38,8 @@ var aggregated_hosts_tab_content =
   <tbody>\
   </tbody>\
 </table>';
-var aggregated_vms_tab_content =
-'<div class="action_blocks">\
+var aggregated_vms_tab_content = '\
+<div class="action_blocks">\
  </div>\
 <table id="datatable_agg_vms" class="display">\
   <thead>\
@@ -406,71 +406,70 @@ var agg_actions = {
                 success: datastoresListCB,
                 error: onError})
         }
-    },
-
+    }
 };
 
 var hosts_buttons = {
     "ZoneHosts.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
 var vms_buttons = {
     "ZoneVMs.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
 var vns_buttons = {
     "ZoneVNs.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
 var images_buttons = {
     "ZoneImages.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
 var users_buttons = {
     "ZoneUsers.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
 var templates_buttons = {
     "ZoneTemplates.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
 var clusters_buttons = {
     "ZoneClusters.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
 var datastores_buttons = {
     "ZoneDatastores.refresh" : {
-        type: "image",
-        text: "Refresh list",
-        img: "images/Refresh-icon.png"
+        type: "action",
+        text: '<i class="icon-refresh icon-large">',
+        alwaysActive: true
     }
 };
 
@@ -601,7 +600,7 @@ function vnsListCB(req,list){
 
 function imagesListCB(req,list){
     dataTable_agg_images.fnClearTable();
-    total_images = [];
+    var total_images = [];
     $.each(list,function(){
         if (this.ZONE.error){
             notifyError(this.ZONE.error.message);

@@ -332,9 +332,16 @@ var oZones = {
                 type: "POST",
                 data: {remember: remember},
                 beforeSend : function(req) {
-                    req.setRequestHeader( "Authorization",
-                                        "Basic " + btoa(username + ":" + password)
-                                        )
+                    var token = username + ':' + password;
+                    var authString = 'Basic ';
+                    if (typeof(btoa) === 'function')
+                        authString += btoa(token)
+                    else {
+                        token = CryptoJS.enc.Utf8.parse(token);
+                        authString += CryptoJS.enc.Base64.stringify(token)
+                    }
+
+                    req.setRequestHeader( "Authorization", authString);
                 },
                 success: function(response){
                     return callback ? callback(request, response) : null;
@@ -458,7 +465,7 @@ var oZones = {
         },
         "datastore": function(params){
             oZones.Zone.subresource(params,"datastore");
-        },
+        }
     },
 
     "VDC": {
@@ -478,7 +485,7 @@ var oZones = {
         },
         "show": function(params){
             oZones.Action.show(params,oZones.VDC.resource);
-        },
+        }
     },
 
     "ZoneHosts": {
@@ -535,5 +542,5 @@ var oZones = {
         "list": function(params){
             oZones.Action.list(params,oZones.ZoneDatastores.resource,"datastore");
         }
-    },
+    }
 };

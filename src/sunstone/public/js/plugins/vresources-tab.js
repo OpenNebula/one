@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var vres_tab_content =
-'<table class="dashboard_table" style=>\
+var vres_tab_content = '\
+<table class="dashboard_table" style=>\
 <tr>\
 <td style="width:50%">\
 <table style="width:100%">\

@@ -115,7 +115,7 @@ var marketplace_tab_content = '\
 var marketplace_tab = {
     title: '<i class="icon-shopping-cart"></i>' + tr("Marketplace"),
     content: marketplace_tab_content,
-    buttons: market_buttons,
+    buttons: market_buttons
 };
 
 Sunstone.addMainTab('marketplace_tab', marketplace_tab);
@@ -130,7 +130,7 @@ var marketplace_info_panel = {
     "marketplace_info_tab" : {
         title: tr("Appliance information"),
         content:""
-    },
+    }
 };
 
 Sunstone.addInfoPanel("marketplace_info_panel", marketplace_info_panel);
