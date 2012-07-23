@@ -46,7 +46,11 @@ DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
-ssh_make_path $DST_HOST $DST_DIR
+if ! echo "$FSTYPE"|grep -q ^vmdk; then
+	ssh_make_path $DST_HOST $DST_DIR
+else
+	ssh_make_path $DST_HOST $DST_PATH
+fi
 
 #-------------------------------------------------------------------------------
 # Make the new image (file-based)
