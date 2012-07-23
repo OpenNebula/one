@@ -415,6 +415,9 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     else
     {
         imd->rm(img->get_oid(), *drv_msg);
+        img->set_state(Image::DELETE);
+
+        ipool->update(img);        
     }
 
     img->unlock();
@@ -436,6 +439,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
     {
         release_cloning_image(cloning_id);
     }
+
     return 0;
 }
 

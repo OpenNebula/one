@@ -126,7 +126,6 @@ static void cp_action(istringstream& is,
                       int            id, 
                       const string&  result)
 {
-    int     cloning_id;
     string  source;
     string  info;
 
@@ -180,21 +179,9 @@ static void cp_action(istringstream& is,
 
     ipool->update(image);
 
-    cloning_id = image->get_cloning_id();
-
-    image->clear_cloning_id();
-
     image->unlock();
 
     NebulaLog::log("ImM", Log::INFO, "Image copied and ready to use.");
-
-    if ( cloning_id != -1 ) // An Image clone operation finished
-    {
-        Nebula& nd        = Nebula::instance();
-        ImageManager * im = nd.get_imagem();
-
-        im ->release_cloning_image(cloning_id);        
-    }
 
     return;
 

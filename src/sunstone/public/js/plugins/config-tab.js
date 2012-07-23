@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var config_response;
+var config_response = {};
 var config_tab_content =
 '<form>\
 <table id="config_table" style="width:100%">\

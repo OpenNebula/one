@@ -14,6 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var config_response = {}
 var config_tab_content =
 '<form>\
 <table id="config_table" style="width:100%">\
@@ -68,10 +69,12 @@ Sunstone.addActions(config_actions);
 Sunstone.addMainTab('config_tab',config_tab);
 
 function updateConfig(request, response){
-    var config = response;
+    config_response = response;
     //These two variables defined in compute.js
-    vnc_enable = config['VNC'] == 'true' || config['VNC'] == 'yes' ? true : false;
-    use_wss = config['WSS'] == 'true' || config['WSS'] == 'yes'? true : false;
+    vnc_enable = config_response['VNC'] == 'true' ||
+        config_response['VNC'] == 'yes' ? true : false;
+    use_wss = config_response['WSS'] == 'true' ||
+        config_response['WSS'] == 'yes'? true : false;
 };
 
 $(document).ready(function(){
