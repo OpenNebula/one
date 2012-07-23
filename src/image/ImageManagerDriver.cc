@@ -126,7 +126,6 @@ static void cp_action(istringstream& is,
                       int            id, 
                       const string&  result)
 {
-    int     cloning_id;
     string  source;
     string  info;
 
