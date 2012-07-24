@@ -59,6 +59,8 @@ log "Cloning $SRC_PATH in $DST"
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR
 
+export PATH=/usr/sbin:/sbin:\$PATH
+
 if which sudo > /dev/null; then
   SUDO_CMD="sudo "
 fi
