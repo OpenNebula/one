@@ -156,8 +156,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     saveas_desc = <<-EOT.unindent
         Sets the specified VM disk to be saved in a new Image. The Image is
-        created inmediately, but the contents are saved only if the VM is
-        shut down gracefuly (i.e., using 'onevm shutdown' and not
+        created immediately, but the contents are saved only if the VM is
+        shut down gracefully (i.e., using 'onevm shutdown' and not
         'onevm delete')
 
         States: ANY
@@ -279,9 +279,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     resubmit_desc = <<-EOT.unindent
-        Resubmits the VM to PENDING state. This is intented for VMs stuck in a
+        Resubmits the VM to PENDING state. This is intended for VMs stuck in a
         transient state. To re-deploy a fresh copy of the same VM, create a
-        Template and instantiante it, see 'onetemplate instantiate'
+        Template and instantiate it, see 'onetemplate instantiate'
 
         States: ANY, except SUSPENDED or DONE
     EOT
