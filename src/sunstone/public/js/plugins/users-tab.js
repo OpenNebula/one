@@ -21,6 +21,18 @@ var $create_user_dialog;
 var $user_quotas_dialog;
 var $update_pw_dialog;
 
+var user_acct_graphs = [
+    { title : tr("CPU"),
+      monitor_resources : "CPU",
+      humanize_figures : false
+    },
+    { title : tr("Memory"),
+      monitor_resources : "MEMORY",
+      humanize_figures : true
+    }
+];
+
+
 var users_tab_content = '\
 <h2><i class="icon-user"></i> '+tr("Users")+'</h2>\
 <form id="user_form" action="" action="javascript:alert(\'js error!\');">\
@@ -347,6 +359,16 @@ var user_actions = {
         error: onError
     },
 
+    "User.accounting" : {
+        type: "monitor",
+        call: OpenNebula.User.accounting,
+        callback: function(req,response) {
+            var info = req.request.data[0].monitor;
+            plot_graph(response,'#user_acct_tab','user_acct_', info);
+        },
+        error: onError
+    },
+
     "User.help" : {
         type: "custom",
         call: function() {
@@ -436,6 +458,10 @@ var user_info_panel = {
     "user_quotas_tab" : {
         title: tr("User quotas"),
         content:""
+    },
+    "user_acct_tab" : {
+        title: tr("Historical usage"),
+        content: ""
     }
 };
 
@@ -640,9 +666,92 @@ function updateUserInfo(request,user){
         content : quotas_tab_html
     };
 
+    var acct_tab = {
+        title : tr("Historical usages"),
+        content : '<div><table class="info_table" style="margin-bottom:0">\
+  <tr>\
+    <td class="key_td"><label for="from">From / to</label></td>\
+    <td class="value_td">\
+       <input type="text" id="user_acct_from" name="from"/>\
+       <input type="text" id="user_acct_to" name="to"/>\
+       <button id="user_acct_date_ok"><i class="icon-ok"></i></button>\
+    </td>\
+  </tr>\
+</table></div>' +
+generateMonitoringDivs(user_acct_graphs, "user_acct_")
+    };
+
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
+    Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel");
+
+    var load_acct = function(start,end){
+        //default start 24 hours ago
+        if (!start) start = Math.floor(new Date().getTime()/1000) - 3600 * 24;
+        //default end now
+        if (!end) end = Math.floor(new Date().getTime()/1000);
+        for (var i=0; i<user_acct_graphs.length; i++){
+            var graph_cfg = user_acct_graphs[i];
+            graph_cfg.start =  start
+            graph_cfg.end = end
+            graph_cfg.interval = 60 * 60 //1 hour
+            // If the date range is longer than 24 hours, then show only
+            // date, otherwise show time in the x axis
+            graph_cfg.show_date = (end - start) > (3600 * 24)? true : false;
+            Sunstone.runAction("User.accounting",user_info.ID,graph_cfg);
+        };
+    };
+
+    //Enable datepicker
+    var info_dialog = $('div#user_acct_tab');
+    $("#user_acct_from", info_dialog).datepicker({
+        defaultDate: "-1d",
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "dd/mm/yy",
+        onSelect: function( selectedDate ) {
+            $( "#user_acct_to", info_dialog).datepicker("option",
+                                                        "minDate",
+                                                        selectedDate );
+        }
+    });
+
+    $("#user_acct_to", info_dialog).datepicker({
+        defaultDate: "0",
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "dd/mm/yy",
+        onSelect: function( selectedDate ) {
+            $( "#user_acct_from", info_dialog).datepicker( "option",
+                                                           "maxDate",
+                                                           selectedDate );
+        }
+    });
+
+    //Listen to set date button
+    $('button#user_acct_date_ok', info_dialog).click(function(){
+        var from = $("#user_acct_from", info_dialog).val();
+        var to = $("#user_acct_to", info_dialog).val();
+
+        var start = $.datepicker.parseDate('dd/mm/yy', from)
+        if (start){
+            start = start.getTime();
+            start = Math.floor(start / 1000);
+        }
+
+        var end = $.datepicker.parseDate('dd/mm/yy', to);
+        if (end){
+            end = end.getTime();
+            end = Math.floor(end / 1000);
+        }
+
+        load_acct(start,end);
+        return false;
+    });
+
+    //preload acct
+    load_acct();
 };
 
 // Prepare the user creation dialog

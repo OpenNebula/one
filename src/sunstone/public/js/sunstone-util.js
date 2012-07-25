@@ -47,7 +47,8 @@ function pretty_time(time_seconds)
 }
 
 // Format time for plot axis
-function pretty_time_axis(time){
+// If show date, only date information is shown
+function pretty_time_axis(time, show_date){
     var d = new Date();
     d.setTime(time*1000);
 
@@ -58,7 +59,10 @@ function pretty_time_axis(time){
     var month = pad(d.getMonth()+1,2); //getMonths returns 0-11
     var year = d.getFullYear();
 
-    return hour + ":" + mins + ":" + secs;// + "&nbsp;" + month + "/" + day;
+    if (show_date)
+        return month + "/" + day;
+    else
+        return hour + ":" + mins;
 }
 
 function pretty_time_runtime(time){
@@ -660,6 +664,7 @@ function plot_graph(data,context,id_prefix,info){
     var series = [];
     var serie;
     var mon_count = 0;
+    var show_date = info.show_date;
 
     //make sure series are painted in the order of the
     //labels array.
@@ -683,7 +688,7 @@ function plot_graph(data,context,id_prefix,info){
                  },
         xaxis : {
             tickFormatter: function(val,axis){
-                return pretty_time_axis(val);
+                return pretty_time_axis(val, show_date);
             }
         },
         yaxis : { labelWidth: 40,

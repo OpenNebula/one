@@ -754,6 +754,9 @@ var OpenNebula = {
         "fetch_template" : function(params){
             OpenNebula.Action.show(params,OpenNebula.User.resource,"template");
         },
+        "accounting" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.User.resource,false);
+        },
         "set_quota" : function(params){
             var action_obj = { quotas :  params.data.extra_param };
             OpenNebula.Action.simple_action(params,OpenNebula.User.resource,"set_quota",action_obj);

@@ -274,7 +274,7 @@ class SunstoneServer < CloudServer
                 Host.new_with_id(id, @client)
             else
                 error = Error.new("Monitoring not supported for #{resource}")
-                return [200, error.to_json]
+                return [403, error.to_json]
             end
 
         meters_a = meters.split(',')
@@ -292,6 +292,56 @@ class SunstoneServer < CloudServer
         meters_h[:monitoring] = rc
 
         return [200, meters_h.to_json]
+    end
+
+
+    # this code is meant to be replaced as accouting functionality
+    # is moved to OCA. Filtering by group should perhaps be added then.
+    # returns a { monitoring : meter1 : [[ts1, agg_value],[ts2, agg_value]...]
+    #                          meter2 : [[ts1, agg_value],[ts2, agg_value]...]}
+    # with this information we can paint historical graphs of usage
+    def get_user_accounting(options)
+        id = options[:id]
+        tstart = options[:start].to_i
+        tend = options[:end].to_i
+        interval = options[:interval].to_i
+        meters = options[:monitor_resources]
+
+        result = {}
+        meters_a = meters.split(',')
+        meters_a.each do | meter |
+            result[meter] = []
+        end
+
+        while tstart < tend
+            acct = @client.call('vmpool.accounting',
+                                id.to_i,
+                                tstart,
+                                tstart+interval)
+            if OpenNebula.is_error?(acct)
+                return [500, Error.new(acct.message).to_json]
+            end
+
+            xml = XMLElement.new
+            xml.initialize_xml(acct, 'HISTORY_RECORDS')
+            acct = xml.to_hash
+
+            meters_a.each do | meter |
+                count = 0
+                if acct['HISTORY_RECORDS']['HISTORY'].class == Array
+                    acct['HISTORY_RECORDS']['HISTORY'].each do | record |
+                        count += record['VM'][meter].to_i
+                    end
+                elsif acct['HISTORY_RECORDS']['HISTORY'].class == Hash
+                    count += acct['HISTORY_RECORDS']['HISTORY']['VM'][meter].to_i
+                end
+                result[meter] << [tstart, count]
+            end
+
+            tstart += interval
+        end
+
+        return [200, {:monitoring => result}.to_json]
     end
 
     private

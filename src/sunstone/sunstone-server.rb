@@ -309,6 +309,10 @@ get '/:resource/monitor' do
         params[:monitor_resources])
 end
 
+get '/user/:id/monitor' do
+    @SunstoneServer.get_user_accounting(params)
+end
+
 get '/:resource/:id/monitor' do
     @SunstoneServer.get_resource_monitoring(
         params[:id],
