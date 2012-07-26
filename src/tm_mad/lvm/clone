@@ -24,7 +24,7 @@
 
 SRC=$1
 DST=$2
-VM_ID=$3
+VM_ID=$(basename `dirname $DST`)
 DS_ID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
