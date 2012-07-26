@@ -250,6 +250,10 @@ function mkfs_command {
             echo "$MKSWAP $DST"
             return 0
             ;;
+        "qcow2")
+            echo "$QEMU_IMG create -f qcow2 $DST ${SIZE}M"
+            return 0
+            ;;
         "vmdk_"*)
             VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
             echo "WHICH_SUDO=\$(which sudo) ; \
