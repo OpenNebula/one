@@ -919,6 +919,7 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
 DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
                          src/datastore_mad/remotes/vmware/mkfs \
                          src/datastore_mad/remotes/vmware/stat \
+                         src/datastore_mad/remotes/vmware/clone \
                          src/datastore_mad/remotes/vmware/rm"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
