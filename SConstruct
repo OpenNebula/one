@@ -98,7 +98,7 @@ main_env.Append(LINKFLAGS=['-g', '-pthread'])
 # SQLITE
 sqlite_dir=ARGUMENTS.get('sqlite_dir', 'none')
 if sqlite_dir!='none':
-    main_env.Append(LIBPATH=[sqlite_dir+"/lib"])
+    main_env.Append(LIBPATH=[sqlite_dir+"/lib", sqlite_dir+"/lib64"])
     main_env.Append(CPPPATH=[sqlite_dir+"/include"])
 
 sqlite=ARGUMENTS.get('sqlite', 'yes')
@@ -121,7 +121,7 @@ else:
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
 if xmlrpc_dir!='none':
-    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
+    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib", xmlrpc_dir+"/lib64"])
     main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
 # build lex/bison
