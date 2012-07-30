@@ -18,15 +18,15 @@ require 'OpenNebula/Pool'
 
 module OpenNebula
 
-    # All subclasses must define the Document::TYPE constant.
+    # All subclasses must define the DOCUMENT_TYPE constant.
     #
     # @example
     #   require 'OpenNebula/Document'
     #
     #   module OpenNebula
     #       class CustomObject < Document
-    #   
-    #           Document::TYPE = 400
+    #
+    #           DOCUMENT_TYPE = 400
     #
     #       end
     #   end
@@ -65,7 +65,7 @@ module OpenNebula
         #
         # @param [Nokogiri::XML::Node, REXML::Element] xml string
         #   created by the build_xml() method
-        # @param [OpenNebula::Client] client the xml-rpc client 
+        # @param [OpenNebula::Client] client the xml-rpc client
         #
         # @return [Document] the new object
         #
@@ -94,7 +94,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def allocate(description)
-            super(DOCUMENT_METHODS[:allocate], description, TYPE)
+            super(DOCUMENT_METHODS[:allocate], description, document_type)
         end
 
         # Deletes the Document
@@ -185,6 +185,10 @@ module OpenNebula
             else
                 false
             end
+        end
+
+        def document_type
+            self.class::DOCUMENT_TYPE
         end
 
     private
