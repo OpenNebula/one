@@ -46,6 +46,8 @@ require 'OpenNebula/Datastore'
 require 'OpenNebula/DatastorePool'
 require 'OpenNebula/Cluster'
 require 'OpenNebula/ClusterPool'
+require 'OpenNebula/Document'
+require 'OpenNebula/DocumentPool'
 
 module OpenNebula
 
