@@ -197,9 +197,9 @@ end
 ##############################################################################
 # Custom routes
 ##############################################################################
-if settings.config[:custom_routes]
-    settings.config[:custom_routes].each { |route|
-        require "custom_routes/#{route}"
+if settings.config[:routes]
+    settings.config[:routes].each { |route|
+        require "routes/#{route}"
     }
 end
 
