@@ -248,7 +248,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/dummy"
 
-SUNSTONE_DIRS="$SUNSTONE_LOCATION/custom_routes \
+SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
                $SUNSTONE_LOCATION/public \
