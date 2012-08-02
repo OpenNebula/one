@@ -313,6 +313,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_reason(History::ERROR);
 
+        vmpool->update_history(vm);
+        
         vm->set_previous_etime(the_time);
 
         vm->set_previous_vm_info();
