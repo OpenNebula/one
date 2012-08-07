@@ -417,27 +417,13 @@ bool Template::get(
         const string& name,
         int&    value) const
 {
-    string sval;
+    float  fvalue;
+    bool   rc;
 
-    get(name, sval);
+    rc    = get(name, fvalue);
+    value = static_cast<int>(fvalue);
 
-    if ( sval == "" )
-    {
-        value = 0;
-        return false;
-    }
-
-    istringstream iss(sval);
-
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        value = 0;
-        return false;
-    }
-
-    return true;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
