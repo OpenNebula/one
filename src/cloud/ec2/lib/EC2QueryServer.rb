@@ -22,6 +22,9 @@ require 'base64'
 require 'CloudServer'
 
 require 'ImageEC2'
+require 'ebs'
+require 'elastic_ip'
+require 'instance'
 
 module OpenNebula
     class Error
@@ -29,7 +32,7 @@ module OpenNebula
 
         def to_ec2
             xml = "<Response><Errors><Error><Code>"
-            xml << @ec2_code||"Unsupported"
+            xml << (@ec2_code||"Unsupported")
             xml << "</Code><Message>"
             xml << @message
             xml << "<RequestId/></Response>"
@@ -44,36 +47,6 @@ end
 class EC2QueryServer < CloudServer
 
     ###########################################################################
-    # Class Constants. Defined the EC2 and OpenNebula State mapping
-    ###########################################################################
-    EC2_STATES={
-        :pending    => {:code => 0, :name => 'pending'},
-        :running    => {:code => 16,:name => 'running'},
-        :shutdown   => {:code => 32,:name => 'shutting-down'},
-        :terminated => {:code => 48,:name => 'terminated'}
-    }
-
-    ONE_STATES={
-        'init' => :pending,
-        'pend' => :pending,
-        'hold' => :pending,
-        'stop' => :pending,
-        'susp' => :pending,
-        'done' => :terminated,
-        'fail' => :terminated,
-        'prol' => :pending,
-        'boot' => :running,
-        'runn' => :running,
-        'migr' => :running,
-        'save' => :pending,
-        'epil' => :shutdown,
-        'shut' => :shutdown,
-        'clea' => :shutdown,
-        'fail' => :terminated,
-        'unkn' => :terminated
-    }
-
-    ###########################################################################
 
     def initialize(client, oneadmin_client, config, logger)
         super(config, logger)
@@ -81,15 +54,35 @@ class EC2QueryServer < CloudServer
         @client = client
         @oneadmin_client = oneadmin_client
 
+        if config[:ssl_server]
+            @base_url=config[:ssl_server]
+        else
+            @base_url="http://#{config[:server]}:#{config[:port]}"
+        end
+
         if @config[:elasticips_vnet_id].nil?
             logger.error { 'ElasticIP module not loaded' }
         else
-            require 'elastic_ip'
             extend ElasticIP
         end
 
-        require 'ebs'
         extend EBS
+        extend Instance
+    end
+
+    ###########################################################################
+    # Regions and Availability Zones
+    ###########################################################################
+
+    def describe_availability_zones(params)
+        response = ERB.new(
+            File.read(@config[:views]+"/describe_availability_zones.erb"))
+        return response.result(binding), 200
+    end
+
+    def describe_regions(params)
+        response = ERB.new(File.read(@config[:views]+"/describe_regions.erb"))
+        return response.result(binding), 200
     end
 
     ###########################################################################
@@ -150,95 +143,6 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
-    ###########################################################################
-    # Instance Interface
-    ###########################################################################
-
-    def run_instances(params)
-        # Get the instance type and path
-        if params['InstanceType'] != nil
-            instance_type_name = params['InstanceType']
-            instance_type      = @config[:instance_types][instance_type_name.to_sym]
-
-            if instance_type != nil
-                path = @config[:template_location] + "/#{instance_type[:template]}"
-            end
-        end
-
-        # Get the image
-        tmp, img=params['ImageId'].split('-')
-
-        # Build the VM
-        erb_vm_info=Hash.new
-        erb_vm_info[:img_id]        = img.to_i
-        erb_vm_info[:ec2_img_id]    = params['ImageId']
-        erb_vm_info[:instance_type] = instance_type_name
-        erb_vm_info[:template]      = path
-        erb_vm_info[:user_data]     = params['UserData']
-
-        template      = ERB.new(File.read(erb_vm_info[:template]))
-        template_text = template.result(binding)
-
-        # Start the VM.
-        vm = VirtualMachine.new(VirtualMachine.build_xml, @client)
-
-        rc = vm.allocate(template_text)
-        if OpenNebula::is_error?(rc)
-            return rc
-        end
-
-        vm.info
-
-        erb_vm_info[:vm_id]=vm.id
-        erb_vm_info[:vm]=vm
-        erb_user_name = params['AWSAccessKeyId']
-        erb_version = params['Version']
-
-        response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
-        return response.result(binding), 200
-    end
-
-    def describe_instances(params)
-        user_flag = OpenNebula::Pool::INFO_ALL
-        vmpool = VirtualMachinePool.new(@client, user_flag)
-        vmpool.info
-
-        erb_version = params['Version']
-        erb_user_name = params['AWSAccessKeyId']
-
-        response = ERB.new(File.read(@config[:views]+"/describe_instances.erb"))
-        return response.result(binding), 200
-    end
-
-    def terminate_instances(params)
-        # Get the VM ID
-        vmid=params['InstanceId.1']
-        vmid=params['InstanceId.01'] if !vmid
-
-        tmp, vmid=vmid.split('-') if vmid[0]==?i
-
-        vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),@client)
-        rc = vm.info
-
-        if OpenNebula::is_error?(rc)
-            return rc
-        end
-
-        if vm.status == 'runn'
-            rc = vm.shutdown
-        else
-            rc = vm.finalize
-        end
-
-        if OpenNebula::is_error?(rc)
-            return rc
-        end
-
-        erb_version = params['Version']
-
-        response =ERB.new(File.read(@config[:views]+"/terminate_instances.erb"))
-        return response.result(binding), 200
-    end
 
     ###########################################################################
     # Elastic IP
@@ -267,15 +171,6 @@ class EC2QueryServer < CloudServer
     # Helper functions
     ###########################################################################
     private
-
-    def render_state(vm)
-        one_state = ONE_STATES[vm.status]
-        ec2_state = EC2_STATES[one_state||:pending]
-
-        return "<code>#{ec2_state[:code]}</code>
-        <name>#{ec2_state[:name]}</name>"
-    end
-
 
 
     def render_launch_time(vm)

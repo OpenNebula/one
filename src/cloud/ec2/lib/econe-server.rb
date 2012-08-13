@@ -178,6 +178,12 @@ def do_http_request(params)
             result,rc = @econe_server.describe_instances(params)
         when 'TerminateInstances'
             result,rc = @econe_server.terminate_instances(params)
+        when 'StartInstances'
+            result,rc = @econe_server.start_instances(params)
+        when 'StopInstances'
+            result,rc = @econe_server.stop_instances(params)
+        when 'RebootInstances'
+            result,rc = @econe_server.reboot_instances(params)
         when 'AllocateAddress'
             result,rc = @econe_server.allocate_address(params)
         when 'AssociateAddress'
@@ -188,6 +194,10 @@ def do_http_request(params)
             result,rc = @econe_server.release_address(params)
         when 'DescribeAddresses'
             result,rc = @econe_server.describe_addresses(params)
+        when 'DescribeRegions'
+            result,rc = @econe_server.describe_regions(params)
+        when 'DescribeAvailabilityZones'
+            result,rc = @econe_server.describe_availability_zones(params)
         when 'CreateVolume'
             result,rc = @econe_server.create_volume(params)
         when 'DescribeVolumes'

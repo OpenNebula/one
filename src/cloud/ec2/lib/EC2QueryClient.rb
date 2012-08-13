@@ -137,6 +137,57 @@ module EC2QueryClient
 
         ######################################################################
         #
+        #
+        ######################################################################
+        def stop_instances(instance_id)
+            begin
+                response = @ec2_connection.stop_instances(
+                    :instance_id   => instance_id
+                 )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def start_instances(instance_id)
+            begin
+                response = @ec2_connection.start_instances(
+                    :instance_id   => instance_id
+                 )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def reboot_instances(instance_id)
+            begin
+                response = @ec2_connection.reboot_instances(
+                    :instance_id   => instance_id
+                 )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
         #  Returns true if HTTP code is 200,
         ######################################################################
         def upload_image(file_name, curb=true)

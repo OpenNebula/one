@@ -1,41 +1,41 @@
 <?xml version="1.0"?>
-<DescribeInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/"> 
+<DescribeInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
   <requestId>4ac62eaf-e266-4058-a970-2c01568cd417</requestId>
-  <reservationSet> 
-    <item> 
-      <reservationId>default</reservationId> 
-      <ownerId><%= erb_user_name %></ownerId> 
-      <groupSet> 
-        <item> 
-          <groupId>default</groupId> 
-        </item> 
-      </groupSet> 
-      <instancesSet> 
+  <reservationSet>
+    <item>
+      <reservationId>default</reservationId>
+      <ownerId><%= erb_user_name %></ownerId>
+      <groupSet>
+        <item>
+          <groupId>default</groupId>
+        </item>
+      </groupSet>
+      <instancesSet>
         <% vmpool.each do |vm| %>
-        <item> 
-          <instanceId>i-<%= vm.id %></instanceId> 
-          <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 
-          <instanceState> 
+        <item>
+          <%= render_instance_id(vm) %>
+          <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId>
+          <instanceState>
               <%= render_state(vm) %>
-          </instanceState> 
-          <privateDnsName><%= vm["TEMPLATE/NIC/IP"] %></privateDnsName> 
-          <dnsName><%= vm["TEMPLATE/NIC/IP"] %></dnsName> 
-          <keyName>default</keyName> 
-          <amiLaunchIndex>0</amiLaunchIndex> 
+          </instanceState>
+          <privateDnsName><%= vm["TEMPLATE/NIC/IP"] %></privateDnsName>
+          <dnsName><%= vm["TEMPLATE/NIC/IP"] %></dnsName>
+          <keyName>default</keyName>
+          <amiLaunchIndex>0</amiLaunchIndex>
           <productCodes/>
-          <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType> 
+          <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType>
           <%= render_launch_time(vm) %>
-          <placement> 
-            <availabilityZone>default</availabilityZone> 
-          </placement> 
-          
+          <placement>
+            <availabilityZone>default</availabilityZone>
+          </placement>
+
           <kernelId>eki-EA801065</kernelId>
           <ramdiskId>eri-1FEE1144</ramdiskId>
           <monitoring>
             <state>false</state>
           </monitoring>
 
-        </item> 
+        </item>
         <% end %>
       </instancesSet>
     </item>
