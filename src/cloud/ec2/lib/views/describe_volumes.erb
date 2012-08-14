@@ -18,6 +18,8 @@
                     <instanceId><%= ebs['INSTANCE_ID'] %></instanceId>
                     <device><%= ebs['DEVICE'] %></device>
                     <status>attached</status>
+                    <attachTime><%= Time.at(ebs['ATTACH_TIME'].to_i).xmlschema %></attachTime>
+                    <deleteOnTermination>false</deleteOnTermination>
                  </item>
                <% end %>
                </attachmentSet>

@@ -5,5 +5,5 @@
   <instanceId>i-<%= sprintf('%08i', vm_id) %></instanceId>
   <device>/dev/<%= vm["TEMPLATE/DISK[IMAGE_ID=#{image_id.to_i}]/TARGET"] %></device>
   <status>attaching</status>
-  <attachTime/>
+  <attachTime><%= Time.at(attach_time).xmlschema %></attachTime>
 </AttachVolumeResponse>

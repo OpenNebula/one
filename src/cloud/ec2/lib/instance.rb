@@ -79,7 +79,9 @@ module Instance
     def describe_instances(params)
         user_flag = OpenNebula::Pool::INFO_ALL
         vmpool = VirtualMachinePool.new(@client, user_flag)
-        vmpool.info
+
+        rc = vmpool.info
+        return rc if OpenNebula::is_error?(rc)
 
         erb_version = params['Version']
         erb_user_name = params['AWSAccessKeyId']

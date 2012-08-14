@@ -10,20 +10,33 @@ module EBS
     # @option params [String] Device The TARGET (unsupported)
     # @option params [String] Force The TARGET (unsupported)
     def detach_volume(params)
-        image_id = params['VolumeId']
+        target    = params['Device']
+        image_id  = params['VolumeId']
+        vm_id_ec2 = params['InstanceId']
+
         image_id = image_id.split('-')[1] if image_id[0]==?v
 
-        vm_id = params['InstanceId']
-        vm_id = vm_id.split('-')[1] if vm_id[0]==?i
+        image = Image.new(Image.build_xml(image_id), @client)
+        rc = image.info
+        return rc if OpenNebula::is_error?(rc)
 
-        target = params['Device']
+        if !vm_id_ec2
+            vm_id_ec2 = image["TEMPLATE/EBS/INSTANCE_ID"]
+        end
 
+        vm_id = vm_id_ec2.split('-')[1] if vm_id_ec2[0]==?i
+
+        if vm_id.nil?
+            rc = OpenNebula::Error.new("The volume #{params['VolumeId']} is\
+                not attached to any instance")
+            logger.error {rc.message}
+            return rc
+        end
 
         # Detach
 
         vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
         rc = vm.info
-
         return rc if OpenNebula::is_error?(rc)
 
         disk_id = vm["TEMPLATE/DISK[IMAGE_ID=#{image_id.to_i}]/DISK_ID"]
@@ -40,15 +53,10 @@ module EBS
 
         return rc if OpenNebula::is_error?(rc)
 
+        attach_time = image["TEMPLATE/EBS[INSTANCE_ID=\"#{vm_id_ec2}\"]/ATTACH_TIME"]
 
         # Update IMAGE metadata
-
-        image = Image.new(Image.build_xml(image_id), @client)
-        rc = image.info
-
-        return rc if OpenNebula::is_error?(rc)
-
-        image.delete_element("TEMPLATE/EBS[INSTANCE_ID=\"#{params['InstanceId']}\"]")
+        image.delete_element("TEMPLATE/EBS[INSTANCE_ID=\"#{vm_id_ec2}\"]")
         rc = image.update
         if OpenNebula::is_error?(rc)
             logger.error {rc.message}
@@ -94,7 +102,7 @@ module EBS
         return rc if OpenNebula::is_error?(rc)
 
         template = "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target} ]"
-        vm.attachdisk(template)
+        rc = vm.attachdisk(template)
 
         return rc if OpenNebula::is_error?(rc)
 
@@ -106,9 +114,12 @@ module EBS
 
         return rc if OpenNebula::is_error?(rc)
 
+        attach_time = Time.now.to_i
+
         xml_hash = {'EBS' => {
             'INSTANCE_ID' => params['InstanceId'],
-            "DEVICE" => params['Device']}
+            "DEVICE" => params['Device'],
+            "ATTACH_TIME" => attach_time}
         }
 
         image.add_element('TEMPLATE', xml_hash)
@@ -192,7 +203,9 @@ module EBS
     def describe_volumes(params)
         user_flag = OpenNebula::Pool::INFO_ALL
         impool = ImageEC2Pool.new(@client, user_flag)
-        impool.info
+        rc = impool.info
+
+        return rc if OpenNebula::is_error?(rc)
 
         erb_version = params['Version']
 
