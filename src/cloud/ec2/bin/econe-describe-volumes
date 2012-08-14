@@ -126,7 +126,7 @@ end
 if volumes
     volumes.each { |vol|
         instances = ""
-        if vol['attachmentSet']['item']
+        if vol['attachmentSet'] && vol['attachmentSet']['item']
             instances = vol['attachmentSet']['item'].collect{ |item|
                 item['instanceId']
             }.join(',')

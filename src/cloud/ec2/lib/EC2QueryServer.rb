@@ -27,15 +27,23 @@ require 'elastic_ip'
 require 'instance'
 
 module OpenNebula
+    EC2_ERROR = %q{
+        <Response>
+            <RequestId/>
+            <Errors>
+                <Error>
+                    <Code><%= (@ec2_code||'UnsupportedOperation') %></Code>
+                    <Message><%= @message %></Message>
+                </Error>
+            </Errors>
+        </Response>
+    }
+
     class Error
         attr_accessor :ec2_code
 
         def to_ec2
-            xml = "<Response><Errors><Error><Code>"
-            xml << (@ec2_code||"Unsupported")
-            xml << "</Code><Message>"
-            xml << @message
-            xml << "<RequestId/></Response>"
+            ERB.new(EC2_ERROR).result(binding)
         end
     end
 end
@@ -135,7 +143,9 @@ class EC2QueryServer < CloudServer
     def describe_images(params)
         user_flag = OpenNebula::Pool::INFO_ALL
         impool = ImageEC2Pool.new(@client, user_flag)
-        impool.info
+
+        rc = impool.info
+        return rc if OpenNebula::is_error?(rc)
 
         erb_version = params['Version']
 
