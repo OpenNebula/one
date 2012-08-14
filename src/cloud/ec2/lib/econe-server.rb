@@ -208,11 +208,15 @@ def do_http_request(params)
             result,rc = @econe_server.detach_volume(params)
         when 'DeleteVolume'
             result,rc = @econe_server.delete_volume(params)
+        else
+            result = OpenNebula::Error.new(
+                "#{params['Action']} feature is not supported",
+                OpenNebula::Error::ENO_EXISTS)
     end
 
     if OpenNebula::is_error?(result)
         logger.error(result.message)
-        error CloudServer::HTTP_ERROR_CODE[result.errno], result.to_ec2
+        error CloudServer::HTTP_ERROR_CODE[result.errno], result.to_ec2.gsub(/\n\s*/,'')
     end
 
     headers['Content-Type'] = 'application/xml'
@@ -221,5 +225,7 @@ def do_http_request(params)
         status rc
     end
 
-    result
+    logger.error { params['Action'] }
+
+    result.gsub(/\n\s*/,'')
 end
