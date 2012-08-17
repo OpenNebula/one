@@ -24,14 +24,14 @@ module EBS
             vm_id_ec2 = image["TEMPLATE/EBS/INSTANCE_ID"]
         end
 
-        vm_id = vm_id_ec2.split('-')[1] if vm_id_ec2[0]==?i
-
-        if vm_id.nil?
+        if vm_id_ec2.nil?
             rc = OpenNebula::Error.new("The volume #{params['VolumeId']} is\
                 not attached to any instance")
             logger.error {rc.message}
             return rc
         end
+
+        vm_id = vm_id_ec2.split('-')[1] if vm_id_ec2[0]==?i
 
         # Detach
 

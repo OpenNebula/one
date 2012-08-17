@@ -123,11 +123,6 @@ if !volume_id
     exit -1
 end
 
-if !instance
-    puts "#{cmd_name}: missing --instance option"
-    exit -1
-end
-
 auth = "#{access}:#{secret}" if secret && access
 
 begin

@@ -114,7 +114,10 @@ if CloudClient::is_error?(rc)
     exit -1
 end
 
-addresses = rc['addressesSet']['item']
+addresses = []
+if rc['addressesSet']
+    addresses = rc['addressesSet']['item']
+end
 
 fmt = "%-12s %s"
 
@@ -123,11 +126,9 @@ if headers
     puts "------------------------------------------------------------------------------"
 end
 
-if addresses
-    addresses.each { |addr|
-        puts fmt % [addr['publicIp'],addr['instanceId']]
-    }
-end
+addresses.each { |addr|
+    puts fmt % [addr['publicIp'],addr['instanceId']]
+}
 
 exit 0
 

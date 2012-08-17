@@ -114,7 +114,10 @@ if CloudClient::is_error?(rc)
     exit -1
 end
 
-volumes = rc['volumeSet']['item']
+volumes = []
+if rc['volumeSet']
+    volumes = rc['volumeSet']['item']
+end
 
 fmt = "%-15s %-10s %s"
 
@@ -123,18 +126,16 @@ if headers
     puts "------------------------------------------------------------------------------"
 end
 
-if volumes
-    volumes.each { |vol|
-        instances = ""
-        if vol['attachmentSet'] && vol['attachmentSet']['item']
-            instances = vol['attachmentSet']['item'].collect{ |item|
-                item['instanceId']
-            }.join(',')
-        end
+volumes.each { |vol|
+    instances = ""
+    if vol['attachmentSet'] && vol['attachmentSet']['item']
+        instances = vol['attachmentSet']['item'].collect{ |item|
+            item['instanceId']
+        }.join(',')
+    end
 
-        puts fmt % [vol['volumeId'], vol['size'], instances]
-    }
-end
+    puts fmt % [vol['volumeId'], vol['size'], instances]
+}
 
 exit 0
 

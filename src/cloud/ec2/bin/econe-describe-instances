@@ -113,7 +113,11 @@ if CloudClient::is_error?(rc)
     exit -1
 end
 
-instances = rc['reservationSet']['item'][0]['instancesSet']['item']
+instances = []
+if rc['reservationSet']['item'][0]['instancesSet']
+    instances = rc['reservationSet']['item'][0]['instancesSet']['item']
+end
+
 owner     = rc['reservationSet']['item'][0]['ownerId']
 
 fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
@@ -123,9 +127,9 @@ if headers
     puts "-----------------------------------------------------------------------------------"
 end
 
-if instances
-    instances.each { |img|
-        puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
-    }
-end
+
+instances.each { |img|
+    puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
+}
+
 exit 0
