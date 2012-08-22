@@ -62,6 +62,7 @@ class OpenNebulaHM < OpenNebulaNetwork
 
     def create_bridge(bridge)
         OpenNebula.exec_and_log("#{COMMANDS[:brctl]} addbr #{bridge}")
+        @bridges[bridge] = Array.new
     end
 
     def device_exists?(dev, vlan=nil)
@@ -83,6 +84,7 @@ class OpenNebulaHM < OpenNebulaNetwork
     def attach_brigde_dev(bridge, dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
         OpenNebula.exec_and_log("#{COMMANDS[:brctl]} addif #{bridge} #{dev}")
+        @bridges[bridge] << dev
     end
 
     def ifup(dev, vlan=nil)
