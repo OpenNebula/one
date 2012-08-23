@@ -16,7 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
@@ -28,356 +27,87 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cli"
 
-require 'rubygems'
+require 'command_parser'
+require 'one_helper/oneacct_helper'
 
-require 'cli/one_helper'
-require 'cli/command_parser'
 require 'json'
 
-require 'optparse'
-require 'optparse/time'
+cmd = CommandParser::CmdParser.new(ARGV) do
+    usage "`oneacct` [<options>]"
+    description ""
+    version OpenNebulaHelper::ONE_VERSION
 
 
-################################################################################
-# CLI Helper
-################################################################################
+    option [AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS]
 
-class AcctHelper < OpenNebulaHelper::OneHelper
+    main do
+        filter_flag = (options[:user] || VirtualMachinePool::INFO_ALL)
+        start_time  = options[:start] ? options[:start].to_i : -1
+        end_time    = options[:end] ? options[:end].to_i : -1
 
-    def self.conf_file
-        "oneacct.yaml"
-    end
+        common_opts = {
+            :start_time => start_time,
+            :end_time   => end_time,
+            :host       => options[:host],
+            :group      => options[:group],
+            :xpath      => options[:xpath]
+        }
 
-=begin
-    List of <HISTORY> child elements
+        client = OpenNebula::Client.new
+        pool   = OpenNebula::VirtualMachinePool.new(client)
 
-    OID
-    SEQ
-    HOSTNAME
-    HID
-    STIME
-    ETIME
-    VMMMAD
-    VNMMAD
-    PSTIME
-    PETIME
-    RSTIME
-    RETIME
-    ESTIME
-    EETIME
-    REASON
-=end
 
-    def list_history(data)
-        table = CLIHelper::ShowTable.new(self.class.table_conf, self) do
-            column :VID, "Virtual Machine ID", :size=>4 do |d|
-                d["OID"]
+        if options[:json] || options[:xml]
+            xml_str = pool.accounting_xml(filter_flag, common_opts)
+            if OpenNebula.is_error?(xml_str)
+                puts acct_hash.message
+                exit -1
             end
 
-            column :SEQ, "History record sequence number", :size=>3 do |d|
-                d["SEQ"]
+            if options[:json]
+                xmldoc = XMLElement.new
+                xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
+
+                puts xmldoc.to_hash.to_json
+            elsif options[:xml]
+                puts xml_str
             end
 
-            column :HOSTNAME, "Host name", :left, :size=>15 do |d|
-                d["HOSTNAME"]
+            exit_code 0
+        else
+            order_by = Hash.new
+            order_by[:order_by_1] = 'VM/UID'
+            order_by[:order_by_2] = 'VM/ID' if options[:split]
+
+            acct_hash = pool.accounting(filter_flag, common_opts.merge(order_by))
+            if OpenNebula.is_error?(acct_hash)
+                puts acct_hash.message
+                exit -1
             end
 
-            column :REASON, "VM state change reason", :left, :size=>4 do |d|
-                VirtualMachine.get_reason d["REASON"]
+            if ( start_time != -1 or end_time != -1 )
+                AcctHelper.print_start_end_time_header(start_time, end_time)
             end
 
-            column :START_TIME, "Start time", :size=>14 do |d|
-                OpenNebulaHelper.time_to_str(d['STIME'])
-            end
+            acct_hash.each { |user_id, value|
+                AcctHelper.print_user_header(user_id)
 
-            column :END_TIME, "End time", :size=>14 do |d|
-                OpenNebulaHelper.time_to_str(d['ETIME'])
-            end
-
-            column :MEMORY, "Assigned memory", :size=>6 do |d|
-                OpenNebulaHelper.unit_to_str(d["VM/TEMPLATE/MEMORY"].to_i, {}, 'M')
-            end
-
-            column :CPU, "Number of CPUs", :size=>3 do |d|
-                d["VM/TEMPLATE/CPU"]
-            end
-
-            column :NET_RX, "Data received from the network", :size=>6 do |d|
-                # NET is measured in bytes, unit_to_str expects KBytes
-                OpenNebulaHelper.unit_to_str(d["VM/NET_RX"].to_i / 1024.0, {})
-            end
-
-            column :NET_TX, "Data sent to the network", :size=>6 do |d|
-                # NET is measured in bytes, unit_to_str expects KBytes
-                OpenNebulaHelper.unit_to_str(d["VM/NET_TX"].to_i / 1024.0, {})
-            end
-
-            default :VID, :HOSTNAME, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
-        end
-
-        table.show(data)
-    end
-
-public
-    def list_users(xmldoc, options=nil)
-
-        uids = xmldoc.retrieve_elements('HISTORY/VM/UID')
-
-        if uids.nil?
-            puts "No records found."
-            exit 0
-        end
-
-        uids.uniq!
-
-        history_elems = []
-
-        uids.each do |uid|
-            CLIHelper.scr_bold
-            CLIHelper.scr_underline
-
-            username_elems =
-                xmldoc.retrieve_elements("HISTORY/VM[UID=#{uid}]/UNAME")
-
-            username = username_elems.nil? ? "" : username_elems.uniq
-
-            puts "# User #{uid} #{username}".ljust(80)
-            CLIHelper.scr_restore
-            puts
-
-            history_elems.clear
-
-            vm_ids = xmldoc.retrieve_elements("HISTORY/VM[UID=#{uid}]/ID")
-            vm_ids = [] if vm_ids.nil?
-            vm_ids.uniq!
-
-            vm_ids.each do |vid|
-
-                if ( options[:split] )
-                    history_elems.clear
-                end
-
-                xmldoc.each("HISTORY[OID=#{vid}]") do |history|
-                    history_elems << history
-                end
-
-                if ( options[:split] )
-                    list_history(history_elems)
+                if options[:split]
+                    # Use one table for each VM
+                    value.each { |vm_id, history_array|
+                        array = history_array['HISTORY_RECORDS']['HISTORY']
+                        AcctHelper::ACCT_TABLE.show(array)
+                        puts
+                    }
+                else
+                    # Use the same table for all the VMs
+                    array = value['HISTORY_RECORDS']['HISTORY']
+                    AcctHelper::ACCT_TABLE.show(array)
                     puts
                 end
-            end
+            }
 
-            if ( !options[:split] )
-                list_history(history_elems)
-                puts
-            end
+            exit_code 0
         end
     end
-end
-
-################################################################################
-# Helper methods
-################################################################################
-
-def redo_xmldoc(xmldoc, xpath_str)
-    xml_str = "<HISTORY_RECORDS>"
-
-    xmldoc.each(xpath_str) do |history|
-        xml_str << history.to_xml
-    end
-
-    xml_str << "</HISTORY_RECORDS>"
-
-    xmldoc = XMLElement.new
-    xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
-
-    return xmldoc
-end
-
-################################################################################
-# Main command
-################################################################################
-
-options = Hash.new
-
-options[:format] = :table
-
-opts = OptionParser.new do |opts|
-    opts.on('-s', '--start TIME', Time,
-        'Start date and time to take into account') do |ext|
-            options[:start]=ext
-    end
-
-    opts.on("-e", "--end TIME", Time,
-        "End date and time" ) do |ext|
-            options[:end]=ext
-    end
-
-    opts.on("-u", "--user user", String,
-        "User id to filter the results" ) do |ext|
-            options[:user]=ext
-    end
-
-    opts.on("-g", "--group group", String,
-        "Group id to filter the results" ) do |ext|
-            options[:group]=ext
-    end
-
-    opts.on("-H", "--host hostname", String,
-        "Host id to filter the results" ) do |ext|
-            options[:host]=ext
-    end
-    
-    opts.on("--xpath expression", String,
-        "Xpath expression to filter the results. For example: oneacct --xpath 'HISTORY[ETIME>0]'" ) do |ext|
-            options[:xpath]=ext
-    end
-
-    opts.on("-j", "--json",
-        "Output in json format" ) do |ext|
-            options[:format]=:json
-    end
-
-    opts.on("-x", "--xml",
-        "Output in xml format" ) do |ext|
-            options[:format]=:xml
-    end
-
-    opts.on("--split",
-        "Split the output in a table for each VM" ) do |ext|
-            options[:split]=ext
-    end
-
-    opts.on("-h", "--help", "Show this message" ) do
-        puts opts
-        exit
-    end
-
-    opts.on()
-end
-
-
-begin
-    opts.parse!(ARGV)
-rescue OptionParser::ParseError => e
-    STDERR.puts "Error: " << e.message
-    exit(-1)
-end
-
-
-client = OpenNebula::Client.new
-
-acct_helper = AcctHelper.new()
-
-time_start  = -1
-time_end    = -1
-filter_flag = VirtualMachinePool::INFO_ALL
-
-time_start  = options[:start].to_i if options[:start]
-time_end    = options[:end].to_i   if options[:end]
-
-if options[:user]
-    rc = OpenNebulaHelper.rname_to_id(options[:user], "USER")
-
-    if rc[0] == 0
-        filter_flag = rc[1]
-    else
-        puts rc[1]
-        exit -1
-    end
-end
-
-xml_str = client.call("vmpool.accounting",
-            filter_flag,
-            time_start,
-            time_end)
-
-if OpenNebula.is_error?(xml_str)
-    puts xml_str.message
-    exit -1
-end
-
-xmldoc = XMLElement.new
-xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
-
-xpath   = nil
-hid     = nil
-gid     = nil
-
-if options[:host]
-    rc = OpenNebulaHelper.rname_to_id(options[:host], "HOST")
-
-    if rc[0] == 0
-        hid = rc[1]
-    else
-        puts rc[1]
-        exit -1
-    end
-end
-
-if options[:group]
-    rc = OpenNebulaHelper.rname_to_id(options[:group], "GROUP")
-
-    if rc[0] == 0
-        gid = rc[1]
-    else
-        puts rc[1]
-        exit -1
-    end
-end
-
-if options[:host] && options[:group]
-    xpath = "HISTORY[VM/GID=#{gid} and HID=#{hid}]"
-elsif options[:host]
-    xpath = "HISTORY[HID=#{hid}]"
-elsif options[:group]
-    xpath = "HISTORY[VM/GID=#{gid}]"
-end
-
-xmldoc = redo_xmldoc(xmldoc, xpath) if !xpath.nil?
-
-
-if options[:xpath]
-    xmldoc = redo_xmldoc(xmldoc, options[:xpath])
-end
-
-
-case options[:format]
-when :table
-    if ( time_start != -1 or time_end != -1 )
-        print "Showing active history records from "
-
-        CLIHelper.scr_bold
-
-        if ( time_start != -1 )
-            print Time.at(time_start).to_s
-        else
-            print "-"
-        end
-
-        CLIHelper.scr_restore
-
-        print " to "
-
-        CLIHelper.scr_bold
-
-        if ( time_end != -1 )
-            print Time.at(time_end).to_s
-        else
-            print "-"
-        end
-
-        CLIHelper.scr_restore
-        puts
-        puts
-    end
-
-    acct_helper.list_users(xmldoc, options)
-
-when :xml
-    puts xmldoc.to_xml
-
-when :json
-    puts xmldoc.to_hash.to_json
-
 end

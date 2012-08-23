@@ -1194,7 +1194,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevnet_helper.rb \
                    src/cli/one_helper/oneacl_helper.rb \
                    src/cli/one_helper/onedatastore_helper.rb \
-                   src/cli/one_helper/onecluster_helper.rb"
+                   src/cli/one_helper/onecluster_helper.rb \
+                   src/cli/one_helper/oneacct_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1205,7 +1206,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onegroup \
                src/cli/oneacl \
                src/cli/onedatastore \
-               src/cli/onecluster"
+               src/cli/onecluster \
+               src/cli/oneacct"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
