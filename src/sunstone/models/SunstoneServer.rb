@@ -237,6 +237,45 @@ class SunstoneServer < CloudServer
         return vnc.proxy(resource)
     end
 
+    # Retrieves the accounting data for all the VMs in the pool
+    #
+    # @param [Hash] options
+    # @option params [Integer] :start_time Start date and time to take into account,
+    #   if no start_time is required use -1
+    # @option params [Integer] :end_time End date and time to take into account,
+    #   if no end_time is required use -1
+    # @option params [Integer] :host Host id to filter the results
+    # @option params [Integer] :group Group id to filter the results
+    # @option params [String] :xpath Xpath expression to filter the results.
+    #    For example: HISTORY[ETIME>0]
+    # @option params [String] :order_by_1 Xpath expression to group the
+    #   returned hash. This will be the first level of the hash (i.e: VM/UID)
+    # @option params [String] :order_by_2 Xpath expression to group the
+    #   returned hash. This will be the second level of the hash (i.e: VM/ID)
+    #
+    # @return [String] json representing the accounting data
+    def accounting(options)
+        opts = {
+            :start_time => options[:start_time],
+            :end_time   => options[:end_time],
+            :host       => options[:host],
+            :group      => options[:group],
+            :order_by_1 => options[:order_by_1],
+            :order_by_2 => options[:order_by_2],
+            :xpath      => options[:xpath]
+        }
+
+        pool = VirtualMachinePool.new(@client)
+        acct_hash = pool.accounting(user_flag, opts)
+
+        if OpenNebula.is_error?(acct_hash)
+            error = Error.new(acct_hash.message)
+            return [500, error.to_json]
+        end
+
+        return [201, acct_hash.to_json]
+    end
+
     ########################################################################
     #
     ########################################################################
