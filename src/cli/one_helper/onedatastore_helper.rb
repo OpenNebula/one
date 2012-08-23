@@ -24,15 +24,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         :description => "Selects the datastore",
         :format => String,
         :proc   => lambda { |o, options|
-            ch = OneDatastoreHelper.new
-            rc, dsid = ch.to_id(o)
-            if rc == 0
-                options[:datastore] = dsid
-            else
-                puts dsid
-                puts "option datastore: Parsing error"
-                exit -1
-            end
+            OpenNebulaHelper.rname_to_id(o, "DATASTORE")
         }
     }
 

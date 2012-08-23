@@ -54,25 +54,18 @@ module CommandParser
         attr_reader :options, :args
 
         def initialize(args=[], &block)
-            @opts = Array.new
+            @available_options = Array.new
             @commands = Hash.new
             @formats = Hash.new
-            @script = nil
+
+            @main = nil
+
+            @exit_code = nil
 
             @args = args
             @options = Hash.new
 
-            set :format, :file, "Path to a file" do |arg|
-                format_file(arg)
-            end
-
-            set :format, :range, "List of id's in the form 1,8..15" do |arg|
-                format_range(arg)
-            end
-
-            set :format, :text, "String" do |arg|
-                format_text(arg)
-            end
+            define_default_formats
 
             instance_eval(&block)
 
@@ -80,11 +73,7 @@ module CommandParser
         end
 
         def usage(str)
-            @usage=<<EOT
-## SYNOPSIS
-
-#{str}
-EOT
+            @usage=str
         end
 
         def version(str)
@@ -95,13 +84,25 @@ EOT
             @description = str
         end
 
-        def set(e, *args, &block)
-            case e
-            when :option
-                add_option(args[0])
-            when :format
-                add_format(args[0], args[1], block)
+        def format(format, description, &block)
+            @formats[format] = {
+                :desc => description,
+                :proc => block
+            }
+        end
+
+        def option(options)
+            if options.instance_of?(Array)
+                options.each { |o| @available_options << o }
+            elsif options.instance_of?(Hash)
+                @available_options << options
             end
+        end
+
+        # Define the exit code to be returned by the command
+        # @param [Integer] code
+        def exit_code(code)
+            @exit_code = code
         end
 
         def exit_with_code(code, output=nil)
@@ -130,28 +131,40 @@ EOT
             @commands[name.to_sym] = cmd
         end
 
-        def script(*args_format, &block)
-            @script=Hash.new
-            @script[:args_format] = Array.new
+        def main(*args_format, &block)
+            @main=Hash.new
+            @main[:arity] = 0
+            @main[:args_format] = Array.new
             args_format.collect {|args|
                 if args.instance_of?(Array)
-                    @script[:arity]+=1 unless args.include?(nil)
-                    @script[:args_format] << args
+                    @main[:arity]+=1 unless args.include?(nil)
+                    @main[:args_format] << args
                 elsif args.instance_of?(Hash) && args[:options]
-                    @opts << args[:options]
+                    @available_options << args[:options]
                 else
-                    @script[:arity]+=1
-                    @script[:args_format] << [args]
+                    @main[:arity]+=1
+                    @main[:args_format] << [args]
                 end
             }
 
-            @script[:proc] = block
+            @main[:proc] = block
         end
+
+        # DEPRECATED, use format and options instead
+        def set(e, *args, &block)
+            case e
+            when :option
+                option(args[0])
+            when :format
+                format(args[0], args[1], &block)
+            end
+        end
+
 
         def run
             comm_name=""
-            if @script
-                comm=@script
+            if @main
+                comm=@main
             elsif
                 if @args[0] && !@args[0].match(/^-/)
                     comm_name=@args.shift.to_sym
@@ -160,7 +173,7 @@ EOT
             end
 
             if comm.nil?
-                help
+                print_help
                 exit -1
             end
 
@@ -175,133 +188,17 @@ EOT
                     puts rc[1]
                     exit rc.first
                 else
-                    exit rc
+                    exit(@exit_code || rc)
                 end
-            end
-        end
-
-        def help
-            puts @usage if @usage
-            puts
-            puts @description if @description
-            puts
-            print_options
-            puts
-            print_commands
-            puts
-            print_formatters
-            puts
-            if @version
-                puts "## LICENSE"
-                puts @version
             end
         end
 
         private
 
-        def print_options
-            puts "## OPTIONS"
-
-            shown_opts = Array.new
-            opt_format = "#{' '*5}%-25s %s"
-            @commands.each{ |key,value|
-                value[:options].flatten.each { |o|
-                    if shown_opts.include?(o[:name])
-                        next
-                    else
-                        shown_opts << o[:name]
-
-                        str = ""
-                        str << o[:short].split(' ').first << ', ' if o[:short]
-                        str << o[:large]
-
-                        printf opt_format, str, o[:description]
-                        puts
-                    end
-                }
-            }
-
-            @opts.each{ |o|
-                str = ""
-                str << o[:short].split(' ').first << ', ' if o[:short]
-                str << o[:large]
-
-                printf opt_format, str, o[:description]
-                puts
-            }
-        end
-
-        def print_commands
-            puts "## COMMANDS"
-
-            cmd_format5 =  "#{' '*3}%s"
-            cmd_format10 =  "#{' '*8}%s"
-            @commands.each{ |key,value|
-                printf cmd_format5, "* #{key} "
-
-                args_str=value[:args_format].collect{ |a|
-                    if a.include?(nil)
-                        "[<#{a.compact.join("|")}>]"
-                    else
-                        "<#{a.join("|")}>"
-                    end
-                }.join(' ')
-                printf "#{args_str}"
-                puts
-
-                value[:desc].split("\n").each { |l|
-                    printf cmd_format10, l
-                    puts
-                }
-
-                unless value[:options].empty?
-                    opts_str=value[:options].flatten.collect{|o|
-                        o[:name]
-                    }.join(', ')
-                    printf cmd_format10, "valid options: #{opts_str}"
-                    puts
-                end
-                puts
-            }
-        end
-
-        def print_formatters
-            puts "## ARGUMENT FORMATS"
-
-            cmd_format5 =  "#{' '*3}%s"
-            cmd_format10 =  "#{' '*8}%s"
-            @formats.each{ |key,value|
-                printf cmd_format5, "* #{key}"
-                puts
-
-                value[:desc].split("\n").each { |l|
-                    printf cmd_format10, l
-                    puts
-                }
-
-                puts
-            }
-        end
-
-        def add_option(option)
-            if option.instance_of?(Array)
-                option.each { |o| @opts << o }
-            elsif option.instance_of?(Hash)
-                @opts << option
-            end
-        end
-
-        def add_format(format, description, block)
-            @formats[format] = {
-                :desc => description,
-                :proc => block
-            }
-        end
-
         def parse(extra_options)
             @cmdparse=OptionParser.new do |opts|
-                merge = @opts
-                merge = @opts + extra_options if extra_options
+                merge = @available_options
+                merge = @available_options + extra_options if extra_options
                 merge.flatten.each do |e|
                     args = []
                     args << e[:short] if e[:short]
@@ -311,9 +208,16 @@ EOT
 
                     opts.on(*args) do |o|
                         if e[:proc]
-                            e[:proc].call(o, @options)
+                            rc = e[:proc].call(o, @options)
+                            if rc.instance_of?(Array) && rc[0] == 0
+                                options[e[:name].to_sym] = rc[1]
+                            else
+                                puts rc[1]
+                                puts "option #{e[:name]}: Parsing error"
+                                exit -1
+                            end
                         elsif e[:name]=="help"
-                            help
+                            print_help
                             exit
                         elsif e[:name]=="version"
                             puts @version
@@ -399,7 +303,126 @@ EOT
         end
 
         ########################################################################
-        # Formatters for arguments
+        # Printers
+        ########################################################################
+
+        def print_help
+            if @usage
+                puts "## SYNOPSIS"
+                puts
+                puts @usage
+                puts
+            end
+            puts @description if @description
+            puts
+            print_options
+            puts
+            print_commands
+            puts
+            print_formatters
+            puts
+            if @version
+                puts "## LICENSE"
+                puts @version
+            end
+        end
+
+
+        def print_options
+            puts "## OPTIONS"
+
+            shown_opts = Array.new
+            opt_format = "#{' '*5}%-25s %s"
+            @commands.each{ |key,value|
+                value[:options].flatten.each { |o|
+                    if shown_opts.include?(o[:name])
+                        next
+                    else
+                        shown_opts << o[:name]
+
+                        str = ""
+                        str << o[:short].split(' ').first << ', ' if o[:short]
+                        str << o[:large]
+
+                        printf opt_format, str, o[:description]
+                        puts
+                    end
+                }
+            }
+
+            @available_options.each{ |o|
+                str = ""
+                str << o[:short].split(' ').first << ', ' if o[:short]
+                str << o[:large]
+
+                printf opt_format, str, o[:description]
+                puts
+            }
+        end
+
+        def print_commands
+            cmd_format5 =  "#{' '*3}%s"
+            cmd_format10 =  "#{' '*8}%s"
+
+            if @main
+                print_command(@main)
+            else
+                puts "## COMMANDS"
+
+                @commands.each{ |key,value|
+                    printf cmd_format5, "* #{key} "
+
+                    print_command(value)
+                }
+            end
+        end
+
+        def print_command(command)
+            args_str=command[:args_format].collect{ |a|
+                if a.include?(nil)
+                    "[<#{a.compact.join("|")}>]"
+                else
+                    "<#{a.join("|")}>"
+                end
+            }.join(' ')
+            printf "#{args_str}"
+            puts
+
+            command[:desc].split("\n").each { |l|
+                printf cmd_format10, l
+                puts
+            }
+
+            unless command[:options].empty?
+                opts_str=command[:options].flatten.collect{|o|
+                    o[:name]
+                }.join(', ')
+                printf cmd_format10, "valid options: #{opts_str}"
+                puts
+            end
+            puts
+        end
+
+        def print_formatters
+            puts "## ARGUMENT FORMATS"
+
+            cmd_format5 =  "#{' '*3}%s"
+            cmd_format10 =  "#{' '*8}%s"
+            @formats.each{ |key,value|
+                printf cmd_format5, "* #{key}"
+                puts
+
+                value[:desc].split("\n").each { |l|
+                    printf cmd_format10, l
+                    puts
+                }
+
+                puts
+            }
+        end
+
+        ########################################################################
+        # Default Formatters for arguments
         ########################################################################
         def format_text(arg)
             arg.instance_of?(String) ? [0,arg] : [-1]
@@ -431,6 +454,20 @@ EOT
             }
 
             return 0,ids.uniq
+        end
+
+        def define_default_formats
+            format :file, "Path to a file" do |arg|
+                format_file(arg)
+            end
+
+            format :range, "List of id's in the form 1,8..15" do |arg|
+                format_range(arg)
+            end
+
+            format :text, "String" do |arg|
+                format_text(arg)
+            end
         end
     end
 end
