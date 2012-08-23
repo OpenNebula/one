@@ -74,7 +74,7 @@ var create_vn_tmpl =
                  <input type="text" name="phydev" id="phydev" />\
                  <label for="vlan">'+tr("VLAN")+':</label>\
                  <select name="vlan" id="vlan">\
-                    <option value="YES">'+tr("Yes")+'</option>\
+                    <option value="YES" selected="selected">'+tr("Yes")+'</option>\
                     <option value="NO">'+tr("No")+'</option>\
                  </select><br />\
                  <label for="vlan_id">'+tr("VLAN ID")+':</label>\
@@ -791,6 +791,7 @@ function setupCreateVNetDialog() {
             break;
         case "ebtables":
             $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
+            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
             break;
         case "openvswitch":
         case "vmware":
@@ -799,6 +800,9 @@ function setupCreateVNetDialog() {
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
             break;
         };
+
+        if (!mustBeAdmin())
+            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).hide();
     });
 
     //Initialize shown options
@@ -913,8 +917,8 @@ function setupCreateVNetDialog() {
             };
             network_json['phydev']=phydev;
             if (bridge) network_json['bridge']=bridge;
+            network_json['vlan']=vlan;
             if (vlan_id) {
-                network_json['vlan']=vlan;
                 network_json['vlan_id']=vlan_id;
             };
             break;
@@ -924,6 +928,7 @@ function setupCreateVNetDialog() {
                 return false;
             };
             network_json['bridge']=bridge;
+            network_json['vlan']=vlan;
             break;
         case "openvswitch":
         case "vmware":
@@ -932,8 +937,8 @@ function setupCreateVNetDialog() {
                 return false;
             };
             network_json['bridge']=bridge;
+            network_json['vlan']=vlan;
             if (vlan_id) {
-                network_json['vlan']=vlan;
                 network_json['vlan_id']=vlan_id;
             };
             break;
