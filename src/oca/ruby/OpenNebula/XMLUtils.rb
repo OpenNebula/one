@@ -335,12 +335,33 @@ module OpenNebula
             return str
         end
 
-        #
-        #
-        #
-        def to_hash(hash={}, element=nil)
-            element ||= @xml.document.root
+        # @return [Hash] a hash representing the resource
+        def to_hash
+            hash = {}
 
+            if NOKOGIRI
+                if @xml.instance_of?(Nokogiri::XML::NodeSet)
+                    @xml.each { |c|
+                        if c.element?
+                            build_hash(hash, c)
+                        end
+                    }
+                else
+                    build_hash(hash, @xml)
+                end
+            else
+                build_hash(hash, @xml)
+            end
+
+            hash
+        end
+
+        private
+
+        #
+        #
+        #
+        def build_hash(hash, element)
             if NOKOGIRI
                 array = element.children
                 if array.length==1 and (array.first.text? or array.first.cdata?)
@@ -349,14 +370,14 @@ module OpenNebula
                     r = {}
                     array.each { |c|
                         if c.element?
-                            to_hash(r, c)
+                            build_hash(r, c)
                         end
                     }
                 end
             else
                 r = {}
                 if element.has_elements?
-                    element.each_element { |c| to_hash(r, c) }
+                    element.each_element { |c| build_hash(r, c) }
                 elsif element.has_text?
                     r = element.text
                 end
@@ -375,8 +396,6 @@ module OpenNebula
 
             hash
         end
-
-    private
 
         #
         #
