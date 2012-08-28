@@ -364,9 +364,7 @@ module CommandParser
             cmd_format5 =  "#{' '*3}%s"
             cmd_format10 =  "#{' '*8}%s"
 
-            if @main
-                print_command(@main)
-            else
+            if !@main
                 puts "## COMMANDS"
 
                 @commands.each{ |key,value|
@@ -388,12 +386,14 @@ module CommandParser
             printf "#{args_str}"
             puts
 
-            command[:desc].split("\n").each { |l|
-                printf cmd_format10, l
-                puts
-            }
+            if command[:desc]
+                command[:desc].split("\n").each { |l|
+                    printf cmd_format10, l
+                    puts
+                }
+            end
 
-            unless command[:options].empty?
+            if command[:options] && !command[:options].empty?
                 opts_str=command[:options].flatten.collect{|o|
                     o[:name]
                 }.join(', ')

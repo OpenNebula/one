@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
@@ -26,106 +25,68 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-describe-instances
 
-List and describe running instances
-
-Usage:
-    econe-describe-instances [OPTIONS]
-
-Options:
-
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-
-    --headers, -H
-        Display column headers
-
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
-       )
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :instanceId, "instanceId", :size=>12 do |d|
+        d["instanceId"]
+    end
 
-headers = false
-url     = nil
-access  = nil
-secret  = nil
-auth    = nil
+    column :ImageId, "ImageId", :size=>13 do |d|
+        d["imageId"]
+    end
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--headers'
-                headers = true
+    column :State, "State", :size=>14 do |d|
+        d["instanceState"]['name']
+    end
+
+    column :IP, "IP", :size=>12 do |d|
+        d['dnsName']
+    end
+
+    column :instanceType, "instanceType", :size=>20 do |d|
+        d["instanceType"]
+    end
+
+    default :instanceId, :ImageId, :State, :IP, :instanceType
+end
+
+
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-describe-instances [OPTIONS]"
+    version CloudCLI.version_text
+    description "List and describe running instances"
+
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL
+    ]
+
+    main do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            exit_with_code -1, "#{cmd_name}: #{e.message}"
+        end
+
+        rc = ec2_client.describe_instances
+
+        if CloudClient::is_error?(rc)
+            exit_with_code -1, "#{cmd_name}: #{rc.message}"
+        else
+            TABLE.show(rc['reservationSet']['item'][0]['instancesSet']['item'] || [])
+            exit_with_code 0
         end
     end
-rescue Exception => e
-    exit -1
 end
-
-auth = "#{access}:#{secret}" if secret && access
-
-begin
-    ec2_client = EC2QueryClient::Client.new(auth,url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
-end
-
-rc = ec2_client.describe_instances()
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-instances = rc['reservationSet']['item'][0]['instancesSet']['item']
-owner     = rc['reservationSet']['item'][0]['ownerId']
-
-fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
-
-if headers
-    puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
-    puts "-----------------------------------------------------------------------------------"
-end
-
-if instances
-    instances.each { |img|
-        puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
-    }
-end
-exit 0

@@ -23,137 +23,99 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-run-instances
 
-Runs an instance of a particular image
-
-Usage:
-    econe-run-instances [OPTIONS] IMAGE-ID
-
-Options:
-
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-
-    --type <type>, -t <type>
-        OpenNebula template in which is based this instance
-        
-    --user-data, -d
-        Specifies Base64-encoded MIME user data to be made 
-        available to the instance
-        
-    --headers, -H
-        Display column headers
-        
-IMAGE-ID: The image identification as returned by
-the econe-upload command
-
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--type',       '-t',GetoptLong::REQUIRED_ARGUMENT],
-            ['--user-data',  '-d',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
-       )
 
-headers = false
-url     = nil
-access  = nil
-secret  = nil
-auth    = nil
-type    = nil
-user_data = nil
+USER_DATA = {
+    :name => "user_data",
+    :short => "-d data",
+    :large => "--user-data data",
+    :description => "Specifies Base64-encoded MIME user data to be made
+        available to the instance",
+    :format => String
+}
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--type'
-                type = arg
-            when '--headers'
-                headers = true
-            when '--user-data'
-                user_data = arg
+TYPE = {
+    :name => "type",
+    :short => "-t type",
+    :large => "--type type",
+    :description => "OpenNebula template in which is based this instance",
+    :format => String
+}
+
+
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :instanceId, "instanceId", :size=>12 do |d|
+        d["instanceId"]
+    end
+
+    column :ImageId, "ImageId", :size=>13 do |d|
+        d["imageId"]
+    end
+
+    column :State, "State", :size=>14 do |d|
+        d["instanceState"]['name']
+    end
+
+    column :IP, "IP", :size=>12 do |d|
+        d['dnsName']
+    end
+
+    column :instanceType, "instanceType", :size=>20 do |d|
+        d["instanceType"]
+    end
+
+    default :instanceId, :ImageId, :State, :IP, :instanceType
+end
+
+
+
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-run-instances [OPTIONS] IMAGE-ID"
+    version CloudCLI.version_text
+    description <<-EOT
+Runs an instance of a particular image
+IMAGE-ID: The image identification as returned by the econe-upload command
+EOT
+
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL,
+        USER_DATA,
+        TYPE
+    ]
+
+    main :image_id do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            puts "#{cmd_name}: #{e.message}"
+            exit -1
+        end
+
+        options[:type] ||= "m1.small"
+        rc = ec2_client.run_instances(args[0], options[:type], options[:user_data])
+
+        if CloudClient::is_error?(rc)
+            exit_with_code -1, "#{cmd_name}: #{rc.message}"
+        else
+            TABLE.show(rc['instancesSet']['item'] || [])
+            exit_with_code 0
         end
     end
-rescue Exception => e
-    exit -1
-end 
-
-image_id = ARGV.shift
-
-if !image_id
-    puts "#{cmd_name}: missing IMAGE-ID parameter"
-    exit -1
 end
 
-if !type
-    type = "m1.small"
-end
-
-auth = "#{access}:#{secret}" if secret && access
-
-begin
-    ec2_client = EC2QueryClient::Client.new(auth,url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
-end
-
-rc = ec2_client.run_instances(image_id,type, user_data)
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-images = rc['instancesSet']['item']
-
-fmt = "%-12s  %-13s   %-14s %s"  
-
-if headers
-    puts fmt % ["Owner", "ImageId", "InstanceId", "InstanceType"]
-    puts "------------------------------------------------------------------------------" 
-end
-
-images.each { |img|
-        puts fmt % [rc['ownerId'],img['imageId'],img['instanceId'],img['instanceType']]
-    }
-
-exit 0

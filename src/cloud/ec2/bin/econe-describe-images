@@ -23,117 +23,74 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-describe-images
 
-List and describe previously uploaded images of a user to be
-used with an OpenNebula Cloud.
-
-Usage:
-    econe-describe-images [OPTIONS]
-
-Options:
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-
-    --headers, -H
-        Display column headers
-        
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
-       )
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :Owner, "Owner", :size=>12 do |d|
+        d["imageOwnerId"]
+    end
 
-headers = false
-url     = nil
-access  = nil
-secret  = nil
-auth    = nil
+    column :ImageId, "ImageId", :size=>13 do |d|
+        d["imageId"]
+    end
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--headers'
-                headers = true
+    column :Status, "Status", :size=>14 do |d|
+        d["imageState"]
+    end
+
+    column :Visibility, "Visibility", :size=>12 do |d|
+        d['isPublic'] == 'true' ? "public" : "private"
+    end
+
+    column :Location, "Location", :size=>20 do |d|
+        d["imageLocation"]
+    end
+
+    default :Owner, :ImageId, :Status, :Visibility, :Location
+end
+
+
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-describe-images [OPTIONS]"
+    version CloudCLI.version_text
+    description "List and describe previously uploaded images of a user to be
+used with an OpenNebula Cloud."
+
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL
+    ]
+
+    main do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            exit_with_code -1, "#{cmd_name}: #{e.message}"
+        end
+
+        rc = ec2_client.describe_images
+
+        if CloudClient::is_error?(rc)
+            exit_with_code -1, "#{cmd_name}: #{rc.message}"
+        else
+            TABLE.show(rc['imagesSet']['item'] || [])
+            exit_with_code 0
         end
     end
-rescue Exception => e
-    exit -1
-end 
-
-auth = "#{access}:#{secret}" if secret && access
-
-begin
-    ec2_client = EC2QueryClient::Client.new(auth,url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
 end
-
-rc = ec2_client.describe_images()
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-images = rc['imagesSet']['item']
-
-fmt = "%-12s %-13s %-14s %-12s %s"  
-
-if headers
-    puts fmt % ["Owner", "ImageId", "Status", "Visibility", "Location"]
-    puts "------------------------------------------------------------------------------" 
-end
-
-if images 
-    images.each { |img|
-        if img['isPublic'] == 'true'
-            visibility = "public"
-        elsif img['isPublic'] == 'false'
-            visibility = "private"
-        end
-        puts fmt % [img['imageOwnerId'],img['imageId'], img['imageState'], visibility,img['imageLocation']]
-    }
-end
-
-exit 0
 
