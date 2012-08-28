@@ -246,13 +246,7 @@ end
 
 get '/login' do
     if !authorized?
-        if settings.config[:auth] == "x509"
-            templ = "login_x509.html"
-        else
-            templ = "login.html"
-        end
-
-        return File.read(File.dirname(__FILE__)+'/templates/'+templ)
+        erb :login
     end
 end
 

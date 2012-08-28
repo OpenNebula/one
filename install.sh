@@ -280,7 +280,6 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/FontAwesome/css \
                $SUNSTONE_LOCATION/public/vendor/FontAwesome/font \
                $SUNSTONE_LOCATION/public/images \
-               $SUNSTONE_LOCATION/templates \
                $SUNSTONE_LOCATION/views"
 
 OZONES_DIRS="$OZONES_LOCATION/lib \
@@ -485,7 +484,6 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_BIN_FILES:$BIN_LOCATION
     SUNSTONE_MODELS_FILES:$SUNSTONE_LOCATION/models
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
-    SUNSTONE_TEMPLATE_FILES:$SUNSTONE_LOCATION/templates
     SUNSTONE_VIEWS_FILES:$SUNSTONE_LOCATION/views
     SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/js
     SUNSTONE_PUBLIC_JS_PLUGINS_FILES:$SUNSTONE_LOCATION/public/js/plugins
@@ -1253,10 +1251,10 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
-SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html \
-                         src/sunstone/templates/login_x509.html"
-
-SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb"
+SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
+                      src/sunstone/views/login.erb \
+                      src/sunstone/views/_login_standard.erb \
+                      src/sunstone/views/_login_x509.erb"
 
 SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/login.js \
