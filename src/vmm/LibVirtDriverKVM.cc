@@ -366,7 +366,11 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "\t\t\t<driver name='qemu' type='";
 
-        if ( !driver.empty() )
+        if ( type == "CDROM" ) // Use driver raw for CD's
+        {
+            file << "raw";
+        }
+        else if ( !driver.empty() )
         {
             file << driver;
         }
@@ -411,16 +415,7 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
             file << "\t\t\t<readonly/>" << endl;
 
-            file << "\t\t\t<driver name='qemu' type='";
-
-            if ( !driver.empty() )
-            {
-                file << driver << "'/>" << endl;
-            }
-            else
-            {
-                file << default_driver << "'/>" << endl;
-            }
+            file << "\t\t\t<driver name='qemu' type='raw'/>" << endl;
 
             file << "\t\t</disk>" << endl;
         }
