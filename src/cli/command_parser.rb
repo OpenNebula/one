@@ -72,18 +72,35 @@ module CommandParser
             self.run
         end
 
+        # Defines the usage information of the command
+        # @param [String] str
         def usage(str)
             @usage=str
         end
 
+        # Defines the version the command
+        # @param [String] str
         def version(str)
             @version = str
         end
 
+        # Defines the additional information of the command
+        # @param [String] str
         def description(str)
             @description = str
         end
 
+        # Defines a block that will be used to parse the arguments
+        #   of the command. Formats defined using this method con be used
+        #   in the arguments section of the command method, when defining a new
+        #   action
+        #
+        # @param [Symbol] format name of the format
+        # @param [String] description
+        #
+        # @yieldreturn [Array[Integer, String]] the block must return an Array
+        #   containing the result (0:success, 1:failure) and the
+        #   new value for the argument.
         def format(format, description, &block)
             @formats[format] = {
                 :desc => description,
@@ -91,6 +108,50 @@ module CommandParser
             }
         end
 
+        # Defines a global option for the command that will be used for all the
+        #   actions
+        # @param [Hash, Array<Hash>] options the option to be included. An
+        #   array of options can be also provided
+        # @option options [String] :name
+        # @option options [String] :short
+        # @option options [String] :large
+        # @option options [String] :description
+        # @option options [String] :format
+        # @option options [String] :proc The block receives the value of the
+        #   option and the hash of options. The block must return an Array
+        #   containing the result (0:success, 1:failure) and the
+        #   new value for the argument or nil. More than one option can be
+        #   specified in the block using the options hash. This hash will be
+        #   available inside the command block.
+        #
+        # @example
+        #       This example will define the following options:
+        #           options[:type] = type
+        #
+        #       TYPE={
+        #           :name => "type",
+        #           :short => "-t type",
+        #           :large => "--type type",
+        #           :format => String,
+        #           :description => "Type of the new Image"
+        #       }
+        #
+        #       This example will define the following options:
+        #           options[:check] = true
+        #           options[:datastore] = id
+        #
+        #       DATASTORE = {
+        #           :name   => "datastore",
+        #           :short  => "-d id|name",
+        #           :large  => "--datastore id|name" ,
+        #           :description => "Selects the datastore",
+        #           :format => String,
+        #           :proc   => lambda { |o, options|
+        #               options[:check] = true
+        #               [0, OpenNebulaHelper.dname_to_id(o)]
+        #           }
+        #       }
+        #
         def option(options)
             if options.instance_of?(Array)
                 options.each { |o| @available_options << o }
@@ -99,7 +160,7 @@ module CommandParser
             end
         end
 
-        # Define the exit code to be returned by the command
+        # Defines the exit code to be returned by the command
         # @param [Integer] code
         def exit_code(code)
             @exit_code = code
@@ -110,6 +171,89 @@ module CommandParser
             exit code
         end
 
+        # Defines a new action for the command, several actions can be defined
+        #   for a command. For example: create, delete, list.
+        #   The options and args variables can be used inside the block, and
+        #   they contain the parsedarguments and options.
+        #
+        # @param [Symbol] name Name of the action (i.e: :create, :list)
+        # @param [String] desc Description of the action
+        # @param [Array<[Symbol, Array<[Symbol, nil>>, Hash] args arguments
+        #    or specific options for this actiion
+        #   Note that the first argument of the command is the
+        #   action and should not be defined using this parameter. The rest of
+        #   the argument must be defined using this parameter.
+        #   This parameter can use formats previously defined with the format
+        #   method
+        #   Options are specified using a hash :options => ... containing
+        #   the hashes representing the options. The option method doc contains
+        #   the hash that has to be used to specify an option
+        # @yieldreturn [Integer, Array[Integer, String]] the block must
+        #   return the exit_code and if a String is returned it will be printed
+        #
+        # @example
+        #   Definining two arguments:
+        #       $ onetest test a1 a2
+        #
+        #   CommandParser::CmdParser.new(ARGV) do
+        #       description "Test"
+        #       usage "onetest <command> <args> [options]"
+        #       version "1.0"
+        #
+        #       options VERBOSE, HELP
+        #
+        #       command :test, "Test", :test1, :test2, :options => XML do
+        #           puts options[:xml]
+        #           puts options[:verbose]
+        #           puts args[0]
+        #           puts args[1]
+        #           [0, "It works"]
+        #       end
+        #   end
+        #
+        #
+        #   Defining optional arguments: test1 is mandatory, test2 optional
+        #       $ onetest test a1 | $ onetest test a1 a2
+        #
+        #   CommandParser::CmdParser.new(ARGV) do
+        #       description "Test"
+        #       usage "onetest <command> <args> [options]"
+        #       version "1.0"
+        #
+        #       options VERBOSE, HELP
+        #
+        #       command :test, "Test", :test1, [:test2, nil], :options => XML do
+        #           puts options[:xml]
+        #           puts options[:verbose]
+        #           puts args[0]
+        #           puts "It works"
+        #           0
+        #       end
+        #   end
+        #
+        #
+        #   Defining an argument with different formats:
+        #       $ onetest test a1 a2 | $ onetest test a1 123
+        #
+        #   CommandParser::CmdParser.new(ARGV) do
+        #       description "Test"
+        #       usage "onetest <command> <args> [options]"
+        #       version "1.0"
+        #
+        #       options VERBOSE, HELP
+        #
+        #       format :format1, "String to Integer" do
+        #           [0, arg.to_i]
+        #       end
+        #
+        #       command :test, "Test", :test1, [:format1, format2], :options => XML do
+        #           puts options[:xml]
+        #           puts options[:verbose]
+        #           puts args[0]
+        #           0
+        #       end
+        #   end
+        #
         def command(name, desc, *args_format, &block)
             cmd = Hash.new
             cmd[:desc] = desc
@@ -131,6 +275,87 @@ module CommandParser
             @commands[name.to_sym] = cmd
         end
 
+        # Defines a new action for the command, several actions can be defined
+        #   for a command. For example: create, delete, list.
+        #   The options and args variables can be used inside the block, and
+        #   they contain the parsedarguments and options.
+        #
+        # @param [Symbol] name Name of the action (i.e: :create, :list)
+        # @param [String] desc Description of the action
+        # @param [Array<[Symbol, Array<[Symbol, nil>>] args arguments
+        #    or specific options for this actiion
+        #   Note that the first argument of the command is the
+        #   action and should not be defined using this parameter. The rest of
+        #   the argument must be defined using this parameter.
+        #   This parameter can use formats previously defined with the format
+        #   method
+        # @yieldreturn [Integer, Array[Integer, String]] the block must
+        #   return the exit_code and if a String is returned it will be printed
+        #
+        # @example
+        #   Definining two arguments:
+        #       $ onetest a1 a2
+        #
+        #   CommandParser::CmdParser.new(ARGV) do
+        #       description "Test"
+        #       usage "onetest <args> [options]"
+        #       version "1.0"
+        #
+        #       options XML, VERBOSE, HELP
+        #
+        #       main :test1, :test2 do
+        #           puts options[:xml]
+        #           puts options[:verbose]
+        #           puts args[0]
+        #           puts args[1]
+        #           [0, "It works"]
+        #       end
+        #   end
+        #
+        #
+        #   Defining optional arguments: test1 is mandatory, test2 optional
+        #       $ onetest a1 | $ onetest a1 a2
+        #
+        #   CommandParser::CmdParser.new(ARGV) do
+        #       description "Test"
+        #       usage "onetest <args> [<options>]"
+        #       version "1.0"
+        #
+        #       options XML, VERBOSE, HELP
+        #
+        #       main :test1, [:test2, nil] do
+        #           puts options[:xml]
+        #           puts options[:verbose]
+        #           puts args[0]
+        #           puts "It works"
+        #           0
+        #       end
+        #   end
+        #
+        #
+        #   Defining an argument with different formats:
+        #       $ onetest a1 a2 | $ onetest a1 123
+        #
+        #   CommandParser::CmdParser.new(ARGV) do
+        #       description "Test"
+        #       usage "onetest <args> [<options>]"
+        #       version "1.0"
+        #
+        #       options XML, VERBOSE, HELP
+        #
+        #       format :format1, "String to Integer" do
+        #           [0, arg.to_i]
+        #       end
+        #
+        #       main :test1, [:format1, :format2] do
+        #           puts options[:xml]
+        #           puts options[:verbose]
+        #           puts args[0]
+        #           puts args[1]
+        #           0
+        #       end
+        #   end
+        #
         def main(*args_format, &block)
             @main=Hash.new
             @main[:arity] = 0
