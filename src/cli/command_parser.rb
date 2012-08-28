@@ -91,16 +91,16 @@ module CommandParser
         end
 
         # Defines a block that will be used to parse the arguments
-        #   of the command. Formats defined using this method con be used
-        #   in the arguments section of the command method, when defining a new
-        #   action
+        # of the command. Formats defined using this method con be used
+        # in the arguments section of the command method, when defining a new
+        # action
         #
         # @param [Symbol] format name of the format
         # @param [String] description
         #
         # @yieldreturn [Array[Integer, String]] the block must return an Array
-        #   containing the result (0:success, 1:failure) and the
-        #   new value for the argument.
+        #    containing the result (0:success, 1:failure) and the
+        #    new value for the argument.
         def format(format, description, &block)
             @formats[format] = {
                 :desc => description,
@@ -109,20 +109,20 @@ module CommandParser
         end
 
         # Defines a global option for the command that will be used for all the
-        #   actions
+        # actions
         # @param [Hash, Array<Hash>] options the option to be included. An
         #   array of options can be also provided
         # @option options [String] :name
         # @option options [String] :short
         # @option options [String] :large
         # @option options [String] :description
-        # @option options [String] :format
-        # @option options [String] :proc The block receives the value of the
-        #   option and the hash of options. The block must return an Array
-        #   containing the result (0:success, 1:failure) and the
-        #   new value for the argument or nil. More than one option can be
-        #   specified in the block using the options hash. This hash will be
-        #   available inside the command block.
+        # @option options [Class] :format
+        # @option options [Block] :proc The block receives the value of the
+        #    option and the hash of options. The block must return an Array
+        #    containing the result (0:success, 1:failure) and the
+        #    new value for the argument or nil. More than one option can be
+        #    specified in the block using the options hash. This hash will be
+        #    available inside the command block.
         #
         # @example
         #       This example will define the following options:
@@ -172,24 +172,24 @@ module CommandParser
         end
 
         # Defines a new action for the command, several actions can be defined
-        #   for a command. For example: create, delete, list.
-        #   The options and args variables can be used inside the block, and
-        #   they contain the parsedarguments and options.
+        # for a command. For example: create, delete, list.
+        # The options and args variables can be used inside the block, and
+        # they contain the parsedarguments and options.
         #
         # @param [Symbol] name Name of the action (i.e: :create, :list)
         # @param [String] desc Description of the action
-        # @param [Array<[Symbol, Array<[Symbol, nil>>, Hash] args arguments
+        # @param [Array<Symbol, Array<Symbol, nil>>, Hash] args_format arguments
         #    or specific options for this actiion
-        #   Note that the first argument of the command is the
-        #   action and should not be defined using this parameter. The rest of
-        #   the argument must be defined using this parameter.
-        #   This parameter can use formats previously defined with the format
-        #   method
-        #   Options are specified using a hash :options => ... containing
-        #   the hashes representing the options. The option method doc contains
-        #   the hash that has to be used to specify an option
+        #    Note that the first argument of the command is the
+        #    action and should not be defined using this parameter. The rest of
+        #    the argument must be defined using this parameter.
+        #    This parameter can use formats previously defined with the format
+        #    method
+        #    Options are specified using a hash :options => ... containing
+        #    the hashes representing the options. The option method doc contains
+        #    the hash that has to be used to specify an option
         # @yieldreturn [Integer, Array[Integer, String]] the block must
-        #   return the exit_code and if a String is returned it will be printed
+        #    return the exit_code and if a String is returned it will be printed
         #
         # @example
         #   Definining two arguments:
@@ -276,21 +276,19 @@ module CommandParser
         end
 
         # Defines a new action for the command, several actions can be defined
-        #   for a command. For example: create, delete, list.
-        #   The options and args variables can be used inside the block, and
-        #   they contain the parsedarguments and options.
+        # for a command. For example: create, delete, list.
+        # The options and args variables can be used inside the block, and
+        # they contain the parsedarguments and options.
         #
-        # @param [Symbol] name Name of the action (i.e: :create, :list)
-        # @param [String] desc Description of the action
-        # @param [Array<[Symbol, Array<[Symbol, nil>>] args arguments
+        # @param [Array<Symbol, Array<Symbol, nil>>] args_format arguments
         #    or specific options for this actiion
-        #   Note that the first argument of the command is the
-        #   action and should not be defined using this parameter. The rest of
-        #   the argument must be defined using this parameter.
-        #   This parameter can use formats previously defined with the format
-        #   method
+        #    Note that the first argument of the command is the
+        #    action and should not be defined using this parameter. The rest of
+        #    the argument must be defined using this parameter.
+        #    This parameter can use formats previously defined with the format
+        #    method
         # @yieldreturn [Integer, Array[Integer, String]] the block must
-        #   return the exit_code and if a String is returned it will be printed
+        #    return the exit_code and if a String is returned it will be printed
         #
         # @example
         #   Definining two arguments:
