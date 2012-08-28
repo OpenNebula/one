@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.5.  */
+/* A Bison parser, made by GNU Bison 2.6.2.  */
 
 /* Bison interface for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -30,6 +30,15 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+#ifndef VM_VAR_VM_VAR_SYNTAX_HH
+# define VM_VAR_VM_VAR_SYNTAX_HH
+/* Enabling traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 0
+#endif
+#if YYDEBUG
+extern int vm_var__debug;
+#endif
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -50,29 +59,24 @@
 #endif
 
 
-
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-
-/* Line 2068 of yacc.c  */
-#line 404 "vm_var_syntax.y"
+/* Line 2049 of yacc.c  */
+#line 416 "vm_var_syntax.y"
 
     char * val_str;
     int    val_int;
     char   val_char;
 
 
-
-/* Line 2068 of yacc.c  */
-#line 69 "vm_var_syntax.hh"
+/* Line 2049 of yacc.c  */
+#line 75 "vm_var_syntax.hh"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
-
-
 
 #if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
 typedef struct YYLTYPE
@@ -87,5 +91,4 @@ typedef struct YYLTYPE
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
 
-
-
+#endif /* !VM_VAR_VM_VAR_SYNTAX_HH  */

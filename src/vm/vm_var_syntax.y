@@ -289,6 +289,18 @@ void insert_single(VirtualMachine * vm,
     {
         parsed << vm->get_uid();
     }
+    else if (name == "UNAME")
+    {
+        parsed << vm->get_uname();
+    }
+    else if (name == "GID")
+    {
+        parsed << vm->get_gid();
+    }
+    else if (name == "GNAME")
+    {
+        parsed << vm->get_gname();
+    }
     else 
     {
         vm->get_template_attribute(name.c_str(),value);

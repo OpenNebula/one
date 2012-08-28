@@ -150,6 +150,16 @@ public:
         return gid;
     };
 
+    const string& get_uname() const
+    {
+        return uname;
+    };
+
+    const string& get_gname() const
+    {
+        return gname;
+    };
+    
     /**
      * Changes the object's owner
      * @param _uid New User ID
