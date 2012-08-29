@@ -196,9 +196,9 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 <h3>'+tr("Add disks/images")+' <a id="add_disks" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
                           </div>\
                           <fieldset><legend>'+tr("Disks")+'</legend>\
-                             <div class="" id="image_vs_disk" style="display:none;">\
-                                  <label>'+tr("Add disk/image")+'</label>\
-                                  <input type="radio" id="add_disk" name="image_vs_disk" value="disk">'+tr("Disk")+'</input>\
+                             <div class="" id="image_vs_disk">\
+                                  <label>'+tr("Please select")+'</label>\
+                                  <input type="radio" id="add_disk" name="image_vs_disk" value="disk">'+tr("Volatile Disk")+'</input>\
                                   <!--<label for="add_disk">Add a disk</label>-->\
                                   <input type="radio" id="add_image" name="image_vs_disk" value="image">'+tr("Image")+'</input>\
                                   <!--<label for="add_image">Add an image</label>-->\
@@ -211,6 +211,26 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <div class="tip">'+tr("Name of the image to use")+'</div>\
                                   <input type="hidden" id="IMAGE_UNAME" name="image_uname" value=""/>\
                             </div>\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
+                                  <label for="TYPE">'+tr("Type")+':</label>\
+                                  <select id="TYPE" name="type">\
+                                    <option value="fs">'+tr("FS")+'</option>\
+                                    <option value="swap">'+tr("Swap")+'</option>\
+                                  </select>\
+                                  <div class="tip">'+tr("Disk type")+'</div>\
+                            </div>\
+                            <div class="vm_param kvm xen vmware add_disk ">\
+                            <!--Mandatory for swap, fs -->\
+                                  <label for="SIZE">'+tr("Size")+':</label>\
+                                  <input type="text" id="SIZE" name="size" />\
+                                  <div class="tip">'+tr("Size in MB")+'</div>\
+                            </div>\
+                            <div class="vm_param kvm xen wmware add_disk ">\
+                            <!--mandatory for fs images, otherwise hidden-->\
+                                  <label for="FORMAT">'+tr("Format")+':</label>\
+                                  <input type="text" id="FORMAT" name="format" />\
+                                  <div class="tip">'+tr("Filesystem type for the fs images")+'</div>\
+                            </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="TARGET">'+tr("Target")+':</label>\
                                   <input type="text" id="TARGET" name="target" />\
@@ -220,58 +240,6 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <label for="DRIVER">'+tr("Driver")+':</label>\
                                   <input type="text" id="DRIVER" name="driver" />\
                                   <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="TYPE">'+tr("Type")+':</label>\
-                                  <select id="TYPE" name="type">\
-                                  </select>\
-                                  <div class="tip">'+tr("Disk type")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm xen vmware add_disk">\
-                                  <label for="SOURCE">'+tr("Source")+':</label>\
-                                  <input type="text" id="SOURCE" name="source" />\
-                                  <div class="tip">'+tr("Disk file location path or URL")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm xen vmware add_disk">\
-                                  <label for="TM_MAD">'+tr("Transfer Manager")+':</label>\
-                                  <input type="text" id="TM_MAD" name="tm_mad" />\
-                                  <div class="tip">'+tr("shared,ssh,iscsi,dummy")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm_opt xen_opt add_disk ">\
-                            <!--Mandatory for swap, fs and block images-->\
-                                  <label for="SIZE">'+tr("Size")+':</label>\
-                                  <input type="text" id="SIZE" name="size" />\
-                                  <div class="tip">'+tr("Size in MB")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm_opt xen_opt add_disk ">\
-                            <!--mandatory for fs images-->\
-                                  <label for="FORMAT">'+tr("Format")+':</label>\
-                                  <input type="text" id="FORMAT" name="format" />\
-                                  <div class="tip">'+tr("Filesystem type for the fs images")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="CLONE">'+tr("Clone")+':</label>\
-                                  <select id="CLONE" name="clone">\
-                                        <option value="yes">'+tr("Yes")+'</option>\
-                                        <option value="no">'+tr("No")+'</option>\
-                                  </select>\
-                                  <div class="tip">'+tr("Clone this image")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="SAVE">'+tr("Save")+':</label>\
-                                   <select id="SAVE" name="save">\
-                                        <option value="no">'+tr("No")+'</option>\
-                                        <option value="yes">'+tr("Yes")+'</option>\
-                                  </select>\
-                                  <div class="tip">'+tr("Save this image after shutting down the VM")+'</div>\
-                            </div>\
-                                <div class="vm_param kvm_opt xen_opt vmware_opt add_disk">\
-                                  <label for="READONLY">'+tr("Read only")+':</label>\
-                                  <select id="READONLY" name="readonly">\
-                                    <option value="no">'+tr("No")+'</option>\
-                                    <option value="yes">'+tr("Yes")+'</option>\
-                                  </select>\
-                                  <div class="tip">'+tr("Mount image as read-only")+'</div>\
                             </div>\
                             <div class="">\
                                         <button class="add_remove_button add_button" id="add_disk_button" value="add_disk">'+tr("Add")+'</button>\
@@ -1033,7 +1001,6 @@ function setupCreateTemplateDialog(){
 
         //empty selects
         $('select#BOOT',section_os_boot).empty();
-        $('select#TYPE',section_disks).empty();
 
         //hide options about boot method
         $('div#kernel_bootloader',section_os_boot).show();
@@ -1093,22 +1060,10 @@ function setupCreateTemplateDialog(){
         $('.kvm .man_icon',dialog).css("display","inline-block");
 
         //KVM particularities:
-        // * Add custom disk types
         // * Add custom boot options
         // * Show boot options
         // * Set the raw type to kvm
         // * Show the inputs and graphics section
-
-        var type_opts =
-            '<option id="no_type" value="" selected="selected">'+tr("None")+'</option>\
-             <option value="disk">'+tr("Disk")+'</option>\
-             <option value="floppy">'+tr("Floppy")+'</option>\
-             <option value="cdrom">'+tr("CD-ROM")+'</option>\
-             <option value="swap">'+tr("Swap")+'</option>\
-             <option value="fs">'+tr("FS")+'</option>\
-             <option value="block">'+tr("Block")+'</option>';
-
-        $('select#TYPE',section_disks).html(type_opts);
 
         var boot_opts =
             '<option value="hd">'+tr("hd")+'</option>\
@@ -1133,20 +1088,9 @@ function setupCreateTemplateDialog(){
         $('.xen .man_icon',dialog).css("display","inline-block");
 
         // XEN particularities:
-        // * Add custom disk types
         // * Remove driver default boot method
         // * Set the raw section to XEN
         // * Show the graphics section
-
-        var type_opts =
-            '<option value="disk">'+tr("Disk")+'</option>\
-             <option value="floppy">'+tr("Floppy")+'</option>\
-             <option value="cdrom">'+tr("CD-ROM")+'</option>\
-             <option value="swap">'+tr("Swap")+'</option>\
-             <option value="fs">'+tr("FS")+'</option>\
-             <option value="block">'+tr("Block")+'</option>';
-
-        $('select#TYPE',section_disks).html(type_opts);
 
         $('select#boot_method option#no_boot',section_os_boot).html(tr("Please choose"));
 
@@ -1161,16 +1105,8 @@ function setupCreateTemplateDialog(){
         $('.vmware .man_icon',dialog).css("display","inline-block");
 
         //VMWARE particularities
-        // * Add custom disk types
         // * Hide boot method field
         // * Set the raw type to vmware
-
-        var type_opts =
-            '<option value="file" selected="selected">'+tr("File")+'</option>\
-             <option value="cdrom">'+tr("CD-ROM")+'</option>\
-             <option value="block">'+tr("Block")+'</option>';
-
-        $('select#TYPE',section_disks).html(type_opts);
 
         $('div#kernel_bootloader',section_os_boot).hide();
 
@@ -1434,6 +1370,8 @@ function setupCreateTemplateDialog(){
                 $('.add_image',section_disks).attr('disabled','disabled');
                 $('.add_disk',section_disks).show();
                 $('.add_disk',section_disks).removeAttr('disabled');
+                // Trigger since disk type is preselected
+                $('select#TYPE', section_disks).trigger('change');
                 break;
             case "image":
                 $('.add_disk',section_disks).hide();
@@ -1442,11 +1380,6 @@ function setupCreateTemplateDialog(){
                 $('.add_image',section_disks).removeAttr('disabled');
                 break;
             }
-            $('#SIZE',section_disks).parent().hide();
-            $('#SIZE',section_disks).parent().attr('disabled','disabled');
-            $('#FORMAT',section_disks).parent().hide();
-            $('#SIZE',section_disks).parent().attr('disabled','disabled');
-            $('#TYPE :selected',section_disks).removeAttr('selected');
             //hide_disabled(section_disks);
         });
 
@@ -1460,32 +1393,15 @@ function setupCreateTemplateDialog(){
                 //size mandatory
                 $('#SIZE',section_disks).parent().show();
                 $('#SIZE',section_disks).parent().removeAttr('disabled');
-                $('#SIZE',section_disks).parent().removeClass(opt_class);
-                $('#SIZE',section_disks).parent().addClass(man_class);
-
-                //target optional
-                $('#TARGET',section_disks).parent().removeClass(man_class);
-                $('#TARGET',section_disks).parent().addClass(opt_class);
 
                 //format hidden
                 $('#FORMAT',section_disks).parent().hide();
                 $('#FORMAT',section_disks).parent().attr('disabled','disabled');
-
-                //source hidden
-                $('#SOURCE',section_disks).parent().hide();
-                $('#SOURCE',section_disks).parent().
-                    attr('disabled','disabled');
                 break;
             case "fs":
                 //size mandatory
                 $('#SIZE',section_disks).parent().show();
                 $('#SIZE',section_disks).parent().removeAttr('disabled');
-                $('#SIZE',section_disks).parent().removeClass(opt_class);
-                $('#SIZE',section_disks).parent().addClass(man_class);
-
-                //target mandatory
-                $('#TARGET',section_disks).parent().removeClass(opt_class);
-                $('#TARGET',section_disks).parent().addClass(man_class);
 
                 //format mandatory
                 $('#FORMAT',section_disks).parent().show();
@@ -1493,12 +1409,10 @@ function setupCreateTemplateDialog(){
                 $('#FORMAT',section_disks).parent().removeClass(opt_class);
                 $('#FORMAT',section_disks).parent().addClass(man_class);
 
-                //source hidden
-                $('#SOURCE',section_disks).parent().hide();
-                $('#SOURCE',section_disks).parent().
-                    attr('disabled','disabled');
-                break;
-            case "block":
+                 break;
+/* As of 3.8 the following dont exist */
+/*
+           case "block":
                 //size shown and optional
                 $('#SIZE',section_disks).parent().show();
                 $('#SIZE',section_disks).parent().removeAttr('disabled');
@@ -1538,6 +1452,7 @@ function setupCreateTemplateDialog(){
                 $('#SOURCE',section_disks).parent().show();
                 $('#SOURCE',section_disks).parent().
                     removeAttr('disabled');
+*/
             }
             //hide_disabled(section_disks);
         });
@@ -1556,10 +1471,6 @@ function setupCreateTemplateDialog(){
             box_remove_element(section_disks,'#disks_box');
             return false;
         });
-
-        //preselect now hidden option
-        $('#image_vs_disk input#add_image',section_disks).trigger('click');
-
     };
 
     // Set up the swap section
