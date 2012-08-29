@@ -237,47 +237,8 @@ class SunstoneServer < CloudServer
         return vnc.proxy(resource)
     end
 
-    # Retrieves the accounting data for all the VMs in the pool
-    #
-    # @param [Hash] options
-    # @option params [Integer] :start_time Start date and time to take into account,
-    #   if no start_time is required use -1
-    # @option params [Integer] :end_time End date and time to take into account,
-    #   if no end_time is required use -1
-    # @option params [Integer] :host Host id to filter the results
-    # @option params [Integer] :group Group id to filter the results
-    # @option params [String] :xpath Xpath expression to filter the results.
-    #    For example: HISTORY[ETIME>0]
-    # @option params [String] :order_by_1 Xpath expression to group the
-    #   returned hash. This will be the first level of the hash (i.e: VM/UID)
-    # @option params [String] :order_by_2 Xpath expression to group the
-    #   returned hash. This will be the second level of the hash (i.e: VM/ID)
-    #
-    # @return [String] json representing the accounting data
-    def accounting(options)
-        opts = {
-            :start_time => options[:start_time],
-            :end_time   => options[:end_time],
-            :host       => options[:host],
-            :group      => options[:group],
-            :order_by_1 => options[:order_by_1],
-            :order_by_2 => options[:order_by_2],
-            :xpath      => options[:xpath]
-        }
-
-        pool = VirtualMachinePool.new(@client)
-        acct_hash = pool.accounting(user_flag, opts)
-
-        if OpenNebula.is_error?(acct_hash)
-            error = Error.new(acct_hash.message)
-            return [500, error.to_json]
-        end
-
-        return [201, acct_hash.to_json]
-    end
-
     ########################################################################
-    #
+    # Accounting & Monitoring
     ########################################################################
     def get_pool_monitoring(resource, meters)
         #pool_element
@@ -340,47 +301,51 @@ class SunstoneServer < CloudServer
     #                          meter2 : [[ts1, agg_value],[ts2, agg_value]...]}
     # with this information we can paint historical graphs of usage
     def get_user_accounting(options)
-        id = options[:id]
-        tstart = options[:start].to_i
-        tend = options[:end].to_i
+        uid      = options[:id]
+        tstart   = options[:start].to_i
+        tend     = options[:end].to_i
         interval = options[:interval].to_i
-        meters = options[:monitor_resources]
+        meters   = options[:acct_resources]
 
-        result = {}
+        result   = {}
         meters_a = meters.split(',')
         meters_a.each do | meter |
             result[meter] = []
         end
+        pool     = VirtualMachinePool.new(@client)
+        acct_xml = pool.accounting_xml(uid, 
+                                       :start_time => tstart, 
+                                       :end_time => tend)
 
-        while tstart < tend
-            acct = @client.call('vmpool.accounting',
-                                id.to_i,
-                                tstart,
-                                tstart+interval)
-            if OpenNebula.is_error?(acct)
-                return [500, Error.new(acct.message).to_json]
-            end
-
-            xml = XMLElement.new
-            xml.initialize_xml(acct, 'HISTORY_RECORDS')
-            acct = xml.to_hash
-
-            meters_a.each do | meter |
-                count = 0
-                if acct['HISTORY_RECORDS']['HISTORY'].class == Array
-                    acct['HISTORY_RECORDS']['HISTORY'].each do | record |
-                        count += record['VM'][meter].to_i
-                    end
-                elsif acct['HISTORY_RECORDS']['HISTORY'].class == Hash
-                    count += acct['HISTORY_RECORDS']['HISTORY']['VM'][meter].to_i
-                end
-                result[meter] << [tstart, count]
-            end
-
-            tstart += interval
+        if OpenNebula.is_error?(acct_xml)
+            error = Error.new(acct_xml.message)
+            return [500, error.to_json]
         end
 
-        return [200, {:monitoring => result}.to_json]
+        xml = XMLElement.new
+        xml.initialize_xml(acct_xml, 'HISTORY_RECORDS')
+
+        while tstart < tend
+
+            tstep = tstart + interval
+            count = Hash.new
+            
+            xml_step.each("HISTORY[STIME >= #{tstart} and ETIME <= #{tstep}]") do |hr|
+
+                meters_a.each do | meter |
+                    count[meter] ||= 0
+                    count[meter] += hr["VM/#{meter}"].to_if if hr["VM/#{meter}"]
+                end
+            end
+
+            count.each do | mname, mcount |
+                result[mname] << [tstart, mcount]
+            end
+
+            tstart = tstep
+        end
+
+        return [200, {:accounting => result}.to_json]
     end
 
     private

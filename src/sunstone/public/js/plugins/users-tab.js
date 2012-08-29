@@ -23,11 +23,11 @@ var $update_pw_dialog;
 
 var user_acct_graphs = [
     { title : tr("CPU"),
-      monitor_resources : "CPU",
+      acct_resources : "CPU",
       humanize_figures : false
     },
     { title : tr("Memory"),
-      monitor_resources : "MEMORY",
+      acct_resources : "MEMORY",
       humanize_figures : true
     }
 ];
