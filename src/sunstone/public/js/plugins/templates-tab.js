@@ -253,26 +253,6 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                           </fieldset>\
                           </div>\
 \
-\
-                          <div class="vm_section" id="swap">\
-                           <div class="show_hide" id="add_swap_cb">\
-                              <h3>'+tr("Add swap drive")+' <a id="add_swap" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
-                           </div>\
-                          <fieldset><legend>'+tr("Swap")+'</legend>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="swap">'+tr("Swap size (MB)")+':</label>\
-                                  <input type="text" name="swap" value="0" />\
-                                  <div class="tip">'+tr("Attach a swap drive of the indicated size MB")+'</div>\
-                            </div>\
-                            <div class="vm_param kvm_opt xen_opt vmware_opt">\
-                                  <label for="swap_dev_prefix">'+tr("Dev prefix")+':</label>\
-                                  <input type="text" name="swap_dev_prefix" />\
-                                  <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”.")+'</div>\
-                            </div>\
-                          </fieldset>\
-                          </div>\
-\
-\
                           <!-- network section  network, network id,, ip, mac,\
                           bridge, target,  script, model -->\
                           <div class="vm_section" id="networks">\
@@ -1473,17 +1453,6 @@ function setupCreateTemplateDialog(){
         });
     };
 
-    // Set up the swap section
-    var swap_setup = function(){
-        $('fieldset',section_swap).hide();
-
-        $('#add_swap',section_swap).click(function(){
-            $('fieldset',section_swap).toggle();
-            return false;
-        });
-
-    };
-
     // Sets up the network section
     var networks_setup = function(){
 
@@ -1697,7 +1666,6 @@ function setupCreateTemplateDialog(){
 
     };
 
-
     // Set up the raw section
     var raw_setup = function(){
         $('fieldset',section_raw).hide();
@@ -1780,7 +1748,6 @@ function setupCreateTemplateDialog(){
     var section_inputs = $('div#inputs',dialog);
     var section_graphics = $('div#graphics',dialog);
     var section_context = $('div#context',dialog);
-    var section_swap = $('div#swap',dialog);
     var section_placement = $('div#placement',dialog);
     var section_raw = $('div#raw',dialog);
     var section_custom_var = $('div#custom_var',dialog);
@@ -1811,7 +1778,6 @@ function setupCreateTemplateDialog(){
     os_boot_setup();
     features_setup();
     disks_setup();
-    swap_setup();
     networks_setup();
     inputs_setup();
     graphics_setup();
@@ -1865,20 +1831,6 @@ function setupCreateTemplateDialog(){
         //process nics -> fetch from box
         scope = section_networks;
         vm_json["NIC"] = addBoxJSON(scope,'#nics_box');
-
-        //process swap
-        var swap_size = parseInt($('input[name="swap"]', section_swap).val(),10)
-        var swap_dev_prefix = $('input[name="swap_dev_prefix"]', section_swap).val()
-        if (swap_size > 0){
-            var swap_obj = {
-                TYPE: 'swap',
-                SIZE: swap_size
-            }
-            if (swap_dev_prefix)
-                swap_obj['DEV_PREFIX'] = swap_dev_prefix
-
-            vm_json["NIC"].push(swap_obj);
-        }
 
         //process inputs -> fetch from box
         scope = section_inputs;
