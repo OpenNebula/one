@@ -280,7 +280,7 @@ module OpenNebula
 
         private
 
-        def build_accounting(filter_flag=INFO_ALL, options, &block)
+        def build_accounting(filter_flag, options, &block)
             xml_str = @client.call(VM_POOL_METHODS[:accounting],
                         filter_flag,
                         options[:start_time],
