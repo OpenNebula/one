@@ -305,7 +305,15 @@ class SunstoneServer < CloudServer
         tstart   = options[:start].to_i
         tend     = options[:end].to_i
         interval = options[:interval].to_i
-        meters   = options[:acct_resources]
+        meters   = options[:monitor_resources]
+        gid      = options[:gid]
+
+        acct_options = {:start_time => tstart, 
+                        :end_time => tend}
+        if gid
+            uid = INFO_ALL
+            acct_options[:group] = gid
+        end
 
         result   = {}
         meters_a = meters.split(',')
@@ -313,9 +321,7 @@ class SunstoneServer < CloudServer
             result[meter] = []
         end
         pool     = VirtualMachinePool.new(@client)
-        acct_xml = pool.accounting_xml(uid, 
-                                       :start_time => tstart, 
-                                       :end_time => tend)
+        acct_xml = pool.accounting_xml(uid, acct_options)
 
         if OpenNebula.is_error?(acct_xml)
             error = Error.new(acct_xml.message)
