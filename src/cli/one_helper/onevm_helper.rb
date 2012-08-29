@@ -32,14 +32,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :description => "Selects the image",
         :format => String,
         :proc   => lambda { |o, options|
-            rc, imid = OpenNebulaHelper.rname_to_id(o, "IMAGE")
-            if rc == 0
-                options[:image] = imid
-            else
-                puts imid
-                puts "option image: Parsing error"
-                exit -1
-            end
+            OpenNebulaHelper.rname_to_id(o, "IMAGE")
         }
     }
 
@@ -188,13 +181,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             "USED CPU" => "CPU",
             "NET_TX" => "NET_TX",
             "NET_RX" => "NET_RX"
-        }      
+        }
 
-        poll_attrs.each { |k,v| 
+        poll_attrs.each { |k,v|
             if k == "USED CPU"
-                puts str % [k,vm[v]] 
+                puts str % [k,vm[v]]
             elsif k == "USED MEMORY"
-                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]           
+                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]
             else
                 puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i/1024, {})]
             end

@@ -26,7 +26,8 @@ module OpenNebula
 
         VM_POOL_METHODS = {
             :info       => "vmpool.info",
-            :monitoring => "vmpool.monitoring"
+            :monitoring => "vmpool.monitoring",
+            :accounting => "vmpool.accounting"
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -56,7 +57,7 @@ module OpenNebula
         #######################################################################
 
         # Retrieves all or part of the VirtualMachines in the pool.
-        # No arguments, returns the not-in-done VMs for the user 
+        # No arguments, returns the not-in-done VMs for the user
         # [user_id, start_id, end_id]
         # [user_id, start_id, end_id, state]
         def info(*args)
@@ -133,7 +134,7 @@ module OpenNebula
         #      [["1337608271", "510"], ["1337608301", "510"], ["1337608331", "520"]],
         #     "TEMPLATE/CUSTOM_PROBE"=>
         #      []},
-        #  
+        #
         #   "0"=>
         #    {"CPU"=>
         #      [["1337608271", "0"], ["1337608301", "0"], ["1337608331", "0"]],
@@ -156,7 +157,159 @@ module OpenNebula
             return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
         end
 
+        # Retrieves the accounting data for all the VMs in the pool
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
+        #   or user_id
+        # @param [Hash] options
+        # @option params [Integer] :start_time Start date and time to take into account,
+        #   if no start_time is required use -1
+        # @option params [Integer] :end_time End date and time to take into account,
+        #   if no end_time is required use -1
+        # @option params [Integer] :host Host id to filter the results
+        # @option params [Integer] :group Group id to filter the results
+        # @option params [String] :xpath Xpath expression to filter the results.
+        #    For example: HISTORY[ETIME>0]
+        # @option params [String] :order_by_1 Xpath expression to group the
+        # @option params [String] :order_by_2 Xpath expression to group the
+        #   returned hash. This will be the second level of the hash
+        #
+        # @return [Hash, OpenNebula::Error]
+        #   The first level hash uses the :order_by_1 values as keys, and
+        #   as value a Hash with the :order_by_2 values and the HISTORY_RECORDS
+        #
+        # @example
+        #   {"HISTORY_RECORDS"=>
+        #       {"HISTORY"=> [
+        #         {"OID"=>"0",
+        #          "SEQ"=>"0",
+        #          "HOSTNAME"=>"dummy",
+        #          ...
+        #         },
+        #         {"OID"=>"0",
+        #          "SEQ"=>"0",
+        #          "HOSTNAME"=>"dummy",
+        #
+        # @example :order_by_1 => VM/UID
+        #   {"0"=>
+        #       {"HISTORY_RECORDS"=>
+        #          {"HISTORY"=> [
+        #            {"OID"=>"0",
+        #             "SEQ"=>"0",
+        #             "HOSTNAME"=>"dummy",
+        #             ...
+        #            },
+        #            {"OID"=>"0",
+        #             "SEQ"=>"0",
+        #             "HOSTNAME"=>"dummy",
+        #
+        # @example :order_by_1 => VM/UID, :order_by_2 => VM/ID
+        #   {"0"=>
+        #       {"0"=>
+        #           {"HISTORY_RECORDS"=>
+        #               {"HISTORY"=> [
+        #                 {"OID"=>"0",
+        #                  "SEQ"=>"0",
+        #                  "HOSTNAME"=>"dummy",
+        #                  ...
+        #                 },
+        #                 {"OID"=>"0",
+        #                  "SEQ"=>"0",
+        #                  "HOSTNAME"=>"dummy",
+        #
+        def accounting(filter_flag=INFO_ALL, options={})
+            acct_hash = Hash.new
+
+            rc = build_accounting(filter_flag, options) do |history|
+                hash = acct_hash
+
+                if options[:order_by_1]
+                    id_1 = history[options[:order_by_1]]
+                    acct_hash[id_1] ||= Hash.new
+
+                    if options[:order_by_2]
+                        id_2 = history[options[:order_by_2]]
+                        acct_hash[id_1][id_2] ||= Hash.new
+
+                        hash = acct_hash[id_1][id_2]
+                    else
+                        hash = acct_hash[id_1]
+                    end
+                end
+
+                hash["HISTORY_RECORDS"] ||= Hash.new
+                hash["HISTORY_RECORDS"]["HISTORY"] ||= Array.new
+                hash["HISTORY_RECORDS"]["HISTORY"] << history.to_hash['HISTORY']
+            end
+
+            return rc if OpenNebula.is_error?(rc)
+
+            acct_hash
+        end
+
+        # Retrieves the accounting data for all the VMs in the pool in xml
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
+        #   or user_id
+        # @param [Hash] options
+        # @option params [Integer] :start_time Start date and time to take into account,
+        #   if no start_time is required use -1
+        # @option params [Integer] :end_time End date and time to take into account,
+        #   if no end_time is required use -1
+        # @option params [Integer] :host Host id to filter the results
+        # @option params [Integer] :group Group id to filter the results
+        # @option params [String] :xpath Xpath expression to filter the results.
+        #    For example: HISTORY[ETIME>0]
+        #
+        # @return [String] the xml representing the accounting data
+        def accounting_xml(filter_flag=INFO_ALL, options={})
+            acct_hash = Hash.new
+            xml_str = "<HISTORY_RECORDS>\n"
+
+            rc = build_accounting(filter_flag, options) do |history|
+                xml_str << history.to_xml
+            end
+
+            return rc if OpenNebula.is_error?(rc)
+
+            xml_str << "\n</HISTORY_RECORDS>"
+            xml_str
+        end
+
         private
+
+        def build_accounting(filter_flag=INFO_ALL, options, &block)
+            xml_str = @client.call(VM_POOL_METHODS[:accounting],
+                        filter_flag,
+                        options[:start_time],
+                        options[:end_time])
+
+            return xml_str if OpenNebula.is_error?(xml_str)
+
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
+
+            xpath_array = Array.new
+            xpath_array << "HISTORY[HID=#{options[:host]}]" if options[:host]
+            xpath_array << "HISTORY[VM/GID=#{options[:group]}]" if options[:group]
+            xpath_array << options[:xpath] if options[:xpath]
+
+            if xpath_array.empty?
+                xpath_str = "HISTORY"
+            else
+                xpath_str = xpath_array.join(' | ')
+            end
+
+            acct_hash = Hash.new
+
+            xmldoc.each(xpath_str) do |history|
+                block.call(history)
+            end
+
+            acct_hash
+        end
 
         def info_filter(xml_method, who, start_id, end_id, state)
             return xmlrpc_info(xml_method, who, start_id, end_id, state)

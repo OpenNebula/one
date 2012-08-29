@@ -86,7 +86,7 @@ class CloudAuth
     def client(username=nil)
         expiration_time = @lock.synchronize {
             time_now = Time.now.to_i
-    
+
             if time_now > @token_expiration_time - EXPIRE_MARGIN
                 @token_expiration_time = time_now + EXPIRE_DELTA
             end
@@ -95,8 +95,8 @@ class CloudAuth
         }
 
         token = @server_auth.login_token(expiration_time,username)
- 
-        Client.new(token,@conf[:one_xmlrpc])
+
+        OpenNebula::Client.new(token,@conf[:one_xmlrpc])
     end
 
     #

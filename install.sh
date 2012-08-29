@@ -248,7 +248,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/dummy"
 
-SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
+SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
+               $SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
                $SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/js \
@@ -919,6 +920,7 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
 DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
                          src/datastore_mad/remotes/vmware/mkfs \
                          src/datastore_mad/remotes/vmware/stat \
+                         src/datastore_mad/remotes/vmware/clone \
                          src/datastore_mad/remotes/vmware/rm"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
@@ -1192,7 +1194,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevnet_helper.rb \
                    src/cli/one_helper/oneacl_helper.rb \
                    src/cli/one_helper/onedatastore_helper.rb \
-                   src/cli/one_helper/onecluster_helper.rb"
+                   src/cli/one_helper/onecluster_helper.rb \
+                   src/cli/one_helper/oneacct_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1203,7 +1206,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onegroup \
                src/cli/oneacl \
                src/cli/onedatastore \
-               src/cli/onecluster"
+               src/cli/onecluster \
+               src/cli/oneacct"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \

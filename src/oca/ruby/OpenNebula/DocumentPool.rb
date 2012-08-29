@@ -18,7 +18,7 @@ require 'OpenNebula/Pool'
 
 module OpenNebula
 
-    # All subclasses must define the DocumentPool::TYPE constant
+    # All subclasses must define the DOCUMENT_TYPE constant
     # and the factory method.
     #
     # @example
@@ -27,7 +27,7 @@ module OpenNebula
     #   module OpenNebula
     #       class CustomObjectPool < DocumentPool
     #
-    #           DocumentPool::TYPE = 400
+    #           DOCUMENT_TYPE = 400
     #
     #           def factory(element_xml)
     #               OpenNebula::CustomObject.new(element_xml, @client)
@@ -72,22 +72,26 @@ module OpenNebula
         def info(*args)
             case args.size
                 when 0
-                    info_filter(DOCUMENT_POOL_METHODS[:info],@user_id,-1,-1, TYPE)
+                    info_filter(DOCUMENT_POOL_METHODS[:info],@user_id,-1,-1, document_type)
                 when 3
-                    info_filter(DOCUMENT_POOL_METHODS[:info],args[0],args[1],args[2], TYPE)
+                    info_filter(DOCUMENT_POOL_METHODS[:info],args[0],args[1],args[2], document_type)
             end
         end
 
         def info_all()
-            return super(DOCUMENT_POOL_METHODS[:info], TYPE)
+            return super(DOCUMENT_POOL_METHODS[:info], document_type)
         end
 
         def info_mine()
-            return super(DOCUMENT_POOL_METHODS[:info], TYPE)
+            return super(DOCUMENT_POOL_METHODS[:info], document_type)
         end
 
         def info_group()
-            return super(DOCUMENT_POOL_METHODS[:info], TYPE)
+            return super(DOCUMENT_POOL_METHODS[:info], document_type)
+        end
+
+        def document_type
+            self.class::DOCUMENT_TYPE
         end
     end
 end
