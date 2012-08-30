@@ -116,9 +116,9 @@ module EBS
         return rc if OpenNebula::is_error?(rc)
 
         if image['TEMPLATE/EBS/INSTANCE_ID']
-            return OpenNebula::Error.new("Volume #{params['VolumeId']} \
-                already attached to another instance \
-                (#{image['TEMPLATE/EBS/INSTANCE_ID']})")
+            return OpenNebula::Error.new("Volume #{params['VolumeId']} " <<
+                "already attached to another instance " <<
+                "(#{image['TEMPLATE/EBS/INSTANCE_ID']})")
         end
 
         # Attach
