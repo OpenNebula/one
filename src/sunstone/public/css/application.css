@@ -336,7 +336,8 @@ textarea:focus{
 
 .add_button {
     margin-left:148px;
-    width:58px !important;
+    /* In some languages the word add is longer */
+    width:58px !important;*/
 }
 
 .remove_button {

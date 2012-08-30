@@ -633,7 +633,7 @@ function updateVNetworkInfo(request,vn){
     };
 
     var leases_tab = {
-        title: "Lease management",
+        title: tr("Lease management"),
         content: printLeases(vn_info)
     };
 
