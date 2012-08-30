@@ -1228,3 +1228,21 @@ function progressBar(value, opts){
            </div>\
          </div>';
 }
+
+function loadAccounting(resource, id, graphs, options){
+    var now = Math.floor(new Date().getTime() / 1000)
+    var start = options && options.start ? options.start : now - (3600 * 24);
+    var end = options && options.end ? options.end : now;
+    var interval = options && options.interval ? options.interval : 60 * 60;
+
+    for (var i = 0; i < graphs.length; i++){
+        var graph_cfg = graphs[i];
+        graph_cfg.start =  start
+        graph_cfg.end = end
+        graph_cfg.interval = interval
+        // If the date range is longer than 24 hours, then show only
+        // date, otherwise show time in the x axis
+        graph_cfg.show_date = (end - start) > (3600 * 24)? true : false;
+        Sunstone.runAction(resource+".accounting", id, graph_cfg);
+    };
+}

@@ -301,17 +301,17 @@ class SunstoneServer < CloudServer
     #                          meter2 : [[ts1, agg_value],[ts2, agg_value]...]}
     # with this information we can paint historical graphs of usage
     def get_user_accounting(options)
-        uid      = options[:id]
+        uid      = options[:id].to_i
         tstart   = options[:start].to_i
         tend     = options[:end].to_i
         interval = options[:interval].to_i
         meters   = options[:monitor_resources]
-        gid      = options[:gid]
+        gid      = options[:gid].to_i
 
-        acct_options = {:start_time => tstart, 
+        acct_options = {:start_time => tstart,
                         :end_time => tend}
         if gid
-            uid = INFO_ALL
+            uid = Pool::INFO_ALL
             acct_options[:group] = gid
         end
 
@@ -335,12 +335,12 @@ class SunstoneServer < CloudServer
 
             tstep = tstart + interval
             count = Hash.new
-            
-            xml_step.each("HISTORY[STIME >= #{tstart} and ETIME <= #{tstep}]") do |hr|
+
+            xml.each("HISTORY[STIME<=#{tstep} and ETIME=0 or STIME<=#{tstep} and ETIME>=#{tstart}]") do |hr|
 
                 meters_a.each do | meter |
                     count[meter] ||= 0
-                    count[meter] += hr["VM/#{meter}"].to_if if hr["VM/#{meter}"]
+                    count[meter] += hr["VM/#{meter}"].to_i if hr["VM/#{meter}"]
                 end
             end
 
@@ -351,7 +351,7 @@ class SunstoneServer < CloudServer
             tstart = tstep
         end
 
-        return [200, {:accounting => result}.to_json]
+        return [200, {:monitoring => result}.to_json]
     end
 
     private

@@ -460,7 +460,7 @@ var user_info_panel = {
         content:""
     },
     "user_acct_tab" : {
-        title: tr("Historical usage"),
+        title: tr("Historical usages"),
         content: ""
     }
 };
@@ -670,38 +670,31 @@ function updateUserInfo(request,user){
         title : tr("Historical usages"),
         content : '<div><table class="info_table" style="margin-bottom:0">\
   <tr>\
-    <td class="key_td"><label for="from">From / to</label></td>\
+    <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
     <td class="value_td">\
        <input type="text" id="user_acct_from" name="from"/>\
        <input type="text" id="user_acct_to" name="to"/>\
        <button id="user_acct_date_ok"><i class="icon-ok"></i></button>\
     </td>\
   </tr>\
-</table></div>' +
-generateMonitoringDivs(user_acct_graphs, "user_acct_")
+<!--\
+  <tr>\
+    <td class="key_td"><label for="from">'+tr('Meters')+'</label></td>\
+    <td class="value_td">\
+       <select style="width:173px" id="user_acct_meter1" name="meter1">\
+       </select>\
+       <select style="width:173px" id="user_acct_meter2" name="meter2">\
+       </select>\
+    </td>\
+  </tr>\
+-->\
+</table></div>' + generateMonitoringDivs(user_acct_graphs, "user_acct_")
     };
 
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel");
-
-    var load_acct = function(start,end){
-        //default start 24 hours ago
-        if (!start) start = Math.floor(new Date().getTime()/1000) - 3600 * 24;
-        //default end now
-        if (!end) end = Math.floor(new Date().getTime()/1000);
-        for (var i=0; i<user_acct_graphs.length; i++){
-            var graph_cfg = user_acct_graphs[i];
-            graph_cfg.start =  start
-            graph_cfg.end = end
-            graph_cfg.interval = 60 * 60 //1 hour
-            // If the date range is longer than 24 hours, then show only
-            // date, otherwise show time in the x axis
-            graph_cfg.show_date = (end - start) > (3600 * 24)? true : false;
-            Sunstone.runAction("User.accounting",user_info.ID,graph_cfg);
-        };
-    };
 
     //Enable datepicker
     var info_dialog = $('div#user_acct_tab');
@@ -710,24 +703,28 @@ generateMonitoringDivs(user_acct_graphs, "user_acct_")
         changeMonth: true,
         numberOfMonths: 1,
         dateFormat: "dd/mm/yy",
+        defaultDate: '-1',
         onSelect: function( selectedDate ) {
             $( "#user_acct_to", info_dialog).datepicker("option",
                                                         "minDate",
                                                         selectedDate );
         }
     });
+    $("#user_acct_from", info_dialog).datepicker('setDate', '-1');
 
     $("#user_acct_to", info_dialog).datepicker({
         defaultDate: "0",
         changeMonth: true,
         numberOfMonths: 1,
         dateFormat: "dd/mm/yy",
+        maxDate: '+1',
         onSelect: function( selectedDate ) {
             $( "#user_acct_from", info_dialog).datepicker( "option",
                                                            "maxDate",
                                                            selectedDate );
         }
     });
+    $("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
 
     //Listen to set date button
     $('button#user_acct_date_ok', info_dialog).click(function(){
@@ -746,12 +743,13 @@ generateMonitoringDivs(user_acct_graphs, "user_acct_")
             end = Math.floor(end / 1000);
         }
 
-        load_acct(start,end);
+        loadAccounting('User', user_info.ID, user_acct_graphs,
+                  { start : start, end: end });
         return false;
     });
 
     //preload acct
-    load_acct();
+    loadAccounting('User', user_info.ID, user_acct_graphs);
 };
 
 // Prepare the user creation dialog

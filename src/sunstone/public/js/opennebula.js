@@ -711,6 +711,9 @@ var OpenNebula = {
         },
         "show" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Group.resource);
+        },
+        "accounting" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.Group.resource,false);
         }
     },
 
