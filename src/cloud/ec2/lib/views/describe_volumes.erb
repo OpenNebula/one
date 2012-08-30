@@ -3,7 +3,7 @@
    <requestId/>
    <volumeSet>
         <% impool.each do |im| %>
-            <% if state_image = im.render_state %>
+            <% if (state_image = im.render_state) && (im['TEMPLATE/EBS'] == 'YES') %>
             <item>
                <volumeId>vol-<%= sprintf('%08i', im.id) %></volumeId>
                <size><%= im.render_size %></size>

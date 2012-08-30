@@ -1,3 +1,19 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 module EBS
     # Default FSTYPE when creating new volumes
     DEFAULT_FSTYPE = "ext3"
@@ -93,9 +109,19 @@ module EBS
             target = m[1]
         end
 
+        # Check if the volume is already attached to another instance
+        image = Image.new(Image.build_xml(image_id), @client)
+        rc = image.info
+
+        return rc if OpenNebula::is_error?(rc)
+
+        if image['TEMPLATE/EBS/INSTANCE_ID']
+            return OpenNebula::Error.new("Volume #{params['VolumeId']} \
+                already attached to another instance \
+                (#{image['TEMPLATE/EBS/INSTANCE_ID']})")
+        end
 
         # Attach
-
         vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
         rc = vm.info
 
@@ -108,12 +134,6 @@ module EBS
 
 
         # Update IMAGE metadata
-
-        image = Image.new(Image.build_xml(image_id), @client)
-        rc = image.info
-
-        return rc if OpenNebula::is_error?(rc)
-
         attach_time = Time.now.to_i
 
         xml_hash = {'EBS' => {
@@ -156,7 +176,8 @@ module EBS
             :type => "DATABLOCK",
             :size => size,
             :fstype => @config[:ebs_fstype]||DEFAULT_FSTYPE,
-            :persistent => "YES"
+            :persistent => "YES",
+            :ebs => "YES"
         }
 
         image = ImageEC2.new(Image.build_xml, @client, nil, opts)
