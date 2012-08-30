@@ -570,4 +570,59 @@ class OCCIServer < CloudServer
 
         return vnc.proxy(vm)
     end
+
+    ##########################################################################
+    # Accounting
+    ##########################################################################
+
+    def get_user_accounting(options)
+        tstart   = options[:start].to_i
+        tend     = options[:end].to_i
+        interval = options[:interval].to_i
+        meters   = options[:monitor_resources]
+
+        acct_options = {:start_time => tstart,
+                        :end_time => tend}
+        info_flag = Pool::INFO_ALL
+
+        result   = {}
+        meters_a = meters.split(',')
+        meters_a.each do | meter |
+            result[meter] = []
+        end
+
+        pool     = VirtualMachinePool.new(@client)
+        acct_xml = pool.accounting_xml(info_flag, acct_options)
+
+        if OpenNebula.is_error?(acct_xml)
+            error = Error.new(acct_xml.message)
+            return [500, error.to_json]
+        end
+
+        xml = XMLElement.new
+        xml.initialize_xml(acct_xml, 'HISTORY_RECORDS')
+
+        while tstart < tend
+
+            tstep = tstart + interval
+            count = Hash.new
+
+            xml.each("HISTORY[STIME<=#{tstep} and ETIME=0 or STIME<=#{tstep} and ETIME>=#{tstart}]") do |hr|
+
+                meters_a.each do | meter |
+                    count[meter] ||= 0
+                    count[meter] += hr["VM/#{meter}"].to_i if hr["VM/#{meter}"]
+                end
+            end
+
+            count.each do | mname, mcount |
+                result[mname] << [tstart, mcount]
+            end
+
+            tstart = tstep
+        end
+
+        return [200, {:monitoring => result}.to_json]
+    end
+
 end

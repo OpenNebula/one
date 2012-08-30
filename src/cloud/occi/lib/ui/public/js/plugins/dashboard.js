@@ -14,6 +14,17 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var user_acct_graphs = [
+    { title : tr("CPU"),
+      monitor_resources : "CPU",
+      humanize_figures : false
+    },
+    { title : tr("Memory"),
+      monitor_resources : "MEMORY",
+      humanize_figures : true
+    }
+];
+
 var dashboard_tab_content =
 '<table id="dashboard_table">\
 <tr>\
@@ -47,6 +58,41 @@ var dashboard_tab_content =
              <tr id="network_quotas"><td class="key_td">'+tr("Networks")+':</td>\
                  <td class="value_td">'+$network_count+'</td></tr>\
           </table>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr>\
+    <td>\
+      <div class="panel" id="user_acct_panel">\
+<h3>' + tr("Usages") + '<i class="icon-refresh user_acct_date_ok" style="float:right;cursor:pointer"></i></h3>\
+        <div class="panel_info">\
+\
+          <div style="margin-left:20px;text-align:center;">\
+'+tr("From")+':&nbsp;<input type="text" style="font-size:12px;width: 80px;" id="user_acct_from" name="from"/>&nbsp;&nbsp;\
+'+tr("To")+':&nbsp;<input type="text" style="font-size:12px;width: 80px;" id="user_acct_to" name="to"/>\
+&nbsp;&nbsp;<a href="#" class="user_acct_date_ok">'+tr('Go!')+' <i class="icon-ok"></i></a>\
+          </div>\
+\
+        <table class="info_table">\
+           <tr><td id="legend_CPU"></td></tr>\
+           <tr><td style="border:0;width:800px!important;">\
+                 <div id="user_acct_CPU" style="height:100px;position:relative;left:0px;overflow: hidden;">'+
+                  spinner+
+                '</div>\
+              </td>\
+           </tr>\
+        </table>\
+        <table class="info_table">\
+           <tr><td id="legend_MEMORY"></td></tr>\
+           <tr><td style="border:0;width:800px!important;">\
+                 <div id="user_acct_MEMORY" style="height:100px;position:relative;left:0px;overflow: hidden;">'+
+                  spinner+
+                '</div>\
+              </td>\
+           </tr>\
+        </table>\
 \
         </div>\
       </div>\
@@ -136,14 +182,17 @@ Sunstone.addAction('User.refresh', {
     }
 });
 
+Sunstone.addAction('User.accounting', {
+    type: "monitor",
+    call: OCCI.User.accounting,
+    callback: function(req, response){
+        var info = req.request.data[0].monitor;
+        plot_graph(response, '#user_acct_panel', 'user_acct_', info);
+    },
+    error: onError
+});
+
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);
-
-function quickstart_setup(){
-
-    $('#dashboard_table #quickstart_form input',main_tabs_context).click(function(){
-        Sunstone.runAction($(this).val());
-    });
-};
 
 function generateDashboardLinks(){
     var links="<ul>";
@@ -282,7 +331,7 @@ function dashboardQuotasHTML(req, response){
 
 //puts the dashboard values into "retrieving"
 function emptyDashboard(){
-    $("#dashboard_tab .value_td span",main_tabs_context).html(spinner);
+    $("#dashboard_tab .value_td > span",main_tabs_context).html(spinner);
 }
 
 
@@ -302,6 +351,60 @@ function updateDashboard(what,json_info){
         $('.storage_count',db).html(total_images);
         break;
     }
+}
+
+function accountingSetup(){
+    var context = $('#dashboard_table', main_tabs_context);
+    //Enable datepicker
+    $("#user_acct_from", context).datepicker({
+        defaultDate: "-1d",
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "dd/mm/yy",
+        defaultDate: '-1',
+        onSelect: function( selectedDate ) {
+            $( "#user_acct_to", context).datepicker("option",
+                                                        "minDate",
+                                                        selectedDate );
+        }
+    });
+    $("#user_acct_from", context).datepicker('setDate', '-1');
+
+    $("#user_acct_to", context).datepicker({
+        defaultDate: "0",
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "dd/mm/yy",
+        maxDate: '+1',
+        onSelect: function( selectedDate ) {
+            $( "#user_acct_from", context).datepicker( "option",
+                                                           "maxDate",
+                                                           selectedDate );
+        }
+    });
+    $("#user_acct_to", context).datepicker('setDate', 'Now');
+
+    //Listen to set date button
+    $('.user_acct_date_ok', context).click(function(){
+        var from = $("#user_acct_from", context).val();
+        var to = $("#user_acct_to", context).val();
+
+        var start = $.datepicker.parseDate('dd/mm/yy', from)
+        if (start){
+            start = start.getTime();
+            start = Math.floor(start / 1000);
+        }
+
+        var end = $.datepicker.parseDate('dd/mm/yy', to);
+        if (end){
+            end = end.getTime();
+            end = Math.floor(end / 1000);
+        }
+
+        loadAccounting('User', null, user_acct_graphs,
+                  { start : start, end: end });
+        return false;
+    });
 }
 
 
@@ -332,7 +435,7 @@ $(document).ready(function(){
 
     emptyDashboard();
 
-    quickstart_setup();
+    accountingSetup();
 
     $('#li_dashboard_tab').click(function(){
         hideDialog();
@@ -347,4 +450,5 @@ $(document).ready(function(){
     }
                         });
     Sunstone.runAction("User.show", uid);
+    loadAccounting('User', null, user_acct_graphs);
 });

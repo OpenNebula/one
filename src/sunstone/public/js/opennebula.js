@@ -348,7 +348,6 @@ var OpenNebula = {
             var data = params.data;
 
             var method = "monitor";
-            var action = OpenNebula.Helper.action(method);
             var request = OpenNebula.Helper.request(resource,method, data);
 
             var url = resource.toLowerCase();

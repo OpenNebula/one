@@ -295,8 +295,6 @@ class SunstoneServer < CloudServer
     end
 
 
-    # this code is meant to be replaced as accouting functionality
-    # is moved to OCA. Filtering by group should perhaps be added then.
     # returns a { monitoring : meter1 : [[ts1, agg_value],[ts2, agg_value]...]
     #                          meter2 : [[ts1, agg_value],[ts2, agg_value]...]}
     # with this information we can paint historical graphs of usage
@@ -310,11 +308,15 @@ class SunstoneServer < CloudServer
 
         acct_options = {:start_time => tstart,
                         :end_time => tend}
+
+        # If we want acct per group, we ask for all VMs visible to user
+        # and then filter by group.
         if gid
             uid = Pool::INFO_ALL
             acct_options[:group] = gid
         end
 
+        # Init results and request accounting
         result   = {}
         meters_a = meters.split(',')
         meters_a.each do | meter |
@@ -331,11 +333,17 @@ class SunstoneServer < CloudServer
         xml = XMLElement.new
         xml.initialize_xml(acct_xml, 'HISTORY_RECORDS')
 
+        # We aggregate the accounting values for each interval withing
+        # the given timeframe
         while tstart < tend
 
             tstep = tstart + interval
             count = Hash.new
 
+            # We count machines which have started before the end of
+            # this interval AND have not finished yet OR machines which
+            # have started before the end of this interval AND
+            # have finished anytime after the start of this interval
             xml.each("HISTORY[STIME<=#{tstep} and ETIME=0 or STIME<=#{tstep} and ETIME>=#{tstart}]") do |hr|
 
                 meters_a.each do | meter |
@@ -344,6 +352,8 @@ class SunstoneServer < CloudServer
                 end
             end
 
+            # We have aggregated values for this interval
+            # Then we just add them to the results along with a timestamp
             count.each do | mname, mcount |
                 result[mname] << [tstart, mcount]
             end
