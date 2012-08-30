@@ -68,7 +68,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                 xmldoc = XMLElement.new
                 xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
 
-                puts xmldoc.to_hash.to_json
+                puts JSON.pretty_generate(xmldoc.to_hash)
             elsif options[:xml]
                 puts xml_str
             end
