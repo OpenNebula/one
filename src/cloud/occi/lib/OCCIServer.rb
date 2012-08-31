@@ -481,6 +481,31 @@ class OCCIServer < CloudServer
         return to_occi_xml(image, :code=>200)
     end
 
+    # Clone a STORAGE resource
+    # request:: _Hash_ hash containing the data of the request
+    # [return] _String_,_Integer_ STORAGE occi representation or error,
+    #                             status code
+    def clone_storage(request, params, action_xml)
+        # --- Get the Image ---
+        image = ImageOCCI.new(
+                        Image.build_xml(params[:id]),
+                        @client)
+
+        rc = image.clone(action_xml["PARAMS/NAME"])
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
+
+        new_image = ImageOCCI.new(
+                Image.build_xml(rc),
+                @client)
+
+        new_image.info
+
+        # --- Prepare XML Response ---
+        return to_occi_xml(new_image, :code=>201)
+    end
+
     # Deletes a STORAGE resource (Not yet implemented)
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Delete confirmation msg or error,

@@ -345,6 +345,20 @@ get '/storage/:id' do
     treat_response(result,rc)
 end
 
+post '/storage/:id/action' do
+    xml = XMLElement.new
+    xml.initialize_xml(request.body, "ACTION")
+
+    result, rc = case xml['PERFORM'].downcase
+    when 'clone' then
+        @occi_server.clone_storage(request, params, xml)
+    else
+        halt 403, "Action #{xml['PERFORM']} not supported"
+    end
+
+    treat_response(result,rc)
+end
+
 delete '/storage/:id' do
     result,rc = @occi_server.delete_storage(request, params)
     treat_response(result,rc)
