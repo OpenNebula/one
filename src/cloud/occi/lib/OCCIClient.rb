@@ -233,6 +233,10 @@ module OCCIClient
             delete('/compute/'+id.to_s)
         end
 
+        def action_vm(id, xml)
+            post('/compute/'+id.to_s+'/action', xml, false)
+        end
+
         ######################################################################
         # Retrieves a Virtual Network
         # :id Virtual Network identifier

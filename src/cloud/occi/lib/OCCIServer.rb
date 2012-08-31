@@ -298,6 +298,73 @@ class OCCIServer < CloudServer
         return "", 204
     end
 
+    # Attach a disk to an existing COMPUTE
+    # @param [Hash] request hash containing the data of the request
+    # @param [Hash] params hash containing the params of the request
+    # @param [OpenNebula::XMLElement] action_xml contains the body of the request
+    # @return [[String, OpenNebula:Error], Integer]
+    def attach_disk(request, params, action_xml)
+        # --- Get the VM ---
+        vm = VirtualMachineOCCI.new(
+                    VirtualMachine.build_xml(params[:id]),
+                    @client)
+
+        image_href = action_xml.attr('PARAMS/STORAGE','href')
+        if !image_href
+            error = OpenNebula::Error.new("You have to specify an STORAGE " <<
+                "to be attached")
+            return error, CloudServer::HTTP_ERROR_CODE[error.errno]
+        end
+
+        image_id = image_href.split('/').last
+        target = action_xml['PARAMS/TARGET']
+
+        if target
+            template = "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target} ]"
+        else
+            template = "DISK = [ IMAGE_ID = #{image_id}, DEV_PREFIX = sd ]"
+        end
+
+        # --- Attach DISK ---
+        result = vm.attachdisk(template)
+        if OpenNebula.is_error?(result)
+            return result, CloudServer::HTTP_ERROR_CODE[result.errno]
+        end
+
+        vm.info
+
+        return to_occi_xml(vm, :code=>202)
+    end
+
+    # Detach a DISK from an existing COMOUTE
+    # @param [Hash] request hash containing the data of the request
+    # @param [Hash] params hash containing the params of the request
+    # @param [OpenNebula::XMLElement] action_xml contains the body of the request
+    # @return [[String, OpenNebula:Error], Integer]
+    def detach_disk(request, params, action_xml)
+        # --- Get the VM ---
+        vm = VirtualMachineOCCI.new(
+                    VirtualMachine.build_xml(params[:id]),
+                    @client)
+
+        disk_id = action_xml.attr('PARAMS/DISK','id')
+        if !disk_id
+            error = OpenNebula::Error.new("You have to specify a DISK " <<
+                "to be detached")
+            return error, CloudServer::HTTP_ERROR_CODE[error.errno]
+        end
+
+        # --- Detach DISK ---
+        result = vm.detachdisk(disk_id.to_i)
+        if OpenNebula.is_error?(result)
+            return result, CloudServer::HTTP_ERROR_CODE[result.errno]
+        end
+
+        vm.info
+
+        return to_occi_xml(vm, :code=>202)
+    end
+
     # Updates a COMPUTE resource
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Update confirmation msg or error,

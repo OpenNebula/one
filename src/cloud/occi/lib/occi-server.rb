@@ -315,6 +315,22 @@ get '/compute/:id' do
     treat_response(result,rc)
 end
 
+post '/compute/:id/action' do
+    xml = XMLElement.new
+    xml.initialize_xml(request.body, "ACTION")
+
+    result,rc = case xml['PERFORM'].downcase
+    when 'attachdisk' then
+        @occi_server.attach_disk(request, params, xml)
+    when 'detachdisk' then
+        @occi_server.detach_disk(request, params, xml)
+    else
+        halt 403, "Action #{xml['PERFORM']} not supported"
+    end
+
+    treat_response(result,rc)
+end
+
 delete '/compute/:id' do
     result,rc = @occi_server.delete_compute(request, params)
     treat_response(result,rc)
