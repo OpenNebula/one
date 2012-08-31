@@ -137,6 +137,57 @@ module EC2QueryClient
 
         ######################################################################
         #
+        #
+        ######################################################################
+        def stop_instances(instance_id)
+            begin
+                response = @ec2_connection.stop_instances(
+                    :instance_id   => instance_id
+                 )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def start_instances(instance_id)
+            begin
+                response = @ec2_connection.start_instances(
+                    :instance_id   => instance_id
+                 )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def reboot_instances(instance_id)
+            begin
+                response = @ec2_connection.reboot_instances(
+                    :instance_id   => instance_id
+                 )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
         #  Returns true if HTTP code is 200,
         ######################################################################
         def upload_image(file_name, curb=true)
@@ -268,7 +319,7 @@ module EC2QueryClient
         def associate_address(public_ip, instance_id)
             begin
                 response = @ec2_connection.associate_address(
-                            :public_ip   => public_ip, 
+                            :public_ip   => public_ip,
                             :instance_id => instance_id)
             rescue Exception => e
                 error = CloudClient::Error.new(e.message)
@@ -298,6 +349,94 @@ module EC2QueryClient
             begin
                 response = @ec2_connection.release_address(
                             :public_ip   => public_ip)
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def describe_volumes
+            begin
+                response = @ec2_connection.describe_volumes
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def attach_volume(volume, instance, device)
+            begin
+                response = @ec2_connection.attach_volume(
+                    :volume_id => volume,
+                    :instance_id => instance,
+                    :device => device
+                    )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def delete_volume(volume)
+            begin
+                response = @ec2_connection.delete_volume(
+                    :volume_id => volume
+                    )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def detach_volume(volume, instance, device)
+            begin
+                response = @ec2_connection.detach_volume(
+                    :volume_id => volume,
+                    :instance_id => instance,
+                    :device => device
+                    )
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        #
+        #
+        ######################################################################
+        def create_volume(size)
+            begin
+                response = @ec2_connection.create_volume(
+                    :size => size,
+                    :availability_zone => 'default'
+                    )
             rescue Exception => e
                 error = CloudClient::Error.new(e.message)
                 return error

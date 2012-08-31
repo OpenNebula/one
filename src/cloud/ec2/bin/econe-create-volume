@@ -23,16 +23,17 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
+
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-econe-describe-instances
+econe-create-volume
 
-List and describe running instances
+Create a new DATABLOCK
 
 Usage:
-    econe-describe-instances [OPTIONS]
+    econe-create-volume [OPTIONS]
 
 Options:
 
@@ -47,6 +48,9 @@ Options:
 
     --url <url>, -U <url>
         Set url as the web service url to use
+
+    --size <size>, -s <size>
+        The ID of the instance to attach the volume to
 
     --headers, -H
         Display column headers
@@ -65,6 +69,7 @@ opts = GetoptLong.new(
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
+            ['--size',       '-s',GetoptLong::REQUIRED_ARGUMENT],
             ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
        )
 
@@ -73,6 +78,7 @@ url     = nil
 access  = nil
 secret  = nil
 auth    = nil
+size = nil
 
 begin
     opts.each do |opt, arg|
@@ -89,11 +95,18 @@ begin
                 secret = arg
             when '--url'
                 url = arg
+            when '--size'
+                size = arg
             when '--headers'
                 headers = true
         end
     end
 rescue Exception => e
+    exit -1
+end
+
+if !size
+    puts "#{cmd_name}: missing --size option"
     exit -1
 end
 
@@ -106,30 +119,20 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.describe_instances()
+rc = ec2_client.create_volume(size)
 
 if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
 
-instances = []
-if rc['reservationSet']['item'][0]['instancesSet']
-    instances = rc['reservationSet']['item'][0]['instancesSet']['item']
-end
-
-owner     = rc['reservationSet']['item'][0]['ownerId']
-
-fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
+fmt = "%-15s %-10s %s"
 
 if headers
-    puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
-    puts "-----------------------------------------------------------------------------------"
+    puts fmt % ["volumeId", "size", "createTime"]
+    puts "------------------------------------------------------------------------------"
 end
 
-
-instances.each { |img|
-    puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
-}
+puts fmt % [rc['volumeId'], rc['size'], rc['createTime']]
 
 exit 0

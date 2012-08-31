@@ -23,19 +23,19 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
+
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-econe-describe-instances
+econe-describe-volumes
 
-List and describe running instances
+Describes your Amazon EBS volumes
 
 Usage:
-    econe-describe-instances [OPTIONS]
+   econe-describe-volumes [OPTIONS]
 
 Options:
-
     --help, -h
         Show help
 
@@ -58,6 +58,7 @@ require 'CloudClient'
 require 'getoptlong'
 
 include CloudCLI
+
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
@@ -106,30 +107,35 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.describe_instances()
+rc = ec2_client.describe_volumes
 
 if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
 
-instances = []
-if rc['reservationSet']['item'][0]['instancesSet']
-    instances = rc['reservationSet']['item'][0]['instancesSet']['item']
+volumes = []
+if rc['volumeSet']
+    volumes = rc['volumeSet']['item']
 end
 
-owner     = rc['reservationSet']['item'][0]['ownerId']
-
-fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
+fmt = "%-15s %-10s %s"
 
 if headers
-    puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
-    puts "-----------------------------------------------------------------------------------"
+    puts fmt % ["volumeId", "size", "instanceId"]
+    puts "------------------------------------------------------------------------------"
 end
 
+volumes.each { |vol|
+    instances = ""
+    if vol['attachmentSet'] && vol['attachmentSet']['item']
+        instances = vol['attachmentSet']['item'].collect{ |item|
+            item['instanceId']
+        }.join(',')
+    end
 
-instances.each { |img|
-    puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
+    puts fmt % [vol['volumeId'], vol['size'], instances]
 }
 
 exit 0
+

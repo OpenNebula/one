@@ -136,42 +136,23 @@ before do
         username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
         logger.error {e.message}
-        error 500, error_xml("AuthFailure", 0)
+        rc = OpenNebula::Error.new(e.message)
+        rc.ec2_code = "AuthFailure"
+        error 401, rc.to_ec2
     end
 
     if username.nil?
-        error 401, error_xml("AuthFailure", 0)
+        rc = OpenNebula::Error.new("The username or password is not correct")
+        rc.ec2_code = "AuthFailure"
+        error 401, rc.to_ec2
     else
         client          = settings.cloud_auth.client(username)
         oneadmin_client = settings.cloud_auth.client
-        @econe_server = EC2QueryServer.new(client, oneadmin_client, settings.config, settings.logger)
-    end
-end
-
-helpers do
-    def error_xml(code,id)
-        message = ''
-
-        case code
-        when 'AuthFailure'
-            message = 'User not authorized'
-        when 'InvalidAMIID.NotFound'
-            message = 'Specified AMI ID does not exist'
-        when 'Unsupported'
-            message = 'The instance type or feature is not supported in your requested Availability Zone.'
-        else
-            message = code
-        end
-
-        xml = "<Response><Errors><Error><Code>"+
-                    code +
-                    "</Code><Message>" +
-                    message +
-                    "</Message></Error></Errors><RequestID>" +
-                    id.to_s +
-                    "</RequestID></Response>"
-
-        return xml
+        @econe_server   = EC2QueryServer.new(
+                            client,
+                            oneadmin_client,
+                            settings.config,
+                            settings.logger)
     end
 end
 
@@ -197,6 +178,12 @@ def do_http_request(params)
             result,rc = @econe_server.describe_instances(params)
         when 'TerminateInstances'
             result,rc = @econe_server.terminate_instances(params)
+        when 'StartInstances'
+            result,rc = @econe_server.start_instances(params)
+        when 'StopInstances'
+            result,rc = @econe_server.stop_instances(params)
+        when 'RebootInstances'
+            result,rc = @econe_server.reboot_instances(params)
         when 'AllocateAddress'
             result,rc = @econe_server.allocate_address(params)
         when 'AssociateAddress'
@@ -207,14 +194,38 @@ def do_http_request(params)
             result,rc = @econe_server.release_address(params)
         when 'DescribeAddresses'
             result,rc = @econe_server.describe_addresses(params)
+        when 'DescribeRegions'
+            result,rc = @econe_server.describe_regions(params)
+        when 'DescribeAvailabilityZones'
+            result,rc = @econe_server.describe_availability_zones(params)
+        when 'CreateVolume'
+            result,rc = @econe_server.create_volume(params)
+        when 'DescribeVolumes'
+            result,rc = @econe_server.describe_volumes(params)
+        when 'AttachVolume'
+            result,rc = @econe_server.attach_volume(params)
+        when 'DetachVolume'
+            result,rc = @econe_server.detach_volume(params)
+        when 'DeleteVolume'
+            result,rc = @econe_server.delete_volume(params)
+        else
+            result = OpenNebula::Error.new(
+                "#{params['Action']} feature is not supported",
+                OpenNebula::Error::ENO_EXISTS)
     end
 
     if OpenNebula::is_error?(result)
         logger.error(result.message)
-        error rc, error_xml(result.message, 0)
+        error CloudServer::HTTP_ERROR_CODE[result.errno], result.to_ec2.gsub(/\n\s*/,'')
     end
 
     headers['Content-Type'] = 'application/xml'
 
-    result
+    if rc
+        status rc
+    end
+
+    logger.error { params['Action'] }
+
+    result.gsub(/\n\s*/,'')
 end

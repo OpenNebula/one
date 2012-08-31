@@ -23,16 +23,17 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
+
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-econe-describe-instances
+econe-stop-instances
 
-List and describe running instances
+Stop the selected running instance
 
 Usage:
-    econe-describe-instances [OPTIONS]
+    econe-register [OPTIONS] INSTANCE-ID
 
 Options:
 
@@ -48,8 +49,8 @@ Options:
     --url <url>, -U <url>
         Set url as the web service url to use
 
-    --headers, -H
-        Display column headers
+INSTANCE-ID: The instance identification as returned by
+the econe-run-instances command
 
 EOT
 
@@ -64,11 +65,9 @@ opts = GetoptLong.new(
             ['--version',    '-v',GetoptLong::NO_ARGUMENT],
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
+            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT]
        )
 
-headers = false
 url     = nil
 access  = nil
 secret  = nil
@@ -97,6 +96,13 @@ rescue Exception => e
     exit -1
 end
 
+instance = ARGV.shift
+
+if !instance
+    puts "#{cmd_name}: missing INSTANCE-ID parameter"
+    exit -1
+end
+
 auth = "#{access}:#{secret}" if secret && access
 
 begin
@@ -106,30 +112,15 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.describe_instances()
+rc = ec2_client.stop_instances(instance)
 
 if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
 
-instances = []
-if rc['reservationSet']['item'][0]['instancesSet']
-    instances = rc['reservationSet']['item'][0]['instancesSet']['item']
-end
+result = rc['instancesSet']['item'][0]
 
-owner     = rc['reservationSet']['item'][0]['ownerId']
-
-fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
-
-if headers
-    puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
-    puts "-----------------------------------------------------------------------------------"
-end
-
-
-instances.each { |img|
-    puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
-}
+puts "Success: Stopping #{result['instanceId']} in #{result['previousState']['name']} state"
 
 exit 0

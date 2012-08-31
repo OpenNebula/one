@@ -51,7 +51,7 @@ Options:
 
     --headers, -H
         Display column headers
-        
+
 EOT
 
 require 'econe/EC2QueryClient'
@@ -97,7 +97,7 @@ begin
     end
 rescue Exception => e
     exit -1
-end 
+end
 
 auth = "#{access}:#{secret}" if secret && access
 
@@ -115,25 +115,26 @@ if CloudClient::is_error?(rc)
     exit -1
 end
 
-images = rc['imagesSet']['item']
+images = []
+if rc['imagesSet']
+    images = rc['imagesSet']['item']
+end
 
-fmt = "%-12s %-13s %-14s %-12s %s"  
+fmt = "%-12s %-13s %-14s %-12s %s"
 
 if headers
     puts fmt % ["Owner", "ImageId", "Status", "Visibility", "Location"]
-    puts "------------------------------------------------------------------------------" 
+    puts "------------------------------------------------------------------------------"
 end
 
-if images 
-    images.each { |img|
-        if img['isPublic'] == 'true'
-            visibility = "public"
-        elsif img['isPublic'] == 'false'
-            visibility = "private"
-        end
-        puts fmt % [img['imageOwnerId'],img['imageId'], img['imageState'], visibility,img['imageLocation']]
-    }
-end
+images.each { |img|
+    if img['isPublic'] == 'true'
+        visibility = "public"
+    elsif img['isPublic'] == 'false'
+        visibility = "private"
+    end
+    puts fmt % [img['imageOwnerId'],img['imageId'], img['imageState'], visibility,img['imageLocation']]
+}
 
 exit 0
 

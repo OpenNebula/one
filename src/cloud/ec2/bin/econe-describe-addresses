@@ -50,7 +50,7 @@ Options:
 
     --headers, -H
         Display column headers
-        
+
 EOT
 
 require 'econe/EC2QueryClient'
@@ -96,7 +96,7 @@ begin
     end
 rescue Exception => e
     exit -1
-end 
+end
 
 auth = "#{access}:#{secret}" if secret && access
 
@@ -114,20 +114,21 @@ if CloudClient::is_error?(rc)
     exit -1
 end
 
-addresses = rc['addressesSet']['item']
+addresses = []
+if rc['addressesSet']
+    addresses = rc['addressesSet']['item']
+end
 
-fmt = "%-12s %s"  
+fmt = "%-12s %s"
 
 if headers
     puts fmt % ["publicIP", "instanceId"]
-    puts "------------------------------------------------------------------------------" 
+    puts "------------------------------------------------------------------------------"
 end
 
-if addresses 
-    addresses.each { |addr|
-        puts fmt % [addr['publicIP'],addr['instanceID']]
-    }
-end
+addresses.each { |addr|
+    puts fmt % [addr['publicIp'],addr['instanceId']]
+}
 
 exit 0
 

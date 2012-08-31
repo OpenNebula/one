@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<CreateVolumeResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
+  <requestId/>
+  <volumeId>vol-<%= sprintf('%08i', image.id) %></volumeId>
+  <size><%= image.render_size %></size>
+  <snapshotId/>
+  <availabilityZone/>
+  <status><%= image.render_state %></status>
+  <createTime><%= image.render_create_time %></createTime>
+</CreateVolumeResponse>

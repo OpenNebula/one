@@ -1080,12 +1080,21 @@ ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
                src/cloud/ec2/lib/EC2QueryServer.rb \
                src/cloud/ec2/lib/ImageEC2.rb \
                src/cloud/ec2/lib/elastic_ip.rb \
+               src/cloud/ec2/lib/ebs.rb \
+               src/cloud/ec2/lib/instance.rb \
                src/cloud/ec2/lib/econe-server.rb"
 
 ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"
 
 ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
                     src/cloud/ec2/lib/views/describe_instances.erb \
+                    src/cloud/ec2/lib/views/describe_regions.erb \
+                    src/cloud/ec2/lib/views/describe_availability_zones.erb \
+                    src/cloud/ec2/lib/views/create_volume.erb \
+                    src/cloud/ec2/lib/views/describe_volumes.erb \
+                    src/cloud/ec2/lib/views/attach_volume.erb \
+                    src/cloud/ec2/lib/views/detach_volume.erb \
+                    src/cloud/ec2/lib/views/delete_volume.erb \
                     src/cloud/ec2/lib/views/register_image.erb \
                     src/cloud/ec2/lib/views/run_instances.erb \
                     src/cloud/ec2/lib/views/allocate_address.erb \
@@ -1093,14 +1102,25 @@ ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
                     src/cloud/ec2/lib/views/disassociate_address.erb \
                     src/cloud/ec2/lib/views/describe_addresses.erb \
                     src/cloud/ec2/lib/views/release_address.erb \
-                    src/cloud/ec2/lib/views/terminate_instances.erb"
+                    src/cloud/ec2/lib/views/terminate_instances.erb \
+                    src/cloud/ec2/lib/views/stop_instances.erb \
+                    src/cloud/ec2/lib/views/reboot_instances.erb \
+                    src/cloud/ec2/lib/views/start_instances.erb"
 
 ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
                src/cloud/ec2/bin/econe-describe-images \
+               src/cloud/ec2/bin/econe-describe-volumes \
                src/cloud/ec2/bin/econe-describe-instances \
                src/cloud/ec2/bin/econe-register \
+               src/cloud/ec2/bin/econe-attach-volume \
+               src/cloud/ec2/bin/econe-detach-volume \
+               src/cloud/ec2/bin/econe-delete-volume \
+               src/cloud/ec2/bin/econe-create-volume \
                src/cloud/ec2/bin/econe-run-instances \
                src/cloud/ec2/bin/econe-terminate-instances \
+               src/cloud/ec2/bin/econe-start-instances \
+               src/cloud/ec2/bin/econe-stop-instances \
+               src/cloud/ec2/bin/econe-reboot-instances \
                src/cloud/ec2/bin/econe-describe-addresses \
                src/cloud/ec2/bin/econe-allocate-address \
                src/cloud/ec2/bin/econe-release-address \
@@ -1110,9 +1130,17 @@ ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
 
 ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
                src/cloud/ec2/bin/econe-describe-instances \
+               src/cloud/ec2/bin/econe-describe-volumes \
                src/cloud/ec2/bin/econe-register \
+               src/cloud/ec2/bin/econe-attach-volume \
+               src/cloud/ec2/bin/econe-detach-volume \
+               src/cloud/ec2/bin/econe-delete-volume \
+               src/cloud/ec2/bin/econe-create-volume \
                src/cloud/ec2/bin/econe-run-instances \
                src/cloud/ec2/bin/econe-terminate-instances \
+               src/cloud/ec2/bin/econe-start-instances \
+               src/cloud/ec2/bin/econe-stop-instances \
+               src/cloud/ec2/bin/econe-reboot-instances \
                src/cloud/ec2/bin/econe-describe-addresses \
                src/cloud/ec2/bin/econe-allocate-address \
                src/cloud/ec2/bin/econe-release-address \

@@ -23,16 +23,18 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
+
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-econe-describe-instances
+econe-detach-volume
 
-List and describe running instances
+Detaches an Amazon EBS volume from an instance. Make sure to unmount any
+file systems on the device within your operating system before detaching the volume
 
 Usage:
-    econe-describe-instances [OPTIONS]
+    econe-detach-volume [OPTIONS] VOLUME-ID
 
 Options:
 
@@ -48,8 +50,17 @@ Options:
     --url <url>, -U <url>
         Set url as the web service url to use
 
+    --instance <instance_id>, -i <instance_id>
+        The ID of the instance to attach the volume to
+
+    --device <device>, -d <device
+        Specifies the device name to expose to the instance.
+        Example: -d /dev/sdf
+
     --headers, -H
         Display column headers
+
+VOLUME-ID: The ID of the DATABLOCK
 
 EOT
 
@@ -65,6 +76,8 @@ opts = GetoptLong.new(
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
+            ['--instance',   '-i',GetoptLong::REQUIRED_ARGUMENT],
+            ['--device',     '-d',GetoptLong::REQUIRED_ARGUMENT],
             ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
        )
 
@@ -73,6 +86,8 @@ url     = nil
 access  = nil
 secret  = nil
 auth    = nil
+instance = nil
+device = nil
 
 begin
     opts.each do |opt, arg|
@@ -89,11 +104,22 @@ begin
                 secret = arg
             when '--url'
                 url = arg
+            when '--instance'
+                instance = arg
             when '--headers'
                 headers = true
+            when '--device'
+                device = arg
         end
     end
 rescue Exception => e
+    exit -1
+end
+
+volume_id = ARGV.shift
+
+if !volume_id
+    puts "#{cmd_name}: missing VOLUME-ID parameter"
     exit -1
 end
 
@@ -106,30 +132,20 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.describe_instances()
+rc = ec2_client.detach_volume(volume_id, instance, device)
 
 if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
 
-instances = []
-if rc['reservationSet']['item'][0]['instancesSet']
-    instances = rc['reservationSet']['item'][0]['instancesSet']['item']
-end
-
-owner     = rc['reservationSet']['item'][0]['ownerId']
-
-fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
+fmt = "%-15s %-15s %-10s %s"
 
 if headers
-    puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
-    puts "-----------------------------------------------------------------------------------"
+    puts fmt % ["volumeId", "instanceId", "status", "device"]
+    puts "------------------------------------------------------------------------------"
 end
 
-
-instances.each { |img|
-    puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
-}
+puts fmt % [rc['volumeId'], rc['instanceId'], rc['status'], rc['device']]
 
 exit 0

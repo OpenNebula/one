@@ -106,8 +106,9 @@ module OpenNebula
 
         # Replaces the template contents
         #
-        # +new_template+ New template contents
-        def update(new_template)
+        # +new_template+ New template contents. If no argument is provided
+        #   the object will be updated using the @xml variable
+        def update(new_template=nil)
             super(IMAGE_METHODS[:update], new_template)
         end
 
@@ -265,7 +266,7 @@ module OpenNebula
 
             chmod(-1, -1, -1, group_u, -1, -1, -1, -1, -1)
         end
-        
+
         def set_persistent(persistence)
             return Error.new('ID not defined') if !@pe_id
 

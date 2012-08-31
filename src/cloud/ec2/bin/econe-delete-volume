@@ -23,16 +23,17 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
+
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-econe-describe-instances
+econe-delete-volume
 
-List and describe running instances
+Deletes a DATABLOCK
 
 Usage:
-    econe-describe-instances [OPTIONS]
+    econe-delete-volume [OPTIONS] VOLUME-ID
 
 Options:
 
@@ -50,6 +51,8 @@ Options:
 
     --headers, -H
         Display column headers
+
+VOLUME-ID: The ID of the DATABLOCK
 
 EOT
 
@@ -97,6 +100,13 @@ rescue Exception => e
     exit -1
 end
 
+volume_id = ARGV.shift
+
+if !volume_id
+    puts "#{cmd_name}: missing VOLUME-ID parameter"
+    exit -1
+end
+
 auth = "#{access}:#{secret}" if secret && access
 
 begin
@@ -106,30 +116,11 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.describe_instances()
+rc = ec2_client.delete_volume(volume_id)
 
 if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
-
-instances = []
-if rc['reservationSet']['item'][0]['instancesSet']
-    instances = rc['reservationSet']['item'][0]['instancesSet']['item']
-end
-
-owner     = rc['reservationSet']['item'][0]['ownerId']
-
-fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
-
-if headers
-    puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
-    puts "-----------------------------------------------------------------------------------"
-end
-
-
-instances.each { |img|
-    puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
-}
 
 exit 0
