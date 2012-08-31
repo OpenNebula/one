@@ -173,6 +173,7 @@ int Host::update_info(string &parse_str)
 {
     char *  error_msg;
     int     rc;
+    float   fv;
 
     rc = obj_template->parse(parse_str, &error_msg);
 
@@ -184,14 +185,20 @@ int Host::update_info(string &parse_str)
         return -1;
     }
 
-    get_template_attribute("TOTALCPU",host_share.max_cpu);
-    get_template_attribute("TOTALMEMORY",host_share.max_mem);
+    get_template_attribute("TOTALCPU", fv);
+    host_share.max_cpu = static_cast<int>(fv);
+    get_template_attribute("TOTALMEMORY", fv);
+    host_share.max_mem = static_cast<int>(fv);
 
-    get_template_attribute("FREECPU",host_share.free_cpu);
-    get_template_attribute("FREEMEMORY",host_share.free_mem);
+    get_template_attribute("FREECPU", fv);
+    host_share.free_cpu = static_cast<int>(fv);
+    get_template_attribute("FREEMEMORY", fv);
+    host_share.free_mem = static_cast<int>(fv);
 
-    get_template_attribute("USEDCPU",host_share.used_cpu);
-    get_template_attribute("USEDMEMORY",host_share.used_mem);
+    get_template_attribute("USEDCPU", fv);
+    host_share.used_cpu = static_cast<int>(fv);
+    get_template_attribute("USEDMEMORY", fv);
+    host_share.used_mem = static_cast<int>(fv);
 
     return 0;
 }
