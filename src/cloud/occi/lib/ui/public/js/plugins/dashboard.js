@@ -22,6 +22,10 @@ var user_acct_graphs = [
     { title : tr("Memory"),
       monitor_resources : "MEMORY",
       humanize_figures : true
+    },
+    { title : tr("Net transfer rates"),
+      monitor_resources : "NETTX,NETRX",
+      humanize_figures : true
     }
 ];
 
@@ -88,6 +92,15 @@ var dashboard_tab_content =
            <tr><td id="legend_MEMORY"></td></tr>\
            <tr><td style="border:0;width:800px!important;">\
                  <div id="user_acct_MEMORY" style="height:100px;position:relative;left:0px;overflow: hidden;">'+
+                  spinner+
+                '</div>\
+              </td>\
+           </tr>\
+        </table>\
+       <table class="info_table">\
+           <tr><td id="legend_NETTX_NETRX"></td></tr>\
+           <tr><td style="border:0;width:800px!important;">\
+                 <div id="user_acct_NETTX_NETRX" style="height:100px;position:relative;left:0px;overflow: hidden;">'+
                   spinner+
                 '</div>\
               </td>\

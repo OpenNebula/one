@@ -1231,10 +1231,17 @@ function progressBar(value, opts){
 }
 
 function loadAccounting(resource, id, graphs, options){
+    var secs_in_day = 3600 * 24;
     var now = Math.floor(new Date().getTime() / 1000)
-    var start = options && options.start ? options.start : now - (3600 * 24);
+    var start = options && options.start ? options.start : now - secs_in_day;
     var end = options && options.end ? options.end : now;
-    var interval = options && options.interval ? options.interval : 60 * 60;
+    var interval;
+    if (options && options.interval){
+        interval = options.interval;
+    } else {
+        //If we are asking more than one interval is one day, otherwise 1 hour
+        interval = (end - start) > secs_in_day ? secs_in_day : 3600;
+    }
 
     for (var i = 0; i < graphs.length; i++){
         var graph_cfg = graphs[i];

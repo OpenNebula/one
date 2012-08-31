@@ -27,6 +27,14 @@ var group_acct_graphs = [
     { title : tr("Memory"),
       monitor_resources : "MEMORY",
       humanize_figures : true
+    },
+    { title : tr("Net TX"),
+      monitor_resources : "NETTX",
+      humanize_figures : true
+    },
+    { title : tr("Net RX"),
+      monitor_resources : "NETRX",
+      humanize_figures : true
     }
 ];
 
