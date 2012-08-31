@@ -530,9 +530,17 @@ int LibVirtDriver::deployment_description_kvm(
             passwd = graphics->vector_value("PASSWD");
             keymap = graphics->vector_value("KEYMAP");
 
-            if ( type == "vnc" || type == "VNC" )
+            if (type.empty() != false)
             {
-                file << "\t\t<graphics type='vnc'";
+                transform(type.begin(),
+                          type.end(),
+                          type.begin(),
+                          (int(*)(int))tolower);
+            }
+
+            if ( type == "vnc" || type == "spice" )
+            {
+                file << "\t\t<graphics type='" << type << "'";
 
                 if ( !listen.empty() )
                 {
@@ -559,7 +567,7 @@ int LibVirtDriver::deployment_description_kvm(
             else
             {
                 vm->log("VMM", Log::WARNING,
-                        "Not supported graphics type, ignored.");
+                        "Graphics not supported or undefined, ignored.");
             }
         }
     }
