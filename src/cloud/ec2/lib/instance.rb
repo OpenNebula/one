@@ -149,7 +149,7 @@ module Instance
         vmid=params['InstanceId.1']
         vmid=params['InstanceId.01'] if !vmid
 
-        tmp, vmid=vmid.split('-') if vmid[0]==?i
+        tmp, vmid=vmid.split('-') if vmid[0] == "i"
 
         vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),@client)
 

@@ -30,10 +30,10 @@ module EBS
         image_id  = params['VolumeId']
         vm_id_ec2 = params['InstanceId']
 
-        image_id = image_id.split('-')[1] if image_id[0]==?v
+        image_id  = image_id.split('-')[1] if image_id[0] == "v"
 
         image = Image.new(Image.build_xml(image_id), @client)
-        rc = image.info
+        rc    = image.info
         return rc if OpenNebula::is_error?(rc)
 
         if !vm_id_ec2
@@ -47,12 +47,13 @@ module EBS
             return rc
         end
 
-        vm_id = vm_id_ec2.split('-')[1] if vm_id_ec2[0]==?i
+        vm_id = vm_id_ec2.split('-')[1] if vm_id_ec2[0] == "i"
 
         # Detach
 
         vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
         rc = vm.info
+
         return rc if OpenNebula::is_error?(rc)
 
         disk_id = vm["TEMPLATE/DISK[IMAGE_ID=#{image_id.to_i}]/DISK_ID"]
@@ -69,22 +70,20 @@ module EBS
 
         return rc if OpenNebula::is_error?(rc)
 
-        attach_time = image["TEMPLATE/EBS[INSTANCE_ID=\"#{vm_id_ec2}\"]/ATTACH_TIME"]
-
         # Update IMAGE metadata
-        image.delete_element("TEMPLATE/EBS[INSTANCE_ID=\"#{vm_id_ec2}\"]")
+        image.delete_element("TEMPLATE/EBS")
+        
         rc = image.update
+
         if OpenNebula::is_error?(rc)
             logger.error {rc.message}
             return rc
         end
 
-
         # Response
-
         erb_version = params['Version']
+        response    = ERB.new(File.read(@config[:views]+"/detach_volume.erb"))
 
-        response = ERB.new(File.read(@config[:views]+"/detach_volume.erb"))
         return response.result(binding), 200
     end
 
@@ -99,19 +98,20 @@ module EBS
     #   instance (e.g., /dev/sdh, or xvdh)
     def attach_volume(params)
         image_id = params['VolumeId']
-        image_id = image_id.split('-')[1] if image_id[0]==?v
+        image_id = image_id.split('-')[1] if image_id[0] == "v"
 
         vm_id = params['InstanceId']
-        vm_id = vm_id.split('-')[1] if vm_id[0]==?i
+        vm_id = vm_id.split('-')[1] if vm_id[0] == "i"
 
         target = params['Device']
+
         if m = target.match(/^\/dev\/(\w+)$/)
             target = m[1]
         end
 
         # Check if the volume is already attached to another instance
         image = Image.new(Image.build_xml(image_id), @client)
-        rc = image.info
+        rc    = image.info
 
         return rc if OpenNebula::is_error?(rc)
 
@@ -128,10 +128,9 @@ module EBS
         return rc if OpenNebula::is_error?(rc)
 
         template = "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target} ]"
-        rc = vm.attachdisk(template)
+        rc       = vm.attachdisk(template)
 
         return rc if OpenNebula::is_error?(rc)
-
 
         # Update IMAGE metadata
         attach_time = Time.now.to_i
@@ -139,24 +138,25 @@ module EBS
         xml_hash = {'EBS' => {
             'INSTANCE_ID' => params['InstanceId'],
             "DEVICE" => params['Device'],
-            "ATTACH_TIME" => attach_time}
+            "ATTACH_TIME" => attach_time
+            }
         }
 
         image.add_element('TEMPLATE', xml_hash)
+
         rc = image.update
+
         if OpenNebula::is_error?(rc)
             logger.error rc.message
             return rc
         end
 
-
         # Response
-
-        erb_version = params['Version']
-
         vm.info
 
-        response = ERB.new(File.read(@config[:views]+"/attach_volume.erb"))
+        erb_version = params['Version']
+        response    = ERB.new(File.read(@config[:views]+"/attach_volume.erb"))
+
         return response.result(binding), 200
     end
 
@@ -180,23 +180,25 @@ module EBS
             :ebs => "YES"
         }
 
-        image = ImageEC2.new(Image.build_xml, @client, nil, opts)
-
+        image    = ImageEC2.new(Image.build_xml, @client, nil, opts)
         template = image.to_one_template
+
         if OpenNebula.is_error?(template)
             return template
         end
 
         rc = image.allocate(template, @config[:datastore_id]||1)
+
         if OpenNebula.is_error?(rc)
             return rc
         end
 
-        erb_version = params['Version']
-
+        # Response
         image.info
 
-        response = ERB.new(File.read(@config[:views]+"/create_volume.erb"))
+        erb_version = params['Version']
+        response    = ERB.new(File.read(@config[:views]+"/create_volume.erb"))
+
         return response.result(binding), 200
     end
 
@@ -209,13 +211,13 @@ module EBS
         image_id = image_id.split('-')[1] if image_id[0]==?v
 
         image = ImageEC2.new(Image.build_xml(image_id), @client)
-        rc = image.delete
+        rc    = image.delete
 
         return rc if OpenNebula::is_error?(rc)
 
         erb_version = params['Version']
+        response    = ERB.new(File.read(@config[:views]+"/delete_volume.erb"))
 
-        response = ERB.new(File.read(@config[:views]+"/delete_volume.erb"))
         return response.result(binding), 200
     end
 
@@ -223,14 +225,15 @@ module EBS
     # Describes your Amazon EBS volumes
     def describe_volumes(params)
         user_flag = OpenNebula::Pool::INFO_ALL
-        impool = ImageEC2Pool.new(@client, user_flag)
+        impool    = ImageEC2Pool.new(@client, user_flag)
+        
         rc = impool.info
 
         return rc if OpenNebula::is_error?(rc)
 
         erb_version = params['Version']
+        response    = ERB.new(File.read(@config[:views]+"/describe_volumes.erb"))
 
-        response = ERB.new(File.read(@config[:views]+"/describe_volumes.erb"))
         return response.result(binding), 200
     end
 
