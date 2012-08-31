@@ -348,7 +348,6 @@ var OpenNebula = {
             var data = params.data;
 
             var method = "monitor";
-            var action = OpenNebula.Helper.action(method);
             var request = OpenNebula.Helper.request(resource,method, data);
 
             var url = resource.toLowerCase();
@@ -711,6 +710,9 @@ var OpenNebula = {
         },
         "show" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Group.resource);
+        },
+        "accounting" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.Group.resource,false);
         }
     },
 
@@ -753,6 +755,9 @@ var OpenNebula = {
         },
         "fetch_template" : function(params){
             OpenNebula.Action.show(params,OpenNebula.User.resource,"template");
+        },
+        "accounting" : function(params){
+            OpenNebula.Action.monitor(params,OpenNebula.User.resource,false);
         },
         "set_quota" : function(params){
             var action_obj = { quotas :  params.data.extra_param };

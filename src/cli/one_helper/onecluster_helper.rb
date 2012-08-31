@@ -25,18 +25,10 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         :description => "Selects the cluster",
         :format => String,
         :proc   => lambda { |o, options|
-            ch = OneClusterHelper.new
-            rc, cid = ch.to_id(o)
-            if rc == 0
-                options[:cluster] = cid
-            else
-                puts cid
-                puts "option cluster: Parsing error"
-                exit -1
-            end
+            OpenNebulaHelper.rname_to_id(o, "CLUSTER")
         }
     }
-    
+
     def self.rname
         "CLUSTER"
     end

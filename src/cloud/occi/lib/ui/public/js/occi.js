@@ -255,22 +255,18 @@ var OCCI = {
                         callback_error(request, OCCI.Error(response)) : null;
                 }
             });
-        }
-/*
-        "monitor": function(params,resource,all){
+        },
+
+        "accounting": function(params, resource){
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
 
-            var method = "monitor";
-            var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(resource,method, data);
-
-            var url = resource.toLowerCase();
-            url = all ? url + "/monitor" : url + "/" + params.data.id + "/monitor";
+            var method = "accounting";
+            var request = OCCI.Helper.request(resource, method, data);
 
             $.ajax({
-                url: url,
+                url: 'ui/accounting',
                 type: "GET",
                 data: data['monitor'],
                 dataType: "json",
@@ -279,11 +275,10 @@ var OCCI = {
                 },
                 error: function(response){
                     return callback_error ?
-                        callback_error(request, OpenNebula.Error(response)) : null;
+                        callback_error(request, OCCI.Error(response)) : null;
                 }
             });
         }
-*/
     },
 
     "Auth": {
@@ -600,7 +595,9 @@ var OCCI = {
         },
         "show" : function(params){
             OCCI.Action.show(params,OCCI.User.resource);
+        },
+        "accounting" : function(params){
+            OCCI.Action.accounting(params, OCCI.User.resource);
         }
-
     }
 }

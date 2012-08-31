@@ -303,13 +303,22 @@ get '/vm/:id/log' do
 end
 
 ##############################################################################
-# Monitoring
+# Accounting & Monitoring
 ##############################################################################
 
 get '/:resource/monitor' do
     @SunstoneServer.get_pool_monitoring(
         params[:resource],
         params[:monitor_resources])
+end
+
+get '/user/:id/monitor' do
+    @SunstoneServer.get_user_accounting(params)
+end
+
+get '/group/:id/monitor' do
+    params[:gid] = params[:id]
+    @SunstoneServer.get_user_accounting(params)
 end
 
 get '/:resource/:id/monitor' do

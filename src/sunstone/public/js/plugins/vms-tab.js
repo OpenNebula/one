@@ -633,6 +633,10 @@ var vm_info_panel = {
     "vm_history_tab" : {
         title: tr("History information"),
         content: ""
+    },
+    "vm_monitoring_tab" : {
+        title: tr("Monitoring information"),
+        content: ""
     }
 };
 

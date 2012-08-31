@@ -443,4 +443,8 @@ post '/ui/startvnc/:id' do
     @occi_server.startvnc(vm_id, settings.vnc)
 end
 
+get '/ui/accounting' do
+    @occi_server.get_user_accounting(params)
+end
+
 Sinatra::Application.run!
