@@ -51,9 +51,13 @@ Commands:
 * update <occi xml file>
       updates the representation of the storage resource represented by the
       provided <occi xml file>
-      
+
 * delete <storage id>
        deletes the storage resource idenfitied by <storage id>
+
+* clone <storage id> <name>
+       clones the storage resource idenfitied by <storage id> in a new one
+       using the given <name>
 
 
 Options:
@@ -205,6 +209,28 @@ case ARGV[0].downcase
 
         rc = occi_client.delete_image(image_id)
 
+    when 'clone'
+        image_id = ARGV[1]
+        name = ARGV[2]
+
+        if !image_id
+            puts "#{cmd_name} clone: missing storage id parameter"
+            exit(-1)
+        end
+
+        if !name
+            puts "#{cmd_name} clone: missing name parameter"
+            exit(-1)
+        end
+
+        xml = "<ACTION>"
+        xml << "    <PERFORM>CLONE</PERFORM>"
+        xml << "    <PARAMS>"
+        xml << "        <NAME>#{name}</NAME>"
+        xml << "    </PARAMS>"
+        xml << "</ACTION>"
+
+        rc = occi_client.action_image(image_id, xml)
     else
         puts "Command #{ARGV[0]} not valid."
         exit(-1)
@@ -213,7 +239,7 @@ end
 if CloudClient::is_error?(rc)
     puts rc.to_s()
     exit(-1)
-else 
+else
     str, code = print_xml(rc)
     puts str
     exit(code)

@@ -37,7 +37,7 @@ Usage:
 Commands:
 
 * create <occi xml file>
-       creates a new compute resource described by the provided 
+       creates a new compute resource described by the provided
        <occi xml file>
 
 * list
@@ -54,6 +54,11 @@ Commands:
 * delete <compute id>
        deletes the compute resource idenfitied by <compute id>
 
+* attachdisk <compute id> <storage id>
+       attaches an storage to a given compute
+
+* detachdisk <compute id> <disk id>
+       detaches the target disk form the compute
 
 Options:
 
@@ -133,7 +138,7 @@ begin
     end
 rescue Exception => e
     exit(-1)
-end 
+end
 
 begin
     occi_client = OCCIClient::Client.new(url,username,password, timeout, debug, plain)
@@ -146,7 +151,7 @@ if !ARGV[0]
     puts "#{cmd_name}: [COMMAND] not present"
     puts "#{cmd_name}: Execute #{cmd_name} -h for help."
     exit(-1)
-end   
+end
 
 case ARGV[0].downcase
     when 'list'
@@ -165,13 +170,13 @@ case ARGV[0].downcase
     when 'show'
         vm_id = ARGV[1]
 
-        if !vm_id 
+        if !vm_id
             puts "#{cmd_name} show: missing VM-ID parameter"
             exit(-1)
         end
 
         rc = occi_client.get_vm(vm_id)
-        
+
     when 'update'
         vm_xml = ARGV[1]
 
@@ -181,17 +186,53 @@ case ARGV[0].downcase
         end
 
         rc = occi_client.put_vm(vm_xml)
-        
+
     when 'delete'
         vm_id = ARGV[1]
 
-        if !vm_id 
+        if !vm_id
             puts "#{cmd_name} delete: missing VM-ID parameter"
             exit -1
         end
 
         rc = occi_client.delete_vm(vm_id)
-        
+
+    when 'attachdisk'
+        vm_id = ARGV[1]
+        image_id = ARGV[2]
+
+        if !image_id
+            puts "#{cmd_name} show: missing storage id parameter"
+            exit(-1)
+        end
+
+        xml = "<ACTION>"
+        xml << "    <PERFORM>ATTACHDISK</PERFORM>"
+        xml << "    <PARAMS>"
+        xml << "        <STORAGE href=\"#{url}/storage/#{image_id.to_s}\"/>"
+        xml << "    </PARAMS>"
+        xml << "</ACTION>"
+
+        rc = occi_client.action_vm(vm_id, xml)
+
+    when 'detachdisk'
+        vm_id = ARGV[1]
+        disk_id = ARGV[2]
+
+        if !disk_id
+            puts "#{cmd_name} show: missing disk id parameter"
+            exit(-1)
+        end
+
+        xml = "<ACTION>"
+        xml << "    <PERFORM>DETACHDISK</PERFORM>"
+        xml << "    <PARAMS>"
+        xml << "        <DISK id=\"#{disk_id}\"/>"
+        xml << "    </PARAMS>"
+        xml << "</ACTION>"
+
+        rc = occi_client.action_vm(vm_id, xml)
+
     else
         puts "Command #{ARGV[0]} not valid."
         exit(-1)
@@ -200,7 +241,7 @@ end
 if CloudClient::is_error?(rc)
     puts rc.to_s()
     exit(-1)
-else 
+else
     str, code = print_xml(rc)
     puts str
     exit(code)

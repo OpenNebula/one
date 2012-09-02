@@ -233,6 +233,10 @@ module OCCIClient
             delete('/compute/'+id.to_s)
         end
 
+        def action_vm(id, xml)
+            post('/compute/'+id.to_s+'/action', xml, false)
+        end
+
         ######################################################################
         # Retrieves a Virtual Network
         # :id Virtual Network identifier
@@ -279,6 +283,10 @@ module OCCIClient
             delete('/storage/'+id.to_s)
         end
 
+        def action_image(id, xml)
+            post('/storage/'+id.to_s+'/action', xml, false)
+        end
+
         private
 
         def get(path, verbose=false)
@@ -289,11 +297,15 @@ module OCCIClient
             do_request(url, req)
         end
 
-        def post(path, xmlfile)
+        def post(path, xmlfile, file=true)
             url = URI.parse(@endpoint+path)
             req = Net::HTTP::Post.new(url.path)
 
-            req.body=File.read(xmlfile)
+            if file
+                req.body=File.read(xmlfile)
+            else
+                req.body=xmlfile
+            end
 
             do_request(url, req)
         end
