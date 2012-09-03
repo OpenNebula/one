@@ -74,9 +74,9 @@ var dashboard_tab_content =
         <div class="panel_info">\
 \
           <div style="margin-left:20px;text-align:center;">\
-'+tr("From")+':&nbsp;<input type="text" style="font-size:12px;width: 80px;" id="user_acct_from" name="from"/>&nbsp;&nbsp;\
-'+tr("To")+':&nbsp;<input type="text" style="font-size:12px;width: 80px;" id="user_acct_to" name="to"/>\
-&nbsp;&nbsp;<a href="#" class="user_acct_date_ok">'+tr('Go!')+' <i class="icon-ok"></i></a>\
+'+tr("From")+':&nbsp;<input type="text" style="font-size:12px;width:80px;padding: 3px;" id="user_acct_from" name="from"/>&nbsp;&nbsp;\
+'+tr("To")+':&nbsp;<input type="text" style="font-size:12px;width: 80px;padding: 3px;" id="user_acct_to" name="to"/>\
+&nbsp;&nbsp;<button class="user_acct_date_ok">'+tr('Update')+'</button>\
           </div>\
 \
         <table class="info_table">\

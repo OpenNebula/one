@@ -470,13 +470,13 @@ function updateGroupInfo(request,group){
 
    var acct_tab = {
         title : tr("Historical usages"),
-        content : '<div><table class="info_table" style="margin-bottom:0">\
+        content : '<div><table class="info_table" style="margin-bottom:0;width:100%;">\
   <tr>\
     <td class="key_td"><label for="from">'+tr('From / to')+'</label></td>\
     <td class="value_td">\
-       <input type="text" id="group_acct_from" name="from"/>\
-       <input type="text" id="group_acct_to" name="to"/>\
-       <button id="group_acct_date_ok"><i class="icon-ok"></i></button>\
+       <input style="width: 7em" type="text" id="group_acct_from" name="from"/>\
+       <input style="width: 7em" type="text" id="group_acct_to" name="to"/>\
+       <button id="group_acct_date_ok">'+tr("Update")+'</button>\
     </td>\
   </tr>\
 <!--\
