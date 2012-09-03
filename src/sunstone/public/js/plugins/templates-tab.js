@@ -412,8 +412,9 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                     <option value="">'+tr("Please select")+'</option>\
                                         <option id="vnc" value="vnc">'+tr("VNC")+'</option>\
                                         <option value="sdl">'+tr("SDL")+'</option>\
+                                        <option value="spice">'+tr("SPICE")+'</option>\
                                   </select>\
-                                  <div class="tip">'+tr("VMware supports VNC only")+'</div>\
+                                  <div class="tip">'+tr("VMware supports VNC only. SPICE is supported by KVM")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="LISTEN">'+tr("Listen IP")+':</label>\
@@ -423,17 +424,17 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="PORT">'+tr("Port")+':</label>\
                                   <input type="text" id="PORT" name="port" />\
-                                  <div class="tip">'+tr("Port for the VNC server")+'</div>\
+                                  <div class="tip">'+tr("Port for the VNC/SPICE server")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="PASSWD">'+tr("Password")+':</label>\
                                   <input type="text" id="PASSWD" name="graphics_pw" />\
-                                  <div class="tip">'+tr("Password for the VNC server")+'</div>\
+                                  <div class="tip">'+tr("Password for the VNC/SPICE server")+'</div>\
                             </div>\
                             <div class="vm_param kvm_opt xen_opt vmware_opt">\
                                   <label for="KEYMAP">'+tr("Keymap")+'</label>\
                                   <input type="text" id="KEYMAP" name="keymap" />\
-                                  <div class="tip">'+tr("Keyboard configuration locale to use in the VNC display")+'</div>\
+                                  <div class="tip">'+tr("Keyboard configuration locale to use in the VNC/SPICE display")+'</div>\
                             </div>\
                           </fieldset>\
                           </div>\
@@ -1599,6 +1600,7 @@ function setupCreateTemplateDialog(){
             g_type = $(this).val();
             switch (g_type) {
             case "vnc":
+            case "spice":
                 $('#LISTEN',section_graphics).parent().show();
                 $('#PORT',section_graphics).parent().show();
                 $('#PASSWD',section_graphics).parent().show();
