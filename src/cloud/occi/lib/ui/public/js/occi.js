@@ -66,16 +66,14 @@ var OCCI = {
     "Helper": {
         "action": function(action, params)
         {
-            obj = {
-                "action": {
-                    "perform": action
-                }
+            action = {
+                "perform": action
             }
             if (params)
             {
-                obj.action.params = params;
+                action.params = params;
             }
-            return obj;
+            return action;
         },
 
         "request": function(resource, method, data) {
@@ -244,6 +242,37 @@ var OCCI = {
                 url: resource.toLowerCase() + "/" + id,
                 type: "PUT",
                 data: body,
+                dataType: "xml ONEjson",
+                success: function(response){
+                    var res = {};
+                    res[resource] = response;
+                    return callback ? callback(request,res) : null;
+                },
+                error: function(response){
+                    return callback_error ?
+                        callback_error(request, OCCI.Error(response)) : null;
+                }
+            });
+        },
+
+        "simple_action" : function(params, resource, method, action_obj){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+
+            var action,request;
+            if (action_obj) {
+                action = OCCI.Helper.action(method, action_obj);
+                request = OCCI.Helper.request(resource,method, [id, action_obj]);
+            } else {
+                action = OCCI.Helper.action(method);
+                request = OCCI.Helper.request(resource,method, id);
+            };
+
+            $.ajax({
+                url: resource.toLowerCase() + "/" + id + '/action',
+                type: "POST",
+                data: json2xml(action,'ACTION'),
                 dataType: "xml ONEjson",
                 success: function(response){
                     var res = {};
@@ -455,7 +484,6 @@ var OCCI = {
             var resource = OCCI.VM.resource;
 
             var method = startstop;
-            var action = OCCI.Helper.action(method);
             var request = OCCI.Helper.request(resource,method, id);
             $.ajax({
                 url: "ui/" + method + "/" + id,
@@ -532,52 +560,11 @@ var OCCI = {
         "nonpersistent": function(params){
             params.data.body = { "PERSISTENT":"NO" };
             OCCI.Action.update(params,OCCI.Image.resource,"nonpersistent");
-        }
-    },
-
-    "Template" : {
-        "resource" : "VMTEMPLATE",
-
-        "create" : function(params){
-            OCCI.Action.create(params,OCCI.Template.resource);
         },
-        "del" : function(params){
-            OCCI.Action.del(params,OCCI.Template.resource);
-        },
-        "list" : function(params){
-            OCCI.Action.list(params,OCCI.Template.resource);
-        },
-        "show" : function(params){
-            OCCI.Action.show(params,OCCI.Template.resource);
-        },
-        "chown" : function(params){
-            OCCI.Action.chown(params,OCCI.Template.resource);
-        },
-        "chgrp" : function(params){
-            OCCI.Action.chgrp(params,OCCI.Template.resource);
-        },
-        "update" : function(params){
-            var action_obj = {"template_raw" : params.data.extra_param };
-            OCCI.Action.simple_action(params,
-                                     OCCI.Template.resource,
-                                     "update",
-                                     action_obj);
-        },
-        "fetch_template" : function(params){
-            OCCI.Action.show(params,OCCI.Template.resource,"template");
-        },
-        "publish" : function(params){
-            OCCI.Action.simple_action(params,OCCI.Template.resource,"publish");
-        },
-        "unpublish" : function(params){
-            OCCI.Action.simple_action(params,OCCI.Template.resource,"unpublish");
-        },
-
-        "instantiate" : function(params) {
-            var vm_name = params.data.extra_param ? params.data.extra_param : "";
-            var action_obj = { "vm_name" : vm_name };
-            OCCI.Action.simple_action(params,OCCI.Template.resource,
-                                            "instantiate",action_obj);
+        "clone" : function(params){
+            var action_obj = { 'NAME' : params.data.extra_param };
+            OCCI.Action.simple_action(params, OCCI.Image.resource,
+                                      "clone", action_obj)
         }
     },
 

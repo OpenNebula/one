@@ -100,13 +100,27 @@ var create_image_tmpl =
         </div>\
 </div>';
 
+var clone_image_tmpl = '<form><fieldset>\
+<div class="clone_one">'+tr("Choose a new name for the image")+':</div>\
+<div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
+<br />\
+<label class="clone_one">'+tr("Name")+':</label>\
+<label class="clone_several">'+tr("Prefix")+':</label>\
+<input type="text" name="name"></input>\
+<br /><br />\
+<div class="form_buttons">\
+  <button type="button" class="image_close_dialog_link">'+tr("Close")+'</button>\
+  <button class="button" id="clone_image" value="Image.clone">\
+'+tr("Clone")+'\
+  </button>\
+</div></fieldset></form>'
+
 var image_dashboard = '<div class="dashboard_p">\
 <img src="'+storage_dashboard_image+'" alt="one-storage" />'+
     storage_dashboard_html +
     '</div>';
 
 var dataTable_images;
-var $create_image_dialog;
 
 var image_actions = {
 
@@ -175,6 +189,18 @@ var image_actions = {
         notify: true
     },
 
+    "Image.clone_dialog" : {
+        type: "custom",
+        call: popUpImageCloneDialog
+    },
+
+    "Image.clone" : {
+        type: "single",
+        call: OCCI.Image.clone,
+        error: onError,
+        notify: true
+    },
+
     // "Image.publish" : {
     //     type: "multiple",
     //     call: OCCI.Image.publish,
@@ -239,6 +265,10 @@ var image_buttons = {
     //         },
     //     }
     //  },
+    "Image.clone_dialog" : {
+        type: "action",
+        text: tr("Clone")
+    },
     "Image.delete" : {
         type: "action",
         text: tr("Delete")
@@ -259,6 +289,13 @@ var image_create_panel = {
     }
 };
 
+var image_clone_panel = {
+    "image_clone_panel" : {
+        title: tr("Clone image"),
+        content: clone_image_tmpl
+    }
+}
+
 var images_tab = {
     title: '<i class="icon-folder-open"></i>'+tr("Storage"),
     content: images_tab_content,
@@ -269,6 +306,7 @@ Sunstone.addActions(image_actions);
 Sunstone.addMainTab('images_tab',images_tab);
 Sunstone.addInfoPanel('image_info_panel',image_info_panel);
 Sunstone.addInfoPanel('image_create_panel',image_create_panel);
+Sunstone.addInfoPanel('image_clone_panel',image_clone_panel);
 
 
 function imageElements() {
@@ -390,7 +428,6 @@ function updateImageInfo(request,img){
 function popUpCreateImageDialog(){
     Sunstone.popUpInfoPanel("image_create_panel");
     var dialog = $('#dialog');
-    $create_image_dialog = dialog;
 
     $('#create_image',dialog).button({
         icons: {
@@ -429,13 +466,13 @@ function popUpCreateImageDialog(){
 */
     $('#img_type',dialog).change(function(){
         if ($(this).val() == "DATABLOCK"){
-            $('#img_fstype',$create_image_dialog).parents('div.img_param').show();
-            $('#img_size',$create_image_dialog).parents('div.img_param').show();
-            $('#upload_div',$create_image_dialog).hide();
+            $('#img_fstype',dialog).parents('div.img_param').show();
+            $('#img_size',dialog).parents('div.img_param').show();
+            $('#upload_div',dialog).hide();
         } else {
-            $('#img_fstype',$create_image_dialog).parents('div.img_param').hide();
-            $('#img_size',$create_image_dialog).parents('div.img_param').hide();
-            $('#upload_div',$create_image_dialog).show();
+            $('#img_fstype',dialog).parents('div.img_param').hide();
+            $('#img_size',dialog).parents('div.img_param').hide();
+            $('#upload_div',dialog).show();
         };
     });
 
@@ -454,7 +491,7 @@ function popUpCreateImageDialog(){
     var img_obj;
 
     var uploader = new qq.FileUploaderBasic({
-        button: $('#file-uploader',$create_image_dialog)[0],
+        button: $('#file-uploader',dialog)[0],
         action: 'ui/upload',
         multiple: false,
         params: {},
@@ -493,8 +530,6 @@ function popUpCreateImageDialog(){
     $('#file-uploader input').attr('style','margin:0;width:256px!important');
 
     var processCreateImageForm = function(){
-        var dialog = $create_image_dialog;
-
         var img_json = {};
 
         var name = $('#img_name',dialog).val();
@@ -549,6 +584,63 @@ function popUpCreateImageDialog(){
         };
         return false;
     });
+}
+
+function popUpImageCloneDialog(){
+    Sunstone.popUpInfoPanel("image_clone_panel");
+    var dialog = $('#dialog');
+
+    $('#clone_image',dialog).button({
+        icons: {
+            primary: "ui-icon-check"
+        },
+        text: true
+    });
+
+    $('.image_close_dialog_link',dialog).button({
+        icons: {
+            primary: "ui-icon-closethick"
+        },
+        text: true
+    });
+
+    $('form',dialog).submit(function(){
+        var name = $('input', this).val();
+        var sel_elems = imageElements();
+        if (!name || !sel_elems.length)
+            notifyError('A name or prefix is needed!');
+        if (sel_elems.length > 1){
+            for (var i=0; i< sel_elems.length; i++)
+                //If we are cloning several images we
+                //use the name as prefix
+                Sunstone.runAction('Image.clone',
+                                   sel_elems[i],
+                                   name+getName(sel_elems[i],
+                                                dataTable_images, 2));
+        } else {
+            Sunstone.runAction('Image.clone',sel_elems[0],name)
+        };
+        setTimeout(function(){
+            Sunstone.runAction('Image.refresh');
+        }, 1500);
+        popUpImageDashboard();
+        return false;
+    });
+
+    var sel_elems = imageElements();
+    //show different text depending on how many elements are selected
+    if (sel_elems.length > 1){
+        $('.clone_one',dialog).hide();
+        $('.clone_several',dialog).show();
+        $('input',dialog).val('Copy of ');
+    }
+    else {
+        $('.clone_one',dialog).show();
+        $('.clone_several',dialog).hide();
+        $('input',dialog).val('Copy of '+getName(sel_elems[0],
+                                                 dataTable_images, 2));
+    };
+
 }
 
 function popUpImageDashboard(){
