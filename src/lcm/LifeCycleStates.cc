@@ -150,6 +150,9 @@ void  LifeCycleManager::save_failure_action(int vid)
         int                     cpu,mem,disk;
         time_t                  the_time = time(0);
 
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
         //----------------------------------------------------
         //           RUNNING STATE FROM SAVE_MIGRATE
         //----------------------------------------------------
@@ -194,10 +197,15 @@ void  LifeCycleManager::save_failure_action(int vid)
                 " Assuming that the VM is still RUNNING (will poll VM).");
 
         //----------------------------------------------------
+
+        vmm->trigger(VirtualMachineManager::POLL,vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
               vm->get_lcm_state() == VirtualMachine::SAVE_STOP )
     {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
         //----------------------------------------------------
         //    RUNNING STATE FROM SAVE_SUSPEND OR SAVE_STOP
         //----------------------------------------------------
@@ -210,6 +218,8 @@ void  LifeCycleManager::save_failure_action(int vid)
                 " Assuming that the VM is still RUNNING (will poll VM).");
 
         //----------------------------------------------------
+
+        vmm->trigger(VirtualMachineManager::POLL,vid);
     }
 
     vm->unlock();
@@ -286,6 +296,9 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         int     cpu,mem,disk;
         time_t  the_time = time(0);
 
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
         //----------------------------------------------------
         //           RUNNING STATE FROM MIGRATE
         //----------------------------------------------------
@@ -332,6 +345,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
                 " Assuming that the VM is still RUNNING (will poll VM).");
 
         //----------------------------------------------------
+
+        vmm->trigger(VirtualMachineManager::POLL,vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT)
     {
@@ -392,6 +407,9 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 {
     VirtualMachine *        vm;
 
+    Nebula&                 nd = Nebula::instance();
+    VirtualMachineManager * vmm = nd.get_vmm();
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -411,6 +429,8 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
             " Assuming that the VM is still RUNNING (will poll VM).");
 
     //----------------------------------------------------
+
+    vmm->trigger(VirtualMachineManager::POLL,vid);
 
     vm->unlock();
 }
@@ -635,6 +655,9 @@ void  LifeCycleManager::cancel_failure_action(int vid)
 {
     VirtualMachine *    vm;
 
+    Nebula&                 nd = Nebula::instance();
+    VirtualMachineManager * vmm = nd.get_vmm();
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -654,6 +677,8 @@ void  LifeCycleManager::cancel_failure_action(int vid)
             " Assuming that the VM is still RUNNING (will poll VM).");
 
     //----------------------------------------------------
+
+    vmm->trigger(VirtualMachineManager::POLL,vid);
 
     vm->unlock();
 }
