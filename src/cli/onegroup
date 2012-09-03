@@ -113,4 +113,24 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
         end
     end  
+
+    batchquota_desc = <<-EOT.unindent
+        Sets the quota limits in batch for various groups. If a path is not
+        provided the editor will be launched to create new quotas.
+    EOT
+
+    command :batchquota, batchquota_desc, [:range, :groupid_list], [:file, nil] do
+        batch_str = OneQuotaHelper.get_batch_quota(args[1])
+
+        helper.perform_actions(args[0], options, "modified") do |group|
+            str = OneQuotaHelper.merge_quota(group, batch_str)
+
+            if OpenNebula.is_error?(str)
+                str
+            else
+                rc  = group.set_quota(str)
+                rc
+            end
+        end
+    end
 end

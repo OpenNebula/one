@@ -152,6 +152,72 @@ class OneQuotaHelper
         str
     end
 
+    #  Retrieves a clean quota template, without any existing resource
+    #  information
+    #  @param path [String] path to the new contents. If nil a editor will be 
+    #         used
+    #  @return [String] contents of the new quotas
+    def self.get_batch_quota(path)
+        str = ""
+
+        if path.nil?
+            require 'tempfile'
+
+            tmp  = Tempfile.new('one-cli')
+            path = tmp.path
+
+            tmp << HELP_QUOTA << "\n"
+
+            tmp.close
+
+            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+            system("#{editor_path} #{path}")
+
+            unless $?.exitstatus == 0
+                puts "Editor not defined"
+                exit -1
+            end
+
+            str = File.read(path)
+
+            File.unlink(path)
+        else
+            str = File.read(path)
+        end
+
+        str
+    end
+
+    #  Edits the quota template of a resource, adding the quotas set in str
+    #  @param resource [PoolElement] to get the current info from
+    #  @param str [String] quota template, created by get_batch_quota()
+    #  @return [String, OpenNebula::Error] merged contents of the new quotas on 
+    #    success, Error if the user info could not be retrieved
+    def self.merge_quota(resource, str)
+        rc = resource.info
+
+        if OpenNebula.is_error?(rc)
+            return rc
+        end
+
+        # Instead of parsing the existing quotas, and deleting the ones that
+        # conflict with the batch quota string, the new quotas are placed at
+        # the end of the template sent to opennebula. This relies on the core
+        # reading them in order and replacing the quotas with each new
+        # appearance
+
+        tmp_str = ""
+
+        tmp_str << resource.template_like_str("DATASTORE_QUOTA") << "\n"
+        tmp_str << resource.template_like_str("VM_QUOTA") << "\n"
+        tmp_str << resource.template_like_str("NETWORK_QUOTA") << "\n"
+        tmp_str << resource.template_like_str("IMAGE_QUOTA") << "\n"
+
+        tmp_str << str
+
+        return tmp_str
+    end
+
     #  Outputs formated quota information to stdout
     #  @param qh [Hash] with the quotas for a given resource
     #
