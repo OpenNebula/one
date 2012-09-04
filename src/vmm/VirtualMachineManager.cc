@@ -1127,6 +1127,8 @@ void VirtualMachineManager::poll_action(
         "",
         vm->to_xml(vm_tmpl));
 
+    vm->set_last_poll(time(0));
+
     vmd->poll(vid, *drv_msg);
 
     delete drv_msg;
