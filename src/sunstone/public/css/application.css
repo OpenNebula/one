@@ -43,7 +43,7 @@ h2 {
     margin-top: 8px;
     padding-bottom: 2px;
     width:280px;
-    minWidth: 200px;
+    min-width: 200px;
     color: #636663;
     border-bottom: 2px solid;
 }
@@ -337,7 +337,7 @@ textarea:focus{
 .add_button {
     margin-left:148px;
     /* In some languages the word add is longer */
-    width:58px !important;*/
+    /* width:58px !important; */
 }
 
 .remove_button {
