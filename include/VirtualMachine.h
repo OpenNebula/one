@@ -56,7 +56,8 @@ public:
         STOPPED   = 4,
         SUSPENDED = 5,
         DONE      = 6,
-        FAILED    = 7
+        FAILED    = 7,
+        POWEROFF  = 8
     };
 
     /**
@@ -81,7 +82,8 @@ public:
         FAILURE        = 14,
         CLEANUP        = 15,
         UNKNOWN        = 16,
-        HOTPLUG        = 17
+        HOTPLUG        = 17,
+        SHUTDOWN_POWEROFF = 18
     };
 
     // -------------------------------------------------------------------------

@@ -328,6 +328,10 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         rc = dm->reset(id);
     }
+    else if (action == "poweroff")
+    {
+        rc = dm->poweroff(id);
+    }
 
     switch (rc)
     {
