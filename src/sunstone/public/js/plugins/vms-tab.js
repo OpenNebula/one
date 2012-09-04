@@ -1221,7 +1221,6 @@ function hotpluggingOps(){
         var b = $(this);
         var vm_id = b.parents('form').attr('vmid');
         var disk_id = b.parents('tr').attr('disk_id');
-        var parent = b.parent();
 
         Sunstone.runAction('VM.detachdisk', vm_id, disk_id);
 

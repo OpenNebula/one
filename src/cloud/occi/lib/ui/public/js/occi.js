@@ -500,6 +500,19 @@ var OCCI = {
         },
         "startvnc" : function(params){
             OCCI.VM.vnc(params,"startvnc");
+        },
+
+        "attachdisk" : function(params){
+            var action_obj = {"disk_template": params.data.extra_param};
+            OCCI.Action.simple_action(params,OCCI.VM.resource,
+                                      "attachdisk",
+                                      params.data.extra_param);
+        },
+        "detachdisk" : function(params){
+            // extra param is disk id
+            var action_obj = '<DISK id="'+params.data.extra_param+'"/>'
+            OCCI.Action.simple_action(params,OCCI.VM.resource,
+                                      "detachdisk", action_obj);
         }
 /*
         "monitor" : function(params){
