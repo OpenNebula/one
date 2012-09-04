@@ -876,7 +876,8 @@ TM_VMWARE_FILES="src/tm_mad/vmware/clone \
                  src/tm_mad/vmware/mkimage \
                  src/tm_mad/vmware/mv \
                  src/tm_mad/vmware/context \
-                 src/tm_mad/vmware/mvds"
+                 src/tm_mad/vmware/mvds \
+                 src/tm_mad/vmware/tm_vmwarerc"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
