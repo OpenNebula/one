@@ -49,7 +49,8 @@ public class VirtualMachine extends PoolElement{
         "STOPPED",
         "SUSPENDED",
         "DONE",
-        "FAILED" };
+        "FAILED",
+        "POWEROFF" };
 
     private static final String[] SHORT_VM_STATES =
     {
@@ -60,7 +61,8 @@ public class VirtualMachine extends PoolElement{
         "stop",
         "susp",
         "done",
-        "fail" };
+        "fail",
+        "poff" };
 
     private static final String[] LCM_STATE =
     {
@@ -81,7 +83,8 @@ public class VirtualMachine extends PoolElement{
         "FAILURE",
         "CLEANUP",
         "UNKNOWN",
-        "HOTPLUG" };
+        "HOTPLUG",
+        "SHUTDOWN_POWEROFF" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -102,7 +105,8 @@ public class VirtualMachine extends PoolElement{
         "fail",
         "clea",
         "unkn",
-        "hotp" };
+        "hotp",
+        "poff" };
 
     /**
      * Creates a new VM representation.
@@ -122,7 +126,6 @@ public class VirtualMachine extends PoolElement{
     {
         super(xmlElement, client);
     }
-
 
     // =================================
     // Static XML-RPC methods
@@ -306,11 +309,12 @@ public class VirtualMachine extends PoolElement{
      * <li>{@link VirtualMachine#resume()}</li>
      * <li>{@link VirtualMachine#finalizeVM()}</li>
      * <li>{@link VirtualMachine#restart()}</li>
+     * <li>{@link VirtualMachine#poweroff()}</li>
      * </ul>
      *
      * @param action The action name to be performed, can be:<br/>
      * "shutdown", "reboot", "hold", "release", "stop", "cancel", "suspend",
-     * "resume", "restart", "finalize".
+     * "resume", "restart", "finalize","poweroff".
      * @return If an error occurs the error message contains the reason.
      */
     protected OneResponse action(String action)
