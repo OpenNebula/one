@@ -343,15 +343,6 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.poweron" : { // alias for restart
-        type: "multiple",
-        call: OpenNebula.VM.restart,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
     "VM.poweroff" : {
         type: "multiple",
         call: OpenNebula.VM.poweroff,
@@ -599,11 +590,6 @@ var vm_buttons = {
                 type: "confirm",
                 text: tr("Resubmit"),
                 tip: tr("This will resubmits VMs to PENDING state")
-            },
-            "VM.poweron" : {
-                type : "confirm",
-                text: tr("Power On"),
-                tip: tr("This will start on powered off machines")
             },
             "VM.poweroff" : {
                 type : "confirm",
