@@ -58,7 +58,7 @@ class OCCIServer < CloudServer
         if config[:ssl_server]
             @base_url=config[:ssl_server]
         else
-            @base_url="http://#{config[:server]}:#{config[:port]}"
+            @base_url="http://#{config[:host]}:#{config[:port]}"
         end
 
         @client = client
