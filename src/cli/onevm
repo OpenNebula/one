@@ -280,9 +280,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     restart_desc = <<-EOT.unindent
-        Forces a re-deployment of the given VM, issuing a boot action.
+        Boots the given VM.
 
-        States: UNKNOWN, BOOT
+        States: UNKNOWN, BOOT, POWEROFF
     EOT
 
     command :restart, restart_desc, [:range,:vmid_list] do
