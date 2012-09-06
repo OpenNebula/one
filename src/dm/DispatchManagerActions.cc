@@ -510,8 +510,6 @@ int DispatchManager::resume(
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
 
-        vm->set_state(VirtualMachine::ACTIVE);
-
         vmpool->update(vm);
 
         vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");

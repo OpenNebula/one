@@ -395,7 +395,7 @@ void  LifeCycleManager::restore_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE)
+    if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
@@ -406,6 +406,7 @@ void  LifeCycleManager::restore_action(int vid)
         //----------------------------------------------------
         //            BOOT STATE (FROM SUSPEND)
         //----------------------------------------------------
+        vm->set_state(VirtualMachine::ACTIVE);
 
         vm->set_state(VirtualMachine::BOOT);
 
@@ -495,10 +496,10 @@ void  LifeCycleManager::restart_action(int vid)
         return;
     }
 
-    if ((vm->get_state()      == VirtualMachine::ACTIVE &&
+    if ((vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT ))
-       || vm->get_state() == VirtualMachine::POWEROFF)
+       ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
