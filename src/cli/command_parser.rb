@@ -585,7 +585,6 @@ module CommandParser
 
         def print_commands
             cmd_format5 =  "#{' '*3}%s"
-            cmd_format10 =  "#{' '*8}%s"
 
             if @main
                 print_command(@main)
@@ -601,6 +600,8 @@ module CommandParser
         end
 
         def print_command(command)
+            cmd_format10 =  "#{' '*8}%s"
+
             args_str=command[:args_format].collect{ |a|
                 if a.include?(nil)
                     "[<#{a.compact.join("|")}>]"
