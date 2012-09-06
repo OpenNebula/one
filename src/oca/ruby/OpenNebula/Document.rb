@@ -108,6 +108,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete()
+            rc = info()
+            return rc if OpenNebula.is_error?(rc)
+
             return call(DOCUMENT_METHODS[:delete], @pe_id)
         end
 
@@ -118,6 +121,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def update(new_template)
+            rc = info()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:update], new_template)
         end
 
@@ -129,6 +135,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chown(uid, gid)
+            rc = info()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:chown], uid, gid)
         end
 
@@ -139,6 +148,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod_octet(octet)
+            rc = info()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:chmod], octet)
         end
 
@@ -149,6 +161,9 @@ module OpenNebula
         #   otherwise
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
                 other_m, other_a)
+            rc = info()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
         end
@@ -160,6 +175,9 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] The new Document ID in case
         #   of success, Error otherwise
         def clone(name)
+            rc = info()
+            return rc if OpenNebula.is_error?(rc)
+
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(DOCUMENT_METHODS[:clone], @pe_id, name)
