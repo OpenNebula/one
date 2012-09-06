@@ -403,7 +403,7 @@ var vm_buttons = {
             "VM.poweroff" : {
                 type : "confirm",
                 text: tr("Power Off"),
-                tip: tr("This will send a power off signal to running VMs. They can be powered on later.")
+                tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
             },
             "VM.cancel" : {
                 type: "confirm",
