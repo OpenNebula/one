@@ -84,7 +84,13 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def info()
-            super(DOCUMENT_METHODS[:info], 'DOCUMENT')
+            rc = super(DOCUMENT_METHODS[:info], 'DOCUMENT')
+
+            if !OpenNebula.is_error?(rc) && self['TYPE'].to_i != document_type
+                return OpenNebula::Error.new("[DocumentInfo] Error getting document [#{@pe_id}].")
+            end
+
+            return rc
         end
 
         # Allocates a new Document in OpenNebula
