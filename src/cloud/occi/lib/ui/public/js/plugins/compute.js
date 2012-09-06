@@ -291,6 +291,42 @@ var vm_actions = {
         },
         error: onError,
         notify: true
+    },
+
+    "VM.restart" : {
+        type: "multiple",
+        call: OCCI.VM.restart,
+        callback: updateVMachineElement,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.resubmit" : {
+        type: "multiple",
+        call: OCCI.VM.resubmit,
+        callback: updateVMachineElement,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.poweron" : { //restart alias
+        type: "multiple",
+        call: OCCI.VM.restart,
+        callback: updateVMachineElement,
+        elements: vmElements,
+        error: onError,
+        notify: true
+    },
+
+    "VM.poweroff" : {
+        type: "multiple",
+        call: OCCI.VM.poweroff,
+        callback: updateVMachineElement,
+        elements: vmElements,
+        error: onError,
+        notify: true
     }
 
 /*
@@ -362,6 +398,26 @@ var vm_buttons = {
                 type: "confirm",
                 text: tr("Reset"),
                 tip: "This will perform a hard reset on selected VMs"
+            },
+            "VM.restart" : {
+                type: "confirm",
+                text: tr("Restart"),
+                tip: tr("This will redeploy selected VMs")
+            },
+            "VM.resubmit" : {
+                type: "confirm",
+                text: tr("Resubmit"),
+                tip: tr("This will resubmits VMs to PENDING state")
+            },
+            "VM.poweron" : {
+                type : "confirm",
+                text: tr("Power On"),
+                tip: tr("This will start on powered off machines")
+            },
+            "VM.poweroff" : {
+                type : "confirm",
+                text: tr("Power Off"),
+                tip: tr("This will send a power off signal to running VMs. They can be powered on later.")
             },
             "VM.cancel" : {
                 type: "confirm",
@@ -513,6 +569,7 @@ function VMStateBulletStr(vm){
     case "HOLD":
     case "STOPPED":
     case "SUSPENDED":
+    case "POWEROFF":
         state_html = '<img style="display:inline-block;margin-right:5px;;" src="images/yellow_bullet.png" alt="'+vm_state+'" title="'+vm_state+'" />';
         break;
     case "ACTIVE":

@@ -44,81 +44,86 @@ var oZones = {
     "Helper": {
         "resource_state": function(type, value)
         {
+            var state;
             switch(type)
             {
                 case "HOST":
                 case "host":
-                    return ["INIT",
-                            "MONITORING_MONITORED",
-                            "MONITORED",
-                            "ERROR",
-                            "DISABLED",
-                            "MONITORING_ERROR"][value];
+                    state = tr(["INIT",
+                               "MONITORING_MONITORED",
+                               "MONITORED",
+                               "ERROR",
+                               "DISABLED",
+                               "MONITORING_ERROR"][value]);
                     break;
                 case "HOST_SIMPLE":
                 case "host_simple":
-                    return ["INIT",
-                            "UPDATE",
-                            "ON",
-                            "ERROR",
-                            "OFF",
-                            "RETRY"][value];
+                    state = tr(["INIT",
+                               "UPDATE",
+                               "ON",
+                               "ERROR",
+                               "OFF",
+                               "RETRY"][value]);
                     break;
                 case "VM":
                 case "vm":
-                    return ["INIT",
-                            "PENDING",
-                            "HOLD",
-                            "ACTIVE",
-                            "STOPPED",
-                            "SUSPENDED",
-                            "DONE",
-                            "FAILED"][value];
+                    state = tr(["INIT",
+                               "PENDING",
+                               "HOLD",
+                               "ACTIVE",
+                               "STOPPED",
+                               "SUSPENDED",
+                               "DONE",
+                               "FAILED",
+                               "POWEROFF"][value]);
                     break;
                 case "VM_LCM":
                 case "vm_lcm":
-                    return ["LCM_INIT",
-                            "PROLOG",
-                            "BOOT",
-                            "RUNNING",
-                            "MIGRATE",
-                            "SAVE_STOP",
-                            "SAVE_SUSPEND",
-                            "SAVE_MIGRATE",
-                            "PROLOG_MIGRATE",
-                            "PROLOG_RESUME",
-                            "EPILOG_STOP",
-                            "EPILOG",
-                            "SHUTDOWN",
-                            "CANCEL",
-                            "FAILURE",
-                            "CLEANUP",
-                            "UNKNOWN",
-                            "HOTPLUG"][value];
+                    state = tr(["LCM_INIT",
+                               "PROLOG",
+                               "BOOT",
+                               "RUNNING",
+                               "MIGRATE",
+                               "SAVE_STOP",
+                               "SAVE_SUSPEND",
+                               "SAVE_MIGRATE",
+                               "PROLOG_MIGRATE",
+                               "PROLOG_RESUME",
+                               "EPILOG_STOP",
+                               "EPILOG",
+                               "SHUTDOWN",
+                               "CANCEL",
+                               "FAILURE",
+                               "CLEANUP",
+                               "UNKNOWN",
+                               "HOTPLUG",
+                               "SHUTDOWN_POWEROFF"][value]);
                     break;
                 case "IMAGE":
                 case "image":
-                    return ["INIT",
-                            "READY",
-                            "USED",
-                            "DISABLED",
-                            "LOCKED",
-                            "ERROR",
-                            "CLONE",
-                            "DELETE",
-                            "USED_PERS"][value];
+                    state = tr(["INIT",
+                               "READY",
+                               "USED",
+                               "DISABLED",
+                               "LOCKED",
+                               "ERROR",
+                               "CLONE",
+                               "DELETE",
+                               "USED_PERS"][value]);
                     break;
                 case "VM_MIGRATE_REASON":
                 case "vm_migrate_reason":
-                    return ["NONE",
-                            "ERROR",
-                            "STOP_RESUME",
-                            "USER",
-                            "CANCEL"][value];
+                    state = tr(["NONE",
+                               "ERROR",
+                               "STOP_RESUME",
+                               "USER",
+                               "CANCEL"][value]);
                     break;
                 default:
-                    return;
+                    return value;
             }
+            if (!state) state = value
+            return state;
         },
 
         "image_type": function(value)
