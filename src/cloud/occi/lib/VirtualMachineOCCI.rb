@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -72,6 +73,9 @@ class VirtualMachineOCCI < VirtualMachine
         "REBOOT"    => { :from => ["ACTIVE"], :action => :reboot},
         "RESET"     => { :from => ["ACTIVE"], :action => :reset},
         "SHUTDOWN"  => { :from => ["ACTIVE"], :action => :shutdown},
+        "RESTART"   => { :from => ["ACTIVE"], :action => :restart},
+        "RESUBMIT"  => { :from => ["ACTIVE", "FAILED"], :action => :resubmit},
+        "POWEROFF"  => { :from => ["ACTIVE"], :action => :poweroff},
         "DONE"      => { :from => VM_STATE,   :action => :finalize}
     }
 

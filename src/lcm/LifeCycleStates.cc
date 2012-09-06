@@ -367,6 +367,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 {
     Nebula&             nd = Nebula::instance();
     TransferManager *   tm = nd.get_tm();
+    DispatchManager *   dm = nd.get_dm();
     VirtualMachine *    vm;
     time_t              the_time = time(0);
 
@@ -377,25 +378,52 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         return;
     }
 
-    //----------------------------------------------------
-    //                   EPILOG STATE
-    //----------------------------------------------------
+    if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN )
+    {
+        //----------------------------------------------------
+        //                   EPILOG STATE
+        //----------------------------------------------------
 
-    vm->set_state(VirtualMachine::EPILOG);
+        vm->set_state(VirtualMachine::EPILOG);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
 
-    vm->set_epilog_stime(the_time);
+        vm->set_epilog_stime(the_time);
 
-    vm->set_running_etime(the_time);
+        vm->set_running_etime(the_time);
 
-    vmpool->update_history(vm);
+        vmpool->update_history(vm);
 
-    vm->log("LCM", Log::INFO, "New VM state is EPILOG");
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG");
 
-    //----------------------------------------------------
+        //----------------------------------------------------
 
-    tm->trigger(TransferManager::EPILOG,vid);
+        tm->trigger(TransferManager::EPILOG,vid);
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
+    {
+        //----------------------------------------------------
+        //                POWEROFF STATE
+        //----------------------------------------------------
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_vm_info();
+
+        vm->set_reason(History::STOP_RESUME);
+
+        vmpool->update_history(vm);
+
+        //----------------------------------------------------
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"shutdown_success_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }

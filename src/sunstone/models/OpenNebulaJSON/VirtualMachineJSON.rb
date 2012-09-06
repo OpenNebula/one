@@ -64,6 +64,7 @@ module OpenNebulaJSON
                  when "saveas"       then self.save_as(action_hash['params'])
                  when "shutdown"     then self.shutdown
                  when "reboot"       then self.reboot
+                 when "poweroff"     then self.poweroff
                  when "resubmit"     then self.resubmit
                  when "chown"        then self.chown(action_hash['params'])
                  when "chmod"        then self.chmod_octet(action_hash['params'])

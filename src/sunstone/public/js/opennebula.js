@@ -44,11 +44,12 @@ var OpenNebula = {
     "Helper": {
         "resource_state": function(type, value)
         {
+            var state;
             switch(type)
             {
                 case "HOST":
                 case "host":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "MONITORING_MONITORED",
                                "MONITORED",
                                "ERROR",
@@ -57,7 +58,7 @@ var OpenNebula = {
                     break;
                 case "HOST_SIMPLE":
                 case "host_simple":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "UPDATE",
                                "ON",
                                "ERROR",
@@ -66,18 +67,19 @@ var OpenNebula = {
                     break;
                 case "VM":
                 case "vm":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "PENDING",
                                "HOLD",
                                "ACTIVE",
                                "STOPPED",
                                "SUSPENDED",
                                "DONE",
-                               "FAILED"][value]);
+                               "FAILED",
+                               "POWEROFF"][value]);
                     break;
                 case "VM_LCM":
                 case "vm_lcm":
-                    return tr(["LCM_INIT",
+                    state = tr(["LCM_INIT",
                                "PROLOG",
                                "BOOT",
                                "RUNNING",
@@ -94,11 +96,12 @@ var OpenNebula = {
                                "FAILURE",
                                "CLEANUP",
                                "UNKNOWN",
-                               "HOTPLUG"][value]);
+                               "HOTPLUG",
+                               "SHUTDOWN_POWEROFF"][value]);
                     break;
                 case "IMAGE":
                 case "image":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "READY",
                                "USED",
                                "DISABLED",
@@ -110,15 +113,17 @@ var OpenNebula = {
                     break;
                 case "VM_MIGRATE_REASON":
                 case "vm_migrate_reason":
-                    return tr(["NONE",
+                    state = tr(["NONE",
                                "ERROR",
                                "STOP_RESUME",
                                "USER",
                                "CANCEL"][value]);
                     break;
                 default:
-                    return;
+                    return value;
             }
+            if (!state) state = value
+            return state;
         },
 
         "image_type": function(value)
@@ -621,6 +626,9 @@ var OpenNebula = {
         },
         "resubmit": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resubmit");
+        },
+        "poweroff" : function(params){
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff");
         },
         "reboot" : function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"reboot");

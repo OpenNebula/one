@@ -337,6 +337,52 @@ void  LifeCycleManager::shutdown_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void  LifeCycleManager::poweroff_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING)
+    {
+        Nebula&                 nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        //----------------------------------------------------
+        //             SHUTDOWN_POWEROFF STATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN_POWEROFF");
+
+        //----------------------------------------------------
+
+        vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+    }
+    else
+    {
+        vm->log("LCM", Log::ERROR, "poweroff_action, VM in a wrong state.");
+    }
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void  LifeCycleManager::restore_action(int vid)
 {
     VirtualMachine *    vm;
@@ -349,7 +395,7 @@ void  LifeCycleManager::restore_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE)
+    if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
@@ -360,6 +406,7 @@ void  LifeCycleManager::restore_action(int vid)
         //----------------------------------------------------
         //            BOOT STATE (FROM SUSPEND)
         //----------------------------------------------------
+        vm->set_state(VirtualMachine::ACTIVE);
 
         vm->set_state(VirtualMachine::BOOT);
 
@@ -449,9 +496,10 @@ void  LifeCycleManager::restart_action(int vid)
         return;
     }
 
-    if (vm->get_state()      == VirtualMachine::ACTIVE &&
+    if ((vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT))
+         vm->get_lcm_state() == VirtualMachine::BOOT ))
+       ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
@@ -460,12 +508,14 @@ void  LifeCycleManager::restart_action(int vid)
         //       RE-START THE VM IN THE SAME HOST
         //----------------------------------------------------
 
-        if (vm->get_lcm_state() == VirtualMachine::BOOT)
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            vm->get_lcm_state() == VirtualMachine::BOOT)
         {
             vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
         }
         else
         {
+            vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
             vm->set_state(VirtualMachine::BOOT);
 
             vmpool->update(vm);
@@ -597,6 +647,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:
+        case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::CANCEL:
         case VirtualMachine::HOTPLUG:
             vm->set_running_etime(the_time);

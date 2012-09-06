@@ -38,11 +38,12 @@ module OpenNebula
             :detach     => "vm.detach"
         }
 
-        VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED}
+        VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED 
+            POWEROFF}
 
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
-            SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN HOTPLUG}
+            SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN HOTPLUG SHUTDOWN_POWEROFF}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -52,7 +53,8 @@ module OpenNebula
             "STOPPED"   => "stop",
             "SUSPENDED" => "susp",
             "DONE"      => "done",
-            "FAILED"    => "fail"
+            "FAILED"    => "fail",
+            "POWEROFF"  => "poff"
         }
 
         SHORT_LCM_STATES={
@@ -72,7 +74,8 @@ module OpenNebula
             "FAILURE"       => "fail",
             "CLEANUP"       => "clea",
             "UNKNOWN"       => "unkn",
-            "HOTPLUG"       => "hotp"
+            "HOTPLUG"       => "hotp",
+            "SHUTDOWN_POWEROFF" => "shut"
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
@@ -146,6 +149,11 @@ module OpenNebula
         # Shutdowns an already deployed VM
         def shutdown
             action('shutdown')
+        end
+
+        # Powers off a running VM
+        def poweroff
+            action('poweroff')
         end
 
         # Reboots an already deployed VM
