@@ -224,7 +224,11 @@ int TransferManager::prolog_transfer_command(
     string format;
     string tm_mad;
     string ds_id;
+    string vm_ds_id;
+
     int    disk_index;
+
+    vm_ds_id = vm->get_ds_id();
 
     disk->vector_value("DISK_ID", disk_index);
 
@@ -253,7 +257,7 @@ int TransferManager::prolog_transfer_command(
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
             << vm->get_oid() << " "
-            << "0"
+            << vm_ds_id
             << endl;
     }
     else if ( type == "FS" )
@@ -279,7 +283,7 @@ int TransferManager::prolog_transfer_command(
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_index << " "
             << vm->get_oid() << " "
-            << "0"
+            << vm_ds_id
             << endl;
     }
     else
@@ -386,8 +390,8 @@ void TransferManager::prolog_action(int vid)
         goto error_history;
     }
 
-    vm_tm_mad   = vm->get_tm_mad();
-    tm_md       = get();
+    vm_tm_mad = vm->get_tm_mad();
+    tm_md     = get();
 
     if ( tm_md == 0 || vm_tm_mad.empty() )
     {
@@ -455,7 +459,8 @@ void TransferManager::prolog_action(int vid)
         xfr << vm->get_hostname() << ":" 
             << vm->get_remote_system_dir() << "/disk." << num << " "
             << vm->get_oid() << " " 
-            << "0" << endl;
+            << vm->get_ds_id() 
+            << endl;
     }
 
     xfr.close();
@@ -1455,6 +1460,25 @@ void TransferManager::driver_cancel_action(int vid)
 void TransferManager::checkpoint_action(int vid)
 {
 
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::migrate_transfer_command(
+        VirtualMachine *        vm,
+        ostream&                xfr)
+{
+    // <PREMIGRATE/POSTMIGRATE> tm_mad SOURCE DST remote_system_dir vmid dsid
+
+    xfr << "MIGRATE " //TM action PRE or POST to be completed by VMM driver
+        << vm->get_tm_mad() << " "
+        << vm->get_hostname() << " "
+        << vm->get_previous_hostname() << " "
+        << vm->get_remote_system_dir() << " "
+        << vm->get_oid() << " "
+        << vm->get_ds_id()
+        << endl;
 }
 
 /* ************************************************************************** */

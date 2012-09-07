@@ -128,6 +128,15 @@ public:
             VirtualMachine *        vm,
             const VectorAttribute * disk,
             ostream&                xfr);
+    /**
+     * Inserts a transfer command in the xfs stream, for live migration
+     *
+     * @param vm The VM
+     * @param xfr Stream where the transfer command will be written
+     */
+    void migrate_transfer_command(
+        VirtualMachine *        vm,
+        ostream&                xfr);
 
 private:
     /**
