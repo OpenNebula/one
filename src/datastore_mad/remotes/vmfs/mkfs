@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to create a VM image (SRC) of size (SIZE) and formatted
+# as (FS)
+###############################################################################
+
+# -------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../libfs.sh
+
+# -------- Get mkfs and datastore arguments from OpenNebula core ------------
+
+DRV_ACTION=$1
+ID=$2
+
+XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
+
+BASE_PATH="${XPATH_ELEMENTS[0]}"
+RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
+SAFE_DIRS="${XPATH_ELEMENTS[2]}"
+UMASK="${XPATH_ELEMENTS[3]}"
+FSTYPE="${XPATH_ELEMENTS[4]}"
+SIZE="${XPATH_ELEMENTS[5]}"
+
+mkdir -p "$BASE_PATH"
+set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
+
+DST=`generate_image_path`
+
+# ------------ Image to save_as disk, no need to create a FS ------------
+
+if [ "$FSTYPE" = "save_as" ]; then
+    echo "$DST"
+    exit 0
+fi
+
+# ------------ Create the image to the repository ------------
+
+DISK=$DST/disk.vmdk
+DISK_TMP=$DISK.tmp
+
+IMAGE_FORMAT=vmdk
+
+MKFS_CMD=`mkfs_command $DISK_TMP $FSTYPE`
+
+exec_and_log "mkdir -p $DST" \
+    "Could not create disk directory $DST"
+exec_and_log "$DD if=/dev/zero of=$DISK_TMP bs=1 count=1 seek=${SIZE}M" \
+    "Could not create temporary image $DISK_TMP"
+exec_and_log "$MKFS_CMD" \
+    "Unable to create filesystem $FSTYPE in $DISK_TMP"
+exec_and_log "$QEMU_IMG convert -O $IMAGE_FORMAT $DISK_TMP $DISK" \
+    "Unable to convert to $IMAGE_FORMAT in $DISK_TMP"
+exec_and_log "rm -f $DISK_TMP" \
+    "Unable to remove temporary disk $DISK_TMP"
+
+echo "$DST"

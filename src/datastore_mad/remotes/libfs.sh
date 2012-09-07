@@ -137,3 +137,21 @@ function check_restricted {
 
   	echo 0
 }
+
+#-------------------------------------------------------------------------------
+# Gets the ESX host to be used as bridge to register a VMware disk
+# Implements a round robin for the bridges
+#   @param $1 - Path to the list of ESX hosts to be used as bridges
+#   @return host to be used as bridge
+#-------------------------------------------------------------------------------
+function get_destination_host {
+	CONF_FILE_PATH="$1/bridgelist"
+
+	BRIDGE_HOST=`head -1 $CONF_FILE_PATH`
+
+	sed -i -e "1d" $CONF_FILE_PATH
+
+	cat $BRIDGE_HOST >> $CONF_FILE_PATH
+
+	echo $BRIDGE_HOST
+}
