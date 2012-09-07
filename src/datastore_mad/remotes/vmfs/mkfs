@@ -25,14 +25,17 @@
 
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
+    VMWARERC=/etc/one/vmwarerc
 else
     LIB_LOCATION=$ONE_LOCATION/lib
+    VMWARERC=$ONE_LOCATION/etc/vmwarerc
 fi
 
 . $LIB_LOCATION/sh/scripts_common.sh
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
+source $(dirname $0)/vmfsrc
 
 # -------- Get mkfs and datastore arguments from OpenNebula core ------------
 
@@ -59,10 +62,10 @@ UMASK="${XPATH_ELEMENTS[3]}"
 FSTYPE="${XPATH_ELEMENTS[4]}"
 SIZE="${XPATH_ELEMENTS[5]}"
 
-mkdir -p "$BASE_PATH"
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 DST=`generate_image_path`
+DST_HOST=`get_destination_host`
 
 # ------------ Image to save_as disk, no need to create a FS ------------
 
