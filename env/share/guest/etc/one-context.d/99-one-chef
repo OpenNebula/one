@@ -1,0 +1,265 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2010-2012, C12G Labs S.L.                                        #
+#                                                                            #
+# Licensed under the C12G Commercial Open-source License (the                #
+# "License"); you may not use this file except in compliance                 #
+# with the License. You may obtain a copy of the License as part             #
+# of the software distribution.                                              #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the                #
+# License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES             #
+# OR CONDITIONS OF ANY KIND, either express or implied. See the              #
+# License for the specific language governing permissions and                #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+require "json"
+require 'pp'
+require 'fileutils'
+require 'tempfile'
+require 'base64'
+
+include FileUtils
+
+class OneCast
+    attr_reader :vars, :error
+
+    REG_VAR=/\$\{([^}|]+)(\|([^}]+))?\}/
+
+    def initialize(template, vars)
+        @vars=ENV.to_hash.merge(vars)
+        pp vars
+        @error=nil
+        @template=template.clone
+    end
+
+    def rewrite_template
+        @error=nil
+
+        @template.gsub(REG_VAR) do |var|
+            match=REG_VAR.match(var)
+
+            var_name=match[1]
+            default_value=match[3]
+
+            d=@vars[var_name]
+
+            d||=default_value
+
+            if !d
+                @error||=''
+                @error+="Variable '#{var_name}' not set. "
+            end
+
+            d
+        end
+    end
+
+private
+
+    def parse_data_variable(text)
+        m=(/^([^=]+)=["']?(.*)["']?/m).match(text)
+        if m
+            m[1,2]
+        else
+            nil
+        end
+    end
+
+end
+
+class Cookbook
+  DEFAULT_OPTIONS={
+    :path => '/var/tmp/chef'
+  }
+
+  def initialize(path, source_path, recipes)
+    @path=path
+    @source_path=source_path
+    @recipes=recipes
+  end
+
+  def cookbooks_path
+    @path+'/cookbooks'
+  end
+
+  def site_cookbooks_path
+    @path+'/site_cookbooks'
+  end
+
+  def prepare
+    mkdirs
+    prepare_site_cookbooks
+    uncompress_cookbooks
+    get_recipes
+  end
+
+  def mkdirs
+    mkdir_p(cookbooks_path)
+    mkdir_p(site_cookbooks_path)
+  end
+
+  def prepare_site_cookbooks
+    script=<<EOT
+#!/bin/bash -e
+
+#apt-get install -y git
+
+cd #{site_cookbooks_path}
+git init
+git config user.name 'OpenNebula Chef Contextualization'
+git config user.email 'chef@opennebula.org'
+touch delete_me
+git add delete_me
+git commit -am'Initial Commit'
+EOT
+
+    tempfile=Tempfile.new('one-chef-')
+    tempfile.write(script)
+    chmod(0555, tempfile.path)
+    tempfile.close
+
+    system(tempfile.path)
+  end
+
+  def recipe_exists?(name)
+    File.directory?(File.join(cookbooks_path, name))||
+      File.directory?(File.join(site_cookbooks_path, name))
+  end
+
+  def get_recipes
+    missing_recipes=@recipes.reject do |recipe|
+      recipe_exists?(recipe)
+    end
+
+    missing_recipes.each do |recipe|
+      system("knife cookbook site install #{recipe} -o " <<
+        site_cookbooks_path)
+    end
+  end
+
+  def uncompress_cookbooks
+    if ENV['COOKBOOKS']
+      command="wget #{ENV['COOKBOOKS']} -O #{cookbooks_path}.tar.gz"
+      system(command)
+      system("cd #{cookbooks_path} ; " <<
+        "tar xzf #{File.join(@source_path, 'cookbooks.tar.gz')}")
+    end
+
+    if File.exist?(File.join(@source_path, 'cookbooks.tar.gz'))
+      system("cd #{cookbooks_path} ; " <<
+        "tar xzf #{File.join(@source_path, 'cookbooks.tar.gz')}")
+    end
+  end
+end
+
+class Role
+  attr_reader :conf, :conf_json
+ 
+  DEFAULT_OPTIONS={
+    :path => '/var/tmp/chef',
+    :variables => {}
+  }
+
+  def initialize(conf, options={})
+    @options=DEFAULT_OPTIONS.merge(options)
+    @conf=cast(conf)
+    @conf_json=JSON.parse(@conf)
+  end
+
+  def json
+    @conf_json
+  end
+
+  def cast(conf)
+    c=OneCast.new(conf, @options[:variables])
+    c.rewrite_template
+  end
+
+  def get_recipes
+    run_list=conf_json['run_list']
+
+    recipes=run_list.map do |r|
+      m=r.match(/^recipe\[([^:]+)(::.*)?\]$/)
+
+      if m
+        m[1]
+      else
+        nil
+      end
+    end.compact
+  end
+end
+
+class Chef
+  DEFAULT_OPTIONS={
+    :path => '/var/tmp/chef',
+    :source_path => '/mnt'
+  }
+
+  def initialize(node, options={})
+    @role_file=node   
+    @options=DEFAULT_OPTIONS.merge(options)
+
+    @role=Role.new(@role_file)
+    @cookbooks=Cookbook.new(
+      @options[:path],
+      @options[:source_path],
+      @role.get_recipes)
+  end
+
+  def prepare
+    prepare_directories
+    create_conf_file
+    @cookbooks.prepare
+    
+    file=open(File.join(@options[:path], 'node.json'), 'w')
+    file.write(@role.conf)
+    file.close
+  end
+
+  def run
+    system("chef-solo -c #{File.join(@options[:path], 'chef.conf')} "<<
+      "-j #{File.join(@options[:path], 'node.json')}")
+  end
+
+  def prepare_directories
+    mkdir_p(@options[:path])
+    mkdir_p(File.join(@options[:path], 'cache'))
+  end
+
+  def create_conf_file
+    conf=<<EOT
+file_cache_path "#{@options[:path]}/cache"
+cookbook_path ["#{@options[:path]}/cookbooks", "#{@options[:path]}/site_cookbooks"]
+EOT
+
+    file=open(File.join(@options[:path], 'chef.conf'), "w")
+    file.write(conf)
+    file.close
+  end
+end
+
+
+options={}
+
+if ENV['DEBUG_PATH']
+  def system(arg)
+    puts arg
+  end
+
+  options={
+    :path => ENV['DEBUG_PATH']
+  }
+end
+
+role_encoded=ENV['ROLE']
+role_decoded=Base64::decode64(role_encoded)
+
+chef=Chef.new(role_decoded, options)
+chef.prepare
+chef.run
+
+
