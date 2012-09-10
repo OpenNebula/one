@@ -840,6 +840,8 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/mkimage \
                  src/tm_mad/shared/mv \
                  src/tm_mad/shared/context \
+                 src/tm_mad/shared/premigrate \
+                 src/tm_mad/shared/postmigrate \
                  src/tm_mad/shared/mvds"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
@@ -849,6 +851,8 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/mkimage \
                  src/tm_mad/qcow2/mv \
                  src/tm_mad/qcow2/context \
+                 src/tm_mad/qcow2/premigrate \
+                 src/tm_mad/qcow2/postmigrate \
                  src/tm_mad/qcow2/mvds"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
@@ -858,6 +862,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/mkimage \
               src/tm_mad/ssh/mv \
               src/tm_mad/ssh/context \
+              src/tm_mad/ssh/premigrate \
+              src/tm_mad/ssh/postmigrate \
               src/tm_mad/ssh/mvds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
@@ -867,6 +873,8 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/mkimage \
               src/tm_mad/dummy/mv \
               src/tm_mad/dummy/context \
+              src/tm_mad/dummy/premigrate \
+              src/tm_mad/dummy/postmigrate \
               src/tm_mad/dummy/mvds"
 
 TM_VMWARE_FILES="src/tm_mad/vmware/clone \
@@ -876,18 +884,24 @@ TM_VMWARE_FILES="src/tm_mad/vmware/clone \
                  src/tm_mad/vmware/mkimage \
                  src/tm_mad/vmware/mv \
                  src/tm_mad/vmware/context \
+                 src/tm_mad/vmware/premigrate \
+                 src/tm_mad/vmware/postmigrate \
                  src/tm_mad/vmware/mvds"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
                  src/tm_mad/iscsi/mv \
                  src/tm_mad/iscsi/mvds \
+                 src/tm_mad/iscsi/premigrate \
+                 src/tm_mad/iscsi/postmigrate \
                  src/tm_mad/iscsi/delete"
 
 TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/ln \
                  src/tm_mad/lvm/mv \
                  src/tm_mad/lvm/mvds \
+                 src/tm_mad/lvm/premigrate \
+                 src/tm_mad/lvm/postmigrate \
                  src/tm_mad/lvm/delete"
 
 #-------------------------------------------------------------------------------

@@ -337,13 +337,20 @@ string * VirtualMachineManager::format_message(
 
     if ( !tm_command.empty() )
     {
-        oss << "<TM_COMMAND><![CDATA[" << tm_command   << "]]></TM_COMMAND>"
-            << "<DISK_TARGET_PATH>"<< disk_target_path << "</DISK_TARGET_PATH>";
+        oss << "<TM_COMMAND><![CDATA[" << tm_command   << "]]></TM_COMMAND>";
     }
     else
     {
-        oss << "<TM_COMMAND/>"
-            << "<DISK_TARGET_PATH/>";
+        oss << "<TM_COMMAND/>";
+    }
+
+    if ( !disk_target_path.empty() )
+    {
+        oss << "<DISK_TARGET_PATH>"<< disk_target_path << "</DISK_TARGET_PATH>";
+    }
+    else
+    {
+        oss << "<DISK_TARGET_PATH/>";
     }
 
     oss << tmpl
@@ -954,6 +961,8 @@ void VirtualMachineManager::migrate_action(
         goto error_previous_history;
     }
 
+    Nebula::instance().get_tm()->migrate_transfer_command(vm, os);
+
     // Invoke driver method
     drv_msg = format_message(
         vm->get_previous_hostname(),
@@ -964,7 +973,7 @@ void VirtualMachineManager::migrate_action(
         "",
         "",
         "",
-        "",
+        os.str(),
         "",
         vm->to_xml(vm_tmpl));
 
