@@ -350,7 +350,7 @@ string * VirtualMachineManager::format_message(
     }
     else
     {
-        oss << "<DISK_TARGET_PATH/>";        
+        oss << "<DISK_TARGET_PATH/>";
     }
 
     oss << tmpl

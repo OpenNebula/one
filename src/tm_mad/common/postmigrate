@@ -23,7 +23,7 @@
 #  - dsid is the target datastore
 #  - template is the template of the VM in XML and base64 encoded
 
-# To access the vm_template you can use the xpath.rb utility. Check the 
+# To access the vm_template you can use the xpath.rb utility. Check the
 # datastore drivers for an example.
 
 exit 0

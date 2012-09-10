@@ -63,15 +63,15 @@ public:
      *  Triggers specific actions to the Information Manager. This function
      *  wraps the ActionManager trigger function.
      *    @param action the IM action
-     *    @param vid VM unique id. This is the argument of the passed to the 
+     *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
      */
     virtual void trigger(
         Actions action,
         int     vid);
-        
+
     /**
-     *  This functions starts the associated listener thread, and creates a 
+     *  This functions starts the associated listener thread, and creates a
      *  new thread for the Information Manager. This thread will wait in
      *  an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
@@ -80,12 +80,12 @@ public:
 
     /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula 
+     *   @param uid of the user executing the driver. When uid is 0 the nebula
      *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application. 
+     *   sudo application.
      */
     void load_mads(int uid);
-        
+
     /**
      *  Gets the thread identification.
      *    @return pthread_t for the manager thread (that in the action loop).
@@ -153,7 +153,7 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool *              hpool;
-     
+
     /**
      *  Action engine for the Manager
      */
@@ -180,7 +180,7 @@ private:
     };
 
     /**
-     *  Returns a pointer to a Transfer Manager driver. The driver is 
+     *  Returns a pointer to a Transfer Manager driver. The driver is
      *  searched by its name.
      *    @param name the name of the driver
      *    @return the TM driver owned by uid with attribute name equal to value
@@ -193,9 +193,9 @@ private:
         return static_cast<const TransferManagerDriver *>
                (MadManager::get(0,_name,name));
     };
-        
+
     /**
-     *  Returns a pointer to a Transfer Manager driver. The driver is 
+     *  Returns a pointer to a Transfer Manager driver. The driver is
      *  searched by its name.
      *    @return the TM driver for the Transfer Manager
      */
@@ -207,11 +207,11 @@ private:
     };
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread 
+     *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
-    friend void * tm_action_loop(void *arg);    
-        
+    friend void * tm_action_loop(void *arg);
+
     /**
      *  The action function executed when an action is triggered.
      *    @param action the name of the action
@@ -222,20 +222,20 @@ private:
         void *          arg);
 
     /**
-     *  This function starts the prolog sequence 
+     *  This function starts the prolog sequence
      */
     void prolog_action(int vid);
 
     /**
-     *  This function starts the prolog migration sequence 
+     *  This function starts the prolog migration sequence
      */
     void prolog_migr_action(int vid);
 
     /**
-     *  This function starts the prolog resume sequence 
+     *  This function starts the prolog resume sequence
      */
     void prolog_resume_action(int vid);
-    
+
     /**
      *  This function starts the epilog sequence
      */
@@ -245,7 +245,7 @@ private:
      *  This function starts the epilog_stop sequence
      */
     void epilog_stop_action(int vid);
-    
+
     /**
      *  This function starts the epilog_delete sequence
      */
@@ -284,4 +284,3 @@ private:
 };
 
 #endif /*TRANSFER_MANAGER_H*/
-

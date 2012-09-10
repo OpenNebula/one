@@ -447,14 +447,14 @@ class ExecDriver < VirtualMachineDriver
 
         pre  << action.data[:tm_command] << " " << action.data[:vm]
         post << action.data[:tm_command] << " " << action.data[:vm]
- 
+
         steps=[
             # Execute a pre-migrate TM setup
             {
                 :driver     => :tm,
                 :action     => :tm_premigrate,
                 :parameters => pre.split
-            },            
+            },
             # Execute pre-boot networking setup on migrating host
             {
                 :driver      => :vnm,
@@ -485,7 +485,7 @@ class ExecDriver < VirtualMachineDriver
                 :action     => :tm_postmigrate,
                 :parameters => post.split
                 #TODO :fail_action what to do here? cancel VM?
-            },            
+            },
         ]
 
         action.run(steps)
