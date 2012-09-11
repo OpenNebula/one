@@ -52,6 +52,14 @@ TEMPLATES={
     :description => "Templates compatible with the node"
 }
 
+TEMPLATE={
+    :name  => "template",
+    :short => "-t template",
+    :large => "--template template",
+    :format => String,
+    :description => "Template used to instantiate the node"
+}
+
 VARIABLES={
     :name  => "variables",
     :short => "-d v1=d1,v2=d2",
@@ -182,13 +190,48 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Instantiate a template with a node
     EOT
 
-    command :instantiate, instantiate_desc, [:templateid], [:node], :options=>[VARIABLES] do
+    command :instantiate, instantiate_desc, [:node], :options=>[VARIABLES,
+            TEMPLATE] do
+        if !options[:template]
+            STDERR.puts "Template not specified"
+            next 255
+        end
+
         client=OpenNebula::Client.new
 
-        xml=OpenNebula::ChefDoc.build_xml(args[1].to_i)
-        chef_doc=OpenNebula::ChefDoc.new(xml, client)
 
-        res=chef_doc.instantiate(args[0].to_i, options[:variables]||{})
+        xml=OpenNebula::ChefDoc.build_xml(args[0].to_i)
+        chef_doc=OpenNebula::ChefDoc.new(xml, client)
+        chef_doc.info
+
+        # Check template
+        res=template_helper.to_id(options[:template])
+        if res.first!=0
+            STDERR.puts(res.last)
+            next 255
+        end
+        template_id=res.last
+        xml=OpenNebula::ChefDoc.build_xml(template_id)
+        template=OpenNebula::Template.new(xml, client)
+
+        template.info
+
+        if chef_doc.node['templates']
+            allowed=false
+            chef_doc.node['templates'].each do |t|
+                if t==template.id.to_s || t==template.name
+                    allowed=true
+                    break
+                end
+            end
+
+            if !allowed
+                STDERR.puts "Template not compatible with this node"
+                next 255
+            end
+        end
+
+        res=chef_doc.instantiate(options[:template], options[:variables]||{})
 
         if OpenNebula.is_error? res
             STDERR.puts res.message
