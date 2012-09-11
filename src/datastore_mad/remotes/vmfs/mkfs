@@ -52,6 +52,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
 
@@ -59,13 +60,23 @@ BASE_PATH="${XPATH_ELEMENTS[0]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
 SAFE_DIRS="${XPATH_ELEMENTS[2]}"
 UMASK="${XPATH_ELEMENTS[3]}"
-FSTYPE="${XPATH_ELEMENTS[4]}"
-SIZE="${XPATH_ELEMENTS[5]}"
+IMAGE_DS_ID="${XPATH_ELEMENTS[4]}"
+FSTYPE="${XPATH_ELEMENTS[5]}"
+SIZE="${XPATH_ELEMENTS[6]}"
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 DST=`generate_image_path`
+DST_DIR=`dirname $DST`
+DST_FOLDER_NAME=`basename $DST`
 DST_HOST=`get_destination_host`
+
+if [ "$SSH" != "yes" ]; then
+    USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3)`
+    PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3)`
+    REMOTE_DS_ROUTE="$IMAGE_DS_ID]$DST_FOLDER_NAME"
+    VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
+fi
 
 # ------------ Image to save_as disk, no need to create a FS ------------
 
@@ -74,24 +85,22 @@ if [ "$FSTYPE" = "save_as" ]; then
     exit 0
 fi
 
-# ------------ Create the image to the repository ------------
+# ------------ Create the image within the image datastore ------------
 
-DISK=$DST/disk.vmdk
-DISK_TMP=$DISK.tmp
+log "Making filesystem of ${SIZE}M (with no format) at $DST"
 
 IMAGE_FORMAT=vmdk
+VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
 
-MKFS_CMD=`mkfs_command $DISK_TMP $FSTYPE`
+if [ "$SSH" == "yes" ]; then    
+    ssh_exec_and_log $DST_HOST "mkdir -p $DST" "Could not create disk directory $DST"
+    ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -U $DST/disk.vmdk"
+    ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk" "Cannot create $DST/disk.vmdk on $DST_HOST"
+else
+    exec_and_log 'vifs $VI_PARAMS --mkdir "[$IMAGE_DS_ID] $DST_FOLDER_NAME"' "Cannot create [$IMAGE_DS_ID] $DST_FOLDER_NAME on $DST_HOST"
 
-exec_and_log "mkdir -p $DST" \
-    "Could not create disk directory $DST"
-exec_and_log "$DD if=/dev/zero of=$DISK_TMP bs=1 count=1 seek=${SIZE}M" \
-    "Could not create temporary image $DISK_TMP"
-exec_and_log "$MKFS_CMD" \
-    "Unable to create filesystem $FSTYPE in $DISK_TMP"
-exec_and_log "$QEMU_IMG convert -O $IMAGE_FORMAT $DISK_TMP $DISK" \
-    "Unable to convert to $IMAGE_FORMAT in $DISK_TMP"
-exec_and_log "rm -f $DISK_TMP" \
-    "Unable to remove temporary disk $DISK_TMP"
+    exec_and_log "$VMKFSTOOLS $VI_PARAMS -U $DST_PATH/disk.vmdk"
+    exec_and_log "$VMKFSTOOLS $VI_PARAMS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk" "Cannot create $DST/disk.vmdk on $DST_HOST"
+fi
 
 echo "$DST"
