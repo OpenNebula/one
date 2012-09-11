@@ -15,7 +15,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-TEMP_OPT=`getopt -o d: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o ld: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -24,11 +24,13 @@ fi
 
 eval set -- "$TEMP_OPT"
 
+LINK="no"
 SRC_DIR=$PWD
 
 while true ; do
     case "$1" in
         -d) ROOT="$2" ; shift 2 ;;
+        -l) LINK="yes" ; shift ;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
     esac
