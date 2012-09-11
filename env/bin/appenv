@@ -27,15 +27,14 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cli"
 
 $: << '.'
-require 'onechef.rb'
+require 'apptools/onechef.rb'
 require 'base64'
 
 require 'command_parser'
-require 'appenv_helper'
+require 'apptools/appenv_helper'
 require 'one_helper/onetemplate_helper'
 
 require 'pp'
-require 'ap'
 
 NAME={
     :name  => "name",

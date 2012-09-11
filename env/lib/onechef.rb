@@ -20,10 +20,10 @@ require 'OpenNebula'
 #require 'OpenNebula/DocumentPool'
 #require 'OpenNebula/Document'
 
-require 'DocumentJSON'
-require 'DocumentPoolJSON'
+require 'OpenNebula/DocumentJSON'
+require 'OpenNebula/DocumentPoolJSON'
 
-require 'onecast'
+require 'apptools/onecast'
 
 module OpenNebula
     class ChefConf
