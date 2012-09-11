@@ -237,6 +237,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
           $VAR_LOCATION/remotes/datastore/vmware \
+          $VAR_LOCATION/remotes/datastore/vmfs \          
           $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/auth \
