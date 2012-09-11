@@ -69,7 +69,7 @@ set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 DST=`generate_image_path`
 DST_DIR=`dirname $DST`
 DST_FOLDER_NAME=`basename $DST`
-DST_HOST=`get_destination_host`
+DST_HOST=`get_destination_host $(dirname $0)`
 
 if [ "$SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3)`

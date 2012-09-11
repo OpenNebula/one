@@ -54,7 +54,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
 SRC="${XPATH_ELEMENTS[0]}"
 DS_NAME="${XPATH_ELEMENTS[1]}"
 
-DST_HOST=`get_destination_host`
+DST_HOST=`get_destination_host $(dirname $0)`
 FOLDER_TO_ERASE=`dirname SRC`
 
 if [ "$SSH" != "yes" ]; then
