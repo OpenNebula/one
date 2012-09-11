@@ -424,6 +424,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmware
+    DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs 
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
@@ -921,6 +922,14 @@ DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
                          src/datastore_mad/remotes/vmware/stat \
                          src/datastore_mad/remotes/vmware/clone \
                          src/datastore_mad/remotes/vmware/rm"
+
+DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
+                         src/datastore_mad/remotes/vmfs/mkfs \
+                         src/datastore_mad/remotes/vmfs/stat \
+                         src/datastore_mad/remotes/vmfs/clone \
+                         src/datastore_mad/remotes/vmfs/rm \
+                         src/datastore_mad/remotes/vmfs/bridgelist \
+                         src/datastore_mad/remotes/vmfs/vmfsrc"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
