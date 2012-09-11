@@ -36,7 +36,7 @@ while true ; do
     esac
 done
 
-if [ -z "ROOT" ]; then
+if [ -z "$ROOT" ]; then
     LIB_LOCATION="/usr/lib/one/ruby/apptools"
     BIN_LOCATION="/usr/bin"
 else
@@ -51,9 +51,9 @@ do_file() {
         rm $2/`basename $1`
     else
         if [ "$LINK" = "yes" ]; then
-            ln -s $SRC_DIR/$1 $DESTDIR$2
+            ln -s $SRC_DIR/$1 $2
         else
-            cp $SRC_DIR/$1 $DESTDIR$2
+            cp $SRC_DIR/$1 $2
         fi
     fi
 }
