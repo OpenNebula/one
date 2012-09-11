@@ -61,9 +61,9 @@ VARIABLES={
 }
 
 NODE={
-    :name  => "node",
-    :short => "-f node",
-    :large => "--node node",
+    :name  => "node_file",
+    :short => "-f node_file",
+    :large => "--node node_file",
     :format => String,
     :description => "Node file"
 }
@@ -163,11 +163,10 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
         node=doc.node
 
-        if options[:node]
-            text=File.read(options[:node])
+        if options[:node_file]
+            text=File.read(options[:node_file])
             node.node=text
         end
-
 
         node.name=options[:name] if options[:name]
 
