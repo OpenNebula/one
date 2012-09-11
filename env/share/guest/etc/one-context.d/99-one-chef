@@ -255,11 +255,13 @@ if ENV['DEBUG_PATH']
   }
 end
 
-role_encoded=ENV['ROLE']
-role_decoded=Base64::decode64(role_encoded)
+if ENV['NODE']
+  role_encoded=ENV['NODE']
+  role_decoded=Base64::decode64(role_encoded)
 
-chef=Chef.new(role_decoded, options)
-chef.prepare
-chef.run
+  chef=Chef.new(role_decoded, options)
+  chef.prepare
+  chef.run
+end
 
 
