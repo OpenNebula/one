@@ -18,7 +18,7 @@
 
 VERSION=${VERSION:-3.6.0}
 MAINTAINER=${MAINTAINER:-C12G Labs <support@c12g.com>}
-LICENSE=${LICENSE:-Apache}
+LICENSE=${LICENSE:-Apache 2.0}
 PACKAGE_NAME=${PACKAGE_NAME:-one-context}
 VENDOR=${VENDOR:-C12G Labs}
 DESC="
@@ -28,8 +28,8 @@ This package prepares a VM image for OpenNebula:
   * Unconfigures the network
   * Adds OpenNebula contextualization scripts to startup
 
-To get support use the OpenNebula mailing list:
-  http://opennebula.org/community:mailinglists
+To get support check the OpenNebula web page:
+  http://OpenNebula.org
 "
 DESCRIPTION=${DESCRIPTION:-$DESC}
 PACKAGE_TYPE=${PACKAGE_TYPE:-deb}
