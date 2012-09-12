@@ -53,8 +53,8 @@ DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
 if [ "$SSH" != "yes" ]; then
-    USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3)`
-    PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3)`
+    USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
+    PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
 	IMAGE_DS_NAME=`basename $(dirname $SRC_PATH)`
     SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
     DST_DIR_WITHOUT_DS_PATH="[$SYSTEM_DS_NAME] ${DST_PATH##"$DS_DIR/$SYSTEM_DS_NAME/"}"
