@@ -1,0 +1,169 @@
+.navbar.navbar-static
+  .navbar-inner
+    .container
+      %a.brand{href:"/user"} Users
+      = haml :nav_login
+
+.container-fluid
+  .row-fluid
+    %a.pull-right{'href' => "/user"}
+      %i.icon-search.icon-arrow-left
+      Click to go back
+  .row-fluid
+    .span3
+      .control-group
+        .controls
+          %a.btn#enable_user_btn.span8
+            %i.icon-check
+            Enable
+          %hr.span8
+        .controls
+          %a.btn.btn-danger#delete_user_btn.span8
+            %i.icon-remove
+            Delete
+          %hr.span8
+        .controls
+          %a.btn.btn-warning#update_user_btn.span8
+            %i.icon-edit
+            Update
+    .span4
+      %dl
+        %dt
+          %h6 Id
+        %dd
+          %h6
+            %small= @user['_id'].to_s
+        %dt
+          %h6 Created
+        %dd
+          %h6
+            %small= @user['_id'].generation_time.strftime("%d-%m-%Y")
+        %hr
+        %dt
+          %h6 Status
+        %dd
+          %h6
+            %small= @user['status']
+        %dt
+          %h6 Role
+        %dd
+          %h6
+            %small= @user['role']
+        %dt
+          %h6 Username
+        %dd
+          %h6
+            %small= @user['username']
+    .span5
+      %dl
+        %dt
+          %h6 Organization
+        %dd
+          %h6
+            %small= @user['organization']
+        %dt
+          %h6 First Name
+        %dd
+          %h6
+            %small= @user['first_name']
+        %dt
+          %h6 Last Name
+        %dd
+          %h6
+            %small= @user['last_name']
+        %hr
+        %dt
+          %h6 Email
+        %dd
+          %h6
+            %small= @user['email']
+        %dt
+          %h6 Website
+        %dd
+          %h6
+            %small= @user['website']
+
+%hr
+
+:javascript
+  $(document).ready(function() {
+    $("#delete_user_btn").click(function (){
+      if (confirm("Are you sure you want to delete this user?")) {
+        $.ajax({
+          url: "#",
+          type: "DELETE",
+          success: function(){
+            window.location.href = "/user";
+          },
+          error: function(response){
+            alert(response.responseText);
+            return true;
+          }
+        });
+      }
+
+      return false;
+    });
+
+    $("#enable_user_btn").click(function (){
+      var cpath = window.location.pathname
+      var path = cpath + '/enable'
+      $.ajax({
+        url: path,
+        type: "POST",
+        success: function(){
+          alert("The user has been enabled");
+        },
+        error: function(response){
+          alert(response.responseText);
+          return true;
+        }
+      });
+      return false;
+    });
+
+    $("#update_user_btn").click(function (){
+      $.ajax({
+        url: "#",
+        type: "GET",
+        dataType: "json",
+        success: function(response){
+          update_form_content(response, "#update_user_form");
+          $('#update_user').modal('toggle')
+        },
+        error: function(response){
+          alert(response.responseText);
+          return true;
+        }
+      });
+
+      return false;
+    });
+
+    $("#update_user_form").submit(function (){
+      password = $('#password_form', '#update_user_form')[0]
+      cpassword = $('#confirm_password_form', '#update_user_form')[0]
+
+      if (password.value != cpassword.value) {
+        alert("Your password and confirmation password do not match.");
+        cpassword.focus();
+        return false;
+      }
+
+      $.ajax({
+        url: "#",
+        type: "PUT",
+        data: JSON.stringify($("#update_user_form").serializeObject()),
+        success: function(){
+          $('#update_user').modal('hide')
+          clearForm($('#update_user_form')[0])
+        },
+        error: function(response){
+          alert(response.responseText);
+          return true;
+        }
+      });
+
+      return false;
+    });
+  } );

@@ -1,0 +1,24 @@
+{
+    "name": "CentOS 6.2",
+    "logo": "/img/logos/centos-5.5.png",
+    "tags": ["linux", "centos"],
+    "description": "This image has been created using OpenNebula. It has been tested with KVM, although since it's a RAW image it should work with Xen and even VMware (using qemu-img convert).\n\nInstall Media: CentOS-6.2-x86_64-minimal.iso\nDisk layout: Single partition 10G ext4\nArchitecture: x86_64\n\nThe login information for this VM is\n\nlogin: root\npassword: centos\n\nIt has been prepared to work with OpenNebula, i.e. it's contextualized.",
+    "opennebula_version": "3.4",
+    "opennebula_template": "CPU=1",
+    "files": [
+        {
+            "type": "OS",
+            "hypervisor": "KVM",
+            "format": "raw",
+            "compression": "bz2",
+            "size": 605613875,
+            "os-id": "CentOS",
+            "os-release": "6.2",
+            "os-arch": "x86_64",
+            "url": "http://appliances.c12g.com/CentOS-6.2/CentOS-6.2.img.bz2",
+            "checksum": {
+                "md5": "8b76e185fe6510d2bc8a335690e273ef"
+            }
+        }
+    ]
+}

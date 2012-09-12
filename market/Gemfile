@@ -1,0 +1,12 @@
+source "http://rubygems.org"
+
+gem 'json'
+gem 'haml'
+gem 'sinatra'
+gem 'mongo'
+gem 'bson_ext'
+gem 'rspec'
+gem 'rack-test'
+gem 'redcarpet'
+gem 'mail'
+gem 'bcrypt-ruby'

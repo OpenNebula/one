@@ -1,0 +1,190 @@
+$: << './'
+
+require 'models'
+require 'rubygems'
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern    = 'spec/validator_spec.rb'
+  t.rspec_opts = '-f s --colour'
+end
+
+task :bootstrap do
+    User.bootstrap(CONF['username'], CONF['password'])
+end
+
+task :clean do
+    DB.drop_collection(User::COLLECTION_NAME)
+    DB.drop_collection(Appliance::COLLECTION_NAME)
+end
+
+task :test => [:clean, :bootstrap, :spec]
+
+task :populate do
+    DB['appliances'].insert({
+        "name" => "Ubuntu Server 12.04 LTS (Precise Pangolin)",
+        "catalog" => "public",
+        "publisher" => "OpenNebula.org",
+        "logo" => "/img/logos/ubuntu.png",
+        "tags" => ["linux", "ubuntu"],
+        "description" => "This image has been created with OpenNebula 3.4. It has been tested with KVM, although since it's a RAW image it should work with Xen and even VMware (using qemu-img convert).
+
+The login information for this VM is
+
+login: ubuntu
+password: ubuntu
+
+It has been prepared to work with OpenNebula, i.e. it's contextualized.",
+        "opennebula_version" => "3.4",
+        "opennebula_template" => "CPU=1",
+        "files" => [
+            {
+                "type" => "OS",
+                "hypervisor" => "KVM",
+                "format" => "raw",
+                "size" => 262132088,
+                "compression" => "bz2",
+                "os-id" => "Ubuntu",
+                "os-release" => "12.04",
+                "os-arch" => "x86_64",
+                "url" => "http://appliances.c12g.com/Ubuntu-Server-12.04/ubuntu-server-12.04.img.bz2",
+                "checksum" => {
+                    "md5" => "d0f3c0bebdab6451b58ca54f119d8082"
+                }
+            }
+        ]
+    })
+
+    DB['appliances'].insert({
+        "name" => "CentOS 6.2",
+        "catalog" => "public",
+        "publisher" => "OpenNebula.org",
+        "logo" => "/img/logos/centos-5.5.png",
+        "tags" => ["linux", "centos"],
+        "description" => "This image has been created using OpenNebula. It has been tested with KVM, although since it's a RAW image it should work with Xen and even VMware (using qemu-img convert).
+
+Install Media: CentOS-6.2-x86_64-minimal.iso
+Disk layout: Single partition 10G ext4
+Architecture: x86_64
+
+The login information for this VM is
+
+login: root
+password: centos
+
+It has been prepared to work with OpenNebula, i.e. it's contextualized.",
+        "opennebula_version" => "3.4",
+        "opennebula_template" => "CPU=1",
+        "files" => [
+            {
+                "type" => "OS",
+                "hypervisor" => "KVM",
+                "format" => "raw",
+                "compression" => "bz2",
+                "size" => 605613875,
+                "os-id" => "CentOS",
+                "os-release" => "6.2",
+                "os-arch" => "x86_64",
+                "url" => "http://appliances.c12g.com/CentOS-6.2/CentOS-6.2.img.bz2",
+                "checksum" => {
+                    "md5" => "8b76e185fe6510d2bc8a335690e273ef"
+                }
+            }
+        ]
+    })
+
+    DB['appliances'].insert({
+        "name" => "ttylinux",
+        "catalog" => "public",
+        "publisher" => "OpenNebula.org",
+        "logo" => "/img/logos/Ttylinux-8.0.png",
+        "tags" => ["linux", "ttylinux"],
+        "description" => "This is a very small image that works with OpenNebula. It's already contextualized. The purpose of this image is to test OpenNebula deployments, without wasting network bandwith thanks to the tiny footprint of this image
+(40MB).
+
+The login information for this image is:
+
+login: root
+password: password",
+        "opennebula_version" => "3.4",
+        "opennebula_template" => "CPU=1",
+        "files" => [
+            {
+                "type" => "OS",
+                "hypervisor" => "KVM",
+                "size" => 41943040,
+                "format" => "raw",
+                "compression" => "none",
+                "os-id" => "ttylinux",
+                "os-release" => "",
+                "os-arch" => "x86_64",
+                "url" => "http://appliances.c12g.com/ttylinux/ttylinux.img",
+                "checksum" => {
+                    "md5" => "04c7d00e88fa66d9aaa34d9cf8ad6aaa"
+                }
+            }
+        ]
+    })
+
+    DB['appliances'].insert({
+        "name" => "OpenNebula 3.4.1 Front-End Centos 6.2",
+        "catalog" => "public",
+        "publisher" => "C12G Labs",
+        "logo" => "/img/logos/view_dashboard.png",
+        "tags" => ["linux", "vmware", "sandbox", "esx", "frontend"],
+        "description" => "This image is meant to be run on a ESX hypervisor, and comes with a preconfigured OpenNebula 3.4.1, ready to manage a ESX farm. Several resources are created within OpenNebula (images, virtual networks, VM templates) to build a pilot cloud under 30 minutes.
+
+More information can be found on the <a href=\"http://opennebula.org/cloud:sandbox:vmware\">OpenNebula Sandbox: VMware-based OpenNebula Cloud guide</a>.
+
+The login information for this VM is
+
+login: root
+password: opennebula",
+        "opennebula_version" => "",
+        "opennebula_template" => "",
+        "files" => [
+            {
+                "type" => "OS",
+                "hypervisor" => "ESX",
+                "format" => "VMDK",
+                "size" => 693729120,
+                "compression" => "gzip",
+                "os-id" => "CentOS",
+                "os-release" => "6.2",
+                "os-arch" => "x86_64",
+                "url" => "http://appliances.c12g.com/OpenNebula%203.4.1%20Front-End%20Centos%206.2/OpenNebula%203.4.1%20Front-End%20Centos%206.2.vmwarevm.tar.gz",
+                "checksum" => {
+                    "md5" => "2dba351902bffb4716168f3693e932e2"
+                }
+            }
+        ]
+    })
+
+    DB['appliances'].insert({
+        "name" => "OpenNebula Sandbox KVM 3.4.1",
+        "catalog" => "public",
+        "publisher" => "C12G Labs",
+        "logo" => "/img/logos/view_dashboard.png",
+        "tags" => ["linux", "kvm", "sandbox", "centos", "frontend"],
+        "description" => "This image is meant to be run on a KVM hypervisor. It comes with a preconfigured OpenNebula 3.4.1, ready to manage a KVM farm. Several resources are created within OpenNebula (images, virtual networks, VM templates) to build a pilot cloud under 30 minutes.\n\nMore information on the SandBox guide:\n\nhttp://opennebula.org/cloud:sandbox:kvm\n\nThe login information for this VM is\n\nlogin: root\npassword: opennebula",
+        "opennebula_version" => "",
+        "opennebula_template" => "",
+        "files" => [
+            {
+                "type" => "OS",
+                "hypervisor" => "KVM",
+                "format" => "raw",
+                "size" => 602539680,
+                "compression" => "gz",
+                "os-id" => "Centos",
+                "os-release" => "6.2",
+                "os-arch" => "x86_64",
+                "url" => "http://appliances.c12g.com/one-sandbox-kvm-3.4.1/one-frontend.img.gz",
+                "checksum" => {
+                    "md5" => "6a60a3ec2fa674d6606b58c7676c03e1"
+                }
+            }
+        ]
+    })
+end
+

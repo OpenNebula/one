@@ -1,0 +1,205 @@
+.navbar.navbar-static
+  .navbar-inner
+    .container
+      %ul.nav.nav-pills
+        %li
+          %form{class: "navbar-search pull-left", action: ""}
+            %input{id: "search", type: "text" , placeholder: "Search", onKeyPress: "return disableEnterKey(event)"}
+        %li
+
+          %a{'href' => "#asearch_form", 'data-toggle' => "collapse"}
+            %i.icon-search.icon-white
+            Advanced search
+        %li.divider-vertical
+      = haml :nav_login
+
+  .collapse.in#asearch_form
+    .form-stacked.well
+      .fieldset
+        .container
+          .span12
+            .row
+              .span3
+                %label
+                  %h6 Name
+                %input#name.span2{'data-provide'=>'typeahead', 'autocomplete'=>'off'}
+              .span3
+                %label
+                  %h6 Description
+                %input#description.span2
+              .span3
+                %label
+                  %h6 Tags
+                %input#tags.span2
+              .span3
+                %label
+                  %h6 Catalog
+                %select#catalog.span2
+            .row
+              .span3
+                %label
+                  %h6 Hypervisor
+                %select#hypervisor.span2
+              .span3
+                %label
+                  %h6 OpenNebula version
+                %select#opennebula_version.span2
+              .span3
+                %label
+                  %h6 Architecture
+                %select#os_arch.span2
+              .span3
+                %label
+                  %h6 Format
+                %select#format.span2
+
+.tabbable
+  %ul.nav.nav-tabs
+    %li.active
+      %a#community_tab{'href' => '#community_content', 'data-toggle' => 'tab'} Community
+    %li
+      %a#commercial_tab{'href' => '#commercial_content', 'data-toggle' => 'tab'} Commercial
+    %li
+      %a#subscriptors_tab{'href' => '#subscriptors_content', 'data-toggle' => 'tab'} Subscriptors
+
+  .tab-content
+    .tab-pane.active#community_content
+      %table{class: "table table-striped table-no-head", id: "apps"}
+        %thead
+          %tr
+            %th Appliances
+            %th CATALOG
+            %th TAGS
+            %th Hypervisor
+    .tab-pane#commercial_content
+      .alert.alert-info
+        %button.close{'type' => 'button', 'data-dismiss'=>'alert'} x
+        This catalog will include appliances created, posted and verified by a commercial entity, usually including a trial version of a  software for evaluation.
+    .tab-pane#subscriptors_content
+      .alert.alert-info
+        %button.close{'type' => 'button', 'data-dismiss'=>'alert'} x
+        This catalog will include appliances created, certified, posted and supported by C12G Labs, and only available for C12G support portal subscribers.
+
+%hr
+
+:javascript
+  $(document).ready(function() {
+    $(".collapse").collapse();
+
+    var oTable = $('#apps').dataTable( {
+      "sDom": "t<'row'<'span6'i><'span6'p>>",
+      "bProcessing": false,
+      "sPaginationType": "bootstrap",
+      "sAjaxSource": "/appliance",
+      "sAjaxDataProp": "appliances",
+      "bAutoWidth": false,
+      "iDisplayLength": 50,
+      "aoColumns": [
+        { "mDataProp": "name" },
+        { "mDataProp": "catalog", "bVisible": false, "bSearchable": false },
+        { "mDataProp": "files.0.hypervisor", "bVisible": false, "bSearchable": false },
+        { "mDataProp": "opennebula_version", "bVisible": false, "bSearchable": false },
+        { "mDataProp": "tags", "bVisible": false },
+        { "mDataProp": "description", "bVisible": false },
+        { "mDataProp": "files.0.os-arch", "bVisible": false, "bSearchable": false },
+        { "mDataProp": "files.0.format", "bVisible": false, "bSearchable": false },
+      ],
+      "fnRowCallback": function( nRow, oData, iDisplayIndex ) {
+        var sOut =
+            '<div class="container span12">'+
+            '<div class="row-fluid">'+
+              '<a href="/appliance/' + oData["_id"]["$oid"]+ '" class="brand">'+oData.name+'</a>'+
+            '</div>'+
+
+            '<div class="row-fluid">'+
+              '<div class="span2">'+
+                '<ul class="thumbnails span10">'+
+                  '<li class="span12">'+
+                    '<a href="/appliance/' + oData["_id"]["$oid"]+ '" class="thumbnail">'+
+                      '<img src="' + oData.logo + '" alt="">'+
+                    '</a>'+
+                  '</li>'+
+                    '<a id="more_info" class="btn btn-inverse btn-mini" href="/appliance/' + oData["_id"]["$oid"]+ '">'+
+                    '<i class="icon-info-sign icon-white"></i>'+
+                    ' More Info</a>'+
+                '</ul>'+
+              '</div>'+
+
+              '<div class="span2">'+
+                '<dl>'+
+                  '<dt><h6><i class="icon-user"></i> Publisher</h6></dt>'+
+                  '<dd><h6><small>'+oData.publisher+'</small></h6></dd>'+
+                  '<dt><h6><i class="icon-book"></i> Catalog</h6></dt>'+
+                  '<dd><h6><small>'+oData.catalog+'</small></h6></dd>'+
+                  '<dt><h6><i class="icon-download-alt"></i> Downloads</h6></dt>'+
+                  '<dd><h6><small>'+oData.downloads+'</small></h6></dd>'+
+                '</dl>'+
+              '</div>'+
+
+              '<div class="span6">'+
+                '<blockquote>'+
+                  '<small>'+
+                    (oData.short_description ? oData.short_description.substring(0,700) : "") +
+                  '</small>'+
+                '</blockquote>'+
+                  '<div class="row-fluid">'+
+                    '<h6><i class="icon-tags"></i><small> '+oData.tags.join(", ")+'</small></h6>'+
+                  '</div>'+
+                  '<hr>'+
+              '</div>'+
+
+              '<div class="span2">'+
+                '<dl>'+
+                  '<dt><h6>Hypervisor</h6></dd>'+
+                  '<dd><h6><small>'+oData.files[0].hypervisor+'</small></h6></dd>'+
+                  '<dt><h6>Arch</h6></dd>'+
+                  '<dd><h6><small>'+oData.files[0]['os-arch']+'</small></h6></dd>'+
+                  '<dt><h6>Format</h6></dd>'+
+                  '<dd><h6><small>'+oData.files[0].format+'</small></h6></dd>'+
+                '</dl>'+
+              '</div>'+
+            '</div>'+
+            '</div>';
+          $('td', nRow).html( sOut );
+        return nRow;
+      },
+      "fnInitComplete": function( oSettings, json ) {
+        // Search box filtering
+        $("#search").keyup( function () {
+          oTable.fnFilter( $(this).val(), null);
+        } );
+
+        // Advanced filtering
+        addInputTypeahead(0, 'name');
+        addSelectOption(1, 'catalog');
+        addSelectOption(2, 'hypervisor');
+        addSelectOption(3, 'opennebula_version');
+        addSelectOption(6, 'os_arch');
+        addSelectOption(7, 'format');
+
+        $('input#tags').keyup( function () {
+          oTable.fnFilter( $(this).val(), 4);
+        } );
+
+        $('input#description').keyup( function () {
+          oTable.fnFilter( $(this).val(), 5);
+        } );
+
+        // Tabs filtering
+        //$('a#community_tab').onclick( function() {
+        //  oTable.fnFilter( 'community', 2 );
+        //} );
+        //
+        //$('a#commercial_tab').onclick( function() {
+        //  oTable.fnFilter( 'commercial', 2 );
+        //} );
+        //
+        //$('a#subscriptors_tab').onclick( function() {
+        //  oTable.fnFilter( 'subscriptors', 2 );
+        //} );
+      }
+    } );
+  } );
+
+
+

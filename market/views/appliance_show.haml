@@ -1,0 +1,185 @@
+.navbar.navbar-static
+  .navbar-inner
+    .container
+      %a.brand{href:"/"} Appliances
+      = haml :nav_login
+
+.container-fluid
+  .row-fluid
+    .span8
+      .brand= @app['name']
+    .span4
+      %a.pull-right{'href' => "/"}
+        %i.icon-search.icon-arrow-left
+        Click to go back
+  .row-fluid
+    .span2
+      %ul.thumbnails
+        .thumbnail
+          %img{'src'=> @app['logo']}
+      %dl
+        %dt
+          %h6
+            %i.icon-user
+            Publisher
+        %dd
+          %h6
+            %small= @app['publisher']
+        %dt
+          %h6
+            %i.icon-book
+            Catalog
+        %dd
+          %h6
+            %small= @app['catalog']
+        %dt
+          %h6
+            %i.icon-download-alt
+            Downloads
+        %dd
+          %h6
+            %small= @app['downloads']
+      %hr.span12
+      %a.btn.span10{'href' => @app['links']['download']['href']}
+        %i.icon-download-alt
+        Download
+      %hr.span12
+      - if @session.admin? || @session.publisher == @app['publisher']
+        %a.btn.btn-danger#delete_app_btn.span10
+          %i.icon-remove
+          Delete
+        %hr.span10
+        %a.btn.btn-warning#update_app_btn.span10
+          %i.icon-edit
+          Update
+      %hr
+
+
+    .span7
+      .row-fluid
+        = @markdown.render(@app['description'])
+        %hr
+        %h6
+          %i.icon-tags
+          %small= @app['tags'].join(', ')
+
+    .span3
+      %dl
+        %dt
+          %h6 Id
+        %dd
+          %h6
+            %small= @app['_id'].to_s
+        %dt
+          %h6 Created
+        %dd
+          %h6
+            %small= @app['_id'].generation_time.strftime("%d-%m-%Y")
+        %dt
+          %h6 Version
+        %dd
+          %h6
+            %small= @app['version']
+        %hr
+        %dt
+          %h6 OpenNebula version
+        %dd
+          %h6
+            %small= @app['opennebula_version']
+        %hr
+        - if @app['files'][0]['checksum']
+          %dt
+            %h6 Checksum MD5
+          %dd
+            %h6
+              %small= @app['files'][0]['checksum']['md5']
+        %dt
+          %h6 Compression
+        %dd
+          %h6
+            %small= @app['files'][0]['compression']
+        %dt
+          %h6 Size
+        %dd
+          %h6
+            %small= Parser.humanize_size(@app['files'][0]['size'])
+        %hr
+        %dt
+          %h6 Format
+        %dd
+          %h6
+            %small= @app['files'][0]['format']
+        - if @app['files'][0]['os-id'] && @app['files'][0]['os-release']
+          %dt
+            %h6 OS
+          %dd
+            %h6
+              %small= @app['files'][0]['os-id'] + ' ' + @app['files'][0]['os-release']
+        %dt
+          %h6 Hypervisor
+        %dd
+          %h6
+            %small= @app['files'][0]['hypervisor']
+        %dt
+          %h6 Arch
+        %dd
+          %h6
+            %small= @app['files'][0]['os-arch']
+
+%hr
+
+:javascript
+  $(document).ready(function() {
+    $("#delete_app_btn").click(function (){
+      if (confirm("Are you sure you want to delete this appliance?")) {
+        $.ajax({
+          url: "#",
+          type: "DELETE",
+          success: function(){
+            window.location.href = "/";
+          },
+          error: function(){
+            return true;
+          }
+        });
+      }
+
+      return false;
+    });
+
+    $("#update_app_btn").click(function (){
+      $.ajax({
+        url: "#",
+        type: "GET",
+        dataType: "json",
+        success: function(response){
+          update_form_content(response, "#update_app_form");
+          $('#update_app').modal('toggle')
+        },
+        error: function(response){
+          alert(response.responseText);
+          return true;
+        }
+      });
+
+      return false;
+    });
+
+    $("#update_app_form").submit(function (){
+      $.ajax({
+        url: "#",
+        type: "PUT",
+        data: JSON.stringify($("#update_app_form").serializeObject()),
+        success: function(){
+          $('#update_app').modal('hide')
+          clearForm($('#update_app_form')[0])
+        },
+        error: function(response){
+          alert(response.responseText);
+          return true;
+        }
+      });
+
+      return false;
+    });
+  } );

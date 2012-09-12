@@ -1,0 +1,195 @@
+%ul.nav.pull-right.nav-pills
+  %li
+    %a{'href' => "http://lists.opennebula.org/listinfo.cgi/marketplace-opennebula.org", "target" => "blank"} Community Support
+  %li.divider-vertical
+  %li
+    %a{'href' => "mailto:marketplace@c12g.com", 'target' => 'blank'} Contact
+  %li.divider-vertical
+  - if @session.anonymous?
+    %li.dropdown
+      %a.dropdown-toggle{'href' => "#", 'data-toggle' => "dropdown"}
+        %i.icon-user.icon-white
+        %strong Sign in
+        %b.caret
+      %ul.dropdown-menu{'style' => 'padding: 15px; padding-bottom: 0px;'}
+        %li
+          %form#login_form{'method' => '', 'action' => ''}
+            .control-group
+              .controls
+                %input#username{'type' => 'text', 'placeholder' => 'Username'}
+                %input#password{'type' => 'password', 'placeholder' => 'Password'}
+            .control-group
+              .controls
+                //%input#user_remember_me{'type' => 'checkbox'}
+                //  Stay signed in
+                %input.pull-right.btn.btn-primary{'type' => 'submit', 'value' => 'Sign in'}
+            %br
+        %a{'data-toggle' => 'modal', 'href' => '#create_user', 'style' => 'text-align: center', 'id' => "request_dev"}
+          Request Developer Access
+        %hr
+  - elsif @session.admin? || @session.user?
+    %li.dropdown
+      %a.dropdown-toggle{'href' => "#", 'data-toggle' => "dropdown"}
+        %i.icon-user.icon-white
+        = @session.name
+        %b.caret
+      %ul.dropdown-menu
+        %li
+          %a
+            %strong Role:
+            =@session.role
+        %li.divider
+        %li
+          %a{'data-toggle' => 'modal', 'href' => '#create_app'} Create new Appliance
+        - if @session.admin?
+          %li
+            %a{'href' => '/user'} Manage Users
+        %li.divider
+        %li
+          %input.btn.btn-danger.pull-right#logout_btn{'type' => 'button', "value" => "Sign out"}
+
+
+.modal.hide.fade#create_app
+  .modal-header
+    %button.close{'type' => 'button', 'data-dismiss' => 'modal'} x
+    %h3 Create a new Appliance
+  .modal-body
+    %form.form-horizontal#create_app_form{'method' => 'post', 'action' => ''}
+      = haml :app_form
+      %input.btn.btn-inverse.pull-right#create_app_button{'href' => '#', 'type' => 'submit', 'value' => 'Create appliance'}
+
+.modal.hide.fade#update_app
+  .modal-header
+    %button.close{'type' => 'button', 'data-dismiss' => 'modal'} x
+    %h3 Update Appliance
+  .modal-body
+    %form.form-horizontal#update_app_form{'method' => 'put', 'action' => ''}
+      = haml :app_form
+      %input.btn.btn-inverse.pull-right#create_app_button{'href' => '#', 'type' => 'submit', 'value' => 'Update appliance'}
+
+
+.modal.hide.fade#create_user
+  .modal-header
+    %button.close{'type' => 'button', 'data-dismiss' => 'modal'} x
+    %h3 Developer registration
+  .modal-body
+    %form.form-horizontal#create_user_form{'method' => 'post', 'action' => ''}
+      = haml :user_form
+      %input.btn.btn-inverse.pull-right#create_user_button{'href' => '#', 'type' => 'submit', 'value' => 'Request Developer Access'}
+    .control-group
+      .controls
+        %label.checkbox{'for' => 'accept_form'}
+          %input.input-xlarge{'name' => 'accept','id' => 'accept_form', 'type' => 'checkbox'}
+          Accept
+          %a{'href' => 'http://www.c12g.com//marketplace-terms-of-use', 'target' => 'blank'} Terms of Use
+
+.modal.hide.fade#update_user
+  .modal-header
+    %button.close{'type' => 'button', 'data-dismiss' => 'modal'} x
+    %h3 Developer registration
+  .modal-body
+    %form.form-horizontal#update_user_form{'method' => 'post', 'action' => ''}
+      = haml :user_form
+      %input.btn.btn-inverse.pull-right#update_user_button{'href' => '#', 'type' => 'submit', 'value' => 'Update User'}
+
+:javascript
+  $(document).ready(function() {
+    $("#create_app_form").submit(function (){
+      $.ajax({
+        url: "/appliance",
+        type: "POST",
+        data: JSON.stringify($("#create_app_form").serializeObject()),
+        success: function(){
+          window.location.href = "/";
+        },
+        error: function(response){
+          alert(response.responseText);
+          return true;
+        }
+      });
+      return false;
+    });
+
+    $("#create_user_form").submit(function (){
+      password = $('#password_form', '#create_user_form')[0]
+      cpassword = $('#confirm_password_form', '#create_user_form')[0]
+
+      if (password.value != cpassword.value) {
+        alert("Your password and confirmation password do not match.");
+        cpassword.focus();
+        return false;
+      }
+
+      if ($('#accept_form')[0].checked == false) {
+        alert("You have to accept Terms of Use to create an account");
+        return false;
+      } else {
+        $('#accept_form').removeAttr('checked')
+      }
+
+      $.ajax({
+        url: "/user",
+        type: "POST",
+        data: JSON.stringify($("form").serializeObject()),
+        success: function(){
+          $('#create_user').modal('hide')
+          clearForm($('#create_user_form')[0])
+          alert("Your account is pending approval. Until your account is approved you will be unable to sign in. You will receive an email when your account has been approved.");
+        },
+        error: function(response){
+          alert(response.responseText);
+          return true;
+        }
+      });
+
+      return false;
+    });
+
+    $("#login_form").submit(function (){
+      var username = $("#username").val();
+      var password = $("#password").val();
+      var remember = $("#user_remember_me").is(":checked");
+
+      $.ajax({
+        url: "/login",
+        type: "POST",
+        data: {remember: remember},
+        beforeSend : function(req) {
+          req.setRequestHeader( "Authorization", "Basic " + btoa(username + ":" + password))
+        },
+        success: function(){
+          window.location.href = "/";
+        },
+        error: function(response){
+          alert("The username or password you entered is incorrect");
+          clearForm($('#login_form')[0])
+          return true;
+        }
+      });
+
+      return false;
+    });
+
+    $("#logout_btn").click(function (){
+      $.ajax({
+        url: "/logout",
+        type: "POST",
+        success: function(){
+          window.location.href = "/";
+        },
+        error: function(){
+          return true;
+        }
+      });
+
+      return false;
+    });
+
+    // Setup drop down menu
+    $('.dropdown-toggle').dropdown();
+
+    // Fix input element click problem
+    $('.dropdown input, .dropdown label').click(function(e) {
+      e.stopPropagation();
+    });
+  } );

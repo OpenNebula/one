@@ -1,0 +1,29 @@
+# Host and port where AppMarket server will run
+:host: 127.0.0.1
+:port: 4567
+
+# DB
+db_host: localhost
+db_port: 27017
+
+# Admin credentials. This will be the user that will be used in the
+#   bootstrap process the first time the server is started
+user:
+    organization:   default
+    first_name:     default
+    last_name:      default
+    username:       default
+    password:       default
+    website:        default
+    email:          default
+
+# Parameters that will be used to configure the delivery method of the
+#   mail service. More information: http://rubygems.org/gems/mail
+mail:
+    :address:              mail.default.com
+    :port:                 587
+    :domain:               default.com
+    :user_name:            default@default.com
+    :password:             password
+    :authentication:       plain
+    :enable_starttls_auto: false

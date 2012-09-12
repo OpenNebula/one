@@ -1,0 +1,90 @@
+%fieldset
+  .control-group
+    %label.control-label{'for' => 'name_form'} Name
+    .controls
+      %input.input-xlarge{'name' => 'name','id' => 'name_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'short_description_form'} Short Description
+    .controls
+      %textarea.input-xlarge{'name' => 'short_description', 'id' => 'short_description_form', 'rows' => '3'}
+  .control-group
+    %label.control-label{'for' => 'description_form'} Description
+    .controls
+      %textarea.input-xlarge{'name' => 'description', 'id' => 'description_form', 'rows' => '8'}
+  .control-group
+    %label.control-label{'for' => 'version_form'} Version
+    .controls
+      %input.input-xlarge{'name' => 'version', 'id' => 'version_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'tags_form'} Tags
+    .controls
+      %input.input-xlarge{'name' => 'tags', 'id' => 'tags_form', 'type' => 'text'}
+      %p.help-block Comma-separated tags
+  %hr
+  .control-group
+    %label.control-label{'for' => 'url_form'} URL
+    .controls
+      %input.input-xlarge{'name' => 'files.0.url', 'id' => 'files.0.url_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'files.0.md5'} MD5
+    .controls
+      %input.input-xlarge{'name' => 'files.0.md5', 'id' => 'files.0.md5_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'files.0.sha1'} SHA1
+    .controls
+      %input.input-xlarge{'name' => 'files.0.sha1', 'id' => 'files.0.sha1_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'files.0.compression'} Compression
+    .controls
+      %select{'name' => 'files.0.compression', 'id' => 'files.0.compression_form'}
+        %option{'value' => ""}
+        - Appliance::FILE_SCHEMA[:properties]['compression'][:enum].each do |elem|
+          %option= elem
+  %hr
+  .control-group
+    %label.control-label{'for' => 'files.0.hypervisor'} Hypervisor
+    .controls
+      %select{'name' => 'files.0.hypervisor', 'id' => 'files.0.hypervisor_form'}
+        %option{'value' => ""}
+        - Appliance::FILE_SCHEMA[:properties]['hypervisor'][:enum].each do |elem|
+          %option= elem
+  .control-group
+    %label.control-label{'for' => 'files.0.format'} Format
+    .controls
+      %select{'name' => 'files.0.format', 'id' => 'files.0.format_form'}
+        %option{'value' => ""}
+        - Appliance::FILE_SCHEMA[:properties]['format'][:enum].each do |elem|
+          %option= elem
+  %hr
+  .control-group
+    %label.control-label{'for' => 'files.0.os-id'} OS id
+    .controls
+      %input.input-xlarge{'name' => 'files.0.os-id', 'id' => 'files.0.os-id_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'files.0.os-release'} OS release
+    .controls
+      %input.input-xlarge{'name' => 'files.0.os-release', 'id' => 'files.0.os-release_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'files.0.os-arch'} OS arch
+    .controls
+      %input.input-xlarge{'name' => 'files.0.os-arch', 'id' => 'files.0.os-arch_form', 'type' => 'text'}
+  - if @session.admin?
+    Admin parameters
+    %hr
+    .control-group
+      %label.control-label{'for' => 'logo'} Logo
+      .controls
+        %input.input-xlarge{'name' => 'logo','id' => 'logo_form', 'type' => 'text'}
+    .control-group
+      %label.control-label{'for' => 'catalog_form'} Catalog
+      .controls
+        %input.input-xlarge{'name' => 'catalog','id' => 'catalog_form', 'type' => 'text'}
+    .control-group
+      %label.control-label{'for' => 'publisher_form'} Publisher
+      .controls
+        %input.input-xlarge{'name' => 'publisher','id' => 'publisher_form', 'type' => 'text'}
+    .control-group
+      %label.control-label{'for' => 'files.0.size'} Size
+      .controls
+        %input.input-xlarge{'name' => 'files.0.size', 'id' => 'files.0.size_form', 'type' => 'text'}
+%hr

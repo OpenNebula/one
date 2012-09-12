@@ -1,0 +1,48 @@
+.navbar.navbar-static
+  .navbar-inner
+    .container
+      %a.brand{href:"/"} Appliances
+      = haml :nav_login
+
+%table{class: "table table-striped", id: "users"}
+  %thead
+    %tr
+      %th username
+      %th organization
+      %th first_name
+      %th last_name
+      %th email
+      %th status
+      %th
+
+%hr
+
+:javascript
+  $(document).ready(function() {
+    var oTable = $('#users').dataTable( {
+      "sDom": "t<'row'<'span6'i><'span6'p>>",
+      "bProcessing": false,
+      "sPaginationType": "bootstrap",
+      "sAjaxSource": "/user",
+      "sAjaxDataProp": "users",
+      "bAutoWidth": false,
+      "aoColumns": [
+        { "mDataProp": "username" },
+        { "mDataProp": "organization" },
+        { "mDataProp": "first_name" },
+        { "mDataProp": "last_name" },
+        { "mDataProp": "email" },
+        { "mDataProp": "status" },
+        { "mDataProp": "_id.$oid",
+          "fnRender": function ( o ) {
+          more_info = '<a id="more_info" class="btn btn-inverse btn-mini pull-right" href="/user/' + o.aData["_id"]["$oid"]+ '">'+
+                        '<i class="icon-info-sign icon-white"></i>'+
+                        ' More Info</a>'
+          return more_info
+        } }
+      ]
+    } );
+  } );
+
+
+

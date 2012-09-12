@@ -1,0 +1,25 @@
+{
+    "name": "Ubuntu Server 12.04 LTS (Precise Pangolin)",
+    "catalog": "public",
+    "logo": "/img/logos/ubuntu.png",
+    "tags": ["linux", "ubuntu"],
+    "description": "This image has been created with OpenNebula 3.4. It has been tested with KVM, although since it's a RAW image it should work with Xen and even VMware (using qemu-img convert).\n\nThe login information for this VM is\n\nlogin: ubuntu\npassword: ubuntu\n\nIt has been prepared to work with OpenNebula, i.e. it's contextualized.",
+    "opennebula_version": "3.4",
+    "opennebula_template": "CPU=1",
+    "files": [
+        {
+            "type": "OS",
+            "hypervisor": "KVM",
+            "format": "raw",
+            "size": 262132088,
+            "compression": "bz2",
+            "os-id": "Ubuntu",
+            "os-release": "12.04",
+            "os-arch": "x86_64",
+            "url": "http://appliances.c12g.com/Ubuntu-Server-12.04/ubuntu-server-12.04.img.bz2",
+            "checksum": {
+                "md5": "d0f3c0bebdab6451b58ca54f119d8082"
+            }
+        }
+    ]
+}

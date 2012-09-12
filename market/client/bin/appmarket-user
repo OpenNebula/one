@@ -1,0 +1,157 @@
+#!/usr/bin/env ruby
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION+"/apptools/market"
+$: << RUBY_LIB_LOCATION+"/cloud"
+$: << RUBY_LIB_LOCATION+"/cli"
+
+require 'appmarket_client'
+
+require 'command_parser'
+require 'cli_helper'
+
+require 'json'
+
+USER_AGENT = "CLI"
+
+#
+# Options
+#
+
+DEFAULT_OPTIONS = [
+    ENDPOINT = {
+        :name => "server",
+        :short => "-s url",
+        :large => "--server url",
+        :format => String,
+        :description => "Marketplace endpoint"
+    },
+    USERNAME={
+        :name => "username",
+        :short => "-u name",
+        :large => "--username name",
+        :format => String,
+        :description => "User name"
+    },
+    PASSWORD={
+        :name => "password",
+        :short => "-p pass",
+        :large => "--password pass",
+        :format => String,
+        :description => "User password"
+    }
+]
+
+JSON_FORMAT={
+    :name => "json",
+    :short => "-j",
+    :large => "--json",
+    :description => "Show in JSON format"
+}
+
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :ID, "User", :size=>25 do |d|
+        d["_id"]["$oid"]
+    end
+
+    column :NAME, "Name", :size=>20 do |d|
+        d["username"]
+    end
+
+    column :ROLE, "Role", :size=>15 do |d|
+        d["role"]
+    end
+
+    default :ID, :NAME, :ROLE
+end
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "`appmarket-user` <command> [<args>] [<options>]"
+
+    set :option, DEFAULT_OPTIONS
+
+    #
+    # List
+    #
+
+    list_desc = <<-EOT.unindent
+        List the available users in the Marketplace
+    EOT
+
+    command :list, list_desc, :options => JSON_FORMAT do
+        client = Market::UserClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.list
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            if options[:json]
+                [0,response.body]
+            else
+                array_list = JSON.parse(response.body)
+                TABLE.show(array_list['users'])
+                0
+            end
+        end
+    end
+
+    #
+    # Create
+    #
+
+    create_desc = <<-EOT.unindent
+        Create a new user in the Marketplace
+    EOT
+
+    command :create, create_desc, :file do
+        client = Market::UserClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.create(File.read(args[0]))
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            [0, response.body]
+        end
+    end
+
+    #
+    # Show
+    #
+
+    show_desc = <<-EOT.unindent
+        Show detailed information of a given user
+    EOT
+
+    command :show, show_desc, :id, :options => JSON_FORMAT do
+        client = Market::UserClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.show(args[0])
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            [0,response.body]
+        end
+    end
+end

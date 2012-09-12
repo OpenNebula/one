@@ -1,0 +1,47 @@
+%fieldset
+  .control-group
+    %label.control-label{'for' => 'organization_form'} Organization
+    .controls
+      %input.input-xlarge{'name' => 'organization','id' => 'organization_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'first_name_form'} First Name
+    .controls
+      %input.input-xlarge{'name' => 'first_name','id' => 'first_name_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'last_name_form'} Last Name
+    .controls
+      %input.input-xlarge{'name' => 'last_name','id' => 'last_name_form', 'type' => 'text'}
+  %hr
+  .control-group
+    %label.control-label{'for' => 'username_form'} Username
+    .controls
+      %input.input-xlarge{'name' => 'username','id' => 'username_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'password_form'} Password
+    .controls
+      %input.input-xlarge{'name' => 'password','id' => 'password_form', 'type' => 'password'}
+  .control-group
+    %label.control-label{'for' => 'confirm_password_form'} Confirm Password
+    .controls
+      %input.input-xlarge{'name' => 'password','id' => 'confirm_password_form', 'type' => 'password'}
+  %hr
+  .control-group
+    %label.control-label{'for' => 'website_form'} Website
+    .controls
+      %input.input-xlarge{'name' => 'website','id' => 'website_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'email_form'} Email
+    .controls
+      %input.input-xlarge{'name' => 'email','id' => 'email_form', 'type' => 'text'}
+  - if @session.admin?
+    Admin parameters
+    %hr
+    .control-group
+      %label.control-label{'for' => 'status'} Status
+      .controls
+        %input.input-xlarge{'name' => 'status','id' => 'status_form', 'type' => 'text'}
+    .control-group
+      %label.control-label{'for' => 'role_form'} Role
+      .controls
+        %input.input-xlarge{'name' => 'role','id' => 'role_form', 'type' => 'text'}
+%hr
