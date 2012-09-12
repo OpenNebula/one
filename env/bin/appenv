@@ -24,14 +24,15 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/apptools/env"
 $: << RUBY_LIB_LOCATION+"/cli"
 
 $: << '.'
-require 'apptools/onechef.rb'
+require 'onechef'
 require 'base64'
 
 require 'command_parser'
-require 'apptools/appenv_helper'
+require 'appenv_helper'
 require 'one_helper/onetemplate_helper'
 
 require 'pp'

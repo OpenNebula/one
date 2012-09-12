@@ -17,13 +17,11 @@ require 'rubygems'
 require 'json'
 
 require 'OpenNebula'
-#require 'OpenNebula/DocumentPool'
-#require 'OpenNebula/Document'
 
 require 'OpenNebula/DocumentJSON'
 require 'OpenNebula/DocumentPoolJSON'
 
-require 'apptools/onecast'
+require 'onecast'
 
 module OpenNebula
     class ChefConf

@@ -48,11 +48,11 @@ while true ; do
 done
 
 if [ -z "$ROOT" ]; then
-    LIB_LOCATION="/usr/lib/one/ruby/apptools"
+    LIB_LOCATION="/usr/lib/one/ruby/apptools/env"
     BIN_LOCATION="/usr/bin"
     PACKAGES_LOCATION="/usr/share/one/apptools"
 else
-    LIB_LOCATION="$ROOT/lib/ruby/apptools"
+    LIB_LOCATION="$ROOT/lib/ruby/apptools/env"
     BIN_LOCATION="$ROOT/bin"
     PACKAGES_LOCATION="$ROOT/share/apptools"
 fi
