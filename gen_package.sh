@@ -32,7 +32,7 @@ SCRIPTS_DIR=$PWD
 NAME="${PACKAGE_NAME}_${VERSION}.${PACKAGE_TYPE}"
 rm $NAME
 
-DIRS="env"
+DIRS="env market"
 export DESTDIR=$PWD/tmp
 
 rm -rf $DESTDIR
