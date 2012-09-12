@@ -55,7 +55,7 @@ do_file() {
         if [ "$LINK" = "yes" ]; then
             ln -s $SRC_DIR/$1 $2
         else
-            cp $SRC_DIR/$1 $2
+            cp -R $SRC_DIR/$1 $2
         fi
     fi
 }
