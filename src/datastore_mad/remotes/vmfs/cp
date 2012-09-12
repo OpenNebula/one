@@ -82,7 +82,7 @@ fi
 if [ "$SSH" == "yes" ]; then
     ssh_make_path $DST_HOST $DST
 else
-    exec_and_log 'vifs $VI_PARAMS --mkdir "$DST"' "Cannot create $DST in $DST_HOST"
+    exec_and_log "vifs $VI_PARAMS --mkdir $DST" "Cannot create $DST in $DST_HOST"
 fi
 
 # Prepare for a possible download in the front-end
@@ -143,7 +143,7 @@ else
     cd $SRC
     for file in $(find . -type f); do
         FNAME=$(basename $file)
-        exec_and_log 'vifs $VI_PARAMS -p $file $DST/$FNAME' "Cannot upload $file to $DST/$FNAME on $DST_HOST"
+        exec_and_log "vifs $VI_PARAMS -p $file $DST/$FNAME" "Cannot upload $file to $DST/$FNAME on $DST_HOST"
     done
 fi
 

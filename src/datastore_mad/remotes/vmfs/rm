@@ -75,9 +75,9 @@ else
 	# We have to erase the contents of the folder one by one
 	FILES_TO_ERASE=`vifs $VI_PARAMS --dir "[$DS_NAME] $FOLDER_TO_ERASE"|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
 	for file in $FILES_TO_ERASE; do
-		exec_and_log 'vifs $VI_PARAMS --rm "[$DS_NAME] $FOLDER_TO_ERASE/$file"' "Cannot delete $FOLDER_TO_ERASE/$file in $DST_HOST"
+		exec_and_log "vifs $VI_PARAMS --rm \"[$DS_NAME] $FOLDER_TO_ERASE/$file\"" "Cannot delete $FOLDER_TO_ERASE/$file in $DST_HOST"
 	done
-	exec_and_log 'vifs $VI_PARAMS --rm "[$DS_NAME] $FOLDER_TO_ERASE"' "Cannot delete $FOLDER_TO_ERASE in $DST_HOST"
+	exec_and_log "vifs $VI_PARAMS --rm \"[$DS_NAME] $FOLDER_TO_ERASE\"" "Cannot delete $FOLDER_TO_ERASE in $DST_HOST"
 fi
 
 exit 0

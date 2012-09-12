@@ -151,7 +151,7 @@ function get_destination_host {
 
 	sed -i -e "1d" $CONF_FILE_PATH
 
-	cat $BRIDGE_HOST >> $CONF_FILE_PATH
+	echo $BRIDGE_HOST >> $CONF_FILE_PATH
 
 	echo $BRIDGE_HOST
 }

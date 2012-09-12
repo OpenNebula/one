@@ -57,7 +57,7 @@ if [ "$SSH" == "yes" ]; then
 else
 	USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3)`
 	PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3)`
-	exec_and_log '$VMKFSTOOLS --server $DST_HOST --username $USERNAME --password $PASSWORD -U $DST_PATH' "Cannot delelete $DST"
+	exec_and_log "$VMKFSTOOLS --server $DST_HOST --username $USERNAME --password $PASSWORD -U $DST_PATH" "Cannot delelete $DST"
 fi
 
 exit 0
