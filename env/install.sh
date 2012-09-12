@@ -50,9 +50,11 @@ done
 if [ -z "$ROOT" ]; then
     LIB_LOCATION="/usr/lib/one/ruby/apptools"
     BIN_LOCATION="/usr/bin"
+    PACKAGES_LOCATION="/usr/share/one/apptools"
 else
     LIB_LOCATION="$ROOT/lib/ruby/apptools"
     BIN_LOCATION="$ROOT/bin"
+    PACKAGES_LOCATION="$ROOT/share/apptools"
 fi
 
 DIRECTORIES="$LIB_LOCATION $BIN_LOCATION"
@@ -82,4 +84,5 @@ copy_files() {
 
 copy_files "lib/* cli/*" "$LIB_LOCATION"
 copy_files "bin/*" "$BIN_LOCATION"
+copy_files "share/packages/*" "$PACKAGES_LOCATION"
 
