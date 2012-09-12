@@ -21,7 +21,7 @@ After the successful package creation the command tells us where the package is 
   Created deb package {"path":"/Users/jfontan/tmp/borrar/git/one2/share/scripts/context-packages/app-context_3.6.0.deb"}
   app-context_3.6.0.deb
 
-Now we can udpate the packages located in the directory packages. Remember to use ''git rm'' to delete the old packages and ''git add'' to add the new one. Example:
+Now we can update the packages located in the directory packages. Remember to use ''git rm'' to delete the old packages and ''git add'' to add the new one. Example:
 
     $ ./gen_package.sh 
     rm: app-context_3.6.1.deb: No such file or directory
@@ -31,9 +31,9 @@ Now we can udpate the packages located in the directory packages. Remember to us
     $ git rm packages/app-context_3.6.0.deb
     $ cp /Users/jfontan/tmp/borrar/git/one2/share/scripts/context-packages/app-context_3.6.1.deb packages/
     $ git add packages/app-context_3.6.1.deb 
-    $ git commit -m'appenv: added context package versoin 3.6.1'
+    $ git commit -m'appenv: added context package version 3.6.1'
     $ git push
 
-These packahes will be used for the apptools package generation.
+These packages will be used for the apptools package generation.
 
 
