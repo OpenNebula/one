@@ -15,7 +15,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-TEMP_OPT=`getopt -o ld: -n 'install.sh' -- "$@"`
+usage() {
+ echo
+ echo "Usage: install.sh [-d ONE_LOCATION] [-l] [-h]"
+ echo
+ echo "-d: target installation directory, if not defined it'd be root. Must be"
+ echo "    an absolute path."
+ echo "-l: creates symlinks instead of copying files, useful for development"
+ echo "-h: prints this help"
+}
+
+TEMP_OPT=`getopt -o hld: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -29,6 +39,7 @@ SRC_DIR=$PWD
 
 while true ; do
     case "$1" in
+        -h) usage; exit 0;;
         -d) ROOT="$2" ; shift 2 ;;
         -l) LINK="yes" ; shift ;;
         --) shift ; break ;;
