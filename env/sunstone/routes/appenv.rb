@@ -13,7 +13,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'apptools/env/onechef.rb'
+$: << RUBY_LIB_LOCATION+"/apptools/env"
+
+require 'onechef'
 
 # Name for the resource.
 #Used to generate correct <RESOURCE_POOL><RESOURCE>... tags
