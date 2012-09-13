@@ -314,7 +314,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_reason(History::ERROR);
 
         vmpool->update_history(vm);
-        
+
         vm->set_previous_etime(the_time);
 
         vm->set_previous_vm_info();
@@ -564,6 +564,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
     time_t              the_time = time(0);
     int                 cpu,mem,disk;
 
+    VirtualMachine::LcmState state;
     DispatchManager::Actions action;
 
     vm = vmpool->get(vid,true);
@@ -573,13 +574,23 @@ void  LifeCycleManager::epilog_success_action(int vid)
         return;
     }
 
-    if (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP)
+    state = vm->get_lcm_state();
+
+    if ( state == VirtualMachine::EPILOG_STOP )
     {
         action = DispatchManager::STOP_SUCCESS;
     }
-    else if (vm->get_lcm_state() == VirtualMachine::EPILOG)
+    else if ( state == VirtualMachine::EPILOG )
     {
         action = DispatchManager::DONE;
+    }
+    else if ( state == VirtualMachine::CLEANUP )
+    {
+        dm->trigger(DispatchManager::RESUBMIT, vid);
+
+        vm->unlock();
+
+        return;
     }
     else
     {
@@ -625,9 +636,19 @@ void  LifeCycleManager::epilog_failure_action(int vid)
         return;
     }
 
-    vm->set_epilog_etime(the_time);
+    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP )
+    {
+        Nebula&           nd = Nebula::instance();
+        DispatchManager * dm = nd.get_dm();
 
-    failure_action(vm);
+        dm->trigger(DispatchManager::RESUBMIT, vid);
+    }
+    else
+    {
+        vm->set_epilog_etime(the_time);
+
+        failure_action(vm);
+    }
 
     vm->unlock();
 
@@ -837,7 +858,7 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
     vm->set_state(VirtualMachine::FAILURE);
 
     vm->set_resched(false);
-    
+
     vmpool->update(vm);
 
     vm->set_etime(the_time);

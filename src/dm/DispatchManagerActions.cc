@@ -862,19 +862,30 @@ int DispatchManager::resubmit(int vid)
         break;
 
         case VirtualMachine::FAILED: //Cleanup VM host files
+            vm->log("DiM", Log::INFO, "New VM state is CLEANUP.");
+
+            vm->set_state(VirtualMachine::CLEANUP);
+            vm->set_state(VirtualMachine::ACTIVE);
+
+            vmpool->update(vm);
+
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
+        break;
+
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::PENDING);
+
             vmpool->update(vm);
 
             vm->log("DiM", Log::INFO, "New VM state is PENDING.");
         break;
 
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
-            lcm->trigger(LifeCycleManager::CLEAN,vid);
+            lcm->trigger(LifeCycleManager::CLEAN, vid);
         break;
+
         case VirtualMachine::DONE:
             NebulaLog::log("DiM",Log::ERROR,
                 "Cannot resubmit a VM already in DONE state");
