@@ -929,7 +929,7 @@ function popUpCreateVMDialog(){
 
         var href = location.protocol + "//" + location.host;
 
-        var disks = $('#disk_box option[clicked="clicked"]');
+        var disks = $('#disk_box option[clicked="clicked"]', dialog);
         if (disks.length){
             vm["DISK"] = [];
 
@@ -939,7 +939,7 @@ function popUpCreateVMDialog(){
             });
         };
 
-        var nets = $('#network_box option[clicked="clicked"]');
+        var nets = $('#network_box option[clicked="clicked"]', dialog);
 
         if (nets.length){
             vm["NIC"] = [];
