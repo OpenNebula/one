@@ -15,106 +15,14 @@
     .container
 
       .one-h1
-        :plain
-          <h1><i class="icon-shopping-cart icon-white"></i> OpenNebula Marketplace<h1>
+        %h1
+          = haml :'custom/tittle'
 
         %span.arrow
         %span.arrow-right
 
       .one-banner
-        .ribbon-wrapper-green
-          .ribbon-green BETA
-        .row-fluid
-          .span4
-            :plain
-              <h1><i class="icon-info-sign icon-white"></i> About</h1>
-            %p
-              The OpenNebula Marketplace is an online catalog where individuals and organizations can quickly distribute and deploy appliances ready-to-run on OpenNebula clouds.
-            %p
-              %a{'data-toggle' => 'modal', 'href' => '#appliance_banner'} Learn more
-          .span4
-            :plain
-              <h1><i class="icon-cogs icon-white"></i> Post your Appliance</h1>
-            %p
-              You can create and distribute your software as an OpenNebula Virtual Appliance. The OpenNebula Marketplace is available at no charge to any community developer.
-            %p
-              %a{'data-toggle' => 'modal', 'href' => '#post_your_appliance_banner'} Learn more
-          .span4
-            :plain
-              <h1><i class="icon-retweet icon-white"></i> Integrated in OpenNebula</h1>
-                <ul class="thumbnails">
-                  <li>
-                    <a href="http://www.opennebula.org/documentation:rel3.6:marketplace" target="blank" class="thumbnail span10">
-                      <img src="/img/marketsunstone.png" alt="">
-                    </a>
-                  </li>
-                </ul>
-
-      .modal.hide.fade#appliance_banner
-        .modal-header
-          %button.close{'type' => 'button', 'data-dismiss' => 'modal'} x
-          %h3 About
-        .modal-body
-          %h4 What is the OpenNebula Marketplace?
-
-          %p The OpenNebula Marketplace is a catalog of Virtual Appliances posted by individuals and organizations that are ready-to-run on OpenNebula. The Marketplace has been created to simplify the deployment of Virtual Appliances and to support their distribution among the OpenNebula community. Not all the Virtual Appliances have been certified and so may be not ready to work on production environments.
-
-          %h4 What is an OpenNebula Appliance?
-
-          %p An OpenNebula Virtual Appliance is a pre-built software solution, consisting of a set of pre-configured virtual machine image and configuration files, ready-to-run on an OpenNebula cloud.
-
-          %h4 What is provided by the Marketplace?
-
-          %p The Marketplace contains metadata that defines the Virtual Appliance but not the appliance files themselves. The metadata includes the links to download the appliance files from third-party servers. The time required for Appliance download is dependent upon network connection speed and the size of the Appliance files.
-
-          %h4 What can I do in the Marketplace?
-
-          %p You do not need to register to download public images. However you will need an App Developer account to post your Virtual Appliances or to rate and review other existing public Virtual Appliances.
-
-          %h4 What are the different types of Appliances?
-
-          %p
-            The OpenNebula Marketplace provides access to three different catalogs:
-            %ul
-              %li Community: These are appliances created, posted and verified by a not-for-profit developer. They are typically open source applications packaged into a virtual appliance.
-              %li Commercial: These are appliances created, posted and verified by a commercial entity, usually including a trial or a limited version of a commercial software for evaluation purposes.
-              %li Subscription: These are appliances created, certified, posted and supported by C12G Labs, and only available for C12G support portal subscribers.
-
-          %h4 Can I provide support for my Virtual Appliances?
-
-          %p Yes, in the description of your Virtual Appliance, you can include support statements and link to resources to educate end users about your Virtual Appliance. However if you plan to provide commercial support, the Virtual Appliance must be included in the Commercial Catalog. At the moment C12G Labs does not require an ISV partnership agreement to distribute Commercial Virtual Appliances.
-
-          %h4 How to ask questions about Virtual Appliance creation and posting or report problems?
-
-          %p
-            You can use
-            %a{'href' => 'http://lists.opennebula.org/listinfo.cgi/marketplace-opennebula.org', 'target' => 'blank'}
-              the OpenNebula Marketplace mailing list
-            for this kind of questions
-
-      .modal.hide.fade#post_your_appliance_banner
-        .modal-header
-          %button.close{'type' => 'button', 'data-dismiss' => 'modal'} x
-          %h3 Build and Post your Virtual Appliance
-        .modal-body
-          %p The Marketplace is available to organizations and individuals who want to create and distribute Virtual Appliances ready-to-run on OpenNebula clouds.
-
-          %h4 How to Register as an Appliance Developer?
-
-          %p Click the "Request Developer Access" link inside the "Sign in" dropdown in this page and fill the form.You will receive an email when your account has been approved. Until your account is approved you will be unable to sign in.
-          %p
-            And do not forget to subscribe to
-            %a{'href' => 'http://lists.opennebula.org/listinfo.cgi/marketplace-opennebula.org'} the OpenNebula Marketplace mailing list
-
-          %h4 How to Develop your Appliance?
-
-          %p
-            %a{'href'=> 'http://opennebula.org/documentation:rel3.6:vm4market', 'target' => 'blank'} This guide
-            will show you how to create OpenNebula compatible images for the Marketplace
-
-          %h4 How to Post your Appliance?
-
-          %p Log in with you Developer account. After that, you will be able to click your username in the navigation bar and select "Create new Appliance".
+        = haml :'custom/banner'
 
       = yield
 
@@ -122,22 +30,18 @@
     .container
       .row-fluid
         .span12
-          %a.span4{'href' => "http://www.opennebula.org/"}
-            %img{'src' => "/img/opennebula_gray.png"}
-          %a.pull-right{'href' => "http://www.c12g.com/"}
-            %img{'src' => "/img/c12g.png"}
-    %hr
+          = haml :'custom/logos'
+
+      %hr
+
+
+      %p.pull-right
+        OpenNebula AppMarket 3.6.0 by
+        %a{'href' => "http://www.c12g.com/"} C12G Labs.
+
 
     .one-footer-black
       .container
         .row-fluid
           .span12
-            %p
-              © 2012 C12G Labs S.L. All Rights Reserved.
-              %a{'href' => "http://www.c12g.com/legal-notice"} Legal Notice.
-              Please send comments to
-              %a{'href' => "mailto:marketplace@opennebula.org"} webmaster.
-              This site is managed by
-              %a{'href' => "http://www.c12g.com/"} C12G Labs.
-              %br
-              OpenNebula and C12G Labs are not responsible for any content you may access or download from external  sites
+            = haml :'custom/footer'

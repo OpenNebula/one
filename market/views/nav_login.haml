@@ -1,9 +1,4 @@
 %ul.nav.pull-right.nav-pills
-  %li
-    %a{'href' => "http://lists.opennebula.org/listinfo.cgi/marketplace-opennebula.org", "target" => "blank"} Community Support
-  %li.divider-vertical
-  %li
-    %a{'href' => "mailto:marketplace@c12g.com", 'target' => 'blank'} Contact
   %li.divider-vertical
   - if @session.anonymous?
     %li.dropdown
@@ -80,8 +75,7 @@
       .controls
         %label.checkbox{'for' => 'accept_form'}
           %input.input-xlarge{'name' => 'accept','id' => 'accept_form', 'type' => 'checkbox'}
-          Accept
-          %a{'href' => 'http://www.c12g.com//marketplace-terms-of-use', 'target' => 'blank'} Terms of Use
+          = haml :'custom/terms_of_use'
 
 .modal.hide.fade#update_user
   .modal-header
