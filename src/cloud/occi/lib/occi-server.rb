@@ -150,6 +150,7 @@ end
 
 before do
     cache_control :no_store
+    content_type 'application/xml', :charset => 'utf-8'
     unless request.path=='/ui/login' || request.path=='/ui'
         if !authorized?
             begin
@@ -245,6 +246,7 @@ helpers do
     def treat_response(result,rc)
         if OpenNebula::is_error?(result)
             logger.error {result.message}
+            content_type 'text/plain', :charset => 'utf-8'
             halt rc, result.message
         end
 
@@ -325,6 +327,7 @@ post '/compute/:id/action' do
     when 'detachdisk' then
         @occi_server.detach_disk(request, params, xml)
     else
+        content_type 'text/plain', :charset => 'utf-8'
         halt 403, "Action #{xml['PERFORM']} not supported"
     end
 
@@ -421,6 +424,7 @@ post '/ui/config' do
     begin
         body = JSON.parse(request.body.read)
     rescue
+        content_type 'text/plain', :charset => 'utf-8'
         [500, "POST Config: Error parsing configuration JSON"]
     end
 
@@ -446,6 +450,7 @@ post '/ui/logout' do
 end
 
 get '/ui' do
+    content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         return File.read(File.dirname(__FILE__)+'/ui/templates/login.html')
     end
@@ -462,6 +467,7 @@ get '/ui' do
 end
 
 post '/ui/upload' do
+    content_type 'application/json', :charset => 'utf-8'
     #so we can re-use occi post_storage()
     request.params['file'] = {:tempfile => request.env['rack.input']}
     result,rc = @occi_server.post_storage(request)
@@ -469,11 +475,13 @@ post '/ui/upload' do
 end
 
 post '/ui/startvnc/:id' do
+    content_type 'application/json', :charset => 'utf-8'
     vm_id    = params[:id]
     @occi_server.startvnc(vm_id, settings.vnc)
 end
 
 get '/ui/accounting' do
+    content_type 'application/json', :charset => 'utf-8'
     @occi_server.get_user_accounting(params)
 end
 
