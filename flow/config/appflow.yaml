@@ -1,0 +1,38 @@
+################################################################################
+# Server Configuration
+################################################################################
+
+# OpenNebula daemon contact information
+#
+:one_xmlrpc: http://localhost:2633/RPC2
+
+# Time in seconds between Life Cycle Manager steps
+#
+:lcm_interval: 30
+
+# Host and port where AppFlow server will run
+:host: 127.0.0.1
+:port: 2474
+
+#############################################################
+# Auth
+#############################################################
+
+# Authentication driver for incomming requests
+#   - ec2, default Acess key and Secret key scheme
+#   - x509, for x509 certificates based authentication
+:auth: sunstone
+
+# Authentication driver to communicate with OpenNebula core
+#   - cipher, for symmetric cipher encryption of tokens
+#   - x509, for x509 certificate encryption of tokens
+:core_auth: cipher
+
+################################################################################
+# Log
+################################################################################
+
+# Log debug level
+#   0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
+#
+:debug_level: 2

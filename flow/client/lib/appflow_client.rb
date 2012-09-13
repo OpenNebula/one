@@ -1,0 +1,243 @@
+require 'uri'
+require 'cloud/CloudClient'
+
+module Role
+    STATE = {
+        'PENDING'     => 0,
+        'DEPLOYING'   => 1,
+        'RUNNING'     => 2,
+        'UNDEPLOYING' => 3,
+        'FAILED'      => 4,
+        'UNKNOWN'     => 5,
+        'DONE'        => 6
+    }
+
+    STATE_STR = [
+        'PENDING',
+        'DEPLOYING',
+        'RUNNING',
+        'UNDEPLOYING',
+        'FAILED',
+        'UNKNOWN',
+        'DONE'
+    ]
+
+    # Returns the string representation of the role state
+    # @param [String] state String number representing the state
+    # @return the state string
+    def self.state_str(state_number)
+        return STATE_STR[state_number.to_i]
+    end
+end
+
+module Service
+
+    STATE = {
+        'PENDING'     => 0,
+        'DEPLOYING'   => 1,
+        'RUNNING'     => 2,
+        'UNDEPLOYING' => 3,
+        'FAILED'      => 4,
+        'UNKNOWN'     => 5,
+        'DONE'        => 6
+    }
+
+    STATE_STR = [
+        'PENDING',
+        'DEPLOYING',
+        'RUNNING',
+        'UNDEPLOYING',
+        'FAILED',
+        'UNKNOWN',
+        'DONE'
+    ]
+
+    # Returns the string representation of the service state
+    # @param [String] state String number representing the state
+    # @return the state string
+    def self.state_str(state_number)
+        return STATE_STR[state_number.to_i]
+    end
+
+    # Build a json specifying an action
+    # @param [String] perform action to be performed (i.e: shutdowm)
+    # @param [Hash, nil] params contains the params for the action
+    # @return [String] json representing the action
+    def self.build_json_action(perform, params=nil)
+        body = Hash.new
+        body['perform'] = perform
+        body['params']  = params if params
+
+        action = Hash.new
+        action['action'] = body
+
+        JSON.pretty_generate action
+    end
+
+    # CLI options
+
+    DEFAULT_OPTIONS = [
+        ENDPOINT = {
+            :name => "server",
+            :short => "-s url",
+            :large => "--server url",
+            :format => String,
+            :description => "Service endpoint"
+        },
+        USERNAME={
+            :name => "username",
+            :short => "-u name",
+            :large => "--username name",
+            :format => String,
+            :description => "User name"
+        },
+        PASSWORD={
+            :name => "password",
+            :short => "-p pass",
+            :large => "--password pass",
+            :format => String,
+            :description => "User password"
+        }
+    ]
+
+    JSON_FORMAT = {
+        :name => "json",
+        :short => "-j",
+        :large => "--json",
+        :description => "Print the resource in JSON"
+    }
+
+    TOP = {
+        :name => "top",
+        :short => "-t",
+        :large => "--top",
+        :description => "Top for the command"
+    }
+
+    # Format helpers
+
+#    def self.rname_to_id(name, poolname, options)
+    def self.rname_to_id(name, poolname)
+        return 0, name.to_i if name.match(/^[0123456789]+$/)
+
+        client = Service::Client.new(nil, nil, nil)
+#        client = Service::Client.new(
+#            options[:username],
+#            options[:password],
+#            options[:server],
+#            USER_AGENT)
+
+        resource_path = case poolname
+        when "SERVICE"          then "/service"
+        when "SERVICE TEMPLATE" then "/service_template"
+        end
+
+        response = client.get(resource_path)
+
+        if CloudClient::is_error?(response)
+            return -1, "OpenNebula #{poolname} name not found," <<
+                       " use the ID instead"
+        end
+
+        pool = JSON.parse(response.body)
+        name_to_id(name, pool, poolname)
+    end
+
+    def self.rname_to_id_desc(poolname)
+        "OpenNebula #{poolname} name or id"
+    end
+
+    def self.name_to_id(name, pool, ename)
+        objects = pool['DOCUMENT_POOL']['DOCUMENT'].select {|object| object['NAME'] == name }
+
+        if objects.length>0
+            if objects.length>1
+                return -1, "There are multiple #{ename}s with name #{name}."
+            else
+                result = objects.first['ID']
+            end
+        else
+            return -1, "#{ename} named #{name} not found."
+        end
+
+        return 0, result
+    end
+
+    # Perform an action on several resources
+    # @param [Array] ids resources ids
+    # @param [Block] block action to be performed
+    # @return [Integer] exit_code
+    def self.perform_actions(ids, &block)
+        exit_code = 0
+
+        ids.each do |id|
+            response = block.call(id)
+
+            if CloudClient::is_error?(response)
+                puts response.to_s
+                exit_code = response.code.to_i
+            end
+        end
+
+        exit_code
+    end
+
+    class Client
+        def initialize(username, password, url, user_agent="Ruby")
+            if username.nil? || password.nil?
+                if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
+                    one_auth = File.read(ENV["ONE_AUTH"])
+                elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+                    one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+                end
+
+                one_auth.rstrip!
+
+                username, password = one_auth.split(':')
+            end
+
+            @username = username
+            @password = password
+
+            url ||= 'http://localhost:2474'
+            @uri = URI.parse(url)
+
+            @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
+        end
+
+        def get(path)
+            req = Net::HTTP::Get.new(path)
+
+            do_request(req)
+        end
+
+        def delete(path)
+            req = Net::HTTP::Delete.new(path)
+
+            do_request(req)
+        end
+
+        def post(path, body)
+            req = Net::HTTP::Post.new(path)
+            req.body = body
+
+            do_request(req)
+        end
+
+        private
+
+        def do_request(req)
+            if @username && @password
+                req.basic_auth @username, @password
+            end
+
+            req['User-Agent'] = @user_agent
+
+            res = CloudClient::http_start(@uri, @timeout) do |http|
+                http.request(req)
+            end
+
+            res
+        end
+    end
+end

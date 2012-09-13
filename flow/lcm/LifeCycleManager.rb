@@ -1,0 +1,132 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+require 'lcm/strategy'
+
+class ServiceLCM
+
+    LOG_COMP = "LCM"
+
+    def initialize(sleep_time, cloud_auth)
+        @sleep_time = sleep_time
+        @cloud_auth = cloud_auth
+    end
+
+    def loop()
+        Log.info LOG_COMP, "Starting Life Cycle Manager"
+
+        srv_pool = ServicePool.new(@cloud_auth.client)
+
+        while true
+            rc = srv_pool.info_all()
+
+            if OpenNebula.is_error?(rc)
+                Log.error LOG_COMP, "Error retrieving the Service Pool: #{rc.message}"
+            else
+                srv_pool.each_xpath('DOCUMENT/ID') { |id|
+
+                    service = srv_pool.get(id.to_i) { |service|
+
+                        owner_client = @cloud_auth.client(service.owner_name)
+                        service.replace_client(owner_client)
+
+                        Log.debug LOG_COMP, "Loop for service #{service.id()} #{service.name()}" \
+                                " #{service.state_str()} #{service.strategy()}"
+
+                        strategy = get_deploy_strategy(service)
+
+                        case service.state()
+                        when Service::STATE['PENDING']
+                            service.set_state(Service::STATE['DEPLOYING'])
+
+                            rc = strategy.boot_step(service)
+                            if !rc[0]
+                                service.set_state(Service::STATE['FAILED'])
+                            end
+
+                            strategy.monitor_step(service)
+                        when Service::STATE['DEPLOYING']
+                            strategy.monitor_step(service)
+
+                            if service.all_roles_running?
+                                service.set_state(Service::STATE['RUNNING'])
+                            elsif service.any_role_failed?
+                                service.set_state(Service::STATE['FAILED'])
+                            else
+                                rc = strategy.boot_step(service)
+                                if !rc[0]
+                                    service.set_state(Service::STATE['FAILED'])
+                                end
+                            end
+                        when Service::STATE['RUNNING']
+                            strategy.monitor_step(service)
+
+                            if !service.all_roles_running?
+                                service.set_state(Service::STATE['UNKNOWN'])
+                            end
+                        when Service::STATE['UNKNOWN']
+                            strategy.monitor_step(service)
+
+                            if service.all_roles_running?
+                                service.set_state(Service::STATE['RUNNING'])
+                            end
+                        when Service::STATE['FAILED']
+                            strategy.monitor_step(service)
+
+                            if service.all_roles_running?
+                                service.set_state(Service::STATE['RUNNING'])
+                            end
+                        when Service::STATE['UNDEPLOYING']
+                            strategy.monitor_step(service)
+
+                            if service.all_roles_done?
+                                service.set_state(Service::STATE['DONE'])
+                            else
+                                rc = strategy.shutdown_step(service)
+                                if !rc[0]
+                                    service.set_state(Service::STATE['FAILED'])
+                                end
+                            end
+                        end
+
+                        rc = service.update()
+                        if OpenNebula.is_error?(rc)
+                            Log.error LOG_COMP, "Error trying to update " <<
+                                "Service #{service.id()} : #{rc.message}"
+                        end
+                    }
+                }
+            end
+
+            sleep @sleep_time
+        end
+    end
+
+private
+    # Returns the deployment strategy for the given Service
+    # @param [Service] service the service
+    # @return [Strategy] the deployment Strategy
+    def get_deploy_strategy(service)
+        strategy = Strategy.new
+
+        case service.strategy
+        when 'straight'
+            strategy.extend(Straight)
+        end
+
+        return strategy
+    end
+end
