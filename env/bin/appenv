@@ -45,6 +45,14 @@ NAME={
     :description => "Name of the node"
 }
 
+DESCRIPTION={
+    :name  => "description",
+    :short => "-d description",
+    :large => "--description description",
+    :format => String,
+    :description => "description of the node"
+}
+
 TEMPLATES={
     :name  => "templates",
     :short => "-t t1,t2",
@@ -109,13 +117,14 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, addnode_desc, [:node_file],
-            :options => [NAME, TEMPLATES, COOKBOOKS] do
+            :options => [NAME, TEMPLATES, COOKBOOKS, DESCRIPTION] do
         node=OpenNebula::ChefConf.new
 
         node.node=File.read args.first
         node.name=options[:name] if options[:name]
         node.templates=options[:templates] if options[:templates]
         node.cookbooks=options[:cookbooks] if options[:cookbooks]
+        node.description=options[:description] if options[:description]
 
         client=Client.new
         res=node.save(client)
@@ -162,7 +171,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, [:node],
-            :options=>[NAME, TEMPLATES, NODE, COOKBOOKS] do
+            :options=>[DESCRIPTION, TEMPLATES, NODE, COOKBOOKS] do
         client=OpenNebula::Client.new
         doc=OpenNebula::ChefDoc.new(
             OpenNebula::ChefDoc.build_xml(args[0]),
@@ -181,6 +190,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
         node.templates=options[:templates] if options[:templates]
         node.cookbooks=options[:cookbooks] if options[:cookbooks]
+        node.description=options[:description] if options[:description]
 
         doc.update(node.to_json)
 

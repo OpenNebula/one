@@ -59,6 +59,10 @@ private
             puts str % ["COOKBOOKS", node.node['cookbooks']]
         end
 
+        if node.node['description']
+            puts str % ["DESCRIPTION", node.node['description']]
+        end
+
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
@@ -103,7 +107,12 @@ private
                 d['NAME']
             end
 
-            default :ID, :NAME
+            column :DESCRIPTION, "Description of the node",
+                          :size=>50 do |d|
+                JSON.parse(d['TEMPLATE']['BODY'])['description']
+            end
+
+            default :ID, :NAME, :DESCRIPTION
         end
 
         table

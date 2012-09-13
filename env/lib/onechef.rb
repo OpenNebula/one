@@ -70,6 +70,10 @@ module OpenNebula
             @chef['cookbooks']=cookbooks
         end
 
+        def description=(description)
+            @chef['description']=description
+        end
+
         def save(client)
             doc=ChefDoc.new(ChefDoc.build_xml, client)
 
