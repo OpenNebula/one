@@ -64,13 +64,15 @@ start()
     echo "Cannot find $SUNSTONE_SERVER."
     exit 1
   fi
-  
+
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
   ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &
   LASTPID=$!
+
   if [ $? -ne 0 ]; then
-    echo "Error executing $SUNSTONE_SERVER, please check the log $SUNSTONE_LOG"
+    echo "Error executing sunstone-server."
+    echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
     exit 1
   else
     echo $LASTPID > $SUNSTONE_PID
@@ -80,7 +82,8 @@ start()
   ps $LASTPID &> /dev/null
 
   if [ $? -ne 0 ]; then
-    echo "Error executing $SUNSTONE_SERVER, please check the log $SUNSTONE_LOG"
+    echo "Error executing sunstone-server."
+    echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
     exit 1
   fi
 
@@ -102,6 +105,7 @@ stop()
 
   # Remove pid files
   rm -f $SUNSTONE_LOCK_FILE &> /dev/null
+  rm -f $SUNSTONE_PID &> /dev/null
 
   echo "sunstone-server stopped"
 }
