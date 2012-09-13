@@ -48,6 +48,7 @@ source $(dirname $0)/tm_vmwarerc
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
+DST_FOLDER=`basename $DST_PATH`
 
 if [ "$SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
@@ -58,7 +59,9 @@ fi
 if [ "$SSH" == "yes" ]; then
     ssh_make_path $DST_HOST $DST_DIR
 else
-    exec_and_log "vifs $VI_PARAMS --mkdir \"$DST_DIR\"" "Cannot create $DST_DIR on %DST_HOST"
+    vifs $VI_PARAMS --mkdir [$DS_ID]$VM_ID
+    exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$VM_ID/$DST_FOLDER" \
+                 "Cannot create [$DS_ID]$VM_ID/$DST_FOLDER on %DST_HOST"
 fi
 
 #-------------------------------------------------------------------------------
@@ -66,7 +69,6 @@ fi
 #-------------------------------------------------------------------------------
 log "Generating context block device at $DST"
 
-VM_ID=`basename $DST_DIR`
 ISO_DIR="$DS_DIR/.isofiles/$VM_ID"
 ISO_FILE="$ISO_DIR/$VM_ID.iso"
 

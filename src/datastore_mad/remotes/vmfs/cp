@@ -71,8 +71,8 @@ SHA1="${XPATH_ELEMENTS[7]}"
 # Set up the datastore
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
-DST=`generate_image_path`
-DST_FOLDER=`basename $DST`
+FE_DST=`generate_image_path`
+DST_FOLDER=`basename $FE_DST`
 DST="/vmfs/volumes/$DS_ID/$DST_FOLDER"
 DST_HOST=`get_destination_host $(dirname $0)`
 
@@ -86,7 +86,7 @@ fi
 if [ "$SSH" == "yes" ]; then
     ssh_make_path $DST_HOST $DST
 else
-    exec_and_log "vifs $VI_PARAMS --mkdir \"[$DS_ID] $DST_FOLDER\"" "Cannot create $DST in $DST_HOST"
+    exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$DST_FOLDER" "Cannot create $DST in $DST_HOST"
 fi
 
 # Prepare for a possible download in the front-end
@@ -126,9 +126,8 @@ http://*|https://* )
 
     if [ ! -d $SRC ]; then
         exec_and_log "$COPY_COMMAND" "Error copying $SRC to $TMP_DIR/$IMAGE_HASH"
+        SRC="$TMP_DIR/$IMAGE_HASH"
     fi
-
-    SRC="$TMP_DIR/$IMAGE_HASH"
     ;;
 esac
 
@@ -136,7 +135,7 @@ esac
 if [ ! -f $SRC/disk.vmdk ]; then
     BASE_DISK_FILE=`ls $SRC | grep -v '\-\(flat\|delta\|s[0-9]*\)\.vmdk$'`
 
-    exec_and_log "mv -f $DST/$BASE_DISK_FILE $DST/disk.vmdk" \
+    exec_and_log "mv -f $FE_DST/$BASE_DISK_FILE $DST/disk.vmdk" \
         "Error renaming disk file $BASE_DISK_FILE to disk.vmdk"
 fi
 
@@ -147,7 +146,7 @@ else
     cd $SRC
     for file in $(find . -type f); do
         FNAME=$(basename $file)
-        exec_and_log "vifs $VI_PARAMS -p $file \"[$DS_ID] $DST_FOLDER/$FNAME\"" "Cannot upload $file to $DST/$FNAME on $DST_HOST"
+        exec_and_log "vifs $VI_PARAMS -p $file [$DS_ID]$DST_FOLDER/$FNAME" "Cannot upload $file to $DST/$FNAME on $DST_HOST"
     done
 fi
 
