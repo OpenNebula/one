@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "$ONE_LOCATION" ]; then
+if [ -z "$MARKET_LOCATION" ]; then
     MARKET_PID=/var/run/one/appmarket-server.pid
     MARKET_SERVER=/usr/lib/one/ruby/apptools/market/controllers/server.rb
     MARKET_LOCK_FILE=/var/lock/one/.appmarket.lock
@@ -36,10 +36,10 @@ setup()
 {
   if [ -f $MARKET_LOCK_FILE ]; then
     if [ -f  $MARKET_PID ]; then
-      ONEPID=`cat $MARKET_PID`
-      ps $MARKET_PID > /dev/null 2>&1
+      MARKETPID=`cat $MARKET_PID`
+      ps $MARKETPID > /dev/null 2>&1
       if [ $? -eq 0 ]; then
-        echo "MARKET Server is still running (PID:$MARKET_PID). Please try 'appmarket-server stop' first."
+        echo "MARKET Server is still running (PID:$MARKETPID). Please try 'appmarket-server stop' first."
         exit 1
       fi
     fi
@@ -54,6 +54,8 @@ start()
     echo "Cannot find $MARKET_SERVER."
     exit 1
   fi
+
+  touch $MARKET_LOCK_FILE
 
   # Start the appmarket-server daemon
   ruby $MARKET_SERVER >$MARKET_LOG 2>$MARKET_LOG_ERROR &
@@ -97,6 +99,7 @@ stop()
 
   # Remove pid files
   rm -f $MARKET_PID > /dev/null 2>&1
+  rm -f $MARKET_LOCK_FILE &> /dev/null
 
   echo "appmarket-server stopped"
 }
