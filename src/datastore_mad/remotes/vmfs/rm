@@ -55,7 +55,7 @@ SRC="${XPATH_ELEMENTS[0]}"
 DS_NAME="${XPATH_ELEMENTS[1]}"
 
 DST_HOST=`get_destination_host $(dirname $0)`
-FOLDER_TO_ERASE=`dirname SRC`
+DST_FOLDER=`basename $SRC`
 
 if [ "$SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
@@ -68,16 +68,19 @@ fi
 log "Removing $SRC from the image repository"
 
 if [ "$SSH" == "yes" ]; then   
-    if [ -n $DS_NAME -a -n $FOLDER_TO_ERASE -a -d /vmfs/volumes/$DS_NAME/$FOLDER_TO_ERASE ]; then
-    	ssh_exec_and_log $DST_HOST "rm -rf /vmfs/volumes/$DS_NAME/$FOLDER_TO_ERASE" "Error deleting $SRC"
+    if [ -n $DS_NAME -a -n $DST_FOLDER ]; then
+    	ssh_exec_and_log $DST_HOST "rm -rf /vmfs/volumes/$DS_NAME/$DST_FOLDER" \ 
+                                   "Error deleting $SRC"
     fi
 else
 	# We have to erase the contents of the folder one by one
 	FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DS_NAME]$FOLDER_TO_ERASE|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
 	for file in $FILES_TO_ERASE; do
-		exec_and_log "vifs $VI_PARAMS --rm [$DS_NAME]$FOLDER_TO_ERASE/$file" "Cannot delete $FOLDER_TO_ERASE/$file in $DST_HOST"
+		exec_and_log "vifs $VI_PARAMS --force --rm [$DS_NAME]$DST_FOLDER/$file"\
+                     "Cannot delete $DST_FOLDER/$file in $DST_HOST"
 	done
-	exec_and_log "vifs $VI_PARAMS --rm [$DS_NAME]$FOLDER_TO_ERASE" "Cannot delete $FOLDER_TO_ERASE in $DST_HOST"
+	exec_and_log "vifs $VI_PARAMS --force --rm [$DS_NAME]$DST_FOLDER" \ 
+                 "Cannot delete $DST_FOLDER in $DST_HOST"
 fi
 
 exit 0
