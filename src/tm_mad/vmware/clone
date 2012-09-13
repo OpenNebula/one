@@ -47,7 +47,7 @@ source $(dirname $0)/tm_vmwarerc
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
-SRC_FOLDER=`basename $(dirname $SRC_PATH)`
+SRC_FOLDER=`basename $SRC_PATH`
 
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
