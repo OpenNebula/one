@@ -127,6 +127,8 @@ class User
 
         if !hash['password']
             hash['password'] = user['password']
+        else
+            hash['password'] = generate_password(hash['password'])
         end
 
         validator.validate!(hash, session.schema(:user))
