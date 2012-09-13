@@ -17,4 +17,4 @@
 # Whether the TM VMware driver should use to invoke the VMFS native commands
 #   * remote API calls (value set to "no")
 #   * ssh connection (value set to "yes")
-SSH=no
+USE_SSH=no

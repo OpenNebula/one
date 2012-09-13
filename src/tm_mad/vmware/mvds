@@ -42,7 +42,7 @@ fi
 
 source $(dirname $0)/tm_vmwarerc
 
-if [ "$SSH" != "yes" ]; then
+if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
     PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
     VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
@@ -62,7 +62,7 @@ SRC_HOST=`arg_host $SRC`
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 
-if [ "$SSH" == "yes" ]; then
+if [ "$USE_SSH" == "yes" ]; then
 
 MVSCRIPT=$(cat <<EOF
 SRC_READLN=eval "$READLINK -f $SRC_PATH"

@@ -54,7 +54,7 @@ DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 DST_FOLDER=`basename $DST_PATH`
 
-if [ "$SSH" != "yes" ]; then
+if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
     PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
 	  IMAGE_DS_NAME=`basename $(dirname $SRC_PATH)`
@@ -63,7 +63,7 @@ if [ "$SSH" != "yes" ]; then
     VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
 fi
 
-if [ "$SSH" == "yes" ]; then
+if [ "$USE_SSH" == "yes" ]; then
 	ssh_make_path $DST_HOST $DST_PATH
 else
 	# Two calls needed since vifs cannot do a mkdir -p
@@ -76,7 +76,7 @@ fi
 #-------------------------------------------------------------------------------
 log "Cloning $SRC_PATH in $DST"
 
-if [ "$SSH" == "yes" ]; then
+if [ "$USE_SSH" == "yes" ]; then
 
 CLONESCRIPT=$(cat <<EOF
 cd $DST_DIR

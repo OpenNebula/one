@@ -71,7 +71,7 @@ DST_DIR=`dirname $DST`
 DST_FOLDER=`basename $DST`
 DST_HOST=`get_destination_host $(dirname $0)`
 
-if [ "$SSH" != "yes" ]; then
+if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
     PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
     VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
@@ -91,7 +91,7 @@ log "Making filesystem of ${SIZE}M (with no format) at [$IMAGE_DS_ID]$DST_FOLDER
 IMAGE_FORMAT=vmdk
 VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
 
-if [ "$SSH" == "yes" ]; then    
+if [ "$USE_SSH" == "yes" ]; then    
     ssh_exec_and_log $DST_HOST "mkdir -p /vmfs/volumes/$IMAGE_DS_ID/$DST_FOLDER" \
                                "Could not create disk directory /vmfs/volumes/$IMAGE_DS_ID/$DST_FOLDER on $DST_HOST"
     ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -U [$IMAGE_DS_ID]$DST_FOLDER/disk.vmdk"

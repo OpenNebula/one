@@ -52,7 +52,7 @@ DST_DIR=`dirname $DST_PATH`
 # Link (ln) SRC into DST
 #-------------------------------------------------------------------------------
 
-if [ "$SSH" == "yes" ]; then
+if [ "$USE_SSH" == "yes" ]; then
 	ssh_make_path $DST_HOST $DST_PATH
 
 	# It's a folder, make links for all elements
