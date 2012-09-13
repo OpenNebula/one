@@ -78,12 +78,12 @@ EOF
 else
     # Two calls needed since vifs cannot do a mkdir -p
     vifs $VI_PARAMS --mkdir [$SYSTEM_DS_NAME]$VMID
-    exec_and_log "vifs $VI_PARAMS --mkdir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER"
+    vifs $VI_PARAMS --mkdir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER
 
     VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
     exec_and_log "$VMKFSTOOLS $VI_PARAMS -U $DST_PATH/disk.vmdk"
-    exec_and_log "$VMKFSTOOLS $VI_PARAMS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} $DST/disk.vmdk" \
-                 "Cannot create $DST/disk.vmdk on $DST_HOST"
+    exec_and_log "$VMKFSTOOLS $VI_PARAMS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
+                 "Cannot create [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk on $DST_HOST"
 fi
 
 exit 0

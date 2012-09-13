@@ -105,4 +105,4 @@ else
                  "Cannot create $IMAGE_DS_ID]$DST_FOLDER/disk.vmdk on $DST_HOST"
 fi
 
-echo "/vmfs/volumes/$IMAGE_DS_ID/$DST_FOLDER/disk.vmdk"
+echo "/vmfs/volumes/$IMAGE_DS_ID/$DST_FOLDER"

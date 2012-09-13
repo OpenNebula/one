@@ -47,7 +47,7 @@ source $(dirname $0)/tm_vmwarerc
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
-SRC_FOLDER=`basename $SRC_PATH`
+SRC_FOLDER=`basename $(dirname $SRC_PATH)`
 
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
@@ -93,6 +93,7 @@ EOF
 )
 	ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
 else
+  $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
 	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk -d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
                  "Error cloning $SRC to $DST"
 fi
