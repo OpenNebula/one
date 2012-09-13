@@ -44,6 +44,9 @@ var market_actions = {
         callback: function(request,response){
             $('#img_name', $create_image_dialog).val(response['name']);
             $('#img_path', $create_image_dialog).val(response['links']['download']['href']);
+            $('#src_path_select input[value="path"]', $create_image_dialog).trigger('click');
+            $('select#img_type', $create_image_dialog).val('OS');
+            $('select#img_type', $create_image_dialog).trigger('change');
 
             //remove any options from the custom vars dialog box
             $("#custom_var_image_box",$create_image_dialog).empty();
