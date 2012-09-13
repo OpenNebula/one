@@ -28,9 +28,9 @@ class ServiceLCM
     def loop()
         Log.info LOG_COMP, "Starting Life Cycle Manager"
 
-        srv_pool = ServicePool.new(@cloud_auth.client)
-
         while true
+            srv_pool = ServicePool.new(@cloud_auth.client)
+
             rc = srv_pool.info_all()
 
             if OpenNebula.is_error?(rc)
