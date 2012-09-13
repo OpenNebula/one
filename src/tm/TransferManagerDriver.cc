@@ -96,8 +96,7 @@ void TransferManagerDriver::protocol(
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP ||
-         vm->get_lcm_state() == VirtualMachine::FAILURE ||
+    if ( vm->get_lcm_state() == VirtualMachine::FAILURE ||
          vm->get_lcm_state() == VirtualMachine::LCM_INIT )
     {
         os.str("");
@@ -128,6 +127,7 @@ void TransferManagerDriver::protocol(
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
+                case VirtualMachine::CLEANUP:
                     lcm_action = LifeCycleManager::EPILOG_SUCCESS;
                     break;
 
@@ -143,7 +143,7 @@ void TransferManagerDriver::protocol(
 
             os.str("");
             os << "Error executing image transfer script";
-            
+
             if (!info.empty() && info[0] != '-')
             {
                 os << ": " << info;
@@ -151,7 +151,7 @@ void TransferManagerDriver::protocol(
                 vm->set_template_error_message(os.str());
                 vmpool->update(vm);
             }
-            
+
             vm->log("TM",Log::ERROR,os);
 
             switch (vm->get_lcm_state())
@@ -164,6 +164,7 @@ void TransferManagerDriver::protocol(
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
+                case VirtualMachine::CLEANUP:
                     lcm_action = LifeCycleManager::EPILOG_FAILURE;
                     break;
 

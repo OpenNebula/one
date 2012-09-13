@@ -112,7 +112,7 @@ void  LifeCycleManager::suspend_action(int vid)
         vm->set_state(VirtualMachine::SAVE_SUSPEND);
 
         vm->set_resched(false);
-        
+
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_SUSPEND");
@@ -156,9 +156,9 @@ void  LifeCycleManager::stop_action(int vid)
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::SAVE_STOP);
-        
+
         vm->set_resched(false);
-        
+
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_STOP");
@@ -550,8 +550,6 @@ void  LifeCycleManager::clean_action(int vid)
 
     clean_up_vm(vm);
 
-    dm->trigger(DispatchManager::RESUBMIT,vid);
-
     vm->unlock();
 }
 
@@ -570,6 +568,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
     int                      vid   = vm->get_oid();
+
+    vm->log("LCM", Log::INFO, "New VM state is CLEANUP.");
 
     vm->set_state(VirtualMachine::CLEANUP);
     vm->set_resched(false);
@@ -679,7 +679,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
-        
+
         default: //LCM_INIT,CLEANUP
         break;
     }
