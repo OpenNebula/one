@@ -65,7 +65,8 @@ start()
   ruby $OZONES_SERVER > $OZONES_LOG 2>$OZONES_LOG_ERROR &
   LASTPID=$!
   if [ $? -ne 0 ]; then
-    echo "Error executing $OZONES_SERVER, please check the log $OZONES_LOG"
+    echo "Error executing ozones-server."
+    echo "Check $OZONES_LOG_ERROR and $OZONES_LOG for more information"
     exit 1
   else
       echo $LASTPID > $OZONES_PID
@@ -75,7 +76,8 @@ start()
   ps $LASTPID &> /dev/null
 
   if [ $? -ne 0 ]; then
-    echo "Error executing $OZONES_SERVER, please check the log $OZONES_LOG"
+    echo "Error executing ozones-server."
+    echo "Check $OZONES_LOG_ERROR and $OZONES_LOG for more information"
     exit 1
   fi
 
@@ -97,6 +99,7 @@ stop()
 
   # Remove pid files
   rm -f $OZONES_LOCK_FILE &> /dev/null
+  rm -f $OZONES_PID &> /dev/null
 
   echo "ozones-server stopped"
 }
