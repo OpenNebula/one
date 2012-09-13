@@ -69,17 +69,17 @@ log "Removing $SRC from the image repository"
 
 if [ "$SSH" == "yes" ]; then   
     if [ -n $DS_NAME -a -n $DST_FOLDER ]; then
-    	ssh_exec_and_log $DST_HOST "rm -rf /vmfs/volumes/$DS_NAME/$DST_FOLDER" \ 
+    	ssh_exec_and_log $DST_HOST "rm -rf /vmfs/volumes/$DS_NAME/$DST_FOLDER" \
                                    "Error deleting $SRC"
     fi
 else
 	# We have to erase the contents of the folder one by one
-	FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DS_NAME]$FOLDER_TO_ERASE|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
+	FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DS_NAME]$DST_FOLDER|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
 	for file in $FILES_TO_ERASE; do
-		exec_and_log "vifs $VI_PARAMS --force --rm [$DS_NAME]$DST_FOLDER/$file"\
+		exec_and_log "vifs $VI_PARAMS --force --rm [$DS_NAME]$DST_FOLDER/$file" \
                      "Cannot delete $DST_FOLDER/$file in $DST_HOST"
 	done
-	exec_and_log "vifs $VI_PARAMS --force --rm [$DS_NAME]$DST_FOLDER" \ 
+	exec_and_log "vifs $VI_PARAMS --force --rm [$DS_NAME]$DST_FOLDER" \
                  "Cannot delete $DST_FOLDER in $DST_HOST"
 fi
 
