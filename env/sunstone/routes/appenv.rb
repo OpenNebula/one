@@ -48,13 +48,14 @@ helpers do
 
     def appenv_create(template)
         node = OpenNebula::ChefConf.new
-        node.name = template['name']
         node.description = template['description'] if template['description']
         node.cookbooks = template['cookbooks'] if template['cookbacks']
         node.templates = template['templates'] if template['templates']
         #variables currently unused
         node.variables = template['variables'] if template['variables']
         node.node = template['node'] if template['node']
+        node.name = template['name'] if template['name'] &&
+            !template['name'].empty?
 
         client = settings.cloud_auth.client(session[:user])
         doc = node.save(client)[0]
