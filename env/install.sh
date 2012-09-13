@@ -51,10 +51,12 @@ if [ -z "$ROOT" ]; then
     LIB_LOCATION="/usr/lib/one/ruby/apptools/env"
     BIN_LOCATION="/usr/bin"
     PACKAGES_LOCATION="/usr/share/one/apptools"
+    SUNSTONE_LOCATION="/usr/lib/one/sunstone"
 else
     LIB_LOCATION="$ROOT/lib/ruby/apptools/env"
     BIN_LOCATION="$ROOT/bin"
     PACKAGES_LOCATION="$ROOT/share/apptools"
+    SUNSTONE_LOCATION="$ROOT/lib/sunstone"
 fi
 
 DIRECTORIES="$LIB_LOCATION $BIN_LOCATION"
@@ -66,7 +68,7 @@ do_file() {
         if [ "$LINK" = "yes" ]; then
             ln -s $SRC_DIR/$1 $2
         else
-            cp $SRC_DIR/$1 $2
+            cp -R $SRC_DIR/$1 $2
         fi
     fi
 }
@@ -85,4 +87,7 @@ copy_files() {
 copy_files "lib/* cli/*" "$LIB_LOCATION"
 copy_files "bin/*" "$BIN_LOCATION"
 copy_files "share/packages/*" "$PACKAGES_LOCATION"
+copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
+copy_files "sunstone/public/js/user-plugins/*" "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
 
