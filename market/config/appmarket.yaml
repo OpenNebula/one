@@ -1,6 +1,6 @@
 # Host and port where AppMarket server will run
 :host: 127.0.0.1
-:port: 6242
+:port: 4567
 
 # DB
 db_host: localhost
