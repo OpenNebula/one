@@ -55,7 +55,7 @@ SRC="${XPATH_ELEMENTS[0]}"
 DS_NAME="${XPATH_ELEMENTS[1]}"
 
 DST_HOST=`get_destination_host $(dirname $0)`
-DST_FOLDER=`basename $SRC`
+DST_FOLDER=`basename $(dirname $SRC)`
 
 if [ "$SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`

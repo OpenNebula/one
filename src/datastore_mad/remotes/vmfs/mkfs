@@ -95,13 +95,13 @@ if [ "$SSH" == "yes" ]; then
     ssh_exec_and_log $DST_HOST "mkdir -p /vmfs/volumes/$IMAGE_DS_ID/$DST_FOLDER" \
                                "Could not create disk directory /vmfs/volumes/$IMAGE_DS_ID/$DST_FOLDER on $DST_HOST"
     ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -U [$IMAGE_DS_ID]$DST_FOLDER/disk.vmdk"
-    ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} [$IMAGE_DS_ID]$DST_FOLDER/disk.vmdk" \ 
+    ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} [$IMAGE_DS_ID]$DST_FOLDER/disk.vmdk" \
                                "Cannot create [$IMAGE_DS_ID] $DST_FOLDER/disk.vmdk on $DST_HOST"
 else
     $VMKFSTOOLS $VI_PARAMS -U [$IMAGE_DS_ID]$DST_FOLDER/disk.vmdk &> /dev/null
     exec_and_log "vifs $VI_PARAMS --mkdir [$IMAGE_DS_ID]$DST_FOLDER" \
                  "Cannot create [$IMAGE_DS_ID] $DST_FOLDER on $DST_HOST"
-    exec_and_log "$VMKFSTOOLS $VI_PARAMS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} [$IMAGE_DS_ID]$DST_FOLDER/disk.vmdk" \ 
+    exec_and_log "$VMKFSTOOLS $VI_PARAMS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} [$IMAGE_DS_ID]$DST_FOLDER/disk.vmdk" \
                  "Cannot create $IMAGE_DS_ID]$DST_FOLDER/disk.vmdk on $DST_HOST"
 fi
 
