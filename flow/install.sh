@@ -41,11 +41,13 @@ if [ -z "$ROOT" ]; then
     BIN_LOCATION="/usr/bin"
     ETC_LOCATION="/etc/one"
     LOG_LOCATION="/var/log/one/appflow"
+    SUNSTONE_LOCATION="/usr/lib/one/sunstone"
 else
     LIB_LOCATION="$ROOT/lib/ruby/apptools/flow"
     BIN_LOCATION="$ROOT/bin"
     ETC_LOCATION="$ROOT/etc"
     LOG_LOCATION="$ROOT/var/appflow"
+    SUNSTONE_LOCATION="$ROOT/lib/sunstone"
 fi
 
 DIRECTORIES="$LIB_LOCATION $BIN_LOCATION $ETC_LOCATION $LOG_LOCATION"
@@ -89,7 +91,13 @@ copy_files "controllers models public views lcm" "$LIB_LOCATION"
 copy_files "lib/* models.rb config.ru Gemfile Gemfile.lock \
             Rakefile" "$LIB_LOCATION"
 
+# Sunstone
+copy_files "sunstone/public/js/user-plugins/*" \
+    "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
+
 # Do not link the ETC files
 LINK="no"
 copy_files "config/appflow.yaml" "$ETC_LOCATION"
+
 

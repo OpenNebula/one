@@ -15,7 +15,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-TEMP_OPT=`getopt -o ld: -n 'install.sh' -- "$@"`
+usage() {
+ echo
+ echo "Usage: install.sh [-d ONE_LOCATION] [-l] [-h]"
+ echo
+ echo "-d: target installation directory, if not defined it'd be root. Must be"
+ echo "    an absolute path."
+ echo "-l: creates symlinks instead of copying files, useful for development"
+ echo "-h: prints this help"
+}
+
+TEMP_OPT=`getopt -o hld: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -29,6 +39,7 @@ SRC_DIR=$PWD
 
 while true ; do
     case "$1" in
+        -h) usage; exit 0;;
         -d) ROOT="$2" ; shift 2 ;;
         -l) LINK="yes" ; shift ;;
         --) shift ; break ;;
@@ -37,25 +48,17 @@ while true ; do
 done
 
 if [ -z "$ROOT" ]; then
-    LIB_LOCATION="/usr/lib/one/ruby/apptools/market"
-    BIN_LOCATION="/usr/bin"
-    ETC_LOCATION="/etc/one"
     SUNSTONE_LOCATION="/usr/lib/one/sunstone"
 else
-    LIB_LOCATION="$ROOT/lib/ruby/apptools/market"
-    BIN_LOCATION="$ROOT/bin"
-    ETC_LOCATION="$ROOT/etc"
     SUNSTONE_LOCATION="$ROOT/lib/sunstone"
 fi
-
-DIRECTORIES="$LIB_LOCATION $BIN_LOCATION $ETC_LOCATION"
 
 do_file() {
     if [ "$UNINSTALL" = "yes" ]; then
         rm $2/`basename $1`
     else
         if [ "$LINK" = "yes" ]; then
-            ln -fs $SRC_DIR/$1 $2
+            ln -s $SRC_DIR/$1 $2
         else
             cp -R $SRC_DIR/$1 $2
         fi
@@ -73,28 +76,6 @@ copy_files() {
     done
 }
 
-## Client files
-copy_files "client/lib/*" "$LIB_LOCATION"
-copy_files "client/bin/*" "$BIN_LOCATION"
-
-## Server files
-
-# bin
-copy_files "bin/*" "$BIN_LOCATION"
-
-# dirs containing files
-copy_files "controllers models public views" "$LIB_LOCATION"
-
-# files
-copy_files "lib/* models.rb config.ru Gemfile Gemfile.lock \
-            Rakefile config/init.rb" "$LIB_LOCATION"
-
-# Sunstone
-copy_files "sunstone/public/js/user-plugins/*" \
-    "$SUNSTONE_LOCATION/public/js/user-plugins"
-copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
-
-# Do not link the ETC files
-LINK="no"
-copy_files "config/appmarket.yaml" "$ETC_LOCATION"
+copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
+copy_files "sunstone/public/js/user-plugins/*" "$SUNSTONE_LOCATION/public/js/user-plugins"
 
