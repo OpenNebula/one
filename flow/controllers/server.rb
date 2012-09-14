@@ -82,12 +82,12 @@ before do
         username = settings.cloud_auth.auth(request.env, params)
     rescue Exception => e
         Log.error LOG_COMP, e.message
-        error 500, ""
+        error 500, "Server error"
     end
 
     if username.nil? #unable to authenticate
         Log.error LOG_COMP, "User not authorized"
-        error 401, ""
+        error 401, "User not authorized"
     else
         @client  = settings.cloud_auth.client(username)
     end
