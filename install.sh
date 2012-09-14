@@ -1422,6 +1422,7 @@ src/sunstone/public/vendor/FontAwesome/font/fontawesome-webfont.svg \
 "
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
+                        src/sunstone/public/images/favicon.ico \
                         src/sunstone/public/images/login_over.png \
                         src/sunstone/public/images/login.png \
                         src/sunstone/public/images/opennebula-sunstone-big.png \
@@ -1548,7 +1549,8 @@ OZONES_PUBLIC_CSS_FILES="src/ozones/Server/public/css/application.css \
                          src/ozones/Server/public/css/layout.css \
                          src/ozones/Server/public/css/login.css"
 
-OZONES_PUBLIC_IMAGES_FILES="src/ozones/Server/public/images/panel.png \
+OZONES_PUBLIC_IMAGES_FILES="src/ozones/Server/public/images/favicon.ico \
+                        src/ozones/Server/public/images/panel.png \
                         src/ozones/Server/public/images/login.png \
                         src/ozones/Server/public/images/login_over.png \
                         src/ozones/Server/public/images/Refresh-icon.png \
@@ -1616,6 +1618,7 @@ SELF_SERVICE_PUBLIC_VENDOR_FONTAWESOME_CSS=$SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_C
 
 SELF_SERVICE_PUBLIC_IMAGES_FILES="\
 src/cloud/occi/lib/ui/public/images/ajax-loader.gif \
+src/cloud/occi/lib/ui/public/images/favicon.ico \
 src/cloud/occi/lib/ui/public/images/green_bullet.png \
 src/cloud/occi/lib/ui/public/images/login_over.png \
 src/cloud/occi/lib/ui/public/images/login.png \
