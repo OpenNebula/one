@@ -59,7 +59,7 @@ do_file() {
         if [ "$LINK" = "yes" ]; then
             ln -s $SRC_DIR/$1 $2
         else
-            cp $SRC_DIR/$1 $2
+            cp -R $SRC_DIR/$1 $2
         fi
     fi
 }
@@ -85,7 +85,7 @@ copy_files "client/bin/*" "$BIN_LOCATION"
 copy_files "bin/*" "$BIN_LOCATION"
 
 # dirs containing files
-copy_files "controllers models public views lcm" "$LIB_LOCATION"
+copy_files "controllers models lcm" "$LIB_LOCATION"
 
 # files
 copy_files "lib/* models.rb config.ru Gemfile Gemfile.lock \
