@@ -183,6 +183,7 @@ end
 
 before do
     cache_control :no_store
+    content_type 'application/json', :charset => 'utf-8'
     unless request.path=='/login' || request.path=='/'
         halt 401 unless authorized?
 
@@ -218,6 +219,7 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
+    content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         return erb :login
     end
@@ -239,6 +241,7 @@ get '/' do
 end
 
 get '/login' do
+    content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         erb :login
     end
@@ -290,6 +293,7 @@ post '/config' do
             when "wss"  then session[:wss] = value
         end
     end
+    [204,""]
 end
 
 get '/vm/:id/log' do
