@@ -15,4 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 TMP_DIR=/var/lib/one/tmp
+
+# Whether the VMFS Datastore driver should use to invoke the VMFS native commands
+#   * remote API calls (value set to "no")
+#   * ssh connection (value set to "yes")
+
 USE_SSH=no
