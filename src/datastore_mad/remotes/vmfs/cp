@@ -142,7 +142,7 @@ fi
 
 # Make the final hop, front-end -> VMFS Datastore
 if [ "$USE_SSH" == "yes" ]; then
-    exec_and_log "$SCP -r $SRC $DST_HOST:$DST" "Error copying $SRC to $DST through SCP"
+    exec_and_log "$SCP -r $SRC/* $DST_HOST:$DST" "Error copying $SRC to $DST through SCP"
 else
     cd $SRC
     for file in $(find . -type f); do
