@@ -22,4 +22,6 @@ else
     MAD_LOCATION=$ONE_LOCATION/lib/mads
 fi
 
+export DRIVER_NAME="one_im_ssh_${BASH_ARGV##* }"
+
 exec $MAD_LOCATION/one_im_exec $*
