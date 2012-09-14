@@ -191,6 +191,7 @@ end
 
 before do
     cache_control :no_store
+    content_type 'application/json', :charset => 'utf-8'
     unless request.path=='/login' || request.path=='/'
 
         unless authorized?
@@ -224,6 +225,7 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
+    content_type 'text/html', :charset => 'utf-8'
     return  File.read(File.dirname(__FILE__)+
                       '/templates/login.html') unless authorized?
 
@@ -236,6 +238,7 @@ get '/' do
 end
 
 get '/login' do
+    content_type 'text/html', :charset => 'utf-8'
     File.read(File.dirname(__FILE__)+'/templates/login.html')
 end
 
@@ -253,9 +256,9 @@ end
 ##############################################################################
 # Config and Logs
 ##############################################################################
-get '/config' do
-    config
-end
+# get '/config' do
+#     config
+# end
 
 ##############################################################################
 # GET information
