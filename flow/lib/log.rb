@@ -34,10 +34,13 @@ class Log
     @log_level = Logger::DEBUG
 
     # Mon Feb 27 06:02:30 2012 [Clo] [E]: Error message example
-    MSG_FORMAT  = %{%s [%s] [%s]: %s\n}
+    MSG_FORMAT  = %{%s [%s]: [%s] %s\n}
 
     # Mon Feb 27 06:02:30 2012
     DATE_FORMAT = "%a %b %d %H:%M:%S %Y"
+
+    # Message to be used in CloudLogger
+    CLOUD_LOGGER_MSG = %{[%s] %s}
 
     # Sets the server logger
     # @param [CloudLogger::CloudLogger, Logger] logger
@@ -64,7 +67,7 @@ class Log
         if service_id
             add(Logger::INFO, component, message, service_id)
         else
-            @@logger.info(message)
+            @@logger.info(CLOUD_LOGGER_MSG % [component, message])
         end
     end
 
@@ -81,7 +84,7 @@ class Log
         if service_id
             add(Logger::DEBUG, component, message, service_id)
         else
-            @@logger.debug(message)
+            @@logger.debug(CLOUD_LOGGER_MSG % [component, message])
         end
     end
 
@@ -98,7 +101,7 @@ class Log
         if service_id
             add(Logger::ERROR, component, message, service_id)
         else
-            @@logger.error(message)
+            @@logger.error(CLOUD_LOGGER_MSG % [component, message])
         end
     end
 
@@ -115,7 +118,7 @@ class Log
         if service_id
             add(Logger::WARN, component, message, service_id)
         else
-            @@logger.warn(message)
+            @@logger.warn(CLOUD_LOGGER_MSG % [component, message])
         end
     end
 
@@ -130,8 +133,8 @@ class Log
         open("#{LOG_LOCATION}/appflow/#{service_id}.log", 'a') do |f|
           f <<  MSG_FORMAT % [
             Time.now.strftime(DATE_FORMAT),
-            component,
             Logger::SEV_LABEL[severity][0..0],
+            component,
             message ]
         end
     end

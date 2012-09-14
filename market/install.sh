@@ -53,7 +53,7 @@ do_file() {
         rm $2/`basename $1`
     else
         if [ "$LINK" = "yes" ]; then
-            ln -s $SRC_DIR/$1 $2
+            ln -fs $SRC_DIR/$1 $2
         else
             cp -R $SRC_DIR/$1 $2
         fi
