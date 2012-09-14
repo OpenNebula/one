@@ -272,7 +272,12 @@ post '/service_template' do
                     OpenNebula::ServiceTemplate.build_xml,
                     @client)
 
-    rc = s_template.allocate(request.body.read)
+    begin
+        rc = s_template.allocate(request.body.read)
+    rescue Validator::ParseException, JSON::ParserError
+        error 400, $!.message
+    end
+
     if OpenNebula.is_error?(rc)
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end

@@ -15,14 +15,66 @@
 #--------------------------------------------------------------------------- #
 
 module OpenNebula
+
     class ServiceTemplate < DocumentJSON
+        ROLE_SCHEMA = {
+            :type => :object,
+            :properties => {
+                'name' => {
+                    :type => :string,
+                    :required => true
+                },
+                'cardinality' => {
+                    :type => :integer,
+                    :default => 1
+                },
+                'vm_template' => {
+                    :type => :integer,
+                    :required => true
+                },
+                'parents' => {
+                    :type => :array,
+                    :items => {
+                        :type => :string
+                    }
+                }
+            }
+        }
+
+        SCHEMA = {
+            :type => :object,
+            :properties => {
+                'name' => {
+                    :type => :string
+                },
+                'deployment' => {
+                :type => :string,
+                :enum => %w{none straight},
+                :default => 'none'
+                },
+                'roles' => {
+                    :type => :array,
+                    :items => ROLE_SCHEMA,
+                    :required => true
+                }
+            }
+        }
+
+
 
         DOCUMENT_TYPE = 101
 
         def allocate(template_json)
             template = JSON.parse(template_json)
 
-            super(template_json, template['name'])
+            validator = Validator::Validator.new(
+                :default_values => true,
+                :delete_extra_properties => false
+            )
+
+            validator.validate!(template, SCHEMA)
+
+            super(template.to_json, template['name'])
         end
 
         # Retrieves the template
