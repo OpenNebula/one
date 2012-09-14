@@ -184,7 +184,7 @@ module Service
 
     class Client
         def initialize(username, password, url, user_agent="Ruby")
-            if username.nil? || password.nil?
+            if username.nil? && password.nil?
                 if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
                     one_auth = File.read(ENV["ONE_AUTH"])
                 elsif File.file?(ENV["HOME"]+"/.one/one_auth")
