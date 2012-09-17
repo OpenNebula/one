@@ -61,6 +61,12 @@ EOT
         :description => "Show units in kilobytes"
     }
 
+    DESCRIBE={
+        :name  => "describe",
+        :large => "--describe",
+        :description => "Describe list columns"
+    }
+
     OPTIONS = XML, NUMERIC, KILOBYTES
 
     class OneHelper
@@ -88,6 +94,13 @@ EOT
         end
 
         def list_pool(options, top=false, filter_flag=nil)
+            if options[:describe]
+                table = format_pool(options)
+
+                table.describe_columns
+                return 0
+            end
+
             filter_flag ||= OpenNebula::Pool::INFO_ALL
 
             pool = factory_pool(filter_flag)

@@ -158,6 +158,14 @@ module CLIHelper
             end
         end
 
+        def describe_columns
+            str="%-20s: %-20s"
+
+            @columns.each do |column, d|
+                puts str % [column, d[:desc]]
+            end
+        end
+
         private
 
         def print_table(data, options)

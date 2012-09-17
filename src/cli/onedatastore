@@ -45,6 +45,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
     list_options << OpenNebulaHelper::NUMERIC
+    list_options << OpenNebulaHelper::DESCRIBE
 
     ########################################################################
     # Formatters for arguments
