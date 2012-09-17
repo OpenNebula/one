@@ -148,6 +148,10 @@ module Service
     end
 
     def self.name_to_id(name, pool, ename)
+        if pool['DOCUMENT_POOL']['DOCUMENT'].nil?
+            return -1, "#{ename} named #{name} not found."
+        end
+
         objects = pool['DOCUMENT_POOL']['DOCUMENT'].select {|object| object['NAME'] == name }
 
         if objects.length>0
@@ -161,6 +165,50 @@ module Service
         end
 
         return 0, result
+    end
+
+    def self.list_to_id(names, poolname)
+
+        client = Service::Client.new(nil, nil, nil)
+#        client = Service::Client.new(
+#            options[:username],
+#            options[:password],
+#            options[:server],
+#            USER_AGENT)
+
+        resource_path = case poolname
+        when "SERVICE"          then "/service"
+        when "SERVICE TEMPLATE" then "/service_template"
+        end
+
+        response = client.get(resource_path)
+
+        if CloudClient::is_error?(response)
+            return -1, "OpenNebula #{poolname} name not found," <<
+                       " use the ID instead"
+        end
+
+        pool = JSON.parse(response.body)
+
+        result = names.split(',').collect { |name|
+            if name.match(/^[0123456789]+$/)
+                name.to_i
+            else
+                rc = name_to_id(name, pool, poolname)
+
+                if rc.first == -1
+                    return rc[0], rc[1]
+                end
+
+                rc[1]
+            end
+        }
+
+        return 0, result
+    end
+
+    def self.list_to_id_desc(poolname)
+        "Comma-separated list of OpenNebula #{poolname} names or ids"
     end
 
     # Perform an action on several resources
