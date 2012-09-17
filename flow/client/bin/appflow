@@ -250,10 +250,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         list_services(client, args, options)
     end
@@ -268,10 +268,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :show, show_desc, :serviceid, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         show_service(client, args, options)
     end
@@ -288,10 +288,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :top, top_desc, [:serviceid, nil],
             :options => [Service::JSON_FORMAT, Service::TOP, CLIHelper::DELAY] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         delay=options[:delay] ? options[:delay] : 3
 
@@ -332,10 +332,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :serviceid_list] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             client.delete("#{RESOURCE_PATH}/#{service_id}")
@@ -352,10 +352,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :shutdown, shutdown_desc, [:range, :serviceid_list] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             json_action = Service.build_json_action('shutdown')
@@ -370,10 +370,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chgrp, chgrp_desc, [:range, :serviceid_list], :groupid do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new
@@ -391,10 +391,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chown, chown_desc, [:range, :serviceid_list], :userid, [:groupid, nil] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new
@@ -413,10 +413,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :serviceid_list], :octet do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new

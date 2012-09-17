@@ -231,26 +231,29 @@ module Service
     end
 
     class Client
-        def initialize(username, password, url, user_agent="Ruby")
-            if username.nil? && password.nil?
-                if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
-                    one_auth = File.read(ENV["ONE_AUTH"])
-                elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                    one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
-                end
+        def initialize(opts={})
+            #if username.nil? && password.nil?
+            #    if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
+            #        one_auth = File.read(ENV["ONE_AUTH"])
+            #    elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+            #        one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+            #    end
+#
+            #    one_auth.rstrip!
+#
+            #    username, password = one_auth.split(':')
+            #end
 
-                one_auth.rstrip!
+            @username = opts[:username]
+            @password = opts[:password]
 
-                username, password = one_auth.split(':')
-            end
+            opts[:url] ||= 'http://localhost:2474'
+            @uri = URI.parse(opts[:url])
 
-            @username = username
-            @password = password
+            @cookie = opts[:cookie]
 
-            url ||= 'http://localhost:2474'
-            @uri = URI.parse(url)
-
-            @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
+            @user_agent = "OpenNebula #{CloudClient::VERSION} " <<
+                "(#{opts[:user_agent]||"Ruby"})"
         end
 
         def get(path)
@@ -272,6 +275,18 @@ module Service
             do_request(req)
         end
 
+        def login
+            req = Net::HTTP::Post.new('/login')
+
+            do_request(req)
+        end
+
+        def logout
+            req = Net::HTTP::Post.new('/logout')
+
+            do_request(req)
+        end
+
         private
 
         def do_request(req)
@@ -280,6 +295,10 @@ module Service
             end
 
             req['User-Agent'] = @user_agent
+
+            if @cookie
+                req['Cookie'] = @cookie
+            end
 
             res = CloudClient::http_start(@uri, @timeout) do |http|
                 http.request(req)
