@@ -99,8 +99,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         See 'onetemplate create' and 'onetemplate instantiate'
     EOT
 
-    command :create, create_desc, :file,
-            :options=>[OneVMHelper::MULTIPLE]+OpenNebulaHelper::OPTIONS do
+    command :create, create_desc, :file, :options=>[OneVMHelper::MULTIPLE] do
         number = options[:multiple] || 1
 
         exit_code=nil
