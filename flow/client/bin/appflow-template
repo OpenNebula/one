@@ -150,6 +150,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Service.rname_to_id(arg, "SERVICE TEMPLATE")
     end
 
+    set :format, :templateid_list, Service.list_to_id_desc("SERVICE TEMPLATE") do |arg|
+        Service.list_to_id(arg, "SERVICE TEMPLATE")
+    end
+
     #
     # List
     #
@@ -261,7 +265,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Delete a given Service Template
     EOT
 
-    command :delete, delete_desc, :range do
+    command :delete, delete_desc, [:range, :templateid_list] do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
@@ -310,7 +314,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service template group
     EOT
 
-    command :chgrp, chgrp_desc, :range, :groupid do
+    command :chgrp, chgrp_desc, [:range, :templateid_list], :groupid do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
@@ -331,7 +335,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service template owner and group
     EOT
 
-    command :chown, chown_desc, :range, :userid, [:groupid, nil] do
+    command :chown, chown_desc, [:range, :templateid_list], :userid, [:groupid, nil] do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
@@ -353,7 +357,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service template permissions
     EOT
 
-    command :chmod, chmod_desc, :range, :octet do
+    command :chmod, chmod_desc, [:range, :templateid_list], :octet do
         client = Service::Client.new(
                     options[:username],
                     options[:password],

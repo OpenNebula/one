@@ -236,6 +236,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Service.rname_to_id(arg, "SERVICE")
     end
 
+    set :format, :serviceid_list, Service.list_to_id_desc("SERVICE") do |arg|
+        Service.list_to_id(arg, "SERVICE")
+    end
+
     #
     # List
     #
@@ -326,7 +330,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Delete a given service
     EOT
 
-    command :delete, delete_desc, :range do
+    command :delete, delete_desc, [:range, :serviceid_list] do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
@@ -346,7 +350,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Shutdown a service
     EOT
 
-    command :shutdown, shutdown_desc, :range do
+    command :shutdown, shutdown_desc, [:range, :serviceid_list] do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
@@ -364,7 +368,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service group
     EOT
 
-    command :chgrp, chgrp_desc, :range, :groupid do
+    command :chgrp, chgrp_desc, [:range, :serviceid_list], :groupid do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
@@ -385,7 +389,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service owner and group
     EOT
 
-    command :chown, chown_desc, :range, :userid, [:groupid, nil] do
+    command :chown, chown_desc, [:range, :serviceid_list], :userid, [:groupid, nil] do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
@@ -407,7 +411,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the service permissions
     EOT
 
-    command :chmod, chmod_desc, :range, :octet do
+    command :chmod, chmod_desc, [:range, :serviceid_list], :octet do
         client = Service::Client.new(
                     options[:username],
                     options[:password],
