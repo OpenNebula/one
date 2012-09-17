@@ -164,10 +164,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         list_service_templates(client, args, options)
     end
@@ -183,10 +183,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :top, top_desc,
             :options => [Service::JSON_FORMAT, Service::TOP, CLIHelper::DELAY] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         delay=options[:delay] ? options[:delay] : 3
 
@@ -219,10 +219,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :file, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         response = client.post(RESOURCE_PATH, File.read(args[0]))
 
@@ -249,10 +249,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :show, show_desc, :template_id do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         show_service_template(client, args, options)
     end
@@ -267,10 +267,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :templateid_list] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |template_id|
             client.delete("#{RESOURCE_PATH}/#{template_id}")
@@ -288,10 +288,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :instantiate, instantiate_desc, :template_id,
             :options => [Service::JSON_FORMAT, Service::TOP] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         json_str = Service.build_json_action('instantiate')
 
@@ -316,10 +316,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chgrp, chgrp_desc, [:range, :templateid_list], :groupid do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new
@@ -337,10 +337,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chown, chown_desc, [:range, :templateid_list], :userid, [:groupid, nil] do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new
@@ -359,10 +359,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :templateid_list], :octet do
         client = Service::Client.new(
-                    options[:username],
-                    options[:password],
-                    options[:server],
-                    USER_AGENT)
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new

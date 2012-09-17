@@ -53,6 +53,8 @@ set :config, conf
 include CloudLogger
 enable_logging APPFLOW_LOG, conf[:debug_level].to_i
 
+use Rack::Session::Pool, :key => 'appflow'
+
 Log.logger = settings.logger
 Log.level  = conf[:debug_level].to_i
 
@@ -76,20 +78,65 @@ set :cloud_auth, cloud_auth
 ##############################################################################
 # Helpers
 ##############################################################################
-
-before do
-    begin
-        username = settings.cloud_auth.auth(request.env, params)
-    rescue Exception => e
-        Log.error LOG_COMP, e.message
-        error 500, "Server error"
+helpers do
+    def authorized?
+        session[:ip] && session[:ip]==request.ip ? true : false
     end
 
-    if username.nil? #unable to authenticate
-        Log.error LOG_COMP, "User not authorized"
-        error 401, "User not authorized"
-    else
-        @client  = settings.cloud_auth.client(username)
+    def build_session
+        username = authenticate(request.env, params)
+        if username
+            session[:ip]   = request.ip
+            session[:user] = username
+
+            return [204, ""]
+        end
+    end
+
+    def destroy_session
+        session.clear
+        return [204, ""]
+    end
+
+    def authenticate(env, params)
+        begin
+            username = settings.cloud_auth.auth(request.env, params)
+        rescue Exception => e
+            Log.error LOG_COMP, e.message
+            error 500, "Server error"
+        end
+
+        if username.nil? #unable to authenticate
+            Log.error LOG_COMP, "User not authorized"
+            error 401, "User not authorized"
+        else
+            return username
+        end
+    end
+end
+
+before do
+    unless request.path=='/login'
+        if authorized?
+            @client  = settings.cloud_auth.client(session[:user])
+        else
+            username = authenticate(request.env, params)
+            if username
+                @client  = settings.cloud_auth.client(username)
+            end
+        end
+    end
+end
+
+after do
+    unless request.path=='/login' || request.path=='/'
+        unless session[:remember] == "true"
+            if params[:timeout] == "true"
+                env['rack.session.options'][:defer] = true
+            else
+                env['rack.session.options'][:expire_after] = 60*10
+            end
+        end
     end
 end
 
@@ -104,6 +151,16 @@ t = Thread.new {
 }
 t.abort_on_exception = true
 
+##############################################################################
+# Login
+##############################################################################
+post '/login' do
+    build_session
+end
+
+post '/logout' do
+    destroy_session
+end
 
 ##############################################################################
 # Service
