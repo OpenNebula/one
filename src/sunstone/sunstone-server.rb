@@ -87,7 +87,7 @@ enable_logging SUNSTONE_LOG, settings.config[:debug_level].to_i
 
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
-    cloud_auth = CloudAuth.new(settings.config)
+    cloud_auth = CloudAuth.new(settings.config, settings.logger)
 rescue => e
     settings.logger.error {
         "Error initializing authentication system" }
@@ -120,8 +120,8 @@ helpers do
         begin
             result = settings.cloud_auth.auth(request.env, params)
         rescue Exception => e
-            error 500, ""
             logger.error { e.message }
+            return [500, ""]
         end
 
         if result.nil?

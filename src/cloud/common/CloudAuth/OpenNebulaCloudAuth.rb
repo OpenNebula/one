@@ -26,8 +26,10 @@ module OpenNebulaCloudAuth
 
             rc = user.info
             if OpenNebula.is_error?(rc)
-                logger.error { "User #{username} could not be authenticated" }
-                logger.error { rc.message }
+                if logger
+                    logger.error{ "User #{username} could not be authenticated"}
+                    logger.error { rc.message }
+                end
                 return nil 
             end
             
