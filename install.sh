@@ -417,7 +417,7 @@ INSTALL_FILES=(
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
-    TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
+    TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
@@ -871,15 +871,15 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/context \
               src/tm_mad/dummy/mvds"
 
-TM_VMWARE_FILES="src/tm_mad/vmware/clone \
-                 src/tm_mad/vmware/delete
-                 src/tm_mad/vmware/ln \
-                 src/tm_mad/vmware/mkswap \
-                 src/tm_mad/vmware/mkimage \
-                 src/tm_mad/vmware/mv \
-                 src/tm_mad/vmware/context \
-                 src/tm_mad/vmware/mvds \
-                 src/tm_mad/vmware/tm_vmwarerc"
+TM_VMFS_FILES="src/tm_mad/vmfs/clone \
+                 src/tm_mad/vmfs/delete
+                 src/tm_mad/vmfs/ln \
+                 src/tm_mad/vmfs/mkswap \
+                 src/tm_mad/vmfs/mkimage \
+                 src/tm_mad/vmfs/mv \
+                 src/tm_mad/vmfs/context \
+                 src/tm_mad/vmfs/mvds \
+                 src/tm_mad/vmfs/tm_vmfsrc"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
