@@ -228,7 +228,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
-          $VAR_LOCATION/remotes/tm/vmware \
+          $VAR_LOCATION/remotes/tm/vmfs \
           $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/hooks \
@@ -897,7 +897,8 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
-#   - VMware based Image Repository, $REMOTES_LOCATION/datastore/vmware
+#   - VMWARE-FS based Image Repository, $REMOTES_LOCATION/datastore/vmware
+#   - VMFS based Image Repository, $REMOTES_LOCATION/datastore/vmfs
 #   - iSCSI based Image Repository, $REMOTES_LOCATION/datastore/iscsi
 #   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
 #-------------------------------------------------------------------------------
