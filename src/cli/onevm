@@ -99,14 +99,35 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         See 'onetemplate create' and 'onetemplate instantiate'
     EOT
 
-    command :create, create_desc, :file, :options=>[OneVMHelper::MULTIPLE] do
+    command :create, create_desc, [:file, nil],
+            :options=>[OneVMHelper::MULTIPLE]+
+            OpenNebulaHelper::TEMPLATE_OPTIONS do
         number = options[:multiple] || 1
 
         exit_code=nil
 
+        res=OpenNebulaHelper.create_template(options)
+
+        if res.first!=0
+            STDERR.puts res.last
+            next -1
+        end
+
+        if args[0]
+            begin
+                template=File.read(args[0])
+            rescue
+                STDERR.puts "Error reading template."
+                next -1
+            end
+        else
+            template=''
+        end
+
+        template<<res.last
+
         number.times do
             exit_code=helper.create_resource(options) do |vm|
-                template=File.read(args[0])
                 error=vm.allocate(template)
             end
 
