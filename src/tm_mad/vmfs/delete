@@ -40,7 +40,7 @@ fi
 
 . $TMCOMMON
 
-source $(dirname $0)/tm_vmwarerc
+source $(dirname $0)/tm_vmfsrc
 
 #-------------------------------------------------------------------------------
 # Return if deleting a disk, we will delete them when removing the 

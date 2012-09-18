@@ -40,7 +40,7 @@ fi
 
 . $TMCOMMON
 
-source $(dirname $0)/tm_vmwarerc
+source $(dirname $0)/tm_vmfsrc
 
 #-------------------------------------------------------------------------------
 # Set dst path and dirs
