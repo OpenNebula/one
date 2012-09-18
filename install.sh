@@ -262,7 +262,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/locale/fr_FR \
                $SUNSTONE_LOCATION/public/locale/it_IT \
                $SUNSTONE_LOCATION/public/locale/pt_PT \
-               $SUNSTONE_LOCATION/public/locale/ru \
+               $SUNSTONE_LOCATION/public/locale/ru_RU \
                $SUNSTONE_LOCATION/public/locale/sk_SK \
                $SUNSTONE_LOCATION/public/locale/zh_TW \
                $SUNSTONE_LOCATION/public/vendor \
@@ -507,7 +507,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/fr_FR
     SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
     SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/pt_PT
-    SUNSTONE_PUBLIC_LOCALE_RU:$SUNSTONE_LOCATION/public/locale/ru
+    SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/ru_RU
     SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/sk_SK
     SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/zh_TW
 )
@@ -1461,8 +1461,8 @@ SUNSTONE_PUBLIC_LOCALE_PT_PT="\
 src/sunstone/locale/languages/pt_PT.js \
 src/sunstone/locale/languages/pt_datatable.txt"
 
-SUNSTONE_PUBLIC_LOCALE_RU="\
-src/sunstone/locale/languages/ru.js \
+SUNSTONE_PUBLIC_LOCALE_RU_RU="\
+src/sunstone/locale/languages/ru_RU.js \
 src/sunstone/locale/languages/ru_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_SK_SK="\
