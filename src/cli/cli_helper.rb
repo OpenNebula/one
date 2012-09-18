@@ -98,11 +98,15 @@ module CLIHelper
     BAD_STATES=%w{fail err err}
 
     def CLIHelper.color_state(stat)
-        case stat.strip
-        when *OK_STATES
-            ANSI_GREEN+stat+ANSI_RESET
-        when *BAD_STATES
-            ANSI_RED+stat+ANSI_RESET
+        if $stdout.tty?
+            case stat.strip
+            when *OK_STATES
+                ANSI_GREEN+stat+ANSI_RESET
+            when *BAD_STATES
+                ANSI_RED+stat+ANSI_RESET
+            else
+                stat
+            end
         else
             stat
         end
