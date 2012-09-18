@@ -14,43 +14,52 @@
 //--------------------------------------------------------------------------//
 
 var AppEnv = {
-    "resource" : 'APPENV',
+    "resource" : 'DOCUMENT',
+    "path" : "appenv",
     "create": function(params){
-        OpenNebula.Action.create(params,AppEnv.resource);
+        OpenNebula.Action.create(params,AppEnv.resource,
+                                 AppEnv.path);
     },
     "del": function(params){
-        OpenNebula.Action.del(params,AppEnv.resource);
+        OpenNebula.Action.del(params,AppEnv.resource,
+                              AppEnv.path);
     },
     "list" : function(params){
-        OpenNebula.Action.list(params, AppEnv.resource)
+        OpenNebula.Action.list(params, AppEnv.resource,
+                               AppEnv.path)
     },
     "show" : function(params){
-        OpenNebula.Action.show(params, AppEnv.resource)
+        OpenNebula.Action.show(params, AppEnv.resource,
+                               null, AppEnv.path)
     },
     "chown" : function(params){
-        OpenNebula.Action.chown(params,AppEnv.resource);
+        OpenNebula.Action.chown(params,AppEnv.resource,
+                                AppEnv.path);
     },
     "chgrp" : function(params){
-        OpenNebula.Action.chgrp(params,AppEnv.resource);
+        OpenNebula.Action.chgrp(params,AppEnv.resource,
+                                AppEnv.path);
     },
     "chmod" : function(params){
         var action_obj = params.data.extra_param;
         OpenNebula.Action.simple_action(params,
                                         AppEnv.resource,
                                         "chmod",
-                                        action_obj);
+                                        action_obj, AppEnv.path);
     },
     "update" : function(params){
         OpenNebula.Action.simple_action(params,
                                         AppEnv.resource,
                                         "update",
-                                        params.data.extra_param);
+                                        params.data.extra_param,
+                                        AppEnv.path);
     },
     "instantiate" : function(params){
         OpenNebula.Action.simple_action(params,
                                         AppEnv.resource,
                                         "instantiate",
-                                        params.data.extra_param);
+                                        params.data.extra_param,
+                                        AppEnv.path);
     }
 }
 
@@ -245,7 +254,7 @@ var appenv_actions = {
         type: "single",
         call: AppEnv.show,
         callback: function (request,response) {
-            var body = JSON.parse(response.APPENV.TEMPLATE.BODY);
+            var body = JSON.parse(response.DOCUMENT.TEMPLATE.BODY);
             var templates = body.templates;
             var dialog = $('#appenv_template_update_dialog');
             // Select current templates
@@ -260,7 +269,7 @@ var appenv_actions = {
             $('#appenv_template_update_textarea', dialog).val(json);
 
             //Fill in permissions table
-            setPermissionsTable(response.APPENV,dialog);
+            setPermissionsTable(response.DOCUMENT,dialog);
         },
         error: onError
     },
@@ -428,7 +437,7 @@ function appEnvElements() {
 // to be inserted in the dataTable
 function appEnvElementArray(appenv_json){
     //Changing this? It may affect to the is_persistent() functions.
-    var appenv = appenv_json.APPENV;
+    var appenv = appenv_json.DOCUMENT;
     var body = JSON.parse(appenv.TEMPLATE.BODY);
     var description =  body.description;
 
@@ -444,7 +453,7 @@ function appEnvElementArray(appenv_json){
 
 // Callback to update an element in the dataTable
 function updateAppEnvElement(request, appenv_json){
-    var id = appenv_json.APPENV.ID;
+    var id = appenv_json.DOCUMENT.ID;
     var element = appEnvElementArray(appenv_json);
     updateSingleElement(element,dataTable_appenvs,'#appenv_'+id);
 }
@@ -474,7 +483,7 @@ function updateAppEnvsView(request, appenvs_list){
 
 // Callback to update the information panel tabs and pop it up
 function updateAppEnvInfo(request,elem){
-    var elem_info = elem.APPENV;
+    var elem_info = elem.DOCUMENT;
     elem_info.TEMPLATE.BODY = JSON.parse(elem_info.TEMPLATE.BODY);
 
     // Form trs for variables
@@ -498,9 +507,9 @@ function updateAppEnvInfo(request,elem){
             compat_templates += '<option value="'+ templates[i] +'">\
                                  '+ getTemplateName(templates[i]) +'\
                                  </option>';
-    
 
-    
+
+
 
     var info_tab = {
         title: tr("Environment information"),
@@ -677,7 +686,7 @@ function setupCreateAppEnvDialog(){
         if (variables) appenv_obj.variables = variables;
 */
 
-        Sunstone.runAction("AppEnv.create", { 'APPENV': appenv_obj });
+        Sunstone.runAction("AppEnv.create", { 'DOCUMENT': appenv_obj });
         dialog.dialog('close');
         return false;
     });
@@ -788,7 +797,7 @@ function setupAppEnvTemplateUpdateDialog(){
         });
         appenv_obj.templates = tmpls
 
-        Sunstone.runAction("AppEnv.update", id, {'APPENV' : appenv_obj});
+        Sunstone.runAction("AppEnv.update", id, {'DOCUMENT' : appenv_obj});
         $(this).parents('#appenv_template_update_dialog').dialog('close');
         return false;
     });
@@ -863,7 +872,7 @@ function setupAppEnvInstantiate(){
         $('input[type="text"]', context).each(function(){
             var key = $(this).attr('name');
             var val = $(this).val();
-            
+
             if (val)
                 vars.push(key +'='+ val)
         });

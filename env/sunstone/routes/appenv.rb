@@ -17,33 +17,16 @@ $: << RUBY_LIB_LOCATION+"/apptools/env"
 
 require 'onechef'
 
-# Name for the resource.
-#Used to generate correct <RESOURCE_POOL><RESOURCE>... tags
-RESOURCE = 'APPENV'
-
 helpers do
     def client
         settings.cloud_auth.client(session[:user])
-    end
-
-    def appenv_to_json(resource)
-        { "#{RESOURCE}" => resource.to_hash['DOCUMENT']}.to_json
     end
 
     def appenv_pool
         pool = OpenNebula::ChefDocPool.new(client())
         rc = pool.info
         return [500, rc.to_json] if OpenNebula.is_error?(rc)
-
-        # Pool comes in <DOCUMENT_POOL><DOCUMENT>...
-        # Need to set the resource type correctly to $RESOURCE
-        appenv_pool = { "#{RESOURCE}_POOL" => {}}
-        pool.each do | elem |
-            hash = elem.to_hash['DOCUMENT']
-            appenv_pool["#{RESOURCE}_POOL"]["#{RESOURCE}"] ||= []
-            appenv_pool["#{RESOURCE}_POOL"]["#{RESOURCE}"] << hash
-        end
-        [200, appenv_pool.to_json]
+        [200, pool.to_hash.to_json]
     end
 
     def appenv_create(template)
@@ -65,7 +48,7 @@ helpers do
         end
 
         doc.info
-        [201, appenv_to_json(doc)]
+        [201, doc.to_hash.to_json]
     end
 
     def appenv_retrieve(id)
@@ -73,7 +56,7 @@ helpers do
         rc = resource.info
 
         return [404, rc.to_json] if OpenNebula.is_error?(rc)
-        [200, appenv_to_json(resource)]
+        [200, resource.to_hash.to_json]
     end
 
     def appenv_update(resource, template)
@@ -98,7 +81,7 @@ helpers do
 
              when "chmod" then resource.chmod_octet(params['octet'])
 
-             when "update" then appenv_update(resource, params[RESOURCE])
+             when "update" then appenv_update(resource, params['DOCUMENT'])
 
              when "instantiate" then resource.instantiate(params['template_id'],
                                                           params['vars'])
@@ -110,7 +93,7 @@ helpers do
 
 
         return [500, rc.to_json] if OpenNebula.is_error?(rc)
-        [204, appenv_to_json(resource)]
+        [204, resource.to_hash.to_json]
     end
 
     def appenv_delete(id)
@@ -130,7 +113,7 @@ get '/appenv' do
 end
 
 post '/appenv' do
-    template = parse_json(request.body.read, RESOURCE)
+    template = parse_json(request.body.read, 'DOCUMENT')
     appenv_create(template)
 end
 
