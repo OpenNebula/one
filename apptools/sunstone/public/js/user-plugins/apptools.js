@@ -24,16 +24,7 @@ var apptools_dashboard_tmpl = '\
 <h3>' + tr("AppTools") + '</h3>\
         <div class="panel_info">\
 \
-        <p class="dashboard_p"><img src="images/apptools_icon.png" height="80px" style="float:right;margin:15px 15px;" alt="apptools logo"/>AppTools is a group of tools for users and administrators of OpenNebula clouds to simplify and optimize application management. These tools enable the building, distribution and execution of multi-tier applications.</p>\
-\
-<ul>\
-   <li>AppEnv performs the automatic installation and configuration of the software stack that constitute an application environment</li>\
-   <li>AppFlow enables the automatic execution of multi-tiered applications composed of interconnected applications</li>\
-   <li>AppPlace builds a centralized catalog of virtual appliances to easily share and distribute applications across OpenNebula instances</li>\
-</ul>\
-\
-        <p class="dashboard_p">AppTools fills the gap between the application and the virtual infrastructure layer. While OpenNebula manages the execution of the virtual infrastructure, being fully application agnostic, AppTools manages the application being executed within the virtual infrastructure. AppTools leverages the OpenNebula contextualization framework and external APIs.</p>\
-\
+        <p class="dashboard_p"><img src="images/apptools_icon.png" height="80px" style="float:right;margin:15px 15px;" alt="apptools logo"/>AppTools is a group of tools for users and administrators of OpenNebula to simplify and optimize cloud application management. With AppTools you can configure the software stack in the applications, manage multi-tiered applications, and build your own private market to distribute applications across several OpenNebula instances.</p>\
         </div>\
       </div>\
     </td>\
@@ -48,12 +39,7 @@ var apptools_dashboard_tmpl = '\
 <h3>' + tr("AppEnv - A tool to manage environments") + '</h3>\
         <div class="panel_info">\
 \
-            <p class="dashboard_p"><img src="images/appenv_icon.png" height="64px" style="float:right;margin:15px 63px 15px 15px;" alt="appenv logo"/>Installing services can sometimes be tedious. Getting the VM ins good shape, installing the packages needed, deploying the application and configuring it. On case of disaster or scaling the service you will need to perform again these tasks. To automate all this burden we now have Configuration Management software like <a target="_blank" href="http://www.opscode.com/chef/">Chef</a>, <a target="_blank" href="http://puppetlabs.com/puppet/what-is-puppet/">Puppet</a> or <a target="_blank" href="http://cfengine.com/">CFEngine</a>.</p>\
-\
-            <p class="dashboard_p">With this software we can script the installation and configuration of applications and services. You can also describe the services and their configuration that will be installed on a node so we can automate its installation. We will also be sure that each installation will be equal to other using the same configuration.</p>\
-\
-            <p class="dashboard_p">The tool oneenv will make use of <a target="_blank" href="http://wiki.opscode.com/display/chef/Chef+Solo">Chef-solo</a>. It lets you register chef configurations and instantiate them using predefined templates and images.</p>\
-\
+            <p class="dashboard_p"><img src="images/appenv_icon.png" height="64px" style="float:right;margin:15px 63px 15px 15px;" alt="appenv logo"/>AppEnv performs the automatic installation and configuration of the software stack that constitutes an application environment. With AppEnv you can easily define software configurations for your VMs and share them with other users.</p>\
         </div>\
       </div>\
     </td>\
@@ -63,9 +49,7 @@ var apptools_dashboard_tmpl = '\
       <div class="panel">\
         <h3>' + tr("AppFlow - Service deployment") + '</h3>\
         <div class="panel_info">\
-            <p class="dashboard_p"><img src="images/appflow_icon.png" height="64px" style="float:right;margin:15px 63px 15px 15px;" alt="appflow logo"/>App flow desc</p>\
-            <p class="dashboard_p">bla</p>\
-            <p class="dashboard_p">blabla</p>\
+            <p class="dashboard_p"><img src="images/appflow_icon.png" height="64px" style="float:right;margin:15px 63px 15px 15px;" alt="appflow logo"/>AppFlow enables the automatic execution of multi-tiered applications. With AppFlow you can define multi-tier applications composed of interconnected VMs and manage them as a single entity.</p>\
         </div>\
       </div>\
     </td>\
@@ -75,9 +59,7 @@ var apptools_dashboard_tmpl = '\
       <div class="panel">\
         <h3>' + tr("AppMarket - Image repository") + '</h3>\
         <div class="panel_info">\
-            <p class="dashboard_p"><img src="images/appmarket_icon.png" height="64px" style="float:right;margin:15px 15px;" alt="appflow logo"/>App flow desc</p>\
-            <p class="dashboard_p">bla</p>\
-            <p class="dashboard_p">blabla</p>\
+            <p class="dashboard_p"><img src="images/appmarket_icon.png" height="64px" style="float:right;margin:15px 15px;" alt="appflow logo"/>AppMarket builds a centralized catalog of cloud applications. With AppMarket you can build a private repository to share and distribute virtual appliances across OpenNebula instances.</p>\
         </div>\
       </div>\
     </td>\
