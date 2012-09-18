@@ -19,8 +19,9 @@
 #############################################################
 
 # Authentication driver for incomming requests
-#   - ec2, default Acess key and Secret key scheme
-#   - x509, for x509 certificates based authentication
+#   - sunstone, for OpenNebula's user-password scheme
+#   - opennebula, the authentication will be done by the opennebula core using
+# 	the driver defined for the user
 :auth: sunstone
 
 # Authentication driver to communicate with OpenNebula core
