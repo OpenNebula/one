@@ -217,7 +217,9 @@ module CLIHelper
                         col=@default_columns[i]
 
                         str=format_str(col, dat)
-                        CLIHelper.color_state(str) if i=stat_column
+                        str=CLIHelper.color_state(str) if i==stat_column
+
+                        str
                     }.join(' ')
                 }.join("\n")
             rescue Errno::EPIPE
