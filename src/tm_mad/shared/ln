@@ -79,7 +79,7 @@ else
 	log "Linking $SRC_PATH in $DST"
 
 	ssh_exec_and_log $DST_HOST \
-				     "cd $DST_DIR; ln -s $SRC_PATH $DST_PATH" \
+				     "cd $DST_DIR; rm $DST_PATH ; ln -s $SRC_PATH $DST_PATH" \
 	             	 "Error linking $SRC to $DST"
 fi
 
