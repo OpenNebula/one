@@ -231,7 +231,7 @@ post '/service/:id/action' do
             if opts && opts['owner_id']
                 args = Array.new
                 args << opts['owner_id'].to_i
-                args << (opts['group_id'].to_i || -1)
+                args << (opts['group_id'] || -1).to_i
 
                 ret = service.chown(*args)
 
