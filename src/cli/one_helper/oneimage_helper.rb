@@ -126,8 +126,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :description => "Size in MB. Used for DATABLOCK type",
             :format => String,
             :proc => lambda do |o, options|
-                if !options[:type] || !options[:type].upcase=='DATABLOCK'
-                    [-1, "Size is only used for DATABLOCK type images"]
+                if !options[:type] || !(options[:type].upcase=='DATABLOCK')
+                    next [-1, "Size is only used for DATABLOCK type images"]
                 end
 
                 m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
@@ -155,10 +155,11 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 "any value understood by mkfs unix command.",
             :format => String,
             :proc => lambda do |o, options|
-                if !options[:type] || !options[:type].upcase=='DATABLOCK'
+                if !options[:type] || !(options[:type].upcase=='DATABLOCK')
                     [-1, "FSTYPE is only used for DATABLOCK type images"]
+                else
+                    [0, o]
                 end
-                [0, o]
             end
         }
     ]
