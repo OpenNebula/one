@@ -17,8 +17,8 @@ else
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
 
-APPMARKET_LOG      = LOG_LOCATION + "/appmarket.log"
-CONFIGURATION_FILE = ETC_LOCATION + "/appmarket.yaml"
+APPMARKET_LOG      = LOG_LOCATION + "/appmarket-server.log"
+CONFIGURATION_FILE = ETC_LOCATION + "/appmarket-server.conf"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cloud'

@@ -96,5 +96,5 @@ copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
 
 # Do not link the ETC files
 LINK="no"
-copy_files "config/appmarket.yaml" "$ETC_LOCATION"
+copy_files "config/appmarket-server.conf" "$ETC_LOCATION"
 
