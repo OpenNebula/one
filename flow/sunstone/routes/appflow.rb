@@ -21,12 +21,12 @@ post '/login' do
 
             response = client.login
             if CloudClient::is_error?(response)
-                settings.logger "[AppFlow]" + response.to_s
+                settings.logger "[AppFlow] " + response.to_s
             else
                 session[:appflow_cookie] = response['set-cookie'].split('; ')[0]
             end
         else
-            settings.logger "[AppFlow]" + "Unauthorized AppFlow login attempt"
+            settings.logger "[AppFlow] " + "Unauthorized AppFlow login attempt"
         end
 
         [204, ""]
@@ -47,22 +47,93 @@ post '/logout' do
     destroy_session
 end
 
+helpers do
+    def build_client
+        Service::Client.new(
+                :url        => settings.config[:appflow_server],
+                :user_agent => "Sunstone",
+                :cookie     => session[:appflow_cookie])
+    end
+
+    def format_response(resp)
+        if CloudClient::is_error?(resp)
+            logger.error("[AppFlow] " + resp.to_s)
+            # TBD format error messages in JSON
+            error 500, resp.to_s
+        else
+            body resp.body.to_s
+        end
+    end
+end
+
 ##############################################################################
 # Service
 ##############################################################################
 
 get '/service' do
-    client = Service::Client.new(
-        :url        => settings.config[:appflow_server],
-        :user_agent => "Sunstone",
-        :cookie     => session[:appflow_cookie])
+    client = build_client
 
-    response = client.get('/service')
+    resp = client.get('/service')
 
-    if CloudClient::is_error?(response)
-        settings.logger "[AppFlow]" + response.to_s
-        [500, response.to_s]
-    else
+    format_response(resp)
+end
 
-    body response.to_s
+get '/service/:id' do
+    client = build_client
+
+    resp = client.get('/service/' + params[:id])
+
+    format_response(resp)
+end
+
+delete '/service/:id' do
+    client = build_client
+
+    resp = client.delete('/service/' + params[:id])
+
+    format_response(resp)
+end
+
+post '/service/:id/action' do
+    client = build_client
+
+    resp = client.post('/service/' + params[:id] + '/action', request.body.read)
+
+    format_response(resp)
+end
+
+##############################################################################
+# Service Template
+##############################################################################
+
+get '/service_template' do
+    client = build_client
+
+    resp = client.get('/service_template')
+
+    format_response(resp)
+end
+
+get '/service_template/:id' do
+    client = build_client
+
+    resp = client.get('/service_template/' + params[:id])
+
+    format_response(resp)
+end
+
+delete '/service_template/:id' do
+    client = build_client
+
+    resp = client.delete('/service_template/' + params[:id])
+
+    format_response(resp)
+end
+
+post '/service_template/:id/action' do
+    client = build_client
+
+    resp = client.post('/service_template/' + params[:id] + '/action', request.body.read)
+
+    format_response(resp)
 end
