@@ -233,21 +233,39 @@ post '/service/:id/action' do
                 args << opts['owner_id'].to_i
                 args << (opts['group_id'].to_i || -1)
 
-                service.chown(*args)
+                ret = service.chown(*args)
+
+                if !OpenNebula.is_error?(ret)
+                    Log.info(LOG_COMP, "Service owner changed to #{args[0]}:#{args[1]}", params[:id])
+                end
+
+                ret
             else
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
                         "You have to specify a UID")
             end
         when 'chgrp'
             if opts && opts['group_id']
-                service.chown(-1, opts['group_id'].to_i)
+                ret = service.chown(-1, opts['group_id'].to_i)
+
+                if !OpenNebula.is_error?(ret)
+                    Log.info(LOG_COMP, "Service group changed to #{opts['group_id']}", params[:id])
+                end
+
+                ret
             else
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
                         "You have to specify a GID")
             end
         when 'chmod'
             if opts && opts['octet']
-                service.chmod_octet(opts['octet'])
+                ret = service.chmod_octet(opts['octet'])
+
+                if !OpenNebula.is_error?(ret)
+                    Log.info(LOG_COMP, "Service permissions changed to #{opts['octet']}", params[:id])
+                end
+
+                ret
             else
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
                         "You have to specify an OCTET")
