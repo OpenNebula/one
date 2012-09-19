@@ -421,7 +421,7 @@ var appenvs_tab = {
     content: appenv_tab_content,
     buttons: appenv_buttons,
     tabClass: 'subTab',
-    parentTab: 'apptools_tab'
+    parentTab: 'appenv_dashboard_tab'
 }
 
 Sunstone.addActions(appenv_actions);
