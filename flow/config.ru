@@ -1,4 +1,4 @@
 $: << '.'
-require 'controllers/server'
+require 'controllers/appflow-server'
 
 run Sinatra::Application

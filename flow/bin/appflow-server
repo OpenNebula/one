@@ -18,14 +18,14 @@
 
 if [ -z "$ONE_LOCATION" ]; then
     FLOW_PID=/var/run/one/appflow-server.pid
-    FLOW_SERVER=/usr/lib/one/ruby/apptools/flow/controllers/server.rb
+    FLOW_SERVER=/usr/lib/one/ruby/apptools/flow/controllers/appflow-server.rb
     FLOW_LOCK_FILE=/var/lock/one/.appflow.lock
     FLOW_LOG=/var/log/one/appflow-server.log
     FLOW_LOG_ERROR=/var/log/one/appflow-server.error
     FLOW_ETC=/etc/one/appflow-server.conf
 else
     FLOW_PID=$ONE_LOCATION/var/appflow-server.pid
-    FLOW_SERVER=$ONE_LOCATION/lib/ruby/apptools/flow/controllers/server.rb
+    FLOW_SERVER=$ONE_LOCATION/lib/ruby/apptools/flow/controllers/appflow-server.rb
     FLOW_LOCK_FILE=$ONE_LOCATION/var/.appflow.lock
     FLOW_LOG=$ONE_LOCATION/var/appflow-server.log
     FLOW_LOG_ERROR=$ONE_LOCATION/var/appflow-server.error
