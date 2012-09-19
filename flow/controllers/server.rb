@@ -19,7 +19,7 @@ end
 APPFLOW_AUTH    = VAR_LOCATION + "/.one/appflow_auth"
 
 APPFLOW_LOG        = LOG_LOCATION + "/appflow.log"
-CONFIGURATION_FILE = ETC_LOCATION + "/appflow.yaml"
+CONFIGURATION_FILE = ETC_LOCATION + "/appflow.conf"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cloud'

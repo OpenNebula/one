@@ -98,6 +98,6 @@ copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
 
 # Do not link the ETC files
 LINK="no"
-copy_files "config/appflow.yaml" "$ETC_LOCATION"
+copy_files "config/appflow.conf" "$ETC_LOCATION"
 
 
