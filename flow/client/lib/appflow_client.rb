@@ -120,12 +120,7 @@ module Service
     def self.rname_to_id(name, poolname)
         return 0, name.to_i if name.match(/^[0123456789]+$/)
 
-        client = Service::Client.new(nil, nil, nil)
-#        client = Service::Client.new(
-#            options[:username],
-#            options[:password],
-#            options[:server],
-#            USER_AGENT)
+        client = Service::Client.new()
 
         resource_path = case poolname
         when "SERVICE"          then "/service"
@@ -169,12 +164,7 @@ module Service
 
     def self.list_to_id(names, poolname)
 
-        client = Service::Client.new(nil, nil, nil)
-#        client = Service::Client.new(
-#            options[:username],
-#            options[:password],
-#            options[:server],
-#            USER_AGENT)
+        client = Service::Client.new()
 
         resource_path = case poolname
         when "SERVICE"          then "/service"
