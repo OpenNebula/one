@@ -114,6 +114,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         if args[0]
+            if OpenNebulaHelper.create_template_options_used?(options)
+                STDERR.puts "You can not use both template file and template"<<
+                    " creation options."
+                next -1
+            end
+
             begin
                 template=File.read(args[0])
             rescue

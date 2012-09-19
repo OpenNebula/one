@@ -86,6 +86,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             :options=>OpenNebulaHelper::TEMPLATE_OPTIONS do
         res=OpenNebulaHelper.create_template(options)
 
+        if args[0] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You can not use both template file and template"<<
+                " creation options."
+            next -1
+        end
+
         if res.first!=0
             STDERR.puts res.last
             next -1

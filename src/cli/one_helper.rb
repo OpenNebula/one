@@ -572,4 +572,16 @@ EOT
 
         [0, template]
     end
+
+    def self.create_template_options_used?(options)
+        # Get the template options names as symbols. options hash
+        # uses symbols
+        template_options=OpenNebulaHelper::TEMPLATE_OPTIONS.map do |o|
+            o[:name].to_sym
+        end
+
+        # Check if one at least one of the template options is
+        # in options hash
+        (template_options-options.keys)!=template_options
+    end
 end
