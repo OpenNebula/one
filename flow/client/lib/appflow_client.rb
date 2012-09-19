@@ -232,18 +232,6 @@ module Service
 
     class Client
         def initialize(opts={})
-            #if username.nil? && password.nil?
-            #    if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
-            #        one_auth = File.read(ENV["ONE_AUTH"])
-            #    elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-            #        one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
-            #    end
-#
-            #    one_auth.rstrip!
-#
-            #    username, password = one_auth.split(':')
-            #end
-
             @username = opts[:username]
             @password = opts[:password]
 
@@ -254,6 +242,20 @@ module Service
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} " <<
                 "(#{opts[:user_agent]||"Ruby"})"
+
+            if @cookie.nil?
+                if @username.nil? && @password.nil?
+                    if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
+                        one_auth = File.read(ENV["ONE_AUTH"])
+                    elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+                        one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+                    end
+
+                    one_auth.rstrip!
+
+                    @username, @password = one_auth.split(':')
+                end
+            end
         end
 
         def get(path)
