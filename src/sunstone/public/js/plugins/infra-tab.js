@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var infra_tab_content =
-'<table class="dashboard_table" id="infra_dashboard" style=>\
+'<table class="dashboard_table" id="infra_dashboard">\
 <tr>\
 <td style="width:50%">\
 <table style="width:100%">\

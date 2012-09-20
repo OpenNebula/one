@@ -335,10 +335,12 @@ end
 def print_all_vm_info(hypervisor)
     require 'yaml'
     require 'base64'
+    require 'zlib'
 
     vms=hypervisor.get_all_vm_info
 
-    puts Base64.encode64(vms.to_yaml).delete("\n")
+    compressed=Zlib::Deflate.deflate(vms.to_yaml)
+    puts Base64.encode64(compressed).delete("\n")
 end
 
 hypervisor=select_hypervisor

@@ -44,11 +44,12 @@ var OpenNebula = {
     "Helper": {
         "resource_state": function(type, value)
         {
+            var state;
             switch(type)
             {
                 case "HOST":
                 case "host":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "MONITORING_MONITORED",
                                "MONITORED",
                                "ERROR",
@@ -57,7 +58,7 @@ var OpenNebula = {
                     break;
                 case "HOST_SIMPLE":
                 case "host_simple":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "UPDATE",
                                "ON",
                                "ERROR",
@@ -66,18 +67,19 @@ var OpenNebula = {
                     break;
                 case "VM":
                 case "vm":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "PENDING",
                                "HOLD",
                                "ACTIVE",
                                "STOPPED",
                                "SUSPENDED",
                                "DONE",
-                               "FAILED"][value]);
+                               "FAILED",
+                               "POWEROFF"][value]);
                     break;
                 case "VM_LCM":
                 case "vm_lcm":
-                    return tr(["LCM_INIT",
+                    state = tr(["LCM_INIT",
                                "PROLOG",
                                "BOOT",
                                "RUNNING",
@@ -94,11 +96,12 @@ var OpenNebula = {
                                "FAILURE",
                                "CLEANUP",
                                "UNKNOWN",
-                               "HOTPLUG"][value]);
+                               "HOTPLUG",
+                               "SHUTDOWN_POWEROFF"][value]);
                     break;
                 case "IMAGE":
                 case "image":
-                    return tr(["INIT",
+                    state = tr(["INIT",
                                "READY",
                                "USED",
                                "DISABLED",
@@ -110,15 +113,17 @@ var OpenNebula = {
                     break;
                 case "VM_MIGRATE_REASON":
                 case "vm_migrate_reason":
-                    return tr(["NONE",
+                    state = tr(["NONE",
                                "ERROR",
                                "STOP_RESUME",
                                "USER",
                                "CANCEL"][value]);
                     break;
                 default:
-                    return;
+                    return value;
             }
+            if (!state) state = value
+            return state;
         },
 
         "image_type": function(value)
@@ -201,14 +206,15 @@ var OpenNebula = {
 
         //server requests helper methods
 
-        "create": function(params,resource){
+        "create": function(params, resource, path){
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
             var request = OpenNebula.Helper.request(resource,"create", data);
+            var req_path = path ? path : resource.toLowerCase();
 
             $.ajax({
-                url: resource.toLowerCase(),
+                url: req_path,
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -222,14 +228,15 @@ var OpenNebula = {
             });
         },
 
-        "del": function(params,resource){
+        "del": function(params, resource, path){
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
             var request = OpenNebula.Helper.request(resource,"delete", id);
+            var req_path = path ? path : resource.toLowerCase();
 
             $.ajax({
-                url: resource.toLowerCase() + "/" + id,
+                url: req_path + "/" + id,
                 type: "DELETE",
                 success: function(){
                     return callback ? callback(request) : null;
@@ -241,14 +248,15 @@ var OpenNebula = {
             });
         },
 
-        "list": function(params,resource){
+        "list": function(params, resource, path){
             var callback = params.success;
             var callback_error = params.error;
             var timeout = params.timeout || false;
             var request = OpenNebula.Helper.request(resource,"list");
+            var req_path = path ? path : resource.toLowerCase();
 
             $.ajax({
-                url: resource.toLowerCase(),
+                url: req_path,
                 type: "GET",
                 data: {timeout: timeout},
                 dataType: "json",
@@ -266,7 +274,7 @@ var OpenNebula = {
         },
 
         //Subresource examples: "fetch_template", "log"...
-        "show": function(params,resource,subresource){
+        "show": function(params, resource, subresource, path){
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
@@ -274,7 +282,8 @@ var OpenNebula = {
                 OpenNebula.Helper.request(resource,subresource,id) :
                 OpenNebula.Helper.request(resource,"show", id);
 
-            var url = resource.toLowerCase() + "/" + id;
+            var req_path = path ? path : resource.toLowerCase();
+            var url = req_path + "/" + id;
             url = subresource? url + "/" + subresource : url;
 
             $.ajax({
@@ -291,7 +300,7 @@ var OpenNebula = {
             });
         },
 
-        "chown": function(params,resource,chgrp){
+        "chown": function(params, resource, path){
             var id = params.data.extra_param;
             var action_obj = {"owner_id": id,
                               "group_id": "-1"};
@@ -299,10 +308,11 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,
                                             resource,
                                             "chown",
-                                            action_obj);
+                                            action_obj,
+                                            path);
         },
 
-        "chgrp": function(params,resource){
+        "chgrp": function(params, resource, path){
             var id = params.data.extra_param;
             var action_obj = {"owner_id": "-1",
                               "group_id": id};
@@ -310,11 +320,12 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,
                                             resource,
                                             "chown",
-                                            action_obj);
+                                            action_obj,
+                                            path);
         },
 
         //Example: Simple action: publish. Simple action with action obj: deploy
-        "simple_action": function(params,resource,method,action_obj){
+        "simple_action": function(params, resource, method, action_obj, path){
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
@@ -328,8 +339,10 @@ var OpenNebula = {
                 request = OpenNebula.Helper.request(resource,method, id);
             };
 
+            var req_path = path ? path : resource.toLowerCase();
+
             $.ajax({
-                url: resource.toLowerCase() + "/" + id + "/action",
+                url: req_path + "/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function(){
@@ -342,7 +355,7 @@ var OpenNebula = {
             });
         },
 
-        "monitor": function(params,resource,all){
+        "monitor": function(params, resource, all, path){
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
@@ -350,7 +363,7 @@ var OpenNebula = {
             var method = "monitor";
             var request = OpenNebula.Helper.request(resource,method, data);
 
-            var url = resource.toLowerCase();
+            var url = path ? path : resource.toLowerCase();
             url = all ? url + "/monitor" : url + "/" + params.data.id + "/monitor";
 
             $.ajax({
@@ -621,6 +634,9 @@ var OpenNebula = {
         },
         "resubmit": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resubmit");
+        },
+        "poweroff" : function(params){
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"poweroff");
         },
         "reboot" : function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"reboot");

@@ -82,6 +82,36 @@ module CLIHelper
         print "\33[#{x};#{y}H"
     end
 
+    def CLIHelper.scr_red
+        print "\33[31m"
+    end
+
+    def CLIHelper.scr_green
+        print "\33[32m"
+    end
+
+    ANSI_RED="\33[31m"
+    ANSI_GREEN="\33[32m"
+    ANSI_RESET="\33[0m"
+
+    OK_STATES=%w{runn rdy on}
+    BAD_STATES=%w{fail err err}
+
+    def CLIHelper.color_state(stat)
+        if $stdout.tty?
+            case stat.strip
+            when *OK_STATES
+                ANSI_GREEN+stat+ANSI_RESET
+            when *BAD_STATES
+                ANSI_RED+stat+ANSI_RESET
+            else
+                stat
+            end
+        else
+            stat
+        end
+    end
+
     # Print header
     def CLIHelper.print_header(str, underline=true)
         if $stdout.tty?
@@ -158,6 +188,14 @@ module CLIHelper
             end
         end
 
+        def describe_columns
+            str="%-20s: %-20s"
+
+            @columns.each do |column, d|
+                puts str % [column, d[:desc]]
+            end
+        end
+
         private
 
         def print_table(data, options)
@@ -169,12 +207,23 @@ module CLIHelper
             ncolumns=@default_columns.length
             res_data=data_array(data, options)
 
+            if options[:stat_column]
+                stat_column=@default_columns.index(
+                    options[:stat_column].upcase.to_sym)
+            else
+                stat_column=@default_columns.index(:STAT)
+            end
+
             begin
                 print res_data.collect{|l|
                     (0..ncolumns-1).collect{ |i|
                         dat=l[i]
                         col=@default_columns[i]
-                        format_str(col, dat)
+
+                        str=format_str(col, dat)
+                        str=CLIHelper.color_state(str) if i==stat_column
+
+                        str
                     }.join(' ')
                 }.join("\n")
             rescue Errno::EPIPE

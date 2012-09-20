@@ -61,6 +61,66 @@ EOT
         :description => "Show units in kilobytes"
     }
 
+    DESCRIBE={
+        :name  => "describe",
+        :large => "--describe",
+        :description => "Describe list columns"
+    }
+
+    # Command line VM template options
+    TEMPLATE_OPTIONS=[
+        {
+            :name   => 'name',
+            :large  => '--name name',
+            :description =>
+                'Name for the VM',
+            :format => String
+        },
+        {
+            :name   => 'cpu',
+            :large  => '--cpu cpu',
+            :description =>
+                'CPU percentage reserved for the VM (1=100% one CPU)',
+            :format => Float
+        },
+        {
+            :name   => 'memory',
+            :large  => '--memory memory',
+            :description => 'Memory ammount given to the VM',
+            :format => String,
+            :proc   => lambda do |o,options|
+                m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+
+                if !m
+                    [-1, 'Memory value malformed']
+                else
+                    multiplier=case m[2]
+                    when /(g|gb)/i
+                        1024
+                    else
+                        1
+                    end
+
+                    value=m[1].to_f*multiplier
+
+                    [0, value.floor]
+                end
+            end
+        },
+        {
+            :name   => 'disk',
+            :large  => '--disk disk0,disk1',
+            :description => 'Disks to attach. To use a disk owned by other user use user[disk]',
+            :format => Array
+        },
+        {
+            :name   => 'network',
+            :large  => '--network network0,network1',
+            :description => 'Networks to attach. To use a network owned by other user use user[network]',
+            :format => Array
+        }
+    ]
+
     OPTIONS = XML, NUMERIC, KILOBYTES
 
     class OneHelper
@@ -88,6 +148,13 @@ EOT
         end
 
         def list_pool(options, top=false, filter_flag=nil)
+            if options[:describe]
+                table = format_pool(options)
+
+                table.describe_columns
+                return 0
+            end
+
             filter_flag ||= OpenNebula::Pool::INFO_ALL
 
             pool = factory_pool(filter_flag)
@@ -444,5 +511,77 @@ EOT
 
         str = File.read(path)
         str
+    end
+
+    def self.parse_user_object(user_object)
+        reg=/^([^\[]+)(?:\[([^\]]+)\])?$/
+
+        m=user_object.match(reg)
+
+        return nil if !m
+
+        user=nil
+        if m[2]
+            user=m[1]
+            object=m[2]
+        else
+            object=m[1]
+        end
+
+        [user, object]
+    end
+
+    def self.create_disk_net(objects, section, name)
+        template=''
+
+        objects.each do |obj|
+            res=parse_user_object(obj)
+            return [-1, "#{section.capitalize} \"#{obj}\" malformed"] if !res
+            user, object=*res
+
+            template<<"#{section.upcase}=[\n"
+            template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
+            template<<"  #{name.upcase}=\"#{object}\"\n"
+            template<<"]\n"
+        end if objects
+
+        [0, template]
+    end
+
+    def self.create_template(options)
+        template=''
+
+        template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
+        template<<"CPU=#{options[:cpu]}\n" if options[:cpu]
+        template<<"MEMORY=#{options[:memory]}\n" if options[:memory]
+
+        if options[:disk]
+            res=create_disk_net(options[:disk], 'DISK', 'IMAGE')
+            return res if res.first!=0
+
+            template<<res.last
+        end
+
+        if options[:network]
+            res=create_disk_net(options[:network], 'NIC', 'NETWORK')
+            return res if res.first!=0
+
+            template<<res.last
+        end
+
+
+        [0, template]
+    end
+
+    def self.create_template_options_used?(options)
+        # Get the template options names as symbols. options hash
+        # uses symbols
+        template_options=OpenNebulaHelper::TEMPLATE_OPTIONS.map do |o|
+            o[:name].to_sym
+        end
+
+        # Check if one at least one of the template options is
+        # in options hash
+        (template_options-options.keys)!=template_options
     end
 end

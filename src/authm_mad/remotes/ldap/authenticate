@@ -83,8 +83,8 @@ begin
     end
 
     if ldap.authenticate(user_name, secret)
-        escaped_user=URI_PARSER.escape(user_name)
-        escaped_secret=URI_PARSER.escape(secret)
+        escaped_user=URI_PARSER.escape(user)
+        escaped_secret=URI_PARSER.escape(user_name)
         puts "ldap #{escaped_user} #{escaped_secret}"
         authenticated=true
         break

@@ -17,8 +17,6 @@
 #--------------------------------------------------------------------------- #
 
 #Setup driver variables
-DRIVER_NAME=`basename $0 | cut -d. -f1`
-
 if [ -z "${ONE_LOCATION}" ]; then
     DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
     MADCOMMON=/usr/lib/one/mads/madcommon.sh
@@ -38,7 +36,7 @@ export_rc_vars $DRIVERRC
 # Go to var directory ONE_LOCATION/var or /var/lib/one
 cd $VAR_LOCATION
 
-LOG_FILE=one_im_ssh_$DRIVER_NAME
+LOG_FILE=$DRIVER_NAME
 
 # Execute the actual MAD
 execute_mad $*

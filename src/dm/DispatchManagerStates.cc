@@ -97,6 +97,45 @@ void  DispatchManager::stop_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void  DispatchManager::poweroff_success_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ((vm->get_state() == VirtualMachine::ACTIVE) &&
+        (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF))
+    {
+        vm->set_state(VirtualMachine::POWEROFF);
+
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vmpool->update(vm);
+
+        vm->log("DiM", Log::INFO, "New VM state is POWEROFF");
+    }
+    else
+    {
+        ostringstream oss;
+
+        oss << "poweroff_success action received but VM " << vid
+            << " not in ACTIVE state";
+        NebulaLog::log("DiM",Log::ERROR,oss);
+    }
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void  DispatchManager::done_action(int vid)
 {
     VirtualMachine * vm;

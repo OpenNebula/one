@@ -75,6 +75,9 @@ class VmmAction
         get_data(:disk_target_path)
         get_data(:tm_command)
 
+        # VM template
+        @data[:vm] = Base64.encode64(@xml_data.elements['VM'].to_s).delete("\n")
+
         # Initialize streams and vnm
         @ssh_src = @vmm.get_ssh_stream(action, @data[:host], @id)
         @vnm_src = VirtualNetworkDriver.new(@data[:net_drv],
@@ -254,15 +257,9 @@ class ExecDriver < VirtualMachineDriver
     # @param[String] id of the VM to log messages
     # @return [SshStreamCommand]
     def get_ssh_stream(aname, host, id)
-        stream = nil
-
-        if not action_is_local?(aname)
-            stream = SshStreamCommand.new(host,
-                                          @remote_scripts_base_path,
-                                          log_method(id), nil, @shell)
-        else
-            return nil
-        end
+        SshStreamCommand.new(host,
+                            @remote_scripts_base_path,
+                            log_method(id), nil, @shell)
     end
 
     #---------------------------------------------------------------------------
@@ -438,9 +435,20 @@ class ExecDriver < VirtualMachineDriver
     # MIGRATE (live) action, migrates a VM to another host creating network
     #
     def migrate(id, drv_message)
-        action=VmmAction.new(self, id, :migrate, drv_message)
+        action = VmmAction.new(self, id, :migrate, drv_message)
+        pre    = "PRE"
+        post   = "POST"
+
+        pre  << action.data[:tm_command] << " " << action.data[:vm]
+        post << action.data[:tm_command] << " " << action.data[:vm]
 
         steps=[
+            # Execute a pre-migrate TM setup
+            {
+                :driver     => :tm,
+                :action     => :tm_premigrate,
+                :parameters => pre.split
+            },
             # Execute pre-boot networking setup on migrating host
             {
                 :driver      => :vnm,
@@ -464,6 +472,12 @@ class ExecDriver < VirtualMachineDriver
                 :action       => :post,
                 :parameters   => [:deploy_id],
                 :destination  => :true
+                #TODO :fail_action what to do here? cancel VM?
+            },
+            {
+                :driver     => :tm,
+                :action     => :tm_postmigrate,
+                :parameters => post.split
                 #TODO :fail_action what to do here? cancel VM?
             },
         ]

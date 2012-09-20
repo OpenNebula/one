@@ -43,15 +43,15 @@ setup()
 
   if [ -f $OCCI_LOCK_FILE ]; then
     if [ -f  $OCCI_PID ]; then
-      ONEPID=`cat $OCCI_PID`
-      ps $OCCI_PID > /dev/null 2>&1
+      OCCIPID=`cat $OCCI_PID`
+      ps $OCCIPID > /dev/null 2>&1
       if [ $? -eq 0 ]; then
-        echo "OCCI Server is still running (PID:$OCCI_PID). Please try 'occi-server stop' first."
+        echo "OCCI Server is still running (PID:$OCCIPID). Please try 'occi-server stop' first."
         exit 1
       fi
     fi
     echo "Stale .lock detected. Erasing it."
-    rm $LOCK_FILE
+    rm $OCCI_LOCK_FILE
   fi
 }
 
@@ -62,6 +62,8 @@ start()
     exit 1
   fi
 
+  touch $OCCI_LOCK_FILE
+
   # Start the occi-server daemon
   ruby $OCCI_SERVER >$OCCI_LOG 2>$OCCI_LOG_ERROR &
 
@@ -70,7 +72,7 @@ start()
 
   if [ $LASTRC -ne 0 ]; then
 		echo "Error executing occi-server."
-		echo "Check $OCCI_LOG for more information"
+    echo "Check $OCCI_LOG_ERROR and $OCCI_LOG for more information"
     exit 1
   else
     echo $LASTPID > $OCCI_PID
@@ -81,7 +83,7 @@ start()
 
   if [ $? -ne 0 ]; then
 		echo "Error executing occi-server."
-		echo "Check $OCCI_LOG for more information"
+    echo "Check $OCCI_LOG_ERROR and $OCCI_LOG for more information"
     exit 1
   fi
 

@@ -91,6 +91,21 @@ EOF
 function fs_size {
 
 	case $1 in
+	http://*/download|https://*/download)
+		BASE_URL=${1%%/download}
+		HEADERS=`wget -S --spider --no-check-certificate $BASE_URL 2>&1`
+
+		echo $HEADERS | grep "opennebula_marketplace" > /dev/null 2>&1
+
+		if [ $? -eq 0 ]; then
+			#URL is from market place
+			SIZE=`wget -O - -S --no-check-certificate $BASE_URL 2>&1 | grep size | cut -d: -f2`
+		else
+			#Not a marketplace URL
+			SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
+		fi
+		error=$?
+	    ;;
 	http://*|https://*)
 		SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
 		error=$?

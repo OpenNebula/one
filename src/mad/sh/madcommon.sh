@@ -14,14 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-function mad_debug 
+function mad_debug
 {
     if [ -n "${ONE_MAD_DEBUG}" ]; then
         ulimit -c 15000
     fi
 }
 
-function export_rc_vars 
+function export_rc_vars
 {
     if [ -f $1 ] ; then
         ONE_VARS=`cat $1 | egrep -e '^[a-zA-Z\-\_0-9]*=' | sed 's/=.*$//'`
@@ -38,17 +38,17 @@ function execute_mad
 {
 
     MAD_FILE=`basename $0`
-        
+
     if [ -z "$LOG_FILE" ]; then
         LOG_FILE=$MAD_FILE
     fi
 
     if [ -z "${ONE_LOCATION}" ]; then
         MAD_EXEC_PATH=/usr/lib/one/mads/$MAD_FILE.rb
-        MAD_LOG_PATH=/var/log/one/$LOG_FILE.log	
+        MAD_LOG_PATH=/var/log/one/$LOG_FILE.log
     else
         MAD_EXEC_PATH=$ONE_LOCATION/lib/mads/$MAD_FILE.rb
-	MAD_LOG_PATH=$ONE_LOCATION/var/$LOG_FILE.log
+    	MAD_LOG_PATH=$ONE_LOCATION/var/$LOG_FILE.log
     fi
 
     if [ -n "${ONE_MAD_DEBUG}" ]; then

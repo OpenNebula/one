@@ -17,6 +17,153 @@
 require 'one_helper'
 
 class OneImageHelper < OpenNebulaHelper::OneHelper
+    TEMPLATE_OPTIONS=[
+        {
+            :name => "name",
+            :short => "-n name",
+            :large => "--name type",
+            :format => String,
+            :description => "Name of the new image"
+        },
+        {
+            :name => "description",
+            :short => "-d description",
+            :large => "--description description",
+            :format => String,
+            :description => "Description for the new Image"
+        },
+        {
+            :name => "type",
+            :short => "-t type",
+            :large => "--type type",
+            :format => String,
+            :description => "Type of the new Image",
+            :proc => lambda do |o, options|
+                type=o.strip.upcase
+
+                if %w{OS CDROM DATABLOCK}.include? type
+                    [0, type]
+                else
+                    [-1, "Type should be OS, CDROM or DATABLOCK"]
+                end
+            end
+        },
+        {
+            :name => "persistent",
+            :short => "-p",
+            :large => "--persistent",
+            :description => "Tells if the image will be persistent"
+        },
+        {
+            :name => "prefix",
+            :large => "--prefix prefix",
+            :description => "Device prefix for the disk (hd, sd, xvd or vd)",
+            :format => String,
+            :proc => lambda do |o, options|
+                prefix=o.strip.downcase
+                if %w{hd sd xvd vd}.include? prefix
+                    [0, prefix]
+                else
+                    [-1, "The prefix must be hd, sd, xvd or vd"]
+                end
+            end
+        },
+        {
+            :name => "target",
+            :large => "--target target",
+            :description => "Device the disk will be attached to",
+            :format => String
+        },
+        {
+            :name => "path",
+            :large => "--path path",
+            :description => "Path of the image file",
+            :format => String,
+            :proc => lambda do |o, options|
+                if o[0,1]=='/'
+                    path=o
+                else
+                    path=Dir.pwd+"/"+o
+                end
+
+                if File.exist?(path)
+                    [0, path]
+                else
+                    [-1, "File '#{path}' does not exist."]
+                end
+            end
+        },
+        {
+            :name => "driver",
+            :large => "--driver driver",
+            :description => "Driver to use image (raw, qcow2, tap:aio:...)",
+            :format => String
+        },
+        {
+            :name => "disk_type",
+            :large => "--disk_type disk_type",
+            :description => "Type of the image (BLOCK, CDROM or FILE)",
+            :format => String,
+            :proc => lambda do |o, options|
+                type=o.strip.upcase
+                if %w{BLOCK CDROM FILE}.include? type
+                    [0, type]
+                else
+                    [-1, "Disk type must be BLOCK, CDROM or FILE"]
+                end
+            end
+        },
+        {
+            :name => "source",
+            :large => "--source source",
+            :description =>
+                "Source to be used. Useful for not file-based images",
+            :format => String
+        },
+        {
+            :name => "size",
+            :large => "--size size",
+            :description => "Size in MB. Used for DATABLOCK type",
+            :format => String,
+            :proc => lambda do |o, options|
+                if !options[:type] || !(options[:type].upcase=='DATABLOCK')
+                    next [-1, "Size is only used for DATABLOCK type images"]
+                end
+
+                m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+
+                if !m
+                    [-1, 'Size value malformed']
+                else
+                    multiplier=case m[2]
+                    when /(g|gb)/i
+                        1024
+                    else
+                        1
+                    end
+
+                    value=m[1].to_f*multiplier
+
+                    [0, value.floor]
+                end
+            end
+        },
+        {
+            :name => "fstype",
+            :large => "--fstype fstype",
+            :description => "Type of file system to be built. This can be "<<
+                "any value understood by mkfs unix command.",
+            :format => String,
+            :proc => lambda do |o, options|
+                if !options[:type] || !(options[:type].upcase=='DATABLOCK')
+                    [-1, "FSTYPE is only used for DATABLOCK type images"]
+                else
+                    [0, o]
+                end
+            end
+        }
+    ]
+
     def self.rname
         "IMAGE"
     end
@@ -150,5 +297,35 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
         puts image.template_str
+    end
+
+    def self.create_image_variables(options, name)
+        if Array===name
+            names=name
+        else
+            names=[name]
+        end
+
+        t=''
+        names.each do |n|
+            if options[n]
+                t<<"#{n.to_s.upcase}=\"#{options[n]}\"\n"
+            end
+        end
+
+        t
+    end
+
+    def self.create_image_template(options)
+        template_options=TEMPLATE_OPTIONS.map do |o|
+            o[:name].to_sym
+        end
+
+        template=create_image_variables(
+            options, template_options-[:persistent])
+
+        template<<"PERSISTENT=YES\n" if options[:persistent]
+
+        [0, template]
     end
 end

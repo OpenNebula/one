@@ -193,6 +193,10 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = ACTION_FINALIZE;
         break;
 
+    case POWEROFF:
+        aname = "POWEROFF";
+        break;
+
     default:
         delete vid;
         return;
@@ -337,6 +341,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "CLEAN")
     {
         clean_action(vid);
+    }
+    else if (action == "POWEROFF")
+    {
+        poweroff_action(vid);
     }
     else if (action == ACTION_FINALIZE)
     {

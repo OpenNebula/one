@@ -34,5 +34,7 @@ export_rc_vars $DRIVERRC
 # Go to ONE_LOCATION
 cd $VAR_LOCATION
 
+LOG_FILE=one_vmm_${BASH_ARGV##* }
+
 # Execute the actual MAD
 execute_mad $*

@@ -84,7 +84,13 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def info()
-            super(DOCUMENT_METHODS[:info], 'DOCUMENT')
+            rc = super(DOCUMENT_METHODS[:info], 'DOCUMENT')
+
+            if !OpenNebula.is_error?(rc) && self['TYPE'].to_i != document_type
+                return OpenNebula::Error.new("[DocumentInfo] Error getting document [#{@pe_id}].")
+            end
+
+            return rc
         end
 
         # Allocates a new Document in OpenNebula
@@ -102,6 +108,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete()
+            rc = check_type()
+            return rc if OpenNebula.is_error?(rc)
+
             return call(DOCUMENT_METHODS[:delete], @pe_id)
         end
 
@@ -112,6 +121,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def update(new_template)
+            rc = check_type()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:update], new_template)
         end
 
@@ -123,6 +135,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chown(uid, gid)
+            rc = check_type()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:chown], uid, gid)
         end
 
@@ -133,6 +148,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod_octet(octet)
+            rc = check_type()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:chmod], octet)
         end
 
@@ -143,6 +161,9 @@ module OpenNebula
         #   otherwise
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
                 other_m, other_a)
+            rc = check_type()
+            return rc if OpenNebula.is_error?(rc)
+
             super(DOCUMENT_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
         end
@@ -154,6 +175,9 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] The new Document ID in case
         #   of success, Error otherwise
         def clone(name)
+            rc = check_type()
+            return rc if OpenNebula.is_error?(rc)
+
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(DOCUMENT_METHODS[:clone], @pe_id, name)
@@ -197,6 +221,28 @@ module OpenNebula
             group_u = published ? 1 : 0
 
             chmod(-1, -1, -1, group_u, -1, -1, -1, -1, -1)
+        end
+
+        def check_type()
+            type = self['TYPE']
+
+            if type.nil? && @pe_id
+                rc = @client.call(DOCUMENT_METHODS[:info], @pe_id)
+
+                return rc if OpenNebula.is_error?(rc)
+
+                xmldoc = XMLElement.new
+                xmldoc.initialize_xml(rc, 'DOCUMENT')
+
+                type = xmldoc['TYPE']
+            end
+
+            if !type.nil? && type.to_i != document_type
+                return OpenNebula::Error.new(
+                    "[DocumentInfo] Error getting document [#{@pe_id}].")
+            end
+
+            return nil
         end
     end
 end

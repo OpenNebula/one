@@ -45,6 +45,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
     list_options << OpenNebulaHelper::NUMERIC
+    list_options << OpenNebulaHelper::DESCRIBE
 
     CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE]
 
@@ -79,16 +80,37 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Image from the given template file
     EOT
 
-    command :create, create_desc, :file, :options=>CREATE_OPTIONS do
+    command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS+
+            OneImageHelper::TEMPLATE_OPTIONS do
         if options[:datastore].nil?
             STDERR.puts "Datastore to save the image is mandatory: "
             STDERR.puts "\t -d datastore_id"
             exit -1
         end
+
+        if args[0] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You can not use both template file and template"<<
+                " creation options."
+            next -1
+        end
+
+        res=OneImageHelper.create_image_template(options)
+
+        if res.first!=0
+            STDERR.puts res.last
+            next -1
+        end
+
         helper.create_resource(options) do |image|
             begin
-                template=File.read(args[0])
-                image.allocate(template, options[:datastore] )
+                if args[0]
+                    template=File.read(args[0])
+                else
+                    template=''
+                end
+
+                template<<res.last
+                image.allocate(template, options[:datastore])
             rescue => e
                 STDERR.puts e.messsage
                 exit -1

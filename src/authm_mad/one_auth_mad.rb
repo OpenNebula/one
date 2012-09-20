@@ -85,6 +85,16 @@ class AuthDriver < OpenNebulaDriver
         end
     end
 
+
+    # Works the same as log_method but changes the password by '****'.
+    # The last word is the password for authentication.
+    def log_method_no_password(num, secret)
+        lambda {|message|
+            m=message.gsub(/ #{Regexp.escape(secret)}$/, ' ****')
+            log(num, m)
+        }
+    end
+
     # Authenticate a user based in a string of the form user:secret when using the 
     # driver secret is protocol:token
     # @param [String] the id for this request, used by OpenNebula core
@@ -115,7 +125,8 @@ class AuthDriver < OpenNebulaDriver
             Shellwords.escape(p)
         end.join(' '))
 
-        rc = LocalCommand.run(command, log_method(request_id))
+        rc = LocalCommand.run(command,
+            log_method_no_password(request_id, secret))
 
         result , info = get_info_from_execution(rc)
 

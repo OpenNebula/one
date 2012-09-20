@@ -466,6 +466,18 @@ var OCCI = {
             params.data.body = { state : "RESUME" };
             OCCI.Action.update(params,OCCI.VM.resource,"resume");
         },
+        "restart": function(params){
+            params.data.body = { state : "RESTART" };
+            OCCI.Action.update(params,OCCI.VM.resource,"restart");
+        },
+        "poweroff": function(params){
+            params.data.body = { state : "POWEROFF" };
+            OCCI.Action.update(params,OCCI.VM.resource,"poweroff");
+        },
+        "resubmit": function(params){
+            params.data.body = { state : "RESUBMIT" };
+            OCCI.Action.update(params,OCCI.VM.resource,"resubmit");
+        },
         "done": function(params){
             params.data.body = { state : "DONE" };
             OCCI.Action.update(params,OCCI.VM.resource,"done");

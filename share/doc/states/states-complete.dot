@@ -24,7 +24,7 @@ digraph OpenNebula {
     color="white" }
 
     subgraph { rank = max; suspended; done; failure;
-    stopped;color="white" }
+    stopped; poweroff; color="white" }
 
 #   create
     user -> pending [label="create"];
@@ -41,6 +41,10 @@ digraph OpenNebula {
     running     -> shutdown [label="shutdown"];
     shutdown    -> epilog [style="dashed"];
     epilog      -> done [style="dashed"];
+
+#   poweroff
+    running             -> shutdown_poweroff [label="poweroff"];
+    shutdown_poweroff   -> poweroff [style="dashed"];
 
 #   livemigrate
     running     -> migrate [label="livemigrate"];
@@ -80,6 +84,7 @@ digraph OpenNebula {
 #   restart
     unknown     -> boot [label="restart"];
     boot        -> boot [label="restart"];
+    poweroff    -> boot [label="restart"];
 
 #   reboot, reset
     running     -> running [label="reboot / reset"];

@@ -44,6 +44,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
     list_options << OpenNebulaHelper::NUMERIC
+    list_options << OpenNebulaHelper::DESCRIBE
 
     instantiate_options = [
         OneTemplateHelper::VM_NAME,
@@ -81,9 +82,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Template from the given template file
     EOT
 
-    command :create, create_desc, :file do
+    command :create, create_desc, [:file, nil],
+            :options=>OpenNebulaHelper::TEMPLATE_OPTIONS do
+        res=OpenNebulaHelper.create_template(options)
+
+        if args[0] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You can not use both template file and template"<<
+                " creation options."
+            next -1
+        end
+
+        if res.first!=0
+            STDERR.puts res.last
+            next -1
+        end
+
         helper.create_resource(options) do |t|
-            template=File.read(args[0])
+            if args[0]
+                template=File.read(args[0])
+            else
+                template=''
+            end
+
+            template<<res.last
             t.allocate(template)
         end
     end

@@ -17,6 +17,7 @@
 require 'socket'
 require 'pp'
 require 'rexml/document'
+require 'zlib'
 
 begin
     require 'rubygems'
@@ -155,7 +156,7 @@ class GangliaHost
         
         return nil if !base64_info
         
-        info_yaml=Base64::decode64(base64_info)
+        info_yaml=Zlib::Inflate.inflate(Base64::decode64(base64_info))
         info=YAML.load(info_yaml)
     end
     
