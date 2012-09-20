@@ -47,12 +47,18 @@ set_ds_location
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`"/disk.vmdk"
-DST_PATH=`arg_path $DST`
-DST_PATH="$RMT_DS_DIR/${DST_PATH##"$DS_DIR/"}/disk.vmdk"
+SRC_PATH=`arg_path $SRC`
 SRC_HOST=`arg_host $SRC`
+SRC_FOLDER=`basename $SRC_PATH`
+
+DST_PATH=`arg_path $DST`
+DST_FOLDER=`basename $DST_PATH`
+
+
 
 if [ "$USE_SSH" != "yes" ]; then
+	IMAGE_DS_NAME=`basename $(dirname $DST_PATH)`
+    SYSTEM_DS_NAME=`basename $(dirname $(dirname $SRC_PATH))`
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
     PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
     VI_PARAMS="--server $SRC_HOST --username $USERNAME --password $PASSWORD"
@@ -77,7 +83,8 @@ else
 		SUDO="sudo "
 	fi
 
-	$SUDO $VMKFSTOOLS -i $SRC_PATH -d thin $DST_PATH
+	$SUDO $VMKFSTOOLS -U [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk
+	$SUDO $VMKFSTOOLS -i [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk -d thin [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk
 fi
 
 if [ -d $DST_PATH ]; then
@@ -90,10 +97,11 @@ EOF
 
 	log "Moving $SRC_PATH to datastore as $DST_PATH"
 
-	ssh_exec_and_log $SRC_HOST "$MVSCRIPT" "Could not move image $DST_PATH"
+	ssh_exec_and_log $SRC_HOST "$MVSCRIPT" "Could not move image [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk to [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk in $SRC_HOST"
 else
-	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i $SRC_PATH -d thin $DST_PATH" \
-	             "Could not move image $DST_PATH"
+	$VMKFSTOOLS -U [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk &> /dev/null
+	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk -d thin [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk" \
+	             "Could not move image [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk to [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk in $SRC_HOST"
 fi
 
 exit 0
