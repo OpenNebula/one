@@ -257,15 +257,9 @@ class ExecDriver < VirtualMachineDriver
     # @param[String] id of the VM to log messages
     # @return [SshStreamCommand]
     def get_ssh_stream(aname, host, id)
-        stream = nil
-
-        if not action_is_local?(aname)
-            stream = SshStreamCommand.new(host,
-                                          @remote_scripts_base_path,
-                                          log_method(id), nil, @shell)
-        else
-            return nil
-        end
+        SshStreamCommand.new(host,
+                            @remote_scripts_base_path,
+                            log_method(id), nil, @shell)
     end
 
     #---------------------------------------------------------------------------

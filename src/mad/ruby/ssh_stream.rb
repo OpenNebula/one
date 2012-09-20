@@ -161,8 +161,6 @@ class SshStreamCommand < RemotesCommand
 
         @remote_dir = remote_dir
         @stream     = SshStream.new(host, shell)
-
-        @stream.open
     end
 
     def run(command, stdin=nil, base_cmd = nil)
