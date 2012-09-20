@@ -235,27 +235,23 @@ module Service
             @username = opts[:username]
             @password = opts[:password]
 
+            if @username.nil? && @password.nil?
+                if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
+                    one_auth = File.read(ENV["ONE_AUTH"])
+                elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+                    one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+                end
+
+                one_auth.rstrip!
+
+                @username, @password = one_auth.split(':')
+            end
+
             opts[:url] ||= 'http://localhost:2474'
             @uri = URI.parse(opts[:url])
 
-            @cookie = opts[:cookie]
-
             @user_agent = "OpenNebula #{CloudClient::VERSION} " <<
                 "(#{opts[:user_agent]||"Ruby"})"
-
-            if @cookie.nil?
-                if @username.nil? && @password.nil?
-                    if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
-                        one_auth = File.read(ENV["ONE_AUTH"])
-                    elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                        one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
-                    end
-
-                    one_auth.rstrip!
-
-                    @username, @password = one_auth.split(':')
-                end
-            end
         end
 
         def get(path)
@@ -292,15 +288,9 @@ module Service
         private
 
         def do_request(req)
-            if @username && @password
-                req.basic_auth @username, @password
-            end
+            req.basic_auth @username, @password
 
             req['User-Agent'] = @user_agent
-
-            if @cookie
-                req['Cookie'] = @cookie
-            end
 
             res = CloudClient::http_start(@uri, @timeout) do |http|
                 http.request(req)
