@@ -45,6 +45,8 @@ end
 conf[:debug_level]  ||= 2
 conf[:lcm_interval] ||= 30
 
+conf[:auth] = 'opennebula'
+
 set :bind, conf[:host]
 set :port, conf[:port]
 
