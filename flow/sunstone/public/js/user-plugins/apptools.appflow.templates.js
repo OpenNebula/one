@@ -341,7 +341,7 @@ var service_templates_tab = {
     content: service_template_tab_content,
     buttons: service_template_buttons,
     tabClass: 'subTab',
-    parentTab: 'apptools_tab'
+    parentTab: 'appflow_dashboard_tab'
 }
 
 Sunstone.addActions(service_template_actions);
