@@ -73,8 +73,8 @@ EOF
 	ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
 	      "Could not link dir files from source DS to system DS"
 else
-	log "Cannot link files without SSH enabled on the ESX hosts"
-	exit 1
+	log "Cannot link files without SSH enabled on the ESX hosts, calling clone"
+	exec $(dirname $0)/clone $*
 fi
 
 exit 0
