@@ -400,9 +400,22 @@ function updateServicesView(request, services_list){
     //updateVResDashboard("images",images_list);
 }
 
+// Callback to refresh the list of Virtual Machines
+function updateServiceVMInfo(vmachine_list){
+    var vmachine_list_array = [];
+
+    $.each(vmachine_list,function(){
+        vmachine_list_array.push( vMachineElementArray(this));
+    });
+
+    updateView(vmachine_list_array, servicevmsDataTable);
+};
+
 // Callback to update the information panel tabs and pop it up
 function updateServiceInfo(request,elem){
     var elem_info = elem.DOCUMENT;
+
+    /*
     elem_info.TEMPLATE.BODY = JSON.parse(elem_info.TEMPLATE.BODY);
 
     // Form trs for variables
@@ -426,43 +439,35 @@ function updateServiceInfo(request,elem){
             compat_templates += '<option value="'+ templates[i] +'">\
                                  '+ getTemplateName(templates[i]) +'\
                                  </option>';
-
+*/
 
 
 
     var info_tab = {
-        title: tr("Flowironment information"),
+        title: tr("Information"),
         content:
-        '<table id="info_service_table" class="info_table">\
+        '<table id="info_template_table" class="info_table" style="width:80%">\
            <thead>\
-            <tr><th colspan="2">'+tr("Flowironment")+' "'+elem_info.NAME+'" '+
+             <tr><th colspan="2">'+tr("Service")+' \"'+elem_info.NAME+'\" '+
             tr("information")+'</th></tr>\
            </thead>\
            <tr>\
-              <td class="key_td">'+tr("ID")+'</td>\
-              <td class="value_td">'+elem_info.ID+'</td>\
+             <td class="key_td">'+tr("ID")+'</td>\
+             <td class="value_td">'+elem_info.ID+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Name")+'</td>\
-              <td class="value_td">'+elem_info.NAME+'</td>\
+             <td class="key_td">'+tr("Name")+'</td>\
+             <td class="value_td">'+elem_info.NAME+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Description")+'</td>\
-              <td class="value_td">'+(elem_info.TEMPLATE.BODY.description ? elem_info.TEMPLATE.BODY.description : "None" )+'</td>\
+             <td class="key_td">'+tr("Owner")+'</td>\
+             <td class="value_td">'+elem_info.UNAME+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Owner")+'</td>\
-              <td class="value_td">'+elem_info.UNAME+'</td>\
+             <td class="key_td">'+tr("Group")+'</td>\
+             <td class="value_td">'+elem_info.GNAME+'</td>\
            </tr>\
-           <tr>\
-              <td class="key_td">'+tr("Group")+'</td>\
-              <td class="value_td">'+elem_info.GNAME+'</td>\
-           </tr>\
-'+ (templates ?
-    '<tr><td class="key_td">'+tr("Compatible templates")+'</td><td class="value_td">'+ templates.join(',')+'</td></tr>' : "")
-+ (elem_info.TEMPLATE.BODY.cookbooks ?
-    '<tr><td class="key_td">'+tr("Cookbooks")+'</td><td class="value_td">'+elem_info.TEMPLATE.BODY.cookbooks+'</td></tr>' : "")+
-'          <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
+           <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
            <tr>\
              <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
              <td class="value_td" style="font-family:monospace;">'+ownerPermStr(elem_info)+'</td>\
@@ -475,41 +480,79 @@ function updateServiceInfo(request,elem){
              <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
              <td class="value_td" style="font-family:monospace;">'+otherPermStr(elem_info)+'</td>\
            </tr>\
-'+ (!$.isEmptyObject(defaults) ?
-    '<tr><td class="key_td">'+tr("Default variables")+'</td><td></td></tr>' +
-    prettyPrintJSON(defaults, 28) : "") + '</table>\
-\
-       <table class="info_table" id="service_instantiate_table">\
-           <thead>\
-            <tr><th colspan="2">'+tr("Instantiate this flowironment")+'</th></tr>\
-           </thead>\
            <tr>\
-              <td class="key_td">'+tr("Template")+':</td>\
-              <td class="value_td"><select>'+ compat_templates +'</select></td>\
-           <tr>\
-              <td class="key_td">'+tr("Variables")+':</td>\
-              <td class="value_td"><input type="hidden" name="id" value="'+elem_info.ID+'"/></td>\
+             <td class="key_td">'+tr("Strategy")+'</td>\
+             <td class="value_td">'+elem_info.TEMPLATE.BODY.deployment+'</td>\
            </tr>\
-'+ vars +'\
-          <tr>\
-              <td class="key_td"></td>\
-              <td class="value_td"><button id="service_instantiate_button" value="Service.instantiate">'+tr("Instantiate")+'</button></td>\
-       </table>'
+         </table>'
     }
 
     var node_tab = {
         title: tr("Node"),
         content: '<table id="service_node_table" class="info_table" style="width:80%;">\
             <thead><tr><th colspan="2">'+tr("Node")+'</th></tr></thead>'+
-            (elem_info.TEMPLATE.BODY.node ? prettyPrintJSON(elem_info.TEMPLATE.BODY.node) : "" )+
+            (elem_info.TEMPLATE.BODY ? prettyPrintJSON(elem_info.TEMPLATE.BODY) : "" )+
             '</table>'
     }
 
+    var vms_tab = {
+        title : "Virtual Machines",
+        content : '\
+<div style="padding: 10px 10px;">\
+<table id="datatable_service_vms" class="display">\
+  <thead>\
+    <tr>\
+      <th>ID</th>\
+      <th>Owner</th>\
+      <th>Group</th>\
+      <th>Name</th>\
+      <th>Status</th>\
+      <th>Used CPU</th>\
+      <th>Used Memory</th>\
+      <th>Host</th>\
+      <th>IPs</th>\
+      <th>Start Time</th>\
+    </tr>\
+  </thead>\
+  <tbody>\
+  </tbody>\
+</table></div>'
+    };
+
+
+
+    var vms = [];
+    vms.push(elem_info.TEMPLATE.BODY.roles[0].nodes[0].vm_info);
+
+
     Sunstone.updateInfoPanelTab("service_info_panel","service_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("service_info_panel","service_node_tab",node_tab);
+    Sunstone.updateInfoPanelTab("service_info_panel","service_vms_tab",vms_tab);
+
+    servicevmsDataTable = $('#datatable_service_vms').dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sPaginationType": "full_numbers",
+        "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "aoColumnDefs": [
+            { "sWidth": "35px", "aTargets": [0] },
+            { "sWidth": "60px", "aTargets": [5,6] },
+            { "sWidth": "100px", "aTargets": [1,2,4,8] },
+            { "bVisible" : false, "aTargets": [5,6,9] }
+        ]
+    });
+
+    var vmachine_list_array = [];
+
+    $.each(vms,function(){
+        vmachine_list_array.push( vMachineElementArray(this));
+    });
+
+    servicevmsDataTable.fnAddData(vmachine_list_array);
+    servicevmsDataTable.fnDraw(false);
 
     Sunstone.popUpInfoPanel("service_info_panel");
-
 }
 
 
@@ -633,6 +676,8 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+
 
     dataTable_services.fnClearTable();
     addElement([
