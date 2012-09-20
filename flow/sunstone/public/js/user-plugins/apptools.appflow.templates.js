@@ -16,6 +16,11 @@
 var ServiceTemplate = {
     "resource" : 'DOCUMENT',
     "path"     : 'service_template',
+    "create": function(params){
+        OpenNebula.Action.create(params, ServiceTemplate.resource,
+                                 ServiceTemplate.path);
+    },
+
     "instantiate": function(params){
         var action_obj = params.data.extra_param;
         OpenNebula.Action.simple_action(params,
@@ -76,50 +81,55 @@ var service_template_tab_content = '\
 </div>\
 -->\
 </form>';
-/*+++++++++++++++++++++++++++++++
+
 var create_service_template_tmpl = '\
 <div class="create_form"><form id="create_service_template_form" action="">\
   <fieldset>\
-      <legend style="display:none;">' + tr("Flowironment") + '</legend>\
+      <legend style="display:none;">' + tr("Service") + '</legend>\
       <div class="service_template_param">\
-          <label for="name">' + tr("Name") + ':</label><input type="text" name="name" />\
+          <label for="service_name">' + tr("Name") + ':</label><input type="text" name="service_name" />\
       </div>\
       <div class="service_template_param">\
-          <label for="description">' + tr("Description") + ':</label><input type="text" name="description" />\
-      </div>\
-      <div class="service_template_param">\
-          <label for="templates">'+tr("Compatible templates")+':</label>\
-          <select type="text" name="templates" multiple>\
+          <label for="deployment">' + tr("Deployment strategy") + ':</label>\
+          <select name="deployment">\
+              <option value="straight">'+ tr("Straight") + '</option>\
+              <option value="none">'+ tr("None") + '</option>\
           </select>\
       </div>\
-      <div class="service_template_param">\
-          <label for="cookbooks">' + tr("Cookbooks URL") + ':</label><input type="text" name="cookbooks" />\
-      </div>\
   </fieldset>\
-<!--\
   <fieldset>\
-      <div class="service_template_param">\
-         <label for="node">'+tr("Variables")+':</label>\
-          <div class="clear"></div>\
-         <label for="custom_var_service_template_name">'+tr("Name")+':</label>\
-         <input type="text" id="custom_var_service_template_name" name="custom_var_service_template_name" /><br />\
-         <label for="custom_var_service_template_value">'+tr("Value")+':</label>\
-         <input type="text" id="custom_var_service_template_value" name="custom_var_service_template_value" /><br />\
-         <button class="add_remove_button add_button" id="add_custom_var_service_template_button" value="add_custom_service_template_var">'+tr("Add")+'</button>\
-         <button class="add_remove_button" id="remove_custom_var_service_template_button" value="remove_custom_service_template_var">'+tr("Remove selected")+'</button>\
-         <div class="clear"></div>\
-         <label for="custom_var_service_template_box">'+tr("Custom attributes")+':</label>\
-         <select id="custom_var_service_template_box" name="custom_var_service_template_box" style="height:100px;" multiple>\
-         </select>\
-      </div>\
+     <legend>' + tr("Roles") + '</legend>\
+     <div class="service_template_param service_role">\
+          <label for="name">' + tr("Name") + ':</label><input type="text" name="name" />\
+     </div>\
+     <div class="service_template_param service_role">\
+          <label for="cardinality">' + tr("Cardinality") + ':</label><input type="text" name="cardinality" value="1" />\
+     </div>\
+     <div class="service_template_param service_role">\
+          <label for="vm_template">' + tr("VM template") + ':</label>\
+          <select name="vm_template">\
+          </select>\
+     </div>\
+     <div class="service_template_param service_role">\
+          <label for="parents">' + tr("Parent roles") + ':</label>\
+          <select name="parents" multiple="multiple">\
+          </select>\
+     </div>\
+     <label>&nbsp;</label>\
+     <button id="add_role">' + tr("Add role") + '</button>\
   </fieldset>\
--->\
   <fieldset>\
-      <div class="service_template_param">\
-          <label for="node">'+tr("Node")+':</label>\
-          <div class="clear"></div>\
-          <textarea name="node" style="width:100%; height:14em;"></textarea>\
-      </div>\
+     <legend>' + tr("Current Roles") + '</legend>\
+     <table id="current_roles" class="info_table" style="width:540px;margin-top:0;">\
+            <thead><tr>\
+                 <th>'+tr("Name")+'</th>\
+                 <th>'+tr("Card.")+'</th>\
+                 <th>'+tr("Template")+'</th>\
+                 <th style="width:100%;">'+tr("Parents")+'</th>\
+                 <th>'+tr("Delete")+'</th></tr></thead>\
+            <tbody>\
+            </tbody>\
+     </table>\
   </fieldset>\
   <fieldset>\
     <div class="form_buttons">\
@@ -129,6 +139,7 @@ var create_service_template_tmpl = '\
   </fieldset>\
 </form></div>';
 
+/*
 var update_service_template_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
          <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the flowironment you want to update")+':</h3>\
@@ -182,10 +193,22 @@ var update_service_template_tmpl =
 </form>';
 */
 var dataTable_service_templates;
-//var $create_service_template_dialog;
+var $create_service_template_dialog;
 
 var service_template_actions = {
 
+    "ServiceTemplate.create" : {
+        type: "create",
+        call: ServiceTemplate.create,
+        callback: addServiceTemplateElement,
+        error: onError,
+        notify:true
+    },
+
+    "ServiceTemplate.create_dialog" : {
+        type : "custom",
+        call: popUpCreateServiceTemplateDialog
+    },
 
     "ServiceTemplate.list" : {
         type: "list",
@@ -222,9 +245,6 @@ var service_template_actions = {
             ServiceTemplate.list({timeout: true, success: updateServiceTemplatesView, error: onError});
         }
     },
-
-
-
 
     "ServiceTemplate.delete" : {
         type: "multiple",
@@ -291,6 +311,10 @@ var service_template_buttons = {
         type: "action",
         text: '<i class="icon-refresh icon-large">',
         alwaysActive: true
+    },
+    "ServiceTemplate.create_dialog" : {
+        type: "create_dialog",
+        text: tr('+ New')
     },
     "ServiceTemplate.chown" : {
         type: "confirm_with_select",
@@ -525,8 +549,160 @@ function updateServiceTemplateInfo(request,elem){
 }
 
 
+// Prepare the creation dialog
+function setupCreateServiceTemplateDialog(){
+    dialogs_context.append('<div title="'+tr("Create service template")+'" id="create_service_template_dialog"></div>');
+    $create_service_template_dialog =  $('#create_service_template_dialog',dialogs_context);
+
+    var dialog = $create_service_template_dialog;
+    dialog.html(create_service_template_tmpl);
+
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+
+    //Prepare jquery dialog
+    dialog.dialog({
+        autoOpen: false,
+        modal:true,
+        width: 650,
+        height: height
+    });
+
+    $('button',dialog).button();
+
+    var addParentRole = function(name){
+        var select = $('select[name="parents"]', dialog);
+        var exists = $('option[value="'+ name +'"]', select);
+        if (exists.length)
+            return false;
+        select.append(
+            '<option value="'+ name +'">☐ '+ name +'</option>');
+        return true;
+
+    }
+
+    var removeParentRole = function(name){
+        $('select[name="parents"] option[value="'+ name +'"]', dialog).remove();
+    }
+
+    $('.role_delete_icon').live('click', function(){
+        var row = $(this).parents('tr');
+        removeParentRole(row.attr('name'));
+        row.fadeOut().remove();
+    });
+
+    $('select[name="parents"]', dialog).change(function(){
+        $(this).val("");
+        return false;
+    });
+
+    $('select[name="parents"] option').live('click', function(){
+        var clicked = $(this).attr('clicked');
+        if (clicked){//unbold, unmark
+            $(this).text($(this).text().replace(/☒/g,'☐'));
+            $(this).removeAttr('clicked');
+        }
+        else {//bold,mark
+            $(this).text($(this).text().replace(/☐/g,'☒'));
+            $(this).attr('clicked','clicked');
+        }
+        return false;
+    });
+
+    $('button#add_role', dialog).click(function(){
+        var context = $(this).parent();
+        var name = $('input[name="name"]', context).val();
+        var cardinality = $('input[name="cardinality"]', context).val();
+        var template = $('select[name="vm_template"]', context).val();
+        var parents_opt = $('select[name="parents"] option[clicked="clicked"]',
+                            context);
+        var parents = [];
+
+        if (!name || !cardinality || !template){
+            notifyError(tr("Please specify name, cardinality and template for this role"));
+            return false;
+        };
+
+        parents_opt.each(function(){
+            parents.push($(this).val())
+        });
+
+        var role = {
+            name : name,
+            cardinality: cardinality,
+            template: template,
+            parents: parents
+        };
+
+        var str = '<tr role=\''+JSON.stringify(role)+'\' name="'+ name +'" >';
+        str += '<td>'+ name +'</td>';
+        str += '<td>'+ cardinality +'</td>';
+        str += '<td>'+ template +'</td>';
+        str += '<td>'+ parents.join(',') +'</td>';
+        str += '<td><button class="role_delete_icon"><i class="icon-remove"></i></button></td>';
+        str += '</tr>';
+
+        var ok = addParentRole(name);
+
+        if (ok)
+            $('table#current_roles tbody', dialog).append($(str).hide().fadeIn());
+        else
+            notifyError(tr("There is already a role with this name!"));
+
+        return false;
+    });
 
 
+    $('#create_service_template_form',dialog).submit(function(){
+        var name = $('input[name="service_name"]', this).val();
+        var deployment = $('select[name="deployment"]', this).val();
+
+        if (!name){
+            notifyError(tr("Name is mandatory!"));
+            return false;
+        }
+
+        var roles = [];
+
+        $('table#current_roles tbody tr').each(function(){
+            roles.push(JSON.parse($(this).attr('role')));
+        });
+
+        var obj = {
+            name: name,
+            deployment: deployment,
+            roles: roles
+        }
+
+        Sunstone.runAction("ServiceTemplate.create", { 'DOCUMENT': obj });
+        dialog.dialog('close');
+        return false;
+    });
+}
+
+function popUpCreateServiceTemplateDialog(){
+    var dialog = $create_service_template_dialog;
+    var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
+    $('select[name="vm_template"]', dialog).html(tpl_select);
+    // $('select[name="templates"] option', dialog).each(function(){
+    //     $(this).text('☐ '+$(this).text());
+    // });
+
+    // //Somehow this needs to go here. Live() doesn't respond in setup function
+    // $('select[name="templates"] option', dialog).click(function(){
+    //     var clicked = $(this).attr('clicked');
+    //     if (clicked){//unbold, unmark
+    //         $(this).text($(this).text().replace(/☒/g,'☐'));
+    //         $(this).removeAttr('clicked');
+    //     }
+    //     else {//bold,mark
+    //         $(this).text($(this).text().replace(/☐/g,'☒'));
+    //         $(this).attr('clicked','clicked');
+    //     }
+    //     return false;
+    // });
+
+    dialog.dialog('open');
+}
 
 
 // Set the autorefresh interval for the datatable
@@ -653,7 +829,7 @@ $(document).ready(function(){
     Sunstone.runAction("ServiceTemplate.list");
 
 
-
+    setupCreateServiceTemplateDialog();
 
 //    setupImageCloneDialog();
     setServiceTemplateAutorefresh();

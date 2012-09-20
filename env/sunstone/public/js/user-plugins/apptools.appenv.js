@@ -618,6 +618,7 @@ function setupCreateAppEnvDialog(){
         return false;
     });
 
+/******** UNUSED
     $('#add_custom_var_appenv_button', dialog).click(
         function(){
             var name = $('#custom_var_appenv_name',dialog).val();
@@ -640,6 +641,7 @@ function setupCreateAppEnvDialog(){
             return false;
         }
     );
+*/
 
 
     $('#create_appenv_form',dialog).submit(function(){
