@@ -468,6 +468,10 @@ module CommandParser
                 else
                     puts "one parameter to run"
                 end
+                puts
+                puts "Usage:"
+                print "    #{name} "
+                print_command(@commands[name])
                 exit -1
             else
                 id=0
