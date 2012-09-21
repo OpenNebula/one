@@ -16,9 +16,9 @@ set :appmarket_config, appmarket_conf
 helpers do
     def am_build_client
         Market::ApplianceClient.new(
-            settings.appmarket_config[:marketplace_username],
-            settings.appmarket_config[:marketplace_password],
-            settings.appmarket_config[:marketplace_url],
+            settings.appmarket_config[:appmarket_username],
+            settings.appmarket_config[:appmarket_password],
+            settings.appmarket_config[:appmarket_url],
             "Sunstone")
     end
 
