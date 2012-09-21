@@ -45,6 +45,18 @@ var Service = {
                                         "chmod",
                                         action_obj,
                                         Service.path);
+    },
+    "state" : function(state_int){
+        var state = [
+            tr("Pending"),
+            tr("Deploying"),
+            tr("Running"),
+            tr("Undeploying"),
+            tr("Failed"),
+            tr("Unknown"),
+            tr("Done")
+        ][state_int]
+        return state ? state : state_int;
     }
 }
 
@@ -61,6 +73,7 @@ var service_tab_content = '\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Name")+'</th>\
+      <th>'+tr("State")+'</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -222,9 +235,6 @@ var service_actions = {
         }
     },
 
-
-
-
     "Service.delete" : {
         type: "multiple",
         call: Service.del,
@@ -275,6 +285,7 @@ var service_actions = {
         notify: true
     },
 */
+
     "Service.help" : {
         type: "custom",
         call: function() {
@@ -365,8 +376,8 @@ function serviceElementArray(service_json){
         service.ID,
         service.UNAME,
         service.GNAME,
-        service.NAME
-//        description ? description : tr("None")
+        service.NAME,
+        Service.state(service.TEMPLATE.BODY.state)
     ];
 }
 
@@ -460,6 +471,10 @@ function updateServiceInfo(request,elem){
              <td class="value_td">'+elem_info.NAME+'</td>\
            </tr>\
            <tr>\
+             <td class="key_td">'+tr("State")+'</td>\
+             <td class="value_td">'+ Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
+           </tr>\
+           <tr>\
              <td class="key_td">'+tr("Owner")+'</td>\
              <td class="value_td">'+elem_info.UNAME+'</td>\
            </tr>\
@@ -495,6 +510,7 @@ function updateServiceInfo(request,elem){
             '</table>'
     }
 
+
     var vms_tab = {
         title : "Virtual Machines",
         content : '\
@@ -502,16 +518,17 @@ function updateServiceInfo(request,elem){
 <table id="datatable_service_vms" class="display">\
   <thead>\
     <tr>\
-      <th>ID</th>\
-      <th>Owner</th>\
-      <th>Group</th>\
-      <th>Name</th>\
-      <th>Status</th>\
-      <th>Used CPU</th>\
-      <th>Used Memory</th>\
-      <th>Host</th>\
-      <th>IPs</th>\
-      <th>Start Time</th>\
+      <th>'+tr("Role")+'</th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Owner")+'</th>\
+      <th>'+tr("Group")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Status")+'</th>\
+      <th>'+tr("Used CPU")+'</th>\
+      <th>'+tr("Used Memory")+'</th>\
+      <th>'+tr("Host")+'</th>\
+      <th>'+tr("IPs")+'</th>\
+      <th>'+tr("Start Time")+'</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -519,40 +536,70 @@ function updateServiceInfo(request,elem){
 </table></div>'
     };
 
+    var roles = elem_info.TEMPLATE.BODY.roles;
+    if (!roles) roles = [];
 
+    Sunstone.updateInfoPanelTab("service_info_panel",
+                                "service_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("service_info_panel",
+                                "service_node_tab",node_tab);
+
+    if (roles.length)
+        Sunstone.updateInfoPanelTab("service_info_panel",
+                                    "service_vms_tab",vms_tab);
+
+    // Popup panel
+    Sunstone.popUpInfoPanel("service_info_panel");
+
+    if (!roles.length) return;
 
     var vms = [];
-    vms.push(elem_info.TEMPLATE.BODY.roles[0].nodes[0].vm_info);
+    for (var i=0; i < roles.length; i++)
+        for (var j=0; j < roles[i].nodes.length; j++){
+            var vm_info = roles[i].nodes[j].vm_info;
+            if (vm_info)
+                vms.push(
+                    [roles[i].name].concat(
+                        vMachineElementArray(vm_info).slice(1,-1)
+                    )
+            );
+        };
 
-
-    Sunstone.updateInfoPanelTab("service_info_panel","service_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("service_info_panel","service_node_tab",node_tab);
-    Sunstone.updateInfoPanelTab("service_info_panel","service_vms_tab",vms_tab);
-
-    servicevmsDataTable = $('#datatable_service_vms').dataTable({
+    var servicevmsDataTable = $('#datatable_service_vms').dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
         "bAutoWidth":false,
         "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "60px", "aTargets": [5,6] },
-            { "sWidth": "100px", "aTargets": [1,2,4,8] },
-            { "bVisible" : false, "aTargets": [5,6,9] }
+           { "sWidth": "60px", "aTargets": [6,7] },
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "150px", "aTargets": [5,10] },
+            { "sWidth": "100px", "aTargets": [2,3,9] },
+            { "bVisible": false, "aTargets": [6,7,10]}
         ]
     });
 
-    var vmachine_list_array = [];
+    updateView(vms, servicevmsDataTable);
 
-    $.each(vms,function(){
-        vmachine_list_array.push( vMachineElementArray(this));
+
+    $('tbody tr',servicevmsDataTable).click(function(e){
+        var aData = servicevmsDataTable.fnGetData(this);
+        var id = aData[1];
+        if (!id) return true;
+
+        //open the Vresources submenu in case it was closed
+        var vres_menu = $('div#menu li#li_vres_tab')
+        $('li.vres_tab', vres_menu.parent()).fadeIn('fast');
+        $('span', vres_menu).removeClass('ui-icon-circle-plus');
+        $('span', vres_menu).addClass('ui-icon-circle-minus');
+
+        showTab('vms_tab');
+
+        popDialogLoading();
+        Sunstone.runAction("VM.showinfo", id)
+        return false;
     });
-
-    servicevmsDataTable.fnAddData(vmachine_list_array);
-    servicevmsDataTable.fnDraw(false);
-
-    Sunstone.popUpInfoPanel("service_info_panel");
 }
 
 
@@ -668,7 +715,7 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "100px", "aTargets": [2,3] },
-            { "sWidth": "200px", "aTargets": [4] },
+            { "sWidth": "200px", "aTargets": [5] },
             { "sWidth": "35px", "aTargets": [1] }
         ],
         "oLanguage": (datatable_lang != "") ?
@@ -682,7 +729,7 @@ $(document).ready(function(){
     dataTable_services.fnClearTable();
     addElement([
         spinner,
-        '','','','',''],dataTable_services);
+        '','','','','',''],dataTable_services);
     Sunstone.runAction("Service.list");
 
 

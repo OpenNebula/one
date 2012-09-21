@@ -231,6 +231,16 @@ var service_template_actions = {
         error: onError
     },
 
+    "ServiceTemplate.instantiate" : {
+        type: "multiple",
+        call: ServiceTemplate.instantiate,
+        elements: function(){
+            return getSelectedNodes(dataTable_service_templates);
+        },
+        error: onError,
+        notify: true
+    },
+
     "ServiceTemplate.refresh" : {
         type: "custom",
         call: function () {
@@ -314,7 +324,11 @@ var service_template_buttons = {
     },
     "ServiceTemplate.create_dialog" : {
         type: "create_dialog",
-        text: tr('+ New')
+        text: tr("+ New")
+    },
+    "ServiceTemplate.instantiate" : {
+        type: "action",
+        text: tr("Instantiate")
     },
     "ServiceTemplate.chown" : {
         type: "confirm_with_select",
@@ -673,7 +687,7 @@ function setupCreateServiceTemplateDialog(){
             roles: roles
         }
 
-        Sunstone.runAction("ServiceTemplate.create", { 'DOCUMENT': obj });
+        Sunstone.runAction("ServiceTemplate.create", obj );
         dialog.dialog('close');
         return false;
     });
@@ -813,7 +827,6 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "100px", "aTargets": [2,3] },
-            { "sWidth": "200px", "aTargets": [4] },
             { "sWidth": "35px", "aTargets": [1] }
         ],
         "oLanguage": (datatable_lang != "") ?
