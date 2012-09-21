@@ -104,7 +104,7 @@ var create_appenv_tmpl = '\
       </div>\
       <div class="appenv_param">\
           <label for="templates">'+tr("Compatible templates")+':</label>\
-          <select type="text" name="templates" multiple>\
+          <select type="text" id="env_templates" name="templates" multiple>\
           </select>\
       </div>\
       <div class="appenv_param">\
@@ -619,6 +619,20 @@ function setupCreateAppEnvDialog(){
         return false;
     });
 
+    //Somehow this needs to go here. Live() doesn't respond in setup function
+    $('select#env_templates option').live("click", function(){
+        var clicked = $(this).attr('clicked');
+        if (clicked){//unbold, unmark
+            $(this).text($(this).text().replace(/☒/g,'☐'));
+            $(this).removeAttr('clicked');
+        }
+        else {//bold,mark
+            $(this).text($(this).text().replace(/☐/g,'☒'));
+            $(this).attr('clicked','clicked');
+        }
+        return false;
+    });
+
 /******** UNUSED
     $('#add_custom_var_appenv_button', dialog).click(
         function(){
@@ -701,20 +715,6 @@ function popUpCreateAppEnvDialog(){
     $('select[name="templates"]', dialog).html(tpl_select);
     $('select[name="templates"] option', dialog).each(function(){
         $(this).text('☐ '+$(this).text());
-    });
-
-    //Somehow this needs to go here. Live() doesn't respond in setup function
-    $('select[name="templates"] option', dialog).click(function(){
-        var clicked = $(this).attr('clicked');
-        if (clicked){//unbold, unmark
-            $(this).text($(this).text().replace(/☒/g,'☐'));
-            $(this).removeAttr('clicked');
-        }
-        else {//bold,mark
-            $(this).text($(this).text().replace(/☐/g,'☒'));
-            $(this).attr('clicked','clicked');
-        }
-        return false;
     });
 
     dialog.dialog('open');
