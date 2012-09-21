@@ -479,7 +479,7 @@ function updateAppEnvsView(request, appenvs_list){
 
     updateView(appenv_list_array,dataTable_appenvs);
     //updateVResDashboard("images",images_list);
-    updateSystemDashboard('environments', appenv_list_array);
+    updateAppEnvDashboard('environments', appenv_list_array);
 }
 
 // Callback to update the information panel tabs and pop it up

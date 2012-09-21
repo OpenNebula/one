@@ -13,7 +13,7 @@
 // limitations under the License.                                           //
 //--------------------------------------------------------------------------//
 
-function updateSystemDashboard(what, json_info){
+function updateAppEnvDashboard(what, json_info){
     var db = $('#appenv_dashboard_tab',main_tabs_context);
     switch (what){
     case "environments":
