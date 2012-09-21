@@ -27,7 +27,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         },
         {
             :name => "description",
-            :short => "-d description",
             :large => "--description description",
             :format => String,
             :description => "Description for the new Image"
