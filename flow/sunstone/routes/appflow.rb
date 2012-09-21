@@ -96,3 +96,11 @@ post '/service_template/:id/action' do
 
     format_response(resp)
 end
+
+post '/service_template' do
+    client = build_client
+
+    resp = client.post('/service_template', request.body.read)
+
+    format_response(resp)
+end
