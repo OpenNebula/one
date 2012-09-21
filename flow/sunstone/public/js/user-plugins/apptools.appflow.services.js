@@ -46,6 +46,13 @@ var Service = {
                                         action_obj,
                                         Service.path);
     },
+    "shutdown" : function(params){
+        OpenNebula.Action.simple_action(params,
+                                        Service.resource,
+                                        "shutdown",
+                                        null,
+                                        Service.path);
+    },
     "state" : function(state_int){
         var state = [
             tr("Pending"),
@@ -273,6 +280,15 @@ var service_actions = {
         error: onError,
         notify: true
     },
+
+    "Service.shutdown" : {
+        type: "multiple",
+        call: Service.shutdown,
+        elements: serviceElements,
+        error: onError,
+        notify: true
+    },
+
 /*
     "Service.clone_dialog" : {
         type: "custom",
@@ -322,6 +338,10 @@ var service_buttons = {
         text: tr("Clone")
     },
 */
+    "Service.shutdown" : {
+        type: "action",
+        text: tr("Shutdown")
+    },
     "Service.delete" : {
         type: "confirm",
         text: tr("Delete")

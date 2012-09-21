@@ -234,9 +234,7 @@ var service_template_actions = {
     "ServiceTemplate.instantiate" : {
         type: "multiple",
         call: ServiceTemplate.instantiate,
-        elements: function(){
-            return getSelectedNodes(dataTable_service_templates);
-        },
+        elements: serviceTemplateElements,
         error: onError,
         notify: true
     },
