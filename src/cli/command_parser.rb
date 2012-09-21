@@ -619,9 +619,9 @@ module CommandParser
             command[:desc].split("\n").each { |l|
                 printf cmd_format10, l
                 puts
-            }
+            } if command[:desc]
 
-            unless command[:options].empty?
+            unless !command[:options] || command[:options].empty?
                 opts_str=command[:options].flatten.collect{|o|
                     o[:name]
                 }.join(', ')

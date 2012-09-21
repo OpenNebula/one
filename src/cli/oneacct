@@ -38,7 +38,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     version OpenNebulaHelper::ONE_VERSION
 
 
-    option [AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS]
+    option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS
 
     main do
         filter_flag = (options[:user] || VirtualMachinePool::INFO_ALL)
