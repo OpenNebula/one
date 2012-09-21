@@ -22,6 +22,8 @@ class Log
     # Log.info("LCM", "Service 3 started", 3), it will be written in a
     #   specific log for service number 3
 
+    LOG_COMP = "LOG"
+
     DEBUG_LEVEL = [
         Logger::ERROR, # 0
         Logger::WARN,  # 1
@@ -129,13 +131,17 @@ class Log
             return true
         end
 
-        # TBD capture exception
-        open("#{LOG_LOCATION}/appflow/#{service_id}.log", 'a') do |f|
-          f <<  MSG_FORMAT % [
-            Time.now.strftime(DATE_FORMAT),
-            Logger::SEV_LABEL[severity][0..0],
-            component,
-            message ]
+        begin
+            open("#{LOG_LOCATION}/appflow/#{service_id}.log", 'a') do |f|
+              f <<  MSG_FORMAT % [
+                Time.now.strftime(DATE_FORMAT),
+                Logger::SEV_LABEL[severity][0..0],
+                component,
+                message ]
+            end
+        rescue => e
+            message = "Could not log into #{LOG_LOCATION}/appflow/#{service_id}.log: #{e.message}"
+            error LOG_COMP, message
         end
     end
 

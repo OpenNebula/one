@@ -121,7 +121,7 @@ get '/service' do
     end
 
     status 200
-    #body Parser.render(service_pool)
+
     body service_pool.to_json
 end
 
@@ -135,7 +135,7 @@ get '/service/:id' do
     end
 
     status 200
-    #body Parser.render(service)
+
     body service.to_json
 end
 
@@ -246,7 +246,6 @@ get '/service_template' do
 
     status 200
 
-    #body Parser.render(s_template_pool)
     body s_template_pool.to_json
 end
 
@@ -260,7 +259,6 @@ get '/service_template/:id' do
 
     status 200
 
-    #body Parser.render(rc)
     body service_template.to_json
 end
 
@@ -273,22 +271,9 @@ delete '/service_template/:id' do
     end
 
     status 201
-
-    #body Parser.render(rc)
-    #body service_template.to_json
 end
 
 post '/service_template' do
-    #template = Parser.json_to_hash(request.body.read)
-
-    #begin
-    #    Validator.validate(template)
-    #rescue
-    #    error 403,
-    #end
-
-    #template_xml = Parser.hash_to_xml(template)
-
     s_template = OpenNebula::ServiceTemplate.new(
                     OpenNebula::ServiceTemplate.build_xml,
                     @client)
@@ -332,7 +317,6 @@ post '/service_template/:id/action' do
 
         service.info
 
-        #body Parser.render(rc)
         body service.to_json
     when 'chown'
         if opts && opts['uid']

@@ -429,6 +429,7 @@ function updateServicesView(request, services_list){
 
     updateView(service_list_array,dataTable_services);
     //updateVResDashboard("images",images_list);
+    updateAppFlowDashboard('services', service_list_array);
 }
 
 // Callback to refresh the list of Virtual Machines

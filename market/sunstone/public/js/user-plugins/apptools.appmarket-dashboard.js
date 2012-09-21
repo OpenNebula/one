@@ -13,22 +13,54 @@
 // limitations under the License.                                           //
 //--------------------------------------------------------------------------//
 
+function updateAppMarketDashboard(what, json_info){
+    var db = $('#appmarket_dashboard_tab',main_tabs_context);
+    switch (what){
+    case "appliances":
+        $('#appmarket_total_appliances',db).html(json_info.length);
+        break;
+    };
+}
+
 var appmarket_dashboard_tmpl = '\
 <table class="dashboard_table" id="appmarket_dashboard">\
 <tr>\
-<td style="width:100%">\
+<td style="width:50%">\
+<table id="system_information_table" style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+<h3>' + tr("Summary of AppMarket resources") + '</h3>\
+        <div class="panel_info">\
+\
+          <table class="info_table">\
+            <tr>\
+              <td class="key_td">Appliances</td>\
+              <td class="value_td"><span id="appmarket_total_appliances"></span></td>\
+            <tr>\
+          </table>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+</table>\
+</td>\
+<td style="width:50%">\
 <table id="table_right" style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
-<h3>' + tr("AppEnv - Image repository") + '</h3>\
+        <h3>' + tr("AppMarket") + '</h3>\
         <div class="panel_info">\
-\
-        <p class="dashboard_p" style="margin-top: 10px"><img src="images/appmarket_icon.png" height="80px" style="float:right;margin:15px 15px;" alt="appflow logo"/>AppMarket builds a centralized catalog of cloud applications. With AppMarket you can build a private repository to share and distribute virtual appliances across OpenNebula instances.</p>\
-            <p class="dashboard_p">&nbsp;</p>\
-            <p class="dashboard_p">&nbsp;</p>\
-            <p class="dashboard_p">&nbsp;</p>\
-            <p class="dashboard_p">&nbsp;</p>\
+            <p>\
+              <img src="images/appmarket_icon.png" height="80px" style="float:right;margin:0px 15px 15px 15px;" alt="appmarket logo"/>\
+              AppMarket builds a centralized catalog of cloud applications. With AppMarket you can build a private repository to share and distribute virtual appliances across OpenNebula instances.\
+            </p>\
+            <p>'+tr("You can find further information on the following links:")+'</p>\
+            <ul>\
+               <li><a href="http://doc.opennebula.pro/doku.php?id=appmarket" target="_blank">AppMarket Documentation</a></li>\
+            </ul>\
         </div>\
       </div>\
     </td>\

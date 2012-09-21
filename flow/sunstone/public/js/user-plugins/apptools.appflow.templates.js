@@ -435,6 +435,7 @@ function updateServiceTemplatesView(request, service_templates_list){
 
     updateView(service_template_list_array,dataTable_service_templates);
     //updateVResDashboard("images",images_list);
+    updateAppFlowDashboard('templates', service_template_list_array);
 }
 
 // Callback to update the information panel tabs and pop it up
