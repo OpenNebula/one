@@ -60,7 +60,11 @@ if [ "$USE_SSH" == "yes" ]; then
 else
 	USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
 	PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-    VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"$PASSWORD\""
+    if [ -z $PASSWORD ]; then       
+        VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
+    else       
+        VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
+    fi
 
 	DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
 	for dir in $DIRS_TO_ERASE; do

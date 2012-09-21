@@ -887,7 +887,9 @@ TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/mv \
                  src/tm_mad/vmfs/context \
                  src/tm_mad/vmfs/mvds \
-                 src/tm_mad/vmfs/tm_vmfsrc"
+                 src/tm_mad/vmfs/tm_vmfsrc
+                 src/tm_mad/vmfs/postmigrate \
+                 src/tm_mad/vmfs/premigrate"                 
 
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
