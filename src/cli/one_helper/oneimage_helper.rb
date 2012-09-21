@@ -20,8 +20,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
     TEMPLATE_OPTIONS=[
         {
             :name => "name",
-            :short => "-n name",
-            :large => "--name type",
+            :large => "--name name",
             :format => String,
             :description => "Name of the new image"
         },
@@ -33,10 +32,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         },
         {
             :name => "type",
-            :short => "-t type",
             :large => "--type type",
             :format => String,
-            :description => "Type of the new Image",
+            :description => "Type of the new Image: OS, CDROM or DATABLOCK",
             :proc => lambda do |o, options|
                 type=o.strip.upcase
 
@@ -49,14 +47,13 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         },
         {
             :name => "persistent",
-            :short => "-p",
             :large => "--persistent",
             :description => "Tells if the image will be persistent"
         },
         {
             :name => "prefix",
             :large => "--prefix prefix",
-            :description => "Device prefix for the disk (hd, sd, xvd or vd)",
+            :description => "Device prefix for the disk (eg. hd, sd, xvd or vd)",
             :format => String,
             :proc => lambda do |o, options|
                 prefix=o.strip.downcase
@@ -182,7 +179,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         type_str = Image::IMAGE_TYPES[id]
         return Image::SHORT_IMAGE_TYPES[type_str]
     end
-    
+
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -217,7 +214,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                     :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
-            
+
             column :PERSISTENT, "Whether the Image is persistent or not",
                     :size=>3 do |d|
                 OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])

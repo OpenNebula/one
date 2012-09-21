@@ -79,12 +79,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new Template from the given template file
+        Creates a new VM Template from the given description
+
+        Examples:
+          - using a VM Template description file:
+
+            onetemplate create vm_description.tmpl
+
+          - new VM Template named "arch vm" with a disk and a nic:
+
+            onetemplate create --name "arch vm" --memory 128 --cpu 1 --disk arch \\
+                         --network private_lan
+
+          - using two disks:
+
+            onevm create --name "test vm" --memory 128 --cpu 1 --disk arch,data
+
     EOT
 
-    command :create, create_desc, [:file, nil],
-            :options=>OpenNebulaHelper::TEMPLATE_OPTIONS do
-        res=OpenNebulaHelper.create_template(options)
+    command :create, create_desc, [:file, nil], :options =>
+            OpenNebulaHelper::TEMPLATE_OPTIONS do
 
         if args[0] && OpenNebulaHelper.create_template_options_used?(options)
             STDERR.puts "You can not use both template file and template"<<
@@ -92,20 +106,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             next -1
         end
 
-        if res.first!=0
-            STDERR.puts res.last
-            next -1
-        end
+        helper.create_resource(options) do |tmpl|
+            begin
+                if args[0]
+                    template = File.read(args[0])
+                else
+                    res = OpenNebulaHelper.create_template(options)
 
-        helper.create_resource(options) do |t|
-            if args[0]
-                template=File.read(args[0])
-            else
-                template=''
+                    if res.first != 0
+                        STDERR.puts res.last
+                        next -1
+                    end
+
+                    template = res.last
+                end
+
+                tmpl.allocate(template)
+            rescue => e
+                STDERR.puts e.messsage
+                exit -1
             end
-
-            template<<res.last
-            t.allocate(template)
         end
     end
 
@@ -165,8 +185,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     publish_desc = <<-EOT.unindent
-        DEPRECATED, use chmod instead. Publishes the given Template. A public 
-        Template can be seen and instantiated by other users in the Template's 
+        DEPRECATED, use chmod instead. Publishes the given Template. A public
+        Template can be seen and instantiated by other users in the Template's
         group.
     EOT
 

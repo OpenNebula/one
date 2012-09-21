@@ -94,50 +94,62 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new VM from the given template file. This command bypasses
-        the Template pool, which is the preferred way to instantiate new VMs.
-        See 'onetemplate create' and 'onetemplate instantiate'
+        Creates a new VM from the given description instead of using a previously
+        defined template (see 'onetemplate create' and 'onetemplate instantiate').
+
+        Examples:
+
+          - using a template description file:
+
+            onevm create vm_description.tmpl
+
+          - new VM named "arch vm" with a disk and a nic
+
+            onevm create --name "arch vm" --memory 128 --cpu 1 --disk arch \\
+                         --network private_lan
+
+          - a vm with two disks
+
+            onevm create --name "test vm" --memory 128 --cpu 1 --disk arch,data
+
     EOT
 
-    command :create, create_desc, [:file, nil],
-            :options=>[OneVMHelper::MULTIPLE]+
-            OpenNebulaHelper::TEMPLATE_OPTIONS do
-        number = options[:multiple] || 1
+    command :create, create_desc, [:file, nil], :options =>
+            [OneVMHelper::MULTIPLE] + OpenNebulaHelper::TEMPLATE_OPTIONS do
 
-        exit_code=nil
+        number    = options[:multiple] || 1
+        exit_code = nil
 
-        res=OpenNebulaHelper.create_template(options)
-
-        if res.first!=0
-            STDERR.puts res.last
+        if args[0] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You can not use both template file and template"<<
+                " creation options."
             next -1
         end
 
-        if args[0]
-            if OpenNebulaHelper.create_template_options_used?(options)
-                STDERR.puts "You can not use both template file and template"<<
-                    " creation options."
-                next -1
-            end
-
-            begin
+        begin
+            if args[0]
                 template=File.read(args[0])
-            rescue
-                STDERR.puts "Error reading template."
-                next -1
+            else
+                res = OpenNebulaHelper.create_template(options)
+
+                if res.first != 0
+                    STDERR.puts res.last
+                    next -1
+                end
+
+                template = res.last
             end
-        else
-            template=''
+        rescue Exception => e
+            STDERR.puts "Error reading template."
+            next -1
         end
 
-        template<<res.last
-
         number.times do
-            exit_code=helper.create_resource(options) do |vm|
-                error=vm.allocate(template)
+            exit_code = helper.create_resource(options) do |vm|
+                error = vm.allocate(template)
             end
 
-            break if exit_code==-1
+            break if exit_code == -1
         end
 
         exit_code

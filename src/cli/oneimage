@@ -77,11 +77,32 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new Image from the given template file
+        Creates a new Image
+        Examples:
+          - using a template description file:
+
+            oneimage create -d default centOS.tmpl
+
+          - new image "arch" using a path of type centOS:
+
+            oneimage create -d default --name arch --path /tmp/arch.img
+
+          - new persistent image, OS type and qcow2 format:
+
+            oneimage create -d 1 --name ubuntu --path /tmp/ubuntu.qcow2 \\
+                            --prefix sd --type OS --driver qcow2 \\
+                            --description "A OS plain installation"
+
+          - a datablock image of 400MB:
+
+            oneimage create -d 1 --name data --type DATABLOCK --size 400 \\
+                            --fstype ext2
+
     EOT
 
-    command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS+
+    command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS +
             OneImageHelper::TEMPLATE_OPTIONS do
+
         if options[:datastore].nil?
             STDERR.puts "Datastore to save the image is mandatory: "
             STDERR.puts "\t -d datastore_id"
@@ -94,22 +115,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             next -1
         end
 
-        res=OneImageHelper.create_image_template(options)
-
-        if res.first!=0
-            STDERR.puts res.last
-            next -1
-        end
-
         helper.create_resource(options) do |image|
             begin
                 if args[0]
                     template=File.read(args[0])
                 else
-                    template=''
+                    res = OneImageHelper.create_image_template(options)
+
+                    if res.first != 0
+                        STDERR.puts res.last
+                        next -1
+                    end
+
+                    template = res.last
                 end
 
-                template<<res.last
                 image.allocate(template, options[:datastore])
             rescue => e
                 STDERR.puts e.messsage
@@ -156,7 +176,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     unpublish_desc = <<-EOT.unindent
-        DEPRECATED, use chmod instead. Unpublishes the given Image. A private 
+        DEPRECATED, use chmod instead. Unpublishes the given Image. A private
         Image can't be used by any other user.
     EOT
 
