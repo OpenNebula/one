@@ -99,7 +99,11 @@ conf  = YAML::load(File.read(CONF_FILE))
 @uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
 
 @user = conf[:username]
-@pass = conf[:password]
+if conf[:password] and !conf[:password].empty?
+   @pass=conf[:password]
+else
+   @pass="\"\""
+end
 
 # Poll the VMware hypervisor
 

@@ -60,7 +60,7 @@ DST_FOLDER=`basename $SRC`
 if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
     PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-    VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
+    VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"$PASSWORD\""
 fi
 
 # ------------ Remove the image from the repository ------------

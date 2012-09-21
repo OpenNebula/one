@@ -59,7 +59,7 @@ if [ "$USE_SSH" != "yes" ]; then
 	  IMAGE_DS_NAME=`basename $(dirname $SRC_PATH)`
     SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
     DST_DIR_WITHOUT_DS_PATH="[$SYSTEM_DS_NAME]${DST_PATH##"$DS_DIR/$SYSTEM_DS_NAME/"}"
-    VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
+    VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"$PASSWORD\""
 fi
 
 if [ "$USE_SSH" == "yes" ]; then

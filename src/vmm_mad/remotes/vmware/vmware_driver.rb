@@ -50,7 +50,11 @@ class VMwareDriver
        @uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
 
        @user = conf[:username]
-       @pass = conf[:password]
+       if conf[:password] and !conf[:password].empty?
+          @pass=conf[:password]
+       else
+          @pass="\"\""
+       end
 
        @datacenter = conf[:datacenter]
        @vcenter    = conf[:vcenter]
