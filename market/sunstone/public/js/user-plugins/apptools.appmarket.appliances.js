@@ -54,6 +54,7 @@ var appmarket_actions = {
             //data can be added to the table directly, without further
             //processing
             updateView(res.appliances,dataTable_appmarket);
+            updateAppMarketDashboard('appliances', res.appliances);
         },
         error: onError
     },
