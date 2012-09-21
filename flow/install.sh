@@ -23,6 +23,10 @@ else
     LOG_LOCATION="$ROOT/var/appflow"
 fi
 
+DIRECTORIES="$LIB_LOCATION $BIN_LOCATION $ETC_LOCATION $LOG_LOCATION"
+
+create_dirs $DIRECTORIES
+
 ## Client files
 copy_files "client/lib/*" "$LIB_LOCATION/flow"
 copy_files "client/bin/*" "$BIN_LOCATION"

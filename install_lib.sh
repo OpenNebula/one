@@ -82,3 +82,12 @@ copy_files() {
     done
 }
 
+create_dirs() {
+    DIRS=$*
+
+    for d in $DIRS; do
+        dir=$DESTDIR$d
+        mkdir -p $dir
+    done
+}
+
