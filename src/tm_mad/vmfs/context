@@ -60,8 +60,7 @@ if [ "$USE_SSH" == "yes" ]; then
     ssh_make_path $DST_HOST $DST_DIR
 else
     vifs $VI_PARAMS --mkdir [$DS_ID]$VM_ID
-    exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$VM_ID/$DST_FOLDER" \
-                 "Cannot create [$DS_ID]$VM_ID/$DST_FOLDER on $DST_HOST"
+    vifs $VI_PARAMS --mkdir [$DS_ID]$VM_ID/$DST_FOLDER
 fi
 
 #-------------------------------------------------------------------------------
@@ -91,6 +90,7 @@ if [ "$USE_SSH" == "yes" ]; then
     exec_and_log "$SCP $ISO_FILE $DST_PATH.iso" "Error copying context ISO to $DST"
 else
     # Copies the iso file with .iso suffix, needed for VMware CDROMs
+    vifs $VI_PARAMS -rm [$DS_ID]$VM_ID/$DST_FOLDER.iso
     exec_and_log "vifs $VI_PARAMS -p $ISO_FILE [$DS_ID]$VM_ID/$DST_FOLDER.iso" \
                  "Error copying context ISO to [$DS_ID]$VM_ID/$DST_FOLDER.iso in $DST_HOST"
 fi
