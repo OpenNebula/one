@@ -13,22 +13,73 @@
 // limitations under the License.                                           //
 //--------------------------------------------------------------------------//
 
+function updateAppFlowDashboard(what, json_info){
+    var db = $('#appflow_dashboard_tab',main_tabs_context);
+    switch (what){
+    case "templates":
+        $('#appflow_total_templates',db).html(json_info.length);
+        break;
+    case "services":
+        $('#appflow_total_services',db).html(json_info.length);
+        break;
+    };
+}
+
 var appflow_dashboard_tmpl = '\
 <table class="dashboard_table" id="appflow_dashboard">\
 <tr>\
-<td style="width:100%">\
+<td style="width:50%">\
+<table id="system_information_table" style="width:100%">\
+  <tr>\
+    <td>\
+      <div class="panel">\
+<h3>' + tr("Summary of AppFlow resources") + '</h3>\
+        <div class="panel_info">\
+\
+          <table class="info_table">\
+            <tr>\
+              <td class="key_td">Templates</td>\
+              <td class="value_td"><span id="appflow_total_templates"></span></td>\
+            <tr>\
+            </tr>\
+              <td class="key_td">Services</td>\
+              <td class="value_td"><span id="appflow_total_services"></span></td>\
+            </tr>\
+          </table>\
+\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+  <tr>\
+    <td>\
+      <div class="panel">\
+        <h3>' + tr("Quickstart") + '</h3>\
+        <div class="panel_info dashboard_p">\
+             <ul>\
+                <li><a class="action_button" href="#service_templates_tab" value="ServiceTemplate.create_dialog">Create a new Service Template</a></li>\
+             </ul>\
+        </div>\
+      </div>\
+    </td>\
+  </tr>\
+</table>\
+</td>\
+<td style="width:50%">\
 <table id="table_right" style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\
-<h3>' + tr("Appflow - A tool to manage environments") + '</h3>\
+        <h3>' + tr("Appflow - A tool to manage environments") + '</h3>\
         <div class="panel_info">\
-\
-            <p class="dashboard_p" style="margin-top: 10px"><img src="images/appflow_icon.png" height="80px" style="float:right;margin:15px 63px 15px 15px;" alt="appflow logo"/>AppFlow enables the automatic execution of multi-tiered applications. With AppFlow you can define multi-tier applications composed of interconnected VMs and manage them as a single entity.</p>\
-            <p class="dashboard_p">&nbsp;</p>\
-            <p class="dashboard_p">&nbsp;</p>\
-            <p class="dashboard_p">&nbsp;</p>\
-            <p class="dashboard_p">&nbsp;</p>\
+            <p>\
+              <img src="images/appflow_icon.png" height="80px" style="float:right;margin:0px 15px 15px 15px;" alt="appflow logo"/>\
+              AppFlow enables the automatic execution of multi-tiered applications. With AppFlow you can define multi-tier applications composed of interconnected VMs and manage them as a single entity.\
+            </p>\
+            <p>'+tr("You can find further information on the following links:")+'</p>\
+            <ul>\
+               <li><a href="http://doc.opennebula.pro/doku.php?id=appflow" target="_blank">AppFlow Documentation</a></li>\
+            </ul>\
         </div>\
       </div>\
     </td>\
