@@ -48,13 +48,28 @@ var Service = {
     },
     "state" : function(state_int){
         var state = [
-            tr("Pending"),
-            tr("Deploying"),
-            tr("Running"),
-            tr("Undeploying"),
-            tr("Failed"),
-            tr("Unknown"),
-            tr("Done")
+            tr("PENDING"),
+            tr("DEPLOYING"),
+            tr("RUNNING"),
+            tr("UNDEPLOYING"),
+            tr("FAILED"),
+            tr("UNKNOWN"),
+            tr("DONE")
+        ][state_int]
+        return state ? state : state_int;
+    }
+}
+
+var Role = {
+    "state" : function(state_int){
+        var state = [
+            tr("PENDING"),
+            tr("DEPLOYING"),
+            tr("RUNNING"),
+            tr("UNDEPLOYING"),
+            tr("FAILED"),
+            tr("UNKNOWN"),
+            tr("DONE")
         ][state_int]
         return state ? state : state_int;
     }
@@ -503,13 +518,40 @@ function updateServiceInfo(request,elem){
          </table>'
     }
 
-    var node_tab = {
-        title: tr("Node"),
-        content: '<table id="service_node_table" class="info_table" style="width:80%;">\
-            <thead><tr><th colspan="2">'+tr("Node")+'</th></tr></thead>'+
-            (elem_info.TEMPLATE.BODY ? prettyPrintJSON(elem_info.TEMPLATE.BODY) : "" )+
-            '</table>'
+    var roles_info = '<table id="service_template_roles_table" class="info_table" style="width:80%;">\
+            <thead></thead>'
+
+    var roles = elem_info.TEMPLATE.BODY.roles
+    if (roles)
+        for (var i = 0; i < roles.length; i++) {
+          roles_info += '<tr><td class="key_td">'+tr("Role")+' '+roles[i].name+'</td><td></td></tr>\
+            <tr>\
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("State")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+Role.state(roles[i].state)+'</td>\
+            </tr>\
+            <tr>\
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Cardinality")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+roles[i].cardinality+'</td>\
+            </tr>\
+            <tr>\
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("VM Template")+'</td>\
+             <td class="value_td" style="font-family:monospace;">'+roles[i].vm_template+'</td>\
+            </tr>'
+
+          if (roles[i].parents)
+            roles_info += '<tr>\
+              <td > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Parents")+'</td>\
+              <td class="value_td" style="font-family:monospace;">'+roles[i].parents.join(', ')+'</td>\
+            </tr>'
+        }
+
+    roles_info += '</table>'
+
+    var roles_tab = {
+        title: tr("Roles"),
+        content: roles_info
     }
+
 
 
     var vms_tab = {
@@ -537,17 +579,39 @@ function updateServiceInfo(request,elem){
 </table></div>'
     };
 
+    var logs = elem_info.TEMPLATE.BODY.log
+    var log_info = ''
+    if (logs)
+        log_info += '<table id="service_template_roles_table" class="info_table" style="width:80%;">\
+            <thead></thead>'
+        for (var i = 0; i < logs.length; i++) {
+          log_info += '<tr>\
+              <td>'+pretty_time(logs[i].timestamp)+' ['+logs[i].severity + '] ' + logs[i].message+ '</td>\
+              </tr>'
+        }
+
+    log_info += '</table>'
+
+    var logs_tab = {
+      title: "Logs",
+      content: log_info
+    }
+
     var roles = elem_info.TEMPLATE.BODY.roles;
     if (!roles) roles = [];
 
     Sunstone.updateInfoPanelTab("service_info_panel",
                                 "service_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("service_info_panel",
-                                "service_node_tab",node_tab);
+                                "service_role_tab",roles_tab);
 
     if (roles.length)
         Sunstone.updateInfoPanelTab("service_info_panel",
                                     "service_vms_tab",vms_tab);
+
+
+    Sunstone.updateInfoPanelTab("service_info_panel",
+                                "service_log_tab",logs_tab);
 
     // Popup panel
     Sunstone.popUpInfoPanel("service_info_panel");
