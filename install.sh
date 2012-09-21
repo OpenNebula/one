@@ -1678,6 +1678,7 @@ SELF_SERVICE_PUBLIC_LOCALE_ZH_TW="src/cloud/occi/lib/ui/locale/languages/zh_TW.j
 #-----------------------------------------------------------------------------
 
 MAN_FILES="share/man/oneauth.1.gz \
+        share/man/oneacct.1.gz \
         share/man/oneacl.1.gz \
         share/man/onehost.1.gz \
         share/man/oneimage.1.gz \
