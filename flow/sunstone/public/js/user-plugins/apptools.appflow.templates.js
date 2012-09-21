@@ -601,6 +601,7 @@ function setupCreateServiceTemplateDialog(){
         var row = $(this).parents('tr');
         removeParentRole(row.attr('name'));
         row.fadeOut().remove();
+        return false;
     });
 
     $('select[name="parents"]', dialog).change(function(){
@@ -651,13 +652,18 @@ function setupCreateServiceTemplateDialog(){
         str += '<td>'+ cardinality +'</td>';
         str += '<td>'+ template +'</td>';
         str += '<td>'+ parents.join(',') +'</td>';
-        str += '<td><button class="role_delete_icon"><i class="icon-remove"></i></button></td>';
+        str += '<td><a href="#" class="role_delete_icon">Delete</a></td>';
         str += '</tr>';
 
         var ok = addParentRole(name);
 
-        if (ok)
+        if (ok){
             $('table#current_roles tbody', dialog).append($(str).hide().fadeIn());
+            $('input[name="name"]', context).val("");
+            $('input[name="cardinality"]', context).val("1");
+            //unselect selected parents
+            $('select[name="parents"] option[clicked="clicked"]').trigger('click');
+        }        
         else
             notifyError(tr("There is already a role with this name!"));
 
