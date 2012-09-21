@@ -100,22 +100,22 @@ module Straight
 
         # Get all the parents from running roles
         parents = []
-        running_roles = roles.select {|name, role|
-            if (role.state == Role::STATE['RUNNING']||
-                role.state == Role::STATE['FAILED'] ||
-                role.state == Role::STATE['UNKNOWN'] )
+        running_roles = {}
 
+        roles.each { |name, role|
+            # All roles can be shutdown, except the ones in these states
+            if (role.state != Role::STATE['UNDEPLOYING'] &&
+                role.state != Role::STATE['FAILED'] &&
+                role.state != Role::STATE['DONE'] )
+
+                running_roles[name]= role
+            end
+
+            # Only the parents of DONE roles can be shutdown
+            if (role.state != Role::STATE['DONE'] )
                 parents += role.parents
-                true
-            else
-                false
             end
         }
-
-        # Ruby 1.8 compatibility
-        if running_roles.instance_of?(Array)
-            running_roles = Hash[running_roles]
-        end
 
         # Select the nodes that are not parent from any node
         result =  running_roles.select {|name, role|

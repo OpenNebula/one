@@ -161,9 +161,9 @@ protected
     # @return [Hash<String, Role>] Roles
     def get_roles_shutdown(service)
         result = service.get_roles.select {|name, role|
-            role.state == Role::STATE['RUNNING'] ||
-            role.state == Role::STATE['FAILED'] ||
-            role.state == Role::STATE['UNKNOWN']
+            role.state != Role::STATE['UNDEPLOYING'] &&
+            role.state != Role::STATE['FAILED'] &&
+            role.state != Role::STATE['DONE']
         }
 
         # Ruby 1.8 compatibility
