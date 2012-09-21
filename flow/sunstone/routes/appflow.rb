@@ -14,7 +14,7 @@ end
 set :appflow_config, appflow_conf
 
 helpers do
-    def build_client
+    def af_build_client
         flow_client = settings.cloud_auth.client(session[:user])
         split_array = flow_client.one_auth.split(':')
 
@@ -25,11 +25,12 @@ helpers do
                 :password   => split_array.join(':'))
     end
 
-    def format_response(resp)
+    def af_format_response(resp)
         if CloudClient::is_error?(resp)
             logger.error("[AppFlow] " + resp.to_s)
-            # TBD format error messages in JSON
-            error 500, resp.to_s
+
+            error = Error.new(resp.to_s)
+            error resp.code.to_i, error.to_json
         else
             body resp.body.to_s
         end
@@ -41,35 +42,35 @@ end
 ##############################################################################
 
 get '/service' do
-    client = build_client
+    client = af_build_client
 
     resp = client.get('/service')
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 get '/service/:id' do
-    client = build_client
+    client = af_build_client
 
     resp = client.get('/service/' + params[:id])
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 delete '/service/:id' do
-    client = build_client
+    client = af_build_client
 
     resp = client.delete('/service/' + params[:id])
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 post '/service/:id/action' do
-    client = build_client
+    client = af_build_client
 
     resp = client.post('/service/' + params[:id] + '/action', request.body.read)
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 ##############################################################################
@@ -77,41 +78,41 @@ end
 ##############################################################################
 
 get '/service_template' do
-    client = build_client
+    client = af_build_client
 
     resp = client.get('/service_template')
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 get '/service_template/:id' do
-    client = build_client
+    client = af_build_client
 
     resp = client.get('/service_template/' + params[:id])
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 delete '/service_template/:id' do
-    client = build_client
+    client = af_build_client
 
     resp = client.delete('/service_template/' + params[:id])
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 post '/service_template/:id/action' do
-    client = build_client
+    client = af_build_client
 
     resp = client.post('/service_template/' + params[:id] + '/action', request.body.read)
 
-    format_response(resp)
+    af_format_response(resp)
 end
 
 post '/service_template' do
-    client = build_client
+    client = af_build_client
 
     resp = client.post('/service_template', request.body.read)
 
-    format_response(resp)
+    af_format_response(resp)
 end
