@@ -1,6 +1,17 @@
+APPFLOW_CONF_FILE = ETC_LOCATION + "/sunstone-appflow.conf"
+
 $: << RUBY_LIB_LOCATION+"/apptools/flow"
 
 require 'appflow_client'
+
+begin
+    appflow_conf = YAML.load_file(APPFLOW_CONF_FILE)
+rescue Exception => e
+    STDERR.puts "Error parsing config file #{APPFLOW_CONF_FILE}: #{e.message}"
+    exit 1
+end
+
+set :appflow_config, appflow_conf
 
 helpers do
     def build_client
@@ -8,7 +19,7 @@ helpers do
         split_array = flow_client.one_auth.split(':')
 
         Service::Client.new(
-                :url        => settings.config[:appflow_server],
+                :url        => settings.appflow_config[:appflow_server],
                 :user_agent => "Sunstone",
                 :username   => split_array.shift,
                 :password   => split_array.join(':'))
