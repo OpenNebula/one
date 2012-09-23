@@ -19,7 +19,6 @@ require 'one_helper'
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
     VM_NAME={
         :name  => "vm_name",
-        :short => "-n vm_name",
         :large => "--name vm_name",
         :format => String,
         :description =>  <<-EOT
