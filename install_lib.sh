@@ -49,12 +49,14 @@ if [ -z "$ROOT" ]; then
     LIB_LOCATION="/usr/lib/one/ruby/apptools"
     BIN_LOCATION="/usr/bin"
     PACKAGES_LOCATION="/usr/share/one/apptools"
+    SHARE_LOCATION="/usr/share/one/apptools"
     ETC_LOCATION="/etc/one"
     SUNSTONE_LOCATION="/usr/lib/one/sunstone"
 else
     LIB_LOCATION="$ROOT/lib/ruby/apptools"
     BIN_LOCATION="$ROOT/bin"
     PACKAGES_LOCATION="$ROOT/share/apptools"
+    SHARE_LOCATION="$ROOT/share/apptools"
     ETC_LOCATION="$ROOT/etc"
     SUNSTONE_LOCATION="$ROOT/lib/sunstone"
 fi
