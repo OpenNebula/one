@@ -323,7 +323,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new
-            params['gid'] = args[1].to_i
+            params['group_id'] = args[1].to_i
 
             json_action = Service.build_json_action('chgrp', params)
 
@@ -344,8 +344,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         Service.perform_actions(args[0]) { |service_id|
             params = Hash.new
-            params['uid'] = args[1]
-            params['gid'] = args[2] if args[2]
+            params['owner_id'] = args[1]
+            params['group_id'] = args[2] if args[2]
 
             json_action = Service.build_json_action('chown', params)
 

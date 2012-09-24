@@ -319,10 +319,10 @@ post '/service_template/:id/action' do
 
         body service.to_json
     when 'chown'
-        if opts && opts['uid']
+        if opts && opts['owner_id']
             args = Array.new
-            args << opts['uid'].to_i
-            args << (opts['gid'].to_i || -1)
+            args << opts['owner_id'].to_i
+            args << (opts['group_id'].to_i || -1)
 
             service_template.chown(*args)
         else
@@ -330,8 +330,8 @@ post '/service_template/:id/action' do
                     "You have to specify a UID")
         end
     when 'chgrp'
-        if opts && opts['gid']
-            service_template.chown(-1, opts['gid'].to_i)
+        if opts && opts['group_id']
+            service_template.chown(-1, opts['group_id'].to_i)
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify a GID")
