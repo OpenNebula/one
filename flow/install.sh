@@ -52,3 +52,5 @@ copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
 LINK="no"
 copy_files "sunstone/etc/sunstone-appflow.conf" "$ETC_LOCATION"
 copy_files "config/appflow-server.conf" "$ETC_LOCATION"
+
+change_ownership $LOG_LOCATION

@@ -15,7 +15,8 @@
 
 usage() {
  echo
- echo "Usage: install.sh [-d ONE_LOCATION] [-l] [-h]"
+ echo "Usage: install.sh [-u install_user] [-g install_group]"
+ echo "                  [-d ONE_LOCATION] [-l] [-h]"
  echo
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
@@ -23,7 +24,7 @@ usage() {
  echo "-h: prints this help"
 }
 
-TEMP_OPT=`getopt -o hld: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o hlu:g:d: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -33,6 +34,8 @@ fi
 eval set -- "$TEMP_OPT"
 
 LINK="no"
+ONEADMIN_USER=`id -u`
+ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
 
 while true ; do
@@ -40,6 +43,8 @@ while true ; do
         -h) usage; exit 0;;
         -d) ROOT="$2" ; shift 2 ;;
         -l) LINK="yes" ; shift ;;
+        -u) ONEADMIN_USER="$2" ; shift 2;;
+        -g) ONEADMIN_GROUP="$2"; shift 2;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
     esac
@@ -93,3 +98,9 @@ create_dirs() {
     done
 }
 
+change_ownership() {
+    DIRS=$*
+    for d in $DIRS; do
+        chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
+    done
+}
