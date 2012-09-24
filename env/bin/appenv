@@ -100,6 +100,14 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     helper = AppEnvHelper.new
     template_helper = OneTemplateHelper.new
 
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    end
+
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "USER")
+    end
+
     set :format, :node, AppEnvHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
@@ -195,6 +203,29 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         doc.update(node.to_json)
 
         0
+    end
+
+    chgrp_desc = <<-EOT.unindent
+        Changes the node group
+    EOT
+
+    command :chgrp, chgrp_desc,[:range, :node_list], :groupid do
+        helper.perform_actions(args[0],options,"Group changed") do |node|
+            node.chown(-1, args[1].to_i)
+        end
+    end
+
+    chown_desc = <<-EOT.unindent
+        Changes the node owner and group
+    EOT
+
+    command :chown, chown_desc, [:range, :node_list], :userid,
+            [:groupid,nil] do
+        gid = args[2].nil? ? -1 : args[2].to_i
+        helper.perform_actions(args[0],options,
+                "Owner/Group changed") do |node|
+            node.chown(args[1].to_i, gid)
+        end
     end
 
     instantiate_desc = <<-EOT.unindent
