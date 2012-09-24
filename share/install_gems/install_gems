@@ -424,6 +424,11 @@ try_library :mkmf, <<-EOT.unindent
         * Install the ruby development package for your distro
 EOT
 
+try_library :openssl, <<-EOT.unindent
+    ruby openssl libraries are needed. They usually come as companion
+    package to ruby.
+EOT
+
 install_rubygems
 
 command=''
