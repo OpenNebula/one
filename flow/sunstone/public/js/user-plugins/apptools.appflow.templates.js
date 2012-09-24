@@ -643,7 +643,7 @@ function setupCreateServiceTemplateDialog(){
         var role = {
             name : name,
             cardinality: cardinality,
-            template: template,
+            vm_template: template,
             parents: parents
         };
 
@@ -663,7 +663,7 @@ function setupCreateServiceTemplateDialog(){
             $('input[name="cardinality"]', context).val("1");
             //unselect selected parents
             $('select[name="parents"] option[clicked="clicked"]').trigger('click');
-        }        
+        }
         else
             notifyError(tr("There is already a role with this name!"));
 

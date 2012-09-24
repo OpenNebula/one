@@ -243,12 +243,10 @@ class Validator
     #
     #
     def validate_integer(body, schema_array, schema_key)
-        if body.is_a?(Integer)
-            body
-        else
-            raise ParseException, "KEY: '#{schema_key}' must be an Integer;"\
-                " SCHEMA: #{schema_array}"
-        end
+        Integer(body)
+    rescue ArgumentError
+        raise ParseException, "KEY: '#{schema_key}' must be an Integer;"\
+            " SCHEMA: #{schema_array}"
     end
 
     # Validate an null type
