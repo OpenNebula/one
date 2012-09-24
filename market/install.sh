@@ -34,8 +34,8 @@ copy_files "lib/* models.rb config.ru Gemfile Gemfile.lock \
             Rakefile config/init.rb" "$LIB_LOCATION/market"
 
 # Sunstone
-copy_files "sunstone/public/js/user-plugins/*" \
-    "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "sunstone/public/js/user-plugins/*" "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
 copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
 
 # Do not link the ETC files
