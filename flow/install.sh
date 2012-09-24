@@ -23,6 +23,10 @@ else
     LOG_LOCATION="$ROOT/var/appflow"
 fi
 
+DIRECTORIES="$LIB_LOCATION $BIN_LOCATION $ETC_LOCATION $LOG_LOCATION"
+
+create_dirs $DIRECTORIES
+
 ## Client files
 copy_files "client/lib/*" "$LIB_LOCATION/flow"
 copy_files "client/bin/*" "$BIN_LOCATION"
@@ -40,11 +44,13 @@ copy_files "lib/* models.rb config.ru Gemfile Gemfile.lock \
             Rakefile" "$LIB_LOCATION/flow"
 
 # Sunstone
-copy_files "sunstone/public/js/user-plugins/*" \
-    "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "sunstone/public/js/user-plugins/*" "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
 copy_files "sunstone/routes/*" "$SUNSTONE_LOCATION/routes"
 
 # Do not link the ETC files
 LINK="no"
 copy_files "sunstone/etc/sunstone-appflow.conf" "$ETC_LOCATION"
 copy_files "config/appflow-server.conf" "$ETC_LOCATION"
+
+change_ownership $LOG_LOCATION

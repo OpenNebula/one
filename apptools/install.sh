@@ -17,6 +17,5 @@
 
 . ../install_lib.sh
 
-copy_files "sunstone/public/images/*" "$SUNSTONE_LOCATION/public/images"
-copy_files "sunstone/public/js/user-plugins/*" "$SUNSTONE_LOCATION/public/js/user-plugins"
+copy_files "share/*" "$SHARE_LOCATION"
 
