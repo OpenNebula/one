@@ -35,13 +35,17 @@ rm $NAME
 DIRS="apptools env flow market"
 export DESTDIR=$PWD/tmp
 
+if [ "$(id -u)" = "0" ]; then
+    OWNER_FLAGS='-u oneadmin -g oneadmin'
+fi
+
 rm -rf $DESTDIR
 mkdir $DESTDIR
 
 for TOOL in $DIRS; do
     (
         cd $TOOL
-        ./install.sh
+        ./install.sh $OWNER_FLAGS
     )
 done
 
