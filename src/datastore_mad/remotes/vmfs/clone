@@ -50,20 +50,25 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \                    
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/ID)
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
 UMASK="${XPATH_ELEMENTS[1]}"
-DS_ID="${XPATH_ELEMENTS[2]}"
-SRC="${XPATH_ELEMENTS[3]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[2]}"
+DS_ID="${XPATH_ELEMENTS[3]}"
+SRC="${XPATH_ELEMENTS[4]}"
+IMAGE_ID="${XPATH_ELEMENTS[5]}"
+
 SRC_FOLDER=`basename $SRC`
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 DST=`generate_image_path`
 DST_FOLDER=`basename $DST`
-DST_HOST=`get_destination_host $(dirname $0)`
+DST_HOST=`get_destination_host $IMAGE_ID`
 
 if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`

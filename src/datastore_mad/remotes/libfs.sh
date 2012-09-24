@@ -160,13 +160,7 @@ function check_restricted {
 #   @return host to be used as bridge
 #-------------------------------------------------------------------------------
 function get_destination_host {
-	CONF_FILE_PATH="$1/bridgelist"
-
-	BRIDGE_HOST=`head -1 $CONF_FILE_PATH`
-
-	sed -i -e "1d" $CONF_FILE_PATH
-
-	echo $BRIDGE_HOST >> $CONF_FILE_PATH
-
-	echo $BRIDGE_HOST
+	HOSTS_ARRAY=($BRIDGE_LIST)
+    ARRAY_INDEX=`expr $1 % ${#HOSTS_ARRAY[@]}`
+	echo ${HOSTS_ARRAY[$ARRAY_INDEX]}
 }

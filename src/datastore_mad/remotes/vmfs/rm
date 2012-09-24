@@ -49,12 +49,13 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
-                    )
+                    /DS_DRIVER_ACTION_DATA/IMAGE/ID)
 
 SRC="${XPATH_ELEMENTS[0]}"
 DS_NAME="${XPATH_ELEMENTS[1]}"
+IMAGE_ID="${XPATH_ELEMENTS[2]}"
 
-DST_HOST=`get_destination_host $(dirname $0)`
+DST_HOST=`get_destination_host $IMAGE_ID`
 DST_FOLDER=`basename $SRC`
 
 if [ "$USE_SSH" != "yes" ]; then

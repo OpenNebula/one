@@ -54,19 +54,23 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/ID)
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
 DS_ID="${XPATH_ELEMENTS[1]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[2]}"
 SAFE_DIRS="${XPATH_ELEMENTS[3]}"
-UMASK="${XPATH_ELEMENTS[4]}"
-SRC="${XPATH_ELEMENTS[5]}"
-MD5="${XPATH_ELEMENTS[6]}"
-SHA1="${XPATH_ELEMENTS[7]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[4]}"
+UMASK="${XPATH_ELEMENTS[5]}"
+SRC="${XPATH_ELEMENTS[6]}"
+MD5="${XPATH_ELEMENTS[7]}"
+SHA1="${XPATH_ELEMENTS[8]}"
+IMAGE_ID="${XPATH_ELEMENTS[9]}"
 
 # Set up the datastore
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
@@ -74,7 +78,7 @@ set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 FE_DST=`generate_image_path`
 DST_FOLDER=`basename $FE_DST`
 DST="/vmfs/volumes/$DS_ID/$DST_FOLDER"
-DST_HOST=`get_destination_host $(dirname $0)`
+DST_HOST=`get_destination_host $IMAGE_ID` 
 
 if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
