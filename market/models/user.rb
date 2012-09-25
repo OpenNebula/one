@@ -86,7 +86,7 @@ class User
 
         validator.validate!(hash, session.schema(:user))
 
-        hash[:password] = generate_password(hash[:password])
+        hash['password'] = generate_password(hash['password'])
 
         user_collection.insert(hash, {:safe => true})
     end

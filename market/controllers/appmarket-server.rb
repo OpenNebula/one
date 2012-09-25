@@ -171,7 +171,7 @@ post '/user/:id/enable' do
     #    status 404
     #end
 
-    if setting.config['mail']
+    if settings.config['mail']
         Mailer.send_enable(user['email'], user['username'])
     end
 end
