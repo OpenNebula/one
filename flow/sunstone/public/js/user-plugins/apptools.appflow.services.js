@@ -162,19 +162,15 @@ var create_service_tmpl = '\
     </div>\
   </fieldset>\
 </form></div>';
+*/
+
 
 var update_service_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the flowironment you want to update")+':</h3>\
+         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the service")+':</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="service_template_update_select">'+tr("Select an flowironment")+':</label>\
-                 <select id="service_template_update_select" name="service_template_update_select"></select>\
-                 <div class="clear"></div>\
-                    <label for="templates">'+tr("Compatible templates")+':</label>\
-                    <select type="text" name="templates" multiple>\
-                    </select>\
-                    <div class="clear"></div>\
-                    <label for="cookbooks">' + tr("Cookbooks URL") + ':</label><input type="text" name="cookbooks" />\
+                 <label for="service_update_select">'+tr("Select a template")+':</label>\
+                 <select id="service_update_select" name="service_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
                    <table class="permissions_table" style="padding:0 10px;">\
@@ -185,47 +181,48 @@ var update_service_tmpl =
                          <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_owner_a" class="owner_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_owner_u" class="owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_owner_m" class="owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_owner_a" class="owner_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_group_a" class="group_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_group_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_group_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_group_a" class="group_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_other_a" class="other_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_other_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_other_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="serv_other_a" class="other_a" /></td>\
                      </tr>\
                    </table>\
                  </div>\
-                 <label for="service_template_update_textarea">'+tr("Node")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="service_template_update_textarea" style="width:100%; height:14em;"></textarea>\
             </fieldset>\
             <fieldset>\
                  <div class="form_buttons">\
-                    <button class="button" id="service_template_update_button" value="Service.update_template">'+tr("Update")+'\
+                    <button class="button" id="service_update_button" value="Service.update_template">\
+                       '+tr("Update")+'\
                     </button>\
                  </div>\
             </fieldset>\
 </form>';
-*/
+
 var dataTable_services;
 //var $create_service_dialog;
 
 var service_actions = {
-
-
     "Service.list" : {
         type: "list",
         call: Service.list,
         callback: updateServicesView,
         error: onError
+    },
+
+    "Service.update_dialog" : {
+        type : "custom",
+        call : popUpServiceUpdateDialog
     },
 
     "Service.show" : {
@@ -291,9 +288,19 @@ var service_actions = {
     "Service.chmod" : {
         type: "single",
         call: Service.chmod,
-//        callback
         error: onError,
         notify: true
+    },
+
+    "Service.fetch_permissions" : {
+        type : "single",
+        call : Service.show,
+        callback : function(request, json){
+            var dialog = $('#service_update_dialog form');
+            var tmpl = json.DOCUMENT;
+            setPermissionsTable(tmpl, dialog);
+        },
+        error: onError
     },
 
     "Service.shutdown" : {
@@ -333,6 +340,13 @@ var service_buttons = {
         text: '<i class="icon-refresh icon-large">',
         alwaysActive: true
     },
+
+    "Service.update_dialog" : {
+        type: "action",
+        text: tr("Update properties"),
+        alwaysActive: true
+    },
+
     "Service.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -688,8 +702,98 @@ function updateServiceInfo(request,elem){
 }
 
 
+function setupServiceUpdateDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="service_update_dialog" title="'+tr("Update Service properties")+'"></div>');
+    var dialog = $('#service_update_dialog', dialogs_context);
+
+    //Put HTML in place
+    dialog.html(update_service_tmpl);
+
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+
+    //Convert into jQuery
+    dialog.dialog({
+        autoOpen:false,
+        width:500,
+        modal:true,
+        height:height,
+        resizable:true
+    });
+
+    $('button',dialog).button();
+
+    $('#service_update_select',dialog).change(function(){
+        var id = $(this).val();
+        $('.permissions_table input', dialog).removeAttr('checked');
+        $('.permissions_table', dialog).removeAttr('update');
+        if (id && id.length){
+            Sunstone.runAction("Service.fetch_permissions", id);
+        };
+    });
+
+    $('.permissions_table input',dialog).change(function(){
+        $(this).parents('table').attr('update','update');
+    });
+
+    $('form',dialog).submit(function(){
+        var dialog = $(this);
+        var id = $('#service_update_select',dialog).val();
+        if (!id || !id.length) {
+            $(this).parents('#service_update_dialog').dialog('close');
+            return false;
+        };
+
+        var permissions = $('.permissions_table',dialog);
+        if (permissions.attr('update')){
+            var perms = {
+                octet : buildOctet(permissions)
+            };
+            Sunstone.runAction("Service.chmod", id, perms);
+        };
+
+        $(this).parents('#service_update_dialog').dialog('close');
+        return false;
+    });
+};
 
 
+function popUpServiceUpdateDialog(){
+    var select = makeSelectOptions(dataTable_services,
+                                   1,//id_col
+                                   4,//name_col
+                                   [],
+                                   []
+                                  );
+    var sel_elems = getSelectedNodes(dataTable_services);
+
+
+    var dialog =  $('#service_update_dialog');
+    $('#service_update_select', dialog).html(select);
+//    $('#service_update_textarea',dialog).val("");
+    $('.permissions_table input', dialog).removeAttr('checked');
+    $('.permissions_table', dialog).removeAttr('update');
+
+    if (sel_elems.length >= 1){ //several items in the list are selected
+        //grep them
+        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        $('option','<select>'+select+'</select>').each(function(){
+            var val = $(this).val();
+            if ($.inArray(val,sel_elems) >= 0){
+                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
+            };
+        });
+        $('#service_update_select', dialog).html(new_select);
+        if (sel_elems.length == 1) {
+            $('#service_update_select option',
+              dialog).attr('selected','selected');
+            $('#service_update_select', dialog).trigger("change");
+        };
+    };
+
+    dialog.dialog('open');
+    return false;
+}
 
 
 // Set the autorefresh interval for the datatable
@@ -817,8 +921,7 @@ $(document).ready(function(){
         '','','','','',''],dataTable_services);
     Sunstone.runAction("Service.list");
 
-
-
+    setupServiceUpdateDialog();
 
 //    setupImageCloneDialog();
     setServiceAutorefresh();
