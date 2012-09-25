@@ -1096,6 +1096,7 @@ ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
                src/cloud/ec2/lib/elastic_ip.rb \
                src/cloud/ec2/lib/ebs.rb \
                src/cloud/ec2/lib/instance.rb \
+               src/cloud/ec2/lib/keypair.rb \
                src/cloud/ec2/lib/econe-server.rb"
 
 ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"
@@ -1116,6 +1117,9 @@ ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
                     src/cloud/ec2/lib/views/disassociate_address.erb \
                     src/cloud/ec2/lib/views/describe_addresses.erb \
                     src/cloud/ec2/lib/views/release_address.erb \
+                    src/cloud/ec2/lib/views/create_keypair.erb \
+                    src/cloud/ec2/lib/views/delete_keypair.erb \
+                    src/cloud/ec2/lib/views/describe_keypairs.erb \
                     src/cloud/ec2/lib/views/terminate_instances.erb \
                     src/cloud/ec2/lib/views/stop_instances.erb \
                     src/cloud/ec2/lib/views/reboot_instances.erb \
