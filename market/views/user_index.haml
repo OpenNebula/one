@@ -16,10 +16,10 @@
 .navbar.navbar-static
   .navbar-inner
     .container
-      %a.brand{href:"/"} Appliances
+      %a.brand{href => "/"} Appliances
       = haml :nav_login
 
-%table{class: "table table-striped", id: "users"}
+%table{'class' => "table table-striped", 'id' => "users"}
   %thead
     %tr
       %th username

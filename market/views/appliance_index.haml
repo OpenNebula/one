@@ -18,8 +18,8 @@
     .container
       %ul.nav.nav-pills
         %li
-          %form{class: "navbar-search pull-left", action: ""}
-            %input{id: "search", type: "text" , placeholder: "Search", onKeyPress: "return disableEnterKey(event)"}
+          %form{'class' => "navbar-search pull-left", 'action' => ""}
+            %input{'id' => "search", 'type' => "text" , 'placeholder' => "Search", 'onKeyPress' => "return disableEnterKey(event)"}
         %li
 
           %a{'href' => "#asearch_form", 'data-toggle' => "collapse"}
@@ -69,7 +69,7 @@
                 %select#format.span2
 
 
-  %table{class: "table table-striped table-no-head", id: "apps"}
+  %table{'class' => "table table-striped table-no-head", 'id' => "apps"}
     %thead
       %tr
         %th Appliances
