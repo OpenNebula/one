@@ -80,10 +80,14 @@ module Keypair
         erb_public_key  = rsa_kp.public_key
 
         erb_key_fingerprint = Digest::MD5.hexdigest(rsa_kp.to_der).gsub(/(.{2})(?=.)/, '\1:\2')
-
+        erb_ssh_public_key  = erb_public_key.ssh_type <<
+                              " " <<
+                              [ erb_public_key.to_blob ].pack('m0') <<
+                              " " <<
+                              erb_keyname
         kp[erb_keyname] = {
             "fingerprint" => erb_key_fingerprint,
-            "public_key"  => erb_public_key
+            "public_key"  => erb_ssh_public_key
         }
 
         rc = user.add_keypair(kp)
@@ -119,16 +123,21 @@ module Keypair
         erb_key_name  = params['KeyName']
         erb_result    = "false"
 
-        user = User.new_with_id(OpenNebula::User::SELF, @client)
-        user.info
+        vmpool = VirtualMachinePool.new(@client, OpenNebula::Pool::INFO_ALL)
+        vmpool.info
 
-        kp = user.get_keypair
+        if !vmpool["/VM_POOL/VM/TEMPLATE/CONTEXT[EC2_KEYNAME=\'#{erb_key_name}\']"]
+            user = User.new_with_id(OpenNebula::User::SELF, @client)
+            user.info
 
-        if !kp.empty?
-            kp.delete(erb_key_name)
-            rc = user.add_keypair(kp)
+            kp = user.get_keypair
 
-            erb_result = "true" if !OpenNebula::is_error?(rc)
+            if kp.has_key?(erb_key_name)
+                kp.delete(erb_key_name)
+                rc = user.add_keypair(kp)
+
+                erb_result = "true" if !OpenNebula::is_error?(rc)
+            end
         end
 
         response = ERB.new(File.read(@config[:views]+"/delete_keypair.erb"))
