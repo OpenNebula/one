@@ -48,7 +48,7 @@ module Keypair
         ########################################################################
         def get_keypair
             if has_elements?(EC2_KP_XPATH)
-                kp64 = Base64.decode64(user[EC2_KP_XPATH])
+                kp64 = Base64.decode64(self[EC2_KP_XPATH])
                 kp   = JSON.parse(kp64)
             else
                 kp = Hash.new
