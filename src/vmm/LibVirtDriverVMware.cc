@@ -24,7 +24,7 @@
 #include <libgen.h>
 
 /* ************************************************************************** */
-/* Virtual Network :: Database Access Functions                               */
+/* LibVirtDriver  :: VMware deployment generator                              */
 /* ************************************************************************** */
 
 const char * LibVirtDriver::vmware_vnm_name = "vmware";
