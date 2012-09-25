@@ -370,7 +370,8 @@ var service_template_buttons = {
 */
     "ServiceTemplate.delete" : {
         type: "confirm",
-        text: tr("Delete")
+        text: tr("Delete"),
+        tip: tr("This will delete the selected templates")
     },
     "ServiceTemplate.help" : {
         type: "action",

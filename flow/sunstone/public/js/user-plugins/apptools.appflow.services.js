@@ -373,7 +373,8 @@ var service_buttons = {
     },
     "Service.delete" : {
         type: "confirm",
-        text: tr("Delete")
+        text: tr("Delete"),
+        tip: tr("This will delete the selected services")
     },
     "Service.help" : {
         type: "action",
