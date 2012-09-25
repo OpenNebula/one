@@ -84,36 +84,45 @@ var service_template_tab_content = '\
 
 var create_service_template_tmpl = '\
 <div class="create_form"><form id="create_service_template_form" action="">\
+   <p style="font-size:0.8em;text-align:right;"><i>'+
+    tr("Fields marked with")+' <span style="display:inline-block;" class="ui-icon ui-icon-alert" /> '+
+    tr("are mandatory")+'</i><br />\
   <fieldset>\
       <legend style="display:none;">' + tr("Service") + '</legend>\
-      <div class="service_template_param">\
+      <div class="service_template_param st_man">\
           <label for="service_name">' + tr("Name") + ':</label><input type="text" name="service_name" />\
+          <div class="tip">'+ tr("Name for this template") +'</div>\
       </div>\
-      <div class="service_template_param">\
+      <div class="service_template_param st_man">\
           <label for="deployment">' + tr("Deployment strategy") + ':</label>\
           <select name="deployment">\
               <option value="straight">'+ tr("Straight") + '</option>\
               <option value="none">'+ tr("None") + '</option>\
           </select>\
+          <div class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</div>\
       </div>\
   </fieldset>\
   <fieldset>\
      <legend>' + tr("Roles") + '</legend>\
-     <div class="service_template_param service_role">\
+     <div class="service_template_param service_role st_man">\
           <label for="name">' + tr("Name") + ':</label><input type="text" name="name" />\
+          <div class="tip">'+ tr("Name for the role") +'</div>\
      </div>\
-     <div class="service_template_param service_role">\
+     <div class="service_template_param service_role st_man">\
           <label for="cardinality">' + tr("Cardinality") + ':</label><input type="text" name="cardinality" value="1" />\
+          <div class="tip">'+ tr("Number of VMs to instantiate with this role") +'</div>\
      </div>\
-     <div class="service_template_param service_role">\
+     <div class="service_template_param service_role st_man">\
           <label for="vm_template">' + tr("VM template") + ':</label>\
           <select name="vm_template">\
           </select>\
+          <div class="tip">'+ tr("Template associated to this role") +'</div>\
      </div>\
      <div class="service_template_param service_role">\
           <label for="parents">' + tr("Parent roles") + ':</label>\
           <select name="parents" multiple="multiple">\
           </select>\
+          <div class="tip">'+ tr("Mark the roles that will be deployed before this one when using the straight strategy") +'</div>\
      </div>\
      <label>&nbsp;</label>\
      <button id="add_role">' + tr("Add role") + '</button>\
@@ -956,6 +965,9 @@ $(document).ready(function(){
 
     setupCreateServiceTemplateDialog();
     setupServiceTemplateUpdateDialog();
+    setupTips($create_service_template_dialog);
+    $('.st_man .man_icon',
+      $create_service_template_dialog).css('display', 'inline-block');
 //    setupImageCloneDialog();
     setServiceTemplateAutorefresh();
 
