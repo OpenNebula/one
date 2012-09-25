@@ -139,19 +139,13 @@ var create_service_template_tmpl = '\
   </fieldset>\
 </form></div>';
 
-/*
+
 var update_service_template_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the flowironment you want to update")+':</h3>\
+         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the service template")+':</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="service_template_template_update_select">'+tr("Select an flowironment")+':</label>\
-                 <select id="service_template_template_update_select" name="service_template_template_update_select"></select>\
-                 <div class="clear"></div>\
-                    <label for="templates">'+tr("Compatible templates")+':</label>\
-                    <select type="text" name="templates" multiple>\
-                    </select>\
-                    <div class="clear"></div>\
-                    <label for="cookbooks">' + tr("Cookbooks URL") + ':</label><input type="text" name="cookbooks" />\
+                 <label for="service_template_update_select">'+tr("Select a template")+':</label>\
+                 <select id="service_template_update_select" name="service_template_update_select"></select>\
                  <div class="clear"></div>\
                  <div>\
                    <table class="permissions_table" style="padding:0 10px;">\
@@ -162,36 +156,34 @@ var update_service_template_tmpl =
                          <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_owner_a" class="owner_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_owner_u" class="owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_owner_m" class="owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_owner_a" class="owner_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_group_a" class="group_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_group_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_group_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_group_a" class="group_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="service_template_other_a" class="other_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_other_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_other_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="st_other_a" class="other_a" /></td>\
                      </tr>\
                    </table>\
                  </div>\
-                 <label for="service_template_template_update_textarea">'+tr("Node")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="service_template_template_update_textarea" style="width:100%; height:14em;"></textarea>\
             </fieldset>\
             <fieldset>\
                  <div class="form_buttons">\
-                    <button class="button" id="service_template_template_update_button" value="ServiceTemplate.update_template">'+tr("Update")+'\
+                    <button class="button" id="service_template_update_button" value="ServiceTemplate.update_template">\
+                       '+tr("Update")+'\
                     </button>\
                  </div>\
             </fieldset>\
 </form>';
-*/
+
 var dataTable_service_templates;
 var $create_service_template_dialog;
 
@@ -208,6 +200,11 @@ var service_template_actions = {
     "ServiceTemplate.create_dialog" : {
         type : "custom",
         call: popUpCreateServiceTemplateDialog
+    },
+
+    "ServiceTemplate.update_dialog" : {
+        type : "custom",
+        call : popUpServiceTemplateUpdateDialog
     },
 
     "ServiceTemplate.list" : {
@@ -288,9 +285,19 @@ var service_template_actions = {
     "ServiceTemplate.chmod" : {
         type: "single",
         call: ServiceTemplate.chmod,
-//        callback
         error: onError,
         notify: true
+    },
+
+    "ServiceTemplate.fetch_permissions" : {
+        type : "single",
+        call : ServiceTemplate.show,
+        callback : function(request, json){
+            var dialog = $('#service_template_update_dialog form');
+            var tmpl = json.DOCUMENT;
+            setPermissionsTable(tmpl, dialog);
+        },
+        error: onError
     },
 /*
     "ServiceTemplate.clone_dialog" : {
@@ -324,6 +331,13 @@ var service_template_buttons = {
         type: "create_dialog",
         text: tr("+ New")
     },
+
+    "ServiceTemplate.update_dialog" : {
+        type: "action",
+        text: tr("Update properties"),
+        alwaysActive: true
+    },
+
     "ServiceTemplate.instantiate" : {
         type: "action",
         text: tr("Instantiate")
@@ -724,6 +738,99 @@ function popUpCreateServiceTemplateDialog(){
 }
 
 
+function setupServiceTemplateUpdateDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="service_template_update_dialog" title="'+tr("Update Service template properties")+'"></div>');
+    var dialog = $('#service_template_update_dialog',dialogs_context);
+
+    //Put HTML in place
+    dialog.html(update_service_template_tmpl);
+
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+
+    //Convert into jQuery
+    dialog.dialog({
+        autoOpen:false,
+        width:500,
+        modal:true,
+        height:height,
+        resizable:true
+    });
+
+    $('button',dialog).button();
+
+    $('#service_template_update_select',dialog).change(function(){
+        var id = $(this).val();
+        $('.permissions_table input', dialog).removeAttr('checked');
+        $('.permissions_table', dialog).removeAttr('update');
+        if (id && id.length){
+            Sunstone.runAction("ServiceTemplate.fetch_permissions", id);
+        };
+    });
+
+    $('.permissions_table input',dialog).change(function(){
+        $(this).parents('table').attr('update','update');
+    });
+
+    $('form',dialog).submit(function(){
+        var dialog = $(this);
+        var id = $('#service_template_update_select',dialog).val();
+        if (!id || !id.length) {
+            $(this).parents('#service_template_update_dialog').dialog('close');
+            return false;
+        };
+
+        var permissions = $('.permissions_table',dialog);
+        if (permissions.attr('update')){
+            var perms = {
+                octet : buildOctet(permissions)
+            };
+            Sunstone.runAction("ServiceTemplate.chmod", id, perms);
+        };
+
+        $(this).parents('#service_template_update_dialog').dialog('close');
+        return false;
+    });
+};
+
+
+function popUpServiceTemplateUpdateDialog(){
+    var select = makeSelectOptions(dataTable_service_templates,
+                                   1,//id_col
+                                   4,//name_col
+                                   [],
+                                   []
+                                  );
+    var sel_elems = getSelectedNodes(dataTable_service_templates);
+
+
+    var dialog =  $('#service_template_update_dialog');
+    $('#service_template_update_select', dialog).html(select);
+//    $('#service_template_update_textarea',dialog).val("");
+    $('.permissions_table input', dialog).removeAttr('checked');
+    $('.permissions_table', dialog).removeAttr('update');
+
+    if (sel_elems.length >= 1){ //several items in the list are selected
+        //grep them
+        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        $('option','<select>'+select+'</select>').each(function(){
+            var val = $(this).val();
+            if ($.inArray(val,sel_elems) >= 0){
+                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
+            };
+        });
+        $('#service_template_update_select', dialog).html(new_select);
+        if (sel_elems.length == 1) {
+            $('#service_template_update_select option',
+              dialog).attr('selected','selected');
+            $('#service_template_update_select', dialog).trigger("change");
+        };
+    };
+
+    dialog.dialog('open');
+    return false;
+}
+
 // Set the autorefresh interval for the datatable
 function setServiceTemplateAutorefresh() {
     setInterval(function(){
@@ -848,7 +955,7 @@ $(document).ready(function(){
 
 
     setupCreateServiceTemplateDialog();
-
+    setupServiceTemplateUpdateDialog();
 //    setupImageCloneDialog();
     setServiceTemplateAutorefresh();
 
