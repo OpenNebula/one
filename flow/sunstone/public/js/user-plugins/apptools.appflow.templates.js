@@ -192,7 +192,13 @@ var service_template_actions = {
     "ServiceTemplate.create" : {
         type: "create",
         call: ServiceTemplate.create,
-        callback: addServiceTemplateElement,
+        callback: function(req, res){
+            //empty creation dialog roles after successful creation
+            var dialog = $create_service_template_dialog;
+            $('table#current_roles tbody', dialog).empty();
+            $('select[name="parents"]', dialog).empty();
+            addServiceTemplateElement(req, res);
+        },
         error: onError,
         notify:true
     },
