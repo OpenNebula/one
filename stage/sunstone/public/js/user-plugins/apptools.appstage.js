@@ -238,7 +238,7 @@ var appstage_actions = {
     "AppStage.refresh" : {
         type: "custom",
         call: function () {
-            waitingNodes(dataTable_appStages);
+            waitingNodes(dataTable_appstages);
             Sunstone.runAction("AppStage.list");
         }
     },
@@ -497,7 +497,7 @@ function updateAppStageInfo(request,elem){
               <td class="value_td">\
               <input type="text" name="'+ key +'"value="'+ defaults[key] +'"></input>\
               </td></tr>';
-    };
+        };
     }
 
     // Form options of compatible templates
