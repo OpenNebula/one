@@ -383,13 +383,7 @@ var service_template_info_panel = {
     "service_template_info_tab" : {
         title: tr("Service information"),
         content: ""
-    },
-/*
-    "service_template_node_tab" : {
-        title: tr("Node"),
-        content: ""
     }
-*/
 }
 
 var service_templates_tab = {
@@ -531,15 +525,11 @@ function updateServiceTemplateInfo(request,elem){
          </table>'
     };
 
-
-
-
-
     var roles_info = '<table id="service_template_roles_table" class="info_table" style="width:80%;">\
             <thead></thead>'
 
     var roles = elem_info.TEMPLATE.BODY.roles
-    if (roles)
+    if (roles && roles.length > 0)
         for (var i = 0; i < roles.length; i++) {
           roles_info += '<tr><td class="key_td">'+tr("Role")+' '+roles[i].name+'</td><td></td></tr>\
             <tr>\
@@ -575,7 +565,10 @@ function updateServiceTemplateInfo(request,elem){
           }
 */
     Sunstone.updateInfoPanelTab("service_template_info_panel","service_template_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("service_template_info_panel","service_template_roles_tab",roles_tab);
+    if (roles && roles.length > 0)
+        Sunstone.addInfoPanelTab("service_template_info_panel","service_template_roles_tab",roles_tab);
+    else
+        Sunstone.removeInfoPanelTab("service_template_info_panel","service_template_roles_tab");
 
     Sunstone.popUpInfoPanel("service_template_info_panel");
 

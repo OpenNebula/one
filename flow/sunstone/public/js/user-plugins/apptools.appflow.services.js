@@ -386,13 +386,7 @@ var service_info_panel = {
     "service_info_tab" : {
         title: tr("Service information"),
         content: ""
-    },
-/*
-    "service_node_tab" : {
-        title: tr("Node"),
-        content: ""
     }
-*/
 }
 
 var services_tab = {
@@ -556,7 +550,7 @@ function updateServiceInfo(request,elem){
             <thead></thead>'
 
     var roles = elem_info.TEMPLATE.BODY.roles
-    if (roles)
+    if (roles && roles.length)
         for (var i = 0; i < roles.length; i++) {
           roles_info += '<tr><td class="key_td">'+tr("Role")+' '+roles[i].name+'</td><td></td></tr>\
             <tr>\
@@ -585,8 +579,6 @@ function updateServiceInfo(request,elem){
         title: tr("Roles"),
         content: roles_info
     }
-
-
 
     var vms_tab = {
         title : "Virtual Machines",
@@ -636,13 +628,18 @@ function updateServiceInfo(request,elem){
 
     Sunstone.updateInfoPanelTab("service_info_panel",
                                 "service_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("service_info_panel",
-                                "service_role_tab",roles_tab);
-
-    if (roles.length)
+    if (roles.length){
+        Sunstone.addInfoPanelTab("service_info_panel",
+                                 "service_role_tab",roles_tab);
         Sunstone.updateInfoPanelTab("service_info_panel",
                                     "service_vms_tab",vms_tab);
-
+    }
+    else {
+        Sunstone.removeInfoPanelTab("service_info_panel",
+                                    "service_role_tab");
+        Sunstone.removeInfoPanelTab("service_info_panel",
+                                    "service_vms_tab");
+    };
 
     Sunstone.updateInfoPanelTab("service_info_panel",
                                 "service_log_tab",logs_tab);
