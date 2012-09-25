@@ -945,8 +945,7 @@ DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/stat \
                          src/datastore_mad/remotes/vmfs/clone \
                          src/datastore_mad/remotes/vmfs/rm \
-                         src/datastore_mad/remotes/vmfs/bridgelist \
-                         src/datastore_mad/remotes/vmfs/vmfsrc"
+                         src/datastore_mad/remotes/vmfs/vmfs.conf"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
