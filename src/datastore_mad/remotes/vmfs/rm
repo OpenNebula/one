@@ -34,7 +34,7 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
-source $(dirname $0)/vmfsrc
+source ${DRIVER_PATH}/vmfs.conf
 
 # -------- Get rm and datastore arguments from OpenNebula core ------------
 
@@ -49,10 +49,12 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DS_USE_SSH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/ID)
 
 SRC="${XPATH_ELEMENTS[0]}"
 DS_NAME="${XPATH_ELEMENTS[1]}"
+USE_SSH="${XPATH_ELEMENTS[4]:-$DS_USE_SSH}"
 IMAGE_ID="${XPATH_ELEMENTS[2]}"
 
 DST_HOST=`get_destination_host $IMAGE_ID`
