@@ -26,7 +26,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cli'
 
-require 'apptools/flow/appflow_client'
+require 'oneapps/flow/appflow_client'
 
 require 'command_parser'
 require 'cli_helper'

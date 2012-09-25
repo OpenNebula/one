@@ -13,7 +13,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << RUBY_LIB_LOCATION+"/apptools/stage"
+$: << RUBY_LIB_LOCATION+"/oneapps/stage"
 
 require 'onechef'
 

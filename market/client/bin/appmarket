@@ -23,7 +23,7 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-$: << RUBY_LIB_LOCATION+"/apptools/market"
+$: << RUBY_LIB_LOCATION+"/oneapps/market"
 $: << RUBY_LIB_LOCATION+"/cloud"
 $: << RUBY_LIB_LOCATION+"/cli"
 

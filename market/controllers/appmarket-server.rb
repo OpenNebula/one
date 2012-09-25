@@ -37,7 +37,7 @@ CONFIGURATION_FILE = ETC_LOCATION + "/appmarket-server.conf"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cloud'
-$: << RUBY_LIB_LOCATION+'/apptools/market'
+$: << RUBY_LIB_LOCATION+'/oneapps/market'
 
 require 'models'
 require 'session'

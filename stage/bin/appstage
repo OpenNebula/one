@@ -24,7 +24,7 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/apptools/stage"
+$: << RUBY_LIB_LOCATION+"/oneapps/stage"
 $: << RUBY_LIB_LOCATION+"/cli"
 
 $: << '.'

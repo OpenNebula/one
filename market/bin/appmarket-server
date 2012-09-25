@@ -18,14 +18,14 @@
 
 if [ -z "$ONE_LOCATION" ]; then
     MARKET_PID=/var/run/one/appmarket-server.pid
-    MARKET_SERVER=/usr/lib/one/ruby/apptools/market/controllers/appmarket-server.rb
+    MARKET_SERVER=/usr/lib/one/ruby/oneapps/market/controllers/appmarket-server.rb
     MARKET_LOCK_FILE=/var/lock/one/.appmarket.lock
     MARKET_LOG=/var/log/one/appmarket-server.log
     MARKET_LOG_ERROR=/var/log/one/appmarket-server.error
     MARKET_ETC=/etc/one/appmarket-server.conf
 else
     MARKET_PID=$ONE_LOCATION/var/appmarket-server.pid
-    MARKET_SERVER=$ONE_LOCATION/lib/ruby/apptools/market/controllers/appmarket-server.rb
+    MARKET_SERVER=$ONE_LOCATION/lib/ruby/oneapps/market/controllers/appmarket-server.rb
     MARKET_LOCK_FILE=$ONE_LOCATION/var/.appmarket.lock
     MARKET_LOG=$ONE_LOCATION/var/appmarket-server.log
     MARKET_LOG_ERROR=$ONE_LOCATION/var/appmarket-server.error

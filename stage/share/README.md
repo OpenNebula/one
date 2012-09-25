@@ -34,6 +34,6 @@ Now we can update the packages located in the directory packages. Remember to us
     $ git commit -m'appstage: added context package version 3.6.1'
     $ git push
 
-These packages will be used for the apptools package generation.
+These packages will be used for the oneapps package generation.
 
 

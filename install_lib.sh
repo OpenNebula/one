@@ -51,17 +51,17 @@ while true ; do
 done
 
 if [ -z "$ROOT" ]; then
-    LIB_LOCATION="/usr/lib/one/ruby/apptools"
+    LIB_LOCATION="/usr/lib/one/ruby/oneapps"
     BIN_LOCATION="/usr/bin"
-    PACKAGES_LOCATION="/usr/share/one/apptools"
-    SHARE_LOCATION="/usr/share/one/apptools"
+    PACKAGES_LOCATION="/usr/share/one/oneapps"
+    SHARE_LOCATION="/usr/share/one/oneapps"
     ETC_LOCATION="/etc/one"
     SUNSTONE_LOCATION="/usr/lib/one/sunstone"
 else
-    LIB_LOCATION="$ROOT/lib/ruby/apptools"
+    LIB_LOCATION="$ROOT/lib/ruby/oneapps"
     BIN_LOCATION="$ROOT/bin"
-    PACKAGES_LOCATION="$ROOT/share/apptools"
-    SHARE_LOCATION="$ROOT/share/apptools"
+    PACKAGES_LOCATION="$ROOT/share/oneapps"
+    SHARE_LOCATION="$ROOT/share/oneapps"
     ETC_LOCATION="$ROOT/etc"
     SUNSTONE_LOCATION="$ROOT/lib/sunstone"
 fi

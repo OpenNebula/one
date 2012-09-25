@@ -15,7 +15,7 @@
 
 APPMARKET_CONF_FILE = ETC_LOCATION + "/sunstone-appmarket.conf"
 
-$: << RUBY_LIB_LOCATION+"/apptools/market"
+$: << RUBY_LIB_LOCATION+"/oneapps/market"
 
 require 'appmarket_client'
 

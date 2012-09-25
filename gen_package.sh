@@ -19,10 +19,10 @@
 VERSION=${VERSION:-3.6.0}
 MAINTAINER=${MAINTAINER:-C12G Labs <support@c12g.com>}
 LICENSE=${LICENSE:-Apache}
-PACKAGE_NAME=${PACKAGE_NAME:-apptools}
+PACKAGE_NAME=${PACKAGE_NAME:-oneapps}
 VENDOR=${VENDOR:-C12G Labs}
 DESC="
-AppTools description
+OpenNebula Apps description
 "
 DESCRIPTION=${DESCRIPTION:-$DESC}
 PACKAGE_TYPE=${PACKAGE_TYPE:-deb}
@@ -32,7 +32,7 @@ SCRIPTS_DIR=$PWD
 NAME="${PACKAGE_NAME}_${VERSION}.${PACKAGE_TYPE}"
 rm $NAME
 
-DIRS="apptools stage flow market"
+DIRS="oneapps stage flow market"
 export DESTDIR=$PWD/tmp
 
 if [ "$(id -u)" = "0" ]; then

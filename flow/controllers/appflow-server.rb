@@ -38,7 +38,7 @@ CONFIGURATION_FILE = ETC_LOCATION + "/appflow-server.conf"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cloud'
-$: << RUBY_LIB_LOCATION+'/apptools/flow'
+$: << RUBY_LIB_LOCATION+'/oneapps/flow'
 
 require 'CloudAuth'
 require 'CloudServer'

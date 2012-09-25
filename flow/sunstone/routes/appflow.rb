@@ -15,7 +15,7 @@
 
 APPFLOW_CONF_FILE = ETC_LOCATION + "/sunstone-appflow.conf"
 
-$: << RUBY_LIB_LOCATION+"/apptools/flow"
+$: << RUBY_LIB_LOCATION+"/oneapps/flow"
 
 require 'appflow_client'
 
