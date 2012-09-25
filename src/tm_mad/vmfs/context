@@ -39,16 +39,17 @@ else
 fi
 
 . $TMCOMMON
-
-source $(dirname $0)/tm_vmfsrc
+source $(dirname $0)/tm_vmfs.conf
 
 #-------------------------------------------------------------------------------
-# Set dst path and dirs
+# Retrieve needed information, set dst path and dir
 #-------------------------------------------------------------------------------
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 DST_FOLDER=`basename $DST_PATH`
+
+USE_SSH=$(get_tm_use_ssh $DS_ID)
 
 if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
@@ -59,6 +60,10 @@ if [ "$USE_SSH" != "yes" ]; then
         VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
     fi
 fi
+
+#-------------------------------------------------------------------------------
+# Create remote folder
+#-------------------------------------------------------------------------------
 
 if [ "$USE_SSH" == "yes" ]; then
     ssh_make_path $DST_HOST $DST_DIR

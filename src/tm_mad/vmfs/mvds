@@ -39,13 +39,12 @@ else
 fi
 
 . $TMCOMMON
-
-source $(dirname $0)/tm_vmfsrc
+source $(dirname $0)/tm_vmfs.conf
 
 set_ds_location
 
 #-------------------------------------------------------------------------------
-# Set dst path and dir
+# Retrieve needed information, set dst path and dir
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 SRC_HOST=`arg_host $SRC`
@@ -54,7 +53,7 @@ SRC_FOLDER=`basename $SRC_PATH`
 DST_PATH=`arg_path $DST`
 DST_FOLDER=`basename $DST_PATH`
 
-
+USE_SSH=$(get_tm_use_ssh $DSID)
 
 if [ "$USE_SSH" != "yes" ]; then
 	IMAGE_DS_NAME=`basename $(dirname $DST_PATH)`
@@ -101,7 +100,8 @@ fi
 EOF
 )
 
-	ssh_exec_and_log $SRC_HOST "$MVSCRIPT" "Could not move image [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk to [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk in $SRC_HOST"
+	ssh_exec_and_log $SRC_HOST "$MVSCRIPT" \
+            "Could not move image [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk to [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk in $SRC_HOST"
 else
 	$VMKFSTOOLS $VI_PARAMS -U [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk &> /dev/null
 	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk -d thin [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk" \

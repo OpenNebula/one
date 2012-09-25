@@ -37,9 +37,10 @@ else
 fi
 
 . $TMCOMMON
+source $(dirname $0)/tm_vmfs.conf
 
 #-------------------------------------------------------------------------------
-# Set dst path and dir
+# Retrieve needed information, set dst path and dir
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
@@ -47,6 +48,8 @@ SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
+
+USE_SSH=$(get_tm_use_ssh $DSID)
 
 #-------------------------------------------------------------------------------
 # Link (ln) SRC into DST
