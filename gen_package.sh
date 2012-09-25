@@ -32,7 +32,7 @@ SCRIPTS_DIR=$PWD
 NAME="${PACKAGE_NAME}_${VERSION}.${PACKAGE_TYPE}"
 rm $NAME
 
-DIRS="apptools env flow market"
+DIRS="apptools stage flow market"
 export DESTDIR=$PWD/tmp
 
 if [ "$(id -u)" = "0" ]; then

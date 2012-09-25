@@ -13,7 +13,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << RUBY_LIB_LOCATION+"/apptools/env"
+$: << RUBY_LIB_LOCATION+"/apptools/stage"
 
 require 'onechef'
 
@@ -22,14 +22,14 @@ helpers do
         settings.cloud_auth.client(session[:user])
     end
 
-    def appenv_pool
+    def appstage_pool
         pool = OpenNebula::ChefDocPool.new(client())
         rc = pool.info
         return [500, rc.to_json] if OpenNebula.is_error?(rc)
         [200, pool.to_hash.to_json]
     end
 
-    def appenv_create(template)
+    def appstage_create(template)
         node = OpenNebula::ChefConf.new
         node.description = template['description'] if template['description']
         node.cookbooks = template['cookbooks'] if template['cookbacks']
@@ -51,7 +51,7 @@ helpers do
         [201, doc.to_hash.to_json]
     end
 
-    def appenv_retrieve(id)
+    def appstage_retrieve(id)
         resource = OpenNebula::ChefDoc.new_with_id(id, client())
         rc = resource.info
 
@@ -59,7 +59,7 @@ helpers do
         [200, resource.to_hash.to_json]
     end
 
-    def appenv_update(resource, template)
+    def appstage_update(resource, template)
         node = resource.node
         node.node = template['node'] if template['node']
         node.templates = template['templates']
@@ -67,7 +67,7 @@ helpers do
         resource.update(node.to_json)
     end
 
-    def appenv_action(id, action_hash)
+    def appstage_action(id, action_hash)
         resource = OpenNebula::ChefDoc.new_with_id(id,client())
         rc = resource.info
         if OpenNebula.is_error?(rc)
@@ -81,7 +81,7 @@ helpers do
 
              when "chmod" then resource.chmod_octet(params['octet'])
 
-             when "update" then appenv_update(resource, params['DOCUMENT'])
+             when "update" then appstage_update(resource, params['DOCUMENT'])
 
              when "instantiate" then resource.instantiate(params['template_id'],
                                                           params['vars'])
@@ -96,7 +96,7 @@ helpers do
         [204, resource.to_hash.to_json]
     end
 
-    def appenv_delete(id)
+    def appstage_delete(id)
         resource = OpenNebula::ChefDoc.new_with_id(id, client())
         rc = resource.delete
 
@@ -108,28 +108,28 @@ end
 ################################################################
 # PLUGIN ROUTES
 ################################################################
-get '/appenv' do
-    appenv_pool()
+get '/appstage' do
+    appstage_pool()
 end
 
-post '/appenv' do
+post '/appstage' do
     template = parse_json(request.body.read, 'DOCUMENT')
-    appenv_create(template)
+    appstage_create(template)
 end
 
-get '/appenv/:id' do
-    appenv_retrieve(params[:id].to_i)
+get '/appstage/:id' do
+    appstage_retrieve(params[:id].to_i)
 end
 
-post '/appenv/:id/action' do
+post '/appstage/:id/action' do
     action_hash = parse_json(request.body.read, 'action')
     if OpenNebula.is_error?(action_hash)
         return [500, action_hash.to_json]
     end
 
-    appenv_action(params[:id].to_i, action_hash)
+    appstage_action(params[:id].to_i, action_hash)
 end
 
-delete '/appenv/:id' do
-    appenv_delete(params[:id].to_i)
+delete '/appstage/:id' do
+    appstage_delete(params[:id].to_i)
 end

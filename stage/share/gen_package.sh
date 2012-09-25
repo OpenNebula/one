@@ -18,7 +18,7 @@ This package prepares a VM image for OpenNebula:
   * Deletes udev net and cd persistent rules
   * Unconfigures the network
   * Adds OpenNebula contextualization scripts to startup
-  * Prepares the image to be used with AppEnv
+  * Prepares the image to be used with AppStage
 
 To get support use the OpenNebula.pro portal:
   http://opennebula.pro

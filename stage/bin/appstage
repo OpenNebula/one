@@ -24,7 +24,7 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/apptools/env"
+$: << RUBY_LIB_LOCATION+"/apptools/stage"
 $: << RUBY_LIB_LOCATION+"/cli"
 
 $: << '.'
@@ -32,7 +32,7 @@ require 'onechef'
 require 'base64'
 
 require 'command_parser'
-require 'appenv_helper'
+require 'appstage_helper'
 require 'one_helper/onetemplate_helper'
 
 require 'pp'
@@ -94,10 +94,10 @@ COOKBOOKS={
 }
 
 cmd = CommandParser::CmdParser.new(ARGV) do
-    usage "`appenv` <command> [<args>] [<options>]"
+    usage "`appstage` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
-    helper = AppEnvHelper.new
+    helper = AppStageHelper.new
     template_helper = OneTemplateHelper.new
 
     set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
@@ -108,11 +108,11 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         OpenNebulaHelper.rname_to_id(arg, "USER")
     end
 
-    set :format, :node, AppEnvHelper.to_id_desc do |arg|
+    set :format, :node, AppStageHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
 
-    set :format, :node_list, AppEnvHelper.list_to_id_desc do |arg|
+    set :format, :node_list, AppStageHelper.list_to_id_desc do |arg|
         helper.list_to_id(arg)
     end
 

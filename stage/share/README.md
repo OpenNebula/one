@@ -31,7 +31,7 @@ Now we can update the packages located in the directory packages. Remember to us
     $ git rm packages/app-context_3.6.0.deb
     $ cp /Users/jfontan/tmp/borrar/git/one2/share/scripts/context-packages/app-context_3.6.1.deb packages/
     $ git add packages/app-context_3.6.1.deb 
-    $ git commit -m'appenv: added context package version 3.6.1'
+    $ git commit -m'appstage: added context package version 3.6.1'
     $ git push
 
 These packages will be used for the apptools package generation.
