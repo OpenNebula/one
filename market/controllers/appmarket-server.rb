@@ -1,3 +1,18 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2010-2012, C12G Labs S.L.                                        #
+#                                                                            #
+# Licensed under the C12G Commercial Open-source License (the                #
+# "License"); you may not use this file except in compliance                 #
+# with the License. You may obtain a copy of the License as part             #
+# of the software distribution.                                              #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the                #
+# License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES             #
+# OR CONDITIONS OF ANY KIND, either express or implied. See the              #
+# License for the specific language governing permissions and                #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'rubygems'
 require 'sinatra'
 require 'haml'
@@ -22,7 +37,7 @@ CONFIGURATION_FILE = ETC_LOCATION + "/appmarket-server.conf"
 
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cloud'
-$: << RUBY_LIB_LOCATION+'/apptools/market'
+$: << RUBY_LIB_LOCATION+'/oneapps/market'
 
 require 'models'
 require 'session'

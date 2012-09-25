@@ -5,7 +5,7 @@ Installing services can sometimes be tedious. Getting the VM ins good shape, ins
 
 With this software we can script the installation and configuration of applications and services. You can also describe the services and their configuration that will be installed on a node so we can automate its installation. We will also be sure that each installation will be equal to other using the same configuration.
 
-The tool oneenv will make use of [chef-solo](http://wiki.opscode.com/display/chef/Chef+Solo). It lets you register chef configurations and instantiate them using predefined templates and images.
+The tool onestage will make use of [chef-solo](http://wiki.opscode.com/display/chef/Chef+Solo). It lets you register chef configurations and instantiate them using predefined templates and images.
 
 # Guide
 
@@ -35,15 +35,15 @@ The node files are JSON encoded and contain the recipes that are going to be run
 
     ${WP_DB_NAME|wordpress}
 
-oneenv comes with a template engine that will let you create node files with variables. These variables are named and can contain default values. the form is:
+onestage comes with a template engine that will let you create node files with variables. These variables are named and can contain default values. the form is:
 
     ${NAME[|<default value>]}
 
 The name will be used to refer to it on VM instantiation (we will see this later on) and the default value will substitute the variable if it is not explicitly specified.
 
-We save this file as node.json and now comes the registration part. oneenv will let us register it in the OpenNebula database. To register the node file we can use the command `oneenv create`:
+We save this file as node.json and now comes the registration part. onestage will let us register it in the OpenNebula database. To register the node file we can use the command `onestage create`:
 
-    $ oneenv create node.json
+    $ onestage create node.json
     21
 
 The number returned is the identifier to our newly registered node file. We can also specify some parameters:
@@ -54,19 +54,19 @@ The number returned is the identifier to our newly registered node file. We can 
 
 On VM creation the recipes specified in the node file will be automatically downloaded from the standard chef cookbooks repository but we can specify a URL of a tar.gz containing extra cookbooks that you have created. For example:
 
-    $ oneenv create --name my_blog --templates ubuntu,centos --cookbooks http://some.url.com/cookbooks.tar.gz node.json
+    $ onestage create --name my_blog --templates ubuntu,centos --cookbooks http://some.url.com/cookbooks.tar.gz node.json
     22
 
 We can list the nodes we already have defined:
 
-    $ oneenv list
+    $ onestage list
        ID             NAME
        21        wordpress
        22          my_blog
 
 And show the properties:
 
-    $ ./oneenv show my_blog
+    $ ./onestage show my_blog
     ROLE 22 INFORMATION                                                             
     ID                  : 22                  
     NAME                : my_blog             
@@ -107,11 +107,11 @@ And show the properties:
 
 There we can see the node file and its properties. It is also handy the default variables. Those are the ones we can change on instantiation.
 
-We will be also able to update the node file using `oneenv update <node>`. A text editor will be run letting us modify the node file.
+We will be also able to update the node file using `onestage update <node>`. A text editor will be run letting us modify the node file.
 
-To instantiate a VM that will use this node we will use the command `oneenv instantiate <template> <node>`. This command will also let us change the variables in the node using the parameter `-d`. For example:
+To instantiate a VM that will use this node we will use the command `onestage instantiate <template> <node>`. This command will also let us change the variables in the node using the parameter `-d`. For example:
 
-    $ oneenv instantiate ubuntu my_blog -d WP_DB_NAME=myblog,MYSQL_ROOT_PASSWORD=some_other_password
+    $ onestage instantiate ubuntu my_blog -d WP_DB_NAME=myblog,MYSQL_ROOT_PASSWORD=some_other_password
 
 Now we can check that a new VM was created:
 
@@ -137,7 +137,7 @@ These parameters will be used by the contextualization script inside the VM imag
 
 # Preparing the VM
 
-The VM images where these configurations will be applied need to be prepared to use the contextualization information provided by oneenv. The requirements are:
+The VM images where these configurations will be applied need to be prepared to use the contextualization information provided by onestage. The requirements are:
 
 * chef-solo installed
 * ruby installed

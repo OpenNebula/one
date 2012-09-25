@@ -17,7 +17,7 @@
 
 . ../install_lib.sh
 
-copy_files "lib/* cli/*" "$LIB_LOCATION/env"
+copy_files "lib/* cli/*" "$LIB_LOCATION/stage"
 copy_files "bin/*" "$BIN_LOCATION"
 copy_files "share/packages/*" "$PACKAGES_LOCATION"
 copy_files "sunstone/public/js/user-plugins/*" "$SUNSTONE_LOCATION/public/js/user-plugins"

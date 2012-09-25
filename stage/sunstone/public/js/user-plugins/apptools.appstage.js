@@ -13,62 +13,62 @@
 // limitations under the License.                                           //
 //--------------------------------------------------------------------------//
 
-var AppEnv = {
+var AppStage = {
     "resource" : 'DOCUMENT',
-    "path" : "appenv",
+    "path" : "appstage",
     "create": function(params){
-        OpenNebula.Action.create(params,AppEnv.resource,
-                                 AppEnv.path);
+        OpenNebula.Action.create(params,AppStage.resource,
+                                 AppStage.path);
     },
     "del": function(params){
-        OpenNebula.Action.del(params,AppEnv.resource,
-                              AppEnv.path);
+        OpenNebula.Action.del(params,AppStage.resource,
+                              AppStage.path);
     },
     "list" : function(params){
-        OpenNebula.Action.list(params, AppEnv.resource,
-                               AppEnv.path)
+        OpenNebula.Action.list(params, AppStage.resource,
+                               AppStage.path)
     },
     "show" : function(params){
-        OpenNebula.Action.show(params, AppEnv.resource,
-                               null, AppEnv.path)
+        OpenNebula.Action.show(params, AppStage.resource,
+                               null, AppStage.path)
     },
     "chown" : function(params){
-        OpenNebula.Action.chown(params,AppEnv.resource,
-                                AppEnv.path);
+        OpenNebula.Action.chown(params,AppStage.resource,
+                                AppStage.path);
     },
     "chgrp" : function(params){
-        OpenNebula.Action.chgrp(params,AppEnv.resource,
-                                AppEnv.path);
+        OpenNebula.Action.chgrp(params,AppStage.resource,
+                                AppStage.path);
     },
     "chmod" : function(params){
         var action_obj = params.data.extra_param;
         OpenNebula.Action.simple_action(params,
-                                        AppEnv.resource,
+                                        AppStage.resource,
                                         "chmod",
-                                        action_obj, AppEnv.path);
+                                        action_obj, AppStage.path);
     },
     "update" : function(params){
         OpenNebula.Action.simple_action(params,
-                                        AppEnv.resource,
+                                        AppStage.resource,
                                         "update",
                                         params.data.extra_param,
-                                        AppEnv.path);
+                                        AppStage.path);
     },
     "instantiate" : function(params){
         OpenNebula.Action.simple_action(params,
-                                        AppEnv.resource,
+                                        AppStage.resource,
                                         "instantiate",
                                         params.data.extra_param,
-                                        AppEnv.path);
+                                        AppStage.path);
     }
 }
 
-var appenv_tab_content = '\
-<h2><i class="icon-magic"></i> '+tr("AppEnv - Environments")+'</h2>\
-<form id="appenv_form" action="" action="javascript:alert(\'js error!\');">\
+var appstage_tab_content = '\
+<h2><i class="icon-magic"></i> '+tr("AppStage - Environments")+'</h2>\
+<form id="appstage_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
-<table id="datatable_appenvs" class="display">\
+<table id="datatable_appstages" class="display">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
@@ -92,45 +92,45 @@ var appenv_tab_content = '\
 -->\
 </form>';
 
-var create_appenv_tmpl = '\
-<div class="create_form"><form id="create_appenv_form" action="">\
+var create_appstage_tmpl = '\
+<div class="create_form"><form id="create_appstage_form" action="">\
   <fieldset>\
       <legend style="display:none;">' + tr("Environment") + '</legend>\
-      <div class="appenv_param">\
+      <div class="appstage_param">\
           <label for="name">' + tr("Name") + ':</label><input type="text" name="name" />\
       </div>\
-      <div class="appenv_param">\
+      <div class="appstage_param">\
           <label for="description">' + tr("Description") + ':</label><input type="text" name="description" />\
       </div>\
-      <div class="appenv_param">\
+      <div class="appstage_param">\
           <label for="templates">'+tr("Compatible templates")+':</label>\
           <select type="text" id="env_templates" name="templates" multiple>\
           </select>\
       </div>\
-      <div class="appenv_param">\
+      <div class="appstage_param">\
           <label for="cookbooks">' + tr("Cookbooks URL") + ':</label><input type="text" name="cookbooks" />\
       </div>\
   </fieldset>\
 <!--\
   <fieldset>\
-      <div class="appenv_param">\
+      <div class="appstage_param">\
          <label for="node">'+tr("Variables")+':</label>\
           <div class="clear"></div>\
-         <label for="custom_var_appenv_name">'+tr("Name")+':</label>\
-         <input type="text" id="custom_var_appenv_name" name="custom_var_appenv_name" /><br />\
-         <label for="custom_var_appenv_value">'+tr("Value")+':</label>\
-         <input type="text" id="custom_var_appenv_value" name="custom_var_appenv_value" /><br />\
-         <button class="add_remove_button add_button" id="add_custom_var_appenv_button" value="add_custom_appenv_var">'+tr("Add")+'</button>\
-         <button class="add_remove_button" id="remove_custom_var_appenv_button" value="remove_custom_appenv_var">'+tr("Remove selected")+'</button>\
+         <label for="custom_var_appstage_name">'+tr("Name")+':</label>\
+         <input type="text" id="custom_var_appstage_name" name="custom_var_appstage_name" /><br />\
+         <label for="custom_var_appstage_value">'+tr("Value")+':</label>\
+         <input type="text" id="custom_var_appstage_value" name="custom_var_appstage_value" /><br />\
+         <button class="add_remove_button add_button" id="add_custom_var_appstage_button" value="add_custom_appstage_var">'+tr("Add")+'</button>\
+         <button class="add_remove_button" id="remove_custom_var_appstage_button" value="remove_custom_appstage_var">'+tr("Remove selected")+'</button>\
          <div class="clear"></div>\
-         <label for="custom_var_appenv_box">'+tr("Custom attributes")+':</label>\
-         <select id="custom_var_appenv_box" name="custom_var_appenv_box" style="height:100px;" multiple>\
+         <label for="custom_var_appstage_box">'+tr("Custom attributes")+':</label>\
+         <select id="custom_var_appstage_box" name="custom_var_appstage_box" style="height:100px;" multiple>\
          </select>\
       </div>\
   </fieldset>\
 -->\
   <fieldset>\
-      <div class="appenv_param">\
+      <div class="appstage_param">\
           <label for="node">'+tr("Node")+':</label>\
           <div class="clear"></div>\
           <textarea name="node" style="width:100%; height:14em;"></textarea>\
@@ -138,18 +138,18 @@ var create_appenv_tmpl = '\
   </fieldset>\
   <fieldset>\
     <div class="form_buttons">\
-        <div><button class="button" type="submit" value="AppEnv.create">' + tr("Create") + '</button>\
+        <div><button class="button" type="submit" value="AppStage.create">' + tr("Create") + '</button>\
         <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
     </div>\
   </fieldset>\
 </form></div>';
 
-var update_appenv_tmpl =
+var update_appstage_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
          <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the environment you want to update")+':</h3>\
             <fieldset style="border-top:none;">\
-                 <label for="appenv_template_update_select">'+tr("Select an environment")+':</label>\
-                 <select id="appenv_template_update_select" name="appenv_template_update_select"></select>\
+                 <label for="appstage_template_update_select">'+tr("Select an environment")+':</label>\
+                 <select id="appstage_template_update_select" name="appstage_template_update_select"></select>\
                  <div class="clear"></div>\
                     <label for="templates">'+tr("Compatible templates")+':</label>\
                     <select type="text" name="templates" multiple>\
@@ -166,97 +166,97 @@ var update_appenv_tmpl =
                          <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_owner_a" class="owner_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_owner_u" class="owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_owner_m" class="owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_owner_a" class="owner_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_group_a" class="group_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_group_u" class="group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_group_m" class="group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_group_a" class="group_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="appenv_other_a" class="other_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_other_u" class="other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_other_m" class="other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="appstage_other_a" class="other_a" /></td>\
                      </tr>\
                    </table>\
                  </div>\
-                 <label for="appenv_template_update_textarea">'+tr("Node")+':</label>\
+                 <label for="appstage_template_update_textarea">'+tr("Node")+':</label>\
                  <div class="clear"></div>\
-                 <textarea id="appenv_template_update_textarea" style="width:100%; height:14em;"></textarea>\
+                 <textarea id="appstage_template_update_textarea" style="width:100%; height:14em;"></textarea>\
             </fieldset>\
             <fieldset>\
                  <div class="form_buttons">\
-                    <button class="button" id="appenv_template_update_button" value="AppEnv.update_template">'+tr("Update")+'\
+                    <button class="button" id="appstage_template_update_button" value="AppStage.update_template">'+tr("Update")+'\
                     </button>\
                  </div>\
             </fieldset>\
 </form>';
 
-var dataTable_appenvs;
-var $create_appenv_dialog;
+var dataTable_appstages;
+var $create_appstage_dialog;
 
-var appenv_actions = {
+var appstage_actions = {
 
-    "AppEnv.create" : {
+    "AppStage.create" : {
         type: "create",
-        call: AppEnv.create,
-        callback: addAppEnvElement,
+        call: AppStage.create,
+        callback: addAppStageElement,
         error: onError,
         notify:true
     },
 
-    "AppEnv.create_dialog" : {
+    "AppStage.create_dialog" : {
         type: "custom",
-        call: popUpCreateAppEnvDialog
+        call: popUpCreateAppStageDialog
     },
 
-    "AppEnv.list" : {
+    "AppStage.list" : {
         type: "list",
-        call: AppEnv.list,
-        callback: updateAppEnvsView,
+        call: AppStage.list,
+        callback: updateAppStagesView,
         error: onError
     },
 
-    "AppEnv.show" : {
+    "AppStage.show" : {
         type : "single",
-        call: AppEnv.show,
-        callback: updateAppEnvElement,
+        call: AppStage.show,
+        callback: updateAppStageElement,
         error: onError
     },
 
-    "AppEnv.showinfo" : {
+    "AppStage.showinfo" : {
         type: "single",
-        call: AppEnv.show,
-        callback: updateAppEnvInfo,
+        call: AppStage.show,
+        callback: updateAppStageInfo,
         error: onError
     },
 
-    "AppEnv.refresh" : {
+    "AppStage.refresh" : {
         type: "custom",
         call: function () {
-            waitingNodes(dataTable_appenvs);
-            Sunstone.runAction("AppEnv.list");
+            waitingNodes(dataTable_appStages);
+            Sunstone.runAction("AppStage.list");
         }
     },
 
-    "AppEnv.autorefresh" : {
+    "AppStage.autorefresh" : {
         type: "custom",
         call: function() {
-            AppEnv.list({timeout: true, success: updateAppEnvsView, error: onError});
+            AppStage.list({timeout: true, success: updateAppStagesView, error: onError});
         }
     },
 
-    "AppEnv.fetch_update_info" : {
+    "AppStage.fetch_update_info" : {
         type: "single",
-        call: AppEnv.show,
+        call: AppStage.show,
         callback: function (request,response) {
             var body = JSON.parse(response.DOCUMENT.TEMPLATE.BODY);
             var templates = body.templates;
-            var dialog = $('#appenv_template_update_dialog');
+            var dialog = $('#appstage_template_update_dialog');
             // Select current templates
             if (templates)
                 for (var i = 0; i < templates.length; i++){
@@ -266,7 +266,7 @@ var appenv_actions = {
                 };
             // Fill in node box with formatted json
             var json = JSON.stringify(body.node, null, '  ');
-            $('#appenv_template_update_textarea', dialog).val(json);
+            $('#appstage_template_update_textarea', dialog).val(json);
 
             //Fill in permissions table
             setPermissionsTable(response.DOCUMENT,dialog);
@@ -274,112 +274,112 @@ var appenv_actions = {
         error: onError
     },
 
-    "AppEnv.update_dialog" : {
+    "AppStage.update_dialog" : {
         type: "custom",
-        call: popUpAppEnvTemplateUpdateDialog
+        call: popUpAppStageTemplateUpdateDialog
     },
 
-    "AppEnv.update" : {
+    "AppStage.update" : {
         type: "single",
-        call: AppEnv.update,
+        call: AppStage.update,
         callback: function() {
             notifyMessage(tr("Environment updated correctly"));
         },
         error: onError
     },
 
-    "AppEnv.instantiate" : {
+    "AppStage.instantiate" : {
         type: "single",
-        call: AppEnv.instantiate,
+        call: AppStage.instantiate,
         callback: function() {
             notifyMessage(tr("Instantiated"));
         },
         error: onError
     },
 
-    "AppEnv.delete" : {
+    "AppStage.delete" : {
         type: "multiple",
-        call: AppEnv.del,
-        callback: deleteAppEnvElement,
-        elements: appEnvElements,
+        call: AppStage.del,
+        callback: deleteAppStageElement,
+        elements: appStageElements,
         error: onError,
         notify: true
     },
 
-    "AppEnv.chown" : {
+    "AppStage.chown" : {
         type: "multiple",
-        call: AppEnv.chown,
+        call: AppStage.chown,
         callback:  function (req) {
-            Sunstone.runAction("AppEnv.show",req.request.data[0][0]);
+            Sunstone.runAction("AppStage.show",req.request.data[0][0]);
         },
-        elements: appEnvElements,
+        elements: appStageElements,
         error: onError,
         notify: true
     },
 
-    "AppEnv.chgrp" : {
+    "AppStage.chgrp" : {
         type: "multiple",
-        call: AppEnv.chgrp,
+        call: AppStage.chgrp,
         callback: function (req) {
-            Sunstone.runAction("AppEnv.show",req.request.data[0][0]);
+            Sunstone.runAction("AppStage.show",req.request.data[0][0]);
         },
-        elements: appEnvElements,
+        elements: appStageElements,
         error: onError,
         notify: true
     },
 
-    "AppEnv.chmod" : {
+    "AppStage.chmod" : {
         type: "single",
-        call: AppEnv.chmod,
+        call: AppStage.chmod,
 //        callback
         error: onError,
         notify: true
     },
 /*
-    "AppEnv.clone_dialog" : {
+    "AppStage.clone_dialog" : {
         type: "custom",
-        call: popUpAppEnvCloneDialog
+        call: popUpAppStageCloneDialog
     },
-    "AppEnv.clone" : {
+    "AppStage.clone" : {
         type: "single",
-        call: AppEnv.clone,
+        call: AppStage.clone,
         error: onError,
         notify: true
     },
 */
-    "AppEnv.help" : {
+    "AppStage.help" : {
         type: "custom",
         call: function() {
             hideDialog();
-            $('div#appenvs_tab div.legend_div').slideToggle();
+            $('div#appstages_tab div.legend_div').slideToggle();
         }
     }
 };
 
 
-var appenv_buttons = {
-    "AppEnv.refresh" : {
+var appstage_buttons = {
+    "AppStage.refresh" : {
         type: "action",
         text: '<i class="icon-refresh icon-large">',
         alwaysActive: true
     },
-    "AppEnv.create_dialog" : {
+    "AppStage.create_dialog" : {
         type: "create_dialog",
         text: tr('+ New')
     },
-    "AppEnv.update_dialog" : {
+    "AppStage.update_dialog" : {
         type: "action",
         text: tr("Update properties"),
         alwaysActive: true
     },
-    "AppEnv.chown" : {
+    "AppStage.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
-    "AppEnv.chgrp" : {
+    "AppStage.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
@@ -387,103 +387,103 @@ var appenv_buttons = {
         condition: mustBeAdmin
     },
 /*
-    "AppEnv.clone_dialog" : {
+    "AppStage.clone_dialog" : {
         type: "action",
         text: tr("Clone")
     },
 */
-    "AppEnv.delete" : {
+    "AppStage.delete" : {
         type: "confirm",
         text: tr("Delete")
     },
-    "AppEnv.help" : {
+    "AppStage.help" : {
         type: "action",
         text: '?',
         alwaysActive: true
     }
 }
 
-var appenv_info_panel = {
-    "appenv_info_tab" : {
+var appstage_info_panel = {
+    "appstage_info_tab" : {
         title: tr("Environment information"),
         content: ""
     },
 
-    "appenv_node_tab" : {
+    "appstage_node_tab" : {
         title: tr("Node"),
         content: ""
     }
 
 }
 
-var appenvs_tab = {
+var appstages_tab = {
     title: "Environments",
-    content: appenv_tab_content,
-    buttons: appenv_buttons,
+    content: appstage_tab_content,
+    buttons: appstage_buttons,
     tabClass: 'subTab',
-    parentTab: 'appenv_dashboard_tab'
+    parentTab: 'appstage_dashboard_tab'
 }
 
-Sunstone.addActions(appenv_actions);
-Sunstone.addMainTab('appenvs_tab',appenvs_tab);
-Sunstone.addInfoPanel('appenv_info_panel',appenv_info_panel);
+Sunstone.addActions(appstage_actions);
+Sunstone.addMainTab('appstages_tab',appstages_tab);
+Sunstone.addInfoPanel('appstage_info_panel',appstage_info_panel);
 
 
-function appEnvElements() {
-    return getSelectedNodes(dataTable_appenvs);
+function appStageElements() {
+    return getSelectedNodes(dataTable_appstages);
 }
 
-// Returns an array containing the values of the appenv_json and ready
+// Returns an array containing the values of the appstage_json and ready
 // to be inserted in the dataTable
-function appEnvElementArray(appenv_json){
+function appStageElementArray(appstage_json){
     //Changing this? It may affect to the is_persistent() functions.
-    var appenv = appenv_json.DOCUMENT;
-    var body = JSON.parse(appenv.TEMPLATE.BODY);
+    var appstage = appstage_json.DOCUMENT;
+    var body = JSON.parse(appstage.TEMPLATE.BODY);
     var description =  body.description;
 
     return [
-        '<input class="check_item" type="checkbox" id="appenv_'+appenv.ID+'" name="selected_items" value="'+appenv.ID+'"/>',
-        appenv.ID,
-        appenv.UNAME,
-        appenv.GNAME,
-        appenv.NAME,
+        '<input class="check_item" type="checkbox" id="appstage_'+appstage.ID+'" name="selected_items" value="'+appstage.ID+'"/>',
+        appstage.ID,
+        appstage.UNAME,
+        appstage.GNAME,
+        appstage.NAME,
         description ? description : tr("None")
     ];
 }
 
 // Callback to update an element in the dataTable
-function updateAppEnvElement(request, appenv_json){
-    var id = appenv_json.DOCUMENT.ID;
-    var element = appEnvElementArray(appenv_json);
-    updateSingleElement(element,dataTable_appenvs,'#appenv_'+id);
+function updateAppStageElement(request, appstage_json){
+    var id = appstage_json.DOCUMENT.ID;
+    var element = appstageElementArray(appstage_json);
+    updateSingleElement(element,dataTable_appstages,'#appstage_'+id);
 }
 
 // Callback to remove an element from the dataTable
-function deleteAppEnvElement(req){
-    deleteElement(dataTable_appenvs,'#appenv_'+req.request.data);
+function deleteAppStageElement(req){
+    deleteElement(dataTable_appstages,'#appstage_'+req.request.data);
 }
 
-// Callback to add an appenv element
-function addAppEnvElement(request, appenv_json){
-    var element = appEnvElementArray(appenv_json);
-    addElement(element,dataTable_appenvs);
+// Callback to add an appstage element
+function addAppStageElement(request, appstage_json){
+    var element = appStageElementArray(appstage_json);
+    addElement(element,dataTable_appstages);
 }
 
 // Callback to refresh the list
-function updateAppEnvsView(request, appenvs_list){
-    var appenv_list_array = [];
+function updateAppStagesView(request, appstages_list){
+    var appstage_list_array = [];
 
-    $.each(appenvs_list,function(){
-       appenv_list_array.push(appEnvElementArray(this));
+    $.each(appstages_list,function(){
+       appstage_list_array.push(appStageElementArray(this));
     });
 
-    updateView(appenv_list_array,dataTable_appenvs);
+    updateView(appstage_list_array,dataTable_appstages);
     //updateVResDashboard("images",images_list);
-    updateAppEnvDashboard('environments', appenv_list_array);
+    updateAppStageDashboard('environments', appstage_list_array);
 }
 
 // Callback to update the information panel tabs and pop it up
-function updateAppEnvInfo(request,elem){
+function updateAppStageInfo(request,elem){
     var elem_info = elem.DOCUMENT;
     elem_info.TEMPLATE.BODY = JSON.parse(elem_info.TEMPLATE.BODY);
 
@@ -515,7 +515,7 @@ function updateAppEnvInfo(request,elem){
     var info_tab = {
         title: tr("Environment information"),
         content:
-        '<table id="info_appenv_table" class="info_table">\
+        '<table id="info_appstage_table" class="info_table">\
            <thead>\
             <tr><th colspan="2">'+tr("Environment")+' "'+elem_info.NAME+'" '+
             tr("information")+'</th></tr>\
@@ -561,7 +561,7 @@ function updateAppEnvInfo(request,elem){
     '<tr><td class="key_td">'+tr("Default variables")+'</td><td></td></tr>' +
     prettyPrintJSON(defaults, 28) : "") + '</table>\
 \
-       <table class="info_table" id="appenv_instantiate_table">\
+       <table class="info_table" id="appstage_instantiate_table">\
            <thead>\
             <tr><th colspan="2">'+tr("Instantiate this environment")+'</th></tr>\
            </thead>\
@@ -575,32 +575,32 @@ function updateAppEnvInfo(request,elem){
 '+ vars +'\
           <tr>\
               <td class="key_td"></td>\
-              <td class="value_td"><button id="appenv_instantiate_button" value="AppEnv.instantiate">'+tr("Instantiate")+'</button></td>\
+              <td class="value_td"><button id="appstage_instantiate_button" value="AppStage.instantiate">'+tr("Instantiate")+'</button></td>\
        </table>'
     }
 
     var node_tab = {
         title: tr("Node"),
-        content: '<table id="appenv_node_table" class="info_table" style="width:80%;">\
+        content: '<table id="appstage_node_table" class="info_table" style="width:80%;">\
             <thead><tr><th colspan="2">'+tr("Node")+'</th></tr></thead>'+
             (elem_info.TEMPLATE.BODY.node ? prettyPrintJSON(elem_info.TEMPLATE.BODY.node) : "" )+
             '</table>'
     }
 
-    Sunstone.updateInfoPanelTab("appenv_info_panel","appenv_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("appenv_info_panel","appenv_node_tab",node_tab);
+    Sunstone.updateInfoPanelTab("appstage_info_panel","appstage_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("appstage_info_panel","appstage_node_tab",node_tab);
 
-    Sunstone.popUpInfoPanel("appenv_info_panel");
+    Sunstone.popUpInfoPanel("appstage_info_panel");
 
 }
 
 // Prepare the creation dialog
-function setupCreateAppEnvDialog(){
-    dialogs_context.append('<div title="'+tr("Create environment")+'" id="create_appenv_dialog"></div>');
-    $create_appenv_dialog =  $('#create_appenv_dialog',dialogs_context);
+function setupCreateAppStageDialog(){
+    dialogs_context.append('<div title="'+tr("Create environment")+'" id="create_appstage_dialog"></div>');
+    $create_appstage_dialog =  $('#create_appstage_dialog',dialogs_context);
 
-    var dialog = $create_appenv_dialog;
-    dialog.html(create_appenv_tmpl);
+    var dialog = $create_appstage_dialog;
+    dialog.html(create_appstage_tmpl);
 
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
@@ -634,10 +634,10 @@ function setupCreateAppEnvDialog(){
     });
 
 /******** UNUSED
-    $('#add_custom_var_appenv_button', dialog).click(
+    $('#add_custom_var_appstage_button', dialog).click(
         function(){
-            var name = $('#custom_var_appenv_name',dialog).val();
-            var value = $('#custom_var_appenv_value',dialog).val();
+            var name = $('#custom_var_appstage_name',dialog).val();
+            var value = $('#custom_var_appstage_value',dialog).val();
             if (!name.length || !value.length) {
                 notifyError("Variable name and value must be filled in");
                 return false;
@@ -645,21 +645,21 @@ function setupCreateAppEnvDialog(){
             option= '<option value=\''+value+'\' name=\''+name+'\'>'+
                 name+'='+value+
                 '</option>';
-            $('select#custom_var_appenv_box',dialog).append(option);
+            $('select#custom_var_appstage_box',dialog).append(option);
             return false;
         }
     );
 
-    $('#remove_custom_var_appenv_button', dialog).click(
+    $('#remove_custom_var_appstage_button', dialog).click(
         function(){
-            $('select#custom_var_appenv_box :selected',dialog).remove();
+            $('select#custom_var_appstage_box :selected',dialog).remove();
             return false;
         }
     );
 */
 
 
-    $('#create_appenv_form',dialog).submit(function(){
+    $('#create_appstage_form',dialog).submit(function(){
         var name = $('input[name="name"]', this).val();
         var description = $('input[name="description"]', this).val();
         var cookbooks = $('input[name="cookbooks"]', this).val();
@@ -670,13 +670,13 @@ function setupCreateAppEnvDialog(){
             return false;
         }
 
-        var appenv_obj = {
+        var appstage_obj = {
             name: name,
         }
 
-        if (description) appenv_obj.description = description;
-        if (cookbooks) appenv_obj.cookbooks = cookbooks;
-        if (node) appenv_obj.node = node;
+        if (description) appstage_obj.description = description;
+        if (cookbooks) appstage_obj.cookbooks = cookbooks;
+        if (node) appstage_obj.node = node;
 
         var templates = $('select[name="templates"] option[clicked="clicked"]',
                           this);
@@ -686,31 +686,31 @@ function setupCreateAppEnvDialog(){
             templates.each(function(){
                 tmpls.push($(this).val())
             });
-            appenv_obj.templates = tmpls
+            appstage_obj.templates = tmpls
         };
 
         //UNUSED AT THIS POINT
 /*
         var variables_array = [];
         var variables;
-        $('#custom_var_appenv_box option', this).each(function(){
+        $('#custom_var_appstage_box option', this).each(function(){
             var attr_name = $(this).attr('name');
             var attr_value = $(this).val();
             variables_array.push(attr_name +'='+ attr_value);
         });
         variables = variables_array.join(',');
 
-        if (variables) appenv_obj.variables = variables;
+        if (variables) appstage_obj.variables = variables;
 */
 
-        Sunstone.runAction("AppEnv.create", { 'DOCUMENT': appenv_obj });
+        Sunstone.runAction("AppStage.create", { 'DOCUMENT': appstage_obj });
         dialog.dialog('close');
         return false;
     });
 }
 
-function popUpCreateAppEnvDialog(){
-    var dialog = $create_appenv_dialog;
+function popUpCreateAppStageDialog(){
+    var dialog = $create_appstage_dialog;
     var tpl_select = makeSelectOptions(dataTable_templates, 1, 4, [], [], true);
     $('select[name="templates"]', dialog).html(tpl_select);
     $('select[name="templates"] option', dialog).each(function(){
@@ -722,14 +722,14 @@ function popUpCreateAppEnvDialog(){
 
 
 
-function setupAppEnvTemplateUpdateDialog(){
+function setupAppStageTemplateUpdateDialog(){
 
     //Append to DOM
-    dialogs_context.append('<div id="appenv_template_update_dialog" title="'+tr("Update environment properties")+'"></div>');
-    var dialog = $('#appenv_template_update_dialog',dialogs_context);
+    dialogs_context.append('<div id="appstage_template_update_dialog" title="'+tr("Update environment properties")+'"></div>');
+    var dialog = $('#appstage_template_update_dialog',dialogs_context);
 
     //Put HTML in place
-    dialog.html(update_appenv_tmpl);
+    dialog.html(update_appstage_tmpl);
 
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
     //Convert into jQuery
@@ -743,17 +743,17 @@ function setupAppEnvTemplateUpdateDialog(){
 
     $('button',dialog).button();
 
-    $('#appenv_template_update_select',dialog).change(function(){
+    $('#appstage_template_update_select',dialog).change(function(){
         var id = $(this).val();
         $('.permissions_table input',dialog).removeAttr('checked')
         $('.permissions_table',dialog).removeAttr('update');
         if (id && id.length){
-            var dialog = $('#appenv_template_update_dialog');
-            $('#appenv_template_update_textarea',dialog).val(tr("Loading")+
+            var dialog = $('#appstage_template_update_dialog');
+            $('#appstage_template_update_textarea',dialog).val(tr("Loading")+
                                                             "...");
-            Sunstone.runAction("AppEnv.fetch_update_info", id);
+            Sunstone.runAction("AppStage.fetch_update_info", id);
         } else {
-            $('#appenv_template_update_textarea',dialog).val("");
+            $('#appstage_template_update_textarea',dialog).val("");
         };
     });
 
@@ -769,11 +769,11 @@ function setupAppEnvTemplateUpdateDialog(){
 
     $('form',dialog).submit(function(){
         var dialog = $(this);
-        var new_node = $('#appenv_template_update_textarea',dialog).val();
+        var new_node = $('#appstage_template_update_textarea',dialog).val();
         var cookbooks = $('input[name="cookbooks"]',dialog).val();
-        var id = $('#appenv_template_update_select',dialog).val();
+        var id = $('#appstage_template_update_select',dialog).val();
         if (!id || !id.length) {
-            $(this).parents('#appenv_template_update_dialog').dialog('close');
+            $(this).parents('#appstage_template_update_dialog').dialog('close');
             return false;
         };
 
@@ -782,15 +782,15 @@ function setupAppEnvTemplateUpdateDialog(){
             var perms = {
                 octet : buildOctet(permissions)
             };
-            Sunstone.runAction("AppEnv.chmod",id,perms);
+            Sunstone.runAction("AppStage.chmod",id,perms);
         };
 
-        var appenv_obj = {
+        var appstage_obj = {
             cookbooks: cookbooks,
             templates: templates
         };
 
-        if (new_node) appenv_obj.node = new_node;
+        if (new_node) appstage_obj.node = new_node;
 
         var templates = $('select[name="templates"] option[clicked="clicked"]',
                           this);
@@ -798,29 +798,29 @@ function setupAppEnvTemplateUpdateDialog(){
         templates.each(function(){
             tmpls.push($(this).val())
         });
-        appenv_obj.templates = tmpls
+        appstage_obj.templates = tmpls
 
-        Sunstone.runAction("AppEnv.update", id, {'DOCUMENT' : appenv_obj});
-        $(this).parents('#appenv_template_update_dialog').dialog('close');
+        Sunstone.runAction("AppStage.update", id, {'DOCUMENT' : appstage_obj});
+        $(this).parents('#appstage_template_update_dialog').dialog('close');
         return false;
     });
 };
 
 
-function popUpAppEnvTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_appenvs,
+function popUpAppStageTemplateUpdateDialog(){
+    var select = makeSelectOptions(dataTable_appstages,
                                    1,//id_col
                                    4,//name_col
                                    [],
                                    []
                                   );
-    var sel_elems = appEnvElements();
+    var sel_elems = appStageElements();
 
 
-    var dialog =  $('#appenv_template_update_dialog');
-    $('#appenv_template_update_select',dialog).html(select);
-    $('#appenv_template_update_textarea',dialog).val("");
-    $('#appenv_template_update_persistent',dialog).removeAttr('checked');
+    var dialog =  $('#appstage_template_update_dialog');
+    $('#appstage_template_update_select',dialog).html(select);
+    $('#appstage_template_update_textarea',dialog).val("");
+    $('#appstage_template_update_persistent',dialog).removeAttr('checked');
     $('.permissions_table input',dialog).removeAttr('checked');
     $('.permissions_table',dialog).removeAttr('update');
 
@@ -834,10 +834,10 @@ function popUpAppEnvTemplateUpdateDialog(){
                 new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
             };
         });
-        $('#appenv_template_update_select',dialog).html(new_select);
+        $('#appstage_template_update_select',dialog).html(new_select);
         if (sel_elems.length == 1) {
-            $('#appenv_template_update_select option',dialog).attr('selected','selected');
-            $('#appenv_template_update_select',dialog).trigger("change");
+            $('#appstage_template_update_select option',dialog).attr('selected','selected');
+            $('#appstage_template_update_select',dialog).trigger("change");
         };
     };
 
@@ -864,10 +864,10 @@ function popUpAppEnvTemplateUpdateDialog(){
     return false;
 };
 
-function setupAppEnvInstantiate(){
-    $('button#appenv_instantiate_button').live('click', function(){
+function setupAppStageInstantiate(){
+    $('button#appstage_instantiate_button').live('click', function(){
         var vars = [];
-        var context = $(this).parents('table#appenv_instantiate_table');
+        var context = $(this).parents('table#appstage_instantiate_table');
 
         var id = $('input[type="hidden"]', context).val();
         var template_id = $('select', context).val();
@@ -885,7 +885,7 @@ function setupAppEnvInstantiate(){
                   };
 
         if (vars.length)
-            Sunstone.runAction("AppEnv.instantiate", id, obj);
+            Sunstone.runAction("AppStage.instantiate", id, obj);
         return false;
     });
 
@@ -893,22 +893,22 @@ function setupAppEnvInstantiate(){
 
 
 // Set the autorefresh interval for the datatable
-function setAppEnvAutorefresh() {
+function setAppStageAutorefresh() {
     setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_appenvs);
-        var filter = $("#datatable_appenvs_filter input",
-                       dataTable_appenvs.parents("#datatable_appenvs_wrapper")).attr('value');
+        var checked = $('input.check_item:checked',dataTable_appstages);
+        var filter = $("#datatable_appstages_filter input",
+                       dataTable_appstages.parents("#datatable_appstages_wrapper")).attr('value');
         if (!checked.length && !filter.length){
-            Sunstone.runAction("AppEnv.autorefresh");
+            Sunstone.runAction("AppStage.autorefresh");
         }
     },INTERVAL+someTime());
 };
 
 /*
-function setupAppEnvCloneDialog(){
+function setupAppStageCloneDialog(){
     //Append to DOM
-    dialogs_context.append('<div id="appenv_clone_dialog" title="'+tr("Clone an environment")+'"></div>');
-    var dialog = $('#appenv_clone_dialog',dialogs_context);
+    dialogs_context.append('<div id="appstage_clone_dialog" title="'+tr("Clone an environment")+'"></div>');
+    var dialog = $('#appstage_clone_dialog',dialogs_context);
 
     //Put HTML in place
 
@@ -920,7 +920,7 @@ function setupAppEnvCloneDialog(){
 <label class="clone_several">'+tr("Prefix")+':</label>\
 <input type="text" name="name"></input>\
 <div class="form_buttons">\
-  <button class="button" id="appenv_clone_button" value="AppEnv.clone">\
+  <button class="button" id="appstage_clone_button" value="AppStage.clone">\
 '+tr("Clone")+'\
   </button>\
 </div></fieldset></form>\
@@ -940,32 +940,32 @@ function setupAppEnvCloneDialog(){
 
     $('form',dialog).submit(function(){
         var name = $('input', this).val();
-        var sel_elems = appEnvElements();
+        var sel_elems = appStageElements();
         if (!name || !sel_elems.length)
             notifyError('A name or prefix is needed!');
         if (sel_elems.length > 1){
             for (var i=0; i< sel_elems.length; i++)
                 //If we are cloning several items we
                 //use the name as prefix
-                Sunstone.runAction('AppEnv.clone',
+                Sunstone.runAction('AppStage.clone',
                                    sel_elems[i],
                                    name + getName(sel_elems[i],
-                                                  dataTable_appenvs,
+                                                  dataTable_appstages,
                                                   4));
         } else {
-            Sunstone.runAction('AppEnv.clone',sel_elems[0],name)
+            Sunstone.runAction('AppStage.clone',sel_elems[0],name)
         };
         dialog.dialog('close');
         setTimeout(function(){
-            Sunstone.runAction('AppEnv.refresh');
+            Sunstone.runAction('AppStage.refresh');
         }, 1500);
         return false;
     });
 }
 
-function popUpAppEnvCloneDialog(){
-    var dialog = $('#appenv_clone_dialog');
-    var sel_elems = appEnvElements();
+function popUpAppStageCloneDialog(){
+    var dialog = $('#appstage_clone_dialog');
+    var sel_elems = appStageElements();
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1){
         $('.clone_one',dialog).hide();
@@ -976,7 +976,7 @@ function popUpAppEnvCloneDialog(){
         $('.clone_one',dialog).show();
         $('.clone_several',dialog).hide();
         $('input',dialog).val('Copy of '+getName(sel_elems[0],
-                                                 dataTable_appenvs, 4));
+                                                 dataTable_appstages, 4));
     };
 
     $(dialog).dialog('open');
@@ -987,7 +987,7 @@ function popUpAppEnvCloneDialog(){
 //The DOM is ready at this point
 $(document).ready(function(){
 
-    dataTable_appenvs = $("#datatable_appenvs",main_tabs_context).dataTable({
+    dataTable_appstages = $("#datatable_appstages",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
@@ -1009,22 +1009,22 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_appenvs.fnClearTable();
+    dataTable_appstages.fnClearTable();
     addElement([
         spinner,
-        '','','','',''],dataTable_appenvs);
-    Sunstone.runAction("AppEnv.list");
+        '','','','',''],dataTable_appstages);
+    Sunstone.runAction("AppStage.list");
 
-    setupCreateAppEnvDialog();
-    setupAppEnvTemplateUpdateDialog();
-    setupAppEnvInstantiate();
-    setupTips($create_appenv_dialog);
+    setupCreateAppStageDialog();
+    setupAppStageTemplateUpdateDialog();
+    setupAppStageInstantiate();
+    setupTips($create_appstage_dialog);
 //    setupImageCloneDialog();
-    setAppEnvAutorefresh();
+    setAppStageAutorefresh();
 
-    initCheckAllBoxes(dataTable_appenvs);
-    tableCheckboxesListener(dataTable_appenvs);
-    infoListener(dataTable_appenvs,'AppEnv.showinfo');
+    initCheckAllBoxes(dataTable_appstages);
+    tableCheckboxesListener(dataTable_appstages);
+    infoListener(dataTable_appstages,'AppStage.showinfo');
 
-    $('div#appenvs_tab div.legend_div').hide();
+    $('div#appstages_tab div.legend_div').hide();
 });

@@ -15,13 +15,13 @@
 
 require 'one_helper'
 
-class AppEnvHelper < OpenNebulaHelper::OneHelper
+class AppStageHelper < OpenNebulaHelper::OneHelper
     def self.rname
         "DOCUMENT"
     end
 
     def self.conf_file
-        "appenv.yaml"
+        "appstage.yaml"
     end
 
 private
