@@ -175,6 +175,8 @@ function appmarketplaceElements(){
 }
 
 function updateMarketInfo(request,app){
+    var url = app.links.download.href;
+    url = url.replace(/\/download$/, '');
     var info_tab = {
         title : tr("Appliance information"),
         content :
@@ -189,7 +191,7 @@ function updateMarketInfo(request,app){
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("URL") + '</td>\
-                <td class="value_td"><a href="'+config_response.system_config.appmarketplace_url+'/'+app['_id']["$oid"]+'" target="_blank">'+config_response.system_config.appmarketplace_url+'/'+app['_id']["$oid"]+'</a></td>\
+                <td class="value_td"><a href="'+url+'" target="_blank">'+url+'</a></td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Publisher") + '</td>\
