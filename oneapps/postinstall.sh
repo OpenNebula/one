@@ -119,8 +119,9 @@ cp "$OPENNEBULA_JS_NEW" "$OPENNEBULA_JS"
 
 # Copy sunstone_auth to appflow_auth
 
-make_backup "$APPFLOW_AUTH"
-cp "$SUNSTONE_AUTH" "$APPFLOW_AUTH"
+if [ ! -e "$APPFLOW_AUTH" ]; then
+    ln -sf "$SUNSTONE_AUTH" "$APPFLOW_AUTH"
+fi
 
 
 print_install_message
