@@ -621,7 +621,7 @@ module CommandParser
                 puts
             } if command[:desc]
 
-            unless !command[:options] || command[:options].empty?
+            if command[:options] && !command[:options].empty?
                 opts_str=command[:options].flatten.collect{|o|
                     o[:name]
                 }.join(', ')

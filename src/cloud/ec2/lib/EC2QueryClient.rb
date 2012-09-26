@@ -25,6 +25,39 @@ require 'CloudClient'
 require 'AWS'
 
 module EC2QueryClient
+
+    ACCESS_KEY = {
+        :name => "access_key",
+        :short => "-K id",
+        :large => "--access-key id",
+        :description => "The username of the user",
+        :format => String
+    }
+
+    SECRET_KEY = {
+        :name => "sercret_key",
+        :short => "-S key",
+        :large => "--sercret-key key",
+        :description => "The sha1 hashed password of the user",
+        :format => String
+    }
+
+    URL = {
+        :name => "url",
+        :short => "-U url",
+        :large => "--url url",
+        :description => "Set url as the web service url to use",
+        :format => String
+    }
+
+    HEADERS = {
+        :name => "headers",
+        :short => "-H",
+        :large => "--headers",
+        :description => "Display column headers"
+    }
+
+
     ##########################################################################
     #
     #
@@ -37,13 +70,13 @@ module EC2QueryClient
         #
         #
         ######################################################################
-        def initialize(secret=nil, endpoint=nil, timeout=nil)
+        def initialize(access=nil, secret=nil, endpoint=nil, timeout=nil)
             # Autentication
             ec2auth  = nil
             @timeout = nil
 
-            if secret
-                ec2auth = secret.split(':')
+            if access && secret
+                ec2auth = access, secret
             elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
                 ec2auth = [ENV["EC2_ACCESS_KEY"], ENV["EC2_SECRET_KEY"]]
             else

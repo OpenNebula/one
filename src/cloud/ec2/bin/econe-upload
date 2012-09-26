@@ -26,104 +26,58 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-upload
 
-Uploads an image for use with an OpenNebula Cloud. This image should
-be later register with econe-register using the returned ImageId
-
-Usage:
-    econe-upload [OPTIONS] IMAGE-PATH
-
-Options:
-
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-
-    --multipart, -M
-        Use 'multipart-post' library instead of Curb/Curl
-
-IMAGE-PATH: Path to the image to upload
-
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--multipart',  '-M',GetoptLong::NO_ARGUMENT]
-        )
+MULTIPART = {
+    :name => "multipart",
+    :short => "-M",
+    :large => "--multipart",
+    :description => "Use 'multipart-post' library instead of Curb/Curl"
+}
 
-url     = nil
-access  = nil
-secret  = nil
-auth    = nil
-curb    = true
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--multipart'
-                curb = false
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-upload [OPTIONS] IMAGE-PATH"
+    version CloudCLI.version_text
+    description <<-EOT
+Uploads an image for use with an OpenNebula Cloud. This image should
+be later register with econe-register using the returned ImageId
+IMAGE-PATH: Path to the image to upload
+EOT
+
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL,
+        USER_DATA,
+        TYPE
+    ]
+
+    main :file do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            puts "#{cmd_name}: #{e.message}"
+            exit -1
+        end
+
+        rc = ec2_client.upload_image(args[0], !options[:multipart])
+
+        if CloudClient::is_error?(rc)
+            exit_with_code -1, "#{cmd_name}: #{rc.message}"
+        else
+            puts "Success: ImageId #{rc['imageId']}"
+            exit_with_code 0
         end
     end
-rescue Exception => e
-    exit -1
-end 
-
-image = ARGV.shift
-
-if !image || !File.exists?(image)
-    puts "#{cmd_name}: missing IMAGE-PATH parameter or file not found"
-    exit -1
 end
-
-auth = "#{access}:#{secret}" if secret && access
-
-begin
-    ec2_client = EC2QueryClient::Client.new(auth,url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
-end
-
-rc = ec2_client.upload_image(image, curb)
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-puts "Success: ImageId #{rc['imageId']}"
-
-exit 0
-

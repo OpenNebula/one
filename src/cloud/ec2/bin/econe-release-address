@@ -23,106 +23,57 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-release-address
 
-Release a publicIP of the user
-
-Usage:
-    econe-release-address [OPTIONS] PUBLIC-IP
-
-Options:
-
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-        
-    --headers, -H
-        Display column headers
-        
-PUBLIC-IP: ElasticIP owned by the user. To see the list of ips use econe-describe-addresses
-
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--type',       '-t',GetoptLong::REQUIRED_ARGUMENT],
-            ['--user-data',  '-d',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
-       )
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-release-address [OPTIONS] PUBLIC-IP"
+    version CloudCLI.version_text
+    description <<-EOT
+Release a publicIP of the user"
+PUBLIC-IP: ElasticIP owned by the user. To see the list of ips use econe-describe-addresses
+EOT
 
-headers = false
-url     = nil
-access  = nil
-secret  = nil
-auth    = nil
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL
+    ]
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--headers'
-                headers = true
+    main :public_ip do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            puts "#{cmd_name}: #{e.message}"
+            exit -1
+        end
+
+        rc = ec2_client.release_address(args[0])
+
+        if CloudClient::is_error?(rc)
+            [-1, "#{cmd_name}: #{rc.message}"]
+        else
+            exit_code 0
+
+            if options[:headers]
+                CLIHelper.print_header("publicIP")
+            end
+
+            puts rc['publicIP']
         end
     end
-rescue Exception => e
-    exit -1
-end 
-
-public_ip = ARGV.shift
-
-if !public_ip
-    puts "#{cmd_name}: missing publicIP parameter"
-    exit -1
 end
 
-auth = "#{access}:#{secret}" if secret && access
 
-begin
-    ec2_client = EC2QueryClient::Client.new(auth,url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
-end
-
-rc = ec2_client.release_address(public_ip)
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-exit 0
