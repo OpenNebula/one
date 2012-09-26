@@ -501,9 +501,10 @@ module EC2QueryClient
         # Creates a new key pair
         #   @param name[String] of the kaypair
         #   @return keypair[Hash]
-        #     {"xmlns"=>"http://ec2.amazonaws.com/doc/2010-08-31/",
-        #      "keySet"=>{"item"=>[
-        #          {"keyName"=>"...", "keyFingerprint"=>"..."}]}}
+        #   {"xmlns"=>"http://ec2.amazonaws.com/doc/2010-08-31",
+        #    "keyName"=>"...",
+        #    "keyFingerprint"=>"...",
+        #    "keyMaterial"=>"..."}
         ######################################################################
         def create_keypair(name)
             begin
