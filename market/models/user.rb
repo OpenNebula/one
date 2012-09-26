@@ -178,7 +178,7 @@ class User
             "status" => "enabled"
             )
 
-        if check_password(user, password)
+        if user && check_password(user, password)
             return user
         else
             return nil
