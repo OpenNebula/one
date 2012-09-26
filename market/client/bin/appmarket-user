@@ -80,11 +80,15 @@ TABLE = CLIHelper::ShowTable.new(nil, self) do
         d["username"]
     end
 
-    column :ROLE, "Role", :size=>15 do |d|
+    column :ROLE, "Role", :size=>8 do |d|
         d["role"]
     end
 
-    default :ID, :NAME, :ROLE
+    column :STATUS, "Status", :size=>10 do |d|
+        d["status"]
+    end
+
+    default :ID, :NAME, :ROLE, :STATUS
 end
 
 cmd=CommandParser::CmdParser.new(ARGV) do
@@ -128,7 +132,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     create_desc = <<-EOT.unindent
         Create a new user in the Marketplace
-    EOT
+
+        Example:
+
+            {
+              "organization":   "t_org",
+              "first_name":     "t_first",
+              "last_name":      "t_name",
+              "username":       "t_user",
+              "password":       "t_pass",
+              "website":        "http://t.t",
+              "email":          "t@t.com"
+            }
+EOT
 
     command :create, create_desc, :file do
         client = Market::UserClient.new(
@@ -167,6 +183,78 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             [response.code.to_i, response.to_s]
         else
             [0,response.body]
+        end
+    end
+
+    #
+    # Delete
+    #
+
+    delete_desc = <<-EOT.unindent
+        Delete a given user
+    EOT
+
+    command :delete, delete_desc, :id do
+        client = Market::UserClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.delete(args[0])
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            [0,response.body]
+        end
+    end
+
+    #
+    # Enable
+    #
+
+    enable_desc = <<-EOT.unindent
+        Enable a given user
+    EOT
+
+    command :enable, enable_desc, :id do
+        client = Market::UserClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.enable(args[0])
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            [0,response.body]
+        end
+    end
+
+    #
+    # Update
+    #
+
+    update_desc = <<-EOT.unindent
+        Update a given User
+    EOT
+
+    command :update, update_desc, :file do
+        client = Market::UserClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.update(File.read(args[0]))
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            [0, response.body]
         end
     end
 end

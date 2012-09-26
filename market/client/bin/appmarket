@@ -136,6 +136,32 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     create_desc = <<-EOT.unindent
         Create a new appliance in the Marketplace
+
+        Example:
+
+            {
+              "name": "t_app",
+              "short_description": "t_short_des",
+              "description": "This image is 8 Gb.\\r\\n  * **Disk device**:  `xvda`\\r\\n",
+              "version": "1.0",
+              "tags": [
+                "t_tag",
+                " t_tag2"
+              ],
+              "files": [
+                {
+                  "url": "http://testtesttest.com/test.img",
+                  "md5": "ttttttttttttt",
+                  "sha1": "tttttttttttttt",
+                  "compression": "bz2",
+                  "hypervisor": "VMWARE",
+                  "format": "raw",
+                  "os-id": "tt",
+                  "os-release": "t1",
+                  "os-arch": "t64"
+                }
+              ]
+            }
     EOT
 
     command :create, create_desc, :file do
@@ -175,6 +201,54 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             [response.code.to_i, response.to_s]
         else
             [0,response.body]
+        end
+    end
+
+    #
+    # Delete
+    #
+
+    delete_desc = <<-EOT.unindent
+        Delete  a given appliance
+    EOT
+
+    command :delete, delete_desc, :id do
+        client = Market::ApplianceClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.delete(args[0])
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            [0,response.body]
+        end
+    end
+
+    #
+    # Update
+    #
+
+    update_desc = <<-EOT.unindent
+        Update an appliance of the Marketplace
+    EOT
+
+    command :update, update_desc, :file do
+        client = Market::ApplianceClient.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.update(File.read(args[0]))
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            [0, response.body]
         end
     end
 end

@@ -34,8 +34,21 @@ module Market
             do_request(req)
         end
 
+        def delete(path)
+            req = Net::HTTP::Delete.new(path)
+
+            do_request(req)
+        end
+
         def post(path, body)
             req = Net::HTTP::Post.new(path)
+            req.body = body
+
+            do_request(req)
+        end
+
+        def put(path, body)
+            req = Net::HTTP::Put.new(path)
             req.body = body
 
             do_request(req)
@@ -75,6 +88,14 @@ module Market
         def show(id)
             get("/appliance/#{id}")
         end
+
+        def delete(id)
+            super("/appliance/#{id}")
+        end
+
+        def update(body, id)
+            put("/appliance/#{id}", body)
+        end
     end
 
 
@@ -93,6 +114,18 @@ module Market
 
         def show(id)
             get("/user/#{id}")
+        end
+
+        def delete(id)
+            super("/user/#{id}")
+        end
+
+        def enable(id)
+            post("/user/#{id}/enable", "")
+        end
+
+        def update(body, id)
+            put("/user/#{id}", body)
         end
     end
 end
