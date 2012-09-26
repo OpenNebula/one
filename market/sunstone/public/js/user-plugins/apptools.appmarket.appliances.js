@@ -235,7 +235,7 @@ function updateMarketInfo(request,app){
     Sunstone.popUpInfoPanel("appmarketplace_info_panel");
 };
 
-function infoListenerMarket(dataTable){
+function infoListenerAppMarket(dataTable){
     $('tbody tr',dataTable).live("click",function(e){
         if ($(e.target).is('input')) {return true;}
 
@@ -312,7 +312,7 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_appmarket);
     onlyOneCheckboxListener(dataTable_appmarket);
 
-    infoListenerMarket(dataTable_appmarket);
+    infoListenerAppMarket(dataTable_appmarket);
 
     Sunstone.runAction('AppMarket.list');
 });
