@@ -54,9 +54,10 @@ cd tmp
 fpm -n "$PACKAGE_NAME" -t "$PACKAGE_TYPE" -s dir --vendor "$VENDOR" \
     --license "$LICENSE" --description "$DESCRIPTION" --url "$URL" \
     -m "$MAINTAINER" -v "$VERSION" \
+    --after-install $SCRIPTS_DIR/oneapps/postinstall.sh \
     -a all -p $SCRIPTS_DIR/$NAME *
 
-#  --after-install $SCRIPTS_DIR/postinstall \
+
 
 echo $NAME
 
