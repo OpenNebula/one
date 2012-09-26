@@ -2,6 +2,10 @@
 
 SUNSTONE_PLUGINS=/etc/one/sunstone-plugins.yaml
 SUNSTONE_SERVER=/etc/one/sunstone-server.conf
+OPENNEBULA_JS=/usr/lib/one/sunstone/public/js/opennebula.js
+OPENNEBULA_JS_NEW=/usr/share/one/oneapps/sunstone/public/js/opennebula.js
+SUNSTONE_AUTH="$HOME/.one/sunstone_auth"
+APPFLOW_AUTH="$HOME/.one/appflow_auth"
 
 function print_install_message() {
 cat <<EOT
@@ -28,6 +32,15 @@ OpenNebula Apps needs the folowing dependencies to run correctly:
 EOT
 }
 
+function make_backup() {
+    file=$1
+    backup="$1.$(date '+%s')"
+
+    if [ -f "$file" ]; then
+        cp "$file" "$backup"
+    fi
+}
+
 function add_config() {
     name=$1
     text=$2
@@ -43,6 +56,12 @@ function add_plugin() {
 function add_server() {
     add_config "$1" "$2" "$SUNSTONE_SERVER"
 }
+
+
+# Configure sunstone-plugins.yaml and sunstone-server.conf
+
+make_backup "$SUNSTONE_PLUGINS"
+make_backup "$SUNSTONE_SERVER"
 
 add_plugin "apptools.appstage-dashboard.js" \
 "- user-plugins/apptools.appstage-dashboard.js:
@@ -89,6 +108,19 @@ add_plugin "apptools.appmarket.appliances.js" \
 add_server "- appstage"  "    - appstage"
 add_server "- appflow"   "    - appflow"
 add_server "- appmarket" "    - appmarket"
+
+
+# Install new opennebula.js
+
+make_backup "$OPENNEBULA_JS"
+cp "$OPENNEBULA_JS_NEW" "$OPENNEBULA_JS"
+
+
+# Copy sunstone_auth to appflow_auth
+
+make_backup "$APPFLOW_AUTH"
+cp "$SUNSTONE_AUTH" "$APPFLOW_AUTH"
+
 
 print_install_message
 
