@@ -96,7 +96,7 @@ before do
 
         unless @session.authorize(request.env)
             if request.env["HTTP_ACCEPT"] && request.env["HTTP_ACCEPT"].split(',').grep(/text\/html/).empty?
-                error 401
+                error 401, "User not authorized"
             else
                 redirect '/appliance'
             end
@@ -110,7 +110,7 @@ end
 
 post '/login' do
     build_session
-    halt 401 if @session.anonymous?
+    halt 401, "User not authroized" if @session.anonymous?
 end
 
 post '/logout' do
@@ -138,7 +138,7 @@ get '/user/:id' do
     end
 
     if @user.nil?
-        error 404
+        error 404, "User not found"
     end
 
     if request.env["HTTP_ACCEPT"] && request.env["HTTP_ACCEPT"].split(',').grep(/text\/html/).empty?
@@ -156,7 +156,7 @@ post '/user/:id/enable' do
     end
 
     if user.nil?
-        error 404
+        error 404, "User not found"
     end
 
     begin
@@ -230,7 +230,7 @@ get '/appliance/:id' do
     end
 
     if @app.nil?
-        error 404
+        error 404, "Appliance not found"
     end
 
     appliance_url = request.env['rack.url_scheme'] +
@@ -307,7 +307,7 @@ get '/appliance/:id/download' do
     end
 
     if url.nil?
-        error 404
+        error 404, "Appliance not found"
     end
 
     redirect url
