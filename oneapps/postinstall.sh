@@ -9,6 +9,7 @@ APPFLOW_AUTH="$HOME/.one/appflow_auth"
 
 function print_install_message() {
 cat <<EOT
+
 OpenNebula Apps needs the folowing dependencies to run correctly:
 
   * OpenNebula
@@ -26,8 +27,8 @@ OpenNebula Apps needs the folowing dependencies to run correctly:
 
   * Required gems. To install the gems needed by AppFlow and
     AppMarket do this:
-        # cd /usr/lib/one/oneapps/flow && bundle install
-        # cd /usr/lib/one/oneapps/market && bundle install
+        # cd /usr/lib/one/ruby/oneapps/flow && bundle install
+        # cd /usr/lib/one/ruby/oneapps/market && bundle install
 
 EOT
 }
