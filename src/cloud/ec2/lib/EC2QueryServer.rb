@@ -18,10 +18,7 @@ require 'rubygems'
 require 'erb'
 require 'time'
 require 'base64'
-require 'json'
-require 'openssl'
-require 'digest/md5'
-require 'net/ssh'
+
 
 require 'AWS'
 

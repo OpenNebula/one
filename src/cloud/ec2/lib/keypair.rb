@@ -14,6 +14,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'json'
+require 'openssl'
+require 'digest/md5'
+require 'net/ssh'
+
 module Keypair
     ############################################################################
     # Extends the OpenNebula::User class to include Keypair management
@@ -73,13 +78,19 @@ module Keypair
         user = User.new_with_id(OpenNebula::User::SELF, @client)
         user.info
 
-        kp     = user.get_keypair
-        rsa_kp = OpenSSL::PKey::RSA.generate(2048)
+        begin
+            kp     = user.get_keypair
+            rsa_kp = OpenSSL::PKey::RSA.generate(2048)
+        rescue Exception => e
+           return OpenNebula::Error.new("Error in create_keypair: #{e.message}")
+        end
 
         erb_private_key = rsa_kp
         erb_public_key  = rsa_kp.public_key
 
-        erb_key_fingerprint = Digest::MD5.hexdigest(rsa_kp.to_der).gsub(/(.{2})(?=.)/, '\1:\2')
+        erb_key_fingerprint = Digest::MD5.hexdigest(rsa_kp.to_der)
+        erb_key_fingerprint.gsub!(/(.{2})(?=.)/, '\1:\2')
+
         erb_ssh_public_key  = erb_public_key.ssh_type <<
                               " " <<
                               [ erb_public_key.to_blob ].pack('m0') <<
