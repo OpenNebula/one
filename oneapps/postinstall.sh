@@ -4,8 +4,8 @@ SUNSTONE_PLUGINS=/etc/one/sunstone-plugins.yaml
 SUNSTONE_SERVER=/etc/one/sunstone-server.conf
 OPENNEBULA_JS=/usr/lib/one/sunstone/public/js/opennebula.js
 OPENNEBULA_JS_NEW=/usr/share/one/oneapps/sunstone/public/js/opennebula.js
-SUNSTONE_AUTH="$HOME/.one/sunstone_auth"
-APPFLOW_AUTH="$HOME/.one/appflow_auth"
+SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
+APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
 
 function print_install_message() {
 cat <<EOT
@@ -123,6 +123,8 @@ cp "$OPENNEBULA_JS_NEW" "$OPENNEBULA_JS"
 
 if [ ! -e "$APPFLOW_AUTH" ]; then
     ln -sf "$SUNSTONE_AUTH" "$APPFLOW_AUTH"
+    chown oneadmin:oneadmin "$APPFLOW_AUTH"
+    chmod 600 "$APPFLOW_AUTH"
 fi
 
 
