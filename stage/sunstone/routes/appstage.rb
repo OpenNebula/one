@@ -23,7 +23,8 @@ helpers do
     end
 
     def appstage_pool
-        pool = OpenNebula::ChefDocPool.new(client())
+        pool = OpenNebula::ChefDocPool.new(client(),
+            OpenNebula::ChefDocPool::INFO_ALL)
         rc = pool.info
         return [500, rc.to_json] if OpenNebula.is_error?(rc)
         [200, pool.to_hash.to_json]
