@@ -84,7 +84,6 @@ headers = false
 url     = nil
 access  = nil
 secret  = nil
-auth    = nil
 instance = nil
 device = nil
 
@@ -122,10 +121,8 @@ if !volume_id
     exit -1
 end
 
-auth = "#{access}:#{secret}" if secret && access
-
 begin
-    ec2_client = EC2QueryClient::Client.new(auth,url)
+    ec2_client = EC2QueryClient::Client.new(access, secret, url)
 rescue Exception => e
     puts "#{cmd_name}: #{e.message}"
     exit -1
