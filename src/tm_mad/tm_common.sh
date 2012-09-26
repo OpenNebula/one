@@ -97,7 +97,7 @@ function get_tm_use_ssh {
     # Get datastore information
     #-------------------------------------------------------------------------------
 
-    XPATH="${ONE_LOCAL_VAR}/datastore/xpath.rb --stdin"
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
 
     unset i XPATH_ELEMENTS
 
