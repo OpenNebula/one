@@ -35,8 +35,8 @@ private
         end
     end
 
-    def factory_pool(filter)
-        OpenNebula::ChefDocPool.new(@client)
+    def factory_pool(filter=INFO_ALL)
+        OpenNebula::ChefDocPool.new(@client, filter)
     end
 
     def format_resource(node)
