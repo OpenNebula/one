@@ -19,10 +19,10 @@ require 'CloudClient'
 module Market
     class Client
         def initialize(username, password, url, user_agent="Ruby")
-            @username = username
-            @password = password
+            @username = username || ENV['APPMARKET_USER']
+            @password = password || ENV['APPMARKET_PASSWORD']
 
-            url ||= 'http://localhost:6242/'
+            url = url || ENV['APPMARKET_URL'] || 'http://localhost:6242/'
             @uri = URI.parse(url)
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
