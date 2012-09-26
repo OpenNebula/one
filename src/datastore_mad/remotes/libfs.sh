@@ -95,7 +95,7 @@ function fs_size {
 		BASE_URL=${1%%/download}
 		HEADERS=`wget -S --spider --no-check-certificate $BASE_URL 2>&1`
 
-		echo $HEADERS | grep "opennebula_marketplace" > /dev/null 2>&1
+		echo $HEADERS | grep "market" > /dev/null 2>&1
 
 		if [ $? -eq 0 ]; then
 			#URL is from market place
