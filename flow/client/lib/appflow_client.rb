@@ -237,8 +237,10 @@ module Service
 
     class Client
         def initialize(opts={})
-            @username = opts[:username]
-            @password = opts[:password]
+            @username = opts[:username] || ENV['APPFLOW_USER']
+            @password = opts[:password] || ENV['APPFLOW_PASSWORD']
+
+            url = opts[:url] || ENV['APPFLOW_URL'] || 'http://localhost:2474'
 
             if @username.nil? && @password.nil?
                 if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
@@ -252,8 +254,7 @@ module Service
                 @username, @password = one_auth.split(':')
             end
 
-            opts[:url] ||= 'http://localhost:2474'
-            @uri = URI.parse(opts[:url])
+            @uri = URI.parse(url)
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} " <<
                 "(#{opts[:user_agent]||"Ruby"})"
