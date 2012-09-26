@@ -64,8 +64,6 @@ function add_server() {
 make_backup "$SUNSTONE_PLUGINS"
 make_backup "$SUNSTONE_SERVER"
 
-add_plugin "^:routes:" ":routes:"
-
 add_plugin "apptools.appstage-dashboard.js" \
 "- user-plugins/apptools.appstage-dashboard.js:
     :user:
@@ -107,6 +105,8 @@ add_plugin "apptools.appmarket.appliances.js" \
     :group:
     :ALL: true
     :user:"
+
+add_server "^:routes:" ":routes:"
 
 add_server "- appstage"  "    - appstage"
 add_server "- appflow"   "    - appflow"
