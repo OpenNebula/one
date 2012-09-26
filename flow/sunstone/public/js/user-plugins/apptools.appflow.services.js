@@ -599,6 +599,7 @@ function updateServiceInfo(request,elem){
       <th>'+tr("Host")+'</th>\
       <th>'+tr("IPs")+'</th>\
       <th>'+tr("Start Time")+'</th>\
+      <th>'+tr("VNC Access")+'</th>\
     </tr>\
   </thead>\
   <tbody>\
@@ -657,7 +658,7 @@ function updateServiceInfo(request,elem){
             if (vm_info)
                 vms.push(
                     [roles[i].name].concat(
-                        vMachineElementArray(vm_info).slice(1,-1)
+                        vMachineElementArray(vm_info).slice(1)
                     )
             );
         };
@@ -670,7 +671,7 @@ function updateServiceInfo(request,elem){
         "sDom" : '<"H"lfrC>t<"F"ip>',
         "aoColumnDefs": [
            { "sWidth": "60px", "aTargets": [6,7] },
-            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "35px", "aTargets": [1, 11] },
             { "sWidth": "150px", "aTargets": [5,10] },
             { "sWidth": "100px", "aTargets": [2,3,9] },
             { "bVisible": false, "aTargets": [6,7,10]}
@@ -684,6 +685,7 @@ function updateServiceInfo(request,elem){
         var aData = servicevmsDataTable.fnGetData(this);
         var id = aData[1];
         if (!id) return true;
+        if ($(e.target).is('img')) return true;
 
         //open the Vresources submenu in case it was closed
         var vres_menu = $('div#menu li#li_vres_tab')
