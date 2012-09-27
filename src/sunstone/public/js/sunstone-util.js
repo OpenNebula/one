@@ -85,7 +85,7 @@ function humanize_size(value,from_bytes) {
     if (typeof(value) === "undefined") {
         value = 0;
     }
-    var binarySufix = from_bytes ? 
+    var binarySufix = from_bytes ?
         ["", "K", "M", "G", "T" ] : ["K", "M", "G", "T" ];
     var i=0;
     while (value > 1024 && i < 3){
@@ -567,8 +567,8 @@ function getSelectedNodes(dataTable){
     return selected_nodes;
 }
 
-//returns a HTML string with options for 
-//a select input code generated from a dataTable. 
+//returns a HTML string with options for
+//a select input code generated from a dataTable.
 //Allows filtering elements specifing status columns
 //and bad status (if the values of the columns match the bad status)
 //then this elem is skipped.
@@ -590,7 +590,7 @@ function makeSelectOptions(dataTable,
 
         //ASSUMPTION: elem id in column 1
         var id = elem[1];
-            
+
         var name = elem[option_name_col];
         var status, bad_status;
         var ok=true;
@@ -826,7 +826,9 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
 //Shows run a custom action when clicking on rows.
 function infoListener(dataTable, info_action){
     $('tbody tr',dataTable).live("click",function(e){
-        if ($(e.target).is('input')) {return true;}
+        if ($(e.target).is('input') ||
+            $(e.target).is('select') ||
+            $(e.target).is('option')) return true;
 
         var aData = dataTable.fnGetData(this);
         var id = $(aData[0]).val();

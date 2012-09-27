@@ -894,20 +894,18 @@ function popUpCreateVMDialog(){
 
 
     $('#network_box,#disk_box',dialog).change(function(){
-        $(this).val("");
-        return false;
-    });
-
-    $('#network_box option,#disk_box option',dialog).click(function(){
-        var clicked = $(this).attr('clicked');
+        var option = $('option:selected', this);
+        var clicked = option.attr('clicked');
         if (clicked){//unbold, unmark
-            $(this).text($(this).text().replace(/☒/g,'☐'));
-            $(this).removeAttr('clicked');
+            option.text(option.text().replace(/☒/g,'☐'));
+            option.removeAttr('clicked');
         }
         else {//bold,mark
-            $(this).text($(this).text().replace(/☐/g,'☒'));
-            $(this).attr('clicked','clicked');
+            option.text(option.text().replace(/☐/g,'☒'));
+            option.attr('clicked','clicked');
         }
+
+        $(this).val("");
         return false;
     });
 

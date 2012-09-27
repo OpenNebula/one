@@ -813,7 +813,7 @@ function setupCreateImageDialog(){
             });
             //we pop up an upload progress dialog
             var pos_top = $(window).height() - 120;
-            var pos_left = 190;
+            var pos_left = 220;
             var pb_dialog = $('<div id="pb_dialog" title="'+
                               tr("Uploading...")+'">'+
                               '<div id="upload-progress"></div>'+
