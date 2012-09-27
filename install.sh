@@ -418,7 +418,6 @@ INSTALL_FILES=(
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
-    TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
@@ -426,7 +425,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmware
-    DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs 
+    DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
@@ -890,7 +889,7 @@ TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/mvds \
                  src/tm_mad/vmfs/tm_vmfs.conf \
                  src/tm_mad/vmfs/postmigrate \
-                 src/tm_mad/vmfs/premigrate"  
+                 src/tm_mad/vmfs/premigrate"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \

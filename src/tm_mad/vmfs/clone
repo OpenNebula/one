@@ -59,11 +59,11 @@ USE_SSH=$(get_tm_use_ssh $IMAGE_DS_NAME)
 if [ "$USE_SSH" != "yes" ]; then
     USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
     PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-    DST_DIR_WITHOUT_DS_PATH="[$SYSTEM_DS_NAME]${DST_PATH##"$DS_DIR/$SYSTEM_DS_NAME/"}"
-    if [ -z $PASSWORD ]; then       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
-    else       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
+
+    if [ -z $PASSWORD ]; then
+        VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""
+    else
+        VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
     fi
 fi
 
