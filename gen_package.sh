@@ -22,7 +22,7 @@ LICENSE=${LICENSE:-Apache}
 PACKAGE_NAME=${PACKAGE_NAME:-oneapps}
 VENDOR=${VENDOR:-C12G Labs}
 DESC="
-OpenNebula Apps description
+OpenNebula Apps is a group of tools for users and administrators of OpenNebula that simplifies and optimizes cloud application management.
 "
 DESCRIPTION=${DESCRIPTION:-$DESC}
 PACKAGE_TYPE=${PACKAGE_TYPE:-deb}
