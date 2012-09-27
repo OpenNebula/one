@@ -65,9 +65,7 @@ EOT
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
             if rc["return"] == "false"
-                STDERR.puts "Key #{args[0]} could not be removed"
-            else
-                STDERR.puts args[0]
+                exit_with_code -1, "Key #{args[0]} could not be removed"
             end
 
             exit_with_code 0
