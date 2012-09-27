@@ -628,20 +628,18 @@ function setupCreateServiceTemplateDialog(){
     });
 
     $('select[name="parents"]', dialog).change(function(){
-        $(this).val("");
-        return false;
-    });
-
-    $('select[name="parents"] option').live('click', function(){
-        var clicked = $(this).attr('clicked');
+        var option = $('option:selected', this);
+        var clicked = option.attr('clicked');
         if (clicked){//unbold, unmark
-            $(this).text($(this).text().replace(/☒/g,'☐'));
-            $(this).removeAttr('clicked');
+            option.text(option.text().replace(/☒/g,'☐'));
+            option.removeAttr('clicked');
         }
         else {//bold,mark
-            $(this).text($(this).text().replace(/☐/g,'☒'));
-            $(this).attr('clicked','clicked');
+            option.text(option.text().replace(/☐/g,'☒'));
+            option.attr('clicked','clicked');
         }
+
+        $(this).val("");
         return false;
     });
 
