@@ -411,12 +411,14 @@ function iqn_get_host {
 }
 
 function vmfs_crate_remote_path {
+    DS_ID=$1
     # Create DST in DST_HOST
     if [ "$USE_SSH" == "yes" ]; then
-       ssh_make_path $DST_HOST $DST
+        exec_and_log  "ssh_make_path $DST_HOST $DST" \
+                      "Cannot create $DST in $DST_HOST"
     else
-    exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$DST_FOLDER" \
-                 "Cannot create $DST in $DST_HOST"
+        exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$DST_FOLDER" \
+                     "Cannot create [$DS_ID]$DST_FOLDER in $DST_HOST"
     fi
 }
 

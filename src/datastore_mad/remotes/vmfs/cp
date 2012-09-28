@@ -88,7 +88,7 @@ set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 vmfs_set_up
 
-vmfs_create_remote_path
+vmfs_create_remote_path $DS_ID
 
 # ------------  Prepare for a possible download in the front-end  -------------
 
