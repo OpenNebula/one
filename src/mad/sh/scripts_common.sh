@@ -410,7 +410,7 @@ function iqn_get_host {
     echo ${TARGET%%.$VG_NAME.$LV_NAME}
 }
 
-function vmfs_crate_remote_path {
+function vmfs_create_remote_path {
     DS_ID=$1
     # Create DST in DST_HOST
     if [ "$USE_SSH" == "yes" ]; then
@@ -432,4 +432,14 @@ function vmfs_set_up {
             VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
         fi
     fi
+}
+
+function vmfs_create_double_path {
+    DS_ID=$1
+    FIRST_FOLDER=$2
+    SECOND_FOLDER=$3
+    # Two calls needed since vifs cannot do a mkdir -p
+    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER &> /dev/null
+    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER/$SECOND_FOLDER &> /dev/null
+
 }
