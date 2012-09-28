@@ -65,22 +65,15 @@ SRC="${XPATH_ELEMENTS[5]}"
 IMAGE_ID="${XPATH_ELEMENTS[6]}"
 
 SRC_FOLDER=`basename $SRC`
-
-set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
-
 DST=`generate_image_path`
 DST_FOLDER=`basename $DST`
 DST_HOST=`get_destination_host $IMAGE_ID`
 
-if [ "$USE_SSH" != "yes" ]; then
-    USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
-    PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-    if [ -z $PASSWORD ]; then       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
-    else       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
-    fi
-fi
+# ------------ Set up datastore  -------------
+
+set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
+
+vmfs_set_up
 
 # ------------ Copy the image to the repository -------------
 
