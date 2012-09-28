@@ -55,17 +55,14 @@ DST_FOLDER=`basename $DST_PATH`
 
 USE_SSH=$(get_tm_use_ssh $DSID)
 
-if [ "$USE_SSH" != "yes" ]; then
-	IMAGE_DS_NAME=`basename $(dirname $DST_PATH)`
-    SYSTEM_DS_NAME=`basename $(dirname $(dirname $SRC_PATH))`
-    USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
-    PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-    if [ -z $PASSWORD ]; then       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
-    else       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
-    fi
-fi
+IMAGE_DS_NAME=`basename $(dirname $DST_PATH)`
+SYSTEM_DS_NAME=`basename $(dirname $(dirname $SRC_PATH))`
+
+#-------------------------------------------------------------------------------
+# Set up datastore
+#-------------------------------------------------------------------------------
+
+vmfs_set_up
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore

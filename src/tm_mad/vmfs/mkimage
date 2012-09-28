@@ -51,17 +51,13 @@ DST_DIR=`dirname $DST_PATH`
 DST_FOLDER=`basename $DST_PATH`
 
 USE_SSH=$(get_tm_use_ssh $DSID)
+SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
 
-if [ "$USE_SSH" != "yes" ]; then
-    SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
-    USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
-    PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-    if [ -z $PASSWORD ]; then       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
-    else       
-        VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
-    fi
-fi
+#-------------------------------------------------------------------------------
+# Set up datastore
+#-------------------------------------------------------------------------------
+
+vmfs_set_up
 
 #-------------------------------------------------------------------------------
 # Make the new image (file-based)
@@ -82,9 +78,7 @@ EOF
 
     ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH"
 else
-    # Two calls needed since vifs cannot do a mkdir -p
-    vifs $VI_PARAMS --mkdir [$SYSTEM_DS_NAME]$VMID
-    vifs $VI_PARAMS --mkdir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER
+    vmfs_create_double_path $SYSTEM_DS_NAME $VMID $DST_FOLDER
 
     VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
     $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null

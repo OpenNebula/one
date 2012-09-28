@@ -409,3 +409,37 @@ function iqn_get_host {
     VG_NAME=$(iqn_get_vg_name "$IQN")
     echo ${TARGET%%.$VG_NAME.$LV_NAME}
 }
+
+function vmfs_create_remote_path {
+    DS_ID=$1
+    # Create DST in DST_HOST
+    if [ "$USE_SSH" == "yes" ]; then
+        exec_and_log  "ssh_make_path $DST_HOST $DST" \
+                      "Cannot create $DST in $DST_HOST"
+    else
+        exec_and_log "vifs $VI_PARAMS --mkdir [$DS_ID]$DST_FOLDER" \
+                     "Cannot create [$DS_ID]$DST_FOLDER in $DST_HOST"
+    fi
+}
+
+function vmfs_set_up {
+    if [ "$USE_SSH" != "yes" ]; then
+        USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
+        PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
+        if [ -z $PASSWORD ]; then       
+            VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
+        else       
+            VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
+        fi
+    fi
+}
+
+function vmfs_create_double_path {
+    DS_ID=$1
+    FIRST_FOLDER=$2
+    SECOND_FOLDER=$3
+    # Two calls needed since vifs cannot do a mkdir -p
+    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER &> /dev/null
+    vifs $VI_PARAMS --force --mkdir [$DS_ID]$FIRST_FOLDER/$SECOND_FOLDER &> /dev/null
+
+}
