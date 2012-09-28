@@ -16,69 +16,81 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+# mkimage size format host:remote_system_ds/disk.i vmid dsid
+#   - size in MB of the image
+#   - format for the image
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
 
-SRC=$1
-DST=$2
+SIZE=$1
+FSTYPE=$2
+DST=$3
 
-VMID=$3
-DSID=$4
+VMID=$4
+DSID=$5
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    VMWARERC=/etc/one/vmwarerc
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    VMWARERC=$ONE_LOCATION/etc/vmwarerc
 fi
 
 . $TMCOMMON
-
-set_ds_location
+source $(dirname $0)/tm_vmfs.conf
 
 #-------------------------------------------------------------------------------
-# Set dst path and dir
+# Retrieve needed information, set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`"/disk.vmdk"
 DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+DST_FOLDER=`basename $DST_PATH`
 
-DST_PATH="$RMT_DS_DIR/${DST_PATH##"$DS_DIR/"}/disk.vmdk"
-
-SRC_HOST=`arg_host $SRC`
+USE_SSH=$(get_tm_use_ssh $DSID)
+SYSTEM_DS_NAME=`basename $(dirname $(dirname $DST_PATH))`
 
 #-------------------------------------------------------------------------------
-# Move the image back to the datastore
+# Set up datastore
 #-------------------------------------------------------------------------------
-MVSCRIPT=$(cat <<EOF
-SRC_READLN=eval "$READLINK -f $SRC_PATH"
-DST_READLN=eval "$READLINK -f $DST_PATH"
 
-if [ \( -L $SRC \) -a \( "$SRC_READLN" = "$DST_READLN" \) ] ; then
-	echo "Not moving files to image repo, they are the same"
-else
-	WHICH_SUDO=`which sudo`
+vmfs_set_up
 
-	if [ ! -z "$WHICH_SUDO" -a -f "$WHICH_SUDO" ]; then
-		SUDO="sudo "
-	fi
+#-------------------------------------------------------------------------------
+# Make the new image (file-based)
+#-------------------------------------------------------------------------------
 
-	$SUDO $VMKFSTOOLS -i $SRC_PATH -d thin $DST_PATH
-fi
+log "Making filesystem of ${SIZE}M and type $FSTYPE at $DST"
 
-if [ -d $DST_PATH ]; then
-    chmod 0770 $DST_PATH
-else
-    chmod 0660 $DST_PATH
-fi
+if [ "$USE_SSH" == "yes" ]; then
+    ssh_make_path $DST_HOST $DST_PATH
+    MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
+
+MKSCRIPT=$(cat <<EOF
+rm $DST_PATH/*
+export PATH=/usr/sbin:/sbin:\$PATH
+$MKFS_CMD
 EOF
 )
 
-log "Moving $SRC_PATH to datastore as $DST_PATH"
+    ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH"
+else
+    vmfs_create_double_path $SYSTEM_DS_NAME $VMID $DST_FOLDER
 
-ssh_exec_and_log $SRC_HOST "$MVSCRIPT" "Could not move image $DST_PATH"
+    VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
+    $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
+
+    # Erase in case that vmkfstool didn't recognize the disk
+    FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
+    for file in $FILES_TO_ERASE; do
+      vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/$file
+    done
+
+    exec_and_log "$VMKFSTOOLS $VI_PARAMS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
+                 "Cannot create [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk on $DST_HOST"
+fi
 
 exit 0

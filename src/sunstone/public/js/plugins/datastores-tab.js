@@ -73,8 +73,8 @@ var create_datastore_tmpl =
         <option value="ssh">' + tr("SSH") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="dummy">' + tr("Dummy") + '</option>\
-  </select><br />\
-  <label>' + tr("Disk type") + ':</label>\
+  </select><div class="clear">\
+  <label for="disk_type">' + tr("Disk type") + ':</label>\
   <select id="disk_type" name="disk_type">\
         <option value="file">' + tr("File") + '</option>\
         <option value="block">' + tr("Block") + '</option>\

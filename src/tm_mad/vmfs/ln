@@ -37,9 +37,10 @@ else
 fi
 
 . $TMCOMMON
+source $(dirname $0)/tm_vmfs.conf
 
 #-------------------------------------------------------------------------------
-# Set dst path and dir
+# Retrieve needed information, set dst path and dir
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
@@ -48,12 +49,13 @@ DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
+USE_SSH=$(get_tm_use_ssh $DSID)
+
 #-------------------------------------------------------------------------------
 # Link (ln) SRC into DST
 #-------------------------------------------------------------------------------
 
-# Is it a file or a folder (VMware)?
-if [ -d `arg_path $SRC`  ]; then
+if [ "$USE_SSH" == "yes" ]; then
 	ssh_make_path $DST_HOST $DST_PATH
 
 	# It's a folder, make links for all elements
@@ -71,18 +73,11 @@ for file in \$(cd $DST_DIR  ; find $SRC_PATH -type f); do
 done
 EOF
 )
-	ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" "Could not link dir files from source DS to system DS"
+	ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
+	      "Could not link dir files from source DS to system DS"
 else
-	ssh_make_path $DST_HOST $DST_DIR
-
-	# Just link a file
-	log "Linking $SRC_PATH in $DST"
-
-	ssh_exec_and_log $DST_HOST \
-				     "cd $DST_DIR; rm $DST_PATH ; ln -s $SRC_PATH $DST_PATH" \
-	             	 "Error linking $SRC to $DST"
+	log "Cannot link files without SSH enabled on the ESX hosts, calling clone"
+	exec $(dirname $0)/clone $*
 fi
 
-
 exit 0
-

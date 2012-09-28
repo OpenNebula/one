@@ -152,3 +152,15 @@ function check_restricted {
 
   	echo 0
 }
+
+#-------------------------------------------------------------------------------
+# Gets the ESX host to be used as bridge to register a VMware disk
+# Implements a round robin for the bridges
+#   @param $1 - Path to the list of ESX hosts to be used as bridges
+#   @return host to be used as bridge
+#-------------------------------------------------------------------------------
+function get_destination_host {
+	HOSTS_ARRAY=($BRIDGE_LIST)
+    ARRAY_INDEX=`expr $1 % ${#HOSTS_ARRAY[@]}`
+	echo ${HOSTS_ARRAY[$ARRAY_INDEX]}
+}

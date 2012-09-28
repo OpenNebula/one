@@ -228,7 +228,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
-          $VAR_LOCATION/remotes/tm/vmware \
+          $VAR_LOCATION/remotes/tm/vmfs \
           $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/hooks \
@@ -237,6 +237,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
           $VAR_LOCATION/remotes/datastore/vmware \
+          $VAR_LOCATION/remotes/datastore/vmfs \
           $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/auth \
@@ -416,7 +417,7 @@ INSTALL_FILES=(
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
-    TM_VMWARE_FILES:$VAR_LOCATION/remotes/tm/vmware
+    TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
@@ -424,6 +425,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmware
+    DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
@@ -877,16 +879,17 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/postmigrate \
               src/tm_mad/dummy/mvds"
 
-TM_VMWARE_FILES="src/tm_mad/vmware/clone \
-                 src/tm_mad/vmware/delete
-                 src/tm_mad/vmware/ln \
-                 src/tm_mad/vmware/mkswap \
-                 src/tm_mad/vmware/mkimage \
-                 src/tm_mad/vmware/mv \
-                 src/tm_mad/vmware/context \
-                 src/tm_mad/vmware/premigrate \
-                 src/tm_mad/vmware/postmigrate \
-                 src/tm_mad/vmware/mvds"
+TM_VMFS_FILES="src/tm_mad/vmfs/clone \
+                 src/tm_mad/vmfs/delete
+                 src/tm_mad/vmfs/ln \
+                 src/tm_mad/vmfs/mkswap \
+                 src/tm_mad/vmfs/mkimage \
+                 src/tm_mad/vmfs/mv \
+                 src/tm_mad/vmfs/context \
+                 src/tm_mad/vmfs/mvds \
+                 src/tm_mad/vmfs/tm_vmfs.conf \
+                 src/tm_mad/vmfs/postmigrate \
+                 src/tm_mad/vmfs/premigrate"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
@@ -909,6 +912,7 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
 #   - VMware based Image Repository, $REMOTES_LOCATION/datastore/vmware
+#   - VMFS based Image Repository, $REMOTES_LOCATION/datastore/vmfs
 #   - iSCSI based Image Repository, $REMOTES_LOCATION/datastore/iscsi
 #   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
 #-------------------------------------------------------------------------------
@@ -934,6 +938,13 @@ DATASTORE_DRIVER_VMWARE_SCRIPTS="src/datastore_mad/remotes/vmware/cp \
                          src/datastore_mad/remotes/vmware/stat \
                          src/datastore_mad/remotes/vmware/clone \
                          src/datastore_mad/remotes/vmware/rm"
+
+DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
+                         src/datastore_mad/remotes/vmfs/mkfs \
+                         src/datastore_mad/remotes/vmfs/stat \
+                         src/datastore_mad/remotes/vmfs/clone \
+                         src/datastore_mad/remotes/vmfs/rm \
+                         src/datastore_mad/remotes/vmfs/vmfs.conf"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \

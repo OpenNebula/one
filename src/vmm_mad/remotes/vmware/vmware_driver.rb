@@ -50,7 +50,11 @@ class VMwareDriver
        @uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
 
        @user = conf[:username]
-       @pass = conf[:password]
+       if conf[:password] and !conf[:password].empty?
+          @pass=conf[:password]
+       else
+          @pass="\"\""
+       end
 
        @datacenter = conf[:datacenter]
        @vcenter    = conf[:vcenter]
@@ -176,9 +180,11 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     def restore(checkpoint)
         begin
+            vm_folder=VAR_LOCATION + "/" + File.basename(File.dirname(checkpoint))
+            last_deployment_file=`ls -1 #{vm_folder}/deployment*|tail -1`
+
             # Define the VM
-            dfile = VAR_LOCATION + "/" + 
-                    File.basename(File.dirname(checkpoint)) + "/deployment.0"
+            dfile = vm_folder + "/" + last_deployment_file
         rescue => e
             OpenNebula.log_error("Cannot open checkpoint #{e.message}")
             exit -1

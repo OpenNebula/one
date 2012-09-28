@@ -16,60 +16,71 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# clone fe:SOURCE host:remote_system_ds/disk.i vmid dsid
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/> vmid dsid
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
 
-SRC=$1
-DST=$2
+DST=$1
 
-VMID=$3
-DSID=$4
+VMID=$2
+DSID=$3
+
+# Wait for the cancel action on the VM to complete
+sleep 10
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    VMWARERC=/etc/one/vmwarerc
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    VMWARERC=$ONE_LOCATION/etc/vmwarerc
 fi
 
 . $TMCOMMON
+source $(dirname $0)/tm_vmfs.conf
 
 #-------------------------------------------------------------------------------
-# Set dst path and dir
+# Retrieve needed information
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
 
+USE_SSH=$(get_tm_use_ssh $DSID)
+
+#-------------------------------------------------------------------------------
+# Set up datastore
+#-------------------------------------------------------------------------------
+
+vmfs_set_up
+
+#-------------------------------------------------------------------------------
+# Return if deleting a disk, we will delete them when removing the 
+# remote_system_ds directory for the VM (remotely)
+#-------------------------------------------------------------------------------
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
-DST_DIR=`dirname $DST_PATH`
 
-
-ssh_make_path $DST_HOST $DST_PATH
-
-#-------------------------------------------------------------------------------
-# Clone (cp) SRC into DST
-#-------------------------------------------------------------------------------
-log "Cloning $SRC_PATH in $DST"
-
-CLONESCRIPT=$(cat <<EOF
-cd $DST_DIR
-
-export PATH=/usr/sbin:/sbin:\$PATH
-
-if which sudo > /dev/null; then
-  SUDO_CMD="sudo "
+if [ `is_disk $DST_PATH` -eq 1 ]; then
+	exit 0
 fi
 
-\$SUDO_CMD $VMKFSTOOLS -U $DST_PATH/disk.vmdk
-\$SUDO_CMD $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
-EOF
-)
+log "Deleting $DST_PATH"
 
-ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
+if [ "$USE_SSH" == "yes" ]; then
+	ssh_exec_and_log $DST_HOST "rm -rf $DST_PATH" "Error deleting $DST_PATH"
+else
+	DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
+	for dir in $DIRS_TO_ERASE; do
+		FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID/$dir|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
+		for file in $FILES_TO_ERASE; do
+			exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir/$file" \
+	                     "Cannot delete [$DSID]$VMID/$dir/$file in $DST_HOST"
+	    done
+    	exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir" \
+         "Cannot delete [$DSID]$VMID in $DST_HOST"
+	done
+	exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID" \
+             "Cannot delete [$DSID]$VMID in $DST_HOST"
+fi
 
 exit 0

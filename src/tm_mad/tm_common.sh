@@ -88,3 +88,25 @@ function make_relative {
 
     echo $dots${src#$common/}
 }
+
+# Gets wether the vmfs drivers should use ssh or not
+function get_tm_use_ssh {
+    DATASTORE_ID=$1
+
+    #-------------------------------------------------------------------------------
+    # Get datastore information
+    #-------------------------------------------------------------------------------
+
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+
+    unset i XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x $DATASTORE_ID| $XPATH \
+                        /DATASTORE/TEMPLATE/TM_USE_SSH)
+
+    TM_USE_SSH="${XPATH_ELEMENTS[0]:-$TM_USE_SSH}"
+
+    echo $TM_USE_SSH
+}

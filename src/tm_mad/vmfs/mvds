@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# ln fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+# mvds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
@@ -32,57 +32,77 @@ DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    VMWARERC=/etc/one/vmwarerc
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    VMWARERC=$ONE_LOCATION/etc/vmwarerc
 fi
 
 . $TMCOMMON
+source $(dirname $0)/tm_vmfs.conf
+
+set_ds_location
 
 #-------------------------------------------------------------------------------
-# Set dst path and dir
+# Retrieve needed information, set dst path and dir
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
-SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
+SRC_HOST=`arg_host $SRC`
+SRC_FOLDER=`basename $SRC_PATH`
 
 DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
-DST_DIR=`dirname $DST_PATH`
+DST_FOLDER=`basename $DST_PATH`
+
+USE_SSH=$(get_tm_use_ssh $DSID)
+
+IMAGE_DS_NAME=`basename $(dirname $DST_PATH)`
+SYSTEM_DS_NAME=`basename $(dirname $(dirname $SRC_PATH))`
 
 #-------------------------------------------------------------------------------
-# Link (ln) SRC into DST
+# Set up datastore
 #-------------------------------------------------------------------------------
 
-# Is it a file or a folder (VMware)?
-if [ -d `arg_path $SRC`  ]; then
-	ssh_make_path $DST_HOST $DST_PATH
+vmfs_set_up
 
-	# It's a folder, make links for all elements
-    SRC_FOLDER_NAME=`basename $SRC_PATH`
-    SRC_WITH_NO_FOLDER=`dirname $SRC_PATH`
-    SRC_DS_NAME=`basename $SRC_WITH_NO_FOLDER`
-	REL_SRC_PATH="../../../$SRC_DS_NAME/$SRC_FOLDER_NAME"
+#-------------------------------------------------------------------------------
+# Move the image back to the datastore
+#-------------------------------------------------------------------------------
 
-	log "Link all files in $SRC_PATH to $DST_PATH"
+log "Moving [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk to [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk"
 
-LINK_SCRIPT=$(cat <<EOF
-for file in \$(cd $DST_DIR  ; find $SRC_PATH -type f); do
-	FNAME=\$(basename \$file)
-	(cd $DST_PATH ;  ln -sf $REL_SRC_PATH/\$FNAME $DST_PATH/$FNAME)
-done
-EOF
-)
-	ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" "Could not link dir files from source DS to system DS"
+if [ "$USE_SSH" == "yes" ]; then
+
+MVSCRIPT=$(cat <<EOF
+SRC_READLN=eval "$READLINK -f $SRC_PATH"
+DST_READLN=eval "$READLINK -f $DST_PATH"
+
+if [ \( -L $SRC \) -a \( "$SRC_READLN" = "$DST_READLN" \) ] ; then
+	echo "Not moving files to image repo, they are the same"
 else
-	ssh_make_path $DST_HOST $DST_DIR
+	WHICH_SUDO=`which sudo`
 
-	# Just link a file
-	log "Linking $SRC_PATH in $DST"
+	if [ ! -z "$WHICH_SUDO" -a -f "$WHICH_SUDO" ]; then
+		SUDO="sudo "
+	fi
 
-	ssh_exec_and_log $DST_HOST \
-				     "cd $DST_DIR; rm $DST_PATH ; ln -s $SRC_PATH $DST_PATH" \
-	             	 "Error linking $SRC to $DST"
+	$SUDO $VMKFSTOOLS -U [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk
+	$SUDO $VMKFSTOOLS -i [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk -d thin [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk
 fi
 
+if [ -d $DST_PATH ]; then
+    chmod 0770 $DST_PATH
+else
+    chmod 0660 $DST_PATH
+fi
+EOF
+)
+
+	ssh_exec_and_log $SRC_HOST "$MVSCRIPT" \
+            "Could not move image [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk to [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk in $SRC_HOST"
+else
+	$VMKFSTOOLS $VI_PARAMS -U [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk &> /dev/null
+	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk -d thin [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk" \
+	             "Could not move image [$SYSTEM_DS_NAME]$VMID/$SRC_FOLDER/disk.vmdk to [$IMAGE_DS_NAME]$DST_FOLDER/disk.vmdk in $SRC_HOST"
+fi
 
 exit 0
-
