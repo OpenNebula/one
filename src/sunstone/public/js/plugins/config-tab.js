@@ -30,12 +30,17 @@ var config_tab_content =
               <td class="value_td">\
                    <select id="lang_sel" style="width:20em;">\
                        <option value="en_US">'+tr("English (US)")+'</option>\
+                       <option value="ca">'+tr("Catalan")+'</option>\
                        <option value="zh_TW">'+tr("Chinese (TW)")+'</option>\
+                       <option value="cs_CZ">'+tr("Czech (CZ)")+'</option>\
                        <option value="fr_FR">'+tr("French (FR)")+'</option>\
+                       <option value="de">'+tr("German")+'</option>\
+                       <option value="el_GR">'+tr("Greek (GR)")+'</option>\
                        <option value="it_IT">'+tr("Italian (IT)")+'</option>\
                        <option value="fa_IR">'+tr("Persian (IR)")+'</option>\
                        <option value="pt_PT">'+tr("Portuguese (PT)")+'</option>\
                        <option value="ru_RU">'+tr("Russian (RU)")+'</option>\
+                       <option value="es_ES">'+tr("Spanish (SP)")+'</option>\
                        <option value="sk_SK">'+tr("Slovak (SK)")+'</option>\
                    </select>\
               </td>\

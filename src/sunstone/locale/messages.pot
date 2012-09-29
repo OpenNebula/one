@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-18 13:25+0200\n"
+"POT-Creation-Date: 2012-09-29 15:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,7 +128,7 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: ../public/js/sunstone-util.js:1026
+#: ../public/js/sunstone-util.js:1028
 msgid "Please select an element"
 msgstr ""
 
@@ -1844,46 +1844,66 @@ msgid "English (US)"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:33
-msgid "Chinese (TW)"
+msgid "Catalan"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:34
-msgid "French (FR)"
+msgid "Chinese (TW)"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:35
-msgid "Italian (IT)"
+msgid "Czech (CZ)"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:36
-msgid "Persian (IR)"
+msgid "French (FR)"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:37
-msgid "Portuguese (PT)"
+msgid "German"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:38
-msgid "Russian (RU)"
+msgid "Greek (GR)"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:39
-msgid "Slovak (SK)"
+msgid "Italian (IT)"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:40
+msgid "Persian (IR)"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:41
+msgid "Portuguese (PT)"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:42
+msgid "Russian (RU)"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:43
+msgid "Spanish (SP)"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:44
+msgid "Slovak (SK)"
+msgstr ""
+
+#: ../public/js/plugins/config-tab.js:49
 msgid "Secure websockets connection"
 msgstr ""
 
-#: ../public/js/plugins/config-tab.js:59
+#: ../public/js/plugins/config-tab.js:64
 msgid "These options are stored in your OpenNebula user template."
 msgstr ""
 
-#: ../public/js/plugins/config-tab.js:62
+#: ../public/js/plugins/config-tab.js:67
 msgid "WSS connection requires additional configuration of Sunstone Server and that the SSL certificate is considered valid by your browser."
 msgstr ""
 
-#: ../public/js/plugins/config-tab.js:77
+#: ../public/js/plugins/config-tab.js:82
 msgid "Configuration"
 msgstr ""
 

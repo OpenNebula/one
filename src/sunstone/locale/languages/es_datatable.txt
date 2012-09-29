@@ -1,0 +1,17 @@
+{
+    "sProcessing":   "Procesando...",
+    "sLengthMenu":   "Número de elementos",
+    "sZeroRecords":  "No hay elementos",
+    "sInfo":         "Mostrando del _START_ al _END_ de _TOTAL_",
+    "sInfoEmpty":    "No hay elementos",
+    "sInfoFiltered": "(filtado de un total de _MAX_)",
+    "sInfoPostFix":  "",
+    "sSearch":       "Buscar:",
+    "sUrl":          "",
+    "oPaginate": {
+        "sFirst": "Primero",
+        "sPrevious": "Anterior",
+        "sNext": "Siguiente",
+        "sLast": "Último"
+    }
+}

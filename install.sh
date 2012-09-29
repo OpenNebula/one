@@ -258,7 +258,12 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/js/user-plugins \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/locale \
+               $SUNSTONE_LOCATION/public/locale/ca \
+               $SUNSTONE_LOCATION/public/locale/cs_CZ \
+               $SUNSTONE_LOCATION/public/locale/de \
+               $SUNSTONE_LOCATION/public/locale/el_GR \
                $SUNSTONE_LOCATION/public/locale/en_US \
+               $SUNSTONE_LOCATION/public/locale/es_ES \
                $SUNSTONE_LOCATION/public/locale/fa_IR \
                $SUNSTONE_LOCATION/public/locale/fr_FR \
                $SUNSTONE_LOCATION/public/locale/it_IT \
@@ -509,7 +514,12 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/FontAwesome/font
     SUNSTONE_PUBLIC_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/FontAwesome/css
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+    SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
+    SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
+    SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/de
+    SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/el_GR
     SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
+    SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/es_ES
     SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/fa_IR
     SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/fr_FR
     SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
@@ -1462,9 +1472,29 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/server_icon.png \
 "
 
+SUNSTONE_PUBLIC_LOCALE_CA="\
+src/sunstone/locale/languages/ca.js \
+src/sunstone/locale/languages/ca_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_CS_CZ="\
+src/sunstone/locale/languages/cs_CZ.js \
+src/sunstone/locale/languages/cs_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_DE="\
+src/sunstone/locale/languages/de.js \
+src/sunstone/locale/languages/de_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_EL_GR="\
+src/sunstone/locale/languages/el_GR.js \
+src/sunstone/locale/languages/el_datatable.txt"
+
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
 src/sunstone/locale/languages/en_US.js \
 src/sunstone/locale/languages/en_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_ES_ES="\
+src/sunstone/locale/languages/es_ES.js \
+src/sunstone/locale/languages/es_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_FA_IR="\
 src/sunstone/locale/languages/fa_IR.js \
