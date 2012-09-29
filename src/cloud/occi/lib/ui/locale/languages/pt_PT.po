@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) YEAR 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
@@ -9,15 +9,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-06 10:30+0200\n"
-"PO-Revision-Date: 2012-07-04 14:26+0000\n"
+"POT-Creation-Date: 2012-09-28 19:15+0200\n"
+"PO-Revision-Date: 2012-09-19 10:39+0000\n"
 "Last-Translator: André Monteiro <andre.monteir@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pt_PT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../public/js/locale.js:34
 msgid "Changing language"
@@ -52,18 +52,18 @@ msgstr "Terminar sessão"
 msgid "All"
 msgstr "Tudo"
 
-#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:345
+#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
 #: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
-#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:538
-#: ../public/js/plugins/compute.js:583 ../public/js/plugins/compute.js:628
+#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
+#: ../public/js/plugins/compute.js:637
 msgid "ID"
 msgstr "ID"
 
 #: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
-#: ../public/js/plugins/storage.js:349 ../public/js/plugins/network.js:28
-#: ../public/js/plugins/network.js:41 ../public/js/plugins/network.js:282
-#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:542
-#: ../public/js/plugins/compute.js:587 ../public/js/plugins/compute.js:632
+#: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
+#: ../public/js/plugins/network.js:28 ../public/js/plugins/network.js:41
+#: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
+#: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
 msgid "Name"
 msgstr "Nome"
 
@@ -79,7 +79,7 @@ msgstr "são obrigatórios"
 msgid "Name that the Image will get."
 msgstr "Nome que a Imagem irá ter."
 
-#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:353
+#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
 msgid "Description"
 msgstr "Descrição"
 
@@ -87,8 +87,7 @@ msgstr "Descrição"
 msgid "Human readable description of the image."
 msgstr "Descrição explicativa da imagem"
 
-#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:357
-#: ../public/js/plugins/compute.js:595
+#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
 msgid "Type"
 msgstr "Tipo"
 
@@ -136,7 +135,7 @@ msgstr "Público"
 msgid "Public scope of the image"
 msgstr "Alcance público da imagem"
 
-#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:361
+#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
 msgid "Persistent"
 msgstr "Persistente"
 
@@ -144,8 +143,8 @@ msgstr "Persistente"
 msgid "Persistence of the image"
 msgstr "Persistência da imagem"
 
-#: ../public/js/plugins/storage.js:95 ../public/js/plugins/network.js:56
-#: ../public/js/plugins/compute.js:103
+#: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
+#: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
 msgid "Close"
 msgstr "Fechar"
 
@@ -154,75 +153,89 @@ msgstr "Fechar"
 msgid "Create"
 msgstr "Criar"
 
-#: ../public/js/plugins/storage.js:214 ../public/js/plugins/network.js:158
-#: ../public/js/plugins/compute.js:323
-msgid "Refresh list"
-msgstr "Actualizar lista"
+#: ../public/js/plugins/storage.js:104
+msgid "Choose a new name for the image"
+msgstr "Seleccione um novo nome para a imagem"
 
-#: ../public/js/plugins/storage.js:219 ../public/js/plugins/network.js:164
-#: ../public/js/plugins/compute.js:329
+#: ../public/js/plugins/storage.js:105
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr "Existem várias imagens seleccionadas, por favor escolha um prefixo para nomear as novas cópias"
+
+#: ../public/js/plugins/storage.js:108
+msgid "Prefix"
+msgstr "Prefixo"
+
+#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
+msgid "Clone"
+msgstr "Clonar"
+
+#: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
+#: ../public/js/plugins/compute.js:355
 msgid "+ New"
 msgstr "+ Nova"
 
-#: ../public/js/plugins/storage.js:223
+#: ../public/js/plugins/storage.js:249
 msgid "Make persistent"
 msgstr "Tornar persistente"
 
-#: ../public/js/plugins/storage.js:227
+#: ../public/js/plugins/storage.js:253
 msgid "Make non persistent"
 msgstr "Tornar não persistente"
 
-#: ../public/js/plugins/storage.js:234 ../public/js/plugins/network.js:169
+#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
 msgid "Publish"
 msgstr "Publicar"
 
-#: ../public/js/plugins/storage.js:238 ../public/js/plugins/network.js:174
+#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
 msgid "Unpublish"
 msgstr "Despublicar"
 
-#: ../public/js/plugins/storage.js:244 ../public/js/plugins/network.js:179
-#: ../public/js/plugins/compute.js:381
+#: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
+#: ../public/js/plugins/compute.js:422
 msgid "Delete"
 msgstr "Remover"
 
-#: ../public/js/plugins/storage.js:250 ../public/js/plugins/storage.js:337
+#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
 msgid "Image information"
 msgstr "Informação da imagem"
 
-#: ../public/js/plugins/storage.js:258
+#: ../public/js/plugins/storage.js:287
 msgid "Add storage"
 msgstr "Adicionar armazenamento"
 
-#: ../public/js/plugins/storage.js:264 ../public/js/plugins/dashboard.js:46
-#: ../public/customize/custom.js:68
+#: ../public/js/plugins/storage.js:294
+msgid "Clone image"
+msgstr "Clonar imagem"
+
+#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
 msgid "Storage"
 msgstr "Armazenamento"
 
-#: ../public/js/plugins/storage.js:341
+#: ../public/js/plugins/storage.js:378
 msgid "Image"
 msgstr "Imagem"
 
-#: ../public/js/plugins/storage.js:342 ../public/js/plugins/network.js:275
+#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
 msgid "information"
 msgstr "informação"
 
-#: ../public/js/plugins/storage.js:365
+#: ../public/js/plugins/storage.js:402
 msgid "Filesystem type"
 msgstr "Tipo de sistema de ficheiros"
 
-#: ../public/js/plugins/storage.js:369
+#: ../public/js/plugins/storage.js:406
 msgid "Size (Mb)"
 msgstr "Tamanho (Mb)"
 
-#: ../public/js/plugins/storage.js:503
+#: ../public/js/plugins/storage.js:537
 msgid "You must specify a name"
 msgstr "Deve especificar um nome"
 
-#: ../public/js/plugins/storage.js:521
+#: ../public/js/plugins/storage.js:555
 msgid "You must specify size and FS type"
 msgstr "Deve especificar um tamanho e um tipo de sistema de ficheiros"
 
-#: ../public/js/plugins/storage.js:528
+#: ../public/js/plugins/storage.js:562
 msgid "You must select a file to upload"
 msgstr "Deve seleccionar um ficheiro para carregar"
 
@@ -242,8 +255,9 @@ msgstr "Informação de rede"
 msgid "Create network"
 msgstr "Criar rede"
 
-#: ../public/js/plugins/network.js:199 ../public/js/plugins/compute.js:91
-#: ../public/js/plugins/compute.js:396 ../public/js/plugins/compute.js:655
+#: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
+#: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
+#: ../public/js/plugins/compute.js:664
 msgid "Networks"
 msgstr "Redes"
 
@@ -271,51 +285,106 @@ msgstr "Falta o nome da Rede Virtual!"
 msgid "Please provide a network address"
 msgstr "Por favor indique um endereço de rede"
 
-#: ../public/js/plugins/dashboard.js:37
-msgid "Current resources"
-msgstr "Recursos actuais"
+#: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
+#: ../public/js/plugins/compute.js:32
+msgid "CPU"
+msgstr "CPU"
 
-#: ../public/js/plugins/dashboard.js:42 ../public/js/plugins/compute.js:409
+#: ../public/js/plugins/dashboard.js:22 ../public/js/plugins/dashboard.js:249
+#: ../public/js/plugins/compute.js:37
+msgid "Memory"
+msgstr "Memória"
+
+#: ../public/js/plugins/dashboard.js:26
+msgid "Net transfer rates"
+msgstr "Taxas de transferência de rede"
+
+#: ../public/js/plugins/dashboard.js:52
+msgid "Resources and quotas"
+msgstr "Recursos e quotas"
+
+#: ../public/js/plugins/dashboard.js:56 ../public/js/plugins/compute.js:450
 #: ../public/customize/custom.js:64
 msgid "Compute"
 msgstr "Computação"
 
-#: ../public/js/plugins/dashboard.js:50 ../public/customize/custom.js:72
-msgid "Network"
-msgstr "Rede"
+#: ../public/js/plugins/dashboard.js:58
+msgid "Storage quotas"
+msgstr "Quotas de armazenamento"
 
-#: ../public/js/plugins/dashboard.js:62
-msgid "Useful links"
-msgstr "Ligações úteis"
+#: ../public/js/plugins/dashboard.js:60 ../public/js/plugins/compute.js:86
+msgid "Images"
+msgstr "Imagens"
 
-#: ../public/js/plugins/dashboard.js:81
+#: ../public/js/plugins/dashboard.js:73
+msgid "Usages"
+msgstr "Utilização"
+
+#: ../public/js/plugins/dashboard.js:77
+msgid "From"
+msgstr "De"
+
+#: ../public/js/plugins/dashboard.js:78
+msgid "To"
+msgstr "Para"
+
+#: ../public/js/plugins/dashboard.js:79
+#: ../../../../../sunstone/public/js/sunstone-util.js:746
+msgid "Update"
+msgstr "Actualizar"
+
+#: ../public/js/plugins/dashboard.js:126
 msgid "Create new compute resource"
 msgstr "Criar novo recurso computacional"
 
-#: ../public/js/plugins/dashboard.js:82 ../public/js/plugins/dashboard.js:96
-#: ../public/js/plugins/dashboard.js:110
+#: ../public/js/plugins/dashboard.js:127 ../public/js/plugins/dashboard.js:141
+#: ../public/js/plugins/dashboard.js:155
 msgid "See more"
 msgstr "Ver mais"
 
-#: ../public/js/plugins/dashboard.js:95
+#: ../public/js/plugins/dashboard.js:140
 msgid "Create new storage resource"
 msgstr "Criar novo recurso de armazenamento"
 
-#: ../public/js/plugins/dashboard.js:109
+#: ../public/js/plugins/dashboard.js:154
 msgid "Create new network resource"
 msgstr "Criar novo recurso de rede"
 
-#: ../public/js/plugins/dashboard.js:120
+#: ../public/js/plugins/dashboard.js:163
+msgid "Useful links"
+msgstr "Ligações úteis"
+
+#: ../public/js/plugins/dashboard.js:175
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: ../public/js/plugins/compute.js:32 ../public/js/plugins/compute.js:554
-msgid "CPU"
-msgstr "CPU"
+#: ../public/js/plugins/dashboard.js:238
+msgid "Virtual Machines quotas"
+msgstr "Quotas de Máquinas Virtuais"
 
-#: ../public/js/plugins/compute.js:37 ../public/js/plugins/compute.js:558
-msgid "Memory"
-msgstr "Memória"
+#: ../public/js/plugins/dashboard.js:274
+msgid "Storage size"
+msgstr "Tamanho de armazenamento"
+
+#: ../public/js/plugins/dashboard.js:287
+msgid "Number of images"
+msgstr "Número de imagens"
+
+#: ../public/js/plugins/dashboard.js:296
+msgid "Image quota"
+msgstr "Quota de imagens"
+
+#: ../public/js/plugins/dashboard.js:302
+msgid "RVMs"
+msgstr "RVMs"
+
+#: ../public/js/plugins/dashboard.js:311
+msgid "Network quota"
+msgstr "Quota de rede"
+
+#: ../public/js/plugins/dashboard.js:317
+msgid "Leases"
+msgstr "Atribuições"
 
 #: ../public/js/plugins/compute.js:42
 msgid "Network transmission"
@@ -325,11 +394,11 @@ msgstr "Transmissão de rede"
 msgid "Network reception"
 msgstr "Recepção de rede"
 
-#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:550
+#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
 msgstr "Estado"
 
-#: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:636
+#: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:645
 msgid "IP"
 msgstr "IP"
 
@@ -337,306 +406,347 @@ msgstr "IP"
 msgid "VM Name"
 msgstr "Nome da VM"
 
-#: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:546
+#: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:593
 msgid "Instance type"
 msgstr "Tipo de instância"
 
-#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1010
+#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1036
 msgid "Loading"
 msgstr "A carregar"
-
-#: ../public/js/plugins/compute.js:86
-msgid "Images"
-msgstr "Imagens"
 
 #: ../public/js/plugins/compute.js:97
 msgid "Create # VMs"
 msgstr "Criar #VMs"
 
 #: ../public/js/plugins/compute.js:99
-msgid "You can use the wildcard &#37;. When creating several VMs, &#37; will be replaced with a different number starting from 0 in each of them"
-msgstr "Pode usar o asterisco &#37;. Aquando da criação de várias VMs, &#37; será substituído por um número diferente em cada uma delas a começar no 0."
+msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
+msgstr "Pode usar o asterisco &#37;i. Aquando da criação de VMs, &#37i; será substituído por um número diferente começando no 0 para cada uma delas."
 
-#: ../public/js/plugins/compute.js:335
+#: ../public/js/plugins/compute.js:361
 msgid "Shutdown"
 msgstr "Desligar"
 
-#: ../public/js/plugins/compute.js:336
+#: ../public/js/plugins/compute.js:362
 msgid "This will shutdown the selected VMs"
 msgstr "Isto irá desligar as VMs seleccionadas"
 
-#: ../public/js/plugins/compute.js:344
+#: ../public/js/plugins/compute.js:370
 msgid "Suspend"
 msgstr "Suspender"
 
-#: ../public/js/plugins/compute.js:345
+#: ../public/js/plugins/compute.js:371
 msgid "This will suspend the selected VMs"
 msgstr "Isto irá suspender as VMs seleccionadas"
 
-#: ../public/js/plugins/compute.js:349
+#: ../public/js/plugins/compute.js:375
 msgid "Resume"
 msgstr "Continuar"
 
-#: ../public/js/plugins/compute.js:350
+#: ../public/js/plugins/compute.js:376
 msgid "This will resume the selected VMs in stopped or suspended states"
 msgstr "Isto ira continuar as VMs seleccionadas paradas ou suspensas"
 
-#: ../public/js/plugins/compute.js:354
+#: ../public/js/plugins/compute.js:380
 msgid "Stop"
 msgstr "Parar"
 
-#: ../public/js/plugins/compute.js:359
+#: ../public/js/plugins/compute.js:385
 msgid "Reboot"
 msgstr "Reiniciar"
 
-#: ../public/js/plugins/compute.js:364
+#: ../public/js/plugins/compute.js:390
 msgid "Reset"
 msgstr "Reset"
 
-#: ../public/js/plugins/compute.js:369 ../public/js/plugins/compute.js:837
-#: ../../../../../sunstone/public/js/sunstone.js:663
-#: ../../../../../sunstone/public/js/sunstone.js:695
+#: ../public/js/plugins/compute.js:395
+msgid "Restart"
+msgstr "Reiniciar"
+
+#: ../public/js/plugins/compute.js:396
+msgid "This will redeploy selected VMs"
+msgstr "Isto irá reinstanciar as VMs seleccionadas"
+
+#: ../public/js/plugins/compute.js:400
+msgid "Resubmit"
+msgstr "Resubmeter"
+
+#: ../public/js/plugins/compute.js:401
+msgid "This will resubmits VMs to PENDING state"
+msgstr "Isto irá resubmeter as VMs para o estado PENDENTE"
+
+#: ../public/js/plugins/compute.js:405
+msgid "Power Off"
+msgstr "Encerrar"
+
+#: ../public/js/plugins/compute.js:406
+msgid "This will send a power off signal to running VMs. They can be restarted later."
+msgstr "Isto irá enviar o sinal de encerramento às VMs a correr. Elas poderão ser reiniciadas mais tarde."
+
+#: ../public/js/plugins/compute.js:410
+#: ../../../../../sunstone/public/js/sunstone.js:664
+#: ../../../../../sunstone/public/js/sunstone.js:696
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: ../public/js/plugins/compute.js:370
+#: ../public/js/plugins/compute.js:411
 msgid "This will cancel selected VMs"
 msgstr "Isto irá cancelar as VMs seleccionadas"
 
-#: ../public/js/plugins/compute.js:374 ../public/js/plugins/compute.js:826
+#: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
 msgstr "Tirar snapshot"
 
-#: ../public/js/plugins/compute.js:382
+#: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
 msgstr "Isto irá apagar as VMs seleccinadas da base de dados"
 
-#: ../public/js/plugins/compute.js:388
+#: ../public/js/plugins/compute.js:429
 msgid "Compute resource"
 msgstr "Recursos computacionais"
 
-#: ../public/js/plugins/compute.js:392 ../public/js/plugins/compute.js:610
-msgid "Disks"
-msgstr "Discos"
+#: ../public/js/plugins/compute.js:433 ../public/js/plugins/compute.js:619
+msgid "Disks & Hotplugging"
+msgstr "Discos e Ligações em tempo real"
 
-#: ../public/js/plugins/compute.js:403
+#: ../public/js/plugins/compute.js:444
 msgid "Create Virtual Machine"
 msgstr "Criar Máquina Virtual"
 
-#: ../public/js/plugins/compute.js:530
+#: ../public/js/plugins/compute.js:577
 msgid "VM information"
 msgstr "Informação de VM"
 
-#: ../public/js/plugins/compute.js:534
+#: ../public/js/plugins/compute.js:581
 msgid "Virtual Machine information"
 msgstr "Informação de Máquina Virtual"
 
-#: ../public/js/plugins/compute.js:562
+#: ../public/js/plugins/compute.js:601
+msgid "Used CPU"
+msgstr "CPU usado"
+
+#: ../public/js/plugins/compute.js:605
+msgid "Used Memory"
+msgstr "Memória usada"
+
+#: ../public/js/plugins/compute.js:609
 msgid "Launch VNC session"
 msgstr "Lançar sessão VNC"
 
-#: ../public/js/plugins/compute.js:573
-msgid "Disks information"
-msgstr "Informação de discos"
-
-#: ../public/js/plugins/compute.js:591
-msgid "Target"
-msgstr "Destino"
-
-#: ../public/js/plugins/compute.js:602 ../public/js/plugins/compute.js:933
-msgid "No disks defined"
-msgstr "Não existem discos definidos"
-
-#: ../public/js/plugins/compute.js:616
+#: ../public/js/plugins/compute.js:625
 msgid "Networks information"
 msgstr "Informação de redes"
 
-#: ../public/js/plugins/compute.js:640
+#: ../public/js/plugins/compute.js:649
 msgid "MAC"
 msgstr "MAC"
 
-#: ../public/js/plugins/compute.js:647
+#: ../public/js/plugins/compute.js:656
 msgid "No networks defined"
 msgstr "Não existem redes definidas"
 
-#: ../public/js/plugins/compute.js:661
+#: ../public/js/plugins/compute.js:670
 msgid "Monitoring information"
 msgstr "Informação de monitorização"
 
-#: ../public/js/plugins/compute.js:836
-#: ../../../../../sunstone/public/js/sunstone.js:662
-#: ../../../../../sunstone/public/js/sunstone.js:694
-msgid "OK"
-msgstr "OK"
+#: ../public/js/plugins/compute.js:708
+msgid "Disks information - Save As and Detach"
+msgstr "Informação de discos - Guardar Como e Ejectar"
 
-#: ../public/js/plugins/compute.js:859
-msgid "Skipping VM "
-msgstr "A saltar VM"
+#: ../public/js/plugins/compute.js:722
+msgid "No disks to show"
+msgstr "Sem discos para mostrar"
 
-#: ../public/js/plugins/compute.js:860
-msgid "No disk id or image name specified"
-msgstr "Não foi especificado um id de disco ou nome de imagem"
+#: ../public/js/plugins/compute.js:733
+msgid "Detach"
+msgstr "Ejectar"
 
-#: ../public/js/plugins/compute.js:896
-msgid "Saveas for VM with ID"
-msgstr "Guardar na VM com o ID"
+#: ../public/js/plugins/compute.js:735
+msgid "Save"
+msgstr "Guardar"
 
-#: ../public/js/plugins/compute.js:899
-msgid "Select disk"
-msgstr "Seleccione disco"
+#: ../public/js/plugins/compute.js:737
+msgid "Save_as name"
+msgstr "Nome a guardar"
 
-#: ../public/js/plugins/compute.js:901
-msgid "Retrieving"
-msgstr "A recolher dados"
+#: ../public/js/plugins/compute.js:755
+msgid "Attach disk to running VM"
+msgstr "Anexar disco a VM a correr"
 
-#: ../public/js/plugins/compute.js:905
-msgid "Image name"
-msgstr "Nome da imagem"
+#: ../public/js/plugins/compute.js:758
+msgid "Select image"
+msgstr "Seleccionar imagem"
 
-#: ../public/js/plugins/compute.js:925 ../public/js/plugins/compute.js:928
-msgid "disk id"
-msgstr "id de disco"
+#: ../public/js/plugins/compute.js:765
+msgid "Target"
+msgstr "Destino"
 
-#: ../public/js/plugins/compute.js:1003
+#: ../public/js/plugins/compute.js:772
+msgid "Attach"
+msgstr "Anexar"
+
+#: ../public/js/plugins/compute.js:821
+msgid "Please select an image to attach"
+msgstr "Por favor seleccione uma imagem a anexar"
+
+#: ../public/js/plugins/compute.js:1029
 msgid "VNC connection"
 msgstr "Ligação VNC"
 
-#: ../public/js/plugins/compute.js:1018
+#: ../public/js/plugins/compute.js:1044
 msgid "Canvas not supported."
 msgstr "Moldura não suportada"
 
-#: ../public/js/plugins/compute.js:1079 ../public/js/plugins/compute.js:1095
+#: ../public/js/plugins/compute.js:1096 ../public/js/plugins/compute.js:1112
 msgid "Open VNC Session"
 msgstr "Abrir Sessão VNC"
 
-#: ../public/js/plugins/compute.js:1082 ../public/js/plugins/compute.js:1098
+#: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
 msgstr "VNC Desactivado"
 
-#: ../public/js/plugins/configuration.js:23
+#: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"
 msgstr "Configuração da Interface Self-Service"
 
-#: ../public/js/plugins/configuration.js:28
+#: ../public/js/plugins/configuration.js:29
 msgid "Language"
 msgstr "Língua"
 
-#: ../public/js/plugins/configuration.js:31
-msgid "English"
-msgstr "Inglês"
-
 #: ../public/js/plugins/configuration.js:32
-msgid "Chinese"
-msgstr "Chinês"
+msgid "English (US)"
+msgstr "Inglês (US)"
 
 #: ../public/js/plugins/configuration.js:33
+msgid "Chinese (TW)"
+msgstr "Chinês (TW)"
+
+#: ../public/js/plugins/configuration.js:34
+#, fuzzy
+msgid "Czech (CZ)"
+msgstr "Francês (CA)"
+
+#: ../public/js/plugins/configuration.js:35
+msgid "Dutch (NL)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:36
 msgid "French (CA)"
 msgstr "Francês (CA)"
 
-#: ../public/js/plugins/configuration.js:34
+#: ../public/js/plugins/configuration.js:37
 msgid "French (FR)"
 msgstr "Francês (FR)"
 
-#: ../public/js/plugins/configuration.js:35
-msgid "German"
-msgstr "Alemão"
-
-#: ../public/js/plugins/configuration.js:36
-msgid "Italian"
-msgstr "Italiano"
-
-#: ../public/js/plugins/configuration.js:37
-msgid "Persian (IR)"
+#: ../public/js/plugins/configuration.js:38
+msgid "Galician"
 msgstr ""
 
-#: ../public/js/plugins/configuration.js:38
+#: ../public/js/plugins/configuration.js:39
+#, fuzzy
+msgid "German"
+msgstr "Alemão (DE)"
+
+#: ../public/js/plugins/configuration.js:40
+msgid "Greek (GR)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:41
+msgid "Italian (IT)"
+msgstr "Italiano (IT)"
+
+#: ../public/js/plugins/configuration.js:42
+msgid "Persian (IR)"
+msgstr "Persa (IR)"
+
+#: ../public/js/plugins/configuration.js:43
 msgid "Portuguese (BR)"
 msgstr "Português (BR)"
 
-#: ../public/js/plugins/configuration.js:39
+#: ../public/js/plugins/configuration.js:44
 msgid "Portuguese (PT)"
 msgstr "Português (PT)"
 
-#: ../public/js/plugins/configuration.js:40
-msgid "Slovak"
-msgstr "Eslovaco"
+#: ../public/js/plugins/configuration.js:45
+msgid "Slovak (SK)"
+msgstr "Eslovaco (SK)"
 
-#: ../public/js/plugins/configuration.js:41
-msgid "Spanish"
-msgstr "Espanhol"
+#: ../public/js/plugins/configuration.js:46
+msgid "Spanish (ES)"
+msgstr "Espanhol (ES)"
 
-#: ../public/js/plugins/configuration.js:63
+#: ../public/js/plugins/configuration.js:68
 msgid "Configuration"
 msgstr "Configuração"
 
-#: ../../../../../sunstone/public/js/sunstone.js:588
+#: ../../../../../sunstone/public/js/sunstone.js:589
 msgid "Previous action"
 msgstr "Acção anterior"
 
-#: ../../../../../sunstone/public/js/sunstone.js:651
-#: ../../../../../sunstone/public/js/sunstone.js:685
+#: ../../../../../sunstone/public/js/sunstone.js:652
+#: ../../../../../sunstone/public/js/sunstone.js:686
 msgid "Confirmation of action"
 msgstr "Confirmação da acção"
 
-#: ../../../../../sunstone/public/js/sunstone.js:657
+#: ../../../../../sunstone/public/js/sunstone.js:658
 msgid "You have to confirm this action."
 msgstr "Tem que confirmar esta acção."
 
-#: ../../../../../sunstone/public/js/sunstone.js:659
+#: ../../../../../sunstone/public/js/sunstone.js:660
 msgid "Do you want to proceed?"
 msgstr "Deseja continuar?"
 
-#: ../../../../../sunstone/public/js/sunstone.js:690
+#: ../../../../../sunstone/public/js/sunstone.js:663
+#: ../../../../../sunstone/public/js/sunstone.js:695
+msgid "OK"
+msgstr "OK"
+
+#: ../../../../../sunstone/public/js/sunstone.js:691
 msgid "You need to select something."
 msgstr "É necessário seleccionar alguma opção."
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:206
+#: ../../../../../sunstone/public/js/sunstone-util.js:210
 msgid "Submitted"
 msgstr "Submetido"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:223
+#: ../../../../../sunstone/public/js/sunstone-util.js:227
 msgid "Error"
 msgstr "Erro"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:229
+#: ../../../../../sunstone/public/js/sunstone-util.js:233
 msgid "Info"
 msgstr "Info"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:361
+#: ../../../../../sunstone/public/js/sunstone-util.js:365
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "Não é possível contactar o servidor está a correr ou comunicável?"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:369
+#: ../../../../../sunstone/public/js/sunstone-util.js:373
 msgid "Network is unreachable: is OpenNebula running?"
 msgstr "A rede está inalcançável: o OpenNebula está a correr?"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:390
+#: ../../../../../sunstone/public/js/sunstone-util.js:394
 msgid "Unauthorized"
 msgstr "Não autorizado"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:581
-#: ../../../../../sunstone/public/js/sunstone-util.js:801
+#: ../../../../../sunstone/public/js/sunstone-util.js:585
+#: ../../../../../sunstone/public/js/sunstone-util.js:807
 msgid "Please select"
 msgstr "Por favor seleccione"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:724
+#: ../../../../../sunstone/public/js/sunstone-util.js:730
 msgid "Update template"
 msgstr "Actualizar modelo"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:730
+#: ../../../../../sunstone/public/js/sunstone-util.js:736
 msgid "Please, choose and modify the template you want to update"
 msgstr "Por favor, seleccione e modifique o modelo que quer actualizar"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:732
-#: ../../../../../sunstone/public/js/sunstone-util.js:735
+#: ../../../../../sunstone/public/js/sunstone-util.js:738
+#: ../../../../../sunstone/public/js/sunstone-util.js:741
 msgid "Select a template"
 msgstr "Seleccione um modelo"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:740
-msgid "Update"
-msgstr "Actualizar"
-
-#: ../../../../../sunstone/public/js/sunstone-util.js:1020
+#: ../../../../../sunstone/public/js/sunstone-util.js:1028
 msgid "Please select an element"
 msgstr "Por favor seleccione um elemento"
 
@@ -667,6 +777,10 @@ msgstr "Os recursos computacionais são Máquinas Virtuais associadas a recursos
 #: ../public/customize/custom.js:70
 msgid "Storage pool is formed by several images. These images can contain from full operating systems to be used as base for compute resources, to simple data. OpenNebula Self-Service offers you the possibility to create or upload your own images."
 msgstr "O conjunto de armazenamento é formado por várias imagens. Estas imagens contêm desde sistemas operativos completos, para serem usados como base aos recursos computacionais, até simples dados. O Self-Service OpenNEbula oferece a possibilidade de criar e carregar a suas próprias imagens."
+
+#: ../public/customize/custom.js:72
+msgid "Network"
+msgstr "Rede"
 
 #: ../public/customize/custom.js:74
 msgid "Your compute resources connectivity is performed using pre-defined virtual networks. You can create and manage these networks using OpenNebula Self-Service."

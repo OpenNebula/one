@@ -1,61 +1,62 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Translators:
+#   <rogier@redbee.nl>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-28 19:15+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2012-09-20 15:15+0000\n"
+"Last-Translator: rogierm <rogier@redbee.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../public/js/locale.js:34
 msgid "Changing language"
-msgstr ""
+msgstr "Wijzig taal"
 
 #: ../public/js/locale.js:35
 msgid "Loading new language... please wait"
-msgstr ""
+msgstr "Laden nieuwe taal... een ogenblik geduld"
 
 #: ../public/js/locale.js:53 ../public/customize/custom.js:51
 msgid "Documentation"
-msgstr ""
+msgstr "Documentatie"
 
 #: ../public/js/locale.js:54 ../public/customize/custom.js:54
 msgid "Support"
-msgstr ""
+msgstr "Ondersteuning"
 
 #: ../public/js/locale.js:55 ../public/customize/custom.js:57
 msgid "Community"
-msgstr ""
+msgstr "Community"
 
 #: ../public/js/locale.js:56
 msgid "Welcome"
-msgstr ""
+msgstr "Welkom"
 
 #: ../public/js/locale.js:57
 msgid "Sign out"
-msgstr ""
+msgstr "Uitloggen"
 
 #: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
 #: ../public/js/plugins/compute.js:63
 msgid "All"
-msgstr ""
+msgstr "Alle"
 
 #: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
 #: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
 #: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
 #: ../public/js/plugins/compute.js:637
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
 #: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
@@ -63,43 +64,43 @@ msgstr ""
 #: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
 #: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
 msgid "Name"
-msgstr ""
+msgstr "Naam"
 
 #: ../public/js/plugins/storage.js:41
 msgid "Fields marked with"
-msgstr ""
+msgstr "Velden met een "
 
 #: ../public/js/plugins/storage.js:42
 msgid "are mandatory"
-msgstr ""
+msgstr "zijn verplicht"
 
 #: ../public/js/plugins/storage.js:47
 msgid "Name that the Image will get."
-msgstr ""
+msgstr "Naam die aan de Image gegeven wordt."
 
 #: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
 msgid "Description"
-msgstr ""
+msgstr "Omschrijving"
 
 #: ../public/js/plugins/storage.js:52
 msgid "Human readable description of the image."
-msgstr ""
+msgstr "Leesbare omschrijving van image"
 
 #: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: ../public/js/plugins/storage.js:59
 msgid "OS"
-msgstr ""
+msgstr "OS"
 
 #: ../public/js/plugins/storage.js:60
 msgid "CD-ROM"
-msgstr ""
+msgstr "CD-ROM"
 
 #: ../public/js/plugins/storage.js:61
 msgid "Datablock"
-msgstr ""
+msgstr "Datablock"
 
 #: ../public/js/plugins/storage.js:63
 msgid "Type of the image"
@@ -107,27 +108,27 @@ msgstr ""
 
 #: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
 msgid "Size"
-msgstr ""
+msgstr "Grootte"
 
 #: ../public/js/plugins/storage.js:68
 msgid "Size of the datablock in MB."
-msgstr ""
+msgstr "Grootte van datablock in MB."
 
 #: ../public/js/plugins/storage.js:71
 msgid "FS type"
-msgstr ""
+msgstr "FS type"
 
 #: ../public/js/plugins/storage.js:73
 msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr ""
+msgstr "Bestandssysteem dat aangemaakt wordt. Dit kan elk type zijn waar het UNIX mkfs commando mee om kan gaan."
 
 #: ../public/js/plugins/storage.js:76
 msgid "Select image to upload"
-msgstr ""
+msgstr "Selecteer image voor upload"
 
 #: ../public/js/plugins/storage.js:83
 msgid "Public"
-msgstr ""
+msgstr "Publiek"
 
 #: ../public/js/plugins/storage.js:85
 msgid "Public scope of the image"
@@ -135,7 +136,7 @@ msgstr ""
 
 #: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
 msgid "Persistent"
-msgstr ""
+msgstr "Persistent"
 
 #: ../public/js/plugins/storage.js:90
 msgid "Persistence of the image"
@@ -144,12 +145,12 @@ msgstr ""
 #: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
 #: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
 msgid "Close"
-msgstr ""
+msgstr "Sluiten"
 
 #: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
 #: ../public/js/plugins/compute.js:104
 msgid "Create"
-msgstr ""
+msgstr "Aanmaken"
 
 #: ../public/js/plugins/storage.js:104
 msgid "Choose a new name for the image"
@@ -170,11 +171,11 @@ msgstr ""
 #: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
 #: ../public/js/plugins/compute.js:355
 msgid "+ New"
-msgstr ""
+msgstr "+ Nieuw"
 
 #: ../public/js/plugins/storage.js:249
 msgid "Make persistent"
-msgstr ""
+msgstr "Persistent maken"
 
 #: ../public/js/plugins/storage.js:253
 msgid "Make non persistent"
@@ -191,15 +192,15 @@ msgstr ""
 #: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
 #: ../public/js/plugins/compute.js:422
 msgid "Delete"
-msgstr ""
+msgstr "Verwijderen"
 
 #: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
 msgid "Image information"
-msgstr ""
+msgstr "Image informatie"
 
 #: ../public/js/plugins/storage.js:287
 msgid "Add storage"
-msgstr ""
+msgstr "Opslag toevoegen"
 
 #: ../public/js/plugins/storage.js:294
 msgid "Clone image"
@@ -207,57 +208,57 @@ msgstr ""
 
 #: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
 msgid "Storage"
-msgstr ""
+msgstr "Opslag"
 
 #: ../public/js/plugins/storage.js:378
 msgid "Image"
-msgstr ""
+msgstr "Image"
 
 #: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
 msgid "information"
-msgstr ""
+msgstr "informatie"
 
 #: ../public/js/plugins/storage.js:402
 msgid "Filesystem type"
-msgstr ""
+msgstr "Filesystem type"
 
 #: ../public/js/plugins/storage.js:406
 msgid "Size (Mb)"
-msgstr ""
+msgstr "Grootte (Mb)"
 
 #: ../public/js/plugins/storage.js:537
 msgid "You must specify a name"
-msgstr ""
+msgstr "Specificeer een naam"
 
 #: ../public/js/plugins/storage.js:555
 msgid "You must specify size and FS type"
-msgstr ""
+msgstr "Specificeer grootte en filesystem type"
 
 #: ../public/js/plugins/storage.js:562
 msgid "You must select a file to upload"
-msgstr ""
+msgstr "Selecteer een file om te uploaden"
 
 #: ../public/js/plugins/network.js:47
 msgid "Network Address"
-msgstr ""
+msgstr "Netwerk adres"
 
 #: ../public/js/plugins/network.js:49
 msgid "Network Size"
-msgstr ""
+msgstr "Netwerk grootte"
 
 #: ../public/js/plugins/network.js:185
 msgid "Network information"
-msgstr ""
+msgstr "Netwerk informatie"
 
 #: ../public/js/plugins/network.js:193
 msgid "Create network"
-msgstr ""
+msgstr "Aanmaken netwerk"
 
 #: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
 #: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
 #: ../public/js/plugins/compute.js:664
 msgid "Networks"
-msgstr ""
+msgstr "Netwerken"
 
 #: ../public/js/plugins/network.js:274
 msgid "Virtual Network"
@@ -265,11 +266,11 @@ msgstr ""
 
 #: ../public/js/plugins/network.js:286
 msgid "Used leases"
-msgstr ""
+msgstr "Gebruikte leases"
 
 #: ../public/js/plugins/network.js:293
 msgid "Address"
-msgstr ""
+msgstr "Adres"
 
 #: ../public/js/plugins/network.js:307
 msgid "Virtual Network information"
@@ -286,12 +287,12 @@ msgstr ""
 #: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
 #: ../public/js/plugins/compute.js:32
 msgid "CPU"
-msgstr ""
+msgstr "CPU"
 
 #: ../public/js/plugins/dashboard.js:22 ../public/js/plugins/dashboard.js:249
 #: ../public/js/plugins/compute.js:37
 msgid "Memory"
-msgstr ""
+msgstr "Geheugen"
 
 #: ../public/js/plugins/dashboard.js:26
 msgid "Net transfer rates"
@@ -329,7 +330,7 @@ msgstr ""
 #: ../public/js/plugins/dashboard.js:79
 #: ../../../../../sunstone/public/js/sunstone-util.js:746
 msgid "Update"
-msgstr ""
+msgstr "Update"
 
 #: ../public/js/plugins/dashboard.js:126
 msgid "Create new compute resource"
@@ -338,23 +339,23 @@ msgstr ""
 #: ../public/js/plugins/dashboard.js:127 ../public/js/plugins/dashboard.js:141
 #: ../public/js/plugins/dashboard.js:155
 msgid "See more"
-msgstr ""
+msgstr "Meer"
 
 #: ../public/js/plugins/dashboard.js:140
 msgid "Create new storage resource"
-msgstr ""
+msgstr "Aanmaken nieuwe opslag"
 
 #: ../public/js/plugins/dashboard.js:154
 msgid "Create new network resource"
-msgstr ""
+msgstr "Aanmaken nieuw netwerk "
 
 #: ../public/js/plugins/dashboard.js:163
 msgid "Useful links"
-msgstr ""
+msgstr "Nuttige links"
 
 #: ../public/js/plugins/dashboard.js:175
 msgid "Dashboard"
-msgstr ""
+msgstr "Dashboard"
 
 #: ../public/js/plugins/dashboard.js:238
 msgid "Virtual Machines quotas"
@@ -394,15 +395,15 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
-msgstr ""
+msgstr "Status"
 
 #: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:645
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 #: ../public/js/plugins/compute.js:76
 msgid "VM Name"
-msgstr ""
+msgstr "VM Naam"
 
 #: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:593
 msgid "Instance type"
@@ -410,11 +411,11 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1036
 msgid "Loading"
-msgstr ""
+msgstr "Laden"
 
 #: ../public/js/plugins/compute.js:97
 msgid "Create # VMs"
-msgstr ""
+msgstr "Aanmaken # VMs"
 
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
@@ -446,7 +447,7 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:380
 msgid "Stop"
-msgstr ""
+msgstr "Stop"
 
 #: ../public/js/plugins/compute.js:385
 msgid "Reboot"
@@ -484,19 +485,19 @@ msgstr ""
 #: ../../../../../sunstone/public/js/sunstone.js:664
 #: ../../../../../sunstone/public/js/sunstone.js:696
 msgid "Cancel"
-msgstr ""
+msgstr "Annuleren"
 
 #: ../public/js/plugins/compute.js:411
 msgid "This will cancel selected VMs"
-msgstr ""
+msgstr "Dit zal de geselecteerde VMs annuleren"
 
 #: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
-msgstr ""
+msgstr "Maak snapshot"
 
 #: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
-msgstr ""
+msgstr "Dit zal de geselecteerde VMs uit de database verwijderen"
 
 #: ../public/js/plugins/compute.js:429
 msgid "Compute resource"
@@ -508,15 +509,15 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:444
 msgid "Create Virtual Machine"
-msgstr ""
+msgstr "Aanmaken Virtuele Machine"
 
 #: ../public/js/plugins/compute.js:577
 msgid "VM information"
-msgstr ""
+msgstr "Gegevens VM "
 
 #: ../public/js/plugins/compute.js:581
 msgid "Virtual Machine information"
-msgstr ""
+msgstr "Gegevens virtuele machine "
 
 #: ../public/js/plugins/compute.js:601
 msgid "Used CPU"
@@ -528,23 +529,23 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:609
 msgid "Launch VNC session"
-msgstr ""
+msgstr "Start VNC sessie"
 
 #: ../public/js/plugins/compute.js:625
 msgid "Networks information"
-msgstr ""
+msgstr "Netwerk gegevens"
 
 #: ../public/js/plugins/compute.js:649
 msgid "MAC"
-msgstr ""
+msgstr "MAC"
 
 #: ../public/js/plugins/compute.js:656
 msgid "No networks defined"
-msgstr ""
+msgstr "Geen netwerken gedefinieerd"
 
 #: ../public/js/plugins/compute.js:670
 msgid "Monitoring information"
-msgstr ""
+msgstr "Monitoring informatie"
 
 #: ../public/js/plugins/compute.js:708
 msgid "Disks information - Save As and Detach"
@@ -576,7 +577,7 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:765
 msgid "Target"
-msgstr ""
+msgstr "Doel"
 
 #: ../public/js/plugins/compute.js:772
 msgid "Attach"
@@ -584,43 +585,44 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:821
 msgid "Please select an image to attach"
-msgstr ""
+msgstr "Selecteer een image om te koppelen"
 
 #: ../public/js/plugins/compute.js:1029
 msgid "VNC connection"
-msgstr ""
+msgstr "VNC verbinding"
 
 #: ../public/js/plugins/compute.js:1044
 msgid "Canvas not supported."
-msgstr ""
+msgstr "Canvas niet ondersteund."
 
 #: ../public/js/plugins/compute.js:1096 ../public/js/plugins/compute.js:1112
 msgid "Open VNC Session"
-msgstr ""
+msgstr "Open VNC sessie"
 
 #: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
-msgstr ""
+msgstr "VNC uitgeschakeld"
 
 #: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"
-msgstr ""
+msgstr "Self-Selfservice UI Configuratie"
 
 #: ../public/js/plugins/configuration.js:29
 msgid "Language"
-msgstr ""
+msgstr "Taal"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "English (US)"
-msgstr ""
+msgstr "Engels (US)"
 
 #: ../public/js/plugins/configuration.js:33
 msgid "Chinese (TW)"
-msgstr ""
+msgstr "Chinees (TW)"
 
 #: ../public/js/plugins/configuration.js:34
+#, fuzzy
 msgid "Czech (CZ)"
-msgstr ""
+msgstr "Frans (CA)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "Dutch (NL)"
@@ -628,19 +630,20 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:36
 msgid "French (CA)"
-msgstr ""
+msgstr "Frans (CA)"
 
 #: ../public/js/plugins/configuration.js:37
 msgid "French (FR)"
-msgstr ""
+msgstr "Frans (FR)"
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Galician"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:39
+#, fuzzy
 msgid "German"
-msgstr ""
+msgstr "Duits (DE)"
 
 #: ../public/js/plugins/configuration.js:40
 msgid "Greek (GR)"
@@ -648,11 +651,11 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:41
 msgid "Italian (IT)"
-msgstr ""
+msgstr "Italiaans (IT)"
 
 #: ../public/js/plugins/configuration.js:42
 msgid "Persian (IR)"
-msgstr ""
+msgstr "Persisch (IR)"
 
 #: ../public/js/plugins/configuration.js:43
 msgid "Portuguese (BR)"
@@ -664,83 +667,83 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:45
 msgid "Slovak (SK)"
-msgstr ""
+msgstr "Slowaaks (SK)"
 
 #: ../public/js/plugins/configuration.js:46
 msgid "Spanish (ES)"
-msgstr ""
+msgstr "Spaans (ES)"
 
 #: ../public/js/plugins/configuration.js:68
 msgid "Configuration"
-msgstr ""
+msgstr "Configuratie"
 
 #: ../../../../../sunstone/public/js/sunstone.js:589
 msgid "Previous action"
-msgstr ""
+msgstr "Vorige actie"
 
 #: ../../../../../sunstone/public/js/sunstone.js:652
 #: ../../../../../sunstone/public/js/sunstone.js:686
 msgid "Confirmation of action"
-msgstr ""
+msgstr "Bevestiging van de actie"
 
 #: ../../../../../sunstone/public/js/sunstone.js:658
 msgid "You have to confirm this action."
-msgstr ""
+msgstr "Je moet deze actie bevestigen."
 
 #: ../../../../../sunstone/public/js/sunstone.js:660
 msgid "Do you want to proceed?"
-msgstr ""
+msgstr "Wil je doorgaan?"
 
 #: ../../../../../sunstone/public/js/sunstone.js:663
 #: ../../../../../sunstone/public/js/sunstone.js:695
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: ../../../../../sunstone/public/js/sunstone.js:691
 msgid "You need to select something."
-msgstr ""
+msgstr "Je moet een selectie maken."
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:210
 msgid "Submitted"
-msgstr ""
+msgstr "Verstuurd"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:227
 msgid "Error"
-msgstr ""
+msgstr "Fout"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:233
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:365
 msgid "Cannot contact server: is it running and reachable?"
-msgstr ""
+msgstr "Can server niet bereiken: is de server gestart en is de netwerkverbinding beschikbaar?"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:373
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr ""
+msgstr "Netwerk is niet bereikbaar: is OpenNubula gestart?"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:394
 msgid "Unauthorized"
-msgstr ""
+msgstr "Onbevoegd"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:585
 #: ../../../../../sunstone/public/js/sunstone-util.js:807
 msgid "Please select"
-msgstr ""
+msgstr "Selecteer"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:730
 msgid "Update template"
-msgstr ""
+msgstr "Update template "
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:736
 msgid "Please, choose and modify the template you want to update"
-msgstr ""
+msgstr "Selecteer en wijzig het template dat je wil updaten"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:738
 #: ../../../../../sunstone/public/js/sunstone-util.js:741
 msgid "Select a template"
-msgstr ""
+msgstr "Selecteer een template"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:1028
 msgid "Please select an element"
@@ -748,23 +751,23 @@ msgstr ""
 
 #: ../public/customize/custom.js:18
 msgid "String"
-msgstr ""
+msgstr "String"
 
 #: ../public/customize/custom.js:39
 msgid "Welcome to OpenNebula Self-Service"
-msgstr ""
+msgstr "Welkom bij OpenNebula Self-Service"
 
 #: ../public/customize/custom.js:41
 msgid "OpenNebula Self-Service is a simplified user interface to manage OpenNebula compute, storage and network resources. It is focused on easiness and usability and features a limited set of operations directed towards end-users."
-msgstr ""
+msgstr "OpenNebula Self-Service is een vereenvoudigde gebruikersinterface om OpenNebula compute, storage en network bronnen te beheren. Het is gericht op eenvoud en bruikbaarheid en biedt een beperkte set van mogelijkheden aan eindgebruikers."
 
 #: ../public/customize/custom.js:42
 msgid "Additionally, OpenNebula Self-Service allows easy customization of the interface (e.g. this text) and brings multi-language support."
-msgstr ""
+msgstr "Daarnaast is het eenvoudig om in OpenNebula Self-Service aanpassingen te maken aan de interface (zoals bijv. deze tekst) en biedt het ondersteuning voor meerdere talen. "
 
 #: ../public/customize/custom.js:43
 msgid "Have a cloudy experience!"
-msgstr ""
+msgstr "Veel plezier in de wolken!"
 
 #: ../public/customize/custom.js:66
 msgid "Compute resources are Virtual Machines attached to storage and network resources. OpenNebula Self-Service allows you to easily create, remove and manage them, including the possibility of pausing a Virtual Machine or taking a snapshot of one of their disks."
@@ -776,19 +779,19 @@ msgstr ""
 
 #: ../public/customize/custom.js:72
 msgid "Network"
-msgstr ""
+msgstr "Netwerk"
 
 #: ../public/customize/custom.js:74
 msgid "Your compute resources connectivity is performed using pre-defined virtual networks. You can create and manage these networks using OpenNebula Self-Service."
-msgstr ""
+msgstr "De verbindingen van je virtuele machines worden ingesteld met vooraf gedefinieerde virtuele netwerken. Je kunt deze netwerken via OpenNebula Self-Service aanmaken en beheren. "
 
 #: ../public/customize/custom.js:81
 msgid "This is a list of your current compute resources. Virtual Machines use previously defined images and networks. You can easily create a new compute element by cliking 'new' and filling-in an easy wizard."
-msgstr ""
+msgstr "Dit is een lijst van je huidige virtuele machines. Virtuele machines maken gebruik van vooraf gedefinieerde images en netwerken. Je kunt eenvoudig een nieuwe virtuele machine aanmaken door op 'nieuw' te klikken en de eenvoudige wizard te volgen."
 
 #: ../public/customize/custom.js:82
 msgid "You can also manage compute resources and perform actions such as stop, resume, shutdown or cancel."
-msgstr ""
+msgstr "Je kunt ook "
 
 #: ../public/customize/custom.js:83
 msgid "Additionally, you can save the storage attached to these resources as new images. They will appear as new resources, visible from the Storage view and re-usable."
@@ -797,11 +800,11 @@ msgstr ""
 #: ../public/customize/custom.js:84 ../public/customize/custom.js:94
 #: ../public/customize/custom.js:104
 msgid "There are currently"
-msgstr ""
+msgstr "Er zijn momenteel"
 
 #: ../public/customize/custom.js:85
 msgid "virtual machines"
-msgstr ""
+msgstr "virtuele machines"
 
 #: ../public/customize/custom.js:91
 msgid "The Storage view offers you an overview of your current images. Storage elements are attached to compute resources at creation time. They can also be extracted from running virtual machines by taking an snapshot."
@@ -809,7 +812,7 @@ msgstr ""
 
 #: ../public/customize/custom.js:92
 msgid "You can add new storages by clicking 'new'. Image files will be uploaded to OpenNebula and set ready to be used."
-msgstr ""
+msgstr "U kunt nieuwe opslag toevoegen door op 'nieuw' te klikken. Image bestanden zullen worden verstuurd naar OpenNebula en klaargezet worden voor gebruik."
 
 #: ../public/customize/custom.js:93
 msgid "Additionally, you can run several operations on defined storages, such as defining their persistance. Persistent images can only be used by 1 virtual machine, and the changes made by it have effect on the base image. Non-persistent images are cloned before being used in a Virtual Machine, therefore changes are lost unless a snapshot is taken prior to Virtual Machine shutdown."

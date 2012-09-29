@@ -1,61 +1,62 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Translators:
+#   <dimitris.theodorou@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-28 19:15+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2012-09-18 11:12+0000\n"
+"Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: el_GR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../public/js/locale.js:34
 msgid "Changing language"
-msgstr ""
+msgstr "Αλλαγή γλώσας"
 
 #: ../public/js/locale.js:35
 msgid "Loading new language... please wait"
-msgstr ""
+msgstr "Φόρτωση νέας γλώσσας... παρακαλώ περιμένετε"
 
 #: ../public/js/locale.js:53 ../public/customize/custom.js:51
 msgid "Documentation"
-msgstr ""
+msgstr "Τεκμηρίωση"
 
 #: ../public/js/locale.js:54 ../public/customize/custom.js:54
 msgid "Support"
-msgstr ""
+msgstr "Υποστήριξη"
 
 #: ../public/js/locale.js:55 ../public/customize/custom.js:57
 msgid "Community"
-msgstr ""
+msgstr "Κοινότητα"
 
 #: ../public/js/locale.js:56
 msgid "Welcome"
-msgstr ""
+msgstr "Καλώς ήρθατε"
 
 #: ../public/js/locale.js:57
 msgid "Sign out"
-msgstr ""
+msgstr "Αποσύνδεση"
 
 #: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
 #: ../public/js/plugins/compute.js:63
 msgid "All"
-msgstr ""
+msgstr "Όλα"
 
 #: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
 #: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
 #: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
 #: ../public/js/plugins/compute.js:637
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
 #: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
@@ -63,71 +64,71 @@ msgstr ""
 #: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
 #: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
 msgid "Name"
-msgstr ""
+msgstr "Όνομα"
 
 #: ../public/js/plugins/storage.js:41
 msgid "Fields marked with"
-msgstr ""
+msgstr "Πεδία σημειωμένα με"
 
 #: ../public/js/plugins/storage.js:42
 msgid "are mandatory"
-msgstr ""
+msgstr "είναι υποχρεωτικά"
 
 #: ../public/js/plugins/storage.js:47
 msgid "Name that the Image will get."
-msgstr ""
+msgstr "Το όνομα που θα λάβει η εικόνα."
 
 #: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
 msgid "Description"
-msgstr ""
+msgstr "Περιγραφή"
 
 #: ../public/js/plugins/storage.js:52
 msgid "Human readable description of the image."
-msgstr ""
+msgstr "Αναγνώσιμη περιγραφή της εικόνας."
 
 #: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
 msgid "Type"
-msgstr ""
+msgstr "Τύπος"
 
 #: ../public/js/plugins/storage.js:59
 msgid "OS"
-msgstr ""
+msgstr "Λειτουργικό"
 
 #: ../public/js/plugins/storage.js:60
 msgid "CD-ROM"
-msgstr ""
+msgstr "CD-ROM"
 
 #: ../public/js/plugins/storage.js:61
 msgid "Datablock"
-msgstr ""
+msgstr "Block δεδομένων"
 
 #: ../public/js/plugins/storage.js:63
 msgid "Type of the image"
-msgstr ""
+msgstr "Τύπος της εικόνας"
 
 #: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
 msgid "Size"
-msgstr ""
+msgstr "Μέγεθος"
 
 #: ../public/js/plugins/storage.js:68
 msgid "Size of the datablock in MB."
-msgstr ""
+msgstr "Μέγεθος του block δεδομένων σε MB."
 
 #: ../public/js/plugins/storage.js:71
 msgid "FS type"
-msgstr ""
+msgstr "Τύπος συστήματος αρχείων."
 
 #: ../public/js/plugins/storage.js:73
 msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr ""
+msgstr "Τύπος συστήματος αρχείων που θα δημιουργηθεί. Μπορεί να είναι οποιαδήπητε τιμή που μπορεί να περαστεί στην εντολή unix mkfs."
 
 #: ../public/js/plugins/storage.js:76
 msgid "Select image to upload"
-msgstr ""
+msgstr "Επιλογή εικόνας για ανέβασμα"
 
 #: ../public/js/plugins/storage.js:83
 msgid "Public"
-msgstr ""
+msgstr "Δημόσια"
 
 #: ../public/js/plugins/storage.js:85
 msgid "Public scope of the image"
@@ -135,21 +136,21 @@ msgstr ""
 
 #: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
 msgid "Persistent"
-msgstr ""
+msgstr "Persistent"
 
 #: ../public/js/plugins/storage.js:90
 msgid "Persistence of the image"
-msgstr ""
+msgstr "Αν η εικόνα είναι persistent"
 
 #: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
 #: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
 msgid "Close"
-msgstr ""
+msgstr "Κλείσιμο"
 
 #: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
 #: ../public/js/plugins/compute.js:104
 msgid "Create"
-msgstr ""
+msgstr "Δημιουργία"
 
 #: ../public/js/plugins/storage.js:104
 msgid "Choose a new name for the image"
@@ -170,36 +171,36 @@ msgstr ""
 #: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
 #: ../public/js/plugins/compute.js:355
 msgid "+ New"
-msgstr ""
+msgstr "+ Καινούρια"
 
 #: ../public/js/plugins/storage.js:249
 msgid "Make persistent"
-msgstr ""
+msgstr "Μετατροπή σε persistent"
 
 #: ../public/js/plugins/storage.js:253
 msgid "Make non persistent"
-msgstr ""
+msgstr "Μετατροπή σε μη persistent"
 
 #: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
 msgid "Publish"
-msgstr ""
+msgstr "Δημοσιοποίηση"
 
 #: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
 msgid "Unpublish"
-msgstr ""
+msgstr "Ακύρωση δημοσιοποίησης"
 
 #: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
 #: ../public/js/plugins/compute.js:422
 msgid "Delete"
-msgstr ""
+msgstr "Διαγραφή"
 
 #: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
 msgid "Image information"
-msgstr ""
+msgstr "Πληροφορίες εικόνας"
 
 #: ../public/js/plugins/storage.js:287
 msgid "Add storage"
-msgstr ""
+msgstr "Προσθήκη αποθηκευτικού μέσου."
 
 #: ../public/js/plugins/storage.js:294
 msgid "Clone image"
@@ -207,43 +208,43 @@ msgstr ""
 
 #: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
 msgid "Storage"
-msgstr ""
+msgstr "Αποθηκευτικό μέσο"
 
 #: ../public/js/plugins/storage.js:378
 msgid "Image"
-msgstr ""
+msgstr "Εικόνα."
 
 #: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
 msgid "information"
-msgstr ""
+msgstr "πληροφορίες"
 
 #: ../public/js/plugins/storage.js:402
 msgid "Filesystem type"
-msgstr ""
+msgstr "Τύπος συστήματος αρχείων"
 
 #: ../public/js/plugins/storage.js:406
 msgid "Size (Mb)"
-msgstr ""
+msgstr "Μέγεθος (Mb)"
 
 #: ../public/js/plugins/storage.js:537
 msgid "You must specify a name"
-msgstr ""
+msgstr "Πρέπει να ορίσετε όνομα"
 
 #: ../public/js/plugins/storage.js:555
 msgid "You must specify size and FS type"
-msgstr ""
+msgstr "Πρέπει να ορίσετε μέγεθος και τύπο συστήματος αρχείων"
 
 #: ../public/js/plugins/storage.js:562
 msgid "You must select a file to upload"
-msgstr ""
+msgstr "Πρέπει να διαλέξετε ένα αρχείο για ανέβασμα"
 
 #: ../public/js/plugins/network.js:47
 msgid "Network Address"
-msgstr ""
+msgstr "Διέυθυνση δικτύου"
 
 #: ../public/js/plugins/network.js:49
 msgid "Network Size"
-msgstr ""
+msgstr "Μέγεθος δικτύου"
 
 #: ../public/js/plugins/network.js:185
 msgid "Network information"
@@ -532,19 +533,19 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:625
 msgid "Networks information"
-msgstr ""
+msgstr "Πληροφορίες δικτύων."
 
 #: ../public/js/plugins/compute.js:649
 msgid "MAC"
-msgstr ""
+msgstr "MAC"
 
 #: ../public/js/plugins/compute.js:656
 msgid "No networks defined"
-msgstr ""
+msgstr "Δεν έχουν οριστεί δίκτυα."
 
 #: ../public/js/plugins/compute.js:670
 msgid "Monitoring information"
-msgstr ""
+msgstr "Πληροφορίες monitoring"
 
 #: ../public/js/plugins/compute.js:708
 msgid "Disks information - Save As and Detach"
@@ -588,27 +589,27 @@ msgstr ""
 
 #: ../public/js/plugins/compute.js:1029
 msgid "VNC connection"
-msgstr ""
+msgstr "σύνδεση VNC"
 
 #: ../public/js/plugins/compute.js:1044
 msgid "Canvas not supported."
-msgstr ""
+msgstr "Το Canvas δεν υποστηρίζεται."
 
 #: ../public/js/plugins/compute.js:1096 ../public/js/plugins/compute.js:1112
 msgid "Open VNC Session"
-msgstr ""
+msgstr "Έναρξη VNC session"
 
 #: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
-msgstr ""
+msgstr "Απενεργοποιημένο VNC"
 
 #: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"
-msgstr ""
+msgstr "Self-service διαμόρφωση του UI"
 
 #: ../public/js/plugins/configuration.js:29
 msgid "Language"
-msgstr ""
+msgstr "Γλώσσα"
 
 #: ../public/js/plugins/configuration.js:32
 msgid "English (US)"
@@ -619,8 +620,9 @@ msgid "Chinese (TW)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:34
+#, fuzzy
 msgid "Czech (CZ)"
-msgstr ""
+msgstr "Γαλλικά (CA)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "Dutch (NL)"
@@ -628,11 +630,11 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:36
 msgid "French (CA)"
-msgstr ""
+msgstr "Γαλλικά (CA)"
 
 #: ../public/js/plugins/configuration.js:37
 msgid "French (FR)"
-msgstr ""
+msgstr "Γαλλικά (FR)"
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Galician"
@@ -672,45 +674,45 @@ msgstr ""
 
 #: ../public/js/plugins/configuration.js:68
 msgid "Configuration"
-msgstr ""
+msgstr "Διαμόρφωση"
 
 #: ../../../../../sunstone/public/js/sunstone.js:589
 msgid "Previous action"
-msgstr ""
+msgstr "Προηγούμενη ενέργεια"
 
 #: ../../../../../sunstone/public/js/sunstone.js:652
 #: ../../../../../sunstone/public/js/sunstone.js:686
 msgid "Confirmation of action"
-msgstr ""
+msgstr "Επιβεβαίωση ενέργειας"
 
 #: ../../../../../sunstone/public/js/sunstone.js:658
 msgid "You have to confirm this action."
-msgstr ""
+msgstr "Πρέπει να επιβεβαιώσετε αυτή την ενέργεια."
 
 #: ../../../../../sunstone/public/js/sunstone.js:660
 msgid "Do you want to proceed?"
-msgstr ""
+msgstr "Θέλετε να συνεχίσετε;"
 
 #: ../../../../../sunstone/public/js/sunstone.js:663
 #: ../../../../../sunstone/public/js/sunstone.js:695
 msgid "OK"
-msgstr ""
+msgstr "ΟΚ"
 
 #: ../../../../../sunstone/public/js/sunstone.js:691
 msgid "You need to select something."
-msgstr ""
+msgstr "Πρέπει να επιλέξετε κάτι."
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:210
 msgid "Submitted"
-msgstr ""
+msgstr "Στάλθηκε"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:227
 msgid "Error"
-msgstr ""
+msgstr "Σφάλμα"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:233
 msgid "Info"
-msgstr ""
+msgstr "Πληροφορίες"
 
 #: ../../../../../sunstone/public/js/sunstone-util.js:365
 msgid "Cannot contact server: is it running and reachable?"

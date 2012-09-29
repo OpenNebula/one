@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) YEAR 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-06 10:30+0200\n"
-"PO-Revision-Date: 2012-07-05 07:38+0000\n"
-"Last-Translator: davood <davood.gh2000@gmail.com>\n"
+"POT-Creation-Date: 2012-09-28 19:15+0200\n"
+"PO-Revision-Date: 2012-09-18 11:12+0000\n"
+"Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: fa_IR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../public/js/locale.js:34
 msgid "Changing language"
@@ -51,18 +51,18 @@ msgstr "خروج"
 msgid "All"
 msgstr "همه"
 
-#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:345
+#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
 #: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
-#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:538
-#: ../public/js/plugins/compute.js:583 ../public/js/plugins/compute.js:628
+#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
+#: ../public/js/plugins/compute.js:637
 msgid "ID"
 msgstr "مشخصه"
 
 #: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
-#: ../public/js/plugins/storage.js:349 ../public/js/plugins/network.js:28
-#: ../public/js/plugins/network.js:41 ../public/js/plugins/network.js:282
-#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:542
-#: ../public/js/plugins/compute.js:587 ../public/js/plugins/compute.js:632
+#: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
+#: ../public/js/plugins/network.js:28 ../public/js/plugins/network.js:41
+#: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
+#: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
 msgid "Name"
 msgstr "نام"
 
@@ -78,7 +78,7 @@ msgstr "الزامی است"
 msgid "Name that the Image will get."
 msgstr "نامی که به این تصویر اختصاص پیدا میکند"
 
-#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:353
+#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
 msgid "Description"
 msgstr "توتضیحات"
 
@@ -86,8 +86,7 @@ msgstr "توتضیحات"
 msgid "Human readable description of the image."
 msgstr "توضیحات قابل فهم برای کاربران"
 
-#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:357
-#: ../public/js/plugins/compute.js:595
+#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
 msgid "Type"
 msgstr "نوع"
 
@@ -135,7 +134,7 @@ msgstr "عمومی"
 msgid "Public scope of the image"
 msgstr "قلمرو عمومی این تصویر"
 
-#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:361
+#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
 msgid "Persistent"
 msgstr "ماندگار"
 
@@ -143,8 +142,8 @@ msgstr "ماندگار"
 msgid "Persistence of the image"
 msgstr "ماندگاری تصویر"
 
-#: ../public/js/plugins/storage.js:95 ../public/js/plugins/network.js:56
-#: ../public/js/plugins/compute.js:103
+#: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
+#: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
 msgid "Close"
 msgstr "ببند"
 
@@ -153,75 +152,89 @@ msgstr "ببند"
 msgid "Create"
 msgstr "بساز"
 
-#: ../public/js/plugins/storage.js:214 ../public/js/plugins/network.js:158
-#: ../public/js/plugins/compute.js:323
-msgid "Refresh list"
-msgstr "به روزرسانی لیست"
+#: ../public/js/plugins/storage.js:104
+msgid "Choose a new name for the image"
+msgstr ""
 
-#: ../public/js/plugins/storage.js:219 ../public/js/plugins/network.js:164
-#: ../public/js/plugins/compute.js:329
+#: ../public/js/plugins/storage.js:105
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:108
+msgid "Prefix"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
+msgid "Clone"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
+#: ../public/js/plugins/compute.js:355
 msgid "+ New"
 msgstr "+ جدید"
 
-#: ../public/js/plugins/storage.js:223
+#: ../public/js/plugins/storage.js:249
 msgid "Make persistent"
 msgstr "ماندگار شود"
 
-#: ../public/js/plugins/storage.js:227
+#: ../public/js/plugins/storage.js:253
 msgid "Make non persistent"
 msgstr "ماندگار نشود"
 
-#: ../public/js/plugins/storage.js:234 ../public/js/plugins/network.js:169
+#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
 msgid "Publish"
 msgstr "منتشر کن"
 
-#: ../public/js/plugins/storage.js:238 ../public/js/plugins/network.js:174
+#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
 msgid "Unpublish"
 msgstr "منتشر نکن"
 
-#: ../public/js/plugins/storage.js:244 ../public/js/plugins/network.js:179
-#: ../public/js/plugins/compute.js:381
+#: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
+#: ../public/js/plugins/compute.js:422
 msgid "Delete"
 msgstr "پاک کن"
 
-#: ../public/js/plugins/storage.js:250 ../public/js/plugins/storage.js:337
+#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
 msgid "Image information"
 msgstr "اطلاعات تصویر"
 
-#: ../public/js/plugins/storage.js:258
+#: ../public/js/plugins/storage.js:287
 msgid "Add storage"
 msgstr "فضای ذخیره سازی اضافه کن"
 
-#: ../public/js/plugins/storage.js:264 ../public/js/plugins/dashboard.js:46
-#: ../public/customize/custom.js:68
+#: ../public/js/plugins/storage.js:294
+msgid "Clone image"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
 msgid "Storage"
 msgstr "فضای ذخیره سازی"
 
-#: ../public/js/plugins/storage.js:341
+#: ../public/js/plugins/storage.js:378
 msgid "Image"
 msgstr "تصویر"
 
-#: ../public/js/plugins/storage.js:342 ../public/js/plugins/network.js:275
+#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
 msgid "information"
 msgstr "اطلاعات"
 
-#: ../public/js/plugins/storage.js:365
+#: ../public/js/plugins/storage.js:402
 msgid "Filesystem type"
 msgstr "نوع فایل سیستم"
 
-#: ../public/js/plugins/storage.js:369
+#: ../public/js/plugins/storage.js:406
 msgid "Size (Mb)"
 msgstr "حجم (مگابایت)"
 
-#: ../public/js/plugins/storage.js:503
+#: ../public/js/plugins/storage.js:537
 msgid "You must specify a name"
 msgstr "مشخص کردن نام الزامی است"
 
-#: ../public/js/plugins/storage.js:521
+#: ../public/js/plugins/storage.js:555
 msgid "You must specify size and FS type"
 msgstr "مشخص کردن حجم و نوع فایل سیستم الزامی است"
 
-#: ../public/js/plugins/storage.js:528
+#: ../public/js/plugins/storage.js:562
 msgid "You must select a file to upload"
 msgstr "لطفا یک فایل برای بارگزاری انتخاب کنید"
 
@@ -241,8 +254,9 @@ msgstr "اطلاعات شبکه ای"
 msgid "Create network"
 msgstr "ساختن شبکه"
 
-#: ../public/js/plugins/network.js:199 ../public/js/plugins/compute.js:91
-#: ../public/js/plugins/compute.js:396 ../public/js/plugins/compute.js:655
+#: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
+#: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
+#: ../public/js/plugins/compute.js:664
 msgid "Networks"
 msgstr "شبکه ها"
 
@@ -270,51 +284,106 @@ msgstr "نام شبکه مجازی از جا افتاده"
 msgid "Please provide a network address"
 msgstr "لطفا یک آدرس شبکه ای ارائه کنید"
 
-#: ../public/js/plugins/dashboard.js:37
-msgid "Current resources"
-msgstr "منابع کنونی"
+#: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
+#: ../public/js/plugins/compute.js:32
+msgid "CPU"
+msgstr "CPU"
 
-#: ../public/js/plugins/dashboard.js:42 ../public/js/plugins/compute.js:409
+#: ../public/js/plugins/dashboard.js:22 ../public/js/plugins/dashboard.js:249
+#: ../public/js/plugins/compute.js:37
+msgid "Memory"
+msgstr "حافظه"
+
+#: ../public/js/plugins/dashboard.js:26
+msgid "Net transfer rates"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:52
+msgid "Resources and quotas"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:56 ../public/js/plugins/compute.js:450
 #: ../public/customize/custom.js:64
 msgid "Compute"
 msgstr "محاسبات"
 
-#: ../public/js/plugins/dashboard.js:50 ../public/customize/custom.js:72
-msgid "Network"
-msgstr "شبکه"
+#: ../public/js/plugins/dashboard.js:58
+msgid "Storage quotas"
+msgstr ""
 
-#: ../public/js/plugins/dashboard.js:62
-msgid "Useful links"
-msgstr "پیوندهای به درد بخور"
+#: ../public/js/plugins/dashboard.js:60 ../public/js/plugins/compute.js:86
+msgid "Images"
+msgstr "تصاویر"
 
-#: ../public/js/plugins/dashboard.js:81
+#: ../public/js/plugins/dashboard.js:73
+msgid "Usages"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:77
+msgid "From"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:78
+msgid "To"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:79
+#: ../../../../../sunstone/public/js/sunstone-util.js:746
+msgid "Update"
+msgstr "به روزرسانی کن"
+
+#: ../public/js/plugins/dashboard.js:126
 msgid "Create new compute resource"
 msgstr "یک منبع محاسباتی جدید بساز"
 
-#: ../public/js/plugins/dashboard.js:82 ../public/js/plugins/dashboard.js:96
-#: ../public/js/plugins/dashboard.js:110
+#: ../public/js/plugins/dashboard.js:127 ../public/js/plugins/dashboard.js:141
+#: ../public/js/plugins/dashboard.js:155
 msgid "See more"
 msgstr "بیشتر ببین"
 
-#: ../public/js/plugins/dashboard.js:95
+#: ../public/js/plugins/dashboard.js:140
 msgid "Create new storage resource"
 msgstr "یک منبع ذخیره سازی جدید بساز"
 
-#: ../public/js/plugins/dashboard.js:109
+#: ../public/js/plugins/dashboard.js:154
 msgid "Create new network resource"
 msgstr "یک منبع شبکه ای جدید بساز"
 
-#: ../public/js/plugins/dashboard.js:120
+#: ../public/js/plugins/dashboard.js:163
+msgid "Useful links"
+msgstr "پیوندهای به درد بخور"
+
+#: ../public/js/plugins/dashboard.js:175
 msgid "Dashboard"
 msgstr "داشبورد"
 
-#: ../public/js/plugins/compute.js:32 ../public/js/plugins/compute.js:554
-msgid "CPU"
-msgstr "CPU"
+#: ../public/js/plugins/dashboard.js:238
+msgid "Virtual Machines quotas"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:37 ../public/js/plugins/compute.js:558
-msgid "Memory"
-msgstr "حافظه"
+#: ../public/js/plugins/dashboard.js:274
+msgid "Storage size"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:287
+msgid "Number of images"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:296
+msgid "Image quota"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:302
+msgid "RVMs"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:311
+msgid "Network quota"
+msgstr ""
+
+#: ../public/js/plugins/dashboard.js:317
+msgid "Leases"
+msgstr ""
 
 #: ../public/js/plugins/compute.js:42
 msgid "Network transmission"
@@ -324,11 +393,11 @@ msgstr "ارسال شبکه ای"
 msgid "Network reception"
 msgstr "دریافت شبکه ای"
 
-#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:550
+#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
 msgstr "وضعیت"
 
-#: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:636
+#: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:645
 msgid "IP"
 msgstr "IP"
 
@@ -336,306 +405,346 @@ msgstr "IP"
 msgid "VM Name"
 msgstr "نام ماشین مجازی"
 
-#: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:546
+#: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:593
 msgid "Instance type"
 msgstr "نوع مورد"
 
-#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1010
+#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1036
 msgid "Loading"
 msgstr "بارگزاری"
-
-#: ../public/js/plugins/compute.js:86
-msgid "Images"
-msgstr "تصاویر"
 
 #: ../public/js/plugins/compute.js:97
 msgid "Create # VMs"
 msgstr "ساختن # ماشین مجازی"
 
 #: ../public/js/plugins/compute.js:99
-msgid "You can use the wildcard &#37;. When creating several VMs, &#37; will be replaced with a different number starting from 0 in each of them"
-msgstr "میتوانید ازwildcard هم استفاده کنید. به عنوان مثال، زمانی که تعدادی ماشین مجازی میسازید، با استفاده از &#37; هرماشین شماره متفاوتی که از 0 شروع میشود میگیرد."
+msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:335
+#: ../public/js/plugins/compute.js:361
 msgid "Shutdown"
 msgstr "خاموش کن"
 
-#: ../public/js/plugins/compute.js:336
+#: ../public/js/plugins/compute.js:362
 msgid "This will shutdown the selected VMs"
 msgstr "ماشین مجازی انتخاب شده را خاموش میکند"
 
-#: ../public/js/plugins/compute.js:344
+#: ../public/js/plugins/compute.js:370
 msgid "Suspend"
 msgstr "معلق کن"
 
-#: ../public/js/plugins/compute.js:345
+#: ../public/js/plugins/compute.js:371
 msgid "This will suspend the selected VMs"
 msgstr "ماشین مجازی انتخاب شده را به حالت تعلیق می برد"
 
-#: ../public/js/plugins/compute.js:349
+#: ../public/js/plugins/compute.js:375
 msgid "Resume"
 msgstr "ادامه بده"
 
-#: ../public/js/plugins/compute.js:350
+#: ../public/js/plugins/compute.js:376
 msgid "This will resume the selected VMs in stopped or suspended states"
 msgstr "ماشین مجازی انتخاب شده معلق یا ازکار افتاده را به کار می اندازد"
 
-#: ../public/js/plugins/compute.js:354
+#: ../public/js/plugins/compute.js:380
 msgid "Stop"
 msgstr "از کار بینداز"
 
-#: ../public/js/plugins/compute.js:359
+#: ../public/js/plugins/compute.js:385
 msgid "Reboot"
 msgstr "ازنو راه اندازی کن"
 
-#: ../public/js/plugins/compute.js:364
+#: ../public/js/plugins/compute.js:390
 msgid "Reset"
 msgstr "بازنشانی کن"
 
-#: ../public/js/plugins/compute.js:369 ../public/js/plugins/compute.js:837
-#: ../../../../../sunstone/public/js/sunstone.js:663
-#: ../../../../../sunstone/public/js/sunstone.js:695
+#: ../public/js/plugins/compute.js:395
+msgid "Restart"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:396
+msgid "This will redeploy selected VMs"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:400
+msgid "Resubmit"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:401
+msgid "This will resubmits VMs to PENDING state"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:405
+msgid "Power Off"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:406
+msgid "This will send a power off signal to running VMs. They can be restarted later."
+msgstr ""
+
+#: ../public/js/plugins/compute.js:410
+#: ../../../../../sunstone/public/js/sunstone.js:664
+#: ../../../../../sunstone/public/js/sunstone.js:696
 msgid "Cancel"
 msgstr "قلم بزن"
 
-#: ../public/js/plugins/compute.js:370
+#: ../public/js/plugins/compute.js:411
 msgid "This will cancel selected VMs"
 msgstr "ماشین مجازی انتخاب شده را قلم میزند"
 
-#: ../public/js/plugins/compute.js:374 ../public/js/plugins/compute.js:826
+#: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
 msgstr "تصویر لحظه ای بگیر"
 
-#: ../public/js/plugins/compute.js:382
+#: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
 msgstr "ماشین مجازی انتخاب شده را از پایگاه داده حذف میکند"
 
-#: ../public/js/plugins/compute.js:388
+#: ../public/js/plugins/compute.js:429
 msgid "Compute resource"
 msgstr "منبع محاسبات"
 
-#: ../public/js/plugins/compute.js:392 ../public/js/plugins/compute.js:610
-msgid "Disks"
-msgstr "دیسکها"
+#: ../public/js/plugins/compute.js:433 ../public/js/plugins/compute.js:619
+msgid "Disks & Hotplugging"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:403
+#: ../public/js/plugins/compute.js:444
 msgid "Create Virtual Machine"
 msgstr "ماشین مجازی بساز"
 
-#: ../public/js/plugins/compute.js:530
+#: ../public/js/plugins/compute.js:577
 msgid "VM information"
 msgstr "اطلاعات ماشین مجازی"
 
-#: ../public/js/plugins/compute.js:534
+#: ../public/js/plugins/compute.js:581
 msgid "Virtual Machine information"
 msgstr "اطلاعات ماشین مجازی"
 
-#: ../public/js/plugins/compute.js:562
+#: ../public/js/plugins/compute.js:601
+msgid "Used CPU"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:605
+msgid "Used Memory"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:609
 msgid "Launch VNC session"
 msgstr "یک ارتباط VNC برقرار کن"
 
-#: ../public/js/plugins/compute.js:573
-msgid "Disks information"
-msgstr "اطلاعات دیسک"
-
-#: ../public/js/plugins/compute.js:591
-msgid "Target"
-msgstr "هدف"
-
-#: ../public/js/plugins/compute.js:602 ../public/js/plugins/compute.js:933
-msgid "No disks defined"
-msgstr "دیسکی تعریف نشده"
-
-#: ../public/js/plugins/compute.js:616
+#: ../public/js/plugins/compute.js:625
 msgid "Networks information"
 msgstr "اطلاعات شبکه"
 
-#: ../public/js/plugins/compute.js:640
+#: ../public/js/plugins/compute.js:649
 msgid "MAC"
 msgstr "آدرس فیزیکی شبکه"
 
-#: ../public/js/plugins/compute.js:647
+#: ../public/js/plugins/compute.js:656
 msgid "No networks defined"
 msgstr "شبکه ای تعریف نکرده اید"
 
-#: ../public/js/plugins/compute.js:661
+#: ../public/js/plugins/compute.js:670
 msgid "Monitoring information"
 msgstr "اطلاعات نظارتی"
 
-#: ../public/js/plugins/compute.js:836
-#: ../../../../../sunstone/public/js/sunstone.js:662
-#: ../../../../../sunstone/public/js/sunstone.js:694
-msgid "OK"
-msgstr "باشه"
+#: ../public/js/plugins/compute.js:708
+msgid "Disks information - Save As and Detach"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:859
-msgid "Skipping VM "
-msgstr "از قلم انداختن ماشین مجازی"
+#: ../public/js/plugins/compute.js:722
+msgid "No disks to show"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:860
-msgid "No disk id or image name specified"
-msgstr "هیچ مشخصه دیسک یا تصویری انتخاب نشده"
+#: ../public/js/plugins/compute.js:733
+msgid "Detach"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:896
-msgid "Saveas for VM with ID"
-msgstr "ذخیره سازی جدای ماشین با مشخصه"
+#: ../public/js/plugins/compute.js:735
+msgid "Save"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:899
-msgid "Select disk"
-msgstr "انتخاب دیسک"
+#: ../public/js/plugins/compute.js:737
+msgid "Save_as name"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:901
-msgid "Retrieving"
-msgstr "درحال بازیابی"
+#: ../public/js/plugins/compute.js:755
+msgid "Attach disk to running VM"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:905
-msgid "Image name"
-msgstr "نام تصویر"
+#: ../public/js/plugins/compute.js:758
+msgid "Select image"
+msgstr ""
 
-#: ../public/js/plugins/compute.js:925 ../public/js/plugins/compute.js:928
-msgid "disk id"
-msgstr "مشخصه دیسک"
+#: ../public/js/plugins/compute.js:765
+msgid "Target"
+msgstr "هدف"
 
-#: ../public/js/plugins/compute.js:1003
+#: ../public/js/plugins/compute.js:772
+msgid "Attach"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:821
+msgid "Please select an image to attach"
+msgstr ""
+
+#: ../public/js/plugins/compute.js:1029
 msgid "VNC connection"
 msgstr "ارتباط VNC"
 
-#: ../public/js/plugins/compute.js:1018
+#: ../public/js/plugins/compute.js:1044
 msgid "Canvas not supported."
 msgstr "Canvas پشتیبانی نمی شود"
 
-#: ../public/js/plugins/compute.js:1079 ../public/js/plugins/compute.js:1095
+#: ../public/js/plugins/compute.js:1096 ../public/js/plugins/compute.js:1112
 msgid "Open VNC Session"
 msgstr "ارتباط VNC برقرارکن"
 
-#: ../public/js/plugins/compute.js:1082 ../public/js/plugins/compute.js:1098
+#: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
 msgstr "VNC ازکار افتاد"
 
-#: ../public/js/plugins/configuration.js:23
+#: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"
 msgstr "پیکربندی محیط گرافیکی Self-Service"
 
-#: ../public/js/plugins/configuration.js:28
+#: ../public/js/plugins/configuration.js:29
 msgid "Language"
 msgstr "زبان"
 
-#: ../public/js/plugins/configuration.js:31
-msgid "English"
-msgstr "انگلیسی"
-
 #: ../public/js/plugins/configuration.js:32
-msgid "Chinese"
-msgstr "چینی"
+msgid "English (US)"
+msgstr ""
 
 #: ../public/js/plugins/configuration.js:33
+msgid "Chinese (TW)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:34
+#, fuzzy
+msgid "Czech (CZ)"
+msgstr "فرانسوی (CA)"
+
+#: ../public/js/plugins/configuration.js:35
+msgid "Dutch (NL)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:36
 msgid "French (CA)"
 msgstr "فرانسوی (CA)"
 
-#: ../public/js/plugins/configuration.js:34
+#: ../public/js/plugins/configuration.js:37
 msgid "French (FR)"
 msgstr "فرانسوی (FR)"
 
-#: ../public/js/plugins/configuration.js:35
+#: ../public/js/plugins/configuration.js:38
+msgid "Galician"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:39
 msgid "German"
-msgstr "آلمانی"
+msgstr ""
 
-#: ../public/js/plugins/configuration.js:36
-msgid "Italian"
-msgstr "ایتالیایی"
+#: ../public/js/plugins/configuration.js:40
+msgid "Greek (GR)"
+msgstr ""
 
-#: ../public/js/plugins/configuration.js:37
+#: ../public/js/plugins/configuration.js:41
+msgid "Italian (IT)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:42
 msgid "Persian (IR)"
 msgstr ""
 
-#: ../public/js/plugins/configuration.js:38
+#: ../public/js/plugins/configuration.js:43
 msgid "Portuguese (BR)"
 msgstr "پرتقالی (BR)"
 
-#: ../public/js/plugins/configuration.js:39
+#: ../public/js/plugins/configuration.js:44
 msgid "Portuguese (PT)"
 msgstr "پرتقالی (PT)"
 
-#: ../public/js/plugins/configuration.js:40
-msgid "Slovak"
-msgstr "اسلواکی"
+#: ../public/js/plugins/configuration.js:45
+msgid "Slovak (SK)"
+msgstr ""
 
-#: ../public/js/plugins/configuration.js:41
-msgid "Spanish"
-msgstr "اسپانیایی"
+#: ../public/js/plugins/configuration.js:46
+msgid "Spanish (ES)"
+msgstr ""
 
-#: ../public/js/plugins/configuration.js:63
+#: ../public/js/plugins/configuration.js:68
 msgid "Configuration"
 msgstr "پیکربندی"
 
-#: ../../../../../sunstone/public/js/sunstone.js:588
+#: ../../../../../sunstone/public/js/sunstone.js:589
 msgid "Previous action"
 msgstr "عمل قبلی"
 
-#: ../../../../../sunstone/public/js/sunstone.js:651
-#: ../../../../../sunstone/public/js/sunstone.js:685
+#: ../../../../../sunstone/public/js/sunstone.js:652
+#: ../../../../../sunstone/public/js/sunstone.js:686
 msgid "Confirmation of action"
 msgstr "تایید عمل"
 
-#: ../../../../../sunstone/public/js/sunstone.js:657
+#: ../../../../../sunstone/public/js/sunstone.js:658
 msgid "You have to confirm this action."
 msgstr "لازم است این عمل را تایید نمایید"
 
-#: ../../../../../sunstone/public/js/sunstone.js:659
+#: ../../../../../sunstone/public/js/sunstone.js:660
 msgid "Do you want to proceed?"
 msgstr "آیا میخواهید ادامه دهید؟"
 
-#: ../../../../../sunstone/public/js/sunstone.js:690
+#: ../../../../../sunstone/public/js/sunstone.js:663
+#: ../../../../../sunstone/public/js/sunstone.js:695
+msgid "OK"
+msgstr "باشه"
+
+#: ../../../../../sunstone/public/js/sunstone.js:691
 msgid "You need to select something."
 msgstr "لازم است یکی را انتخاب کنید"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:206
+#: ../../../../../sunstone/public/js/sunstone-util.js:210
 msgid "Submitted"
 msgstr "ارائه شد"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:223
+#: ../../../../../sunstone/public/js/sunstone-util.js:227
 msgid "Error"
 msgstr "خطا"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:229
+#: ../../../../../sunstone/public/js/sunstone-util.js:233
 msgid "Info"
 msgstr "اطلاعات"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:361
+#: ../../../../../sunstone/public/js/sunstone-util.js:365
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "نمیتوان با سرور ارتباط برقرار کرد: آیا سرور عملیاتی و در دسترس است؟"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:369
+#: ../../../../../sunstone/public/js/sunstone-util.js:373
 msgid "Network is unreachable: is OpenNebula running?"
 msgstr "امکان دسترسی به شبکه نیست: آیا OpenNebula در حال اجرا است؟"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:390
+#: ../../../../../sunstone/public/js/sunstone-util.js:394
 msgid "Unauthorized"
 msgstr "غیر مجاز است"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:581
-#: ../../../../../sunstone/public/js/sunstone-util.js:801
+#: ../../../../../sunstone/public/js/sunstone-util.js:585
+#: ../../../../../sunstone/public/js/sunstone-util.js:807
 msgid "Please select"
 msgstr "لطفا انتخاب کنید"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:724
+#: ../../../../../sunstone/public/js/sunstone-util.js:730
 msgid "Update template"
 msgstr "به روز رسانی قالب"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:730
+#: ../../../../../sunstone/public/js/sunstone-util.js:736
 msgid "Please, choose and modify the template you want to update"
 msgstr "لطفا قالبی که میخواهید به روز رسانی کنید را انتخاب و تغییر دهید"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:732
-#: ../../../../../sunstone/public/js/sunstone-util.js:735
+#: ../../../../../sunstone/public/js/sunstone-util.js:738
+#: ../../../../../sunstone/public/js/sunstone-util.js:741
 msgid "Select a template"
 msgstr "انتخاب یک قالب"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:740
-msgid "Update"
-msgstr "به روزرسانی کن"
-
-#: ../../../../../sunstone/public/js/sunstone-util.js:1020
+#: ../../../../../sunstone/public/js/sunstone-util.js:1028
 msgid "Please select an element"
 msgstr "لطفا یک عنصر انتخاب کنید"
 
@@ -666,6 +775,10 @@ msgstr "منابع محاسباتی، ماشین های مجازی ای هستن
 #: ../public/customize/custom.js:70
 msgid "Storage pool is formed by several images. These images can contain from full operating systems to be used as base for compute resources, to simple data. OpenNebula Self-Service offers you the possibility to create or upload your own images."
 msgstr "منبع ذخیره سازی، از چندین تصویر ساخته می شود. این تصاویر میتوانند یک سیستم عامل کامل برای پایه یک ماشین محاسباتی، و یا یک فضای ذخیره سازی داده باشند. Self-Service کنترل پنل OpenNebula اجازه میدهند تا شما بتوانید تصاویر دلخواه خودتان را بسازید و یا از کامپیوتر شخصی خود بارگزاری کنید."
+
+#: ../public/customize/custom.js:72
+msgid "Network"
+msgstr "شبکه"
 
 #: ../public/customize/custom.js:74
 msgid "Your compute resources connectivity is performed using pre-defined virtual networks. You can create and manage these networks using OpenNebula Self-Service."

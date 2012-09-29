@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-18 13:27+0200\n"
+"POT-Creation-Date: 2012-09-28 19:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -408,7 +408,7 @@ msgstr ""
 msgid "Instance type"
 msgstr ""
 
-#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1038
+#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1036
 msgid "Loading"
 msgstr ""
 
@@ -586,19 +586,19 @@ msgstr ""
 msgid "Please select an image to attach"
 msgstr ""
 
-#: ../public/js/plugins/compute.js:1031
+#: ../public/js/plugins/compute.js:1029
 msgid "VNC connection"
 msgstr ""
 
-#: ../public/js/plugins/compute.js:1046
+#: ../public/js/plugins/compute.js:1044
 msgid "Canvas not supported."
 msgstr ""
 
-#: ../public/js/plugins/compute.js:1098 ../public/js/plugins/compute.js:1114
+#: ../public/js/plugins/compute.js:1096 ../public/js/plugins/compute.js:1112
 msgid "Open VNC Session"
 msgstr ""
 
-#: ../public/js/plugins/compute.js:1101 ../public/js/plugins/compute.js:1117
+#: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
 msgstr ""
 
@@ -619,42 +619,58 @@ msgid "Chinese (TW)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:34
-msgid "French (CA)"
+msgid "Czech (CZ)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:35
-msgid "French (FR)"
+msgid "Dutch (NL)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:36
-msgid "German (DE)"
+msgid "French (CA)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:37
-msgid "Italian (IT)"
+msgid "French (FR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:38
-msgid "Persian (IR)"
+msgid "Galician"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:39
-msgid "Portuguese (BR)"
+msgid "German"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:40
-msgid "Portuguese (PT)"
+msgid "Greek (GR)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:41
-msgid "Slovak (SK)"
+msgid "Italian (IT)"
 msgstr ""
 
 #: ../public/js/plugins/configuration.js:42
+msgid "Persian (IR)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:43
+msgid "Portuguese (BR)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:44
+msgid "Portuguese (PT)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:45
+msgid "Slovak (SK)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:46
 msgid "Spanish (ES)"
 msgstr ""
 
-#: ../public/js/plugins/configuration.js:64
+#: ../public/js/plugins/configuration.js:68
 msgid "Configuration"
 msgstr ""
 
@@ -726,7 +742,7 @@ msgstr ""
 msgid "Select a template"
 msgstr ""
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:1026
+#: ../../../../../sunstone/public/js/sunstone-util.js:1028
 msgid "Please select an element"
 msgstr ""
 

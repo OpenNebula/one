@@ -31,9 +31,13 @@ var config_tab_content =
                    <select id="lang_sel" style="width:20em;">\
                        <option value="en_US">'+tr("English (US)")+'</option>\
                        <option value="zh_TW">'+tr("Chinese (TW)")+'</option>\
+                       <option value="cs_CZ">'+tr("Czech (CZ)")+'</option>\
+                       <option value="nl_NL">'+tr("Dutch (NL)")+'</option>\
                        <option value="fr_CA">'+tr("French (CA)")+'</option>\
                        <option value="fr_FR">'+tr("French (FR)")+'</option>\
-                       <option value="de">'+tr("German (DE)")+'</option>\
+                       <option value="gl">'+tr("Galician")+'</option>\
+                       <option value="de">'+tr("German")+'</option>\
+                       <option value="el_GR">'+tr("Greek (GR)")+'</option>\
                        <option value="it_IT">'+tr("Italian (IT)")+'</option>\
                        <option value="fa_IR">'+tr("Persian (IR)")+'</option>\
                        <option value="pt_BR">'+tr("Portuguese (BR)")+'</option>\

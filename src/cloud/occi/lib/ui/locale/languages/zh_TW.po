@@ -1,22 +1,23 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) YEAR 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
 # Hsi En Yu <yun@nchc.narl.org.tw>, 2012.
+#   <nfsmwlin@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-06 10:30+0200\n"
-"PO-Revision-Date: 2012-07-05 01:46+0000\n"
-"Last-Translator: Hsi En Yu <yun@nchc.narl.org.tw>\n"
+"POT-Creation-Date: 2012-09-28 19:15+0200\n"
+"PO-Revision-Date: 2012-09-27 15:05+0000\n"
+"Last-Translator: pellaeon <nfsmwlin@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../public/js/locale.js:34
 msgid "Changing language"
@@ -51,18 +52,18 @@ msgstr "登出"
 msgid "All"
 msgstr "全部"
 
-#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:345
+#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
 #: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
-#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:538
-#: ../public/js/plugins/compute.js:583 ../public/js/plugins/compute.js:628
+#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
+#: ../public/js/plugins/compute.js:637
 msgid "ID"
 msgstr "ID"
 
 #: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
-#: ../public/js/plugins/storage.js:349 ../public/js/plugins/network.js:28
-#: ../public/js/plugins/network.js:41 ../public/js/plugins/network.js:282
-#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:542
-#: ../public/js/plugins/compute.js:587 ../public/js/plugins/compute.js:632
+#: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
+#: ../public/js/plugins/network.js:28 ../public/js/plugins/network.js:41
+#: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
+#: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
 msgid "Name"
 msgstr "名稱"
 
@@ -78,7 +79,7 @@ msgstr "為必填欄位"
 msgid "Name that the Image will get."
 msgstr "磁碟影像檔的名稱"
 
-#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:353
+#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
 msgid "Description"
 msgstr "描述"
 
@@ -86,8 +87,7 @@ msgstr "描述"
 msgid "Human readable description of the image."
 msgstr "供其他使用者參閱的磁碟影像檔描述"
 
-#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:357
-#: ../public/js/plugins/compute.js:595
+#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
 msgid "Type"
 msgstr "種類"
 
@@ -135,7 +135,7 @@ msgstr "Public"
 msgid "Public scope of the image"
 msgstr "磁碟影像檔公開範圍"
 
-#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:361
+#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
 msgid "Persistent"
 msgstr "存續性"
 
@@ -143,8 +143,8 @@ msgstr "存續性"
 msgid "Persistence of the image"
 msgstr "磁碟影像檔存續性"
 
-#: ../public/js/plugins/storage.js:95 ../public/js/plugins/network.js:56
-#: ../public/js/plugins/compute.js:103
+#: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
+#: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
 msgid "Close"
 msgstr "關閉"
 
@@ -153,75 +153,89 @@ msgstr "關閉"
 msgid "Create"
 msgstr "建立"
 
-#: ../public/js/plugins/storage.js:214 ../public/js/plugins/network.js:158
-#: ../public/js/plugins/compute.js:323
-msgid "Refresh list"
-msgstr "重新整理列表"
+#: ../public/js/plugins/storage.js:104
+msgid "Choose a new name for the image"
+msgstr "為新映像檔命名"
 
-#: ../public/js/plugins/storage.js:219 ../public/js/plugins/network.js:164
-#: ../public/js/plugins/compute.js:329
+#: ../public/js/plugins/storage.js:105
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr "您選取了多個映像檔，請選擇前綴 (prefix) 來命名新的複本"
+
+#: ../public/js/plugins/storage.js:108
+msgid "Prefix"
+msgstr "前綴"
+
+#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
+msgid "Clone"
+msgstr "複製"
+
+#: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
+#: ../public/js/plugins/compute.js:355
 msgid "+ New"
 msgstr "+新增"
 
-#: ../public/js/plugins/storage.js:223
+#: ../public/js/plugins/storage.js:249
 msgid "Make persistent"
 msgstr "可存續"
 
-#: ../public/js/plugins/storage.js:227
+#: ../public/js/plugins/storage.js:253
 msgid "Make non persistent"
 msgstr "非存續"
 
-#: ../public/js/plugins/storage.js:234 ../public/js/plugins/network.js:169
+#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
 msgid "Publish"
 msgstr "共用"
 
-#: ../public/js/plugins/storage.js:238 ../public/js/plugins/network.js:174
+#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
 msgid "Unpublish"
 msgstr "非共用"
 
-#: ../public/js/plugins/storage.js:244 ../public/js/plugins/network.js:179
-#: ../public/js/plugins/compute.js:381
+#: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
+#: ../public/js/plugins/compute.js:422
 msgid "Delete"
 msgstr "刪除"
 
-#: ../public/js/plugins/storage.js:250 ../public/js/plugins/storage.js:337
+#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
 msgid "Image information"
 msgstr "磁碟影像檔資訊"
 
-#: ../public/js/plugins/storage.js:258
+#: ../public/js/plugins/storage.js:287
 msgid "Add storage"
 msgstr "新增儲存空間"
 
-#: ../public/js/plugins/storage.js:264 ../public/js/plugins/dashboard.js:46
-#: ../public/customize/custom.js:68
+#: ../public/js/plugins/storage.js:294
+msgid "Clone image"
+msgstr "複製映像檔"
+
+#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
 msgid "Storage"
 msgstr "儲存空間"
 
-#: ../public/js/plugins/storage.js:341
+#: ../public/js/plugins/storage.js:378
 msgid "Image"
 msgstr "磁碟影像檔"
 
-#: ../public/js/plugins/storage.js:342 ../public/js/plugins/network.js:275
+#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
 msgid "information"
 msgstr "資訊"
 
-#: ../public/js/plugins/storage.js:365
+#: ../public/js/plugins/storage.js:402
 msgid "Filesystem type"
 msgstr "檔案系統種類"
 
-#: ../public/js/plugins/storage.js:369
+#: ../public/js/plugins/storage.js:406
 msgid "Size (Mb)"
 msgstr "大小 (Mb)"
 
-#: ../public/js/plugins/storage.js:503
+#: ../public/js/plugins/storage.js:537
 msgid "You must specify a name"
 msgstr "您必須指定一個名稱"
 
-#: ../public/js/plugins/storage.js:521
+#: ../public/js/plugins/storage.js:555
 msgid "You must specify size and FS type"
 msgstr "您必須指定大小及檔案系統種類"
 
-#: ../public/js/plugins/storage.js:528
+#: ../public/js/plugins/storage.js:562
 msgid "You must select a file to upload"
 msgstr "您必須選擇一個檔案上傳"
 
@@ -241,8 +255,9 @@ msgstr "網路資訊"
 msgid "Create network"
 msgstr "建立網路"
 
-#: ../public/js/plugins/network.js:199 ../public/js/plugins/compute.js:91
-#: ../public/js/plugins/compute.js:396 ../public/js/plugins/compute.js:655
+#: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
+#: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
+#: ../public/js/plugins/compute.js:664
 msgid "Networks"
 msgstr "網路"
 
@@ -270,51 +285,106 @@ msgstr "未填寫虛擬網路名稱!"
 msgid "Please provide a network address"
 msgstr "請填寫一個網路位址"
 
-#: ../public/js/plugins/dashboard.js:37
-msgid "Current resources"
-msgstr "目前資源"
+#: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
+#: ../public/js/plugins/compute.js:32
+msgid "CPU"
+msgstr "CPU"
 
-#: ../public/js/plugins/dashboard.js:42 ../public/js/plugins/compute.js:409
+#: ../public/js/plugins/dashboard.js:22 ../public/js/plugins/dashboard.js:249
+#: ../public/js/plugins/compute.js:37
+msgid "Memory"
+msgstr "記憶體"
+
+#: ../public/js/plugins/dashboard.js:26
+msgid "Net transfer rates"
+msgstr "網路傳輸速率"
+
+#: ../public/js/plugins/dashboard.js:52
+msgid "Resources and quotas"
+msgstr "資源與配額"
+
+#: ../public/js/plugins/dashboard.js:56 ../public/js/plugins/compute.js:450
 #: ../public/customize/custom.js:64
 msgid "Compute"
 msgstr "計算"
 
-#: ../public/js/plugins/dashboard.js:50 ../public/customize/custom.js:72
-msgid "Network"
-msgstr "網路"
+#: ../public/js/plugins/dashboard.js:58
+msgid "Storage quotas"
+msgstr "儲存空間配額"
 
-#: ../public/js/plugins/dashboard.js:62
-msgid "Useful links"
-msgstr "有用的資訊"
+#: ../public/js/plugins/dashboard.js:60 ../public/js/plugins/compute.js:86
+msgid "Images"
+msgstr "磁碟影像檔"
 
-#: ../public/js/plugins/dashboard.js:81
+#: ../public/js/plugins/dashboard.js:73
+msgid "Usages"
+msgstr "使用量"
+
+#: ../public/js/plugins/dashboard.js:77
+msgid "From"
+msgstr "從"
+
+#: ../public/js/plugins/dashboard.js:78
+msgid "To"
+msgstr "到"
+
+#: ../public/js/plugins/dashboard.js:79
+#: ../../../../../sunstone/public/js/sunstone-util.js:746
+msgid "Update"
+msgstr "更新"
+
+#: ../public/js/plugins/dashboard.js:126
 msgid "Create new compute resource"
 msgstr "建立新的計算資源"
 
-#: ../public/js/plugins/dashboard.js:82 ../public/js/plugins/dashboard.js:96
-#: ../public/js/plugins/dashboard.js:110
+#: ../public/js/plugins/dashboard.js:127 ../public/js/plugins/dashboard.js:141
+#: ../public/js/plugins/dashboard.js:155
 msgid "See more"
 msgstr "顯示更多"
 
-#: ../public/js/plugins/dashboard.js:95
+#: ../public/js/plugins/dashboard.js:140
 msgid "Create new storage resource"
 msgstr "建立新的儲存空間"
 
-#: ../public/js/plugins/dashboard.js:109
+#: ../public/js/plugins/dashboard.js:154
 msgid "Create new network resource"
 msgstr "建立新的虛擬網路"
 
-#: ../public/js/plugins/dashboard.js:120
+#: ../public/js/plugins/dashboard.js:163
+msgid "Useful links"
+msgstr "有用的資訊"
+
+#: ../public/js/plugins/dashboard.js:175
 msgid "Dashboard"
 msgstr "主控台"
 
-#: ../public/js/plugins/compute.js:32 ../public/js/plugins/compute.js:554
-msgid "CPU"
-msgstr "CPU"
+#: ../public/js/plugins/dashboard.js:238
+msgid "Virtual Machines quotas"
+msgstr "虛擬機器配額"
 
-#: ../public/js/plugins/compute.js:37 ../public/js/plugins/compute.js:558
-msgid "Memory"
-msgstr "記憶體"
+#: ../public/js/plugins/dashboard.js:274
+msgid "Storage size"
+msgstr "儲存空間大小"
+
+#: ../public/js/plugins/dashboard.js:287
+msgid "Number of images"
+msgstr "映像檔數目"
+
+#: ../public/js/plugins/dashboard.js:296
+msgid "Image quota"
+msgstr "映像檔配額"
+
+#: ../public/js/plugins/dashboard.js:302
+msgid "RVMs"
+msgstr "RVM"
+
+#: ../public/js/plugins/dashboard.js:311
+msgid "Network quota"
+msgstr "網路配額"
+
+#: ../public/js/plugins/dashboard.js:317
+msgid "Leases"
+msgstr "租約"
 
 #: ../public/js/plugins/compute.js:42
 msgid "Network transmission"
@@ -324,11 +394,11 @@ msgstr "網路傳送"
 msgid "Network reception"
 msgstr "網路接收"
 
-#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:550
+#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
 msgstr "狀態"
 
-#: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:636
+#: ../public/js/plugins/compute.js:66 ../public/js/plugins/compute.js:645
 msgid "IP"
 msgstr "IP"
 
@@ -336,306 +406,347 @@ msgstr "IP"
 msgid "VM Name"
 msgstr "VM名稱"
 
-#: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:546
+#: ../public/js/plugins/compute.js:80 ../public/js/plugins/compute.js:593
 msgid "Instance type"
 msgstr "機器類型"
 
-#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1010
+#: ../public/js/plugins/compute.js:82 ../public/js/plugins/compute.js:1036
 msgid "Loading"
 msgstr "載入中"
-
-#: ../public/js/plugins/compute.js:86
-msgid "Images"
-msgstr "磁碟影像檔"
 
 #: ../public/js/plugins/compute.js:97
 msgid "Create # VMs"
 msgstr "VM創建數目"
 
 #: ../public/js/plugins/compute.js:99
-msgid "You can use the wildcard &#37;. When creating several VMs, &#37; will be replaced with a different number starting from 0 in each of them"
-msgstr "當建立n個VM時，你可以在VM名稱中使用通用變數 &#37;，%i將會被替換為0至n-1的不同數字"
+msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
+msgstr "你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字。"
 
-#: ../public/js/plugins/compute.js:335
+#: ../public/js/plugins/compute.js:361
 msgid "Shutdown"
 msgstr "關機"
 
-#: ../public/js/plugins/compute.js:336
+#: ../public/js/plugins/compute.js:362
 msgid "This will shutdown the selected VMs"
 msgstr "所有被選取的VM將會關機"
 
-#: ../public/js/plugins/compute.js:344
+#: ../public/js/plugins/compute.js:370
 msgid "Suspend"
 msgstr "暫停"
 
-#: ../public/js/plugins/compute.js:345
+#: ../public/js/plugins/compute.js:371
 msgid "This will suspend the selected VMs"
 msgstr "所有被選取的VM將會暫停"
 
-#: ../public/js/plugins/compute.js:349
+#: ../public/js/plugins/compute.js:375
 msgid "Resume"
 msgstr "繼續"
 
-#: ../public/js/plugins/compute.js:350
+#: ../public/js/plugins/compute.js:376
 msgid "This will resume the selected VMs in stopped or suspended states"
 msgstr "所有被選取的停止或暫停中VM將會繼續"
 
-#: ../public/js/plugins/compute.js:354
+#: ../public/js/plugins/compute.js:380
 msgid "Stop"
 msgstr "停止"
 
-#: ../public/js/plugins/compute.js:359
+#: ../public/js/plugins/compute.js:385
 msgid "Reboot"
 msgstr "重新開機"
 
-#: ../public/js/plugins/compute.js:364
+#: ../public/js/plugins/compute.js:390
 msgid "Reset"
 msgstr "重設"
 
-#: ../public/js/plugins/compute.js:369 ../public/js/plugins/compute.js:837
-#: ../../../../../sunstone/public/js/sunstone.js:663
-#: ../../../../../sunstone/public/js/sunstone.js:695
+#: ../public/js/plugins/compute.js:395
+msgid "Restart"
+msgstr "重新啟動"
+
+#: ../public/js/plugins/compute.js:396
+msgid "This will redeploy selected VMs"
+msgstr "所有被選取的VM將會重新部署"
+
+#: ../public/js/plugins/compute.js:400
+msgid "Resubmit"
+msgstr "重新派送"
+
+#: ../public/js/plugins/compute.js:401
+msgid "This will resubmits VMs to PENDING state"
+msgstr "VM將會被重新派送至PENDING狀態"
+
+#: ../public/js/plugins/compute.js:405
+msgid "Power Off"
+msgstr "關機"
+
+#: ../public/js/plugins/compute.js:406
+msgid "This will send a power off signal to running VMs. They can be restarted later."
+msgstr "這會對運行中的VM送出關機訊號。虛擬機器之後可以再被重新啓動。"
+
+#: ../public/js/plugins/compute.js:410
+#: ../../../../../sunstone/public/js/sunstone.js:664
+#: ../../../../../sunstone/public/js/sunstone.js:696
 msgid "Cancel"
 msgstr "取消"
 
-#: ../public/js/plugins/compute.js:370
+#: ../public/js/plugins/compute.js:411
 msgid "This will cancel selected VMs"
 msgstr "所有被選取的VM將會取消"
 
-#: ../public/js/plugins/compute.js:374 ../public/js/plugins/compute.js:826
+#: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
 msgstr "進行快照"
 
-#: ../public/js/plugins/compute.js:382
+#: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
 msgstr "選取的VM將會從資料庫刪除"
 
-#: ../public/js/plugins/compute.js:388
+#: ../public/js/plugins/compute.js:429
 msgid "Compute resource"
 msgstr "計算資源"
 
-#: ../public/js/plugins/compute.js:392 ../public/js/plugins/compute.js:610
-msgid "Disks"
-msgstr "磁碟"
+#: ../public/js/plugins/compute.js:433 ../public/js/plugins/compute.js:619
+msgid "Disks & Hotplugging"
+msgstr "磁碟和熱插拔"
 
-#: ../public/js/plugins/compute.js:403
+#: ../public/js/plugins/compute.js:444
 msgid "Create Virtual Machine"
 msgstr "建立虛擬機器"
 
-#: ../public/js/plugins/compute.js:530
+#: ../public/js/plugins/compute.js:577
 msgid "VM information"
 msgstr "VM資訊"
 
-#: ../public/js/plugins/compute.js:534
+#: ../public/js/plugins/compute.js:581
 msgid "Virtual Machine information"
 msgstr "虛擬機器資訊"
 
-#: ../public/js/plugins/compute.js:562
+#: ../public/js/plugins/compute.js:601
+msgid "Used CPU"
+msgstr "已使用 CPU"
+
+#: ../public/js/plugins/compute.js:605
+msgid "Used Memory"
+msgstr "已使用記憶體"
+
+#: ../public/js/plugins/compute.js:609
 msgid "Launch VNC session"
 msgstr "啟動VNC連線"
 
-#: ../public/js/plugins/compute.js:573
-msgid "Disks information"
-msgstr "磁碟資訊"
-
-#: ../public/js/plugins/compute.js:591
-msgid "Target"
-msgstr "目的裝置名稱"
-
-#: ../public/js/plugins/compute.js:602 ../public/js/plugins/compute.js:933
-msgid "No disks defined"
-msgstr "未定義任何磁碟"
-
-#: ../public/js/plugins/compute.js:616
+#: ../public/js/plugins/compute.js:625
 msgid "Networks information"
 msgstr "網路資訊"
 
-#: ../public/js/plugins/compute.js:640
+#: ../public/js/plugins/compute.js:649
 msgid "MAC"
 msgstr "MAC"
 
-#: ../public/js/plugins/compute.js:647
+#: ../public/js/plugins/compute.js:656
 msgid "No networks defined"
 msgstr "未定義任何網路"
 
-#: ../public/js/plugins/compute.js:661
+#: ../public/js/plugins/compute.js:670
 msgid "Monitoring information"
 msgstr "監測資訊"
 
-#: ../public/js/plugins/compute.js:836
-#: ../../../../../sunstone/public/js/sunstone.js:662
-#: ../../../../../sunstone/public/js/sunstone.js:694
-msgid "OK"
-msgstr "確定"
+#: ../public/js/plugins/compute.js:708
+msgid "Disks information - Save As and Detach"
+msgstr "磁碟資訊 - 另存和卸載"
 
-#: ../public/js/plugins/compute.js:859
-msgid "Skipping VM "
-msgstr "略過VM"
+#: ../public/js/plugins/compute.js:722
+msgid "No disks to show"
+msgstr "沒有磁碟"
 
-#: ../public/js/plugins/compute.js:860
-msgid "No disk id or image name specified"
-msgstr "未指定任何磁碟id或影像檔"
+#: ../public/js/plugins/compute.js:733
+msgid "Detach"
+msgstr "卸載"
 
-#: ../public/js/plugins/compute.js:896
-msgid "Saveas for VM with ID"
-msgstr "將VM另存為磁碟影像檔: VM ID"
+#: ../public/js/plugins/compute.js:735
+msgid "Save"
+msgstr "儲存"
 
-#: ../public/js/plugins/compute.js:899
-msgid "Select disk"
-msgstr "選擇磁碟"
+#: ../public/js/plugins/compute.js:737
+msgid "Save_as name"
+msgstr "另存檔名"
 
-#: ../public/js/plugins/compute.js:901
-msgid "Retrieving"
-msgstr "查詢中"
+#: ../public/js/plugins/compute.js:755
+msgid "Attach disk to running VM"
+msgstr "附加磁碟到執行中的 VM"
 
-#: ../public/js/plugins/compute.js:905
-msgid "Image name"
-msgstr "磁碟影像檔名稱"
+#: ../public/js/plugins/compute.js:758
+msgid "Select image"
+msgstr "選擇映像檔"
 
-#: ../public/js/plugins/compute.js:925 ../public/js/plugins/compute.js:928
-msgid "disk id"
-msgstr "磁碟id"
+#: ../public/js/plugins/compute.js:765
+msgid "Target"
+msgstr "目的裝置名稱"
 
-#: ../public/js/plugins/compute.js:1003
+#: ../public/js/plugins/compute.js:772
+msgid "Attach"
+msgstr "附加"
+
+#: ../public/js/plugins/compute.js:821
+msgid "Please select an image to attach"
+msgstr "請選擇要附加的映像檔"
+
+#: ../public/js/plugins/compute.js:1029
 msgid "VNC connection"
 msgstr "VNC連線階段"
 
-#: ../public/js/plugins/compute.js:1018
+#: ../public/js/plugins/compute.js:1044
 msgid "Canvas not supported."
 msgstr "不支援Canvas"
 
-#: ../public/js/plugins/compute.js:1079 ../public/js/plugins/compute.js:1095
+#: ../public/js/plugins/compute.js:1096 ../public/js/plugins/compute.js:1112
 msgid "Open VNC Session"
 msgstr "開啟VNC連線"
 
-#: ../public/js/plugins/compute.js:1082 ../public/js/plugins/compute.js:1098
+#: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
 msgstr "VNC已停用"
 
-#: ../public/js/plugins/configuration.js:23
+#: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"
 msgstr "自助服務使用者介面設定"
 
-#: ../public/js/plugins/configuration.js:28
+#: ../public/js/plugins/configuration.js:29
 msgid "Language"
 msgstr "語系"
 
-#: ../public/js/plugins/configuration.js:31
-msgid "English"
-msgstr "English - 英文"
-
 #: ../public/js/plugins/configuration.js:32
-msgid "Chinese"
-msgstr "Chinese - 正體中文(台灣)"
+msgid "English (US)"
+msgstr "英文 (US)"
 
 #: ../public/js/plugins/configuration.js:33
+msgid "Chinese (TW)"
+msgstr "中文 (TW)"
+
+#: ../public/js/plugins/configuration.js:34
+#, fuzzy
+msgid "Czech (CZ)"
+msgstr "French (CA) - 法文(加拿大)"
+
+#: ../public/js/plugins/configuration.js:35
+msgid "Dutch (NL)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:36
 msgid "French (CA)"
 msgstr "French (CA) - 法文(加拿大)"
 
-#: ../public/js/plugins/configuration.js:34
+#: ../public/js/plugins/configuration.js:37
 msgid "French (FR)"
 msgstr "French (FR) - 法文(法國)"
 
-#: ../public/js/plugins/configuration.js:35
-msgid "German"
-msgstr "German - 德文"
-
-#: ../public/js/plugins/configuration.js:36
-msgid "Italian"
-msgstr "Italian - 義大利文"
-
-#: ../public/js/plugins/configuration.js:37
-msgid "Persian (IR)"
+#: ../public/js/plugins/configuration.js:38
+msgid "Galician"
 msgstr ""
 
-#: ../public/js/plugins/configuration.js:38
+#: ../public/js/plugins/configuration.js:39
+#, fuzzy
+msgid "German"
+msgstr "德文 (DE)"
+
+#: ../public/js/plugins/configuration.js:40
+msgid "Greek (GR)"
+msgstr ""
+
+#: ../public/js/plugins/configuration.js:41
+msgid "Italian (IT)"
+msgstr "義大利文 (IT)"
+
+#: ../public/js/plugins/configuration.js:42
+msgid "Persian (IR)"
+msgstr "波斯文 (IR)"
+
+#: ../public/js/plugins/configuration.js:43
 msgid "Portuguese (BR)"
 msgstr "Portuguese(BR) - 葡萄牙文(巴西)"
 
-#: ../public/js/plugins/configuration.js:39
+#: ../public/js/plugins/configuration.js:44
 msgid "Portuguese (PT)"
 msgstr "Portuguese(PT) - 葡萄牙文(葡萄牙)"
 
-#: ../public/js/plugins/configuration.js:40
-msgid "Slovak"
-msgstr "Slovak - 斯洛伐克文"
+#: ../public/js/plugins/configuration.js:45
+msgid "Slovak (SK)"
+msgstr "斯洛伐克文 (SK)"
 
-#: ../public/js/plugins/configuration.js:41
-msgid "Spanish"
-msgstr "Spanish - 西班牙文"
+#: ../public/js/plugins/configuration.js:46
+msgid "Spanish (ES)"
+msgstr "西班牙文 (ES)"
 
-#: ../public/js/plugins/configuration.js:63
+#: ../public/js/plugins/configuration.js:68
 msgid "Configuration"
 msgstr "設定"
 
-#: ../../../../../sunstone/public/js/sunstone.js:588
+#: ../../../../../sunstone/public/js/sunstone.js:589
 msgid "Previous action"
 msgstr "先前操作"
 
-#: ../../../../../sunstone/public/js/sunstone.js:651
-#: ../../../../../sunstone/public/js/sunstone.js:685
+#: ../../../../../sunstone/public/js/sunstone.js:652
+#: ../../../../../sunstone/public/js/sunstone.js:686
 msgid "Confirmation of action"
 msgstr "操作確認"
 
-#: ../../../../../sunstone/public/js/sunstone.js:657
+#: ../../../../../sunstone/public/js/sunstone.js:658
 msgid "You have to confirm this action."
 msgstr "請確認這個操作"
 
-#: ../../../../../sunstone/public/js/sunstone.js:659
+#: ../../../../../sunstone/public/js/sunstone.js:660
 msgid "Do you want to proceed?"
 msgstr "您是否確定要繼續執行?"
 
-#: ../../../../../sunstone/public/js/sunstone.js:690
+#: ../../../../../sunstone/public/js/sunstone.js:663
+#: ../../../../../sunstone/public/js/sunstone.js:695
+msgid "OK"
+msgstr "確定"
+
+#: ../../../../../sunstone/public/js/sunstone.js:691
 msgid "You need to select something."
 msgstr "未選取任何項目"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:206
+#: ../../../../../sunstone/public/js/sunstone-util.js:210
 msgid "Submitted"
 msgstr "已執行"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:223
+#: ../../../../../sunstone/public/js/sunstone-util.js:227
 msgid "Error"
 msgstr "錯誤"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:229
+#: ../../../../../sunstone/public/js/sunstone-util.js:233
 msgid "Info"
 msgstr "訊息"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:361
+#: ../../../../../sunstone/public/js/sunstone-util.js:365
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "無法連線至伺服器:請確認伺服器運行狀態或網路連線狀況?"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:369
+#: ../../../../../sunstone/public/js/sunstone-util.js:373
 msgid "Network is unreachable: is OpenNebula running?"
 msgstr "網路連線失敗: 請確認OpenNebula是否仍運行中?"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:390
+#: ../../../../../sunstone/public/js/sunstone-util.js:394
 msgid "Unauthorized"
 msgstr "未經授權"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:581
-#: ../../../../../sunstone/public/js/sunstone-util.js:801
+#: ../../../../../sunstone/public/js/sunstone-util.js:585
+#: ../../../../../sunstone/public/js/sunstone-util.js:807
 msgid "Please select"
 msgstr "請選擇"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:724
+#: ../../../../../sunstone/public/js/sunstone-util.js:730
 msgid "Update template"
 msgstr "修改範本"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:730
+#: ../../../../../sunstone/public/js/sunstone-util.js:736
 msgid "Please, choose and modify the template you want to update"
 msgstr "請選擇您想修改的範本"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:732
-#: ../../../../../sunstone/public/js/sunstone-util.js:735
+#: ../../../../../sunstone/public/js/sunstone-util.js:738
+#: ../../../../../sunstone/public/js/sunstone-util.js:741
 msgid "Select a template"
 msgstr "選擇一個範本"
 
-#: ../../../../../sunstone/public/js/sunstone-util.js:740
-msgid "Update"
-msgstr "更新"
-
-#: ../../../../../sunstone/public/js/sunstone-util.js:1020
+#: ../../../../../sunstone/public/js/sunstone-util.js:1028
 msgid "Please select an element"
 msgstr "請選擇一個元素"
 
@@ -666,6 +777,10 @@ msgstr "計算資源是附加了儲存空間及虛擬網路的虛擬機器。Ope
 #: ../public/customize/custom.js:70
 msgid "Storage pool is formed by several images. These images can contain from full operating systems to be used as base for compute resources, to simple data. OpenNebula Self-Service offers you the possibility to create or upload your own images."
 msgstr "Storage存儲庫是由許多磁碟影像檔所集合而成。這些影像檔可能包含完整的作業系統供VM開機使用，也可能僅存放簡單的資料。OpenNebula 自助服務能夠讓您創建或是上傳您自己的磁碟影像檔"
+
+#: ../public/customize/custom.js:72
+msgid "Network"
+msgstr "網路"
 
 #: ../public/customize/custom.js:74
 msgid "Your compute resources connectivity is performed using pre-defined virtual networks. You can create and manage these networks using OpenNebula Self-Service."
