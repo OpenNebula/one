@@ -20,7 +20,7 @@ FileUtils.mkdir_p('man1-one')
 Dir.chdir('man1-one')
 
 MAN={
-    :appstage => 'OpenNebula Environments Tool',
+    :appstage => 'AppStage Environments Tool',
     :appflow => 'AppFlow Service management',
     :'appflow-template' => 'AppFlow Service Template management',
     :appmarket => 'AppMarket appliances management',

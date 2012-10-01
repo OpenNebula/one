@@ -95,7 +95,6 @@ COOKBOOKS={
 
 cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`appstage` <command> [<args>] [<options>]"
-    version OpenNebulaHelper::ONE_VERSION
 
     helper = AppStageHelper.new
     template_helper = OneTemplateHelper.new
