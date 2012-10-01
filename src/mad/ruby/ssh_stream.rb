@@ -60,6 +60,8 @@ class SshStream
     end
 
     def close
+        return if !@alive
+
         begin
             @stdin.puts "\nexit"
         rescue #rescue from EPIPE if ssh command exited already
