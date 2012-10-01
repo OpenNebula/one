@@ -27,16 +27,16 @@ module Market
             @uri = URI.parse(url)
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
+            @proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new
         end
 
         def get(path)
-            req = Net::HTTP::Get.new(path)
-
+            req = Net::HTTP::Proxy(@proxy.host, @proxy.port)::Get.new(path)
             do_request(req)
         end
 
         def post(path, body)
-            req = Net::HTTP::Post.new(path)
+            req = Net::HTTP::Proxy(@proxy.host, @proxy.port)::Post.new(path)
             req.body = body
 
             do_request(req)
