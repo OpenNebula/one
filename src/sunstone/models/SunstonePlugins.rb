@@ -18,8 +18,6 @@ require 'yaml'
 require 'json'
 
 class SunstonePlugins
-    USER_PLUGIN_POLICY = false # or true to enable them by default
-
     attr_reader :plugins_conf
 
     def initialize
@@ -37,26 +35,18 @@ class SunstonePlugins
         @installed_plugins = Array.new
 
         # read user plugins
-        modified = false
         Dir[base_path+'user-plugins/*.js'].each do |p_path|
             m = p_path.match(/^#{base_path}(.*)$/)
-            if m and plugin = m[1]
-                @installed_plugins << plugin
-                if !plugins.include? plugin
-                    @plugins_conf << {plugin=>{:ALL     => USER_PLUGIN_POLICY,
-                                               :user    => nil,
-                                               :group   => nil}}
-                    modified = true
-                end
+            if m && m[1]
+                @installed_plugins << m[1]
             end
         end
-        write_conf if modified
 
         # read base plugins
         Dir[base_path+'plugins/*.js'].each do |p_path|
             m = p_path.match(/^#{base_path}(.*)$/)
-            if m and plugin = m[1]
-                @installed_plugins << plugin
+            if m && m[1]
+                @installed_plugins << m[1]
             end
         end
     end
@@ -97,12 +87,6 @@ class SunstonePlugins
             end
         end
         auth_plugins
-    end
-
-    def write_conf
-        File.open(PLUGIN_CONFIGURATION_FILE,'w') do |f|
-            f.write(@plugins_conf.to_yaml)
-        end
     end
 
     def to_json
