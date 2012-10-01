@@ -75,7 +75,8 @@ module CommandParser
         # Defines the usage information of the command
         # @param [String] str
         def usage(str)
-            @usage=str
+            @usage = str
+            @name ||= @usage.split(' ').first
         end
 
         # Defines the version the command
