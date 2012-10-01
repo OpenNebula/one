@@ -15,7 +15,7 @@ end
 GROUPS={
     :quota => [SQLITE, 'sequel'],
     :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
-    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
+    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json net-ssh},
     :ozones_client => %w{json},
     :ozones_server => %w{json sequel}+[
         SQLITE, 'mysql'
