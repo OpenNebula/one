@@ -208,6 +208,12 @@ def do_http_request(params)
             result,rc = @econe_server.detach_volume(params)
         when 'DeleteVolume'
             result,rc = @econe_server.delete_volume(params)
+        when 'DescribeKeyPairs'
+            result,rc = @econe_server.describe_keypairs(params)
+        when 'CreateKeyPair'
+            result,rc = @econe_server.create_keypair(params)
+        when 'DeleteKeyPair'
+            result,rc = @econe_server.delete_keypair(params)
         else
             result = OpenNebula::Error.new(
                 "#{params['Action']} feature is not supported",

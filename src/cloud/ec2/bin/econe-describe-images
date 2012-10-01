@@ -86,7 +86,13 @@ used with an OpenNebula Cloud."
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
-            TABLE.show(rc['imagesSet']['item'] || [])
+            if rc.empty? || rc['imagesSet'].nil? || rc['imagesSet']['item'].nil?
+                imgs = []
+            else
+                imgs = rc['imagesSet']['item']
+            end
+
+            TABLE.show(imgs)
             exit_with_code 0
         end
     end

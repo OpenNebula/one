@@ -17,14 +17,23 @@
 require 'rubygems'
 require 'erb'
 require 'time'
-require 'AWS'
 require 'base64'
-require 'CloudServer'
 
+
+require 'AWS'
+
+require 'CloudServer'
 require 'ImageEC2'
+
 require 'ebs'
 require 'elastic_ip'
 require 'instance'
+require 'keypair'
+
+################################################################################
+#  Extends the OpenNebula::Error class to include an EC2 render of error
+#  messages
+################################################################################
 
 module OpenNebula
     EC2_ERROR = %q{
@@ -54,12 +63,14 @@ end
 ###############################################################################
 class EC2QueryServer < CloudServer
 
-    ###########################################################################
-
+    ############################################################################
+    #
+    #
+    ############################################################################
     def initialize(client, oneadmin_client, config, logger)
         super(config, logger)
 
-        @client = client
+        @client          = client
         @oneadmin_client = oneadmin_client
 
         if config[:ssl_server]
@@ -68,12 +79,15 @@ class EC2QueryServer < CloudServer
             @base_url="http://#{config[:server]}:#{config[:port]}"
         end
 
+        #      ----------- Load EC2 API modules ------------
+
         if @config[:elasticips_vnet_id].nil?
             logger.error { 'ElasticIP module not loaded' }
         else
             extend ElasticIP
         end
 
+        extend Keypair
         extend EBS
         extend Instance
     end
@@ -83,8 +97,7 @@ class EC2QueryServer < CloudServer
     ###########################################################################
 
     def describe_availability_zones(params)
-        response = ERB.new(
-            File.read(@config[:views]+"/describe_availability_zones.erb"))
+        response = ERB.new(File.read(@config[:views]+"/describe_availability_zones.erb"))
         return response.result(binding), 200
     end
 
@@ -153,9 +166,8 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
-
     ###########################################################################
-    # Elastic IP
+    # Provide defaults for Elastic IP if not loaded
     ###########################################################################
     def allocate_address(params)
         return OpenNebula::Error.new('Unsupported')
@@ -181,7 +193,6 @@ class EC2QueryServer < CloudServer
     # Helper functions
     ###########################################################################
     private
-
 
     def render_launch_time(vm)
         return "<launchTime>#{Time.at(vm["STIME"].to_i).xmlschema}</launchTime>"

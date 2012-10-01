@@ -59,15 +59,18 @@ module Instance
         end
 
         # Get the image
-        tmp, img=params['ImageId'].split('-')
+        tmp, img = params['ImageId'].split('-')
 
         # Build the VM
-        erb_vm_info=Hash.new
+        erb_vm_info = Hash.new
+
         erb_vm_info[:img_id]        = img.to_i
         erb_vm_info[:ec2_img_id]    = params['ImageId']
         erb_vm_info[:instance_type] = instance_type_name
         erb_vm_info[:template]      = path
         erb_vm_info[:user_data]     = params['UserData']
+        erb_vm_info[:public_key]    = fetch_publickey(params)
+        erb_vm_info[:key_name]      = params['KeyName']
 
         template      = ERB.new(File.read(erb_vm_info[:template]))
         template_text = template.result(binding)
