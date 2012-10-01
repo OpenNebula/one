@@ -74,7 +74,13 @@ CommandParser::CmdParser.new(ARGV) do
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
-            TABLE.show(rc['addressesSet']['item'] || [])
+            if rc.empty? || rc['addressesSet'].nil? || rc['addressesSet']['item'].nil?
+                addrs = []
+            else
+                addrs = rc['addressesSet']['item']
+            end
+
+            TABLE.show(addrs)
             exit_with_code 0
         end
     end
