@@ -547,6 +547,23 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 }
 
 /* -------------------------------------------------------------------------- */
+
+void UserAllocate::log_xmlrpc_param(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss,
+            const int&              index)
+{
+    if ( index == 2 )   // password argument
+    {
+        oss << ", ****";
+    }
+    else
+    {
+        Request::log_xmlrpc_param(v, oss, index);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 

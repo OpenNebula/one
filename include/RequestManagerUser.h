@@ -74,6 +74,11 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList, 
                     string&                    err);
+
+    void log_xmlrpc_param(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss,
+            const int&              index);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -95,6 +100,11 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     string&                    err);
+
+    void log_xmlrpc_param(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss,
+            const int&              index);
 };
 
 /* ------------------------------------------------------------------------- */

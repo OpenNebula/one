@@ -66,12 +66,7 @@ EOT
             [-1, "#{cmd_name}: #{rc.message}"]
         else
             exit_code 0
-
-            if options[:headers]
-                CLIHelper.print_header("publicIP")
-            end
-
-            puts rc['publicIP']
+            puts "publicIP: #{rc['publicIP']}"
         end
     end
 end

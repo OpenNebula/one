@@ -165,6 +165,10 @@ module Instance
 
         rc = block.call(vm)
 
+        if OpenNebula::is_error?(rc)
+            return rc
+        end
+
         vm.info
 
         erb_current_state = render_state(vm)
