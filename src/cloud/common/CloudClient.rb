@@ -83,7 +83,8 @@ module CloudClient
     # is set if needed.
     # #########################################################################
     def self.http_start(url, timeout, &block)
-        http = Net::HTTP.new(url.host, url.port)
+        proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new
+        http = Net::HTTP::Proxy(proxy.host, proxy.port).new(url.host, url.port)
 
         if timeout
             http.read_timeout = timeout.to_i

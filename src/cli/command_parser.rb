@@ -75,7 +75,8 @@ module CommandParser
         # Defines the usage information of the command
         # @param [String] str
         def usage(str)
-            @usage=str
+            @usage = str
+            @name ||= @usage.split(' ').first
         end
 
         # Defines the version the command
@@ -88,6 +89,12 @@ module CommandParser
         # @param [String] str
         def description(str)
             @description = str
+        end
+
+        # Defines the name of the command
+        # @param [String] str
+        def name(str)
+            @name = str
         end
 
         # Defines a block that will be used to parse the arguments
@@ -386,12 +393,14 @@ module CommandParser
 
         def run
             comm_name=""
+
             if @main
-                comm=@main
+                comm_name = @name
+                comm      = @main
             elsif
                 if @args[0] && !@args[0].match(/^-/)
-                    comm_name=@args.shift.to_sym
-                    comm=@commands[comm_name]
+                    comm_name = @args.shift.to_sym
+                    comm      = @commands[comm_name]
                 end
             end
 
@@ -470,8 +479,13 @@ module CommandParser
                 end
                 puts
                 puts "Usage:"
-                print "    #{name} "
-                print_command(@commands[name])
+
+                if @main
+                    print "    #{@usage}\n"
+                else
+                    print "    #{name} "
+                    print_command(@commands[name])
+                end
                 exit -1
             else
                 id=0

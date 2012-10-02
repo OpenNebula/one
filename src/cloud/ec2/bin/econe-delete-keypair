@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
@@ -33,23 +32,14 @@ require 'econe/EC2QueryClient'
 
 include CloudCLI
 
-TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :publicIP, "publicIP", :size=>10 do |d|
-        d["publicIP"]
-    end
-
-    column :instanceID, "instanceID", :size=>25 do |d|
-        d["instanceID"]
-    end
-
-    default :publicIP, :instanceID
-end
-
-
 CommandParser::CmdParser.new(ARGV) do
-    usage "econe-describe-addresses [OPTIONS]"
+    name  "econe-delete-keypair"
+    usage "econe-delete-keypair [OPTIONS] <keypair name>"
     version CloudCLI.version_text
-    description "List elastic IP addresses"
+    description <<-EOT
+Deletes the named keypair, removes the associated keys. On success returns the
+identifier of the removed key.
+EOT
 
     option [
         CommandParser::VERBOSE,
@@ -59,7 +49,7 @@ CommandParser::CmdParser.new(ARGV) do
         EC2QueryClient::URL
     ]
 
-    main do
+    main :keyName do
         begin
             ec2_client = EC2QueryClient::Client.new(
                 options[:access_key],
@@ -69,18 +59,15 @@ CommandParser::CmdParser.new(ARGV) do
             exit_with_code -1, "#{cmd_name}: #{e.message}"
         end
 
-        rc = ec2_client.describe_addresses
+        rc = ec2_client.delete_keypair(args[0])
 
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
-            if rc.empty? || rc['addressesSet'].nil? || rc['addressesSet']['item'].nil?
-                addrs = []
-            else
-                addrs = rc['addressesSet']['item']
+            if rc["return"] == "false"
+                exit_with_code -1, "Key #{args[0]} could not be removed"
             end
 
-            TABLE.show(addrs)
             exit_with_code 0
         end
     end

@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
@@ -34,22 +33,21 @@ require 'econe/EC2QueryClient'
 include CloudCLI
 
 TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :publicIP, "publicIP", :size=>10 do |d|
-        d["publicIP"]
+    column :keyName, "keyName", :left, :size=>15 do |d|
+        d["keyName"]
     end
 
-    column :instanceID, "instanceID", :size=>25 do |d|
-        d["instanceID"]
+    column :keyFingerprint, "keyFingerprint", :left, :size=>65 do |d|
+        d["keyFingerprint"]
     end
 
-    default :publicIP, :instanceID
+    default :keyName, :keyFingerprint
 end
 
-
 CommandParser::CmdParser.new(ARGV) do
-    usage "econe-describe-addresses [OPTIONS]"
+    usage "econe-describe-keypairs [OPTIONS]"
     version CloudCLI.version_text
-    description "List elastic IP addresses"
+    description "List and describe the key pairs available to you."
 
     option [
         CommandParser::VERBOSE,
@@ -69,18 +67,18 @@ CommandParser::CmdParser.new(ARGV) do
             exit_with_code -1, "#{cmd_name}: #{e.message}"
         end
 
-        rc = ec2_client.describe_addresses
+        rc = ec2_client.describe_keypairs
 
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
-            if rc.empty? || rc['addressesSet'].nil? || rc['addressesSet']['item'].nil?
-                addrs = []
+            if rc.empty? || rc['keySet'].nil? || rc['keySet']['item'].nil?
+                kps = []
             else
-                addrs = rc['addressesSet']['item']
+                kps = rc['keySet']['item']
             end
 
-            TABLE.show(addrs)
+            TABLE.show(kps)
             exit_with_code 0
         end
     end

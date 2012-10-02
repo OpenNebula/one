@@ -20,7 +20,11 @@
           </instanceState>
           <privateDnsName><%= vm["TEMPLATE/NIC/IP"] %></privateDnsName>
           <dnsName><%= vm["TEMPLATE/NIC/IP"] %></dnsName>
-          <keyName>default</keyName>
+          <% if vm['TEMPLATE/CONTEXT/EC2_KEYNAME'].nil? %>
+          <keyName>none</keyName>
+          <% else %>
+          <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
+          <% end %>
           <amiLaunchIndex>0</amiLaunchIndex>
           <productCodes/>
           <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType>

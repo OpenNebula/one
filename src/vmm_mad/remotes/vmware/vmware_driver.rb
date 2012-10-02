@@ -73,7 +73,7 @@ class VMwareDriver
         if not domain_defined?(id)
             deploy_id = define_domain(dfile)
 
-            exit -1 if deploy_id.nil?
+            exit(-1) if deploy_id.nil?
         else
             deploy_id = "one-#{id}"
         end
@@ -187,12 +187,12 @@ class VMwareDriver
             dfile = vm_folder + "/" + last_deployment_file
         rescue => e
             OpenNebula.log_error("Cannot open checkpoint #{e.message}")
-            exit -1
+            exit(-1)
         end
 
         deploy_id = define_domain(dfile)
 
-        exit -1 if deploy_id.nil?
+        exit(-1) if deploy_id.nil?
 
         # Revert snapshot VM
         # Note: This assumes the checkpoint name is "checkpoint", to change 

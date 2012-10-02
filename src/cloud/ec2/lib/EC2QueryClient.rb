@@ -477,5 +477,62 @@ module EC2QueryClient
 
             return response
         end
+
+        ######################################################################
+        # Lists available key pairs
+        #   @param name[String] of the kaypair
+        #   @return keypairs[Hash]
+        #     {"xmlns"=>"http://ec2.amazonaws.com/doc/2010-08-31/",
+        #      "keySet"=>{"item"=>[
+        #          {"keyName"=>"...", "keyFingerprint"=>"..."}]}}
+        ######################################################################
+        def describe_keypairs()
+            begin
+                response = @ec2_connection.describe_keypairs
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        # Creates a new key pair
+        #   @param name[String] of the kaypair
+        #   @return keypair[Hash]
+        #   {"xmlns"=>"http://ec2.amazonaws.com/doc/2010-08-31",
+        #    "keyName"=>"...",
+        #    "keyFingerprint"=>"...",
+        #    "keyMaterial"=>"..."}
+        ######################################################################
+        def create_keypair(name)
+            begin
+                response = @ec2_connection.create_keypair(:key_name => name)
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
+
+        ######################################################################
+        # Deletes a new key pair
+        #   @param name[String] of the kaypair
+        #   @return response[Hash]
+        #     {"xmlns"=>"http://ec2.amazonaws.com/doc/2010-08-31/",
+        #      "return"=>{"true/false"}
+        ######################################################################
+        def delete_keypair(name)
+            begin
+                response = @ec2_connection.delete_keypair(:key_name => name)
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            return response
+        end
     end
 end
