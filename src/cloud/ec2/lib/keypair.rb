@@ -93,7 +93,7 @@ module Keypair
 
         erb_ssh_public_key  = erb_public_key.ssh_type <<
                               " " <<
-                              [ erb_public_key.to_blob ].pack('m0') <<
+                              [ erb_public_key.to_blob ].pack('m0').gsub(/\n/, '') <<
                               " " <<
                               erb_keyname
         kp[erb_keyname] = {
