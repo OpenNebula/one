@@ -56,8 +56,7 @@ EOT
         EC2QueryClient::ACCESS_KEY,
         EC2QueryClient::SECRET_KEY,
         EC2QueryClient::URL,
-        USER_DATA,
-        TYPE
+        MULTIPART
     ]
 
     main :file do
