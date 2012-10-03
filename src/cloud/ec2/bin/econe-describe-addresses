@@ -34,15 +34,15 @@ require 'econe/EC2QueryClient'
 include CloudCLI
 
 TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :publicIP, "publicIP", :size=>10 do |d|
-        d["publicIP"]
+    column :publicIp, "publicIp", :size=>10 do |d|
+        d["publicIp"]
     end
 
-    column :instanceID, "instanceID", :size=>25 do |d|
-        d["instanceID"]
+    column :instanceId, "instanceId", :size=>25 do |d|
+        d["instanceId"]
     end
 
-    default :publicIP, :instanceID
+    default :publicIp, :instanceId
 end
 
 
@@ -74,6 +74,7 @@ CommandParser::CmdParser.new(ARGV) do
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
+            puts rc
             if rc.empty? || rc['addressesSet'].nil? || rc['addressesSet']['item'].nil?
                 addrs = []
             else

@@ -22,6 +22,8 @@ require 'net/https'
 
 require "rexml/document"
 
+require 'ostruct'
+
 begin
     require 'rexml/formatters/pretty'
     REXML_FORMATTERS=true
