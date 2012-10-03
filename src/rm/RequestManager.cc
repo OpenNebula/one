@@ -37,6 +37,8 @@
 #include "RequestManagerCluster.h"
 #include "RequestManagerGroup.h"
 
+#include "RequestManagerSystem.h"
+
 #include <sys/signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -362,6 +364,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_addvnet(new ClusterAddVNet());
     xmlrpc_c::methodPtr cluster_delvnet(new ClusterDelVNet());
 
+    // System Methods
+    xmlrpc_c::methodPtr system_version(new SystemVersion());
+
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
@@ -490,6 +495,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.document.clone",   doc_clone);
 
     RequestManagerRegistry.addMethod("one.documentpool.info",docpool_info);
+
+    /* System related methods */
+    RequestManagerRegistry.addMethod("one.system.version", system_version);
+
+
 };
 
 /* -------------------------------------------------------------------------- */
