@@ -492,6 +492,15 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Powers off a running VM.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse poweroff()
+    {
+        return action("poweroff");
+    }
+
+    /**
      * Reboots a running VM.
      * @return If an error occurs the error message contains the reason.
      */
