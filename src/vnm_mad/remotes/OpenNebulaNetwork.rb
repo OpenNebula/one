@@ -37,7 +37,8 @@ COMMANDS = {
   :vconfig  => "sudo /sbin/vconfig",
   :virsh    => "virsh -c qemu:///system",
   :xm       => "sudo /usr/sbin/xm",
-  :ovs_vsctl=> "sudo /usr/local/bin/ovs-vsctl",
+  :ovs_vsctl=> "sudo /usr/bin/ovs-vsctl",
+  :ovs_ofctl=> "sudo /usr/bin/ovs-ofctl",
   :lsmod    => "/sbin/lsmod"
 }
 
