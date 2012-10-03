@@ -441,12 +441,14 @@ module CommandParser
                     opts.on(*args) do |o|
                         if e[:proc]
                             rc = e[:proc].call(o, @options)
-                            if rc.instance_of?(Array) && rc[0] == 0
-                                options[e[:name].to_sym] = rc[1]
-                            else
-                                puts rc[1]
-                                puts "option #{e[:name]}: Parsing error"
-                                exit -1
+                            if rc.instance_of?(Array)
+                                if rc[0] == 0
+                                    options[e[:name].to_sym] = rc[1]
+                                else
+                                    puts rc[1]
+                                    puts "option #{e[:name]}: Parsing error"
+                                    exit -1
+                                end
                             end
                         elsif e[:name]=="help"
                             print_help
