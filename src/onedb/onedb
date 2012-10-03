@@ -133,8 +133,8 @@ DBNAME={
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
-        This command enables the user to manage the OpenNebula database. It 
-        provides information about the DB version, means to upgrade it to the 
+        This command enables the user to manage the OpenNebula database. It
+        provides information about the DB version, means to upgrade it to the
         latest version, and backup tools.
     EOT
 
@@ -164,7 +164,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Version
     ###########################################################################
     version_desc = <<-EOT.unindent
-        Prints the current DB version. 
+        Prints the current DB version.
         Use -v flag to see also OpenNebula version
     EOT
 
@@ -223,6 +223,22 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         begin
             helper = OneDB.new(options)
             helper.upgrade(args[0], options)
+        rescue Exception => e
+            [-1, e.message]
+        end
+    end
+
+    ###########################################################################
+    # fsck
+    ###########################################################################
+    fsck_desc = <<-EOT.unindent
+        fsck
+    EOT
+
+    command :fsck, fsck_desc, :options=>[FORCE,BACKUP] do
+        begin
+            helper = OneDB.new(options)
+            helper.fsck(options)
         rescue Exception => e
             [-1, e.message]
         end
