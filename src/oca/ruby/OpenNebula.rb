@@ -167,5 +167,9 @@ module OpenNebula
                 Error.new(e.message)
             end
         end
+
+        def get_version()
+            call("system.version")
+        end
     end
 end
