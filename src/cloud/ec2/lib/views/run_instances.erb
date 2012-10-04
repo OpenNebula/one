@@ -1,6 +1,6 @@
 <RunInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
-   <requestId><%= @request_id %></requestId>
-  <reservationId>r-47a5402e</reservationId>
+  <requestId><%= @request_id %></requestId>
+  <reservationId></reservationId>
   <ownerId><%= erb_user_name %></ownerId>
   <groupSet>
     <item>
@@ -14,10 +14,18 @@
       <instanceState>
         <%= render_state(vm) %>
       </instanceState>
-      <privateDnsName><%= vm["TEMPLATE/NIC/IP"]%></privateDnsName>
-      <dnsName><%= vm["TEMPLATE/NIC/IP"]%></dnsName>
-      <keyName>default</keyName>
-      <amiLaunchIndex>0</amiLaunchIndex>
+      <% if vm.has_elements?("TEMPLATE/NIC/IP") %>
+      <% ips_str = vm.retrieve_elements("TEMPLATE/NIC/IP").join(', ') %>
+      <privateIpAddress><%= ips_str %></privateIpAddress>
+      <privateDnsName><%= ips_str %></privateDnsName>
+      <dnsName><%= ips_str %></dnsName>
+      <% end %>
+      <% if vm['TEMPLATE/CONTEXT/EC2_KEYNAME'].nil? %>
+      <keyName>none</keyName>
+      <% else %>
+      <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
+      <% end %>
+      <amiLaunchIndex><%= vm.id %></amiLaunchIndex>
       <instanceType><%= erb_vm_info[:instance_type] %></instanceType>
       <%= render_launch_time(vm) %>
       <placement>
