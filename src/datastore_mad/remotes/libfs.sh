@@ -99,7 +99,7 @@ function fs_size {
 
 		if [ $? -eq 0 ]; then
 			#URL is from market place
-			SIZE=`wget -O - -S --no-check-certificate $BASE_URL 2>&1 | grep  -E "^ *\"size\": [0-9]+$" | cut -d: -f2`
+			SIZE=`wget -O - -S --no-check-certificate $BASE_URL 2>&1 | grep  -E "^\s*\"size\": \"?[0-9]+\"?$" | tr -dc 0-9`
 		else
 			#Not a marketplace URL
 			SIZE=`wget -S --spider --no-check-certificate $1 2>&1 | grep Content-Length  | cut -d':' -f2`
