@@ -1,3 +1,4 @@
-<RegisterImageResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/"> 
-  <imageId>ami-<%= sprintf('%08i', image.id) %></imageId> 
+<RegisterImageResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
+   <requestId><%= @request_id %></requestId>
+  <imageId>ami-<%= sprintf('%08i', image.id) %></imageId>
 </RegisterImageResponse>

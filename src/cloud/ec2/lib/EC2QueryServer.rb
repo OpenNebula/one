@@ -18,8 +18,7 @@ require 'rubygems'
 require 'erb'
 require 'time'
 require 'base64'
-
-
+require 'uuidtools'
 require 'AWS'
 
 require 'CloudServer'
@@ -83,6 +82,8 @@ class EC2QueryServer < CloudServer
         else
             @base_url="http://#{config[:server]}:#{config[:port]}"
         end
+
+        @request_id = UUIDTools::UUID.random_create.to_s
     end
 
     ###########################################################################
