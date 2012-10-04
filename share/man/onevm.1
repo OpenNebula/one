@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "July 2012" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "October 2012" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR
@@ -14,15 +14,23 @@
 .nf
 
  \-m, \-\-multiple x          Instance multiple VMs
- \-x, \-\-xml                 Show the resource in xml format
- \-n, \-\-numeric             Do not translate user and group IDs
- \-k, \-\-kilobytes           Show units in kilobytes
+ \-\-name name               Name for the VM
+ \-\-cpu cpu                 CPU percentage reserved for the VM (1=100% one CPU)
+ \-\-arch arch               Architecture of the VM, e\.g\.: i386 or x86_64
+ \-\-memory memory           Memory ammount given to the VM
+ \-\-disk disk0,disk1        Disks to attach\. To use a disk owned by other user use user[disk]
+ \-\-network network0,network1 Networks to attach\. To use a network owned by other user use user[network]
+ \-\-raw string              Raw string to add to the template\. Not to be confused with the RAW attribute
  \-t, \-\-type type           Type of the new Image
  \-f, \-\-file file           Selects the template file
  \-i, \-\-image id|name       Selects the image
  \-t, \-\-target type         Device where the image will be attached
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
+ \-x, \-\-xml                 Show the resource in xml format
+ \-n, \-\-numeric             Do not translate user and group IDs
+ \-k, \-\-kilobytes           Show units in kilobytes
+ \-\-describe                Describe list columns
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -32,16 +40,30 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIfile\fR
+create [\fIfile\fR]
 .
 .IP "" 4
 .
 .nf
 
-Creates a new VM from the given template file\. This command bypasses
-the Template pool, which is the preferred way to instantiate new VMs\.
-See \'onetemplate create\' and \'onetemplate instantiate\'
-valid options: multiple, xml, numeric, kilobytes
+Creates a new VM from the given description instead of using a previously
+defined template (see \'onetemplate create\' and \'onetemplate instantiate\')\.
+
+Examples:
+
+  \- using a template description file:
+
+    onevm create vm_description\.tmpl
+
+  \- new VM named "arch vm" with a disk and a nic
+
+    onevm create \-\-name "arch vm" \-\-memory 128 \-\-cpu 1 \-\-disk arch \e
+                 \-\-network private_lan
+
+  \- a vm with two disks
+
+    onevm create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \-\-disk arch,data
+valid options: multiple, name, cpu, arch, memory, disk, network, raw
 .
 .fi
 .
@@ -105,8 +127,8 @@ saveas \fIvmid\fR \fIdiskid\fR \fIimg_name\fR
 .nf
 
 Sets the specified VM disk to be saved in a new Image\. The Image is
-created inmediately, but the contents are saved only if the VM is
-shut down gracefuly (i\.e\., using \'onevm shutdown\' and not
+created immediately, but the contents are saved only if the VM is
+shut down gracefully (i\.e\., using \'onevm shutdown\' and not
 \'onevm delete\')
 
 States: ANY
@@ -124,7 +146,24 @@ shutdown \fIrange|vmid_list\fR
 .
 .nf
 
-Shuts down the given VM\.
+Shuts down the given VM\. The VM life cycle will end\.
+
+States: RUNNING
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+poweroff \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Powers off the given VM\. The VM will remain in the poweroff state, and
+can be powered on with the \'onevm restart\' command\.
 
 States: RUNNING
 .
@@ -223,9 +262,9 @@ restart \fIrange|vmid_list\fR
 .
 .nf
 
-Forces a re\-deployment of the given VM, issuing a boot action\.
+Boots the given VM\.
 
-States: UNKNOWN, BOOT
+States: UNKNOWN, BOOT, POWEROFF
 .
 .fi
 .
@@ -239,9 +278,9 @@ resubmit \fIrange|vmid_list\fR
 .
 .nf
 
-Resubmits the VM to PENDING state\. This is intented for VMs stuck in a
+Resubmits the VM to PENDING state\. This is intended for VMs stuck in a
 transient state\. To re\-deploy a fresh copy of the same VM, create a
-Template and instantiante it, see \'onetemplate instantiate\'
+Template and instantiate it, see \'onetemplate instantiate\'
 
 States: ANY, except SUSPENDED or DONE
 .
@@ -435,7 +474,7 @@ list [\fIfilterflag\fR]
 .nf
 
 Lists VMs in the pool
-valid options: list, delay, xml, numeric, kilobytes
+valid options: list, delay, xml, numeric, kilobytes, describe
 .
 .fi
 .
@@ -624,7 +663,7 @@ Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.7\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.7\.80 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

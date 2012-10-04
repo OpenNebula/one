@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEIMAGE" "1" "July 2012" "" "oneimage(1) -- manages OpenNebula images"
+.TH "ONEIMAGE" "1" "October 2012" "" "oneimage(1) -- manages OpenNebula images"
 .
 .SH "NAME"
 \fBoneimage\fR
@@ -14,10 +14,23 @@
 .nf
 
  \-d, \-\-datastore id|name   Selects the datastore
+ \-\-name name               Name of the new image
+ \-\-description description Description for the new Image
+ \-\-type type               Type of the new Image: OS, CDROM or DATABLOCK
+ \-\-persistent              Tells if the image will be persistent
+ \-\-prefix prefix           Device prefix for the disk (eg\. hd, sd, xvd or vd)
+ \-\-target target           Device the disk will be attached to
+ \-\-path path               Path of the image file
+ \-\-driver driver           Driver to use image (raw, qcow2, tap:aio:\.\.\.)
+ \-\-disk_type disk_type     Type of the image (BLOCK, CDROM or FILE)
+ \-\-source source           Source to be used\. Useful for not file\-based images
+ \-\-size size               Size in MB\. Used for DATABLOCK type
+ \-\-fstype fstype           Type of file system to be built\. This can be any value understood by mkfs unix command\.
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
+ \-\-describe                Describe list columns
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -27,14 +40,33 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIfile\fR
+create [\fIfile\fR]
 .
 .IP "" 4
 .
 .nf
 
-Creates a new Image from the given template file
-valid options: datastore
+Creates a new Image
+Examples:
+  \- using a template description file:
+
+    oneimage create \-d default centOS\.tmpl
+
+  \- new image "arch" using a path of type centOS:
+
+    oneimage create \-d default \-\-name arch \-\-path /tmp/arch\.img
+
+  \- new persistent image, OS type and qcow2 format:
+
+    oneimage create \-d 1 \-\-name ubuntu \-\-path /tmp/ubuntu\.qcow2 \e
+                    \-\-prefix sd \-\-type OS \-\-driver qcow2 \e
+                    \-\-description "A OS plain installation"
+
+  \- a datablock image of 400MB:
+
+    oneimage create \-d 1 \-\-name data \-\-type DATABLOCK \-\-size 400 \e
+                    \-\-fstype ext2
+valid options: datastore, name, description, type, persistent, prefix, target, path, driver, disk_type, source, size, fstype
 .
 .fi
 .
@@ -237,7 +269,7 @@ list [\fIfilterflag\fR]
 .nf
 
 Lists Images in the pool
-valid options: list, delay, xml, numeric
+valid options: list, delay, xml, numeric, describe
 .
 .fi
 .
@@ -267,7 +299,7 @@ top [\fIfilterflag\fR]
 .nf
 
 Lists Images continuously
-valid options: list, delay, xml, numeric
+valid options: list, delay, xml, numeric, describe
 .
 .fi
 .
@@ -398,7 +430,7 @@ user         IMAGE of the user identified by the username
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.7\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.7\.80 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
