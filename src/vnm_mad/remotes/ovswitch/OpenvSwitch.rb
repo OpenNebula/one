@@ -17,9 +17,7 @@
 require 'OpenNebulaNetwork'
 
 class OpenvSwitchVLAN < OpenNebulaNetwork
-    FIREWALL_PARAMS =  [:white_ports_tcp,
-                        :white_ports_udp,
-                        :black_ports_tcp,
+    FIREWALL_PARAMS =  [:black_ports_tcp,
                         :black_ports_udp,
                         :icmp]
 
@@ -35,6 +33,9 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
 
             # Apply VLAN
             tag_vlan if @nic[:vlan] == "YES"
+
+            # Prevent Mac-spoofing
+            mac_spoofing
 
             # Apply Firewall
             configure_fw if FIREWALL_PARAMS & @nic.keys != []
@@ -64,11 +65,12 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         run cmd
     end
 
-    def configure_fw
-        # Mac-spoofing
+    def mac_spoofing
         add_flow("in_port=#{port},dl_src=#{@nic[:mac]}",:normal,40000)
         add_flow("in_port=#{port}",:drop,39000)
+    end
 
+    def configure_fw
         # TCP
         if range = @nic[:black_ports_tcp]
             if range? range
