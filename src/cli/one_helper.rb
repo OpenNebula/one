@@ -554,7 +554,11 @@ EOT
 
             template<<"#{section.upcase}=[\n"
             template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
-            template<<"  #{name.upcase}=\"#{object}\"\n"
+            if object.match(/^\d$/)
+                template<<"  #{name.upcase}_ID=#{object}\n"
+            else
+                template<<"  #{name.upcase}=\"#{object}\"\n"
+            end
             template<<"]\n"
         end if objects
 
