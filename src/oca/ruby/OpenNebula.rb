@@ -52,7 +52,7 @@ require 'OpenNebula/DocumentPool'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '3.7.0'
+    VERSION = '3.7.80'
 
     # The Error Class represents a generic error in the OpenNebula
     # library. It contains a readable representation of the error.
@@ -166,6 +166,10 @@ module OpenNebula
             rescue Exception => e
                 Error.new(e.message)
             end
+        end
+
+        def get_version()
+            call("system.version")
         end
     end
 end

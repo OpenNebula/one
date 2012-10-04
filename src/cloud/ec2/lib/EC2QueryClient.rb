@@ -252,6 +252,7 @@ module EC2QueryClient
 
                 connection = Curl::Easy.new(@uri.to_s)
                 connection.multipart_form_post = true
+                connection.ssl_verify_peer = false
 
                 connection.http_post(*post_fields)
 

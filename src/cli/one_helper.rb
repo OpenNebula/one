@@ -84,6 +84,13 @@ EOT
             :format => Float
         },
         {
+            :name   => 'arch',
+            :large  => '--arch arch',
+            :description =>
+                'Architecture of the VM, e.g.: i386 or x86_64',
+            :format => String
+        },
+        {
             :name   => 'memory',
             :large  => '--memory memory',
             :description => 'Memory ammount given to the VM',
@@ -118,6 +125,12 @@ EOT
             :large  => '--network network0,network1',
             :description => 'Networks to attach. To use a network owned by other user use user[network]',
             :format => Array
+        },
+        {
+            :name   => 'raw',
+            :large  => '--raw string',
+            :description => 'Raw string to add to the template. Not to be confused with the RAW attribute',
+            :format => String
         }
     ]
 
@@ -552,8 +565,10 @@ EOT
         template=''
 
         template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
+        template<<"OS = [ ARCH = \"#{options[:arch]}\" ]\n" if options[:arch]
         template<<"CPU=#{options[:cpu]}\n" if options[:cpu]
         template<<"MEMORY=#{options[:memory]}\n" if options[:memory]
+        template<<"#{options[:raw]}\n" if options[:raw]
 
         if options[:disk]
             res=create_disk_net(options[:disk], 'DISK', 'IMAGE')

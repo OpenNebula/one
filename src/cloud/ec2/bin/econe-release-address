@@ -44,6 +44,7 @@ EOT
     option [
         CommandParser::VERBOSE,
         CommandParser::HELP,
+        CommandParser::VERSION,
         EC2QueryClient::ACCESS_KEY,
         EC2QueryClient::SECRET_KEY,
         EC2QueryClient::URL
@@ -66,12 +67,7 @@ EOT
             [-1, "#{cmd_name}: #{rc.message}"]
         else
             exit_code 0
-
-            if options[:headers]
-                CLIHelper.print_header("publicIP")
-            end
-
-            puts rc['publicIP']
+            puts "publicIP: #{rc['publicIP']}"
         end
     end
 end

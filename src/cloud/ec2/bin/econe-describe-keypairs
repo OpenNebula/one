@@ -37,7 +37,7 @@ TABLE = CLIHelper::ShowTable.new(nil, self) do
         d["keyName"]
     end
 
-    column :keyFingerprint, "keyFingerprint", :left, :size=>65 do |d|
+    column :keyFingerprint, "keyFingerprint", :left, :size=>60 do |d|
         d["keyFingerprint"]
     end
 
@@ -52,6 +52,7 @@ CommandParser::CmdParser.new(ARGV) do
     option [
         CommandParser::VERBOSE,
         CommandParser::HELP,
+        CommandParser::VERSION,
         EC2QueryClient::ACCESS_KEY,
         EC2QueryClient::SECRET_KEY,
         EC2QueryClient::URL

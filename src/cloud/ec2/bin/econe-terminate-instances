@@ -45,14 +45,13 @@ EOT
     option [
         CommandParser::VERBOSE,
         CommandParser::HELP,
+        CommandParser::VERSION,
         EC2QueryClient::ACCESS_KEY,
         EC2QueryClient::SECRET_KEY,
-        EC2QueryClient::URL,
-        USER_DATA,
-        TYPE
+        EC2QueryClient::URL
     ]
 
-    main :image_id do
+    main :instance_id do
         begin
             ec2_client = EC2QueryClient::Client.new(
                 options[:access_key],
@@ -69,8 +68,8 @@ EOT
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
             result = rc['instancesSet']['item'][0]
-            puts "Success: Terminating #{result['instanceId']} in \
-                #{result['previousState']['name']} state"
+            puts "Success: Terminating #{result['instanceId']} in " <<
+                "#{result['previousState']['name']} state"
             exit_with_code 0
         end
     end

@@ -41,12 +41,16 @@ fi
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
-
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
+
+SRC_ARG_PATH=`arg_path $SRC`
+
+DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
+SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
+
+SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
 ssh_make_path $DST_HOST $DST_DIR
 

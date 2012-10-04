@@ -42,12 +42,16 @@ source $(dirname $0)/tm_vmfs.conf
 #-------------------------------------------------------------------------------
 # Retrieve needed information, set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_PATH="../../${SRC_PATH##"$DS_DIR/"}"
-
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
+
+SRC_ARG_PATH=`arg_path $SRC`
+
+DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
+SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
+
+SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
 USE_SSH=$(get_tm_use_ssh $DSID)
 
@@ -56,28 +60,21 @@ USE_SSH=$(get_tm_use_ssh $DSID)
 #-------------------------------------------------------------------------------
 
 if [ "$USE_SSH" == "yes" ]; then
-	ssh_make_path $DST_HOST $DST_PATH
+    ssh_make_path $DST_HOST $DST_PATH
 
-	# It's a folder, make links for all elements
-    SRC_FOLDER_NAME=`basename $SRC_PATH`
-    SRC_WITH_NO_FOLDER=`dirname $SRC_PATH`
-    SRC_DS_NAME=`basename $SRC_WITH_NO_FOLDER`
-	REL_SRC_PATH="../../../$SRC_DS_NAME/$SRC_FOLDER_NAME"
-
-	log "Link all files in $SRC_PATH to $DST_PATH"
+    log "Link all files in $SRC_PATH to $DST_PATH"
 
 LINK_SCRIPT=$(cat <<EOF
-for file in \$(cd $DST_DIR  ; find $SRC_PATH -type f); do
-	FNAME=\$(basename \$file)
-	(cd $DST_PATH ;  ln -sf $REL_SRC_PATH/\$FNAME $DST_PATH/$FNAME)
+for file in \$(find $SRC_PATH -type f); do
+    (cd $DST_PATH ; ln -sf \$file)
 done
 EOF
 )
-	ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
-	      "Could not link dir files from source DS to system DS"
+    ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" \
+          "Could not link dir files from source DS to system DS"
 else
-	log "Cannot link files without SSH enabled on the ESX hosts, calling clone"
-	exec $(dirname $0)/clone $*
+    log "Cannot link files without SSH enabled on the ESX hosts, calling clone"
+    exec $(dirname $0)/clone $*
 fi
 
 exit 0

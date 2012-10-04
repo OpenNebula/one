@@ -19,9 +19,9 @@
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
-require 'OpenNebulaNetwork'
-require 'Firewall'
+require 'OpenvSwitch'
 
-fw = OpenNebulaFirewall.from_base64(ARGV[0])
+template64 = ARGV[0]
 
-fw.deactivate
+ovs = OpenvSwitchVLAN.from_base64(template64)
+ovs.deactivate

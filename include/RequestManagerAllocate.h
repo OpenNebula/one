@@ -304,6 +304,11 @@ public:
                       int& id, 
                       string& error_str,
                       RequestAttributes& att);
+
+    void log_xmlrpc_param(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss,
+            const int&              index);
 };
 
 /* ------------------------------------------------------------------------- */

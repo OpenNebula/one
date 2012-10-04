@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
@@ -23,116 +22,86 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-describe-volumes
 
-Describes your Amazon EBS volumes
-
-Usage:
-   econe-describe-volumes [OPTIONS]
-
-Options:
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-
-    --headers, -H
-        Display column headers
-
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :volumeId, "volumeId", :size=>12 do |d|
+        d["volumeId"]
+    end
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
-       )
+    column :size, "size", :size=>6 do |d|
+        d["size"]
+    end
 
-headers = false
-url     = nil
-access  = nil
-secret  = nil
+    column :status, "status", :size=>10 do |d|
+        d["status"]
+    end
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--headers'
-                headers = true
+    column :createTime, "createTime", :size=>28 do |d|
+        d['createTime']
+    end
+
+    column :instanceId, "instanceId", :size=>12 do |d|
+        if d['attachmentSet'] && d['attachmentSet']['item']
+            d['attachmentSet']['item'][0]['instanceId']
         end
     end
-rescue Exception => e
-    exit -1
-end
 
-begin
-    ec2_client = EC2QueryClient::Client.new(access, secret, url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
-end
-
-rc = ec2_client.describe_volumes
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-volumes = []
-if rc['volumeSet']
-    volumes = rc['volumeSet']['item']
-end
-
-fmt = "%-15s %-10s %s"
-
-if headers
-    puts fmt % ["volumeId", "size", "instanceId"]
-    puts "------------------------------------------------------------------------------"
-end
-
-volumes.each { |vol|
-    instances = ""
-    if vol['attachmentSet'] && vol['attachmentSet']['item']
-        instances = vol['attachmentSet']['item'].collect{ |item|
-            item['instanceId']
-        }.join(',')
+    column :device, "device", :size=>8 do |d|
+        if d['attachmentSet'] && d['attachmentSet']['item']
+            d['attachmentSet']['item'][0]['device']
+        end
     end
 
-    puts fmt % [vol['volumeId'], vol['size'], instances]
-}
+    default :volumeId, :size, :status, :createTime, :instanceId, :device
+end
 
-exit 0
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-describe-volumes [OPTIONS]"
+    version CloudCLI.version_text
+    description "List and describe volumes"
+
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        CommandParser::VERSION,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL
+    ]
+
+    main do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            exit_with_code -1, "#{cmd_name}: #{e.message}"
+        end
+
+        rc = ec2_client.describe_volumes
+
+        if CloudClient::is_error?(rc)
+            exit_with_code -1, "#{cmd_name}: #{rc.message}"
+        else
+            if rc.empty? || rc['volumeSet'].nil? || rc['volumeSet']['item'].nil?
+                vols = []
+            else
+                vols = rc['volumeSet']['item']
+            end
+
+            TABLE.show(vols)
+            exit_with_code 0
+        end
+    end
+end
 

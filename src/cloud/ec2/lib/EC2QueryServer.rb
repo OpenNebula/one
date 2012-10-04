@@ -63,6 +63,11 @@ end
 ###############################################################################
 class EC2QueryServer < CloudServer
 
+    include ElasticIP
+    include Keypair
+    include EBS
+    include Instance
+
     ############################################################################
     #
     #
@@ -78,18 +83,6 @@ class EC2QueryServer < CloudServer
         else
             @base_url="http://#{config[:server]}:#{config[:port]}"
         end
-
-        #      ----------- Load EC2 API modules ------------
-
-        if @config[:elasticips_vnet_id].nil?
-            logger.error { 'ElasticIP module not loaded' }
-        else
-            extend ElasticIP
-        end
-
-        extend Keypair
-        extend EBS
-        extend Instance
     end
 
     ###########################################################################
@@ -164,29 +157,6 @@ class EC2QueryServer < CloudServer
 
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
         return response.result(binding), 200
-    end
-
-    ###########################################################################
-    # Provide defaults for Elastic IP if not loaded
-    ###########################################################################
-    def allocate_address(params)
-        return OpenNebula::Error.new('Unsupported')
-    end
-
-    def release_address(params)
-        return OpenNebula::Error.new('Unsupported')
-    end
-
-    def describe_addresses(params)
-        return OpenNebula::Error.new('Unsupported')
-    end
-
-    def associate_address(params)
-        return OpenNebula::Error.new('Unsupported')
-    end
-
-    def disassociate_address(params)
-        return OpenNebula::Error.new('Unsupported')
     end
 
     ###########################################################################

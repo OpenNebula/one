@@ -23,113 +23,58 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-create-volume
 
-Create a new DATABLOCK
-
-Usage:
-    econe-create-volume [OPTIONS]
-
-Options:
-
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-
-    --size <size>, -s <size>
-        The ID of the instance to attach the volume to
-
-    --headers, -H
-        Display column headers
-
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--size',       '-s',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
-       )
+SIZE = {
+    :name => "size",
+    :short => "-s size",
+    :large => "--size size",
+    :description => "The size of the volume, in GiBs.",
+    :format => String
+}
 
-headers = false
-url     = nil
-access  = nil
-secret  = nil
-size = nil
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-create-volume [OPTIONS]"
+    version CloudCLI.version_text
+    description "Create a new VOLUME"
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--size'
-                size = arg
-            when '--headers'
-                headers = true
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        CommandParser::VERSION,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL,
+        SIZE
+    ]
+
+    main :volume_id do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            exit_with_code -1, "#{cmd_name}: #{e.message}"
+        end
+
+        rc = ec2_client.create_volume(options[:size])
+
+        if CloudClient::is_error?(rc)
+            exit_with_code -1, "#{cmd_name}: #{rc.message}"
+        else
+            puts "volumeId: #{rc['volumeId']}"
+            puts "size: #{rc['size']}"
+            puts "createTime: #{rc['createTime']}"
+            exit_with_code 0
         end
     end
-rescue Exception => e
-    exit -1
 end
-
-if !size
-    puts "#{cmd_name}: missing --size option"
-    exit -1
-end
-
-begin
-    ec2_client = EC2QueryClient::Client.new(access, secret, url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
-end
-
-rc = ec2_client.create_volume(size)
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-fmt = "%-15s %-10s %s"
-
-if headers
-    puts fmt % ["volumeId", "size", "createTime"]
-    puts "------------------------------------------------------------------------------"
-end
-
-puts fmt % [rc['volumeId'], rc['size'], rc['createTime']]
-
-exit 0

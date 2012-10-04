@@ -22,6 +22,8 @@ require 'net/https'
 
 require "rexml/document"
 
+require 'ostruct'
+
 begin
     require 'rexml/formatters/pretty'
     REXML_FORMATTERS=true
@@ -50,7 +52,7 @@ end
 module CloudClient
 
     # OpenNebula version
-    VERSION = '3.7.0'
+    VERSION = '3.7.80'
 
     # #########################################################################
     # Default location for the authentication file

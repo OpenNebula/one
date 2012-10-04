@@ -119,6 +119,16 @@ public class Client{
         return new OneResponse(success, msg);
     }
 
+    /**
+     * Calls OpenNebula and retrieves oned version
+     *
+     * @return The server's xml-rpc response encapsulated
+     */
+    public OneResponse get_version()
+    {
+        return call("system.version");
+    }
+
     //--------------------------------------------------------------------------
     //  PRIVATE ATTRIBUTES AND METHODS
     //--------------------------------------------------------------------------

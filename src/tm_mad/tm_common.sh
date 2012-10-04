@@ -53,15 +53,6 @@ function arg_path
     fix_dir_slashes "$ARG_PATH"
 }
 
-#Return the DATASTORE_LOCATION from OpenNebula configuration
-function set_ds_location
-{
-    RMT_DS_DIR=`$GREP '^DATASTORE_LOCATION=' $ONE_LOCAL_VAR/config | cut -d= -f2`
-    RMT_DS_DIR=`fix_dir_slashes $RMT_DS_DIR`
-
-    export RMT_DS_DIR
-}
-
 #Return 1 if the first argument is a disk
 function is_disk
 {

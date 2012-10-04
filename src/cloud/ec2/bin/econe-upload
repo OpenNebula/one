@@ -53,11 +53,11 @@ EOT
     option [
         CommandParser::VERBOSE,
         CommandParser::HELP,
+        CommandParser::VERSION,
         EC2QueryClient::ACCESS_KEY,
         EC2QueryClient::SECRET_KEY,
         EC2QueryClient::URL,
-        USER_DATA,
-        TYPE
+        MULTIPART
     ]
 
     main :file do

@@ -23,125 +23,72 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
-COMMANDS_HELP=<<-EOT
-econe-attach-volume
 
-Attaches a DATABLOCK to a running instance and exposes it as the specified device.
-
-Usage:
-    econe-attach-volume [OPTIONS] VOLUME-ID
-
-Options:
-
-    --help, -h
-        Show help
-
-    --access-key <id>, -K <id>
-        The username of the user
-
-    --secret-key <key>, -S <key>
-        The password of the user
-
-    --url <url>, -U <url>
-        Set url as the web service url to use
-
-    --instance <instance_id>, -i <instance_id>
-        The ID of the instance to attach the volume to
-
-    --device <device>, -d <device
-        Specifies the device name to expose to the instance.
-        Example: -d /dev/sdf
-
-    --headers, -H
-        Display column headers
-
-VOLUME-ID: The ID of the DATABLOCK
-
-EOT
-
+require 'cli/command_parser'
+require 'cli/cli_helper'
 require 'econe/EC2QueryClient'
-require 'CloudClient'
-require 'getoptlong'
 
 include CloudCLI
 
-opts = GetoptLong.new(
-            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
-            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
-            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
-            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
-            ['--instance',   '-i',GetoptLong::REQUIRED_ARGUMENT],
-            ['--device',     '-d',GetoptLong::REQUIRED_ARGUMENT],
-            ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
-       )
+INSTANCE = {
+    :name => "instance_id",
+    :short => "-i instance_id",
+    :large => "--instance instance_id",
+    :description => "The ID of the instance to attach the volume to",
+    :format => String
+}
 
-headers = false
-url     = nil
-access  = nil
-secret  = nil
-instance = nil
-device = nil
+DEVICE = {
+    :name => "device",
+    :short => "-d device",
+    :large => "--device device",
+    :description => "Specifies the device name to expose to the instance." <<
+        " Example: -d /dev/sdf",
+    :format => String
+}
 
-begin
-    opts.each do |opt, arg|
-        case opt
-            when '--help'
-                puts COMMANDS_HELP
-                return
-            when '--version'
-                puts CloudCLI.version_text
-                exit 0
-            when '--access-key'
-                access = arg
-            when '--secret-key'
-                secret = arg
-            when '--url'
-                url = arg
-            when '--instance'
-                instance = arg
-            when '--headers'
-                headers = true
-            when '--device'
-                device = arg
+CommandParser::CmdParser.new(ARGV) do
+    usage "econe-attach-volume [OPTIONS] VOLUME-ID"
+    version CloudCLI.version_text
+    description <<-EOT
+Attaches a DATABLOCK to a running instance and exposes it as the specified device.
+VOLUME-ID: The ID of the DATABLOCK
+EOT
+
+    option [
+        CommandParser::VERBOSE,
+        CommandParser::HELP,
+        CommandParser::VERSION,
+        EC2QueryClient::ACCESS_KEY,
+        EC2QueryClient::SECRET_KEY,
+        EC2QueryClient::URL,
+        INSTANCE,
+        DEVICE
+    ]
+
+    main :volume_id do
+        begin
+            ec2_client = EC2QueryClient::Client.new(
+                options[:access_key],
+                options[:secret_key],
+                options[:url])
+        rescue Exception => e
+            exit_with_code -1, "#{cmd_name}: #{e.message}"
+        end
+
+        rc = ec2_client.attach_volume(args[0], options[:instance_id], options[:device])
+
+        if CloudClient::is_error?(rc)
+            exit_with_code -1, "#{cmd_name}: #{rc.message}"
+        else
+            puts "volumeId: #{rc['volumeId']}"
+            puts "instanceId: #{rc['instanceId']}"
+            puts "status: #{rc['status']}"
+            puts "device: #{rc['device']}"
+            exit_with_code 0
         end
     end
-rescue Exception => e
-    exit -1
 end
-
-volume_id = ARGV.shift
-
-if !volume_id
-    puts "#{cmd_name}: missing VOLUME-ID parameter"
-    exit -1
-end
-
-begin
-    ec2_client = EC2QueryClient::Client.new(access, secret, url)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit -1
-end
-
-rc = ec2_client.attach_volume(volume_id, instance, device)
-
-if CloudClient::is_error?(rc)
-    puts "#{cmd_name}: #{rc.message}"
-    exit -1
-end
-
-fmt = "%-15s %-15s %-10s %s"
-
-if headers
-    puts fmt % ["volumeId", "instanceId", "status", "device"]
-    puts "------------------------------------------------------------------------------"
-end
-
-puts fmt % [rc['volumeId'], rc['instanceId'], rc['status'], rc['device']]
-
-exit 0

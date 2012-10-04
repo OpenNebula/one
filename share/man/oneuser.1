@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEUSER" "1" "July 2012" "" "oneuser(1) -- manages OpenNebula users"
+.TH "ONEUSER" "1" "October 2012" "" "oneuser(1) -- manages OpenNebula users"
 .
 .SH "NAME"
 \fBoneuser\fR
@@ -27,6 +27,7 @@
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
+ \-\-describe                Describe list columns
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -87,6 +88,21 @@ will be launched to modify the current quotas\.
 
 .
 .IP "\(bu" 4
+batchquota \fIrange|userid_list\fR [\fIfile\fR]
+.
+.IP "" 4
+.
+.nf
+
+Sets the quota limits in batch for various users\. If a path is not
+provided the editor will be launched to create new quotas\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
 login \fIusername\fR
 .
 .IP "" 4
@@ -96,8 +112,10 @@ login \fIusername\fR
 Creates the Login token for authentication
 Examples:
   oneuser login my_user \-\-ssh \-\-key /tmp/id_rsa \-\-time 72000
-  oneuser login my_user \-\-x509 \-\-cert /tmp/my_cert\.pem                                 \-\-key /tmp/my_key\.pk \-\-time 72000
-  oneuser login my_user \-\-x509_proxy \-\-proxy /tmp/my_cert\.pem                                 \-\-time 72000
+  oneuser login my_user \-\-x509 \-\-cert /tmp/my_cert\.pem
+                        \-\-key /tmp/my_key\.pk \-\-time 72000
+  oneuser login my_user \-\-x509_proxy \-\-proxy /tmp/my_cert\.pem
+                        \-\-time 72000
 valid options: ssh, x509, x509_proxy, key, cert, proxy, time
 .
 .fi
@@ -111,6 +129,8 @@ key
 .IP "" 4
 .
 .nf
+
+DEPRECATED, use login to generate auth files\.
 
 Shows a public key from a private SSH key\. Use it as password
 for the SSH authentication mechanism\.
@@ -194,7 +214,7 @@ list
 .nf
 
 Lists Users in the pool
-valid options: list, delay, xml, numeric
+valid options: list, delay, xml, numeric, describe
 .
 .fi
 .
@@ -335,7 +355,7 @@ User password
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.7\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.7\.80 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

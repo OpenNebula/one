@@ -74,6 +74,7 @@ protected:
         string gname;             /**< name of the user's group */
 
         string session;           /**< Session from ONE XML-RPC API */
+        int    req_id;            /**< Request ID for log messages */
 
         xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
 
@@ -311,6 +312,47 @@ protected:
                   RequestAttributes&        att,
                   PoolObjectAuth&           perms,
                   string&                   name);
+
+    /**
+     * Logs the method invocation, including the arguments
+     *
+     * @param att the specific request attributes
+     * @param paramList list of XML parameters
+     */
+    virtual void log_method_invoked(
+            const RequestAttributes&    att,
+            const xmlrpc_c::paramList&  paramList);
+
+    /**
+     * Logs the method result, including the output data or error message
+     *
+     * @param att the specific request attributes
+     */
+    virtual void log_result(
+            const RequestAttributes&    att);
+
+    /**
+     * Formats and adds a xmlrpc_c::value input parameter to oss.
+     *
+     * @param v value to format
+     * @param oss stream to write v
+     * @param index parameter index
+     */
+    virtual void log_xmlrpc_param(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss,
+            const int&              index);
+
+    /**
+     * Formats and adds a xmlrpc_c::value to oss.
+     *
+     * @param v value to format
+     * @param oss stream to write v
+     */
+    virtual void log_xmlrpc_value(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss);
+
 private:
 
     /* ------------- Functions to manage user and group quotas -------------- */

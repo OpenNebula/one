@@ -87,6 +87,13 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
                     PoolObjectSQL::HOST,
                  AuthRequest::MANAGE,
                  error_str);
+
+        add_rule(AclRule::ALL_ID,
+                 AclRule::ALL_ID |
+                    PoolObjectSQL::DOCUMENT,
+                 AuthRequest::CREATE,
+                 error_str);
+
     }
 }
 

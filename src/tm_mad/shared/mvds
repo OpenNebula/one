@@ -38,17 +38,19 @@ fi
 
 . $TMCOMMON
 
-set_ds_location
-
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
-
-DST_PATH="$RMT_DS_DIR/${DST_PATH##"$DS_DIR/"}"
-
 SRC_HOST=`arg_host $SRC`
+SRC_DIR=`dirname $SRC_PATH`
+
+DST_ARG_PATH=`arg_path $DST`
+
+SRC_DS_PATH="$(dirname $(dirname $(dirname $SRC_PATH)))"
+DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
+
+DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
