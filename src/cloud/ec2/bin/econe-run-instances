@@ -51,6 +51,21 @@ TYPE = {
     :format => String
 }
 
+INSTANCE_COUNT = {
+    :name => "instance_count",
+    :large => "--instance-count count",
+    :short => "-n",
+    :description => "The number of instances to launch. If OpenNebula cannot " <<
+        "launch the specified number of instances, no instances will launch." <<
+        " If this is specified as a range (min-max), OpenNebula will try to " <<
+        "launch the maximum number, but no fewer than the minimum number." <<
+        "Example: -n 5-10",
+    :format => String,
+    :proc => lambda do |o, opts|
+        opts[:min_count], opts[:max_count] = o.split('-')
+        nil
+    end
+}
 
 TABLE = CLIHelper::ShowTable.new(nil, self) do
     column :instanceId, "instanceId", :size=>12 do |d|
@@ -65,11 +80,11 @@ TABLE = CLIHelper::ShowTable.new(nil, self) do
         d["instanceState"]['name']
     end
 
-    column :IP, "IP", :size=>12 do |d|
+    column :IP, "IP", :size=>18 do |d|
         d['privateIpAddress']
     end
 
-    column :instanceType, "instanceType", :size=>20 do |d|
+    column :instanceType, "instanceType", :size=>12 do |d|
         d["instanceType"]
     end
 
@@ -94,6 +109,7 @@ EOT
         EC2QueryClient::SECRET_KEY,
         EC2QueryClient::URL,
         USER_DATA,
+        INSTANCE_COUNT,
         TYPE
     ]
 
@@ -109,7 +125,15 @@ EOT
         end
 
         options[:type] ||= "m1.small"
-        rc = ec2_client.run_instances(args[0], options[:type], options[:user_data])
+        options[:min_count] ||= 1
+        options[:max_count] ||= options[:min_count]
+
+        rc = ec2_client.run_instances(
+                args[0],
+                options[:type],
+                options[:user_data],
+                options[:min_count],
+                options[:max_count])
 
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"

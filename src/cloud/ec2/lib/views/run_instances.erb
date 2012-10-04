@@ -8,12 +8,11 @@
     </item>
   </groupSet>
   <instancesSet>
+    <% erb_vms.each { |vm| %>
     <item>
-      <%= erb_instance_id %>
+      <%= render_instance_id(vm) %>
       <imageId><%= erb_vm_info[:ec2_img_id] %></imageId>
-      <instanceState>
-        <%= render_state(vm) %>
-      </instanceState>
+      <instanceState><%= render_state(vm) %></instanceState>
       <% if vm.has_elements?("TEMPLATE/NIC/IP") %>
       <% ips_str = vm.retrieve_elements("TEMPLATE/NIC/IP").join(', ') %>
       <privateIpAddress><%= ips_str %></privateIpAddress>
@@ -35,6 +34,7 @@
         <enabled>true</enabled>
       </monitoring>
     </item>
+    <% } %>
   </instancesSet>
 </RunInstancesResponse>
 

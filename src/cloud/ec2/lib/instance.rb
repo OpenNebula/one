@@ -75,18 +75,31 @@ module Instance
         template      = ERB.new(File.read(erb_vm_info[:template]))
         template_text = template.result(binding)
 
-        # Start the VM.
-        vm = VirtualMachine.new(VirtualMachine.build_xml, @client)
+        erb_vms = Array.new
 
-        rc = vm.allocate(template_text)
-        if OpenNebula::is_error?(rc)
-            return rc
-        end
+        min_count = params['MinCount'] || 1
+        max_count = params['MaxCount'] || min_count
 
-        vm.info
+        max_count.to_i.times {
+            # Start the VM.
+            instance = VirtualMachine.new(VirtualMachine.build_xml, @client)
 
-        erb_current_state = render_state(vm)
-        erb_instance_id   = render_instance_id(vm)
+            rc = instance.allocate(template_text)
+            if OpenNebula::is_error?(rc) && erb_vms.size < min_count.to_i
+                erb_vms.each { |vm|
+                    result = vm.cancel
+                    if OpenNebula::is_error?(result)
+                        vm.finalize
+                    end
+                }
+
+                return rc
+            end
+
+            instance.info
+
+            erb_vms << instance
+        }
 
         erb_user_name = params['AWSAccessKeyId']
         erb_version = params['Version']
