@@ -37,6 +37,31 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         "onecluster.yaml"
     end
 
+    def count_pool(pool_name)
+        ids = d[pool_name]["ID"]
+
+        if ids.nil?
+            return 0
+        elsif ids.class == String
+            return 1
+        else
+            return ids.size
+        end
+    end
+
+    def element_size(ehash, ename)
+        ids = ehash[ename]["ID"]
+
+        if ids.nil?
+            return 0
+        elsif ids.class == String
+            return 1
+        else
+            return ids.size
+        end
+    end
+
+
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -50,15 +75,15 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
             end
 
             column :HOSTS, "Number of Hosts", :size=>5 do |d|
-                d["HOSTS"]["ID"] ? d["HOSTS"]["ID"].size : 0
+                @ext.element_size(d,"HOSTS")
             end
 
             column :VNETS, "Number of Networks", :size=>5 do |d|
-                d["VNETS"]["ID"] ? d["VNETS"]["ID"].size : 0
+                @ext.element_size(d,"VNETS")
             end
 
             column :DATASTORES, "Number of Datastores", :size=>10 do |d|
-                d["DATASTORES"]["ID"] ? d["DATASTORES"]["ID"].size : 0
+                @ext.element_size(d,"DATASTORES")
             end
 
             default :ID, :NAME, :HOSTS, :VNETS, :DATASTORES
