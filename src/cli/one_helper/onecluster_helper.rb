@@ -37,18 +37,6 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         "onecluster.yaml"
     end
 
-    def count_pool(pool_name)
-        ids = d[pool_name]["ID"]
-
-        if ids.nil?
-            return 0
-        elsif ids.class == String
-            return 1
-        else
-            return ids.size
-        end
-    end
-
     def element_size(ehash, ename)
         ids = ehash[ename]["ID"]
 
