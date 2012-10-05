@@ -35,7 +35,7 @@ include CloudCLI
 
 
 CommandParser::CmdParser.new(ARGV) do
-    usage "econe-stop-instances [OPTIONS] INSTANCE-ID"
+    usage "econe-stop-instances [OPTIONS] INSTANCE-ID[,INSTANCE-ID...]"
     version CloudCLI.version_text
     description <<-EOT
 Stop the selected running instance
@@ -50,6 +50,10 @@ EOT
         EC2QueryClient::SECRET_KEY,
         EC2QueryClient::URL
     ]
+
+    format :instance_id, "The IDs of instances, comma-separated" do |arg|
+        [0, arg.split(',')]
+    end
 
     main :instance_id do
         begin
@@ -67,9 +71,10 @@ EOT
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
-            result = rc['instancesSet']['item'][0]
-            puts "Success: Stopping #{result['instanceId']} in " <<
-                "#{result['previousState']['name']} state"
+            rc['instancesSet']['item'].each { |result|
+                puts "Success: Stopping #{result['instanceId']} in " <<
+                    "#{result['previousState']['name']} state"
+            }
             exit_with_code 0
         end
     end

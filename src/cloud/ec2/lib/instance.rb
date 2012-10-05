@@ -161,31 +161,36 @@ module Instance
     # @yieldreturn [OpenNebula::Error, nil]
     # @return [OpenNebula::Error, nil]
     def perform_action(params, erb_name, &block)
-        # Get the VM ID
-        vmid=params['InstanceId.1']
-        vmid=params['InstanceId.01'] if !vmid
+        erb_vms = Array.new
 
-        tmp, vmid=vmid.split('-') if vmid[0] == "i"
+        params.each do |key, value|
+            if key =~ /InstanceId\.(.+)/
+                if value =~ /\-(.+)/
+                    vm = VirtualMachine.new(
+                            VirtualMachine.build_xml($1),
+                            @client)
 
-        vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),@client)
+                    rc = vm.info
+                    if OpenNebula::is_error?(rc)
+                        return rc
+                    end
 
-        rc = vm.info
-        if OpenNebula::is_error?(rc)
-            return rc
+                    previous_state = render_state(vm)
+
+                    rc = block.call(vm)
+                    if OpenNebula::is_error?(rc)
+                        return rc
+                    end
+
+                    vm.info
+
+                    erb_vms << {
+                        :erb_previous_state => previous_state,
+                        :vm => vm
+                    }
+                end
+            end
         end
-
-        erb_previous_state = render_state(vm)
-
-        rc = block.call(vm)
-
-        if OpenNebula::is_error?(rc)
-            return rc
-        end
-
-        vm.info
-
-        erb_current_state = render_state(vm)
-        erb_instance_id   = render_instance_id(vm)
 
         erb_version = params['Version']
 

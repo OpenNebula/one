@@ -1,14 +1,16 @@
 <TerminateInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
    <requestId><%= @request_id %></requestId>
   <instancesSet>
+    <% erb_vms.each { |vm_hash| %>
     <item>
-      <%= erb_instance_id %>
+      <%= render_instance_id(vm_hash[:vm]) %>
       <currentState>
-        <%= erb_current_state %>
+        <%= render_state(vm_hash[:vm]) %>
       </currentState>
       <previousState>
-        <%= erb_previous_state %>
+        <%= vm_hash[:erb_previous_state] %>
       </previousState>
     </item>
+    <% } %>
   </instancesSet>
 </TerminateInstancesResponse>
