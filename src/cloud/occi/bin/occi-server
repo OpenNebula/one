@@ -119,6 +119,11 @@ case "$1" in
   stop)
   stop
   ;;
+  restart)
+    stop
+    setup
+    start
+    ;;
   *)
   echo "Usage: occi-server {start|stop}" >&2
   exit 3
