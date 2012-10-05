@@ -27,6 +27,14 @@ module Migrator
     end
 
     def up
+
+        puts "    > Please enter the DATASTORE_LOCATION set in your oned.conf,\n"<<
+             "      Press enter to use the default /var/lib/one/datastores/\n"
+        print "      DATASTORE_LOCATION: "
+        ds_location = gets.chomp
+
+        ds_location = "/var/lib/one/datastores/" if ds_location.empty?
+
         ########################################################################
         # Feature #1522: Allow users to create Documents by default
         ########################################################################
@@ -46,22 +54,30 @@ module Migrator
 
         @db.run("UPDATE pool_control SET last_oid=#{last_oid + 1} WHERE tablename='acl';")
 
-        ########################################################################
-        # Bugs #1363: Make sure all VMs have CPU (float) & MEM (int)
-        ########################################################################
-
-        # NOTE: The VM memory and CPU are modified, but the sum in
-        # HOST/HOST_SHARE is not. A onedb fsck is required
 
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
         @db.fetch("SELECT * FROM old_vm_pool") do |row|
-            if ( row[:state] == 6 )
-                body = row[:body]
-            else
-                vm_doc = Document.new(row[:body])
+            vm_doc = Document.new(row[:body])
 
+            ####################################################################
+            # Feature #1393: DATASTORE_LOCATION for each system datastore
+            ####################################################################
+
+            vm_doc.root.each_element("HISTORY_RECORDS/HISTORY") { |e|
+                e.add_element("DS_LOCATION").text = ds_location
+            }
+
+            ####################################################################
+            # Bug #1363: Make sure all VMs have CPU (float) & MEM (int)
+            ####################################################################
+
+            # NOTE: The VM memory and CPU are modified, but the sum in
+            # HOST/HOST_SHARE is not. A onedb fsck is required
+
+            # If state != DONE
+            if ( row[:state] != 6 )
                 memory = nil
                 vm_doc.root.each_element("TEMPLATE/MEMORY") { |e|
                     memory = e.text.to_i
@@ -90,14 +106,12 @@ module Migrator
                         e.add_element("CPU").text = "0"
                     }
                 end
-
-                body = vm_doc.root.to_s
             end
 
             @db[:vm_pool].insert(
                 :oid        => row[:oid],
                 :name       => row[:name],
-                :body       => body,
+                :body       => vm_doc.root.to_s,
                 :uid        => row[:uid],
                 :gid        => row[:gid],
                 :last_poll  => row[:last_poll],
@@ -109,6 +123,30 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
+
+
+        ####################################################################
+        # Feature #1393: DATASTORE_LOCATION for each system datastore
+        ####################################################################
+
+        @db.run "ALTER TABLE history RENAME TO old_history;"
+        @db.run "CREATE TABLE history (vid INTEGER, seq INTEGER, body TEXT, stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq));"
+
+        @db.fetch("SELECT * FROM old_history") do |row|
+            doc = Document.new(row[:body])
+
+            doc.root.add_element("DS_LOCATION").text = ds_location
+
+            @db[:history].insert(
+                :vid        => row[:vid],
+                :seq        => row[:seq],
+                :body       => doc.root.to_s,
+                :stime      => row[:stime],
+                :etime      => row[:etime])
+        end
+
+        @db.run "DROP TABLE old_history;"
+
 
         ########################################################################
         # Bug #1335: Add suspended VMs resoureces to Host usage
