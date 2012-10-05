@@ -1788,16 +1788,13 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $MAKE_DIRS; do
         mkdir -p $DESTDIR$d
     done
-
-    # Remove old migrators
-    rm $LIB_LOCATION/ruby/onedb/*.rb &> /dev/null
 fi
 
 # --- Install/Uninstall files ---
 
 do_file() {
     if [ "$UNINSTALL" = "yes" ]; then
-        rm $2/`basename $1`
+        rm $DESTDIR$2/`basename $1`
     else
         if [ "$LINK" = "yes" ]; then
             ln -s $SRC_DIR/$1 $DESTDIR$2
