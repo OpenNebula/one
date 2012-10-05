@@ -45,6 +45,7 @@ History::History(
         vmm_mad_name(""),
         vnm_mad_name(""),
         tm_mad_name(""),
+        ds_location(""),
         ds_id(0),
         stime(0),
         etime(0),
@@ -67,6 +68,7 @@ History::History(
     const string& _vmm,
     const string& _vnm,
     const string& _tmm,
+    const string& _ds_location,
     int           _ds_id,
     const string& _vm_info):
         oid(_oid),
@@ -76,6 +78,7 @@ History::History(
         vmm_mad_name(_vmm),
         vnm_mad_name(_vnm),
         tm_mad_name(_tmm),
+        ds_location(_ds_location),
         ds_id(_ds_id),
         stime(0),
         etime(0),
@@ -99,9 +102,7 @@ void History::non_persistent_data()
     ostringstream os;
 
     string vm_lhome;
-    string vm_rhome;
-    string ds_location;
-    
+
     Nebula& nd = Nebula::instance();
 
     // ----------- Local Locations ------------
@@ -128,16 +129,15 @@ void History::non_persistent_data()
 
     os.str("");
 
-    nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
     os << ds_location << "/" << ds_id << "/" << oid;
 
-    vm_rhome = os.str();
+    rsystem_dir = os.str();
 
     os << "/checkpoint";
     checkpoint_file = os.str();
 
     os.str("");
-    os << vm_rhome << "/deployment." << seq;
+    os << rsystem_dir << "/deployment." << seq;
 
     rdeployment_file = os.str();
 }
@@ -299,6 +299,7 @@ string& History::to_xml(string& xml, bool database) const
           "<VMMMAD>"            << vmm_mad_name      << "</VMMMAD>"<<
           "<VNMMAD>"            << vnm_mad_name      << "</VNMMAD>"<<
           "<TMMAD>"             << tm_mad_name       << "</TMMAD>" <<
+          "<DS_LOCATION>"       << ds_location       << "</DS_LOCATION>" <<
           "<DS_ID>"             << ds_id             << "</DS_ID>" <<
           "<PSTIME>"            << prolog_stime      << "</PSTIME>"<<
           "<PETIME>"            << prolog_etime      << "</PETIME>"<<
@@ -329,22 +330,23 @@ int History::rebuild_attributes()
     int int_reason;
     int rc = 0;
 
-    rc += xpath(seq              , "/HISTORY/SEQ",      -1);
-    rc += xpath(hostname         , "/HISTORY/HOSTNAME", "not_found");
-    rc += xpath(hid              , "/HISTORY/HID",      -1);
-    rc += xpath(stime            , "/HISTORY/STIME",    0);
-    rc += xpath(etime            , "/HISTORY/ETIME",    0);
-    rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",   "not_found");
-          xpath(vnm_mad_name     , "/HISTORY/VNMMAD",   "dummy");
-    rc += xpath(tm_mad_name      , "/HISTORY/TMMAD",    "not_found");
-    rc += xpath(ds_id            , "/HISTORY/DS_ID",    0);
-    rc += xpath(prolog_stime     , "/HISTORY/PSTIME",   0);
-    rc += xpath(prolog_etime     , "/HISTORY/PETIME",   0);
-    rc += xpath(running_stime    , "/HISTORY/RSTIME",   0);
-    rc += xpath(running_etime    , "/HISTORY/RETIME",   0);
-    rc += xpath(epilog_stime     , "/HISTORY/ESTIME",   0);
-    rc += xpath(epilog_etime     , "/HISTORY/EETIME",   0);
-    rc += xpath(int_reason       , "/HISTORY/REASON",   0);
+    rc += xpath(seq              , "/HISTORY/SEQ",         -1);
+    rc += xpath(hostname         , "/HISTORY/HOSTNAME",    "not_found");
+    rc += xpath(hid              , "/HISTORY/HID",         -1);
+    rc += xpath(stime            , "/HISTORY/STIME",       0);
+    rc += xpath(etime            , "/HISTORY/ETIME",       0);
+    rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",      "not_found");
+          xpath(vnm_mad_name     , "/HISTORY/VNMMAD",      "dummy");
+    rc += xpath(tm_mad_name      , "/HISTORY/TMMAD",       "not_found");
+    rc += xpath(ds_location      , "/HISTORY/DS_LOCATION", "not_found");
+    rc += xpath(ds_id            , "/HISTORY/DS_ID",       0);
+    rc += xpath(prolog_stime     , "/HISTORY/PSTIME",      0);
+    rc += xpath(prolog_etime     , "/HISTORY/PETIME",      0);
+    rc += xpath(running_stime    , "/HISTORY/RSTIME",      0);
+    rc += xpath(running_etime    , "/HISTORY/RETIME",      0);
+    rc += xpath(epilog_stime     , "/HISTORY/ESTIME",      0);
+    rc += xpath(epilog_etime     , "/HISTORY/EETIME",      0);
+    rc += xpath(int_reason       , "/HISTORY/REASON",      0);
 
     reason = static_cast<MigrationReason>(int_reason);
 
