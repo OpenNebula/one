@@ -27,7 +27,9 @@ module Parser
     UNITS = %W(B KiB MiB GiB TiB).freeze
 
     def self.humanize_size(number)
-      if number.to_i < 1024
+      number = number.to_i
+
+      if number < 1024
         exponent = 0
 
       else

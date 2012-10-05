@@ -18,6 +18,7 @@
     %label.control-label{'for' => 'organization_form'} Organization
     .controls
       %input.input-xlarge{'name' => 'organization','id' => 'organization_form', 'type' => 'text'}
+      %p It will be used as publisher when posting new appliances
   .control-group
     %label.control-label{'for' => 'first_name_form'} First Name
     .controls
@@ -51,6 +52,7 @@
   - if @session.admin?
     Admin parameters
     %hr
+    %p This parameters will be filled by the AppMarket server, change them at your own risk
     .control-group
       %label.control-label{'for' => 'status'} Status
       .controls

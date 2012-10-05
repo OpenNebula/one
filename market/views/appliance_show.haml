@@ -102,12 +102,18 @@
           %h6
             %small= @app['opennebula_version']
         %hr
-        - if @app['files'][0]['checksum']
+        - if @app['files'][0]['checksum'] && @app['files'][0]['checksum']['md5']
           %dt
             %h6 Checksum MD5
           %dd
             %h6
               %small= @app['files'][0]['checksum']['md5']
+        - if @app['files'][0]['checksum'] && @app['files'][0]['checksum']['sha1']
+          %dt
+            %h6 Checksum SHA1
+          %dd
+            %h6
+              %small= @app['files'][0]['checksum']['sha1']
         %dt
           %h6 Compression
         %dd

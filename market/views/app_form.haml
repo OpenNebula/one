@@ -22,24 +22,35 @@
     %label.control-label{'for' => 'short_description_form'} Short Description
     .controls
       %textarea.input-xlarge{'name' => 'short_description', 'id' => 'short_description_form', 'rows' => '3'}
+      %p This information will be shown in the list view
   .control-group
     %label.control-label{'for' => 'description_form'} Description
     .controls
       %textarea.input-xlarge{'name' => 'description', 'id' => 'description_form', 'rows' => '8'}
+      %p
+        This information will be shown in the detailed view
+        %br
+        Description is parsed with Markdown.
   .control-group
     %label.control-label{'for' => 'version_form'} Version
     .controls
       %input.input-xlarge{'name' => 'version', 'id' => 'version_form', 'type' => 'text'}
+      %p Example: 1.0
   .control-group
     %label.control-label{'for' => 'tags_form'} Tags
     .controls
       %input.input-xlarge{'name' => 'tags', 'id' => 'tags_form', 'type' => 'text'}
-      %p.help-block Comma-separated tags
+      %p Comma-separated tags. Example: ubuntu,hpc,mysql
   %hr
   .control-group
     %label.control-label{'for' => 'url_form'} URL
     .controls
       %input.input-xlarge{'name' => 'files.0.url', 'id' => 'files.0.url_form', 'type' => 'text'}
+  .control-group
+    %label.control-label{'for' => 'files.0.size'} Size
+    .controls
+      %input.input{'name' => 'files.0.size', 'id' => 'files.0.size_form', 'type' => 'text'}
+      %p Bytes
   .control-group
     %label.control-label{'for' => 'files.0.md5'} MD5
     .controls
@@ -75,14 +86,17 @@
     %label.control-label{'for' => 'files.0.os-id'} OS id
     .controls
       %input.input-xlarge{'name' => 'files.0.os-id', 'id' => 'files.0.os-id_form', 'type' => 'text'}
+      %p Example: Ubuntu
   .control-group
     %label.control-label{'for' => 'files.0.os-release'} OS release
     .controls
       %input.input-xlarge{'name' => 'files.0.os-release', 'id' => 'files.0.os-release_form', 'type' => 'text'}
+      %p Example: 12.04
   .control-group
     %label.control-label{'for' => 'files.0.os-arch'} OS arch
     .controls
       %input.input-xlarge{'name' => 'files.0.os-arch', 'id' => 'files.0.os-arch_form', 'type' => 'text'}
+      %p Example: x86_64
   - if @session.admin?
     Admin parameters
     %hr
@@ -98,8 +112,4 @@
       %label.control-label{'for' => 'publisher_form'} Publisher
       .controls
         %input.input-xlarge{'name' => 'publisher','id' => 'publisher_form', 'type' => 'text'}
-    .control-group
-      %label.control-label{'for' => 'files.0.size'} Size
-      .controls
-        %input.input-xlarge{'name' => 'files.0.size', 'id' => 'files.0.size_form', 'type' => 'text'}
 %hr

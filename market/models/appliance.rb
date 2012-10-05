@@ -42,7 +42,8 @@ class Appliance
                 :default => 'raw'
             },
             'size' => {
-                :type => :string
+                :type => :string,
+                :required => true
             },
             'compression' => {
                 :type => :string,
