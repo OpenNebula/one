@@ -133,16 +133,13 @@ module EC2QueryClient
         # :image_id
         # :instance_type
         ######################################################################
-        def run_instances(ami_id, type, user_data=nil, min_count=1, max_count=1)
+        def run_instances(opts)
             begin
-                response = @ec2_connection.run_instances(
-                                :image_id       => ami_id,
-                                :instance_type  => type,
-                                :user_data      => user_data,
-                                :base64_encoded => true,
-                                :min_count      => min_count,
-                                :max_count      => max_count
-                           )
+                response = @ec2_connection.run_instances({
+                    :base64_encoded => true,
+                    :min_count      => 1,
+                    :max_count      => 1
+                }.merge(opts))
             rescue Exception => e
                 error = CloudClient::Error.new(e.message)
                 return error

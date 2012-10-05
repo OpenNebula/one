@@ -51,6 +51,14 @@ TYPE = {
     :format => String
 }
 
+KEYNAME = {
+    :name => "keypair",
+    :short => "-k keypair",
+    :large => "--keypair keypair",
+    :description => "The name of the key pair.",
+    :format => String
+}
+
 INSTANCE_COUNT = {
     :name => "instance_count",
     :large => "--instance-count count",
@@ -110,7 +118,8 @@ EOT
         EC2QueryClient::URL,
         USER_DATA,
         INSTANCE_COUNT,
-        TYPE
+        TYPE,
+        KEYNAME
     ]
 
     main :image_id do
@@ -129,11 +138,12 @@ EOT
         options[:max_count] ||= options[:min_count]
 
         rc = ec2_client.run_instances(
-                args[0],
-                options[:type],
-                options[:user_data],
-                options[:min_count],
-                options[:max_count])
+                :image_id       => args[0],
+                :instance_type  => options[:type],
+                :user_data      => options[:user_data],
+                :min_count      => options[:min_count],
+                :max_count      => options[:max_count],
+                :key_name       => options[:keypair])
 
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
