@@ -157,6 +157,8 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     else
     {
         ds_id = DatastorePool::SYSTEM_DS_ID;
+
+        nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
     }
 
     ds = nd.get_dspool()->get(ds_id, true);
