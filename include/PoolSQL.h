@@ -135,6 +135,10 @@ public:
             error_msg = "SQL DB error";
             return -1;
         }
+        else
+        {
+            do_hooks(objsql, Hook::REMOVE);
+        }
 
         return 0;
     };
@@ -159,7 +163,7 @@ public:
     // -------------------------------------------------------------------------
 
     /**
-     *  Creates a filter for those objects (oids) or objects owned by a given 
+     *  Creates a filter for those objects (oids) or objects owned by a given
      *  group that an user can access based on the ACL rules
      *    @param uid the user id
      *    @param gid the group id
@@ -167,8 +171,8 @@ public:
      *    @param all returns if the user can access all objects
      *    @param filter the resulting filter string
      */
-    static void acl_filter(int                       uid, 
-                           int                       gid, 
+    static void acl_filter(int                       uid,
+                           int                       gid,
                            PoolObjectSQL::ObjectType auth_object,
                            bool&                     all,
                            string&                   filter);
@@ -180,8 +184,8 @@ public:
      *    @param all user can access all objects
      *    @param filter the resulting filter string
      */
-    static void usr_filter(int           uid, 
-                           int           gid, 
+    static void usr_filter(int           uid,
+                           int           gid,
                            int           filter_flag,
                            bool          all,
                            const string& acl_str,
@@ -223,9 +227,9 @@ protected:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, 
+    int dump(ostringstream& oss,
              const string&  elem_name,
-             const char *   table, 
+             const char *   table,
              const string&  where);
 
     /**
@@ -239,7 +243,7 @@ protected:
      */
     int dump(ostringstream&  oss,
              const string&   root_elem_name,
-             ostringstream&  sql_query);    
+             ostringstream&  sql_query);
 
     /* ---------------------------------------------------------------------- */
     /* Interface to access the lastOID assigned by the pool                   */
@@ -344,7 +348,7 @@ private:
      *  Generate an index key for the object
      *    @param name of the object
      *    @param uid owner of the object, only used if needed
-     *    
+     *
      *    @return the key, a string
      */
     virtual string key(const string& name, int uid)
