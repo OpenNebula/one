@@ -102,15 +102,15 @@ VirtualMachinePool::VirtualMachinePool(
 
             if ( remote )
             {
-                cmd_os << hook_location << "/" << cmd;     
+                cmd_os << hook_location << "/" << cmd;
             }
             else
             {
                 cmd_os << remotes_location << "/hooks/" << cmd;
-            } 
+            }
 
             cmd = cmd_os.str();
-        } 
+        }
 
         if ( on == "CREATE" )
         {
@@ -180,6 +180,16 @@ VirtualMachinePool::VirtualMachinePool(
 
             state_hook = true;
         }
+        else if ( on == "UNKNOWN" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                            VirtualMachine::UNKNOWN, VirtualMachine::ACTIVE);
+            add_hook(hook);
+
+            state_hook = true;
+        }
         else
         {
             ostringstream oss;
@@ -230,7 +240,7 @@ int VirtualMachinePool::allocate (
     {
         vm->state = VirtualMachine::PENDING;
     }
-    
+
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
@@ -281,9 +291,9 @@ int VirtualMachinePool::get_pending(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePool::dump_acct(ostringstream& oss, 
-                                  const string&  where, 
-                                  int            time_start, 
+int VirtualMachinePool::dump_acct(ostringstream& oss,
+                                  const string&  where,
+                                  int            time_start,
                                   int            time_end)
 {
     ostringstream cmd;
