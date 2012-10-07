@@ -25,29 +25,58 @@
 
 using namespace std;
 
+#define HID_HOOK_NAME "$HID"
+
 /**
  *  This class is general Host Allocate Hook that executes a command when the
  *  Host is inserted in the database. The Host object is looked
  */
-class HostAllocateHook : public Hook
+class HostAllocateHook : public AllocateHook
 {
 public:
-    // -------------------------------------------------------------------------
-    // Init a LOCAL hook of ALLOCATE type
-    // -------------------------------------------------------------------------
     HostAllocateHook(const string& name,
                      const string& cmd,
                      const string& args,
                      bool          remote):
-        Hook(name, cmd, args, Hook::ALLOCATE, remote){};
+        AllocateHook(name, cmd, args, remote, HID_HOOK_NAME){};
 
-    ~HostAllocateHook(){};
+    virtual ~HostAllocateHook(){};
 
-    // -------------------------------------------------------------------------
-    // Hook methods
-    // -------------------------------------------------------------------------
+private:
 
-    void do_hook(void *arg);
+    string& remote_host(PoolObjectSQL *obj, string& hostname)
+    {
+        Host * host = static_cast<Host *>(obj);
+        hostname    = host->get_name();
+
+        return hostname;
+    }
+};
+
+/**
+ *  This class is general Host Remove Hook that executes a command when the
+ *  Host is dropped from the database. The Host object is looked
+ */
+class HostRemoveHook : public RemoveHook
+{
+public:
+    HostRemoveHook(const string&   name,
+                     const string& cmd,
+                     const string& args,
+                     bool          remote):
+        RemoveHook(name, cmd, args, remote, HID_HOOK_NAME){};
+
+    virtual ~HostRemoveHook(){};
+
+private:
+
+    string& remote_host(PoolObjectSQL *obj, string& hostname)
+    {
+        Host * host = static_cast<Host *>(obj);
+        hostname    = host->get_name();
+
+        return hostname;
+    }
 };
 
 /**

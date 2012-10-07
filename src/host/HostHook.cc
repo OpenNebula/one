@@ -20,69 +20,6 @@
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
-static void parse_host_arguments(Host *host, string& parsed)
-{
-    size_t  found;
-
-    found = parsed.find("$HID");
-
-    if ( found !=string::npos )
-    {
-        ostringstream oss;
-        oss << host->get_oid();
-
-        parsed.replace(found,4,oss.str());
-    }
-
-    found = parsed.find("$TEMPLATE");
-
-    if ( found != string::npos )
-    {
-        string templ;
-        parsed.replace(found,9,host->to_xml64(templ));
-    }
-}
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-void HostAllocateHook::do_hook(void *arg)
-{
-    Host *  host;
-
-    string  parsed_args = args;
-
-    host = static_cast<Host *>(arg);
-
-    if ( host == 0 )
-    {
-        return;
-    }
-    
-    parse_host_arguments(host,parsed_args);
-
-    Nebula& ne                    = Nebula::instance();
-    HookManager * hm              = ne.get_hm();
-    const HookManagerDriver * hmd = hm->get();
-
-    if ( hmd != 0 )
-    {
-        if ( remote == true )
-        {
-            hmd->execute(host->get_oid(),
-                         name,
-                         host->get_name(),
-                         cmd,
-                         parsed_args);
-        }
-        else
-        {
-            hmd->execute(host->get_oid(),name,cmd,parsed_args);
-        }
-    }
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
 
 map<int,Host::HostState> HostStateMapHook::host_states;
 
@@ -172,7 +109,7 @@ void HostStateHook::do_hook(void *arg)
     {
         string  parsed_args = args;
 
-        parse_host_arguments(host,parsed_args);
+        parse_hook_arguments(host, HID_HOOK_NAME, parsed_args);
 
         Nebula& ne        = Nebula::instance();
         HookManager * hm  = ne.get_hm();

@@ -25,29 +25,22 @@
 
 using namespace std;
 
+#define VMID_HOOK_NAME "$VMID"
+
 /**
  *  This class is general VM Allocate Hook that executes a command locally
  *  when the VM is inserted in the database. The VirtualMachine object is
  *  looked
  */
-class VirtualMachineAllocateHook : public Hook
+class VirtualMachineAllocateHook : public AllocateHook
 {
 public:
-    // -------------------------------------------------------------------------
-    // Init a LOCAL hook of ALLOCATE type
-    // -------------------------------------------------------------------------
     VirtualMachineAllocateHook(const string& name,
                                const string& cmd,
                                const string& args):
-        Hook(name, cmd, args, Hook::ALLOCATE, false){};
+        AllocateHook(name, cmd, args, false, VMID_HOOK_NAME){};
 
-    ~VirtualMachineAllocateHook(){};
-
-    // -------------------------------------------------------------------------
-    // Hook methods
-    // -------------------------------------------------------------------------
-
-    void do_hook(void *arg);
+    virtual ~VirtualMachineAllocateHook(){};
 };
 
 /**
