@@ -56,7 +56,7 @@ CommandParser::CmdParser.new(ARGV) do
         SIZE
     ]
 
-    main :volume_id do
+    main do
         begin
             ec2_client = EC2QueryClient::Client.new(
                 options[:access_key],
