@@ -46,8 +46,6 @@ DELETE_CMD=$(cat <<EOF
 EOF
 )
 
-echo "$DELETE_CMD" > /tmp/pepe
-
 if [ `is_disk $DST_PATH` -eq 1 ]; then
     # Disk
     ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
