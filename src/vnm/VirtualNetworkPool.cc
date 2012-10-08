@@ -31,9 +31,13 @@ unsigned int VirtualNetworkPool::_default_size;
 
 /* -------------------------------------------------------------------------- */
 
-VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
-    const string&   prefix,
-    int             __default_size):
+VirtualNetworkPool::VirtualNetworkPool(
+    SqlDB *                   db,
+    const string&             prefix,
+    int                       __default_size,
+    vector<const Attribute *> hook_mads,
+    const string&             hook_location,
+    const string&             remotes_location):
     PoolSQL(db, VirtualNetwork::table, true)
 {
     istringstream iss;
@@ -42,6 +46,15 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     unsigned int  tmp;
 
     string mac = prefix;
+
+    const VectorAttribute * vattr;
+
+    string name;
+    string on;
+    string cmd;
+    string arg;
+    string rmt;
+    bool   remote;
 
     _mac_prefix   = 0;
     _default_size = __default_size;
@@ -66,6 +79,67 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     iss >> hex >> _mac_prefix >> ws >> hex >> tmp >> ws;
     _mac_prefix <<= 8;
     _mac_prefix += tmp;
+
+    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
+    {
+        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
+
+        name = vattr->vector_value("NAME");
+        on   = vattr->vector_value("ON");
+        cmd  = vattr->vector_value("COMMAND");
+        arg  = vattr->vector_value("ARGUMENTS");
+
+        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
+
+        if ( on.empty() || cmd.empty() )
+        {
+            ostringstream oss;
+
+            oss << "Empty ON or COMMAND attribute in VNET_HOOK. Hook "
+                << "not registered!";
+            NebulaLog::log("VM",Log::WARNING,oss);
+
+            continue;
+        }
+
+        if ( name.empty() )
+        {
+            name = cmd;
+        }
+
+        if (cmd[0] != '/')
+        {
+            ostringstream cmd_os;
+
+            if ( remote )
+            {
+                cmd_os << hook_location << "/" << cmd;
+            }
+            else
+            {
+                cmd_os << remotes_location << "/hooks/" << cmd;
+            }
+
+            cmd = cmd_os.str();
+        }
+
+        if ( on == "CREATE" )
+        {
+            AllocateHook * hook;
+
+            hook = new AllocateHook(name, cmd, arg, false);
+
+            add_hook(hook);
+        }
+        else if ( on == "REMOVE" )
+        {
+            RemoveHook * hook;
+
+            hook = new RemoveHook(name, cmd, arg, false);
+
+            add_hook(hook);
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -140,7 +214,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic, 
+VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
                                                      const string&     name,
                                                      int               _uid,
                                                      string&           error)
@@ -169,9 +243,9 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
         User *     user;
         Nebula&    nd    = Nebula::instance();
         UserPool * upool = nd.get_upool();
-        
+
         user = upool->get(uname,true);
-        
+
         if ( user == 0 )
         {
             error = "User set in NETWORK_UNAME does not exist";
@@ -184,7 +258,7 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
     }
     else
     {
-        uid = _uid;        
+        uid = _uid;
     }
 
     vnet = get(name,uid,true);
@@ -195,15 +269,15 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
         oss << "User " << uid << " does not own a network with name: " << name
             << " . Set NETWORK_UNAME or NETWORK_UID of owner in NIC.";
 
-        error = oss.str(); 
+        error = oss.str();
     }
 
     return vnet;
 }
-        
+
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s, 
+VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s,
                                                    string&       error)
 {
     istringstream  is;
@@ -224,14 +298,14 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s,
         ostringstream oss;
         oss << "Virtual network with ID: " << id_s << " does not exist";
 
-        error = oss.str(); 
+        error = oss.str();
     }
 
     return vnet;
 }
 
-int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, 
-                                      int     uid, 
+int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
+                                      int     uid,
                                       int     vid,
                                       string& error)
 {
@@ -249,7 +323,7 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
     else //Not using a pre-defined network
     {
         return -2;
-    } 
+    }
 
     if (vnet == 0)
     {
@@ -275,8 +349,8 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, 
-                                       int uid, 
+void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
+                                       int uid,
                                        AuthRequest * ar)
 {
     string           network;
@@ -300,7 +374,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
     else //Not using a pre-defined network
     {
         return;
-    } 
+    }
 
     if (vnet == 0)
     {

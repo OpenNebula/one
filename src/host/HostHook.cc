@@ -109,7 +109,7 @@ void HostStateHook::do_hook(void *arg)
     {
         string  parsed_args = args;
 
-        parse_hook_arguments(host, HID_HOOK_NAME, parsed_args);
+        parse_hook_arguments(host, parsed_args);
 
         Nebula& ne        = Nebula::instance();
         HookManager * hm  = ne.get_hm();

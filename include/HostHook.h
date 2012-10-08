@@ -25,8 +25,6 @@
 
 using namespace std;
 
-#define HID_HOOK_NAME "$HID"
-
 /**
  *  This class is general Host Allocate Hook that executes a command when the
  *  Host is inserted in the database. The Host object is looked
@@ -38,7 +36,7 @@ public:
                      const string& cmd,
                      const string& args,
                      bool          remote):
-        AllocateHook(name, cmd, args, remote, HID_HOOK_NAME){};
+        AllocateHook(name, cmd, args, remote){};
 
     virtual ~HostAllocateHook(){};
 
@@ -64,7 +62,7 @@ public:
                      const string& cmd,
                      const string& args,
                      bool          remote):
-        RemoveHook(name, cmd, args, remote, HID_HOOK_NAME){};
+        RemoveHook(name, cmd, args, remote){};
 
     virtual ~HostRemoveHook(){};
 

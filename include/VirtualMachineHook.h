@@ -25,24 +25,6 @@
 
 using namespace std;
 
-#define VMID_HOOK_NAME "$VMID"
-
-/**
- *  This class is general VM Allocate Hook that executes a command locally
- *  when the VM is inserted in the database. The VirtualMachine object is
- *  looked
- */
-class VirtualMachineAllocateHook : public AllocateHook
-{
-public:
-    VirtualMachineAllocateHook(const string& name,
-                               const string& cmd,
-                               const string& args):
-        AllocateHook(name, cmd, args, false, VMID_HOOK_NAME){};
-
-    virtual ~VirtualMachineAllocateHook(){};
-};
-
 /**
  *  This class provides basic functionality to store VM states for state Hooks.
  *  The state Map is shared by all the State hooks. A maintenance hook that

@@ -102,21 +102,21 @@ VirtualMachinePool::VirtualMachinePool(
 
             if ( remote )
             {
-                cmd_os << hook_location << "/" << cmd;     
+                cmd_os << hook_location << "/" << cmd;
             }
             else
             {
                 cmd_os << remotes_location << "/hooks/" << cmd;
-            } 
+            }
 
             cmd = cmd_os.str();
-        } 
+        }
 
         if ( on == "CREATE" )
         {
-            VirtualMachineAllocateHook * hook;
+            AllocateHook * hook;
 
-            hook = new VirtualMachineAllocateHook(name,cmd,arg);
+            hook = new AllocateHook(name, cmd, arg, false);
 
             add_hook(hook);
         }
@@ -230,7 +230,7 @@ int VirtualMachinePool::allocate (
     {
         vm->state = VirtualMachine::PENDING;
     }
-    
+
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
@@ -281,9 +281,9 @@ int VirtualMachinePool::get_pending(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePool::dump_acct(ostringstream& oss, 
-                                  const string&  where, 
-                                  int            time_start, 
+int VirtualMachinePool::dump_acct(ostringstream& oss,
+                                  const string&  where,
+                                  int            time_start,
                                   int            time_end)
 {
     ostringstream cmd;

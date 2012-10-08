@@ -77,15 +77,13 @@ public:
     virtual void do_hook(void *arg) = 0;
 
     /**
-     *  Parses the arguments of the hook using a generic ID identifier, and
+     *  Parses the arguments of the hook using a generic $ID identifier, and
      *  the target object.  $TEMPLATE will be the base64 encoding of the
-     *  template and the id string the oid of the object
+     *  template and $ID the oid of the object.
      *    @param obj pointer to the object executing the hook for
-     *    @param id_str id for the object (e.g. $VMID, $HID...)
      *    @param the resulting parser arguments
      */
     void parse_hook_arguments(PoolObjectSQL * obj,
-                              const string&   id_str,
                               string&         parsed);
 protected:
     /**
@@ -125,9 +123,8 @@ protected:
                        const string& cmd,
                        const string& args,
                        int           hook_type,
-                       bool          remote,
-                       const char *  _id_name):
-        Hook(name, cmd, args, hook_type, remote), id_name(_id_name){};
+                       bool          remote):
+        Hook(name, cmd, args, hook_type, remote){};
 
     virtual ~AllocateRemoveHook(){};
 
@@ -143,10 +140,6 @@ protected:
 
         return hostname;
     };
-
-private:
-
-    string id_name;
 };
 
 /**
@@ -163,9 +156,8 @@ public:
     AllocateHook(const string& name,
                  const string& cmd,
                  const string& args,
-                 bool          remote,
-                 const char *  id_name):
-        AllocateRemoveHook(name, cmd, args, Hook::ALLOCATE, remote, id_name){};
+                 bool          remote):
+        AllocateRemoveHook(name, cmd, args, Hook::ALLOCATE, remote){};
 
     virtual ~AllocateHook(){};
 };
@@ -181,11 +173,10 @@ public:
     // Init a hook of ALLOCATE type
     // -------------------------------------------------------------------------
     RemoveHook(const string& name,
-                 const string& cmd,
-                 const string& args,
-                 bool          remote,
-                 const char *  id_name):
-        AllocateRemoveHook(name, cmd, args, Hook::REMOVE, remote, id_name){};
+               const string& cmd,
+               const string& args,
+               bool          remote):
+        AllocateRemoveHook(name, cmd, args, Hook::REMOVE, remote){};
 
     virtual ~RemoveHook(){};
 };
