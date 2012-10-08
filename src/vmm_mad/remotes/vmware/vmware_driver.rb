@@ -182,6 +182,7 @@ class VMwareDriver
         begin
             vm_folder=VAR_LOCATION + "/" + File.basename(File.dirname(checkpoint))
             dfile=`ls -1 #{vm_folder}/deployment*|tail -1`
+            dfile.strip!
         rescue => e
             OpenNebula.log_error("Cannot open checkpoint #{e.message}")
             exit(-1)
