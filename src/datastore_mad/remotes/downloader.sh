@@ -20,9 +20,13 @@
 # to determine the file type
 function get_type
 {
-    command=$1
+    if [ "X$NO_DECOMPRESS" = "Xyes" ]; then
+        echo "application/octet-stream"
+    else
+        command=$1
 
-    ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
+        ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
+    fi
 }
 
 # Gets the command needed to decompress an stream.
