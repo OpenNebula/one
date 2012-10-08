@@ -17,7 +17,7 @@
 require 'json'
 require 'openssl'
 require 'digest/md5'
-require 'net/ssh'
+require 'net_ssh_replacement'
 
 module Keypair
     ############################################################################

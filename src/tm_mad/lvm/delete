@@ -42,13 +42,7 @@ DST_HOST=`arg_host $DST`
 # Delete the device if it's a clone (LVM snapshot)
 DELETE_CMD=$(cat <<EOF
     DEV=\$(readlink $DST_PATH)
-    LV=\$(basename \$DEV)
-    VM=\$(echo \$LV|cut -d- -f4)
-    DISK_ID=\$(echo \$LV|cut -d- -f5)
-
-    if [ -n "\$VM" -a -n "\$DISK_ID" ]; then
-        $SUDO $LVREMOVE -f \$DEV
-    fi
+    $SUDO $LVREMOVE -f \$DEV
 EOF
 )
 

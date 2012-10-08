@@ -77,7 +77,7 @@ bool RequestManagerVirtualMachine::vm_authorization(
 
     if ( ds_perm != 0 )
     {
-        ar.add_auth(AuthRequest::USE, *ds_perm); 
+        ar.add_auth(AuthRequest::USE, *ds_perm);
     }
 
     if (UserPool::authorize(ar) == -1)
@@ -95,11 +95,12 @@ bool RequestManagerVirtualMachine::vm_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RequestManagerVirtualMachine::get_host_information(int hid, 
-                                                string& name, 
+int RequestManagerVirtualMachine::get_host_information(int hid,
+                                                string& name,
                                                 string& vmm,
                                                 string& vnm,
                                                 string& tm,
+                                                string& ds_location,
                                                 int&    ds_id,
                                                 RequestAttributes& att,
                                                 PoolObjectAuth&    host_perms)
@@ -149,11 +150,15 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
 
         ds_id = cluster->get_ds_id();
 
+        cluster->get_ds_location(ds_location);
+
         cluster->unlock();
     }
     else
     {
         ds_id = DatastorePool::SYSTEM_DS_ID;
+
+        nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
     }
 
     ds = nd.get_dspool()->get(ds_id, true);
@@ -220,6 +225,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        const string&    vmm_mad,
                                        const string&    vnm_mad,
                                        const string&    tm_mad,
+                                       const string&    ds_location,
                                        int              ds_id,
                                        RequestAttributes& att)
 {
@@ -228,7 +234,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
-    vm->add_history(hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id);
+    vm->add_history(hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id);
 
     rc = vmpool->update_history(vm);
 
@@ -378,6 +384,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string vmm_mad;
     string vnm_mad;
     string tm_mad;
+    string ds_location;
     int    ds_id;
 
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
@@ -386,7 +393,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     bool auth = false;
 
     if (get_host_information(
-            hid,hostname,vmm_mad,vnm_mad,tm_mad, ds_id, att, host_perms) != 0)
+            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
+            host_perms) != 0)
     {
         return;
     }
@@ -413,7 +421,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id,att) != 0)
+    if ( add_history(
+            vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_location,ds_id,att) != 0)
     {
         vm->unlock();
         return;
@@ -442,6 +451,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string vmm_mad;
     string vnm_mad;
     string tm_mad;
+    string ds_location;
     int    ds_id;
 
     PoolObjectAuth aux_perms;
@@ -456,7 +466,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool auth = false;
 
     if (get_host_information(
-            hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id, att, host_perms) != 0)
+            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
+            host_perms) != 0)
     {
         return;
     }
@@ -490,8 +501,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     vm->unlock();
 
     if (get_host_information(
-            current_hid,aux_st,aux_st,aux_st,
-            aux_st,current_ds_id, att, aux_perms) != 0)
+            current_hid, aux_st, aux_st, aux_st, aux_st, aux_st, current_ds_id,
+            att, aux_perms) != 0)
     {
         return;
     }
@@ -518,7 +529,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_id,att) != 0)
+    if ( add_history(vm, hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location,
+            ds_id, att) != 0)
     {
         vm->unlock();
         return;
@@ -572,11 +584,11 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Prepare and check the VM/DISK to be saved_as
     // -------------------------------------------------------------------------
-    
+
     if ( (vm = get_vm(id, att)) == 0 )
-    {   
+    {
         failure_response(NO_EXISTS,
-                         get_error(object_name(PoolObjectSQL::VM), id), 
+                         get_error(object_name(PoolObjectSQL::VM), id),
                          att);
         return;
     }
@@ -589,7 +601,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( iid_orig == -1 )
     {
-        failure_response(INTERNAL, 
+        failure_response(INTERNAL,
                          request_error("Cannot use selected DISK", error_str),
                          att);
         return;
@@ -604,7 +616,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     if ( img == 0 )
     {
         failure_response(NO_EXISTS,
-                         get_error(object_name(PoolObjectSQL::IMAGE), iid_orig), 
+                         get_error(object_name(PoolObjectSQL::IMAGE), iid_orig),
                          att);
         return;
     }
@@ -637,7 +649,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     ds->get_permissions(ds_perms);
     ds->to_xml(ds_data);
-    
+
     ds_disk_type = ds->get_disk_type();
 
     ds->unlock();
@@ -697,17 +709,17 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
     {
         delete itemplate;
-        return;   
+        return;
     }
 
     // -------------------------------------------------------------------------
     // Create the image
     // -------------------------------------------------------------------------
 
-    rc = ipool->allocate(att.uid, 
-                         att.gid, 
-                         att.uname, 
-                         att.gname, 
+    rc = ipool->allocate(att.uid,
+                         att.gid,
+                         att.uname,
+                         att.gname,
                          itemplate,
                          ds_id,
                          ds_name,
@@ -807,7 +819,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-        
+
     if ( vm_authorization(id, 0, tmpl, att, 0, 0, auth_op) == false )
     {
         delete tmpl;
@@ -817,7 +829,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     if ( quota_authorization(tmpl, Quotas::IMAGE, att) == false )
     {
         delete tmpl;
-        return; 
+        return;
     }
 
     rc = dm->attach(id, tmpl, error_str);
@@ -832,7 +844,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        success_response(id, att);    
+        success_response(id, att);
     }
 
     delete tmpl;
@@ -857,7 +869,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-        
+
     if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
     {
         return;
@@ -873,10 +885,10 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        success_response(id, att);    
+        success_response(id, att);
     }
 
-    return;    
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

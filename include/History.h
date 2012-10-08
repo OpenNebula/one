@@ -47,6 +47,7 @@ public:
         const string& vmm,
         const string& vnm,
         const string& tmm,
+        const string& ds_location,
         int           ds_id,
         const string& vm_info);
 
@@ -73,7 +74,7 @@ private:
     // DataBase implementation variables
     // ----------------------------------------
     static const char * table;
-    
+
     static const char * db_names;
 
     static const char * db_bootstrap;
@@ -93,6 +94,7 @@ private:
     string  vnm_mad_name;
     string  tm_mad_name;
 
+    string  ds_location;
     int     ds_id;
 
     time_t  stime;
@@ -122,6 +124,7 @@ private:
     // Remote paths
     string  checkpoint_file;
     string  rdeployment_file;
+    string  rsystem_dir;
 
     /**
      *  Writes the history record in the DB

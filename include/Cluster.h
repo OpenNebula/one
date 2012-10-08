@@ -48,6 +48,15 @@ public:
         return ds_id;
     }
 
+    /**
+     * Returns the DATASTORE_LOCATION for the hosts of the cluster. If not
+     * defined that in oned.conf is returned.
+     *
+     * @param ds_location string to copy the DATASTORE_LOCATION to
+     * @return DATASTORE_LOCATION
+     */
+    string& get_ds_location(string &ds_location);
+
     // *************************************************************************
     // Object Collections (Public)
     // *************************************************************************

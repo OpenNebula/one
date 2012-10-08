@@ -22,6 +22,7 @@
 
 #include "Cluster.h"
 #include "GroupPool.h"
+#include "Nebula.h"
 
 const char * Cluster::table = "cluster_pool";
 
@@ -93,6 +94,23 @@ error_common:
     error_msg = oss.str();
 
     return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+string& Cluster::get_ds_location(string &ds_location)
+{
+    obj_template->get("DATASTORE_LOCATION", ds_location);
+
+    if ( ds_location.empty() == true )
+    {
+        Nebula& nd = Nebula::instance();
+
+        nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
+    }
+
+    return ds_location;
 }
 
 /* ************************************************************************ */

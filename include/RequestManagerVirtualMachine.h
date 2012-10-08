@@ -48,17 +48,23 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) = 0;
 
-    bool vm_authorization(int id, 
+    bool vm_authorization(int id,
                           ImageTemplate *         tmpl,
                           VirtualMachineTemplate* vtmpl,
-                          RequestAttributes&      att, 
-                          PoolObjectAuth *        host_perms, 
+                          RequestAttributes&      att,
+                          PoolObjectAuth *        host_perms,
                           PoolObjectAuth *        ds_perm,
                           AuthRequest::Operation  op);
 
-    int get_host_information(int hid, string& name, string& vmm, string& vnm,
-            string& tm, int& ds_id, RequestAttributes& att,
-            PoolObjectAuth& host_perms);
+    int get_host_information(int hid,
+                             string& name,
+                             string& vmm,
+                             string& vnm,
+                             string& tm,
+                             string& ds_location,
+                             int& ds_id,
+                             RequestAttributes& att,
+                             PoolObjectAuth& host_perms);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
@@ -66,6 +72,7 @@ protected:
                     const string&    vmm_mad,
                     const string&    vnm_mad,
                     const string&    tm_mad,
+                    const string&    ds_location,
                     int              ds_id,
                     RequestAttributes& att);
 
