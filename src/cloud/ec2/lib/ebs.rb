@@ -30,9 +30,9 @@ module EBS
         image_id  = params['VolumeId']
         vm_id_ec2 = params['InstanceId']
 
-        image_id  = image_id.split('-')[1] if image_id[0] == "v"
+        image_id  = image_id.split('-')[1]
 
-        image = Image.new(Image.build_xml(image_id), @client)
+        image = Image.new(Image.build_xml(image_id.to_i), @client)
         rc    = image.info
         return rc if OpenNebula::is_error?(rc)
 
@@ -47,11 +47,11 @@ module EBS
             return rc
         end
 
-        vm_id = vm_id_ec2.split('-')[1] if vm_id_ec2[0] == "i"
+        vm_id = vm_id_ec2.split('-')[1]
 
         # Detach
 
-        vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
+        vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id.to_i), @client)
         rc = vm.info
 
         return rc if OpenNebula::is_error?(rc)
@@ -72,7 +72,7 @@ module EBS
 
         # Update IMAGE metadata
         image.delete_element("TEMPLATE/EBS")
-        
+
         rc = image.update
 
         if OpenNebula::is_error?(rc)
@@ -98,10 +98,10 @@ module EBS
     #   instance (e.g., /dev/sdh, or xvdh)
     def attach_volume(params)
         image_id = params['VolumeId']
-        image_id = image_id.split('-')[1] if image_id[0] == "v"
+        image_id = image_id.split('-')[1]
 
         vm_id = params['InstanceId']
-        vm_id = vm_id.split('-')[1] if vm_id[0] == "i"
+        vm_id = vm_id.split('-')[1]
 
         target = params['Device']
 
@@ -110,7 +110,7 @@ module EBS
         end
 
         # Check if the volume is already attached to another instance
-        image = Image.new(Image.build_xml(image_id), @client)
+        image = Image.new(Image.build_xml(image_id.to_i), @client)
         rc    = image.info
 
         return rc if OpenNebula::is_error?(rc)
@@ -122,12 +122,12 @@ module EBS
         end
 
         # Attach
-        vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
+        vm = VirtualMachine.new(VirtualMachine.build_xml(vm_id.to_i), @client)
         rc = vm.info
 
         return rc if OpenNebula::is_error?(rc)
 
-        template = "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target} ]"
+        template = "DISK = [ IMAGE_ID = #{image_id.to_i}, TARGET = #{target} ]"
         rc       = vm.attachdisk(template)
 
         return rc if OpenNebula::is_error?(rc)
@@ -208,9 +208,9 @@ module EBS
     # @option params [String] VolumeId The ID of the DATABLOCK
     def delete_volume(params)
         image_id = params['VolumeId']
-        image_id = image_id.split('-')[1] if image_id[0]==?v
+        image_id = image_id.split('-')[1]
 
-        image = ImageEC2.new(Image.build_xml(image_id), @client)
+        image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
         rc    = image.delete
 
         return rc if OpenNebula::is_error?(rc)
@@ -226,7 +226,7 @@ module EBS
     def describe_volumes(params)
         user_flag = OpenNebula::Pool::INFO_ALL
         impool    = ImageEC2Pool.new(@client, user_flag)
-        
+
         rc = impool.info
 
         return rc if OpenNebula::is_error?(rc)
