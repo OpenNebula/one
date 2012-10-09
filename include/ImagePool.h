@@ -41,7 +41,9 @@ public:
     ImagePool(SqlDB *       db,
               const string& _default_type,
               const string& _default_dev_prefix,
-              vector<const Attribute *>& restricted_attrs);
+              vector<const Attribute *>& restricted_attrs,
+              vector<const Attribute *> hook_mads,
+              const string&             remotes_location);
 
     ~ImagePool(){};
 
@@ -57,7 +59,7 @@ public:
      *    @param ds_type disk type for the image
      *    @param ds_data the datastore data
      *    @param source_img_id If the new Image is a clone, this must be the
-     *      source Image ID. Otherwise, it must be set to -1     
+     *      source Image ID. Otherwise, it must be set to -1
      *    @param oid the id assigned to the Image
      *    @param error_str Returns the error reason, if any
      *    @return the oid assigned to the object,
@@ -74,7 +76,7 @@ public:
         const string&   ds_name,
         Image::DiskType ds_type,
         const string&   ds_data,
-        int             source_img_id,        
+        int             source_img_id,
         int *           oid,
         string&         error_str);
 
@@ -104,7 +106,7 @@ public:
         return static_cast<Image *>(PoolSQL::get(name,uid,lock));
     };
 
-    /** 
+    /**
      *  Update a particular Image
      *    @param image pointer to Image
      *    @return 0 on success

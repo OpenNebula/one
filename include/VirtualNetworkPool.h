@@ -37,7 +37,6 @@ public:
                        const string&             str_mac_prefix,
                        int                       default_size,
                        vector<const Attribute *> hook_mads,
-                       const string&             hook_location,
                        const string&             remotes_location);
 
     ~VirtualNetworkPool(){};

@@ -223,7 +223,7 @@ PoolObjectSQL * PoolSQL::get(
         }
 
         if ( uses_name_pool )
-        {        
+        {
             map<string,PoolObjectSQL *>::iterator name_index;
             string okey;
 
@@ -271,7 +271,7 @@ PoolObjectSQL * PoolSQL::get(
 PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
 {
     map<string,PoolObjectSQL *>::iterator  index;
-    
+
     PoolObjectSQL *  objectsql;
     int              rc;
 
@@ -381,9 +381,9 @@ void PoolSQL::update_cache_index(string& old_name,
     if ( index != name_pool.end() )
     {
         name_pool.erase(old_key);
-        
+
         if ( name_pool.find(new_key) == name_pool.end())
-        { 
+        {
             name_pool.insert(make_pair(new_key, index->second));
         }
     }
@@ -568,8 +568,8 @@ int PoolSQL::search(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolSQL::acl_filter(int                       uid, 
-                         int                       gid, 
+void PoolSQL::acl_filter(int                       uid,
+                         int                       gid,
                          PoolObjectSQL::ObjectType auth_object,
                          bool&                     all,
                          string&                   filter)
@@ -591,12 +591,12 @@ void PoolSQL::acl_filter(int                       uid,
     vector<int> oids;
     vector<int> gids;
 
-    aclm->reverse_search(uid, 
-                         gid, 
+    aclm->reverse_search(uid,
+                         gid,
                          auth_object,
-                         AuthRequest::USE, 
-                         all, 
-                         oids, 
+                         AuthRequest::USE,
+                         all,
+                         oids,
                          gids);
 
     for ( it = oids.begin(); it < oids.end(); it++ )
@@ -614,8 +614,8 @@ void PoolSQL::acl_filter(int                       uid,
 
 /* -------------------------------------------------------------------------- */
 
-void PoolSQL::usr_filter(int           uid, 
-                         int           gid, 
+void PoolSQL::usr_filter(int           uid,
+                         int           gid,
                          int           filter_flag,
                          bool          all,
                          const string& acl_str,
@@ -629,14 +629,14 @@ void PoolSQL::usr_filter(int           uid,
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::MINE_GROUP )
     {
-        uid_filter << " uid = " << uid 
-                   << " OR ( gid = " << gid << " AND group_u = 1 )";        
+        uid_filter << " uid = " << uid
+                   << " OR ( gid = " << gid << " AND group_u = 1 )";
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::ALL )
     {
         if (!all)
         {
-            uid_filter << " uid = " << uid 
+            uid_filter << " uid = " << uid
                        << " OR ( gid = " << gid << " AND group_u = 1 )"
                        << " OR other_u = 1"
                        << acl_str;
@@ -682,3 +682,65 @@ void PoolSQL::oid_filter(int     start_id,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void PoolSQL::register_hooks(vector<const Attribute *> hook_mads,
+                             const string&             remotes_location)
+{
+    const VectorAttribute * vattr;
+
+    string name;
+    string on;
+    string cmd;
+    string arg;
+
+    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
+    {
+        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
+
+        name = vattr->vector_value("NAME");
+        on   = vattr->vector_value("ON");
+        cmd  = vattr->vector_value("COMMAND");
+        arg  = vattr->vector_value("ARGUMENTS");
+
+        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
+
+        if ( on.empty() || cmd.empty() )
+        {
+            NebulaLog::log("VM", Log::WARNING, "Empty ON or COMMAND attribute"
+                " in Hook, not registered!");
+
+            continue;
+        }
+
+        if ( name.empty() )
+        {
+            name = cmd;
+        }
+
+        if (cmd[0] != '/')
+        {
+            ostringstream cmd_os;
+
+            cmd_os << remotes_location << "/hooks/" << cmd;
+
+            cmd = cmd_os.str();
+        }
+
+        if ( on == "CREATE" )
+        {
+            AllocateHook * hook;
+
+            hook = new AllocateHook(name, cmd, arg, false);
+
+            add_hook(hook);
+        }
+        else if ( on == "REMOVE" )
+        {
+            RemoveHook * hook;
+
+            hook = new RemoveHook(name, cmd, arg, false);
+
+            add_hook(hook);
+        }
+    }
+}

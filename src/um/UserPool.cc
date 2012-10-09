@@ -53,7 +53,9 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 
 UserPool::UserPool(SqlDB * db,
-                   time_t  __session_expiration_time):
+                   time_t  __session_expiration_time,
+                   vector<const Attribute *> hook_mads,
+                   const string&             remotes_location):
                        PoolSQL(db, User::table, true)
 {
     int           one_uid    = -1;
@@ -115,7 +117,7 @@ UserPool::UserPool(SqlDB * db,
     if (!file.good())
     {
         goto error_file;
-    } 
+    }
 
     getline(file,one_token);
 
@@ -193,6 +195,8 @@ UserPool::UserPool(SqlDB * db,
     {
         goto error_serveradmin;
     }
+
+    register_hooks(hook_mads, remotes_location);
 
     return;
 
@@ -293,7 +297,7 @@ int UserPool::allocate (
     *oid = PoolSQL::allocate(user, error_str);
 
     if ( *oid < 0 )
-    { 
+    {
         return *oid;
     }
 
@@ -572,7 +576,7 @@ auth_failure:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-    
+
 bool UserPool::authenticate_external(const string& username,
                                      const string& token,
                                      int&    user_id,
@@ -605,7 +609,7 @@ bool UserPool::authenticate_external(const string& username,
     ar.wait();
 
     if (ar.result != true) //User was not authenticated
-    {   
+    {
         goto auth_failure_driver;
     }
 
@@ -651,9 +655,9 @@ bool UserPool::authenticate_external(const string& username,
     gname = GroupPool::USERS_NAME;
 
     return true;
-        
+
 auth_failure_user:
-    oss << "Can't create user: " << error_str << ". Driver response: " 
+    oss << "Can't create user: " << error_str << ". Driver response: "
         << ar.message;
     NebulaLog::log("AuM",Log::ERROR,oss);
 
@@ -682,9 +686,9 @@ auth_failure:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
- 
-bool UserPool::authenticate(const string& session, 
-                            int&          user_id, 
+
+bool UserPool::authenticate(const string& session,
+                            int&          user_id,
                             int&          group_id,
                             string&       uname,
                             string&       gname)

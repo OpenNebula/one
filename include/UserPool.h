@@ -40,7 +40,9 @@ class UserPool : public PoolSQL
 public:
 
     UserPool(SqlDB * db,
-             time_t  __session_expiration_time);
+             time_t  __session_expiration_time,
+             vector<const Attribute *> hook_mads,
+             const string&             remotes_location);
 
     ~UserPool(){};
 
@@ -125,8 +127,8 @@ public:
      *
      *   @return false if authn failed, true otherwise
      */
-    bool authenticate(const string& session, 
-                      int&          uid, 
+    bool authenticate(const string& session,
+                      int&          uid,
                       int&          gid,
                       string&       uname,
                       string&       gname);
@@ -152,12 +154,12 @@ public:
     };
 
     /**
-     *  Name for the OpenNebula core authentication process 
+     *  Name for the OpenNebula core authentication process
      */
     static const char * CORE_AUTH;
 
     /**
-     *  Name for the OpenNebula server (delegated) authentication process 
+     *  Name for the OpenNebula server (delegated) authentication process
      */
     static const char * SERVER_AUTH;
 
@@ -217,7 +219,7 @@ private:
                              string&       uname,
                              string&       gname);
 
-    
+
     /**
      *  Function to authenticate external (not known) users
      */

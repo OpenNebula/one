@@ -36,7 +36,6 @@ VirtualNetworkPool::VirtualNetworkPool(
     const string&             prefix,
     int                       __default_size,
     vector<const Attribute *> hook_mads,
-    const string&             hook_location,
     const string&             remotes_location):
     PoolSQL(db, VirtualNetwork::table, true)
 {
@@ -46,15 +45,6 @@ VirtualNetworkPool::VirtualNetworkPool(
     unsigned int  tmp;
 
     string mac = prefix;
-
-    const VectorAttribute * vattr;
-
-    string name;
-    string on;
-    string cmd;
-    string arg;
-    string rmt;
-    bool   remote;
 
     _mac_prefix   = 0;
     _default_size = __default_size;
@@ -80,66 +70,7 @@ VirtualNetworkPool::VirtualNetworkPool(
     _mac_prefix <<= 8;
     _mac_prefix += tmp;
 
-    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
-    {
-        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
-
-        name = vattr->vector_value("NAME");
-        on   = vattr->vector_value("ON");
-        cmd  = vattr->vector_value("COMMAND");
-        arg  = vattr->vector_value("ARGUMENTS");
-
-        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
-
-        if ( on.empty() || cmd.empty() )
-        {
-            ostringstream oss;
-
-            oss << "Empty ON or COMMAND attribute in VNET_HOOK. Hook "
-                << "not registered!";
-            NebulaLog::log("VM",Log::WARNING,oss);
-
-            continue;
-        }
-
-        if ( name.empty() )
-        {
-            name = cmd;
-        }
-
-        if (cmd[0] != '/')
-        {
-            ostringstream cmd_os;
-
-            if ( remote )
-            {
-                cmd_os << hook_location << "/" << cmd;
-            }
-            else
-            {
-                cmd_os << remotes_location << "/hooks/" << cmd;
-            }
-
-            cmd = cmd_os.str();
-        }
-
-        if ( on == "CREATE" )
-        {
-            AllocateHook * hook;
-
-            hook = new AllocateHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-        else if ( on == "REMOVE" )
-        {
-            RemoveHook * hook;
-
-            hook = new RemoveHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-    }
+   register_hooks(hook_mads, remotes_location);
 }
 
 /* -------------------------------------------------------------------------- */
