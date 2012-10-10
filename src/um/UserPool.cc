@@ -80,6 +80,8 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
+    register_hooks(hook_mads, remotes_location);
+
     User * oneadmin_user = get(0, true);
 
     if (oneadmin_user != 0)
@@ -195,8 +197,6 @@ UserPool::UserPool(SqlDB * db,
     {
         goto error_serveradmin;
     }
-
-    register_hooks(hook_mads, remotes_location);
 
     return;
 

@@ -169,6 +169,10 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
         error_msg = "SQL DB error";
         rc = -1;
     }
+    else
+    {
+        do_hooks(objsql, Hook::REMOVE);
+    }
 
     return rc;
 }
