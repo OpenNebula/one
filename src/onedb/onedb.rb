@@ -172,8 +172,11 @@ class OneDB
         file = "#{RUBY_LIB_LOCATION}/onedb/#{version}_fsck.rb"
 
         if File.exists? file
+
+            one_not_running()
+
             begin
-                # At least one upgrade will be executed, make DB backup
+                # FSCK will be executed, make DB backup
                 backup(ops[:backup], ops)
 
                 puts "  > Running fsck" if ops[:verbose]
