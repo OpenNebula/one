@@ -34,10 +34,6 @@ module OneDBFsck
         ########################################################################
 
         ########################################################################
-        # pool_control
-        ########################################################################
-
-        ########################################################################
         # Clusters
         #
         # CLUSTERS/HOSTS/ID
@@ -136,6 +132,57 @@ module OneDBFsck
 
         @errors = 0
         puts
+
+
+
+        ########################################################################
+        # pool_control
+        ########################################################################
+
+        tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
+            "network_pool", "template_pool", "vm_pool", "cluster_pool",
+            "datastore_pool", "document_pool"]
+
+        tables.each do |table|
+            max_oid = -1
+
+            @db.fetch("SELECT MAX(oid) FROM #{table}") do |row|
+                max_oid = row[:"MAX(oid)"].to_i
+            end
+
+            # max(oid) will return 0 if there is none,
+            # or if the max is actually 0. Check this:
+            if ( max_oid == 0 )
+                max_oid = -1
+
+                @db.fetch("SELECT oid FROM #{table} WHERE oid=0") do |row|
+                    max_oid = 0
+                end
+            end
+
+            control_oid = -1
+
+            @db.fetch("SELECT last_oid FROM pool_control WHERE tablename='#{table}'") do |row|
+                control_oid = row[:last_oid].to_i
+            end
+
+            if ( max_oid > control_oid )
+                log_error("pool_control for table #{table} has last_oid #{control_oid}, but it is #{max_oid}")
+
+                if control_oid != -1
+                    @db.run("UPDATE pool_control SET last_oid=#{max_oid} WHERE tablename='#{table}'")
+                else
+                    @db[:pool_control].insert(
+                        :tablename  => table,
+                        :last_oid   => max_oid)
+                end
+            end
+        end
+
+
+        ########################################################################
+        # VM Counters for host, image and vnet usage
+        ########################################################################
 
         counters = {}
         counters[:host]  = {}
