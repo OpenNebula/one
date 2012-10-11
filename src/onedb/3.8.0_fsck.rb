@@ -54,7 +54,6 @@ module OneDBFsck
         # DATASTORE/GID
         # DATASTORE/GNAME
         # DATASTORE/SYSTEM ??
-        # DATASTORE/IMAGES/ID
         ########################################################################
 
         ########################################################################
@@ -96,8 +95,6 @@ module OneDBFsck
         # IMAGE/GNAME
         # IMAGE/CLONING_OPS
         # IMAGE/CLONING_ID
-        # IMAGE/DATASTORE_ID
-        # IMAGE/DATASTORE
         ########################################################################
 
         ########################################################################
@@ -358,6 +355,93 @@ module OneDBFsck
         # Rename table
         @db.run("DROP TABLE cluster_pool")
         @db.run("ALTER TABLE cluster_pool_new RENAME TO cluster_pool")
+
+
+        ########################################################################
+        # Datastore
+        #
+        # DATASTORE/IMAGES/ID
+        ########################################################################
+        # Image
+        #
+        # IMAGE/DATASTORE_ID
+        # IMAGE/DATASTORE
+        ########################################################################
+
+        datastore = {}
+
+        @db.fetch("SELECT oid FROM datastore_pool") do |row|
+            datastore[row[:oid]] = []
+        end
+
+        images_fix = {}
+
+
+        @db.fetch("SELECT oid,body FROM image_pool") do |row|
+            doc = Document.new(row[:body])
+
+            ds_id = doc.root.get_text('DATASTORE_ID').to_s.to_i
+
+            if ds_id != -1
+                if datastore[ds_id].nil?
+                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. It will be moved to the Datastore default (1), but it is probably unusable anymore")
+
+                    doc.root.each_element('DATASTORE_ID') do |e|
+                        e.text = "1"
+                    end
+
+                    doc.root.each_element('DATASTORE') do |e|
+                        e.text = "default"
+                    end
+
+                    images_fix[row[:oid]] = doc.to_s
+
+                    datastore[1] << row[:oid]
+                else
+                    datastore[ds_id] << row[:oid]
+                end
+            end
+        end
+
+        images_fix.each do |id, body|
+            @db[:image_pool].where(:oid => id).update(:body => body)
+        end
+
+
+        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * from datastore_pool") do |row|
+            ds_id = row[:oid]
+            doc = Document.new(row[:body])
+
+            images_elem = doc.root.elements.delete("IMAGES")
+
+            images_new_elem = doc.root.add_element("IMAGES")
+
+            datastore[ds_id].each do |id|
+                id_elem = images_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("Image #{id} is missing fom Datastore #{ds_id} image id list")
+                end
+
+                images_new_elem.add_element("ID").text = id.to_s
+            end
+
+            images_elem.each_element("ID") do |id_elem|
+                log_error("Image #{id_elem.text} is in Cluster #{ds_id} image id list, but it should not")
+            end
+
+
+            row[:body] = doc.to_s
+
+            # commit
+            @db[:datastore_pool_new].insert(row)
+        end
+
+        # Rename table
+        @db.run("DROP TABLE datastore_pool")
+        @db.run("ALTER TABLE datastore_pool_new RENAME TO datastore_pool")
 
 
         ########################################################################
