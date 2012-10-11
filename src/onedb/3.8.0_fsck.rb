@@ -34,14 +34,6 @@ module OneDBFsck
         ########################################################################
 
         ########################################################################
-        # Clusters
-        #
-        # CLUSTERS/HOSTS/ID
-        # CLUSTERS/DATASTORES/ID
-        # CLUSTERS/VNETS/ID
-        ########################################################################
-
-        ########################################################################
         # Groups
         #
         # GROUP/USERS/ID
@@ -62,8 +54,6 @@ module OneDBFsck
         # DATASTORE/GID
         # DATASTORE/GNAME
         # DATASTORE/SYSTEM ??
-        # DATASTORE/CLUSTER_ID
-        # DATASTORE/CLUSTER
         # DATASTORE/IMAGES/ID
         ########################################################################
 
@@ -117,22 +107,11 @@ module OneDBFsck
         # VNET/UNAME
         # VNET/GID
         # VNET/GNAME
-        # 
-        # VNET/CLUSTER_ID
-        # VNET/CLUSTER
-        ########################################################################
-
-        ########################################################################
-        # Hosts
-        #
-        # HOST/CLUSTER_ID
-        # HOST/CLUSTER
         ########################################################################
 
 
         @errors = 0
         puts
-
 
 
         ########################################################################
@@ -178,6 +157,207 @@ module OneDBFsck
                 end
             end
         end
+
+
+        ########################################################################
+        # Clusters
+        #
+        # CLUSTERS/HOSTS/ID
+        # CLUSTERS/DATASTORES/ID
+        # CLUSTERS/VNETS/ID
+        ########################################################################
+        # Datastore
+        #
+        # DATASTORE/CLUSTER_ID
+        # DATASTORE/CLUSTER
+        ########################################################################
+        # VNet
+        #
+        # VNET/CLUSTER_ID
+        # VNET/CLUSTER
+        ########################################################################
+        # Hosts
+        #
+        # HOST/CLUSTER_ID
+        # HOST/CLUSTER
+        ########################################################################
+
+        cluster = {}
+
+        @db.fetch("SELECT oid FROM cluster_pool") do |row|
+            cluster[row[:oid]] = {}
+
+            cluster[row[:oid]][:hosts]      = []
+            cluster[row[:oid]][:datastores] = []
+            cluster[row[:oid]][:vnets]      = []
+        end
+
+        hosts_fix       = {}
+        datastores_fix  = {}
+        vnets_fix       = {}
+
+        @db.fetch("SELECT oid,body FROM host_pool") do |row|
+            doc = Document.new(row[:body])
+
+            cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+
+            if cluster_id != -1
+                if cluster[cluster_id].nil?
+                    log_error("Host #{row[:oid]} has cluster #{cluster_id}, but it does not exist")
+
+                    doc.root.each_element('CLUSTER_ID') do |e|
+                        e.text = "-1"
+                    end
+
+                    doc.root.each_element('CLUSTER') do |e|
+                        e.text = ""
+                    end
+
+                    hosts_fix[row[:oid]] = doc.to_s
+                else
+                    cluster[cluster_id][:hosts] << row[:oid]
+                end
+            end
+        end
+
+        hosts_fix.each do |id, body|
+            @db[:host_pool].where(:oid => id).update(:body => body)
+        end
+
+
+        @db.fetch("SELECT oid,body FROM datastore_pool") do |row|
+            doc = Document.new(row[:body])
+
+            cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+
+            if cluster_id != -1
+                if cluster[cluster_id].nil?
+                    log_error("Datastore #{row[:oid]} has cluster #{cluster_id}, but it does not exist")
+
+                    doc.root.each_element('CLUSTER_ID') do |e|
+                        e.text = "-1"
+                    end
+
+                    doc.root.each_element('CLUSTER') do |e|
+                        e.text = ""
+                    end
+
+                    datastores_fix[row[:oid]] = doc.to_s
+                else
+                    cluster[cluster_id][:datastores] << row[:oid]
+                end
+            end
+        end
+
+        datastores_fix.each do |id, body|
+            @db[:datastore_pool].where(:oid => id).update(:body => body)
+        end
+
+
+        @db.fetch("SELECT oid,body FROM network_pool") do |row|
+            doc = Document.new(row[:body])
+
+            cluster_id = doc.root.get_text('CLUSTER_ID').to_s.to_i
+
+            if cluster_id != -1
+                if cluster[cluster_id].nil?
+                    log_error("VNet #{row[:oid]} has cluster #{cluster_id}, but it does not exist")
+
+                    doc.root.each_element('CLUSTER_ID') do |e|
+                        e.text = "-1"
+                    end
+
+                    doc.root.each_element('CLUSTER') do |e|
+                        e.text = ""
+                    end
+
+                    vnets_fix[row[:oid]] = doc.to_s
+                else
+                    cluster[cluster_id][:vnets] << row[:oid]
+                end
+            end
+        end
+
+        vnets_fix.each do |id, body|
+            @db[:network_pool].where(:oid => id).update(:body => body)
+        end
+
+
+        @db.run "CREATE TABLE cluster_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * from cluster_pool") do |row|
+            cluster_id = row[:oid]
+            doc = Document.new(row[:body])
+
+            # Hosts
+            hosts_elem = doc.root.elements.delete("HOSTS")
+
+            hosts_new_elem = doc.root.add_element("HOSTS")
+
+            cluster[cluster_id][:hosts].each do |id|
+                id_elem = hosts_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("Host #{id} is missing fom Cluster #{cluster_id} host id list")
+                end
+
+                hosts_new_elem.add_element("ID").text = id.to_s
+            end
+
+            hosts_elem.each_element("ID") do |id_elem|
+                log_error("Host #{id_elem.text} is in Cluster #{cluster_id} host id list, but it should not")
+            end
+
+
+            # Datastores
+            ds_elem = doc.root.elements.delete("DATASTORES")
+
+            ds_new_elem = doc.root.add_element("DATASTORES")
+
+            cluster[cluster_id][:datastores].each do |id|
+                id_elem = ds_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("Datastore #{id} is missing fom Cluster #{cluster_id} datastore id list")
+                end
+
+                ds_new_elem.add_element("ID").text = id.to_s
+            end
+
+            ds_elem.each_element("ID") do |id_elem|
+                log_error("Datastore #{id_elem.text} is in Cluster #{cluster_id} datastore id list, but it should not")
+            end
+
+
+            # VNets
+            vnets_elem = doc.root.elements.delete("VNETS")
+
+            vnets_new_elem = doc.root.add_element("VNETS")
+
+            cluster[cluster_id][:vnets].each do |id|
+                id_elem = vnets_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("VNet #{id} is missing fom Cluster #{cluster_id} vnet id list")
+                end
+
+                vnets_new_elem.add_element("ID").text = id.to_s
+            end
+
+            vnets_elem.each_element("ID") do |id_elem|
+                log_error("VNet #{id_elem.text} is in Cluster #{cluster_id} vnet id list, but it should not")
+            end
+
+
+            row[:body] = doc.to_s
+
+            # commit
+            @db[:cluster_pool_new].insert(row)
+        end
+
+        # Rename table
+        @db.run("DROP TABLE cluster_pool")
+        @db.run("ALTER TABLE cluster_pool_new RENAME TO cluster_pool")
 
 
         ########################################################################
