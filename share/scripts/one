@@ -126,7 +126,7 @@ start()
 
     # Backup oned.log
     if [ "$BACKUP" = "true" ];then
-        [ -f "$ONE_LOG" ] && cp $ONE_LOG{,.$(date '+%Y%m%d%H%M')}
+        [ -f "$ONE_LOG" ] && cp $ONE_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
 
     # Start the one daemon
