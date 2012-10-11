@@ -24,8 +24,6 @@ domain=$1
 mkdir -p `dirname $domain`
 cat > $domain
 
-virsh --connect $LIBVIRT_URI undefine $domain
-
 data=`virsh --connect $LIBVIRT_URI create $domain`
 
 if [ "x$?" = "x0" ]; then
