@@ -34,8 +34,10 @@ string ImagePool::_default_dev_prefix;
 ImagePool::ImagePool(SqlDB *       db,
                      const string& __default_type,
                      const string& __default_dev_prefix,
-                     vector<const Attribute *>& restricted_attrs):
-                        PoolSQL(db, Image::table, true)
+                     vector<const Attribute *>& restricted_attrs,
+                     vector<const Attribute *> hook_mads,
+                     const string&             remotes_location)
+    :PoolSQL(db, Image::table, true)
 {
     ostringstream sql;
 
@@ -52,8 +54,9 @@ ImagePool::ImagePool(SqlDB *       db,
         _default_type = "OS";
     }
 
-    // Set restricted attributes
     ImageTemplate::set_restricted_attributes(restricted_attrs);
+
+    register_hooks(hook_mads, remotes_location);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -104,7 +107,7 @@ int ImagePool::allocate (
 
     img->ds_name = ds_name;
     img->ds_id   = ds_id;
-    
+
     img->disk_type = disk_type;
 
     if ( cloning_id != -1 )
@@ -116,7 +119,7 @@ int ImagePool::allocate (
     // Insert the Object in the pool & Register the image in the repository
     // ---------------------------------------------------------------------
     *oid = PoolSQL::allocate(img, error_str);
-    
+
     if ( *oid != -1 )
     {
         Nebula&        nd     = Nebula::instance();
@@ -190,9 +193,9 @@ static int get_disk_uid(VectorAttribute *  disk, int _uid)
         User *     user;
         Nebula&    nd    = Nebula::instance();
         UserPool * upool = nd.get_upool();
-        
+
         user = upool->get(uname,true);
-        
+
         if ( user == 0 )
         {
             return -1;
@@ -204,12 +207,12 @@ static int get_disk_uid(VectorAttribute *  disk, int _uid)
     }
     else
     {
-        uid = _uid;        
+        uid = _uid;
     }
 
     return uid;
 }
-        
+
 /* -------------------------------------------------------------------------- */
 
 static int get_disk_id(const string& id_s)
@@ -252,7 +255,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
         int uiid = get_disk_uid(disk,uid);
-       
+
         if ( uiid == -1)
         {
             ostringstream oss;
@@ -261,7 +264,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
                 << source << " . Set IMAGE_UNAME or IMAGE_UID of owner in DISK.";
             error_str =  oss.str();
 
-            return -1; 
+            return -1;
         }
 
         img = imagem->acquire_image(source, uiid, error_str);
@@ -280,7 +283,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
         if ( iid == -1)
         {
             error_str = "Wrong ID set in IMAGE_ID";
-            return -1; 
+            return -1;
         }
 
         img = imagem->acquire_image(iid, error_str);
@@ -296,7 +299,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
 
         transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
-        if ( type != "SWAP" && type != "FS" ) 
+        if ( type != "SWAP" && type != "FS" )
         {
             error_str = "Unknown disk type " + type;
             return -1;
@@ -362,16 +365,16 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 {
     string          source;
     Image *         img = 0;
-    
+
     PoolObjectAuth  perm;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
         int uiid = get_disk_uid(disk,uid);
-       
+
         if ( uiid == -1)
         {
-            return; 
+            return;
         }
 
         img = get(source , uiid, true);
@@ -387,7 +390,7 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 
         if ( iid == -1)
         {
-            return; 
+            return;
         }
 
         img = get(iid, true);

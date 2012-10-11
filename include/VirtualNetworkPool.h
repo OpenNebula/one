@@ -33,9 +33,11 @@ class VirtualNetworkPool : public PoolSQL
 {
 public:
 
-    VirtualNetworkPool(SqlDB *          db,
-                       const string&    str_mac_prefix,
-                       int              default_size);
+    VirtualNetworkPool(SqlDB *                   db,
+                       const string&             str_mac_prefix,
+                       int                       default_size,
+                       vector<const Attribute *> hook_mads,
+                       const string&             remotes_location);
 
     ~VirtualNetworkPool(){};
 
@@ -97,8 +99,8 @@ public:
      *    @param nic the nic attribute to be generated
      *    @param vid of the VM requesting the lease
      *    @param error_str string describing the error
-     *    @return 0 on success, 
-     *            -1 error, 
+     *    @return 0 on success,
+     *            -1 error,
      *            -2 not using the pool
      */
     int nic_attribute(VectorAttribute * nic, int uid, int vid, string& error_str);
@@ -171,10 +173,10 @@ private:
     };
 
     /**
-     *  Function to get a VirtualNetwork by its name, as provided by a VM 
+     *  Function to get a VirtualNetwork by its name, as provided by a VM
      *  template
      */
-    VirtualNetwork * get_nic_by_name(VectorAttribute * nic, 
+    VirtualNetwork * get_nic_by_name(VectorAttribute * nic,
                                      const string&     name,
                                      int               _uidi,
                                      string&           error);

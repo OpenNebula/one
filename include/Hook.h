@@ -25,6 +25,8 @@ using namespace std;
 //Forward definition of Hookable
 class Hookable;
 
+class PoolObjectSQL;
+
 /**
  *  This class is an abstract representation of a hook, provides a method to
  *  check if the hook has to be executed, and a method to invoke the hook. The
@@ -74,6 +76,15 @@ public:
      */
     virtual void do_hook(void *arg) = 0;
 
+    /**
+     *  Parses the arguments of the hook using a generic $ID identifier, and
+     *  the target object.  $TEMPLATE will be the base64 encoding of the
+     *  template and $ID the oid of the object.
+     *    @param obj pointer to the object executing the hook for
+     *    @param the resulting parser arguments
+     */
+    void parse_hook_arguments(PoolObjectSQL * obj,
+                              string&         parsed);
 protected:
     /**
      *  Name of the Hook
@@ -99,6 +110,75 @@ protected:
      *  True if the command is to be executed remotely
      */
     bool     remote;
+};
+
+/**
+ *  This class is general ObjectSQL Hook for allocation and removal.
+ *  The object is looked when the hook is executed
+ */
+class AllocateRemoveHook : public Hook
+{
+protected:
+    AllocateRemoveHook(const string& name,
+                       const string& cmd,
+                       const string& args,
+                       int           hook_type,
+                       bool          remote):
+        Hook(name, cmd, args, hook_type, remote){};
+
+    virtual ~AllocateRemoveHook(){};
+
+    // -------------------------------------------------------------------------
+    // Hook methods
+    // -------------------------------------------------------------------------
+
+    void do_hook(void *arg);
+
+    virtual string& remote_host(PoolObjectSQL *obj, string& hostname)
+    {
+        hostname.clear();
+
+        return hostname;
+    };
+};
+
+/**
+ *  This class is general ObjectSQL Allocate Hook that executes a command
+ *  when the ObjectSQL is inserted in the database. The object is looked when
+ *  the hook is executed
+ */
+class AllocateHook : public AllocateRemoveHook
+{
+public:
+    // -------------------------------------------------------------------------
+    // Init a hook of ALLOCATE type
+    // -------------------------------------------------------------------------
+    AllocateHook(const string& name,
+                 const string& cmd,
+                 const string& args,
+                 bool          remote):
+        AllocateRemoveHook(name, cmd, args, Hook::ALLOCATE, remote){};
+
+    virtual ~AllocateHook(){};
+};
+
+/**
+ *  This class is general ObjectSQL Remove Hook that executes a command
+ *  when the ObjectSQL is inserted in the database.
+ */
+class RemoveHook : public AllocateRemoveHook
+{
+public:
+    // -------------------------------------------------------------------------
+    // Init a hook of ALLOCATE type
+    // -------------------------------------------------------------------------
+    RemoveHook(const string& name,
+               const string& cmd,
+               const string& args,
+               bool          remote):
+        AllocateRemoveHook(name, cmd, args, Hook::REMOVE, remote){};
+
+    virtual ~RemoveHook(){};
 };
 
 /**

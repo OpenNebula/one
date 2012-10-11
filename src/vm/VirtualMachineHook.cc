@@ -21,59 +21,6 @@
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-static void parse_vm_arguments(VirtualMachine *vm, string& parsed)
-{
-    size_t  found;
-
-    found = parsed.find("$VMID");
-
-    if ( found !=string::npos )
-    {
-        ostringstream oss;
-        oss << vm->get_oid();
-
-        parsed.replace(found,5,oss.str());
-    }
-
-    found = parsed.find("$TEMPLATE");
-
-    if ( found != string::npos )
-    {
-        string templ;
-        parsed.replace(found,9,vm->to_xml64(templ));
-    }
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-void VirtualMachineAllocateHook::do_hook(void *arg)
-{
-    VirtualMachine * vm;
-    string           parsed_args = args;
-
-    vm = static_cast<VirtualMachine *>(arg);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    parse_vm_arguments(vm, parsed_args);
-
-    Nebula& ne                    = Nebula::instance();
-    HookManager * hm              = ne.get_hm();
-    const HookManagerDriver * hmd = hm->get();
-
-    if ( hmd != 0 )
-    {
-        hmd->execute(vm->get_oid(),name,cmd,parsed_args);
-    }
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
 map<int,VirtualMachineStateMapHook::VmStates>
                                      VirtualMachineStateMapHook::vm_states;
 
@@ -167,7 +114,7 @@ void VirtualMachineStateHook::do_hook(void *arg)
     {
         string  parsed_args = args;
 
-        parse_vm_arguments(vm,parsed_args);
+        parse_hook_arguments(vm, parsed_args);
 
         Nebula& ne        = Nebula::instance();
         HookManager * hm  = ne.get_hm();

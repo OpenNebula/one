@@ -276,6 +276,11 @@ void Nebula::start()
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
+        vector<const Attribute *> vnet_hooks;
+        vector<const Attribute *> user_hooks;
+        vector<const Attribute *> group_hooks;
+        vector<const Attribute *> image_hooks;
+
         vector<const Attribute *> vm_restricted_attrs;
         vector<const Attribute *> img_restricted_attrs;
 
@@ -283,7 +288,11 @@ void Nebula::start()
         docpool = new DocumentPool(db);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
-        nebula_configuration->get("HOST_HOOK", host_hooks);
+        nebula_configuration->get("HOST_HOOK",  host_hooks);
+        nebula_configuration->get("VNET_HOOK",  vnet_hooks);
+        nebula_configuration->get("USER_HOOK",  user_hooks);
+        nebula_configuration->get("GROUP_HOOK", group_hooks);
+        nebula_configuration->get("IMAGE_HOOK", image_hooks);
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
@@ -291,26 +300,31 @@ void Nebula::start()
         nebula_configuration->get("VM_MONITORING_EXPIRATION_TIME",vm_expiration);
         nebula_configuration->get("HOST_MONITORING_EXPIRATION_TIME",host_expiration);
 
-        vmpool = new VirtualMachinePool(db, 
-                                        vm_hooks, 
-                                        hook_location, 
+        vmpool = new VirtualMachinePool(db,
+                                        vm_hooks,
+                                        hook_location,
                                         remotes_location,
                                         vm_restricted_attrs,
                                         vm_expiration);
-        hpool  = new HostPool(  db,
-                                host_hooks,
-                                hook_location,
-                                remotes_location,
-                                host_expiration);
+        hpool  = new HostPool(db,
+                              host_hooks,
+                              hook_location,
+                              remotes_location,
+                              host_expiration);
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
         nebula_configuration->get("NETWORK_SIZE", size);
 
-        vnpool = new VirtualNetworkPool(db,mac_prefix,size);
-        gpool  = new GroupPool(db);
+        vnpool = new VirtualNetworkPool(db,
+                                        mac_prefix,
+                                        size,
+                                        vnet_hooks,
+                                        remotes_location);
+
+        gpool  = new GroupPool(db, group_hooks, remotes_location);
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
-        upool  = new UserPool(db, expiration_time);
+        upool = new UserPool(db, expiration_time, user_hooks, remotes_location);
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
@@ -319,7 +333,9 @@ void Nebula::start()
         ipool  = new ImagePool(db,
                                default_image_type,
                                default_device_prefix,
-                               img_restricted_attrs);
+                               img_restricted_attrs,
+                               image_hooks,
+                               remotes_location);
 
         tpool  = new VMTemplatePool(db);
 

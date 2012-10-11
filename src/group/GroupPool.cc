@@ -37,7 +37,10 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table, true)
+GroupPool::GroupPool(SqlDB * db,
+                     vector<const Attribute *> hook_mads,
+                     const string&             remotes_location)
+    :PoolSQL(db, Group::table, true)
 {
     ostringstream oss;
     string        error_str;
@@ -68,7 +71,9 @@ GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table, true)
 
         set_update_lastOID(99);
     }
-    
+
+    register_hooks(hook_mads, remotes_location);
+
     return;
 
 error_groups:
@@ -163,6 +168,10 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
     {
         error_msg = "SQL DB error";
         rc = -1;
+    }
+    else
+    {
+        do_hooks(objsql, Hook::REMOVE);
     }
 
     return rc;
