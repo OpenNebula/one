@@ -934,21 +934,21 @@ module OneDBFsck
 
         vm_elem.each_element("CPU_USED") { |e|
             if e.text.to_f != cpu_used
-                log_error("#{resource} #{oid} CPU_USED has #{e.text} \tis\t#{cpu_used}")
+                log_error("#{resource} #{oid} quotas: CPU_USED has #{e.text} \tis\t#{cpu_used}")
                 e.text = cpu_used.to_s
             end
         }
 
         vm_elem.each_element("MEMORY_USED") { |e|
             if e.text.to_i != mem_used
-                log_error("#{resource} #{oid} MEMORY_USED has #{e.text} \tis\t#{mem_used}")
+                log_error("#{resource} #{oid} quotas: MEMORY_USED has #{e.text} \tis\t#{mem_used}")
                 e.text = mem_used.to_s
             end
         }
 
         vm_elem.each_element("VMS_USED") { |e|
             if e.text.to_i != vms_used
-                log_error("#{resource} #{oid} VMS_USED has #{e.text} \tis\t#{vms_used}")
+                log_error("#{resource} #{oid} quotas: VMS_USED has #{e.text} \tis\t#{vms_used}")
                 e.text = vms_used.to_s
             end
         }
@@ -972,14 +972,14 @@ module OneDBFsck
 
             net_elem.each_element("LEASES_USED") { |e|
                 if e.text.to_i != leases_used
-                    log_error("#{resource} #{oid} VNet #{vnet_id}\tLEASES_USED has #{e.text.to_i} \tis\t#{leases_used}")
+                    log_error("#{resource} #{oid} quotas: VNet #{vnet_id}\tLEASES_USED has #{e.text.to_i} \tis\t#{leases_used}")
                     e.text = leases_used.to_s
                 end
             }
         }
 
         vnet_usage.each { |vnet_id, leases_used|
-            log_error("#{resource} #{oid} VNet #{vnet_id}\tLEASES_USED has 0 \tis\t#{leases_used}")
+            log_error("#{resource} #{oid} quotas: VNet #{vnet_id}\tLEASES_USED has 0 \tis\t#{leases_used}")
 
             new_elem = net_quota.add_element("NETWORK")
 
@@ -1007,14 +1007,14 @@ module OneDBFsck
 
             img_elem.each_element("RVMS_USED") { |e|
                 if e.text.to_i != rvms
-                    log_error("#{resource} #{oid} Image #{img_id}\tRVMS has #{e.text.to_i} \tis\t#{rvms}")
+                    log_error("#{resource} #{oid} quotas: Image #{img_id}\tRVMS has #{e.text.to_i} \tis\t#{rvms}")
                     e.text = rvms.to_s
                 end
             }
         }
 
         img_usage.each { |img_id, rvms|
-            log_error("#{resource} #{oid} Image #{img_id}\tRVMS has 0 \tis\t#{rvms}")
+            log_error("#{resource} #{oid} quotas: Image #{img_id}\tRVMS has 0 \tis\t#{rvms}")
 
             new_elem = img_quota.add_element("IMAGE")
 
@@ -1058,14 +1058,14 @@ module OneDBFsck
 
             ds_elem.each_element("IMAGES_USED") { |e|
                 if e.text.to_i != images_used
-                    log_error("#{resource} #{oid} Datastore #{ds_id}\tIMAGES_USED has #{e.text.to_i} \tis\t#{images_used}")
+                    log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tIMAGES_USED has #{e.text.to_i} \tis\t#{images_used}")
                     e.text = images_used.to_s
                 end
             }
 
             ds_elem.each_element("SIZE_USED") { |e|
                 if e.text.to_i != size_used
-                    log_error("#{resource} #{oid} Datastore #{ds_id}\tSIZE_USED has #{e.text.to_i} \tis\t#{size_used}")
+                    log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tSIZE_USED has #{e.text.to_i} \tis\t#{size_used}")
                     e.text = size_used.to_s
                 end
             }
@@ -1074,8 +1074,8 @@ module OneDBFsck
         ds_usage.each { |ds_id, array|
             images_used,size_used = array
 
-            log_error("#{resource} #{oid} Datastore #{ds_id}\tIMAGES_USED has 0 \tis\t#{images_used}")
-            log_error("#{resource} #{oid} Datastore #{ds_id}\tSIZE_USED has 0 \tis\t#{size_used}")
+            log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tIMAGES_USED has 0 \tis\t#{images_used}")
+            log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tSIZE_USED has 0 \tis\t#{size_used}")
 
             new_elem = ds_quota.add_element("DATASTORE")
 
