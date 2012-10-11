@@ -41,6 +41,7 @@ else
 fi
 
 KILL_9_SECONDS=5
+BACKUP="true"
 
 #------------------------------------------------------------------------------
 # Function that checks for running daemons 
@@ -125,7 +126,7 @@ start()
 
     # Backup oned.log
     if [ "$BACKUP" = "true" ];then
-        [ -f "$ONE_LOG" ] && cp $ONE_LOG{,.$(date '+%Y%m%d%H%M')}
+        [ -f "$ONE_LOG" ] && cp $ONE_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
 
     # Start the one daemon
@@ -182,8 +183,8 @@ start()
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
-if [ "$1" = "-b" ]; then
-    BACKUP=true
+if [ "$1" = "-f" ]; then
+    BACKUP="false"
     shift
 fi
 
@@ -197,9 +198,9 @@ case "$1" in
         echo "oned and scheduler stopped"
         ;;
     *)
-        echo "Usage: one [-b] {start|stop}" >&2
+        echo "Usage: one [-f] {start|stop}" >&2
         echo "Options:" >&2
-        echo "  -b  Backup log file." >&2
+        echo "  -f  Do not backup log file." >&2
         exit 3
         ;;
 esac
