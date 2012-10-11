@@ -180,6 +180,16 @@ VirtualMachinePool::VirtualMachinePool(
 
             state_hook = true;
         }
+        else if ( on == "UNKNOWN" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                            VirtualMachine::UNKNOWN, VirtualMachine::ACTIVE);
+            add_hook(hook);
+
+            state_hook = true;
+        }
         else
         {
             ostringstream oss;
