@@ -1,7 +1,9 @@
 #!/bin/bash
 
 NOVNC_TMP=/tmp/one/novnc-$(date "+%Y%m%d%H%M%S")
-PROXY_PATH=websockify/websockify
+PROXY_PATH=websockify/websocketproxy.py
+NOVNC_REPO=http://github.com/kanaka/noVNC/
+WEBSOCKIFY_RAW_URL=https://raw.github.com/kanaka/websockify/master/websockify
 
 if [ -z "$ONE_LOCATION" ]; then
     ONE_SHARE=/usr/share/one
@@ -20,7 +22,7 @@ fi
 echo "Downloading noVNC latest version..."
 mkdir -p $NOVNC_TMP
 cd $NOVNC_TMP
-curl -O -# -L http://github.com/kanaka/noVNC/tarball/master
+curl -O -# -L $NOVNC_REPO/tarball/master
 if [ $? -ne 0 ]; then
   echo "\nError downloading noVNC"
   exit 1
@@ -52,16 +54,17 @@ echo "Downloading Websockify VNC proxy files"
 rm -rf $ONE_SHARE/websockify
 mkdir -p $ONE_SHARE/websockify
 cd $ONE_SHARE/websockify
-curl -O -# -L https://raw.github.com/kanaka/websockify/master/websockify
+curl -O -# -L $WEBSOCKIFY_RAW_URL/websocket.py
 if [ $? -ne 0 ]; then
   echo "\nError downloading websockify"
   exit 1
 fi
-curl -O -# -L https://raw.github.com/kanaka/websockify/master/websocket.py
+curl -O -# -L $WEBSOCKIFY_RAW_URL/websocketproxy.py
 if [ $? -ne 0 ]; then
   echo "\nError downloading websocket.py"
   exit 1
 fi
+ln -s websocketproxy.py websockify
 
 echo "Backing up and updating $SUNSTONE_CONF with new VNC proxy path..."
 sed -i.bck "s%^\(:vnc_proxy_path:\).*$%\1 $ONE_SHARE/$PROXY_PATH%" $SUNSTONE_CONF
