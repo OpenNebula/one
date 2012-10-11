@@ -61,16 +61,16 @@ class OneDB
         if !File.exists?(bck_file)
             raise "File #{bck_file} doesn't exist, backup restoration aborted."
         end
-        
+
         one_not_running
-        
+
         @backend.restore(bck_file, ops[:force])
         return 0
     end
 
     def version(ops)
         version, timestamp, comment = @backend.read_db_version
-        
+
         if(ops[:verbose])
             puts "Version:   #{version}"
 
@@ -157,6 +157,56 @@ class OneDB
             restore(ops[:backup], ops)
 
             return -1
+        end
+    end
+
+    def fsck(ops)
+        version, timestamp, comment = @backend.read_db_version
+
+        if ops[:verbose]
+            puts "Version read:"
+            puts "#{version} : #{comment}"
+            puts ""
+        end
+
+        file = "#{RUBY_LIB_LOCATION}/onedb/#{version}_fsck.rb"
+
+        if File.exists? file
+
+            one_not_running()
+
+            begin
+                # FSCK will be executed, make DB backup
+                backup(ops[:backup], ops)
+
+                puts "  > Running fsck" if ops[:verbose]
+
+                load(file)
+                @backend.extend OneDBFsck
+                result = @backend.fsck
+
+                if !result
+                    raise "Error running fsck version #{version}"
+                end
+
+                puts "  > Done" if ops[:verbose]
+                puts "" if ops[:verbose]
+
+                return 0
+            rescue Exception => e
+                puts e.message
+
+                puts "Error running fsck version #{version}"
+                puts "The database will be restored"
+
+                ops[:force] = true
+
+                restore(ops[:backup], ops)
+
+                return -1
+            end
+        else
+            raise "No fsck found for this version #{version}"
         end
     end
 
