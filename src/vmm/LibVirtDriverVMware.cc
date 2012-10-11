@@ -221,20 +221,20 @@ int LibVirtDriver::deployment_description_vmware(
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl;
-            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] " << vm->get_oid()
-                << "/disk."  << disk_id << "'/>"  << endl;
+            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] "
+                 << vm->get_oid() << "/disk." << disk_id << "'/>" << endl;
         }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
-            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] " << vm->get_oid()
-                << "/disk."  << disk_id << ".iso'/>"  << endl;
+            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] "
+                 << vm->get_oid() << "/disk." << disk_id << ".iso'/>" << endl;
         }
         else
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
-                 << "\t\t\t<source file='[" << vm->get_ds_id() <<"] " << vm->get_oid()
-                 << "/disk." << disk_id << "/disk.vmdk'/>" << endl;
+                 << "\t\t\t<source file='[" << vm->get_ds_id() <<"] "
+                 << vm->get_oid() << "/disk." << disk_id << "/disk.vmdk'/>" << endl;
         }
 
         // ---- target device to map the disk ----
@@ -280,8 +280,8 @@ int LibVirtDriver::deployment_description_vmware(
         if ( !target.empty() )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
-            file << "\t\t\t<source file='[" <<  datastore <<"] " << vm->get_oid()
-                 << "/disk." << num << ".iso'/>" << endl;
+            file << "\t\t\t<source file='[" <<  vm->get_ds_id() <<"] "
+                 << vm->get_oid() << "/disk." << num << ".iso'/>" << endl;
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
             file << "\t\t\t<readonly/>" << endl;
             file << "\t\t</disk>" << endl;
