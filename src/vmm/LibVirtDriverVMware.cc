@@ -52,7 +52,6 @@ int LibVirtDriver::deployment_description_vmware(
     string  target     = "";
     string  ro         = "";
     string  source     = "";
-    string  datastore  = "";
     string  driver     = "";
     int     disk_id;
     string  default_driver = "";
@@ -67,7 +66,7 @@ int LibVirtDriver::deployment_description_vmware(
     string  model      = "";
 
     const VectorAttribute * graphics;
-    
+
     string  listen     = "";
     string  port       = "";
     string  passwd     = "";
@@ -179,11 +178,6 @@ int LibVirtDriver::deployment_description_vmware(
 
     num = vm->get_template_attribute("DISK",attrs);
 
-    if (num!=0)
-    {
-        get_default("DATASTORE", datastore);
-    }
-
     for (int i=0; i < num ;i++)
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
@@ -227,26 +221,26 @@ int LibVirtDriver::deployment_description_vmware(
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl;
-            file << "\t\t\t<source file=[" <<  datastore << "] " << vm->get_oid()
+            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] " << vm->get_oid()
                 << "/disk."  << disk_id << "'/>"  << endl;
         }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
-            file << "\t\t\t<source file=[" <<  datastore << "] " << vm->get_oid()
+            file << "\t\t\t<source file=[" << vm->get_ds_id() << "] " << vm->get_oid()
                 << "/disk."  << disk_id << ".iso'/>"  << endl;
         }
         else
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
-                 << "\t\t\t<source file='[" <<  datastore <<"] " << vm->get_oid()
+                 << "\t\t\t<source file='[" << vm->get_ds_id() <<"] " << vm->get_oid()
                  << "/disk." << disk_id << "/disk.vmdk'/>" << endl;
         }
 
         // ---- target device to map the disk ----
 
         file << "\t\t\t<target dev='" << target << "'/>" << endl;
-        
+
         // ---- Image Format using qemu driver ----
 
         if ( !driver.empty() )
@@ -366,11 +360,11 @@ int LibVirtDriver::deployment_description_vmware(
     // ------------------------------------------------------------------------
 
     if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
-    {   
+    {
         graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
 
         if ( graphics != 0 )
-        {   
+        {
             type   = graphics->vector_value("TYPE");
             listen = graphics->vector_value("LISTEN");
             port   = graphics->vector_value("PORT");
@@ -378,33 +372,33 @@ int LibVirtDriver::deployment_description_vmware(
             keymap = graphics->vector_value("KEYMAP");
 
             if ( type == "vnc" || type == "VNC" )
-            {   
+            {
                 file << "\t\t<graphics type='vnc'";
 
                 if ( !listen.empty() )
-                {   
+                {
                     file << " listen='" << listen << "'";
                 }
 
                 if ( !port.empty() )
-                {   
+                {
                     file << " port='" << port << "'";
                 }
 
                 if ( !passwd.empty() )
-                {   
+                {
                     file << " passwd='" << passwd << "'";
                 }
 
                 if ( !keymap.empty() )
-                {   
+                {
                     file << " keymap='" << keymap << "'";
                 }
 
                 file << "/>" << endl;
             }
             else
-            {   
+            {
                 vm->log("VMM", Log::WARNING,
                         "Not supported graphics type, ignored.");
             }
