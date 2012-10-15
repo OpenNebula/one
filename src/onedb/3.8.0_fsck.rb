@@ -34,15 +34,8 @@ module OneDBFsck
         ########################################################################
 
         ########################################################################
-        # Groups
-        #
-        # GROUP/USERS/ID
-        ########################################################################
-
-        ########################################################################
         # Users
         #
-        # USER/GID
         # USER/GNAME
         ########################################################################
 
@@ -157,6 +150,90 @@ module OneDBFsck
 
 
         ########################################################################
+        # Groups
+        #
+        # GROUP/USERS/ID
+        ########################################################################
+
+        ########################################################################
+        # Users
+        #
+        # USER/GID
+        ########################################################################
+
+        group = {}
+
+        @db.fetch("SELECT oid FROM group_pool") do |row|
+            group[row[:oid]] = []
+        end
+
+        users_fix = {}
+
+        @db.fetch("SELECT oid,body FROM user_pool") do |row|
+            doc = Document.new(row[:body])
+
+            gid = doc.root.get_text('GID').to_s.to_i
+
+            if group[gid].nil?
+                log_error("User #{row[:oid]} is in group #{gid}, but it does not exist")
+
+                doc.root.each_element('GID') do |e|
+                    e.text = "1"
+                end
+
+                doc.root.each_element('GNAME') do |e|
+                    e.text = "users"
+                end
+
+                users_fix[row[:oid]] = doc.to_s
+            else
+                group[gid] << row[:oid]
+            end
+
+        end
+
+        users_fix.each do |id, body|
+            @db[:user_pool].where(:oid => id).update(:body => body)
+        end
+
+
+
+        @db.run "CREATE TABLE group_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * from group_pool") do |row|
+            gid = row[:oid]
+            doc = Document.new(row[:body])
+
+            users_elem = doc.root.elements.delete("USERS")
+
+            users_new_elem = doc.root.add_element("USERS")
+
+            group[gid].each do |id|
+                id_elem = users_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("User #{id} is missing fom Group #{gid} users id list")
+                end
+
+                users_new_elem.add_element("ID").text = id.to_s
+            end
+
+            users_elem.each_element("ID") do |id_elem|
+                log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not")
+            end
+
+            row[:body] = doc.to_s
+
+            # commit
+            @db[:group_pool_new].insert(row)
+        end
+
+        # Rename table
+        @db.run("DROP TABLE group_pool")
+        @db.run("ALTER TABLE group_pool_new RENAME TO group_pool")
+
+
+        ########################################################################
         # Clusters
         #
         # CLUSTERS/HOSTS/ID
@@ -200,7 +277,7 @@ module OneDBFsck
 
             if cluster_id != -1
                 if cluster[cluster_id].nil?
-                    log_error("Host #{row[:oid]} has cluster #{cluster_id}, but it does not exist")
+                    log_error("Host #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
 
                     doc.root.each_element('CLUSTER_ID') do |e|
                         e.text = "-1"
@@ -229,7 +306,7 @@ module OneDBFsck
 
             if cluster_id != -1
                 if cluster[cluster_id].nil?
-                    log_error("Datastore #{row[:oid]} has cluster #{cluster_id}, but it does not exist")
+                    log_error("Datastore #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
 
                     doc.root.each_element('CLUSTER_ID') do |e|
                         e.text = "-1"
@@ -258,7 +335,7 @@ module OneDBFsck
 
             if cluster_id != -1
                 if cluster[cluster_id].nil?
-                    log_error("VNet #{row[:oid]} has cluster #{cluster_id}, but it does not exist")
+                    log_error("VNet #{row[:oid]} is in cluster #{cluster_id}, but it does not exist")
 
                     doc.root.each_element('CLUSTER_ID') do |e|
                         e.text = "-1"
