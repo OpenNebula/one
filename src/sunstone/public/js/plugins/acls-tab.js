@@ -63,6 +63,7 @@ var create_acl_tmpl =
                 <input type="checkbox" name="res_template" class="resource_cb" value="TEMPLATE">'+tr("Templates")+'</input><br />\
                 <input type="checkbox" name="res_user" class="resource_cb" value="USER">'+tr("Users")+'</input><br />\
                 <input type="checkbox" name="res_group" class="resource_cb" value="GROUP">'+tr("Groups")+'</input><br />\
+                <input type="checkbox" name="res_document" class="resource_cb" value="DOCUMENT">'+tr("Documents")+'</input><br />\
                 <div class="clear"></div>\
                 <label for="mode_select" style="height:3em;">'+tr("Resource subset")+':</label>\
                 <input type="radio" class="res_subgroup" name="mode_select" value="*" id="res_subgroup_all">'+tr("All")+'</input><br />\
@@ -290,6 +291,9 @@ function parseAclString(string) {
             break;
         case "DATASTORE":
             resources_str+=tr("Datastores")+", ";
+            break;
+        case "DOCUMENT":
+            resources_str+=tr("Documents")+", ";
             break;
         };
     };
