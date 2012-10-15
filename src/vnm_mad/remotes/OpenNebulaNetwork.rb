@@ -140,7 +140,7 @@ class OpenNebulaNetwork
                 cur_bridge = l[0]
 
                 bridges[cur_bridge] = Array.new
-                bridges[cur_bridge] << l[3]
+                bridges[cur_bridge] << l[3] if l[3]
             else
                 bridges[cur_bridge] << l[0]
             end
