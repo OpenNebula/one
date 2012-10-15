@@ -30,7 +30,8 @@ void Request::execute(
 
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string (_paramList.getString(0));
-    att.req_id  = rand() % 1000;
+
+    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
 
     Nebula& nd = Nebula::instance();
     UserPool* upool = nd.get_upool();
