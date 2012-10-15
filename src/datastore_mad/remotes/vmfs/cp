@@ -61,7 +61,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/ID)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/ID \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS)
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
 DS_ID="${XPATH_ELEMENTS[1]}"
@@ -75,6 +76,7 @@ SRC="${XPATH_ELEMENTS[8]}"
 MD5="${XPATH_ELEMENTS[9]}"
 SHA1="${XPATH_ELEMENTS[10]}"
 IMAGE_ID="${XPATH_ELEMENTS[11]}"
+NO_DECOMPRESS="${XPATH_ELEMENTS[12]}"
 
 FE_DST=`generate_image_path`
 DST_FOLDER=`basename $FE_DST`
@@ -92,21 +94,13 @@ vmfs_create_remote_path $DS_ID
 
 # ------------  Prepare for a possible download in the front-end  -------------
 
-if [ ! -d $TMP_DIR ]; then 
+if [ ! -d $TMP_DIR ]; then
     mkdir -p $TMP_DIR
 fi
 
-HASHES=""
+DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$SRC" "$TMP_DIR/$IMAGE_HASH"`
 
-if [ -n "$MD5" ]; then
-    HASHES="$HASHES --md5 $MD5"
-fi
-
-if [ -n "$SHA1" ]; then
-    HASHES="$HASHES --sha1 $SHA1"
-fi
-
-COPY_COMMAND="$UTILS_PATH/downloader.sh $HASHES $SRC $TMP_DIR/$IMAGE_HASH"
+COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
 # ------------ Copy the image to the repository -------------
 

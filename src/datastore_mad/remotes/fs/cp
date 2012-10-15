@@ -53,7 +53,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS)
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
@@ -62,23 +63,17 @@ UMASK="${XPATH_ELEMENTS[3]}"
 SRC="${XPATH_ELEMENTS[4]}"
 MD5="${XPATH_ELEMENTS[5]}"
 SHA1="${XPATH_ELEMENTS[6]}"
+NO_DECOMPRESS="${XPATH_ELEMENTS[7]}"
 
 mkdir -p "$BASE_PATH"
+
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 DST=`generate_image_path`
 
-HASHES=""
+DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$SRC" "$DST"`
 
-if [ -n "$MD5" ]; then
-    HASHES="$HASHES --md5 $MD5"
-fi
-
-if [ -n "$SHA1" ]; then
-    HASHES="$HASHES --sha1 $SHA1"
-fi
-
-COPY_COMMAND="$UTILS_PATH/downloader.sh $HASHES $SRC $DST"
+COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
 # ------------ Copy the image to the repository -------------
 

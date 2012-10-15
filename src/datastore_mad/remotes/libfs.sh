@@ -84,6 +84,33 @@ EOF
 }
 
 #-------------------------------------------------------------------------------
+# Set up the arguments for the downloader script
+#   @param $1 - MD5 string
+#   @param $2 - SHA1 string
+#   @param $3 - NO_DECOMPRESS
+#   @param $4 - SRC
+#   @param $5 - DST
+#   @return downloader.sh util arguments
+#-------------------------------------------------------------------------------
+function set_downloader_args {
+	HASHES=" "
+
+	if [ -n "$1" ]; then
+	    HASHES="--md5 $1"
+	fi
+
+	if [ -n "$2" ]; then
+	    HASHES="$HASHES --sha1 $2"
+	fi
+
+	if [ "$3" = "yes" -o "$3" = "Yes" -o "$3" = "YES" ]; then
+	    HASHES="$HASHES --nodecomp"
+	fi
+
+	echo "$HASHES $4 $5"
+}
+
+#-------------------------------------------------------------------------------
 # Computes the size of an image
 #   @param $1 - Path to the image
 #   @return size of the image in Mb
