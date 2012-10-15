@@ -76,7 +76,7 @@ SRC="${XPATH_ELEMENTS[8]}"
 MD5="${XPATH_ELEMENTS[9]}"
 SHA1="${XPATH_ELEMENTS[10]}"
 IMAGE_ID="${XPATH_ELEMENTS[11]}"
-export NO_DECOMPRESS="${XPATH_ELEMENTS[12]}"
+NO_DECOMPRESS="${XPATH_ELEMENTS[12]}"
 
 FE_DST=`generate_image_path`
 DST_FOLDER=`basename $FE_DST`
@@ -94,21 +94,13 @@ vmfs_create_remote_path $DS_ID
 
 # ------------  Prepare for a possible download in the front-end  -------------
 
-if [ ! -d $TMP_DIR ]; then 
+if [ ! -d $TMP_DIR ]; then
     mkdir -p $TMP_DIR
 fi
 
-HASHES=""
+DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$SRC" "$TMP_DIR/$IMAGE_HASH"`
 
-if [ -n "$MD5" ]; then
-    HASHES="$HASHES --md5 $MD5"
-fi
-
-if [ -n "$SHA1" ]; then
-    HASHES="$HASHES --sha1 $SHA1"
-fi
-
-COPY_COMMAND="$UTILS_PATH/downloader.sh $HASHES $SRC $TMP_DIR/$IMAGE_HASH"
+COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
 # ------------ Copy the image to the repository -------------
 

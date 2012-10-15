@@ -20,7 +20,7 @@
 # to determine the file type
 function get_type
 {
-    if [ "X$NO_DECOMPRESS" = "Xyes" ]; then
+    if [ "$NO_DECOMPRESS" = "yes" ]; then
         echo "application/octet-stream"
     else
         command=$1
@@ -117,7 +117,7 @@ function unarchive
     fi
 }
 
-TEMP=`getopt -o m:s: -l md5:,sha1: -- "$@"`
+TEMP=`getopt -o m:s:n -l md5:,sha1:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error"
@@ -137,6 +137,10 @@ while true; do
             HASH_TYPE=sha1
             HASH=$2
             shift 2
+            ;;
+        -n|--nodecomp)
+            export NO_DECOMPRESS="yes"
+            shift
             ;;
         --)
             shift

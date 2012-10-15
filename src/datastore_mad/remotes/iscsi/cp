@@ -72,7 +72,7 @@ SRC="${XPATH_ELEMENTS[7]}"
 SIZE="${XPATH_ELEMENTS[8]}"
 MD5="${XPATH_ELEMENTS[9]}"
 SHA1="${XPATH_ELEMENTS[10]}"
-export NO_DECOMPRESS="${XPATH_ELEMENTS[11]}"
+NO_DECOMPRESS="${XPATH_ELEMENTS[11]}"
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
@@ -95,17 +95,9 @@ REGISTER_CMD=$(cat <<EOF
 EOF
 )
 
-HASHES=""
+DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$SRC" -`
 
-if [ -n "$MD5" ]; then
-    HASHES="$HASHES --md5 $MD5"
-fi
-
-if [ -n "$SHA1" ]; then
-    HASHES="$HASHES --sha1 $SHA1"
-fi
-
-COPY_COMMAND="$UTILS_PATH/downloader.sh $HASHES $SRC -"
+COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
 case $SRC in
 http://*|https://*)
