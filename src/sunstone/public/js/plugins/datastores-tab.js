@@ -66,6 +66,7 @@ var create_datastore_tmpl =
         <option value="vmware">' + tr("VMware") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="lvm">' + tr("LVM") + '</option>\
+        <option value="vmfs">' + tr("VMFS") + '</option>\
   </select><br name="ds_mad" />\
   <label>' + tr("Transfer manager") + ':</label>\
   <select id="tm_mad" name="tm_mad">\
@@ -73,6 +74,7 @@ var create_datastore_tmpl =
         <option value="ssh">' + tr("SSH") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="dummy">' + tr("Dummy") + '</option>\
+        <option value="vmfs">' + tr("VMFS") + '</option>\
   </select><div class="clear">\
   <label for="disk_type">' + tr("Disk type") + ':</label>\
   <select id="disk_type" name="disk_type">\
