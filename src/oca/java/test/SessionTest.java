@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.opennebula.client.Client;
+import org.opennebula.client.*;
 
 public class SessionTest {
 
@@ -53,4 +52,22 @@ public class SessionTest {
 
         assertNull("Client should complain about misspelled url", oneClient);
 	}	
+
+    @Test
+    public void version()
+    {
+        Client oneClient = null;
+        try
+        {
+            oneClient = new Client();
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+
+        OneResponse res = oneClient.get_version();
+
+        assertTrue( res.getErrorMessage(), !res.isError() );
+    }
 }

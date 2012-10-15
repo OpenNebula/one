@@ -223,13 +223,13 @@ public class AclTest
             assertTrue( res.getErrorMessage(), !res.isError() );
 
             aclPool.info();
-            assertTrue( aclPool.getLength() == 3 );
+            assertTrue( aclPool.getLength() == 4 );
 
             res = Acl.delete(client, res.getIntMessage());
             assertTrue( res.getErrorMessage(), !res.isError() );
 
             aclPool.info();
-            assertTrue( aclPool.getLength() == 2 );
+            assertTrue( aclPool.getLength() == 3 );
         }
         catch (RuleParseException e)
         {
