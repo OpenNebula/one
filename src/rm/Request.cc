@@ -65,18 +65,18 @@ void Request::log_method_invoked(
 {
     ostringstream oss;
 
-    oss << "[" << att.req_id << "] ";
+    oss << "Req:" << att.req_id << " UID:";
 
     if ( att.uid != -1 )
     {
-        oss << "[" << att.uid << " " << att.uname << "] ";
+        oss << att.uid;
     }
     else
     {
-        oss << "[- -] ";
+        oss << "-";
     }
 
-    oss << "[" << method_name << "] method invoked";
+    oss << " " << method_name << " invoked";
 
     for (unsigned int i=1; i<paramList.size(); i++)
     {
@@ -94,18 +94,18 @@ void Request::log_result(
 {
     ostringstream oss;
 
-    oss << "[" << att.req_id << "] ";
+    oss << "Req:" << att.req_id << " UID:";
 
     if ( att.uid != -1 )
     {
-        oss << "[" << att.uid << " " << att.uname << "] ";
+        oss << att.uid;
     }
     else
     {
-        oss << "[- -] ";
+        oss << "-";
     }
 
-    oss << "[" << method_name << "] ";
+    oss << " " << method_name << " result ";
 
     xmlrpc_c::value_array array1(*att.retval);
     vector<xmlrpc_c::value> const vvalue(array1.vectorValueValue());
