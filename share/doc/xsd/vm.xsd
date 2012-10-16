@@ -64,6 +64,7 @@
           HOTPLUG           = 17
           SHUTDOWN_POWEROFF = 18
           BOOT_UNKNOWN      = 19
+          BOOT_POWEROFF     = 20
         -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="RESCHED" type="xs:integer"/>
