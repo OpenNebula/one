@@ -43,7 +43,8 @@ module OpenNebula
 
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
-            SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN HOTPLUG SHUTDOWN_POWEROFF}
+            SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
+            BOOT_UNKNOWN}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -76,6 +77,7 @@ module OpenNebula
             "UNKNOWN"       => "unkn",
             "HOTPLUG"       => "hotp",
             "SHUTDOWN_POWEROFF" => "shut"
+            "BOOT_UNKNOWN"  => "boot",
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
@@ -221,7 +223,7 @@ module OpenNebula
             action('finalize')
         end
 
-        # Forces a re-deployment of a VM in UNKNOWN or BOOT state
+        # Forces a re-deployment of a VM in UNKNOWN, BOOT_UNKNOWN or BOOT state
         def restart
             action('restart')
         end

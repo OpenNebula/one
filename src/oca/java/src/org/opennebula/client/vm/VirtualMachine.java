@@ -84,7 +84,8 @@ public class VirtualMachine extends PoolElement{
         "CLEANUP",
         "UNKNOWN",
         "HOTPLUG",
-        "SHUTDOWN_POWEROFF" };
+        "SHUTDOWN_POWEROFF",
+        "BOOT_UNKNOWN" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -106,7 +107,8 @@ public class VirtualMachine extends PoolElement{
         "clea",
         "unkn",
         "hotp",
-        "poff" };
+        "poff",
+        "boot" };
 
     /**
      * Creates a new VM representation.
@@ -585,7 +587,7 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Forces a re-deployment of a VM in UNKNOWN or BOOT state.
+     * Forces a re-deployment of a VM in UNKNOWN, BOOT or BOOT_UNKNOWN state.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse restart()

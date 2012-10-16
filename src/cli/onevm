@@ -320,7 +320,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     restart_desc = <<-EOT.unindent
         Boots the given VM.
 
-        States: UNKNOWN, BOOT, POWEROFF
+        States: UNKNOWN, BOOT, BOOT_UNKNOWN, POWEROFF
     EOT
 
     command :restart, restart_desc, [:range,:vmid_list] do
