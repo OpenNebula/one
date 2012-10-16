@@ -3,8 +3,8 @@
 digraph OpenNebula {
     graph [
         nodesep= 0.5,
-        ratio=0.7,
-        pad=1,
+        ratio=0.8,
+        pad=0.5,
     ];
 
     node [fontname="Helvetica"];
@@ -19,6 +19,7 @@ digraph OpenNebula {
     "ANY \\ {suspended,done}" [ shape="box" ];
 
     subgraph { rank = min; user}
+    subgraph { rank = same; boot; boot_unknown; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
     subgraph { rank = same; prolog; prolog_resume; prolog_migrate;
     color="white" }
@@ -82,9 +83,13 @@ digraph OpenNebula {
     ANY         -> done [label="delete"];
 
 #   restart
-    unknown     -> boot [label="restart"];
     boot        -> boot [label="restart"];
     poweroff    -> boot [label="restart"];
+
+    unknown     -> boot_unknown [label="restart"];
+    boot_unknown -> boot_unknown [label="restart"];
+    boot_unknown -> running [style="dashed"];
+    boot_unknown -> unknown [style="dotted"];
 
 #   reboot, reset
     running     -> running [label="reboot / reset"];
