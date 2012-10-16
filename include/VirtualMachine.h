@@ -84,7 +84,8 @@ public:
         UNKNOWN             = 16,
         HOTPLUG             = 17,
         SHUTDOWN_POWEROFF   = 18,
-        BOOT_UNKNOWN        = 19
+        BOOT_UNKNOWN        = 19,
+        BOOT_POWEROFF       = 20
     };
 
     // -------------------------------------------------------------------------
