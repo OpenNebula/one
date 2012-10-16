@@ -756,9 +756,10 @@ public:
      *  Writes the context file for this VM, and gets the paths to be included
      *  in the context block device (CBD)
      *    @param  files space separated list of paths to be included in the CBD
-     *    @return 0 if success
+     *    @param  disk_id CONTEXT/DISK_ID attribute value
+     *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files);
+    int  generate_context(string &files, int &disk_id);
 
     // ------------------------------------------------------------------------
     // Datastore related functions
@@ -803,16 +804,16 @@ public:
 
     /**
      *  Collects information about VM DISKS
-     *    @param num_disks of the VM
+     *    @param max_disk_id of the VM
      *    @param used_targets by the DISKS of the VM
      */
-    void get_disk_info(int& num_disks, set<string>& used_targets);
+    void get_disk_info(int& max_disk_id, set<string>& used_targets);
 
     /**
      * Generate a DISK attributed to be attached to the VM.
      *   @param tmpl Template containing a single DISK vector attribute.
      *   @param used_targets targets in use by current DISKS
-     *   @param num_disks of the VM
+     *   @param max_disk_id Max DISK/DISK_ID of the VM
      *   @param uid of the VM owner
      *   @param image_id returns the id of the aquired image
      *   @param error_str describes the error
@@ -823,7 +824,7 @@ public:
     static VectorAttribute * set_up_attach_disk(
                             VirtualMachineTemplate * tmpl,
                             set<string>&             used_targets,
-                            int                      num_disks,
+                            int                      max_disk_id,
                             int                      uid,
                             int&                     image_id,
                             string&                  error_str);

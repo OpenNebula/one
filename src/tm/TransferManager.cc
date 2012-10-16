@@ -226,11 +226,11 @@ int TransferManager::prolog_transfer_command(
     string ds_id;
     string vm_ds_id;
 
-    int    disk_index;
+    int    disk_id;
 
     vm_ds_id = vm->get_ds_id();
 
-    disk->vector_value("DISK_ID", disk_index);
+    disk->vector_value("DISK_ID", disk_id);
 
     type = disk->vector_value("TYPE");
 
@@ -255,7 +255,7 @@ int TransferManager::prolog_transfer_command(
             << vm_tm_mad << " "
             << size   << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << vm_ds_id
             << endl;
@@ -281,7 +281,7 @@ int TransferManager::prolog_transfer_command(
             << size   << " "
             << format << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << vm_ds_id
             << endl;
@@ -332,7 +332,7 @@ int TransferManager::prolog_transfer_command(
         }
 
         xfr << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id
             << endl;
@@ -372,6 +372,7 @@ void TransferManager::prolog_action(int vid)
 
     vector<const Attribute *> attrs;
     int                       num;
+    int                       disk_id;
 
     int  context_result;
 
@@ -435,9 +436,9 @@ void TransferManager::prolog_action(int vid)
     }
 
     // -------------------------------------------------------------------------
-    // Generate context file (There are 0...num-1 disks, constext is disk.num)
+    // Generate context file
     // -------------------------------------------------------------------------
-    context_result = vm->generate_context(files);
+    context_result = vm->generate_context(files, disk_id);
 
     if ( context_result == -1 )
     {
@@ -457,7 +458,7 @@ void TransferManager::prolog_action(int vid)
         }
 
         xfr << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << num << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << vm->get_ds_id()
             << endl;
@@ -802,7 +803,7 @@ void TransferManager::epilog_transfer_command(
     string save;
     string tm_mad;
     string ds_id;
-    int    disk_index;
+    int    disk_id;
 
     if ( isVolatile(disk) == true )
     {
@@ -822,7 +823,7 @@ void TransferManager::epilog_transfer_command(
         }
     }
 
-    disk->vector_value("DISK_ID", disk_index);
+    disk->vector_value("DISK_ID", disk_id);
 
     transform(save.begin(),save.end(),save.begin(),(int(*)(int))toupper);
 
@@ -849,7 +850,7 @@ void TransferManager::epilog_transfer_command(
         xfr << "MVDS "
             << tm_mad << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << source << " "
             << vm->get_oid() << " "
             << ds_id
@@ -861,7 +862,7 @@ void TransferManager::epilog_transfer_command(
         xfr << "DELETE "
             << tm_mad << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_index << " "
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id
             << endl;

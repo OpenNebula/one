@@ -1005,8 +1005,9 @@ static void assign_disk_targets(queue<pair <string, VectorAttribute *> >& _queue
 
 int VirtualMachine::get_disk_images(string& error_str)
 {
-    int                  num_disks, rc;
+    int                  num_disks, num_context, rc;
     vector<Attribute  *> disks;
+    vector<Attribute  *> context_disks;
     ImagePool *          ipool;
     VectorAttribute *    disk;
     vector<int>          acquired_images;
@@ -1030,11 +1031,17 @@ int VirtualMachine::get_disk_images(string& error_str)
     // -------------------------------------------------------------------------
     // The context is the first of the cdroms
     // -------------------------------------------------------------------------
-    num_disks = obj_template->get("CONTEXT", disks);
+    num_context = obj_template->get("CONTEXT", context_disks);
+    num_disks   = obj_template->get("DISK", disks);
 
-    if ( num_disks > 0 )
+    if ( num_disks > 20 )
     {
-        disk = dynamic_cast<VectorAttribute * >(disks[0]);
+        goto error_max_disks;
+    }
+
+    if ( num_context > 0 )
+    {
+        disk = dynamic_cast<VectorAttribute * >(context_disks[0]);
 
         if ( disk != 0 )
         {
@@ -1048,20 +1055,15 @@ int VirtualMachine::get_disk_images(string& error_str)
             {
                 cdrom_disks.push(make_pair(ipool->default_dev_prefix(), disk));
             }
+
+            // Disk IDs are 0..num-1, context disk is is num
+            disk->replace("DISK_ID", num_disks);
         }
     }
 
     // -------------------------------------------------------------------------
     // Set DISK attributes & Targets
     // -------------------------------------------------------------------------
-    disks.clear();
-    num_disks = obj_template->get("DISK", disks);
-
-    if ( num_disks > 20 )
-    {
-        goto error_max_disks;
-    }
-
     for(int i=0; i<num_disks; i++)
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
@@ -1157,13 +1159,18 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::get_disk_info(int&         num_disks,
+void VirtualMachine::get_disk_info(int&         max_disk_id,
                                    set<string>& used_targets)
 {
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
 
     string target;
+
+    int disk_id;
+    int num_disks;
+
+    max_disk_id = 0;
 
     num_disks = obj_template->get("DISK", disks);
 
@@ -1182,6 +1189,13 @@ void VirtualMachine::get_disk_info(int&         num_disks,
         {
             used_targets.insert(target);
         }
+
+        disk->vector_value("DISK_ID", disk_id);
+
+        if ( disk_id > max_disk_id )
+        {
+            max_disk_id = disk_id;
+        }
     }
 
     if ( obj_template->get("CONTEXT", disks) > 0 )
@@ -1196,6 +1210,13 @@ void VirtualMachine::get_disk_info(int&         num_disks,
             {
                 used_targets.insert(target);
             }
+
+            disk->vector_value("DISK_ID", disk_id);
+
+            if ( disk_id > max_disk_id )
+            {
+                max_disk_id = disk_id;
+            }
         }
     }
 }
@@ -1206,7 +1227,7 @@ void VirtualMachine::get_disk_info(int&         num_disks,
 VectorAttribute * VirtualMachine::set_up_attach_disk(
                 VirtualMachineTemplate * tmpl,
                 set<string>&             used_targets,
-                int                      num_disks,
+                int                      max_disk_id,
                 int                      uid,
                 int&                     image_id,
                 string&                  error_str)
@@ -1242,7 +1263,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     // -------------------------------------------------------------------------
 
     int rc = ipool->disk_attribute(new_disk,
-                                   num_disks + 1, //Preserv CONTEXT disk.i file
+                                   max_disk_id + 1,
                                    img_type,
                                    dev_prefix,
                                    uid,
@@ -1546,7 +1567,7 @@ void VirtualMachine::release_network_leases()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::generate_context(string &files)
+int VirtualMachine::generate_context(string &files, int &disk_id)
 {
     ofstream file;
 
@@ -1597,6 +1618,8 @@ int VirtualMachine::generate_context(string &files)
     }
 
     file.close();
+
+    context->vector_value("DISK_ID", disk_id);
 
     return 1;
 }
