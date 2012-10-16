@@ -47,8 +47,10 @@ var hosts_tab_content = '\
       <th>' + tr("Name") + '</th>\
       <th>' + tr("Cluster") + '</th>\
       <th>' + tr("Running VMs") + '</th>\
-      <th>' + tr("CPU Use") + '</th>\
-      <th>' + tr("Memory use") + '</th>\
+      <th>' + tr("Real CPU") + '</th>\
+      <th>' + tr("Allocated CPU") + '</th>\
+      <th>' + tr("Real MEM") + '</th>\
+      <th>' + tr("Allocated MEM") + '</th>\
       <th>' + tr("Status") + '</th>\
       <th>' + tr("IM MAD") + '</th>\
       <th>' + tr("VM MAD") + '</th>\
@@ -547,35 +549,55 @@ function hostElements(){
 
 //Creates an array to be added to the dataTable from the JSON of a host.
 function hostElementArray(host_json){
-
     var host = host_json.HOST;
 
-    //Calculate some values
-    var acpu = parseInt(host.HOST_SHARE.MAX_CPU);
-    if (!acpu) {acpu=100};
-    acpu = acpu - parseInt(host.HOST_SHARE.CPU_USAGE);
-
-    var total_mem = parseInt(host.HOST_SHARE.MAX_MEM);
-    var free_mem = parseInt(host.HOST_SHARE.FREE_MEM);
-
-    var ratio_mem = 0;
-    if (total_mem) {
-        ratio_mem = Math.round(((total_mem - free_mem) / total_mem) * 100);
+    // Generate CPU progress bars
+    var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
+    if (!max_cpu) { 
+        max_cpu = 100
     }
 
+    var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
+    var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
 
-    var total_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
-    var used_cpu = Math.max(total_cpu - parseInt(host.HOST_SHARE.USED_CPU),acpu);
+    var pb_allocated_cpu = progressBar(ratio_allocated_cpu, { 
+        label: allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)',
+        width: '150px', 
+        height: '15px', });
 
-    var ratio_cpu = 0;
-    if (total_cpu){
-        ratio_cpu = Math.round(((total_cpu - used_cpu) / total_cpu) * 100);
+
+    var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
+    var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
+
+    var pb_real_cpu      = progressBar(ratio_real_cpu, { 
+        label: real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)',
+        width: '150px', 
+        height: '15px', });
+
+
+    // Generate MEM progress bars
+    var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
+    if (!max_mem) { 
+        max_mem = 100
     }
 
+    var allocated_mem = parseInt(host.HOST_SHARE.MEM_USAGE);
+    var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
 
-    //progressbars html code - hardcoded jquery html result
-    var pb_mem = progressBar(ratio_mem, { label: ratio_mem + '%' });
-    var pb_cpu = progressBar(ratio_cpu, { label: ratio_cpu + '%' });
+    var pb_allocated_mem = progressBar(ratio_allocated_mem, { 
+        label: humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)',
+        width: '150px', 
+        height: '15px', });
+
+
+    var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
+    var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
+
+    var pb_real_mem      = progressBar(ratio_real_mem, { 
+        label: humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)',
+        width: '150px', 
+        height: '15px', });
+
 
     return [
         '<input class="check_item" type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
@@ -583,8 +605,10 @@ function hostElementArray(host_json){
         host.NAME,
         host.CLUSTER.length ? host.CLUSTER : "-",
         host.HOST_SHARE.RUNNING_VMS, //rvm
-        pb_cpu,
-        pb_mem,
+        pb_real_cpu,
+        pb_allocated_cpu,
+        pb_real_mem,
+        pb_allocated_mem,
         OpenNebula.Helper.resource_state("host_simple",host.STATE),
         host.IM_MAD,
         host.VM_MAD,
@@ -879,9 +903,9 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,4] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [7,3,8,9,10] },
-            { "sWidth": "200px", "aTargets": [5,6] },
-            { "bVisible": false, "aTargets": [8,9,10]}
+            { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
+            { "sWidth": "150", "aTargets": [5,6,7,8] },
+            { "bVisible": false, "aTargets": [5,7,10,11,12]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -893,7 +917,7 @@ $(document).ready(function(){
     dataTable_hosts.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','','','',''],dataTable_hosts);
+        '','','','','','','','','','','',''],dataTable_hosts);
     Sunstone.runAction("Host.list");
 
     setupCreateHostDialog();
