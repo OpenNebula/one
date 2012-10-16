@@ -127,7 +127,7 @@ case "$1" in
     start
     ;;
   *)
-	echo "Usage: econe-server {start|stop}" >&2
+	echo "Usage: econe-server {start|stop|restart}" >&2
 	exit 3
 	;;
 esac

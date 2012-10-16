@@ -85,20 +85,19 @@ module Instance
             instance = VirtualMachine.new(VirtualMachine.build_xml, @client)
 
             rc = instance.allocate(template_text)
-            if OpenNebula::is_error?(rc) && erb_vms.size < min_count.to_i
-                erb_vms.each { |vm|
-                    result = vm.cancel
-                    if OpenNebula::is_error?(result)
+            if OpenNebula::is_error?(rc)
+                if erb_vms.size < min_count.to_i
+                    erb_vms.each { |vm|
                         vm.finalize
-                    end
-                }
+                    }
 
-                return rc
+                    return rc
+                end
+            else
+                instance.info
+
+                erb_vms << instance
             end
-
-            instance.info
-
-            erb_vms << instance
         }
 
         erb_user_name = params['AWSAccessKeyId']
