@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+#    /etc/rc.d/init.d/occi-server
+#
+# Starts the OCCI Server
+#
+# chkconfig: 345 26 74
+# description: Starts the OpenNebula daemon
+# processname: occi-server
+
+### BEGIN INIT INFO
+# Provides: occi-server
+# Required-Start: $local_fs $remote_fs oned
+# Required-Stop: $local_fs $remote_fs oned
+# Default-Start:  2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop oned
+# Description: start and stop oned
+### END INIT INFO
+
+OCCI_BIN=/usr/bin/occi-server
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+
+check() {
+    # Check that we're a privileged user
+    [ `id -u` = 0 ] || exit 4
+
+    # Check if oned is executable
+    test -x $OCCI_BIN || exit 5
+}
+
+start() {
+    check
+    echo -n $"Starting OCCI Server: "
+    daemon --user oneadmin $OCCI_BIN start
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+stop() {
+
+    check
+
+    echo -n $"Stopping OCCI Server: "
+    su oneadmin -s /bin/sh -c "$OCCI_BIN stop"
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+restart() {
+    stop
+    start
+}
+
+
+case "$1" in
+start)
+    start
+    ;;
+stop)
+    stop
+    ;;
+restart)
+    restart
+    ;;
+status)
+    status occi-server
+    RETVAL=$?
+    ;;
+*)
+    echo $"Usage: $0 {start|stop|status|restart}"
+    RETVAL=2
+esac
+
+exit $RETVAL
