@@ -1,24 +1,24 @@
 #!/bin/bash
 #
-#    /etc/rc.d/init.d/occi-server
+#    /etc/rc.d/init.d/opennebula-sunstone
 #
-# Starts the OCCI Server
+# Starts the Sunstone Server
 #
 # chkconfig: 345 26 74
 # description: Starts the OpenNebula daemon
-# processname: occi-server
+# processname: opennebula-sunstone
 
 ### BEGIN INIT INFO
-# Provides: occi-server
+# Provides: opennebula-sunstone
 # Required-Start: $local_fs $remote_fs oned
 # Required-Stop: $local_fs $remote_fs oned
 # Default-Start:  2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: start and stop oned
-# Description: start and stop oned
+# Short-Description: start and stop opennebula-sunstone
+# Description: start and stop opennebula-sunstone
 ### END INIT INFO
 
-OCCI_BIN=/usr/bin/occi-server
+SUNSTONE_BIN=/usr/bin/opennebula-sunstone
 
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -29,14 +29,14 @@ check() {
     # Check that we're a privileged user
     [ `id -u` = 0 ] || exit 4
 
-    # Check if oned is executable
-    test -x $OCCI_BIN || exit 5
+    # Check if sunstone-server is executable
+    test -x $SUNSTONE_BIN || exit 5
 }
 
 start() {
     check
-    echo -n $"Starting OCCI Server: "
-    daemon --user oneadmin $OCCI_BIN start
+    echo -n $"Starting Sunstone Server: "
+    daemon --user oneadmin $SUNSTONE_BIN start
     RETVAL=$?
     echo
     return $RETVAL
@@ -46,8 +46,8 @@ stop() {
 
     check
 
-    echo -n $"Stopping OCCI Server: "
-    su oneadmin -s /bin/sh -c "$OCCI_BIN stop"
+    echo -n $"Stopping Sunstone Server: "
+    su oneadmin -s /bin/sh -c "$SUNSTONE_BIN stop"
     RETVAL=$?
     echo
     return $RETVAL
@@ -70,7 +70,7 @@ restart)
     restart
     ;;
 status)
-    status occi-server
+    status opennebula-sunstone
     RETVAL=$?
     ;;
 *)

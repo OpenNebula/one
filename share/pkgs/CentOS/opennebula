@@ -1,21 +1,21 @@
 #!/bin/bash
 #
-#    /etc/rc.d/init.d/oned
+#    /etc/rc.d/init.d/opennebula
 #
 # Starts the OpenNebula daemon
 #
 # chkconfig: 345 26 74
 # description: Starts the OpenNebula daemon
-# processname: oned
+# processname: opennebula
 
 ### BEGIN INIT INFO
-# Provides: oned
+# Provides: opennebula
 # Required-Start: $local_fs $remote_fs
 # Required-Stop: $local_fs $remote_fs
 # Default-Start:  2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: start and stop oned
-# Description: start and stop oned
+# Short-Description: start and stop opennebula
+# Description: start and stop opennebula
 ### END INIT INFO
 
 ONE_BIN=/usr/bin/one
@@ -70,7 +70,7 @@ restart)
     restart
     ;;
 status)
-    status oned
+    status opennebula
     RETVAL=$?
     ;;
 *)
