@@ -111,7 +111,20 @@ stop()
 }
 
 case "$1" in
-  start) setup; start;;
-  stop)  stop;;
-  *)     echo "Usage: sunstone-server {start|stop}" >&2; exit 3;;
+  start)
+    setup
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    setup
+    start
+    ;;
+  *)
+    echo "Usage: sunstone-server {start|stop|restart}" >&2
+    exit 3
+    ;;
 esac

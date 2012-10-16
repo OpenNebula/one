@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <CreateVolumeResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
-  <requestId/>
+   <requestId><%= @request_id %></requestId>
   <volumeId>vol-<%= sprintf('%08i', image.id) %></volumeId>
   <size><%= image.render_size %></size>
   <snapshotId/>

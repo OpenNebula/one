@@ -75,18 +75,30 @@ module Instance
         template      = ERB.new(File.read(erb_vm_info[:template]))
         template_text = template.result(binding)
 
-        # Start the VM.
-        vm = VirtualMachine.new(VirtualMachine.build_xml, @client)
+        erb_vms = Array.new
 
-        rc = vm.allocate(template_text)
-        if OpenNebula::is_error?(rc)
-            return rc
-        end
+        min_count = params['MinCount'] || 1
+        max_count = params['MaxCount'] || min_count
 
-        vm.info
+        max_count.to_i.times {
+            # Start the VM.
+            instance = VirtualMachine.new(VirtualMachine.build_xml, @client)
 
-        erb_current_state = render_state(vm)
-        erb_instance_id   = render_instance_id(vm)
+            rc = instance.allocate(template_text)
+            if OpenNebula::is_error?(rc)
+                if erb_vms.size < min_count.to_i
+                    erb_vms.each { |vm|
+                        vm.finalize
+                    }
+
+                    return rc
+                end
+            else
+                instance.info
+
+                erb_vms << instance
+            end
+        }
 
         erb_user_name = params['AWSAccessKeyId']
         erb_version = params['Version']
@@ -148,31 +160,36 @@ module Instance
     # @yieldreturn [OpenNebula::Error, nil]
     # @return [OpenNebula::Error, nil]
     def perform_action(params, erb_name, &block)
-        # Get the VM ID
-        vmid=params['InstanceId.1']
-        vmid=params['InstanceId.01'] if !vmid
+        erb_vms = Array.new
 
-        tmp, vmid=vmid.split('-') if vmid[0] == "i"
+        params.each do |key, value|
+            if key =~ /InstanceId\.(.+)/
+                if value =~ /\-(.+)/
+                    vm = VirtualMachine.new(
+                            VirtualMachine.build_xml($1),
+                            @client)
 
-        vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),@client)
+                    rc = vm.info
+                    if OpenNebula::is_error?(rc)
+                        return rc
+                    end
 
-        rc = vm.info
-        if OpenNebula::is_error?(rc)
-            return rc
+                    previous_state = render_state(vm)
+
+                    rc = block.call(vm)
+                    if OpenNebula::is_error?(rc)
+                        return rc
+                    end
+
+                    vm.info
+
+                    erb_vms << {
+                        :erb_previous_state => previous_state,
+                        :vm => vm
+                    }
+                end
+            end
         end
-
-        erb_previous_state = render_state(vm)
-
-        rc = block.call(vm)
-
-        if OpenNebula::is_error?(rc)
-            return rc
-        end
-
-        vm.info
-
-        erb_current_state = render_state(vm)
-        erb_instance_id   = render_instance_id(vm)
 
         erb_version = params['Version']
 

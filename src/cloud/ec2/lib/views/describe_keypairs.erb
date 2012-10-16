@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <DescribeKeyPairsResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
+   <requestId><%= @request_id %></requestId>
   <keySet>
    <% erb_keypairs.each_pair do |k,v| %>
     <item>

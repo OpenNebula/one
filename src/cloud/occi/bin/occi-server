@@ -113,16 +113,21 @@ stop()
 
 case "$1" in
   start)
-  setup
-  start
-  ;;
+    setup
+    start
+    ;;
   stop)
-  stop
-  ;;
+    stop
+    ;;
+  restart)
+    stop
+    setup
+    start
+    ;;
   *)
-  echo "Usage: occi-server {start|stop}" >&2
-  exit 3
-  ;;
+    echo "Usage: occi-server {start|stop|restart}" >&2
+    exit 3
+    ;;
 esac
 
 

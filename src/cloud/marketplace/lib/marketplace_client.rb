@@ -17,6 +17,8 @@
 require 'uri'
 require 'cloud/CloudClient'
 
+require 'ostruct'
+
 module Market
     class Client
         def initialize(username, password, url, user_agent="Ruby")
@@ -27,16 +29,24 @@ module Market
             @uri = URI.parse(url)
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
-            @proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new
+
+            @host = nil
+            @port = nil
+
+            if ENV['http_proxy']
+                uri_proxy  = URI.parse(ENV['http_proxy'])
+                @host = uri_proxy.host
+                @port = uri_proxy.port
+            end
         end
 
         def get(path)
-            req = Net::HTTP::Proxy(@proxy.host, @proxy.port)::Get.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
             do_request(req)
         end
 
         def post(path, body)
-            req = Net::HTTP::Proxy(@proxy.host, @proxy.port)::Post.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
 
             do_request(req)

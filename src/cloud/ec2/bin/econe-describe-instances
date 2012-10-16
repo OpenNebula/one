@@ -45,11 +45,11 @@ TABLE = CLIHelper::ShowTable.new(nil, self) do
         d["instanceState"]['name']
     end
 
-    column :IP, "IP", :size=>12 do |d|
-        d['dnsName']
+    column :IP, "IP", :size=>18 do |d|
+        d['privateIpAddress']
     end
 
-    column :instanceType, "instanceType", :size=>20 do |d|
+    column :instanceType, "instanceType", :size=>12 do |d|
         d["instanceType"]
     end
 

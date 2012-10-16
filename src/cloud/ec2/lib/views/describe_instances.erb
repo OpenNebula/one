@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <DescribeInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
-  <requestId>4ac62eaf-e266-4058-a970-2c01568cd417</requestId>
+   <requestId><%= @request_id %></requestId>
   <reservationSet>
     <item>
       <reservationId>default</reservationId>
@@ -18,20 +18,24 @@
           <instanceState>
               <%= render_state(vm) %>
           </instanceState>
-          <privateDnsName><%= vm["TEMPLATE/NIC/IP"] %></privateDnsName>
-          <dnsName><%= vm["TEMPLATE/NIC/IP"] %></dnsName>
+          <% if vm.has_elements?("TEMPLATE/NIC/IP") %>
+          <% ips_str = vm.retrieve_elements("TEMPLATE/NIC/IP").join(', ') %>
+          <privateIpAddress><%= ips_str %></privateIpAddress>
+          <privateDnsName><%= ips_str %></privateDnsName>
+          <dnsName><%= ips_str %></dnsName>
+          <% end %>
           <% if vm['TEMPLATE/CONTEXT/EC2_KEYNAME'].nil? %>
           <keyName>none</keyName>
           <% else %>
           <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
           <% end %>
-          <amiLaunchIndex>0</amiLaunchIndex>
           <productCodes/>
           <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType>
           <%= render_launch_time(vm) %>
           <placement>
             <availabilityZone>default</availabilityZone>
           </placement>
+          <amiLaunchIndex><%= vm.id %></amiLaunchIndex>
 
           <kernelId>eki-EA801065</kernelId>
           <ramdiskId>eri-1FEE1144</ramdiskId>

@@ -22,8 +22,6 @@ require 'net/https'
 
 require "rexml/document"
 
-require 'ostruct'
-
 begin
     require 'rexml/formatters/pretty'
     REXML_FORMATTERS=true
@@ -85,8 +83,16 @@ module CloudClient
     # is set if needed.
     # #########################################################################
     def self.http_start(url, timeout, &block)
-        proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new
-        http = Net::HTTP::Proxy(proxy.host, proxy.port).new(url.host, url.port)
+        host = nil
+        port = nil
+
+        if ENV['http_proxy']
+            uri_proxy  = URI.parse(ENV['http_proxy'])
+            host = uri_proxy.host
+            port = uri_proxy.port
+        end
+
+        http = Net::HTTP::Proxy(host, port).new(url.host, url.port)
 
         if timeout
             http.read_timeout = timeout.to_i

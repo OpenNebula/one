@@ -75,7 +75,6 @@ CommandParser::CmdParser.new(ARGV) do
         if CloudClient::is_error?(rc)
             exit_with_code -1, "#{cmd_name}: #{rc.message}"
         else
-            puts rc
             if rc.empty? || rc['addressesSet'].nil? || rc['addressesSet']['item'].nil?
                 addrs = []
             else
