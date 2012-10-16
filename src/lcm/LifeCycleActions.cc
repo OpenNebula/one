@@ -498,7 +498,8 @@ void  LifeCycleManager::restart_action(int vid)
 
     if ((vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT ))
+         vm->get_lcm_state() == VirtualMachine::BOOT ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN))
        ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
@@ -509,9 +510,19 @@ void  LifeCycleManager::restart_action(int vid)
         //----------------------------------------------------
 
         if (vm->get_state() == VirtualMachine::ACTIVE &&
-            vm->get_lcm_state() == VirtualMachine::BOOT)
+            (vm->get_lcm_state() == VirtualMachine::BOOT ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN))
         {
             vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
+        }
+        else if (vm->get_state() == VirtualMachine::ACTIVE &&
+                 vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+        {
+            vm->set_state(VirtualMachine::BOOT_UNKNOWN);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is BOOT_UNKNOWN");
         }
         else
         {
@@ -644,6 +655,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         break;
 
         case VirtualMachine::BOOT:
+        case VirtualMachine::BOOT_UNKNOWN:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:

@@ -356,6 +356,14 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         failure_action(vm);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN)
+    {
+        vm->set_state(VirtualMachine::UNKNOWN);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
+    }
 
     vm->unlock();
 }
