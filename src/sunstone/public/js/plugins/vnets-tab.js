@@ -724,7 +724,7 @@ function printLeases(vn_info){
         html += lease.IP + '</td>';
 
         html += '<td class="value_td">\
-                 '+lease.MAC+'&nbsp;&nbsp;&nbsp';
+                 '+lease.MAC+'&nbsp;&nbsp;&nbsp;';
 
         switch (state){
         case 0:
