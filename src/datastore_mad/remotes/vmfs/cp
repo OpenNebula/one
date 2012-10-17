@@ -98,7 +98,7 @@ if [ ! -d $TMP_DIR ]; then
     mkdir -p $TMP_DIR
 fi
 
-DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$SRC" "$TMP_DIR/$IMAGE_HASH"`
+DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$SRC" "$TMP_DIR/$DST_FOLDER"`
 
 COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
@@ -110,7 +110,7 @@ http://*|https://* )
 
     exec_and_log "$COPY_COMMAND" "Error downloading $SRC"
 
-    SRC="$TMP_DIR/$IMAGE_HASH"
+    SRC="$TMP_DIR/$DST_FOLDER"
     ;;
 
 *)
@@ -123,8 +123,8 @@ http://*|https://* )
     log "Copying local disk folder $SRC to the image repository"
 
     if [ ! -d $SRC ]; then
-        exec_and_log "$COPY_COMMAND" "Error copying $SRC to $TMP_DIR/$IMAGE_HASH"
-        SRC="$TMP_DIR/$IMAGE_HASH"
+        exec_and_log "$COPY_COMMAND" "Error copying $SRC to $TMP_DIR/$DST_FOLDER"
+        SRC="$TMP_DIR/$DST_FOLDER"
     fi
     ;;
 esac
@@ -149,8 +149,9 @@ else
     done
 fi
 
-if [ -d "$TMP_DIR/$IMAGE_HASH" -a -n "$IMAGE_HASH" ]; then
-    rm -rf "$TMP_DIR/$IMAGE_HASH" > /dev/null 2>&1
+if [ -d "$TMP_DIR/$DST_FOLDER" -a -n "$DST_FOLDER" ]; then
+    rm -rf "$TMP_DIR/$DST_FOLDER" > /dev/null 2>&1
 fi
 
 echo "$DST"
+
