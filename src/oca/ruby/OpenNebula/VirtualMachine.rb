@@ -44,7 +44,7 @@ module OpenNebula
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
             SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
-            BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED}
+            BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -79,7 +79,8 @@ module OpenNebula
             "SHUTDOWN_POWEROFF" => "shut",
             "BOOT_UNKNOWN"  => "boot",
             "BOOT_POWEROFF" => "boot",
-            "BOOT_SUSPENDED" => "boot"
+            "BOOT_SUSPENDED" => "boot",
+            "BOOT_STOPPED"  => "boot"
         }
 
         MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}

@@ -108,7 +108,8 @@ var OpenNebula = {
                                "SHUTDOWN_POWEROFF",
                                "BOOT_UNKNOWN",
                                "BOOT_POWEROFF",
-                               "BOOT_SUSPENDED"][value]);
+                               "BOOT_SUSPENDED",
+                               "BOOT_STOPPED"][value]);
                     break;
                 case "IMAGE":
                 case "image":
