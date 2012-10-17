@@ -594,7 +594,9 @@ void  LifeCycleManager::prolog_success_action(int vid)
 
 void  LifeCycleManager::prolog_failure_action(int vid)
 {
-    VirtualMachine *    vm;
+    VirtualMachine::LcmState    state;
+    VirtualMachine *            vm;
+
     time_t  the_time = time(0);
 
     vm = vmpool->get(vid,true);
@@ -604,9 +606,52 @@ void  LifeCycleManager::prolog_failure_action(int vid)
         return;
     }
 
-    vm->set_prolog_etime(the_time);
+    state = vm->get_lcm_state();
 
-    failure_action(vm);
+    if ( state == VirtualMachine::PROLOG ||
+         state == VirtualMachine::PROLOG_MIGRATE )
+    {
+        vm->set_prolog_etime(the_time);
+
+        failure_action(vm);
+    }
+    else if ( state == VirtualMachine::PROLOG_RESUME )
+    {
+        //----------------------------------------------------
+        //    STOPPED STATE FROM PROLOG_RESUME
+        //----------------------------------------------------
+
+        Nebula&             nd = Nebula::instance();
+        DispatchManager *   dm = nd.get_dm();
+
+        int                 cpu,mem,disk;
+
+        vm->set_prolog_etime(the_time);
+
+        vm->set_resched(false);
+
+        vmpool->update(vm);
+
+        vm->set_etime(the_time);
+
+        vm->set_vm_info();
+
+        vm->set_reason(History::STOP_RESUME);
+
+        vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+
+        //----------------------------------------------------
+
+        dm->trigger(DispatchManager::STOP_SUCCESS,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"prolog_failure_action, VM in a wrong state");
+    }
 
     vm->unlock();
 

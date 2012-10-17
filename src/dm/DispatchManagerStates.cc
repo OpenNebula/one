@@ -70,7 +70,8 @@ void  DispatchManager::stop_success_action(int vid)
     }
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
-        (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP))
+        (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
     {
         vm->set_state(VirtualMachine::STOPPED);
 

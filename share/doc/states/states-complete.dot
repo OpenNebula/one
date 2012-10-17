@@ -3,7 +3,7 @@
 digraph OpenNebula {
     graph [
         nodesep=0.5,
-        ratio=0.8,
+        ratio=1,
         pad=0.5,
     ];
 
@@ -21,17 +21,18 @@ digraph OpenNebula {
     subgraph { rank = min; user}
     subgraph { rank = same; boot; boot_stopped boot_suspended; boot_unknown; boot_poweroff; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
-    subgraph { rank = same; prolog; prolog_resume; prolog_migrate;
-    color="white" }
+    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; color="white" }
+//    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; save_migrate; color="white" }
 
     subgraph { rank = max; suspended; done; failure;
     stopped; poweroff; ANY; color="white" }
+//    stopped; poweroff; color="white" }
 
 #   create
     user -> pending [label="create"];
 
 #   deploy
-    pending     -> prolog_resume [label="deploy (from stopped)"];
+    pending     -> prolog_resume [label="deploy\n(from stopped)"];
     prolog_resume -> boot_stopped [style="dashed"];
 
     pending     -> prolog [label="deploy"];
@@ -102,7 +103,7 @@ digraph OpenNebula {
     running     -> running [label="reboot / reset"];
 
 #   attachdisk
-    running     -> hotplug [label="attachdisk / detachdisk"]
+    running     -> hotplug [label="attachdisk /\ndetachdisk"]
     hotplug     -> running [style="dashed"];
 
 #   resubmit
@@ -114,7 +115,7 @@ digraph OpenNebula {
 
     prolog          -> failure [style="dotted"];
     prolog_migrate  -> failure [style="dotted"];
-    prolog_resume   -> failure [style="dotted"];
+    prolog_resume   -> stopped [style="dotted"];
 
     boot            -> failure [style="dotted"];
     boot_poweroff   -> poweroff [style="dotted"];
