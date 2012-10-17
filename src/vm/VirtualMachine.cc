@@ -1198,6 +1198,8 @@ void VirtualMachine::get_disk_info(int&         max_disk_id,
         }
     }
 
+    disks.clear();
+
     if ( obj_template->get("CONTEXT", disks) > 0 )
     {
         disk = dynamic_cast<VectorAttribute * >(disks[0]);
