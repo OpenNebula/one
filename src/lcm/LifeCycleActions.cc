@@ -408,7 +408,7 @@ void  LifeCycleManager::restore_action(int vid)
         //----------------------------------------------------
         vm->set_state(VirtualMachine::ACTIVE);
 
-        vm->set_state(VirtualMachine::BOOT);
+        vm->set_state(VirtualMachine::BOOT_SUSPENDED);
 
         vm->cp_history();
 
@@ -420,7 +420,7 @@ void  LifeCycleManager::restore_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->log("LCM", Log::INFO, "New state is BOOT");
+        vm->log("LCM", Log::INFO, "New state is BOOT_SUSPENDED");
 
         //----------------------------------------------------
 
@@ -500,7 +500,8 @@ void  LifeCycleManager::restart_action(int vid)
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT ||
          vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF))
+         vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED))
        ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
@@ -513,7 +514,8 @@ void  LifeCycleManager::restart_action(int vid)
         if (vm->get_state() == VirtualMachine::ACTIVE &&
             (vm->get_lcm_state() == VirtualMachine::BOOT ||
              vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF))
+             vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED))
         {
             vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
         }
@@ -659,6 +661,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         case VirtualMachine::BOOT:
         case VirtualMachine::BOOT_UNKNOWN:
         case VirtualMachine::BOOT_POWEROFF:
+        case VirtualMachine::BOOT_SUSPENDED:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:

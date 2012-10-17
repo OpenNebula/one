@@ -373,6 +373,15 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is POWEROFF");
     }
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED)
+    {
+        vm->set_state(VirtualMachine::SUSPENDED);
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is SUSPENDED");
+    }
 
     vm->unlock();
 }
