@@ -41,6 +41,22 @@
   :desc: Available Memory (not reserved by VMs)
   :size: 7
 
+:ALLOCATED_CPU:
+  :desc: Allocated CPU
+  :size: 20
+
+:REAL_CPU:
+  :desc: Real CPU
+  :size: 20
+
+:ALLOCATED_MEM:
+  :desc: Allocated MEM
+  :size: 20
+
+:REAL_MEM:
+  :desc: Real MEM
+  :size: 20
+
 :STAT: 
   :desc: Host status
   :size: 6
@@ -51,10 +67,6 @@
 - :NAME
 - :CLUSTER
 - :RVM
-- :TCPU
-- :FCPU
-- :ACPU
-- :TMEM
-- :FMEM
-- :AMEM
+- :ALLOCATED_CPU
+- :ALLOCATED_MEM
 - :STAT
