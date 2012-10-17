@@ -362,7 +362,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is UNKNOWN");
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF)
     {
@@ -371,7 +371,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->log("LCM", Log::INFO, "New VM state is POWEROFF");
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is POWEROFF");
     }
 
     vm->unlock();
