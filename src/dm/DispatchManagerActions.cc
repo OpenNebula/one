@@ -554,7 +554,9 @@ int DispatchManager::restart(int vid)
 
     if ((vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT))
+         vm->get_lcm_state() == VirtualMachine::BOOT ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF))
         || vm->get_state() == VirtualMachine::POWEROFF )
     {
         Nebula&             nd  = Nebula::instance();

@@ -498,7 +498,9 @@ void  LifeCycleManager::restart_action(int vid)
 
     if ((vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT ))
+         vm->get_lcm_state() == VirtualMachine::BOOT ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF))
        ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
@@ -509,18 +511,29 @@ void  LifeCycleManager::restart_action(int vid)
         //----------------------------------------------------
 
         if (vm->get_state() == VirtualMachine::ACTIVE &&
-            vm->get_lcm_state() == VirtualMachine::BOOT)
+            (vm->get_lcm_state() == VirtualMachine::BOOT ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF))
         {
             vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
         }
-        else
+        else if (vm->get_state() == VirtualMachine::ACTIVE &&
+                 vm->get_lcm_state() == VirtualMachine::UNKNOWN)
         {
-            vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
-            vm->set_state(VirtualMachine::BOOT);
+            vm->set_state(VirtualMachine::BOOT_UNKNOWN);
 
             vmpool->update(vm);
 
-            vm->log("LCM", Log::INFO, "New VM state is BOOT");
+            vm->log("LCM", Log::INFO, "New VM state is BOOT_UNKNOWN");
+        }
+        else // if ( vm->get_state() == VirtualMachine::POWEROFF )
+        {
+            vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
+            vm->set_state(VirtualMachine::BOOT_POWEROFF);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is BOOT_POWEROFF");
         }
 
         //----------------------------------------------------
@@ -644,6 +657,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         break;
 
         case VirtualMachine::BOOT:
+        case VirtualMachine::BOOT_UNKNOWN:
+        case VirtualMachine::BOOT_POWEROFF:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:

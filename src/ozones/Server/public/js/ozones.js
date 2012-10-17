@@ -97,7 +97,9 @@ var oZones = {
                                "CLEANUP",
                                "UNKNOWN",
                                "HOTPLUG",
-                               "SHUTDOWN_POWEROFF"][value]);
+                               "SHUTDOWN_POWEROFF",
+                               "BOOT_UNKNOWN",
+                               "BOOT_POWEROFF"][value]);
                     break;
                 case "IMAGE":
                 case "image":

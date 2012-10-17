@@ -65,25 +65,27 @@ public:
      */
     enum LcmState
     {
-        LCM_INIT       = 0,
-        PROLOG         = 1,
-        BOOT           = 2,
-        RUNNING        = 3,
-        MIGRATE        = 4,
-        SAVE_STOP      = 5,
-        SAVE_SUSPEND   = 6,
-        SAVE_MIGRATE   = 7,
-        PROLOG_MIGRATE = 8,
-        PROLOG_RESUME  = 9,
-        EPILOG_STOP    = 10,
-        EPILOG         = 11,
-        SHUTDOWN       = 12,
-        CANCEL         = 13,
-        FAILURE        = 14,
-        CLEANUP        = 15,
-        UNKNOWN        = 16,
-        HOTPLUG        = 17,
-        SHUTDOWN_POWEROFF = 18
+        LCM_INIT            = 0,
+        PROLOG              = 1,
+        BOOT                = 2,
+        RUNNING             = 3,
+        MIGRATE             = 4,
+        SAVE_STOP           = 5,
+        SAVE_SUSPEND        = 6,
+        SAVE_MIGRATE        = 7,
+        PROLOG_MIGRATE      = 8,
+        PROLOG_RESUME       = 9,
+        EPILOG_STOP         = 10,
+        EPILOG              = 11,
+        SHUTDOWN            = 12,
+        CANCEL              = 13,
+        FAILURE             = 14,
+        CLEANUP             = 15,
+        UNKNOWN             = 16,
+        HOTPLUG             = 17,
+        SHUTDOWN_POWEROFF   = 18,
+        BOOT_UNKNOWN        = 19,
+        BOOT_POWEROFF       = 20
     };
 
     // -------------------------------------------------------------------------

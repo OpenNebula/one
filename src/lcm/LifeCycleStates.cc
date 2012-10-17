@@ -356,6 +356,23 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         failure_action(vm);
     }
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN)
+    {
+        vm->set_state(VirtualMachine::UNKNOWN);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is UNKNOWN");
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF)
+    {
+        vm->set_state(VirtualMachine::POWEROFF);
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is POWEROFF");
+    }
 
     vm->unlock();
 }
