@@ -1224,11 +1224,9 @@ function progressBar(value, opts){
 
     if (!opts.labelHPos) opts.labelHPos = '90px';
 
-    return '<div style="height:'+opts.height+';width:'+opts.width+';" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+value+'">\
-           <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+value+'%;">\
-             <span style="position:relative;left:'+opts.labelHPos+';font-weight:normal;top:'+opts.labelVPos+';font-size:'+opts.fontSize+';">'+opts.label+'</span>\
-           </div>\
-           </div>\
+    return '<div style="height:'+opts.height+';width:'+opts.width+';position:relative" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+value+'">\
+            <span style="position:absolute;width: 100%; text-align: center;font-weight:normal;font-size:'+opts.fontSize+';">'+opts.label+'</span>\
+           <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+value+'%;"/>\
          </div>';
 }
 
