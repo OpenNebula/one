@@ -910,7 +910,7 @@ int DispatchManager::attach(int vid,
 {
     ostringstream oss;
 
-    int num_disks;
+    int max_disk_id;
     int uid;
     int image_id;
 
@@ -945,7 +945,7 @@ int DispatchManager::attach(int vid,
         return -1;
     }
 
-    vm->get_disk_info(num_disks, used_targets);
+    vm->get_disk_info(max_disk_id, used_targets);
 
     vm->set_state(VirtualMachine::HOTPLUG);
 
@@ -959,7 +959,7 @@ int DispatchManager::attach(int vid,
 
     disk = VirtualMachine::set_up_attach_disk(tmpl,
                                               used_targets,
-                                              num_disks,
+                                              max_disk_id,
                                               uid,
                                               image_id,
                                               error_str);

@@ -295,6 +295,7 @@ int XenDriver::deployment_description(
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
         driver  = context->vector_value("DRIVER");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if ( !target.empty() )
         {
@@ -309,8 +310,8 @@ int XenDriver::deployment_description(
                 file << default_driver;
             }
 
-            file << vm->get_remote_system_dir() << "/disk." << num <<","<< target <<","
-                 << "r'," << endl;
+            file << vm->get_remote_system_dir() << "/disk." << disk_id
+                 << "," << target << "," << "r'," << endl;
         }
         else
         {
