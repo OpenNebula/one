@@ -400,7 +400,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::ERROR);
+        vm->set_reason(History::STOP_RESUME);
 
         vmpool->update_history(vm);
 
