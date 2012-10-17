@@ -100,9 +100,9 @@ function dashboardQuotaRow(quota_json){
         max = parseInt(max,10) ? max : "unlimited";
 
         if (unit)
-            return used+'&nbsp;'+unit+'&nbsp;/&nbsp'+max+'&nbsp;'+unit;
+            return used+'&nbsp;'+unit+'&nbsp;/&nbsp;'+max+'&nbsp;'+unit;
 
-        return used + '&nbsp;/&nbsp'+ max
+        return used + '&nbsp;/&nbsp;'+ max
 
     }
 
