@@ -276,12 +276,13 @@ int LibVirtDriver::deployment_description_vmware(
     {
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if ( !target.empty() )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
             file << "\t\t\t<source file='[" <<  vm->get_ds_id() <<"] "
-                 << vm->get_oid() << "/disk." << num << ".iso'/>" << endl;
+                 << vm->get_oid() << "/disk." << disk_id << ".iso'/>" << endl;
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
             file << "\t\t\t<readonly/>" << endl;
             file << "\t\t</disk>" << endl;

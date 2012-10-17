@@ -129,10 +129,10 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     //Every process gets 1024 shares by default (cgroups), scale this with CPU
-    if(vm->get_template_attribute("CPU", cpu)) 
+    if(vm->get_template_attribute("CPU", cpu))
     {
         file << "\t<cputune>" << endl
-             << "\t\t<shares>"<< ceil( cpu * CGROUP_BASE_CPU_SHARES ) 
+             << "\t\t<shares>"<< ceil( cpu * CGROUP_BASE_CPU_SHARES )
              << "</shares>"   << endl
              << "\t</cputune>"<< endl;
     }
@@ -339,19 +339,19 @@ int LibVirtDriver::deployment_description_kvm(
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl
-                 << "\t\t\t<source dev='" << vm->get_remote_system_dir() 
+                 << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl
-                 << "\t\t\t<source file='" << vm->get_remote_system_dir() 
+                 << "\t\t\t<source file='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
         else
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
-                 << "\t\t\t<source file='" << vm->get_remote_system_dir() 
+                 << "\t\t\t<source file='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
 
@@ -408,13 +408,14 @@ int LibVirtDriver::deployment_description_kvm(
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
         driver  = context->vector_value("DRIVER");
+        disk->vector_value_str("DISK_ID", disk_id);
 
         if ( !target.empty() )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
 
-            file << "\t\t\t<source file='" << vm->get_remote_system_dir() 
-                 << "/disk." << num << "'/>" << endl;
+            file << "\t\t\t<source file='" << vm->get_remote_system_dir()
+                 << "/disk." << disk_id << "'/>" << endl;
 
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
             file << "\t\t\t<readonly/>" << endl;
