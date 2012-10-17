@@ -382,6 +382,34 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is SUSPENDED");
     }
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED)
+    {
+        Nebula&             nd = Nebula::instance();
+        TransferManager *   tm = nd.get_tm();
+        time_t              the_time = time(0);
+
+        //----------------------------------------------------
+        //             EPILOG_STOP STATE FROM BOOT
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_STOP);
+
+        vmpool->update(vm);
+
+        vm->set_epilog_stime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_reason(History::ERROR);
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is EPILOG_STOP");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
 
     vm->unlock();
 }
@@ -533,7 +561,14 @@ void  LifeCycleManager::prolog_success_action(int vid)
     //                     BOOT STATE
     //----------------------------------------------------
 
-    vm->set_state(VirtualMachine::BOOT);
+    if ( lcm_state == VirtualMachine::PROLOG_RESUME )
+    {
+        vm->set_state(VirtualMachine::BOOT_STOPPED);
+    }
+    else // PROLOG || PROLOG_MIGRATE
+    {
+        vm->set_state(VirtualMachine::BOOT);
+    }
 
     vmpool->update(vm);
 

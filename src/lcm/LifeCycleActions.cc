@@ -501,7 +501,8 @@ void  LifeCycleManager::restart_action(int vid)
          vm->get_lcm_state() == VirtualMachine::BOOT ||
          vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED))
+         vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED))
        ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
@@ -515,7 +516,8 @@ void  LifeCycleManager::restart_action(int vid)
             (vm->get_lcm_state() == VirtualMachine::BOOT ||
              vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
              vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED))
+             vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED))
         {
             vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
         }
@@ -662,6 +664,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
         case VirtualMachine::BOOT_UNKNOWN:
         case VirtualMachine::BOOT_POWEROFF:
         case VirtualMachine::BOOT_SUSPENDED:
+        case VirtualMachine::BOOT_STOPPED:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:
