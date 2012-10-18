@@ -87,44 +87,53 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(acpu,options)
             end
 
-
-
-
-
-
-
-            column :REAL_CPU, "Real CPU", :size=>15 do |d|
+            column :REAL_CPU, "Real CPU", :size=>18 do |d|
                 max_cpu  = d["HOST_SHARE"]["MAX_CPU"].to_i
-                used_cpu = d["HOST_SHARE"]["USED_CPU"].to_i
-                ratio    = (used_cpu*100) / max_cpu
-                "#{used_cpu} / #{max_cpu} (#{ratio}%)"
+
+                if max_cpu != 0
+                    used_cpu = d["HOST_SHARE"]["USED_CPU"].to_i
+                    ratio    = (used_cpu*100) / max_cpu
+                    "#{used_cpu} / #{max_cpu} (#{ratio}%)"
+                else
+                    '-'
+                end
             end
 
-            column :ALLOCATED_CPU, "Allocated CPU)", :size=>15 do |d|
+            column :ALLOCATED_CPU, "Allocated CPU)", :size=>18 do |d|
                 max_cpu  = d["HOST_SHARE"]["MAX_CPU"].to_i
-                cpu_usage = d["HOST_SHARE"]["CPU_USAGE"].to_i
-                ratio    = (cpu_usage*100) / max_cpu
-                "#{cpu_usage} / #{max_cpu} (#{ratio}%)"
+
+                if max_cpu != 0
+                    cpu_usage = d["HOST_SHARE"]["CPU_USAGE"].to_i
+                    ratio    = (cpu_usage*100) / max_cpu
+                    "#{cpu_usage} / #{max_cpu} (#{ratio}%)"
+                else
+                    '-'
+                end
             end
 
-
-            column :REAL_MEM, "Real MEM", :size=>15 do |d|
+            column :REAL_MEM, "Real MEM", :size=>18 do |d|
                 max_mem  = d["HOST_SHARE"]["MAX_MEM"].to_i
-                used_mem = d["HOST_SHARE"]["USED_MEM"].to_i
-                ratio    = (used_mem*100) / max_mem
-                "#{OpenNebulaHelper.unit_to_str(used_mem,options)} / #{OpenNebulaHelper.unit_to_str(max_mem,options)} (#{ratio}%)"
+
+                if max_mem != 0
+                    used_mem = d["HOST_SHARE"]["USED_MEM"].to_i
+                    ratio    = (used_mem*100) / max_mem
+                    "#{OpenNebulaHelper.unit_to_str(used_mem,options)} / #{OpenNebulaHelper.unit_to_str(max_mem,options)} (#{ratio}%)"
+                else
+                    '-'
+                end
             end
 
-            column :ALLOCATED_MEM, "Allocated MEM", :size=>15 do |d|
+            column :ALLOCATED_MEM, "Allocated MEM", :size=>18 do |d|
                 max_mem  = d["HOST_SHARE"]["MAX_MEM"].to_i
-                mem_usage = d["HOST_SHARE"]["MEM_USAGE"].to_i
-                ratio    = (mem_usage*100) / max_mem
-                "#{OpenNebulaHelper.unit_to_str(mem_usage,options)} / #{OpenNebulaHelper.unit_to_str(max_mem,options)} (#{ratio}%)"
+
+                if max_mem != 0
+                    mem_usage = d["HOST_SHARE"]["MEM_USAGE"].to_i
+                    ratio    = (mem_usage*100) / max_mem
+                    "#{OpenNebulaHelper.unit_to_str(mem_usage,options)} / #{OpenNebulaHelper.unit_to_str(max_mem,options)} (#{ratio}%)"
+                else
+                    '-'
+                end
             end
-
-
-
-
 
             column :STAT, "Host status", :left, :size=>6 do |d|
                 OneHostHelper.state_to_str(d["STATE"])
