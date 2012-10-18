@@ -115,7 +115,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, create_desc, [:file, nil], :options =>
-            [OneVMHelper::MULTIPLE] + OpenNebulaHelper::TEMPLATE_OPTIONS do
+            [OneVMHelper::MULTIPLE]+OpenNebulaHelper::TEMPLATE_OPTIONS_VM do
 
         number    = options[:multiple] || 1
         exit_code = nil

@@ -68,14 +68,15 @@ EOT
     }
 
     # Command line VM template options
+    TEMPLATE_NAME_VM={
+        :name   => 'name',
+        :large  => '--name name',
+        :description =>
+            'Name for the new VM',
+        :format => String
+    }
+
     TEMPLATE_OPTIONS=[
-        {
-            :name   => 'name',
-            :large  => '--name name',
-            :description =>
-                'Name for the VM',
-            :format => String
-        },
         {
             :name   => 'cpu',
             :large  => '--cpu cpu',
@@ -133,6 +134,8 @@ EOT
             :format => String
         }
     ]
+
+    TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS
 
     OPTIONS = XML, NUMERIC, KILOBYTES
 
