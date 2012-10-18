@@ -571,18 +571,18 @@ void  LifeCycleManager::delete_action(int vid)
         return;
     }
 
-    VirtualMachine::LcmState state = vm->get_lcm_state();
-
-    if ((state == VirtualMachine::LCM_INIT) ||
-        (state == VirtualMachine::CLEANUP))
+    if ( vm->get_state() == VirtualMachine::ACTIVE &&
+        (vm->get_lcm_state() != VirtualMachine::LCM_INIT &&
+         vm->get_lcm_state() != VirtualMachine::CLEANUP))
     {
-        vm->unlock();
-        return;
+        clean_up_vm(vm);
+
+        dm->trigger(DispatchManager::DONE,vid);
     }
-
-    clean_up_vm(vm);
-
-    dm->trigger(DispatchManager::DONE,vid);
+    else
+    {
+        vm->log("LCM", Log::ERROR, "delete_action, VM in a wrong state.");
+    }
 
     vm->unlock();
 
@@ -606,16 +606,17 @@ void  LifeCycleManager::clean_action(int vid)
         return;
     }
 
-    VirtualMachine::LcmState state = vm->get_lcm_state();
 
-    if ((state == VirtualMachine::LCM_INIT) ||
-        (state == VirtualMachine::CLEANUP))
+    if ( vm->get_state() == VirtualMachine::ACTIVE &&
+        (vm->get_lcm_state() != VirtualMachine::LCM_INIT &&
+         vm->get_lcm_state() != VirtualMachine::CLEANUP))
     {
-        vm->unlock();
-        return;
+        clean_up_vm(vm);
     }
-
-    clean_up_vm(vm);
+    else
+    {
+        vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+    }
 
     vm->unlock();
 }

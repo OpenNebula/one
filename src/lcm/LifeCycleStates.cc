@@ -221,6 +221,10 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vmm->trigger(VirtualMachineManager::POLL,vid);
     }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"save_failure_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -266,12 +270,22 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
     }
+    else if ( vm->get_lcm_state() == VirtualMachine::BOOT ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN  ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED||
+              vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED  )
+    {
+        vm->set_state(VirtualMachine::RUNNING);
 
-    vm->set_state(VirtualMachine::RUNNING);
+        vmpool->update(vm);
 
-    vmpool->update(vm);
-
-    vm->log("LCM", Log::INFO, "New VM state is RUNNING");
+        vm->log("LCM", Log::INFO, "New VM state is RUNNING");
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"deploy_success_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -410,6 +424,10 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"deploy_failure_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -499,20 +517,28 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
         return;
     }
 
-    //----------------------------------------------------
-    //    RUNNING STATE FROM SHUTDOWN
-    //----------------------------------------------------
+    if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF )
+    {
+        //----------------------------------------------------
+        //    RUNNING STATE FROM SHUTDOWN
+        //----------------------------------------------------
 
-    vm->set_state(VirtualMachine::RUNNING);
+        vm->set_state(VirtualMachine::RUNNING);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
 
-    vm->log("LCM", Log::INFO, "Fail to shutdown VM."
-            " Assuming that the VM is still RUNNING (will poll VM).");
+        vm->log("LCM", Log::INFO, "Fail to shutdown VM."
+                " Assuming that the VM is still RUNNING (will poll VM).");
 
-    //----------------------------------------------------
+        //----------------------------------------------------
 
-    vmm->trigger(VirtualMachineManager::POLL,vid);
+        vmm->trigger(VirtualMachineManager::POLL,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"shutdown_failure_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -749,11 +775,16 @@ void  LifeCycleManager::epilog_failure_action(int vid)
 
         dm->trigger(DispatchManager::RESUBMIT, vid);
     }
-    else
+    else if ( vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
+              vm->get_lcm_state() == VirtualMachine::EPILOG )
     {
         vm->set_epilog_etime(the_time);
 
         failure_action(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"epilog_failure_action, VM in a wrong state");
     }
 
     vm->unlock();
@@ -778,27 +809,34 @@ void  LifeCycleManager::cancel_success_action(int vid)
         return;
     }
 
-    //----------------------------------------------------
-    //                   EPILOG STATE
-    //----------------------------------------------------
+    if ( vm->get_lcm_state() == VirtualMachine::CANCEL )
+    {
+        //----------------------------------------------------
+        //                   EPILOG STATE
+        //----------------------------------------------------
 
-    vm->set_state(VirtualMachine::EPILOG);
+        vm->set_state(VirtualMachine::EPILOG);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
 
-    vm->set_reason(History::CANCEL);
+        vm->set_reason(History::CANCEL);
 
-    vm->set_epilog_stime(the_time);
+        vm->set_epilog_stime(the_time);
 
-    vm->set_running_etime(the_time);
+        vm->set_running_etime(the_time);
 
-    vmpool->update_history(vm);
+        vmpool->update_history(vm);
 
-    vm->log("LCM", Log::INFO, "New VM state is EPILOG");
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG");
 
-    //----------------------------------------------------
+        //----------------------------------------------------
 
-    tm->trigger(TransferManager::EPILOG,vid);
+        tm->trigger(TransferManager::EPILOG,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"cancel_success_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -820,20 +858,27 @@ void  LifeCycleManager::cancel_failure_action(int vid)
         return;
     }
 
-    //----------------------------------------------------
-    //    RUNNING STATE FROM CANCEL
-    //----------------------------------------------------
+    if ( vm->get_lcm_state() == VirtualMachine::CANCEL )
+    {
+        //----------------------------------------------------
+        //    RUNNING STATE FROM CANCEL
+        //----------------------------------------------------
 
-    vm->set_state(VirtualMachine::RUNNING);
+        vm->set_state(VirtualMachine::RUNNING);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
 
-    vm->log("LCM", Log::INFO, "Fail to cancel VM."
-            " Assuming that the VM is still RUNNING (will poll VM).");
+        vm->log("LCM", Log::INFO, "Fail to cancel VM."
+                " Assuming that the VM is still RUNNING (will poll VM).");
 
-    //----------------------------------------------------
+        //----------------------------------------------------
 
-    vmm->trigger(VirtualMachineManager::POLL,vid);
+        vmm->trigger(VirtualMachineManager::POLL,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"cancel_failure_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -854,9 +899,17 @@ void  LifeCycleManager::monitor_failure_action(int vid)
         return;
     }
 
-    vm->set_running_etime(the_time);
+    if ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN )
+    {
+        vm->set_running_etime(the_time);
 
-    failure_action(vm);
+        failure_action(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"monitor_failure_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -881,35 +934,43 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
         return;
     }
 
-    //----------------------------------------------------
-    //                  SAVE_SUSPEND STATE
-    //----------------------------------------------------
+    if ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN )
+    {
+        //----------------------------------------------------
+        //                  SAVE_SUSPEND STATE
+        //----------------------------------------------------
 
-    vm->set_state(VirtualMachine::SAVE_SUSPEND);
+        vm->set_state(VirtualMachine::SAVE_SUSPEND);
 
-    vm->set_resched(false);
+        vm->set_resched(false);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
 
-    vm->set_running_etime(the_time);
+        vm->set_running_etime(the_time);
 
-    vm->set_etime(the_time);
+        vm->set_etime(the_time);
 
-    vm->set_vm_info();
+        vm->set_vm_info();
 
-    vm->set_reason(History::STOP_RESUME);
+        vm->set_reason(History::STOP_RESUME);
 
-    vmpool->update_history(vm);
+        vmpool->update_history(vm);
 
-    vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu,mem,disk);
 
-    hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
-    vm->log("LCM", Log::INFO, "VM is suspended.");
+        vm->log("LCM", Log::INFO, "VM is suspended.");
 
-    //----------------------------------------------------
+        //----------------------------------------------------
 
-    dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
+        dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"monitor_suspend_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -928,19 +989,24 @@ void  LifeCycleManager::monitor_done_action(int vid)
         return;
     }
 
-    //----------------------------------------------------
-    //                   UNKNWON STATE
-    //----------------------------------------------------
+    if ( vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        //----------------------------------------------------
+        //                   UNKNWON STATE
+        //----------------------------------------------------
 
-    vm->set_state(VirtualMachine::UNKNOWN);
+        vm->set_state(VirtualMachine::UNKNOWN);
 
-    vm->set_resched(false);
+        vm->set_resched(false);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
 
-    vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
-
-    //----------------------------------------------------
+        vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
+    }
+    else if ( vm->get_lcm_state() != VirtualMachine::UNKNOWN )
+    {
+        vm->log("LCM",Log::ERROR,"monitor_done_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -998,11 +1064,18 @@ void LifeCycleManager::attach_success_action(int vid)
         return;
     }
 
-    vm->clear_attach_disk();
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        vm->clear_attach_disk();
 
-    vm->set_state(VirtualMachine::RUNNING);
+        vm->set_state(VirtualMachine::RUNNING);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"attach_success_action, VM in a wrong state");
+    }
 
     vm->unlock();
 }
@@ -1025,32 +1098,40 @@ void LifeCycleManager::attach_failure_action(int vid)
         return;
     }
 
-    disk = vm->delete_attach_disk();
-    uid  = vm->get_uid();
-    gid  = vm->get_gid();
-
-    vm->set_state(VirtualMachine::RUNNING);
-
-    vmpool->update(vm);
-
-    vm->unlock();
-
-    if ( disk != 0 )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
-        Nebula&       nd     = Nebula::instance();
-        ImageManager* imagem = nd.get_imagem();
+        disk = vm->delete_attach_disk();
+        uid  = vm->get_uid();
+        gid  = vm->get_gid();
 
-        Template tmpl;
-        int      image_id;
+        vm->set_state(VirtualMachine::RUNNING);
 
-        tmpl.set(disk);
+        vmpool->update(vm);
 
-        Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+        vm->unlock();
 
-        if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
+        if ( disk != 0 )
         {
-            imagem->release_image(image_id, false);
+            Nebula&       nd     = Nebula::instance();
+            ImageManager* imagem = nd.get_imagem();
+
+            Template tmpl;
+            int      image_id;
+
+            tmpl.set(disk);
+
+            Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+
+            if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
+            {
+                imagem->release_image(image_id, false);
+            }
         }
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"attach_failure_action, VM in a wrong state");
+        vm->unlock();
     }
 }
 
