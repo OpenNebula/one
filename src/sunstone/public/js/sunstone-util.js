@@ -654,13 +654,19 @@ function generateMonitoringDivs(graphs, id_prefix, options){
 //formed by a prefix (i.e. "hosts") and a suffix
 //determined by the graph configuration: "info".
 function plot_graph(data,context,id_prefix,info){
-    var labels = info.monitor_resources;
+    var monitoring_resources = info.monitor_resources;
+    var labels  = info.labels
     var humanize = info.humanize_figures ?
         humanize_size : function(val){ return val };
     var convert_from_bytes = info.convert_from_bytes;
-    var id_suffix = labels.replace(/,/g,'_');
+    var id_suffix = monitoring_resources.replace(/,/g,'_');
     id_suffix = id_suffix.replace(/\//g,'_');
-    var labels_array = labels.split(',');
+    var monitoring_resources_array = monitoring_resources.split(',');
+
+    if (labels) {
+        labels_array = labels.split(',')
+    }
+
     var monitoring = data.monitoring
     var series = [];
     var serie;
@@ -668,12 +674,12 @@ function plot_graph(data,context,id_prefix,info){
     var show_date = info.show_date;
 
     //make sure series are painted in the order of the
-    //labels array.
-    for (var i=0; i<labels_array.length; i++) {
+    //monitoring_resources array.
+    for (var i=0; i<monitoring_resources_array.length; i++) {
         serie = {
             //Turns label TEMPLATE/BLABLA into BLABLA
-            label: labels_array[i].split('/').pop(),
-            data: monitoring[labels_array[i]]
+            label: labels ? labels_array[i] : monitoring_resources_array[i].split('/').pop(),
+            data: monitoring[monitoring_resources_array[i]]
         };
         series.push(serie);
         mon_count++;

@@ -27,6 +27,8 @@ module OneDBFsck
         "OpenNebula 3.8.0"
     end
 
+    IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
+
     def fsck
 
         ########################################################################
@@ -86,8 +88,6 @@ module OneDBFsck
         # IMAGE/UNAME
         # IMAGE/GID
         # IMAGE/GNAME
-        # IMAGE/CLONING_OPS
-        # IMAGE/CLONING_ID
         ########################################################################
 
         ########################################################################
@@ -520,7 +520,6 @@ module OneDBFsck
         @db.run("DROP TABLE datastore_pool")
         @db.run("ALTER TABLE datastore_pool_new RENAME TO datastore_pool")
 
-
         ########################################################################
         # VM Counters for host, image and vnet usage
         ########################################################################
@@ -529,6 +528,8 @@ module OneDBFsck
         counters[:host]  = {}
         counters[:image] = {}
         counters[:vnet]  = {}
+
+        cloning_ops = {}
 
         # Initialize all the host counters to 0
         @db.fetch("SELECT oid FROM host_pool") do |row|
@@ -540,10 +541,22 @@ module OneDBFsck
         end
 
         # Init image counters
-        @db.fetch("SELECT oid FROM image_pool") do |row|
+        @db.fetch("SELECT oid,body FROM image_pool") do |row|
             counters[:image][row[:oid]] = {
                 :rvms   => 0
             }
+
+            doc = Document.new(row[:body])
+
+            cloning_ops[row[:oid]] = [] if cloning_ops[row[:oid]].nil?
+
+            doc.root.each_element("CLONING_ID") do |e|
+                img_id = e.text.to_i
+                
+                cloning_ops[img_id] = [] if cloning_ops[img_id].nil?
+
+                cloning_ops[img_id] << row[:oid]
+            end
         end
 
         # Init vnet counters
@@ -682,8 +695,12 @@ module OneDBFsck
         # Image
         #
         # IMAGE/RUNNING_VMS
+        #
+        # IMAGE/CLONING_OPS
+        # IMAGE/CLONING_ID
+        #
+        # IMAGE/STATE
         ########################################################################
-
 
         # Create a new empty table where we will store the new calculated values
         @db.run "CREATE TABLE image_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
@@ -694,13 +711,62 @@ module OneDBFsck
 
             oid = row[:oid]
 
+            persistent = ( doc.root.get_text('PERSISTENT').to_s == "1" )
+            current_state = doc.root.get_text('STATE').to_s.to_i
+
             rvms = counters[:image][oid][:rvms]
+            n_cloning_ops = cloning_ops[row[:oid]].size
 
             # rewrite running_vms
             doc.root.each_element("RUNNING_VMS") {|e|
                 if e.text != rvms.to_s
                     log_error("Image #{oid} RUNNING_VMS has #{e.text} \tis\t#{rvms}")
                     e.text = rvms
+                end
+            }
+
+            if ( persistent && rvms > 0 )
+                n_cloning_ops = 0
+            end
+
+            # Check number of clones
+            doc.root.each_element("CLONING_OPS") { |e|
+                if e.text != n_cloning_ops.to_s
+                    log_error("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
+                    e.text = n_cloning_ops
+                end
+            }
+
+            # Check state
+
+            state = current_state
+
+            if persistent
+                if ( rvms > 0 )
+                    state = 8   # USED_PERS
+                elsif ( n_cloning_ops > 0 )
+                    state = 6   # CLONE
+                elsif ( current_state == 8 || current_state == 6 )
+                    # rvms == 0 && n_cloning_ops == 0, but image is in state
+                    # USED_PERS or CLONE
+
+                    state = 1   # READY
+                end
+            else
+                if ( rvms > 0 || n_cloning_ops > 0 )
+                    state = 2   # USED
+                elsif ( current_state == 2 )
+                    # rvms == 0 && n_cloning_ops == 0, but image is in state
+                    # USED
+
+                    state = 1   # READY
+                end
+            end
+
+            doc.root.each_element("STATE") { |e|
+                if e.text != state.to_s
+                    log_error("Image #{oid} has STATE #{IMAGE_STATES[e.text.to_i]} \tis\t#{IMAGE_STATES[state]}")
+                    e.text = state
                 end
             }
 

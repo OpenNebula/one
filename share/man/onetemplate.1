@@ -13,17 +13,16 @@
 .
 .nf
 
- \-\-name name               Name for the VM
+ \-\-name name               Name of the new VM or TEMPLATE\. When instantiating
+                           multiple VMs you can use the"%i" wildcard to produce
+                           different names such as vm\-0, vm\-1\.\.\.
+
  \-\-cpu cpu                 CPU percentage reserved for the VM (1=100% one CPU)
  \-\-arch arch               Architecture of the VM, e\.g\.: i386 or x86_64
  \-\-memory memory           Memory ammount given to the VM
  \-\-disk disk0,disk1        Disks to attach\. To use a disk owned by other user use user[disk]
  \-\-network network0,network1 Networks to attach\. To use a network owned by other user use user[network]
  \-\-raw string              Raw string to add to the template\. Not to be confused with the RAW attribute
- \-\-name vm_name            Name of the new Virtual Machine\. When instantiating
-                           multiple VMs you can use the"%i" wildcard to produce
-                           different names such as vm\-0, vm\-1\.\.\.
-
  \-m, \-\-multiple x          Instance multiple VMs
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
@@ -104,7 +103,7 @@ instantiate \fItemplateid\fR
 
 Creates a new VM instance from the given Template\. This VM can be
 managed with the \'onevm\' command
-valid options: vm_name, multiple
+valid options: name, multiple
 .
 .fi
 .
@@ -368,7 +367,7 @@ user         VMTEMPLATE of the user identified by the username
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.7\.80 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.8\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

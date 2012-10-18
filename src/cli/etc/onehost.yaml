@@ -43,19 +43,19 @@
 
 :ALLOCATED_CPU:
   :desc: Allocated CPU
-  :size: 20
+  :size: 18
 
 :REAL_CPU:
   :desc: Real CPU
-  :size: 20
+  :size: 18
 
 :ALLOCATED_MEM:
   :desc: Allocated MEM
-  :size: 20
+  :size: 18
 
 :REAL_MEM:
   :desc: Real MEM
-  :size: 20
+  :size: 18
 
 :STAT: 
   :desc: Host status
