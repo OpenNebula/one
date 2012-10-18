@@ -2,8 +2,8 @@
 
 NOVNC_TMP=/tmp/one/novnc-$(date "+%Y%m%d%H%M%S")
 PROXY_PATH=websockify/websocketproxy.py
-NOVNC_REPO=http://github.com/kanaka/noVNC/
-WEBSOCKIFY_RAW_URL=https://raw.github.com/kanaka/websockify/master/websockify
+NOVNC_TAR=https://github.com/downloads/kanaka/noVNC/novnc-0.4.tar.gz
+WEBSOCKIFY_RAW_URL=https://raw.github.com/kanaka/websockify/v0.2.0
 
 if [ -z "$ONE_LOCATION" ]; then
     ONE_SHARE=/usr/share/one
@@ -22,7 +22,7 @@ fi
 echo "Downloading noVNC latest version..."
 mkdir -p $NOVNC_TMP
 cd $NOVNC_TMP
-curl -O -# -L $NOVNC_REPO/tarball/master
+curl -O -# -L $NOVNC_TAR
 if [ $? -ne 0 ]; then
   echo "\nError downloading noVNC"
   exit 1
@@ -40,12 +40,12 @@ fi
 echo "Installing Sunstone client libraries in $ONE_PUBLIC_SUNSTONE..."
 rm -rf $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 mkdir -p $ONE_PUBLIC_SUNSTONE/vendor/noVNC
-cp -r $NOVNC_TMP/*noVNC*/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
+cp -r $NOVNC_TMP/*novnc*/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 
 echo "Installing SelfService client libraries in $ONE_PUBLIC_SELFSERVICE..."
 rm -rf $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
 mkdir -p $ONE_PUBLIC_SELFSERVICE/vendor/noVNC
-cp -r $NOVNC_TMP/*noVNC*/include/ $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
+cp -r $NOVNC_TMP/*novnc*/include/ $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
 
 cd $ONE_SHARE
 rm -rf $NOVNC_TMP
