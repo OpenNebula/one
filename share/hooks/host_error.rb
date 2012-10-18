@@ -21,6 +21,10 @@
 #   It can be set to
 #           -r resubmit VMs running in the host
 #           -d delete VMs running in the host
+#   Additional flags
+#           -f force resubmission of suspended VMs
+#           -p <n> avoid resubmission if host comes
+#                  back after n monitoring cycles
 ####################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
@@ -28,9 +32,11 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
     VMDIR="/var/lib/one"
+    CONFIG_FILE="/var/lib/one/config"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
     VMDIR=ONE_LOCATION+"/var"
+    CONFIG_FILE=ONE_LOCATION+"/var/config"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -42,13 +48,17 @@ if !(host_id=ARGV[0])
     exit -1
 end
 
-if !(mode=ARGV[1]) # By default, resubmit VMs
-    mode = "-r"
-end
+mode   = "-r" # By default, resubmit VMs
+force  = "n"  # By default, don't resubmit/finalize suspended VMs
+repeat = nil  # By default, don't wait fo monitorization cycles"
 
-if !(force=ARGV[2]) # By default, don't resubmit/finalize suspended VMs
-    force = "n"
-end
+loop { case ARGV[1]
+    when '-d':  ARGV.shift; mode  = "-d"
+    when '-f':  ARGV.shift; force = "y"
+    when '-p':  ARGV.shift; ARGV.shift; repeat=ARGV.shift.to_i
+    when /^-/:  STDERR.puts "Unknown option #{ARGV[0].inspect}"; exit -1
+    else break
+end; }
 
 begin
     client = Client.new()
@@ -62,6 +72,19 @@ host  =  OpenNebula::Host.new_with_id(host_id, client)
 exit -1 if OpenNebula.is_error?(host)
 host.info
 host_name = host.name
+
+if repeat
+    # Retrieve host monitor interval
+    monitor_interval = nil
+    File.read(CONFIG_FILE).each{|line|
+         monitor_interval = line.split("=").last.to_i if /HOST_MONITORING_INTERVAL/=~line
+    }
+    # Sleep through the desired number of monitor interval
+    sleep (repeat * monitor_interval)
+
+    # If the host came back, exit! avoid duplicated VMs
+    exit 0 if host.state != 3
+end
 
 # Loop through all vms
 vms = VirtualMachinePool.new(client)
