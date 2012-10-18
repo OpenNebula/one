@@ -85,7 +85,9 @@ public:
         HOTPLUG             = 17,
         SHUTDOWN_POWEROFF   = 18,
         BOOT_UNKNOWN        = 19,
-        BOOT_POWEROFF       = 20
+        BOOT_POWEROFF       = 20,
+        BOOT_SUSPENDED      = 21,
+        BOOT_STOPPED        = 22
     };
 
     // -------------------------------------------------------------------------

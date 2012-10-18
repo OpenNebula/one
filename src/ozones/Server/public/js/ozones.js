@@ -99,7 +99,9 @@ var oZones = {
                                "HOTPLUG",
                                "SHUTDOWN_POWEROFF",
                                "BOOT_UNKNOWN",
-                               "BOOT_POWEROFF"][value]);
+                               "BOOT_POWEROFF",
+                               "BOOT_SUSPENDED",
+                               "BOOT_STOPPED"][value]);
                     break;
                 case "IMAGE":
                 case "image":

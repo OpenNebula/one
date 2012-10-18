@@ -86,7 +86,9 @@ public class VirtualMachine extends PoolElement{
         "HOTPLUG",
         "SHUTDOWN_POWEROFF",
         "BOOT_UNKNOWN",
-        "BOOT_POWEROFF" };
+        "BOOT_POWEROFF",
+        "BOOT_SUSPENDED",
+        "BOOT_STOPPED" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -109,6 +111,8 @@ public class VirtualMachine extends PoolElement{
         "unkn",
         "hotp",
         "poff",
+        "boot",
+        "boot",
         "boot",
         "boot" };
 
