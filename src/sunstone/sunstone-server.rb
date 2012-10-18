@@ -44,6 +44,8 @@ $: << RUBY_LIB_LOCATION+'/cloud'
 $: << SUNSTONE_ROOT_DIR
 $: << SUNSTONE_ROOT_DIR+'/models'
 
+SESSION_EXPIRE_TIME = 60*60
+
 ##############################################################################
 # Required libraries
 ##############################################################################
@@ -200,7 +202,7 @@ after do
             if params[:timeout] == "true"
                 env['rack.session.options'][:defer] = true
             else
-                env['rack.session.options'][:expire_after] = 60*10
+                env['rack.session.options'][:expire_after] = SESSION_EXPIRE_TIME
             end
         end
     end
