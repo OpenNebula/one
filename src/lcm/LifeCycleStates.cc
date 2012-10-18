@@ -270,12 +270,11 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
     }
-    // TODO: BOOT_SUSPENDED & BOOT_STOPPED states
     else if ( vm->get_state() == VirtualMachine::BOOT ||
               vm->get_state() == VirtualMachine::BOOT_POWEROFF ||
-              vm->get_state() == VirtualMachine::BOOT_UNKNOWN /* ||
-              vm->get_state() == VirtualMachine::BOOT_SUSPENDED ||
-              vm->get_state() == VirtualMachine::BOOT_STOPPED */ )
+              vm->get_state() == VirtualMachine::BOOT_UNKNOWN  ||
+              vm->get_state() == VirtualMachine::BOOT_SUSPENDED||
+              vm->get_state() == VirtualMachine::BOOT_STOPPED  )
     {
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -586,8 +585,6 @@ void  LifeCycleManager::prolog_failure_action(int vid)
     {
         return;
     }
-
-    // TODO: done in branch bug-1210
 
     vm->set_prolog_etime(the_time);
 
