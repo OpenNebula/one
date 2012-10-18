@@ -22,12 +22,14 @@ var host_graphs = [
     {
         title : tr("CPU Monitoring information"),
         monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
+        labels : "Allocated CPU,Real CPU,Total CPU",
         humanize_figures : false,
         history_length : HOST_HISTORY_LENGTH
     },
     {
         title: tr("Memory monitoring information"),
         monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
+        labels : "Allocated MEM,Real MEM,Total MEM",
         humanize_figures : true,
         history_length : HOST_HISTORY_LENGTH
     }
@@ -501,7 +503,15 @@ SunstoneMonitoringConfig['HOST'] = {
                     noColumns: 3,
                     container: '#cpuUsageBar_legend',
                     labelFormatter: function(label, series){
-                        return label[1].toLowerCase()
+                        if (label[1] == "USED_CPU") {
+                            return tr("Real CPU");
+                        }
+                        else if (label[1] == "CPU_USAGE") {
+                            return tr("Allocated CPU");
+                        }
+                        else if (label[1] == "MAX_CPU") {
+                            return tr("Total CPU");
+                        }
                     }
                 }
             }
@@ -529,7 +539,15 @@ SunstoneMonitoringConfig['HOST'] = {
                     noColumns: 3,
                     container: '#memoryUsageBar_legend',
                     labelFormatter: function(label, series){
-                        return label[1].toLowerCase()
+                        if (label[1] == "USED_MEM") {
+                            return tr("Real MEM");
+                        }
+                        else if (label[1] == "MEM_USAGE") {
+                            return tr("Allocated MEM");
+                        }
+                        else if (label[1] == "MAX_MEM") {
+                            return tr("Total MEM");
+                        }
                     }
                 }
             }

@@ -332,7 +332,15 @@ SunstoneMonitoringConfig['CLUSTER_HOST'] = {
                     noColumns: 3,
                     margin: [-25,-35],
                     labelFormatter: function(label, series){
-                        return label[1].toLowerCase()
+                        if (label[1] == "USED_CPU") {
+                            return tr("Real CPU");
+                        }
+                        else if (label[1] == "CPU_USAGE") {
+                            return tr("Allocated CPU");
+                        }
+                        else if (label[1] == "MAX_CPU") {
+                            return tr("Total CPU");
+                        }
                     }
                 }
             }
@@ -360,7 +368,15 @@ SunstoneMonitoringConfig['CLUSTER_HOST'] = {
                     noColumns: 3,
                     margin: [-25,-35],
                     labelFormatter: function(label, series){
-                        return label[1].toLowerCase()
+                        if (label[1] == "USED_MEM") {
+                            return tr("Real MEM");
+                        }
+                        else if (label[1] == "MEM_USAGE") {
+                            return tr("Allocated MEM");
+                        }
+                        else if (label[1] == "MAX_MEM") {
+                            return tr("Total MEM");
+                        }
                     }
                 }
             }
