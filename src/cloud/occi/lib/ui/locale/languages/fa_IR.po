@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-28 19:15+0200\n"
+"POT-Creation-Date: 2012-10-17 11:53+0200\n"
 "PO-Revision-Date: 2012-09-18 11:12+0000\n"
 "Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,244 +46,6 @@ msgstr "خوش آمدید"
 msgid "Sign out"
 msgstr "خروج"
 
-#: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
-#: ../public/js/plugins/compute.js:63
-msgid "All"
-msgstr "همه"
-
-#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
-#: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
-#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
-#: ../public/js/plugins/compute.js:637
-msgid "ID"
-msgstr "مشخصه"
-
-#: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
-#: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
-#: ../public/js/plugins/network.js:28 ../public/js/plugins/network.js:41
-#: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
-#: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
-msgid "Name"
-msgstr "نام"
-
-#: ../public/js/plugins/storage.js:41
-msgid "Fields marked with"
-msgstr "موارد مشخص شده با"
-
-#: ../public/js/plugins/storage.js:42
-msgid "are mandatory"
-msgstr "الزامی است"
-
-#: ../public/js/plugins/storage.js:47
-msgid "Name that the Image will get."
-msgstr "نامی که به این تصویر اختصاص پیدا میکند"
-
-#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
-msgid "Description"
-msgstr "توتضیحات"
-
-#: ../public/js/plugins/storage.js:52
-msgid "Human readable description of the image."
-msgstr "توضیحات قابل فهم برای کاربران"
-
-#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
-msgid "Type"
-msgstr "نوع"
-
-#: ../public/js/plugins/storage.js:59
-msgid "OS"
-msgstr "سیستم عامل"
-
-#: ../public/js/plugins/storage.js:60
-msgid "CD-ROM"
-msgstr "CD-ROM"
-
-#: ../public/js/plugins/storage.js:61
-msgid "Datablock"
-msgstr "بلوک داده"
-
-#: ../public/js/plugins/storage.js:63
-msgid "Type of the image"
-msgstr "نوع تصویر"
-
-#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
-msgid "Size"
-msgstr "حجم"
-
-#: ../public/js/plugins/storage.js:68
-msgid "Size of the datablock in MB."
-msgstr "حجم بلوک داده به مگابایت"
-
-#: ../public/js/plugins/storage.js:71
-msgid "FS type"
-msgstr "نوع فایل سیستم"
-
-#: ../public/js/plugins/storage.js:73
-msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr "نوع فایل سیستمی که باید ساخته شود. این پارامتر باید توسط دستور mkfs در یونیکس قابل پشتیبانی باشد"
-
-#: ../public/js/plugins/storage.js:76
-msgid "Select image to upload"
-msgstr "انتخاب تصویر برای بارگزاری"
-
-#: ../public/js/plugins/storage.js:83
-msgid "Public"
-msgstr "عمومی"
-
-#: ../public/js/plugins/storage.js:85
-msgid "Public scope of the image"
-msgstr "قلمرو عمومی این تصویر"
-
-#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
-msgid "Persistent"
-msgstr "ماندگار"
-
-#: ../public/js/plugins/storage.js:90
-msgid "Persistence of the image"
-msgstr "ماندگاری تصویر"
-
-#: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
-#: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
-msgid "Close"
-msgstr "ببند"
-
-#: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
-#: ../public/js/plugins/compute.js:104
-msgid "Create"
-msgstr "بساز"
-
-#: ../public/js/plugins/storage.js:104
-msgid "Choose a new name for the image"
-msgstr ""
-
-#: ../public/js/plugins/storage.js:105
-msgid "Several image are selected, please choose prefix to name the new copies"
-msgstr ""
-
-#: ../public/js/plugins/storage.js:108
-msgid "Prefix"
-msgstr ""
-
-#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
-msgid "Clone"
-msgstr ""
-
-#: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
-#: ../public/js/plugins/compute.js:355
-msgid "+ New"
-msgstr "+ جدید"
-
-#: ../public/js/plugins/storage.js:249
-msgid "Make persistent"
-msgstr "ماندگار شود"
-
-#: ../public/js/plugins/storage.js:253
-msgid "Make non persistent"
-msgstr "ماندگار نشود"
-
-#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
-msgid "Publish"
-msgstr "منتشر کن"
-
-#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
-msgid "Unpublish"
-msgstr "منتشر نکن"
-
-#: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
-#: ../public/js/plugins/compute.js:422
-msgid "Delete"
-msgstr "پاک کن"
-
-#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
-msgid "Image information"
-msgstr "اطلاعات تصویر"
-
-#: ../public/js/plugins/storage.js:287
-msgid "Add storage"
-msgstr "فضای ذخیره سازی اضافه کن"
-
-#: ../public/js/plugins/storage.js:294
-msgid "Clone image"
-msgstr ""
-
-#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
-msgid "Storage"
-msgstr "فضای ذخیره سازی"
-
-#: ../public/js/plugins/storage.js:378
-msgid "Image"
-msgstr "تصویر"
-
-#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
-msgid "information"
-msgstr "اطلاعات"
-
-#: ../public/js/plugins/storage.js:402
-msgid "Filesystem type"
-msgstr "نوع فایل سیستم"
-
-#: ../public/js/plugins/storage.js:406
-msgid "Size (Mb)"
-msgstr "حجم (مگابایت)"
-
-#: ../public/js/plugins/storage.js:537
-msgid "You must specify a name"
-msgstr "مشخص کردن نام الزامی است"
-
-#: ../public/js/plugins/storage.js:555
-msgid "You must specify size and FS type"
-msgstr "مشخص کردن حجم و نوع فایل سیستم الزامی است"
-
-#: ../public/js/plugins/storage.js:562
-msgid "You must select a file to upload"
-msgstr "لطفا یک فایل برای بارگزاری انتخاب کنید"
-
-#: ../public/js/plugins/network.js:47
-msgid "Network Address"
-msgstr "آدرس شبکه ای"
-
-#: ../public/js/plugins/network.js:49
-msgid "Network Size"
-msgstr "اندازه شبکه"
-
-#: ../public/js/plugins/network.js:185
-msgid "Network information"
-msgstr "اطلاعات شبکه ای"
-
-#: ../public/js/plugins/network.js:193
-msgid "Create network"
-msgstr "ساختن شبکه"
-
-#: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
-#: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
-#: ../public/js/plugins/compute.js:664
-msgid "Networks"
-msgstr "شبکه ها"
-
-#: ../public/js/plugins/network.js:274
-msgid "Virtual Network"
-msgstr "شبکه های مجازی"
-
-#: ../public/js/plugins/network.js:286
-msgid "Used leases"
-msgstr "موارد اجاره شده"
-
-#: ../public/js/plugins/network.js:293
-msgid "Address"
-msgstr "آدرس"
-
-#: ../public/js/plugins/network.js:307
-msgid "Virtual Network information"
-msgstr "اطلاعات شبکه مجازی"
-
-#: ../public/js/plugins/network.js:353
-msgid "Virtual Network name missing!"
-msgstr "نام شبکه مجازی از جا افتاده"
-
-#: ../public/js/plugins/network.js:365
-msgid "Please provide a network address"
-msgstr "لطفا یک آدرس شبکه ای ارائه کنید"
-
 #: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
 #: ../public/js/plugins/compute.js:32
 msgid "CPU"
@@ -314,6 +76,12 @@ msgstr ""
 #: ../public/js/plugins/dashboard.js:60 ../public/js/plugins/compute.js:86
 msgid "Images"
 msgstr "تصاویر"
+
+#: ../public/js/plugins/dashboard.js:62 ../public/js/plugins/compute.js:91
+#: ../public/js/plugins/compute.js:437 ../public/js/plugins/compute.js:664
+#: ../public/js/plugins/network.js:199
+msgid "Networks"
+msgstr "شبکه ها"
 
 #: ../public/js/plugins/dashboard.js:73
 msgid "Usages"
@@ -393,6 +161,26 @@ msgstr "ارسال شبکه ای"
 msgid "Network reception"
 msgstr "دریافت شبکه ای"
 
+#: ../public/js/plugins/compute.js:63 ../public/js/plugins/storage.js:26
+#: ../public/js/plugins/network.js:26
+msgid "All"
+msgstr "همه"
+
+#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
+#: ../public/js/plugins/compute.js:637 ../public/js/plugins/storage.js:27
+#: ../public/js/plugins/storage.js:382 ../public/js/plugins/network.js:27
+#: ../public/js/plugins/network.js:278
+msgid "ID"
+msgstr "مشخصه"
+
+#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:589
+#: ../public/js/plugins/compute.js:641 ../public/js/plugins/storage.js:28
+#: ../public/js/plugins/storage.js:45 ../public/js/plugins/storage.js:107
+#: ../public/js/plugins/storage.js:386 ../public/js/plugins/network.js:28
+#: ../public/js/plugins/network.js:41 ../public/js/plugins/network.js:282
+msgid "Name"
+msgstr "نام"
+
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
 msgstr "وضعیت"
@@ -420,6 +208,21 @@ msgstr "ساختن # ماشین مجازی"
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr ""
+
+#: ../public/js/plugins/compute.js:103 ../public/js/plugins/storage.js:95
+#: ../public/js/plugins/storage.js:112 ../public/js/plugins/network.js:56
+msgid "Close"
+msgstr "ببند"
+
+#: ../public/js/plugins/compute.js:104 ../public/js/plugins/storage.js:96
+#: ../public/js/plugins/network.js:57
+msgid "Create"
+msgstr "بساز"
+
+#: ../public/js/plugins/compute.js:355 ../public/js/plugins/storage.js:245
+#: ../public/js/plugins/network.js:164
+msgid "+ New"
+msgstr "+ جدید"
 
 #: ../public/js/plugins/compute.js:361
 msgid "Shutdown"
@@ -494,6 +297,11 @@ msgstr "ماشین مجازی انتخاب شده را قلم میزند"
 #: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
 msgstr "تصویر لحظه ای بگیر"
+
+#: ../public/js/plugins/compute.js:422 ../public/js/plugins/storage.js:274
+#: ../public/js/plugins/network.js:179
+msgid "Delete"
+msgstr "پاک کن"
 
 #: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
@@ -602,6 +410,198 @@ msgstr "ارتباط VNC برقرارکن"
 #: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
 msgstr "VNC ازکار افتاد"
+
+#: ../public/js/plugins/storage.js:41
+msgid "Fields marked with"
+msgstr "موارد مشخص شده با"
+
+#: ../public/js/plugins/storage.js:42
+msgid "are mandatory"
+msgstr "الزامی است"
+
+#: ../public/js/plugins/storage.js:47
+msgid "Name that the Image will get."
+msgstr "نامی که به این تصویر اختصاص پیدا میکند"
+
+#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
+msgid "Description"
+msgstr "توتضیحات"
+
+#: ../public/js/plugins/storage.js:52
+msgid "Human readable description of the image."
+msgstr "توضیحات قابل فهم برای کاربران"
+
+#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
+msgid "Type"
+msgstr "نوع"
+
+#: ../public/js/plugins/storage.js:59
+msgid "OS"
+msgstr "سیستم عامل"
+
+#: ../public/js/plugins/storage.js:60
+msgid "CD-ROM"
+msgstr "CD-ROM"
+
+#: ../public/js/plugins/storage.js:61
+msgid "Datablock"
+msgstr "بلوک داده"
+
+#: ../public/js/plugins/storage.js:63
+msgid "Type of the image"
+msgstr "نوع تصویر"
+
+#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
+msgid "Size"
+msgstr "حجم"
+
+#: ../public/js/plugins/storage.js:68
+msgid "Size of the datablock in MB."
+msgstr "حجم بلوک داده به مگابایت"
+
+#: ../public/js/plugins/storage.js:71
+msgid "FS type"
+msgstr "نوع فایل سیستم"
+
+#: ../public/js/plugins/storage.js:73
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
+msgstr "نوع فایل سیستمی که باید ساخته شود. این پارامتر باید توسط دستور mkfs در یونیکس قابل پشتیبانی باشد"
+
+#: ../public/js/plugins/storage.js:76
+msgid "Select image to upload"
+msgstr "انتخاب تصویر برای بارگزاری"
+
+#: ../public/js/plugins/storage.js:83
+msgid "Public"
+msgstr "عمومی"
+
+#: ../public/js/plugins/storage.js:85
+msgid "Public scope of the image"
+msgstr "قلمرو عمومی این تصویر"
+
+#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
+msgid "Persistent"
+msgstr "ماندگار"
+
+#: ../public/js/plugins/storage.js:90
+msgid "Persistence of the image"
+msgstr "ماندگاری تصویر"
+
+#: ../public/js/plugins/storage.js:104
+msgid "Choose a new name for the image"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:105
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:108
+msgid "Prefix"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
+msgid "Clone"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:249
+msgid "Make persistent"
+msgstr "ماندگار شود"
+
+#: ../public/js/plugins/storage.js:253
+msgid "Make non persistent"
+msgstr "ماندگار نشود"
+
+#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
+msgid "Publish"
+msgstr "منتشر کن"
+
+#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
+msgid "Unpublish"
+msgstr "منتشر نکن"
+
+#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
+msgid "Image information"
+msgstr "اطلاعات تصویر"
+
+#: ../public/js/plugins/storage.js:287
+msgid "Add storage"
+msgstr "فضای ذخیره سازی اضافه کن"
+
+#: ../public/js/plugins/storage.js:294
+msgid "Clone image"
+msgstr ""
+
+#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
+msgid "Storage"
+msgstr "فضای ذخیره سازی"
+
+#: ../public/js/plugins/storage.js:378
+msgid "Image"
+msgstr "تصویر"
+
+#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
+msgid "information"
+msgstr "اطلاعات"
+
+#: ../public/js/plugins/storage.js:402
+msgid "Filesystem type"
+msgstr "نوع فایل سیستم"
+
+#: ../public/js/plugins/storage.js:406
+msgid "Size (Mb)"
+msgstr "حجم (مگابایت)"
+
+#: ../public/js/plugins/storage.js:537
+msgid "You must specify a name"
+msgstr "مشخص کردن نام الزامی است"
+
+#: ../public/js/plugins/storage.js:555
+msgid "You must specify size and FS type"
+msgstr "مشخص کردن حجم و نوع فایل سیستم الزامی است"
+
+#: ../public/js/plugins/storage.js:562
+msgid "You must select a file to upload"
+msgstr "لطفا یک فایل برای بارگزاری انتخاب کنید"
+
+#: ../public/js/plugins/network.js:47
+msgid "Network Address"
+msgstr "آدرس شبکه ای"
+
+#: ../public/js/plugins/network.js:49
+msgid "Network Size"
+msgstr "اندازه شبکه"
+
+#: ../public/js/plugins/network.js:185
+msgid "Network information"
+msgstr "اطلاعات شبکه ای"
+
+#: ../public/js/plugins/network.js:193
+msgid "Create network"
+msgstr "ساختن شبکه"
+
+#: ../public/js/plugins/network.js:274
+msgid "Virtual Network"
+msgstr "شبکه های مجازی"
+
+#: ../public/js/plugins/network.js:286
+msgid "Used leases"
+msgstr "موارد اجاره شده"
+
+#: ../public/js/plugins/network.js:293
+msgid "Address"
+msgstr "آدرس"
+
+#: ../public/js/plugins/network.js:307
+msgid "Virtual Network information"
+msgstr "اطلاعات شبکه مجازی"
+
+#: ../public/js/plugins/network.js:353
+msgid "Virtual Network name missing!"
+msgstr "نام شبکه مجازی از جا افتاده"
+
+#: ../public/js/plugins/network.js:365
+msgid "Please provide a network address"
+msgstr "لطفا یک آدرس شبکه ای ارائه کنید"
 
 #: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"

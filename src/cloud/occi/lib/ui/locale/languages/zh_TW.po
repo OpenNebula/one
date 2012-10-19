@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-28 19:15+0200\n"
+"POT-Creation-Date: 2012-10-17 11:53+0200\n"
 "PO-Revision-Date: 2012-09-27 15:05+0000\n"
 "Last-Translator: pellaeon <nfsmwlin@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,244 +47,6 @@ msgstr "歡迎"
 msgid "Sign out"
 msgstr "登出"
 
-#: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
-#: ../public/js/plugins/compute.js:63
-msgid "All"
-msgstr "全部"
-
-#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
-#: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
-#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
-#: ../public/js/plugins/compute.js:637
-msgid "ID"
-msgstr "ID"
-
-#: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
-#: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
-#: ../public/js/plugins/network.js:28 ../public/js/plugins/network.js:41
-#: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
-#: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
-msgid "Name"
-msgstr "名稱"
-
-#: ../public/js/plugins/storage.js:41
-msgid "Fields marked with"
-msgstr "標記"
-
-#: ../public/js/plugins/storage.js:42
-msgid "are mandatory"
-msgstr "為必填欄位"
-
-#: ../public/js/plugins/storage.js:47
-msgid "Name that the Image will get."
-msgstr "磁碟影像檔的名稱"
-
-#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
-msgid "Description"
-msgstr "描述"
-
-#: ../public/js/plugins/storage.js:52
-msgid "Human readable description of the image."
-msgstr "供其他使用者參閱的磁碟影像檔描述"
-
-#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
-msgid "Type"
-msgstr "種類"
-
-#: ../public/js/plugins/storage.js:59
-msgid "OS"
-msgstr "OS"
-
-#: ../public/js/plugins/storage.js:60
-msgid "CD-ROM"
-msgstr "CD-ROM"
-
-#: ../public/js/plugins/storage.js:61
-msgid "Datablock"
-msgstr "Datablock"
-
-#: ../public/js/plugins/storage.js:63
-msgid "Type of the image"
-msgstr "磁碟影像檔種類"
-
-#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
-msgid "Size"
-msgstr "大小"
-
-#: ../public/js/plugins/storage.js:68
-msgid "Size of the datablock in MB."
-msgstr "資料區塊大小 (MB)"
-
-#: ../public/js/plugins/storage.js:71
-msgid "FS type"
-msgstr "檔案系統種類"
-
-#: ../public/js/plugins/storage.js:73
-msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr "資料區塊內的檔案系統種類。可填寫任何mkfs unix指令所接受的參數"
-
-#: ../public/js/plugins/storage.js:76
-msgid "Select image to upload"
-msgstr "選擇要上傳的磁碟影像檔"
-
-#: ../public/js/plugins/storage.js:83
-msgid "Public"
-msgstr "Public"
-
-#: ../public/js/plugins/storage.js:85
-msgid "Public scope of the image"
-msgstr "磁碟影像檔公開範圍"
-
-#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
-msgid "Persistent"
-msgstr "存續性"
-
-#: ../public/js/plugins/storage.js:90
-msgid "Persistence of the image"
-msgstr "磁碟影像檔存續性"
-
-#: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
-#: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
-msgid "Close"
-msgstr "關閉"
-
-#: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
-#: ../public/js/plugins/compute.js:104
-msgid "Create"
-msgstr "建立"
-
-#: ../public/js/plugins/storage.js:104
-msgid "Choose a new name for the image"
-msgstr "為新映像檔命名"
-
-#: ../public/js/plugins/storage.js:105
-msgid "Several image are selected, please choose prefix to name the new copies"
-msgstr "您選取了多個映像檔，請選擇前綴 (prefix) 來命名新的複本"
-
-#: ../public/js/plugins/storage.js:108
-msgid "Prefix"
-msgstr "前綴"
-
-#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
-msgid "Clone"
-msgstr "複製"
-
-#: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
-#: ../public/js/plugins/compute.js:355
-msgid "+ New"
-msgstr "+新增"
-
-#: ../public/js/plugins/storage.js:249
-msgid "Make persistent"
-msgstr "可存續"
-
-#: ../public/js/plugins/storage.js:253
-msgid "Make non persistent"
-msgstr "非存續"
-
-#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
-msgid "Publish"
-msgstr "共用"
-
-#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
-msgid "Unpublish"
-msgstr "非共用"
-
-#: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
-#: ../public/js/plugins/compute.js:422
-msgid "Delete"
-msgstr "刪除"
-
-#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
-msgid "Image information"
-msgstr "磁碟影像檔資訊"
-
-#: ../public/js/plugins/storage.js:287
-msgid "Add storage"
-msgstr "新增儲存空間"
-
-#: ../public/js/plugins/storage.js:294
-msgid "Clone image"
-msgstr "複製映像檔"
-
-#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
-msgid "Storage"
-msgstr "儲存空間"
-
-#: ../public/js/plugins/storage.js:378
-msgid "Image"
-msgstr "磁碟影像檔"
-
-#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
-msgid "information"
-msgstr "資訊"
-
-#: ../public/js/plugins/storage.js:402
-msgid "Filesystem type"
-msgstr "檔案系統種類"
-
-#: ../public/js/plugins/storage.js:406
-msgid "Size (Mb)"
-msgstr "大小 (Mb)"
-
-#: ../public/js/plugins/storage.js:537
-msgid "You must specify a name"
-msgstr "您必須指定一個名稱"
-
-#: ../public/js/plugins/storage.js:555
-msgid "You must specify size and FS type"
-msgstr "您必須指定大小及檔案系統種類"
-
-#: ../public/js/plugins/storage.js:562
-msgid "You must select a file to upload"
-msgstr "您必須選擇一個檔案上傳"
-
-#: ../public/js/plugins/network.js:47
-msgid "Network Address"
-msgstr "網路位址"
-
-#: ../public/js/plugins/network.js:49
-msgid "Network Size"
-msgstr "網路大小"
-
-#: ../public/js/plugins/network.js:185
-msgid "Network information"
-msgstr "網路資訊"
-
-#: ../public/js/plugins/network.js:193
-msgid "Create network"
-msgstr "建立網路"
-
-#: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
-#: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
-#: ../public/js/plugins/compute.js:664
-msgid "Networks"
-msgstr "網路"
-
-#: ../public/js/plugins/network.js:274
-msgid "Virtual Network"
-msgstr "虛擬網路"
-
-#: ../public/js/plugins/network.js:286
-msgid "Used leases"
-msgstr "租用中"
-
-#: ../public/js/plugins/network.js:293
-msgid "Address"
-msgstr "位址"
-
-#: ../public/js/plugins/network.js:307
-msgid "Virtual Network information"
-msgstr "虛擬網路資訊"
-
-#: ../public/js/plugins/network.js:353
-msgid "Virtual Network name missing!"
-msgstr "未填寫虛擬網路名稱!"
-
-#: ../public/js/plugins/network.js:365
-msgid "Please provide a network address"
-msgstr "請填寫一個網路位址"
-
 #: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
 #: ../public/js/plugins/compute.js:32
 msgid "CPU"
@@ -315,6 +77,12 @@ msgstr "儲存空間配額"
 #: ../public/js/plugins/dashboard.js:60 ../public/js/plugins/compute.js:86
 msgid "Images"
 msgstr "磁碟影像檔"
+
+#: ../public/js/plugins/dashboard.js:62 ../public/js/plugins/compute.js:91
+#: ../public/js/plugins/compute.js:437 ../public/js/plugins/compute.js:664
+#: ../public/js/plugins/network.js:199
+msgid "Networks"
+msgstr "網路"
 
 #: ../public/js/plugins/dashboard.js:73
 msgid "Usages"
@@ -394,6 +162,26 @@ msgstr "網路傳送"
 msgid "Network reception"
 msgstr "網路接收"
 
+#: ../public/js/plugins/compute.js:63 ../public/js/plugins/storage.js:26
+#: ../public/js/plugins/network.js:26
+msgid "All"
+msgstr "全部"
+
+#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
+#: ../public/js/plugins/compute.js:637 ../public/js/plugins/storage.js:27
+#: ../public/js/plugins/storage.js:382 ../public/js/plugins/network.js:27
+#: ../public/js/plugins/network.js:278
+msgid "ID"
+msgstr "ID"
+
+#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:589
+#: ../public/js/plugins/compute.js:641 ../public/js/plugins/storage.js:28
+#: ../public/js/plugins/storage.js:45 ../public/js/plugins/storage.js:107
+#: ../public/js/plugins/storage.js:386 ../public/js/plugins/network.js:28
+#: ../public/js/plugins/network.js:41 ../public/js/plugins/network.js:282
+msgid "Name"
+msgstr "名稱"
+
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
 msgstr "狀態"
@@ -421,6 +209,21 @@ msgstr "VM創建數目"
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字。"
+
+#: ../public/js/plugins/compute.js:103 ../public/js/plugins/storage.js:95
+#: ../public/js/plugins/storage.js:112 ../public/js/plugins/network.js:56
+msgid "Close"
+msgstr "關閉"
+
+#: ../public/js/plugins/compute.js:104 ../public/js/plugins/storage.js:96
+#: ../public/js/plugins/network.js:57
+msgid "Create"
+msgstr "建立"
+
+#: ../public/js/plugins/compute.js:355 ../public/js/plugins/storage.js:245
+#: ../public/js/plugins/network.js:164
+msgid "+ New"
+msgstr "+新增"
 
 #: ../public/js/plugins/compute.js:361
 msgid "Shutdown"
@@ -495,6 +298,11 @@ msgstr "所有被選取的VM將會取消"
 #: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
 msgstr "進行快照"
+
+#: ../public/js/plugins/compute.js:422 ../public/js/plugins/storage.js:274
+#: ../public/js/plugins/network.js:179
+msgid "Delete"
+msgstr "刪除"
 
 #: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
@@ -603,6 +411,198 @@ msgstr "開啟VNC連線"
 #: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
 msgstr "VNC已停用"
+
+#: ../public/js/plugins/storage.js:41
+msgid "Fields marked with"
+msgstr "標記"
+
+#: ../public/js/plugins/storage.js:42
+msgid "are mandatory"
+msgstr "為必填欄位"
+
+#: ../public/js/plugins/storage.js:47
+msgid "Name that the Image will get."
+msgstr "磁碟影像檔的名稱"
+
+#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
+msgid "Description"
+msgstr "描述"
+
+#: ../public/js/plugins/storage.js:52
+msgid "Human readable description of the image."
+msgstr "供其他使用者參閱的磁碟影像檔描述"
+
+#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
+msgid "Type"
+msgstr "種類"
+
+#: ../public/js/plugins/storage.js:59
+msgid "OS"
+msgstr "OS"
+
+#: ../public/js/plugins/storage.js:60
+msgid "CD-ROM"
+msgstr "CD-ROM"
+
+#: ../public/js/plugins/storage.js:61
+msgid "Datablock"
+msgstr "Datablock"
+
+#: ../public/js/plugins/storage.js:63
+msgid "Type of the image"
+msgstr "磁碟影像檔種類"
+
+#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
+msgid "Size"
+msgstr "大小"
+
+#: ../public/js/plugins/storage.js:68
+msgid "Size of the datablock in MB."
+msgstr "資料區塊大小 (MB)"
+
+#: ../public/js/plugins/storage.js:71
+msgid "FS type"
+msgstr "檔案系統種類"
+
+#: ../public/js/plugins/storage.js:73
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
+msgstr "資料區塊內的檔案系統種類。可填寫任何mkfs unix指令所接受的參數"
+
+#: ../public/js/plugins/storage.js:76
+msgid "Select image to upload"
+msgstr "選擇要上傳的磁碟影像檔"
+
+#: ../public/js/plugins/storage.js:83
+msgid "Public"
+msgstr "Public"
+
+#: ../public/js/plugins/storage.js:85
+msgid "Public scope of the image"
+msgstr "磁碟影像檔公開範圍"
+
+#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
+msgid "Persistent"
+msgstr "存續性"
+
+#: ../public/js/plugins/storage.js:90
+msgid "Persistence of the image"
+msgstr "磁碟影像檔存續性"
+
+#: ../public/js/plugins/storage.js:104
+msgid "Choose a new name for the image"
+msgstr "為新映像檔命名"
+
+#: ../public/js/plugins/storage.js:105
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr "您選取了多個映像檔，請選擇前綴 (prefix) 來命名新的複本"
+
+#: ../public/js/plugins/storage.js:108
+msgid "Prefix"
+msgstr "前綴"
+
+#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
+msgid "Clone"
+msgstr "複製"
+
+#: ../public/js/plugins/storage.js:249
+msgid "Make persistent"
+msgstr "可存續"
+
+#: ../public/js/plugins/storage.js:253
+msgid "Make non persistent"
+msgstr "非存續"
+
+#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
+msgid "Publish"
+msgstr "共用"
+
+#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
+msgid "Unpublish"
+msgstr "非共用"
+
+#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
+msgid "Image information"
+msgstr "磁碟影像檔資訊"
+
+#: ../public/js/plugins/storage.js:287
+msgid "Add storage"
+msgstr "新增儲存空間"
+
+#: ../public/js/plugins/storage.js:294
+msgid "Clone image"
+msgstr "複製映像檔"
+
+#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
+msgid "Storage"
+msgstr "儲存空間"
+
+#: ../public/js/plugins/storage.js:378
+msgid "Image"
+msgstr "磁碟影像檔"
+
+#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
+msgid "information"
+msgstr "資訊"
+
+#: ../public/js/plugins/storage.js:402
+msgid "Filesystem type"
+msgstr "檔案系統種類"
+
+#: ../public/js/plugins/storage.js:406
+msgid "Size (Mb)"
+msgstr "大小 (Mb)"
+
+#: ../public/js/plugins/storage.js:537
+msgid "You must specify a name"
+msgstr "您必須指定一個名稱"
+
+#: ../public/js/plugins/storage.js:555
+msgid "You must specify size and FS type"
+msgstr "您必須指定大小及檔案系統種類"
+
+#: ../public/js/plugins/storage.js:562
+msgid "You must select a file to upload"
+msgstr "您必須選擇一個檔案上傳"
+
+#: ../public/js/plugins/network.js:47
+msgid "Network Address"
+msgstr "網路位址"
+
+#: ../public/js/plugins/network.js:49
+msgid "Network Size"
+msgstr "網路大小"
+
+#: ../public/js/plugins/network.js:185
+msgid "Network information"
+msgstr "網路資訊"
+
+#: ../public/js/plugins/network.js:193
+msgid "Create network"
+msgstr "建立網路"
+
+#: ../public/js/plugins/network.js:274
+msgid "Virtual Network"
+msgstr "虛擬網路"
+
+#: ../public/js/plugins/network.js:286
+msgid "Used leases"
+msgstr "租用中"
+
+#: ../public/js/plugins/network.js:293
+msgid "Address"
+msgstr "位址"
+
+#: ../public/js/plugins/network.js:307
+msgid "Virtual Network information"
+msgstr "虛擬網路資訊"
+
+#: ../public/js/plugins/network.js:353
+msgid "Virtual Network name missing!"
+msgstr "未填寫虛擬網路名稱!"
+
+#: ../public/js/plugins/network.js:365
+msgid "Please provide a network address"
+msgstr "請填寫一個網路位址"
 
 #: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"

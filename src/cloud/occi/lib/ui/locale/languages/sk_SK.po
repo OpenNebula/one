@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-28 19:15+0200\n"
-"PO-Revision-Date: 2012-09-18 13:00+0000\n"
+"POT-Creation-Date: 2012-10-17 11:53+0200\n"
+"PO-Revision-Date: 2012-10-17 10:55+0000\n"
 "Last-Translator: Ján Beňadik <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sk_SK\n"
@@ -46,244 +46,6 @@ msgstr "Vitajte!"
 msgid "Sign out"
 msgstr "Odhlásiť"
 
-#: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
-#: ../public/js/plugins/compute.js:63
-msgid "All"
-msgstr "Všetko"
-
-#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
-#: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
-#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
-#: ../public/js/plugins/compute.js:637
-msgid "ID"
-msgstr "ID"
-
-#: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
-#: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
-#: ../public/js/plugins/network.js:28 ../public/js/plugins/network.js:41
-#: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
-#: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
-msgid "Name"
-msgstr "Meno"
-
-#: ../public/js/plugins/storage.js:41
-msgid "Fields marked with"
-msgstr "Polia označené znakom"
-
-#: ../public/js/plugins/storage.js:42
-msgid "are mandatory"
-msgstr "sú povinné"
-
-#: ../public/js/plugins/storage.js:47
-msgid "Name that the Image will get."
-msgstr "Meno priradené k danému obrazu"
-
-#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
-msgid "Description"
-msgstr "Popis"
-
-#: ../public/js/plugins/storage.js:52
-msgid "Human readable description of the image."
-msgstr "Čitateľný popis obrazu"
-
-#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
-msgid "Type"
-msgstr "Typ"
-
-#: ../public/js/plugins/storage.js:59
-msgid "OS"
-msgstr "OS"
-
-#: ../public/js/plugins/storage.js:60
-msgid "CD-ROM"
-msgstr "CD ROM"
-
-#: ../public/js/plugins/storage.js:61
-msgid "Datablock"
-msgstr "Dátový blok"
-
-#: ../public/js/plugins/storage.js:63
-msgid "Type of the image"
-msgstr "Typ obrazu"
-
-#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
-msgid "Size"
-msgstr "Veľkosť"
-
-#: ../public/js/plugins/storage.js:68
-msgid "Size of the datablock in MB."
-msgstr "Veľkosť dátového bloku v MB"
-
-#: ../public/js/plugins/storage.js:71
-msgid "FS type"
-msgstr "FS typ"
-
-#: ../public/js/plugins/storage.js:73
-msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr "Typ filesystému, ktorý má byť vytvorený. Musí byť známy unixovému príkazu mkfs."
-
-#: ../public/js/plugins/storage.js:76
-msgid "Select image to upload"
-msgstr "Vyber obraz pre upload"
-
-#: ../public/js/plugins/storage.js:83
-msgid "Public"
-msgstr "Verejný"
-
-#: ../public/js/plugins/storage.js:85
-msgid "Public scope of the image"
-msgstr "Verejný scope obrazu"
-
-#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
-msgid "Persistent"
-msgstr "Perzistentný"
-
-#: ../public/js/plugins/storage.js:90
-msgid "Persistence of the image"
-msgstr "Perzistencia obrazu"
-
-#: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
-#: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
-msgid "Close"
-msgstr "Zavri"
-
-#: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
-#: ../public/js/plugins/compute.js:104
-msgid "Create"
-msgstr "Vytvor"
-
-#: ../public/js/plugins/storage.js:104
-msgid "Choose a new name for the image"
-msgstr "Vyber nové meno pre obraz"
-
-#: ../public/js/plugins/storage.js:105
-msgid "Several image are selected, please choose prefix to name the new copies"
-msgstr "Bolo vybratých viac obrazov naraz, zvoľ prefix pre nové kópie"
-
-#: ../public/js/plugins/storage.js:108
-msgid "Prefix"
-msgstr "Prefix"
-
-#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
-msgid "Clone"
-msgstr "Klonuj"
-
-#: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
-#: ../public/js/plugins/compute.js:355
-msgid "+ New"
-msgstr "+ Nový"
-
-#: ../public/js/plugins/storage.js:249
-msgid "Make persistent"
-msgstr "Urob perzistentný"
-
-#: ../public/js/plugins/storage.js:253
-msgid "Make non persistent"
-msgstr "Urob"
-
-#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
-msgid "Publish"
-msgstr "Publikuj"
-
-#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
-msgid "Unpublish"
-msgstr "Depublikuj"
-
-#: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
-#: ../public/js/plugins/compute.js:422
-msgid "Delete"
-msgstr "Vymaž"
-
-#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
-msgid "Image information"
-msgstr "Informácie o obraze"
-
-#: ../public/js/plugins/storage.js:287
-msgid "Add storage"
-msgstr "Pridaj storage"
-
-#: ../public/js/plugins/storage.js:294
-msgid "Clone image"
-msgstr "Klonuj obraz"
-
-#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
-msgid "Storage"
-msgstr "Storage"
-
-#: ../public/js/plugins/storage.js:378
-msgid "Image"
-msgstr "Obraz"
-
-#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
-msgid "information"
-msgstr "Informácie"
-
-#: ../public/js/plugins/storage.js:402
-msgid "Filesystem type"
-msgstr "Typ filesystému"
-
-#: ../public/js/plugins/storage.js:406
-msgid "Size (Mb)"
-msgstr "Veľkosť (Mb)"
-
-#: ../public/js/plugins/storage.js:537
-msgid "You must specify a name"
-msgstr "Musíš zadať meno"
-
-#: ../public/js/plugins/storage.js:555
-msgid "You must specify size and FS type"
-msgstr "Musíš zadať veľkosť a typ filesystému"
-
-#: ../public/js/plugins/storage.js:562
-msgid "You must select a file to upload"
-msgstr "Musíš vybrať súbor pre upload"
-
-#: ../public/js/plugins/network.js:47
-msgid "Network Address"
-msgstr "Sieťová adresa"
-
-#: ../public/js/plugins/network.js:49
-msgid "Network Size"
-msgstr "Rozsah siete"
-
-#: ../public/js/plugins/network.js:185
-msgid "Network information"
-msgstr "Informácie o sieti"
-
-#: ../public/js/plugins/network.js:193
-msgid "Create network"
-msgstr "Vytvor sieť"
-
-#: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
-#: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
-#: ../public/js/plugins/compute.js:664
-msgid "Networks"
-msgstr "Siete"
-
-#: ../public/js/plugins/network.js:274
-msgid "Virtual Network"
-msgstr "Virtuálne siete"
-
-#: ../public/js/plugins/network.js:286
-msgid "Used leases"
-msgstr "Využité linky"
-
-#: ../public/js/plugins/network.js:293
-msgid "Address"
-msgstr "Adresa"
-
-#: ../public/js/plugins/network.js:307
-msgid "Virtual Network information"
-msgstr "Informácie o virtuálnej sieti"
-
-#: ../public/js/plugins/network.js:353
-msgid "Virtual Network name missing!"
-msgstr "Virtuálna sieť neexistuje!"
-
-#: ../public/js/plugins/network.js:365
-msgid "Please provide a network address"
-msgstr "Zadaj sieťovú adresu"
-
 #: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
 #: ../public/js/plugins/compute.js:32
 msgid "CPU"
@@ -314,6 +76,12 @@ msgstr "Kvóty pre storage"
 #: ../public/js/plugins/dashboard.js:60 ../public/js/plugins/compute.js:86
 msgid "Images"
 msgstr "Obrazy"
+
+#: ../public/js/plugins/dashboard.js:62 ../public/js/plugins/compute.js:91
+#: ../public/js/plugins/compute.js:437 ../public/js/plugins/compute.js:664
+#: ../public/js/plugins/network.js:199
+msgid "Networks"
+msgstr "Siete"
 
 #: ../public/js/plugins/dashboard.js:73
 msgid "Usages"
@@ -393,6 +161,26 @@ msgstr "Sieťový premávka"
 msgid "Network reception"
 msgstr "Sieťové načúvanie"
 
+#: ../public/js/plugins/compute.js:63 ../public/js/plugins/storage.js:26
+#: ../public/js/plugins/network.js:26
+msgid "All"
+msgstr "Všetko"
+
+#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
+#: ../public/js/plugins/compute.js:637 ../public/js/plugins/storage.js:27
+#: ../public/js/plugins/storage.js:382 ../public/js/plugins/network.js:27
+#: ../public/js/plugins/network.js:278
+msgid "ID"
+msgstr "ID"
+
+#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:589
+#: ../public/js/plugins/compute.js:641 ../public/js/plugins/storage.js:28
+#: ../public/js/plugins/storage.js:45 ../public/js/plugins/storage.js:107
+#: ../public/js/plugins/storage.js:386 ../public/js/plugins/network.js:28
+#: ../public/js/plugins/network.js:41 ../public/js/plugins/network.js:282
+msgid "Name"
+msgstr "Meno"
+
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
 msgstr "Stav"
@@ -420,6 +208,21 @@ msgstr "Vytvor počet virtuálnych strojov"
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "Môžeš použiť zástupné znaky (*). Pri vytváraní viac VS naraz budú zástupné znaky nahradené pre každý z nich číslom od 0 vyššie."
+
+#: ../public/js/plugins/compute.js:103 ../public/js/plugins/storage.js:95
+#: ../public/js/plugins/storage.js:112 ../public/js/plugins/network.js:56
+msgid "Close"
+msgstr "Zavri"
+
+#: ../public/js/plugins/compute.js:104 ../public/js/plugins/storage.js:96
+#: ../public/js/plugins/network.js:57
+msgid "Create"
+msgstr "Vytvor"
+
+#: ../public/js/plugins/compute.js:355 ../public/js/plugins/storage.js:245
+#: ../public/js/plugins/network.js:164
+msgid "+ New"
+msgstr "+ Nový"
 
 #: ../public/js/plugins/compute.js:361
 msgid "Shutdown"
@@ -494,6 +297,11 @@ msgstr "Toto zruší vybratý virtuálny stroj"
 #: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
 msgstr "Urob snapshot"
+
+#: ../public/js/plugins/compute.js:422 ../public/js/plugins/storage.js:274
+#: ../public/js/plugins/network.js:179
+msgid "Delete"
+msgstr "Vymaž"
 
 #: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
@@ -603,6 +411,198 @@ msgstr "Otvor VNC reláciu"
 msgid "VNC Disabled"
 msgstr "VNC vypnuté"
 
+#: ../public/js/plugins/storage.js:41
+msgid "Fields marked with"
+msgstr "Polia označené znakom"
+
+#: ../public/js/plugins/storage.js:42
+msgid "are mandatory"
+msgstr "sú povinné"
+
+#: ../public/js/plugins/storage.js:47
+msgid "Name that the Image will get."
+msgstr "Meno priradené k danému obrazu"
+
+#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
+msgid "Description"
+msgstr "Popis"
+
+#: ../public/js/plugins/storage.js:52
+msgid "Human readable description of the image."
+msgstr "Čitateľný popis obrazu"
+
+#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
+msgid "Type"
+msgstr "Typ"
+
+#: ../public/js/plugins/storage.js:59
+msgid "OS"
+msgstr "OS"
+
+#: ../public/js/plugins/storage.js:60
+msgid "CD-ROM"
+msgstr "CD ROM"
+
+#: ../public/js/plugins/storage.js:61
+msgid "Datablock"
+msgstr "Dátový blok"
+
+#: ../public/js/plugins/storage.js:63
+msgid "Type of the image"
+msgstr "Typ obrazu"
+
+#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
+msgid "Size"
+msgstr "Veľkosť"
+
+#: ../public/js/plugins/storage.js:68
+msgid "Size of the datablock in MB."
+msgstr "Veľkosť dátového bloku v MB"
+
+#: ../public/js/plugins/storage.js:71
+msgid "FS type"
+msgstr "FS typ"
+
+#: ../public/js/plugins/storage.js:73
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
+msgstr "Typ filesystému, ktorý má byť vytvorený. Musí byť známy unixovému príkazu mkfs."
+
+#: ../public/js/plugins/storage.js:76
+msgid "Select image to upload"
+msgstr "Vyber obraz pre upload"
+
+#: ../public/js/plugins/storage.js:83
+msgid "Public"
+msgstr "Verejný"
+
+#: ../public/js/plugins/storage.js:85
+msgid "Public scope of the image"
+msgstr "Verejný scope obrazu"
+
+#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
+msgid "Persistent"
+msgstr "Perzistentný"
+
+#: ../public/js/plugins/storage.js:90
+msgid "Persistence of the image"
+msgstr "Perzistencia obrazu"
+
+#: ../public/js/plugins/storage.js:104
+msgid "Choose a new name for the image"
+msgstr "Vyber nové meno pre obraz"
+
+#: ../public/js/plugins/storage.js:105
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr "Bolo vybratých viac obrazov naraz, zvoľ prefix pre nové kópie"
+
+#: ../public/js/plugins/storage.js:108
+msgid "Prefix"
+msgstr "Prefix"
+
+#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
+msgid "Clone"
+msgstr "Klonuj"
+
+#: ../public/js/plugins/storage.js:249
+msgid "Make persistent"
+msgstr "Urob perzistentný"
+
+#: ../public/js/plugins/storage.js:253
+msgid "Make non persistent"
+msgstr "Urob"
+
+#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
+msgid "Publish"
+msgstr "Publikuj"
+
+#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
+msgid "Unpublish"
+msgstr "Depublikuj"
+
+#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
+msgid "Image information"
+msgstr "Informácie o obraze"
+
+#: ../public/js/plugins/storage.js:287
+msgid "Add storage"
+msgstr "Pridaj storage"
+
+#: ../public/js/plugins/storage.js:294
+msgid "Clone image"
+msgstr "Klonuj obraz"
+
+#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
+msgid "Storage"
+msgstr "Storage"
+
+#: ../public/js/plugins/storage.js:378
+msgid "Image"
+msgstr "Obraz"
+
+#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
+msgid "information"
+msgstr "Informácie"
+
+#: ../public/js/plugins/storage.js:402
+msgid "Filesystem type"
+msgstr "Typ filesystému"
+
+#: ../public/js/plugins/storage.js:406
+msgid "Size (Mb)"
+msgstr "Veľkosť (Mb)"
+
+#: ../public/js/plugins/storage.js:537
+msgid "You must specify a name"
+msgstr "Musíš zadať meno"
+
+#: ../public/js/plugins/storage.js:555
+msgid "You must specify size and FS type"
+msgstr "Musíš zadať veľkosť a typ filesystému"
+
+#: ../public/js/plugins/storage.js:562
+msgid "You must select a file to upload"
+msgstr "Musíš vybrať súbor pre upload"
+
+#: ../public/js/plugins/network.js:47
+msgid "Network Address"
+msgstr "Sieťová adresa"
+
+#: ../public/js/plugins/network.js:49
+msgid "Network Size"
+msgstr "Rozsah siete"
+
+#: ../public/js/plugins/network.js:185
+msgid "Network information"
+msgstr "Informácie o sieti"
+
+#: ../public/js/plugins/network.js:193
+msgid "Create network"
+msgstr "Vytvor sieť"
+
+#: ../public/js/plugins/network.js:274
+msgid "Virtual Network"
+msgstr "Virtuálne siete"
+
+#: ../public/js/plugins/network.js:286
+msgid "Used leases"
+msgstr "Využité linky"
+
+#: ../public/js/plugins/network.js:293
+msgid "Address"
+msgstr "Adresa"
+
+#: ../public/js/plugins/network.js:307
+msgid "Virtual Network information"
+msgstr "Informácie o virtuálnej sieti"
+
+#: ../public/js/plugins/network.js:353
+msgid "Virtual Network name missing!"
+msgstr "Virtuálna sieť neexistuje!"
+
+#: ../public/js/plugins/network.js:365
+msgid "Please provide a network address"
+msgstr "Zadaj sieťovú adresu"
+
 #: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"
 msgstr "Konfigurácia samoobslužného používateľského rozhrania"
@@ -620,13 +620,12 @@ msgid "Chinese (TW)"
 msgstr "Čínsky (TW)"
 
 #: ../public/js/plugins/configuration.js:34
-#, fuzzy
 msgid "Czech (CZ)"
-msgstr "Francúzsky (CA)"
+msgstr "Česky (CZ)"
 
 #: ../public/js/plugins/configuration.js:35
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Holandsky (NL)"
 
 #: ../public/js/plugins/configuration.js:36
 msgid "French (CA)"
@@ -638,16 +637,15 @@ msgstr "Francúzsky (FR)"
 
 #: ../public/js/plugins/configuration.js:38
 msgid "Galician"
-msgstr ""
+msgstr "Galsky"
 
 #: ../public/js/plugins/configuration.js:39
-#, fuzzy
 msgid "German"
-msgstr "Nemecky (DE)"
+msgstr "Nemecky"
 
 #: ../public/js/plugins/configuration.js:40
 msgid "Greek (GR)"
-msgstr ""
+msgstr "Grécky (GR)"
 
 #: ../public/js/plugins/configuration.js:41
 msgid "Italian (IT)"

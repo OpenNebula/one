@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-28 19:15+0200\n"
+"POT-Creation-Date: 2012-10-17 11:53+0200\n"
 "PO-Revision-Date: 2012-09-18 12:29+0000\n"
 "Last-Translator: Vincenzo Reale <vinx.reale@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,244 +49,6 @@ msgstr "Benvenuto"
 msgid "Sign out"
 msgstr "Esci"
 
-#: ../public/js/plugins/storage.js:26 ../public/js/plugins/network.js:26
-#: ../public/js/plugins/compute.js:63
-msgid "All"
-msgstr "Tutti"
-
-#: ../public/js/plugins/storage.js:27 ../public/js/plugins/storage.js:382
-#: ../public/js/plugins/network.js:27 ../public/js/plugins/network.js:278
-#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
-#: ../public/js/plugins/compute.js:637
-msgid "ID"
-msgstr "ID"
-
-#: ../public/js/plugins/storage.js:28 ../public/js/plugins/storage.js:45
-#: ../public/js/plugins/storage.js:107 ../public/js/plugins/storage.js:386
-#: ../public/js/plugins/network.js:28 ../public/js/plugins/network.js:41
-#: ../public/js/plugins/network.js:282 ../public/js/plugins/compute.js:65
-#: ../public/js/plugins/compute.js:589 ../public/js/plugins/compute.js:641
-msgid "Name"
-msgstr "Nome"
-
-#: ../public/js/plugins/storage.js:41
-msgid "Fields marked with"
-msgstr "Campi marcati con"
-
-#: ../public/js/plugins/storage.js:42
-msgid "are mandatory"
-msgstr "sono obbligatori"
-
-#: ../public/js/plugins/storage.js:47
-msgid "Name that the Image will get."
-msgstr "Nome che l'immagine avrà."
-
-#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
-msgid "Description"
-msgstr "Descrizione"
-
-#: ../public/js/plugins/storage.js:52
-msgid "Human readable description of the image."
-msgstr "Descrizione estesa dell'immagine."
-
-#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
-msgid "Type"
-msgstr "Tipo"
-
-#: ../public/js/plugins/storage.js:59
-msgid "OS"
-msgstr "SO"
-
-#: ../public/js/plugins/storage.js:60
-msgid "CD-ROM"
-msgstr "CD-ROM"
-
-#: ../public/js/plugins/storage.js:61
-msgid "Datablock"
-msgstr "Datablock"
-
-#: ../public/js/plugins/storage.js:63
-msgid "Type of the image"
-msgstr "Tipo immagine"
-
-#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
-msgid "Size"
-msgstr "Dimensioni"
-
-#: ../public/js/plugins/storage.js:68
-msgid "Size of the datablock in MB."
-msgstr "Dimensione del datablock in MB."
-
-#: ../public/js/plugins/storage.js:71
-msgid "FS type"
-msgstr "Tipo FS"
-
-#: ../public/js/plugins/storage.js:73
-msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr "Tipo di file system da utilizzare. Può esser settato a qualsiasi valore riconosciuto dall'utility mkfs presente sul sistema host."
-
-#: ../public/js/plugins/storage.js:76
-msgid "Select image to upload"
-msgstr "Seleziona una immagine da caricare"
-
-#: ../public/js/plugins/storage.js:83
-msgid "Public"
-msgstr "Pubblico"
-
-#: ../public/js/plugins/storage.js:85
-msgid "Public scope of the image"
-msgstr "Visibilità pubblica dell'immagine"
-
-#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
-msgid "Persistent"
-msgstr "Persistente"
-
-#: ../public/js/plugins/storage.js:90
-msgid "Persistence of the image"
-msgstr "Persistenza dell'immagine"
-
-#: ../public/js/plugins/storage.js:95 ../public/js/plugins/storage.js:112
-#: ../public/js/plugins/network.js:56 ../public/js/plugins/compute.js:103
-msgid "Close"
-msgstr "Chiudi"
-
-#: ../public/js/plugins/storage.js:96 ../public/js/plugins/network.js:57
-#: ../public/js/plugins/compute.js:104
-msgid "Create"
-msgstr "Crea"
-
-#: ../public/js/plugins/storage.js:104
-msgid "Choose a new name for the image"
-msgstr "Scegli un nuovo nome per l'immagine"
-
-#: ../public/js/plugins/storage.js:105
-msgid "Several image are selected, please choose prefix to name the new copies"
-msgstr "Sono state selezionate diverse immagini, scegli il prefisso per il nome delle nuove copie"
-
-#: ../public/js/plugins/storage.js:108
-msgid "Prefix"
-msgstr "Prefisso"
-
-#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
-msgid "Clone"
-msgstr "Clona"
-
-#: ../public/js/plugins/storage.js:245 ../public/js/plugins/network.js:164
-#: ../public/js/plugins/compute.js:355
-msgid "+ New"
-msgstr "+ Nuovo"
-
-#: ../public/js/plugins/storage.js:249
-msgid "Make persistent"
-msgstr "Rendi persistente"
-
-#: ../public/js/plugins/storage.js:253
-msgid "Make non persistent"
-msgstr "Rendi non persistente"
-
-#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
-msgid "Publish"
-msgstr "Pubblica"
-
-#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
-msgid "Unpublish"
-msgstr "Nascondi"
-
-#: ../public/js/plugins/storage.js:274 ../public/js/plugins/network.js:179
-#: ../public/js/plugins/compute.js:422
-msgid "Delete"
-msgstr "Rimuovi"
-
-#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
-msgid "Image information"
-msgstr "Informazioni immagine"
-
-#: ../public/js/plugins/storage.js:287
-msgid "Add storage"
-msgstr "Aggiungi storage"
-
-#: ../public/js/plugins/storage.js:294
-msgid "Clone image"
-msgstr "Clona l'immagine"
-
-#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
-msgid "Storage"
-msgstr "Storage"
-
-#: ../public/js/plugins/storage.js:378
-msgid "Image"
-msgstr "Immagine"
-
-#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
-msgid "information"
-msgstr "informazioni"
-
-#: ../public/js/plugins/storage.js:402
-msgid "Filesystem type"
-msgstr "Tipo filesystem"
-
-#: ../public/js/plugins/storage.js:406
-msgid "Size (Mb)"
-msgstr "Dimensioni (Mb)"
-
-#: ../public/js/plugins/storage.js:537
-msgid "You must specify a name"
-msgstr "Devi specificare un nome"
-
-#: ../public/js/plugins/storage.js:555
-msgid "You must specify size and FS type"
-msgstr "Devi specificare le dimensioni e il tipo di filesystem"
-
-#: ../public/js/plugins/storage.js:562
-msgid "You must select a file to upload"
-msgstr "Devi scegliere un file da caricare"
-
-#: ../public/js/plugins/network.js:47
-msgid "Network Address"
-msgstr "Indirizzo di rete"
-
-#: ../public/js/plugins/network.js:49
-msgid "Network Size"
-msgstr "Dimensioni rete"
-
-#: ../public/js/plugins/network.js:185
-msgid "Network information"
-msgstr "Informazioni rete"
-
-#: ../public/js/plugins/network.js:193
-msgid "Create network"
-msgstr "Crea rete"
-
-#: ../public/js/plugins/network.js:199 ../public/js/plugins/dashboard.js:62
-#: ../public/js/plugins/compute.js:91 ../public/js/plugins/compute.js:437
-#: ../public/js/plugins/compute.js:664
-msgid "Networks"
-msgstr "Reti"
-
-#: ../public/js/plugins/network.js:274
-msgid "Virtual Network"
-msgstr "Rete virtuale"
-
-#: ../public/js/plugins/network.js:286
-msgid "Used leases"
-msgstr "Lease in uso"
-
-#: ../public/js/plugins/network.js:293
-msgid "Address"
-msgstr "Indirizzo"
-
-#: ../public/js/plugins/network.js:307
-msgid "Virtual Network information"
-msgstr "Informazioni Rete Virtuale"
-
-#: ../public/js/plugins/network.js:353
-msgid "Virtual Network name missing!"
-msgstr "Nome Rete Virtuale mancante!"
-
-#: ../public/js/plugins/network.js:365
-msgid "Please provide a network address"
-msgstr "Inserisci un indirizzo di rete"
-
 #: ../public/js/plugins/dashboard.js:18 ../public/js/plugins/dashboard.js:262
 #: ../public/js/plugins/compute.js:32
 msgid "CPU"
@@ -317,6 +79,12 @@ msgstr "Quote di archiviazione"
 #: ../public/js/plugins/dashboard.js:60 ../public/js/plugins/compute.js:86
 msgid "Images"
 msgstr "Immagini"
+
+#: ../public/js/plugins/dashboard.js:62 ../public/js/plugins/compute.js:91
+#: ../public/js/plugins/compute.js:437 ../public/js/plugins/compute.js:664
+#: ../public/js/plugins/network.js:199
+msgid "Networks"
+msgstr "Reti"
 
 #: ../public/js/plugins/dashboard.js:73
 msgid "Usages"
@@ -396,6 +164,26 @@ msgstr "Dati in uscita"
 msgid "Network reception"
 msgstr "Dati in ricezione"
 
+#: ../public/js/plugins/compute.js:63 ../public/js/plugins/storage.js:26
+#: ../public/js/plugins/network.js:26
+msgid "All"
+msgstr "Tutti"
+
+#: ../public/js/plugins/compute.js:64 ../public/js/plugins/compute.js:585
+#: ../public/js/plugins/compute.js:637 ../public/js/plugins/storage.js:27
+#: ../public/js/plugins/storage.js:382 ../public/js/plugins/network.js:27
+#: ../public/js/plugins/network.js:278
+msgid "ID"
+msgstr "ID"
+
+#: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:589
+#: ../public/js/plugins/compute.js:641 ../public/js/plugins/storage.js:28
+#: ../public/js/plugins/storage.js:45 ../public/js/plugins/storage.js:107
+#: ../public/js/plugins/storage.js:386 ../public/js/plugins/network.js:28
+#: ../public/js/plugins/network.js:41 ../public/js/plugins/network.js:282
+msgid "Name"
+msgstr "Nome"
+
 #: ../public/js/plugins/compute.js:65 ../public/js/plugins/compute.js:597
 msgid "State"
 msgstr "Stato"
@@ -423,6 +211,21 @@ msgstr "Crea # VM"
 #: ../public/js/plugins/compute.js:99
 msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "Puoi utilizzare il carattere speciale &#37;i. Quando si creano più VM, &#37;i sarà sostituito da un numero diverso a partire da 0 per ognuna di esse"
+
+#: ../public/js/plugins/compute.js:103 ../public/js/plugins/storage.js:95
+#: ../public/js/plugins/storage.js:112 ../public/js/plugins/network.js:56
+msgid "Close"
+msgstr "Chiudi"
+
+#: ../public/js/plugins/compute.js:104 ../public/js/plugins/storage.js:96
+#: ../public/js/plugins/network.js:57
+msgid "Create"
+msgstr "Crea"
+
+#: ../public/js/plugins/compute.js:355 ../public/js/plugins/storage.js:245
+#: ../public/js/plugins/network.js:164
+msgid "+ New"
+msgstr "+ Nuovo"
 
 #: ../public/js/plugins/compute.js:361
 msgid "Shutdown"
@@ -497,6 +300,11 @@ msgstr "Questo interromperà le VM selezionate"
 #: ../public/js/plugins/compute.js:415
 msgid "Take snapshot"
 msgstr "Esegui snapshot"
+
+#: ../public/js/plugins/compute.js:422 ../public/js/plugins/storage.js:274
+#: ../public/js/plugins/network.js:179
+msgid "Delete"
+msgstr "Rimuovi"
 
 #: ../public/js/plugins/compute.js:423
 msgid "This will delete the selected VMs from the database"
@@ -605,6 +413,198 @@ msgstr "Apri Sessione VNC"
 #: ../public/js/plugins/compute.js:1099 ../public/js/plugins/compute.js:1115
 msgid "VNC Disabled"
 msgstr "VNC Disabilitato"
+
+#: ../public/js/plugins/storage.js:41
+msgid "Fields marked with"
+msgstr "Campi marcati con"
+
+#: ../public/js/plugins/storage.js:42
+msgid "are mandatory"
+msgstr "sono obbligatori"
+
+#: ../public/js/plugins/storage.js:47
+msgid "Name that the Image will get."
+msgstr "Nome che l'immagine avrà."
+
+#: ../public/js/plugins/storage.js:50 ../public/js/plugins/storage.js:390
+msgid "Description"
+msgstr "Descrizione"
+
+#: ../public/js/plugins/storage.js:52
+msgid "Human readable description of the image."
+msgstr "Descrizione estesa dell'immagine."
+
+#: ../public/js/plugins/storage.js:57 ../public/js/plugins/storage.js:394
+msgid "Type"
+msgstr "Tipo"
+
+#: ../public/js/plugins/storage.js:59
+msgid "OS"
+msgstr "SO"
+
+#: ../public/js/plugins/storage.js:60
+msgid "CD-ROM"
+msgstr "CD-ROM"
+
+#: ../public/js/plugins/storage.js:61
+msgid "Datablock"
+msgstr "Datablock"
+
+#: ../public/js/plugins/storage.js:63
+msgid "Type of the image"
+msgstr "Tipo immagine"
+
+#: ../public/js/plugins/storage.js:66 ../public/js/plugins/network.js:297
+msgid "Size"
+msgstr "Dimensioni"
+
+#: ../public/js/plugins/storage.js:68
+msgid "Size of the datablock in MB."
+msgstr "Dimensione del datablock in MB."
+
+#: ../public/js/plugins/storage.js:71
+msgid "FS type"
+msgstr "Tipo FS"
+
+#: ../public/js/plugins/storage.js:73
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
+msgstr "Tipo di file system da utilizzare. Può esser settato a qualsiasi valore riconosciuto dall'utility mkfs presente sul sistema host."
+
+#: ../public/js/plugins/storage.js:76
+msgid "Select image to upload"
+msgstr "Seleziona una immagine da caricare"
+
+#: ../public/js/plugins/storage.js:83
+msgid "Public"
+msgstr "Pubblico"
+
+#: ../public/js/plugins/storage.js:85
+msgid "Public scope of the image"
+msgstr "Visibilità pubblica dell'immagine"
+
+#: ../public/js/plugins/storage.js:88 ../public/js/plugins/storage.js:398
+msgid "Persistent"
+msgstr "Persistente"
+
+#: ../public/js/plugins/storage.js:90
+msgid "Persistence of the image"
+msgstr "Persistenza dell'immagine"
+
+#: ../public/js/plugins/storage.js:104
+msgid "Choose a new name for the image"
+msgstr "Scegli un nuovo nome per l'immagine"
+
+#: ../public/js/plugins/storage.js:105
+msgid "Several image are selected, please choose prefix to name the new copies"
+msgstr "Sono state selezionate diverse immagini, scegli il prefisso per il nome delle nuove copie"
+
+#: ../public/js/plugins/storage.js:108
+msgid "Prefix"
+msgstr "Prefisso"
+
+#: ../public/js/plugins/storage.js:114 ../public/js/plugins/storage.js:270
+msgid "Clone"
+msgstr "Clona"
+
+#: ../public/js/plugins/storage.js:249
+msgid "Make persistent"
+msgstr "Rendi persistente"
+
+#: ../public/js/plugins/storage.js:253
+msgid "Make non persistent"
+msgstr "Rendi non persistente"
+
+#: ../public/js/plugins/storage.js:260 ../public/js/plugins/network.js:169
+msgid "Publish"
+msgstr "Pubblica"
+
+#: ../public/js/plugins/storage.js:264 ../public/js/plugins/network.js:174
+msgid "Unpublish"
+msgstr "Nascondi"
+
+#: ../public/js/plugins/storage.js:280 ../public/js/plugins/storage.js:374
+msgid "Image information"
+msgstr "Informazioni immagine"
+
+#: ../public/js/plugins/storage.js:287
+msgid "Add storage"
+msgstr "Aggiungi storage"
+
+#: ../public/js/plugins/storage.js:294
+msgid "Clone image"
+msgstr "Clona l'immagine"
+
+#: ../public/js/plugins/storage.js:300 ../public/customize/custom.js:68
+msgid "Storage"
+msgstr "Storage"
+
+#: ../public/js/plugins/storage.js:378
+msgid "Image"
+msgstr "Immagine"
+
+#: ../public/js/plugins/storage.js:379 ../public/js/plugins/network.js:275
+msgid "information"
+msgstr "informazioni"
+
+#: ../public/js/plugins/storage.js:402
+msgid "Filesystem type"
+msgstr "Tipo filesystem"
+
+#: ../public/js/plugins/storage.js:406
+msgid "Size (Mb)"
+msgstr "Dimensioni (Mb)"
+
+#: ../public/js/plugins/storage.js:537
+msgid "You must specify a name"
+msgstr "Devi specificare un nome"
+
+#: ../public/js/plugins/storage.js:555
+msgid "You must specify size and FS type"
+msgstr "Devi specificare le dimensioni e il tipo di filesystem"
+
+#: ../public/js/plugins/storage.js:562
+msgid "You must select a file to upload"
+msgstr "Devi scegliere un file da caricare"
+
+#: ../public/js/plugins/network.js:47
+msgid "Network Address"
+msgstr "Indirizzo di rete"
+
+#: ../public/js/plugins/network.js:49
+msgid "Network Size"
+msgstr "Dimensioni rete"
+
+#: ../public/js/plugins/network.js:185
+msgid "Network information"
+msgstr "Informazioni rete"
+
+#: ../public/js/plugins/network.js:193
+msgid "Create network"
+msgstr "Crea rete"
+
+#: ../public/js/plugins/network.js:274
+msgid "Virtual Network"
+msgstr "Rete virtuale"
+
+#: ../public/js/plugins/network.js:286
+msgid "Used leases"
+msgstr "Lease in uso"
+
+#: ../public/js/plugins/network.js:293
+msgid "Address"
+msgstr "Indirizzo"
+
+#: ../public/js/plugins/network.js:307
+msgid "Virtual Network information"
+msgstr "Informazioni Rete Virtuale"
+
+#: ../public/js/plugins/network.js:353
+msgid "Virtual Network name missing!"
+msgstr "Nome Rete Virtuale mancante!"
+
+#: ../public/js/plugins/network.js:365
+msgid "Please provide a network address"
+msgstr "Inserisci un indirizzo di rete"
 
 #: ../public/js/plugins/configuration.js:24
 msgid "Self-Service UI Configuration"
