@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 # Hsi En Yu <yun@nchc.narl.org.tw>, 2012.
 #   <nfsmwlin@gmail.com>, 2012.
@@ -9,45 +9,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-29 15:08+0200\n"
-"PO-Revision-Date: 2012-09-29 13:10+0000\n"
-"Last-Translator: hsanjuan <hsanjuan@opennebula.org>\n"
+"Report-Msgid-Bugs-To: http://dev.opennebula.org/\n"
+"POT-Creation-Date: 2012-10-17 11:43+0200\n"
+"PO-Revision-Date: 2012-10-17 09:46+0000\n"
+"Last-Translator: dmolina <dmolina@opennebula.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-#: ../public/js/sunstone.js:589
-msgid "Previous action"
-msgstr "先前操作"
-
-#: ../public/js/sunstone.js:652 ../public/js/sunstone.js:686
-msgid "Confirmation of action"
-msgstr "操作確認"
-
-#: ../public/js/sunstone.js:658
-msgid "You have to confirm this action."
-msgstr "請確認這個操作"
-
-#: ../public/js/sunstone.js:660
-msgid "Do you want to proceed?"
-msgstr "您是否確定要繼續執行?"
-
-#: ../public/js/sunstone.js:663 ../public/js/sunstone.js:695
-msgid "OK"
-msgstr "確定"
-
-#: ../public/js/sunstone.js:664 ../public/js/sunstone.js:696
-#: ../public/js/plugins/vms-tab.js:611
-msgid "Cancel"
-msgstr "取消"
-
-#: ../public/js/sunstone.js:691
-msgid "You need to select something."
-msgstr "未選取任何項目"
 
 #: ../public/js/locale.js:35
 msgid "Changing language"
@@ -77,208 +48,828 @@ msgstr "歡迎"
 msgid "Sign out"
 msgstr "登出"
 
-#: ../public/js/sunstone-util.js:210
-msgid "Submitted"
-msgstr "已執行"
+#: ../public/js/plugins/hosts-tab.js:23
+msgid "CPU Monitoring information"
+msgstr "CPU監測資訊"
 
-#: ../public/js/sunstone-util.js:227
-msgid "Error"
-msgstr "錯誤"
+#: ../public/js/plugins/hosts-tab.js:29
+msgid "Memory monitoring information"
+msgstr "記憶體監測資訊"
 
-#: ../public/js/sunstone-util.js:233
-msgid "Info"
-msgstr "訊息"
+#: ../public/js/plugins/hosts-tab.js:38 ../public/js/plugins/hosts-tab.js:373
+#: ../public/js/plugins/acls-tab.js:57 ../public/js/plugins/acls-tab.js:269
+#: ../public/js/plugins/dashboard-tab.js:25
+#: ../public/js/plugins/infra-tab.js:34
+#: ../public/js/plugins/clusters-tab.js:31
+#: ../public/js/plugins/clusters-tab.js:591
+#: ../public/js/plugins/clusters-tab.js:698
+#: ../public/js/plugins/clusters-tab.js:807
+msgid "Hosts"
+msgstr "主機"
 
-#: ../public/js/sunstone-util.js:365
-msgid "Cannot contact server: is it running and reachable?"
-msgstr "無法連線至伺服器:請確認伺服器運行狀態或網路連線狀況?"
+#: ../public/js/plugins/hosts-tab.js:45 ../public/js/plugins/users-tab.js:52
+#: ../public/js/plugins/acls-tab.js:29 ../public/js/plugins/acls-tab.js:69
+#: ../public/js/plugins/acls-tab.js:216 ../public/js/plugins/acls-tab.js:234
+#: ../public/js/plugins/acls-tab.js:500 ../public/js/plugins/vms-tab.js:68
+#: ../public/js/plugins/images-tab.js:27
+#: ../public/js/plugins/templates-tab.js:27
+#: ../public/js/plugins/datastores-tab.js:28
+#: ../public/js/plugins/vnets-tab.js:27
+#: ../public/js/plugins/clusters-tab.js:28
+#: ../public/js/plugins/groups-tab.js:49
+msgid "All"
+msgstr "全部"
 
-#: ../public/js/sunstone-util.js:373
-msgid "Network is unreachable: is OpenNebula running?"
-msgstr "網路連線失敗: 請確認OpenNebula是否仍運行中?"
-
-#: ../public/js/sunstone-util.js:394
-msgid "Unauthorized"
-msgstr "未經授權"
-
-#: ../public/js/sunstone-util.js:585 ../public/js/sunstone-util.js:807
-#: ../public/js/plugins/templates-tab.js:200
-#: ../public/js/plugins/templates-tab.js:412
-#: ../public/js/plugins/images-tab.js:1070
-msgid "Please select"
-msgstr "請選擇"
-
-#: ../public/js/sunstone-util.js:730
-msgid "Update template"
-msgstr "修改範本"
-
-#: ../public/js/sunstone-util.js:736 ../public/js/plugins/templates-tab.js:566
-msgid "Please, choose and modify the template you want to update"
-msgstr "請選擇您想修改的範本"
-
-#: ../public/js/sunstone-util.js:738 ../public/js/sunstone-util.js:741
-#: ../public/js/plugins/templates-tab.js:568
-msgid "Select a template"
-msgstr "選擇一個範本"
-
-#: ../public/js/sunstone-util.js:746 ../public/js/plugins/vnets-tab.js:210
-#: ../public/js/plugins/vms-tab.js:169
-#: ../public/js/plugins/datastores-tab.js:132
-#: ../public/js/plugins/templates-tab.js:605
-#: ../public/js/plugins/users-tab.js:685
-#: ../public/js/plugins/groups-tab.js:479
-#: ../public/js/plugins/images-tab.js:235
-msgid "Update"
-msgstr "更新"
-
-#: ../public/js/sunstone-util.js:1028
-msgid "Please select an element"
-msgstr "請選擇一個元素"
-
-#: ../public/js/monitoring.js:99 ../public/js/plugins/clusters-tab.js:555
-#: ../public/js/plugins/clusters-tab.js:556
-#: ../public/js/plugins/clusters-tab.js:565
-#: ../public/js/plugins/clusters-tab.js:575
-#: ../public/js/plugins/clusters-tab.js:662
-#: ../public/js/plugins/clusters-tab.js:663
-#: ../public/js/plugins/clusters-tab.js:672
-#: ../public/js/plugins/clusters-tab.js:682
-msgid "No monitoring information available"
-msgstr "無任何監測資訊"
-
-#: ../public/js/plugins/marketplace-tab.js:90
-msgid "Import to local infrastructure"
-msgstr "由本地端基礎設施匯入"
-
-#: ../public/js/plugins/marketplace-tab.js:95
-msgid "OpenNebula Marketplace"
-msgstr "OpenNebula Marketplace"
-
+#: ../public/js/plugins/hosts-tab.js:46 ../public/js/plugins/users-tab.js:53
+#: ../public/js/plugins/users-tab.js:631 ../public/js/plugins/acls-tab.js:30
+#: ../public/js/plugins/acls-tab.js:237 ../public/js/plugins/vms-tab.js:69
+#: ../public/js/plugins/vms-tab.js:972 ../public/js/plugins/images-tab.js:28
+#: ../public/js/plugins/images-tab.js:613
 #: ../public/js/plugins/marketplace-tab.js:103
 #: ../public/js/plugins/marketplace-tab.js:155
-#: ../public/js/plugins/acls-tab.js:30 ../public/js/plugins/acls-tab.js:236
+#: ../public/js/plugins/templates-tab.js:28
+#: ../public/js/plugins/templates-tab.js:918
+#: ../public/js/plugins/datastores-tab.js:29
+#: ../public/js/plugins/datastores-tab.js:463
 #: ../public/js/plugins/vnets-tab.js:28 ../public/js/plugins/vnets-tab.js:573
 #: ../public/js/plugins/clusters-tab.js:29
 #: ../public/js/plugins/clusters-tab.js:543
-#: ../public/js/plugins/clusters-tab.js:649 ../public/js/plugins/vms-tab.js:69
-#: ../public/js/plugins/vms-tab.js:972
-#: ../public/js/plugins/datastores-tab.js:29
-#: ../public/js/plugins/datastores-tab.js:461
-#: ../public/js/plugins/hosts-tab.js:46
-#: ../public/js/plugins/templates-tab.js:28
-#: ../public/js/plugins/templates-tab.js:918
-#: ../public/js/plugins/users-tab.js:53 ../public/js/plugins/users-tab.js:631
+#: ../public/js/plugins/clusters-tab.js:649
 #: ../public/js/plugins/groups-tab.js:50
 #: ../public/js/plugins/groups-tab.js:433
-#: ../public/js/plugins/images-tab.js:28
-#: ../public/js/plugins/images-tab.js:613
 msgid "ID"
 msgstr "ID"
 
+#: ../public/js/plugins/hosts-tab.js:47 ../public/js/plugins/hosts-tab.js:81
+#: ../public/js/plugins/hosts-tab.js:690 ../public/js/plugins/users-tab.js:54
+#: ../public/js/plugins/vms-tab.js:72 ../public/js/plugins/vms-tab.js:976
+#: ../public/js/plugins/images-tab.js:31 ../public/js/plugins/images-tab.js:65
+#: ../public/js/plugins/images-tab.js:150
+#: ../public/js/plugins/images-tab.js:617
+#: ../public/js/plugins/images-tab.js:1138
 #: ../public/js/plugins/marketplace-tab.js:104
-#: ../public/js/plugins/vnets-tab.js:31 ../public/js/plugins/vnets-tab.js:58
-#: ../public/js/plugins/vnets-tab.js:128 ../public/js/plugins/vnets-tab.js:577
-#: ../public/js/plugins/clusters-tab.js:30
-#: ../public/js/plugins/clusters-tab.js:44
-#: ../public/js/plugins/clusters-tab.js:547
-#: ../public/js/plugins/clusters-tab.js:653 ../public/js/plugins/vms-tab.js:72
-#: ../public/js/plugins/vms-tab.js:976
-#: ../public/js/plugins/datastores-tab.js:32
-#: ../public/js/plugins/datastores-tab.js:54
-#: ../public/js/plugins/datastores-tab.js:465
-#: ../public/js/plugins/hosts-tab.js:47 ../public/js/plugins/hosts-tab.js:79
-#: ../public/js/plugins/hosts-tab.js:666
 #: ../public/js/plugins/templates-tab.js:31
 #: ../public/js/plugins/templates-tab.js:79
 #: ../public/js/plugins/templates-tab.js:450
 #: ../public/js/plugins/templates-tab.js:515
 #: ../public/js/plugins/templates-tab.js:922
 #: ../public/js/plugins/templates-tab.js:2057
-#: ../public/js/plugins/users-tab.js:54 ../public/js/plugins/groups-tab.js:51
-#: ../public/js/plugins/images-tab.js:31 ../public/js/plugins/images-tab.js:65
-#: ../public/js/plugins/images-tab.js:150
-#: ../public/js/plugins/images-tab.js:617
-#: ../public/js/plugins/images-tab.js:1138
+#: ../public/js/plugins/datastores-tab.js:32
+#: ../public/js/plugins/datastores-tab.js:54
+#: ../public/js/plugins/datastores-tab.js:467
+#: ../public/js/plugins/vnets-tab.js:31 ../public/js/plugins/vnets-tab.js:58
+#: ../public/js/plugins/vnets-tab.js:128 ../public/js/plugins/vnets-tab.js:577
+#: ../public/js/plugins/clusters-tab.js:30
+#: ../public/js/plugins/clusters-tab.js:44
+#: ../public/js/plugins/clusters-tab.js:547
+#: ../public/js/plugins/clusters-tab.js:653
+#: ../public/js/plugins/groups-tab.js:51
 msgid "Name"
 msgstr "名稱"
 
-#: ../public/js/plugins/marketplace-tab.js:105
-#: ../public/js/plugins/marketplace-tab.js:163
-msgid "Publisher"
-msgstr "出版者"
+#: ../public/js/plugins/hosts-tab.js:48 ../public/js/plugins/hosts-tab.js:132
+#: ../public/js/plugins/hosts-tab.js:694
+#: ../public/js/plugins/datastores-tab.js:33
+#: ../public/js/plugins/datastores-tab.js:60
+#: ../public/js/plugins/datastores-tab.js:479
+#: ../public/js/plugins/vnets-tab.js:32 ../public/js/plugins/vnets-tab.js:581
+msgid "Cluster"
+msgstr "主機叢集"
 
-#: ../public/js/plugins/marketplace-tab.js:106
-#: ../public/js/plugins/marketplace-tab.js:183
-msgid "Hypervisor"
-msgstr "Hypervisor"
+#: ../public/js/plugins/hosts-tab.js:49 ../public/js/plugins/hosts-tab.js:745
+msgid "Running VMs"
+msgstr "運行VM數量"
 
-#: ../public/js/plugins/marketplace-tab.js:107
-#: ../public/js/plugins/marketplace-tab.js:175
-msgid "Arch"
-msgstr "處理器架構"
+#: ../public/js/plugins/hosts-tab.js:50
+msgid "Real CPU"
+msgstr ""
 
-#: ../public/js/plugins/marketplace-tab.js:108
-#: ../public/js/plugins/vms-tab.js:1185
-#: ../public/js/plugins/templates-tab.js:230
-msgid "Format"
-msgstr "格式"
+#: ../public/js/plugins/hosts-tab.js:51
+msgid "Allocated CPU"
+msgstr ""
 
-#: ../public/js/plugins/marketplace-tab.js:109
-msgid "Tags"
-msgstr "標記"
+#: ../public/js/plugins/hosts-tab.js:52
+msgid "Real MEM"
+msgstr ""
 
-#: ../public/js/plugins/marketplace-tab.js:119
-msgid "Marketplace"
-msgstr "Marketplace"
+#: ../public/js/plugins/hosts-tab.js:53
+msgid "Allocated MEM"
+msgstr ""
 
-#: ../public/js/plugins/marketplace-tab.js:134
-#: ../public/js/plugins/marketplace-tab.js:147
-#: ../public/js/plugins/marketplace-tab.js:151
-msgid "Appliance information"
-msgstr "應用資訊"
+#: ../public/js/plugins/hosts-tab.js:54 ../public/js/plugins/vms-tab.js:73
+#: ../public/js/plugins/images-tab.js:37
+msgid "Status"
+msgstr "狀態"
 
-#: ../public/js/plugins/marketplace-tab.js:159
-msgid "URL"
-msgstr "URL"
+#: ../public/js/plugins/hosts-tab.js:55 ../public/js/plugins/hosts-tab.js:702
+msgid "IM MAD"
+msgstr "資源監控中介組件"
 
-#: ../public/js/plugins/marketplace-tab.js:167
-msgid "Downloads"
-msgstr "下載"
+#: ../public/js/plugins/hosts-tab.js:56 ../public/js/plugins/hosts-tab.js:706
+msgid "VM MAD"
+msgstr "虛擬機器中介組件"
 
-#: ../public/js/plugins/marketplace-tab.js:171
-#: ../public/js/plugins/images-tab.js:85
-#: ../public/js/plugins/images-tab.js:544
-msgid "OS"
-msgstr "OS"
+#: ../public/js/plugins/hosts-tab.js:57
+msgid "Last monitored on"
+msgstr "最後監測時間"
 
-#: ../public/js/plugins/marketplace-tab.js:179
-#: ../public/js/plugins/vms-tab.js:1180
-#: ../public/js/plugins/templates-tab.js:224
-#: ../public/js/plugins/images-tab.js:33
-#: ../public/js/plugins/images-tab.js:133
-msgid "Size"
-msgstr "大小"
+#: ../public/js/plugins/hosts-tab.js:66
+msgid ""
+"CPU Use is calculated as the minimum between (total CPU - real CPU usage) "
+"and (allocated CPU). Real CPU usage is provided by the hosts monitoring "
+"driver. Available CPU is calculated using the information from the CPU "
+"setting of the VMs running on that host (allocated CPU)"
+msgstr "CPU使用量是由(所有CPU - 實際CPU使用狀況) 及 (配置CPU資源)中的最小值。實際CPU使用狀況是由主機監測處理元件所提供的監測資訊所計算得出。可使用CPU量是由VM運行實體主機上的CPU設定資訊所計算而得(配置CPU資源)"
 
-#: ../public/js/plugins/marketplace-tab.js:190
-#: ../public/js/plugins/images-tab.js:70
-msgid "Description"
-msgstr "描述"
+#: ../public/js/plugins/hosts-tab.js:69
+msgid ""
+"Memory use is calculated according to the information provided by the host "
+"monitoring driver."
+msgstr "記憶體使用量是由主機監測處理元件所提供的監測資訊所計算得出"
+
+#: ../public/js/plugins/hosts-tab.js:72
+msgid ""
+"You can get monitoring graphs by clicking in the desired host and visiting "
+"the monitoring information tab. Note that oneacctd must be running for this "
+"information to be updated/available."
+msgstr "您可以點選想觀看的主機，以瀏覽監測資訊分頁及監測圖表。這些資訊及圖表功能必須先啟動oneacctd程式"
+
+#: ../public/js/plugins/hosts-tab.js:80
+msgid "Host parameters"
+msgstr "主機參數"
+
+#: ../public/js/plugins/hosts-tab.js:83
+msgid "Drivers"
+msgstr "驅動處理元件"
+
+#: ../public/js/plugins/hosts-tab.js:86
+msgid "Virtualization Manager"
+msgstr "虛擬化處理元件"
+
+#: ../public/js/plugins/hosts-tab.js:88 ../public/js/plugins/hosts-tab.js:102
+msgid "KVM"
+msgstr "KVM"
+
+#: ../public/js/plugins/hosts-tab.js:89 ../public/js/plugins/hosts-tab.js:103
+#: ../public/js/plugins/templates-tab.js:387
+msgid "XEN"
+msgstr "XEN"
+
+#: ../public/js/plugins/hosts-tab.js:90 ../public/js/plugins/hosts-tab.js:104
+#: ../public/js/plugins/hosts-tab.js:123
+#: ../public/js/plugins/datastores-tab.js:66
+#: ../public/js/plugins/vnets-tab.js:69
+msgid "VMware"
+msgstr "VMware"
+
+#: ../public/js/plugins/hosts-tab.js:91 ../public/js/plugins/hosts-tab.js:105
+msgid "EC2"
+msgstr "EC2"
+
+#: ../public/js/plugins/hosts-tab.js:92 ../public/js/plugins/hosts-tab.js:107
+#: ../public/js/plugins/datastores-tab.js:76
+msgid "Dummy"
+msgstr "Dummy"
+
+#: ../public/js/plugins/hosts-tab.js:93 ../public/js/plugins/hosts-tab.js:108
+#: ../public/js/plugins/hosts-tab.js:124 ../public/js/plugins/users-tab.js:95
+msgid "Custom"
+msgstr "自訂"
+
+#: ../public/js/plugins/hosts-tab.js:96
+msgid "Custom VMM_MAD"
+msgstr "自訂虛擬機器中介組件"
+
+#: ../public/js/plugins/hosts-tab.js:100
+msgid "Information Manager"
+msgstr "資源監控處理元件"
+
+#: ../public/js/plugins/hosts-tab.js:106
+msgid "Ganglia"
+msgstr "Ganglia"
+
+#: ../public/js/plugins/hosts-tab.js:111
+msgid "Custom IM_MAD"
+msgstr "自訂資源監控中介組件"
+
+#: ../public/js/plugins/hosts-tab.js:118
+msgid "Default (dummy)"
+msgstr "預設值(dummy)"
+
+#: ../public/js/plugins/hosts-tab.js:119
+msgid "Firewall"
+msgstr "防火牆"
+
+#: ../public/js/plugins/hosts-tab.js:120 ../public/js/plugins/vnets-tab.js:66
+msgid "802.1Q"
+msgstr "802.1Q"
+
+#: ../public/js/plugins/hosts-tab.js:121 ../public/js/plugins/vnets-tab.js:67
+msgid "ebtables"
+msgstr "ebtables"
+
+#: ../public/js/plugins/hosts-tab.js:122 ../public/js/plugins/vnets-tab.js:68
+msgid "Open vSwitch"
+msgstr "Open vSwitch"
+
+#: ../public/js/plugins/hosts-tab.js:127
+msgid "Custom VNM_MAD"
+msgstr "自訂虛擬網路中介組件"
+
+#: ../public/js/plugins/hosts-tab.js:139 ../public/js/plugins/users-tab.js:105
+#: ../public/js/plugins/acls-tab.js:83 ../public/js/plugins/acls-tab.js:91
+#: ../public/js/plugins/vms-tab.js:121 ../public/js/plugins/images-tab.js:164
+#: ../public/js/plugins/images-tab.js:182
+#: ../public/js/plugins/templates-tab.js:538
+#: ../public/js/plugins/templates-tab.js:555
+#: ../public/js/plugins/datastores-tab.js:87
+#: ../public/js/plugins/vnets-tab.js:143 ../public/js/plugins/vnets-tab.js:160
+#: ../public/js/plugins/clusters-tab.js:48
+#: ../public/js/plugins/groups-tab.js:79
+msgid "Create"
+msgstr "建立"
+
+#: ../public/js/plugins/hosts-tab.js:140 ../public/js/plugins/users-tab.js:106
+#: ../public/js/plugins/users-tab.js:122 ../public/js/plugins/acls-tab.js:92
+#: ../public/js/plugins/vms-tab.js:122 ../public/js/plugins/vms-tab.js:606
+#: ../public/js/plugins/images-tab.js:165
+#: ../public/js/plugins/images-tab.js:184
+#: ../public/js/plugins/templates-tab.js:540
+#: ../public/js/plugins/templates-tab.js:557
+#: ../public/js/plugins/datastores-tab.js:88
+#: ../public/js/plugins/vnets-tab.js:145 ../public/js/plugins/vnets-tab.js:162
+#: ../public/js/plugins/clusters-tab.js:49
+#: ../public/js/plugins/groups-tab.js:80
+msgid "Reset"
+msgstr "重設"
+
+#: ../public/js/plugins/hosts-tab.js:271 ../public/js/plugins/users-tab.js:334
+#: ../public/js/plugins/templates-tab.js:674
+#: ../public/js/plugins/clusters-tab.js:184
+msgid "Template updated correctly"
+msgstr "範本已成功修改"
+
+#: ../public/js/plugins/hosts-tab.js:317 ../public/js/plugins/users-tab.js:397
+#: ../public/js/plugins/acls-tab.js:165 ../public/js/plugins/vms-tab.js:502
+#: ../public/js/plugins/images-tab.js:450
+#: ../public/js/plugins/templates-tab.js:774
+#: ../public/js/plugins/datastores-tab.js:309
+#: ../public/js/plugins/vnets-tab.js:434
+#: ../public/js/plugins/clusters-tab.js:220
+msgid "+ New"
+msgstr "+新增"
+
+#: ../public/js/plugins/hosts-tab.js:322
+msgid "Update a template"
+msgstr "修改一個範本"
+
+#: ../public/js/plugins/hosts-tab.js:328
+#: ../public/js/plugins/datastores-tab.js:320
+#: ../public/js/plugins/vnets-tab.js:444
+msgid "Select cluster"
+msgstr "選擇主機叢集"
+
+#: ../public/js/plugins/hosts-tab.js:330
+#: ../public/js/plugins/datastores-tab.js:322
+#: ../public/js/plugins/vnets-tab.js:446
+msgid "Select the destination cluster:"
+msgstr "選擇目標主機叢集"
+
+#: ../public/js/plugins/hosts-tab.js:335
+#: ../public/js/plugins/images-tab.js:476
+#: ../public/js/plugins/templates-tab.js:172
+#: ../public/js/plugins/templates-tab.js:181
+msgid "Enable"
+msgstr "啟用"
+
+#: ../public/js/plugins/hosts-tab.js:340
+#: ../public/js/plugins/images-tab.js:480
+#: ../public/js/plugins/templates-tab.js:173
+#: ../public/js/plugins/templates-tab.js:182
+msgid "Disable"
+msgstr "停用"
+
+#: ../public/js/plugins/hosts-tab.js:345
+msgid "Delete host"
+msgstr "移除主機"
+
+#: ../public/js/plugins/hosts-tab.js:357 ../public/js/plugins/hosts-tab.js:678
+#: ../public/js/plugins/hosts-tab.js:682
+#: ../public/js/plugins/clusters-tab.js:236
+msgid "Host information"
+msgstr "主機資訊"
+
+#: ../public/js/plugins/hosts-tab.js:362 ../public/js/plugins/hosts-tab.js:754
+#: ../public/js/plugins/hosts-tab.js:757
+#: ../public/js/plugins/clusters-tab.js:241
+msgid "Host template"
+msgstr "主機樣版指令集"
+
+#: ../public/js/plugins/hosts-tab.js:366 ../public/js/plugins/hosts-tab.js:763
+#: ../public/js/plugins/vms-tab.js:652 ../public/js/plugins/vms-tab.js:1024
+#: ../public/js/plugins/vms-tab.js:1071
+#: ../public/js/plugins/clusters-tab.js:245
+msgid "Monitoring information"
+msgstr "監測資訊"
+
+#: ../public/js/plugins/hosts-tab.js:625 ../public/js/plugins/vms-tab.js:1108
+#: ../public/js/plugins/templates-tab.js:1929
+msgid "ERROR"
+msgstr "ERROR"
+
+#: ../public/js/plugins/hosts-tab.js:625
+msgid "OFF"
+msgstr "關閉"
+
+#: ../public/js/plugins/hosts-tab.js:625
+msgid "RETRY"
+msgstr "RETRY"
+
+#: ../public/js/plugins/hosts-tab.js:686
+msgid "id"
+msgstr "id"
+
+#: ../public/js/plugins/hosts-tab.js:698
+#: ../public/js/plugins/dashboard-tab.js:31
+#: ../public/js/plugins/dashboard-tab.js:115
+#: ../public/js/plugins/vms-tab.js:988 ../public/js/plugins/images-tab.js:661
+#: ../public/js/plugins/dashboard-users-tab.js:49
+msgid "State"
+msgstr "狀態"
+
+#: ../public/js/plugins/hosts-tab.js:710
+msgid "VN MAD"
+msgstr "虛擬網路中介組件"
+
+#: ../public/js/plugins/hosts-tab.js:717
+msgid "Host shares"
+msgstr "主機負載"
+
+#: ../public/js/plugins/hosts-tab.js:721
+msgid "Total Mem"
+msgstr "總記憶體"
+
+#: ../public/js/plugins/hosts-tab.js:725
+msgid "Used Mem (real)"
+msgstr "記憶體使用量 (實際)"
+
+#: ../public/js/plugins/hosts-tab.js:729
+msgid "Used Mem (allocated)"
+msgstr "記憶體使用量 (配置)"
+
+#: ../public/js/plugins/hosts-tab.js:733
+msgid "Total CPU"
+msgstr "總 CPU"
+
+#: ../public/js/plugins/hosts-tab.js:737
+msgid "Used CPU (real)"
+msgstr "CPU使用量 (實際)"
+
+#: ../public/js/plugins/hosts-tab.js:741
+msgid "Used CPU (allocated)"
+msgstr "CPU使用量 (配置)"
+
+#: ../public/js/plugins/hosts-tab.js:783
+msgid "Create host"
+msgstr "建立主機"
+
+#: ../public/js/plugins/hosts-tab.js:827
+msgid "Host name missing!"
+msgstr "未填寫主機名稱!"
+
+#: ../public/js/plugins/config-tab.js:24
+msgid "Sunstone UI Configuration"
+msgstr "Sunstone使用者介面設定"
+
+#: ../public/js/plugins/config-tab.js:29
+msgid "Language"
+msgstr "語系"
+
+#: ../public/js/plugins/config-tab.js:32
+msgid "English (US)"
+msgstr "英文 (US)"
+
+#: ../public/js/plugins/config-tab.js:33
+msgid "Catalan"
+msgstr "加泰隆尼亞文"
+
+#: ../public/js/plugins/config-tab.js:34
+msgid "Chinese (TW)"
+msgstr "Chinese (TW) - 正體中文(台灣)"
+
+#: ../public/js/plugins/config-tab.js:35
+msgid "Czech (CZ)"
+msgstr "捷克文 (CZ)"
+
+#: ../public/js/plugins/config-tab.js:36
+msgid "French (FR)"
+msgstr "法文 (FR)"
+
+#: ../public/js/plugins/config-tab.js:37
+msgid "German"
+msgstr "德文"
+
+#: ../public/js/plugins/config-tab.js:38
+msgid "Greek (GR)"
+msgstr "希臘文 (GR)"
+
+#: ../public/js/plugins/config-tab.js:39
+msgid "Italian (IT)"
+msgstr "義大利文 (IT)"
+
+#: ../public/js/plugins/config-tab.js:40
+msgid "Persian (IR)"
+msgstr "波斯文 (IR)"
+
+#: ../public/js/plugins/config-tab.js:41
+msgid "Portuguese (PT)"
+msgstr "葡萄牙文 (PT)"
+
+#: ../public/js/plugins/config-tab.js:42
+msgid "Russian (RU)"
+msgstr "俄文 (RU)"
+
+#: ../public/js/plugins/config-tab.js:43
+msgid "Spanish (SP)"
+msgstr "西班牙文 (SP)"
+
+#: ../public/js/plugins/config-tab.js:44
+msgid "Slovak (SK)"
+msgstr "斯洛伐克文 (SK)"
+
+#: ../public/js/plugins/config-tab.js:49
+msgid "Secure websockets connection"
+msgstr "安全websockets連線"
+
+#: ../public/js/plugins/config-tab.js:64
+msgid "These options are stored in your OpenNebula user template."
+msgstr "這些選項存放在你的OpenNebula使用者範本中"
+
+#: ../public/js/plugins/config-tab.js:67
+msgid ""
+"WSS connection requires additional configuration of Sunstone Server and that"
+" the SSL certificate is considered valid by your browser."
+msgstr "WSS連線需要額外設定Sunstone伺服器，且需要您的瀏覽器所接受的合法SSL憑證"
+
+#: ../public/js/plugins/config-tab.js:82
+msgid "Configuration"
+msgstr "設定"
+
+#: ../public/js/plugins/users-tab.js:25 ../public/js/plugins/vms-tab.js:28
+#: ../public/js/plugins/templates-tab.js:89
+#: ../public/js/plugins/groups-tab.js:23
+#: ../public/js/plugins/dashboard-users-tab.js:140
+msgid "CPU"
+msgstr "CPU"
+
+#: ../public/js/plugins/users-tab.js:29 ../public/js/plugins/vms-tab.js:33
+#: ../public/js/plugins/templates-tab.js:84
+#: ../public/js/plugins/groups-tab.js:27
+#: ../public/js/plugins/dashboard-users-tab.js:127
+msgid "Memory"
+msgstr "記憶體"
+
+#: ../public/js/plugins/users-tab.js:33 ../public/js/plugins/groups-tab.js:31
+msgid "Net TX"
+msgstr "網路傳送資料量"
+
+#: ../public/js/plugins/users-tab.js:37 ../public/js/plugins/groups-tab.js:35
+msgid "Net RX"
+msgstr "網路接收資料量"
+
+#: ../public/js/plugins/users-tab.js:45 ../public/js/plugins/users-tab.js:477
+#: ../public/js/plugins/acls-tab.js:64 ../public/js/plugins/acls-tab.js:284
+#: ../public/js/plugins/acls-tab.js:492 ../public/js/plugins/system-tab.js:34
+#: ../public/js/plugins/groups-tab.js:52
+msgid "Users"
+msgstr "使用者"
+
+#: ../public/js/plugins/users-tab.js:55 ../public/js/plugins/users-tab.js:635
+#: ../public/js/plugins/acls-tab.js:76 ../public/js/plugins/acls-tab.js:241
+#: ../public/js/plugins/vms-tab.js:71 ../public/js/plugins/vms-tab.js:148
+#: ../public/js/plugins/vms-tab.js:984 ../public/js/plugins/vms-tab.js:1013
+#: ../public/js/plugins/images-tab.js:30
+#: ../public/js/plugins/images-tab.js:216
+#: ../public/js/plugins/images-tab.js:629
+#: ../public/js/plugins/images-tab.js:674
+#: ../public/js/plugins/templates-tab.js:30
+#: ../public/js/plugins/templates-tab.js:585
+#: ../public/js/plugins/templates-tab.js:930
+#: ../public/js/plugins/templates-tab.js:943
+#: ../public/js/plugins/datastores-tab.js:31
+#: ../public/js/plugins/datastores-tab.js:114
+#: ../public/js/plugins/datastores-tab.js:475
+#: ../public/js/plugins/datastores-tab.js:504
+#: ../public/js/plugins/vnets-tab.js:30 ../public/js/plugins/vnets-tab.js:190
+#: ../public/js/plugins/vnets-tab.js:589 ../public/js/plugins/vnets-tab.js:614
+msgid "Group"
+msgstr "群組"
+
+#: ../public/js/plugins/users-tab.js:56 ../public/js/plugins/users-tab.js:639
+msgid "Authentication driver"
+msgstr "認證方式"
+
+#: ../public/js/plugins/users-tab.js:57 ../public/js/plugins/groups-tab.js:53
+msgid "VMs"
+msgstr "VM數"
+
+#: ../public/js/plugins/users-tab.js:58 ../public/js/plugins/groups-tab.js:54
+msgid "Used memory"
+msgstr "記憶體使用量"
+
+#: ../public/js/plugins/users-tab.js:59 ../public/js/plugins/vms-tab.js:74
+#: ../public/js/plugins/vms-tab.js:1040 ../public/js/plugins/groups-tab.js:55
+msgid "Used CPU"
+msgstr "CPU使用量"
+
+#: ../public/js/plugins/users-tab.js:60
+msgid "Group ID"
+msgstr "群組ID"
+
+#: ../public/js/plugins/users-tab.js:70
+msgid ""
+"Tip: You can save any information in the user template, in the form of "
+"VAR=VAL."
+msgstr "提示: 你可以在使用者範本中儲存任何資訊，例如VAR=VAL的方式"
+
+#: ../public/js/plugins/users-tab.js:75
+msgid "Tip: SSH authentication method is not available for web UI access."
+msgstr "提示: Web介面不提供SSH認證方式"
+
+#: ../public/js/plugins/users-tab.js:85
+msgid "Username"
+msgstr "使用者帳號"
+
+#: ../public/js/plugins/users-tab.js:87
+#: ../public/js/plugins/templates-tab.js:430
+msgid "Password"
+msgstr "密碼"
+
+#: ../public/js/plugins/users-tab.js:89
+msgid "Authentication"
+msgstr "認證方式"
+
+#: ../public/js/plugins/users-tab.js:91 ../public/js/plugins/users-tab.js:426
+msgid "Core"
+msgstr "Core"
+
+#: ../public/js/plugins/users-tab.js:92 ../public/js/plugins/users-tab.js:427
+#: ../public/js/plugins/datastores-tab.js:74
+msgid "SSH"
+msgstr "SSH"
+
+#: ../public/js/plugins/users-tab.js:93 ../public/js/plugins/users-tab.js:428
+msgid "x509"
+msgstr "x509"
+
+#: ../public/js/plugins/users-tab.js:94 ../public/js/plugins/users-tab.js:429
+msgid "Public"
+msgstr "Public"
+
+#: ../public/js/plugins/users-tab.js:98
+msgid "Custom auth driver"
+msgstr "自訂認證方式"
+
+#: ../public/js/plugins/users-tab.js:114
+msgid "This will change the password for the selected users"
+msgstr "所有被選取的使用者密碼將會被修改"
+
+#: ../public/js/plugins/users-tab.js:115
+msgid "New password"
+msgstr "新密碼"
+
+#: ../public/js/plugins/users-tab.js:121
+msgid "Change"
+msgstr "修改"
+
+#: ../public/js/plugins/users-tab.js:129 ../public/js/plugins/groups-tab.js:87
+msgid ""
+"Please add/edit/remove quotas and click on the apply changes button. Note "
+"that if several items are selected, changes will be applied to each of them"
+msgstr "請新增/修改/刪除配額並點選套用變更按鈕。若選擇了多個項目，變更將套用到所有的項目上"
+
+#: ../public/js/plugins/users-tab.js:130 ../public/js/plugins/groups-tab.js:88
+msgid "Add quota"
+msgstr "新增配額"
+
+#: ../public/js/plugins/users-tab.js:132 ../public/js/plugins/groups-tab.js:90
+msgid "Quota type"
+msgstr "配額種類"
+
+#: ../public/js/plugins/users-tab.js:133 ../public/js/plugins/groups-tab.js:91
+msgid "Virtual Machine"
+msgstr "虛擬機器"
+
+#: ../public/js/plugins/users-tab.js:134 ../public/js/plugins/users-tab.js:147
+#: ../public/js/plugins/images-tab.js:32 ../public/js/plugins/images-tab.js:75
+#: ../public/js/plugins/images-tab.js:174
+#: ../public/js/plugins/images-tab.js:621
+#: ../public/js/plugins/datastores-tab.js:127
+#: ../public/js/plugins/groups-tab.js:92
+#: ../public/js/plugins/groups-tab.js:105
+#: ../public/js/plugins/dashboard-users-tab.js:149
+msgid "Datastore"
+msgstr "資料存放區"
+
+#: ../public/js/plugins/users-tab.js:135 ../public/js/plugins/users-tab.js:155
+#: ../public/js/plugins/images-tab.js:609
+#: ../public/js/plugins/templates-tab.js:203
+#: ../public/js/plugins/templates-tab.js:208
+#: ../public/js/plugins/groups-tab.js:93
+#: ../public/js/plugins/groups-tab.js:113
+#: ../public/js/plugins/dashboard-users-tab.js:178
+msgid "Image"
+msgstr "磁碟影像檔"
+
+#: ../public/js/plugins/users-tab.js:136 ../public/js/plugins/users-tab.js:161
+#: ../public/js/plugins/templates-tab.js:262
+#: ../public/js/plugins/templates-tab.js:273
+#: ../public/js/plugins/groups-tab.js:94
+#: ../public/js/plugins/groups-tab.js:119
+#: ../public/js/plugins/dashboard-users-tab.js:193
+msgid "Network"
+msgstr "網路"
+
+#: ../public/js/plugins/users-tab.js:139 ../public/js/plugins/groups-tab.js:97
+msgid "Max VMs"
+msgstr "最大VM數量"
+
+#: ../public/js/plugins/users-tab.js:141 ../public/js/plugins/groups-tab.js:99
+msgid "Max Memory (MB)"
+msgstr "最大記憶體使用量(MB)"
+
+#: ../public/js/plugins/users-tab.js:143
+#: ../public/js/plugins/groups-tab.js:101
+msgid "Max CPU"
+msgstr "總CPU數量"
+
+#: ../public/js/plugins/users-tab.js:149
+#: ../public/js/plugins/groups-tab.js:107
+msgid "Max size (MB)"
+msgstr "最大磁碟使用量(MB)"
+
+#: ../public/js/plugins/users-tab.js:151
+#: ../public/js/plugins/groups-tab.js:109
+msgid "Max images"
+msgstr "最多磁碟影像檔數目"
+
+#: ../public/js/plugins/users-tab.js:157
+#: ../public/js/plugins/groups-tab.js:115
+msgid "Max RVMs"
+msgstr "最多運行VM數量"
+
+#: ../public/js/plugins/users-tab.js:163
+#: ../public/js/plugins/groups-tab.js:121
+msgid "Max leases"
+msgstr "最大租用數"
+
+#: ../public/js/plugins/users-tab.js:166
+#: ../public/js/plugins/groups-tab.js:124
+msgid "Add/edit quota"
+msgstr "新增/修改配額"
+
+#: ../public/js/plugins/users-tab.js:172 ../public/js/plugins/vms-tab.js:1165
+#: ../public/js/plugins/vms-tab.js:1190 ../public/js/plugins/images-tab.js:34
+#: ../public/js/plugins/images-tab.js:83
+#: ../public/js/plugins/images-tab.js:633
+#: ../public/js/plugins/templates-tab.js:215
+#: ../public/js/plugins/templates-tab.js:375
+#: ../public/js/plugins/vnets-tab.js:33 ../public/js/plugins/groups-tab.js:130
+msgid "Type"
+msgstr "種類"
+
+#: ../public/js/plugins/users-tab.js:173
+#: ../public/js/plugins/groups-tab.js:131
+msgid "Quota"
+msgstr "配額"
+
+#: ../public/js/plugins/users-tab.js:174
+#: ../public/js/plugins/groups-tab.js:132
+msgid "Edit"
+msgstr "編輯"
+
+#: ../public/js/plugins/users-tab.js:180
+#: ../public/js/plugins/groups-tab.js:137
+msgid "Apply changes"
+msgstr "套用所有變更"
+
+#: ../public/js/plugins/users-tab.js:235
+msgid "Change password successful"
+msgstr "修改密碼成功"
+
+#: ../public/js/plugins/users-tab.js:365
+#: ../public/js/plugins/groups-tab.js:235
+msgid "Quotas updated correctly"
+msgstr "配額已成功修改"
+
+#: ../public/js/plugins/users-tab.js:402 ../public/js/plugins/vms-tab.js:508
+#: ../public/js/plugins/images-tab.js:454
+#: ../public/js/plugins/templates-tab.js:778
+#: ../public/js/plugins/datastores-tab.js:314
+#: ../public/js/plugins/vnets-tab.js:439
+#: ../public/js/plugins/clusters-tab.js:224
+msgid "Update properties"
+msgstr "修改屬性"
+
+#: ../public/js/plugins/users-tab.js:407 ../public/js/plugins/users-tab.js:813
+msgid "Change password"
+msgstr "修改密碼"
+
+#: ../public/js/plugins/users-tab.js:411
+#: ../public/js/plugins/groups-tab.js:279
+msgid "Update quotas"
+msgstr "修改配額"
+
+#: ../public/js/plugins/users-tab.js:416 ../public/js/plugins/vms-tab.js:522
+#: ../public/js/plugins/images-tab.js:466
+#: ../public/js/plugins/templates-tab.js:794
+#: ../public/js/plugins/datastores-tab.js:334
+#: ../public/js/plugins/vnets-tab.js:459
+msgid "Change group"
+msgstr "變更群組"
+
+#: ../public/js/plugins/users-tab.js:418
+msgid ""
+"This will change the main group of the selected users. Select the new group"
+msgstr "所有被選取的使用者將會變更群組。請選擇新的群組"
+
+#: ../public/js/plugins/users-tab.js:423
+msgid "Change authentication"
+msgstr "修改認證方式"
+
+#: ../public/js/plugins/users-tab.js:431
+msgid "Please choose the new type of authentication for the selected users"
+msgstr "請選擇一個新的認證方式，此認證方式將套用於所有被選取的使用者"
+
+#: ../public/js/plugins/users-tab.js:450 ../public/js/plugins/acls-tab.js:169
+#: ../public/js/plugins/vms-tab.js:619 ../public/js/plugins/images-tab.js:498
+#: ../public/js/plugins/templates-tab.js:805
+#: ../public/js/plugins/datastores-tab.js:341
+#: ../public/js/plugins/vnets-tab.js:467
+#: ../public/js/plugins/clusters-tab.js:229
+#: ../public/js/plugins/groups-tab.js:284
+msgid "Delete"
+msgstr "刪除"
+
+#: ../public/js/plugins/users-tab.js:463 ../public/js/plugins/users-tab.js:623
+#: ../public/js/plugins/users-tab.js:627
+msgid "User information"
+msgstr "使用者資訊"
+
+#: ../public/js/plugins/users-tab.js:467 ../public/js/plugins/users-tab.js:673
+#: ../public/js/plugins/users-tab.js:844
+#: ../public/js/plugins/dashboard-users-tab.js:25
+msgid "User quotas"
+msgstr "使用者配額"
+
+#: ../public/js/plugins/users-tab.js:471 ../public/js/plugins/users-tab.js:678
+#: ../public/js/plugins/groups-tab.js:300
+#: ../public/js/plugins/groups-tab.js:472
+msgid "Historical usages"
+msgstr "舊式用法"
+
+#: ../public/js/plugins/users-tab.js:486
+msgid "User info"
+msgstr "使用者資訊"
+
+#: ../public/js/plugins/users-tab.js:645
+msgid "User template"
+msgstr "使用者樣版指令集"
+
+#: ../public/js/plugins/users-tab.js:681
+#: ../public/js/plugins/groups-tab.js:475
+msgid "From / to"
+msgstr "從/到"
+
+#: ../public/js/plugins/users-tab.js:685 ../public/js/plugins/vms-tab.js:169
+#: ../public/js/plugins/images-tab.js:235
+#: ../public/js/plugins/templates-tab.js:605
+#: ../public/js/plugins/datastores-tab.js:134
+#: ../public/js/plugins/vnets-tab.js:210
+#: ../public/js/plugins/groups-tab.js:479 ../public/js/sunstone-util.js:746
+msgid "Update"
+msgstr "更新"
+
+#: ../public/js/plugins/users-tab.js:690
+#: ../public/js/plugins/groups-tab.js:484
+msgid "Meters"
+msgstr "計量表"
+
+#: ../public/js/plugins/users-tab.js:765
+msgid "Create user"
+msgstr "建立使用者"
+
+#: ../public/js/plugins/users-tab.js:796
+msgid "User name and password must be filled in"
+msgstr "必須填寫使用者帳號及密碼"
+
+#: ../public/js/plugins/users-tab.js:831
+msgid "Fill in a new password"
+msgstr "填寫一個新的密碼"
 
 #: ../public/js/plugins/acls-tab.js:22
 msgid "Access Control Lists"
 msgstr "存取控制清單"
-
-#: ../public/js/plugins/acls-tab.js:29 ../public/js/plugins/acls-tab.js:68
-#: ../public/js/plugins/acls-tab.js:215 ../public/js/plugins/acls-tab.js:233
-#: ../public/js/plugins/acls-tab.js:496 ../public/js/plugins/vnets-tab.js:27
-#: ../public/js/plugins/clusters-tab.js:28 ../public/js/plugins/vms-tab.js:68
-#: ../public/js/plugins/datastores-tab.js:28
-#: ../public/js/plugins/hosts-tab.js:45
-#: ../public/js/plugins/templates-tab.js:27
-#: ../public/js/plugins/users-tab.js:52 ../public/js/plugins/groups-tab.js:49
-#: ../public/js/plugins/images-tab.js:27
-msgid "All"
-msgstr "全部"
 
 #: ../public/js/plugins/acls-tab.js:31
 msgid "Applies to"
@@ -292,7 +883,7 @@ msgstr "受影響的資源"
 msgid "Resource ID / Owned by"
 msgstr "資源ID / 群組"
 
-#: ../public/js/plugins/acls-tab.js:34 ../public/js/plugins/acls-tab.js:78
+#: ../public/js/plugins/acls-tab.js:34 ../public/js/plugins/acls-tab.js:79
 msgid "Allowed operations"
 msgstr "允許的操作"
 
@@ -301,67 +892,59 @@ msgid "ACL String"
 msgstr "ACL指令"
 
 #: ../public/js/plugins/acls-tab.js:44
-msgid "This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns."
+msgid ""
+"This table shows the ACLs rules broken down to easier the reading and "
+"meaning of each one. You can show the ACL original string by clicking on "
+"Show/Hide columns."
 msgstr "這個表格提供了容易閱讀的ACL規則。您可以點選顯示/隱藏欄位來檢視原始ACL字串"
 
 #: ../public/js/plugins/acls-tab.js:53
 msgid "This rule applies to"
 msgstr "此規則套用於"
 
-#: ../public/js/plugins/acls-tab.js:57 ../public/js/plugins/acls-tab.js:268
-#: ../public/js/plugins/clusters-tab.js:31
-#: ../public/js/plugins/clusters-tab.js:591
-#: ../public/js/plugins/clusters-tab.js:698
-#: ../public/js/plugins/clusters-tab.js:807
-#: ../public/js/plugins/hosts-tab.js:38 ../public/js/plugins/hosts-tab.js:371
-#: ../public/js/plugins/infra-tab.js:34
-#: ../public/js/plugins/dashboard-tab.js:25
-msgid "Hosts"
-msgstr "主機"
-
-#: ../public/js/plugins/acls-tab.js:58 ../public/js/plugins/acls-tab.js:289
+#: ../public/js/plugins/acls-tab.js:58 ../public/js/plugins/acls-tab.js:290
+#: ../public/js/plugins/dashboard-tab.js:75
+#: ../public/js/plugins/infra-tab.js:30
 #: ../public/js/plugins/clusters-tab.js:21
 #: ../public/js/plugins/clusters-tab.js:253
-#: ../public/js/plugins/infra-tab.js:30
-#: ../public/js/plugins/dashboard-tab.js:75
 msgid "Clusters"
 msgstr "主機叢集"
 
-#: ../public/js/plugins/acls-tab.js:59 ../public/js/plugins/acls-tab.js:292
+#: ../public/js/plugins/acls-tab.js:59 ../public/js/plugins/acls-tab.js:293
+#: ../public/js/plugins/datastores-tab.js:21
+#: ../public/js/plugins/datastores-tab.js:364
+#: ../public/js/plugins/infra-tab.js:38
 #: ../public/js/plugins/clusters-tab.js:33
 #: ../public/js/plugins/clusters-tab.js:604
 #: ../public/js/plugins/clusters-tab.js:712
 #: ../public/js/plugins/clusters-tab.js:814
-#: ../public/js/plugins/datastores-tab.js:21
-#: ../public/js/plugins/datastores-tab.js:362
-#: ../public/js/plugins/infra-tab.js:38
 msgid "Datastores"
 msgstr "資料存放區"
 
-#: ../public/js/plugins/acls-tab.js:60 ../public/js/plugins/acls-tab.js:271
+#: ../public/js/plugins/acls-tab.js:60 ../public/js/plugins/acls-tab.js:272
+#: ../public/js/plugins/dashboard-tab.js:109
+#: ../public/js/plugins/vms-tab.js:61 ../public/js/plugins/vms-tab.js:658
 #: ../public/js/plugins/dashboard-users-tab.js:43
 #: ../public/js/plugins/dashboard-users-tab.js:111
-#: ../public/js/plugins/vms-tab.js:61 ../public/js/plugins/vms-tab.js:658
-#: ../public/js/plugins/dashboard-tab.js:109
 msgid "Virtual Machines"
 msgstr "虛擬機器"
 
-#: ../public/js/plugins/acls-tab.js:61 ../public/js/plugins/acls-tab.js:274
+#: ../public/js/plugins/acls-tab.js:61 ../public/js/plugins/acls-tab.js:275
+#: ../public/js/plugins/vresources-tab.js:43
 #: ../public/js/plugins/vnets-tab.js:20 ../public/js/plugins/vnets-tab.js:489
+#: ../public/js/plugins/infra-tab.js:42
 #: ../public/js/plugins/clusters-tab.js:32
 #: ../public/js/plugins/clusters-tab.js:617
 #: ../public/js/plugins/clusters-tab.js:728
 #: ../public/js/plugins/clusters-tab.js:821
-#: ../public/js/plugins/infra-tab.js:42
-#: ../public/js/plugins/vresources-tab.js:43
 msgid "Virtual Networks"
 msgstr "虛擬網路"
 
-#: ../public/js/plugins/acls-tab.js:62 ../public/js/plugins/acls-tab.js:277
-#: ../public/js/plugins/datastores-tab.js:493
-#: ../public/js/plugins/vresources-tab.js:47
+#: ../public/js/plugins/acls-tab.js:62 ../public/js/plugins/acls-tab.js:278
 #: ../public/js/plugins/images-tab.js:20
 #: ../public/js/plugins/images-tab.js:521
+#: ../public/js/plugins/vresources-tab.js:47
+#: ../public/js/plugins/datastores-tab.js:495
 msgid "Images"
 msgstr "磁碟影像檔"
 
@@ -371,793 +954,158 @@ msgstr "磁碟影像檔"
 msgid "Templates"
 msgstr "範本"
 
-#: ../public/js/plugins/acls-tab.js:64 ../public/js/plugins/acls-tab.js:283
-#: ../public/js/plugins/acls-tab.js:488 ../public/js/plugins/users-tab.js:45
-#: ../public/js/plugins/users-tab.js:477 ../public/js/plugins/groups-tab.js:52
-#: ../public/js/plugins/system-tab.js:34
-msgid "Users"
-msgstr "使用者"
-
-#: ../public/js/plugins/acls-tab.js:65 ../public/js/plugins/acls-tab.js:286
-#: ../public/js/plugins/acls-tab.js:493 ../public/js/plugins/groups-tab.js:42
+#: ../public/js/plugins/acls-tab.js:65 ../public/js/plugins/acls-tab.js:287
+#: ../public/js/plugins/acls-tab.js:497 ../public/js/plugins/system-tab.js:30
+#: ../public/js/plugins/groups-tab.js:42
 #: ../public/js/plugins/groups-tab.js:306
-#: ../public/js/plugins/system-tab.js:30
 msgid "Groups"
 msgstr "群組＿"
 
-#: ../public/js/plugins/acls-tab.js:67
+#: ../public/js/plugins/acls-tab.js:66 ../public/js/plugins/acls-tab.js:296
+msgid "Documents"
+msgstr ""
+
+#: ../public/js/plugins/acls-tab.js:68
 msgid "Resource subset"
 msgstr "資源子集合"
 
-#: ../public/js/plugins/acls-tab.js:69
+#: ../public/js/plugins/acls-tab.js:70
 msgid "Specific ID"
 msgstr "特定ID"
 
-#: ../public/js/plugins/acls-tab.js:70
+#: ../public/js/plugins/acls-tab.js:71
 msgid "Owned by group"
 msgstr "特定群組"
 
-#: ../public/js/plugins/acls-tab.js:72
+#: ../public/js/plugins/acls-tab.js:73
 msgid "Resource ID"
 msgstr "資源ID"
 
-#: ../public/js/plugins/acls-tab.js:75 ../public/js/plugins/acls-tab.js:240
-#: ../public/js/plugins/vnets-tab.js:30 ../public/js/plugins/vnets-tab.js:190
-#: ../public/js/plugins/vnets-tab.js:589 ../public/js/plugins/vnets-tab.js:614
-#: ../public/js/plugins/vms-tab.js:71 ../public/js/plugins/vms-tab.js:148
-#: ../public/js/plugins/vms-tab.js:984 ../public/js/plugins/vms-tab.js:1013
-#: ../public/js/plugins/datastores-tab.js:31
-#: ../public/js/plugins/datastores-tab.js:112
-#: ../public/js/plugins/datastores-tab.js:473
-#: ../public/js/plugins/datastores-tab.js:502
-#: ../public/js/plugins/templates-tab.js:30
-#: ../public/js/plugins/templates-tab.js:585
-#: ../public/js/plugins/templates-tab.js:930
-#: ../public/js/plugins/templates-tab.js:943
-#: ../public/js/plugins/users-tab.js:55 ../public/js/plugins/users-tab.js:635
-#: ../public/js/plugins/images-tab.js:30
-#: ../public/js/plugins/images-tab.js:216
-#: ../public/js/plugins/images-tab.js:629
-#: ../public/js/plugins/images-tab.js:674
-msgid "Group"
-msgstr "群組"
-
-#: ../public/js/plugins/acls-tab.js:79 ../public/js/plugins/vnets-tab.js:180
-#: ../public/js/plugins/vms-tab.js:138
-#: ../public/js/plugins/datastores-tab.js:102
-#: ../public/js/plugins/templates-tab.js:575
+#: ../public/js/plugins/acls-tab.js:80 ../public/js/plugins/vms-tab.js:138
 #: ../public/js/plugins/images-tab.js:206
+#: ../public/js/plugins/templates-tab.js:575
+#: ../public/js/plugins/datastores-tab.js:104
+#: ../public/js/plugins/vnets-tab.js:180
 msgid "Use"
 msgstr "使用"
 
-#: ../public/js/plugins/acls-tab.js:80 ../public/js/plugins/vnets-tab.js:181
-#: ../public/js/plugins/vms-tab.js:139
-#: ../public/js/plugins/datastores-tab.js:103
-#: ../public/js/plugins/templates-tab.js:576
+#: ../public/js/plugins/acls-tab.js:81 ../public/js/plugins/vms-tab.js:139
 #: ../public/js/plugins/images-tab.js:207
+#: ../public/js/plugins/templates-tab.js:576
+#: ../public/js/plugins/datastores-tab.js:105
+#: ../public/js/plugins/vnets-tab.js:181
 msgid "Manage"
 msgstr "調配"
 
-#: ../public/js/plugins/acls-tab.js:81
+#: ../public/js/plugins/acls-tab.js:82
 msgid "Administrate"
 msgstr "管理"
 
-#: ../public/js/plugins/acls-tab.js:82 ../public/js/plugins/acls-tab.js:90
-#: ../public/js/plugins/vnets-tab.js:143 ../public/js/plugins/vnets-tab.js:160
-#: ../public/js/plugins/clusters-tab.js:48 ../public/js/plugins/vms-tab.js:121
-#: ../public/js/plugins/datastores-tab.js:85
-#: ../public/js/plugins/hosts-tab.js:137
-#: ../public/js/plugins/templates-tab.js:538
-#: ../public/js/plugins/templates-tab.js:555
-#: ../public/js/plugins/users-tab.js:105 ../public/js/plugins/groups-tab.js:79
-#: ../public/js/plugins/images-tab.js:164
-#: ../public/js/plugins/images-tab.js:182
-msgid "Create"
-msgstr "建立"
-
-#: ../public/js/plugins/acls-tab.js:84
+#: ../public/js/plugins/acls-tab.js:85
 msgid "ACL String preview"
 msgstr "ACL 指令預覽"
 
-#: ../public/js/plugins/acls-tab.js:91 ../public/js/plugins/vnets-tab.js:145
-#: ../public/js/plugins/vnets-tab.js:162
-#: ../public/js/plugins/clusters-tab.js:49 ../public/js/plugins/vms-tab.js:122
-#: ../public/js/plugins/vms-tab.js:606
-#: ../public/js/plugins/datastores-tab.js:86
-#: ../public/js/plugins/hosts-tab.js:138
-#: ../public/js/plugins/templates-tab.js:540
-#: ../public/js/plugins/templates-tab.js:557
-#: ../public/js/plugins/users-tab.js:106 ../public/js/plugins/users-tab.js:122
-#: ../public/js/plugins/groups-tab.js:80
-#: ../public/js/plugins/images-tab.js:165
-#: ../public/js/plugins/images-tab.js:184
-msgid "Reset"
-msgstr "重設"
-
-#: ../public/js/plugins/acls-tab.js:164 ../public/js/plugins/vnets-tab.js:434
-#: ../public/js/plugins/clusters-tab.js:220
-#: ../public/js/plugins/vms-tab.js:502
-#: ../public/js/plugins/datastores-tab.js:307
-#: ../public/js/plugins/hosts-tab.js:315
-#: ../public/js/plugins/templates-tab.js:774
-#: ../public/js/plugins/users-tab.js:397
-#: ../public/js/plugins/images-tab.js:450
-msgid "+ New"
-msgstr "+新增"
-
-#: ../public/js/plugins/acls-tab.js:168 ../public/js/plugins/vnets-tab.js:467
-#: ../public/js/plugins/clusters-tab.js:229
-#: ../public/js/plugins/vms-tab.js:619
-#: ../public/js/plugins/datastores-tab.js:339
-#: ../public/js/plugins/templates-tab.js:805
-#: ../public/js/plugins/users-tab.js:450
-#: ../public/js/plugins/groups-tab.js:284
-#: ../public/js/plugins/images-tab.js:498
-msgid "Delete"
-msgstr "刪除"
-
-#: ../public/js/plugins/acls-tab.js:178
+#: ../public/js/plugins/acls-tab.js:179
 msgid "ACLs"
 msgstr "ACLs"
 
-#: ../public/js/plugins/acls-tab.js:218
+#: ../public/js/plugins/acls-tab.js:219
 msgid "User"
 msgstr "使用者"
 
-#: ../public/js/plugins/acls-tab.js:222
+#: ../public/js/plugins/acls-tab.js:223
 msgid "Group "
 msgstr "群組"
 
-#: ../public/js/plugins/acls-tab.js:280
+#: ../public/js/plugins/acls-tab.js:281
 #: ../public/js/plugins/vresources-tab.js:30
 msgid "VM Templates"
 msgstr "VM範本"
 
-#: ../public/js/plugins/acls-tab.js:347
+#: ../public/js/plugins/acls-tab.js:351
 msgid "Create ACL"
 msgstr "建立ACL"
 
-#: ../public/js/plugins/acls-tab.js:438
+#: ../public/js/plugins/acls-tab.js:442
 msgid "Please specify to who this ACL applies"
 msgstr "請指定這條ACL所套用的對象"
 
-#: ../public/js/plugins/acls-tab.js:444
+#: ../public/js/plugins/acls-tab.js:448
 msgid "Please select at least one resource"
 msgstr "請至少選擇一個資源"
 
-#: ../public/js/plugins/acls-tab.js:453
+#: ../public/js/plugins/acls-tab.js:457
 msgid "Please provide a resource ID for the resource(s) in this rule"
 msgstr "請提供一個資源ID給受此規則所影響的資源"
 
-#: ../public/js/plugins/dashboard-users-tab.js:25
-#: ../public/js/plugins/users-tab.js:467 ../public/js/plugins/users-tab.js:673
-#: ../public/js/plugins/users-tab.js:844
-msgid "User quotas"
-msgstr "使用者配額"
-
-#: ../public/js/plugins/dashboard-users-tab.js:48
-#: ../public/js/plugins/dashboard-tab.js:114
-msgid "Total VMs"
-msgstr "總VM數"
-
-#: ../public/js/plugins/dashboard-users-tab.js:49
-#: ../public/js/plugins/vms-tab.js:988 ../public/js/plugins/hosts-tab.js:674
-#: ../public/js/plugins/images-tab.js:661
-#: ../public/js/plugins/dashboard-tab.js:31
-#: ../public/js/plugins/dashboard-tab.js:115
-msgid "State"
-msgstr "狀態"
-
-#: ../public/js/plugins/dashboard-users-tab.js:58
-#: ../public/js/plugins/dashboard-tab.js:124
-msgid "Bandwidth - Upload"
-msgstr "頻寬 - 上傳"
-
-#: ../public/js/plugins/dashboard-users-tab.js:59
-#: ../public/js/plugins/dashboard-tab.js:125
-msgid "Bandwidth - Download"
-msgstr "頻寬 - 下載"
-
-#: ../public/js/plugins/dashboard-users-tab.js:67
-#: ../public/js/plugins/dashboard-tab.js:133
-msgid "Global transfer rates"
-msgstr "全域傳送速率"
-
-#: ../public/js/plugins/dashboard-users-tab.js:86
-#: ../public/js/plugins/dashboard-tab.js:182
-msgid "Dashboard"
-msgstr "主控台"
-
-#: ../public/js/plugins/dashboard-users-tab.js:127
-#: ../public/js/plugins/vms-tab.js:33 ../public/js/plugins/templates-tab.js:84
-#: ../public/js/plugins/users-tab.js:29 ../public/js/plugins/groups-tab.js:27
-msgid "Memory"
-msgstr "記憶體"
-
-#: ../public/js/plugins/dashboard-users-tab.js:140
-#: ../public/js/plugins/vms-tab.js:28 ../public/js/plugins/templates-tab.js:89
-#: ../public/js/plugins/users-tab.js:25 ../public/js/plugins/groups-tab.js:23
-msgid "CPU"
-msgstr "CPU"
-
-#: ../public/js/plugins/dashboard-users-tab.js:149
-#: ../public/js/plugins/datastores-tab.js:125
-#: ../public/js/plugins/users-tab.js:134 ../public/js/plugins/users-tab.js:147
-#: ../public/js/plugins/groups-tab.js:92
-#: ../public/js/plugins/groups-tab.js:105
-#: ../public/js/plugins/images-tab.js:32 ../public/js/plugins/images-tab.js:75
-#: ../public/js/plugins/images-tab.js:174
-#: ../public/js/plugins/images-tab.js:621
-msgid "Datastore"
-msgstr "資料存放區"
-
-#: ../public/js/plugins/dashboard-users-tab.js:154
-msgid "Storage size"
-msgstr "儲存空間大小"
-
-#: ../public/js/plugins/dashboard-users-tab.js:167
-msgid "Number of images"
-msgstr "映像檔數量"
-
-#: ../public/js/plugins/dashboard-users-tab.js:178
-#: ../public/js/plugins/templates-tab.js:203
-#: ../public/js/plugins/templates-tab.js:208
-#: ../public/js/plugins/users-tab.js:135 ../public/js/plugins/users-tab.js:155
-#: ../public/js/plugins/groups-tab.js:93
-#: ../public/js/plugins/groups-tab.js:113
-#: ../public/js/plugins/images-tab.js:609
-msgid "Image"
-msgstr "磁碟影像檔"
-
-#: ../public/js/plugins/dashboard-users-tab.js:184
-msgid "RVMs"
-msgstr "運行VM數"
-
-#: ../public/js/plugins/dashboard-users-tab.js:193
-#: ../public/js/plugins/templates-tab.js:262
-#: ../public/js/plugins/templates-tab.js:273
-#: ../public/js/plugins/users-tab.js:136 ../public/js/plugins/users-tab.js:161
-#: ../public/js/plugins/groups-tab.js:94
-#: ../public/js/plugins/groups-tab.js:119
-msgid "Network"
-msgstr "網路"
-
-#: ../public/js/plugins/dashboard-users-tab.js:199
-msgid "Leases"
-msgstr "租用"
-
-#: ../public/js/plugins/dashboard-users-tab.js:217
-msgid "VM quota"
-msgstr "虛擬機器配額"
-
-#: ../public/js/plugins/dashboard-users-tab.js:219
-#: ../public/js/plugins/dashboard-users-tab.js:229
-#: ../public/js/plugins/dashboard-users-tab.js:239
-#: ../public/js/plugins/dashboard-users-tab.js:249
-msgid "None"
-msgstr "無"
-
-#: ../public/js/plugins/dashboard-users-tab.js:227
-msgid "Datastore quotas"
-msgstr "資料存放區配額"
-
-#: ../public/js/plugins/dashboard-users-tab.js:237
-msgid "Image quotas"
-msgstr "磁碟影像檔配額"
-
-#: ../public/js/plugins/dashboard-users-tab.js:247
-msgid "Network quotas"
-msgstr "虛擬網路配額"
-
-#: ../public/js/plugins/vnets-tab.js:29 ../public/js/plugins/vnets-tab.js:184
-#: ../public/js/plugins/vnets-tab.js:585 ../public/js/plugins/vnets-tab.js:610
-#: ../public/js/plugins/vms-tab.js:70 ../public/js/plugins/vms-tab.js:142
-#: ../public/js/plugins/vms-tab.js:980 ../public/js/plugins/vms-tab.js:1009
-#: ../public/js/plugins/datastores-tab.js:30
-#: ../public/js/plugins/datastores-tab.js:106
-#: ../public/js/plugins/datastores-tab.js:469
-#: ../public/js/plugins/datastores-tab.js:498
-#: ../public/js/plugins/templates-tab.js:29
-#: ../public/js/plugins/templates-tab.js:579
-#: ../public/js/plugins/templates-tab.js:926
-#: ../public/js/plugins/templates-tab.js:939
-#: ../public/js/plugins/images-tab.js:29
-#: ../public/js/plugins/images-tab.js:210
-#: ../public/js/plugins/images-tab.js:625
-#: ../public/js/plugins/images-tab.js:670
-msgid "Owner"
-msgstr "擁有者"
-
-#: ../public/js/plugins/vnets-tab.js:32 ../public/js/plugins/vnets-tab.js:581
-#: ../public/js/plugins/datastores-tab.js:33
-#: ../public/js/plugins/datastores-tab.js:60
-#: ../public/js/plugins/datastores-tab.js:477
-#: ../public/js/plugins/hosts-tab.js:48 ../public/js/plugins/hosts-tab.js:130
-#: ../public/js/plugins/hosts-tab.js:670
-msgid "Cluster"
-msgstr "主機叢集"
-
-#: ../public/js/plugins/vnets-tab.js:33 ../public/js/plugins/vms-tab.js:1165
-#: ../public/js/plugins/vms-tab.js:1190
-#: ../public/js/plugins/templates-tab.js:215
-#: ../public/js/plugins/templates-tab.js:375
-#: ../public/js/plugins/users-tab.js:172
-#: ../public/js/plugins/groups-tab.js:130
-#: ../public/js/plugins/images-tab.js:34 ../public/js/plugins/images-tab.js:83
-#: ../public/js/plugins/images-tab.js:633
-msgid "Type"
-msgstr "種類"
-
-#: ../public/js/plugins/vnets-tab.js:34 ../public/js/plugins/vnets-tab.js:71
-#: ../public/js/plugins/vnets-tab.js:593
-#: ../public/js/plugins/templates-tab.js:290
-msgid "Bridge"
-msgstr "橋接器"
-
-#: ../public/js/plugins/vnets-tab.js:35
-msgid "Total Leases"
-msgstr "租用數"
-
-#: ../public/js/plugins/vnets-tab.js:44
-msgid "Tip: edit the leases of a network by clicking on one and going to the lease management tab."
-msgstr "提示: 點選一個虛擬網路，將會切換至租用管理分頁，可修改出租資訊"
-
-#: ../public/js/plugins/vnets-tab.js:52 ../public/js/plugins/images-tab.js:55
-msgid "Wizard"
-msgstr "精靈"
-
-#: ../public/js/plugins/vnets-tab.js:53
-#: ../public/js/plugins/templates-tab.js:54
-#: ../public/js/plugins/images-tab.js:56
-msgid "Advanced mode"
-msgstr "進階模式"
-
-#: ../public/js/plugins/vnets-tab.js:63
-msgid "Network mode"
-msgstr "虛擬網路模式"
-
-#: ../public/js/plugins/vnets-tab.js:65
-#: ../public/js/plugins/templates-tab.js:171
-#: ../public/js/plugins/templates-tab.js:180
-msgid "Default"
-msgstr "預設值"
-
-#: ../public/js/plugins/vnets-tab.js:66 ../public/js/plugins/hosts-tab.js:118
-msgid "802.1Q"
-msgstr "802.1Q"
-
-#: ../public/js/plugins/vnets-tab.js:67 ../public/js/plugins/hosts-tab.js:119
-msgid "ebtables"
-msgstr "ebtables"
-
-#: ../public/js/plugins/vnets-tab.js:68 ../public/js/plugins/hosts-tab.js:120
-msgid "Open vSwitch"
-msgstr "Open vSwitch"
-
-#: ../public/js/plugins/vnets-tab.js:69
-#: ../public/js/plugins/datastores-tab.js:66
-#: ../public/js/plugins/hosts-tab.js:88 ../public/js/plugins/hosts-tab.js:102
-#: ../public/js/plugins/hosts-tab.js:121
-msgid "VMware"
-msgstr "VMware"
-
-#: ../public/js/plugins/vnets-tab.js:73 ../public/js/plugins/vnets-tab.js:601
-msgid "Physical device"
-msgstr "實體網路裝置"
-
-#: ../public/js/plugins/vnets-tab.js:75 ../public/js/plugins/vnets-tab.js:597
-msgid "VLAN"
-msgstr "VLAN"
-
-#: ../public/js/plugins/vnets-tab.js:77 ../public/js/plugins/vms-tab.js:1208
-#: ../public/js/plugins/vms-tab.js:1216
-msgid "Yes"
-msgstr "是"
-
-#: ../public/js/plugins/vnets-tab.js:78 ../public/js/plugins/vms-tab.js:1207
-#: ../public/js/plugins/vms-tab.js:1215
-msgid "No"
-msgstr "否"
-
-#: ../public/js/plugins/vnets-tab.js:80 ../public/js/plugins/vnets-tab.js:605
-msgid "VLAN ID"
-msgstr "VLAN ID"
-
-#: ../public/js/plugins/vnets-tab.js:84
-msgid "Network type"
-msgstr "虛擬網路種類"
-
-#: ../public/js/plugins/vnets-tab.js:85
-msgid "Fixed network"
-msgstr "固定式網路"
-
-#: ../public/js/plugins/vnets-tab.js:86
-msgid "Ranged network"
-msgstr "範圍式網路"
-
-#: ../public/js/plugins/vnets-tab.js:92
-msgid "Lease IP"
-msgstr "出租IP"
-
-#: ../public/js/plugins/vnets-tab.js:94
-msgid "Lease MAC (opt):"
-msgstr "出租MAC(非必填)"
-
-#: ../public/js/plugins/vnets-tab.js:98 ../public/js/plugins/vnets-tab.js:132
-#: ../public/js/plugins/vnets-tab.js:676
-#: ../public/js/plugins/templates-tab.js:245
-#: ../public/js/plugins/templates-tab.js:357
-#: ../public/js/plugins/templates-tab.js:392
-#: ../public/js/plugins/templates-tab.js:460
-#: ../public/js/plugins/templates-tab.js:525
-#: ../public/js/plugins/images-tab.js:154
-msgid "Add"
-msgstr "新增"
-
-#: ../public/js/plugins/vnets-tab.js:101 ../public/js/plugins/vnets-tab.js:133
-#: ../public/js/plugins/templates-tab.js:246
-#: ../public/js/plugins/templates-tab.js:358
-#: ../public/js/plugins/templates-tab.js:393
-#: ../public/js/plugins/templates-tab.js:461
-#: ../public/js/plugins/templates-tab.js:526
-#: ../public/js/plugins/images-tab.js:155
-msgid "Remove selected"
-msgstr "移除被選擇的項目"
-
-#: ../public/js/plugins/vnets-tab.js:103
-msgid "Current leases"
-msgstr "目前可租用"
-
-#: ../public/js/plugins/vnets-tab.js:111
-msgid "Network Address"
-msgstr "網路位址"
-
-#: ../public/js/plugins/vnets-tab.js:113
-msgid "Network Mask"
-msgstr "子網路遮罩"
-
-#: ../public/js/plugins/vnets-tab.js:115
-msgid "Define a subnet by IP range"
-msgstr "以IP範圍來定義子網路區段"
-
-#: ../public/js/plugins/vnets-tab.js:117 ../public/js/plugins/vnets-tab.js:658
-msgid "IP Start"
-msgstr "IP起始位址"
-
-#: ../public/js/plugins/vnets-tab.js:119 ../public/js/plugins/vnets-tab.js:662
-msgid "IP End"
-msgstr "IP結束位址"
-
-#: ../public/js/plugins/vnets-tab.js:130
-#: ../public/js/plugins/templates-tab.js:455
-#: ../public/js/plugins/templates-tab.js:520
-#: ../public/js/plugins/images-tab.js:152
-msgid "Value"
-msgstr "值"
-
-#: ../public/js/plugins/vnets-tab.js:135
-#: ../public/js/plugins/images-tab.js:157
-msgid "Custom attributes"
-msgstr "自定屬性"
-
-#: ../public/js/plugins/vnets-tab.js:152
-msgid "Write the Virtual Network template here"
-msgstr "在此輸入虛擬網路的template指令集"
-
-#: ../public/js/plugins/vnets-tab.js:171
-msgid "Please, choose and modify the virtual network you want to update"
-msgstr "請選擇您想修改的虛擬網路"
-
-#: ../public/js/plugins/vnets-tab.js:173
-msgid "Select a network"
-msgstr "選擇一個虛擬網路"
-
-#: ../public/js/plugins/vnets-tab.js:179 ../public/js/plugins/vnets-tab.js:608
-#: ../public/js/plugins/vms-tab.js:137
-#: ../public/js/plugins/datastores-tab.js:101
-#: ../public/js/plugins/datastores-tab.js:496
-#: ../public/js/plugins/templates-tab.js:574
-#: ../public/js/plugins/templates-tab.js:937
-#: ../public/js/plugins/images-tab.js:205
-#: ../public/js/plugins/images-tab.js:668
-msgid "Permissions"
-msgstr "權限"
-
-#: ../public/js/plugins/vnets-tab.js:182 ../public/js/plugins/vms-tab.js:140
-#: ../public/js/plugins/datastores-tab.js:104
-#: ../public/js/plugins/templates-tab.js:577
-#: ../public/js/plugins/images-tab.js:208
-msgid "Admin"
-msgstr "管理"
-
-#: ../public/js/plugins/vnets-tab.js:196 ../public/js/plugins/vnets-tab.js:618
-#: ../public/js/plugins/vms-tab.js:154 ../public/js/plugins/vms-tab.js:1017
-#: ../public/js/plugins/datastores-tab.js:118
-#: ../public/js/plugins/datastores-tab.js:506
-#: ../public/js/plugins/templates-tab.js:591
-#: ../public/js/plugins/templates-tab.js:947
-#: ../public/js/plugins/images-tab.js:222
-#: ../public/js/plugins/images-tab.js:678
-msgid "Other"
-msgstr "其他"
-
-#: ../public/js/plugins/vnets-tab.js:203 ../public/js/plugins/vms-tab.js:161
-#: ../public/js/plugins/templates-tab.js:598
-#: ../public/js/plugins/templates-tab.js:914
-#: ../public/js/plugins/templates-tab.js:953
-#: ../public/js/plugins/templates-tab.js:955
-#: ../public/js/plugins/images-tab.js:229
-msgid "Template"
-msgstr "範本"
-
-#: ../public/js/plugins/vnets-tab.js:439
-#: ../public/js/plugins/clusters-tab.js:224
-#: ../public/js/plugins/vms-tab.js:508
-#: ../public/js/plugins/datastores-tab.js:312
-#: ../public/js/plugins/templates-tab.js:778
-#: ../public/js/plugins/users-tab.js:402
-#: ../public/js/plugins/images-tab.js:454
-msgid "Update properties"
-msgstr "修改屬性"
-
-#: ../public/js/plugins/vnets-tab.js:444
-#: ../public/js/plugins/datastores-tab.js:318
-#: ../public/js/plugins/hosts-tab.js:326
-msgid "Select cluster"
-msgstr "選擇主機叢集"
-
-#: ../public/js/plugins/vnets-tab.js:446
-#: ../public/js/plugins/datastores-tab.js:320
-#: ../public/js/plugins/hosts-tab.js:328
-msgid "Select the destination cluster:"
-msgstr "選擇目標主機叢集"
-
-#: ../public/js/plugins/vnets-tab.js:451 ../public/js/plugins/vms-tab.js:514
-#: ../public/js/plugins/datastores-tab.js:325
-#: ../public/js/plugins/templates-tab.js:787
-#: ../public/js/plugins/images-tab.js:459
-msgid "Change owner"
-msgstr "變更擁有者"
-
-#: ../public/js/plugins/vnets-tab.js:453 ../public/js/plugins/vms-tab.js:516
-#: ../public/js/plugins/datastores-tab.js:327
-#: ../public/js/plugins/templates-tab.js:789
-#: ../public/js/plugins/images-tab.js:461
-msgid "Select the new owner"
-msgstr "選擇新的擁有者"
-
-#: ../public/js/plugins/vnets-tab.js:459 ../public/js/plugins/vms-tab.js:522
-#: ../public/js/plugins/datastores-tab.js:332
-#: ../public/js/plugins/templates-tab.js:794
-#: ../public/js/plugins/users-tab.js:416
-#: ../public/js/plugins/images-tab.js:466
-msgid "Change group"
-msgstr "變更群組"
-
-#: ../public/js/plugins/vnets-tab.js:461 ../public/js/plugins/vms-tab.js:524
-#: ../public/js/plugins/datastores-tab.js:334
-#: ../public/js/plugins/templates-tab.js:796
-#: ../public/js/plugins/images-tab.js:468
-msgid "Select the new group"
-msgstr "選擇新的群組"
-
-#: ../public/js/plugins/vnets-tab.js:479
-msgid "Virtual network information"
-msgstr "虛擬網路資訊"
-
-#: ../public/js/plugins/vnets-tab.js:483 ../public/js/plugins/vnets-tab.js:636
-msgid "Lease management"
-msgstr "租用管理"
-
-#: ../public/js/plugins/vnets-tab.js:569
-msgid "Virtual Network"
-msgstr "虛擬網路"
-
-#: ../public/js/plugins/vnets-tab.js:570
-#: ../public/js/plugins/templates-tab.js:915
-#: ../public/js/plugins/images-tab.js:610
-msgid "information"
-msgstr "資訊"
-
-#: ../public/js/plugins/vnets-tab.js:625
-msgid "Virtual Network template (attributes)"
-msgstr "虛擬網路樣版指令集 (屬性)"
-
-#: ../public/js/plugins/vnets-tab.js:631
-msgid "Virtual Network information"
-msgstr "虛擬網路資訊"
-
-#: ../public/js/plugins/vnets-tab.js:653
-msgid "Leases information"
-msgstr "租用資訊"
-
-#: ../public/js/plugins/vnets-tab.js:666
-msgid "Network mask"
-msgstr "子網路遮罩"
-
-#: ../public/js/plugins/vnets-tab.js:670
-msgid "Hold lease"
-msgstr "保留租約"
-
-#: ../public/js/plugins/vnets-tab.js:671 ../public/js/plugins/vms-tab.js:561
-msgid "Hold"
-msgstr "保留"
-
-#: ../public/js/plugins/vnets-tab.js:675
-msgid "Add lease"
-msgstr "新增可出租IP"
-
-#: ../public/js/plugins/vnets-tab.js:685
-msgid "No leases to show"
-msgstr "目前沒有任何租約"
-
-#: ../public/js/plugins/vnets-tab.js:731
-msgid "hold"
-msgstr "保留"
-
-#: ../public/js/plugins/vnets-tab.js:731
-msgid "delete"
-msgstr "刪除"
-
-#: ../public/js/plugins/vnets-tab.js:734
-msgid "Used by VM"
-msgstr "已租用予VM"
-
-#: ../public/js/plugins/vnets-tab.js:737
-msgid "release"
-msgstr "釋放"
-
-#: ../public/js/plugins/vnets-tab.js:750
-msgid "Create Virtual Network"
-msgstr "建立虛擬網路"
-
-#: ../public/js/plugins/vnets-tab.js:823
-msgid "Please provide a lease IP"
-msgstr "請填寫欲出租的IP位址"
-
-#: ../public/js/plugins/vnets-tab.js:889
-msgid "Virtual Network name missing!"
-msgstr "未填寫虛擬網路名稱!"
-
-#: ../public/js/plugins/vnets-tab.js:976
-msgid "There are missing network parameters"
-msgstr "未填寫網路參數"
-
-#: ../public/js/plugins/vnets-tab.js:1028
-msgid "Update network properties"
-msgstr "修改虛擬網路屬性"
-
-#: ../public/js/plugins/vnets-tab.js:1053 ../public/js/plugins/vms-tab.js:1524
-#: ../public/js/plugins/datastores-tab.js:621
-#: ../public/js/plugins/templates-tab.js:1971
-#: ../public/js/plugins/images-tab.js:997
-msgid "Loading"
-msgstr "載入中"
-
-#: ../public/js/plugins/clusters-tab.js:184
-#: ../public/js/plugins/hosts-tab.js:269
-#: ../public/js/plugins/templates-tab.js:674
-#: ../public/js/plugins/users-tab.js:334
-msgid "Template updated correctly"
-msgstr "範本已成功修改"
-
-#: ../public/js/plugins/clusters-tab.js:236
-#: ../public/js/plugins/hosts-tab.js:355 ../public/js/plugins/hosts-tab.js:654
-#: ../public/js/plugins/hosts-tab.js:658
-msgid "Host information"
-msgstr "主機資訊"
-
-#: ../public/js/plugins/clusters-tab.js:241
-#: ../public/js/plugins/hosts-tab.js:360 ../public/js/plugins/hosts-tab.js:730
-#: ../public/js/plugins/hosts-tab.js:733
-msgid "Host template"
-msgstr "主機樣版指令集"
-
-#: ../public/js/plugins/clusters-tab.js:245
-#: ../public/js/plugins/vms-tab.js:652 ../public/js/plugins/vms-tab.js:1024
-#: ../public/js/plugins/vms-tab.js:1071 ../public/js/plugins/hosts-tab.js:364
-#: ../public/js/plugins/hosts-tab.js:739
-msgid "Monitoring information"
-msgstr "監測資訊"
-
-#: ../public/js/plugins/clusters-tab.js:497
-msgid "No datastores in this cluster"
-msgstr "這個主機叢集中沒有任何資料存放區"
-
-#: ../public/js/plugins/clusters-tab.js:507
-msgid "No hosts in this cluster"
-msgstr "這個主機叢集中沒有任何主機"
-
-#: ../public/js/plugins/clusters-tab.js:517
-msgid "No virtual networks in this cluster"
-msgstr "這個主機叢集中沒有任何虛擬網路"
-
-#: ../public/js/plugins/clusters-tab.js:538
-#: ../public/js/plugins/clusters-tab.js:644
-msgid "Cluster information"
-msgstr "主機叢集資訊"
-
-#: ../public/js/plugins/clusters-tab.js:551
-#: ../public/js/plugins/clusters-tab.js:657
-msgid "Hosts state"
-msgstr "主機工作階段"
-
-#: ../public/js/plugins/clusters-tab.js:552
-#: ../public/js/plugins/clusters-tab.js:658
-msgid "Hosts CPU Usage"
-msgstr "主機CPU使用狀況"
-
+#: ../public/js/plugins/dashboard-tab.js:30
+msgid "Total Hosts"
+msgstr "總主機數"
+
+#: ../public/js/plugins/dashboard-tab.js:39
+msgid "Global CPU Usage"
+msgstr "所有CPU使用狀況"
+
+#: ../public/js/plugins/dashboard-tab.js:47
 #: ../public/js/plugins/clusters-tab.js:560
 #: ../public/js/plugins/clusters-tab.js:667
-#: ../public/js/plugins/dashboard-tab.js:47
 msgid "Used vs. Max CPU"
 msgstr "已使用/最大 CPU使用量"
 
+#: ../public/js/plugins/dashboard-tab.js:57
 #: ../public/js/plugins/clusters-tab.js:570
 #: ../public/js/plugins/clusters-tab.js:677
-#: ../public/js/plugins/dashboard-tab.js:57
 msgid "Used vs. Max Memory"
 msgstr "已使用/最大 記憶體使用量"
 
-#: ../public/js/plugins/clusters-tab.js:594
-#: ../public/js/plugins/clusters-tab.js:595
-#: ../public/js/plugins/clusters-tab.js:703
-msgid "Create new host"
-msgstr "建立新的主機"
+#: ../public/js/plugins/dashboard-tab.js:81
+msgid "Allocated CPU per cluster"
+msgstr "每個主機叢集所配置的CPU資源"
 
-#: ../public/js/plugins/clusters-tab.js:596
-msgid "Manage unclustered hosts"
-msgstr "管理未加入主機叢集的主機"
+#: ../public/js/plugins/dashboard-tab.js:89
+msgid "Allocated Memory per cluster"
+msgstr "每個主機叢集所配置的記憶體大小"
 
-#: ../public/js/plugins/clusters-tab.js:607
-#: ../public/js/plugins/clusters-tab.js:718
-msgid "Create new datastore"
-msgstr "建立新的資料存放區"
+#: ../public/js/plugins/dashboard-tab.js:114
+#: ../public/js/plugins/dashboard-users-tab.js:48
+msgid "Total VMs"
+msgstr "總VM數"
 
-#: ../public/js/plugins/clusters-tab.js:608
-msgid "Manage unclustered datastores"
-msgstr "管理未加入主機叢集的資料存放區"
+#: ../public/js/plugins/dashboard-tab.js:124
+#: ../public/js/plugins/dashboard-users-tab.js:58
+msgid "Bandwidth - Upload"
+msgstr "頻寬 - 上傳"
 
-#: ../public/js/plugins/clusters-tab.js:620
-#: ../public/js/plugins/clusters-tab.js:734
-msgid "Create new virtual network"
-msgstr "建立新的虛擬網路"
+#: ../public/js/plugins/dashboard-tab.js:125
+#: ../public/js/plugins/dashboard-users-tab.js:59
+msgid "Bandwidth - Download"
+msgstr "頻寬 - 下載"
 
-#: ../public/js/plugins/clusters-tab.js:621
-msgid "Manage unclustered virtual networks"
-msgstr "管理未加入主機叢集的虛擬網路"
+#: ../public/js/plugins/dashboard-tab.js:133
+#: ../public/js/plugins/dashboard-users-tab.js:67
+msgid "Global transfer rates"
+msgstr "全域傳送速率"
 
-#: ../public/js/plugins/clusters-tab.js:701
-msgid "Current number of hosts in this cluster"
-msgstr "此主機叢集目前主機數量"
+#: ../public/js/plugins/dashboard-tab.js:150
+msgid "System Information"
+msgstr "系統資訊"
 
-#: ../public/js/plugins/clusters-tab.js:704
-msgid "Manage cluster hosts"
-msgstr "管理此主機叢集的主機"
+#: ../public/js/plugins/dashboard-tab.js:155
+msgid "Total Users"
+msgstr "總使用者數量"
 
-#: ../public/js/plugins/clusters-tab.js:715
-msgid "Current number of datastores in this cluster"
-msgstr "此主機叢集目前資料存放區數量"
+#: ../public/js/plugins/dashboard-tab.js:156
+msgid "Total Groups"
+msgstr "總群組數量"
 
-#: ../public/js/plugins/clusters-tab.js:719
-msgid "Manage cluster datastores"
-msgstr "管理此主機叢集的資料存放區"
+#: ../public/js/plugins/dashboard-tab.js:165
+msgid "Users per group"
+msgstr "每個群組的使用者"
 
-#: ../public/js/plugins/clusters-tab.js:731
-msgid "Current number of virtual networks in this cluster"
-msgstr "此主機叢集目前虛擬網路數量"
-
-#: ../public/js/plugins/clusters-tab.js:735
-msgid "Manage cluster virtual networks"
-msgstr "管理此主機叢集的虛擬網路"
-
-#: ../public/js/plugins/clusters-tab.js:888
-msgid "Create cluster"
-msgstr "建立主機叢集"
-
-#: ../public/js/plugins/clusters-tab.js:904
-msgid "Cluster name missing!"
-msgstr "未填寫主機叢集名稱!"
+#: ../public/js/plugins/dashboard-tab.js:182
+#: ../public/js/plugins/dashboard-users-tab.js:86
+msgid "Dashboard"
+msgstr "主控台"
 
 #: ../public/js/plugins/vms-tab.js:38
 msgid "Network transmission"
@@ -1167,15 +1115,24 @@ msgstr "網路傳送"
 msgid "Network reception"
 msgstr "網路接收"
 
-#: ../public/js/plugins/vms-tab.js:73 ../public/js/plugins/hosts-tab.js:52
-#: ../public/js/plugins/images-tab.js:37
-msgid "Status"
-msgstr "狀態"
-
-#: ../public/js/plugins/vms-tab.js:74 ../public/js/plugins/vms-tab.js:1040
-#: ../public/js/plugins/users-tab.js:59 ../public/js/plugins/groups-tab.js:55
-msgid "Used CPU"
-msgstr "CPU使用量"
+#: ../public/js/plugins/vms-tab.js:70 ../public/js/plugins/vms-tab.js:142
+#: ../public/js/plugins/vms-tab.js:980 ../public/js/plugins/vms-tab.js:1009
+#: ../public/js/plugins/images-tab.js:29
+#: ../public/js/plugins/images-tab.js:210
+#: ../public/js/plugins/images-tab.js:625
+#: ../public/js/plugins/images-tab.js:670
+#: ../public/js/plugins/templates-tab.js:29
+#: ../public/js/plugins/templates-tab.js:579
+#: ../public/js/plugins/templates-tab.js:926
+#: ../public/js/plugins/templates-tab.js:939
+#: ../public/js/plugins/datastores-tab.js:30
+#: ../public/js/plugins/datastores-tab.js:108
+#: ../public/js/plugins/datastores-tab.js:471
+#: ../public/js/plugins/datastores-tab.js:500
+#: ../public/js/plugins/vnets-tab.js:29 ../public/js/plugins/vnets-tab.js:184
+#: ../public/js/plugins/vnets-tab.js:585 ../public/js/plugins/vnets-tab.js:610
+msgid "Owner"
+msgstr "擁有者"
 
 #: ../public/js/plugins/vms-tab.js:75 ../public/js/plugins/vms-tab.js:1036
 msgid "Used Memory"
@@ -1199,15 +1156,22 @@ msgid "VNC Access"
 msgstr "VNC連線"
 
 #: ../public/js/plugins/vms-tab.js:88
-msgid "CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab."
+msgid ""
+"CPU, Memory and Start time are hidden columns by default. You can get "
+"monitoring graphs by clicking on the desired VM and visiting the monitoring "
+"information tab."
 msgstr "CPU, 記憶體及起始時間預設為隱藏欄位。你可以點選想觀看的VM，以瀏覽監測資訊分頁及監測圖表"
 
 #: ../public/js/plugins/vms-tab.js:91
-msgid "VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information."
+msgid ""
+"VNC console requires previous install of the noVNC addon. Check Sunstone "
+"documentation for more information."
 msgstr "VNC控制視窗需要先安裝noVNC附加元件。請參考Sunstone文件獲得更多的資訊。"
 
 #: ../public/js/plugins/vms-tab.js:94
-msgid "You can hotplug and detach existing disks from running VMs from the Disks & Hotplugging tab in the VM information dialog."
+msgid ""
+"You can hotplug and detach existing disks from running VMs from the Disks & "
+"Hotplugging tab in the VM information dialog."
 msgstr "你可以在VM資訊對話框內的「磁碟及熱插拔」分頁，對運行中的VM進行磁碟的熱插拔"
 
 #: ../public/js/plugins/vms-tab.js:103
@@ -1227,7 +1191,9 @@ msgid "Deploy # VMs"
 msgstr "部署VM數量"
 
 #: ../public/js/plugins/vms-tab.js:115
-msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
+msgid ""
+"You can use the wildcard &#37;i. When creating several VMs, &#37;i will be "
+"replaced with a different number starting from 0 in each of them"
 msgstr "你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字。"
 
 #: ../public/js/plugins/vms-tab.js:129
@@ -1237,6 +1203,64 @@ msgstr "請選擇你想修改的虛擬機器"
 #: ../public/js/plugins/vms-tab.js:131
 msgid "Select a VM"
 msgstr "選擇一個VM"
+
+#: ../public/js/plugins/vms-tab.js:137 ../public/js/plugins/images-tab.js:205
+#: ../public/js/plugins/images-tab.js:668
+#: ../public/js/plugins/templates-tab.js:574
+#: ../public/js/plugins/templates-tab.js:937
+#: ../public/js/plugins/datastores-tab.js:103
+#: ../public/js/plugins/datastores-tab.js:498
+#: ../public/js/plugins/vnets-tab.js:179 ../public/js/plugins/vnets-tab.js:608
+msgid "Permissions"
+msgstr "權限"
+
+#: ../public/js/plugins/vms-tab.js:140 ../public/js/plugins/images-tab.js:208
+#: ../public/js/plugins/templates-tab.js:577
+#: ../public/js/plugins/datastores-tab.js:106
+#: ../public/js/plugins/vnets-tab.js:182
+msgid "Admin"
+msgstr "管理"
+
+#: ../public/js/plugins/vms-tab.js:154 ../public/js/plugins/vms-tab.js:1017
+#: ../public/js/plugins/images-tab.js:222
+#: ../public/js/plugins/images-tab.js:678
+#: ../public/js/plugins/templates-tab.js:591
+#: ../public/js/plugins/templates-tab.js:947
+#: ../public/js/plugins/datastores-tab.js:120
+#: ../public/js/plugins/datastores-tab.js:508
+#: ../public/js/plugins/vnets-tab.js:196 ../public/js/plugins/vnets-tab.js:618
+msgid "Other"
+msgstr "其他"
+
+#: ../public/js/plugins/vms-tab.js:161 ../public/js/plugins/images-tab.js:229
+#: ../public/js/plugins/templates-tab.js:598
+#: ../public/js/plugins/templates-tab.js:914
+#: ../public/js/plugins/templates-tab.js:953
+#: ../public/js/plugins/templates-tab.js:955
+#: ../public/js/plugins/vnets-tab.js:203
+msgid "Template"
+msgstr "範本"
+
+#: ../public/js/plugins/vms-tab.js:514 ../public/js/plugins/images-tab.js:459
+#: ../public/js/plugins/templates-tab.js:787
+#: ../public/js/plugins/datastores-tab.js:327
+#: ../public/js/plugins/vnets-tab.js:451
+msgid "Change owner"
+msgstr "變更擁有者"
+
+#: ../public/js/plugins/vms-tab.js:516 ../public/js/plugins/images-tab.js:461
+#: ../public/js/plugins/templates-tab.js:789
+#: ../public/js/plugins/datastores-tab.js:329
+#: ../public/js/plugins/vnets-tab.js:453
+msgid "Select the new owner"
+msgstr "選擇新的擁有者"
+
+#: ../public/js/plugins/vms-tab.js:524 ../public/js/plugins/images-tab.js:468
+#: ../public/js/plugins/templates-tab.js:796
+#: ../public/js/plugins/datastores-tab.js:336
+#: ../public/js/plugins/vnets-tab.js:461
+msgid "Select the new group"
+msgstr "選擇新的群組"
 
 #: ../public/js/plugins/vms-tab.js:530
 msgid "Shutdown"
@@ -1269,6 +1293,10 @@ msgstr "即時遷移"
 #: ../public/js/plugins/vms-tab.js:555
 msgid "This will live-migrate the selected VMs to the chosen host"
 msgstr "選取的VM將會即時遷移到指定的主機"
+
+#: ../public/js/plugins/vms-tab.js:561 ../public/js/plugins/vnets-tab.js:671
+msgid "Hold"
+msgstr "保留"
 
 #: ../public/js/plugins/vms-tab.js:562
 msgid "This will hold selected pending VMs from being deployed"
@@ -1327,7 +1355,9 @@ msgid "Power Off"
 msgstr "關機"
 
 #: ../public/js/plugins/vms-tab.js:597
-msgid "This will send a power off signal to running VMs. They can be restarted later."
+msgid ""
+"This will send a power off signal to running VMs. They can be restarted "
+"later."
 msgstr "這會對運行中的VM送出關機訊號。虛擬機器之後可以再被重新啓動。"
 
 #: ../public/js/plugins/vms-tab.js:601
@@ -1341,6 +1371,11 @@ msgstr "所有被選取的運行中VM將會收到重新開機指令"
 #: ../public/js/plugins/vms-tab.js:607
 msgid "This will perform a hard reboot on selected VMs"
 msgstr "所有被選取的VM將會重新冷啟動"
+
+#: ../public/js/plugins/vms-tab.js:611 ../public/js/sunstone.js:664
+#: ../public/js/sunstone.js:696
+msgid "Cancel"
+msgstr "取消"
 
 #: ../public/js/plugins/vms-tab.js:612
 msgid "This will cancel selected VMs"
@@ -1441,11 +1476,6 @@ msgstr "DISABLED"
 msgid "LOCKED"
 msgstr "LOCKED"
 
-#: ../public/js/plugins/vms-tab.js:1108 ../public/js/plugins/hosts-tab.js:601
-#: ../public/js/plugins/templates-tab.js:1929
-msgid "ERROR"
-msgstr "ERROR"
-
 #: ../public/js/plugins/vms-tab.js:1114
 msgid "Disks information - Save As and Detach"
 msgstr "磁碟資訊 - 另存及卸載磁碟"
@@ -1482,6 +1512,19 @@ msgstr "暫時性磁碟"
 msgid "Select image"
 msgstr "選擇磁碟影像檔"
 
+#: ../public/js/plugins/vms-tab.js:1180 ../public/js/plugins/images-tab.js:33
+#: ../public/js/plugins/images-tab.js:133
+#: ../public/js/plugins/marketplace-tab.js:179
+#: ../public/js/plugins/templates-tab.js:224
+msgid "Size"
+msgstr "大小"
+
+#: ../public/js/plugins/vms-tab.js:1185
+#: ../public/js/plugins/marketplace-tab.js:108
+#: ../public/js/plugins/templates-tab.js:230
+msgid "Format"
+msgstr "格式"
+
 #: ../public/js/plugins/vms-tab.js:1193
 msgid "swap"
 msgstr "swap"
@@ -1497,6 +1540,16 @@ msgstr "裝置名稱字首"
 #: ../public/js/plugins/vms-tab.js:1204
 msgid "Readonly"
 msgstr "唯讀"
+
+#: ../public/js/plugins/vms-tab.js:1207 ../public/js/plugins/vms-tab.js:1215
+#: ../public/js/plugins/vnets-tab.js:78
+msgid "No"
+msgstr "否"
+
+#: ../public/js/plugins/vms-tab.js:1208 ../public/js/plugins/vms-tab.js:1216
+#: ../public/js/plugins/vnets-tab.js:77
+msgid "Yes"
+msgstr "是"
 
 #: ../public/js/plugins/vms-tab.js:1223
 msgid "Attach"
@@ -1522,6 +1575,13 @@ msgstr "修改虛擬機器屬性"
 msgid "VNC connection"
 msgstr "VNC連線階段"
 
+#: ../public/js/plugins/vms-tab.js:1524 ../public/js/plugins/images-tab.js:997
+#: ../public/js/plugins/templates-tab.js:1971
+#: ../public/js/plugins/datastores-tab.js:623
+#: ../public/js/plugins/vnets-tab.js:1053
+msgid "Loading"
+msgstr "載入中"
+
 #: ../public/js/plugins/vms-tab.js:1532
 msgid "Canvas not supported."
 msgstr "不支援Canvas"
@@ -1538,389 +1598,447 @@ msgstr "開啟VNC連線"
 msgid "VNC Disabled"
 msgstr "VNC已停用"
 
-#: ../public/js/plugins/datastores-tab.js:34
-msgid "Basepath"
-msgstr "基底路徑"
-
-#: ../public/js/plugins/datastores-tab.js:35
-msgid "TM MAD"
-msgstr "傳送中介組件"
-
-#: ../public/js/plugins/datastores-tab.js:36
-msgid "DS MAD"
-msgstr "資料存放區中介組件"
-
-#: ../public/js/plugins/datastores-tab.js:37
-#: ../public/js/plugins/system-tab.js:88
-msgid "System"
-msgstr "系統"
-
-#: ../public/js/plugins/datastores-tab.js:46
-msgid "Datatables are sets of images which share a common transfer driver. i.e. Images in a SSH datastore will be copied to the hosts using SSH when deploying a Virtual Machine."
-msgstr "使用相同傳送處理元件的磁碟影像檔會集中在同一份資料表中。例：當部署虛擬機器時，若使用SSH資料存放區的磁碟影像檔，則此VM將會被部署到同樣使用SSH資料存放區的實體主機"
-
-#: ../public/js/plugins/datastores-tab.js:57
-msgid "System datastore"
-msgstr "系統資料存放區"
-
-#: ../public/js/plugins/datastores-tab.js:63
-msgid "Datastore manager"
-msgstr "資料存放區處理元件"
-
-#: ../public/js/plugins/datastores-tab.js:65
-msgid "Filesystem"
-msgstr "檔案系統"
-
-#: ../public/js/plugins/datastores-tab.js:67
-#: ../public/js/plugins/datastores-tab.js:74
-msgid "iSCSI"
-msgstr "iSCSI"
-
-#: ../public/js/plugins/datastores-tab.js:68
-msgid "LVM"
-msgstr "LVM"
-
-#: ../public/js/plugins/datastores-tab.js:70
-msgid "Transfer manager"
-msgstr "傳送處理元件"
-
-#: ../public/js/plugins/datastores-tab.js:72
-msgid "Shared"
-msgstr "Shared"
-
-#: ../public/js/plugins/datastores-tab.js:73
-#: ../public/js/plugins/users-tab.js:92 ../public/js/plugins/users-tab.js:427
-msgid "SSH"
-msgstr "SSH"
-
-#: ../public/js/plugins/datastores-tab.js:75
-#: ../public/js/plugins/hosts-tab.js:90 ../public/js/plugins/hosts-tab.js:105
-msgid "Dummy"
-msgstr "Dummy"
-
-#: ../public/js/plugins/datastores-tab.js:77
-#: ../public/js/plugins/templates-tab.js:220
-msgid "Disk type"
-msgstr "磁碟種類"
-
-#: ../public/js/plugins/datastores-tab.js:79
-msgid "File"
-msgstr "檔案"
-
-#: ../public/js/plugins/datastores-tab.js:80
-msgid "Block"
-msgstr "Block"
-
-#: ../public/js/plugins/datastores-tab.js:93
-msgid "Please, choose and modify the datastore you want to update"
-msgstr "請選擇您想修改的資料存放區"
-
-#: ../public/js/plugins/datastores-tab.js:95
-msgid "Select a datastore"
-msgstr "選擇一個資料存放區"
-
-#: ../public/js/plugins/datastores-tab.js:217
-msgid "Datastore updated correctly"
-msgstr "資料存放區已成功修改"
-
-#: ../public/js/plugins/datastores-tab.js:352
-#: ../public/js/plugins/datastores-tab.js:453
-#: ../public/js/plugins/datastores-tab.js:457
-msgid "Datastore information"
-msgstr "資料存放區資訊"
-
-#: ../public/js/plugins/datastores-tab.js:356
-#: ../public/js/plugins/datastores-tab.js:517
-msgid "Datastore template"
-msgstr "資料存放區樣版指令集"
-
-#: ../public/js/plugins/datastores-tab.js:481
-msgid "DS Mad"
-msgstr "資料存放區中介組件"
-
-#: ../public/js/plugins/datastores-tab.js:485
-msgid "TM Mad"
-msgstr "傳送中介組件"
-
-#: ../public/js/plugins/datastores-tab.js:489
-msgid "Base path"
-msgstr "基底路徑"
-
-#: ../public/js/plugins/datastores-tab.js:514
-msgid "Datastore Template"
-msgstr "資料存放區樣版指令集"
-
-#: ../public/js/plugins/datastores-tab.js:530
-msgid "Create Datastore"
-msgstr "建立資料存放區"
-
-#: ../public/js/plugins/datastores-tab.js:596
-msgid "Update Datastore properties"
-msgstr "修改資料存放區屬性"
-
-#: ../public/js/plugins/hosts-tab.js:23
-msgid "CPU Monitoring information"
-msgstr "CPU監測資訊"
-
-#: ../public/js/plugins/hosts-tab.js:29
-msgid "Memory monitoring information"
-msgstr "記憶體監測資訊"
-
-#: ../public/js/plugins/hosts-tab.js:49 ../public/js/plugins/hosts-tab.js:721
-msgid "Running VMs"
-msgstr "運行VM數量"
-
-#: ../public/js/plugins/hosts-tab.js:50
-msgid "CPU Use"
-msgstr "CPU使用量"
-
-#: ../public/js/plugins/hosts-tab.js:51
-msgid "Memory use"
-msgstr "記憶體使用量"
-
-#: ../public/js/plugins/hosts-tab.js:53 ../public/js/plugins/hosts-tab.js:678
-msgid "IM MAD"
-msgstr "資源監控中介組件"
-
-#: ../public/js/plugins/hosts-tab.js:54 ../public/js/plugins/hosts-tab.js:682
-msgid "VM MAD"
-msgstr "虛擬機器中介組件"
-
-#: ../public/js/plugins/hosts-tab.js:55
-msgid "Last monitored on"
-msgstr "最後監測時間"
-
-#: ../public/js/plugins/hosts-tab.js:64
-msgid "CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)"
-msgstr "CPU使用量是由(所有CPU - 實際CPU使用狀況) 及 (配置CPU資源)中的最小值。實際CPU使用狀況是由主機監測處理元件所提供的監測資訊所計算得出。可使用CPU量是由VM運行實體主機上的CPU設定資訊所計算而得(配置CPU資源)"
-
-#: ../public/js/plugins/hosts-tab.js:67
-msgid "Memory use is calculated according to the information provided by the host monitoring driver."
-msgstr "記憶體使用量是由主機監測處理元件所提供的監測資訊所計算得出"
-
-#: ../public/js/plugins/hosts-tab.js:70
-msgid "You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available."
-msgstr "您可以點選想觀看的主機，以瀏覽監測資訊分頁及監測圖表。這些資訊及圖表功能必須先啟動oneacctd程式"
-
-#: ../public/js/plugins/hosts-tab.js:78
-msgid "Host parameters"
-msgstr "主機參數"
-
-#: ../public/js/plugins/hosts-tab.js:81
-msgid "Drivers"
-msgstr "驅動處理元件"
-
-#: ../public/js/plugins/hosts-tab.js:84
-msgid "Virtualization Manager"
-msgstr "虛擬化處理元件"
-
-#: ../public/js/plugins/hosts-tab.js:86 ../public/js/plugins/hosts-tab.js:100
-msgid "KVM"
-msgstr "KVM"
-
-#: ../public/js/plugins/hosts-tab.js:87 ../public/js/plugins/hosts-tab.js:101
-#: ../public/js/plugins/templates-tab.js:387
-msgid "XEN"
-msgstr "XEN"
-
-#: ../public/js/plugins/hosts-tab.js:89 ../public/js/plugins/hosts-tab.js:103
-msgid "EC2"
-msgstr "EC2"
-
-#: ../public/js/plugins/hosts-tab.js:91 ../public/js/plugins/hosts-tab.js:106
-#: ../public/js/plugins/hosts-tab.js:122 ../public/js/plugins/users-tab.js:95
-msgid "Custom"
-msgstr "自訂"
-
-#: ../public/js/plugins/hosts-tab.js:94
-msgid "Custom VMM_MAD"
-msgstr "自訂虛擬機器中介組件"
-
-#: ../public/js/plugins/hosts-tab.js:98
-msgid "Information Manager"
-msgstr "資源監控處理元件"
-
-#: ../public/js/plugins/hosts-tab.js:104
-msgid "Ganglia"
-msgstr "Ganglia"
-
-#: ../public/js/plugins/hosts-tab.js:109
-msgid "Custom IM_MAD"
-msgstr "自訂資源監控中介組件"
-
-#: ../public/js/plugins/hosts-tab.js:116
-msgid "Default (dummy)"
-msgstr "預設值(dummy)"
-
-#: ../public/js/plugins/hosts-tab.js:117
-msgid "Firewall"
-msgstr "防火牆"
-
-#: ../public/js/plugins/hosts-tab.js:125
-msgid "Custom VNM_MAD"
-msgstr "自訂虛擬網路中介組件"
-
-#: ../public/js/plugins/hosts-tab.js:320
-msgid "Update a template"
-msgstr "修改一個範本"
-
-#: ../public/js/plugins/hosts-tab.js:333
-#: ../public/js/plugins/templates-tab.js:172
-#: ../public/js/plugins/templates-tab.js:181
-#: ../public/js/plugins/images-tab.js:476
-msgid "Enable"
-msgstr "啟用"
-
-#: ../public/js/plugins/hosts-tab.js:338
-#: ../public/js/plugins/templates-tab.js:173
-#: ../public/js/plugins/templates-tab.js:182
-#: ../public/js/plugins/images-tab.js:480
-msgid "Disable"
-msgstr "停用"
-
-#: ../public/js/plugins/hosts-tab.js:343
-msgid "Delete host"
-msgstr "移除主機"
-
-#: ../public/js/plugins/hosts-tab.js:601
-msgid "OFF"
-msgstr "關閉"
-
-#: ../public/js/plugins/hosts-tab.js:601
-msgid "RETRY"
-msgstr "RETRY"
-
-#: ../public/js/plugins/hosts-tab.js:662
-msgid "id"
-msgstr "id"
-
-#: ../public/js/plugins/hosts-tab.js:686
-msgid "VN MAD"
-msgstr "虛擬網路中介組件"
-
-#: ../public/js/plugins/hosts-tab.js:693
-msgid "Host shares"
-msgstr "主機負載"
-
-#: ../public/js/plugins/hosts-tab.js:697
-msgid "Total Mem"
-msgstr "總記憶體"
-
-#: ../public/js/plugins/hosts-tab.js:701
-msgid "Used Mem (real)"
-msgstr "記憶體使用量 (實際)"
-
-#: ../public/js/plugins/hosts-tab.js:705
-msgid "Used Mem (allocated)"
-msgstr "記憶體使用量 (配置)"
-
-#: ../public/js/plugins/hosts-tab.js:709
-msgid "Total CPU"
-msgstr "總 CPU"
-
-#: ../public/js/plugins/hosts-tab.js:713
-msgid "Used CPU (real)"
-msgstr "CPU使用量 (實際)"
-
-#: ../public/js/plugins/hosts-tab.js:717
-msgid "Used CPU (allocated)"
-msgstr "CPU使用量 (配置)"
-
-#: ../public/js/plugins/hosts-tab.js:759
-msgid "Create host"
-msgstr "建立主機"
-
-#: ../public/js/plugins/hosts-tab.js:803
-msgid "Host name missing!"
-msgstr "未填寫主機名稱!"
-
-#: ../public/js/plugins/config-tab.js:24
-msgid "Sunstone UI Configuration"
-msgstr "Sunstone使用者介面設定"
-
-#: ../public/js/plugins/config-tab.js:29
-msgid "Language"
-msgstr "語系"
-
-#: ../public/js/plugins/config-tab.js:32
-msgid "English (US)"
-msgstr "英文 (US)"
-
-#: ../public/js/plugins/config-tab.js:33
-msgid "Catalan"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:34
-msgid "Chinese (TW)"
-msgstr "Chinese (TW) - 正體中文(台灣)"
-
-#: ../public/js/plugins/config-tab.js:35
-msgid "Czech (CZ)"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:36
-msgid "French (FR)"
-msgstr "法文 (FR)"
-
-#: ../public/js/plugins/config-tab.js:37
-msgid "German"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:38
-msgid "Greek (GR)"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:39
-msgid "Italian (IT)"
-msgstr "義大利文 (IT)"
-
-#: ../public/js/plugins/config-tab.js:40
-msgid "Persian (IR)"
-msgstr "波斯文 (IR)"
-
-#: ../public/js/plugins/config-tab.js:41
-msgid "Portuguese (PT)"
-msgstr "葡萄牙文 (PT)"
-
-#: ../public/js/plugins/config-tab.js:42
-msgid "Russian (RU)"
-msgstr "俄文 (RU)"
-
-#: ../public/js/plugins/config-tab.js:43
-msgid "Spanish (SP)"
-msgstr ""
-
-#: ../public/js/plugins/config-tab.js:44
-msgid "Slovak (SK)"
-msgstr "斯洛伐克文 (SK)"
-
-#: ../public/js/plugins/config-tab.js:49
-msgid "Secure websockets connection"
-msgstr "安全websockets連線"
-
-#: ../public/js/plugins/config-tab.js:64
-msgid "These options are stored in your OpenNebula user template."
-msgstr "這些選項存放在你的OpenNebula使用者範本中"
-
-#: ../public/js/plugins/config-tab.js:67
-msgid "WSS connection requires additional configuration of Sunstone Server and that the SSL certificate is considered valid by your browser."
-msgstr "WSS連線需要額外設定Sunstone伺服器，且需要您的瀏覽器所接受的合法SSL憑證"
-
-#: ../public/js/plugins/config-tab.js:82
-msgid "Configuration"
-msgstr "設定"
-
-#: ../public/js/plugins/templates-tab.js:32
 #: ../public/js/plugins/images-tab.js:35
+#: ../public/js/plugins/templates-tab.js:32
 msgid "Registration time"
 msgstr "建立時間"
 
+#: ../public/js/plugins/images-tab.js:36 ../public/js/plugins/images-tab.js:92
+#: ../public/js/plugins/images-tab.js:199
+#: ../public/js/plugins/images-tab.js:641
+msgid "Persistent"
+msgstr "存續性"
+
+#: ../public/js/plugins/images-tab.js:38
+msgid "#VMS"
+msgstr "VM數量"
+
+#: ../public/js/plugins/images-tab.js:39
+#: ../public/js/plugins/images-tab.js:107
+#: ../public/js/plugins/templates-tab.js:235
+#: ../public/js/plugins/templates-tab.js:295
+msgid "Target"
+msgstr "目的裝置名稱"
+
+#: ../public/js/plugins/images-tab.js:48
+msgid ""
+"Size and registration time are hidden colums. Note that persistent images "
+"can only be used by 1 VM. To change image datastore, please re-register the "
+"image."
+msgstr "大小及建立時間為隱藏欄位。需注意存續性磁碟影像檔僅能同時被1個VM所掛載。若要修改磁碟影像檔所屬的資料存放區，請重新註冊此影像檔"
+
+#: ../public/js/plugins/images-tab.js:55 ../public/js/plugins/vnets-tab.js:52
+msgid "Wizard"
+msgstr "精靈"
+
+#: ../public/js/plugins/images-tab.js:56
+#: ../public/js/plugins/templates-tab.js:54
+#: ../public/js/plugins/vnets-tab.js:53
+msgid "Advanced mode"
+msgstr "進階模式"
+
+#: ../public/js/plugins/images-tab.js:61
+#: ../public/js/plugins/templates-tab.js:67
+msgid "Fields marked with"
+msgstr "標記"
+
+#: ../public/js/plugins/images-tab.js:62
+#: ../public/js/plugins/templates-tab.js:68
+msgid "are mandatory"
+msgstr "為必填欄位"
+
+#: ../public/js/plugins/images-tab.js:67
+msgid "Name that the Image will get. Every image must have a unique name."
+msgstr "磁碟影像檔的名稱。所有的磁碟影像檔都擁有一個獨一無二的名稱"
+
+#: ../public/js/plugins/images-tab.js:70
+#: ../public/js/plugins/marketplace-tab.js:190
+msgid "Description"
+msgstr "描述"
+
+#: ../public/js/plugins/images-tab.js:72
+msgid "Human readable description of the image for other users."
+msgstr "供其他使用者參閱的磁碟影像檔描述"
+
+#: ../public/js/plugins/images-tab.js:78
+msgid "Select the datastore for this image"
+msgstr "選擇此磁碟影像檔所屬的資料存放區"
+
+#: ../public/js/plugins/images-tab.js:85
+#: ../public/js/plugins/images-tab.js:544
+#: ../public/js/plugins/marketplace-tab.js:171
+msgid "OS"
+msgstr "OS"
+
+#: ../public/js/plugins/images-tab.js:86
+#: ../public/js/plugins/images-tab.js:545
+msgid "CD-ROM"
+msgstr "CD-ROM"
+
+#: ../public/js/plugins/images-tab.js:87
+#: ../public/js/plugins/images-tab.js:546
+msgid "Datablock"
+msgstr "Datablock"
+
+#: ../public/js/plugins/images-tab.js:89
+msgid ""
+"Type of the image, explained in detail in the following section. If omitted,"
+" the default value is the one defined in oned.conf (install default is OS)."
+msgstr "磁碟影像檔種類。在下列區段有詳細說明。若未填寫，將使用oned.conf內的設定作為預設值(預設為OS)"
+
+#: ../public/js/plugins/images-tab.js:94
+msgid "Persistence of the image"
+msgstr "磁碟影像檔的存續性"
+
+#: ../public/js/plugins/images-tab.js:99
+msgid ""
+"Prefix for the emulated device this image will be mounted at. For instance, "
+"“hd”, “sd”. If omitted, the default value is the one defined in oned.conf "
+"(installation default is “hd”)."
+msgstr "此磁碟影像檔將被掛載的裝置名稱字首。例如 \"hd\" 或 \"sd\"。若未填寫，將使用oned.conf內的設定作為預設值(預設為hd)"
+
+#: ../public/js/plugins/images-tab.js:102
+#: ../public/js/plugins/templates-tab.js:240
+msgid "Driver"
+msgstr "驅動程式"
+
+#: ../public/js/plugins/images-tab.js:104
+msgid "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"
+msgstr "指定影像檔的驅動方式。KVM: raw, qcow2. Xen:tap:aio:, file:"
+
+#: ../public/js/plugins/images-tab.js:109
+msgid "Target on which the image will be mounted at. For example: hda, sdb..."
+msgstr "磁碟影像檔將被掛載的目標裝置名稱。例: hda, sdb"
+
+#: ../public/js/plugins/images-tab.js:114
+msgid "Image location"
+msgstr "磁碟影像檔位置"
+
+#: ../public/js/plugins/images-tab.js:117
+msgid "Provide a path"
+msgstr "提供一個路徑"
+
+#: ../public/js/plugins/images-tab.js:120
+msgid "Upload"
+msgstr "上傳"
+
+#: ../public/js/plugins/images-tab.js:123
+msgid "Create an empty datablock"
+msgstr "建立一個空資料區塊"
+
+#: ../public/js/plugins/images-tab.js:124
+msgid ""
+"Please choose path if you have a file-based image. Otherwise upload or "
+"create an empty datablock disk."
+msgstr "如果您使用映像檔，請選擇路徑。若不是，請上傳一個映像檔或是建立一個新的資料區塊。"
+
+#: ../public/js/plugins/images-tab.js:128
+#: ../public/js/plugins/images-tab.js:649
+msgid "Path"
+msgstr "路徑"
+
+#: ../public/js/plugins/images-tab.js:130
+msgid ""
+"Path to the original file that will be copied to the image repository. If "
+"not specified for a DATABLOCK type image, an empty image will be created."
+msgstr "將被複製到磁碟影像庫的原始檔案路徑。若DATABLOCK影像檔未填寫此欄位，將建立一個空白磁碟影像檔。"
+
+#: ../public/js/plugins/images-tab.js:135
+msgid "Size of the datablock in MB."
+msgstr "資料區塊大小 (MB)"
+
+#: ../public/js/plugins/images-tab.js:138
+msgid "FS type"
+msgstr "檔案系統種類"
+
+#: ../public/js/plugins/images-tab.js:140
+msgid ""
+"Type of file system to be built. This can be any value understood by mkfs "
+"unix command."
+msgstr "資料區塊內的檔案系統種類。可填寫任何mkfs unix指令所接受的參數"
+
+#: ../public/js/plugins/images-tab.js:143
+msgid "Upload file"
+msgstr "上傳檔案"
+
+#: ../public/js/plugins/images-tab.js:152
+#: ../public/js/plugins/templates-tab.js:455
+#: ../public/js/plugins/templates-tab.js:520
+#: ../public/js/plugins/vnets-tab.js:130
+msgid "Value"
+msgstr "值"
+
+#: ../public/js/plugins/images-tab.js:154
+#: ../public/js/plugins/templates-tab.js:245
+#: ../public/js/plugins/templates-tab.js:357
+#: ../public/js/plugins/templates-tab.js:392
+#: ../public/js/plugins/templates-tab.js:460
+#: ../public/js/plugins/templates-tab.js:525
+#: ../public/js/plugins/vnets-tab.js:98 ../public/js/plugins/vnets-tab.js:132
+#: ../public/js/plugins/vnets-tab.js:676
+msgid "Add"
+msgstr "新增"
+
+#: ../public/js/plugins/images-tab.js:155
+#: ../public/js/plugins/templates-tab.js:246
+#: ../public/js/plugins/templates-tab.js:358
+#: ../public/js/plugins/templates-tab.js:393
+#: ../public/js/plugins/templates-tab.js:461
+#: ../public/js/plugins/templates-tab.js:526
+#: ../public/js/plugins/vnets-tab.js:101 ../public/js/plugins/vnets-tab.js:133
+msgid "Remove selected"
+msgstr "移除被選擇的項目"
+
+#: ../public/js/plugins/images-tab.js:157
+#: ../public/js/plugins/vnets-tab.js:135
+msgid "Custom attributes"
+msgstr "自定屬性"
+
+#: ../public/js/plugins/images-tab.js:173
+msgid "Write the image template here"
+msgstr "在此輸入磁碟影像檔的樣版指令集"
+
+#: ../public/js/plugins/images-tab.js:193
+msgid "Please, choose and modify the image you want to update"
+msgstr "請選擇您想修改的磁碟影像檔"
+
+#: ../public/js/plugins/images-tab.js:195
+msgid "Select an image"
+msgstr "選擇一個磁碟影像檔"
+
+#: ../public/js/plugins/images-tab.js:324
+msgid "Image updated correctly"
+msgstr "磁碟影像檔修改成功"
+
+#: ../public/js/plugins/images-tab.js:484
+msgid "Make persistent"
+msgstr "可存續"
+
+#: ../public/js/plugins/images-tab.js:488
+msgid "Make non persistent"
+msgstr "非存續"
+
+#: ../public/js/plugins/images-tab.js:494
+#: ../public/js/plugins/images-tab.js:1143
+#: ../public/js/plugins/templates-tab.js:801
+#: ../public/js/plugins/templates-tab.js:2062
+msgid "Clone"
+msgstr "製作複本"
+
+#: ../public/js/plugins/images-tab.js:509
+#: ../public/js/plugins/images-tab.js:605
+msgid "Image information"
+msgstr "磁碟影像檔資訊"
+
+#: ../public/js/plugins/images-tab.js:514
+#: ../public/js/plugins/images-tab.js:685
+#: ../public/js/plugins/images-tab.js:687
+msgid "Image template"
+msgstr "影像檔樣版指令集"
+
+#: ../public/js/plugins/images-tab.js:610
+#: ../public/js/plugins/templates-tab.js:915
+#: ../public/js/plugins/vnets-tab.js:570
+msgid "information"
+msgstr "資訊"
+
+#: ../public/js/plugins/images-tab.js:637
+#: ../public/js/plugins/templates-tab.js:934
+msgid "Register time"
+msgstr "建立時間"
+
+#: ../public/js/plugins/images-tab.js:642
+msgid "yes"
+msgstr "是"
+
+#: ../public/js/plugins/images-tab.js:642
+msgid "no"
+msgstr "否"
+
+#: ../public/js/plugins/images-tab.js:645
+msgid "Source"
+msgstr "來源"
+
+#: ../public/js/plugins/images-tab.js:653
+msgid "Filesystem type"
+msgstr "檔案系統種類"
+
+#: ../public/js/plugins/images-tab.js:657
+msgid "Size (Mb)"
+msgstr "大小 (Mb)"
+
+#: ../public/js/plugins/images-tab.js:665
+msgid "Running #VMS"
+msgstr "使用中VM數量"
+
+#: ../public/js/plugins/images-tab.js:701
+msgid "Create Image"
+msgstr "建立磁碟影像檔"
+
+#: ../public/js/plugins/images-tab.js:765
+msgid "Custom attribute name and value must be filled in"
+msgstr "必須填寫自定屬性名稱與值"
+
+#: ../public/js/plugins/images-tab.js:818
+msgid "Uploading..."
+msgstr "上傳中"
+
+#: ../public/js/plugins/images-tab.js:857
+msgid "There are mandatory parameters missing"
+msgstr "部分參數尚未填寫"
+
+#: ../public/js/plugins/images-tab.js:866
+#: ../public/js/plugins/images-tab.js:942
+msgid "Please select a datastore for this image"
+msgstr "請選擇一個資料存放區用來存放磁碟影像檔"
+
+#: ../public/js/plugins/images-tab.js:973
+msgid "Update image properties"
+msgstr "修改磁碟影像檔屬性"
+
+#: ../public/js/plugins/images-tab.js:1070
+#: ../public/js/plugins/templates-tab.js:200
+#: ../public/js/plugins/templates-tab.js:412 ../public/js/sunstone-util.js:585
+#: ../public/js/sunstone-util.js:807
+msgid "Please select"
+msgstr "請選擇"
+
+#: ../public/js/plugins/images-tab.js:1129
+msgid "Clone an image"
+msgstr "製作一個磁碟影像檔複本"
+
+#: ../public/js/plugins/images-tab.js:1135
+msgid "Choose a new name for the image"
+msgstr "選擇一個新的磁碟影像檔名稱"
+
+#: ../public/js/plugins/images-tab.js:1136
+msgid ""
+"Several image are selected, please choose prefix to name the new copies"
+msgstr "已選擇多個磁碟影像檔，請選擇新複本名稱的字首"
+
+#: ../public/js/plugins/images-tab.js:1139
+#: ../public/js/plugins/templates-tab.js:2058
+msgid "Prefix"
+msgstr "字首"
+
+#: ../public/js/plugins/marketplace-tab.js:90
+msgid "Import to local infrastructure"
+msgstr "由本地端基礎設施匯入"
+
+#: ../public/js/plugins/marketplace-tab.js:95
+msgid "OpenNebula Marketplace"
+msgstr "OpenNebula Marketplace"
+
+#: ../public/js/plugins/marketplace-tab.js:105
+#: ../public/js/plugins/marketplace-tab.js:163
+msgid "Publisher"
+msgstr "出版者"
+
+#: ../public/js/plugins/marketplace-tab.js:106
+#: ../public/js/plugins/marketplace-tab.js:183
+msgid "Hypervisor"
+msgstr "Hypervisor"
+
+#: ../public/js/plugins/marketplace-tab.js:107
+#: ../public/js/plugins/marketplace-tab.js:175
+msgid "Arch"
+msgstr "處理器架構"
+
+#: ../public/js/plugins/marketplace-tab.js:109
+msgid "Tags"
+msgstr "標記"
+
+#: ../public/js/plugins/marketplace-tab.js:119
+msgid "Marketplace"
+msgstr "Marketplace"
+
+#: ../public/js/plugins/marketplace-tab.js:134
+#: ../public/js/plugins/marketplace-tab.js:147
+#: ../public/js/plugins/marketplace-tab.js:151
+msgid "Appliance information"
+msgstr "應用資訊"
+
+#: ../public/js/plugins/marketplace-tab.js:159
+msgid "URL"
+msgstr "URL"
+
+#: ../public/js/plugins/marketplace-tab.js:167
+msgid "Downloads"
+msgstr "下載"
+
+#: ../public/js/plugins/vresources-tab.js:25
+msgid "Summary of virtual resources"
+msgstr "虛擬化資源概觀"
+
+#: ../public/js/plugins/vresources-tab.js:35
+msgid "VM Instances"
+msgstr "虛擬機器"
+
+#: ../public/js/plugins/vresources-tab.js:36
+msgid "total"
+msgstr "全部"
+
+#: ../public/js/plugins/vresources-tab.js:37
+msgid "running"
+msgstr "運行中"
+
+#: ../public/js/plugins/vresources-tab.js:38
+msgid "failed"
+msgstr "失敗"
+
+#: ../public/js/plugins/vresources-tab.js:59
+#: ../public/js/plugins/system-tab.js:50 ../public/js/plugins/infra-tab.js:54
+msgid "Quickstart"
+msgstr "快速啟動"
+
+#: ../public/js/plugins/vresources-tab.js:62
+msgid "Create new Virtual Machine"
+msgstr "建立新的虛擬機器"
+
+#: ../public/js/plugins/vresources-tab.js:63
+msgid "Create new VM Template"
+msgstr "建立新的VM範本"
+
+#: ../public/js/plugins/vresources-tab.js:64
+msgid "Create new Image"
+msgstr "建立新的磁碟影像檔"
+
+#: ../public/js/plugins/vresources-tab.js:77
+#: ../public/js/plugins/vresources-tab.js:96
+msgid "Virtual Resources"
+msgstr "虛擬化資源"
+
+#: ../public/js/plugins/vresources-tab.js:79
+msgid ""
+"The Virtual Resources menu allows management of Virtual Machine Templates, "
+"Instances and storage (Images)."
+msgstr "在虛擬資源選單中，您可以管理虛擬機器的範本、執行實例以及儲存空間(磁碟影像檔)"
+
+#: ../public/js/plugins/vresources-tab.js:80
+msgid ""
+"Virtual Machine templates can be instantiated as many times as you want. You"
+" can do it from the Templates tab or by creating a new VM in the VM tab. The"
+" second method allows you to customize the name and the number of VMs you "
+"want to launch."
+msgstr "可透過虛擬機器範本任意啟動多個VM實體。你可以從VM範本分頁中啟動，或由虛擬機器分頁中點選建立新的VM按鈕。後者可讓你自訂VM啟動的名稱及啟動數量"
+
+#: ../public/js/plugins/vresources-tab.js:81
+#: ../public/js/plugins/system-tab.js:71 ../public/js/plugins/infra-tab.js:76
+msgid "You can find further information on the following links:"
+msgstr "你可以在下面的連結中獲得更進一步的資訊:"
+
 #: ../public/js/plugins/templates-tab.js:41
-msgid "Clicking `instantiate` will instantly create new Virtual Machines from the selected templates and name one-id. If you want to assign a specific name to a new VM, or launch several instances at once, use Virtual Machines->New button."
+msgid ""
+"Clicking `instantiate` will instantly create new Virtual Machines from the "
+"selected templates and name one-id. If you want to assign a specific name to"
+" a new VM, or launch several instances at once, use Virtual Machines->New "
+"button."
 msgstr "點選「實例化」按鈕將會套用被選擇的範本，立刻建立新的虛擬機器，且自動命名為one-id。若你希望給定特別的VM名稱，或希望同時啟動多個VM，請使用虛擬機器頁面內的「新增」按鈕"
 
 #: ../public/js/plugins/templates-tab.js:44
-msgid "You can clone a template to obtain a copy from an existing template. This copy will be owned by you."
+msgid ""
+"You can clone a template to obtain a copy from an existing template. This "
+"copy will be owned by you."
 msgstr "你可以由現存的範本中製作一個複本，這個範本複本將屬於你所擁有"
 
 #: ../public/js/plugins/templates-tab.js:51
@@ -1935,16 +2053,6 @@ msgstr "XEN範本精靈"
 msgid "Wizard VMware"
 msgstr "VMware範本精靈"
 
-#: ../public/js/plugins/templates-tab.js:67
-#: ../public/js/plugins/images-tab.js:61
-msgid "Fields marked with"
-msgstr "標記"
-
-#: ../public/js/plugins/templates-tab.js:68
-#: ../public/js/plugins/images-tab.js:62
-msgid "are mandatory"
-msgstr "為必填欄位"
-
 #: ../public/js/plugins/templates-tab.js:69
 msgid "Fold / Unfold all sections"
 msgstr "展開/收合所有區段"
@@ -1958,7 +2066,9 @@ msgid "Capacity"
 msgstr "效能"
 
 #: ../public/js/plugins/templates-tab.js:81
-msgid "Name that the VM will get for description purposes. If NAME is not supplied a name generated by one will be in the form of one-&lt;VID&gt;."
+msgid ""
+"Name that the VM will get for description purposes. If NAME is not supplied "
+"a name generated by one will be in the form of one-&lt;VID&gt;."
 msgstr "VM的名稱是用>來描述此VM的目的。若未填寫名稱欄位，系統將會自動以one-&lt;VID&gt作為VM名稱"
 
 #: ../public/js/plugins/templates-tab.js:86
@@ -1966,7 +2076,9 @@ msgid "Amount of RAM required for the VM, in Megabytes."
 msgstr "VM所需要的記憶體大小，單位為MB"
 
 #: ../public/js/plugins/templates-tab.js:91
-msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
+msgid ""
+"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
+"processor is written 0.5."
 msgstr "以百分之一為單位表示VM所需之CPU資源。例如需要半顆處理器資源，可填寫0.5"
 
 #: ../public/js/plugins/templates-tab.js:94
@@ -1974,7 +2086,9 @@ msgid "VCPU"
 msgstr "VCPU"
 
 #: ../public/js/plugins/templates-tab.js:96
-msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
+msgid ""
+"Number of virtual cpus. This value is optional, the default hypervisor "
+"behavior is used, usually one virtual CPU."
 msgstr "虛擬CPU數目。未填寫時將使用Hypervisor的預設值，通常為1個VCPU"
 
 #: ../public/js/plugins/templates-tab.js:105
@@ -2060,8 +2174,16 @@ msgstr "特別功能"
 msgid "PAE"
 msgstr "PAE"
 
+#: ../public/js/plugins/templates-tab.js:171
+#: ../public/js/plugins/templates-tab.js:180
+#: ../public/js/plugins/vnets-tab.js:65
+msgid "Default"
+msgstr "預設值"
+
 #: ../public/js/plugins/templates-tab.js:175
-msgid "Physical address extension mode allows 32-bit guests to address more than 4 GB of memory"
+msgid ""
+"Physical address extension mode allows 32-bit guests to address more than 4 "
+"GB of memory"
 msgstr "實體位址延伸(PAE)模式可以讓32位元的客戶端作業系統使用超過4GB的記憶體定址"
 
 #: ../public/js/plugins/templates-tab.js:178
@@ -2069,7 +2191,9 @@ msgid "ACPI"
 msgstr "ACPI"
 
 #: ../public/js/plugins/templates-tab.js:184
-msgid "Useful for power management, for example, normally required for graceful shutdown to work"
+msgid ""
+"Useful for power management, for example, normally required for graceful "
+"shutdown to work"
 msgstr "可用於電源管理。例如可支援順利(graceful)關機"
 
 #: ../public/js/plugins/templates-tab.js:196
@@ -2096,6 +2220,11 @@ msgstr "FS"
 msgid "Swap"
 msgstr "Swap"
 
+#: ../public/js/plugins/templates-tab.js:220
+#: ../public/js/plugins/datastores-tab.js:79
+msgid "Disk type"
+msgstr "磁碟種類"
+
 #: ../public/js/plugins/templates-tab.js:226
 msgid "Size in MB"
 msgstr "大小 (MB)"
@@ -2104,24 +2233,16 @@ msgstr "大小 (MB)"
 msgid "Filesystem type for the fs images"
 msgstr "此fs磁碟影像檔的檔案系統種類"
 
-#: ../public/js/plugins/templates-tab.js:235
-#: ../public/js/plugins/templates-tab.js:295
-#: ../public/js/plugins/images-tab.js:39
-#: ../public/js/plugins/images-tab.js:107
-msgid "Target"
-msgstr "目的裝置名稱"
-
 #: ../public/js/plugins/templates-tab.js:237
-msgid "Device to map image disk. If set, it will overwrite the default device mapping"
+msgid ""
+"Device to map image disk. If set, it will overwrite the default device "
+"mapping"
 msgstr "指定磁碟影像檔的在虛擬機器中的裝置名稱。設定此欄位，將會覆蓋預設的裝置名稱"
 
-#: ../public/js/plugins/templates-tab.js:240
-#: ../public/js/plugins/images-tab.js:102
-msgid "Driver"
-msgstr "驅動程式"
-
 #: ../public/js/plugins/templates-tab.js:242
-msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
+msgid ""
+"Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware "
+"unsupported"
 msgstr "指定影像檔的驅動方式。KVM: raw, qcow2. Xen:tap:aio:, file:. VMware不支援"
 
 #: ../public/js/plugins/templates-tab.js:248
@@ -2164,6 +2285,12 @@ msgstr "MAC"
 msgid "HW address associated with the network interface"
 msgstr "網路介面的硬體位址"
 
+#: ../public/js/plugins/templates-tab.js:290
+#: ../public/js/plugins/vnets-tab.js:34 ../public/js/plugins/vnets-tab.js:71
+#: ../public/js/plugins/vnets-tab.js:593
+msgid "Bridge"
+msgstr "橋接器"
+
 #: ../public/js/plugins/templates-tab.js:292
 msgid "Name of the bridge the network device is going to be attached to"
 msgstr "附加此網路介面的橋接器名稱"
@@ -2177,7 +2304,9 @@ msgid "Script"
 msgstr "Script"
 
 #: ../public/js/plugins/templates-tab.js:302
-msgid "Name of a shell script to be executed after creating the tun device for the VM"
+msgid ""
+"Name of a shell script to be executed after creating the tun device for the "
+"VM"
 msgstr "在VM上完成tun裝置建立後所自動執行的shell script名稱"
 
 #: ../public/js/plugins/templates-tab.js:305
@@ -2185,7 +2314,9 @@ msgid "Model"
 msgstr "模式"
 
 #: ../public/js/plugins/templates-tab.js:307
-msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
+msgid ""
+"Hardware that will emulate this network interface. With Xen this is the type"
+" attribute of the vif."
 msgstr "網路介面模擬方式。使用Xen時，此欄位為vif類別屬性"
 
 #: ../public/js/plugins/templates-tab.js:310
@@ -2212,7 +2343,9 @@ msgid "TCP white ports"
 msgstr "TCP允許通訊埠"
 
 #: ../public/js/plugins/templates-tab.js:321
-msgid "Permits access to the VM only through the specified ports in the TCP protocol"
+msgid ""
+"Permits access to the VM only through the specified ports in the TCP "
+"protocol"
 msgstr "僅允許透過特定TCP通訊埠來存取VM"
 
 #: ../public/js/plugins/templates-tab.js:324
@@ -2220,7 +2353,8 @@ msgid "TCP black ports"
 msgstr "TCP阻擋通訊埠"
 
 #: ../public/js/plugins/templates-tab.js:326
-msgid "Disallow access to the VM through the specified ports in the TCP protocol"
+msgid ""
+"Disallow access to the VM through the specified ports in the TCP protocol"
 msgstr "阻擋特定TCP通訊埠存取VM"
 
 #: ../public/js/plugins/templates-tab.js:329
@@ -2232,7 +2366,9 @@ msgid "UDP white ports"
 msgstr "UDP允許通訊埠"
 
 #: ../public/js/plugins/templates-tab.js:340
-msgid "Permits access to the VM only through the specified ports in the UDP protocol"
+msgid ""
+"Permits access to the VM only through the specified ports in the UDP "
+"protocol"
 msgstr "僅允許透過特定UDP通訊埠來存取VM"
 
 #: ../public/js/plugins/templates-tab.js:343
@@ -2240,7 +2376,8 @@ msgid "UDP black ports"
 msgstr "UDP阻擋通訊埠"
 
 #: ../public/js/plugins/templates-tab.js:345
-msgid "Disallow access to the VM through the specified ports in the UDP protocol"
+msgid ""
+"Disallow access to the VM through the specified ports in the UDP protocol"
 msgstr "阻擋特定UDP通訊埠存取VM"
 
 #: ../public/js/plugins/templates-tab.js:348
@@ -2339,11 +2476,6 @@ msgstr "通訊埠"
 msgid "Port for the VNC/SPICE server"
 msgstr "VNC/SPICE 伺服器的通訊埠"
 
-#: ../public/js/plugins/templates-tab.js:430
-#: ../public/js/plugins/users-tab.js:87
-msgid "Password"
-msgstr "密碼"
-
 #: ../public/js/plugins/templates-tab.js:432
 msgid "Password for the VNC/SPICE server"
 msgstr "VNC/SPICE 伺服器的密碼"
@@ -2390,7 +2522,9 @@ msgid "Requirements"
 msgstr "需求描述"
 
 #: ../public/js/plugins/templates-tab.js:480
-msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
+msgid ""
+"Boolean expression that rules out provisioning hosts from list of machines "
+"suitable to run this VM"
 msgstr "使用布林表示式來描述VM需求，使得排程系統能夠根據條件選擇最適合的主機來部署VM"
 
 #: ../public/js/plugins/templates-tab.js:483
@@ -2398,7 +2532,9 @@ msgid "Rank"
 msgstr "順序"
 
 #: ../public/js/plugins/templates-tab.js:485
-msgid "This field sets which attribute will be used to sort the suitable hosts for this VM. Basically, it defines which hosts are more suitable than others"
+msgid ""
+"This field sets which attribute will be used to sort the suitable hosts for "
+"this VM. Basically, it defines which hosts are more suitable than others"
 msgstr "此欄位設定VM在挑選適當主機時所參考的屬性。基本上可由它定義出最佳的實體運行主機"
 
 #: ../public/js/plugins/templates-tab.js:494
@@ -2437,16 +2573,18 @@ msgstr "自定義變數值"
 msgid "Write the Virtual Machine template here"
 msgstr "在此輸入虛擬網路的樣版指令集"
 
+#: ../public/js/plugins/templates-tab.js:566 ../public/js/sunstone-util.js:736
+msgid "Please, choose and modify the template you want to update"
+msgstr "請選擇您想修改的範本"
+
+#: ../public/js/plugins/templates-tab.js:568 ../public/js/sunstone-util.js:738
+#: ../public/js/sunstone-util.js:741
+msgid "Select a template"
+msgstr "選擇一個範本"
+
 #: ../public/js/plugins/templates-tab.js:783
 msgid "Instantiate"
 msgstr "實例化"
-
-#: ../public/js/plugins/templates-tab.js:801
-#: ../public/js/plugins/templates-tab.js:2062
-#: ../public/js/plugins/images-tab.js:494
-#: ../public/js/plugins/images-tab.js:1143
-msgid "Clone"
-msgstr "製作複本"
 
 #: ../public/js/plugins/templates-tab.js:817
 msgid "Template information"
@@ -2455,11 +2593,6 @@ msgstr "範本資訊"
 #: ../public/js/plugins/templates-tab.js:910
 msgid "Information"
 msgstr "資訊"
-
-#: ../public/js/plugins/templates-tab.js:934
-#: ../public/js/plugins/images-tab.js:637
-msgid "Register time"
-msgstr "建立時間"
 
 #: ../public/js/plugins/templates-tab.js:1050
 msgid "hd"
@@ -2526,23 +2659,315 @@ msgid "Choose a new name for the template"
 msgstr "選擇一個新的範本名稱"
 
 #: ../public/js/plugins/templates-tab.js:2055
-msgid "Several templates are selected, please choose prefix to name the new copies"
+msgid ""
+"Several templates are selected, please choose prefix to name the new copies"
 msgstr "已選擇多個範本，請選擇新複本名稱的字首"
 
-#: ../public/js/plugins/templates-tab.js:2058
-#: ../public/js/plugins/images-tab.js:1139
-msgid "Prefix"
-msgstr "字首"
+#: ../public/js/plugins/datastores-tab.js:34
+msgid "Basepath"
+msgstr "基底路徑"
+
+#: ../public/js/plugins/datastores-tab.js:35
+msgid "TM MAD"
+msgstr "傳送中介組件"
+
+#: ../public/js/plugins/datastores-tab.js:36
+msgid "DS MAD"
+msgstr "資料存放區中介組件"
+
+#: ../public/js/plugins/datastores-tab.js:37
+#: ../public/js/plugins/system-tab.js:88
+msgid "System"
+msgstr "系統"
+
+#: ../public/js/plugins/datastores-tab.js:46
+msgid ""
+"Datatables are sets of images which share a common transfer driver. i.e. "
+"Images in a SSH datastore will be copied to the hosts using SSH when "
+"deploying a Virtual Machine."
+msgstr "使用相同傳送處理元件的磁碟影像檔會集中在同一份資料表中。例：當部署虛擬機器時，若使用SSH資料存放區的磁碟影像檔，則此VM將會被部署到同樣使用SSH資料存放區的實體主機"
+
+#: ../public/js/plugins/datastores-tab.js:57
+msgid "System datastore"
+msgstr "系統資料存放區"
+
+#: ../public/js/plugins/datastores-tab.js:63
+msgid "Datastore manager"
+msgstr "資料存放區處理元件"
+
+#: ../public/js/plugins/datastores-tab.js:65
+msgid "Filesystem"
+msgstr "檔案系統"
+
+#: ../public/js/plugins/datastores-tab.js:67
+#: ../public/js/plugins/datastores-tab.js:75
+msgid "iSCSI"
+msgstr "iSCSI"
+
+#: ../public/js/plugins/datastores-tab.js:68
+msgid "LVM"
+msgstr "LVM"
+
+#: ../public/js/plugins/datastores-tab.js:69
+#: ../public/js/plugins/datastores-tab.js:77
+msgid "VMFS"
+msgstr ""
+
+#: ../public/js/plugins/datastores-tab.js:71
+msgid "Transfer manager"
+msgstr "傳送處理元件"
+
+#: ../public/js/plugins/datastores-tab.js:73
+msgid "Shared"
+msgstr "Shared"
+
+#: ../public/js/plugins/datastores-tab.js:81
+msgid "File"
+msgstr "檔案"
+
+#: ../public/js/plugins/datastores-tab.js:82
+msgid "Block"
+msgstr "Block"
+
+#: ../public/js/plugins/datastores-tab.js:95
+msgid "Please, choose and modify the datastore you want to update"
+msgstr "請選擇您想修改的資料存放區"
+
+#: ../public/js/plugins/datastores-tab.js:97
+msgid "Select a datastore"
+msgstr "選擇一個資料存放區"
+
+#: ../public/js/plugins/datastores-tab.js:219
+msgid "Datastore updated correctly"
+msgstr "資料存放區已成功修改"
+
+#: ../public/js/plugins/datastores-tab.js:354
+#: ../public/js/plugins/datastores-tab.js:455
+#: ../public/js/plugins/datastores-tab.js:459
+msgid "Datastore information"
+msgstr "資料存放區資訊"
+
+#: ../public/js/plugins/datastores-tab.js:358
+#: ../public/js/plugins/datastores-tab.js:519
+msgid "Datastore template"
+msgstr "資料存放區樣版指令集"
+
+#: ../public/js/plugins/datastores-tab.js:483
+msgid "DS Mad"
+msgstr "資料存放區中介組件"
+
+#: ../public/js/plugins/datastores-tab.js:487
+msgid "TM Mad"
+msgstr "傳送中介組件"
+
+#: ../public/js/plugins/datastores-tab.js:491
+msgid "Base path"
+msgstr "基底路徑"
+
+#: ../public/js/plugins/datastores-tab.js:516
+msgid "Datastore Template"
+msgstr "資料存放區樣版指令集"
+
+#: ../public/js/plugins/datastores-tab.js:532
+msgid "Create Datastore"
+msgstr "建立資料存放區"
+
+#: ../public/js/plugins/datastores-tab.js:598
+msgid "Update Datastore properties"
+msgstr "修改資料存放區屬性"
+
+#: ../public/js/plugins/vnets-tab.js:35
+msgid "Total Leases"
+msgstr "租用數"
+
+#: ../public/js/plugins/vnets-tab.js:44
+msgid ""
+"Tip: edit the leases of a network by clicking on one and going to the lease "
+"management tab."
+msgstr "提示: 點選一個虛擬網路，將會切換至租用管理分頁，可修改出租資訊"
+
+#: ../public/js/plugins/vnets-tab.js:63
+msgid "Network mode"
+msgstr "虛擬網路模式"
+
+#: ../public/js/plugins/vnets-tab.js:73 ../public/js/plugins/vnets-tab.js:601
+msgid "Physical device"
+msgstr "實體網路裝置"
+
+#: ../public/js/plugins/vnets-tab.js:75 ../public/js/plugins/vnets-tab.js:597
+msgid "VLAN"
+msgstr "VLAN"
+
+#: ../public/js/plugins/vnets-tab.js:80 ../public/js/plugins/vnets-tab.js:605
+msgid "VLAN ID"
+msgstr "VLAN ID"
+
+#: ../public/js/plugins/vnets-tab.js:84
+msgid "Network type"
+msgstr "虛擬網路種類"
+
+#: ../public/js/plugins/vnets-tab.js:85
+msgid "Fixed network"
+msgstr "固定式網路"
+
+#: ../public/js/plugins/vnets-tab.js:86
+msgid "Ranged network"
+msgstr "範圍式網路"
+
+#: ../public/js/plugins/vnets-tab.js:92
+msgid "Lease IP"
+msgstr "出租IP"
+
+#: ../public/js/plugins/vnets-tab.js:94
+msgid "Lease MAC (opt):"
+msgstr "出租MAC(非必填)"
+
+#: ../public/js/plugins/vnets-tab.js:103
+msgid "Current leases"
+msgstr "目前可租用"
+
+#: ../public/js/plugins/vnets-tab.js:111
+msgid "Network Address"
+msgstr "網路位址"
+
+#: ../public/js/plugins/vnets-tab.js:113
+msgid "Network Mask"
+msgstr "子網路遮罩"
+
+#: ../public/js/plugins/vnets-tab.js:115
+msgid "Define a subnet by IP range"
+msgstr "以IP範圍來定義子網路區段"
+
+#: ../public/js/plugins/vnets-tab.js:117 ../public/js/plugins/vnets-tab.js:658
+msgid "IP Start"
+msgstr "IP起始位址"
+
+#: ../public/js/plugins/vnets-tab.js:119 ../public/js/plugins/vnets-tab.js:662
+msgid "IP End"
+msgstr "IP結束位址"
+
+#: ../public/js/plugins/vnets-tab.js:152
+msgid "Write the Virtual Network template here"
+msgstr "在此輸入虛擬網路的template指令集"
+
+#: ../public/js/plugins/vnets-tab.js:171
+msgid "Please, choose and modify the virtual network you want to update"
+msgstr "請選擇您想修改的虛擬網路"
+
+#: ../public/js/plugins/vnets-tab.js:173
+msgid "Select a network"
+msgstr "選擇一個虛擬網路"
+
+#: ../public/js/plugins/vnets-tab.js:479
+msgid "Virtual network information"
+msgstr "虛擬網路資訊"
+
+#: ../public/js/plugins/vnets-tab.js:483 ../public/js/plugins/vnets-tab.js:636
+msgid "Lease management"
+msgstr "租用管理"
+
+#: ../public/js/plugins/vnets-tab.js:569
+msgid "Virtual Network"
+msgstr "虛擬網路"
+
+#: ../public/js/plugins/vnets-tab.js:625
+msgid "Virtual Network template (attributes)"
+msgstr "虛擬網路樣版指令集 (屬性)"
+
+#: ../public/js/plugins/vnets-tab.js:631
+msgid "Virtual Network information"
+msgstr "虛擬網路資訊"
+
+#: ../public/js/plugins/vnets-tab.js:653
+msgid "Leases information"
+msgstr "租用資訊"
+
+#: ../public/js/plugins/vnets-tab.js:666
+msgid "Network mask"
+msgstr "子網路遮罩"
+
+#: ../public/js/plugins/vnets-tab.js:670
+msgid "Hold lease"
+msgstr "保留租約"
+
+#: ../public/js/plugins/vnets-tab.js:675
+msgid "Add lease"
+msgstr "新增可出租IP"
+
+#: ../public/js/plugins/vnets-tab.js:685
+msgid "No leases to show"
+msgstr "目前沒有任何租約"
+
+#: ../public/js/plugins/vnets-tab.js:731
+msgid "hold"
+msgstr "保留"
+
+#: ../public/js/plugins/vnets-tab.js:731
+msgid "delete"
+msgstr "刪除"
+
+#: ../public/js/plugins/vnets-tab.js:734
+msgid "Used by VM"
+msgstr "已租用予VM"
+
+#: ../public/js/plugins/vnets-tab.js:737
+msgid "release"
+msgstr "釋放"
+
+#: ../public/js/plugins/vnets-tab.js:750
+msgid "Create Virtual Network"
+msgstr "建立虛擬網路"
+
+#: ../public/js/plugins/vnets-tab.js:823
+msgid "Please provide a lease IP"
+msgstr "請填寫欲出租的IP位址"
+
+#: ../public/js/plugins/vnets-tab.js:889
+msgid "Virtual Network name missing!"
+msgstr "未填寫虛擬網路名稱!"
+
+#: ../public/js/plugins/vnets-tab.js:976
+msgid "There are missing network parameters"
+msgstr "未填寫網路參數"
+
+#: ../public/js/plugins/vnets-tab.js:1028
+msgid "Update network properties"
+msgstr "修改虛擬網路屬性"
+
+#: ../public/js/plugins/system-tab.js:25
+msgid "Summary of system resources"
+msgstr "系統資源概觀"
+
+#: ../public/js/plugins/system-tab.js:38
+msgid "ACL Rules"
+msgstr "ACL規則"
+
+#: ../public/js/plugins/system-tab.js:53
+msgid "Create new Group"
+msgstr "建立新的群組"
+
+#: ../public/js/plugins/system-tab.js:54
+msgid "Create new User"
+msgstr "建立新的使用者"
+
+#: ../public/js/plugins/system-tab.js:55
+msgid "Create new ACL"
+msgstr "建立新的ACL"
+
+#: ../public/js/plugins/system-tab.js:68
+msgid "System Resources"
+msgstr "系統資源"
+
+#: ../public/js/plugins/system-tab.js:70
+msgid ""
+"System resources management is only accesible to users of the oneadmin "
+"group. It comprises the operations regarding OpenNebula groups, users and "
+"ACLs."
+msgstr "系統資源管理僅開放給屬於oneadmin群組的使用者，其中包括了OpenNebula的群組、使用者及ACLs等功能"
 
 #: ../public/js/plugins/infra-tab.js:25
 msgid "Summary of infrastructure resources"
 msgstr "基礎設施資源概觀"
-
-#: ../public/js/plugins/infra-tab.js:54
-#: ../public/js/plugins/vresources-tab.js:59
-#: ../public/js/plugins/system-tab.js:50
-msgid "Quickstart"
-msgstr "快速啟動"
 
 #: ../public/js/plugins/infra-tab.js:57
 msgid "Create new Cluster"
@@ -2565,271 +2990,112 @@ msgid "Infrastructure resources"
 msgstr "基礎設施資源"
 
 #: ../public/js/plugins/infra-tab.js:75
-msgid "The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well."
+msgid ""
+"The Infrastructure menu allows management of Hosts, Datastores, Virtual "
+"Networks. Users in the oneadmin group can manage clusters as well."
 msgstr "在基礎設施選單中，您可以管理實體主機、資料存放區、>虛擬網路。oneadmin群組內的使用者能夠管理主機叢集"
-
-#: ../public/js/plugins/infra-tab.js:76
-#: ../public/js/plugins/vresources-tab.js:81
-#: ../public/js/plugins/system-tab.js:71
-msgid "You can find further information on the following links:"
-msgstr "你可以在下面的連結中獲得更進一步的資訊:"
 
 #: ../public/js/plugins/infra-tab.js:92
 msgid "Infrastructure"
 msgstr "基礎設施"
 
-#: ../public/js/plugins/users-tab.js:33 ../public/js/plugins/groups-tab.js:31
-msgid "Net TX"
-msgstr "網路傳送資料量"
+#: ../public/js/plugins/clusters-tab.js:497
+msgid "No datastores in this cluster"
+msgstr "這個主機叢集中沒有任何資料存放區"
 
-#: ../public/js/plugins/users-tab.js:37 ../public/js/plugins/groups-tab.js:35
-msgid "Net RX"
-msgstr "網路接收資料量"
+#: ../public/js/plugins/clusters-tab.js:507
+msgid "No hosts in this cluster"
+msgstr "這個主機叢集中沒有任何主機"
 
-#: ../public/js/plugins/users-tab.js:56 ../public/js/plugins/users-tab.js:639
-msgid "Authentication driver"
-msgstr "認證方式"
+#: ../public/js/plugins/clusters-tab.js:517
+msgid "No virtual networks in this cluster"
+msgstr "這個主機叢集中沒有任何虛擬網路"
 
-#: ../public/js/plugins/users-tab.js:57 ../public/js/plugins/groups-tab.js:53
-msgid "VMs"
-msgstr "VM數"
+#: ../public/js/plugins/clusters-tab.js:538
+#: ../public/js/plugins/clusters-tab.js:644
+msgid "Cluster information"
+msgstr "主機叢集資訊"
 
-#: ../public/js/plugins/users-tab.js:58 ../public/js/plugins/groups-tab.js:54
-msgid "Used memory"
-msgstr "記憶體使用量"
+#: ../public/js/plugins/clusters-tab.js:551
+#: ../public/js/plugins/clusters-tab.js:657
+msgid "Hosts state"
+msgstr "主機工作階段"
 
-#: ../public/js/plugins/users-tab.js:60
-msgid "Group ID"
-msgstr "群組ID"
+#: ../public/js/plugins/clusters-tab.js:552
+#: ../public/js/plugins/clusters-tab.js:658
+msgid "Hosts CPU Usage"
+msgstr "主機CPU使用狀況"
 
-#: ../public/js/plugins/users-tab.js:70
-msgid "Tip: You can save any information in the user template, in the form of VAR=VAL."
-msgstr "提示: 你可以在使用者範本中儲存任何資訊，例如VAR=VAL的方式"
+#: ../public/js/plugins/clusters-tab.js:555
+#: ../public/js/plugins/clusters-tab.js:556
+#: ../public/js/plugins/clusters-tab.js:565
+#: ../public/js/plugins/clusters-tab.js:575
+#: ../public/js/plugins/clusters-tab.js:662
+#: ../public/js/plugins/clusters-tab.js:663
+#: ../public/js/plugins/clusters-tab.js:672
+#: ../public/js/plugins/clusters-tab.js:682 ../public/js/monitoring.js:99
+msgid "No monitoring information available"
+msgstr "無任何監測資訊"
 
-#: ../public/js/plugins/users-tab.js:75
-msgid "Tip: SSH authentication method is not available for web UI access."
-msgstr "提示: Web介面不提供SSH認證方式"
+#: ../public/js/plugins/clusters-tab.js:594
+#: ../public/js/plugins/clusters-tab.js:595
+#: ../public/js/plugins/clusters-tab.js:703
+msgid "Create new host"
+msgstr "建立新的主機"
 
-#: ../public/js/plugins/users-tab.js:85
-msgid "Username"
-msgstr "使用者帳號"
+#: ../public/js/plugins/clusters-tab.js:596
+msgid "Manage unclustered hosts"
+msgstr "管理未加入主機叢集的主機"
 
-#: ../public/js/plugins/users-tab.js:89
-msgid "Authentication"
-msgstr "認證方式"
+#: ../public/js/plugins/clusters-tab.js:607
+#: ../public/js/plugins/clusters-tab.js:718
+msgid "Create new datastore"
+msgstr "建立新的資料存放區"
 
-#: ../public/js/plugins/users-tab.js:91 ../public/js/plugins/users-tab.js:426
-msgid "Core"
-msgstr "Core"
+#: ../public/js/plugins/clusters-tab.js:608
+msgid "Manage unclustered datastores"
+msgstr "管理未加入主機叢集的資料存放區"
 
-#: ../public/js/plugins/users-tab.js:93 ../public/js/plugins/users-tab.js:428
-msgid "x509"
-msgstr "x509"
+#: ../public/js/plugins/clusters-tab.js:620
+#: ../public/js/plugins/clusters-tab.js:734
+msgid "Create new virtual network"
+msgstr "建立新的虛擬網路"
 
-#: ../public/js/plugins/users-tab.js:94 ../public/js/plugins/users-tab.js:429
-msgid "Public"
-msgstr "Public"
+#: ../public/js/plugins/clusters-tab.js:621
+msgid "Manage unclustered virtual networks"
+msgstr "管理未加入主機叢集的虛擬網路"
 
-#: ../public/js/plugins/users-tab.js:98
-msgid "Custom auth driver"
-msgstr "自訂認證方式"
+#: ../public/js/plugins/clusters-tab.js:701
+msgid "Current number of hosts in this cluster"
+msgstr "此主機叢集目前主機數量"
 
-#: ../public/js/plugins/users-tab.js:114
-msgid "This will change the password for the selected users"
-msgstr "所有被選取的使用者密碼將會被修改"
+#: ../public/js/plugins/clusters-tab.js:704
+msgid "Manage cluster hosts"
+msgstr "管理此主機叢集的主機"
 
-#: ../public/js/plugins/users-tab.js:115
-msgid "New password"
-msgstr "新密碼"
+#: ../public/js/plugins/clusters-tab.js:715
+msgid "Current number of datastores in this cluster"
+msgstr "此主機叢集目前資料存放區數量"
 
-#: ../public/js/plugins/users-tab.js:121
-msgid "Change"
-msgstr "修改"
+#: ../public/js/plugins/clusters-tab.js:719
+msgid "Manage cluster datastores"
+msgstr "管理此主機叢集的資料存放區"
 
-#: ../public/js/plugins/users-tab.js:129 ../public/js/plugins/groups-tab.js:87
-msgid "Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them"
-msgstr "請新增/修改/刪除配額並點選套用變更按鈕。若選擇了多個項目，變更將套用到所有的項目上"
+#: ../public/js/plugins/clusters-tab.js:731
+msgid "Current number of virtual networks in this cluster"
+msgstr "此主機叢集目前虛擬網路數量"
 
-#: ../public/js/plugins/users-tab.js:130 ../public/js/plugins/groups-tab.js:88
-msgid "Add quota"
-msgstr "新增配額"
+#: ../public/js/plugins/clusters-tab.js:735
+msgid "Manage cluster virtual networks"
+msgstr "管理此主機叢集的虛擬網路"
 
-#: ../public/js/plugins/users-tab.js:132 ../public/js/plugins/groups-tab.js:90
-msgid "Quota type"
-msgstr "配額種類"
+#: ../public/js/plugins/clusters-tab.js:888
+msgid "Create cluster"
+msgstr "建立主機叢集"
 
-#: ../public/js/plugins/users-tab.js:133 ../public/js/plugins/groups-tab.js:91
-msgid "Virtual Machine"
-msgstr "虛擬機器"
-
-#: ../public/js/plugins/users-tab.js:139 ../public/js/plugins/groups-tab.js:97
-msgid "Max VMs"
-msgstr "最大VM數量"
-
-#: ../public/js/plugins/users-tab.js:141 ../public/js/plugins/groups-tab.js:99
-msgid "Max Memory (MB)"
-msgstr "最大記憶體使用量(MB)"
-
-#: ../public/js/plugins/users-tab.js:143
-#: ../public/js/plugins/groups-tab.js:101
-msgid "Max CPU"
-msgstr "總CPU數量"
-
-#: ../public/js/plugins/users-tab.js:149
-#: ../public/js/plugins/groups-tab.js:107
-msgid "Max size (MB)"
-msgstr "最大磁碟使用量(MB)"
-
-#: ../public/js/plugins/users-tab.js:151
-#: ../public/js/plugins/groups-tab.js:109
-msgid "Max images"
-msgstr "最多磁碟影像檔數目"
-
-#: ../public/js/plugins/users-tab.js:157
-#: ../public/js/plugins/groups-tab.js:115
-msgid "Max RVMs"
-msgstr "最多運行VM數量"
-
-#: ../public/js/plugins/users-tab.js:163
-#: ../public/js/plugins/groups-tab.js:121
-msgid "Max leases"
-msgstr "最大租用數"
-
-#: ../public/js/plugins/users-tab.js:166
-#: ../public/js/plugins/groups-tab.js:124
-msgid "Add/edit quota"
-msgstr "新增/修改配額"
-
-#: ../public/js/plugins/users-tab.js:173
-#: ../public/js/plugins/groups-tab.js:131
-msgid "Quota"
-msgstr "配額"
-
-#: ../public/js/plugins/users-tab.js:174
-#: ../public/js/plugins/groups-tab.js:132
-msgid "Edit"
-msgstr "編輯"
-
-#: ../public/js/plugins/users-tab.js:180
-#: ../public/js/plugins/groups-tab.js:137
-msgid "Apply changes"
-msgstr "套用所有變更"
-
-#: ../public/js/plugins/users-tab.js:235
-msgid "Change password successful"
-msgstr "修改密碼成功"
-
-#: ../public/js/plugins/users-tab.js:365
-#: ../public/js/plugins/groups-tab.js:235
-msgid "Quotas updated correctly"
-msgstr "配額已成功修改"
-
-#: ../public/js/plugins/users-tab.js:407 ../public/js/plugins/users-tab.js:813
-msgid "Change password"
-msgstr "修改密碼"
-
-#: ../public/js/plugins/users-tab.js:411
-#: ../public/js/plugins/groups-tab.js:279
-msgid "Update quotas"
-msgstr "修改配額"
-
-#: ../public/js/plugins/users-tab.js:418
-msgid "This will change the main group of the selected users. Select the new group"
-msgstr "所有被選取的使用者將會變更群組。請選擇新的群組"
-
-#: ../public/js/plugins/users-tab.js:423
-msgid "Change authentication"
-msgstr "修改認證方式"
-
-#: ../public/js/plugins/users-tab.js:431
-msgid "Please choose the new type of authentication for the selected users"
-msgstr "請選擇一個新的認證方式，此認證方式將套用於所有被選取的使用者"
-
-#: ../public/js/plugins/users-tab.js:463 ../public/js/plugins/users-tab.js:623
-#: ../public/js/plugins/users-tab.js:627
-msgid "User information"
-msgstr "使用者資訊"
-
-#: ../public/js/plugins/users-tab.js:471 ../public/js/plugins/users-tab.js:678
-#: ../public/js/plugins/groups-tab.js:300
-#: ../public/js/plugins/groups-tab.js:472
-msgid "Historical usages"
-msgstr "舊式用法"
-
-#: ../public/js/plugins/users-tab.js:486
-msgid "User info"
-msgstr "使用者資訊"
-
-#: ../public/js/plugins/users-tab.js:645
-msgid "User template"
-msgstr "使用者樣版指令集"
-
-#: ../public/js/plugins/users-tab.js:681
-#: ../public/js/plugins/groups-tab.js:475
-msgid "From / to"
-msgstr "從/到"
-
-#: ../public/js/plugins/users-tab.js:690
-#: ../public/js/plugins/groups-tab.js:484
-msgid "Meters"
-msgstr "計量表"
-
-#: ../public/js/plugins/users-tab.js:765
-msgid "Create user"
-msgstr "建立使用者"
-
-#: ../public/js/plugins/users-tab.js:796
-msgid "User name and password must be filled in"
-msgstr "必須填寫使用者帳號及密碼"
-
-#: ../public/js/plugins/users-tab.js:831
-msgid "Fill in a new password"
-msgstr "填寫一個新的密碼"
-
-#: ../public/js/plugins/vresources-tab.js:25
-msgid "Summary of virtual resources"
-msgstr "虛擬化資源概觀"
-
-#: ../public/js/plugins/vresources-tab.js:35
-msgid "VM Instances"
-msgstr "虛擬機器"
-
-#: ../public/js/plugins/vresources-tab.js:36
-msgid "total"
-msgstr "全部"
-
-#: ../public/js/plugins/vresources-tab.js:37
-msgid "running"
-msgstr "運行中"
-
-#: ../public/js/plugins/vresources-tab.js:38
-msgid "failed"
-msgstr "失敗"
-
-#: ../public/js/plugins/vresources-tab.js:62
-msgid "Create new Virtual Machine"
-msgstr "建立新的虛擬機器"
-
-#: ../public/js/plugins/vresources-tab.js:63
-msgid "Create new VM Template"
-msgstr "建立新的VM範本"
-
-#: ../public/js/plugins/vresources-tab.js:64
-msgid "Create new Image"
-msgstr "建立新的磁碟影像檔"
-
-#: ../public/js/plugins/vresources-tab.js:77
-#: ../public/js/plugins/vresources-tab.js:96
-msgid "Virtual Resources"
-msgstr "虛擬化資源"
-
-#: ../public/js/plugins/vresources-tab.js:79
-msgid "The Virtual Resources menu allows management of Virtual Machine Templates, Instances and storage (Images)."
-msgstr "在虛擬資源選單中，您可以管理虛擬機器的範本、執行實例以及儲存空間(磁碟影像檔)"
-
-#: ../public/js/plugins/vresources-tab.js:80
-msgid "Virtual Machine templates can be instantiated as many times as you want. You can do it from the Templates tab or by creating a new VM in the VM tab. The second method allows you to customize the name and the number of VMs you want to launch."
-msgstr "可透過虛擬機器範本任意啟動多個VM實體。你可以從VM範本分頁中啟動，或由虛擬機器分頁中點選建立新的VM按鈕。後者可讓你自訂VM啟動的名稱及啟動數量"
+#: ../public/js/plugins/clusters-tab.js:904
+msgid "Cluster name missing!"
+msgstr "未填寫主機叢集名稱!"
 
 #: ../public/js/plugins/groups-tab.js:64
 msgid "Tip: Refresh the list if it only shows user ids in the Users column."
@@ -2865,259 +3131,97 @@ msgstr "建立群組"
 msgid "Group quotas"
 msgstr "群組配額"
 
-#: ../public/js/plugins/images-tab.js:36 ../public/js/plugins/images-tab.js:92
-#: ../public/js/plugins/images-tab.js:199
-#: ../public/js/plugins/images-tab.js:641
-msgid "Persistent"
-msgstr "存續性"
+#: ../public/js/plugins/dashboard-users-tab.js:154
+msgid "Storage size"
+msgstr "儲存空間大小"
 
-#: ../public/js/plugins/images-tab.js:38
-msgid "#VMS"
-msgstr "VM數量"
+#: ../public/js/plugins/dashboard-users-tab.js:167
+msgid "Number of images"
+msgstr "映像檔數量"
 
-#: ../public/js/plugins/images-tab.js:48
-msgid "Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image."
-msgstr "大小及建立時間為隱藏欄位。需注意存續性磁碟影像檔僅能同時被1個VM所掛載。若要修改磁碟影像檔所屬的資料存放區，請重新註冊此影像檔"
+#: ../public/js/plugins/dashboard-users-tab.js:184
+msgid "RVMs"
+msgstr "運行VM數"
 
-#: ../public/js/plugins/images-tab.js:67
-msgid "Name that the Image will get. Every image must have a unique name."
-msgstr "磁碟影像檔的名稱。所有的磁碟影像檔都擁有一個獨一無二的名稱"
+#: ../public/js/plugins/dashboard-users-tab.js:199
+msgid "Leases"
+msgstr "租用"
 
-#: ../public/js/plugins/images-tab.js:72
-msgid "Human readable description of the image for other users."
-msgstr "供其他使用者參閱的磁碟影像檔描述"
+#: ../public/js/plugins/dashboard-users-tab.js:217
+msgid "VM quota"
+msgstr "虛擬機器配額"
 
-#: ../public/js/plugins/images-tab.js:78
-msgid "Select the datastore for this image"
-msgstr "選擇此磁碟影像檔所屬的資料存放區"
+#: ../public/js/plugins/dashboard-users-tab.js:219
+#: ../public/js/plugins/dashboard-users-tab.js:229
+#: ../public/js/plugins/dashboard-users-tab.js:239
+#: ../public/js/plugins/dashboard-users-tab.js:249
+msgid "None"
+msgstr "無"
 
-#: ../public/js/plugins/images-tab.js:86
-#: ../public/js/plugins/images-tab.js:545
-msgid "CD-ROM"
-msgstr "CD-ROM"
+#: ../public/js/plugins/dashboard-users-tab.js:227
+msgid "Datastore quotas"
+msgstr "資料存放區配額"
 
-#: ../public/js/plugins/images-tab.js:87
-#: ../public/js/plugins/images-tab.js:546
-msgid "Datablock"
-msgstr "Datablock"
+#: ../public/js/plugins/dashboard-users-tab.js:237
+msgid "Image quotas"
+msgstr "磁碟影像檔配額"
 
-#: ../public/js/plugins/images-tab.js:89
-msgid "Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
-msgstr "磁碟影像檔種類。在下列區段有詳細說明。若未填寫，將使用oned.conf內的設定作為預設值(預設為OS)"
+#: ../public/js/plugins/dashboard-users-tab.js:247
+msgid "Network quotas"
+msgstr "虛擬網路配額"
 
-#: ../public/js/plugins/images-tab.js:94
-msgid "Persistence of the image"
-msgstr "磁碟影像檔的存續性"
+#: ../public/js/sunstone.js:589
+msgid "Previous action"
+msgstr "先前操作"
 
-#: ../public/js/plugins/images-tab.js:99
-msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
-msgstr "此磁碟影像檔將被掛載的裝置名稱字首。例如 \"hd\" 或 \"sd\"。若未填寫，將使用oned.conf內的設定作為預設值(預設為hd)"
+#: ../public/js/sunstone.js:652 ../public/js/sunstone.js:686
+msgid "Confirmation of action"
+msgstr "操作確認"
 
-#: ../public/js/plugins/images-tab.js:104
-msgid "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"
-msgstr "指定影像檔的驅動方式。KVM: raw, qcow2. Xen:tap:aio:, file:"
+#: ../public/js/sunstone.js:658
+msgid "You have to confirm this action."
+msgstr "請確認這個操作"
 
-#: ../public/js/plugins/images-tab.js:109
-msgid "Target on which the image will be mounted at. For example: hda, sdb..."
-msgstr "磁碟影像檔將被掛載的目標裝置名稱。例: hda, sdb"
+#: ../public/js/sunstone.js:660
+msgid "Do you want to proceed?"
+msgstr "您是否確定要繼續執行?"
 
-#: ../public/js/plugins/images-tab.js:114
-msgid "Image location"
-msgstr "磁碟影像檔位置"
+#: ../public/js/sunstone.js:663 ../public/js/sunstone.js:695
+msgid "OK"
+msgstr "確定"
 
-#: ../public/js/plugins/images-tab.js:117
-msgid "Provide a path"
-msgstr "提供一個路徑"
+#: ../public/js/sunstone.js:691
+msgid "You need to select something."
+msgstr "未選取任何項目"
 
-#: ../public/js/plugins/images-tab.js:120
-msgid "Upload"
-msgstr "上傳"
+#: ../public/js/sunstone-util.js:210
+msgid "Submitted"
+msgstr "已執行"
 
-#: ../public/js/plugins/images-tab.js:123
-msgid "Create an empty datablock"
-msgstr "建立一個空資料區塊"
+#: ../public/js/sunstone-util.js:227
+msgid "Error"
+msgstr "錯誤"
 
-#: ../public/js/plugins/images-tab.js:124
-msgid "Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk."
-msgstr "如果您使用映像檔，請選擇路徑。若不是，請上傳一個映像檔或是建立一個新的資料區塊。"
+#: ../public/js/sunstone-util.js:233
+msgid "Info"
+msgstr "訊息"
 
-#: ../public/js/plugins/images-tab.js:128
-#: ../public/js/plugins/images-tab.js:649
-msgid "Path"
-msgstr "路徑"
+#: ../public/js/sunstone-util.js:365
+msgid "Cannot contact server: is it running and reachable?"
+msgstr "無法連線至伺服器:請確認伺服器運行狀態或網路連線狀況?"
 
-#: ../public/js/plugins/images-tab.js:130
-msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
-msgstr "將被複製到磁碟影像庫的原始檔案路徑。若DATABLOCK影像檔未填寫此欄位，將建立一個空白磁碟影像檔。"
+#: ../public/js/sunstone-util.js:373
+msgid "Network is unreachable: is OpenNebula running?"
+msgstr "網路連線失敗: 請確認OpenNebula是否仍運行中?"
 
-#: ../public/js/plugins/images-tab.js:135
-msgid "Size of the datablock in MB."
-msgstr "資料區塊大小 (MB)"
+#: ../public/js/sunstone-util.js:394
+msgid "Unauthorized"
+msgstr "未經授權"
 
-#: ../public/js/plugins/images-tab.js:138
-msgid "FS type"
-msgstr "檔案系統種類"
+#: ../public/js/sunstone-util.js:730
+msgid "Update template"
+msgstr "修改範本"
 
-#: ../public/js/plugins/images-tab.js:140
-msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
-msgstr "資料區塊內的檔案系統種類。可填寫任何mkfs unix指令所接受的參數"
-
-#: ../public/js/plugins/images-tab.js:143
-msgid "Upload file"
-msgstr "上傳檔案"
-
-#: ../public/js/plugins/images-tab.js:173
-msgid "Write the image template here"
-msgstr "在此輸入磁碟影像檔的樣版指令集"
-
-#: ../public/js/plugins/images-tab.js:193
-msgid "Please, choose and modify the image you want to update"
-msgstr "請選擇您想修改的磁碟影像檔"
-
-#: ../public/js/plugins/images-tab.js:195
-msgid "Select an image"
-msgstr "選擇一個磁碟影像檔"
-
-#: ../public/js/plugins/images-tab.js:324
-msgid "Image updated correctly"
-msgstr "磁碟影像檔修改成功"
-
-#: ../public/js/plugins/images-tab.js:484
-msgid "Make persistent"
-msgstr "可存續"
-
-#: ../public/js/plugins/images-tab.js:488
-msgid "Make non persistent"
-msgstr "非存續"
-
-#: ../public/js/plugins/images-tab.js:509
-#: ../public/js/plugins/images-tab.js:605
-msgid "Image information"
-msgstr "磁碟影像檔資訊"
-
-#: ../public/js/plugins/images-tab.js:514
-#: ../public/js/plugins/images-tab.js:685
-#: ../public/js/plugins/images-tab.js:687
-msgid "Image template"
-msgstr "影像檔樣版指令集"
-
-#: ../public/js/plugins/images-tab.js:642
-msgid "yes"
-msgstr "是"
-
-#: ../public/js/plugins/images-tab.js:642
-msgid "no"
-msgstr "否"
-
-#: ../public/js/plugins/images-tab.js:645
-msgid "Source"
-msgstr "來源"
-
-#: ../public/js/plugins/images-tab.js:653
-msgid "Filesystem type"
-msgstr "檔案系統種類"
-
-#: ../public/js/plugins/images-tab.js:657
-msgid "Size (Mb)"
-msgstr "大小 (Mb)"
-
-#: ../public/js/plugins/images-tab.js:665
-msgid "Running #VMS"
-msgstr "使用中VM數量"
-
-#: ../public/js/plugins/images-tab.js:701
-msgid "Create Image"
-msgstr "建立磁碟影像檔"
-
-#: ../public/js/plugins/images-tab.js:765
-msgid "Custom attribute name and value must be filled in"
-msgstr "必須填寫自定屬性名稱與值"
-
-#: ../public/js/plugins/images-tab.js:818
-msgid "Uploading..."
-msgstr "上傳中"
-
-#: ../public/js/plugins/images-tab.js:857
-msgid "There are mandatory parameters missing"
-msgstr "部分參數尚未填寫"
-
-#: ../public/js/plugins/images-tab.js:866
-#: ../public/js/plugins/images-tab.js:942
-msgid "Please select a datastore for this image"
-msgstr "請選擇一個資料存放區用來存放磁碟影像檔"
-
-#: ../public/js/plugins/images-tab.js:973
-msgid "Update image properties"
-msgstr "修改磁碟影像檔屬性"
-
-#: ../public/js/plugins/images-tab.js:1129
-msgid "Clone an image"
-msgstr "製作一個磁碟影像檔複本"
-
-#: ../public/js/plugins/images-tab.js:1135
-msgid "Choose a new name for the image"
-msgstr "選擇一個新的磁碟影像檔名稱"
-
-#: ../public/js/plugins/images-tab.js:1136
-msgid "Several image are selected, please choose prefix to name the new copies"
-msgstr "已選擇多個磁碟影像檔，請選擇新複本名稱的字首"
-
-#: ../public/js/plugins/system-tab.js:25
-msgid "Summary of system resources"
-msgstr "系統資源概觀"
-
-#: ../public/js/plugins/system-tab.js:38
-msgid "ACL Rules"
-msgstr "ACL規則"
-
-#: ../public/js/plugins/system-tab.js:53
-msgid "Create new Group"
-msgstr "建立新的群組"
-
-#: ../public/js/plugins/system-tab.js:54
-msgid "Create new User"
-msgstr "建立新的使用者"
-
-#: ../public/js/plugins/system-tab.js:55
-msgid "Create new ACL"
-msgstr "建立新的ACL"
-
-#: ../public/js/plugins/system-tab.js:68
-msgid "System Resources"
-msgstr "系統資源"
-
-#: ../public/js/plugins/system-tab.js:70
-msgid "System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs."
-msgstr "系統資源管理僅開放給屬於oneadmin群組的使用者，其中包括了OpenNebula的群組、使用者及ACLs等功能"
-
-#: ../public/js/plugins/dashboard-tab.js:30
-msgid "Total Hosts"
-msgstr "總主機數"
-
-#: ../public/js/plugins/dashboard-tab.js:39
-msgid "Global CPU Usage"
-msgstr "所有CPU使用狀況"
-
-#: ../public/js/plugins/dashboard-tab.js:81
-msgid "Allocated CPU per cluster"
-msgstr "每個主機叢集所配置的CPU資源"
-
-#: ../public/js/plugins/dashboard-tab.js:89
-msgid "Allocated Memory per cluster"
-msgstr "每個主機叢集所配置的記憶體大小"
-
-#: ../public/js/plugins/dashboard-tab.js:150
-msgid "System Information"
-msgstr "系統資訊"
-
-#: ../public/js/plugins/dashboard-tab.js:155
-msgid "Total Users"
-msgstr "總使用者數量"
-
-#: ../public/js/plugins/dashboard-tab.js:156
-msgid "Total Groups"
-msgstr "總群組數量"
-
-#: ../public/js/plugins/dashboard-tab.js:165
-msgid "Users per group"
-msgstr "每個群組的使用者"
+#: ../public/js/sunstone-util.js:1028
+msgid "Please select an element"
+msgstr "請選擇一個元素"

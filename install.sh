@@ -271,6 +271,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/locale/ru_RU \
                $SUNSTONE_LOCATION/public/locale/sk_SK \
                $SUNSTONE_LOCATION/public/locale/zh_TW \
+               $SUNSTONE_LOCATION/public/locale/pt_BR \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/crypto-js \
                $SUNSTONE_LOCATION/public/vendor/explorercanvas \
@@ -527,6 +528,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/ru_RU
     SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/sk_SK
     SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/zh_TW
+    SUNSTONE_PUBLIC_LOCALE_PT_BR:$SUNSTONE_LOCATION/public/locale/pt_BR
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -1520,6 +1522,10 @@ src/sunstone/locale/languages/it_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PT_PT="\
 src/sunstone/locale/languages/pt_PT.js \
+src/sunstone/locale/languages/pt_datatable.txt"
+
+SUNSTONE_PUBLIC_LOCALE_PT_BR="\
+src/sunstone/locale/languages/pt_BR.js \
 src/sunstone/locale/languages/pt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_RU_RU="\
