@@ -1,21 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2012, OpenNebula Project Leads (OpenNebula.org)
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 #   <samu60@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
-"Report-Msgid-Bugs-To: http://dev.opennebula.org/\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-17 11:43+0200\n"
 "PO-Revision-Date: 2012-10-17 09:46+0000\n"
 "Last-Translator: dmolina <dmolina@opennebula.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ca\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../public/js/locale.js:35
@@ -172,24 +172,15 @@ msgid "Last monitored on"
 msgstr "Última monitorització el"
 
 #: ../public/js/plugins/hosts-tab.js:66
-msgid ""
-"CPU Use is calculated as the minimum between (total CPU - real CPU usage) "
-"and (allocated CPU). Real CPU usage is provided by the hosts monitoring "
-"driver. Available CPU is calculated using the information from the CPU "
-"setting of the VMs running on that host (allocated CPU)"
+msgid "CPU Use is calculated as the minimum between (total CPU - real CPU usage) and (allocated CPU). Real CPU usage is provided by the hosts monitoring driver. Available CPU is calculated using the information from the CPU setting of the VMs running on that host (allocated CPU)"
 msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:69
-msgid ""
-"Memory use is calculated according to the information provided by the host "
-"monitoring driver."
+msgid "Memory use is calculated according to the information provided by the host monitoring driver."
 msgstr "La utilització de la memòria es calcula a partir de la informació proporcionada pel driver de monitorització del servidor."
 
 #: ../public/js/plugins/hosts-tab.js:72
-msgid ""
-"You can get monitoring graphs by clicking in the desired host and visiting "
-"the monitoring information tab. Note that oneacctd must be running for this "
-"information to be updated/available."
+msgid "You can get monitoring graphs by clicking in the desired host and visiting the monitoring information tab. Note that oneacctd must be running for this information to be updated/available."
 msgstr "Pot obtenir gràfiques de monitorització clicant sobre el servidor que desitgi i visitant la pestanya informació de la monitorització. Recordi que oneacctd ha d'estar executant-se per a que aquesta informació estigui actualitzada/disponible."
 
 #: ../public/js/plugins/hosts-tab.js:80
@@ -504,9 +495,7 @@ msgid "These options are stored in your OpenNebula user template."
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:67
-msgid ""
-"WSS connection requires additional configuration of Sunstone Server and that"
-" the SSL certificate is considered valid by your browser."
+msgid "WSS connection requires additional configuration of Sunstone Server and that the SSL certificate is considered valid by your browser."
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:82
@@ -585,9 +574,7 @@ msgid "Group ID"
 msgstr ""
 
 #: ../public/js/plugins/users-tab.js:70
-msgid ""
-"Tip: You can save any information in the user template, in the form of "
-"VAR=VAL."
+msgid "Tip: You can save any information in the user template, in the form of VAR=VAL."
 msgstr ""
 
 #: ../public/js/plugins/users-tab.js:75
@@ -641,9 +628,7 @@ msgid "Change"
 msgstr "Modificar"
 
 #: ../public/js/plugins/users-tab.js:129 ../public/js/plugins/groups-tab.js:87
-msgid ""
-"Please add/edit/remove quotas and click on the apply changes button. Note "
-"that if several items are selected, changes will be applied to each of them"
+msgid "Please add/edit/remove quotas and click on the apply changes button. Note that if several items are selected, changes will be applied to each of them"
 msgstr ""
 
 #: ../public/js/plugins/users-tab.js:130 ../public/js/plugins/groups-tab.js:88
@@ -787,8 +772,7 @@ msgid "Change group"
 msgstr "Modificar grup"
 
 #: ../public/js/plugins/users-tab.js:418
-msgid ""
-"This will change the main group of the selected users. Select the new group"
+msgid "This will change the main group of the selected users. Select the new group"
 msgstr "Modificar el grup principal dels usuaris seleccionats. Seleccioni el nou grup"
 
 #: ../public/js/plugins/users-tab.js:423
@@ -890,10 +874,7 @@ msgid "ACL String"
 msgstr ""
 
 #: ../public/js/plugins/acls-tab.js:44
-msgid ""
-"This table shows the ACLs rules broken down to easier the reading and "
-"meaning of each one. You can show the ACL original string by clicking on "
-"Show/Hide columns."
+msgid "This table shows the ACLs rules broken down to easier the reading and meaning of each one. You can show the ACL original string by clicking on Show/Hide columns."
 msgstr "Aquesta taula mostra les regles de Llista de Control d'Accessos per facilitar la lectura i comprensió de cadascuna d'elles. Pot obtenir més detall de la regla original clicant a la columna de Mostrar/Ocultar."
 
 #: ../public/js/plugins/acls-tab.js:53
@@ -1154,22 +1135,15 @@ msgid "VNC Access"
 msgstr "Accés VNC"
 
 #: ../public/js/plugins/vms-tab.js:88
-msgid ""
-"CPU, Memory and Start time are hidden columns by default. You can get "
-"monitoring graphs by clicking on the desired VM and visiting the monitoring "
-"information tab."
+msgid "CPU, Memory and Start time are hidden columns by default. You can get monitoring graphs by clicking on the desired VM and visiting the monitoring information tab."
 msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:91
-msgid ""
-"VNC console requires previous install of the noVNC addon. Check Sunstone "
-"documentation for more information."
+msgid "VNC console requires previous install of the noVNC addon. Check Sunstone documentation for more information."
 msgstr "La consola VNC requereix la instal·lació prèvia de l'addon noVNC. Consulti la documentació de Sunstone per obtenir més informació."
 
 #: ../public/js/plugins/vms-tab.js:94
-msgid ""
-"You can hotplug and detach existing disks from running VMs from the Disks & "
-"Hotplugging tab in the VM information dialog."
+msgid "You can hotplug and detach existing disks from running VMs from the Disks & Hotplugging tab in the VM information dialog."
 msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:103
@@ -1189,9 +1163,7 @@ msgid "Deploy # VMs"
 msgstr "Desplegar # Màquines Virtuals"
 
 #: ../public/js/plugins/vms-tab.js:115
-msgid ""
-"You can use the wildcard &#37;i. When creating several VMs, &#37;i will be "
-"replaced with a different number starting from 0 in each of them"
+msgid "You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:129
@@ -1353,9 +1325,7 @@ msgid "Power Off"
 msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:597
-msgid ""
-"This will send a power off signal to running VMs. They can be restarted "
-"later."
+msgid "This will send a power off signal to running VMs. They can be restarted later."
 msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:601
@@ -1619,10 +1589,7 @@ msgid "Target"
 msgstr "Destí"
 
 #: ../public/js/plugins/images-tab.js:48
-msgid ""
-"Size and registration time are hidden colums. Note that persistent images "
-"can only be used by 1 VM. To change image datastore, please re-register the "
-"image."
+msgid "Size and registration time are hidden colums. Note that persistent images can only be used by 1 VM. To change image datastore, please re-register the image."
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:55 ../public/js/plugins/vnets-tab.js:52
@@ -1679,9 +1646,7 @@ msgid "Datablock"
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:89
-msgid ""
-"Type of the image, explained in detail in the following section. If omitted,"
-" the default value is the one defined in oned.conf (install default is OS)."
+msgid "Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS)."
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:94
@@ -1689,10 +1654,7 @@ msgid "Persistence of the image"
 msgstr "Persistència de la imatge"
 
 #: ../public/js/plugins/images-tab.js:99
-msgid ""
-"Prefix for the emulated device this image will be mounted at. For instance, "
-"“hd”, “sd”. If omitted, the default value is the one defined in oned.conf "
-"(installation default is “hd”)."
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:102
@@ -1725,9 +1687,7 @@ msgid "Create an empty datablock"
 msgstr "Crear un bloc de dades buit"
 
 #: ../public/js/plugins/images-tab.js:124
-msgid ""
-"Please choose path if you have a file-based image. Otherwise upload or "
-"create an empty datablock disk."
+msgid "Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk."
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:128
@@ -1736,9 +1696,7 @@ msgid "Path"
 msgstr "Ruta"
 
 #: ../public/js/plugins/images-tab.js:130
-msgid ""
-"Path to the original file that will be copied to the image repository. If "
-"not specified for a DATABLOCK type image, an empty image will be created."
+msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:135
@@ -1750,9 +1708,7 @@ msgid "FS type"
 msgstr "Tipus de sistema de fitxers"
 
 #: ../public/js/plugins/images-tab.js:140
-msgid ""
-"Type of file system to be built. This can be any value understood by mkfs "
-"unix command."
+msgid "Type of file system to be built. This can be any value understood by mkfs unix command."
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:143
@@ -1910,8 +1866,7 @@ msgid "Choose a new name for the image"
 msgstr "Escolli el nou nom de la imatge"
 
 #: ../public/js/plugins/images-tab.js:1136
-msgid ""
-"Several image are selected, please choose prefix to name the new copies"
+msgid "Several image are selected, please choose prefix to name the new copies"
 msgstr "Ha seleccionat vàries imatges, si us plau, seleccioni el prefix per nombrar les noves copies"
 
 #: ../public/js/plugins/images-tab.js:1139
@@ -2007,17 +1962,11 @@ msgid "Virtual Resources"
 msgstr "Recursos virtuals"
 
 #: ../public/js/plugins/vresources-tab.js:79
-msgid ""
-"The Virtual Resources menu allows management of Virtual Machine Templates, "
-"Instances and storage (Images)."
+msgid "The Virtual Resources menu allows management of Virtual Machine Templates, Instances and storage (Images)."
 msgstr ""
 
 #: ../public/js/plugins/vresources-tab.js:80
-msgid ""
-"Virtual Machine templates can be instantiated as many times as you want. You"
-" can do it from the Templates tab or by creating a new VM in the VM tab. The"
-" second method allows you to customize the name and the number of VMs you "
-"want to launch."
+msgid "Virtual Machine templates can be instantiated as many times as you want. You can do it from the Templates tab or by creating a new VM in the VM tab. The second method allows you to customize the name and the number of VMs you want to launch."
 msgstr ""
 
 #: ../public/js/plugins/vresources-tab.js:81
@@ -2026,17 +1975,11 @@ msgid "You can find further information on the following links:"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:41
-msgid ""
-"Clicking `instantiate` will instantly create new Virtual Machines from the "
-"selected templates and name one-id. If you want to assign a specific name to"
-" a new VM, or launch several instances at once, use Virtual Machines->New "
-"button."
+msgid "Clicking `instantiate` will instantly create new Virtual Machines from the selected templates and name one-id. If you want to assign a specific name to a new VM, or launch several instances at once, use Virtual Machines->New button."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:44
-msgid ""
-"You can clone a template to obtain a copy from an existing template. This "
-"copy will be owned by you."
+msgid "You can clone a template to obtain a copy from an existing template. This copy will be owned by you."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:51
@@ -2064,9 +2007,7 @@ msgid "Capacity"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:81
-msgid ""
-"Name that the VM will get for description purposes. If NAME is not supplied "
-"a name generated by one will be in the form of one-&lt;VID&gt;."
+msgid "Name that the VM will get for description purposes. If NAME is not supplied a name generated by one will be in the form of one-&lt;VID&gt;."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:86
@@ -2074,9 +2015,7 @@ msgid "Amount of RAM required for the VM, in Megabytes."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:91
-msgid ""
-"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
-"processor is written 0.5."
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:94
@@ -2084,9 +2023,7 @@ msgid "VCPU"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:96
-msgid ""
-"Number of virtual cpus. This value is optional, the default hypervisor "
-"behavior is used, usually one virtual CPU."
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:105
@@ -2179,9 +2116,7 @@ msgid "Default"
 msgstr "Per defecte"
 
 #: ../public/js/plugins/templates-tab.js:175
-msgid ""
-"Physical address extension mode allows 32-bit guests to address more than 4 "
-"GB of memory"
+msgid "Physical address extension mode allows 32-bit guests to address more than 4 GB of memory"
 msgstr "Mode d'extensió de les adreces físiques que permet als hostes de 32-bits adreçar més de 4 GB de memòria"
 
 #: ../public/js/plugins/templates-tab.js:178
@@ -2189,9 +2124,7 @@ msgid "ACPI"
 msgstr "ACPI"
 
 #: ../public/js/plugins/templates-tab.js:184
-msgid ""
-"Useful for power management, for example, normally required for graceful "
-"shutdown to work"
+msgid "Useful for power management, for example, normally required for graceful shutdown to work"
 msgstr "Útil per l'administració de l'energia, per exemple, normalment és necessari per a que una apagada suau funcioni"
 
 #: ../public/js/plugins/templates-tab.js:196
@@ -2232,15 +2165,11 @@ msgid "Filesystem type for the fs images"
 msgstr "Tipus del sistema de fitxers per a les imatges de sistema de fitxers"
 
 #: ../public/js/plugins/templates-tab.js:237
-msgid ""
-"Device to map image disk. If set, it will overwrite the default device "
-"mapping"
+msgid "Device to map image disk. If set, it will overwrite the default device mapping"
 msgstr "Dispositiu on mapejar el disc imatge. Si es configura, sobreescriurà el mapeig per defecte del dispositiu"
 
 #: ../public/js/plugins/templates-tab.js:242
-msgid ""
-"Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware "
-"unsupported"
+msgid "Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported"
 msgstr "Driver per mapejar la imatge. KVM: raw, qcow2. Xen:tap:aixo:,file:. VMware not suportat."
 
 #: ../public/js/plugins/templates-tab.js:248
@@ -2302,9 +2231,7 @@ msgid "Script"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:302
-msgid ""
-"Name of a shell script to be executed after creating the tun device for the "
-"VM"
+msgid "Name of a shell script to be executed after creating the tun device for the VM"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:305
@@ -2312,9 +2239,7 @@ msgid "Model"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:307
-msgid ""
-"Hardware that will emulate this network interface. With Xen this is the type"
-" attribute of the vif."
+msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:310
@@ -2341,9 +2266,7 @@ msgid "TCP white ports"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:321
-msgid ""
-"Permits access to the VM only through the specified ports in the TCP "
-"protocol"
+msgid "Permits access to the VM only through the specified ports in the TCP protocol"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:324
@@ -2351,8 +2274,7 @@ msgid "TCP black ports"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:326
-msgid ""
-"Disallow access to the VM through the specified ports in the TCP protocol"
+msgid "Disallow access to the VM through the specified ports in the TCP protocol"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:329
@@ -2364,9 +2286,7 @@ msgid "UDP white ports"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:340
-msgid ""
-"Permits access to the VM only through the specified ports in the UDP "
-"protocol"
+msgid "Permits access to the VM only through the specified ports in the UDP protocol"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:343
@@ -2374,8 +2294,7 @@ msgid "UDP black ports"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:345
-msgid ""
-"Disallow access to the VM through the specified ports in the UDP protocol"
+msgid "Disallow access to the VM through the specified ports in the UDP protocol"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:348
@@ -2520,9 +2439,7 @@ msgid "Requirements"
 msgstr "Requeriments"
 
 #: ../public/js/plugins/templates-tab.js:480
-msgid ""
-"Boolean expression that rules out provisioning hosts from list of machines "
-"suitable to run this VM"
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr "Expressió booleana que governa els possibles servidors de la llista de màquines viables per executar aquesta màquina virtual"
 
 #: ../public/js/plugins/templates-tab.js:483
@@ -2530,9 +2447,7 @@ msgid "Rank"
 msgstr "Rang"
 
 #: ../public/js/plugins/templates-tab.js:485
-msgid ""
-"This field sets which attribute will be used to sort the suitable hosts for "
-"this VM. Basically, it defines which hosts are more suitable than others"
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM. Basically, it defines which hosts are more suitable than others"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:494
@@ -2657,8 +2572,7 @@ msgid "Choose a new name for the template"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2055
-msgid ""
-"Several templates are selected, please choose prefix to name the new copies"
+msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:34
@@ -2679,10 +2593,7 @@ msgid "System"
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:46
-msgid ""
-"Datatables are sets of images which share a common transfer driver. i.e. "
-"Images in a SSH datastore will be copied to the hosts using SSH when "
-"deploying a Virtual Machine."
+msgid "Datatables are sets of images which share a common transfer driver. i.e. Images in a SSH datastore will be copied to the hosts using SSH when deploying a Virtual Machine."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:57
@@ -2779,9 +2690,7 @@ msgid "Total Leases"
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:44
-msgid ""
-"Tip: edit the leases of a network by clicking on one and going to the lease "
-"management tab."
+msgid "Tip: edit the leases of a network by clicking on one and going to the lease management tab."
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:63
@@ -2957,10 +2866,7 @@ msgid "System Resources"
 msgstr ""
 
 #: ../public/js/plugins/system-tab.js:70
-msgid ""
-"System resources management is only accesible to users of the oneadmin "
-"group. It comprises the operations regarding OpenNebula groups, users and "
-"ACLs."
+msgid "System resources management is only accesible to users of the oneadmin group. It comprises the operations regarding OpenNebula groups, users and ACLs."
 msgstr ""
 
 #: ../public/js/plugins/infra-tab.js:25
@@ -2988,9 +2894,7 @@ msgid "Infrastructure resources"
 msgstr ""
 
 #: ../public/js/plugins/infra-tab.js:75
-msgid ""
-"The Infrastructure menu allows management of Hosts, Datastores, Virtual "
-"Networks. Users in the oneadmin group can manage clusters as well."
+msgid "The Infrastructure menu allows management of Hosts, Datastores, Virtual Networks. Users in the oneadmin group can manage clusters as well."
 msgstr ""
 
 #: ../public/js/plugins/infra-tab.js:92
