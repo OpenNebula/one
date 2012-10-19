@@ -446,6 +446,49 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ImageManager::can_clone_image(  int             cloning_id,
+                                    ostringstream&  oss_error)
+{
+    Image *       img;
+
+    img = ipool->get(cloning_id, true);
+
+    if (img == 0)
+    {
+        oss_error << "Cannot clone image, it does not exist";
+        return -1;
+    }
+
+    Image::ImageState state = img->get_state();
+
+    img->unlock();
+
+    switch(state)
+    {
+        case Image::USED_PERS:
+        case Image::CLONE:
+        case Image::INIT:
+        case Image::DISABLED:
+        case Image::ERROR:
+        case Image::DELETE:
+        case Image::LOCKED:
+            oss_error << "Cannot clone image in state: "
+                << Image::state_to_str(state);
+
+            return -1;
+        break;
+
+        case Image::READY:
+        case Image::USED:
+        default:
+            return 0;
+        break;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ImageManager::clone_image(int   new_id,
                               int   cloning_id,
                               const string& ds_data,
@@ -510,7 +553,6 @@ int ImageManager::clone_image(int   new_id,
         case Image::ERROR:
         case Image::DELETE:
         case Image::LOCKED:
-            ostringstream oss;
             oss << "Cannot clone image in state: "
                 << Image::state_to_str(img->get_state());
 
@@ -522,9 +564,9 @@ int ImageManager::clone_image(int   new_id,
 
     img = ipool->get(new_id,true);
 
-    if (img == 0) //TODO: Rollback clonning counter
+    if (img == 0) //TODO: Rollback cloning counter
     {
-        error = "Target image deleted during clonning operation";
+        error = "Target image deleted during cloning operation";
         return -1;
     }
 
@@ -547,7 +589,7 @@ int ImageManager::clone_image(int   new_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::register_image(int iid, const string& ds_data)
+int ImageManager::register_image(int iid, const string& ds_data, string& error)
 {
     const ImageManagerDriver* imd = get();
 
@@ -561,7 +603,8 @@ int ImageManager::register_image(int iid, const string& ds_data)
 
     if ( imd == 0 )
     {
-        NebulaLog::log("ImM",Log::ERROR, "Could not get datastore driver");
+        error = "Could not get datastore driver";
+        NebulaLog::log("ImM",Log::ERROR, error);
         return -1;
     }
 
@@ -569,6 +612,7 @@ int ImageManager::register_image(int iid, const string& ds_data)
 
     if (img == 0)
     {
+        error = "Image deleted during copy operation";
         return -1;
     }
 

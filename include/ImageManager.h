@@ -121,9 +121,22 @@ public:
      *  Adds a new image to the repository copying or creating it as needed
      *    @param img pointer to the image
      *    @param ds_data data of the associated datastore in XML format
+     *    @param error Error reason
+     *
      *    @return 0 on success
      */
-    int register_image(int iid, const string& ds_data);
+    int register_image(int iid, const string& ds_data, string& error);
+
+    /**
+     * Checks if an image is ready to be cloned
+     *
+     * @param cloning_id ID of the image to be cloned
+     * @param oss_error Error reason, if any
+     *
+     * @return 0 if the image can be cloned, -1 otherwise
+     */
+    int can_clone_image(int             cloning_id,
+                        ostringstream&  oss_error);
 
     /**
      *  Clone an existing image to the repository

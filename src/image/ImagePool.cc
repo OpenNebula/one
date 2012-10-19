@@ -76,6 +76,9 @@ int ImagePool::allocate (
         int *           oid,
         string&         error_str)
 {
+    Nebula&         nd     = Nebula::instance();
+    ImageManager *  imagem = nd.get_imagem();
+
     Image *         img;
     Image *         img_aux = 0;
     string          name;
@@ -112,6 +115,12 @@ int ImagePool::allocate (
 
     if ( cloning_id != -1 )
     {
+        if (imagem->can_clone_image(cloning_id, oss) == -1)
+        {
+            goto error_clone_state;
+        }
+
+
         img->set_cloning_id(cloning_id);
     }
 
@@ -122,15 +131,22 @@ int ImagePool::allocate (
 
     if ( *oid != -1 )
     {
-        Nebula&        nd     = Nebula::instance();
-        ImageManager * imagem = nd.get_imagem();
-
         if (cloning_id == -1)
         {
-            if ( imagem->register_image(*oid, ds_data) == -1 )
+            if ( imagem->register_image(*oid, ds_data, error_str) == -1 )
             {
-                error_str = "Failed to copy image to repository. "
-                            "Image left in ERROR state.";
+                img = get(*oid, true);
+
+                if ( img != 0 )
+                {
+                    string aux_str;
+
+                    drop(img, aux_str);
+
+                    img->unlock();
+                }
+
+                *oid = -1;
                 return -1;
             }
         }
@@ -138,6 +154,18 @@ int ImagePool::allocate (
         {
             if (imagem->clone_image(*oid, cloning_id, ds_data, error_str) == -1)
             {
+                img = get(*oid, true);
+
+                if ( img != 0 )
+                {
+                    string aux_str;
+
+                    drop(img, aux_str);
+
+                    img->unlock();
+                }
+
+                *oid = -1;
                 return -1;
             }
         }
@@ -156,6 +184,9 @@ error_name_length:
 error_duplicated:
     oss << "NAME is already taken by IMAGE "
         << img_aux->get_oid() << ".";
+    goto error_common;
+
+error_clone_state:
     goto error_common;
 
 error_common:

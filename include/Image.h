@@ -258,7 +258,7 @@ public:
     }    
 
     /* ---------------------------------------------------------------------- */
-    /*   Acess Image Counters (running vms and clonning operations )          */
+    /*   Access Image Counters (running vms and cloning operations )          */
     /* ---------------------------------------------------------------------- */
 
     int dec_running ()
