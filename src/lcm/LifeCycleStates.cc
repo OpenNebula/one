@@ -269,6 +269,12 @@ void  LifeCycleManager::deploy_success_action(int vid)
         vm->get_requirements(cpu,mem,disk);
 
         hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is RUNNING");
     }
     else if ( vm->get_lcm_state() == VirtualMachine::BOOT ||
               vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
