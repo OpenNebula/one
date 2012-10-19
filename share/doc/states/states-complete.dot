@@ -131,6 +131,12 @@ digraph OpenNebula {
     boot_suspended  -> suspended [style="dotted"];
     boot_stopped    -> epilog_stop [style="dotted"];
 
+    running -> failure [style="dotted"];
+    unknown -> failure [style="dotted"];
+
+    running -> save_suspend [style="dotted"];
+    unknown -> save_suspend [style="dotted"];
+
     running -> unknown [style="dotted"];
     unknown -> running [style="dashed"];
 }
