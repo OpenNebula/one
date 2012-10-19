@@ -3,7 +3,7 @@
 NOVNC_TMP=/tmp/one/novnc-$(date "+%Y%m%d%H%M%S")
 PROXY_PATH=websockify/websocketproxy.py
 NOVNC_TAR=https://github.com/downloads/kanaka/noVNC/novnc-0.4.tar.gz
-WEBSOCKIFY_RAW_URL=https://raw.github.com/kanaka/websockify/v0.2.0
+WEBSOCKIFY_RAW_URL=https://raw.github.com/kanaka/websockify/ee2f269c067c27ef49d63ad11d9efec499423500/websockify
 
 if [ -z "$ONE_LOCATION" ]; then
     ONE_SHARE=/usr/share/one
