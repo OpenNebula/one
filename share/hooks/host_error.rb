@@ -41,8 +41,10 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'OpenNebula'
-include OpenNebula
+#require 'OpenNebula'
+#include OpenNebula
+
+require 'getoptlong'
 
 if !(host_id=ARGV[0])
     exit -1
@@ -52,13 +54,29 @@ mode   = "-r" # By default, resubmit VMs
 force  = "n"  # By default, don't resubmit/finalize suspended VMs
 repeat = nil  # By default, don't wait fo monitorization cycles"
 
-loop { case ARGV[1]
-    when '-d':  ARGV.shift; mode  = "-d"
-    when '-f':  ARGV.shift; force = "y"
-    when '-p':  ARGV.shift; ARGV.shift; repeat=ARGV.shift.to_i
-    when /^-/:  STDERR.puts "Unknown option #{ARGV[0].inspect}"; exit -1
-    else break
-end; }
+opts = GetoptLong.new(
+            ['--delete',   '-d',GetoptLong::NO_ARGUMENT],
+            ['--resubmit', '-r',GetoptLong::NO_ARGUMENT],
+            ['--force',    '-f',GetoptLong::NO_ARGUMENT],
+            ['--pause',    '-p',GetoptLong::REQUIRED_ARGUMENT]
+        )
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--delete'
+                mode="-d"
+            when '--resubmit'
+                mode="-r"
+            when '--force'
+                force  = "y"
+            when '--pause'
+                repeat = arg.to_i
+        end
+    end
+rescue Exception => e
+    exit(-1)
+end
 
 begin
     client = Client.new()
