@@ -66,7 +66,7 @@
               <xs:element name="LAST_POLL" type="xs:integer"/>
 
               <!-- STATE values,
-              see http://opennebula.org/_media/documentation:rel3.6:states-complete.png
+              see http://opennebula.org/documentation:documentation:api#actions_for_virtual_machine_management
 
                 INIT      = 0
                 PENDING   = 1
@@ -76,6 +76,7 @@
                 SUSPENDED = 5
                 DONE      = 6
                 FAILED    = 7
+                POWEROFF  = 8
               -->
               <xs:element name="STATE" type="xs:integer"/>
 

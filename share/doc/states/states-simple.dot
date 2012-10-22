@@ -16,7 +16,7 @@ digraph OpenNebula {
         fontcolor="white", fontsize= "24.0"];
 
     ANY [ shape="box" ];
-    "ANY \\ {suspended,done}" [ shape="box" ];
+    "ANY \\ {suspended,poweroff,done}" [ shape="box" ];
 
     subgraph { rank = min; user}
 #    subgraph { rank = same; pending; hold; color="white"}
