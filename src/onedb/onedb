@@ -232,7 +232,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # fsck
     ###########################################################################
     fsck_desc = <<-EOT.unindent
-        fsck
+        Checks the consistency of the DB, and fixes the problems found
     EOT
 
     command :fsck, fsck_desc, :options=>[FORCE,BACKUP] do
