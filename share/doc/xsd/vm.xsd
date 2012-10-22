@@ -38,6 +38,7 @@
           SUSPENDED = 5
           DONE      = 6
           FAILED    = 7
+          POWEROFF  = 8
         -->
         <xs:element name="STATE" type="xs:integer"/>
 
