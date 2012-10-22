@@ -1061,6 +1061,8 @@ module OneDBFsck
         doc.root.each_element("VM_QUOTA/VM") { |e| vm_elem = e }
 
         if vm_elem.nil?
+            doc.root.delete_element("VM_QUOTA")
+
             vm_quota  = doc.root.add_element("VM_QUOTA")
             vm_elem   = vm_quota.add_element("VM")
 
@@ -1095,6 +1097,11 @@ module OneDBFsck
                 e.text = vms_used.to_s
             end
         }
+
+        if ( cpu_used == 0.0 && mem_used == 0 && vms_used == 0 )
+            doc.root.delete_element("VM_QUOTA")
+            doc.root.add_element("VM_QUOTA")
+        end
 
 
         # VNet quotas
