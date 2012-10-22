@@ -29,6 +29,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require 'openssl'
 
+
+if RUBY_VERSION < "1.9"
+  class String
+      def getbyte(index)
+        self[index]
+      end
+  end
+end
+
 module OpenSSL
 
   module SSHUtils
