@@ -32,6 +32,21 @@ require 'econe/EC2QueryClient'
 
 include CloudCLI
 
+RSA_START="-----BEGIN RSA PRIVATE KEY-----"
+RSA_END="-----END RSA PRIVATE KEY-----"
+
+def reformat_rsa(text)
+    m=text.match(/^#{RSA_START}(.*)#{RSA_END}$/m)
+
+    if m
+        RSA_START+"\n"+
+            m[1].delete("\n").scan(/.{0,64}/).join("\n")+
+            RSA_END
+    else
+        nil
+    end
+end
+
 CommandParser::CmdParser.new(ARGV) do
     name  "econe-create-keypair"
     usage "econe-create-keypair [OPTIONS] <keypair name>"
@@ -68,7 +83,7 @@ EOT
             STDOUT.puts "keyName: #{rc['keyName']}"
             STDOUT.puts "Fingerprint: #{rc['keyFingerprint']}"
             STDOUT.puts "Private Key:"
-            STDOUT.puts rc['keyMaterial']
+            STDOUT.puts reformat_rsa(rc['keyMaterial'])
 
             exit_with_code 0
         end
