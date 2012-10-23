@@ -258,35 +258,44 @@ module Service
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} " <<
                 "(#{opts[:user_agent]||"Ruby"})"
+
+            @host = nil
+            @port = nil
+
+            if ENV['http_proxy']
+                uri_proxy  = URI.parse(ENV['http_proxy'])
+                @host = uri_proxy.host
+                @port = uri_proxy.port
+            end
         end
 
         def get(path)
-            req = Net::HTTP::Get.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
 
             do_request(req)
         end
 
         def delete(path)
-            req = Net::HTTP::Delete.new(path)
+            req =Net::HTTP::Proxy(@host, @port)::Delete.new(path)
 
             do_request(req)
         end
 
         def post(path, body)
-            req = Net::HTTP::Post.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
 
             do_request(req)
         end
 
         def login
-            req = Net::HTTP::Post.new('/login')
+            req = Net::HTTP::Proxy(@host, @port)::Post.new('/login')
 
             do_request(req)
         end
 
         def logout
-            req = Net::HTTP::Post.new('/logout')
+            req = Net::HTTP::Proxy(@host, @port)::Post.new('/logout')
 
             do_request(req)
         end
