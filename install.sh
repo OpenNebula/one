@@ -1772,10 +1772,26 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/onedb.1.gz \
         share/man/onedatastore.1.gz \
         share/man/onecluster.1.gz \
+        share/man/econe-allocate-address.1.gz \
+        share/man/econe-associate-address.1.gz \
+        share/man/econe-attach-volume.1.gz \
+        share/man/econe-create-keypair.1.gz \
+        share/man/econe-create-volume.1.gz \
+        share/man/econe-delete-keypair.1.gz \
+        share/man/econe-delete-volume.1.gz \
+        share/man/econe-describe-addresses.1.gz \
         share/man/econe-describe-images.1.gz \
         share/man/econe-describe-instances.1.gz \
+        share/man/econe-describe-keypairs.1.gz \
+        share/man/econe-describe-volumes.1.gz \
+        share/man/econe-detach-volume.1.gz \
+        share/man/econe-disassociate-address.1.gz \
+        share/man/econe-reboot-instances.1.gz \
         share/man/econe-register.1.gz \
+        share/man/econe-release-address.1.gz \
         share/man/econe-run-instances.1.gz \
+        share/man/econe-start-instances.1.gz \
+        share/man/econe-stop-instances.1.gz \
         share/man/econe-terminate-instances.1.gz \
         share/man/econe-upload.1.gz \
         share/man/occi-compute.1.gz \
