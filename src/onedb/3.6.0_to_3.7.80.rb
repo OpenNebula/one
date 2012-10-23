@@ -328,7 +328,7 @@ module Migrator
         vm_elem = vm_quota.add_element("VM")
 
         vm_elem.add_element("CPU").text = cpu_limit
-        vm_elem.add_element("CPU_USED").text = cpu_used.to_s
+        vm_elem.add_element("CPU_USED").text = sprintf('%.2f', cpu_used)
 
         vm_elem.add_element("MEMORY").text = mem_limit
         vm_elem.add_element("MEMORY_USED").text = mem_used.to_s
