@@ -26,29 +26,38 @@ module Market
             @uri = URI.parse(url)
 
             @user_agent = "OpenNebula #{CloudClient::VERSION} (#{user_agent})"
+
+            @host = nil
+            @port = nil
+
+            if ENV['http_proxy']
+                uri_proxy  = URI.parse(ENV['http_proxy'])
+                @host = uri_proxy.host
+                @port = uri_proxy.port
+            end
         end
 
         def get(path)
-            req = Net::HTTP::Get.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
 
             do_request(req)
         end
 
         def delete(path)
-            req = Net::HTTP::Delete.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Delete.new(path)
 
             do_request(req)
         end
 
         def post(path, body)
-            req = Net::HTTP::Post.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
 
             do_request(req)
         end
 
         def put(path, body)
-            req = Net::HTTP::Put.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Put.new(path)
             req.body = body
 
             do_request(req)
