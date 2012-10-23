@@ -131,6 +131,15 @@ if build_parsers=='yes':
 else:
     main_env.Append(parsers='no')
 
+# Context pakages
+context_packages=ARGUMENTS.get('context', 'no')
+if context_packages=='no':
+    main_env.Append(context=[])
+elif context_packages=='all':
+    main_env.Append(context=['deb', 'rpm'])
+else:
+    main_env.Append(context=context_packages.split(','))
+
 if not main_env.GetOption('clean'):
     try:
         if mysql=='yes':
@@ -216,7 +225,8 @@ build_scripts=[
     'src/document/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
-    'src/cloud/occi/lib/ui/locale/languages/SConstruct'
+    'src/cloud/occi/lib/ui/locale/languages/SConstruct',
+    'share/scripts/context-packages/Sconstruct'
 ]
 
 # Testing
