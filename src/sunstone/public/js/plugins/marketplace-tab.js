@@ -48,6 +48,10 @@ var market_actions = {
             $('select#img_type', $create_image_dialog).val('OS');
             $('select#img_type', $create_image_dialog).trigger('change');
 
+            if (response['files'][0]['hypervisor'] == "KVM") {
+              $('#img_driver', $create_image_dialog).val(response['files'][0]['format'])
+            }
+
             //remove any options from the custom vars dialog box
             $("#custom_var_image_box",$create_image_dialog).empty();
 
