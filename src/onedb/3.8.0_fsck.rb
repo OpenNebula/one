@@ -1078,21 +1078,33 @@ module OneDBFsck
 
 
         vm_elem.each_element("CPU_USED") { |e|
-            if e.text.to_f != cpu_used
-                log_error("#{resource} #{oid} quotas: CPU_USED has #{e.text} \tis\t#{cpu_used}")
-                e.text = cpu_used.to_s
+
+            # Because of bug http://dev.opennebula.org/issues/1567 the element
+            # may contain a float number in scientific notation.
+
+            # Check if the float value or the string representation missmatch,
+            # but ignoring the precision
+
+            different = ( e.text.to_f != cpu_used ||
+                ![sprintf('%.2f', cpu_used), sprintf('%.1f', cpu_used), sprintf('%.0f', cpu_used)].include?(e.text)  )
+
+            cpu_used_str = sprintf('%.2f', cpu_used)
+
+            if different
+                log_error("#{resource} #{oid} quotas: CPU_USED has #{e.text} \tis\t#{cpu_used_str}")
+                e.text = cpu_used_str
             end
         }
 
         vm_elem.each_element("MEMORY_USED") { |e|
-            if e.text.to_i != mem_used
+            if e.text != mem_used.to_s
                 log_error("#{resource} #{oid} quotas: MEMORY_USED has #{e.text} \tis\t#{mem_used}")
                 e.text = mem_used.to_s
             end
         }
 
         vm_elem.each_element("VMS_USED") { |e|
-            if e.text.to_i != vms_used
+            if e.text != vms_used.to_s
                 log_error("#{resource} #{oid} quotas: VMS_USED has #{e.text} \tis\t#{vms_used}")
                 e.text = vms_used.to_s
             end
@@ -1121,7 +1133,7 @@ module OneDBFsck
             leases_used = 0 if leases_used.nil?
 
             net_elem.each_element("LEASES_USED") { |e|
-                if e.text.to_i != leases_used
+                if e.text != leases_used.to_s
                     log_error("#{resource} #{oid} quotas: VNet #{vnet_id}\tLEASES_USED has #{e.text.to_i} \tis\t#{leases_used}")
                     e.text = leases_used.to_s
                 end
@@ -1156,7 +1168,7 @@ module OneDBFsck
             rvms = 0 if rvms.nil?
 
             img_elem.each_element("RVMS_USED") { |e|
-                if e.text.to_i != rvms
+                if e.text != rvms.to_s
                     log_error("#{resource} #{oid} quotas: Image #{img_id}\tRVMS has #{e.text.to_i} \tis\t#{rvms}")
                     e.text = rvms.to_s
                 end
@@ -1207,14 +1219,14 @@ module OneDBFsck
             size_used   = 0 if size_used.nil?
 
             ds_elem.each_element("IMAGES_USED") { |e|
-                if e.text.to_i != images_used
+                if e.text != images_used.to_s
                     log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tIMAGES_USED has #{e.text.to_i} \tis\t#{images_used}")
                     e.text = images_used.to_s
                 end
             }
 
             ds_elem.each_element("SIZE_USED") { |e|
-                if e.text.to_i != size_used
+                if e.text != size_used.to_s
                     log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tSIZE_USED has #{e.text.to_i} \tis\t#{size_used}")
                     e.text = size_used.to_s
                 end
