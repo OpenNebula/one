@@ -44,7 +44,8 @@ module OpenNebula
             :type => :object,
             :properties => {
                 'name' => {
-                    :type => :string
+                    :type => :string,
+                    :required => true
                 },
                 'deployment' => {
                 :type => :string,
