@@ -52,7 +52,8 @@ Image::Image(int             _uid,
         cloning_ops(0),
         cloning_id(-1),
         ds_id(-1),
-        ds_name("")
+        ds_name(""),
+        vm_collection("VMS")
 {
     if (_image_template != 0)
     {
@@ -146,7 +147,7 @@ int Image::insert(SqlDB *db, string& error_str)
     }
 
     // ------------ SIZE --------------------
-    
+
     erase_template_attribute("SIZE", size_attr);
 
     iss.str(size_attr);
@@ -192,7 +193,7 @@ int Image::insert(SqlDB *db, string& error_str)
 error_type:
     error_str = "Incorrect TYPE in template.";
     goto error_common;
-    
+
 error_no_path:
     if ( type == DATABLOCK )
     {
@@ -316,13 +317,14 @@ string& Image::to_xml(string& xml) const
     string          template_xml;
     string          perms_xml;
     ostringstream   oss;
+    string          vm_collection_xml;
 
     oss <<
         "<IMAGE>" <<
             "<ID>"             << oid             << "</ID>"          <<
             "<UID>"            << uid             << "</UID>"         <<
             "<GID>"            << gid             << "</GID>"         <<
-            "<UNAME>"          << uname           << "</UNAME>"       << 
+            "<UNAME>"          << uname           << "</UNAME>"       <<
             "<GNAME>"          << gname           << "</GNAME>"       <<
             "<NAME>"           << name            << "</NAME>"        <<
             perms_to_xml(perms_xml)                                   <<
@@ -341,6 +343,7 @@ string& Image::to_xml(string& xml) const
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             obj_template->to_xml(template_xml)                        <<
+            vm_collection.to_xml(vm_collection_xml)                   <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -408,6 +411,19 @@ int Image::from_xml(const string& xml)
     }
 
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
+
+    ObjectXML::get_nodes("/IMAGE/VMS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += vm_collection.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 

@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "ImageTemplate.h"
 #include "NebulaLog.h"
+#include "ObjectCollection.h"
 
 using namespace std;
 
@@ -43,7 +44,7 @@ public:
      *  Return the string representation of an ImageType
      *    @param ob the type
      *    @return the string
-     */ 
+     */
     static string type_to_str(ImageType ob)
     {
         switch (ob)
@@ -59,11 +60,11 @@ public:
      *  Return the string representation of an ImageType
      *    @param ob the type
      *    @return the string
-     */ 
-    static ImageType str_to_type(string& str_type);    
+     */
+    static ImageType str_to_type(string& str_type);
 
     /**
-     *  Type of Disks (used by the VMM_MAD). Values: BLOCK, CDROM or 
+     *  Type of Disks (used by the VMM_MAD). Values: BLOCK, CDROM or
      *  FILE
      */
     enum DiskType
@@ -77,7 +78,7 @@ public:
      *  Return the string representation of a DiskType
      *    @param ob the type
      *    @return the string
-     */ 
+     */
     static string disk_type_to_str(DiskType ob)
     {
         switch (ob)
@@ -183,7 +184,7 @@ public:
     }
 
     /**
-     *  Returns the size of the image 
+     *  Returns the size of the image
      *     @return size in mb
      */
     int get_size() const
@@ -255,20 +256,30 @@ public:
     void clear_cloning_id()
     {
         cloning_id = -1;
-    }    
+    }
 
     /* ---------------------------------------------------------------------- */
     /*   Access Image Counters (running vms and cloning operations )          */
     /* ---------------------------------------------------------------------- */
 
-    int dec_running ()
+    int dec_running (int vm_id)
     {
-        return --running_vms;
+        if ( vm_collection.del_collection_id(vm_id) == 0 )
+        {
+            running_vms--;
+        }
+
+        return running_vms;
     }
 
-    int inc_running()
+    int inc_running(int vm_id)
     {
-        return ++running_vms;
+        if ( vm_collection.add_collection_id(vm_id) == 0 )
+        {
+            running_vms++;
+        }
+
+        return running_vms;
     }
 
     int get_running() const
@@ -305,7 +316,7 @@ public:
      */
     bool isPublic()
     {
-       return (group_u == 1 || other_u == 1); 
+       return (group_u == 1 || other_u == 1);
     }
 
     /**
@@ -339,7 +350,7 @@ public:
             error_str = "Image cannot be public and persistent.";
 
             return -1;
-        } 
+        }
 
         return PoolObjectSQL::set_permissions(_owner_u, _owner_m, _owner_a,
                                               _group_u, _group_m, _group_a,
@@ -363,12 +374,12 @@ public:
 
         if (persis == true)
         {
-            
+
             if ( isPublic() )
             {
                 goto error_public;
             }
-            
+
             persistent_img = 1;
         }
         else
@@ -432,7 +443,7 @@ public:
     };
 
     /**
-     * Clones this image template including image specific attributes: NAME, 
+     * Clones this image template including image specific attributes: NAME,
      * TYPE, PATH, FSTYPE, SIZE and PERSISTENT
      * @param new_name Value for the NAME attribute
      * @return Pointer to the new tempalte 0 in case of success
@@ -521,6 +532,11 @@ private:
      * Datastore name
      */
     string ds_name;
+
+    /**
+     *  Stores a collection with the VMs using the image
+     */
+    ObjectCollection vm_collection;
 
     // *************************************************************************
     // DataBase implementation (Private)

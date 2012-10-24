@@ -41,7 +41,7 @@ public:
     ~ImageManager(){};
 
     /**
-     *  This functions starts the associated listener thread, and creates a 
+     *  This functions starts the associated listener thread, and creates a
      *  new thread for the Information Manager. This thread will wait in
      *  an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
@@ -50,12 +50,12 @@ public:
 
     /**
      *  Loads the Image Driver defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula 
+     *   @param uid of the user executing the driver. When uid is 0 the nebula
      *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application. 
+     *   sudo application.
      */
     void load_mads(int uid=0);
-        
+
     /**
      *  Gets the thread identification.
      *    @return pthread_t for the manager thread (that in the action loop).
@@ -86,8 +86,8 @@ public:
      *    @param error string describing the error
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int image_id, string& error);
-    
+    Image * acquire_image(int vm_id, int image_id, string& error);
+
     /**
      *  Try to acquire an image from the repository for a VM.
      *    @param name of the image
@@ -95,20 +95,20 @@ public:
      *    @param error string describing the error
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(const string& name, int uid, string& error);
+    Image * acquire_image(int vm_id, const string& name, int uid, string& error);
 
     /**
      *  Releases an image and triggers any needed operations in the repo
      *    @param iid image id of the image to be released
      *    @param failed the associated VM releasing the images is FAILED
      */
-    void release_image(int iid, bool failed);
+    void release_image(int vm_id, int iid, bool failed);
 
-    /** 
+    /**
      *  Closes any cloning operation on the image, updating the state if needed
      *    @param iid image id of the image to be released
      */
-    void release_cloning_image(int iid);    
+    void release_cloning_image(int iid);
 
     /**
      *  Enables the image
@@ -146,11 +146,11 @@ public:
      *    @param error describing the error
      *    @return 0 on success
      */
-    int clone_image(int new_id, 
+    int clone_image(int new_id,
                     int cloning_id,
                     const string& ds_data,
                     string& error);
-    
+
     /**
      *  Deletes an image from the repository and the DB
      *    @param iid id of image
@@ -164,7 +164,7 @@ public:
      *
      *  @param img_tmpl the template for the image
      *  @param ds_tmpl the template for the datastore
-     *  @oaram result with a string representation of the size or if an error 
+     *  @oaram result with a string representation of the size or if an error
      *         occurred describing the error.
      *  @result 0 on success
      */
@@ -175,7 +175,7 @@ private:
      *  Generic name for the Image driver
      */
      static const char *  image_driver_name;
-    
+
     /**
      *  Thread id for the Transfer Manager
      */
@@ -185,7 +185,7 @@ private:
      *  Pointer to the Image Pool to access VMs
      */
     ImagePool *           ipool;
-     
+
     /**
      *  Action engine for the Manager
      */
@@ -202,13 +202,13 @@ private:
         return static_cast<const ImageManagerDriver *>
                (MadManager::get(0,name,image_driver_name));
     };
-        
+
     /**
-     *  Function to execute the Manager action loop method within a new pthread 
+     *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
-    friend void * image_action_loop(void *arg);    
-        
+    friend void * image_action_loop(void *arg);
+
     /**
      *  The action function executed when an action is triggered.
      *    @param action the name of the action
@@ -221,12 +221,12 @@ private:
      *    @param image pointer to image, it should be locked
      *    @return 0 on success
      */
-    int acquire_image(Image *img, string& error);
+    int acquire_image(int vm_id, Image *img, string& error);
 
     /**
      *  Moves a file to an image in the repository
      *    @param image to be updated (it's source attribute)
-     *    @param source path of the disk file 
+     *    @param source path of the disk file
      */
     void move_image(Image *img, const string& source);
 

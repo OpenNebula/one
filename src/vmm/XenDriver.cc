@@ -295,7 +295,8 @@ int XenDriver::deployment_description(
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
         driver  = context->vector_value("DRIVER");
-        disk->vector_value_str("DISK_ID", disk_id);
+
+        context->vector_value_str("DISK_ID", disk_id);
 
         if ( !target.empty() )
         {

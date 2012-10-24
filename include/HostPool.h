@@ -119,17 +119,18 @@ public:
     /**
      * Allocates a given capacity to the host
      *   @param oid the id of the host to allocate the capacity
+     *   @param vm_id id of the vm to add to the host
      *   @param cpu amount of CPU, in percentage
      *   @param mem amount of main memory, in KB
      *   @param disk amount of disk
      */
-    void add_capacity(int oid,int cpu, int mem, int disk)
+    void add_capacity(int oid, int vm_id, int cpu, int mem, int disk)
     {
         Host *  host = get(oid, true);
 
         if ( host != 0 )
         {
-          host->add_capacity(cpu, mem, disk);
+          host->add_capacity(vm_id, cpu, mem, disk);
 
           update(host);
 
@@ -140,17 +141,18 @@ public:
     /**
      * De-Allocates a given capacity to the host
      *   @param oid the id of the host to allocate the capacity
+     *   @param vm_id id of the vm to add to the host
      *   @param cpu amount of CPU
      *   @param mem amount of main memory
      *   @param disk amount of disk
      */
-    void del_capacity(int oid,int cpu, int mem, int disk)
+    void del_capacity(int oid, int vm_id, int cpu, int mem, int disk)
     {
         Host *  host = get(oid, true);
 
         if ( host != 0 )
         {
-            host->del_capacity(cpu, mem, disk);
+            host->del_capacity(vm_id, cpu, mem, disk);
 
             update(host);
 

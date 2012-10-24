@@ -151,7 +151,8 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int disk_attribute(VectorAttribute *  disk,
+    int disk_attribute(int                vm_id,
+                       VectorAttribute *  disk,
                        int                disk_id,
                        Image::ImageType&  img_type,
                        string&            dev_prefix,

@@ -26,7 +26,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(int image_id, string& error)
+Image * ImageManager::acquire_image(int vm_id, int image_id, string& error)
 {
     Image * img;
     int     rc;
@@ -42,7 +42,7 @@ Image * ImageManager::acquire_image(int image_id, string& error)
         return 0;
     }
 
-    rc = acquire_image(img, error);
+    rc = acquire_image(vm_id, img, error);
 
     if ( rc != 0 )
     {
@@ -55,7 +55,7 @@ Image * ImageManager::acquire_image(int image_id, string& error)
 
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(const string& name, int uid, string& error)
+Image * ImageManager::acquire_image(int vm_id, const string& name, int uid, string& error)
 {
     Image * img;
     int     rc;
@@ -71,7 +71,7 @@ Image * ImageManager::acquire_image(const string& name, int uid, string& error)
         return 0;
     }
 
-    rc = acquire_image(img, error);
+    rc = acquire_image(vm_id, img, error);
 
     if ( rc != 0 )
     {
@@ -84,14 +84,14 @@ Image * ImageManager::acquire_image(const string& name, int uid, string& error)
 
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::acquire_image(Image *img, string& error)
+int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 {
     int rc = 0;
 
     switch (img->get_state())
     {
         case Image::READY:
-            img->inc_running();
+            img->inc_running(vm_id);
 
             if ( img->isPersistent() )
             {
@@ -111,7 +111,7 @@ int ImageManager::acquire_image(Image *img, string& error)
         break;
 
         case Image::USED:
-            img->inc_running();
+            img->inc_running(vm_id);
             ipool->update(img);
         break;
 
@@ -136,7 +136,7 @@ int ImageManager::acquire_image(Image *img, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::release_image(int iid, bool failed)
+void ImageManager::release_image(int vm_id, int iid, bool failed)
 {
     Image * img;
 
@@ -152,7 +152,7 @@ void ImageManager::release_image(int iid, bool failed)
     switch (img->get_state())
     {
         case Image::USED_PERS:
-            img->dec_running();
+            img->dec_running(vm_id);
 
             if (failed == true)
             {
@@ -169,7 +169,7 @@ void ImageManager::release_image(int iid, bool failed)
         break;
 
         case Image::USED:
-            if ( img->dec_running() == 0  && img->get_cloning() == 0 )
+            if ( img->dec_running(vm_id) == 0  && img->get_cloning() == 0 )
             {
                 img->set_state(Image::READY);
             }
@@ -417,7 +417,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
         imd->rm(img->get_oid(), *drv_msg);
         img->set_state(Image::DELETE);
 
-        ipool->update(img);        
+        ipool->update(img);
     }
 
     img->unlock();
