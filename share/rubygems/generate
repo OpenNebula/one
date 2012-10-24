@@ -1,0 +1,201 @@
+#!/usr/bin/env ruby
+
+require 'ap'
+require 'fileutils'
+require 'tmpdir'
+
+
+DEFAULTS={
+    :version => "3.8.0",
+    :date => Time.now.strftime("%Y-%m-%d"),
+    :dependencies => []
+}
+
+TEMPLATE=<<EOT
+# This file is automicalltically generated
+
+Gem::Specification.new do |s|
+  s.name        = 'opennebula-$(NAME)'
+  s.version     = '$(VERSION)'
+  s.date        = '$(DATE)'
+  s.summary     = "$(SUMMARY)"
+  s.description = "$(DESCRIPTION)"
+  s.authors     = ["OpenNebula"]
+  s.email       = 'contact@opennebula.org'
+  s.files       = [
+$(FILES)
+  ]
+  s.homepage    = 'http://opennebula.org'
+$(EXECUTABLES)
+$(DEPENDENCIES)
+end
+
+EOT
+
+GEM_DESCRIPTION={
+    :oca => {
+        :name => 'oca',
+        :files => [
+            ['src/oca/ruby/OpenNebula.rb', '/lib'],
+            ['src/oca/ruby/OpenNebula/*.rb', '/lib/OpenNebula']
+        ],
+        :summary => 'OpenNebula Client API',
+        :description => 'Libraries needed to talk to OpenNebula',
+        :dependencies => [
+            'nokogiri',
+            'json'
+        ]
+    },
+
+    :cli => {
+        :name => 'cli',
+        :files => [
+            ['src/cli/one[a-z]*', '/bin'],
+            ['src/cli/*.rb', '/lib'],
+            ['src/cli/one_helper/*.rb', '/lib/one_helper'],
+        ],
+        :summary => 'OpenNebula Client API',
+        :description => 'Commands used to talk to OpenNebula',
+        :dependencies => [
+            ['opennebula-oca', "= #{DEFAULTS[:version]}"]
+        ]
+    }
+}
+
+def sane_prefix(prefix)
+    return '' if !prefix or prefix.empty?
+
+    p=prefix
+
+    p.slice!(0) if p[0,1]=='/'
+    p<<'/' if p[-1,1]!='/'
+
+    p
+end
+
+def file_list(description)
+    files=Array.new
+
+    ap description
+
+    description[:files].each do |f, prefix|
+        source=Dir.glob(f)
+
+        files+=source.map do |source|
+            [source, sane_prefix(prefix)+File.basename(source)]
+        end
+    end
+
+    files
+end
+
+def copy_files(files, source_prefix='', destination_prefix='')
+    files.each do |file|
+        source=source_prefix+file[0]
+        destination=destination_prefix+file[1]
+
+        dir=File.dirname destination
+
+        FileUtils.mkdir_p(dir) if !File.exist?(dir)
+
+        FileUtils.cp(source, destination)
+    end
+end
+
+def generate_gem_file_list(files)
+    files.map do |f|
+        "    '#{f.last}'"
+    end.join(",\n")
+end
+
+def generate_gem_executable_list(files)
+    executables=files.
+        select {|f| f.last.match(/^bin\//) }.
+        map {|f| "'#{File.basename(f.last)}'" }.
+        join(", ")
+
+    if !executables.empty?
+        "  s.executables=[#{executables}]"
+    else
+        nil
+    end
+end
+
+def generate_dependencies(dependencies)
+    dependencies.map do |d|
+        line="  s.add_runtime_dependency "
+        if Array===d
+            line<<d.map {|part| "'#{part}'" }.join(", ")
+        else
+            line<<"'#{d}'"
+        end
+        line
+    end.join("\n")
+end
+
+def populate_gem_template(description, files)
+    reg=/\$\((\w+)\)/
+    TEMPLATE.gsub(reg) do |chunk|
+        m=chunk.match(reg)
+        var=m[1].downcase.to_sym
+
+        if var==:files
+            generate_gem_file_list(files)
+        elsif var==:dependencies
+            generate_dependencies(
+                description[:dependencies]||DEFAULTS[:dependencies])
+        elsif var==:executables
+            generate_gem_executable_list(files)
+        elsif description[var]
+            description[var]
+        else
+            DEFAULTS[var]
+        end
+    end
+end
+
+def generate_gem_file(gem_file, description, files)
+    puts populate_gem_template(description, files)
+    File.open(gem_file, "w") do |f|
+        f.write(populate_gem_template(description, files))
+    end
+end
+
+def generate_gem(description)
+    Dir.mktmpdir do |tmp|
+
+        ap tmp
+
+        files=file_list(description)
+        copy_files(files, '', tmp+"/")
+
+        gem_file=tmp+"/gem.gemspec"
+        generate_gem_file(gem_file, description, files)
+
+        pwd=Dir.pwd
+
+        Dir.chdir(tmp) do
+            system("gem build gem.gemspec")
+
+            if $?.exitstatus!=0
+                puts "Error generating gem"
+                exit(-1)
+            end
+
+            Dir.glob("*.gem").each do |f|
+                FileUtils.cp(f, pwd) 
+            end
+        end
+
+        ap Dir.glob("*.gem")
+    end
+end
+
+# Go to source code root dir
+root=Dir.pwd
+root.gsub!(/\/share\/rubygems$/, '')
+Dir.chdir(root)
+
+
+GEM_DESCRIPTION.each {|name, gem| generate_gem(gem) }
+
