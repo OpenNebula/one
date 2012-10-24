@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'ap'
 require 'fileutils'
 require 'tmpdir'
 
@@ -75,8 +74,6 @@ end
 
 def file_list(description)
     files=Array.new
-
-    ap description
 
     description[:files].each do |f, prefix|
         source=Dir.glob(f)
@@ -155,7 +152,6 @@ def populate_gem_template(description, files)
 end
 
 def generate_gem_file(gem_file, description, files)
-    puts populate_gem_template(description, files)
     File.open(gem_file, "w") do |f|
         f.write(populate_gem_template(description, files))
     end
@@ -163,9 +159,6 @@ end
 
 def generate_gem(description)
     Dir.mktmpdir do |tmp|
-
-        ap tmp
-
         files=file_list(description)
         copy_files(files, '', tmp+"/")
 
@@ -186,8 +179,6 @@ def generate_gem(description)
                 FileUtils.cp(f, pwd) 
             end
         end
-
-        ap Dir.glob("*.gem")
     end
 end
 
