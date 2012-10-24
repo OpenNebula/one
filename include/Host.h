@@ -21,6 +21,8 @@
 #include "HostTemplate.h"
 #include "HostShare.h"
 #include "Clusterable.h"
+#include "ObjectCollection.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -201,7 +203,7 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Share functions. Returns the value associated with each host share 
+    // Share functions. Returns the value associated with each host share
     // metric
     // ------------------------------------------------------------------------
 
@@ -271,29 +273,53 @@ public:
     }
 
     /**
-     *  Adds a new VM to the given share by icrementing the cpu,mem and disk
+     *  Adds a new VM to the given share by icrementing the cpu, mem and disk
      *  counters
+     *    @param vm_id id of the vm to add to the host
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
      *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void add_capacity(int cpu, int mem, int disk)
+    void add_capacity(int vm_id, int cpu, int mem, int disk)
     {
-        host_share.add(cpu,mem,disk);
+        if ( vm_collection.add_collection_id(vm_id) == 0 )
+        {
+            host_share.add(cpu,mem,disk);
+        }
+        else
+        {
+            ostringstream oss;
+            oss << "Trying to add VM " << vm_id
+                << ", that it is already associated to host " << oid << ".";
+
+            NebulaLog::log("ONE", Log::ERROR, oss);
+        }
     };
 
     /**
      *  Deletes a new VM from the given share by decrementing the cpu,mem and
      *  disk counters
-     *    @param cpu useded by the VM (percentage)
+     *    @param vm_id id of the vm to delete from the host
+     *    @param cpu used by the VM (percentage)
      *    @param mem used by the VM (in Kb)
      *    @param disk used by the VM
      *    @return 0 on success
      */
-    void del_capacity(int cpu, int mem, int disk)
+    void del_capacity(int vm_id, int cpu, int mem, int disk)
     {
-        host_share.del(cpu,mem,disk);
+        if ( vm_collection.del_collection_id(vm_id) == 0 )
+        {
+            host_share.del(cpu,mem,disk);
+        }
+        else
+        {
+            ostringstream oss;
+            oss << "Trying to remove VM " << vm_id
+                << ", that it is not associated to host " << oid << ".";
+
+            NebulaLog::log("ONE", Log::ERROR, oss);
+        }
     };
 
     /**
@@ -360,6 +386,14 @@ private:
      *  The Share represents the logical capacity associated with the host
      */
     HostShare       host_share;
+
+    // -------------------------------------------------------------------------
+    //  VM Collection
+    // -------------------------------------------------------------------------
+    /**
+     *  Stores a collection with the VMs running in the host
+     */
+    ObjectCollection vm_collection;
 
     // *************************************************************************
     // Constructor

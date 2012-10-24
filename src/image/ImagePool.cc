@@ -264,7 +264,8 @@ static int get_disk_id(const string& id_s)
 
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::disk_attribute(VectorAttribute * disk,
+int ImagePool::disk_attribute(int               vm_id,
+                              VectorAttribute * disk,
                               int               disk_id,
                               Image::ImageType& img_type,
                               string&           dev_prefix,
@@ -298,7 +299,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
             return -1;
         }
 
-        img = imagem->acquire_image(source, uiid, error_str);
+        img = imagem->acquire_image(vm_id, source, uiid, error_str);
 
         if ( img == 0 )
         {
@@ -317,7 +318,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
             return -1;
         }
 
-        img = imagem->acquire_image(iid, error_str);
+        img = imagem->acquire_image(vm_id, iid, error_str);
 
         if ( img == 0 )
         {
@@ -362,7 +363,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
 
         if (rc == -1)
         {
-            imagem->release_image(iid, false);
+            imagem->release_image(vm_id, iid, false);
             error_str = "Unknown internal error";
 
             return -1;
@@ -372,7 +373,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk,
 
         if ( ds == 0 )
         {
-            imagem->release_image(iid, false);
+            imagem->release_image(vm_id, iid, false);
             error_str = "Associated datastore for the image does not exist";
 
             return -1;

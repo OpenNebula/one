@@ -1073,7 +1073,8 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk,
+        rc = ipool->disk_attribute(oid,
+                                   disk,
                                    i,
                                    img_type,
                                    dev_prefix,
@@ -1150,7 +1151,7 @@ error_common:
 
     for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
     {
-        imagem->release_image(*it, false);
+        imagem->release_image(oid, *it, false);
     }
 
     return -1;
@@ -1227,6 +1228,7 @@ void VirtualMachine::get_disk_info(int&         max_disk_id,
 /* -------------------------------------------------------------------------- */
 
 VectorAttribute * VirtualMachine::set_up_attach_disk(
+                int                      vm_id,
                 VirtualMachineTemplate * tmpl,
                 set<string>&             used_targets,
                 int                      max_disk_id,
@@ -1264,7 +1266,8 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     // Acquire the new disk image
     // -------------------------------------------------------------------------
 
-    int rc = ipool->disk_attribute(new_disk,
+    int rc = ipool->disk_attribute(vm_id,
+                                   new_disk,
                                    max_disk_id + 1,
                                    img_type,
                                    dev_prefix,
@@ -1288,7 +1291,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
             oss << "Target " << target << "is already in use.";
             error_str = oss.str();
 
-            imagem->release_image(image_id, false);
+            imagem->release_image(vm_id, image_id, false);
 
             delete new_disk;
             return 0;
@@ -1460,14 +1463,14 @@ void VirtualMachine::release_disk_images()
 
         if ( rc == 0 )
         {
-            imagem->release_image(iid, (state == FAILED));
+            imagem->release_image(oid, iid, (state == FAILED));
         }
 
         rc = disk->vector_value("SAVE_AS", save_as_id);
 
         if ( rc == 0 )
         {
-            imagem->release_image(save_as_id, (state == FAILED));
+            imagem->release_image(oid, save_as_id, (state == FAILED));
         }
     }
 }

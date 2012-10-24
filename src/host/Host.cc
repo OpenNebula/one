@@ -21,7 +21,6 @@
 #include <sstream>
 
 #include "Host.h"
-#include "NebulaLog.h"
 #include "Nebula.h"
 
 /* ************************************************************************ */
@@ -42,9 +41,10 @@ Host::Host(
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         vnm_mad_name(_vnm_mad_name),
-        last_monitored(0)
+        last_monitored(0),
+        vm_collection("VMS")
 {
-    obj_template = new HostTemplate;        
+    obj_template = new HostTemplate;
 }
 
 Host::~Host()
@@ -265,7 +265,9 @@ string& Host::to_xml(string& xml) const
 {
     string template_xml;
     string share_xml;
-    ostringstream   oss;
+
+    ostringstream oss;
+    string        vm_collection_xml;
 
     oss <<
     "<HOST>"
@@ -280,6 +282,7 @@ string& Host::to_xml(string& xml) const
        "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
        host_share.to_xml(share_xml)  <<
        obj_template->to_xml(template_xml) <<
+       vm_collection.to_xml(vm_collection_xml) <<
     "</HOST>";
 
     xml = oss.str();
@@ -293,7 +296,7 @@ string& Host::to_xml(string& xml) const
 int Host::from_xml(const string& xml)
 {
     vector<xmlNodePtr> content;
-    
+
     int int_state;
     int rc = 0;
 
@@ -320,7 +323,8 @@ int Host::from_xml(const string& xml)
     set_user(0, "");
     set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
-    // Get associated classes
+    // ------------ Host Share ---------------
+
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
 
     if (content.empty())
@@ -331,8 +335,11 @@ int Host::from_xml(const string& xml)
     rc += host_share.from_xml_node( content[0] );
 
     ObjectXML::free_nodes(content);
+
     content.clear();
-    
+
+    // ------------ Host Template ---------------
+
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
 
     if( content.empty())
@@ -341,6 +348,21 @@ int Host::from_xml(const string& xml)
     }
 
     rc += obj_template->from_xml_node( content[0] );
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
+
+    // ------------ VMS collection ---------------
+
+    ObjectXML::get_nodes("/HOST/VMS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += vm_collection.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 

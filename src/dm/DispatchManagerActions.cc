@@ -792,7 +792,7 @@ int DispatchManager::finalize(
             int cpu, mem, disk;
 
             vm->get_requirements(cpu,mem,disk);
-            hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
             finalize_cleanup(vm);
@@ -914,6 +914,7 @@ int DispatchManager::attach(int vid,
 
     int max_disk_id;
     int uid;
+    int oid;
     int image_id;
 
     set<string>       used_targets;
@@ -954,12 +955,14 @@ int DispatchManager::attach(int vid,
     vm->set_resched(false);
 
     uid = vm->get_uid();
+    oid = vm->get_oid();
 
     vmpool->update(vm);
 
     vm->unlock();
 
-    disk = VirtualMachine::set_up_attach_disk(tmpl,
+    disk = VirtualMachine::set_up_attach_disk(oid,
+                                              tmpl,
                                               used_targets,
                                               max_disk_id,
                                               uid,
@@ -974,7 +977,7 @@ int DispatchManager::attach(int vid,
 
         if ( image_id != -1 )
         {
-            imagem->release_image(image_id, false);
+            imagem->release_image(oid, image_id, false);
         }
 
         oss << "Could not attach a new disk to VM " << vid

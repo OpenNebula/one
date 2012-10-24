@@ -63,7 +63,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
 
@@ -169,7 +169,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->set_previous_etime(the_time);
 
@@ -268,7 +268,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -347,7 +347,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         // --- Add new record by copying the previous one
 
@@ -674,7 +674,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         //----------------------------------------------------
 
@@ -748,7 +748,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     vm->get_requirements(cpu,mem,disk);
 
-    hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
     //----------------------------------------------------
 
@@ -965,7 +965,7 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM", Log::INFO, "VM is suspended.");
 
@@ -1049,7 +1049,7 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
 
     vm->get_requirements(cpu,mem,disk);
 
-    hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
     //--- VM to FAILED. Remote host cleanup upon VM deletion ---
 
@@ -1096,6 +1096,7 @@ void LifeCycleManager::attach_failure_action(int vid)
 
     int uid;
     int gid;
+    int oid;
 
     vm = vmpool->get(vid,true);
 
@@ -1109,6 +1110,7 @@ void LifeCycleManager::attach_failure_action(int vid)
         disk = vm->delete_attach_disk();
         uid  = vm->get_uid();
         gid  = vm->get_gid();
+        oid  = vm->get_oid();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1130,7 +1132,7 @@ void LifeCycleManager::attach_failure_action(int vid)
 
             if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
             {
-                imagem->release_image(image_id, false);
+                imagem->release_image(oid, image_id, false);
             }
         }
     }

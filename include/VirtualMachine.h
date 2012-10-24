@@ -826,6 +826,7 @@ public:
      *   added to the template), 0 in case of error;
      */
     static VectorAttribute * set_up_attach_disk(
+                            int                      vm_id,
                             VirtualMachineTemplate * tmpl,
                             set<string>&             used_targets,
                             int                      max_disk_id,

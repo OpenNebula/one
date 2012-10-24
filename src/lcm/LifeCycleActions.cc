@@ -67,7 +67,7 @@ void  LifeCycleManager::deploy_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
 
@@ -214,7 +214,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_MIGRATE");
 
@@ -270,7 +270,7 @@ void  LifeCycleManager::live_migrate_action(int vid)
 
         vm->get_requirements(cpu,mem,disk);
 
-        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM",Log::INFO,"New VM state is MIGRATE");
 
@@ -596,9 +596,6 @@ void  LifeCycleManager::clean_action(int vid)
 {
     VirtualMachine * vm;
 
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -648,7 +645,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
     vm->set_reason(History::USER);
 
     vm->get_requirements(cpu,mem,disk);
-    hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
     switch (state)
     {
@@ -691,7 +688,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
 
-            hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
+            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
 
@@ -722,7 +719,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
 
-            hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
+            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CANCEL_PREVIOUS,vid);
