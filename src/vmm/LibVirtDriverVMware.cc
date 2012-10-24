@@ -276,7 +276,8 @@ int LibVirtDriver::deployment_description_vmware(
     {
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
-        disk->vector_value_str("DISK_ID", disk_id);
+
+        context->vector_value_str("DISK_ID", disk_id);
 
         if ( !target.empty() )
         {
