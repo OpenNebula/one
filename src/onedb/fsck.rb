@@ -17,6 +17,7 @@
 require "rexml/document"
 include REXML
 require 'ipaddr'
+require 'set'
 
 module OneDBFsck
     def db_version
@@ -236,9 +237,9 @@ module OneDBFsck
         ########################################################################
         # Clusters
         #
-        # CLUSTERS/HOSTS/ID
-        # CLUSTERS/DATASTORES/ID
-        # CLUSTERS/VNETS/ID
+        # CLUSTER/HOSTS/ID
+        # CLUSTER/DATASTORES/ID
+        # CLUSTER/VNETS/ID
         ########################################################################
         # Datastore
         #
@@ -536,15 +537,13 @@ module OneDBFsck
             counters[:host][row[:oid]] = {
                 :memory => 0,
                 :cpu    => 0,
-                :rvms   => 0
+                :rvms   => Set.new
             }
         end
 
         # Init image counters
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
-            counters[:image][row[:oid]] = {
-                :rvms   => 0
-            }
+            counters[:image][row[:oid]] = Set.new
 
             doc = Document.new(row[:body])
 
@@ -571,7 +570,7 @@ module OneDBFsck
         end
 
         # Aggregate information of the RUNNING vms
-        @db.fetch("SELECT body FROM vm_pool WHERE state<>6") do |row|
+        @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
             vm_doc = Document.new(row[:body])
 
             state     = vm_doc.root.get_text('STATE').to_s.to_i
@@ -580,7 +579,13 @@ module OneDBFsck
 
             # Images used by this VM
             vm_doc.root.each_element("TEMPLATE/DISK/IMAGE_ID") do |e|
-                counters[:image][e.text.to_i][:rvms] += 1
+                img_id = e.text.to_i
+
+                if counters[:image][img_id].nil?
+                    log_error("VM #{row[:oid]} is using Image #{img_id}, but it does not exist")
+                else
+                    counters[:image][img_id].add(row[:oid])
+                end
             end
 
             # VNets used by this VM
@@ -591,12 +596,16 @@ module OneDBFsck
                 end
 
                 if !net_id.nil?
-                    counters[:vnet][net_id][:leases][e.get_text('IP').to_s] =
-                        [
-                            e.get_text('MAC').to_s,                 # MAC
-                            "1",                                    # USED
-                            vm_doc.root.get_text('ID').to_s.to_i    # VID
-                        ]
+                    if counters[:vnet][net_id].nil?
+                        log_error("VM #{row[:oid]} is using VNet #{net_id}, but it does not exist")
+                    else
+                        counters[:vnet][net_id][:leases][e.get_text('IP').to_s] =
+                            [
+                                e.get_text('MAC').to_s,                 # MAC
+                                "1",                                    # USED
+                                vm_doc.root.get_text('ID').to_s.to_i    # VID
+                            ]
+                    end
                 end
             end
 
@@ -624,9 +633,13 @@ module OneDBFsck
                 hid = e.text.to_i
             }
 
-            counters[:host][hid][:memory] += memory
-            counters[:host][hid][:cpu]    += cpu
-            counters[:host][hid][:rvms]   += 1
+            if counters[:host][hid].nil?
+                log_error("VM #{row[:oid]} is using Host #{hid}, but it does not exist")
+            else
+                counters[:host][hid][:memory] += memory
+                counters[:host][hid][:cpu]    += cpu
+                counters[:host][hid][:rvms].add(row[:oid])
+            end
         end
 
 
@@ -637,6 +650,7 @@ module OneDBFsck
         # HOST/HOST_SHARE/MEM_USAGE
         # HOST/HOST_SHARE/CPU_USAGE
         # HOST/HOST_SHARE/RUNNING_VMS
+        # HOST/VMS/ID
         ########################################################################
 
         # Create a new empty table where we will store the new calculated values
@@ -652,7 +666,7 @@ module OneDBFsck
 
             hid = row[:oid]
 
-            rvms        = counters[:host][hid][:rvms]
+            rvms        = counters[:host][hid][:rvms].size
             cpu_usage   = (counters[:host][hid][:cpu]*100).to_i
             mem_usage   = counters[:host][hid][:memory]*1024
 
@@ -663,6 +677,27 @@ module OneDBFsck
                     e.text = rvms
                 end
             }
+
+
+            # re-do list of VM IDs 
+            vms_elem = host_doc.root.elements.delete("VMS")
+
+            vms_new_elem = host_doc.root.add_element("VMS")
+
+            counters[:host][hid][:rvms].each do |id|
+                id_elem = vms_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("VM #{id} is missing fom Host #{hid} VM id list")
+                end
+
+                vms_new_elem.add_element("ID").text = id.to_s
+            end
+
+            vms_elem.each_element("ID") do |id_elem|
+                log_error("VM #{id_elem.text} is in Host #{hid} VM id list, but it should not")
+            end
+
 
             # rewrite cpu
             host_doc.root.each_element("HOST_SHARE/CPU_USAGE") {|e|
@@ -695,6 +730,7 @@ module OneDBFsck
         # Image
         #
         # IMAGE/RUNNING_VMS
+        # IMAGE/VMS/ID
         #
         # IMAGE/CLONING_OPS
         # IMAGE/CLONING_ID
@@ -714,7 +750,7 @@ module OneDBFsck
             persistent = ( doc.root.get_text('PERSISTENT').to_s == "1" )
             current_state = doc.root.get_text('STATE').to_s.to_i
 
-            rvms = counters[:image][oid][:rvms]
+            rvms = counters[:image][oid].size
             n_cloning_ops = cloning_ops[row[:oid]].size
 
             # rewrite running_vms
@@ -724,6 +760,26 @@ module OneDBFsck
                     e.text = rvms
                 end
             }
+
+            # re-do list of VM IDs 
+            vms_elem = doc.root.elements.delete("VMS")
+
+            vms_new_elem = doc.root.add_element("VMS")
+
+            counters[:image][oid].each do |id|
+                id_elem = vms_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("VM #{id} is missing fom Image #{oid} VM id list")
+                end
+
+                vms_new_elem.add_element("ID").text = id.to_s
+            end
+
+            vms_elem.each_element("ID") do |id_elem|
+                log_error("VM #{id_elem.text} is in Image #{oid} VM id list, but it should not")
+            end
+
 
             if ( persistent && rvms > 0 )
                 n_cloning_ops = 0
@@ -798,6 +854,12 @@ module OneDBFsck
             ip_str = IPAddr.new(row[:ip], Socket::AF_INET).to_s
 
             vnet_structure = counters[:vnet][row[:oid]]
+
+            if vnet_structure.nil?
+                log_error("Table leases contains the lease #{ip_str} for VNet #{row[:oid]}, but it does not exit")
+
+                next
+            end
 
             ranged = vnet_structure[:type] == 0
 
@@ -1082,7 +1144,7 @@ module OneDBFsck
             # Because of bug http://dev.opennebula.org/issues/1567 the element
             # may contain a float number in scientific notation.
 
-            # Check if the float value or the string representation missmatch,
+            # Check if the float value or the string representation mismatch,
             # but ignoring the precision
 
             different = ( e.text.to_f != cpu_used ||
