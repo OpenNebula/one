@@ -69,21 +69,21 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
 
         // Users in group USERS can create standard resources
         // @1 VM+NET+IMAGE+TEMPLATE/* CREATE
-        add_rule(AclRule::GROUP_ID | 
+        add_rule(AclRule::GROUP_ID |
                     1,
-                 AclRule::ALL_ID | 
-                    PoolObjectSQL::VM | 
+                 AclRule::ALL_ID |
+                    PoolObjectSQL::VM |
                     PoolObjectSQL::NET |
-                    PoolObjectSQL::IMAGE | 
+                    PoolObjectSQL::IMAGE |
                     PoolObjectSQL::TEMPLATE,
                  AuthRequest::CREATE,
                  error_str);
 
         // Users in USERS can deploy VMs in any HOST
         // @1 HOST/* MANAGE
-        add_rule(AclRule::GROUP_ID | 
+        add_rule(AclRule::GROUP_ID |
                     1,
-                 AclRule::ALL_ID | 
+                 AclRule::ALL_ID |
                     PoolObjectSQL::HOST,
                  AuthRequest::MANAGE,
                  error_str);
@@ -102,6 +102,9 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
 
 int AclManager::start()
 {
+    acl_rules.clear();
+    acl_rules_oids.clear();
+
     return select();
 }
 
@@ -143,8 +146,8 @@ const bool AclManager::authorize(
 
     if ( obj_perms.oid >= 0 )
     {
-        resource_oid_req = obj_perms.obj_type | 
-                           AclRule::INDIVIDUAL_ID | 
+        resource_oid_req = obj_perms.obj_type |
+                           AclRule::INDIVIDUAL_ID |
                            obj_perms.oid;
     }
     else
@@ -156,8 +159,8 @@ const bool AclManager::authorize(
 
     if ( obj_perms.gid >= 0 )
     {
-        resource_gid_req = obj_perms.obj_type | 
-                           AclRule::GROUP_ID | 
+        resource_gid_req = obj_perms.obj_type |
+                           AclRule::GROUP_ID |
                            obj_perms.gid;
     }
     else
@@ -168,12 +171,12 @@ const bool AclManager::authorize(
     long long resource_all_req  = obj_perms.obj_type | AclRule::ALL_ID;
     long long rights_req        = op;
 
-    long long resource_oid_mask = obj_perms.obj_type | 
-                                  AclRule::INDIVIDUAL_ID | 
+    long long resource_oid_mask = obj_perms.obj_type |
+                                  AclRule::INDIVIDUAL_ID |
                                   0x00000000FFFFFFFFLL;
 
-    long long resource_gid_mask = obj_perms.obj_type | 
-                                  AclRule::GROUP_ID | 
+    long long resource_gid_mask = obj_perms.obj_type |
+                                  AclRule::GROUP_ID |
                                   0x00000000FFFFFFFFLL;
 
     // Create a temporal rule, to log the request
@@ -192,8 +195,8 @@ const bool AclManager::authorize(
         log_resource = resource_all_req;
     }
 
-    AclRule log_rule(-1, 
-                     AclRule::INDIVIDUAL_ID | uid, 
+    AclRule log_rule(-1,
+                     AclRule::INDIVIDUAL_ID | uid,
                      log_resource,
                      rights_req);
 
@@ -540,10 +543,12 @@ int AclManager::del_rule(int oid, string& error_str)
         return -1;
     }
 
-    delete it->second;
+    rule = it->second;
 
     acl_rules.erase( it );
     acl_rules_oids.erase( oid );
+
+    delete rule;
 
     unlock();
     return 0;
@@ -821,8 +826,8 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
         iss.clear();
     }
 
-    AclRule * rule = new AclRule(oid, 
-                                 rule_values[0], 
+    AclRule * rule = new AclRule(oid,
+                                 rule_values[0],
                                  rule_values[1],
                                  rule_values[2]);
 
