@@ -1685,8 +1685,6 @@ int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
                 goto error_image_id;
             }
 
-            disk->replace("SAVE", "YES");
-
             return iid;
         }
     }
@@ -1757,6 +1755,8 @@ int VirtualMachine::save_disk(const string& disk_id,
 
             oss << (img_id);
             disk->replace("SAVE_AS", oss.str());
+
+            disk->replace("SAVE", "YES");
 
             break;
         }
