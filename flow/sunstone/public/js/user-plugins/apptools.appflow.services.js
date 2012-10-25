@@ -69,6 +69,7 @@ var Service = {
 
 var Role = {
     "state" : function(state_int){
+        state_int = state_int ? state_int : 0;
         var state = [
             tr("PENDING"),
             tr("DEPLOYING"),
@@ -609,16 +610,18 @@ function updateServiceInfo(request,elem){
 
     var logs = elem_info.TEMPLATE.BODY.log
     var log_info = ''
-    if (logs)
+    if (logs) {
         log_info += '<table id="service_template_roles_table" class="info_table" style="width:80%;">\
             <thead></thead>'
+        
         for (var i = 0; i < logs.length; i++) {
           log_info += '<tr>\
               <td>'+pretty_time(logs[i].timestamp)+' ['+logs[i].severity + '] ' + logs[i].message+ '</td>\
               </tr>'
         }
 
-    log_info += '</table>'
+        log_info += '</table>'
+    }
 
     var logs_tab = {
       title: "Logs",
@@ -653,6 +656,7 @@ function updateServiceInfo(request,elem){
 
     var vms = [];
     for (var i=0; i < roles.length; i++)
+      if (roles[i].nodes) {
         for (var j=0; j < roles[i].nodes.length; j++){
             var vm_info = roles[i].nodes[j].vm_info;
             if (vm_info)
@@ -662,6 +666,7 @@ function updateServiceInfo(request,elem){
                     )
             );
         };
+      };
 
     var servicevmsDataTable = $('#datatable_service_vms').dataTable({
         "bJQueryUI": true,
