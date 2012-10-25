@@ -581,7 +581,8 @@ function hostElementArray(host_json){
     var pb_allocated_cpu = progressBar(ratio_allocated_cpu, { 
         label: allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)',
         width: '150px', 
-        height: '15px', });
+        height: '15px', 
+        fontSize: '1em' });
 
 
     var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
@@ -590,7 +591,8 @@ function hostElementArray(host_json){
     var pb_real_cpu      = progressBar(ratio_real_cpu, { 
         label: real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)',
         width: '150px', 
-        height: '15px', });
+        height: '15px', 
+        fontSize: '1em'});
 
 
     // Generate MEM progress bars
@@ -605,7 +607,8 @@ function hostElementArray(host_json){
     var pb_allocated_mem = progressBar(ratio_allocated_mem, { 
         label: humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)',
         width: '150px', 
-        height: '15px', });
+        height: '15px', 
+        fontSize: '1em' });
 
 
     var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
@@ -614,7 +617,8 @@ function hostElementArray(host_json){
     var pb_real_mem      = progressBar(ratio_real_mem, { 
         label: humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)',
         width: '150px', 
-        height: '15px', });
+        height: '15px', 
+        fontSize: '1em' });
 
 
     return [
