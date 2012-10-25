@@ -342,8 +342,8 @@ string& Image::to_xml(string& xml) const
             "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
-            obj_template->to_xml(template_xml)                        <<
             vm_collection.to_xml(vm_collection_xml)                   <<
+            obj_template->to_xml(template_xml)                        <<
         "</IMAGE>";
 
     xml = oss.str();
