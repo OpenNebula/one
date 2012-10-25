@@ -1601,8 +1601,6 @@ int VirtualMachine::generate_context(string &files)
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
-
-int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
 {
     int num_disks;
     int tid;
