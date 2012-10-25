@@ -1598,6 +1598,9 @@ int VirtualMachine::generate_context(string &files)
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
 
 int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
 {
@@ -1652,8 +1655,6 @@ int VirtualMachine::get_image_from_disk(int disk_id, string& error_str)
             {
                 goto error_image_id;
             }
-
-            disk->replace("SAVE", "YES");
 
             return iid;
         }
@@ -1722,6 +1723,8 @@ int VirtualMachine::save_disk(const string& disk_id,
         if ( tdisk_id == disk_id )
         {
             disk->replace("SAVE_AS_SOURCE", source);
+
+            disk->replace("SAVE", "YES");
 
             oss << (img_id);
             disk->replace("SAVE_AS", oss.str());
