@@ -19,13 +19,15 @@ module OpenNebula
         DOCUMENT_TYPE = 100
 
         STATE = {
-            'PENDING'     => 0,
-            'DEPLOYING'   => 1,
-            'RUNNING'     => 2,
-            'UNDEPLOYING' => 3,
-            'FAILED'      => 4,
-            'UNKNOWN'     => 5,
-            'DONE'        => 6
+            'PENDING'            => 0,
+            'DEPLOYING'          => 1,
+            'RUNNING'            => 2,
+            'UNDEPLOYING'        => 3,
+            'FAILED'             => 4,
+            'UNKNOWN'            => 5,
+            'DONE'               => 6,
+            'FAILED_UNDEPLOYING' => 7,
+            'FAILED_DEPLOYING'   => 8
         }
 
         STATE_STR = [
@@ -35,7 +37,9 @@ module OpenNebula
             'UNDEPLOYING',
             'FAILED',
             'UNKNOWN',
-            'DONE'
+            'DONE',
+            'FAILED_UNDEPLOYING',
+            'FAILED_DEPLOYING'
         ]
 
         LOG_COMP = "SER"
@@ -62,7 +66,7 @@ module OpenNebula
         # @param [Integer] the new state
         # @return [true, false] true if the value was changed
         def set_state(state)
-            if state < 0 || state > 6
+            if state < 0 || state > 8
                 return false
             end
 
@@ -120,8 +124,13 @@ module OpenNebula
         # Returns true if any of the roles is in failed state
         # @return [true, false] true if any of the roles is in failed state
         def any_role_failed?()
+            failed_states = [
+                Role::STATE['FAILED'], 
+                Role::STATE['FAILED_DEPLOYING'], 
+                Role::STATE['FAILED_UNDEPLOYING']]
+                
             @roles.each { |name, role|
-                if role.state == Role::STATE['FAILED']
+                if failed_states.include?(role.state)
                     return true
                 end
             }
@@ -140,12 +149,36 @@ module OpenNebula
             super(template.to_json, template['name'])
         end
 
-        # Shutdown the service
+        # Shutdown the service. This action is called when user wants to shutdwon
+        #   the Service or it is in FAILED_UNDEPLOYING and the user has fixed the 
+        #   problem
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def shutdown
-            self.set_state(Service::STATE['UNDEPLOYING'])
-            return self.update
+            if [Service::STATE['RUNNING'], 
+                    Service::STATE['FAILED_UNDEPLOYING'],
+                    Service::STATE['UNKNOWN']].include?(self.state)
+                self.set_state(Service::STATE['UNDEPLOYING'])
+                return self.update
+            else
+                return OpenNebula::Error.new("Action shutdown: Wrong state" \
+                    "#{service.state_str()}")
+            end
+        end
+
+        # Deploy the service. This action is called when the Service is
+        #   in FAILED_DEPLOYING and the user has fixed the problem and wants
+        #   the deployment to continue
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def deploy
+            if [Service::STATE['FAILED_DEPLOYING']].include?(self.state)
+                self.set_state(Service::STATE['DEPLOYING'])
+                return self.update
+            else
+                return OpenNebula::Error.new("Action deploy: Wrong state" \
+                    "#{service.state_str()}")
+            end
         end
 
         # Delete the service. All the VMs are also deleted from OpenNebula.

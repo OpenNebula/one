@@ -17,13 +17,15 @@ module OpenNebula
     class Role
 
         STATE = {
-            'PENDING'     => 0,
-            'DEPLOYING'   => 1,
-            'RUNNING'     => 2,
-            'UNDEPLOYING' => 3,
-            'FAILED'      => 4,
-            'UNKNOWN'     => 5,
-            'DONE'        => 6
+            'PENDING'            => 0,
+            'DEPLOYING'          => 1,
+            'RUNNING'            => 2,
+            'UNDEPLOYING'        => 3,
+            'FAILED'             => 4,
+            'UNKNOWN'            => 5,
+            'DONE'               => 6,
+            'FAILED_UNDEPLOYING' => 7,
+            'FAILED_DEPLOYING'   => 8
         }
 
         STATE_STR = [
@@ -33,7 +35,9 @@ module OpenNebula
             'UNDEPLOYING',
             'FAILED',
             'UNKNOWN',
-            'DONE'
+            'DONE',
+            'FAILED_UNDEPLOYING',
+            'FAILED_DEPLOYING'
         ]
 
         LOG_COMP = "ROL"
@@ -47,28 +51,6 @@ module OpenNebula
 
         def name
             return @body['name']
-        end
-
-        # Retrieves the VM information for each Node in this Role
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def info
-            @body['nodes'].each { |node|
-                vm_id = node['deploy_id']
-                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                rc = vm.info
-
-                if OpenNebula.is_error?(rc)
-                    Log.error LOG_COMP, "Role #{name} : VM #{vm_id}" <<
-                        " monitorization failed; #{rc.message}", @service.id()
-                    # TODO: end execution and return rc?
-                end
-
-                node['vm_info'] = vm.to_hash
-            }
-
-            return nil
         end
 
         # Returns the role state
@@ -86,7 +68,9 @@ module OpenNebula
         # Returns the role cardinality
         # @return [Integer] the role cardinality
         def cardinality
-            return @body['cardinality'].to_i
+            card = @body['cardinality'].to_i
+            card = 1 if (card < 1)
+            return card
         end
 
         # Returns the string representation of the service state
@@ -105,7 +89,7 @@ module OpenNebula
         # @param [Integer] the new state
         # @return [true, false] true if the value was changed
         def set_state(state)
-            if state < 0 || state > 6
+            if state < 0 || state > 8
                 return false
             end
 
@@ -116,13 +100,39 @@ module OpenNebula
             return true
         end
 
+        # Retrieves the VM information for each Node in this Role
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def info
+            success = true
+
+            @body['nodes'].each { |node|
+                vm_id = node['deploy_id']
+                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                rc = vm.info
+
+                if OpenNebula.is_error?(rc)
+                    msg = "Role #{name} : VM #{vm_id} monitorization failed; #{rc.message}"
+                    Log.error LOG_COMP, msg, @service.id()
+                    @service.log_error(msg)
+
+                    success = false
+                    node['vm_info'] = nil
+                else
+                    node['vm_info'] = vm.to_hash
+                end
+            }
+
+            return success
+        end
+
         # Deploys all the nodes in this role
         # @return [Array<true, nil>, Array<false, String>] true if all the VMs
         # were created, false and the error reason if there was a problem
         # creating the VMs
         def deploy
-            n_nodes = @body['cardinality'].to_i
-            n_nodes = 1 if (n_nodes < 1)
+            n_nodes = cardinality() - get_nodes.size
 
             n_nodes.times { |i|
                 vm_name = "#{@body['name']}_#{i}_(service_#{@service.id()})"
@@ -165,6 +175,8 @@ module OpenNebula
         # were shutdown, false and the error reason if there was a problem
         # shutting down the VMs
         def shutdown
+            success = true
+
             get_nodes.each { |node|
                 vm_id = node['deploy_id']
 
@@ -172,6 +184,7 @@ module OpenNebula
 
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                 rc = vm.shutdown
+
 
                 if OpenNebula.is_error?(rc)
                     msg = "Role #{name} : Shutdown failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
@@ -185,7 +198,8 @@ module OpenNebula
                         Log.error LOG_COMP, msg, @service.id()
                         @service.log_error(msg)
 
-                        return [false, rc.message]
+                        success = false
+                        #return [false, rc.message]
                     else
                         Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
                     end
@@ -194,7 +208,7 @@ module OpenNebula
                 end
             }
 
-            return [true, nil]
+            return [success, nil]
         end
 
         # Delete all the nodes in this role

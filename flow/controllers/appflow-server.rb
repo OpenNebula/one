@@ -182,12 +182,9 @@ post '/service/:id/action' do
     service = service_pool.get(params[:id]) { |service|
         rc = case action['perform']
         when 'shutdown'
-            if service.state() == Service::STATE['DONE']
-                OpenNebula::Error.new("Action #{action['perform']}: " <<
-                        "Wrong state #{service.state_str()}")
-            elsif service.state() != Service::STATE['UNDEPLOYING']
-                service.shutdown
-            end
+            service.shutdown
+        when 'deploy'
+            service.deploy
         when 'chown'
             if opts && opts['owner_id']
                 args = Array.new

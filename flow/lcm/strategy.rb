@@ -35,7 +35,7 @@ class Strategy
             rc = role.deploy
 
             if !rc[0]
-                role.set_state(Role::STATE['FAILED'])
+                role.set_state(Role::STATE['FAILED_DEPLOYING'])
 
                 return rc
             else
@@ -62,7 +62,7 @@ class Strategy
             rc = role.shutdown
 
             if !rc[0]
-                role.set_state(Role::STATE['FAILED'])
+                role.set_state(Role::STATE['FAILED_UNDEPLOYING'])
 
                 return rc
             else
@@ -88,32 +88,45 @@ class Strategy
 
             rc = role.info
 
-            if OpenNebula.is_error?(rc)
-                # TODO: A VM info operation could not be done. Move Role to
-                # unk. state?
-            end
-
             case role.state()
             when Role::STATE['RUNNING']
-                if !role_nodes_running?(role)
+                if OpenNebula.is_error?(rc)
+                    role.set_state(Role::STATE['UNKNOWN'])
+                elsif !role_nodes_running?(role)
                     role.set_state(Role::STATE['UNKNOWN'])
                 end
             when Role::STATE['DEPLOYING']
-                if role_nodes_running?(role)
+                if OpenNebula.is_error?(rc)
+                    role.set_state(Role::STATE['FAILED_DEPLOYING'])
+                elsif role_nodes_running?(role)
                     role.set_state(Role::STATE['RUNNING'])
-                elsif role_deployment_failed?(role)
-                    role.set_state(Role::STATE['FAILED'])
+                elsif any_node_failed?(role)
+                    role.set_state(Role::STATE['FAILED_DEPLOYING'])
                 end
             when Role::STATE['UNKNOWN']
                 if role_nodes_running?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['FAILED']
-                if role_nodes_running?(role)
+                if OpenNebula.is_error?(rc)
+                    role.set_state(Role::STATE['UNKNOWN'])
+                elsif role_nodes_running?(role)
                     role.set_state(Role::STATE['RUNNING'])
                 end
             when Role::STATE['UNDEPLOYING']
-                if role_nodes_done?(role)
+                if OpenNebula.is_error?(rc)
+                    role.set_state(Role::STATE['FAILED_UNDEPLOYING'])
+                elsif role_nodes_done?(role)
+                    role.set_state(Role::STATE['DONE'])
+                elsif any_node_failed?(role)
+                    role.set_state(Role::STATE['FAILED_UNDEPLOYING'])
+                end
+            when Role::STATE['FAILED_DEPLOYING']
+                if !OpenNebula.is_error?(rc) && role_nodes_running?(role)
+                    role.set_state(Role::STATE['PENDING'])
+                end
+            when Role::STATE['FAILED_UNDEPLOYING']
+                if !OpenNebula.is_error?(rc) && role_nodes_done?(role)
                     role.set_state(Role::STATE['DONE'])
                 end
             end
@@ -160,9 +173,11 @@ protected
     # @return [Hash<String, Role>] Roles
     def get_roles_shutdown(service)
         result = service.get_roles.select {|name, role|
-            role.state != Role::STATE['UNDEPLOYING'] &&
-            role.state != Role::STATE['FAILED'] &&
-            role.state != Role::STATE['DONE']
+            ![Role::STATE['UNDEPLOYING'],
+              Role::STATE['FAILED'],
+              Role::STATE['DONE'],
+              Role::STATE['FAILED_UNDEPLOYING'],
+              Role::STATE['FAILED_DEPLOYING']].include?(role.state)
         }
 
         # Ruby 1.8 compatibility
@@ -177,28 +192,34 @@ protected
     # @param [Role] role
     # @return [true|false]
     def role_nodes_running?(role)
-        n_nodes_running = 0
-
         role.get_nodes.each { |node|
-            vm_state = node['vm_info']['VM']['STATE']
-            lcm_state = node['vm_info']['VM']['LCM_STATE']
-
-            # ACTIVE && RUNNING
-            n_nodes_running += 1 if (vm_state == '3') && (lcm_state == '3')
+            if node && node['vm_info']
+                vm_state = node['vm_info']['VM']['STATE']
+                lcm_state = node['vm_info']['VM']['LCM_STATE']
+    
+                # !(ACTIVE && RUNNING)
+                if (vm_state != '3') || (lcm_state != '3')
+                    return false
+                end
+            else
+                return false
+            end
         }
 
-        return n_nodes_running == role.cardinality
+        return true
     end
 
     # Determine if any of the role nodes failed
     # @param [Role] role
     # @return [true|false]
-    def role_deployment_failed?(role)
+    def any_node_failed?(role)
         role.get_nodes.each { |node|
-            vm_state = node['vm_info']['VM']['STATE']
-
-            if vm_state == '7' # FAILED
-                return true
+            if node && node['vm_info']
+                vm_state = node['vm_info']['VM']['STATE']
+    
+                if vm_state == '7' # FAILED
+                    return true
+                end
             end
         }
 
@@ -210,9 +231,13 @@ protected
     # @return [true|false]
     def role_nodes_done?(role)
         role.get_nodes.each { |node|
-            vm_state = node['vm_info']['VM']['STATE']
-
-            if vm_state != '6' # DONE
+            if node && node['vm_info']
+                vm_state = node['vm_info']['VM']['STATE']
+    
+                if vm_state != '6' # DONE
+                    return false
+                end
+            else
                 return false
             end
         }

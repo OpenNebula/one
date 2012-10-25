@@ -53,21 +53,19 @@ class ServiceLCM
 
                             rc = strategy.boot_step(service)
                             if !rc[0]
-                                service.set_state(Service::STATE['FAILED'])
+                                service.set_state(Service::STATE['FAILED_DEPLOYING'])
                             end
-
-                            strategy.monitor_step(service)
                         when Service::STATE['DEPLOYING']
                             strategy.monitor_step(service)
 
                             if service.all_roles_running?
                                 service.set_state(Service::STATE['RUNNING'])
                             elsif service.any_role_failed?
-                                service.set_state(Service::STATE['FAILED'])
+                                service.set_state(Service::STATE['FAILED_DEPLOYING'])
                             else
                                 rc = strategy.boot_step(service)
                                 if !rc[0]
-                                    service.set_state(Service::STATE['FAILED'])
+                                    service.set_state(Service::STATE['FAILED_DEPLOYING'])
                                 end
                             end
                         when Service::STATE['RUNNING']
@@ -93,12 +91,26 @@ class ServiceLCM
 
                             if service.all_roles_done?
                                 service.set_state(Service::STATE['DONE'])
+                            elsif service.any_role_failed?
+                                service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
                             else
                                 rc = strategy.shutdown_step(service)
                                 if !rc[0]
                                     service.set_state(Service::STATE['FAILED'])
                                 end
                             end
+                        #when Service::STATE['FAILED_DEPLOYING']
+                        #    strategy.monitor_step(service)
+#
+                        #    if !service.any_role_failed?
+                        #        service.set_state(Service::STATE['DEPLOYING'])
+                        #    end
+                        #when Service::STATE['FAILED_UNDEPLOYING']
+                        #    strategy.monitor_step(service)
+#
+                        #    if !service.any_role_failed?
+                        #        service.set_state(Service::STATE['UNDEPLOYING'])
+                        #    end
                         end
 
                         rc = service.update()

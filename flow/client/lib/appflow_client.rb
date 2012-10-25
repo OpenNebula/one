@@ -18,13 +18,15 @@ require 'cloud/CloudClient'
 
 module Role
     STATE = {
-        'PENDING'     => 0,
-        'DEPLOYING'   => 1,
-        'RUNNING'     => 2,
-        'UNDEPLOYING' => 3,
-        'FAILED'      => 4,
-        'UNKNOWN'     => 5,
-        'DONE'        => 6
+        'PENDING'            => 0,
+        'DEPLOYING'          => 1,
+        'RUNNING'            => 2,
+        'UNDEPLOYING'        => 3,
+        'FAILED'             => 4,
+        'UNKNOWN'            => 5,
+        'DONE'               => 6,
+        'FAILED_UNDEPLOYING' => 7,
+        'FAILED_DEPLOYING'   => 8
     }
 
     STATE_STR = [
@@ -34,7 +36,9 @@ module Role
         'UNDEPLOYING',
         'FAILED',
         'UNKNOWN',
-        'DONE'
+        'DONE',
+        'FAILED_UNDEPLOYING',
+        'FAILED_DEPLOYING'
     ]
 
     # Returns the string representation of the role state
@@ -48,13 +52,15 @@ end
 module Service
 
     STATE = {
-        'PENDING'     => 0,
-        'DEPLOYING'   => 1,
-        'RUNNING'     => 2,
-        'UNDEPLOYING' => 3,
-        'FAILED'      => 4,
-        'UNKNOWN'     => 5,
-        'DONE'        => 6
+        'PENDING'            => 0,
+        'DEPLOYING'          => 1,
+        'RUNNING'            => 2,
+        'UNDEPLOYING'        => 3,
+        'FAILED'             => 4,
+        'UNKNOWN'            => 5,
+        'DONE'               => 6,
+        'FAILED_UNDEPLOYING' => 7,
+        'FAILED_DEPLOYING'   => 8
     }
 
     STATE_STR = [
@@ -64,7 +70,9 @@ module Service
         'UNDEPLOYING',
         'FAILED',
         'UNKNOWN',
-        'DONE'
+        'DONE',
+        'FAILED_UNDEPLOYING',
+        'FAILED_DEPLOYING'
     ]
 
     # Returns the string representation of the service state
