@@ -281,8 +281,8 @@ string& Host::to_xml(string& xml) const
        "<CLUSTER_ID>"    << cluster_id     << "</CLUSTER_ID>"    <<
        "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
        host_share.to_xml(share_xml)  <<
-       obj_template->to_xml(template_xml) <<
        vm_collection.to_xml(vm_collection_xml) <<
+       obj_template->to_xml(template_xml) <<
     "</HOST>";
 
     xml = oss.str();
