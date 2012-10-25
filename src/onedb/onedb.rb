@@ -169,11 +169,19 @@ class OneDB
             puts ""
         end
 
-        file = "#{RUBY_LIB_LOCATION}/onedb/#{version}_fsck.rb"
+        file = "#{RUBY_LIB_LOCATION}/onedb/fsck.rb"
 
         if File.exists? file
 
             one_not_running()
+
+            load(file)
+            @backend.extend OneDBFsck
+
+            if ( version != @backend.db_version )
+                raise "Version mismatch: fsck file is for version "<<
+                    "#{@backend.db_version}, current database version is #{version}"
+            end
 
             begin
                 # FSCK will be executed, make DB backup
@@ -181,8 +189,6 @@ class OneDB
 
                 puts "  > Running fsck" if ops[:verbose]
 
-                load(file)
-                @backend.extend OneDBFsck
                 result = @backend.fsck
 
                 if !result
@@ -206,7 +212,7 @@ class OneDB
                 return -1
             end
         else
-            raise "No fsck found for this version #{version}"
+            raise "No fsck file found in #{RUBY_LIB_LOCATION}/onedb/fsck.rb"
         end
     end
 
