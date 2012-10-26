@@ -4,7 +4,7 @@
 #
 # Starts the Sunstone Server
 #
-# chkconfig: 345 26 74
+# chkconfig: 345 66 34
 # description: Starts the OpenNebula daemon
 # processname: opennebula-sunstone
 
@@ -18,10 +18,15 @@
 # Description: start and stop opennebula-sunstone
 ### END INIT INFO
 
-SUNSTONE_BIN=/usr/bin/opennebula-sunstone
+prog="opennebula-sunstone"
+
+SUNSTONE_BIN=/usr/bin/sunstone-server
+LOCKFILE=/var/lock/subsys/${prog}
+PID_FILE=/var/run/${prog}.pid
 
 # Source function library.
 . /etc/rc.d/init.d/functions
+
 
 RETVAL=0
 
@@ -35,21 +40,31 @@ check() {
 
 start() {
     check
-    echo -n $"Starting Sunstone Server: "
+
+    echo -n $"Starting Sunstone Server daemon: "
     daemon --user oneadmin $SUNSTONE_BIN start
     RETVAL=$?
-    echo
+
+	echo
+    [ $RETVAL -eq 0 ] && {
+		touch $LOCKFILE
+		echo $(ps -ef|grep su[n]stone-server | awk '{print $2}') > $PID_FILE
+	}
+
     return $RETVAL
 }
 
 stop() {
-
     check
 
-    echo -n $"Stopping Sunstone Server: "
-    su oneadmin -s /bin/sh -c "$SUNSTONE_BIN stop"
+    echo -n $"Stopping Sunstone Server daemon: "
+    daemon --user oneadmin $SUNSTONE_BIN stop
     RETVAL=$?
-    echo
+
+	[ $RETVAL -eq 0 ] && success || failure
+	echo
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE $PID_FILE
+
     return $RETVAL
 }
 
@@ -70,7 +85,7 @@ restart)
     restart
     ;;
 status)
-    status opennebula-sunstone
+    status $prog
     RETVAL=$?
     ;;
 *)

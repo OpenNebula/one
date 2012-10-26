@@ -4,7 +4,7 @@
 #
 # Starts the OpenNebula daemon
 #
-# chkconfig: 345 26 74
+# chkconfig: 345 65 35
 # description: Starts the OpenNebula daemon
 # processname: opennebula
 
@@ -18,7 +18,10 @@
 # Description: start and stop opennebula
 ### END INIT INFO
 
+prog="opennebula"
+
 ONE_BIN=/usr/bin/one
+LOCKFILE=/var/lock/subsys/${prog}
 
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -35,21 +38,28 @@ check() {
 
 start() {
     check
+
     echo -n $"Starting OpenNebula daemon: "
     daemon --user oneadmin $ONE_BIN start
     RETVAL=$?
+
     echo
+    [ $RETVAL -eq 0 ] && touch $LOCKFILE
+
     return $RETVAL
 }
 
 stop() {
-
     check
 
     echo -n $"Stopping OpenNebula daemon: "
-    su oneadmin -s /bin/sh -c "$ONE_BIN stop"
+    daemon --user oneadmin $ONE_BIN stop
     RETVAL=$?
+
+    [ $RETVAL -eq 0 ] && success || failure
     echo
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+
     return $RETVAL
 }
 
@@ -70,7 +80,7 @@ restart)
     restart
     ;;
 status)
-    status opennebula
+    status $prog
     RETVAL=$?
     ;;
 *)
