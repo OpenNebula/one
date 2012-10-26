@@ -4,7 +4,7 @@
 #
 # Starts the OCCI Server
 #
-# chkconfig: 345 26 74
+# chkconfig: 345 66 34
 # description: Starts the OpenNebula daemon
 # processname: opennebula-occi
 
@@ -18,10 +18,15 @@
 # Description: start and stop oned
 ### END INIT INFO
 
+prog="opennebula-occi"
+
 OCCI_BIN=/usr/bin/occi-server
+LOCKFILE=/var/lock/subsys/${prog}
+PID_FILE=/var/run/${prog}.pid
 
 # Source function library.
 . /etc/rc.d/init.d/functions
+
 
 RETVAL=0
 
@@ -29,16 +34,23 @@ check() {
     # Check that we're a privileged user
     [ `id -u` = 0 ] || exit 4
 
-    # Check if oned is executable
+    # Check if occid is executable
     test -x $OCCI_BIN || exit 5
 }
 
 start() {
     check
+
     echo -n $"Starting OCCI Server: "
     daemon --user oneadmin $OCCI_BIN start
     RETVAL=$?
-    echo
+
+	echo
+    [ $RETVAL -eq 0 ] && {
+		touch $LOCKFILE
+		echo $(ps -ef|grep occi-server.rb | awk '{print $2}') > $PID_FILE
+	}
+
     return $RETVAL
 }
 
@@ -46,10 +58,14 @@ stop() {
 
     check
 
-    echo -n $"Stopping OCCI Server: "
-    su oneadmin -s /bin/sh -c "$OCCI_BIN stop"
+    echo -n $"Stopping OCCI Server daemon: "
+    daemon --user oneadmin $OCCI_BIN stop
     RETVAL=$?
+
+    [ $RETVAL -eq 0 ] && success || failure
     echo
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE $PID_FILE
+
     return $RETVAL
 }
 
@@ -70,7 +86,7 @@ restart)
     restart
     ;;
 status)
-    status opennebula-occi
+    status $prog
     RETVAL=$?
     ;;
 *)
