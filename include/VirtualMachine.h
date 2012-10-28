@@ -381,9 +381,9 @@ public:
 
     /**
      *  Returns the transfer filename. The transfer file is in the form:
-     *          $ONE_LOCATION/var/$VM_ID/transfer.$SEQ
+     *          $ONE_LOCATION/var/vms/$VM_ID/transfer.$SEQ
      *  or, in case that OpenNebula is installed in root
-     *          /var/lib/one/$VM_ID/transfer.$SEQ
+     *          /var/lib/one/vms/$VM_ID/transfer.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the transfer filename
      */
@@ -394,9 +394,9 @@ public:
 
     /**
      *  Returns the deployment filename. The deployment file is in the form:
-     *          $ONE_LOCATION/var/$VM_ID/deployment.$SEQ
+     *          $ONE_LOCATION/var/vms/$VM_ID/deployment.$SEQ
      *  or, in case that OpenNebula is installed in root
-     *          /var/lib/one/$VM_ID/deployment.$SEQ
+     *          /var/lib/one/vms/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */
@@ -407,9 +407,9 @@ public:
 
     /**
      *  Returns the context filename. The context file is in the form:
-     *          $ONE_LOCATION/var/$VM_ID/context.sh
+     *          $ONE_LOCATION/var/vms/$VM_ID/context.sh
      *  or, in case that OpenNebula is installed in root
-     *          /var/lib/one/$VM_ID/context.sh
+     *          /var/lib/one/vms/$VM_ID/context.sh
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */
@@ -420,7 +420,7 @@ public:
 
     /**
      *  Returns the remote deployment filename. The file is in the form:
-     *          $VM_DIR/$VM_ID/images/deployment.$SEQ
+     *          $DS_LOCATION/$SYSTEM_DS/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */
@@ -432,7 +432,7 @@ public:
     /**
      *  Returns the checkpoint filename for the current host. The checkpoint file
      *  is in the form:
-     *          $VM_DIR/$VM_ID/images/checkpoint
+     *          $DS_LOCATION/$SYSTEM_DS/$VM_ID/checkpoint
      *  The hasHistory() function MUST be called before this one.
      *    @return the checkpoint filename
      */

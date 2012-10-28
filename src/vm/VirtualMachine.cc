@@ -171,7 +171,7 @@ int VirtualMachine::select(SqlDB * db)
     //Create support directories for this VM
     //--------------------------------------------------------------------------
     oss.str("");
-    oss << nd.get_var_location() << oid;
+    oss << nd.get_vms_location() << oid;
 
     mkdir(oss.str().c_str(), 0700);
     chmod(oss.str().c_str(), 0700);
