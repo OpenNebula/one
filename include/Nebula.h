@@ -244,6 +244,18 @@ public:
     };
 
     /**
+     *  Returns the default vms location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/var/vms, otherwise it is /var/lib/one/vms. This
+     *  location stores vm related files: deployment, transfer, context, and
+     *  logs (in self-contained mode only)
+     *      @return the vms location.
+     */
+    const string& get_vms_location()
+    {
+        return vms_location;
+    };
+
+    /**
      *  Returns the path of the log file for a VM, depending where OpenNebula is
      *  installed,
      *     $ONE_LOCATION/var/$VM_ID/vm.log
@@ -261,7 +273,7 @@ public:
     	}
     	else
     	{
-    		oss << nebula_location << "var/" << oid << "/vm.log";
+    		oss << vms_location << oid << "/vm.log";
     	}
 
     	return oss.str();
@@ -315,6 +327,7 @@ private:
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
             ds_location      = "/var/lib/one/datastores/";
+            vms_location     = "/var/lib/one/vms/";
         }
         else
         {
@@ -331,6 +344,7 @@ private:
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
             ds_location      = nebula_location + "var/datastores/";
+            vms_location     = nebula_location + "var/vms/";
         }
     };
 
@@ -380,7 +394,7 @@ private:
         {
             delete clpool;
         }
-        
+
         if ( docpool != 0)
         {
             delete docpool;
@@ -464,6 +478,7 @@ private:
     string  hook_location;
     string  remotes_location;
     string  ds_location;
+    string  vms_location;
 
     string	hostname;
 
