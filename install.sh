@@ -909,7 +909,6 @@ TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/mv \
                  src/tm_mad/vmfs/context \
                  src/tm_mad/vmfs/mvds \
-                 src/tm_mad/vmfs/tm_vmfs.conf \
                  src/tm_mad/vmfs/postmigrate \
                  src/tm_mad/vmfs/premigrate"
 
