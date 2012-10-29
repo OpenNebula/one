@@ -106,6 +106,7 @@ if [ -z "$ROOT" ] ; then
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/one"
     MAN_LOCATION="/usr/share/man/man1"
+    VM_LOCATION="/var/lib/one/vms"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -131,7 +132,8 @@ if [ -z "$ROOT" ] ; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
-                   $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION"
+                   $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
+                   $VM_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -151,6 +153,7 @@ else
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
     MAN_LOCATION="$ROOT/share/man/man1"
+    VM_LOCATION="$VAR_LOCATION/vms"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -169,7 +172,8 @@ else
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
-                   $DEFAULT_DS_LOCATION $MAN_LOCATION $OZONES_LOCATION"
+                   $DEFAULT_DS_LOCATION $MAN_LOCATION $OZONES_LOCATION \
+                   $VM_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
