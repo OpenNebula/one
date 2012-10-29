@@ -41,6 +41,9 @@ fi
 . $TMCOMMON
 source $(dirname $0)/tm_vmfs.conf
 
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+
 #-------------------------------------------------------------------------------
 # Retrieve needed information
 #-------------------------------------------------------------------------------
@@ -54,11 +57,9 @@ USE_SSH=$(get_tm_use_ssh $DSID)
 vmfs_set_up
 
 #-------------------------------------------------------------------------------
-# Return if deleting a disk, we will delete them when removing the 
+# Return if deleting a disk, we will delete them when removing the
 # remote_system_ds directory for the VM (remotely)
 #-------------------------------------------------------------------------------
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
 
 if [ `is_disk $DST_PATH` -eq 1 ]; then
 	exit 0
