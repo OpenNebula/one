@@ -49,6 +49,7 @@ SRC_HOST=`arg_host $SRC`
 SRC_FOLDER=`basename $SRC_PATH`
 
 DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
 DST_FOLDER=`basename $DST_PATH`
 
 USE_SSH=$(get_tm_use_ssh $DSID)

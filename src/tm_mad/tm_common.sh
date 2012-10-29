@@ -80,7 +80,7 @@ function make_relative {
     echo $dots${src#$common/}
 }
 
-# Gets wether the vmfs drivers should use ssh or not
+# Gets whether the vmfs drivers should use ssh or not
 function get_tm_use_ssh {
     DATASTORE_ID=$1
 
