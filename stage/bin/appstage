@@ -263,7 +263,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             next 255
         end
         template_id=res.last
-        xml=OpenNebula::ChefDoc.build_xml(template_id)
+        xml=OpenNebula::Template.build_xml(template_id)
         template=OpenNebula::Template.new(xml, client)
 
         template.info
