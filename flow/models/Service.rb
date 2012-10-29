@@ -162,7 +162,7 @@ module OpenNebula
                 return self.update
             else
                 return OpenNebula::Error.new("Action shutdown: Wrong state" \
-                    "#{service.state_str()}")
+                    " #{self.state_str()}")
             end
         end
 
@@ -177,7 +177,7 @@ module OpenNebula
                 return self.update
             else
                 return OpenNebula::Error.new("Action deploy: Wrong state" \
-                    "#{service.state_str()}")
+                    " #{self.state_str()}")
             end
         end
 
