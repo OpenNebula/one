@@ -39,7 +39,6 @@ else
 fi
 
 . $TMCOMMON
-source $(dirname $0)/tm_vmfs.conf
 
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`

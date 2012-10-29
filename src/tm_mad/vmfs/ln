@@ -37,7 +37,6 @@ else
 fi
 
 . $TMCOMMON
-source $(dirname $0)/tm_vmfs.conf
 
 #-------------------------------------------------------------------------------
 # Retrieve needed information, set dst path and dir
