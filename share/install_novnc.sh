@@ -2,8 +2,8 @@
 
 NOVNC_TMP=/tmp/one/novnc-$(date "+%Y%m%d%H%M%S")
 PROXY_PATH=websockify/websocketproxy.py
-NOVNC_REPO=http://github.com/kanaka/noVNC/
-WEBSOCKIFY_RAW_URL=https://raw.github.com/kanaka/websockify/master/websockify
+NOVNC_TAR=https://github.com/downloads/kanaka/noVNC/novnc-0.4.tar.gz
+WEBSOCKIFY_RAW_URL=https://raw.github.com/kanaka/websockify/ee2f269c067c27ef49d63ad11d9efec499423500/websockify
 
 if [ -z "$ONE_LOCATION" ]; then
     ONE_SHARE=/usr/share/one
@@ -22,7 +22,7 @@ fi
 echo "Downloading noVNC latest version..."
 mkdir -p $NOVNC_TMP
 cd $NOVNC_TMP
-curl -O -# -L $NOVNC_REPO/tarball/master
+curl -O -# -L $NOVNC_TAR
 if [ $? -ne 0 ]; then
   echo "\nError downloading noVNC"
   exit 1
@@ -30,25 +30,22 @@ fi
 
 echo "Extracting files to temporary folder..."
 tar=`ls -rt $NOVNC_TMP|tail -n1`
-tar -C $ONE_SHARE -mxzf $NOVNC_TMP/$tar
+tar -mxzf $NOVNC_TMP/$tar
 
 if [ $? -ne 0 ]; then
   echo "Error untaring noVNC"
   exit 1
 fi
 
-echo "Moving files to OpenNebula $ONE_SHARE folder..."
-rm -rf $ONE_SHARE/noVNC
-dir=`ls -rt $ONE_SHARE|tail -n1`
-mv $ONE_SHARE/$dir $ONE_SHARE/noVNC
-
 echo "Installing Sunstone client libraries in $ONE_PUBLIC_SUNSTONE..."
+rm -rf $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 mkdir -p $ONE_PUBLIC_SUNSTONE/vendor/noVNC
-cp -r $ONE_SHARE/noVNC/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
+cp -r $NOVNC_TMP/*novnc*/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 
 echo "Installing SelfService client libraries in $ONE_PUBLIC_SELFSERVICE..."
+rm -rf $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
 mkdir -p $ONE_PUBLIC_SELFSERVICE/vendor/noVNC
-cp -r $NOVNC_TMP/*noVNC*/include/ $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
+cp -r $NOVNC_TMP/*novnc*/include/ $ONE_PUBLIC_SELFSERVICE/vendor/noVNC/
 
 cd $ONE_SHARE
 rm -rf $NOVNC_TMP
