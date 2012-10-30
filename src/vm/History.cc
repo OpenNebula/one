@@ -107,7 +107,7 @@ void History::non_persistent_data()
 
     // ----------- Local Locations ------------
     os.str("");
-    os << nd.get_var_location() << oid;
+    os << nd.get_vms_location() << oid;
 
     vm_lhome = os.str();
 
