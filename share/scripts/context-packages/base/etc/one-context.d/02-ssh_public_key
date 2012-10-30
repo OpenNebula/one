@@ -16,48 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-VERSION=${VERSION:-3.8.1}
-MAINTAINER=${MAINTAINER:-C12G Labs <support@c12g.com>}
-LICENSE=${LICENSE:-Apache 2.0}
-PACKAGE_NAME=${PACKAGE_NAME:-one-context}
-VENDOR=${VENDOR:-C12G Labs}
-DESC="
-This package prepares a VM image for OpenNebula:
-  * Disables udev net and cd persistent rules
-  * Deletes udev net and cd persistent rules
-  * Unconfigures the network
-  * Adds OpenNebula contextualization scripts to startup
-    * Configure network
-    * Configure dns (from DNS and ETH*_DNS context variables)
-    * Set root authorized keys (from SSH_PUBLIC_KEY and EC2_PUBLIC_KEY)
+[ -z "${SSH_PUBLIC_KEY}${EC2_PUBLIC_KEY}" ] && exit 0
 
-To get support check the OpenNebula web page:
-  http://OpenNebula.org
-"
-DESCRIPTION=${DESCRIPTION:-$DESC}
-PACKAGE_TYPE=${PACKAGE_TYPE:-deb}
-URL=${URL:-http://opennebula.org}
+mkdir -m0700 -p /root/.ssh
 
-SCRIPTS_DIR=$PWD
-NAME="${PACKAGE_NAME}_${VERSION}.${PACKAGE_TYPE}"
-rm $NAME
+echo -n '' > /root/.ssh/authorized_keys
 
-rm -rf tmp
-mkdir tmp
-cp -r base/* tmp
-cp -r base_$PACKAGE_TYPE/* tmp
+if [ -n "$SSH_PUBLIC_KEY" ]; then
+    echo "$SSH_PUBLIC_KEY" >> /root/.ssh/authorized_keys
+fi
 
-for i in $*; do
-  cp -r "$i" tmp
-done
+if [ -n "$EC2_PUBLIC_KEY" ]; then
+    echo "$EC2_PUBLIC_KEY" >> /root/.ssh/authorized_keys
+fi
 
-cd tmp
-
-fpm -n "$PACKAGE_NAME" -t "$PACKAGE_TYPE" -s dir --vendor "$VENDOR" \
-    --license "$LICENSE" --description "$DESCRIPTION" --url "$URL" \
-    -m "$MAINTAINER" -v "$VERSION" --after-install $SCRIPTS_DIR/postinstall \
-    -a all -p $SCRIPTS_DIR/$NAME *
-
-echo $NAME
-
-
+chmod 600 /root/.ssh/authorized_keys
