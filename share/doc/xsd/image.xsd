@@ -50,6 +50,13 @@
         <xs:element name="CLONING_ID" type="xs:integer"/>
         <xs:element name="DATASTORE_ID" type="xs:integer"/>
         <xs:element name="DATASTORE" type="xs:string"/>
+        <xs:element name="VMS">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
+        </xs:element>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
       </xs:sequence>
     </xs:complexType>
