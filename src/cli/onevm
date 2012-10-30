@@ -47,8 +47,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     TARGET={
         :name => "target",
-        :short => "-t type",
-        :large => "--target type",
+        :short => "-t target",
+        :large => "--target target",
         :format => String,
         :description => "Device where the image will be attached"
     }
