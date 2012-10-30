@@ -367,30 +367,45 @@ public:
      */
     int persistent(bool persis, string& error_str)
     {
-        if ( running_vms != 0 )
-        {
-            goto error_vms;
-        }
+        ostringstream oss;
 
-        if (persis == true)
+        switch(state)
         {
+            case USED:
+            case CLONE:
+            case USED_PERS:
+                goto error_state;
+                break;
 
-            if ( isPublic() )
-            {
-                goto error_public;
-            }
+            case INIT:
+            case READY:
+            case DISABLED:
+            case LOCKED:
+            case ERROR:
+            case DELETE:
+                if (persis == true)
+                {
+                    if ( isPublic() )
+                    {
+                        goto error_public;
+                    }
 
-            persistent_img = 1;
-        }
-        else
-        {
-            persistent_img = 0;
+                    persistent_img = 1;
+                }
+                else
+                {
+                    persistent_img = 0;
+                }
+
+                break;
         }
 
         return 0;
 
-    error_vms:
-        error_str = "Image cannot be in 'used' state.";
+    error_state:
+        oss << "Image cannot be in state " << state_to_str(state) << ".";
+        error_str = oss.str();
+
         goto error_common;
 
     error_public:
