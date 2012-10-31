@@ -53,7 +53,8 @@ Image::Image(int             _uid,
         cloning_id(-1),
         ds_id(-1),
         ds_name(""),
-        vm_collection("VMS")
+        vm_collection("VMS"),
+        img_clone_collection("CLONES")
 {
     if (_image_template != 0)
     {
@@ -318,6 +319,7 @@ string& Image::to_xml(string& xml) const
     string          perms_xml;
     ostringstream   oss;
     string          vm_collection_xml;
+    string          clone_collection_xml;
 
     oss <<
         "<IMAGE>" <<
@@ -343,6 +345,7 @@ string& Image::to_xml(string& xml) const
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             vm_collection.to_xml(vm_collection_xml)                   <<
+            img_clone_collection.to_xml(clone_collection_xml)         <<
             obj_template->to_xml(template_xml)                        <<
         "</IMAGE>";
 
@@ -426,6 +429,21 @@ int Image::from_xml(const string& xml)
     rc += vm_collection.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+
+
+    content.clear();
+
+    ObjectXML::get_nodes("/IMAGE/CLONES", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += img_clone_collection.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+
 
     if (rc != 0)
     {

@@ -292,14 +292,24 @@ public:
         return cloning_ops;
     }
 
-    int dec_cloning()
+    int dec_cloning(int img_id)
     {
-        return --cloning_ops;
+        if ( img_clone_collection.del_collection_id(img_id) == 0 )
+        {
+            cloning_ops--;
+        }
+
+        return cloning_ops;
     }
 
-    int inc_cloning()
+    int inc_cloning(int img_id)
     {
-        return ++cloning_ops;
+        if ( img_clone_collection.add_collection_id(img_id) == 0 )
+        {
+            cloning_ops++;
+        }
+
+        return cloning_ops;
     }
 
     /**
@@ -552,6 +562,11 @@ private:
      *  Stores a collection with the VMs using the image
      */
     ObjectCollection vm_collection;
+
+    /**
+     *  Stores a collection with the Images cloning this image
+     */
+    ObjectCollection img_clone_collection;
 
     // *************************************************************************
     // DataBase implementation (Private)

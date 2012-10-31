@@ -279,7 +279,7 @@ static void clone_action(istringstream& is,
 
     NebulaLog::log("ImM", Log::INFO, "Image cloned and ready to use.");
 
-    im ->release_cloning_image(cloning_id);        
+    im->release_cloning_image(cloning_id, id);
 
     return;
 
@@ -304,7 +304,7 @@ error:
 
     image->unlock();
 
-    im ->release_cloning_image(cloning_id);
+    im->release_cloning_image(cloning_id, id);
 
     return;
 }

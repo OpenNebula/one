@@ -225,7 +225,7 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::release_cloning_image(int iid)
+void ImageManager::release_cloning_image(int iid, int clone_img_id)
 {
     Image * img;
 
@@ -238,24 +238,18 @@ void ImageManager::release_cloning_image(int iid)
         return;
     }
 
+    int cloning = img->dec_cloning(clone_img_id);
+
     switch (img->get_state())
     {
-        case Image::CLONE:
-            img->dec_cloning();
-            img->set_state(Image::READY);
-
-            ipool->update(img);
-            img->unlock();
-        break;
-
         case Image::USED:
-            if ( img->dec_cloning() == 0  && img->get_running() == 0 )
+        case Image::CLONE:
+
+            if ( cloning == 0  && img->get_running() == 0 )
             {
                 img->set_state(Image::READY);
             }
 
-            ipool->update(img);
-            img->unlock();
         break;
 
         case Image::DELETE:
@@ -275,6 +269,9 @@ void ImageManager::release_cloning_image(int iid)
            img->unlock();
         break;
     }
+
+    ipool->update(img);
+    img->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -439,7 +436,7 @@ int ImageManager::delete_image(int iid, const string& ds_data)
 
     if ( cloning_id != -1 )
     {
-        release_cloning_image(cloning_id);
+        release_cloning_image(cloning_id, iid);
     }
 
     return 0;
@@ -524,7 +521,7 @@ int ImageManager::clone_image(int   new_id,
     switch(img->get_state())
     {
         case Image::READY:
-            img->inc_cloning();
+            img->inc_cloning(new_id);
 
             if (img->isPersistent())
             {
@@ -541,7 +538,7 @@ int ImageManager::clone_image(int   new_id,
         break;
 
         case Image::USED:
-            img->inc_cloning();
+            img->inc_cloning(new_id);
 
             ipool->update(img);
 

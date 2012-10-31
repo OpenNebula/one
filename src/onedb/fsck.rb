@@ -21,11 +21,11 @@ require 'set'
 
 module OneDBFsck
     def db_version
-        "3.8.1"
+        "4.0.0"
     end
 
     def one_version
-        "OpenNebula 3.8.1"
+        "OpenNebula 4.0.0"
     end
 
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -530,8 +530,6 @@ module OneDBFsck
         counters[:image] = {}
         counters[:vnet]  = {}
 
-        cloning_ops = {}
-
         # Initialize all the host counters to 0
         @db.fetch("SELECT oid FROM host_pool") do |row|
             counters[:host][row[:oid]] = {
@@ -543,18 +541,26 @@ module OneDBFsck
 
         # Init image counters
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
-            counters[:image][row[:oid]] = Set.new
+            if counters[:image][row[:oid]].nil?
+                counters[:image][row[:oid]] = {
+                    :vms    => Set.new,
+                    :clones => Set.new
+                }
+            end
 
             doc = Document.new(row[:body])
 
-            cloning_ops[row[:oid]] = [] if cloning_ops[row[:oid]].nil?
-
             doc.root.each_element("CLONING_ID") do |e|
                 img_id = e.text.to_i
-                
-                cloning_ops[img_id] = [] if cloning_ops[img_id].nil?
 
-                cloning_ops[img_id] << row[:oid]
+                if counters[:image][img_id].nil?
+                    counters[:image][img_id] = {
+                        :vms    => Set.new,
+                        :clones => Set.new
+                    }
+                end
+
+                counters[:image][img_id][:clones].add(row[:oid])
             end
         end
 
@@ -584,7 +590,7 @@ module OneDBFsck
                 if counters[:image][img_id].nil?
                     log_error("VM #{row[:oid]} is using Image #{img_id}, but it does not exist")
                 else
-                    counters[:image][img_id].add(row[:oid])
+                    counters[:image][img_id][:vms].add(row[:oid])
                 end
             end
 
@@ -733,6 +739,8 @@ module OneDBFsck
         # IMAGE/VMS/ID
         #
         # IMAGE/CLONING_OPS
+        # IMAGE/CLONES/ID
+        #
         # IMAGE/CLONING_ID
         #
         # IMAGE/STATE
@@ -750,8 +758,8 @@ module OneDBFsck
             persistent = ( doc.root.get_text('PERSISTENT').to_s == "1" )
             current_state = doc.root.get_text('STATE').to_s.to_i
 
-            rvms = counters[:image][oid].size
-            n_cloning_ops = cloning_ops[row[:oid]].size
+            rvms            = counters[:image][oid][:vms].size
+            n_cloning_ops   = counters[:image][oid][:clones].size
 
             # rewrite running_vms
             doc.root.each_element("RUNNING_VMS") {|e|
@@ -766,7 +774,7 @@ module OneDBFsck
 
             vms_new_elem = doc.root.add_element("VMS")
 
-            counters[:image][oid].each do |id|
+            counters[:image][oid][:vms].each do |id|
                 id_elem = vms_elem.elements.delete("ID[.=#{id}]")
 
                 if id_elem.nil?
@@ -783,6 +791,7 @@ module OneDBFsck
 
             if ( persistent && rvms > 0 )
                 n_cloning_ops = 0
+                counters[:image][oid][:clones] = Set.new
             end
 
             # Check number of clones
@@ -792,6 +801,26 @@ module OneDBFsck
                     e.text = n_cloning_ops
                 end
             }
+
+            # re-do list of Images cloning this one
+            clones_elem = doc.root.elements.delete("CLONES")
+
+            clones_new_elem = doc.root.add_element("CLONES")
+
+            counters[:image][oid][:clones].each do |id|
+                id_elem = clones_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error("Image #{id} is missing fom Image #{oid} CLONES id list")
+                end
+
+                clones_new_elem.add_element("ID").text = id.to_s
+            end
+
+            clones_elem.each_element("ID") do |id_elem|
+                log_error("Image #{id_elem.text} is in Image #{oid} CLONES id list, but it should not")
+            end
+
 
             # Check state
 

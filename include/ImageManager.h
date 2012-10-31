@@ -107,8 +107,9 @@ public:
     /**
      *  Closes any cloning operation on the image, updating the state if needed
      *    @param iid image id of the image to be released
+     *    @param clone_img_id image id of the image that was being cloned
      */
-    void release_cloning_image(int iid);
+    void release_cloning_image(int iid, int clone_img_id);
 
     /**
      *  Enables the image
