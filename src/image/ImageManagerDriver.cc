@@ -271,9 +271,9 @@ static void clone_action(istringstream& is,
 
     image->set_state(Image::READY);
 
-    ipool->update(image);
-
     image->clear_cloning_id();
+
+    ipool->update(image);
 
     image->unlock();
 
@@ -284,7 +284,7 @@ static void clone_action(istringstream& is,
     return;
 
 error:
-    oss << "Error cloning image ";
+    oss << "Error cloning from Image " << cloning_id;
 
     getline(is, info);
 
@@ -297,6 +297,8 @@ error:
 
     image->set_template_error_message(oss.str());
     image->set_state(Image::ERROR);
+
+    image->clear_cloning_id();
 
     ipool->update(image);
 

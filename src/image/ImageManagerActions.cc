@@ -417,6 +417,8 @@ int ImageManager::delete_image(int iid, const string& ds_data)
         imd->rm(img->get_oid(), *drv_msg);
         img->set_state(Image::DELETE);
 
+        img->clear_cloning_id();
+
         ipool->update(img);
     }
 
