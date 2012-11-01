@@ -100,6 +100,22 @@ module Migrator
         @db.run("DROP TABLE image_pool")
         @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
 
+        ########################################################################
+        #
+        # Banner for the new /var/lib/one/vms directory
+        #
+        ########################################################################
+
+        puts
+        puts "ATTENTION: manual intervention required".red
+        puts <<-END.gsub(/^ {8}/, '')
+        Virtual Machine deployment files have been moved from /var/lib/one to
+        /var/lib/one/vms. You need to move these files manually:
+
+            $ mv /var/lib/one/[0-9]* /var/lib/one/vms
+
+        END
+
         return true
     end
 end
