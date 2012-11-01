@@ -18,6 +18,18 @@ require 'set'
 require "rexml/document"
 include REXML
 
+class String
+    def red
+        colorize(31)
+    end
+
+private
+
+    def colorize(color_code)
+        "\e[#{color_code}m#{self}\e[0m"
+    end
+end
+
 module Migrator
     def db_version
         "3.9.80"
