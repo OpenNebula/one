@@ -430,7 +430,6 @@ int Image::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
 
-
     content.clear();
 
     ObjectXML::get_nodes("/IMAGE/CLONES", content);

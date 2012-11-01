@@ -238,17 +238,19 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
         return;
     }
 
-    int cloning = img->dec_cloning(clone_img_id);
-
     switch (img->get_state())
     {
         case Image::USED:
         case Image::CLONE:
 
+            int cloning = img->dec_cloning(clone_img_id);
+
             if ( cloning == 0  && img->get_running() == 0 )
             {
                 img->set_state(Image::READY);
             }
+
+            ipool->update(img);
 
         break;
 
@@ -266,11 +268,9 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
 
            NebulaLog::log("ImM", Log::ERROR, oss.str());
 
-           img->unlock();
         break;
     }
 
-    ipool->update(img);
     img->unlock();
 }
 
