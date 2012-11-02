@@ -209,9 +209,9 @@ class SunstoneServer < CloudServer
             return [404, nil]
         else
             if !ONE_LOCATION
-                vm_log_file = LOG_LOCATION + "/#{id}.log"
+                vm_log_file = LOG_LOCATION + "/vms/#{id}.log"
             else
-                vm_log_file = LOG_LOCATION + "/#{id}/vm.log"
+                vm_log_file = LOG_LOCATION + "/vms/#{id}/vm.log"
             end
 
             begin
