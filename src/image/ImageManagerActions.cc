@@ -674,6 +674,13 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     int rc = 0;
 
+    if ( imd == 0 )
+    {
+        res = "Could not get datastore driver";
+        NebulaLog::log("ImM",Log::ERROR, res);
+        return -1;
+    }
+
     img_tmpl->get("TYPE", type_att);
 
     switch (Image::str_to_type(type_att))
