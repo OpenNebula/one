@@ -9,7 +9,7 @@ EXTRA="$PWD/guest/*"
 PACKAGER_DIR="$ONE_SOURCE/share/scripts/context-packages"
 
 export PACKAGE_NAME=app-context
-export VERSION=3.6.0
+export VERSION=3.8.2
 export LICENSE="C12G Commercial Open-source License"
 export URL="http://c12g.com"
 export DESCRIPTION="
