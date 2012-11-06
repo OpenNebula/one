@@ -134,6 +134,11 @@ EOT
             :format => String
         },
         {
+            :name   => 'vnc',
+            :large  => '--vnc',
+            :description => 'Add VNC server to the VM'
+        },
+        {
             :name  => 'dry',
             :large  => '--dry',
             :description => 'Just print the template'
@@ -596,6 +601,9 @@ EOT
             template<<res.last
         end
 
+        if options[:vnc]
+            template<<'GRAPHICS=[ TYPE="vnc", LISTEN="0.0.0.0" ]'<<"\n"
+        end
 
         [0, template]
     end
