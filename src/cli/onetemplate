@@ -121,7 +121,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     template = res.last
                 end
 
-                tmpl.allocate(template)
+                if options[:dry]
+                    puts template
+                    exit 0
+                else
+                    tmpl.allocate(template)
+                end
             rescue => e
                 STDERR.puts e.messsage
                 exit -1

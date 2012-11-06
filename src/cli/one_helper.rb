@@ -132,6 +132,11 @@ EOT
             :large  => '--raw string',
             :description => 'Raw string to add to the template. Not to be confused with the RAW attribute',
             :format => String
+        },
+        {
+            :name  => 'dry',
+            :large  => '--dry',
+            :description => 'Just print the template'
         }
     ]
 

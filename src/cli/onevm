@@ -139,6 +139,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                 template = res.last
             end
+
+            if options[:dry]
+                puts template
+                exit 0
+            end
         rescue Exception => e
             STDERR.puts "Error reading template."
             next -1
