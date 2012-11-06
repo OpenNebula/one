@@ -139,6 +139,24 @@ EOT
             :description => 'Add VNC server to the VM'
         },
         {
+            :name   => 'ssh',
+            :large  => '--ssh [key]',
+            :description => 'Add an ssh public key to the context',
+            :format => String,
+            :proc => lambda do |o, options|
+                if !o
+                    [0, true]
+                else
+                    [0, o]
+                end
+            end
+        },
+        {
+            :name   => 'net_context',
+            :large  => '--net_context',
+            :description => 'Add network contextualization parameters'
+        },
+        {
             :name  => 'dry',
             :large  => '--dry',
             :description => 'Just print the template'
@@ -578,6 +596,38 @@ EOT
         [0, template]
     end
 
+    def self.create_context(options)
+        if !(options.keys & [:ssh]).empty?
+            lines=[]
+
+            if options[:ssh]
+                if options[:ssh]==true
+                    lines<<"SSH_PUBLIC_KEY=\"$USER[SSH_PUBLIC_KEY]\""
+                else
+                    lines<<"SSH_PUBLIC_KEY=\"#{options[:ssh]}\""
+                end
+            end
+
+            if options[:net_context] && options[:network]
+                nets=options[:network]
+                nets.each_with_index do |str, index|
+                    net=parse_user_object(str)
+                    name=net.last
+
+                    lines<<"ETH#{index}_IP = \"$NIC[IP, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_NETWORK = \"$NETWORK[NETWORK_ADDRESS, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_MASK = \"$NETWORK[NETWORK_MASK, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_GATEWAY = \"$NETWORK[GATEWAY, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_DNS = \"$NETWORK[DNS, NETWORK=\\\"#{name}\\\"]\""
+                end
+            end
+
+            "CONTEXT=[\n"<<lines.map{|l| "  "<<l}.join(",\n")<<"\n]\n"
+        else
+            nil
+        end
+    end
+
     def self.create_template(options)
         template=''
 
@@ -604,6 +654,9 @@ EOT
         if options[:vnc]
             template<<'GRAPHICS=[ TYPE="vnc", LISTEN="0.0.0.0" ]'<<"\n"
         end
+
+        context=create_context(options)
+        template<<context if context
 
         [0, template]
     end
