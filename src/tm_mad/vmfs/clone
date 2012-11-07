@@ -65,7 +65,7 @@ vmfs_set_up
 #-------------------------------------------------------------------------------
 
 if [ "$USE_SSH" == "yes" ]; then
-  ssh_make_path $DST_HOST /vmfs/volumes/$SYSTEM_DS_NAME/$VMID/$DST_FOLDER
+	ssh_make_path $DST_HOST $DST_PATH
 else
   vmfs_create_double_path $SYSTEM_DS_NAME $VMID $DST_FOLDER
 fi
@@ -78,17 +78,20 @@ log "Cloning $SRC_PATH in $DST"
 if [ "$USE_SSH" == "yes" ]; then
 
 CLONESCRIPT=$(cat <<EOF
+cd $DST_DIR
+
 export PATH=/usr/sbin:/sbin:\$PATH
 
 if which sudo > /dev/null; then
   SUDO_CMD="sudo "
 fi
 
-\$SUDO_CMD $VMKFSTOOLS -U /vmfs/volumes/$SYSTEM_DS_NAME/$VMID/$DST_FOLDER/disk.vmdk
-\$SUDO_CMD $VMKFSTOOLS -i /vmfs/volumes/$IMAGE_DS_NAME/$SRC_FOLDER/disk.vmdk -d thin /vmfs/volumes/$SYSTEM_DS_NAME/$VMID/$DST_FOLDER/disk.vmdk
+\$SUDO_CMD $VMKFSTOOLS -U $DST_PATH/disk.vmdk
+\$SUDO rm $DST_PATH/*
+\$SUDO_CMD $VMKFSTOOLS -i $SRC_PATH/disk.vmdk -d thin $DST_PATH/disk.vmdk
 EOF
 )
-  ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
+	ssh_exec_and_log $DST_HOST "$CLONESCRIPT" "Error cloning $SRC to $DST"
 else
   $VMKFSTOOLS $VI_PARAMS -U [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk &> /dev/null
 
@@ -98,9 +101,8 @@ else
     vifs $VI_PARAMS --force --rm [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/$file
   done
 
-  exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk -d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
+	exec_and_log "$VMKFSTOOLS $VI_PARAMS -i [$IMAGE_DS_NAME]$SRC_FOLDER/disk.vmdk -d thin [$SYSTEM_DS_NAME]$VMID/$DST_FOLDER/disk.vmdk" \
                  "Error cloning $SRC to $DST"
 fi
 
 exit 0
-
