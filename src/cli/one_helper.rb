@@ -609,11 +609,16 @@ EOT
             end
 
             if options[:net_context] && options[:network]
-                nets=options[:network]
-                nets.each_with_index do |str, index|
-                    net=parse_user_object(str)
-                    name=net.last
+                nets=options[:network].map {|n| parse_user_object(n).last }
 
+                if nets!=nets.uniq
+                    STDERR.puts "Network context generation from command "<<
+                        "line is not supported for VMs with\n"<<
+                        "more than one network with the same name."
+                    exit(-1)
+                end
+
+                nets.each_with_index do |name, index|
                     lines<<"ETH#{index}_IP = \"$NIC[IP, NETWORK=\\\"#{name}\\\"]\""
                     lines<<"ETH#{index}_NETWORK = \"$NETWORK[NETWORK_ADDRESS, NETWORK=\\\"#{name}\\\"]\""
                     lines<<"ETH#{index}_MASK = \"$NETWORK[NETWORK_MASK, NETWORK=\\\"#{name}\\\"]\""
