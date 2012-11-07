@@ -597,7 +597,7 @@ EOT
     end
 
     def self.create_context(options)
-        if !(options.keys & [:ssh]).empty?
+        if !(options.keys & [:ssh, :net_context]).empty?
             lines=[]
 
             if options[:ssh]
@@ -622,7 +622,11 @@ EOT
                 end
             end
 
-            "CONTEXT=[\n"<<lines.map{|l| "  "<<l}.join(",\n")<<"\n]\n"
+            if !lines.empty?
+                "CONTEXT=[\n"<<lines.map{|l| "  "<<l }.join(",\n")<<"\n]\n"
+            else
+                nil
+            end
         else
             nil
         end
