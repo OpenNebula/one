@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-VERSION=${VERSION:-3.6.0}
+VERSION=${VERSION:-3.8.2}
 MAINTAINER=${MAINTAINER:-C12G Labs <support@c12g.com>}
 LICENSE=${LICENSE:-Apache}
 PACKAGE_NAME=${PACKAGE_NAME:-oneapps}
@@ -36,7 +36,7 @@ DIRS="oneapps stage flow market"
 export DESTDIR=$PWD/tmp
 
 if [ "$(id -u)" = "0" ]; then
-    OWNER_FLAGS='-u oneadmin -g oneadmin'
+    OWNER_FLAGS='-u dmolina -g dmolina'
 fi
 
 rm -rf $DESTDIR

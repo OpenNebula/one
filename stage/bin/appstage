@@ -31,6 +31,8 @@ $: << '.'
 require 'onechef'
 require 'base64'
 
+require 'oneapps/version'
+
 require 'command_parser'
 require 'appstage_helper'
 require 'one_helper/onetemplate_helper'
@@ -95,6 +97,8 @@ COOKBOOKS={
 
 cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`appstage` <command> [<args>] [<options>]"
+    
+    set :option, CommandParser::VERSION
 
     helper = AppStageHelper.new
     template_helper = OneTemplateHelper.new

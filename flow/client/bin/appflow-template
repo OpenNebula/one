@@ -27,6 +27,7 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/cli'
 
 require 'oneapps/flow/appflow_client'
+require 'oneapps/version'
 
 require 'command_parser'
 require 'cli_helper'
@@ -149,6 +150,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`appflow-template` <command> [<args>] [<options>]"
 
     set :option, Service::DEFAULT_OPTIONS
+    set :option, CommandParser::VERSION
 
     #
     # Formatters for arguments

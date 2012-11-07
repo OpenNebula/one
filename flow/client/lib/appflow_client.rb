@@ -16,6 +16,8 @@
 require 'uri'
 require 'cloud/CloudClient'
 
+include CloudCLI
+
 module Role
     STATE = {
         'PENDING'            => 0,
