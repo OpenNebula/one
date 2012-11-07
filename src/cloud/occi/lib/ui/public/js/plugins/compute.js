@@ -409,10 +409,6 @@ var vm_buttons = {
                 type: "confirm",
                 text: tr("Cancel"),
                 tip: tr("This will cancel selected VMs")
-            },
-            "VM.saveasmultiple" : {
-                type: "action",
-                text: tr("Take snapshot")
             }
         }
     },
