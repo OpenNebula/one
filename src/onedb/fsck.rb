@@ -21,11 +21,11 @@ require 'set'
 
 module OneDBFsck
     def db_version
-        "3.8.1"
+        "3.8.2"
     end
 
     def one_version
-        "OpenNebula 3.8.1"
+        "OpenNebula 3.8.2"
     end
 
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
