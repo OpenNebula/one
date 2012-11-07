@@ -16,11 +16,11 @@
 
 module Migrator
     def db_version
-        "3.8.2"
+        "3.4.3"
     end
 
     def one_version
-        "OpenNebula 3.8.2"
+        "OpenNebula 3.4.3"
     end
 
     def up
