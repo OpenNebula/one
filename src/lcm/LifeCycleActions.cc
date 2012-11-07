@@ -532,10 +532,20 @@ void  LifeCycleManager::restart_action(int vid)
         }
         else // if ( vm->get_state() == VirtualMachine::POWEROFF )
         {
+            time_t the_time = time(0);
+
             vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
             vm->set_state(VirtualMachine::BOOT_POWEROFF);
 
+            vm->cp_history();
+
             vmpool->update(vm);
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
 
             vm->log("LCM", Log::INFO, "New VM state is BOOT_POWEROFF");
         }
