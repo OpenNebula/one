@@ -1216,6 +1216,8 @@ function quotaListItem(quota_json){
    Options: object with width, height, label and fontSize as keys
 */
 function progressBar(value, opts){
+    if (value > 100) value = 100;
+    
     if (!opts) opts = {};
 
     if (!opts.width) opts.width = 'auto';
