@@ -28,7 +28,7 @@ module Migrator
 
     def up
         ########################################################################
-        # Bug #1335
+        # Bug #1335: Add suspended VMs resoureces to Host usage
         ########################################################################
         @db.fetch("SELECT * FROM vm_pool WHERE state = 5") do |row|
 
@@ -41,7 +41,7 @@ module Migrator
 
             cpu = 0
             vm_doc.root.each_element("TEMPLATE/CPU") { |e|
-                cpu = e.text.to_i
+                cpu = e.text.to_f
             }
 
             hid = -1
@@ -188,7 +188,7 @@ module Migrator
         mem_used = 0
         vms_used = 0
 
-        @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state!=6") do |vm_row|
+        @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
             vmdoc = Document.new(vm_row[:body])
 
             # VM quotas
@@ -207,7 +207,7 @@ module Migrator
         vm_elem = vm_quota.add_element("VM")
 
         vm_elem.add_element("CPU").text = cpu_limit
-        vm_elem.add_element("CPU_USED").text = cpu_used.to_s
+        vm_elem.add_element("CPU_USED").text = sprintf('%.2f', cpu_used)
 
         vm_elem.add_element("MEMORY").text = mem_limit
         vm_elem.add_element("MEMORY_USED").text = mem_used.to_s
