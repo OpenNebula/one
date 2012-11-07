@@ -36,15 +36,11 @@ fi
 . $TMCOMMON
 
 #-------------------------------------------------------------------------------
-# Return if deleting a disk, we will delete them when removing the 
+# Return if deleting a disk, we will delete them when removing the
 # remote_system_ds directory for the VM (remotely)
 #-------------------------------------------------------------------------------
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
-
-if [ `is_disk $DST_PATH` -eq 1 ]; then
-	exit 0
-fi
 
 log "Deleting $DST_PATH"
 ssh_exec_and_log $DST_HOST "rm -rf $DST_PATH" "Error deleting $DST_PATH"

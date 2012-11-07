@@ -43,6 +43,9 @@ DST_HOST=`arg_host $DST`
 DELETE_CMD=$(cat <<EOF
     DEV=\$(readlink $DST_PATH)
     $SUDO $LVREMOVE -f \$DEV
+
+    # remove link
+    rm -f $DST_PATH
 EOF
 )
 

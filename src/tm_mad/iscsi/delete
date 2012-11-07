@@ -124,6 +124,9 @@ DELETE_CMD=$(cat <<EOF
 
     # remove lv
     $SUDO $LVREMOVE -f $VG_NAME/$TARGET_LV_NAME
+
+    # remove link
+    rm -f $DST_PATH
 EOF
 )
 
