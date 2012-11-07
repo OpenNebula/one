@@ -122,9 +122,7 @@ cp "$OPENNEBULA_JS_NEW" "$OPENNEBULA_JS"
 # Copy sunstone_auth to appflow_auth
 
 if [ ! -e "$APPFLOW_AUTH" ]; then
-    ln -sf "$SUNSTONE_AUTH" "$APPFLOW_AUTH"
-    chown oneadmin:oneadmin "$APPFLOW_AUTH"
-    chmod 600 "$APPFLOW_AUTH"
+    cp -p "$SUNSTONE_AUTH" "$APPFLOW_AUTH"
 fi
 
 
