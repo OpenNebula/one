@@ -28,8 +28,28 @@ end
 
 $: << RUBY_LIB_LOCATION
 
+DUMMY_ACTIONS_DIR = "/tmp/opennebula_dummy_actions"
+
 require "VirtualMachineDriver"
 require "CommandManager"
+
+# This is a dummy driver for the Virtual Machine management
+#
+# By default all the actions will succeed
+#
+# Action results can be specified in the DUMMY_ACTIONS_DIRS
+#   * Example, Next deploy will fail
+#       echo "failure" > $DUMMY_ACTIONS_DIR/deploy
+#     If this file is not removed next deploy actions will fail
+#       rm $DUMMY_ACTIONS_DIR/deploy
+#         or
+#       echo "success" > $DUMMY_ACTIONS_DIR/deploy
+#
+#   * Example, Defining multiple results per action
+#       echo "success\nfailure" > $DUMMY_ACTIONS_DIR/deploy
+#     The 1st deploy will succeed and the 2nd will fail. This
+#       behavior will be repeated, i.e 3th success, 4th failure
+
 
 class DummyDriver < VirtualMachineDriver
     def initialize
@@ -37,6 +57,10 @@ class DummyDriver < VirtualMachineDriver
             :concurrency => 15,
             :threaded => true
         )
+
+        `mkdir #{DUMMY_ACTIONS_DIR}`
+
+        @actions_counter = Hash.new(0)
     end
 
     def deploy(id, drv_message)
@@ -45,46 +69,67 @@ class DummyDriver < VirtualMachineDriver
         host = msg.elements["HOST"].text
         name = msg.elements["VM/NAME"].text
 
-        send_message(ACTION[:deploy],RESULT[:success],id,"#{host}:#{name}:dummy")
+        result = retrieve_result("deploy")
+
+        send_message(ACTION[:deploy],result,id,"#{host}:#{name}:dummy")
     end
 
     def shutdown(id, drv_message)
-        send_message(ACTION[:shutdown],RESULT[:success],id)
+        result = retrieve_result("shutdown")
+
+        send_message(ACTION[:shutdown],result,id)
     end
 
     def reboot(id, drv_message)
+        result = retrieve_result("reboot")
+
         send_message(ACTION[:reboot],RESULT[:success],id)
     end
 
     def reset(id, drv_message)
+        result = retrieve_result("reset")
+
         send_message(ACTION[:reset],RESULT[:success],id)
     end
 
     def cancel(id, drv_message)
+        result = retrieve_result("cancel")
+
         send_message(ACTION[:cancel],RESULT[:success],id)
     end
 
     def save(id, drv_message)
+        result = retrieve_result("save")
+
         send_message(ACTION[:save],RESULT[:success],id)
     end
 
     def restore(id, drv_message)
+        result = retrieve_result("restore")
+
         send_message(ACTION[:restore],RESULT[:success],id)
     end
 
     def migrate(id, drv_message)
+        result = retrieve_result("migrate")
+
         send_message(ACTION[:migrate],RESULT[:success],id)
     end
 
     def attach_disk(id, drv_message)
+        result = retrieve_result("attach_disk")
+
         send_message(ACTION[:attach_disk],RESULT[:success],id)
     end
 
     def detach_disk(id, drv_message)
+        result = retrieve_result("detach_disk")
+
         send_message(ACTION[:detach_disk],RESULT[:success],id)
     end
 
     def poll(id, drv_message)
+        result = retrieve_result("poll")
 
         msg = decode(drv_message)
 
@@ -119,7 +164,34 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:poll],RESULT[:success],id,monitor_info)
     end
 
+    private
+
+    def retrieve_result(action)
+        begin
+            actions = File.read(DUMMY_ACTIONS_DIR+"/#{action}")
+        rescue
+            return RESULT[:success]
+        end
+
+        actions_array = actions.split("\n")
+        action_id     = @actions_counter[action]
+        action_id     %= actions_array.size
+
+        if actions_array && actions_array[action_id]
+            result = actions_array[action_id]
+            if result == "success" || result == 0 || result == "0"
+                return RESULT[:success]
+            else
+                return RESULT[:failure]
+            end
+
+            @actions_counter[action] += 1
+        else
+            return RESULT[:success]
+        end
+
     end
+end
 
 dd = DummyDriver.new
 dd.start_driver
