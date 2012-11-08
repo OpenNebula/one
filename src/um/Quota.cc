@@ -163,6 +163,11 @@ bool Quota::check_quota(const string& qid,
 
     if ( get_quota(qid, &q) == -1 )
     {
+        ostringstream oss;
+        oss << "String '" << qid << "' is not a valid ID";
+
+        error = oss.str();
+
         return false;
     }
 
