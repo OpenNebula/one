@@ -60,27 +60,32 @@ vmfs_set_up
 # remote_system_ds directory for the VM (remotely)
 #-------------------------------------------------------------------------------
 
-if [ `is_disk $DST_PATH` -eq 1 ]; then
-	exit 0
-fi
-
 log "Deleting $DST_PATH"
 
 if [ "$USE_SSH" == "yes" ]; then
-	ssh_exec_and_log $DST_HOST "rm -rf $DST_PATH" "Error deleting $DST_PATH"
+    ssh_exec_and_log $DST_HOST "rm -rf $DST_PATH" "Error deleting $DST_PATH"
 else
-	DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
-	for dir in $DIRS_TO_ERASE; do
-		FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID/$dir|grep -v "Content Listing"|grep -v "\-\-\-\-\-\-\-\-"|egrep -v "^[[:space:]]*$"`
-		for file in $FILES_TO_ERASE; do
-			exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir/$file" \
-	                     "Cannot delete [$DSID]$VMID/$dir/$file in $DST_HOST"
-	    done
-    	exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir" \
-         "Cannot delete [$DSID]$VMID in $DST_HOST"
-	done
-	exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID" \
+    if [ `is_disk $DST_PATH` -eq 1 ]; then
+            dir=$(basename $DST_PATH)
+            FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID/$dir|grep -v "Content Listing"|grep -Fv "--------"|egrep -v "^[[:space:]]*$"`
+            for file in $FILES_TO_ERASE; do
+                exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir/$file" \
+                             "Cannot delete [$DSID]$VMID/$dir/$file in $DST_HOST"
+            done
+            exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir" \
              "Cannot delete [$DSID]$VMID in $DST_HOST"
+    else
+        DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -Fv "--------"|egrep -v "^[[:space:]]*$"`
+        for dir in $DIRS_TO_ERASE; do
+            FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID/$dir|grep -v "Content Listing"|grep -Fv "--------"|egrep -v "^[[:space:]]*$"`
+            for file in $FILES_TO_ERASE; do
+                exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir/$file" \
+                             "Cannot delete [$DSID]$VMID/$dir/$file in $DST_HOST"
+            done
+            exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$dir" \
+             "Cannot delete [$DSID]$VMID in $DST_HOST"
+        done
+    fi
 fi
 
 exit 0
