@@ -183,10 +183,10 @@ class OneDB
                     "#{@backend.db_version}, current database version is #{version}"
             end
 
-            begin
-                # FSCK will be executed, make DB backup
-                backup(ops[:backup], ops)
+            # FSCK will be executed, make DB backup
+            backup(ops[:backup], ops)
 
+            begin
                 puts "  > Running fsck" if ops[:verbose]
 
                 result = @backend.fsck
