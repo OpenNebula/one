@@ -88,8 +88,9 @@ EOF
 #   @param $1 - MD5 string
 #   @param $2 - SHA1 string
 #   @param $3 - NO_DECOMPRESS
-#   @param $4 - SRC
-#   @param $5 - DST
+#   @param $4 - BW LIMIT
+#   @param $5 - SRC
+#   @param $6 - DST
 #   @return downloader.sh util arguments
 #-------------------------------------------------------------------------------
 function set_downloader_args {
@@ -107,7 +108,11 @@ function set_downloader_args {
 	    HASHES="$HASHES --nodecomp"
 	fi
 
-	echo "$HASHES $4 $5"
+	if [ -n "$4" ]; then
+		HASHES="$HASHES --limit $4"
+	fi
+
+	echo "$HASHES $5 $6"
 }
 
 #-------------------------------------------------------------------------------
