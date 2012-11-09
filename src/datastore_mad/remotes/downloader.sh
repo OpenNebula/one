@@ -117,7 +117,7 @@ function unarchive
     fi
 }
 
-TEMP=`getopt -o m:s:n -l md5:,sha1:,nodecomp -- "$@"`
+TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error"
@@ -142,6 +142,10 @@ while true; do
             export NO_DECOMPRESS="yes"
             shift
             ;;
+        -l|--limit)
+            export LIMIT_RATE="$2"
+            shift 2
+            ;;
         --)
             shift
             break
@@ -163,7 +167,14 @@ http://*|https://*)
     # -k  so it does not check the certificate
     # -L  to follow redirects
     # -sS to hide output except on failure
-    command="curl -sS -k -L $FROM"
+    # --limit_rate to limit the bw
+    curl_args="-sS -k -L $FROM"
+
+    if [ -n "$LIMIT_RATE" ]; then
+        curl_args="--limit-rate $LIMIT_RATE $curl_args"
+    fi
+
+    command="curl $curl_args"
     ;;
 *)
     command="cat $FROM"
