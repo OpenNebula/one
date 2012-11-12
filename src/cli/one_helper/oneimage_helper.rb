@@ -76,7 +76,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :description => "Path of the image file",
             :format => String,
             :proc => lambda do |o, options|
-                if o[0,1]=='/'
+                if o.match(/^https?:\/\//)
+                    next [0, o]
+                elsif o[0,1]=='/'
                     path=o
                 else
                     path=Dir.pwd+"/"+o
