@@ -61,6 +61,8 @@ int XenDriver::deployment_description(
     string bridge     = "";
     string model      = "";
 
+    string default_model = "";
+
     const VectorAttribute * graphics;
 
     string listen     = "";
@@ -70,6 +72,7 @@ int XenDriver::deployment_description(
 
     const VectorAttribute * raw;
     string data;
+    string default_raw;
 
     // ------------------------------------------------------------------------
 
@@ -328,6 +331,8 @@ int XenDriver::deployment_description(
 
     num = vm->get_template_attribute("NIC",attrs);
 
+    get_default("NIC", "MODEL", default_model);
+
     file << "vif = [" << endl;
 
     for(int i=0; i<num;i++)
@@ -348,9 +353,20 @@ int XenDriver::deployment_description(
         bridge = nic->vector_value("BRIDGE");
         model  = nic->vector_value("MODEL");
 
-        if( !model.empty() )
+        string * the_model = 0;
+
+        if (!model.empty())
         {
-            file << "model=" << model;
+            the_model = &model;
+        }
+        else if (!default_model.empty())
+        {
+            the_model = &default_model;
+        }
+
+        if (the_model != 0)
+        {
+            file << "model=" << *the_model;
             pre_char = ',';
         }
 
@@ -465,6 +481,13 @@ int XenDriver::deployment_description(
             data = raw->vector_value("DATA");
             file << data << endl;
         }
+    }
+
+    get_default("RAW", default_raw);
+
+    if ( !default_raw.empty() )
+    {
+        file << default_raw << endl;
     }
 
     file.close();
