@@ -47,9 +47,6 @@ DST=$1
 VMID=$2
 DSID=$3
 
-# Wait for the cancel action on the VM to complete
-sleep 10
-
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
     VMWARERC=/etc/one/vmwarerc
