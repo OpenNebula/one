@@ -83,7 +83,7 @@ class DummyDriver < VirtualMachineDriver
     def reboot(id, drv_message)
         result = retrieve_result("reboot")
 
-        send_message(ACTION[:reboot],RESULT[:success],id)
+        send_message(ACTION[:reboot],result,id)
     end
 
     def reset(id, drv_message)
