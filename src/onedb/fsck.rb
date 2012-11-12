@@ -1225,7 +1225,7 @@ module OneDBFsck
 
             net_elem.each_element("LEASES_USED") { |e|
                 if e.text != leases_used.to_s
-                    log_error("#{resource} #{oid} quotas: VNet #{vnet_id}\tLEASES_USED has #{e.text.to_i} \tis\t#{leases_used}")
+                    log_error("#{resource} #{oid} quotas: VNet #{vnet_id}\tLEASES_USED has #{e.text} \tis\t#{leases_used}")
                     e.text = leases_used.to_s
                 end
             }
@@ -1260,7 +1260,7 @@ module OneDBFsck
 
             img_elem.each_element("RVMS_USED") { |e|
                 if e.text != rvms.to_s
-                    log_error("#{resource} #{oid} quotas: Image #{img_id}\tRVMS has #{e.text.to_i} \tis\t#{rvms}")
+                    log_error("#{resource} #{oid} quotas: Image #{img_id}\tRVMS has #{e.text} \tis\t#{rvms}")
                     e.text = rvms.to_s
                 end
             }
@@ -1311,14 +1311,14 @@ module OneDBFsck
 
             ds_elem.each_element("IMAGES_USED") { |e|
                 if e.text != images_used.to_s
-                    log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tIMAGES_USED has #{e.text.to_i} \tis\t#{images_used}")
+                    log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tIMAGES_USED has #{e.text} \tis\t#{images_used}")
                     e.text = images_used.to_s
                 end
             }
 
             ds_elem.each_element("SIZE_USED") { |e|
                 if e.text != size_used.to_s
-                    log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tSIZE_USED has #{e.text.to_i} \tis\t#{size_used}")
+                    log_error("#{resource} #{oid} quotas: Datastore #{ds_id}\tSIZE_USED has #{e.text} \tis\t#{size_used}")
                     e.text = size_used.to_s
                 end
             }
