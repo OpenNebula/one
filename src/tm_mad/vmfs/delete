@@ -22,7 +22,7 @@
 function vifs_rmdir {
     DIR_TO_RM="$1"
     FILES_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID/$DIR_TO_RM | \
-grep -v "Content Listing"|grep -Fv "--------"|egrep -v "^[[:space:]]*$"`
+grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
 
     for file in $FILES_TO_ERASE; do
         exec_and_log "vifs $VI_PARAMS --force --rm [$DSID]$VMID/$DIR_TO_RM/$file" \
@@ -90,7 +90,7 @@ else
     if [ `is_disk $DST_PATH` -eq 1 ]; then
         vifs_rmdir $(basename $DST_PATH)
     else
-        DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -Fv "--------"|egrep -v "^[[:space:]]*$"`
+        DIRS_TO_ERASE=`vifs $VI_PARAMS --dir [$DSID]$VMID|grep -v "Content Listing"|grep -Fv -- "--------"|egrep -v "^[[:space:]]*$"`
 
         for dir in $DIRS_TO_ERASE; do
             vifs_rmdir $dir
