@@ -69,7 +69,9 @@ int LibVirtDriver::deployment_description_kvm(
     string  model      = "";
     string  ip         = "";
     string  filter     = "";
+
     string  default_filter = "";
+    string  default_model  = "";
 
     const VectorAttribute * graphics;
 
@@ -86,6 +88,7 @@ int LibVirtDriver::deployment_description_kvm(
     string     acpi    = "";
 
     const VectorAttribute * raw;
+    string default_raw;
     string data;
 
     // ------------------------------------------------------------------------
@@ -438,9 +441,11 @@ int LibVirtDriver::deployment_description_kvm(
     // Network interfaces
     // ------------------------------------------------------------------------
 
-    get_default("NIC","FILTER",default_filter);
+    get_default("NIC", "FILTER", default_filter);
 
-    num = vm->get_template_attribute("NIC",attrs);
+    get_default("NIC", "MODEL", default_model);
+
+    num = vm->get_template_attribute("NIC", attrs);
 
     for(int i=0; i<num; i++)
     {
@@ -484,9 +489,20 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t<script path='" << script << "'/>" << endl;
         }
 
-        if( !model.empty() )
+        string * the_model = 0;
+
+        if (!model.empty())
         {
-            file << "\t\t\t<model type='" << model << "'/>" << endl;
+            the_model = &model;
+        }
+        else if (!default_model.empty())
+        {
+            the_model = &default_model;
+        }
+
+        if (the_model != 0)
+        {
+            file << "\t\t\t<model type='" << *the_model << "'/>" << endl;
         }
 
         if (!ip.empty() )
@@ -677,6 +693,13 @@ int LibVirtDriver::deployment_description_kvm(
             data = raw->vector_value("DATA");
             file << "\t" << data << endl;
         }
+    }
+
+    get_default("RAW", default_raw);
+
+    if ( !default_raw.empty() )
+    {
+        file << "\t" << default_raw << endl;
     }
 
     file << "</domain>" << endl;

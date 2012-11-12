@@ -65,6 +65,8 @@ int LibVirtDriver::deployment_description_vmware(
     string  script     = "";
     string  model      = "";
 
+    string default_model = "";
+
     const VectorAttribute * graphics;
 
     string  listen     = "";
@@ -74,6 +76,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     const VectorAttribute * raw;
     string data;
+    string default_raw;
 
     // ------------------------------------------------------------------------
 
@@ -301,6 +304,8 @@ int LibVirtDriver::deployment_description_vmware(
     // Network interfaces
     // ------------------------------------------------------------------------
 
+    get_default("NIC", "MODEL", default_model);
+
     num = vm->get_template_attribute("NIC",attrs);
 
     for(int i=0; i<num; i++)
@@ -346,9 +351,20 @@ int LibVirtDriver::deployment_description_vmware(
             file << "\t\t\t<script path='" << script << "'/>" << endl;
         }
 
-        if( !model.empty() )
+        string * the_model = 0;
+
+        if (!model.empty())
         {
-            file << "\t\t\t<model type='" << model << "'/>" << endl;
+            the_model = &model;
+        }
+        else if (!default_model.empty())
+        {
+            the_model = &default_model;
+        }
+
+        if (the_model != 0)
+        {
+            file << "\t\t\t<model type='" << *the_model << "'/>" << endl;
         }
 
         file << "\t\t</interface>" << endl;
@@ -435,6 +451,13 @@ int LibVirtDriver::deployment_description_vmware(
             data = raw->vector_value("DATA");
             file << "\t" << data << endl;
         }
+    }
+
+    get_default("RAW", default_raw);
+
+    if ( !default_raw.empty() )
+    {
+        file << "\t" << default_raw << endl;
     }
 
     file << "</domain>" << endl;
