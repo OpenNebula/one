@@ -140,8 +140,10 @@ EOT
         },
         {
             :name   => 'ssh',
-            :large  => '--ssh [key]',
-            :description => 'Add an ssh public key to the context',
+            :large  => '--ssh [file]',
+            :description => "Add an ssh public key to the context. If the \n"<<
+                (' '*31)<<"file is omited then the user variable \n"<<
+                (' '*31)<<"SSH_PUBLIC_KEY will be used.",
             :format => String,
             :proc => lambda do |o, options|
                 if !o
@@ -604,7 +606,13 @@ EOT
                 if options[:ssh]==true
                     lines<<"SSH_PUBLIC_KEY=\"$USER[SSH_PUBLIC_KEY]\""
                 else
-                    lines<<"SSH_PUBLIC_KEY=\"#{options[:ssh]}\""
+                    begin
+                        key=File.read(options[:ssh]).strip
+                    rescue Exception => e
+                        STDERR.puts e.message
+                        exit(-1)
+                    end
+                    lines<<"SSH_PUBLIC_KEY=\"#{key}\""
                 end
             end
 
