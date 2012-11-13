@@ -89,43 +89,43 @@ class DummyDriver < VirtualMachineDriver
     def reset(id, drv_message)
         result = retrieve_result("reset")
 
-        send_message(ACTION[:reset],RESULT[:success],id)
+        send_message(ACTION[:reset],result,id)
     end
 
     def cancel(id, drv_message)
         result = retrieve_result("cancel")
 
-        send_message(ACTION[:cancel],RESULT[:success],id)
+        send_message(ACTION[:cancel],result,id)
     end
 
     def save(id, drv_message)
         result = retrieve_result("save")
 
-        send_message(ACTION[:save],RESULT[:success],id)
+        send_message(ACTION[:save],result,id)
     end
 
     def restore(id, drv_message)
         result = retrieve_result("restore")
 
-        send_message(ACTION[:restore],RESULT[:success],id)
+        send_message(ACTION[:restore],result,id)
     end
 
     def migrate(id, drv_message)
         result = retrieve_result("migrate")
 
-        send_message(ACTION[:migrate],RESULT[:success],id)
+        send_message(ACTION[:migrate],result,id)
     end
 
     def attach_disk(id, drv_message)
         result = retrieve_result("attach_disk")
 
-        send_message(ACTION[:attach_disk],RESULT[:success],id)
+        send_message(ACTION[:attach_disk],result,id)
     end
 
     def detach_disk(id, drv_message)
         result = retrieve_result("detach_disk")
 
-        send_message(ACTION[:detach_disk],RESULT[:success],id)
+        send_message(ACTION[:detach_disk],result,id)
     end
 
     def poll(id, drv_message)
@@ -161,7 +161,7 @@ class DummyDriver < VirtualMachineDriver
                        "#{POLL_ATTRIBUTE[:usedmemory]}=#{max_memory * (rand(80)+20)/100} " \
                        "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100}" 
 
-        send_message(ACTION[:poll],RESULT[:success],id,monitor_info)
+        send_message(ACTION[:poll],result,id,monitor_info)
     end
 
     private
