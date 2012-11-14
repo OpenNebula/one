@@ -463,7 +463,6 @@ int ImageManager::can_clone_image(  int             cloning_id,
     switch(state)
     {
         case Image::USED_PERS:
-        case Image::CLONE:
         case Image::INIT:
         case Image::DISABLED:
         case Image::ERROR:
@@ -475,6 +474,7 @@ int ImageManager::can_clone_image(  int             cloning_id,
             return -1;
         break;
 
+        case Image::CLONE:
         case Image::READY:
         case Image::USED:
         default:
@@ -536,6 +536,7 @@ int ImageManager::clone_image(int   new_id,
         break;
 
         case Image::USED:
+        case Image::CLONE:
             img->inc_cloning(new_id);
 
             ipool->update(img);
@@ -544,7 +545,6 @@ int ImageManager::clone_image(int   new_id,
         break;
 
         case Image::USED_PERS:
-        case Image::CLONE:
         case Image::INIT:
         case Image::DISABLED:
         case Image::ERROR:
