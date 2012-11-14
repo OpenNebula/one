@@ -52,6 +52,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/UMASK \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DS_USE_SSH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/ID \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
@@ -62,11 +63,12 @@ BASE_PATH="${XPATH_ELEMENTS[0]}"
 RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
 SAFE_DIRS="${XPATH_ELEMENTS[2]}"
 UMASK="${XPATH_ELEMENTS[3]}"
-USE_SSH="${XPATH_ELEMENTS[4]:-$DS_USE_SSH}"
-DS_ID="${XPATH_ELEMENTS[5]}"
-FSTYPE="${XPATH_ELEMENTS[6]}"
-SIZE="${XPATH_ELEMENTS[7]}"
-IMAGE_ID="${XPATH_ELEMENTS[8]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[4]}"
+USE_SSH="${XPATH_ELEMENTS[5]:-$DS_USE_SSH}"
+DS_ID="${XPATH_ELEMENTS[6]}"
+FSTYPE="${XPATH_ELEMENTS[7]}"
+SIZE="${XPATH_ELEMENTS[8]}"
+IMAGE_ID="${XPATH_ELEMENTS[9]}"
 DST=`generate_image_path`
 DST_DIR=`dirname $DST`
 DST_FOLDER=`basename $DST`
@@ -94,7 +96,7 @@ log "Making filesystem of ${SIZE}M (with no format) at [$DS_ID]$DST_FOLDER on $D
 IMAGE_FORMAT=vmdk
 VMWARE_DISK_TYPE=`echo $FSTYPE|cut -d'_' -f 2`
 
-if [ "$USE_SSH" == "yes" ]; then    
+if [ "$USE_SSH" == "yes" ]; then
     $SSH $DST_HOST $VMKFSTOOLS -U [$DS_ID]$DST_FOLDER/disk.vmdk &> /dev/null
     ssh_exec_and_log $DST_HOST "$VMKFSTOOLS -c ${SIZE}M -d ${VMWARE_DISK_TYPE} /vmfs/volumes/$DS_ID/$DST_FOLDER/disk.vmdk" \
                                "Cannot create [$DS_ID] $DST_FOLDER/disk.vmdk on $DST_HOST"
