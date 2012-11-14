@@ -97,6 +97,7 @@ COOKBOOKS={
 
 cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`appstage` <command> [<args>] [<options>]"
+    version OneApps::VERSION_TEXT
     
     set :option, CommandParser::VERSION
 

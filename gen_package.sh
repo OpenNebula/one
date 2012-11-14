@@ -36,7 +36,7 @@ DIRS="oneapps stage flow market"
 export DESTDIR=$PWD/tmp
 
 if [ "$(id -u)" = "0" ]; then
-    OWNER_FLAGS='-u dmolina -g dmolina'
+    OWNER_FLAGS='-u oneadmin -g oneadmin'
 fi
 
 rm -rf $DESTDIR

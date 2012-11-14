@@ -148,6 +148,7 @@ end
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`appflow-template` <command> [<args>] [<options>]"
+    version OneApps::VERSION_TEXT
 
     set :option, Service::DEFAULT_OPTIONS
     set :option, CommandParser::VERSION

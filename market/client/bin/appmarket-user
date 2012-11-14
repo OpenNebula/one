@@ -95,6 +95,7 @@ end
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`appmarket-user` <command> [<args>] [<options>]"
+    version OneApps::VERSION_TEXT
 
     set :option, DEFAULT_OPTIONS
     set :option, CommandParser::VERSION
