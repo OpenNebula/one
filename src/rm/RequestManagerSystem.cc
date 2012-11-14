@@ -37,3 +37,22 @@ void SystemVersion::request_execute(xmlrpc_c::paramList const& paramList,
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
+
+void SystemConfig::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
+{
+    if ( att.gid != GroupPool::ONEADMIN_ID )
+    {
+        failure_response(AUTHORIZATION,
+            "The oned configuration can only be retrieved by users in the oneadmin group",
+            att);
+        return;
+    }
+
+    success_response(Nebula::instance().get_configuration_xml(), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */

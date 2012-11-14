@@ -366,6 +366,7 @@ void RequestManager::register_xml_methods()
 
     // System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion());
+    xmlrpc_c::methodPtr system_config(new SystemConfig());
 
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -498,6 +499,7 @@ void RequestManager::register_xml_methods()
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
+    RequestManagerRegistry.addMethod("one.system.config", system_config);
 
 
 };

@@ -60,6 +60,24 @@ public:
                          RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SystemConfig : public RequestManagerSystem
+{
+public:
+    SystemConfig():
+        RequestManagerSystem("SystemConfig",
+                          "Returns the OpenNebula configuration",
+                          "A:s")
+    {};
+
+    ~SystemConfig(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
