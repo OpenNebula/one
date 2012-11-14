@@ -18,6 +18,9 @@ module OpenNebula
 
         DOCUMENT_TYPE = 100
 
+        @@mutex      = Mutex.new
+        @@mutex_hash = Hash.new
+
         # Class constructor
         #
         # @param [OpenNebula::Client] client the xml-rpc client
@@ -27,9 +30,6 @@ module OpenNebula
         # @return [DocumentPool] the new object
         def initialize(client, user_id=-1)
             super(client, user_id)
-
-            @@mutex      ||= Mutex.new
-            @@mutex_hash ||= Hash.new
         end
 
         def factory(element_xml)
@@ -47,7 +47,7 @@ module OpenNebula
         #
         # @return [Service, OpenNebula::Error] The Service in case of success
         def get(service_id, &block)
-
+            service_id = service_id.to_i if service_id
             service = Service.new_with_id(service_id, @client)
 
             rc = service.info
@@ -66,7 +66,6 @@ module OpenNebula
 
                         if entry.nil?
                             entry = [Mutex.new, 0]
-
                             @@mutex_hash[service_id] = entry
                         end
 
