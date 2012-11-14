@@ -171,5 +171,9 @@ module OpenNebula
         def get_version()
             call("system.version")
         end
+
+        def get_config()
+            call("system.config")
+        end
     end
 end
