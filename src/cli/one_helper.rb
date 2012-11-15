@@ -165,6 +165,12 @@ EOT
             :description => 'Lines to add to the context section'
         },
         {
+            :name   => 'boot',
+            :large  => '--boot device',
+            :description => 'Select boot device (hd|fd|cdrom|network)',
+            :format => String
+        },
+        {
             :name  => 'dry',
             :large  => '--dry',
             :description => 'Just print the template'
@@ -657,7 +663,19 @@ EOT
         template=''
 
         template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
-        template<<"OS = [ ARCH = \"#{options[:arch]}\" ]\n" if options[:arch]
+
+        if options[:arch] || options[:boot]
+            template<<"OS = [\n"
+
+            lines=[]
+            lines<<"  ARCH = \"#{options[:arch]}\"" if options[:arch]
+            lines<<"  BOOT = \"#{options[:boot]}\"" if options[:boot]
+
+            template<<lines.join(",\n")
+
+            template << " ]\n"
+        end
+
         template<<"CPU=#{options[:cpu]}\n" if options[:cpu]
         template<<"MEMORY=#{options[:memory]}\n" if options[:memory]
         template<<"#{options[:raw]}\n" if options[:raw]
