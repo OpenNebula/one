@@ -159,6 +159,12 @@ EOT
             :description => 'Add network contextualization parameters'
         },
         {
+            :name   => 'context',
+            :large  => '--context line1,line2,line3',
+            :format => Array,
+            :description => 'Lines to add to the context section'
+        },
+        {
             :name  => 'dry',
             :large  => '--dry',
             :description => 'Just print the template'
@@ -599,7 +605,7 @@ EOT
     end
 
     def self.create_context(options)
-        if !(options.keys & [:ssh, :net_context]).empty?
+        if !(options.keys & [:ssh, :net_context, :context]).empty?
             lines=[]
 
             if options[:ssh]
@@ -634,6 +640,8 @@ EOT
                     lines<<"ETH#{index}_DNS = \"$NETWORK[DNS, NETWORK=\\\"#{name}\\\"]\""
                 end
             end
+
+            lines+=options[:context]
 
             if !lines.empty?
                 "CONTEXT=[\n"<<lines.map{|l| "  "<<l }.join(",\n")<<"\n]\n"
