@@ -305,6 +305,12 @@ public:
         nebula_configuration->Template::get(_name,value);
     };
 
+    string get_configuration_xml() const
+    {
+        string xml;
+        return nebula_configuration->to_xml(xml);
+    };
+
 private:
 
     // -----------------------------------------------------------------------
