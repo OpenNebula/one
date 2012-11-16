@@ -569,6 +569,10 @@ int Image::set_type(string& _type)
     {
         type = DATABLOCK;
     }
+    else if ( _type == "FILE" )
+    {
+        type = FILE;
+    }
     else
     {
         rc = -1;
@@ -629,6 +633,10 @@ Image::ImageType Image::str_to_type(string& str_type)
     else if ( str_type == "DATABLOCK" )
     {
         it = DATABLOCK;
+    }
+    else if ( str_type == "FILE" )
+    {
+        it = FILE;
     }
 
     return it;

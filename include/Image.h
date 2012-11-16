@@ -37,7 +37,8 @@ public:
     {
         OS        = 0, /** < Base OS image */
         CDROM     = 1, /** < An ISO9660 image */
-        DATABLOCK = 2  /** < User persistent data device */
+        DATABLOCK = 2, /** < User persistent data device */
+        FILE      = 3  /** < Context, kernels and initrd files */
     };
 
     /**
