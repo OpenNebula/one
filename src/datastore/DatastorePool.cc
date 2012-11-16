@@ -49,12 +49,12 @@ DatastorePool::DatastorePool(SqlDB * db):
         int     rc;
 
         // ---------------------------------------------------------------------
-        // Create the system datastore 
+        // Create the system datastore
         // ---------------------------------------------------------------------
 
-        oss << "NAME      = " << SYSTEM_DS_NAME << endl
-            << "SYSTEM    = YES" << endl
-            << "TM_MAD    = shared";
+        oss << "NAME   = " << SYSTEM_DS_NAME << endl
+            << "TYPE   = SYSTEM_DS" << endl
+            << "TM_MAD = shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -80,13 +80,14 @@ DatastorePool::DatastorePool(SqlDB * db):
         }
 
         // ---------------------------------------------------------------------
-        // Create the default datastore 
+        // Create the default datastore
         // ---------------------------------------------------------------------
         oss.str("");
 
-        oss << "NAME      = "   << DEFAULT_DS_NAME << endl
-            << "DS_MAD    = fs" << endl
-            << "TM_MAD    = shared";
+        oss << "NAME   = "   << DEFAULT_DS_NAME << endl
+            << "TYPE   = IMAGE_DS" << endl
+            << "DS_MAD = fs" << endl
+            << "TM_MAD = shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);

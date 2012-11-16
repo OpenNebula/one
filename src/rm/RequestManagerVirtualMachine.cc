@@ -172,7 +172,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
         return -1;
     }
 
-    if ( ds->is_system() == false )
+    if ( ds->get_type() != Datastore::SYSTEM_DS )
     {
         ostringstream oss;
 

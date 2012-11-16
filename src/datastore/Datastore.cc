@@ -50,7 +50,7 @@ Datastore::Datastore(
             ds_mad(""),
             tm_mad(""),
             base_path(""),
-            system_ds(0)
+            type(IMAGE_DS)
 {
     group_u = 1;
 
@@ -92,6 +92,33 @@ int Datastore::disk_attribute(VectorAttribute * disk)
 /* Datastore :: Database Access Functions                                   */
 /* ************************************************************************ */
 
+Datastore::DatastoreType Datastore::str_to_type(string& str_type)
+{
+    Datastore::DatastoreType dst = FILE_DS;
+
+    if (str_type.empty())
+    {
+        return dst;
+    }
+
+    TO_UPPER(str_type);
+
+    if ( str_type == "IMAGE_DS" )
+    {
+        dst = IMAGE_DS;
+    }
+    else if ( str_type == "SYSTEM_DS" )
+    {
+        dst = SYSTEM_DS;
+    }
+    else if ( str_type == "FILE_DS" )
+    {
+        dst = FILE_DS;
+    }
+
+    return dst;
+}
+
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
@@ -100,25 +127,22 @@ int Datastore::insert(SqlDB *db, string& error_str)
     int           rc;
     ostringstream oss;
     string        s_disk_type;
-    string        s_system_ds;
+    string        s_ds_type;
 
     Nebula& nd = Nebula::instance();
 
-    // ---------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Check default datastore attributes
-    // ---------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
-    erase_template_attribute("NAME", name);
-    // NAME is checked in DatastorePool::allocate
+    erase_template_attribute("NAME", name);//DatastorePool::allocate checks NAME
 
     get_template_attribute("DS_MAD", ds_mad);
-    get_template_attribute("SYSTEM", s_system_ds);
+    get_template_attribute("TYPE", s_ds_type);
 
-    TO_UPPER(s_system_ds);
+    type = str_to_type(s_ds_type);
 
-    system_ds = (s_system_ds == "YES");
-
-    if ( system_ds == 1 )
+    if ( type == SYSTEM_DS )
     {
         if ( !ds_mad.empty() )
         {
@@ -143,19 +167,20 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     base_path = oss.str();
 
-    get_template_attribute("DISK_TYPE", s_disk_type);
+    disk_type = Image::FILE;
 
-    if (s_disk_type == "BLOCK")
+    if ( type == IMAGE_DS )
     {
-        disk_type = Image::BLOCK;
-    } 
-    else if (s_disk_type == "CDROM")
-    {
-        disk_type = Image::CD_ROM;
-    }
-    else
-    {
-        disk_type = Image::FILE;
+        get_template_attribute("DISK_TYPE", s_disk_type);
+
+        if (s_disk_type == "BLOCK")
+        {
+            disk_type = Image::BLOCK;
+        }
+        else if (s_disk_type == "CDROM")
+        {
+            disk_type = Image::CD_ROM;
+        }
     }
 
     if ( tm_mad.empty() == true )
@@ -295,7 +320,7 @@ string& Datastore::to_xml(string& xml) const
         "<DS_MAD>"      << ds_mad       << "</DS_MAD>"      <<
         "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
         "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
-        "<SYSTEM>"      << system_ds    << "</SYSTEM>"      <<
+        "<TYPE>"        << type         << "</TYPE>"        <<
         "<DISK_TYPE>"   << disk_type    << "</DISK_TYPE>"   <<
         "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
         "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
@@ -315,6 +340,7 @@ int Datastore::from_xml(const string& xml)
 {
     int rc = 0;
     int int_disk_type;
+    int int_ds_type;
     vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
@@ -330,7 +356,7 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(ds_mad,       "/DATASTORE/DS_MAD",    "not_found");
     rc += xpath(tm_mad,       "/DATASTORE/TM_MAD",    "not_found");
     rc += xpath(base_path,    "/DATASTORE/BASE_PATH", "not_found");
-    rc += xpath(system_ds,    "/DATASTORE/SYSTEM",    -1);
+    rc += xpath(int_ds_type,  "/DATASTORE/TYPE",    -1);
     rc += xpath(int_disk_type,"/DATASTORE/DISK_TYPE", -1);
 
     rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
@@ -340,6 +366,7 @@ int Datastore::from_xml(const string& xml)
     rc += perms_from_xml();
 
     disk_type = static_cast<Image::DiskType>(int_disk_type);
+    type      = static_cast<Datastore::DatastoreType>(int_ds_type);
 
     // Get associated classes
     ObjectXML::get_nodes("/DATASTORE/IMAGES", content);
@@ -382,7 +409,7 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
 {
     string new_ds_mad;
     string new_tm_mad;
-    string s_system_ds;
+    string s_ds_type;
 
     int rc;
 
@@ -394,29 +421,23 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     }
 
     get_template_attribute("DS_MAD", new_ds_mad);
-    get_template_attribute("SYSTEM", s_system_ds);
+    get_template_attribute("TYPE", s_ds_type);
 
 
     if ( oid == DatastorePool::SYSTEM_DS_ID )
     {
-        system_ds = 1;
-    }
-    else if ( !s_system_ds.empty() )
-    {
-        TO_UPPER(s_system_ds);
-
-        system_ds = (s_system_ds == "YES");
-    }
-
-    if ( system_ds == 1 )
-    {
-        replace_template_attribute("SYSTEM", "YES");
-
-        new_ds_mad = "-";
+        type = SYSTEM_DS;
     }
     else
     {
-        obj_template->erase("SYSTEM");
+        type = str_to_type(s_ds_type);
+
+        replace_template_attribute("TYPE", type_to_str(type));
+    }
+
+    if ( type == SYSTEM_DS )
+    {
+        new_ds_mad = "-";
     }
 
     if ( !new_ds_mad.empty() )
