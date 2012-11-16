@@ -80,7 +80,8 @@ vmfs_set_up
 log "Copying local image $SRC to the image repository"
 
 if [ "$USE_SSH" == "yes" ]; then
-    ssh_exec_and_log "$VMKFSTOOLS $VI_PARAMS $SRC $DST" "Error copying $SRC to $DST"
+    ssh_make_path $DST_HOST /vmfs/volumes/$DS_ID/$DST_FOLDER
+    ssh_exec_and_log $DST_HOST "$VMKFSTOOLS $VI_PARAMS -i /vmfs/volumes/$DS_ID/$SRC_FOLDER/disk.vmdk /vmfs/volumes/$DS_ID/$DST_FOLDER/disk.vmdk" "Error copying /vmfs/volumes/$DS_ID/$SRC_FOLDER/disk.vmdk to /vmfs/volumes/$DS_ID/$DST_FOLDER/disk.vmdk"
 else
     exec_and_log "vifs $VI_PARAMS --copy [$DS_ID]$SRC_FOLDER [$DS_ID]$DST_FOLDER" \
                  "Error copying $SRC to $DST"
