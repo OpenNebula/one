@@ -66,6 +66,7 @@ module CommandParser
             @options = Hash.new
 
             @before_proc=nil
+            @comm_name=nil
 
             define_default_formats
 
@@ -407,7 +408,7 @@ module CommandParser
                 comm      = @main
             elsif
                 if @args[0] && !@args[0].match(/^-/)
-                    comm_name = @args.shift.to_sym
+                    @comm_name = comm_name = @args.shift.to_sym
                     comm      = @commands[comm_name]
                 end
             end
@@ -568,6 +569,14 @@ module CommandParser
         ########################################################################
 
         def print_help
+            if @comm_name
+                print_command_help(@comm_name)
+            else
+                print_all_commands_help
+            end
+        end
+
+        def print_all_commands_help
             if @usage
                 puts "## SYNOPSIS"
                 puts
@@ -588,37 +597,53 @@ module CommandParser
             end
         end
 
+        def print_command_help(name)
+            command=@commands[name]
+
+            puts "## USAGE"
+            print "#{name} "
+            print_command(@commands[name])
+
+            puts "## OPTIONS"
+            command[:options].flatten.each do |o|
+                print_option(o)
+            end
+
+            @available_options.each do |o|
+                print_option o
+            end
+        end
 
         def print_options
             puts "## OPTIONS"
 
             shown_opts = Array.new
-            opt_format = "#{' '*5}%-25s %s"
-            @commands.each{ |key,value|
-                value[:options].flatten.each { |o|
+            @commands.each do |key,value|
+                value[:options].flatten.each do |o|
                     if shown_opts.include?(o[:name])
                         next
                     else
                         shown_opts << o[:name]
 
-                        str = ""
-                        str << o[:short].split(' ').first << ', ' if o[:short]
-                        str << o[:large]
-
-                        printf opt_format, str, o[:description]
-                        puts
+                        print_option(o)
                     end
-                }
-            }
+                end
+            end
 
-            @available_options.each{ |o|
-                str = ""
-                str << o[:short].split(' ').first << ', ' if o[:short]
-                str << o[:large]
+            @available_options.each do |o|
+                print_option o
+            end
+        end
 
-                printf opt_format, str, o[:description]
-                puts
-            }
+        def print_option(o)
+            opt_format = "#{' '*5}%-25s %s"
+
+            str = ""
+            str << o[:short].split(' ').first << ', ' if o[:short]
+            str << o[:large]
+
+            printf opt_format, str, o[:description]
+            puts
         end
 
         def print_commands
