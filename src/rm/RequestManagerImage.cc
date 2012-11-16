@@ -203,7 +203,7 @@ void ImageClone::request_execute(
     if ( img->get_type() == Image::DATAFILE )
     {
          failure_response(ACTION,
-                "Image of type FILE cannot be clonned",
+                allocate_error("Image of type FILE cannot be clonned"),
                 att);
 
         img->unlock();

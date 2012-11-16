@@ -34,14 +34,14 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :name => "type",
             :large => "--type type",
             :format => String,
-            :description => "Type of the new Image: OS, CDROM or DATABLOCK",
+            :description => "Type of the new Image: #{Image::IMAGE_TYPES.join(", ")}",
             :proc => lambda do |o, options|
                 type=o.strip.upcase
 
-                if %w{OS CDROM DATABLOCK}.include? type
+                if Image::IMAGE_TYPES.include? type
                     [0, type]
                 else
-                    [-1, "Type should be OS, CDROM or DATABLOCK"]
+                    [-1, "Type should be: #{Image::IMAGE_TYPES.join(", ")}"]
                 end
             end
         },

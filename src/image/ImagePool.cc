@@ -108,9 +108,14 @@ int ImagePool::allocate (
     if ( ds_type == Datastore::FILE_DS &&
          img->str_to_type(type) != Image::DATAFILE )
     {
-        goto error_types_missmatch;
+        goto error_types_missmatch_file;
     }
 
+    if ( ds_type == Datastore::IMAGE_DS &&
+         img->str_to_type(type) == Image::DATAFILE )
+    {
+        goto error_types_missmatch_image;
+    }
     img_aux = get(name,uid,false);
 
     if( img_aux != 0 )
@@ -191,8 +196,12 @@ error_name_length:
     oss << "NAME is too long; max length is 128 chars.";
     goto error_common;
 
-error_types_missmatch:
+error_types_missmatch_file:
     oss << "Only IMAGES of type FILE can be registered in FILE_DS Datastore";
+    goto error_common;
+
+error_types_missmatch_image:
+    oss << "IMAGES of type FILE can be registered in IMAGE_DS Datastore";
     goto error_common;
 
 error_duplicated:

@@ -682,6 +682,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
     {
         case Image::OS:
         case Image::CDROM:
+        case Image::DATAFILE:
             img_tmpl->get("SOURCE", res);
 
             if (!res.empty())
@@ -720,6 +721,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
             {
                 img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
             }
+            break;
     }
 
     add_request(&sr);
