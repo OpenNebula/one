@@ -170,13 +170,16 @@ module OneDBFsck
 
         users_fix = {}
 
-        @db.fetch("SELECT oid,body FROM user_pool") do |row|
+        @db.fetch("SELECT oid,body,gid FROM user_pool") do |row|
             doc = Document.new(row[:body])
 
             gid = doc.root.get_text('GID').to_s.to_i
+            user_gid = gid
 
             if group[gid].nil?
                 log_error("User #{row[:oid]} is in group #{gid}, but it does not exist")
+
+                user_gid = 1
 
                 doc.root.each_element('GID') do |e|
                     e.text = "1"
@@ -186,15 +189,24 @@ module OneDBFsck
                     e.text = "users"
                 end
 
-                users_fix[row[:oid]] = doc.to_s
-            else
-                group[gid] << row[:oid]
+                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
             end
 
+            if gid != row[:gid]
+                log_error(
+                    "User #{row[:oid]} is in group #{gid}, but the DB "<<
+                    "table has GID column #{row[:gid]}")
+
+                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+            end
+
+            group[user_gid] << row[:oid]
         end
 
-        users_fix.each do |id, body|
-            @db[:user_pool].where(:oid => id).update(:body => body)
+        users_fix.each do |id, user|
+            @db[:user_pool].where(:oid => id).update(
+                :body => user[:body],
+                :gid => user[:gid])
         end
 
 
