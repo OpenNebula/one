@@ -242,6 +242,7 @@ EOT
                 pass
             end
         else
+            # This function is copied from ruby net/imap.rb
             def self.get_password
                 print "Password: "
                 system("stty", "-echo")
