@@ -76,13 +76,9 @@ DEV_SRC="/dev/$VG_NAME/$LV_SRC"
 CLONE_CMD=$(cat <<EOF
     set -e
     $SUDO $LVCREATE -L${SIZE}M ${VG_NAME} -n ${LV_NAME}
-    $SUDO $DD if=$DEV_SRC of=$DEV bs=64k
+    $SUDO $DD if=$DEV_SRC of=$DEV bs=2M
 
-    TID=\$($SUDO $(tgtadm_next_tid))
-
-    $SUDO $(tgtadm_target_new "\$TID" "$IQN")
-    $SUDO $(tgtadm_target_bind_all "\$TID")
-    $SUDO $(tgtadm_logicalunit_new "\$TID" "$DEV")
+    $SUDO $(tgt_setup_lun "$IQN" "$DEV")
     $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 EOF
 )
