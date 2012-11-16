@@ -76,6 +76,27 @@ EOT
         :format => String
     }
 
+    CLIENT_OPTIONS=[
+        {
+            :name   => 'user',
+            :large  => '--user name',
+            :description => 'User name used to connect to OpenNebula',
+            :format => String
+        },
+        {
+            :name   => 'password',
+            :large  => '--password password',
+            :description => 'Password to authenticate with OpenNebula',
+            :format => String
+        },
+        {
+            :name   => 'endpoint',
+            :large  => '--endpoint endpoing',
+            :description => 'URL of OpenNebula xmlrpc frontend',
+            :format => String
+        }
+    ]
+
     TEMPLATE_OPTIONS=[
         {
             :name   => 'cpu',
@@ -182,15 +203,65 @@ EOT
     OPTIONS = XML, NUMERIC, KILOBYTES
 
     class OneHelper
-        def initialize(secret=nil, endpoint=nil)
-            begin
-                @client = OpenNebula::Client.new(secret,endpoint)
-            rescue Exception => e
-                puts e.message
-                exit -1
+        attr_accessor :client
+
+        def self.get_client(options)
+            if defined?(@@client)
+                @@client
+            else
+                secret=nil
+                user=options[:user]
+                if user
+                    password=options[:password]||self.get_password
+                    secret="#{user}:#{password}"
+                end
+
+                endpoint=options[:endpoint]
+
+                @@client=OpenNebula::Client.new(secret, endpoint)
             end
+        end
+
+        def self.client
+            if defined?(@@client)
+                @@client
+            else
+                self.get_client({})
+            end
+        end
+
+        if RUBY_VERSION>="1.9.3"
+            require 'io/console'
+            def self.get_password
+                print "Password: "
+                pass=nil
+                STDIN.noecho {|io| pass=io.gets }
+                puts
+
+                pass.chop! if pass
+                pass
+            end
+        else
+            def self.get_password
+                print "Password: "
+                system("stty", "-echo")
+                begin
+                    return gets.chop
+                ensure
+                    system("stty", "echo")
+                    print "\n"
+                end
+            end
+        end
+
+        def initialize(secret=nil, endpoint=nil)
+            @client=nil
 
             @translation_hash = nil
+        end
+
+        def set_client(options)
+            @client=OpenNebulaHelper::OneHelper.get_client(options)
         end
 
         def create_resource(options, &block)
@@ -411,7 +482,7 @@ EOT
         end
 
         def pool_to_array(pool)
-    	    if !pool.instance_of?(Hash)
+            if !pool.instance_of?(Hash)
                 phash = pool.to_hash
             else
                 phash = pool
@@ -450,7 +521,7 @@ EOT
     def OpenNebulaHelper.rname_to_id(name, poolname)
         return 0, name.to_i if name.match(/^[0123456789]+$/)
 
-        client = OpenNebula::Client.new
+        client=OneHelper.client
 
         pool = case poolname
         when "HOST"      then OpenNebula::HostPool.new(client)

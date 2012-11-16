@@ -37,10 +37,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     helper = OneImageHelper.new
 
+    before_proc do
+        helper.set_client(options)
+    end
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML

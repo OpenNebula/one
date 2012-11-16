@@ -37,10 +37,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneuser` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
+    helper = OneUserHelper.new
+
+    before_proc do
+        helper.set_client(options)
+    end
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
@@ -135,12 +141,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     set :format, :userid, OneUserHelper.to_id_desc do |arg|
-        helper = OneUserHelper.new
         helper.to_id(arg)
     end
 
     set :format, :userid_list, OneUserHelper.list_to_id_desc do |arg|
-        helper = OneUserHelper.new
         helper.list_to_id(arg)
     end
 
@@ -164,8 +168,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :username, [:password, nil],
             :options=>create_options do
-        helper = OneUserHelper.new
-
         if args[1]
             pass = args[1]
         else
@@ -190,8 +192,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :userid, [:file, nil] do
-        helper = OneUserHelper.new
-
         helper.perform_action(args[0],options,"modified") do |user|
             str = OpenNebulaHelper.update_template(args[0], user, args[1])
             user.update(str)
@@ -204,8 +204,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :quota, quota_desc, :userid, [:file, nil] do
-        helper = OneUserHelper.new
-
         helper.perform_action(args[0], options, "modified") do |user|
             str = OneQuotaHelper.set_quota(user, args[1])
             rc  = user.set_quota(str)
@@ -224,8 +222,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :batchquota, batchquota_desc, [:range, :userid_list], [:file, nil] do
-        helper = OneUserHelper.new
-
         batch_str = OneQuotaHelper.get_batch_quota(args[1])
 
         helper.perform_actions(args[0], options, "modified") do |user|
@@ -282,7 +278,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :userid_list] do
-        helper = OneUserHelper.new
         helper.perform_actions(args[0], options, "deleted") do |user|
             user.delete
         end
@@ -294,8 +289,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :passwd, passwd_desc, :userid, [:password, nil],
             :options=>create_options do
-        helper = OneUserHelper.new
-
         if args[1]
             pass = args[1]
         else
@@ -317,7 +310,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chgrp, chgrp_desc, [:range, :userid_list], :groupid do
-        helper = OneUserHelper.new
         helper.perform_actions(args[0],options,"Group changed") do |user|
             user.chgrp(args[1].to_i)
         end
@@ -344,8 +336,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit_with_code 0, "An Auth driver should be specified"
         end
 
-        helper = OneUserHelper.new
-
         if args[2]
             pass = args[2]
         else
@@ -369,7 +359,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :list, list_desc, :options=>list_options do
-        helper = OneUserHelper.new
         helper.list_pool(options)
     end
 
@@ -380,7 +369,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :show, show_desc, [:userid, nil],
             :options=>OpenNebulaHelper::XML do
         user=args[0] || OpenNebula::User::SELF
-        helper = OneUserHelper.new
         helper.show_resource(user,options)
     end
 

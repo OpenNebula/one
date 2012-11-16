@@ -199,6 +199,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts
 
         onevm_helper=OneVMHelper.new
+        onevm_helper.client=@client
         onevm_helper.list_pool({:filter=>["HOST=#{host.name}"]}, false)
     end
 end
