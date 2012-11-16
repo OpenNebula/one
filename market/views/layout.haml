@@ -17,14 +17,14 @@
 %html{:lang => "en"}
   %head
     %meta{:charset => "utf-8"}
-    %script{:type => "text/javascript", :src  => "/js/jquery-1.7.2.min.js"}
-    %script{:type => "text/javascript", :src  => "/js/jquery.dataTables.min.js"}
-    %script{:type => "text/javascript", :src  => "/js/bootstrap.min.js"}
-    %script{:type => "text/javascript", :src  => "/js/market.js"}
-    %link{:rel=>'stylesheet', :href=>'/css/bootstrap.min.css', :type => "text/css"}
-    %link{:rel=>'stylesheet', :href=>'/css/market.css', :type => "text/css"}
-    %link{:rel=>'stylesheet', :href=>'/css/font-awesome.css', :type => "text/css"}
-    %link{:rel => "icon", :type => "image/png", :href => "/favicon.ico"}
+    %script{:type => "text/javascript", :src  => "#{settings.root_path}js/jquery-1.7.2.min.js"}
+    %script{:type => "text/javascript", :src  => "#{settings.root_path}js/jquery.dataTables.min.js"}
+    %script{:type => "text/javascript", :src  => "#{settings.root_path}js/bootstrap.min.js"}
+    %script{:type => "text/javascript", :src  => "#{settings.root_path}js/market.js"}
+    %link{:rel=>'stylesheet', :href=>"#{settings.root_path}css/bootstrap.min.css", :type => "text/css"}
+    %link{:rel=>'stylesheet', :href=>"#{settings.root_path}css/market.css", :type => "text/css"}
+    %link{:rel=>'stylesheet', :href=>"#{settings.root_path}css/font-awesome.css", :type => "text/css"}
+    %link{:rel => "icon", :type => "#{settings.root_path}image/png", :href => "/favicon.ico"}
 
   %body
     .container

@@ -63,6 +63,8 @@ configure do
     set :bind, CONF[:host]
     set :port, CONF[:port]
 
+    set :root_path, (CONF[:proxy_path]||'/')
+
     set :config, CONF
 end
 
@@ -84,7 +86,7 @@ end
 
 before do
     if request.env['PATH_INFO'] == '/'
-        redirect '/appliance'
+        redirect to(settings.root_path + 'appliance')
     end
 
     if request.path != '/login' && request.path != '/logout'
@@ -98,7 +100,7 @@ before do
             if request.env["HTTP_ACCEPT"] && request.env["HTTP_ACCEPT"].split(',').grep(/text\/html/).empty?
                 error 401, "User not authorized"
             else
-                redirect '/appliance'
+                redirect to(settings.root_path + 'appliance')
             end
         end
     end
@@ -115,7 +117,7 @@ end
 
 post '/logout' do
     session.clear
-    redirect '/appliance'
+    redirect to(settings.root_path + 'appliance')
 end
 
 #

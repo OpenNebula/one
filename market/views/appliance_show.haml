@@ -16,7 +16,7 @@
 .navbar.navbar-static
   .navbar-inner
     .container
-      %a.brand{'href' => "/"} Appliances
+      %a.brand{'href' => "#{settings.root_path}appliance"} Appliances
       = haml :nav_login
 
 .container-fluid
@@ -24,7 +24,7 @@
     .span8
       .brand= @app['name']
     .span4
-      %a.pull-right{'href' => "/"}
+      %a.pull-right{'href' => "#{settings.root_path}appliance"}
         %i.icon-search.icon-arrow-left
         Click to go back
   .row-fluid
@@ -157,7 +157,7 @@
           url: "#",
           type: "DELETE",
           success: function(){
-            window.location.href = "/";
+            window.location.reload();
           },
           error: function(){
             return true;

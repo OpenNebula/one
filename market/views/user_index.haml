@@ -16,7 +16,7 @@
 .navbar.navbar-static
   .navbar-inner
     .container
-      %a.brand{'href' => "/"} Appliances
+      %a.brand{'href' => "#{settings.root_path}appliance"} Appliances
       = haml :nav_login
 
 %table{'class' => "table table-striped", 'id' => "users"}
@@ -38,7 +38,7 @@
       "sDom": "t<'row'<'span6'i><'span6'p>>",
       "bProcessing": false,
       "sPaginationType": "bootstrap",
-      "sAjaxSource": "/user",
+      "sAjaxSource": "user",
       "sAjaxDataProp": "users",
       "bAutoWidth": false,
       "iDisplayLength": 50,
@@ -51,7 +51,7 @@
         { "mDataProp": "status" },
         { "mDataProp": "_id.$oid",
           "fnRender": function ( o ) {
-          more_info = '<a id="more_info" class="btn btn-inverse btn-mini pull-right" href="/user/' + o.aData["_id"]["$oid"]+ '">'+
+          more_info = '<a id="more_info" class="btn btn-inverse btn-mini pull-right" href="user/' + o.aData["_id"]["$oid"]+ '">'+
                         '<i class="icon-info-sign icon-white"></i>'+
                         ' More Info</a>'
           return more_info

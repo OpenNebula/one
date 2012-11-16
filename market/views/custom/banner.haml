@@ -29,15 +29,13 @@
     %p
       %a{'data-toggle' => 'modal', 'href' => '#post_your_appliance_banner'} Learn more
   .span4
-    :plain
-      <h1><i class="icon-retweet icon-white"></i> Integrated in OpenNebula</h1>
-        <ul class="thumbnails">
-          <li>
-            <a href="http://www.opennebula.org/documentation:documentation:marketplace" target="blank" class="thumbnail span10">
-              <img src="/img/marketsunstone.png" alt="">
-            </a>
-          </li>
-        </ul>
+    %h1
+      %i.icon-retweet.icon-white
+      Integrated in OpenNebula
+      %ul.thumbnails
+        %li
+          %a.thumbnail.span10{'target'=>'blank', 'href'=>'http://www.opennebula.org/documentation:documentation:marketplace'}
+            %img{'src'=>"#{settings.root_path}img/marketsunstone.png", 'alt'=>''}
 
 .modal.hide.fade#appliance_banner
   .modal-header

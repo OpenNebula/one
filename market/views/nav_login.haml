@@ -53,7 +53,7 @@
           %a{'data-toggle' => 'modal', 'href' => '#create_app'} Create new Appliance
         - if @session.admin?
           %li
-            %a{'href' => '/user'} Manage Users
+            %a{'href' => 'user'} Manage Users
         %li.divider
         %li
           %input.btn.btn-danger.pull-right#logout_btn{'type' => 'button', "value" => "Sign out"}
@@ -105,11 +105,11 @@
   $(document).ready(function() {
     $("#create_app_form").submit(function (){
       $.ajax({
-        url: "/appliance",
+        url: "appliance",
         type: "POST",
         data: JSON.stringify($("#create_app_form").serializeObject()),
         success: function(){
-          window.location.href = "/";
+          window.location.reload();
         },
         error: function(response){
           alert(response.responseText);
@@ -137,7 +137,7 @@
       }
 
       $.ajax({
-        url: "/user",
+        url: "user",
         type: "POST",
         data: JSON.stringify($("form").serializeObject()),
         success: function(){
@@ -160,14 +160,14 @@
       var remember = $("#user_remember_me").is(":checked");
 
       $.ajax({
-        url: "/login",
+        url: "login",
         type: "POST",
         data: {remember: remember},
         beforeSend : function(req) {
           req.setRequestHeader( "Authorization", "Basic " + btoa(username + ":" + password))
         },
         success: function(){
-          window.location.href = "/";
+          window.location.reload();
         },
         error: function(response){
           alert("The username or password you entered is incorrect");
@@ -181,10 +181,10 @@
 
     $("#logout_btn").click(function (){
       $.ajax({
-        url: "/logout",
+        url: "logout",
         type: "POST",
         success: function(){
-          window.location.href = "/";
+          window.location.reload();
         },
         error: function(){
           return true;
