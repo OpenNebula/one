@@ -438,9 +438,12 @@ module CommandParser
         private
 
         def parse(extra_options)
+            with_proc=Array.new
+
             @cmdparse=OptionParser.new do |opts|
                 merge = @available_options
                 merge = @available_options + extra_options if extra_options
+
                 merge.flatten.each do |e|
                     args = []
                     args << e[:short] if e[:short]
@@ -450,16 +453,8 @@ module CommandParser
 
                     opts.on(*args) do |o|
                         if e[:proc]
-                            rc = e[:proc].call(o, @options)
-                            if rc.instance_of?(Array)
-                                if rc[0] == 0
-                                    options[e[:name].to_sym] = rc[1]
-                                else
-                                    puts rc[1]
-                                    puts "option #{e[:name]}: Parsing error"
-                                    exit -1
-                                end
-                            end
+                            @options[e[:name].to_sym]=o
+                            with_proc<<e
                         elsif e[:name]=="help"
                             print_help
                             exit
@@ -478,6 +473,19 @@ module CommandParser
             rescue => e
                 puts e.message
                 exit -1
+            end
+
+            with_proc.each do |e|
+                rc = e[:proc].call(@options[e[:name].to_sym], @options)
+                if rc.instance_of?(Array)
+                    if rc[0] == 0
+                        @options[e[:name].to_sym] = rc[1]
+                    else
+                        puts rc[1]
+                        puts "option #{e[:name]}: Parsing error"
+                        exit -1
+                    end
+                end
             end
         end
 
