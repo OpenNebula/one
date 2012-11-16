@@ -65,6 +65,8 @@ module CommandParser
             @args = args
             @options = Hash.new
 
+            @before_proc=nil
+
             define_default_formats
 
             instance_eval(&block)
@@ -95,6 +97,12 @@ module CommandParser
         # @param [String] str
         def name(str)
             @name = str
+        end
+
+        # Defines a proc to be called before any command
+        # @param [Proc] block
+        def before_proc(&block)
+            @before_proc = block
         end
 
         # Defines a block that will be used to parse the arguments
@@ -413,6 +421,8 @@ module CommandParser
             parse(extra_options)
 
             if comm
+                @before_proc.call if @before_proc
+
                 check_args!(comm_name, comm[:arity], comm[:args_format])
 
                 rc = comm[:proc].call
