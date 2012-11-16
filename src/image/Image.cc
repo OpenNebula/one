@@ -571,7 +571,7 @@ int Image::set_type(string& _type)
     }
     else if ( _type == "FILE" )
     {
-        type = FILE;
+        type = DATAFILE;
     }
     else
     {
@@ -636,7 +636,7 @@ Image::ImageType Image::str_to_type(string& str_type)
     }
     else if ( str_type == "FILE" )
     {
-        it = FILE;
+        it = DATAFILE;
     }
 
     return it;
