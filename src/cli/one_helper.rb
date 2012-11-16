@@ -91,7 +91,7 @@ EOT
         },
         {
             :name   => 'endpoint',
-            :large  => '--endpoint endpoing',
+            :large  => '--endpoint endpoint',
             :description => 'URL of OpenNebula xmlrpc frontend',
             :format => String
         }
