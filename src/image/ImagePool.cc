@@ -116,6 +116,7 @@ int ImagePool::allocate (
     {
         goto error_types_missmatch_image;
     }
+
     img_aux = get(name,uid,false);
 
     if( img_aux != 0 )
@@ -134,7 +135,6 @@ int ImagePool::allocate (
         {
             goto error_clone_state;
         }
-
 
         img->set_cloning_id(cloning_id);
     }
@@ -197,11 +197,11 @@ error_name_length:
     goto error_common;
 
 error_types_missmatch_file:
-    oss << "Only IMAGES of type FILE can be registered in FILE_DS Datastore";
+    oss << "Only IMAGES of type FILE can be registered in a FILE_DS datastore";
     goto error_common;
 
 error_types_missmatch_image:
-    oss << "IMAGES of type FILE can be registered in IMAGE_DS Datastore";
+    oss << "IMAGES of type FILE cannot be registered in a IMAGE_DS datastore";
     goto error_common;
 
 error_duplicated:

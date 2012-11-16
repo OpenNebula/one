@@ -641,6 +641,14 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
+    if ( type == Image::DATAFILE )
+    {
+        failure_response(INTERNAL,
+                request_error("Cannot save_as image of type FILE", ""),
+                att);
+        return;
+    }
+
     // -------------------------------------------------------------------------
     // Get the data of the DataStore for the new image
     // -------------------------------------------------------------------------

@@ -88,6 +88,12 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 {
     int rc = 0;
 
+    if ( img->get_type() == Image::DATAFILE )
+    {
+        error = "Image of type FILE cannot be used as DISK.";
+        return -1;
+    }
+
     switch (img->get_state())
     {
         case Image::READY:
@@ -146,6 +152,14 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 
     if ( img == 0 )
     {
+        return;
+    }
+
+    if ( img->get_type() == Image::DATAFILE )
+    {
+        NebulaLog::log("ImM", Log::ERROR, "Trying to release a FILE image");
+
+        img->unlock();
         return;
     }
 
@@ -235,6 +249,14 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
 
     if ( img == 0 )
     {
+        return;
+    }
+
+    if ( img->get_type() == Image::DATAFILE )
+    {
+        NebulaLog::log("ImM", Log::ERROR, "Trying to release a cloning FILE image");
+
+        img->unlock();
         return;
     }
 

@@ -44,11 +44,11 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList,
     {
         if (enable_flag == true)
         {
-            err_msg = "Could not enable image";
+            err_msg = "Could not enable image.";
         }
         else
         {
-            err_msg = "Could not disable image";
+            err_msg = "Could not disable image.";
         }
 
         failure_response(INTERNAL, request_error(err_msg,""), att);
@@ -84,6 +84,15 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
                 get_error(object_name(auth_object),id),
                 att);
 
+        return;
+    }
+
+    if ( image->get_type() == Image::DATAFILE )
+    {
+        failure_response(ACTION,
+            request_error("FILE images must be non-persistent",""), att);
+
+        image->unlock();
         return;
     }
 
@@ -139,6 +148,17 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
                 get_error(object_name(auth_object),id),
                 att);
 
+        return;
+    }
+
+    if ( image->get_type() == Image::DATAFILE )
+    {
+        failure_response(ACTION,
+            request_error("Only FILE images can be stored in a FILE_DS"
+                          " datastore.",""),
+            att);
+
+        image->unlock();
         return;
     }
 

@@ -132,19 +132,33 @@ int Image::insert(SqlDB *db, string& error_str)
 
     erase_template_attribute("PERSISTENT", persistent_attr);
 
-    TO_UPPER(persistent_attr);
+    if ( type != DATAFILE )
+    {
+        TO_UPPER(persistent_attr);
 
-    persistent_img = (persistent_attr == "YES");
+        persistent_img = (persistent_attr == "YES");
+    }
+    else // Files are always non-persistent
+    {
+        persistent_img = false;
+    }
 
     // ------------ PREFIX --------------------
 
-    get_template_attribute("DEV_PREFIX", dev_prefix);
-
-    if( dev_prefix.empty() )
+    if ( type != DATAFILE )
     {
-        SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
-                                          ImagePool::default_dev_prefix());
-        obj_template->set(dev_att);
+        get_template_attribute("DEV_PREFIX", dev_prefix);
+
+        if( dev_prefix.empty() )
+        {
+            SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
+                                              ImagePool::default_dev_prefix());
+            obj_template->set(dev_att);
+        }
+    }
+    else // Do not set dev_prefix for files
+    {
+        erase_template_attribute("DEV_PREFIX", dev_prefix);
     }
 
     // ------------ SIZE --------------------
