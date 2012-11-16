@@ -289,6 +289,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string ds_name;
     string ds_data;
 
+    Datastore::DatastoreType ds_type;
+
     int    rc, id;
 
     PoolObjectAuth ds_perms;
@@ -332,7 +334,9 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    if ( ds->get_type() == Datastore::SYSTEM_DS )
+    ds_type = ds->get_type();
+
+    if ( ds_type == Datastore::SYSTEM_DS )
     {
         ostringstream oss;
 
@@ -448,6 +452,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          ds_name,
                          ds_disk_type,
                          ds_data,
+                         ds_type,
                          -1,
                          &id,
                          error_str);

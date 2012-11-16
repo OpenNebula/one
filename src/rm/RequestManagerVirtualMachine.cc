@@ -725,6 +725,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          ds_name,
                          ds_disk_type,
                          ds_data,
+                         Datastore::IMAGE_DS,
                          -1,
                          &iid,
                          error_str);

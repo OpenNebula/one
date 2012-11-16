@@ -182,7 +182,7 @@ void ImageClone::request_execute(
     Image *         img;
     Datastore *     ds;
 
-    Nebula&  nd = Nebula::instance();    
+    Nebula&  nd = Nebula::instance();
 
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
@@ -200,8 +200,19 @@ void ImageClone::request_execute(
         return;
     }
 
+    if ( img->get_type() == Image::DATAFILE )
+    {
+         failure_response(ACTION,
+                "Image of type FILE cannot be clonned",
+                att);
+
+        img->unlock();
+
+        return;
+    }
+
     tmpl = img->clone_template(name);
-    
+
     img->get_permissions(perms);
 
     ds_id   = img->get_ds_id();
@@ -224,6 +235,18 @@ void ImageClone::request_execute(
         return;
     }
 
+    if ( ds->get_type() == Datastore::FILE_DS )
+    {
+        failure_response(ACTION, "Clone not supported for FILE_DS Datastores",
+            att);
+
+        delete tmpl;
+
+        ds->unlock();
+
+        return;
+    }
+
     ds->get_permissions(ds_perms);
 
     disk_type = ds->get_disk_type();
@@ -233,7 +256,7 @@ void ImageClone::request_execute(
     ds->unlock();
 
     // ------------- Set authorization request ---------------------------------
-    
+
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size);
 
@@ -265,21 +288,22 @@ void ImageClone::request_execute(
         if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
         {
             delete tmpl;
-            return;   
-        }        
+            return;
+        }
     }
 
-    rc = ipool->allocate(att.uid, 
-                         att.gid, 
-                         att.uname, 
+    rc = ipool->allocate(att.uid,
+                         att.gid,
+                         att.uname,
                          att.gname,
-                         tmpl, 
-                         ds_id, 
-                         ds_name, 
+                         tmpl,
+                         ds_id,
+                         ds_name,
                          disk_type,
-                         ds_data, 
-                         clone_id, 
-                         &new_id, 
+                         ds_data,
+                         Datastore::IMAGE_DS,
+                         clone_id,
+                         &new_id,
                          error_str);
     if ( rc < 0 )
     {

@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "Image.h"
 #include "NebulaLog.h"
+#include "Datastore.h"
 
 #include <time.h>
 #include <sstream>
@@ -74,8 +75,9 @@ public:
         ImageTemplate * img_template,
         int             ds_id,
         const string&   ds_name,
-        Image::DiskType ds_type,
+        Image::DiskType disk_type,
         const string&   ds_data,
+        Datastore::DatastoreType ds_type,
         int             source_img_id,
         int *           oid,
         string&         error_str);
