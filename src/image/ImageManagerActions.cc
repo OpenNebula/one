@@ -90,7 +90,12 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 
     if ( img->get_type() == Image::DATAFILE )
     {
-        error = "Image of type FILE cannot be used as DISK.";
+        ostringstream oss;
+
+        oss << "Image " << img->get_oid() << " (" << img->get_name() << ") "
+            << "of type FILE cannot be used as DISK.";
+        error = oss.str();
+
         return -1;
     }
 
