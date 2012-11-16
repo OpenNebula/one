@@ -44,6 +44,7 @@ SYNC=sync
 TAR=tar
 TGTADM=tgtadm
 TGTADMIN=tgt-admin
+TGTSETUPLUN=tgt-setup-lun
 VMKFSTOOLS=vmkfstools
 WGET=wget
 
@@ -349,12 +350,12 @@ function tgtadm_target_delete {
 
 function tgtadm_get_tid_for_iqn {
     IQN="$1"
-    echo "$TGTADM --lld iscsi --op show --mode target | \
+    echo "$TGTADM --lld iscsi --op show --mode target | strings | \
         grep \"$IQN\" | awk '{split(\$2,tmp,\":\"); print(tmp[1]);}'"
 }
 
 function tgtadm_next_tid {
-    echo "$TGTADM --lld iscsi --op show --mode target | \
+    echo "$TGTADM --lld iscsi --op show --mode target | strings | \
             $GREP \"Target\" | tail -n 1 | \
             $AWK '{split(\$2,tmp,\":\"); print tmp[1]+1;}'"
 }
@@ -402,6 +403,12 @@ function iqn_get_vg_name {
     echo $TARGET|$AWK -F. '{print $(NF-1)}'
 }
 
+function tgt_setup_lun {
+    IQN="$1"
+    DEV="$2"
+    echo "$TGTSETUPLUN -d $DEV -n $IQN 1>&2"
+}
+
 function iqn_get_host {
     IQN="$1"
     TARGET=`echo "$IQN"|$CUT -d: -f2`
@@ -426,10 +433,10 @@ function vmfs_set_up {
     if [ "$USE_SSH" != "yes" ]; then
         USERNAME=`echo $(cat $VMWARERC |grep ":username:"|cut -d":" -f 3|tr -d '"')`
         PASSWORD=`echo $(cat $VMWARERC |grep ":password:"|cut -d":" -f 3|tr -d '"')`
-        if [ -z $PASSWORD ]; then       
-            VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""    
-        else       
-            VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"    
+        if [ -z $PASSWORD ]; then
+            VI_PARAMS="--server $DST_HOST --username $USERNAME --password \"\""
+        else
+            VI_PARAMS="--server $DST_HOST --username $USERNAME --password $PASSWORD"
         fi
     fi
 }

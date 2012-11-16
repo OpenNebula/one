@@ -63,13 +63,33 @@ DISCOVER_CMD=$(cat <<EOF
     mkdir -p $DST_DIR
     $SUDO $(iscsiadm_discovery "$TARGET_HOST")
     $SUDO $(iscsiadm_login "$IQN" "$TARGET_HOST")
-    sleep 2
-    DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)
-    ln -s "\$DISK_BY_PATH" "$DST_PATH"
 EOF
 )
 
 ssh_exec_and_log "$DST_HOST" "$DISCOVER_CMD" \
-        "Error registering $DST_HOST:$DEV"
+        "Error discovering $DST_HOST:$DEV"
+
+TEST_CMD=$(cat <<EOF
+    set -e
+    while [ ! -L /dev/disk/by-path/*$IQN-lun-1 ]; do
+	sleep 1
+    done
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$TEST_CMD" \
+        "Error waiting for $IQN iSCSI LUN to appear in $DST_HOST"
+
+LINK_CMD=$(cat <<EOF
+    set -e
+    DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)
+    ln -s "\$DISK_BY_PATH" "$DST_PATH"
+    DISK_DEVNAME=\$(readlink -f \$DISK_BY_PATH  | awk -F'/' '{ print \$NF }')
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$LINK_CMD" \
+        "Error linking $DST_HOST:$DEV"
+
 
 exit 0
