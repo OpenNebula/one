@@ -429,8 +429,24 @@ int VirtualMachine::parse_os(string& error_str)
         }
         else
         {
-            os->replace("KERNEL", "kernel");
+            os->remove("KERNEL");
             os->replace("KERNEL_DS", result);
+        }
+    }
+
+    initrd_ds = os->vector_value("INITRD_DS");
+
+    if (!initrd_ds.empty())
+    {
+        if ( parse_file_attribute(initrd_ds, result) != 0 )
+        {
+            error_str = result;
+            return -1;
+        }
+        else
+        {
+            os->remove("INITRD");
+            os->replace("INITRD_DS", result);
         }
     }
 
