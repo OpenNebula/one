@@ -704,6 +704,31 @@ error_cleanup:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+static int check_and_set_cluster_id(const char *      id_name,
+                                    VectorAttribute * vatt,
+                                    string&           cluster_id)
+{
+    string vatt_cluster_id;
+
+    vatt_cluster_id = vatt->vector_value(id_name);
+
+    if ( !vatt_cluster_id.empty() )
+    {
+        if ( cluster_id.empty() )
+        {
+            cluster_id = vatt_cluster_id;
+        }
+        else if ( cluster_id != vatt_cluster_id )
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
 int VirtualMachine::automatic_requirements(string& error_str)
 {
     int                   num_vatts;
@@ -713,9 +738,11 @@ int VirtualMachine::automatic_requirements(string& error_str)
     ostringstream   oss;
     string          requirements;
     string          cluster_id = "";
-    string          vatt_cluster_id;
 
-    // Get cluster id from all DISK vector attributes
+    int incomp_id;
+    int rc;
+
+    // Get cluster id from all DISK vector attributes (IMAGE Datastore)
 
     num_vatts = obj_template->get("DISK",v_attributes);
 
@@ -728,16 +755,39 @@ int VirtualMachine::automatic_requirements(string& error_str)
             continue;
         }
 
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatt, cluster_id);
 
-        if ( !vatt_cluster_id.empty() )
+        if ( rc != 0 )
         {
-            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
+            incomp_id = i;
+            goto error_disk;
+        }
+    }
+
+    // Get cluster id from the KERNEL and INITRD (FILE Datastores)
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("OS",v_attributes);
+
+    if ( num_vatts > 0 )
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[0]);
+
+        if ( vatt != 0 )
+        {
+            rc = check_and_set_cluster_id("KERNEL_CLUSTER_ID", vatt, cluster_id);
+
+            if ( rc != 0 )
             {
-                goto error;
+                goto error_kernel;
             }
 
-            cluster_id = vatt_cluster_id;
+            rc = check_and_set_cluster_id("INITRD_CLUSTER_ID", vatt, cluster_id);
+
+            if ( rc != 0 )
+            {
+                goto error_initrd;
+            }
         }
     }
 
@@ -755,16 +805,12 @@ int VirtualMachine::automatic_requirements(string& error_str)
             continue;
         }
 
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatt, cluster_id);
 
-        if ( !vatt_cluster_id.empty() )
+        if ( rc != 0 )
         {
-            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
-            {
-                goto error;
-            }
-
-            cluster_id = vatt_cluster_id;
+            incomp_id = i;
+            goto error_nic;
         }
     }
 
@@ -785,59 +831,27 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     return 0;
 
-error:
+error_disk:
+    oss << "Incompatible clusters in DISKs. Datastore for DISK["
+        << incomp_id <<"] should be in cluster " << cluster_id << ".";
+    goto error_common;
 
-    oss << "Incompatible cluster IDs.";
+error_kernel:
+    oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
+        << cluster_id << ".";
+    goto error_common;
 
-    // Get cluster id from all DISK vector attributes
+error_initrd:
+    oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
+        << cluster_id << ".";
+    goto error_common;
 
-    v_attributes.clear();
-    num_vatts = obj_template->get("DISK",v_attributes);
+error_nic:
+    oss << "Incompatible clusters in NICs. Network for NIC[" << incomp_id <<"]"
+        << " should be in cluster " << cluster_id << ".";
+    goto error_common;
 
-    for(int i=0; i<num_vatts; i++)
-    {
-        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
-
-        if ( vatt == 0 )
-        {
-            continue;
-        }
-
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
-
-        if ( !vatt_cluster_id.empty() )
-        {
-            oss << endl << "DISK [" << i << "]: IMAGE ["
-                << vatt->vector_value("IMAGE_ID") << "] from DATASTORE ["
-                << vatt->vector_value("DATASTORE_ID") << "] requires CLUSTER ["
-                << vatt_cluster_id << "]";
-        }
-    }
-
-    // Get cluster id from all NIC vector attributes
-
-    v_attributes.clear();
-    num_vatts = obj_template->get("NIC",v_attributes);
-
-    for(int i=0; i<num_vatts; i++)
-    {
-        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
-
-        if ( vatt == 0 )
-        {
-            continue;
-        }
-
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
-
-        if ( !vatt_cluster_id.empty() )
-        {
-            oss << endl << "NIC [" << i << "]: NETWORK ["
-                << vatt->vector_value("NETWORK_ID") << "] requires CLUSTER ["
-                << vatt_cluster_id << "]";
-        }
-    }
-
+error_common:
     error_str = oss.str();
 
     return -1;
