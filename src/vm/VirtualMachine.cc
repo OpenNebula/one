@@ -31,7 +31,7 @@
 
 #include "Nebula.h"
 
-
+#include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
 
 /* ************************************************************************** */
@@ -270,6 +270,17 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Check the OS attribute
+    // ------------------------------------------------------------------------
+
+    rc = parse_os(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_os;
+    }
+
+    // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
 
@@ -349,6 +360,9 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
+error_os:
+    goto error_common;
+
 error_cpu:
     error_str = "CPU attribute must be a positive float or integer value.";
     goto error_common;
@@ -369,6 +383,58 @@ error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_os(string& error_str)
+{
+    int num;
+
+    vector<Attribute *> os_attr;
+    VectorAttribute *   os;
+
+    string kernel_ds;
+    string result;
+
+    num = obj_template->get("OS", os_attr);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+    else if ( num > 1 )
+    {
+        error_str = "Only one OS attribute can be defined.";
+        return -1;
+    }
+
+    os = dynamic_cast<VectorAttribute *>(os_attr[0]);
+
+    if ( os == 0 )
+    {
+        error_str = "Internal error parsing OS attribute.";
+        return -1;
+    }
+
+    kernel_ds = os->vector_value("KERNEL_DS");
+
+    if (!kernel_ds.empty())
+    {
+        if ( parse_file_attribute(kernel_ds, result) != 0 )
+        {
+            error_str = result;
+            return -1;
+        }
+        else
+        {
+            os->replace("KERNEL", "kernel");
+            os->replace("KERNEL_DS", result);
+        }
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1826,6 +1892,10 @@ extern "C"
                       ostringstream *  parsed,
                       char **          errmsg);
 
+    int vm_file_var_parse (VirtualMachine * vm,
+                      ostringstream *  parsed,
+                      char **          errmsg);
+
     int vm_var_lex_destroy();
 
     YY_BUFFER_STATE vm_var__scan_string(const char * str);
@@ -1854,7 +1924,7 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
         goto error_yy;
     }
 
-    rc = vm_var_parse(this,&oss_parsed,&error_msg);
+    rc = vm_var_parse(this, &oss_parsed, &error_msg);
 
     vm_var__delete_buffer(str_buffer);
 
@@ -1882,6 +1952,63 @@ error_yy:
     return -1;
 }
 
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_file_attribute(const string& attribute,
+                                         string&       parsed)
+{
+    YY_BUFFER_STATE  str_buffer = 0;
+    const char *     str;
+    int              rc;
+    ostringstream    oss_parsed;
+    char *           error_msg = 0;
+
+    pthread_mutex_lock(&lex_mutex);
+
+    str        = attribute.c_str();
+    str_buffer = vm_var__scan_string(str);
+
+    if (str_buffer == 0)
+    {
+        goto error_yy;
+    }
+
+    rc = vm_file_var_parse(this, &oss_parsed, &error_msg);
+
+    vm_var__delete_buffer(str_buffer);
+
+    vm_var_lex_destroy();
+
+    pthread_mutex_unlock(&lex_mutex);
+
+    if ( rc != 0  )
+    {
+        ostringstream oss;
+
+        if ( error_msg != 0 )
+        {
+            oss << "Error parsing: " << attribute << ". " << error_msg;
+            free(error_msg);
+        }
+        else
+        {
+            oss << "Unknown error parsing: " << attribute << ".";
+        }
+
+        parsed = oss.str();
+    }
+    else
+    {
+        parsed = oss_parsed.str();
+    }
+
+    return rc;
+
+error_yy:
+    log("VM",Log::ERROR,"Error setting scan buffer");
+    pthread_mutex_unlock(&lex_mutex);
+    return -1;
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

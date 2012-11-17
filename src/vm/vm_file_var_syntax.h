@@ -30,14 +30,14 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_VM_VAR_VM_VAR_SYNTAX_HH_INCLUDED
-# define YY_VM_VAR_VM_VAR_SYNTAX_HH_INCLUDED
+#ifndef YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
+# define YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int vm_var__debug;
+extern int vm_file_var__debug;
 #endif
 
 /* Tokens.  */
@@ -63,7 +63,7 @@ extern int vm_var__debug;
 typedef union YYSTYPE
 {
 /* Line 2042 of yacc.c  */
-#line 416 "vm_var_syntax.y"
+#line 175 "vm_file_var_syntax.y"
 
     char * val_str;
     int    val_int;
@@ -71,7 +71,7 @@ typedef union YYSTYPE
 
 
 /* Line 2042 of yacc.c  */
-#line 75 "vm_var_syntax.hh"
+#line 75 "vm_file_var_syntax.hh"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -91,4 +91,4 @@ typedef struct YYLTYPE
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
 
-#endif /* !YY_VM_VAR_VM_VAR_SYNTAX_HH_INCLUDED  */
+#endif /* !YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED  */

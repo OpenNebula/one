@@ -59,6 +59,7 @@ public:
      *    @param ds_name the name of the datastore
      *    @param ds_type disk type for the image
      *    @param ds_data the datastore data
+     *    @param ds_type the datastore type
      *    @param source_img_id If the new Image is a clone, this must be the
      *      source Image ID. Otherwise, it must be set to -1
      *    @param oid the id assigned to the Image
@@ -68,19 +69,19 @@ public:
      *                  -2 in case of template parse failure
      */
     int allocate (
-        int             uid,
-        int             gid,
-        const string&   uname,
-        const string&   gname,
-        ImageTemplate * img_template,
-        int             ds_id,
-        const string&   ds_name,
-        Image::DiskType disk_type,
-        const string&   ds_data,
+        int                      uid,
+        int                      gid,
+        const string&            uname,
+        const string&            gname,
+        ImageTemplate *          img_template,
+        int                      ds_id,
+        const string&            ds_name,
+        Image::DiskType          disk_type,
+        const string&            ds_data,
         Datastore::DatastoreType ds_type,
-        int             source_img_id,
-        int *           oid,
-        string&         error_str);
+        int                      source_img_id,
+        int *                    oid,
+        string&                  error_str);
 
     /**
      **  Function to get a Image from the pool, if the object is not in memory
@@ -178,6 +179,21 @@ public:
     {
         return _default_dev_prefix;
     };
+
+    /**
+     *  Get the effective uid to get an image. Used in VM parsers
+     *    @param disk a vector attribute with the image data
+     *    @param uid default uid
+     *    @return the uid to get the image;
+     */
+    static int get_disk_uid(VectorAttribute *  disk, int _uid);
+
+    /**
+     *  Get the disk id based on its string representation. Used in VM parsers
+     *    @param id_s the string id
+     *    @return the id in int form
+     */
+     static int get_disk_id(const string& id_s);
 
 private:
     //--------------------------------------------------------------------------

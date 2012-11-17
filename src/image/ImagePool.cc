@@ -224,7 +224,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int get_disk_uid(VectorAttribute *  disk, int _uid)
+int ImagePool::get_disk_uid(VectorAttribute *  disk, int _uid)
 {
     istringstream  is;
 
@@ -269,7 +269,7 @@ static int get_disk_uid(VectorAttribute *  disk, int _uid)
 
 /* -------------------------------------------------------------------------- */
 
-static int get_disk_id(const string& id_s)
+int ImagePool::get_disk_id(const string& id_s)
 {
     istringstream  is;
     int            id;

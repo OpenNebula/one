@@ -625,6 +625,15 @@ public:
     int  parse_template_attribute(const string& attribute, string& parsed);
 
     /**
+     *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
+     *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
+     *    @param attribute, the string to be parsed
+     *    @param parsed, the resulting parsed string
+     *    @return 0 on success.
+     */
+    int  parse_file_attribute(const string& attribute, string& parsed);
+
+    /**
      *  Factory method for virtual machine templates
      */
     Template * get_new_template() const
@@ -1072,6 +1081,14 @@ private:
      * Mutex to perform just one attribute parse at a time
      */
     static pthread_mutex_t lex_mutex;
+
+    /**
+     *  Parse the "OS" attribute of the template by substituting
+     *  $FILE variables
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_os(string& error_str);
 
     /**
      *  Parse the "CONTEXT" attribute of the template by substituting
