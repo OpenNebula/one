@@ -388,15 +388,93 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::set_os_file(VectorAttribute *  os,
+                                const string&      base_name,
+                                string&            error_str)
+{
+    vector<int>  img_ids;
+    Nebula& nd = Nebula::instance();
+
+    ImagePool * ipool = nd.get_ipool();
+    Image  *    img   = 0;
+
+    DatastorePool * ds_pool = nd.get_dspool();
+    Datastore *     ds;
+    int             ds_id;
+
+    string attr;
+    string base_name_ds     = base_name + "_DS";
+    string base_name_id     = base_name + "_DS_ID";
+    string base_name_source = base_name + "_DS_SOURCE";
+    string base_name_ds_id  = base_name + "_DS_DSID";
+    string base_name_tm     = base_name + "_DS_TM";
+    string base_name_cluster= base_name + "_DS_CLUSTER_ID";
+
+    attr = os->vector_value(base_name_ds.c_str());
+
+    if ( attr.empty() )
+    {
+        return 0;
+    }
+
+    if ( parse_file_attribute(attr, img_ids, error_str) != 0 )
+    {
+        return -1;
+    }
+
+    if ( img_ids.size() != 1 )
+    {
+        error_str = "Only one FILE variable can be used in: " + attr;
+        return -1;
+    }
+
+    img = ipool->get(img_ids.back(), true);
+
+    if ( img == 0 )
+    {
+        error_str = "Image no longer exists in attribute: " + attr;
+        return -1;
+    }
+
+    ds_id = img->get_ds_id();
+
+    os->remove(base_name);
+
+    os->replace(base_name_id,     img->get_oid());
+    os->replace(base_name_source, img->get_source());
+    os->replace(base_name_ds_id,  img->get_ds_id());
+
+    img->unlock();
+
+    ds = ds_pool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+        error_str = "Associated datastore for image does not exist";
+        return -1;
+    }
+
+    os->replace(base_name_tm, ds->get_tm_mad());
+
+    if ( ds->get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    {
+        os->replace(base_name_cluster, ds->get_cluster_id());
+    }
+
+    ds->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::parse_os(string& error_str)
 {
     int num;
+    int rc;
 
     vector<Attribute *> os_attr;
     VectorAttribute *   os;
-
-    string kernel_ds;
-    string result;
 
     num = obj_template->get("OS", os_attr);
 
@@ -418,36 +496,18 @@ int VirtualMachine::parse_os(string& error_str)
         return -1;
     }
 
-    kernel_ds = os->vector_value("KERNEL_DS");
+    rc = set_os_file(os, "KERNEL", error_str);
 
-    if (!kernel_ds.empty())
+    if ( rc != 0 )
     {
-        if ( parse_file_attribute(kernel_ds, result) != 0 )
-        {
-            error_str = result;
-            return -1;
-        }
-        else
-        {
-            os->remove("KERNEL");
-            os->replace("KERNEL_DS", result);
-        }
+        return -1;
     }
 
-    initrd_ds = os->vector_value("INITRD_DS");
+    rc = set_os_file(os, "INITRD", error_str);
 
-    if (!initrd_ds.empty())
+    if ( rc != 0 )
     {
-        if ( parse_file_attribute(initrd_ds, result) != 0 )
-        {
-            error_str = result;
-            return -1;
-        }
-        else
-        {
-            os->remove("INITRD");
-            os->replace("INITRD_DS", result);
-        }
+        return -1;
     }
 
     return 0;
@@ -1909,8 +1969,8 @@ extern "C"
                       char **          errmsg);
 
     int vm_file_var_parse (VirtualMachine * vm,
-                      ostringstream *  parsed,
-                      char **          errmsg);
+                           vector<int> *    img_ids,
+                           char **          errmsg);
 
     int vm_var_lex_destroy();
 
@@ -1953,7 +2013,7 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
         ostringstream oss;
 
         oss << "Error parsing: " << attribute << ". " << error_msg;
-        log("VM",Log::ERROR,oss);
+        log("VM", Log::ERROR, oss);
 
         free(error_msg);
     }
@@ -1971,7 +2031,8 @@ error_yy:
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::parse_file_attribute(const string& attribute,
-                                         string&       parsed)
+                                         vector<int>&  img_ids,
+                                         string&       error)
 {
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
@@ -1989,7 +2050,7 @@ int VirtualMachine::parse_file_attribute(const string& attribute,
         goto error_yy;
     }
 
-    rc = vm_file_var_parse(this, &oss_parsed, &error_msg);
+    rc = vm_file_var_parse(this, &img_ids, &error_msg);
 
     vm_var__delete_buffer(str_buffer);
 
@@ -2011,11 +2072,7 @@ int VirtualMachine::parse_file_attribute(const string& attribute,
             oss << "Unknown error parsing: " << attribute << ".";
         }
 
-        parsed = oss.str();
-    }
-    else
-    {
-        parsed = oss_parsed.str();
+        error = oss.str();
     }
 
     return rc;

@@ -16,7 +16,7 @@
 
 %{
 #include <iostream>
-#include <sstream>
+#include <vector>
 #include <string>
 #include <map>
 #include <algorithm>
@@ -44,27 +44,27 @@ extern "C"
         YYLTYPE *        llocp,
         mem_collector *  mc,
         VirtualMachine * vm,
-        ostringstream *  parsed,
+        vector<int> *    img_ids,
         char **          errmsg,
         const char *     str);
 
     int vm_file_var__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
 
     int vm_file_var__parse (mem_collector *  mc,
-                       VirtualMachine * vm,
-                       ostringstream *  parsed,
-                       char **          errmsg);
+                            VirtualMachine * vm,
+                            vector<int> *    img_ids,
+                            char **          errmsg);
 
     int vm_file_var_parse (VirtualMachine * vm,
-                      ostringstream *  parsed,
-                      char **          errmsg)
+                           vector<int> *    img_ids,
+                           char **          errmsg)
     {
         mem_collector mc;
         int           rc;
 
         mem_collector_init(&mc);
 
-        rc = vm_file_var__parse(&mc, vm, parsed, errmsg);
+        rc = vm_file_var__parse(&mc, vm, img_ids, errmsg);
 
         mem_collector_cleanup(&mc);
 
@@ -81,7 +81,8 @@ int get_image_path(VirtualMachine * vm,
                    const string&    val1,
                    const string&    var2,
                    const string&    val2,
-                   string&          result)
+                   vector<int> *    img_ids,
+                   string&          error_str)
 {
     Nebula& nd = Nebula::instance();
 
@@ -93,7 +94,7 @@ int get_image_path(VirtualMachine * vm,
 
     if (var_name != "FILE" )
     {
-        result = "Must use FILE variable for attribute.";
+        error_str = "Must use FILE variable for attribute.";
         return -1;
     }
 
@@ -129,17 +130,17 @@ int get_image_path(VirtualMachine * vm,
 
     if ( img == 0 )
     {
-        result = "Cannot get image.";
+        error_str = "Cannot get image (check name/ID or try IMAGE_UNAME or IMAGE_UID).";
         return -1;
     }
 
-    img->get_permissions(perm);
+    iid = img->get_oid();
 
-    result = img->get_source();
+    img->get_permissions(perm);
 
     if ( img->get_type() != Image::DATAFILE )
     {
-        result = "FILE variables must use images of type FILE.";
+        error_str = "FILE variables must use images of type FILE.";
         img->unlock();
 
         return -1;
@@ -153,9 +154,11 @@ int get_image_path(VirtualMachine * vm,
 
     if (UserPool::authorize(ar) == -1)
     {
-        result = "User not authorize to use image.";
+        error_str = "User not authorize to use image.";
         return -1;
     }
+
+    img_ids->push_back(iid);
 
     return 0;
 }
@@ -165,9 +168,9 @@ int get_image_path(VirtualMachine * vm,
 
 %}
 
-%parse-param {mem_collector * mc}
+%parse-param {mem_collector *  mc}
 %parse-param {VirtualMachine * vm}
-%parse-param {ostringstream *  parsed}
+%parse-param {vector<int> *    img_ids}
 %parse-param {char **          errmsg}
 
 %lex-param {mem_collector * mc}
@@ -212,13 +215,12 @@ vm_variable:
         VM_VAR_TO_UPPER(file);
         VM_VAR_TO_UPPER(var1);
 
-        if ( get_image_path(vm, file, var1, val1, "", "", result) == -1 )
+        if (get_image_path(vm, file, var1, val1, "", "", img_ids, result) == -1)
         {
+            img_ids->clear();
             *errmsg = strdup(result.c_str());
             YYABORT;
         }
-
-        (*parsed) << result << " ";
     }
     | VARIABLE OBRACKET VARIABLE EQUAL STRING COMMA VARIABLE EQUAL STRING CBRACKET EOA
     {
@@ -234,13 +236,12 @@ vm_variable:
         VM_VAR_TO_UPPER(var1);
         VM_VAR_TO_UPPER(var2);
 
-        if ( get_image_path(vm, file, var1, val1, var2, val2, result) == -1 )
+        if (get_image_path(vm, file, var1, val1, var2, val2, img_ids, result) == -1)
         {
+            img_ids->clear();
             *errmsg = strdup(result.c_str());
             YYABORT;
         }
-
-        (*parsed) << result << " ";
     }
     ;
 %%
@@ -249,7 +250,7 @@ extern "C" void vm_file_var__error(
     YYLTYPE *        llocp,
     mem_collector *  mc,
     VirtualMachine * vm,
-    ostringstream *  parsed,
+    vector<int> *    img_ids,
     char **          error_msg,
     const char *     str)
 {

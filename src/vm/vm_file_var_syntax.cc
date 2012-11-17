@@ -74,7 +74,7 @@
 #line 17 "vm_file_var_syntax.y"
 
 #include <iostream>
-#include <sstream>
+#include <vector>
 #include <string>
 #include <map>
 #include <algorithm>
@@ -102,27 +102,27 @@ extern "C"
         YYLTYPE *        llocp,
         mem_collector *  mc,
         VirtualMachine * vm,
-        ostringstream *  parsed,
+        vector<int> *    img_ids,
         char **          errmsg,
         const char *     str);
 
     int vm_file_var__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
 
     int vm_file_var__parse (mem_collector *  mc,
-                       VirtualMachine * vm,
-                       ostringstream *  parsed,
-                       char **          errmsg);
+                            VirtualMachine * vm,
+                            vector<int> *    img_ids,
+                            char **          errmsg);
 
     int vm_file_var_parse (VirtualMachine * vm,
-                      ostringstream *  parsed,
-                      char **          errmsg)
+                           vector<int> *    img_ids,
+                           char **          errmsg)
     {
         mem_collector mc;
         int           rc;
 
         mem_collector_init(&mc);
 
-        rc = vm_file_var__parse(&mc, vm, parsed, errmsg);
+        rc = vm_file_var__parse(&mc, vm, img_ids, errmsg);
 
         mem_collector_cleanup(&mc);
 
@@ -139,7 +139,8 @@ int get_image_path(VirtualMachine * vm,
                    const string&    val1,
                    const string&    var2,
                    const string&    val2,
-                   string&          result)
+                   vector<int> *    img_ids,
+                   string&          error_str)
 {
     Nebula& nd = Nebula::instance();
 
@@ -151,7 +152,7 @@ int get_image_path(VirtualMachine * vm,
 
     if (var_name != "FILE" )
     {
-        result = "Must use FILE variable for attribute.";
+        error_str = "Must use FILE variable for attribute.";
         return -1;
     }
 
@@ -187,17 +188,17 @@ int get_image_path(VirtualMachine * vm,
 
     if ( img == 0 )
     {
-        result = "Cannot get image.";
+        error_str = "Cannot get image (check name/ID or try IMAGE_UNAME or IMAGE_UID).";
         return -1;
     }
 
-    img->get_permissions(perm);
+    iid = img->get_oid();
 
-    result = img->get_source();
+    img->get_permissions(perm);
 
     if ( img->get_type() != Image::DATAFILE )
     {
-        result = "FILE variables must use images of type FILE.";
+        error_str = "FILE variables must use images of type FILE.";
         img->unlock();
 
         return -1;
@@ -211,9 +212,11 @@ int get_image_path(VirtualMachine * vm,
 
     if (UserPool::authorize(ar) == -1)
     {
-        result = "User not authorize to use image.";
+        error_str = "User not authorize to use image.";
         return -1;
     }
+
+    img_ids->push_back(iid);
 
     return 0;
 }
@@ -223,7 +226,7 @@ int get_image_path(VirtualMachine * vm,
 
 
 /* Line 360 of yacc.c  */
-#line 227 "vm_file_var_syntax.cc"
+#line 230 "vm_file_var_syntax.cc"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -276,7 +279,7 @@ extern int vm_file_var__debug;
 typedef union YYSTYPE
 {
 /* Line 376 of yacc.c  */
-#line 175 "vm_file_var_syntax.y"
+#line 178 "vm_file_var_syntax.y"
 
     char * val_str;
     int    val_int;
@@ -284,7 +287,7 @@ typedef union YYSTYPE
 
 
 /* Line 376 of yacc.c  */
-#line 288 "vm_file_var_syntax.cc"
+#line 291 "vm_file_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -313,7 +316,7 @@ int vm_file_var__parse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int vm_file_var__parse (mem_collector * mc, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg);
+int vm_file_var__parse (mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg);
 #else
 int vm_file_var__parse ();
 #endif
@@ -324,7 +327,7 @@ int vm_file_var__parse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 379 of yacc.c  */
-#line 328 "vm_file_var_syntax.cc"
+#line 331 "vm_file_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -615,7 +618,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   199,   199,   200,   204,   223
+       0,   202,   202,   203,   207,   225
 };
 #endif
 
@@ -751,7 +754,7 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror (&yylloc, mc, vm, parsed, errmsg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -835,7 +838,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, Location, mc, vm, parsed, errmsg); \
+		  Type, Value, Location, mc, vm, img_ids, errmsg); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -849,17 +852,17 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, parsed, errmsg)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    mem_collector * mc;
+    mem_collector *  mc;
     VirtualMachine * vm;
-    ostringstream *  parsed;
+    vector<int> *    img_ids;
     char **          errmsg;
 #endif
 {
@@ -870,7 +873,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, parsed, 
   YYUSE (yylocationp);
   YYUSE (mc);
   YYUSE (vm);
-  YYUSE (parsed);
+  YYUSE (img_ids);
   YYUSE (errmsg);
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
@@ -893,17 +896,17 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, parsed, 
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, parsed, errmsg)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    mem_collector * mc;
+    mem_collector *  mc;
     VirtualMachine * vm;
-    ostringstream *  parsed;
+    vector<int> *    img_ids;
     char **          errmsg;
 #endif
 {
@@ -914,7 +917,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, parsed, errmsg
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, parsed, errmsg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -957,16 +960,16 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yy_reduce_print (yyvsp, yylsp, yyrule, mc, vm, parsed, errmsg)
+yy_reduce_print (yyvsp, yylsp, yyrule, mc, vm, img_ids, errmsg)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
-    mem_collector * mc;
+    mem_collector *  mc;
     VirtualMachine * vm;
-    ostringstream *  parsed;
+    vector<int> *    img_ids;
     char **          errmsg;
 #endif
 {
@@ -981,7 +984,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, mc, vm, parsed, errmsg)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , mc, vm, parsed, errmsg);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , mc, vm, img_ids, errmsg);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -989,7 +992,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, mc, vm, parsed, errmsg)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, yylsp, Rule, mc, vm, parsed, errmsg); \
+    yy_reduce_print (yyvsp, yylsp, Rule, mc, vm, img_ids, errmsg); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1266,17 +1269,17 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, vm, parsed, errmsg)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
-    mem_collector * mc;
+    mem_collector *  mc;
     VirtualMachine * vm;
-    ostringstream *  parsed;
+    vector<int> *    img_ids;
     char **          errmsg;
 #endif
 {
@@ -1284,7 +1287,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, vm, parsed, errmsg)
   YYUSE (yylocationp);
   YYUSE (mc);
   YYUSE (vm);
-  YYUSE (parsed);
+  YYUSE (img_ids);
   YYUSE (errmsg);
 
   if (!yymsg)
@@ -1320,13 +1323,13 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (mem_collector * mc, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
+yyparse (mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 int
-yyparse (mc, vm, parsed, errmsg)
-    mem_collector * mc;
+yyparse (mc, vm, img_ids, errmsg)
+    mem_collector *  mc;
     VirtualMachine * vm;
-    ostringstream *  parsed;
+    vector<int> *    img_ids;
     char **          errmsg;
 #endif
 #endif
@@ -1623,7 +1626,7 @@ yyreduce:
     {
         case 4:
 /* Line 1778 of yacc.c  */
-#line 205 "vm_file_var_syntax.y"
+#line 208 "vm_file_var_syntax.y"
     {
         string file((yyvsp[(1) - (7)].val_str));
         string var1((yyvsp[(3) - (7)].val_str));
@@ -1634,19 +1637,18 @@ yyreduce:
         VM_VAR_TO_UPPER(file);
         VM_VAR_TO_UPPER(var1);
 
-        if ( get_image_path(vm, file, var1, val1, "", "", result) == -1 )
+        if (get_image_path(vm, file, var1, val1, "", "", img_ids, result) == -1)
         {
+            img_ids->clear();
             *errmsg = strdup(result.c_str());
             YYABORT;
         }
-
-        (*parsed) << result << " ";
     }
     break;
 
   case 5:
 /* Line 1778 of yacc.c  */
-#line 224 "vm_file_var_syntax.y"
+#line 226 "vm_file_var_syntax.y"
     {
         string file((yyvsp[(1) - (11)].val_str));
         string var1((yyvsp[(3) - (11)].val_str));
@@ -1660,19 +1662,18 @@ yyreduce:
         VM_VAR_TO_UPPER(var1);
         VM_VAR_TO_UPPER(var2);
 
-        if ( get_image_path(vm, file, var1, val1, var2, val2, result) == -1 )
+        if (get_image_path(vm, file, var1, val1, var2, val2, img_ids, result) == -1)
         {
+            img_ids->clear();
             *errmsg = strdup(result.c_str());
             YYABORT;
         }
-
-        (*parsed) << result << " ";
     }
     break;
 
 
 /* Line 1778 of yacc.c  */
-#line 1676 "vm_file_var_syntax.cc"
+#line 1677 "vm_file_var_syntax.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1723,7 +1724,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, mc, vm, parsed, errmsg, YY_("syntax error"));
+      yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1750,7 +1751,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (&yylloc, mc, vm, parsed, errmsg, yymsgp);
+        yyerror (&yylloc, mc, vm, img_ids, errmsg, yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1774,7 +1775,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, &yylloc, mc, vm, parsed, errmsg);
+		      yytoken, &yylval, &yylloc, mc, vm, img_ids, errmsg);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1831,7 +1832,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, yylsp, mc, vm, parsed, errmsg);
+		  yystos[yystate], yyvsp, yylsp, mc, vm, img_ids, errmsg);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1873,7 +1874,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, mc, vm, parsed, errmsg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1885,7 +1886,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc, mc, vm, parsed, errmsg);
+                  yytoken, &yylval, &yylloc, mc, vm, img_ids, errmsg);
     }
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
@@ -1894,7 +1895,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, yylsp, mc, vm, parsed, errmsg);
+		  yystos[*yyssp], yyvsp, yylsp, mc, vm, img_ids, errmsg);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1911,14 +1912,14 @@ yyreturn:
 
 
 /* Line 2041 of yacc.c  */
-#line 246 "vm_file_var_syntax.y"
+#line 247 "vm_file_var_syntax.y"
 
 
 extern "C" void vm_file_var__error(
     YYLTYPE *        llocp,
     mem_collector *  mc,
     VirtualMachine * vm,
-    ostringstream *  parsed,
+    vector<int> *    img_ids,
     char **          error_msg,
     const char *     str)
 {

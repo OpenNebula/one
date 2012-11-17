@@ -627,11 +627,14 @@ public:
     /**
      *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
      *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
+     *    @param attribute the string to be parsed
+     *    @param img_ids ids of the FILE images in the attribute
+     *    @param error description in case of failure
      *    @return 0 on success.
      */
-    int  parse_file_attribute(const string& attribute, string& parsed);
+    int  parse_file_attribute(const string& attribute,
+                              vector<int>&  img_ids,
+                              string&       error);
 
     /**
      *  Factory method for virtual machine templates
@@ -1082,6 +1085,17 @@ private:
      */
     static pthread_mutex_t lex_mutex;
 
+    /**
+     *  Generates image attributes (DS_ID, TM_MAD, SOURCE...) for KERNEL and
+     *  INITRD files.
+     *    @param os attribute of the VM template
+     *    @param base_name of the attribute "KERNEL", or "INITRD"
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int set_os_file(VectorAttribute *  os,
+                    const string&      base_name,
+                    string&            error_str);
     /**
      *  Parse the "OS" attribute of the template by substituting
      *  $FILE variables
