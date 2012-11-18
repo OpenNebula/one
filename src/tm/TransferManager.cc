@@ -349,6 +349,55 @@ error_attributes:
 }
 
 /* -------------------------------------------------------------------------- */
+
+static string prolog_os_transfer_commands(
+        VirtualMachine *        vm,
+        const VectorAttribute * os_attr,
+        const string&           base,
+        string&                 opennebula_hostname,
+        ostream&                xfr)
+{
+    string base_ds = base + "_DS";
+
+    string name_ds = os_attr->vector_value(base_ds.c_str());
+
+    if ( name_ds.empty() )
+    {
+        return "";
+    }
+
+    string base_source = base + "_DS_SOURCE";
+    string base_ds_id  = base + "_DS_DSID";
+    string base_tm     = base + "_DS_TM";
+
+    string source = os_attr->vector_value(base_source.c_str());
+    string ds_id  = os_attr->vector_value(base_ds_id.c_str());
+    string tm_mad = os_attr->vector_value(base_tm.c_str());
+
+    if ( source.empty() || ds_id.empty() || tm_mad.empty() )
+    {
+        return "";
+    }
+
+    ostringstream base_dst;
+    string        name = base;
+
+    transform(name.begin(), name.end(), name.begin(), (int(*)(int))tolower);
+
+    base_dst << vm->get_remote_system_dir() << "/" << name;
+
+    xfr << "CLONE " << tm_mad << " "
+        << opennebula_hostname << ":" << source << " "
+        << vm->get_hostname() << ":"
+        << base_dst.str() << " "
+        << vm->get_oid() << " "
+        << ds_id
+        << endl;
+
+    return base_dst.str();
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void TransferManager::prolog_action(int vid)
@@ -436,8 +485,45 @@ void TransferManager::prolog_action(int vid)
     }
 
     // -------------------------------------------------------------------------
+    // Transfers for kernel and initrd files
+    // -------------------------------------------------------------------------
+    attrs.clear();
+
+    num = vm->get_template_attribute("OS",attrs);
+
+    if ( num > 0 )
+    {
+        const VectorAttribute * os_attr;
+
+        os_attr = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+        string kernel = prolog_os_transfer_commands(vm,
+                                                    os_attr,
+                                                    "KERNEL",
+                                                    opennebula_hostname,
+                                                    xfr);
+        if ( !kernel.empty() )
+        {
+            vm->set_kernel(kernel);
+            vmpool->update(vm);
+        }
+
+        string initrd = prolog_os_transfer_commands(vm,
+                                                    os_attr,
+                                                    "initrd",
+                                                    opennebula_hostname,
+                                                    xfr);
+        if ( !initrd.empty() )
+        {
+            vm->set_initrd(initrd);
+            vmpool->update(vm);
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Generate context file
     // -------------------------------------------------------------------------
+
     context_result = vm->generate_context(files, disk_id);
 
     if ( context_result == -1 )

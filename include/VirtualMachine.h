@@ -220,6 +220,50 @@ public:
         etime = et;
     };
 
+    /**
+     *  Sets the KERNEL OS attribute (path to the kernel file). Used when
+     *  the template is using a FILE Datastore for it
+     *    @param path to the kernel (in the remote host)
+     */
+    void set_kernel(const string& kernel)
+    {
+        vector<Attribute *> os_attr;
+        VectorAttribute *   os;
+
+        int num = obj_template->get("OS", os_attr);
+
+        if ( num == 0 )
+        {
+            return;
+        }
+
+        os = dynamic_cast<VectorAttribute *>(os_attr[0]);
+
+        os->replace("KERNEL", kernel);
+    };
+
+    /**
+     *  Sets the INITRD OS attribute (path to the initrd file). Used when
+     *  the template is using a FILE Datastore for it
+     *    @param path to the initrd (in the remote host)
+     */
+    void set_initrd(const string& initrd)
+    {
+        vector<Attribute *> os_attr;
+        VectorAttribute *   os;
+
+        int num = obj_template->get("OS", os_attr);
+
+        if ( num == 0 )
+        {
+            return;
+        }
+
+        os = dynamic_cast<VectorAttribute *>(os_attr[0]);
+
+        os->replace("INITRD", initrd);
+    };
+
     // ------------------------------------------------------------------------
     // Access to VM locations
     // ------------------------------------------------------------------------
