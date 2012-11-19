@@ -80,6 +80,19 @@ public:
         datastore_quota.del(tmpl);
      }
 
+     /**
+      * Gets a Datastore quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int ds_get(const string& id, VectorAttribute **va)
+     {
+         return datastore_quota.get_quota(id, va);
+     }
+
     /**
      *  Check Virtual Machine quotas (network, image and compute), it updates 
      *  usage counters if quotas are not exceeded.
@@ -101,6 +114,45 @@ public:
         network_quota.del(tmpl);
         vm_quota.del(tmpl);
         image_quota.del(tmpl);
+     }
+
+     /**
+      * Gets a VM quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int vm_get(const string& id, VectorAttribute **va)
+     {
+         return vm_quota.get_quota(id, va);
+     }
+
+     /**
+      * Gets a Network quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int network_get(const string& id, VectorAttribute **va)
+     {
+         return network_quota.get_quota(id, va);
+     }
+
+     /**
+      * Gets an Image quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int image_get(const string& id, VectorAttribute **va)
+     {
+         return image_quota.get_quota(id, va);
      }
 
     /**

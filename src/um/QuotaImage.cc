@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "QuotaImage.h"
+#include "Quotas.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -94,6 +96,16 @@ void QuotaImage::del(Template * tmpl)
         
         del_quota(image_id, image_request);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int QuotaImage::get_default_quota(const string& id, VectorAttribute **va)
+{
+    // TODO: We need to know if this is a user or group quota
+    Quotas default_quotas = Nebula::instance().get_default_user_quota();
+    return default_quotas.image_get(id, va);
 }
 
 /* -------------------------------------------------------------------------- */

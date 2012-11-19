@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "QuotaNetwork.h"
+#include "Quotas.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -94,6 +96,16 @@ void QuotaNetwork::del(Template * tmpl)
         
         del_quota(net_id, net_request);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int QuotaNetwork::get_default_quota(const string& id, VectorAttribute **va)
+{
+    // TODO: We need to know if this is a user or group quota
+    Quotas default_quotas = Nebula::instance().get_default_user_quota();
+    return default_quotas.network_get(id, va);
 }
 
 /* -------------------------------------------------------------------------- */

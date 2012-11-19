@@ -58,6 +58,17 @@ public:
     void del(Template* tmpl);
 
 protected:
+
+    /**
+     * Gets the default quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int get_default_quota(const string& id, VectorAttribute **va);
+
     static const char * IMAGE_METRICS[];
 
     static const int NUM_IMAGE_METRICS;

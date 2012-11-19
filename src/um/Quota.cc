@@ -155,6 +155,7 @@ bool Quota::check_quota(const string& qid,
                         string& error)
 {
     VectorAttribute * q;
+    VectorAttribute * default_q;
     map<string, float>::iterator it;
 
     bool check;
@@ -169,6 +170,11 @@ bool Quota::check_quota(const string& qid,
         error = oss.str();
 
         return false;
+    }
+
+    if ( get_default_quota(qid, &default_q) == -1 )
+    {
+        default_q = 0;
     }
 
     // -------------------------------------------------------------------------
@@ -228,6 +234,11 @@ bool Quota::check_quota(const string& qid,
 
         q->vector_value(metrics[i],   limit);
         q->vector_value(metrics_used.c_str(), usage);
+
+        if ( limit == -1 && default_q != 0 )
+        {
+            default_q->vector_value(metrics[i], limit);
+        }
 
         check = ( limit == 0 ) || ( ( usage + it->second ) <= limit );
 
@@ -365,7 +376,9 @@ int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
     {
         limit = va->vector_value_str(metrics[i], limit_i);
 
-        if ( limit_i < 0 ) //No quota, NaN or negative
+        //No quota, NaN or negative. -1 is allowed, it means default limit
+        if ( limit_i < -1 ||
+            ( limit_i == -1 && limit == "" ))
         {
             return -1;
         }
