@@ -152,6 +152,7 @@ error_limits:
 
 bool Quota::check_quota(const string& qid, 
                         map<string, float>& usage_req,
+                        Quotas& default_quotas,
                         string& error)
 {
     VectorAttribute * q;
@@ -172,7 +173,7 @@ bool Quota::check_quota(const string& qid,
         return false;
     }
 
-    if ( get_default_quota(qid, &default_q) == -1 )
+    if ( get_default_quota(qid, default_quotas, &default_q) == -1 )
     {
         default_q = 0;
     }

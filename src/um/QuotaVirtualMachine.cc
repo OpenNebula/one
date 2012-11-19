@@ -16,7 +16,6 @@
 
 #include "QuotaVirtualMachine.h"
 #include "Quotas.h"
-#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -50,7 +49,9 @@ int QuotaVirtualMachine::get_quota(const string& id, VectorAttribute **va)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaVirtualMachine::check(Template * tmpl,  string& error)
+bool QuotaVirtualMachine::check(Template * tmpl,
+                                Quotas& default_quotas,
+                                string& error)
 {
     map<string, float> vm_request;
 
@@ -73,7 +74,7 @@ bool QuotaVirtualMachine::check(Template * tmpl,  string& error)
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
     
-    return check_quota("", vm_request, error);
+    return check_quota("", vm_request, default_quotas, error);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -106,10 +107,8 @@ void QuotaVirtualMachine::del(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaVirtualMachine::get_default_quota(const string& id, VectorAttribute **va)
+int QuotaVirtualMachine::get_default_quota(const string& id, Quotas& default_quotas, VectorAttribute **va)
 {
-    // TODO: We need to know if this is a user or group quota
-    Quotas default_quotas = Nebula::instance().get_default_user_quota();
     return default_quotas.vm_get(id, va);
 }
 

@@ -278,7 +278,9 @@ bool Request::user_quota_authorization (Template * tmpl,
         return false;
     }
 
-    rc = user->quota.quota_check(qtype, tmpl, error_str);
+    Quotas default_user_quotas = nd.get_default_user_quota();
+
+    rc = user->quota.quota_check(qtype, tmpl, default_user_quotas, error_str);
 
     if (rc == true)
     {
@@ -320,7 +322,9 @@ bool Request::group_quota_authorization (Template * tmpl,
         return false;
     }
 
-    rc = group->quota.quota_check(qtype, tmpl, error_str);
+    Quotas default_group_quotas = nd.get_default_group_quota();
+
+    rc = group->quota.quota_check(qtype, tmpl, default_group_quotas, error_str);
 
     if (rc == true)
     {

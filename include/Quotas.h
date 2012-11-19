@@ -60,18 +60,6 @@ public:
     int set(Template *tmpl, string& error);
 
     /**
-     *  Check Datastore quotas, it updates usage counters if quotas are not 
-     *  exceeded.
-     *    @param tmpl template for the image
-     *    @param reason string describing the error
-     *    @return true if image can be allocated, false otherwise
-     */
-     bool ds_check(Template * tmpl, string& reason)
-     {
-        return datastore_quota.check(tmpl, reason);
-     }
-
-    /**
      *  Delete usage from quota counters.
      *    @param tmpl template for the image, with usage
      */
@@ -91,18 +79,6 @@ public:
      int ds_get(const string& id, VectorAttribute **va)
      {
          return datastore_quota.get_quota(id, va);
-     }
-
-    /**
-     *  Check Virtual Machine quotas (network, image and compute), it updates 
-     *  usage counters if quotas are not exceeded.
-     *    @param tmpl template for the VirtualMachine
-     *    @param error_str string describing the error
-     *    @return true if VM can be allocated, false otherwise
-     */
-     bool vm_check(Template * tmpl, string& error_str)
-     {
-        return quota_check(VIRTUALMACHINE, tmpl, error_str);
      }
 
     /**
@@ -159,10 +135,14 @@ public:
      *  Check quota, it updates  usage counters if quotas are not exceeded.
      *    @param type the quota to work with
      *    @param tmpl template for the VirtualMachine
+     *    @param default_quotas Quotas that contain the default limits
      *    @param error_str string describing the error
      *    @return true if VM can be allocated, false otherwise
      */
-    bool quota_check(QuotaType type, Template *tmpl, string& error_str);
+     bool quota_check(QuotaType type,
+                     Template *tmpl,
+                     Quotas& default_quotas,
+                     string& error_str);
 
     /**
      *  Delete usage from the given quota counters.

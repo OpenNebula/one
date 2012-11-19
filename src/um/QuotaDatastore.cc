@@ -16,7 +16,6 @@
 
 #include "QuotaDatastore.h"
 #include "Quotas.h"
-#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -28,7 +27,7 @@ const int QuotaDatastore::NUM_DS_METRICS  = 2;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaDatastore::check(Template * tmpl,  string& error)
+bool QuotaDatastore::check(Template * tmpl, Quotas& default_quotas, string& error)
 {
     map<string, float> ds_request;
 
@@ -51,8 +50,8 @@ bool QuotaDatastore::check(Template * tmpl,  string& error)
 
     ds_request.insert(make_pair("IMAGES",1));
     ds_request.insert(make_pair("SIZE",  size));
-    
-    return check_quota(ds_id, ds_request, error);
+
+    return check_quota(ds_id, ds_request, default_quotas, error);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -86,10 +85,11 @@ void QuotaDatastore::del(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaDatastore::get_default_quota(const string& id, VectorAttribute **va)
+int QuotaDatastore::get_default_quota(
+        const string& id,
+        Quotas& default_quotas,
+        VectorAttribute **va)
 {
-    // TODO: We need to know if this is a user or group quota
-    Quotas default_quotas = Nebula::instance().get_default_user_quota();
     return default_quotas.ds_get(id, va);
 }
 

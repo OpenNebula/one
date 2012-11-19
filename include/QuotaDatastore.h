@@ -48,10 +48,11 @@ public:
      *  Check if the resource allocation will exceed the quota limits. If not 
      *  the usage counters are updated
      *    @param tmpl template for the resource
+     *    @param default_quotas Quotas that contain the default limits
      *    @param error string 
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl,  string& error);
+    bool check(Template* tmpl, Quotas& default_quotas, string& error);
 
     /**
      *  Decrement usage counters when deallocating image
@@ -65,11 +66,14 @@ protected:
      * Gets the default quota identified by its ID.
      *
      *    @param id of the quota
+     *    @param default_quotas Quotas that contain the default limits
      *    @param va The quota, if it is found
      *
      *    @return 0 on success, -1 if not found
      */
-    int get_default_quota(const string& id, VectorAttribute **va);
+    int get_default_quota(const string& id,
+                        Quotas& default_quotas,
+                        VectorAttribute **va);
 
     static const char * DS_METRICS[];
 

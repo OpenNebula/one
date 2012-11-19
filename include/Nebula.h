@@ -318,6 +318,11 @@ public:
         return default_user_quota;
     };
 
+    const Quotas& get_default_group_quota()
+    {
+        return default_group_quota;
+    };
+
 private:
 
     // -----------------------------------------------------------------------
