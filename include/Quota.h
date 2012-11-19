@@ -19,6 +19,9 @@
 
 #include "Template.h"
 
+// Forward declaration to avoid include cycle
+class Quotas;
+
 /**
  *  Base class for resource quotas, it provides basic storage and management of
  *  the quotas. Each resource MUST inherit from it to implement check and 
@@ -41,10 +44,11 @@ public:
      *  Check if the resource allocation will exceed the quota limits. If not 
      *  the usage counters are updated
      *    @param tmpl template for the resource
+     *    @param default_quotas Quotas that contain the default limits
      *    @param error string 
      *    @return true if the operation can be performed
      */
-    virtual bool check(Template* tmpl,  string& error) = 0;
+    virtual bool check(Template* tmpl, Quotas& default_quotas, string& error) = 0;
 
     /**
      *  Decrement usage counters when deallocating image
@@ -118,10 +122,13 @@ protected:
      *  request does not exceed quota limits
      *    @param qid id that identifies the quota, to be used by get_quota
      *    @param usage_req usage for each metric
+     *    @param default_quotas Quotas that contain the default limits
+     *    @param error string describing the error
      *    @return true if the request does not exceed current limits
      */
     bool check_quota(const string& qid, 
                      map<string, float>& usage_req,
+                     Quotas& default_quotas,
                      string& error);
 
     /**
@@ -136,11 +143,14 @@ protected:
      * Gets the default quota identified by its ID.
      *
      *    @param id of the quota
+     *    @param default_quotas Quotas that contain the default limits
      *    @param va The quota, if it is found
      *
      *    @return 0 on success, -1 if not found
      */
-    virtual int get_default_quota(const string& id, VectorAttribute **va) = 0;
+    virtual int get_default_quota(const string& id,
+                                Quotas& default_quotas,
+                                VectorAttribute **va) = 0;
 
     /**
      * Gets a quota identified by its ID.

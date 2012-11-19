@@ -173,35 +173,38 @@ void Quotas::quota_del(QuotaType type, Template *tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Quotas::quota_check(QuotaType type, Template *tmpl, string& error_str)
+bool Quotas::quota_check(QuotaType  type,
+                        Template    *tmpl,
+                        Quotas      &default_quotas,
+                        string      &error_str)
 {
     switch (type)
     {
         case DATASTORE:
-            return datastore_quota.check(tmpl, error_str);
+            return datastore_quota.check(tmpl, default_quotas, error_str);
 
         case NETWORK:
-            return network_quota.check(tmpl, error_str);
+            return network_quota.check(tmpl, default_quotas, error_str);
 
         case IMAGE:
-            return image_quota.check(tmpl, error_str);
+            return image_quota.check(tmpl, default_quotas, error_str);
 
         case VM:
-            return vm_quota.check(tmpl, error_str);
+            return vm_quota.check(tmpl, default_quotas, error_str);
 
         case VIRTUALMACHINE:
-            if ( network_quota.check(tmpl, error_str) == false )
+            if ( network_quota.check(tmpl, default_quotas, error_str) == false )
             {
                 return false;
             }
 
-            if ( vm_quota.check(tmpl, error_str) == false )
+            if ( vm_quota.check(tmpl, default_quotas, error_str) == false )
             {
                 network_quota.del(tmpl);
                 return false;
             }
 
-            if ( image_quota.check(tmpl, error_str) == false )
+            if ( image_quota.check(tmpl, default_quotas, error_str) == false )
             {
                 network_quota.del(tmpl);
                 vm_quota.del(tmpl);

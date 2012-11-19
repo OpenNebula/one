@@ -16,7 +16,6 @@
 
 #include "QuotaImage.h"
 #include "Quotas.h"
-#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -28,7 +27,7 @@ const int QuotaImage::NUM_IMAGE_METRICS  = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaImage::check(Template * tmpl,  string& error)
+bool QuotaImage::check(Template * tmpl, Quotas& default_quotas, string& error)
 {
     vector<Attribute*> disks;
     VectorAttribute *  disk;
@@ -55,7 +54,7 @@ bool QuotaImage::check(Template * tmpl,  string& error)
         
         if ( !image_id.empty() )
         {
-            if ( !check_quota(image_id, image_request, error) )
+            if ( !check_quota(image_id, image_request, default_quotas, error) )
             {
                 return false;
             }
@@ -101,10 +100,8 @@ void QuotaImage::del(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaImage::get_default_quota(const string& id, VectorAttribute **va)
+int QuotaImage::get_default_quota(const string& id, Quotas& default_quotas, VectorAttribute **va)
 {
-    // TODO: We need to know if this is a user or group quota
-    Quotas default_quotas = Nebula::instance().get_default_user_quota();
     return default_quotas.image_get(id, va);
 }
 
