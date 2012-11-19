@@ -36,7 +36,8 @@ module CLIHelper
         :short => "-f x,y,z",
         :large => "--filter x,y,z",
         :format => Array,
-        :description => "Filter data. An array is specified with column=value pairs."
+        :description => "Filter data. An array is specified with\n"<<
+                        " "*31<<"column=value pairs."
     }
     #
     #HEADER = {

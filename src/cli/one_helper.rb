@@ -102,7 +102,8 @@ EOT
             :name   => 'cpu',
             :large  => '--cpu cpu',
             :description =>
-                'CPU percentage reserved for the VM (1=100% one CPU)',
+                "CPU percentage reserved for the VM (1=100% one\n"<<
+                " "*31<<"CPU)",
             :format => Float
         },
         {
@@ -139,19 +140,22 @@ EOT
         {
             :name   => 'disk',
             :large  => '--disk disk0,disk1',
-            :description => 'Disks to attach. To use a disk owned by other user use user[disk]',
+            :description => "Disks to attach. To use a disk owned by other\n"<<
+                            " "*31<<"user use user[disk]",
             :format => Array
         },
         {
             :name   => 'network',
             :large  => '--network network0,network1',
-            :description => 'Networks to attach. To use a network owned by other user use user[network]',
+            :description => "Networks to attach. To use a network owned by\n"<<
+                            " "*31<<"other user use user[network]",
             :format => Array
         },
         {
             :name   => 'raw',
             :large  => '--raw string',
-            :description => 'Raw string to add to the template. Not to be confused with the RAW attribute',
+            :description => "Raw string to add to the template. Not to be\n"<<
+                            " "*31<<"confused with the RAW attribute",
             :format => String
         },
         {

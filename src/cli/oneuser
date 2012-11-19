@@ -63,7 +63,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     SHA1={
         :name => "sha1",
         :large => "--sha1",
-        :description => "The password will be hashed using the sha1 algorithm"
+        :description => "The password will be hashed using the sha1\n"<<
+                        " "*31<<"algorithm"
     }
 
     SSH={

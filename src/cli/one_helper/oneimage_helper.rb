@@ -53,7 +53,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         {
             :name => "prefix",
             :large => "--prefix prefix",
-            :description => "Device prefix for the disk (eg. hd, sd, xvd or vd)",
+            :description => "Device prefix for the disk (eg. hd, sd, xvd\n"<<
+                            " "*31<<"or vd)",
             :format => String,
             :proc => lambda do |o, options|
                 prefix=o.strip.downcase
@@ -115,7 +116,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :name => "source",
             :large => "--source source",
             :description =>
-                "Source to be used. Useful for not file-based images",
+                "Source to be used. Useful for not file-based\n"<<
+                " "*31<<"images",
             :format => String
         },
         {
@@ -149,8 +151,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         {
             :name => "fstype",
             :large => "--fstype fstype",
-            :description => "Type of file system to be built. This can be "<<
-                "any value understood by mkfs unix command.",
+            :description => "Type of file system to be built. This can be \n"<<
+                            " "*31<<"any value understood by mkfs unix command.",
             :format => String,
             :proc => lambda do |o, options|
                 if !options[:type] || !(options[:type].upcase=='DATABLOCK')
