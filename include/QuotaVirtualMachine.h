@@ -60,7 +60,6 @@ public:
      */
     void del(Template* tmpl);
 
-protected:
     /**
      *  Gets a quota, overrides base to not to use ID.
      *    @param id of the quota, ignored
@@ -69,6 +68,9 @@ protected:
      *    @return a pointer to the quota or 0 if not found
      */
     int get_quota(const string& id, VectorAttribute **va);
+
+protected:
+
 
     /**
      * Gets a quota, overrides base to not to use ID.
@@ -87,6 +89,16 @@ protected:
         it = attributes.begin();
         return get_quota(id, va);
     }
+
+    /**
+     * Gets the default quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int get_default_quota(const string& id, VectorAttribute **va);
 
     static const char * VM_METRICS[];
 

@@ -61,6 +61,17 @@ public:
         return template_name;
      }
 
+     /**
+      *  Gets a quota identified by its ID.
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *    @return 0 on success, -1 if not found
+      */
+     virtual int get_quota(const string& id, VectorAttribute **va)
+     {
+         map<string, Attribute *>::iterator it;
+         return get_quota(id, va, it);
+     }
 
 protected:
 
@@ -122,16 +133,14 @@ protected:
                    map<string, float>& usage_req);
 
     /**
-     *  Gets a quota identified by its ID.
+     * Gets the default quota identified by its ID.
+     *
      *    @param id of the quota
      *    @param va The quota, if it is found
+     *
      *    @return 0 on success, -1 if not found
      */
-    virtual int get_quota(const string& id, VectorAttribute **va)
-    {
-        map<string, Attribute *>::iterator it;
-        return get_quota(id, va, it);
-    }
+    virtual int get_default_quota(const string& id, VectorAttribute **va) = 0;
 
     /**
      * Gets a quota identified by its ID.

@@ -42,6 +42,8 @@
 #include "AclManager.h"
 #include "ImageManager.h"
 
+#include "Quotas.h"
+
 #include "Callbackable.h"
 
 class Nebula : public Callbackable
@@ -311,13 +313,27 @@ public:
         return nebula_configuration->to_xml(xml);
     };
 
+    const Quotas& get_default_user_quota()
+    {
+        return default_user_quota;
+    };
+
 private:
 
     // -----------------------------------------------------------------------
     //Constructors and = are private to only access the class through instance
     // -----------------------------------------------------------------------
 
-    Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),
+    Nebula():nebula_configuration(0),
+        default_user_quota("/USER/DATASTORE_QUOTA",
+                            "/USER/NETWORK_QUOTA",
+                            "/USER/IMAGE_QUOTA",
+                            "/USER/VM_QUOTA"),
+        default_group_quota("/GROUP/DATASTORE_QUOTA",
+                            "/GROUP/NETWORK_QUOTA",
+                            "/GROUP/IMAGE_QUOTA",
+                            "/GROUP/VM_QUOTA"),
+        db(0),vmpool(0),hpool(0),vnpool(0),
         upool(0),ipool(0),gpool(0),tpool(0),dspool(0),clpool(0),docpool(0),
         lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0),aclm(0),imagem(0)
     {
@@ -467,8 +483,6 @@ private:
         }
     };
 
-    Nebula(Nebula const&){};
-
     Nebula& operator=(Nebula const&){return *this;};
 
     // ---------------------------------------------------------------
@@ -493,6 +507,14 @@ private:
     // ---------------------------------------------------------------
 
     OpenNebulaTemplate *    nebula_configuration;
+
+    // ---------------------------------------------------------------
+    // Default quotas
+    // ---------------------------------------------------------------
+
+    Quotas default_user_quota;
+    Quotas default_group_quota;
+
 
     // ---------------------------------------------------------------
     // Nebula Pools

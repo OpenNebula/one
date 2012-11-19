@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "QuotaDatastore.h"
+#include "Quotas.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -79,6 +81,16 @@ void QuotaDatastore::del(Template * tmpl)
     ds_request.insert(make_pair("SIZE",  size));
 
     del_quota(ds_id, ds_request);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int QuotaDatastore::get_default_quota(const string& id, VectorAttribute **va)
+{
+    // TODO: We need to know if this is a user or group quota
+    Quotas default_quotas = Nebula::instance().get_default_user_quota();
+    return default_quotas.ds_get(id, va);
 }
 
 /* -------------------------------------------------------------------------- */
