@@ -52,7 +52,9 @@ GEM_DESCRIPTION={
         :name => 'oca',
         :files => [
             ['src/oca/ruby/OpenNebula.rb', '/lib'],
-            ['src/oca/ruby/OpenNebula/*.rb', '/lib/OpenNebula']
+            ['src/oca/ruby/OpenNebula/*.rb', '/lib/OpenNebula'],
+            ['NOTICE', ''],
+            ['LICENSE', '']
         ],
         :summary => 'OpenNebula Client API',
         :description => 'Libraries needed to talk to OpenNebula',
@@ -68,6 +70,8 @@ GEM_DESCRIPTION={
             ['src/cli/one[a-z]*', '/bin'],
             ['src/cli/*.rb', '/lib'],
             ['src/cli/one_helper/*.rb', '/lib/one_helper'],
+            ['NOTICE', ''],
+            ['LICENSE', '']
         ],
         :summary => 'OpenNebula Client API',
         :description => 'Commands used to talk to OpenNebula',
