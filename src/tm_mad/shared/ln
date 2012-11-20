@@ -66,6 +66,7 @@ LINK_SCRIPT=$(cat <<EOF
 for file in \$(find $SRC_PATH -type f); do
     (cd $DST_PATH ; ln -sf \$file)
 done
+touch $DST_PATH/.is_persistent
 EOF
 )
     ssh_exec_and_log $DST_HOST "$LINK_SCRIPT" "Could not link dir files from source DS to system DS"
