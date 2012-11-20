@@ -76,6 +76,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
+    format(:type, 'Image type: OS, DATABLOCK or CDROM') do |arg|
+        type=arg.strip.upcase
+        if %w{OS DATABLOCK CDROM}.include? type
+            [0, type]
+        else
+            [1, "Image type not supported. Must be OS, DATABLOCK or CDROM."]
+        end
+    end
+
     ########################################################################
     # Commands
     ########################################################################
