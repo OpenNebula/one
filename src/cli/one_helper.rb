@@ -723,7 +723,7 @@ EOT
                 end
             end
 
-            lines+=options[:context]
+            lines+=options[:context] if options[:context]
 
             if !lines.empty?
                 "CONTEXT=[\n"<<lines.map{|l| "  "<<l }.join(",\n")<<"\n]\n"
