@@ -161,7 +161,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                     [0, o]
                 end
             end
-        }
+        },
+        OpenNebulaHelper::DRY
     ]
 
     def self.rname
@@ -322,7 +323,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         end
 
         template=create_image_variables(
-            options, template_options-[:persistent])
+            options, template_options-[:persistent, :dry])
 
         template<<"PERSISTENT=YES\n" if options[:persistent]
 

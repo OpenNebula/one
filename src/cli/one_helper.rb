@@ -76,6 +76,12 @@ EOT
         :format => String
     }
 
+    DRY={
+        :name  => 'dry',
+        :large  => '--dry',
+        :description => 'Just print the template'
+    }
+
     CLIENT_OPTIONS=[
         {
             :name   => 'user',
@@ -194,15 +200,10 @@ EOT
             :large  => '--boot device',
             :description => 'Select boot device (hd|fd|cdrom|network)',
             :format => String
-        },
-        {
-            :name  => 'dry',
-            :large  => '--dry',
-            :description => 'Just print the template'
         }
     ]
 
-    TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS
+    TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS+[DRY]
 
     OPTIONS = XML, NUMERIC, KILOBYTES
 

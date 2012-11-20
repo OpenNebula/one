@@ -107,7 +107,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS +
             OneImageHelper::TEMPLATE_OPTIONS do
 
-        if options[:datastore].nil?
+        if options[:datastore].nil? && !options[:dry]
             STDERR.puts "Datastore to save the image is mandatory: "
             STDERR.puts "\t -d datastore_id"
             exit -1
@@ -132,6 +132,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     end
 
                     template = res.last
+                end
+
+                if options[:dry]
+                    puts template
+                    exit 0
                 end
 
                 image.allocate(template, options[:datastore])
