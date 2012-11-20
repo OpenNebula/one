@@ -87,8 +87,8 @@ end
 
 # Retrieve hostname
 host  =  OpenNebula::Host.new_with_id(host_id, client)
-exit -1 if OpenNebula.is_error?(host)
-host.info
+rc = host.info
+exit -1 if OpenNebula.is_error?(rc)
 host_name = host.name
 
 if repeat
@@ -106,9 +106,9 @@ end
 
 # Loop through all vms
 vms = VirtualMachinePool.new(client)
-exit -1 if OpenNebula.is_error?(vms)
+rc = vms.info_all
+exit -1 if OpenNebula.is_error?(rc)
 
-vms.info_all
 
 state = "STATE=3"
 state += " or STATE=5" if force == "y"
