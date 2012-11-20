@@ -600,6 +600,11 @@ module CommandParser
         def print_command_help(name)
             command=@commands[name]
 
+            if !command
+                STDERR.puts "Command '#{name}' not found"
+                return print_all_commands_help
+            end
+
             puts "## USAGE"
             print "#{name} "
             print_command(@commands[name])
