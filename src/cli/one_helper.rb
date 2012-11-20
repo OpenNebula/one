@@ -113,6 +113,13 @@ EOT
             :format => Float
         },
         {
+            :name   => 'vcpu',
+            :large  => '--vcpu vcpu',
+            :description =>
+                "Number of virtualized CPUs",
+            :format => Integer
+        },
+        {
             :name   => 'arch',
             :large  => '--arch arch',
             :description =>
@@ -754,6 +761,7 @@ EOT
         end
 
         template<<"CPU=#{options[:cpu]}\n" if options[:cpu]
+        template<<"VCPU=#{options[:vcpu]}\n" if options[:vcpu]
         template<<"MEMORY=#{options[:memory]}\n" if options[:memory]
         template<<"#{options[:raw]}\n" if options[:raw]
 
