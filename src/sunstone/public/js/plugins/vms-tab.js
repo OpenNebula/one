@@ -49,6 +49,9 @@ var vm_graphs = [
     }
 ];
 
+
+var VNCstates=["RUNNING","SHUTDOWN","SHUTDOWN_POWEROFF","UNKNOWN","HOTPLUG","CANCEL","MIGRATE"];
+
 //Permanent storage for last value of aggregated network usage
 //Used to calculate bandwidth
 var netUsage = {
@@ -1581,7 +1584,8 @@ function vncIcon(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
     var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     var gr_icon;
-    if (graphics && graphics.TYPE == "vnc" && state == tr("RUNNING")){
+
+    if (graphics && graphics.TYPE == "vnc" && $.inArray(state, VNCstates)){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<img src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
     }
