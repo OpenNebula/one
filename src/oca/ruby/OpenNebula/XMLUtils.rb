@@ -79,12 +79,18 @@ module OpenNebula
 
             return doc
         end
-        # Extract an element from the XML description of the PoolElement.
-        # key::_String_ The name of the element
-        # [return] _String_ the value of the element
-        # Examples:
-        #   ['VID'] # gets VM id
-        #   ['HISTORY/HOSTNAME'] # get the hostname from the history
+
+        # Extract a text element from the XML description of the PoolElement.
+        #
+        # @param [String] key Xpath expression
+        #
+        # @return [String, nil] If a text element is found, the element's
+        #   text value. Otherwise, an empty string or nil, depending
+        #   on the backend
+        #
+        # @example
+        #   vm['VID'] # gets VM id
+        #   vm['HISTORY/HOSTNAME'] # get the hostname from the history
         def [](key)
             if NOKOGIRI
                 element=@xml.xpath(key.to_s)
