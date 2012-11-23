@@ -318,9 +318,19 @@ public:
         return default_user_quota;
     };
 
+    int set_default_user_quota(Template *tmpl, string& error)
+    {
+        return default_user_quota.set(tmpl, error);
+    };
+
     const Quotas& get_default_group_quota()
     {
         return default_group_quota;
+    };
+
+    int set_default_group_quota(Template *tmpl, string& error)
+    {
+        return default_group_quota.set(tmpl, error);
     };
 
 private:

@@ -78,6 +78,107 @@ public:
                          RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserQuotaInfo : public RequestManagerSystem
+{
+public:
+    UserQuotaInfo():
+        RequestManagerSystem("UserQuotaInfo",
+                           "Returns the default user quota limits",
+                           "A:s")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    ~UserQuotaInfo(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class GroupQuotaInfo : public RequestManagerSystem
+{
+public:
+    GroupQuotaInfo():
+        RequestManagerSystem("GroupQuotaInfo",
+                           "Returns the default group quota limits",
+                           "A:s")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    ~GroupQuotaInfo(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class QuotaUpdate : public RequestManagerSystem
+{
+public:
+    QuotaUpdate(const string& method_name,
+            const string& help):
+        RequestManagerSystem(method_name,
+                            help,
+                           "A:ss")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    ~QuotaUpdate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+
+    virtual int set_default_quota(Template *tmpl, string& error) = 0;
+
+    virtual string& get_default_quota(string& xml) = 0;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserQuotaUpdate : public QuotaUpdate
+{
+public:
+    UserQuotaUpdate():
+        QuotaUpdate("UserQuotaUpdate",
+                   "Updates the default user quota limits")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    int set_default_quota(Template *tmpl, string& error);
+
+    string& get_default_quota(string& xml);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class GroupQuotaUpdate : public QuotaUpdate
+{
+public:
+    GroupQuotaUpdate():
+        QuotaUpdate("GroupQuotaUpdate",
+                   "Updates the default group quota limits")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    int set_default_quota(Template *tmpl, string& error);
+
+    string& get_default_quota(string& xml);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
