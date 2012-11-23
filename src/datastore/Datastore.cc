@@ -94,7 +94,7 @@ int Datastore::disk_attribute(VectorAttribute * disk)
 
 Datastore::DatastoreType Datastore::str_to_type(string& str_type)
 {
-    Datastore::DatastoreType dst = FILE_DS;
+    Datastore::DatastoreType dst = IMAGE_DS;
 
     if (str_type.empty())
     {
