@@ -61,7 +61,14 @@ void UserQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
     string xml;
-    success_response(Nebula::instance().get_default_user_quota().to_xml(xml), att);
+
+    ostringstream oss;
+
+    oss << "<DEFAULT_USER_QUOTAS>"
+        << Nebula::instance().get_default_user_quota().to_xml(xml)
+        << "</DEFAULT_USER_QUOTAS>";
+
+    success_response(oss.str(), att);
 
     return;
 }
@@ -73,7 +80,14 @@ void GroupQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
     string xml;
-    success_response(Nebula::instance().get_default_group_quota().to_xml(xml), att);
+
+    ostringstream oss;
+
+    oss << "<DEFAULT_GROUP_QUOTAS>"
+        << Nebula::instance().get_default_group_quota().to_xml(xml)
+        << "</DEFAULT_GROUP_QUOTAS>";
+
+    success_response(oss.str(), att);
 
     return;
 }
@@ -87,7 +101,6 @@ void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
     string   quota_str = xmlrpc_c::value_string(paramList.getString(1));
     string   error_str;
     Template quota_tmpl;
-    string   xml;
 
     int     rc;
 
@@ -115,7 +128,7 @@ void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    success_response(get_default_quota(xml), att);
+    success_response(get_default_quota(), att);
 
     return;
 }
@@ -131,9 +144,16 @@ int UserQuotaUpdate::set_default_quota(Template *tmpl, string& error)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-string& UserQuotaUpdate::get_default_quota(string& xml)
+string UserQuotaUpdate::get_default_quota()
 {
-    return Nebula::instance().get_default_user_quota().to_xml(xml);
+    string xml;
+    ostringstream oss;
+
+    oss << "<DEFAULT_USER_QUOTAS>"
+        << Nebula::instance().get_default_user_quota().to_xml(xml)
+        << "</DEFAULT_USER_QUOTAS>";
+
+    return oss.str();
 }
 
 /* ------------------------------------------------------------------------- */
@@ -147,9 +167,16 @@ int GroupQuotaUpdate::set_default_quota(Template *tmpl, string& error)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-string& GroupQuotaUpdate::get_default_quota(string& xml)
+string GroupQuotaUpdate::get_default_quota()
 {
-    return Nebula::instance().get_default_group_quota().to_xml(xml);
+    string xml;
+    ostringstream oss;
+
+    oss << "<DEFAULT_GROUP_QUOTAS>"
+        << Nebula::instance().get_default_group_quota().to_xml(xml)
+        << "</DEFAULT_GROUP_QUOTAS>";
+
+    return oss.str();
 }
 
 /* ------------------------------------------------------------------------- */
