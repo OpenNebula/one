@@ -48,6 +48,21 @@ module OpenNebula
         # Common XML-RPC Methods for all the Pool Types
         #######################################################################
 
+        # Common client call wrapper. Returns nil instead of the response
+        # if it is successful
+        #
+        # @param [String] xml_method xml-rpc method
+        # @param [Array] args any arguments for the xml-rpc method
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def call(xml_method, *args)
+            rc = @client.call(xml_method, *args)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
         #Gets the pool without any filter. Host, Group and User Pools
         # xml_method:: _String_ the name of the XML-RPC method
         def info(xml_method)
