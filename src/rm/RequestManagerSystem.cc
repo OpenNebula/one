@@ -56,3 +56,101 @@ void SystemConfig::request_execute(xmlrpc_c::paramList const& paramList,
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
+
+void UserQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
+{
+    string xml;
+    success_response(Nebula::instance().get_default_user_quota().to_xml(xml), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void GroupQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
+{
+    string xml;
+    success_response(Nebula::instance().get_default_group_quota().to_xml(xml), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
+{
+    string   quota_str = xmlrpc_c::value_string(paramList.getString(1));
+    string   error_str;
+    Template quota_tmpl;
+    string   xml;
+
+    int     rc;
+
+    if ( att.gid != GroupPool::ONEADMIN_ID )
+    {
+        failure_response(AUTHORIZATION,
+            "The default quotas can only be updated by users in the oneadmin group",
+            att);
+        return;
+    }
+
+    rc = quota_tmpl.parse_str_or_xml(quota_str, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, request_error(error_str,""), att);
+        return;
+    }
+
+    rc = set_default_quota(&quota_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, request_error(error_str,""), att);
+        return;
+    }
+
+    success_response(get_default_quota(xml), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int UserQuotaUpdate::set_default_quota(Template *tmpl, string& error)
+{
+    return Nebula::instance().set_default_user_quota(tmpl, error);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+string& UserQuotaUpdate::get_default_quota(string& xml)
+{
+    return Nebula::instance().get_default_user_quota().to_xml(xml);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int GroupQuotaUpdate::set_default_quota(Template *tmpl, string& error)
+{
+    return Nebula::instance().set_default_group_quota(tmpl, error);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+string& GroupQuotaUpdate::get_default_quota(string& xml)
+{
+    return Nebula::instance().get_default_group_quota().to_xml(xml);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
