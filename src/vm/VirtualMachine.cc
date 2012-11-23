@@ -2114,15 +2114,26 @@ error_yy:
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_file_attribute(const string& attribute,
-                                         vector<int>&  img_ids,
-                                         string&       error)
+int VirtualMachine::parse_file_attribute(string       attribute,
+                                         vector<int>& img_ids,
+                                         string&      error)
 {
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
     int              rc;
     ostringstream    oss_parsed;
     char *           error_msg = 0;
+
+    size_t non_blank_pos;
+
+    //Removes leading blanks from attribute, these are not managed
+    //by the parser as it is common to the other VM varibales
+    non_blank_pos = attribute.find_first_not_of(" \t\n\v\f\r");
+
+    if ( non_blank_pos != string::npos )
+    {
+        attribute.erase(0, non_blank_pos);
+    }
 
     pthread_mutex_lock(&lex_mutex);
 

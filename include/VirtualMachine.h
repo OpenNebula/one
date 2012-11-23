@@ -679,9 +679,9 @@ public:
      *    @param error description in case of failure
      *    @return 0 on success.
      */
-    int  parse_file_attribute(const string& attribute,
-                              vector<int>&  img_ids,
-                              string&       error);
+    int  parse_file_attribute(string       attribute,
+                              vector<int>& img_ids,
+                              string&      error);
 
     /**
      *  Factory method for virtual machine templates
