@@ -522,9 +522,16 @@ int VirtualMachine::parse_context(string& error_str)
 
     vector<Attribute *> array_context;
     VectorAttribute *   context;
+    VectorAttribute *   context_parsed;
 
-    string *            str;
-    string              parsed;
+    string * str;
+    string   parsed;
+    string   files_ds;
+    string   files_ds_parsed;
+
+    ostringstream oss_parsed;
+
+    vector<int>  img_ids;
 
     num = obj_template->remove("CONTEXT", array_context);
 
@@ -546,27 +553,32 @@ int VirtualMachine::parse_context(string& error_str)
         goto error_cleanup;
     }
 
+    //Backup datastore files to parse them later
+
+    files_ds = context->vector_value("FILES_DS");
+
+    context->remove("FILES_DS");
+
+    // -------------------------------------------------------------------------
+    // Parse CONTEXT variables & free vector attributes
+    // -------------------------------------------------------------------------
+
     str = context->marshall(" @^_^@ ");
 
     if (str == 0)
     {
-        NebulaLog::log("ONE",Log::ERROR, "Cannot marshall CONTEXT");
+        error_str = "Cannot marshall CONTEXT";
         goto error_cleanup;
     }
 
-    rc = parse_template_attribute(*str,parsed);
+    rc = parse_template_attribute(*str, parsed, error_str);
 
-    if ( rc == 0 )
+    delete str;
+
+    if (rc != 0)
     {
-        VectorAttribute * context_parsed;
-
-        context_parsed = new VectorAttribute("CONTEXT");
-        context_parsed->unmarshall(parsed," @^_^@ ");
-
-        obj_template->set(context_parsed);
+        goto error_cleanup;
     }
-
-    /* --- Delete old context attributes --- */
 
     for (int i = 0; i < num ; i++)
     {
@@ -575,6 +587,52 @@ int VirtualMachine::parse_context(string& error_str)
             delete array_context[i];
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Parse FILE_DS variables
+    // -------------------------------------------------------------------------
+
+    if (!files_ds.empty())
+    {
+        if ( parse_file_attribute(files_ds, img_ids, error_str) != 0 )
+        {
+            return -1;
+        }
+
+        if ( img_ids.size() > 0 )
+        {
+            vector<int>::iterator it;
+
+            Nebula& nd = Nebula::instance();
+
+            ImagePool * ipool = nd.get_ipool();
+            Image  *    img   = 0;
+
+            for ( it=img_ids.begin() ; it < img_ids.end(); it++ )
+            {
+                img = ipool->get(*it, true);
+
+                if ( img != 0 )
+                {
+                    oss_parsed << img->get_source() << " ";
+
+                    img->unlock();
+                }
+            }
+        }
+    }
+
+    files_ds_parsed = oss_parsed.str();
+
+    context_parsed = new VectorAttribute("CONTEXT");
+    context_parsed->unmarshall(parsed," @^_^@ ");
+
+    if ( !files_ds_parsed.empty() )
+    {
+        context_parsed->replace("FILES_DS", files_ds_parsed);
+    }
+
+    obj_template->set(context_parsed);
 
     return rc;
 
@@ -667,7 +725,7 @@ int VirtualMachine::parse_requirements(string& error_str)
         goto error_cleanup;
     }
 
-    rc = parse_template_attribute(reqs->value(),parsed);
+    rc = parse_template_attribute(reqs->value(), parsed, error_str);
 
     if ( rc == 0 )
     {
@@ -1731,6 +1789,7 @@ void VirtualMachine::release_network_leases()
 int VirtualMachine::generate_context(string &files, int &disk_id)
 {
     ofstream file;
+    string   files_ds;
 
     vector<const Attribute*> attrs;
     const VectorAttribute *  context;
@@ -1768,6 +1827,14 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
     }
 
     files = context->vector_value("FILES");
+
+    files_ds = context->vector_value("FILES_DS");
+
+    if (!files_ds.empty())
+    {
+        files += " ";
+        files += files_ds;
+    }
 
     const map<string, string> values = context->value();
 
@@ -1996,7 +2063,8 @@ extern "C"
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::parse_template_attribute(const string& attribute,
-                                             string&       parsed)
+                                             string&       parsed,
+                                             string&       error_str)
 {
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
@@ -2028,6 +2096,8 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
 
         oss << "Error parsing: " << attribute << ". " << error_msg;
         log("VM", Log::ERROR, oss);
+
+        error_str = oss.str();
 
         free(error_msg);
     }

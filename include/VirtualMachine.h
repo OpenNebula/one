@@ -664,9 +664,12 @@ public:
      *  template values:
      *    @param attribute, the string to be parsed
      *    @param parsed, the resulting parsed string
+     *    @param error description in case of failure
      *    @return 0 on success.
      */
-    int  parse_template_attribute(const string& attribute, string& parsed);
+    int  parse_template_attribute(const string& attribute,
+                                  string&       parsed,
+                                  string&       error);
 
     /**
      *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
