@@ -237,6 +237,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    defaultquota_desc = <<-EOT.unindent
+        Sets the default quota limits for the users. If a path is not provided
+        the editor will be launched to modify the current default quotas.
+    EOT
+
+    command :defaultquota, defaultquota_desc, [:file, nil] do
+
+        # TODO: Do not create a new Client here
+#        user_pool = factory_pool()
+        user_pool = UserPool.new(Client.new)
+
+        str = OneQuotaHelper.set_defaultquota(user_pool, 'DEFAULT_USER_QUOTAS', args[1])
+
+        rc  = user_pool.set_quota(str)
+        
+        if OpenNebula.is_error?(rc)
+            puts rc.message
+            exit -1
+        end
+
+        exit 0
+    end
+
     login_desc = <<-EOT.unindent
         Creates the Login token for authentication
         Examples:
