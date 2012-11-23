@@ -96,12 +96,16 @@ class OneQuotaHelper
         #  ]
         #
         #  IMAGE = [
-        #    ID        = <ID of the image>
-        #    RVMS = <Max. number of VMs using the image>
+        #    ID     = <ID of the image>
+        #    RVMS   = <Max. number of VMs using the image>
         #  ]
         #
-        #  In any quota 0 means unlimited. The usage counters "*_USED" are
-        #  shown for information purposes and will NOT be modified.
+        #  In any quota:
+        #    -1 means use the default limit ('defaultquota' command)
+        #    0 means unlimited.
+        #
+        #  The usage counters "*_USED" are shown for information
+        #  purposes and will NOT be modified.
         #-----------------------------------------------------------------------
     EOT
 
@@ -131,6 +135,60 @@ class OneQuotaHelper
             tmp << resource.template_like_str("VM_QUOTA") << "\n"
             tmp << resource.template_like_str("NETWORK_QUOTA") << "\n"
             tmp << resource.template_like_str("IMAGE_QUOTA") << "\n"
+
+            tmp.close
+
+            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+            system("#{editor_path} #{path}")
+
+            unless $?.exitstatus == 0
+                puts "Editor not defined"
+                exit -1
+            end
+
+            str = File.read(path)
+
+            File.unlink(path)
+        else
+            str = File.read(path)
+        end
+
+        str
+    end
+
+    #  Edits the default quota template of a pool
+    #  @param [Pool] resource to get the current info from
+    #  @param [String] root_elem the root element's name
+    #  @param [String] path to the new contents. If nil a editor will be 
+    #         used
+    #  @return [String] contents of the new quotas
+    def self.set_defaultquota(resource, root_elem, path)
+        str = ""
+
+        if path.nil?
+            require 'tempfile'
+
+            tmp  = Tempfile.new('one-cli')
+            path = tmp.path
+
+
+
+            default_xml_str = resource.get_quota()
+
+            if OpenNebula::is_error?(default_xml_str)
+                puts default_xml_str.message
+                exit -1
+            end
+
+            default_quotas = XMLElement.new
+            default_quotas.initialize_xml(default_xml_str, root_elem)
+
+
+            tmp << HELP_QUOTA
+            tmp << default_quotas.template_like_str("DATASTORE_QUOTA") << "\n"
+            tmp << default_quotas.template_like_str("VM_QUOTA") << "\n"
+            tmp << default_quotas.template_like_str("NETWORK_QUOTA") << "\n"
+            tmp << default_quotas.template_like_str("IMAGE_QUOTA") << "\n"
 
             tmp.close
 
