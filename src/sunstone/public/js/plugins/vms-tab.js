@@ -1585,7 +1585,7 @@ function vncIcon(vm){
     var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     var gr_icon;
 
-    if (graphics && graphics.TYPE == "vnc" && $.inArray(state, VNCstates)){
+    if (graphics && graphics.TYPE == "vnc" && $.inArray(state, VNCstates)!=-1){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<img src="images/vnc_on.png" alt=\"'+tr("Open VNC Session")+'\" /></a>';
     }
