@@ -24,7 +24,9 @@ module OpenNebula
         #######################################################################
 
         USER_POOL_METHODS = {
-            :info => "userpool.info"
+            :info           => "userpool.info",
+            :quotainfo      => "userquota.info",
+            :quotaupdate    => "userquota.update"
         }
 
         #######################################################################
@@ -42,12 +44,29 @@ module OpenNebula
         end
 
         #######################################################################
-        # XML-RPC Methods for the User Object
+        # XML-RPC Methods for the UserPool Object
         #######################################################################
 
         # Retrieves all the Users in the pool.
         def info()
             super(USER_POOL_METHODS[:info])
+        end
+
+        # Gets the default user quota limits
+        #
+        # @return [String, OpenNebula::Error] the default user quota in case
+        #   of success, Error otherwise
+        def get_quota()
+            return @client.call(USER_POOL_METHODS[:quotainfo])
+        end
+
+        # Sets the default user quota limits
+        # @param quota [String] a template (XML or txt) with the new quota limits
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def set_quota(quota)
+            return call(USER_POOL_METHODS[:quotaupdate], quota)
         end
     end
 end
