@@ -37,7 +37,8 @@ public:
     {
         OS        = 0, /** < Base OS image */
         CDROM     = 1, /** < An ISO9660 image */
-        DATABLOCK = 2  /** < User persistent data device */
+        DATABLOCK = 2, /** < User persistent data device */
+        DATAFILE  = 3  /** < Context, kernels and initrd files */
     };
 
     /**
@@ -52,6 +53,7 @@ public:
             case OS:        return "OS" ; break;
             case CDROM:     return "CDROM" ; break;
             case DATABLOCK: return "DATABLOCK" ; break;
+            case DATAFILE:  return "FILE" ; break;
             default:        return "";
         }
     };

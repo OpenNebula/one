@@ -44,11 +44,11 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList,
     {
         if (enable_flag == true)
         {
-            err_msg = "Could not enable image";
+            err_msg = "Could not enable image.";
         }
         else
         {
-            err_msg = "Could not disable image";
+            err_msg = "Could not disable image.";
         }
 
         failure_response(INTERNAL, request_error(err_msg,""), att);
@@ -84,6 +84,15 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
                 get_error(object_name(auth_object),id),
                 att);
 
+        return;
+    }
+
+    if ( image->get_type() == Image::DATAFILE )
+    {
+        failure_response(ACTION,
+            request_error("FILE images must be non-persistent",""), att);
+
+        image->unlock();
         return;
     }
 
@@ -142,6 +151,17 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( image->get_type() == Image::DATAFILE )
+    {
+        failure_response(ACTION,
+            request_error("Only FILE images can be stored in a FILE_DS"
+                          " datastore.",""),
+            att);
+
+        image->unlock();
+        return;
+    }
+
     rc = image->set_type(type);
 
     if ( rc != 0  )
@@ -182,7 +202,7 @@ void ImageClone::request_execute(
     Image *         img;
     Datastore *     ds;
 
-    Nebula&  nd = Nebula::instance();    
+    Nebula&  nd = Nebula::instance();
 
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
@@ -200,8 +220,19 @@ void ImageClone::request_execute(
         return;
     }
 
+    if ( img->get_type() == Image::DATAFILE )
+    {
+        failure_response(ACTION,
+                allocate_error("Image of type FILE cannot be clonned"),
+                att);
+
+        img->unlock();
+
+        return;
+    }
+
     tmpl = img->clone_template(name);
-    
+
     img->get_permissions(perms);
 
     ds_id   = img->get_ds_id();
@@ -224,6 +255,18 @@ void ImageClone::request_execute(
         return;
     }
 
+    if ( ds->get_type() == Datastore::FILE_DS )
+    {
+        failure_response(ACTION, "Clone not supported for FILE_DS Datastores",
+            att);
+
+        delete tmpl;
+
+        ds->unlock();
+
+        return;
+    }
+
     ds->get_permissions(ds_perms);
 
     disk_type = ds->get_disk_type();
@@ -233,7 +276,7 @@ void ImageClone::request_execute(
     ds->unlock();
 
     // ------------- Set authorization request ---------------------------------
-    
+
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size);
 
@@ -265,21 +308,22 @@ void ImageClone::request_execute(
         if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
         {
             delete tmpl;
-            return;   
-        }        
+            return;
+        }
     }
 
-    rc = ipool->allocate(att.uid, 
-                         att.gid, 
-                         att.uname, 
+    rc = ipool->allocate(att.uid,
+                         att.gid,
+                         att.uname,
                          att.gname,
-                         tmpl, 
-                         ds_id, 
-                         ds_name, 
+                         tmpl,
+                         ds_id,
+                         ds_name,
                          disk_type,
-                         ds_data, 
-                         clone_id, 
-                         &new_id, 
+                         ds_data,
+                         Datastore::IMAGE_DS,
+                         clone_id,
+                         &new_id,
                          error_str);
     if ( rc < 0 )
     {

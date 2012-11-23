@@ -150,6 +150,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 puts "ID: #{res}"
             else
                 puts res.message
+                exit -1
             end
         end
     end

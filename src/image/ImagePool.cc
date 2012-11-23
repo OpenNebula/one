@@ -63,18 +63,19 @@ ImagePool::ImagePool(SqlDB *       db,
 /* -------------------------------------------------------------------------- */
 
 int ImagePool::allocate (
-        int             uid,
-        int             gid,
-        const string&   uname,
-        const string&   gname,
-        ImageTemplate*  img_template,
-        int             ds_id,
-        const string&   ds_name,
-        Image::DiskType disk_type,
-        const string&   ds_data,
-        int             cloning_id,
-        int *           oid,
-        string&         error_str)
+        int                      uid,
+        int                      gid,
+        const string&            uname,
+        const string&            gname,
+        ImageTemplate *          img_template,
+        int                      ds_id,
+        const string&            ds_name,
+        Image::DiskType          disk_type,
+        const string&            ds_data,
+        Datastore::DatastoreType ds_type,
+        int                      cloning_id,
+        int *                    oid,
+        string&                  error_str)
 {
     Nebula&         nd     = Nebula::instance();
     ImageManager *  imagem = nd.get_imagem();
@@ -82,6 +83,7 @@ int ImagePool::allocate (
     Image *         img;
     Image *         img_aux = 0;
     string          name;
+    string          type;
     ostringstream   oss;
 
     img = new Image(uid, gid, uname, gname, img_template);
@@ -99,6 +101,20 @@ int ImagePool::allocate (
     if ( name.length() > 128 )
     {
         goto error_name_length;
+    }
+
+    img->get_template_attribute("TYPE", type);
+
+    if ( ds_type == Datastore::FILE_DS &&
+         img->str_to_type(type) != Image::DATAFILE )
+    {
+        goto error_types_missmatch_file;
+    }
+
+    if ( ds_type == Datastore::IMAGE_DS &&
+         img->str_to_type(type) == Image::DATAFILE )
+    {
+        goto error_types_missmatch_image;
     }
 
     img_aux = get(name,uid,false);
@@ -119,7 +135,6 @@ int ImagePool::allocate (
         {
             goto error_clone_state;
         }
-
 
         img->set_cloning_id(cloning_id);
     }
@@ -181,6 +196,14 @@ error_name_length:
     oss << "NAME is too long; max length is 128 chars.";
     goto error_common;
 
+error_types_missmatch_file:
+    oss << "Only IMAGES of type FILE can be registered in a FILE_DS datastore";
+    goto error_common;
+
+error_types_missmatch_image:
+    oss << "IMAGES of type FILE cannot be registered in a IMAGE_DS datastore";
+    goto error_common;
+
 error_duplicated:
     oss << "NAME is already taken by IMAGE "
         << img_aux->get_oid() << ".";
@@ -201,7 +224,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int get_disk_uid(VectorAttribute *  disk, int _uid)
+int ImagePool::get_disk_uid(VectorAttribute *  disk, int _uid)
 {
     istringstream  is;
 
@@ -246,7 +269,7 @@ static int get_disk_uid(VectorAttribute *  disk, int _uid)
 
 /* -------------------------------------------------------------------------- */
 
-static int get_disk_id(const string& id_s)
+int ImagePool::get_disk_id(const string& id_s)
 {
     istringstream  is;
     int            id;

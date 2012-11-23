@@ -29,6 +29,38 @@
 class Datastore : public PoolObjectSQL, ObjectCollection, public Clusterable
 {
 public:
+    /**
+     *  Type of Datastore
+     */
+    enum DatastoreType
+    {
+        IMAGE_DS  = 0, /** < Standard datastore for disk images */
+        SYSTEM_DS = 1, /** < System datastore for disks of running VMs */
+        FILE_DS   = 2  /** < File datastore for context, kernel, initrd files */
+    };
+
+    /**
+     *  Return the string representation of an DatastoreType
+     *    @param ob the type
+     *    @return the string
+     */
+    static string type_to_str(DatastoreType ob)
+    {
+        switch (ob)
+        {
+            case IMAGE_DS:  return "IMAGE_DS" ; break;
+            case SYSTEM_DS: return "SYSTEM_DS" ; break;
+            case FILE_DS:   return "FILE_DS" ; break;
+            default:        return "";
+        }
+    };
+
+    /**
+     *  Return the string representation of an DatastoreType
+     *    @param str_type string representing the DatastoreTypr
+     *    @return the ImageType (defaults to IMAGE_DS)
+     */
+    static DatastoreType str_to_type(string& str_type);
 
     /**
      * Function to print the Datastore object into a string in XML format
@@ -93,12 +125,12 @@ public:
     };
 
     /**
-     * Returns true if this is a system datastore
-     *    @return true if this is a system datastore
+     * Returns the datastore type
+     *    @return datastore type
      */
-    bool is_system() const
+    DatastoreType get_type() const
     {
-        return system_ds == 1;
+        return type;
     };
 
     /**
@@ -145,9 +177,9 @@ private:
     string base_path;
 
     /**
-     * 1 if this is a system DS
+     * The datastore type
      */
-    int    system_ds;
+    DatastoreType type;
 
     /**
      * Disk types for the Images created in this datastore

@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.6.2.  */
+/* A Bison parser, made by GNU Bison 2.6.5.  */
 
 /* Bison implementation for Yacc-like parsers in C
    
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.6.2"
+#define YYBISON_VERSION "2.6.5"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -70,7 +70,7 @@
 #define yylloc          expr_arith__lloc
 
 /* Copy the first part of user declarations.  */
-/* Line 336 of yacc.c  */
+/* Line 360 of yacc.c  */
 #line 17 "expr_arith.y"
 
 #include <iostream>
@@ -125,7 +125,7 @@ extern "C"
 }
 
 
-/* Line 336 of yacc.c  */
+/* Line 360 of yacc.c  */
 #line 130 "expr_arith.cc"
 
 # ifndef YY_NULL
@@ -146,8 +146,8 @@ extern "C"
 
 /* In a future release of Bison, this section will be replaced
    by #include "expr_arith.hh".  */
-#ifndef EXPR_ARITH_EXPR_ARITH_HH
-# define EXPR_ARITH_EXPR_ARITH_HH
+#ifndef YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
+# define YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -172,7 +172,7 @@ extern int expr_arith__debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 350 of yacc.c  */
+/* Line 376 of yacc.c  */
 #line 78 "expr_arith.y"
 
     char *  val_str;
@@ -180,7 +180,7 @@ typedef union YYSTYPE
     float   val_float;
 
 
-/* Line 350 of yacc.c  */
+/* Line 376 of yacc.c  */
 #line 185 "expr_arith.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
@@ -216,11 +216,11 @@ int expr_arith__parse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
 
-#endif /* !EXPR_ARITH_EXPR_ARITH_HH  */
+#endif /* !YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-/* Line 353 of yacc.c  */
+/* Line 379 of yacc.c  */
 #line 225 "expr_arith.cc"
 
 #ifdef short
@@ -274,24 +274,24 @@ typedef short int yytype_int16;
 # if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
-#   define YY_(msgid) dgettext ("bison-runtime", msgid)
+#   define YY_(Msgid) dgettext ("bison-runtime", Msgid)
 #  endif
 # endif
 # ifndef YY_
-#  define YY_(msgid) msgid
+#  define YY_(Msgid) Msgid
 # endif
 #endif
 
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
-# define YYUSE(e) ((void) (e))
+# define YYUSE(E) ((void) (E))
 #else
-# define YYUSE(e) /* empty */
+# define YYUSE(E) /* empty */
 #endif
 
 /* Identity function, used to suppress warnings about constant conditions.  */
 #ifndef lint
-# define YYID(n) (n)
+# define YYID(N) (N)
 #else
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
@@ -594,10 +594,10 @@ static const yytype_uint8 yytable[] =
        4,     5,    11,    12,    13,    14
 };
 
-#define yypact_value_is_default(yystate) \
-  ((yystate) == (-5))
+#define yypact_value_is_default(Yystate) \
+  (!!((Yystate) == (-5)))
 
-#define yytable_value_is_error(yytable_value) \
+#define yytable_value_is_error(Yytable_value) \
   YYID (0)
 
 static const yytype_int8 yycheck[] =
@@ -659,9 +659,10 @@ do                                                              \
     }								\
 while (YYID (0))
 
-
+/* Error token number */
 #define YYTERROR	1
 #define YYERRCODE	256
+
 
 /* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
    If N is 0, then set CURRENT to the empty location which ends
@@ -690,17 +691,20 @@ while (YYID (0))
 #define YYRHSLOC(Rhs, K) ((Rhs)[K])
 
 
-
 /* YY_LOCATION_PRINT -- Print the location on the stream.
    This macro was not mandated originally: define only if we know
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
 # if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)			\
-     fprintf (File, "%d.%d-%d.%d",			\
-	      (Loc).first_line, (Loc).first_column,	\
-	      (Loc).last_line,  (Loc).last_column)
+#  define YY_LOCATION_PRINT(File, Loc)                                   \
+  do {                                                                   \
+    fprintf (File, "%d.%d", (Loc).first_line, (Loc).first_column);       \
+    if ((Loc).first_line < (Loc).last_line)                              \
+      fprintf (File, "-%d.%d", (Loc).last_line,  (Loc).last_column - 1); \
+    else if ((Loc).first_column < (Loc).last_column - 1)                 \
+      fprintf (File, "-%d", (Loc).last_column - 1);                      \
+  } while (0)
 # else
 #  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 # endif
@@ -708,7 +712,6 @@ while (YYID (0))
 
 
 /* YYLEX -- calling `yylex' with the right arguments.  */
-
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (&yylval, &yylloc, YYLEX_PARAM)
 #else
@@ -1234,11 +1237,39 @@ yyparse (mc, oxml, result, error_msg)
 /* The lookahead symbol.  */
 int yychar;
 
+
+#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+/* Suppress an incorrect diagnostic about yylval being uninitialized.  */
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
+    _Pragma ("GCC diagnostic push") \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")\
+    _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END \
+    _Pragma ("GCC diagnostic pop")
+#else
+/* Default value used for initialization, for pacifying older GCCs
+   or non-GCC compilers.  */
+static YYSTYPE yyval_default;
+# define YY_INITIAL_VALUE(Value) = Value
+#endif
+#ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END
+#endif
+#ifndef YY_INITIAL_VALUE
+# define YY_INITIAL_VALUE(Value) /* Nothing. */
+#endif
+
 /* The semantic value of the lookahead symbol.  */
-YYSTYPE yylval;
+YYSTYPE yylval YY_INITIAL_VALUE(yyval_default);
 
 /* Location data for the lookahead symbol.  */
-YYLTYPE yylloc;
+YYLTYPE yylloc
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+  = { 1, 1, 1, 1 }
+# endif
+;
+
 
     /* Number of syntax errors so far.  */
     int yynerrs;
@@ -1278,7 +1309,7 @@ YYLTYPE yylloc;
   int yyn;
   int yyresult;
   /* Lookahead token as an internal (translated) token number.  */
-  int yytoken;
+  int yytoken = 0;
   /* The variables used to return semantic value and location from the
      action routines.  */
   YYSTYPE yyval;
@@ -1297,10 +1328,9 @@ YYLTYPE yylloc;
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
 
-  yytoken = 0;
-  yyss = yyssa;
-  yyvs = yyvsa;
-  yyls = yylsa;
+  yyssp = yyss = yyssa;
+  yyvsp = yyvs = yyvsa;
+  yylsp = yyls = yylsa;
   yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
@@ -1309,20 +1339,7 @@ YYLTYPE yylloc;
   yyerrstatus = 0;
   yynerrs = 0;
   yychar = YYEMPTY; /* Cause a token to be read.  */
-
-  /* Initialize stack pointers.
-     Waste one element of value and location stack
-     so that they stay on the same level as the state stack.
-     The wasted elements are never initialized.  */
-  yyssp = yyss;
-  yyvsp = yyvs;
-  yylsp = yyls;
-
-#if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
-  /* Initialize the default location before parsing starts.  */
-  yylloc.first_line   = yylloc.last_line   = 1;
-  yylloc.first_column = yylloc.last_column = 1;
-#endif
+  yylsp[0] = yylloc;
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -1468,7 +1485,9 @@ yybackup:
   yychar = YYEMPTY;
 
   yystate = yyn;
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
   *++yylsp = yylloc;
   goto yynewstate;
 
@@ -1506,19 +1525,19 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 100 "expr_arith.y"
     { result = static_cast<int>((yyvsp[(1) - (1)].val_float));}
     break;
 
   case 3:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 101 "expr_arith.y"
     { result = 0; }
     break;
 
   case 4:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 104 "expr_arith.y"
     { float val = 0.0;
 
@@ -1548,56 +1567,56 @@ yyreduce:
     break;
 
   case 5:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 129 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (1)].val_float); }
     break;
 
   case 6:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 130 "expr_arith.y"
     { (yyval.val_float) = static_cast<float>((yyvsp[(1) - (1)].val_int)); }
     break;
 
   case 7:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 131 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) + (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 8:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 132 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) - (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 9:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 133 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) * (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 10:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 134 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) / (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 11:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 135 "expr_arith.y"
     { (yyval.val_float) = - (yyvsp[(2) - (2)].val_float);}
     break;
 
   case 12:
-/* Line 1787 of yacc.c  */
+/* Line 1778 of yacc.c  */
 #line 136 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(2) - (3)].val_float);}
     break;
 
 
-/* Line 1787 of yacc.c  */
-#line 1601 "expr_arith.cc"
+/* Line 1778 of yacc.c  */
+#line 1620 "expr_arith.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1762,7 +1781,9 @@ yyerrlab1:
       YY_STACK_PRINT (yyss, yyssp);
     }
 
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 
   yyerror_range[2] = yylloc;
   /* Using YYLLOC is tempting, but would change the location of
@@ -1833,7 +1854,7 @@ yyreturn:
 }
 
 
-/* Line 2048 of yacc.c  */
+/* Line 2041 of yacc.c  */
 #line 139 "expr_arith.y"
 
 

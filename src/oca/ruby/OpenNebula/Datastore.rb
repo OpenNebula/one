@@ -32,6 +32,14 @@ module OpenNebula
             :chmod      => "datastore.chmod"
         }
 
+        DATASTORE_TYPES=%w{IMAGE SYSTEM FILE}
+
+        SHORT_DATASTORE_TYPES = {
+            "IMAGE" => "img",
+            "SYSTEM"=> "sys",
+            "FILE"  => "fil"
+        }
+
         # Creates a Datastore description with just its identifier
         # this method should be used to create plain Datastore objects.
         # +id+ the id of the user
@@ -57,6 +65,20 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Datastore Object
         #######################################################################
+        # Returns the datastore type
+        def type
+            self['TYPE'].to_i
+        end
+
+        # Returns the datastore type (string value)
+        def type_str
+            DATASTORE_TYPES[type]
+        end
+
+        # Returns the datastore type (string value)
+        def short_type_str
+            SHORT_DATASTORE_TYPES[type_str]
+        end
 
         # Retrieves the information of the given Datastore.
         def info()

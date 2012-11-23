@@ -31,7 +31,7 @@
 
 #include "Nebula.h"
 
-
+#include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
 
 /* ************************************************************************** */
@@ -270,6 +270,17 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Check the OS attribute
+    // ------------------------------------------------------------------------
+
+    rc = parse_os(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_os;
+    }
+
+    // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
 
@@ -349,6 +360,9 @@ error_leases_rollback:
     release_network_leases();
     goto error_common;
 
+error_os:
+    goto error_common;
+
 error_cpu:
     error_str = "CPU attribute must be a positive float or integer value.";
     goto error_common;
@@ -374,15 +388,150 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::set_os_file(VectorAttribute *  os,
+                                const string&      base_name,
+                                string&            error_str)
+{
+    vector<int>  img_ids;
+    Nebula& nd = Nebula::instance();
+
+    ImagePool * ipool = nd.get_ipool();
+    Image  *    img   = 0;
+
+    DatastorePool * ds_pool = nd.get_dspool();
+    Datastore *     ds;
+    int             ds_id;
+
+    string attr;
+    string base_name_ds     = base_name + "_DS";
+    string base_name_id     = base_name + "_DS_ID";
+    string base_name_source = base_name + "_DS_SOURCE";
+    string base_name_ds_id  = base_name + "_DS_DSID";
+    string base_name_tm     = base_name + "_DS_TM";
+    string base_name_cluster= base_name + "_DS_CLUSTER_ID";
+
+    attr = os->vector_value(base_name_ds.c_str());
+
+    if ( attr.empty() )
+    {
+        return 0;
+    }
+
+    if ( parse_file_attribute(attr, img_ids, error_str) != 0 )
+    {
+        return -1;
+    }
+
+    if ( img_ids.size() != 1 )
+    {
+        error_str = "Only one FILE variable can be used in: " + attr;
+        return -1;
+    }
+
+    img = ipool->get(img_ids.back(), true);
+
+    if ( img == 0 )
+    {
+        error_str = "Image no longer exists in attribute: " + attr;
+        return -1;
+    }
+
+    ds_id = img->get_ds_id();
+
+    os->remove(base_name);
+
+    os->replace(base_name_id,     img->get_oid());
+    os->replace(base_name_source, img->get_source());
+    os->replace(base_name_ds_id,  img->get_ds_id());
+
+    img->unlock();
+
+    ds = ds_pool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+        error_str = "Associated datastore for image does not exist";
+        return -1;
+    }
+
+    os->replace(base_name_tm, ds->get_tm_mad());
+
+    if ( ds->get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    {
+        os->replace(base_name_cluster, ds->get_cluster_id());
+    }
+
+    ds->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_os(string& error_str)
+{
+    int num;
+    int rc;
+
+    vector<Attribute *> os_attr;
+    VectorAttribute *   os;
+
+    num = obj_template->get("OS", os_attr);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+    else if ( num > 1 )
+    {
+        error_str = "Only one OS attribute can be defined.";
+        return -1;
+    }
+
+    os = dynamic_cast<VectorAttribute *>(os_attr[0]);
+
+    if ( os == 0 )
+    {
+        error_str = "Internal error parsing OS attribute.";
+        return -1;
+    }
+
+    rc = set_os_file(os, "KERNEL", error_str);
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    rc = set_os_file(os, "INITRD", error_str);
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::parse_context(string& error_str)
 {
     int rc, num;
 
     vector<Attribute *> array_context;
     VectorAttribute *   context;
+    VectorAttribute *   context_parsed;
 
-    string *            str;
-    string              parsed;
+    string * str;
+    string   parsed;
+    string   files_ds;
+    string   files_ds_parsed;
+
+    ostringstream oss_parsed;
+
+    vector<int>  img_ids;
 
     num = obj_template->remove("CONTEXT", array_context);
 
@@ -404,27 +553,32 @@ int VirtualMachine::parse_context(string& error_str)
         goto error_cleanup;
     }
 
+    //Backup datastore files to parse them later
+
+    files_ds = context->vector_value("FILES_DS");
+
+    context->remove("FILES_DS");
+
+    // -------------------------------------------------------------------------
+    // Parse CONTEXT variables & free vector attributes
+    // -------------------------------------------------------------------------
+
     str = context->marshall(" @^_^@ ");
 
     if (str == 0)
     {
-        NebulaLog::log("ONE",Log::ERROR, "Cannot marshall CONTEXT");
+        error_str = "Cannot marshall CONTEXT";
         goto error_cleanup;
     }
 
-    rc = parse_template_attribute(*str,parsed);
+    rc = parse_template_attribute(*str, parsed, error_str);
 
-    if ( rc == 0 )
+    delete str;
+
+    if (rc != 0)
     {
-        VectorAttribute * context_parsed;
-
-        context_parsed = new VectorAttribute("CONTEXT");
-        context_parsed->unmarshall(parsed," @^_^@ ");
-
-        obj_template->set(context_parsed);
+        goto error_cleanup;
     }
-
-    /* --- Delete old context attributes --- */
 
     for (int i = 0; i < num ; i++)
     {
@@ -433,6 +587,52 @@ int VirtualMachine::parse_context(string& error_str)
             delete array_context[i];
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Parse FILE_DS variables
+    // -------------------------------------------------------------------------
+
+    if (!files_ds.empty())
+    {
+        if ( parse_file_attribute(files_ds, img_ids, error_str) != 0 )
+        {
+            return -1;
+        }
+
+        if ( img_ids.size() > 0 )
+        {
+            vector<int>::iterator it;
+
+            Nebula& nd = Nebula::instance();
+
+            ImagePool * ipool = nd.get_ipool();
+            Image  *    img   = 0;
+
+            for ( it=img_ids.begin() ; it < img_ids.end(); it++ )
+            {
+                img = ipool->get(*it, true);
+
+                if ( img != 0 )
+                {
+                    oss_parsed << img->get_source() << " ";
+
+                    img->unlock();
+                }
+            }
+        }
+    }
+
+    files_ds_parsed = oss_parsed.str();
+
+    context_parsed = new VectorAttribute("CONTEXT");
+    context_parsed->unmarshall(parsed," @^_^@ ");
+
+    if ( !files_ds_parsed.empty() )
+    {
+        context_parsed->replace("FILES_DS", files_ds_parsed);
+    }
+
+    obj_template->set(context_parsed);
 
     return rc;
 
@@ -525,7 +725,7 @@ int VirtualMachine::parse_requirements(string& error_str)
         goto error_cleanup;
     }
 
-    rc = parse_template_attribute(reqs->value(),parsed);
+    rc = parse_template_attribute(reqs->value(), parsed, error_str);
 
     if ( rc == 0 )
     {
@@ -562,6 +762,31 @@ error_cleanup:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+static int check_and_set_cluster_id(const char *      id_name,
+                                    VectorAttribute * vatt,
+                                    string&           cluster_id)
+{
+    string vatt_cluster_id;
+
+    vatt_cluster_id = vatt->vector_value(id_name);
+
+    if ( !vatt_cluster_id.empty() )
+    {
+        if ( cluster_id.empty() )
+        {
+            cluster_id = vatt_cluster_id;
+        }
+        else if ( cluster_id != vatt_cluster_id )
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
 int VirtualMachine::automatic_requirements(string& error_str)
 {
     int                   num_vatts;
@@ -571,9 +796,11 @@ int VirtualMachine::automatic_requirements(string& error_str)
     ostringstream   oss;
     string          requirements;
     string          cluster_id = "";
-    string          vatt_cluster_id;
 
-    // Get cluster id from all DISK vector attributes
+    int incomp_id;
+    int rc;
+
+    // Get cluster id from all DISK vector attributes (IMAGE Datastore)
 
     num_vatts = obj_template->get("DISK",v_attributes);
 
@@ -586,16 +813,39 @@ int VirtualMachine::automatic_requirements(string& error_str)
             continue;
         }
 
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatt, cluster_id);
 
-        if ( !vatt_cluster_id.empty() )
+        if ( rc != 0 )
         {
-            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
+            incomp_id = i;
+            goto error_disk;
+        }
+    }
+
+    // Get cluster id from the KERNEL and INITRD (FILE Datastores)
+
+    v_attributes.clear();
+    num_vatts = obj_template->get("OS",v_attributes);
+
+    if ( num_vatts > 0 )
+    {
+        vatt = dynamic_cast<VectorAttribute * >(v_attributes[0]);
+
+        if ( vatt != 0 )
+        {
+            rc = check_and_set_cluster_id("KERNEL_CLUSTER_ID", vatt, cluster_id);
+
+            if ( rc != 0 )
             {
-                goto error;
+                goto error_kernel;
             }
 
-            cluster_id = vatt_cluster_id;
+            rc = check_and_set_cluster_id("INITRD_CLUSTER_ID", vatt, cluster_id);
+
+            if ( rc != 0 )
+            {
+                goto error_initrd;
+            }
         }
     }
 
@@ -613,16 +863,12 @@ int VirtualMachine::automatic_requirements(string& error_str)
             continue;
         }
 
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatt, cluster_id);
 
-        if ( !vatt_cluster_id.empty() )
+        if ( rc != 0 )
         {
-            if ( !cluster_id.empty() && cluster_id != vatt_cluster_id )
-            {
-                goto error;
-            }
-
-            cluster_id = vatt_cluster_id;
+            incomp_id = i;
+            goto error_nic;
         }
     }
 
@@ -643,59 +889,27 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     return 0;
 
-error:
+error_disk:
+    oss << "Incompatible clusters in DISKs. Datastore for DISK["
+        << incomp_id <<"] should be in cluster " << cluster_id << ".";
+    goto error_common;
 
-    oss << "Incompatible cluster IDs.";
+error_kernel:
+    oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
+        << cluster_id << ".";
+    goto error_common;
 
-    // Get cluster id from all DISK vector attributes
+error_initrd:
+    oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
+        << cluster_id << ".";
+    goto error_common;
 
-    v_attributes.clear();
-    num_vatts = obj_template->get("DISK",v_attributes);
+error_nic:
+    oss << "Incompatible clusters in NICs. Network for NIC[" << incomp_id <<"]"
+        << " should be in cluster " << cluster_id << ".";
+    goto error_common;
 
-    for(int i=0; i<num_vatts; i++)
-    {
-        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
-
-        if ( vatt == 0 )
-        {
-            continue;
-        }
-
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
-
-        if ( !vatt_cluster_id.empty() )
-        {
-            oss << endl << "DISK [" << i << "]: IMAGE ["
-                << vatt->vector_value("IMAGE_ID") << "] from DATASTORE ["
-                << vatt->vector_value("DATASTORE_ID") << "] requires CLUSTER ["
-                << vatt_cluster_id << "]";
-        }
-    }
-
-    // Get cluster id from all NIC vector attributes
-
-    v_attributes.clear();
-    num_vatts = obj_template->get("NIC",v_attributes);
-
-    for(int i=0; i<num_vatts; i++)
-    {
-        vatt = dynamic_cast<VectorAttribute * >(v_attributes[i]);
-
-        if ( vatt == 0 )
-        {
-            continue;
-        }
-
-        vatt_cluster_id = vatt->vector_value("CLUSTER_ID");
-
-        if ( !vatt_cluster_id.empty() )
-        {
-            oss << endl << "NIC [" << i << "]: NETWORK ["
-                << vatt->vector_value("NETWORK_ID") << "] requires CLUSTER ["
-                << vatt_cluster_id << "]";
-        }
-    }
-
+error_common:
     error_str = oss.str();
 
     return -1;
@@ -1575,6 +1789,7 @@ void VirtualMachine::release_network_leases()
 int VirtualMachine::generate_context(string &files, int &disk_id)
 {
     ofstream file;
+    string   files_ds;
 
     vector<const Attribute*> attrs;
     const VectorAttribute *  context;
@@ -1612,6 +1827,14 @@ int VirtualMachine::generate_context(string &files, int &disk_id)
     }
 
     files = context->vector_value("FILES");
+
+    files_ds = context->vector_value("FILES_DS");
+
+    if (!files_ds.empty())
+    {
+        files += " ";
+        files += files_ds;
+    }
 
     const map<string, string> values = context->value();
 
@@ -1826,6 +2049,10 @@ extern "C"
                       ostringstream *  parsed,
                       char **          errmsg);
 
+    int vm_file_var_parse (VirtualMachine * vm,
+                           vector<int> *    img_ids,
+                           char **          errmsg);
+
     int vm_var_lex_destroy();
 
     YY_BUFFER_STATE vm_var__scan_string(const char * str);
@@ -1836,7 +2063,8 @@ extern "C"
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::parse_template_attribute(const string& attribute,
-                                             string&       parsed)
+                                             string&       parsed,
+                                             string&       error_str)
 {
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
@@ -1854,7 +2082,7 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
         goto error_yy;
     }
 
-    rc = vm_var_parse(this,&oss_parsed,&error_msg);
+    rc = vm_var_parse(this, &oss_parsed, &error_msg);
 
     vm_var__delete_buffer(str_buffer);
 
@@ -1867,7 +2095,9 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
         ostringstream oss;
 
         oss << "Error parsing: " << attribute << ". " << error_msg;
-        log("VM",Log::ERROR,oss);
+        log("VM", Log::ERROR, oss);
+
+        error_str = oss.str();
 
         free(error_msg);
     }
@@ -1882,6 +2112,71 @@ error_yy:
     return -1;
 }
 
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_file_attribute(string       attribute,
+                                         vector<int>& img_ids,
+                                         string&      error)
+{
+    YY_BUFFER_STATE  str_buffer = 0;
+    const char *     str;
+    int              rc;
+    ostringstream    oss_parsed;
+    char *           error_msg = 0;
+
+    size_t non_blank_pos;
+
+    //Removes leading blanks from attribute, these are not managed
+    //by the parser as it is common to the other VM varibales
+    non_blank_pos = attribute.find_first_not_of(" \t\n\v\f\r");
+
+    if ( non_blank_pos != string::npos )
+    {
+        attribute.erase(0, non_blank_pos);
+    }
+
+    pthread_mutex_lock(&lex_mutex);
+
+    str        = attribute.c_str();
+    str_buffer = vm_var__scan_string(str);
+
+    if (str_buffer == 0)
+    {
+        goto error_yy;
+    }
+
+    rc = vm_file_var_parse(this, &img_ids, &error_msg);
+
+    vm_var__delete_buffer(str_buffer);
+
+    vm_var_lex_destroy();
+
+    pthread_mutex_unlock(&lex_mutex);
+
+    if ( rc != 0  )
+    {
+        ostringstream oss;
+
+        if ( error_msg != 0 )
+        {
+            oss << "Error parsing: " << attribute << ". " << error_msg;
+            free(error_msg);
+        }
+        else
+        {
+            oss << "Unknown error parsing: " << attribute << ".";
+        }
+
+        error = oss.str();
+    }
+
+    return rc;
+
+error_yy:
+    log("VM",Log::ERROR,"Error setting scan buffer");
+    pthread_mutex_unlock(&lex_mutex);
+    return -1;
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
