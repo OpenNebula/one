@@ -140,7 +140,7 @@ public:
 
     virtual int set_default_quota(Template *tmpl, string& error) = 0;
 
-    virtual string& get_default_quota(string& xml) = 0;
+    virtual string get_default_quota() = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -158,7 +158,7 @@ public:
 
     int set_default_quota(Template *tmpl, string& error);
 
-    string& get_default_quota(string& xml);
+    string get_default_quota();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -176,7 +176,7 @@ public:
 
     int set_default_quota(Template *tmpl, string& error);
 
-    string& get_default_quota(string& xml);
+    string get_default_quota();
 };
 
 /* -------------------------------------------------------------------------- */
