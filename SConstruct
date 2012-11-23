@@ -140,6 +140,9 @@ elif context_packages=='all':
 else:
     main_env.Append(context=context_packages.split(','))
 
+# Rubygem generation
+main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
+
 if not main_env.GetOption('clean'):
     try:
         if mysql=='yes':
@@ -226,7 +229,8 @@ build_scripts=[
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
     'src/cloud/occi/lib/ui/locale/languages/SConstruct',
-    'share/scripts/context-packages/SConstruct'
+    'share/scripts/context-packages/Sconstruct',
+    'share/rubygems/SConstruct'
 ]
 
 # Testing
