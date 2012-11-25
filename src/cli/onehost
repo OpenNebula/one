@@ -37,10 +37,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     helper = OneHostHelper.new
 
+    before_proc do
+        helper.set_client(options)
+    end
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     IM = {
     :name   => "im",

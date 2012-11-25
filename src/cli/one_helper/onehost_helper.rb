@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'one_helper/onevm_helper'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
     def self.rname
@@ -192,5 +193,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
 
         puts host.template_str
+
+        puts
+        CLIHelper.print_header("VIRTUAL MACHINES", false)
+        puts
+
+        onevm_helper=OneVMHelper.new
+        onevm_helper.client=@client
+        onevm_helper.list_pool({:filter=>["HOST=#{host.name}"]}, false)
     end
 end

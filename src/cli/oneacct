@@ -37,6 +37,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     description ""
     version OpenNebulaHelper::ONE_VERSION
 
+    client = OpenNebulaHelper::OneHelper.get_client({})
 
     option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS
 
@@ -53,9 +54,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             :xpath      => options[:xpath]
         }
 
-        client = OpenNebula::Client.new
         pool   = OpenNebula::VirtualMachinePool.new(client)
-
 
         if options[:json] || options[:xml]
             xml_str = pool.accounting_xml(filter_flag, common_opts)
@@ -84,6 +83,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                 puts acct_hash.message
                 exit -1
             end
+
 
             if ( start_time != -1 or end_time != -1 )
                 AcctHelper.print_start_end_time_header(start_time, end_time)

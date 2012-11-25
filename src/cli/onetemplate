@@ -36,10 +36,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     helper = OneTemplateHelper.new
 
+    before_proc do
+        helper.set_client(options)
+    end
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
@@ -98,7 +102,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, create_desc, [:file, nil], :options =>
-            [OneTemplateHelper::VM_NAME]+OpenNebulaHelper::TEMPLATE_OPTIONS do
+            [OneTemplateHelper::VM_NAME]+OpenNebulaHelper::TEMPLATE_OPTIONS+
+            [OpenNebulaHelper::DRY] do
 
         if args[0] && OpenNebulaHelper.create_template_options_used?(options)
             STDERR.puts "You can not use both template file and template"<<
@@ -121,7 +126,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     template = res.last
                 end
 
-                tmpl.allocate(template)
+                if options[:dry]
+                    puts template
+                    exit 0
+                else
+                    tmpl.allocate(template)
+                end
             rescue => e
                 STDERR.puts e.messsage
                 exit -1

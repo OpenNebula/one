@@ -36,10 +36,14 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     
     helper = OneAclHelper.new
 
+    before_proc do
+        helper.set_client(options)
+    end
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     ########################################################################
     # Formatters for arguments

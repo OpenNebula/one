@@ -37,10 +37,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     helper = OneImageHelper.new
 
+    before_proc do
+        helper.set_client(options)
+    end
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
@@ -70,6 +74,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     set :format, :filterflag, OneImageHelper.filterflag_to_i_desc do |arg|
         helper.filterflag_to_i(arg)
+    end
+
+    format(:type, 'Image type: OS, DATABLOCK or CDROM') do |arg|
+        type=arg.strip.upcase
+        if %w{OS DATABLOCK CDROM}.include? type
+            [0, type]
+        else
+            [1, "Image type not supported. Must be OS, DATABLOCK or CDROM."]
+        end
     end
 
     ########################################################################
@@ -103,7 +116,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS +
             OneImageHelper::TEMPLATE_OPTIONS do
 
-        if options[:datastore].nil?
+        if options[:datastore].nil? && !options[:dry]
             STDERR.puts "Datastore to save the image is mandatory: "
             STDERR.puts "\t -d datastore_id"
             exit -1
@@ -128,6 +141,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     end
 
                     template = res.last
+                end
+
+                if options[:dry]
+                    puts template
+                    exit 0
                 end
 
                 image.allocate(template, options[:datastore])

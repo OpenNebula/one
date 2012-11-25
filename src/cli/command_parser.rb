@@ -65,6 +65,9 @@ module CommandParser
             @args = args
             @options = Hash.new
 
+            @before_proc=nil
+            @comm_name=nil
+
             define_default_formats
 
             instance_eval(&block)
@@ -95,6 +98,12 @@ module CommandParser
         # @param [String] str
         def name(str)
             @name = str
+        end
+
+        # Defines a proc to be called before any command
+        # @param [Proc] block
+        def before_proc(&block)
+            @before_proc = block
         end
 
         # Defines a block that will be used to parse the arguments
@@ -399,7 +408,7 @@ module CommandParser
                 comm      = @main
             elsif
                 if @args[0] && !@args[0].match(/^-/)
-                    comm_name = @args.shift.to_sym
+                    @comm_name = comm_name = @args.shift.to_sym
                     comm      = @commands[comm_name]
                 end
             end
@@ -413,6 +422,8 @@ module CommandParser
             parse(extra_options)
 
             if comm
+                @before_proc.call if @before_proc
+
                 check_args!(comm_name, comm[:arity], comm[:args_format])
 
                 rc = comm[:proc].call
@@ -428,9 +439,12 @@ module CommandParser
         private
 
         def parse(extra_options)
+            with_proc=Array.new
+
             @cmdparse=OptionParser.new do |opts|
                 merge = @available_options
                 merge = @available_options + extra_options if extra_options
+
                 merge.flatten.each do |e|
                     args = []
                     args << e[:short] if e[:short]
@@ -440,16 +454,8 @@ module CommandParser
 
                     opts.on(*args) do |o|
                         if e[:proc]
-                            rc = e[:proc].call(o, @options)
-                            if rc.instance_of?(Array)
-                                if rc[0] == 0
-                                    options[e[:name].to_sym] = rc[1]
-                                else
-                                    puts rc[1]
-                                    puts "option #{e[:name]}: Parsing error"
-                                    exit -1
-                                end
-                            end
+                            @options[e[:name].to_sym]=o
+                            with_proc<<e
                         elsif e[:name]=="help"
                             print_help
                             exit
@@ -468,6 +474,19 @@ module CommandParser
             rescue => e
                 puts e.message
                 exit -1
+            end
+
+            with_proc.each do |e|
+                rc = e[:proc].call(@options[e[:name].to_sym], @options)
+                if rc.instance_of?(Array)
+                    if rc[0] == 0
+                        @options[e[:name].to_sym] = rc[1]
+                    else
+                        puts rc[1]
+                        puts "option #{e[:name]}: Parsing error"
+                        exit -1
+                    end
+                end
             end
         end
 
@@ -550,6 +569,14 @@ module CommandParser
         ########################################################################
 
         def print_help
+            if @comm_name
+                print_command_help(@comm_name)
+            else
+                print_all_commands_help
+            end
+        end
+
+        def print_all_commands_help
             if @usage
                 puts "## SYNOPSIS"
                 puts
@@ -570,37 +597,58 @@ module CommandParser
             end
         end
 
+        def print_command_help(name)
+            command=@commands[name]
+
+            if !command
+                STDERR.puts "Command '#{name}' not found"
+                return print_all_commands_help
+            end
+
+            puts "## USAGE"
+            print "#{name} "
+            print_command(@commands[name])
+
+            puts "## OPTIONS"
+            command[:options].flatten.each do |o|
+                print_option(o)
+            end
+
+            @available_options.each do |o|
+                print_option o
+            end
+        end
 
         def print_options
             puts "## OPTIONS"
 
             shown_opts = Array.new
-            opt_format = "#{' '*5}%-25s %s"
-            @commands.each{ |key,value|
-                value[:options].flatten.each { |o|
+            @commands.each do |key,value|
+                value[:options].flatten.each do |o|
                     if shown_opts.include?(o[:name])
                         next
                     else
                         shown_opts << o[:name]
 
-                        str = ""
-                        str << o[:short].split(' ').first << ', ' if o[:short]
-                        str << o[:large]
-
-                        printf opt_format, str, o[:description]
-                        puts
+                        print_option(o)
                     end
-                }
-            }
+                end
+            end
 
-            @available_options.each{ |o|
-                str = ""
-                str << o[:short].split(' ').first << ', ' if o[:short]
-                str << o[:large]
+            @available_options.each do |o|
+                print_option o
+            end
+        end
 
-                printf opt_format, str, o[:description]
-                puts
-            }
+        def print_option(o)
+            opt_format = "#{' '*5}%-25s %s"
+
+            str = ""
+            str << o[:short].split(' ').first << ', ' if o[:short]
+            str << o[:large]
+
+            printf opt_format, str, o[:description]
+            puts
         end
 
         def print_commands
