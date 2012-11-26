@@ -187,34 +187,22 @@ bool Quota::check_quota(const string& qid,
     
         for (int i=0; i < num_metrics; i++)
         {
-            ostringstream usage_req_str;
-            string        metrics_used = metrics[i];
+            string metrics_used = metrics[i];
 
             metrics_used += "_USED";
 
-            it = usage_req.find(metrics[i]);
-
-            if (it == usage_req.end())
-            {
-                usage_req_str << "0";
-            }
-            else
-            {
-                usage_req_str << it->second;    
-            }
-
-            values.insert(make_pair(metrics[i],  "0"));
-            values.insert(make_pair(metrics_used, usage_req_str.str()));
+            values.insert(make_pair(metrics[i],  "-1"));
+            values.insert(make_pair(metrics_used, "0"));
         }
-        
+
         if (!qid.empty())
         {
             values.insert(make_pair("ID", qid));
         }
 
-        add(new VectorAttribute(template_name, values));
+        q = new VectorAttribute(template_name, values);
 
-        return true;
+        add(q);
     }
 
     // -------------------------------------------------------------------------
@@ -236,9 +224,16 @@ bool Quota::check_quota(const string& qid,
         q->vector_value(metrics[i],   limit);
         q->vector_value(metrics_used.c_str(), usage);
 
-        if ( limit == -1 && default_q != 0 )
+        if ( limit == -1 )
         {
-            default_q->vector_value(metrics[i], limit);
+            if ( default_q != 0 )
+            {
+                default_q->vector_value(metrics[i], limit);
+            }
+            else
+            {
+                limit = 0;
+            }
         }
 
         check = ( limit == 0 ) || ( ( usage + it->second ) <= limit );
