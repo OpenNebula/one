@@ -213,7 +213,6 @@ protected:
      */
     int set(Template *tmpl, bool default_allowed, string& error);
 
-private:
     //--------------------------------------------------------------------------
     // Usage Counters and Quotas 
     //--------------------------------------------------------------------------

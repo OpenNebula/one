@@ -29,7 +29,8 @@ source_files=[
     'QuotaNetwork.cc',
     'QuotaVirtualMachine.cc',
     'QuotaImage.cc',
-    'Quotas.cc'
+    'Quotas.cc',
+    'DefaultQuotas.cc'
 ]
 
 # Build library
