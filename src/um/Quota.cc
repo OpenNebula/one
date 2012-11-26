@@ -80,7 +80,7 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float nu
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Quota::set(vector<Attribute*> * new_quotas, string& error)
+int Quota::set(vector<Attribute*> * new_quotas, bool default_allowed, string& error)
 {
     vector<Attribute *>::iterator  it;
 
@@ -108,7 +108,7 @@ int Quota::set(vector<Attribute*> * new_quotas, string& error)
         {
             VectorAttribute * nq;
 
-            if ((nq = new_quota(iq)) == 0)
+            if ((nq = new_quota(iq, default_allowed)) == 0)
             {
                 goto error_limits;
             }
@@ -117,7 +117,7 @@ int Quota::set(vector<Attribute*> * new_quotas, string& error)
         }
         else
         {
-            if (update_limits(tq, iq) != 0)
+            if (update_limits(tq, iq, default_allowed) != 0)
             {
                 goto error_limits;
             } 
@@ -368,8 +368,11 @@ void Quota::cleanup_quota(const string& qid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
-{        
+int Quota::update_limits(
+        VectorAttribute *       quota,
+        const VectorAttribute * va,
+        bool                    default_allowed)
+{
     string limit;
     float  limit_i;
 
@@ -377,9 +380,10 @@ int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
     {
         limit = va->vector_value_str(metrics[i], limit_i);
 
-        //No quota, NaN or negative. -1 is allowed, it means default limit
-        if ( limit_i < -1 ||
-            ( limit_i == -1 && limit == "" ))
+        //No quota, NaN or negative
+        if ((default_allowed &&
+                ( limit_i < -1 || ( limit_i == -1 && limit == "" ))) ||
+            (!default_allowed && limit_i < 0) )
         {
             return -1;
         }
@@ -395,7 +399,7 @@ int Quota::update_limits(VectorAttribute * quota, const VectorAttribute * va)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * Quota::new_quota(VectorAttribute * va)
+VectorAttribute * Quota::new_quota(VectorAttribute * va, bool default_allowed)
 {
     map<string,string> limits;
 
@@ -409,8 +413,10 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
         metrics_used += "_USED";
 
         limit = va->vector_value_str(metrics[i], limit_i);
-        
-        if ( limit_i < 0 ) //No quota, NaN or negative
+
+        //No quota, NaN or negative
+        if ( (default_allowed && limit_i < -1) ||
+             (!default_allowed && limit_i < 0) )
         {
             limit = "0";
         }

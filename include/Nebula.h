@@ -42,7 +42,7 @@
 #include "AclManager.h"
 #include "ImageManager.h"
 
-#include "Quotas.h"
+#include "DefaultQuotas.h"
 
 #include "Callbackable.h"
 
@@ -527,8 +527,8 @@ private:
     // Default quotas
     // ---------------------------------------------------------------
 
-    Quotas default_user_quota;
-    Quotas default_group_quota;
+    DefaultQuotas default_user_quota;
+    DefaultQuotas default_group_quota;
 
 
     // ---------------------------------------------------------------
