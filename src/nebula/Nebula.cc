@@ -245,6 +245,8 @@ void Nebula::start()
             rc += ClusterPool::bootstrap(db);
             rc += DocumentPool::bootstrap(db);
 
+            rc += DefaultQuotas::bootstrap(db);
+
             // Create the versioning table only if bootstrap went well
             if ( rc == 0 )
             {
@@ -340,6 +342,9 @@ void Nebula::start()
         tpool  = new VMTemplatePool(db);
 
         dspool = new DatastorePool(db);
+
+        default_user_quota.select(db);
+        default_group_quota.select(db);
     }
     catch (exception&)
     {
@@ -681,6 +686,7 @@ int Nebula::bootstrap()
 {
     int             rc;
     ostringstream   oss;
+    string          error;
 
     oss <<  "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, "
             "last_oid BIGINT UNSIGNED)";
@@ -699,6 +705,9 @@ int Nebula::bootstrap()
         << ", '" << version() << " daemon bootstrap')";
 
     rc += db->exec(oss);
+
+    rc += default_user_quota.insert(db, error);
+    rc += default_group_quota.insert(db, error);
 
     return rc;
 }

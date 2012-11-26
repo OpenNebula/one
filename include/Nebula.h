@@ -320,7 +320,15 @@ public:
 
     int set_default_user_quota(Template *tmpl, string& error)
     {
-        return default_user_quota.set(tmpl, error);
+        int rc;
+        rc = default_user_quota.set(tmpl, error);
+
+        if ( rc == 0 )
+        {
+            rc = default_user_quota.update(db);
+        }
+
+        return rc;
     };
 
     const DefaultQuotas& get_default_group_quota()
@@ -330,7 +338,15 @@ public:
 
     int set_default_group_quota(Template *tmpl, string& error)
     {
-        return default_group_quota.set(tmpl, error);
+        int rc;
+        rc = default_group_quota.set(tmpl, error);
+
+        if ( rc == 0 )
+        {
+            rc = default_group_quota.update(db);
+        }
+
+        return rc;
     };
 
 private:
