@@ -37,7 +37,7 @@ public:
                 vm_xpath(_vm_xpath)
     {};
 
-    virtual ~Quotas(){};
+    ~Quotas(){};
 
     /**
      *  Different quota types
@@ -57,7 +57,10 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int set(Template *tmpl, string& error);
+    virtual int set(Template *tmpl, string& error)
+    {
+        return set(tmpl, true, error);
+    };
 
     /**
      *  Delete usage from quota counters.
@@ -198,6 +201,17 @@ public:
      *    @param tmpl template for the image, with usage
      */
     static void quota_del(QuotaType type, int uid, int gid, Template * tmpl);
+
+protected:
+    /**
+     *  Set the quotas
+     *    @param tmpl contains the user quota limits
+     *    @param default_allowed whether or not the limit -1 is allowed
+     *    @param error describes error when setting the quotas
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int set(Template *tmpl, bool default_allowed, string& error);
 
 private:
     //--------------------------------------------------------------------------
