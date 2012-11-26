@@ -313,7 +313,7 @@ public:
         return nebula_configuration->to_xml(xml);
     };
 
-    const Quotas& get_default_user_quota()
+    const DefaultQuotas& get_default_user_quota()
     {
         return default_user_quota;
     };
@@ -323,7 +323,7 @@ public:
         return default_user_quota.set(tmpl, error);
     };
 
-    const Quotas& get_default_group_quota()
+    const DefaultQuotas& get_default_group_quota()
     {
         return default_group_quota;
     };
@@ -340,14 +340,16 @@ private:
     // -----------------------------------------------------------------------
 
     Nebula():nebula_configuration(0),
-        default_user_quota("/USER/DATASTORE_QUOTA",
-                            "/USER/NETWORK_QUOTA",
-                            "/USER/IMAGE_QUOTA",
-                            "/USER/VM_QUOTA"),
-        default_group_quota("/GROUP/DATASTORE_QUOTA",
-                            "/GROUP/NETWORK_QUOTA",
-                            "/GROUP/IMAGE_QUOTA",
-                            "/GROUP/VM_QUOTA"),
+        default_user_quota( "DEFAULT_USER_QUOTAS",
+                            "/DEFAULT_USER_QUOTAS/DATASTORE_QUOTA",
+                            "/DEFAULT_USER_QUOTAS/NETWORK_QUOTA",
+                            "/DEFAULT_USER_QUOTAS/IMAGE_QUOTA",
+                            "/DEFAULT_USER_QUOTAS/VM_QUOTA"),
+        default_group_quota("DEFAULT_GROUP_QUOTAS",
+                            "/DEFAULT_GROUP_QUOTAS/DATASTORE_QUOTA",
+                            "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
+                            "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
+                            "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
         db(0),vmpool(0),hpool(0),vnpool(0),
         upool(0),ipool(0),gpool(0),tpool(0),dspool(0),clpool(0),docpool(0),
         lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0),aclm(0),imagem(0)

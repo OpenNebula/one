@@ -22,11 +22,14 @@
 class DefaultQuotas : public Quotas
 {
 public:
-    DefaultQuotas(const char * _ds_xpath,
-           const char * _net_xpath,
-           const char * _img_xpath,
-           const char * _vm_xpath): 
-               Quotas(_ds_xpath, _net_xpath, _img_xpath, _vm_xpath)
+    DefaultQuotas(
+            const char * _root_elem,
+            const char * _ds_xpath,
+            const char * _net_xpath,
+            const char * _img_xpath,
+            const char * _vm_xpath):
+               Quotas(_ds_xpath, _net_xpath, _img_xpath, _vm_xpath),
+               root_elem(_root_elem)
     {};
 
     ~DefaultQuotas(){};
@@ -43,7 +46,22 @@ public:
         return Quotas::set(tmpl, false, error);
     };
 
+    /**
+     *  Generates a string representation of the quotas in XML format
+     *    @param xml the string to store the XML
+     *    @return the same xml string to use it in << compounds
+     */
+    string& to_xml(string& xml) const;
+
+    /**
+     *  Builds quota object from an ObjectXML
+     *    @param xml The xml-formatted string
+     *    @return 0 if success
+     */
+    int from_xml(const string& xml);
+
 private:
+    const char * root_elem;
 };
 
 #endif /*DEFAULT_QUOTAS_H_*/
