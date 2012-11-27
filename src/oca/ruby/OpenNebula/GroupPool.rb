@@ -25,9 +25,7 @@ module OpenNebula
 
 
         GROUP_POOL_METHODS = {
-            :info           => "grouppool.info",
-            :quotainfo      => "groupquota.info",
-            :quotaupdate    => "groupquota.update"
+            :info => "grouppool.info"
         }
 
         #######################################################################
@@ -39,35 +37,18 @@ module OpenNebula
             super('GROUP_POOL','GROUP',client)
         end
 
-        # Factory method to create Group objects
+        # Factory method to create User objects
         def factory(element_xml)
             OpenNebula::Group.new(element_xml,@client)
         end
 
         #######################################################################
-        # XML-RPC Methods for the GroupPool Object
+        # XML-RPC Methods for the User Object
         #######################################################################
 
         # Retrieves all the Groups in the pool.
         def info()
             super(GROUP_POOL_METHODS[:info])
-        end
-
-        # Gets the default group quota limits
-        #
-        # @return [String, OpenNebula::Error] the default group quota in case
-        #   of success, Error otherwise
-        def get_quota()
-            return @client.call(GROUP_POOL_METHODS[:quotainfo])
-        end
-
-        # Sets the default group quota limits
-        # @param quota [String] a template (XML or txt) with the new quota limits
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def set_quota(quota)
-            return call(GROUP_POOL_METHODS[:quotaupdate], quota)
         end
     end
 end
