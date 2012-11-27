@@ -323,8 +323,8 @@ void Quota::cleanup_quota(const string& qid)
     VectorAttribute * q;
     map<string, Attribute *>::iterator q_it;
 
-    float limit, limit_tmp;
-    float usage, usage_tmp;
+    float usage, usage_tmp, limit_tmp;
+    bool  no_limit;
 
     if ( get_quota(qid, &q, q_it) == -1)
     {
@@ -336,8 +336,8 @@ void Quota::cleanup_quota(const string& qid)
         return;
     }
 
-    limit = 0;
-    usage = 0;
+    no_limit = true;
+    usage    = 0;
 
     for (int i=0; i < num_metrics; i++)
     {
@@ -348,11 +348,11 @@ void Quota::cleanup_quota(const string& qid)
         q->vector_value(metrics[i],             limit_tmp);
         q->vector_value(metrics_used.c_str(),   usage_tmp);
 
-        limit += limit_tmp;
+        no_limit = (no_limit && (limit_tmp <= 0) ); // Unlimited or default limit
         usage += usage_tmp;
     }
 
-    if ( limit == 0 && usage == 0 )
+    if ( usage == 0 && no_limit )
     {
         delete static_cast<Attribute *>(q_it->second);
 
