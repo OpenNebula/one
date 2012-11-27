@@ -110,8 +110,8 @@ class OneQuotaHelper
     EOT
 
     #  Edits the quota template of a resource
-    #  @param resource [PoolElement] to get the current info from
-    #  @param path [String] path to the new contents. If nil a editor will be 
+    #  @param [XMLElement] resource to get the current info from
+    #  @param [String] path to the new contents. If nil a editor will be 
     #         used
     #  @return [String] contents of the new quotas
     def self.set_quota(resource, path)
@@ -123,60 +123,11 @@ class OneQuotaHelper
             tmp  = Tempfile.new('one-cli')
             path = tmp.path
 
-            rc = resource.info
-
-            if OpenNebula.is_error?(rc)
-                puts rc.message
-                exit -1
-            end
-
             tmp << HELP_QUOTA
             tmp << resource.template_like_str("DATASTORE_QUOTA") << "\n"
             tmp << resource.template_like_str("VM_QUOTA") << "\n"
             tmp << resource.template_like_str("NETWORK_QUOTA") << "\n"
             tmp << resource.template_like_str("IMAGE_QUOTA") << "\n"
-
-            tmp.close
-
-            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
-            system("#{editor_path} #{path}")
-
-            unless $?.exitstatus == 0
-                puts "Editor not defined"
-                exit -1
-            end
-
-            str = File.read(path)
-
-            File.unlink(path)
-        else
-            str = File.read(path)
-        end
-
-        str
-    end
-
-    # Edits the default quota template of a pool
-    #
-    # @param [XMLElement] default_quotas to get the current info from
-    # @param [String] path to the new contents. If nil a editor will be 
-    #   used
-    #
-    # @return [String] contents of the new quotas
-    def self.set_defaultquota(default_quotas, path)
-        str = ""
-
-        if path.nil?
-            require 'tempfile'
-
-            tmp  = Tempfile.new('one-cli')
-            path = tmp.path
-
-            tmp << HELP_QUOTA
-            tmp << default_quotas.template_like_str("DATASTORE_QUOTA") << "\n"
-            tmp << default_quotas.template_like_str("VM_QUOTA") << "\n"
-            tmp << default_quotas.template_like_str("NETWORK_QUOTA") << "\n"
-            tmp << default_quotas.template_like_str("IMAGE_QUOTA") << "\n"
 
             tmp.close
 
