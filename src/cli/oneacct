@@ -37,12 +37,17 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     description ""
     version OpenNebulaHelper::ONE_VERSION
 
-    client = OpenNebulaHelper::OneHelper.get_client({})
+    helper=OpenNebulaHelper::OneHelper.new
 
-    option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS
+    before_proc do
+        helper.set_client(options)
+    end
+
+    option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS +
+        OpenNebulaHelper::CLIENT_OPTIONS
 
     main do
-        filter_flag = (options[:user] || VirtualMachinePool::INFO_ALL)
+        filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
         start_time  = options[:start] ? options[:start].to_i : -1
         end_time    = options[:end] ? options[:end].to_i : -1
 
@@ -54,7 +59,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             :xpath      => options[:xpath]
         }
 
-        pool   = OpenNebula::VirtualMachinePool.new(client)
+        pool   = OpenNebula::VirtualMachinePool.new(helper.client)
 
         if options[:json] || options[:xml]
             xml_str = pool.accounting_xml(filter_flag, common_opts)
