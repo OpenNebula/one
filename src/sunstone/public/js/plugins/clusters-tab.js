@@ -91,19 +91,13 @@ Pick virtual networks\
   </fieldset>\
 </form></div>';
 
-var host_list_for_cluster_creation={}
+// Common utils for datatatables
+  // Holds the selected items
+var host_list_for_cluster_creation={};
+var vnet_list_for_cluster_creation={};
+var datastore_list_for_cluster_creation={};
 
-function parse_host_list() {
-    var strHosts="";
-    for (var host_id in host_list_for_cluster_creation) {
-        if (host_list_for_cluster_creation[host_id]) {
-            strHosts=strHosts+","+host_id
-        }
-    }
-    return strHosts.substring(1,strHosts.length);
-}
-
-//Prepares the cluster creation dialog
+// Prepares the cluster creation dialog
 function setupCreateClusterDialog(){
     dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
     $create_cluster_dialog = $('div#create_cluster_dialog');
@@ -118,19 +112,38 @@ function setupCreateClusterDialog(){
         width: 'auto'//400
     });
 
+    // Listener for hosts datatable
     $('input:checkbox', $('#datatable_cluster_hosts')).live('change', function(){
         if($(this).is(':checked')){
             host_list_for_cluster_creation[$(this).attr("id").replace("host_","")]=1
         } else {
             host_list_for_cluster_creation[$(this).attr("id").replace("host_","")]=0
         }
-        // show the values stored
-        alert(parse_host_list());
     });
+
+    // Listener for datastores datatable
+    $('input:checkbox', $('#datatable_cluster_datastores')).live('change', function(){
+        if($(this).is(':checked')){
+            datastore_list_for_cluster_creation[$(this).attr("id").replace("datastore_","")]=1
+        } else {
+            datastore_list_for_cluster_creation[$(this).attr("id").replace("datastore_","")]=0
+        }
+    });
+
+    // Listener for vnets datatable
+    $('input:checkbox', $('#datatable_cluster_vnets')).live('change', function(){
+        if($(this).is(':checked')){
+            vnet_list_for_cluster_creation[$(this).attr("id").replace("vnetwork_","")]=1
+        } else {
+            vnet_list_for_cluster_creation[$(this).attr("id").replace("vnetwork_","")]=0
+        }
+    });
+
+    // Enhance buttons
 
     $('button',dialog).button();
 
-    //Handle the form submission
+    // Handle the form submission
     $('#create_cluster_form',dialog).submit(function(){
         if (!($('#name',this).val().length)){
             notifyError(tr("Cluster name missing!"));
@@ -139,19 +152,31 @@ function setupCreateClusterDialog(){
 
         var cluster_json = {
             "cluster": {
-                "name": $('#name',this).val()
+                "name": $('#name',this).val(),
+                "hosts": host_list_for_cluster_creation,
+                "vnets": vnet_list_for_cluster_creation,
+                "datastores": datastore_list_for_cluster_creation
             }
         };
 
-        //Create the OpenNebula.Cluster.
-        //If it is successfull we refresh the list.
+        // Create the OpenNebula.Cluster.
+        // If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
+
+ /*       if
+
+        "addhost" : function(params){
+            var action_obj = { "host_id": params.data.extra_param };
+            OpenNebula.Action.simple_action(params,OpenNebula.Cluster.resource,
+                                            "addhost",action_obj);
+        },*/
+
         $create_cluster_dialog.dialog('close');
         return false;
     });
 }
 
-//Open creation dialogs
+// Open creation dialogs
 function popUpCreateClusterDialog(){
     $create_cluster_dialog.dialog('open');
     return false;
@@ -212,6 +237,7 @@ function setClusterHostAutorefresh() {
         }
     },INTERVAL+someTime());
 }
+
 
 /* -------- Virtual Networks datatable -------- */
 
@@ -328,17 +354,33 @@ var clusters_select="";
 var dataTable_clusters;
 var $create_cluster_dialog;
 
+
 //Setup actions
 var cluster_actions = {
 
     "Cluster.create" : {
         type: "create",
-        call : OpenNebula.Cluster.create,
-        callback : function(){
+        call: OpenNebula.Cluster.create,
+        callback: function(request, response){
             //addClusterElement,
+            for (var host in request.request.data[0].cluster.hosts)
+                if (request.request.data[0].cluster.hosts[host])
+                    Sunstone.runAction("Cluster.addhost",response.CLUSTER.ID,host);
+            for (var vnet in request.request.data[0].cluster.vnets)
+                if (request.request.data[0].cluster.vnets[vnet])
+                    Sunstone.runAction("Cluster.addvnet",response.CLUSTER.ID,vnet);
+            for (var datastore in request.request.data[0].cluster.datastores)
+                if (request.request.data[0].cluster.datastores[datastore])
+                    Sunstone.runAction("Cluster.adddatastore",response.CLUSTER.ID,datastore);
+
             Sunstone.runAction('Cluster.list');
+            updateClustersView();
+
+            setTimeout(Sunstone.runAction('Cluster.list'),3000);
+            setTimeout(updateClustersView(),3000);
+
         },
-        error : onError,
+        error: onError,
         notify: true
     },
 
