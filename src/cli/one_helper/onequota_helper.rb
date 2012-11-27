@@ -156,13 +156,14 @@ class OneQuotaHelper
         str
     end
 
-    #  Edits the default quota template of a pool
-    #  @param [Pool] resource to get the current info from
-    #  @param [String] root_elem the root element's name
-    #  @param [String] path to the new contents. If nil a editor will be 
-    #         used
-    #  @return [String] contents of the new quotas
-    def self.set_defaultquota(resource, root_elem, path)
+    # Edits the default quota template of a pool
+    #
+    # @param [XMLElement] default_quotas to get the current info from
+    # @param [String] path to the new contents. If nil a editor will be 
+    #   used
+    #
+    # @return [String] contents of the new quotas
+    def self.set_defaultquota(default_quotas, path)
         str = ""
 
         if path.nil?
@@ -170,19 +171,6 @@ class OneQuotaHelper
 
             tmp  = Tempfile.new('one-cli')
             path = tmp.path
-
-
-
-            default_xml_str = resource.get_quota()
-
-            if OpenNebula::is_error?(default_xml_str)
-                puts default_xml_str.message
-                exit -1
-            end
-
-            default_quotas = XMLElement.new
-            default_quotas.initialize_xml(default_xml_str, root_elem)
-
 
             tmp << HELP_QUOTA
             tmp << default_quotas.template_like_str("DATASTORE_QUOTA") << "\n"

@@ -48,15 +48,12 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        gpool = GroupPool.new(@client)
-        default_xml_str = gpool.get_quota()
+        system = System.new(@client)
+        default_quotas = system.get_group_quotas()
 
         # TODO: check error
 #        if OpenNebula::is_error?(default_xml_str)
 #        end
-
-        default_user_quotas = XMLElement.new
-        default_user_quotas.initialize_xml(default_xml_str, 'DEFAULT_GROUP_QUOTAS')
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
@@ -80,7 +77,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["VMS"]
 
                     if limit == "-1"
-                        limit = default_user_quotas['VM_QUOTA/VM/VMS']
+                        limit = default_quotas['VM_QUOTA/VM/VMS']
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -95,7 +92,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == "-1"
-                        limit = default_user_quotas['VM_QUOTA/VM/MEMORY']
+                        limit = default_quotas['VM_QUOTA/VM/MEMORY']
                         limit = "0" if limit.nil? || limit == ""
                     end
 
@@ -112,7 +109,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     limit = d['VM_QUOTA']['VM']["CPU"]
 
                     if limit == "-1"
-                        limit = default_user_quotas['VM_QUOTA/VM/CPU']
+                        limit = default_quotas['VM_QUOTA/VM/CPU']
                         limit = "0" if limit.nil? || limit == ""
                     end
 
