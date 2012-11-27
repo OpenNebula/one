@@ -109,6 +109,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :quota, quota_desc, :groupid, [:file, nil] do
         helper.perform_action(args[0], options, "modified") do |group|
+            rc = group.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
             str = OneQuotaHelper.set_quota(group, args[1])
             rc  = group.set_quota(str)
 
@@ -137,5 +144,34 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 rc
             end
         end
+    end
+
+
+    defaultquota_desc = <<-EOT.unindent
+        Sets the default quota limits for the groups. If a path is not provided
+        the editor will be launched to modify the current default quotas.
+    EOT
+
+    command :defaultquota, defaultquota_desc, [:file, nil] do
+        # TODO: Do not create a new Client here
+        system = System.new(Client.new)
+
+        default_quotas = system.get_group_quotas()
+
+        if OpenNebula.is_error?(default_quotas)
+            puts default_quotas.message
+            exit(-1)
+        end
+
+        str = OneQuotaHelper.set_quota(default_quotas, args[1])
+
+        rc  = system.set_group_quotas(str)
+
+        if OpenNebula.is_error?(rc)
+            puts rc.message
+            exit(-1)
+        end
+
+        exit 0
     end
 end

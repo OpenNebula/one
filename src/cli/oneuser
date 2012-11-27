@@ -206,6 +206,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :quota, quota_desc, :userid, [:file, nil] do
         helper.perform_action(args[0], options, "modified") do |user|
+            rc = user.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
             str = OneQuotaHelper.set_quota(user, args[1])
             rc  = user.set_quota(str)
 
@@ -213,7 +220,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 puts rc.message
                 exit -1
             end
-
         end
     end
 
@@ -243,7 +249,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :defaultquota, defaultquota_desc, [:file, nil] do
-
         # TODO: Do not create a new Client here
         system = System.new(Client.new)
 
@@ -254,10 +259,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        str = OneQuotaHelper.set_defaultquota(default_quotas, args[1])
+        str = OneQuotaHelper.set_quota(default_quotas, args[1])
 
         rc  = system.set_user_quotas(str)
-        
+
         if OpenNebula.is_error?(rc)
             puts rc.message
             exit(-1)
