@@ -33,10 +33,10 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :format => String # TODO Time
     }
 
-    USER = {
-        :name   => "user",
+    USERFILTER = {
+        :name   => "userfilter",
         :short  => "-u user",
-        :large  => "--user user" ,
+        :large  => "--userfilter user" ,
         :description => "User name or id to filter the results",
         :format => String,
         :proc => lambda { |o, options|
@@ -95,7 +95,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :description => "Split the output in a table for each VM"
     }
 
-    ACCT_OPTIONS = [START_TIME, END_TIME, USER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
+    ACCT_OPTIONS = [START_TIME, END_TIME, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
 
 
     ACCT_TABLE = CLIHelper::ShowTable.new("oneacct.yaml", nil) do
