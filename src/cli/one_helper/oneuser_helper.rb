@@ -265,6 +265,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         user_hash = user.to_hash
 
-        OneQuotaHelper.format_quota(user_hash['USER'])
+        system = System.new(@client)
+        default_quotas = system.get_user_quotas()
+
+        if OpenNebula::is_error?(default_quotas)
+            # TODO: cannot do 
+            # return -1, default_quotas.message
+            # because OneHelper::show_resource ignores this method's output
+
+            default_quotas = nil
+        end
+
+        helper = OneQuotaHelper.new
+        helper.format_quota(user_hash['USER'], default_quotas)
     end
 end

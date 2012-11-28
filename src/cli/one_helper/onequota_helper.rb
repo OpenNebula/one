@@ -20,60 +20,6 @@ class OneQuotaHelper
 
     EDITOR_PATH='/usr/bin/vi'
 
-    #---------------------------------------------------------------------------
-    #  Tables to format user quotas
-    #---------------------------------------------------------------------------
-    TABLE_DS = CLIHelper::ShowTable.new(nil, self) do
-        column :"DATASTORE ID", "", :size=>12 do |d|
-            d["ID"] if !d.nil?
-        end
-
-        column :"IMAGES", "", :right, :size=>20 do |d|
-            "%8d / %8d" % [d["IMAGES_USED"], d["IMAGES"]] if !d.nil?
-        end
-
-        column :"SIZE", "", :right, :size=>19 do |d|
-            "%8s / %8s" % [OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M"),
-                OpenNebulaHelper.unit_to_str(d["SIZE"].to_i,{},"M")] if !d.nil?
-        end
-    end
-
-    TABLE_NET = CLIHelper::ShowTable.new(nil, self) do
-        column :"NETWORK ID", "", :size=>12 do |d|
-            d["ID"] if !d.nil?
-        end
-
-        column :"LEASES", "", :right, :size=>20 do |d|
-            "%8d / %8d" % [d["LEASES_USED"], d["LEASES"]] if !d.nil?
-        end
-    end
-
-    TABLE_VM = CLIHelper::ShowTable.new(nil, self) do
-
-        column :"NUMBER OF VMS", "", :right, :size=>20 do |d|
-            "%8d / %8d" % [d["VMS_USED"], d["VMS"]] if !d.nil?
-        end
-
-        column :"MEMORY", "", :right, :size=>20 do |d|
-            "%8s / %8s" % [OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M"),
-                OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i,{},"M")] if !d.nil?
-        end
-
-        column :"CPU", "", :right, :size=>20 do |d|
-            "%8.2f / %8.2f" % [d["CPU_USED"], d["CPU"]] if !d.nil?
-        end
-    end
-
-    TABLE_IMG = CLIHelper::ShowTable.new(nil, self) do
-        column :"IMAGE ID", "", :size=>12 do |d|
-            d["ID"] if !d.nil?
-        end
-
-        column :"RUNNING VMS", "", :right, :size=>20 do |d|
-            "%8d / %8d" % [d["RVMS_USED"], d["RVMS"]] if !d.nil?
-        end
-    end
-
     HELP_QUOTA = <<-EOT.unindent
         #-----------------------------------------------------------------------
         # Supported quota limits:
@@ -217,8 +163,9 @@ class OneQuotaHelper
 
     #  Outputs formated quota information to stdout
     #  @param qh [Hash] with the quotas for a given resource
+    #  @param default_quotas_hash [XMLElement] with the default quota limits
     #
-    def self.format_quota(qh)
+    def format_quota(qh, default_quotas)
         str_h1="%-80s"
 
         puts
@@ -227,27 +174,145 @@ class OneQuotaHelper
 
         puts
 
+        @default_quotas = default_quotas
+
         vm_quotas = [qh['VM_QUOTA']['VM']].flatten
+
         if !vm_quotas[0].nil?
-            TABLE_VM.show(vm_quotas, {})
+            CLIHelper::ShowTable.new(nil, self) do
+                column :"NUMBER OF VMS", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'VMS'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        "%8d / %8d" % [d["VMS_USED"], limit]
+                    end
+                end
+
+                column :"MEMORY", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'MEMORY'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        "%8s / %8s" % [
+                            OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M"),
+                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
+                        ]
+                    end
+                end
+
+                column :"CPU", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'CPU'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        "%8.2f / %8.2f" % [d["CPU_USED"], limit]
+                    end
+                end
+            end.show(vm_quotas, {})
+
             puts
         end
 
         ds_quotas = [qh['DATASTORE_QUOTA']['DATASTORE']].flatten
+
         if !ds_quotas[0].nil?
-            TABLE_DS.show(ds_quotas, {})
+            CLIHelper::ShowTable.new(nil, self) do
+                column :"DATASTORE ID", "", :size=>12 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"IMAGES", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'IMAGES'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}")
+
+                        "%8d / %8d" % [d["IMAGES_USED"], limit]
+                    end
+                end
+
+                column :"SIZE", "", :right, :size=>19 do |d|
+                    if !d.nil?
+                        elem = 'SIZE'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}")
+
+                        "%8s / %8s" % [
+                            OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M"),
+                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
+                        ]
+                    end
+                end
+            end.show(ds_quotas, {})
+
             puts
         end
 
         net_quotas = [qh['NETWORK_QUOTA']['NETWORK']].flatten
+
         if !net_quotas[0].nil?
-            TABLE_NET.show(net_quotas, {})
+            CLIHelper::ShowTable.new(nil, self) do
+                column :"NETWORK ID", "", :size=>12 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"LEASES", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'LEASES'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "NETWORK_QUOTA/NETWORK[ID=#{d['ID']}]/#{elem}")
+
+                        "%8d / %8d" % [d["LEASES_USED"], limit]
+                    end
+                end
+            end.show(net_quotas, {})
+
             puts
         end
 
         image_quotas = [qh['IMAGE_QUOTA']['IMAGE']].flatten
+
         if !image_quotas[0].nil?
-            TABLE_IMG.show(image_quotas, {})
+            CLIHelper::ShowTable.new(nil, self) do
+                column :"IMAGE ID", "", :size=>12 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"RUNNING VMS", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'RVMS'
+                        limit = d[elem]
+                        limit = helper.get_default_limit(
+                            limit, "IMAGE_QUOTA/IMAGE[ID=#{d['ID']}]/RVMS")
+
+                        "%8d / %8d" % [d["RVMS_USED"], limit]
+                    end
+                end
+            end.show(image_quotas, {})
         end
+    end
+
+    def get_default_limit(limit, xpath)
+        if limit == "-1"
+            if !@default_quotas.nil?
+                limit = @default_quotas[xpath]
+
+                limit = "0" if limit.nil? || limit == ""
+            else
+                limit = "0"
+            end
+        end
+
+        return limit
     end
 end
