@@ -162,7 +162,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        str = OneQuotaHelper.set_quota(default_quotas, args[1])
+        str = OneQuotaHelper.set_quota(default_quotas, args[0])
 
         rc  = system.set_group_quotas(str)
 
