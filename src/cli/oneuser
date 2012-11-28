@@ -249,8 +249,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :defaultquota, defaultquota_desc, [:file, nil] do
-        # TODO: Do not create a new Client here
-        system = System.new(Client.new)
+        system = System.new(OneUserHelper.get_client(options))
 
         default_quotas = system.get_user_quotas()
 
