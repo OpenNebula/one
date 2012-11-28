@@ -36,6 +36,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     helper = OneVMHelper.new
 
+    before_proc do
+        helper.set_client(options)
+    end
 
     TYPE={
         :name => "type",
@@ -56,7 +59,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     ########################################################################
     # Formatters for arguments
@@ -139,9 +142,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                 template = res.last
             end
+
         rescue Exception => e
             STDERR.puts "Error reading template."
             next -1
+        end
+
+        if options[:dry]
+            puts template
+            exit 0
         end
 
         number.times do

@@ -31,13 +31,14 @@ module CLIHelper
     #    :description => "Order by these columns, column starting with - means decreasing order"
     #}
     #
-    #FILTER = {
-    #    :name  => "filter",
-    #    :short => "-f x,y,z",
-    #    :large => "--filter x,y,z",
-    #    :format => Array,
-    #    :description => "Filter data. An array is specified with column=value pairs."
-    #}
+    FILTER = {
+        :name  => "filter",
+        :short => "-f x,y,z",
+        :large => "--filter x,y,z",
+        :format => Array,
+        :description => "Filter data. An array is specified with\n"<<
+                        " "*31<<"column=value pairs."
+    }
     #
     #HEADER = {
     #    :name  => "header",
@@ -55,7 +56,7 @@ module CLIHelper
     }
 
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
-    OPTIONS = [LIST, DELAY]
+    OPTIONS = [LIST, DELAY, FILTER]
 
     # Sets bold font
     def CLIHelper.scr_bold
@@ -287,7 +288,47 @@ module CLIHelper
             }.compact.join(' ')
         end
 
-        # TBD def filter_data!
+        def filter_data!(data, filter)
+            # TBD: add more operators
+            # operators=/(==|=|!=|<|<=|>|>=)/
+            operators=/(=)/
+
+            stems=filter.map do |s|
+                m=s.match(/^(.*?)#{operators}(.*?)$/)
+                if m
+                    left, operator, right=m[1..3]
+                    index=@default_columns.index(left.to_sym)
+
+                    if index
+                        {
+                            :left       => left,
+                            :operator   => operator,
+                            :right      => right,
+                            :index      => index
+                        }
+                    else
+                        STDERR.puts "Column '#{left}' not found"
+                        exit(-1)
+                    end
+                else
+                    STDERR.puts "Expresion '#{s}' incorrect"
+                    exit(-1)
+                end
+            end
+
+            data.reject! do |d|
+                pass=true
+
+                stems.each do |s|
+                    if d[s[:index]]!=s[:right]
+                        pass=false
+                        break
+                    end
+                end
+
+                !pass
+            end
+        end
 
         # TBD def sort_data!
     end

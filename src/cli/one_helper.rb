@@ -76,13 +76,48 @@ EOT
         :format => String
     }
 
+    DRY={
+        :name  => 'dry',
+        :large  => '--dry',
+        :description => 'Just print the template'
+    }
+
+    CLIENT_OPTIONS=[
+        {
+            :name   => 'user',
+            :large  => '--user name',
+            :description => 'User name used to connect to OpenNebula',
+            :format => String
+        },
+        {
+            :name   => 'password',
+            :large  => '--password password',
+            :description => 'Password to authenticate with OpenNebula',
+            :format => String
+        },
+        {
+            :name   => 'endpoint',
+            :large  => '--endpoint endpoint',
+            :description => 'URL of OpenNebula xmlrpc frontend',
+            :format => String
+        }
+    ]
+
     TEMPLATE_OPTIONS=[
         {
             :name   => 'cpu',
             :large  => '--cpu cpu',
             :description =>
-                'CPU percentage reserved for the VM (1=100% one CPU)',
+                "CPU percentage reserved for the VM (1=100% one\n"<<
+                " "*31<<"CPU)",
             :format => Float
+        },
+        {
+            :name   => 'vcpu',
+            :large  => '--vcpu vcpu',
+            :description =>
+                "Number of virtualized CPUs",
+            :format => Integer
         },
         {
             :name   => 'arch',
@@ -118,37 +153,128 @@ EOT
         {
             :name   => 'disk',
             :large  => '--disk disk0,disk1',
-            :description => 'Disks to attach. To use a disk owned by other user use user[disk]',
+            :description => "Disks to attach. To use a disk owned by other\n"<<
+                            " "*31<<"user use user[disk]",
             :format => Array
         },
         {
             :name   => 'network',
             :large  => '--network network0,network1',
-            :description => 'Networks to attach. To use a network owned by other user use user[network]',
+            :description => "Networks to attach. To use a network owned by\n"<<
+                            " "*31<<"other user use user[network]",
             :format => Array
         },
         {
             :name   => 'raw',
             :large  => '--raw string',
-            :description => 'Raw string to add to the template. Not to be confused with the RAW attribute',
+            :description => "Raw string to add to the template. Not to be\n"<<
+                            " "*31<<"confused with the RAW attribute",
+            :format => String
+        },
+        {
+            :name   => 'vnc',
+            :large  => '--vnc',
+            :description => 'Add VNC server to the VM'
+        },
+        {
+            :name   => 'ssh',
+            :large  => '--ssh [file]',
+            :description => "Add an ssh public key to the context. If the \n"<<
+                (' '*31)<<"file is omited then the user variable \n"<<
+                (' '*31)<<"SSH_PUBLIC_KEY will be used.",
+            :format => String,
+            :proc => lambda do |o, options|
+                if !o
+                    [0, true]
+                else
+                    [0, o]
+                end
+            end
+        },
+        {
+            :name   => 'net_context',
+            :large  => '--net_context',
+            :description => 'Add network contextualization parameters'
+        },
+        {
+            :name   => 'context',
+            :large  => '--context line1,line2,line3',
+            :format => Array,
+            :description => 'Lines to add to the context section'
+        },
+        {
+            :name   => 'boot',
+            :large  => '--boot device',
+            :description => 'Select boot device (hd|fd|cdrom|network)',
             :format => String
         }
     ]
 
-    TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS
+    TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS+[DRY]
 
     OPTIONS = XML, NUMERIC, KILOBYTES
 
     class OneHelper
-        def initialize(secret=nil, endpoint=nil)
-            begin
-                @client = OpenNebula::Client.new(secret,endpoint)
-            rescue Exception => e
-                puts e.message
-                exit -1
+        attr_accessor :client
+
+        def self.get_client(options)
+            if defined?(@@client)
+                @@client
+            else
+                secret=nil
+                user=options[:user]
+                if user
+                    password=options[:password]||self.get_password
+                    secret="#{user}:#{password}"
+                end
+
+                endpoint=options[:endpoint]
+
+                @@client=OpenNebula::Client.new(secret, endpoint)
             end
+        end
+
+        def self.client
+            if defined?(@@client)
+                @@client
+            else
+                self.get_client({})
+            end
+        end
+
+        if RUBY_VERSION>="1.9.3"
+            require 'io/console'
+            def self.get_password
+                print "Password: "
+                pass=nil
+                STDIN.noecho {|io| pass=io.gets }
+                puts
+
+                pass.chop! if pass
+                pass
+            end
+        else
+            # This function is copied from ruby net/imap.rb
+            def self.get_password
+                print "Password: "
+                system("stty", "-echo")
+                begin
+                    return gets.chop
+                ensure
+                    system("stty", "echo")
+                    print "\n"
+                end
+            end
+        end
+
+        def initialize(secret=nil, endpoint=nil)
+            @client=nil
 
             @translation_hash = nil
+        end
+
+        def set_client(options)
+            @client=OpenNebulaHelper::OneHelper.get_client(options)
         end
 
         def create_resource(options, &block)
@@ -369,7 +495,7 @@ EOT
         end
 
         def pool_to_array(pool)
-    	    if !pool.instance_of?(Hash)
+            if !pool.instance_of?(Hash)
                 phash = pool.to_hash
             else
                 phash = pool
@@ -408,7 +534,7 @@ EOT
     def OpenNebulaHelper.rname_to_id(name, poolname)
         return 0, name.to_i if name.match(/^[0123456789]+$/)
 
-        client = OpenNebula::Client.new
+        client=OneHelper.client
 
         pool = case poolname
         when "HOST"      then OpenNebula::HostPool.new(client)
@@ -557,7 +683,7 @@ EOT
 
             template<<"#{section.upcase}=[\n"
             template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
-            if object.match(/^\d$/)
+            if object.match(/^\d+$/)
                 template<<"  #{name.upcase}_ID=#{object}\n"
             else
                 template<<"  #{name.upcase}=\"#{object}\"\n"
@@ -568,12 +694,74 @@ EOT
         [0, template]
     end
 
+    def self.create_context(options)
+        if !(options.keys & [:ssh, :net_context, :context]).empty?
+            lines=[]
+
+            if options[:ssh]
+                if options[:ssh]==true
+                    lines<<"SSH_PUBLIC_KEY=\"$USER[SSH_PUBLIC_KEY]\""
+                else
+                    begin
+                        key=File.read(options[:ssh]).strip
+                    rescue Exception => e
+                        STDERR.puts e.message
+                        exit(-1)
+                    end
+                    lines<<"SSH_PUBLIC_KEY=\"#{key}\""
+                end
+            end
+
+            if options[:net_context] && options[:network]
+                nets=options[:network].map {|n| parse_user_object(n).last }
+
+                if nets!=nets.uniq
+                    STDERR.puts "Network context generation from command "<<
+                        "line is not supported for VMs with\n"<<
+                        "more than one network with the same name."
+                    exit(-1)
+                end
+
+                nets.each_with_index do |name, index|
+                    lines<<"ETH#{index}_IP = \"$NIC[IP, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_NETWORK = \"$NETWORK[NETWORK_ADDRESS, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_MASK = \"$NETWORK[NETWORK_MASK, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_GATEWAY = \"$NETWORK[GATEWAY, NETWORK=\\\"#{name}\\\"]\""
+                    lines<<"ETH#{index}_DNS = \"$NETWORK[DNS, NETWORK=\\\"#{name}\\\"]\""
+                end
+            end
+
+            lines+=options[:context] if options[:context]
+
+            if !lines.empty?
+                "CONTEXT=[\n"<<lines.map{|l| "  "<<l }.join(",\n")<<"\n]\n"
+            else
+                nil
+            end
+        else
+            nil
+        end
+    end
+
     def self.create_template(options)
         template=''
 
         template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
-        template<<"OS = [ ARCH = \"#{options[:arch]}\" ]\n" if options[:arch]
+
+        if options[:arch] || options[:boot]
+            template<<"OS = [\n"
+
+            lines=[]
+            lines<<"  ARCH = \"#{options[:arch]}\"" if options[:arch]
+            lines<<"  BOOT = \"#{options[:boot]}\"" if options[:boot]
+
+            template<<lines.join(",\n")
+
+            template << " ]\n"
+        end
+
         template<<"CPU=#{options[:cpu]}\n" if options[:cpu]
+        template<<"VCPU=#{options[:vcpu]}\n" if options[:vcpu]
         template<<"MEMORY=#{options[:memory]}\n" if options[:memory]
         template<<"#{options[:raw]}\n" if options[:raw]
 
@@ -591,6 +779,12 @@ EOT
             template<<res.last
         end
 
+        if options[:vnc]
+            template<<'GRAPHICS=[ TYPE="vnc", LISTEN="0.0.0.0" ]'<<"\n"
+        end
+
+        context=create_context(options)
+        template<<context if context
 
         [0, template]
     end

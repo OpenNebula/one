@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.6.2.  */
+/* A Bison parser, made by GNU Bison 2.6.5.  */
 
 /* Bison interface for Yacc-like parsers in C
    
@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef EXPR_ARITH_EXPR_ARITH_HH
-# define EXPR_ARITH_EXPR_ARITH_HH
+#ifndef YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
+# define YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -56,7 +56,7 @@ extern int expr_arith__debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 2049 of yacc.c  */
+/* Line 2042 of yacc.c  */
 #line 78 "expr_arith.y"
 
     char *  val_str;
@@ -64,7 +64,7 @@ typedef union YYSTYPE
     float   val_float;
 
 
-/* Line 2049 of yacc.c  */
+/* Line 2042 of yacc.c  */
 #line 69 "expr_arith.hh"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
@@ -85,4 +85,4 @@ typedef struct YYLTYPE
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
 
-#endif /* !EXPR_ARITH_EXPR_ARITH_HH  */
+#endif /* !YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED  */

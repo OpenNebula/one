@@ -88,6 +88,17 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 {
     int rc = 0;
 
+    if ( img->get_type() == Image::DATAFILE )
+    {
+        ostringstream oss;
+
+        oss << "Image " << img->get_oid() << " (" << img->get_name() << ") "
+            << "of type FILE cannot be used as DISK.";
+        error = oss.str();
+
+        return -1;
+    }
+
     switch (img->get_state())
     {
         case Image::READY:
@@ -146,6 +157,14 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 
     if ( img == 0 )
     {
+        return;
+    }
+
+    if ( img->get_type() == Image::DATAFILE )
+    {
+        NebulaLog::log("ImM", Log::ERROR, "Trying to release a FILE image");
+
+        img->unlock();
         return;
     }
 
@@ -235,6 +254,14 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
 
     if ( img == 0 )
     {
+        return;
+    }
+
+    if ( img->get_type() == Image::DATAFILE )
+    {
+        NebulaLog::log("ImM", Log::ERROR, "Trying to release a cloning FILE image");
+
+        img->unlock();
         return;
     }
 
@@ -682,6 +709,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
     {
         case Image::OS:
         case Image::CDROM:
+        case Image::DATAFILE:
             img_tmpl->get("SOURCE", res);
 
             if (!res.empty())
@@ -720,6 +748,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
             {
                 img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
             }
+            break;
     }
 
     add_request(&sr);

@@ -172,7 +172,7 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
         return -1;
     }
 
-    if ( ds->is_system() == false )
+    if ( ds->get_type() != Datastore::SYSTEM_DS )
     {
         ostringstream oss;
 
@@ -641,6 +641,14 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
+    if ( type == Image::DATAFILE )
+    {
+        failure_response(INTERNAL,
+                request_error("Cannot save_as image of type FILE", ""),
+                att);
+        return;
+    }
+
     // -------------------------------------------------------------------------
     // Get the data of the DataStore for the new image
     // -------------------------------------------------------------------------
@@ -725,6 +733,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          ds_name,
                          ds_disk_type,
                          ds_data,
+                         Datastore::IMAGE_DS,
                          -1,
                          &iid,
                          error_str);

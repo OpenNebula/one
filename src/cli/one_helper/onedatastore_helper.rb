@@ -60,7 +60,12 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :TYPE, "Datastore driver", :left, :size=>8 do |d|
+            column :TYPE, "Datastore type", :left, :size=>4 do |d|
+                type = Datastore::DATASTORE_TYPES[d["TYPE"].to_i]
+                Datastore::SHORT_DATASTORE_TYPES[type]
+            end
+
+            column :DS, "Datastore driver", :left, :size=>8 do |d|
                 d["DS_MAD"]
             end
 
@@ -68,7 +73,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 d["TM_MAD"]
             end
 
-            default :ID, :NAME, :CLUSTER, :IMAGES, :TYPE, :TM
+            default :ID, :NAME, :CLUSTER, :IMAGES, :TYPE, :DS, :TM
         end
 
         table
@@ -101,6 +106,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["GROUP",    datastore['GNAME']]
         puts str % ["CLUSTER",  OpenNebulaHelper.cluster_str(datastore['CLUSTER'])]
 
+        puts str % ["TYPE",     datastore.type_str]
         puts str % ["DS_MAD",   datastore['DS_MAD']]
         puts str % ["TM_MAD",   datastore['TM_MAD']]
         puts str % ["BASE PATH",datastore['BASE_PATH']]

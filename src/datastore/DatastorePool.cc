@@ -32,6 +32,9 @@ const int    DatastorePool::SYSTEM_DS_ID   = 0;
 const string DatastorePool::DEFAULT_DS_NAME = "default";
 const int    DatastorePool::DEFAULT_DS_ID   = 1;
 
+const string DatastorePool::FILE_DS_NAME = "files";
+const int    DatastorePool::FILE_DS_ID   = 2;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -49,12 +52,12 @@ DatastorePool::DatastorePool(SqlDB * db):
         int     rc;
 
         // ---------------------------------------------------------------------
-        // Create the system datastore 
+        // Create the system datastore
         // ---------------------------------------------------------------------
 
-        oss << "NAME      = " << SYSTEM_DS_NAME << endl
-            << "SYSTEM    = YES" << endl
-            << "TM_MAD    = shared";
+        oss << "NAME   = " << SYSTEM_DS_NAME << endl
+            << "TYPE   = SYSTEM_DS" << endl
+            << "TM_MAD = shared";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -80,13 +83,59 @@ DatastorePool::DatastorePool(SqlDB * db):
         }
 
         // ---------------------------------------------------------------------
-        // Create the default datastore 
+        // Create the default datastore
         // ---------------------------------------------------------------------
         oss.str("");
 
-        oss << "NAME      = "   << DEFAULT_DS_NAME << endl
-            << "DS_MAD    = fs" << endl
-            << "TM_MAD    = shared";
+        oss << "NAME   = "   << DEFAULT_DS_NAME << endl
+            << "TYPE   = IMAGE_DS" << endl
+            << "DS_MAD = fs" << endl
+            << "TM_MAD = shared";
+
+        ds_tmpl = new DatastoreTemplate;
+        rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
+        allocate(UserPool::ONEADMIN_ID,
+                GroupPool::ONEADMIN_ID,
+                UserPool::oneadmin_name,
+                GroupPool::ONEADMIN_NAME,
+                ds_tmpl,
+                &rc,
+                ClusterPool::NONE_CLUSTER_ID,
+                ClusterPool::NONE_CLUSTER_NAME,
+                error_str);
+
+        if( rc < 0 )
+        {
+            goto error_bootstrap;
+        }
+
+        ds = get(rc, true);
+
+        ds->set_permissions(
+                -1,-1,-1,
+                -1,-1,-1,
+                1,-1,-1,
+                error_str);
+
+        update(ds);
+
+        ds->unlock();
+
+        // ---------------------------------------------------------------------
+        // Create the default file datastore
+        // ---------------------------------------------------------------------
+        oss.str("");
+
+        oss << "NAME   = "   << FILE_DS_NAME << endl
+            << "TYPE   = FILE_DS" << endl
+            << "DS_MAD = fs" << endl
+            << "TM_MAD = ssh";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);

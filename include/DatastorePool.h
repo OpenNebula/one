@@ -54,6 +54,16 @@ public:
      */
     static const int DEFAULT_DS_ID;
 
+    /**
+     *  Name for the file datastore
+     */
+    static const string FILE_DS_NAME;
+
+    /**
+     *  Identifier for the file datastore
+     */
+    static const int FILE_DS_ID;
+
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

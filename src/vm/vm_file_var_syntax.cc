@@ -60,62 +60,69 @@
 
 
 /* Substitute the variable and function names.  */
-#define yyparse         expr_bool__parse
-#define yylex           expr_bool__lex
-#define yyerror         expr_bool__error
-#define yylval          expr_bool__lval
-#define yychar          expr_bool__char
-#define yydebug         expr_bool__debug
-#define yynerrs         expr_bool__nerrs
-#define yylloc          expr_bool__lloc
+#define yyparse         vm_file_var__parse
+#define yylex           vm_file_var__lex
+#define yyerror         vm_file_var__error
+#define yylval          vm_file_var__lval
+#define yychar          vm_file_var__char
+#define yydebug         vm_file_var__debug
+#define yynerrs         vm_file_var__nerrs
+#define yylloc          vm_file_var__lloc
 
 /* Copy the first part of user declarations.  */
 /* Line 360 of yacc.c  */
-#line 17 "expr_bool.y"
+#line 17 "vm_file_var_syntax.y"
 
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <vector>
+#include <string>
+#include <map>
 #include <algorithm>
 
 #include <ctype.h>
 #include <string.h>
-#include <fnmatch.h>
 
-#include "expr_bool.h"
-#include "ObjectXML.h"
+#include "vm_file_var_syntax.h"
+#include "ImagePool.h"
+#include "UserPool.h"
+#include "VirtualMachine.h"
+#include "Nebula.h"
+
+#define vm_file_var__lex vm_var_lex
 
 #define YYERROR_VERBOSE
-#define expr_bool__lex expr_lex
+#define VM_VAR_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
+(int(*)(int))toupper)
 
 extern "C"
 {
     #include "mem_collector.h"
 
-    void expr_bool__error(
-        YYLTYPE *       llocp,
-        mem_collector * mc,
-        ObjectXML *     oxml,
-        bool&           result,
-        char **         error_msg,
-        const char *    str);
+    void vm_file_var__error(
+        YYLTYPE *        llocp,
+        mem_collector *  mc,
+        VirtualMachine * vm,
+        vector<int> *    img_ids,
+        char **          errmsg,
+        const char *     str);
 
-    int expr_bool__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+    int vm_file_var__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
 
-    int expr_bool__parse(mem_collector * mc,
-                         ObjectXML *     oxml,
-                         bool&           result,
-                         char **         errmsg);
+    int vm_file_var__parse (mem_collector *  mc,
+                            VirtualMachine * vm,
+                            vector<int> *    img_ids,
+                            char **          errmsg);
 
-    int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg)
+    int vm_file_var_parse (VirtualMachine * vm,
+                           vector<int> *    img_ids,
+                           char **          errmsg)
     {
         mem_collector mc;
         int           rc;
 
         mem_collector_init(&mc);
 
-        rc = expr_bool__parse(&mc,oxml,result,errmsg);
+        rc = vm_file_var__parse(&mc, vm, img_ids, errmsg);
 
         mem_collector_cleanup(&mc);
 
@@ -123,15 +130,103 @@ extern "C"
     }
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
+int get_image_path(VirtualMachine * vm,
+                   const string&    var_name,
+                   const string&    var1,
+                   const string&    val1,
+                   const string&    var2,
+                   const string&    val2,
+                   vector<int> *    img_ids,
+                   string&          error_str)
+{
+    Nebula& nd = Nebula::instance();
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
+    ImagePool * ipool = nd.get_ipool();
+    Image  *    img   = 0;
+    int         iid   = -1;
+
+    PoolObjectAuth  perm;
+
+    if (var_name != "FILE" )
+    {
+        error_str = "Must use FILE variable for attribute.";
+        return -1;
+    }
+
+    if ( var1 == "IMAGE" )
+    {
+        int uid = vm->get_uid();
+
+        if ( !var2.empty() )
+        {
+            VectorAttribute *  vfile;
+            map<string,string> file_values;
+
+            file_values.insert(make_pair(var1, val1));
+            file_values.insert(make_pair(var2, val2));
+
+            vfile = new VectorAttribute("FILE", file_values);
+            uid   = ImagePool::get_disk_uid(vfile, uid);
+
+            delete vfile;
+        }
+
+        img = ipool->get(val1, uid, true);
+    }
+    else if ( var1 == "IMAGE_ID" )
+    {
+        iid = ImagePool::get_disk_id(val1);
+
+        if ( iid != -1 )
+        {
+            img = ipool->get(iid, true);
+        }
+    }
+
+    if ( img == 0 )
+    {
+        error_str = "Cannot get image (check name/ID or try IMAGE_UNAME or IMAGE_UID).";
+        return -1;
+    }
+
+    iid = img->get_oid();
+
+    img->get_permissions(perm);
+
+    if ( img->get_type() != Image::DATAFILE )
+    {
+        error_str = "FILE variables must use images of type FILE.";
+        img->unlock();
+
+        return -1;
+    }
+
+    img->unlock();
+
+    AuthRequest ar(vm->get_uid(), vm->get_gid());
+
+    ar.add_auth(AuthRequest::USE, perm);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        error_str = "User not authorize to use image.";
+        return -1;
+    }
+
+    img_ids->push_back(iid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 /* Line 360 of yacc.c  */
-#line 135 "expr_bool.cc"
+#line 230 "vm_file_var_syntax.cc"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -150,15 +245,15 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "expr_bool.hh".  */
-#ifndef YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
-# define YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
+   by #include "vm_file_var_syntax.hh".  */
+#ifndef YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
+# define YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int expr_bool__debug;
+extern int vm_file_var__debug;
 #endif
 
 /* Tokens.  */
@@ -167,9 +262,15 @@ extern int expr_bool__debug;
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     INTEGER = 258,
-     STRING = 259,
-     FLOAT = 260
+     EQUAL = 258,
+     COMMA = 259,
+     OBRACKET = 260,
+     CBRACKET = 261,
+     EOA = 262,
+     STRING = 263,
+     VARIABLE = 264,
+     RSTRING = 265,
+     INTEGER = 266
    };
 #endif
 
@@ -178,15 +279,15 @@ extern int expr_bool__debug;
 typedef union YYSTYPE
 {
 /* Line 376 of yacc.c  */
-#line 83 "expr_bool.y"
+#line 178 "vm_file_var_syntax.y"
 
-    char * 	val_str;
-    int 	val_int;
-    float   val_float;
+    char * val_str;
+    int    val_int;
+    char   val_char;
 
 
 /* Line 376 of yacc.c  */
-#line 190 "expr_bool.cc"
+#line 291 "vm_file_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -209,24 +310,24 @@ typedef struct YYLTYPE
 
 #ifdef YYPARSE_PARAM
 #if defined __STDC__ || defined __cplusplus
-int expr_bool__parse (void *YYPARSE_PARAM);
+int vm_file_var__parse (void *YYPARSE_PARAM);
 #else
-int expr_bool__parse ();
+int vm_file_var__parse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int expr_bool__parse (mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg);
+int vm_file_var__parse (mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg);
 #else
-int expr_bool__parse ();
+int vm_file_var__parse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
 
-#endif /* !YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED  */
+#endif /* !YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
 /* Line 379 of yacc.c  */
-#line 230 "expr_bool.cc"
+#line 331 "vm_file_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -446,22 +547,22 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  12
+#define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   29
+#define YYLAST   16
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  14
+#define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  17
+#define YYNRULES  5
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  29
+#define YYNSTATES  18
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   260
+#define YYMAXUTOK   266
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -472,16 +573,6 @@ static const yytype_uint8 yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     3,     2,     2,     2,     2,     4,     2,
-      12,    13,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      11,     9,    10,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     5,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -494,8 +585,18 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     6,     7,
-       8
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
+       5,     6,     7,     8,     9,    10,    11
 };
 
 #if YYDEBUG
@@ -503,27 +604,21 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     6,    10,    15,    19,    23,    27,
-      32,    36,    40,    44,    49,    53,    57,    60
+       0,     0,     3,     5,     8,    16
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      15,     0,    -1,    16,    -1,    -1,     7,     9,     6,    -1,
-       7,     3,     9,     6,    -1,     7,    10,     6,    -1,     7,
-      11,     6,    -1,     7,     9,     8,    -1,     7,     3,     9,
-       8,    -1,     7,    10,     8,    -1,     7,    11,     8,    -1,
-       7,     9,     7,    -1,     7,     3,     9,     7,    -1,    16,
-       4,    16,    -1,    16,     5,    16,    -1,     3,    16,    -1,
-      12,    16,    13,    -1
+      13,     0,    -1,    14,    -1,    13,    14,    -1,     9,     5,
+       9,     3,     8,     6,     7,    -1,     9,     5,     9,     3,
+       8,     4,     9,     3,     8,     6,     7,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   103,   103,   104,   107,   112,   117,   122,   127,   132,
-     137,   142,   147,   152,   157,   158,   159,   160
+       0,   202,   202,   203,   207,   225
 };
 #endif
 
@@ -532,8 +627,9 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "'!'", "'&'", "'|'", "INTEGER", "STRING",
-  "FLOAT", "'='", "'>'", "'<'", "'('", "')'", "$accept", "stmt", "expr", YY_NULL
+  "$end", "error", "$undefined", "EQUAL", "COMMA", "OBRACKET", "CBRACKET",
+  "EOA", "STRING", "VARIABLE", "RSTRING", "INTEGER", "$accept",
+  "vm_string", "vm_variable", YY_NULL
 };
 #endif
 
@@ -542,23 +638,21 @@ static const char *const yytname[] =
    token YYLEX-NUM.  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,    33,    38,   124,   258,   259,   260,    61,
-      62,    60,    40,    41
+       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
+     265,   266
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    14,    15,    15,    16,    16,    16,    16,    16,    16,
-      16,    16,    16,    16,    16,    16,    16,    16
+       0,    12,    13,    13,    14,    14
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     0,     3,     4,     3,     3,     3,     4,
-       3,     3,     3,     4,     3,     3,     2,     3
+       0,     2,     1,     2,     7,    11
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -566,31 +660,29 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       3,     0,     0,     0,     0,     2,    16,     0,     0,     0,
-       0,     0,     1,     0,     0,     0,     4,    12,     8,     6,
-      10,     7,    11,    17,    14,    15,     5,    13,     9
+       0,     0,     0,     2,     0,     1,     3,     0,     0,     0,
+       0,     0,     0,     4,     0,     0,     0,     5
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5
+      -1,     2,     3
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -6
+#define YYPACT_NINF -8
 static const yytype_int8 yypact[] =
 {
-      -2,    -2,     8,    -2,     3,     4,    -6,    -5,    14,    20,
-      21,     2,    -6,    -2,    -2,    17,    -6,    -6,    -6,    -6,
-      -6,    -6,    -6,    -6,    -6,    -6,    -6,    -6,    -6
+      -7,    -1,     0,    -8,    -4,    -8,    -8,     3,     2,    -3,
+      -2,     1,     8,    -8,     4,     7,     9,    -8
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -6,    -6,    -1
+      -8,    -8,    12
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -599,31 +691,28 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       6,     1,    11,    12,    15,     2,    13,    14,    13,    14,
-       3,     7,    24,    25,     0,    23,     0,     8,     9,    10,
-      16,    17,    18,    26,    27,    28,    19,    21,    20,    22
+       5,    10,     1,    11,     4,     7,     8,    12,    13,     1,
+       9,    14,    15,    16,     6,     0,    17
 };
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-6)))
+  (!!((Yystate) == (-8)))
 
 #define yytable_value_is_error(Yytable_value) \
   YYID (0)
 
 static const yytype_int8 yycheck[] =
 {
-       1,     3,     3,     0,     9,     7,     4,     5,     4,     5,
-      12,     3,    13,    14,    -1,    13,    -1,     9,    10,    11,
-       6,     7,     8,     6,     7,     8,     6,     6,     8,     8
+       0,     4,     9,     6,     5,     9,     3,     9,     7,     9,
+       8,     3,     8,     6,     2,    -1,     7
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     7,    12,    15,    16,    16,     3,     9,    10,
-      11,    16,     0,     4,     5,     9,     6,     7,     8,     6,
-       8,     6,     8,    13,    16,    16,     6,     7,     8
+       0,     9,    13,    14,     5,     0,    14,     9,     3,     8,
+       4,     6,     9,     7,     3,     8,     6,     7
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -665,7 +754,7 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -749,7 +838,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, Location, mc, oxml, result, error_msg); \
+		  Type, Value, Location, mc, vm, img_ids, errmsg); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -763,18 +852,18 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    mem_collector * mc;
-    ObjectXML *     oxml;
-    bool&           result;
-    char **         error_msg;
+    mem_collector *  mc;
+    VirtualMachine * vm;
+    vector<int> *    img_ids;
+    char **          errmsg;
 #endif
 {
   FILE *yyo = yyoutput;
@@ -783,9 +872,9 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result
     return;
   YYUSE (yylocationp);
   YYUSE (mc);
-  YYUSE (oxml);
-  YYUSE (result);
-  YYUSE (error_msg);
+  YYUSE (vm);
+  YYUSE (img_ids);
+  YYUSE (errmsg);
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
     YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
@@ -807,18 +896,18 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    mem_collector * mc;
-    ObjectXML *     oxml;
-    bool&           result;
-    char **         error_msg;
+    mem_collector *  mc;
+    VirtualMachine * vm;
+    vector<int> *    img_ids;
+    char **          errmsg;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -828,7 +917,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, erro
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -871,17 +960,17 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yy_reduce_print (yyvsp, yylsp, yyrule, mc, oxml, result, error_msg)
+yy_reduce_print (yyvsp, yylsp, yyrule, mc, vm, img_ids, errmsg)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
-    mem_collector * mc;
-    ObjectXML *     oxml;
-    bool&           result;
-    char **         error_msg;
+    mem_collector *  mc;
+    VirtualMachine * vm;
+    vector<int> *    img_ids;
+    char **          errmsg;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -895,7 +984,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, mc, oxml, result, error_msg)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , mc, oxml, result, error_msg);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , mc, vm, img_ids, errmsg);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -903,7 +992,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, mc, oxml, result, error_msg)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, yylsp, Rule, mc, oxml, result, error_msg); \
+    yy_reduce_print (yyvsp, yylsp, Rule, mc, vm, img_ids, errmsg); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1180,26 +1269,26 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
-    mem_collector * mc;
-    ObjectXML *     oxml;
-    bool&           result;
-    char **         error_msg;
+    mem_collector *  mc;
+    VirtualMachine * vm;
+    vector<int> *    img_ids;
+    char **          errmsg;
 #endif
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
   YYUSE (mc);
-  YYUSE (oxml);
-  YYUSE (result);
-  YYUSE (error_msg);
+  YYUSE (vm);
+  YYUSE (img_ids);
+  YYUSE (errmsg);
 
   if (!yymsg)
     yymsg = "Deleting";
@@ -1234,14 +1323,14 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yyparse (mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
 #else
 int
-yyparse (mc, oxml, result, error_msg)
-    mem_collector * mc;
-    ObjectXML *     oxml;
-    bool&           result;
-    char **         error_msg;
+yyparse (mc, vm, img_ids, errmsg)
+    mem_collector *  mc;
+    VirtualMachine * vm;
+    vector<int> *    img_ids;
+    char **          errmsg;
 #endif
 #endif
 {
@@ -1535,135 +1624,56 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 2:
+        case 4:
 /* Line 1778 of yacc.c  */
-#line 103 "expr_bool.y"
-    { result=(yyvsp[(1) - (1)].val_int);   }
-    break;
+#line 208 "vm_file_var_syntax.y"
+    {
+        string file((yyvsp[(1) - (7)].val_str));
+        string var1((yyvsp[(3) - (7)].val_str));
+        string val1((yyvsp[(5) - (7)].val_str));
 
-  case 3:
-/* Line 1778 of yacc.c  */
-#line 104 "expr_bool.y"
-    { result=true; }
-    break;
+        string result;
 
-  case 4:
-/* Line 1778 of yacc.c  */
-#line 107 "expr_bool.y"
-    { int val;
+        VM_VAR_TO_UPPER(file);
+        VM_VAR_TO_UPPER(var1);
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_int);}
+        if (get_image_path(vm, file, var1, val1, "", "", img_ids, result) == -1)
+        {
+            img_ids->clear();
+            *errmsg = strdup(result.c_str());
+            YYABORT;
+        }
+    }
     break;
 
   case 5:
 /* Line 1778 of yacc.c  */
-#line 112 "expr_bool.y"
-    { int val;
+#line 226 "vm_file_var_syntax.y"
+    {
+        string file((yyvsp[(1) - (11)].val_str));
+        string var1((yyvsp[(3) - (11)].val_str));
+        string val1((yyvsp[(5) - (11)].val_str));
+        string var2((yyvsp[(7) - (11)].val_str));
+        string val2((yyvsp[(9) - (11)].val_str));
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_int);}
-    break;
+        string result;
 
-  case 6:
-/* Line 1778 of yacc.c  */
-#line 117 "expr_bool.y"
-    { int val;
+        VM_VAR_TO_UPPER(file);
+        VM_VAR_TO_UPPER(var1);
+        VM_VAR_TO_UPPER(var2);
 
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_int);}
-    break;
-
-  case 7:
-/* Line 1778 of yacc.c  */
-#line 122 "expr_bool.y"
-    { int val;
-
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_int);}
-    break;
-
-  case 8:
-/* Line 1778 of yacc.c  */
-#line 127 "expr_bool.y"
-    { float val;
-
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_float);}
-    break;
-
-  case 9:
-/* Line 1778 of yacc.c  */
-#line 132 "expr_bool.y"
-    { float val;
-
-            get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_float);}
-    break;
-
-  case 10:
-/* Line 1778 of yacc.c  */
-#line 137 "expr_bool.y"
-    { float val;
-
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_float);}
-    break;
-
-  case 11:
-/* Line 1778 of yacc.c  */
-#line 142 "expr_bool.y"
-    { float val;
-
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_float);}
-    break;
-
-  case 12:
-/* Line 1778 of yacc.c  */
-#line 147 "expr_bool.y"
-    { string val;
-
-            get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = (val.empty() || (yyvsp[(3) - (3)].val_str)==0) ? false : fnmatch((yyvsp[(3) - (3)].val_str),val.c_str(),0)==0;}
-    break;
-
-  case 13:
-/* Line 1778 of yacc.c  */
-#line 152 "expr_bool.y"
-    { string val;
-
-            get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = (val.empty() || (yyvsp[(4) - (4)].val_str)==0) ? false : fnmatch((yyvsp[(4) - (4)].val_str),val.c_str(),0)!=0;}
-    break;
-
-  case 14:
-/* Line 1778 of yacc.c  */
-#line 157 "expr_bool.y"
-    { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) && (yyvsp[(3) - (3)].val_int); }
-    break;
-
-  case 15:
-/* Line 1778 of yacc.c  */
-#line 158 "expr_bool.y"
-    { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) || (yyvsp[(3) - (3)].val_int); }
-    break;
-
-  case 16:
-/* Line 1778 of yacc.c  */
-#line 159 "expr_bool.y"
-    { (yyval.val_int) = ! (yyvsp[(2) - (2)].val_int); }
-    break;
-
-  case 17:
-/* Line 1778 of yacc.c  */
-#line 160 "expr_bool.y"
-    { (yyval.val_int) =   (yyvsp[(2) - (3)].val_int); }
+        if (get_image_path(vm, file, var1, val1, var2, val2, img_ids, result) == -1)
+        {
+            img_ids->clear();
+            *errmsg = strdup(result.c_str());
+            YYABORT;
+        }
+    }
     break;
 
 
 /* Line 1778 of yacc.c  */
-#line 1667 "expr_bool.cc"
+#line 1677 "vm_file_var_syntax.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1714,7 +1724,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error"));
+      yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1741,7 +1751,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (&yylloc, mc, oxml, result, error_msg, yymsgp);
+        yyerror (&yylloc, mc, vm, img_ids, errmsg, yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1765,7 +1775,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
+		      yytoken, &yylval, &yylloc, mc, vm, img_ids, errmsg);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1822,7 +1832,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, yylsp, mc, oxml, result, error_msg);
+		  yystos[yystate], yyvsp, yylsp, mc, vm, img_ids, errmsg);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1864,7 +1874,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, mc, oxml, result, error_msg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1876,7 +1886,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
+                  yytoken, &yylval, &yylloc, mc, vm, img_ids, errmsg);
     }
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
@@ -1885,7 +1895,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, yylsp, mc, oxml, result, error_msg);
+		  yystos[*yyssp], yyvsp, yylsp, mc, vm, img_ids, errmsg);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1902,16 +1912,16 @@ yyreturn:
 
 
 /* Line 2041 of yacc.c  */
-#line 163 "expr_bool.y"
+#line 247 "vm_file_var_syntax.y"
 
 
-extern "C" void expr_bool__error(
-    YYLTYPE *       llocp,
-    mem_collector * mc,
-    ObjectXML *     oxml,
-    bool&           result,
-    char **         error_msg,
-    const char *    str)
+extern "C" void vm_file_var__error(
+    YYLTYPE *        llocp,
+    mem_collector *  mc,
+    VirtualMachine * vm,
+    vector<int> *    img_ids,
+    char **          error_msg,
+    const char *     str)
 {
     int length;
 
@@ -1921,115 +1931,12 @@ extern "C" void expr_bool__error(
 
     if (*error_msg != 0)
     {
-      snprintf(*error_msg,
+        snprintf(*error_msg,
             length,
             "%s at line %i, columns %i:%i",
             str,
             llocp->first_line,
             llocp->first_column,
             llocp->last_column);
-    }
-
-    result = false;
-}
-
-void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
-{
-    val = 0;
-
-    //TODO: pass xpath base
-    vector<string> results;
-    ostringstream  xpath_t;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr;
-    results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-        }
-    }
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> val;
-    }
-}
-
-void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
-{
-    val = 0.0;
-
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
-    vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr;
-    results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-        }
-    }
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> val;
-    }
-}
-
-void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
-{
-    val = "";
-
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
-    vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr;
-    results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-        }
-    }
-
-    if (results.size() != 0)
-    {
-        val = results[0];
     }
 }

@@ -33,12 +33,18 @@ if env['parsers']=='yes':
     )
     env.NoClean(parser)
 
+    parser=env.Bison(
+    source='vm_file_var_syntax.y'
+    )
+    env.NoClean(parser)
+
 # Sources to generate the library
 source_files=[
     'History.cc',
     'VirtualMachine.cc',
     'vm_var_parser.c',
     'vm_var_syntax.cc',
+    'vm_file_var_syntax.cc',
     'VirtualMachinePool.cc',
     'VirtualMachineHook.cc',
     'VirtualMachineTemplate.cc'

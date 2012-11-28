@@ -232,9 +232,9 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
                                           Template * tmpl,
-                                          int& id, 
+                                          int& id,
                                           string& error_str,
                                           RequestAttributes& att)
 {
@@ -289,6 +289,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string ds_name;
     string ds_data;
 
+    Datastore::DatastoreType ds_type;
+
     int    rc, id;
 
     PoolObjectAuth ds_perms;
@@ -301,7 +303,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
     ImageManager *  imagem = nd.get_imagem();
-    
+
     ImageTemplate * tmpl = new ImageTemplate;
     Template        img_usage;
 
@@ -332,7 +334,9 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    if ( ds->is_system() )
+    ds_type = ds->get_type();
+
+    if ( ds_type == Datastore::SYSTEM_DS )
     {
         ostringstream oss;
 
@@ -361,8 +365,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( rc == -1 )
     {
-        failure_response(INTERNAL, 
-                         request_error("Cannot determine Image SIZE", size_str), 
+        failure_response(INTERNAL,
+                         request_error("Cannot determine Image SIZE", size_str),
                          att);
         delete tmpl;
         return;
@@ -373,18 +377,18 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( iss.fail() )
     {
-        failure_response(INTERNAL, 
-                         request_error("Cannot parse SIZE", size_str), 
+        failure_response(INTERNAL,
+                         request_error("Cannot parse SIZE", size_str),
                          att);
         delete tmpl;
-        return;   
+        return;
     }
 
     tmpl->erase("SIZE");
     tmpl->add("SIZE", size_str);
 
     // ------------- Set authorization request for non-oneadmin's --------------
-    
+
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size_str);
 
@@ -435,19 +439,20 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
         {
             delete tmpl;
-            return;   
+            return;
         }
     }
 
-    rc = ipool->allocate(att.uid, 
-                         att.gid, 
-                         att.uname, 
-                         att.gname, 
-                         tmpl, 
-                         ds_id, 
+    rc = ipool->allocate(att.uid,
+                         att.gid,
+                         att.uname,
+                         att.gname,
+                         tmpl,
+                         ds_id,
                          ds_name,
                          ds_disk_type,
-                         ds_data, 
+                         ds_data,
+                         ds_type,
                          -1,
                          &id,
                          error_str);
@@ -476,9 +481,9 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
+int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
                                     Template * tmpl,
-                                    int& id, 
+                                    int& id,
                                     string& error_str,
                                     RequestAttributes& att)
 {
@@ -517,9 +522,9 @@ int HostAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
                                 Template * tmpl,
-                                int& id, 
+                                int& id,
                                 string& error_str,
                                 RequestAttributes& att)
 {
@@ -540,7 +545,7 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 
     if (driver.empty())
     {
-        driver = UserPool::CORE_AUTH;    
+        driver = UserPool::CORE_AUTH;
     }
 
     return upool->allocate(&id,ugid,uname,ugname,passwd,driver,true,error_str);
@@ -566,9 +571,9 @@ void UserAllocate::log_xmlrpc_param(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
                                  Template * tmpl,
-                                 int& id, 
+                                 int& id,
                                  string& error_str,
                                  RequestAttributes& att)
 {
