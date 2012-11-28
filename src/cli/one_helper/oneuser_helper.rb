@@ -150,9 +150,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         system = System.new(@client)
         default_quotas = system.get_user_quotas()
 
-        # TODO: check error
-#        if OpenNebula::is_error?(default_quotas)
-#        end
+        if OpenNebula::is_error?(default_quotas)
+            raise "Error retrieving the default user quotas: #{default_quotas.message}"
+        end
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the User", :size=>4 do |d|
@@ -245,6 +245,13 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_resource(user)
+        system = System.new(@client)
+        default_quotas = system.get_user_quotas()
+
+        if OpenNebula::is_error?(default_quotas)
+            raise "Error retrieving the default user quotas: #{default_quotas.message}"
+        end
+
         str="%-15s: %-20s"
         str_h1="%-80s"
 
@@ -264,17 +271,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts user.template_str
 
         user_hash = user.to_hash
-
-        system = System.new(@client)
-        default_quotas = system.get_user_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            # TODO: cannot do 
-            # return -1, default_quotas.message
-            # because OneHelper::show_resource ignores this method's output
-
-            default_quotas = nil
-        end
 
         helper = OneQuotaHelper.new
         helper.format_quota(user_hash['USER'], default_quotas)

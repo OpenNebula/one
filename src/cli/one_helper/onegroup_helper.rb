@@ -51,9 +51,9 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         system = System.new(@client)
         default_quotas = system.get_group_quotas()
 
-        # TODO: check error
-#        if OpenNebula::is_error?(default_xml_str)
-#        end
+        if OpenNebula::is_error?(default_quotas)
+            raise "Error retrieving the default group quotas: #{default_quotas.message}"
+        end
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
@@ -142,6 +142,13 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_resource(group)
+        system = System.new(@client)
+        default_quotas = system.get_group_quotas()
+
+        if OpenNebula::is_error?(default_quotas)
+            raise "Error retrieving the default group quotas: #{default_quotas.message}"
+        end
+
         str="%-15s: %-20s"
         str_h1="%-80s"
 
@@ -157,17 +164,6 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         end
 
         group_hash = group.to_hash
-
-        system = System.new(@client)
-        default_quotas = system.get_group_quotas()
-
-        if OpenNebula::is_error?(default_quotas)
-            # TODO: cannot do 
-            # return -1, default_quotas.message
-            # because OneHelper::show_resource ignores this method's output
-
-            default_quotas = nil
-        end
 
         helper = OneQuotaHelper.new
         helper.format_quota(group_hash['GROUP'], default_quotas)
