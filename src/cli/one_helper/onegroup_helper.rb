@@ -158,6 +158,18 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
         group_hash = group.to_hash
 
-        OneQuotaHelper.format_quota(group_hash['GROUP'])
+        system = System.new(@client)
+        default_quotas = system.get_group_quotas()
+
+        if OpenNebula::is_error?(default_quotas)
+            # TODO: cannot do 
+            # return -1, default_quotas.message
+            # because OneHelper::show_resource ignores this method's output
+
+            default_quotas = nil
+        end
+
+        helper = OneQuotaHelper.new
+        helper.format_quota(group_hash['GROUP'], default_quotas)
     end
 end
