@@ -99,12 +99,12 @@ int DefaultQuotas::insert_replace(SqlDB *db, bool replace, string& error_str)
     {
         goto error_body;
     }
-/*
-    if ( validate_xml(sql_xml) != 0 )
+
+    if ( ObjectXML::validate_xml(sql_xml) != 0 )
     {
         goto error_xml;
     }
-*/
+
     if ( replace )
     {
         oss << "REPLACE";
@@ -125,20 +125,15 @@ int DefaultQuotas::insert_replace(SqlDB *db, bool replace, string& error_str)
     db->free_str(sql_xml);
 
     return rc;
-/*
+
 error_xml:
     db->free_str(sql_xml);
 
     error_str = "Error transforming the Quotas to XML.";
+    return -1;
 
-    goto error_common;
-*/
 error_body:
-    goto error_generic;
-
-error_generic:
     error_str = "Error inserting Quotas in DB.";
-error_common:
     return -1;
 }
 
