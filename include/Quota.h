@@ -35,12 +35,11 @@ public:
     /**
      *  Set the quotas. If the quota previously exists its limit is updated.
      *    @param quota_str the quota template in ASCII or XML formats
-     *    @param default_allowed whether or not the limit -1 is allowed
      *    @param error describe the error in case of error
      *
      *    @return 0 on success -1 otherwise
      */
-    int set(vector<Attribute*> * quotas, bool default_allowed, string& error);
+    int set(vector<Attribute*> * quotas, string& error);
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not 
@@ -79,6 +78,15 @@ public:
          return get_quota(id, va, it);
      }
 
+     /**
+      * Sets this Quota as a Default Quota. Default quotas do not have usage,
+      * and can't have a limit of -1
+      */
+     void make_default()
+     {
+         is_default = true;
+     };
+
 protected:
 
     Quota(const char *  quota_name,
@@ -88,7 +96,8 @@ protected:
         : Template(false, '=', quota_name),
           template_name(_template_name),
           metrics(_metrics),
-          num_metrics(_num_metrics){};
+          num_metrics(_num_metrics),
+          is_default(false){};
     
     virtual ~Quota(){};
 
@@ -175,16 +184,21 @@ protected:
      */
     void cleanup_quota(const string& qid);
 
+    /**
+     * Whether or not this is a default quota. Default quotas do not have usage,
+     * and can't have a limit of -1
+     */
+    bool is_default;
+
 private:
     /**
      *  Creates an empty quota based on the given attribute. The attribute va
      *  contains the limits for the quota.
      *    @param va limits for the new quota if 0 limits will be 0
-     *    @param default_allowed whether or not the limit -1 is allowed
      *
      *    @return a new attribute representing the quota, 0 on error
      */
-    VectorAttribute * new_quota(VectorAttribute* va, bool default_allowed);
+    VectorAttribute * new_quota(VectorAttribute* va);
 
     /**
      *  Adds a new quota, it also updates an internal index for fast accessing
@@ -208,13 +222,11 @@ private:
      *  Sets new limit values for the quota
      *    @param quota to be updated
      *    @param va attribute with the new limits
-     *    @param default_allowed whether or not the limit -1 is allowed
      *
      *    @return 0 on success or -1 if wrong limits
      */
     int update_limits(VectorAttribute* quota,
-            const VectorAttribute* va,
-            bool default_allowed);
+            const VectorAttribute* va);
 
     /**
      *  Extract the limits for the defined quota metrics from a given attribute

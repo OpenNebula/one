@@ -32,21 +32,14 @@ public:
             const char * _vm_xpath):
                Quotas(_ds_xpath, _net_xpath, _img_xpath, _vm_xpath),
                root_elem(_root_elem)
-    {};
+    {
+        datastore_quota.make_default();
+        network_quota.make_default();
+        image_quota.make_default();
+        vm_quota.make_default();
+    };
 
     ~DefaultQuotas(){};
-
-    /**
-     *  Set the quotas
-     *    @param tmpl contains the user quota limits
-     *    @param error describes error when setting the quotas
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int set(Template *tmpl, string& error)
-    {
-        return Quotas::set(tmpl, false, error);
-    };
 
     /**
      *  Generates a string representation of the quotas in XML format

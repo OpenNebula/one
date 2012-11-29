@@ -19,13 +19,13 @@
 
 #include "ObjectXML.h"
 
-int Quotas::set(Template *tmpl, bool default_allowed, string& error)
+int Quotas::set(Template *tmpl, string& error)
 {
     vector<Attribute *> vquotas;
 
     if ( tmpl->get(datastore_quota.get_quota_name(), vquotas) > 0 )
     {
-        if ( datastore_quota.set(&vquotas, default_allowed, error) != 0 )
+        if ( datastore_quota.set(&vquotas, error) != 0 )
         {
             return -1;
         }
@@ -35,7 +35,7 @@ int Quotas::set(Template *tmpl, bool default_allowed, string& error)
 
     if ( tmpl->get(network_quota.get_quota_name(), vquotas) > 0 )
     {
-        if ( network_quota.set(&vquotas, default_allowed, error) != 0 )
+        if ( network_quota.set(&vquotas, error) != 0 )
         {
             return -1;
         }
@@ -45,7 +45,7 @@ int Quotas::set(Template *tmpl, bool default_allowed, string& error)
 
     if ( tmpl->get(image_quota.get_quota_name(), vquotas) > 0 )
     {
-        if ( image_quota.set(&vquotas, default_allowed, error) != 0 )
+        if ( image_quota.set(&vquotas, error) != 0 )
         {
             return -1;
         }
@@ -55,7 +55,7 @@ int Quotas::set(Template *tmpl, bool default_allowed, string& error)
 
     if ( tmpl->get(vm_quota.get_quota_name(), vquotas) > 0 )
     {
-        if ( vm_quota.set(&vquotas, default_allowed, error) != 0 )
+        if ( vm_quota.set(&vquotas, error) != 0 )
         {
             return -1;
         }
