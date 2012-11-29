@@ -37,7 +37,7 @@ public:
                vm_xpath(_vm_xpath)
     {};
 
-    ~Quotas(){};
+    virtual ~Quotas(){};
 
     /**
      *  Different quota types
@@ -160,7 +160,7 @@ public:
 
     /**
      *  Builds quota object from an ObjectXML
-     *    @param object_xml pointer to the ObjectXML 
+     *    @param object_xml pointer to the ObjectXML
      *    @return 0 if success
      */
     int from_xml(ObjectXML * object_xml);
@@ -201,27 +201,27 @@ public:
 
 protected:
     //--------------------------------------------------------------------------
-    // Usage Counters and Quotas 
+    // Usage Counters and Quotas
     //--------------------------------------------------------------------------
 
     /**
-     * Datastore Quotas 
-     */     
+     * Datastore Quotas
+     */
      QuotaDatastore datastore_quota;
 
     /**
-     * Network Quotas 
+     * Network Quotas
      */
      QuotaNetwork network_quota;
 
     /**
-     * Image Quotas 
-     */     
+     * Image Quotas
+     */
      QuotaImage image_quota;
 
     /**
-     * Virtual Machine Quotas 
-     */     
+     * Virtual Machine Quotas
+     */
      QuotaVirtualMachine vm_quota;
 
     //--------------------------------------------------------------------------
