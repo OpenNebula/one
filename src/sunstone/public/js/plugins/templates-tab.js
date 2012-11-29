@@ -47,13 +47,7 @@ var templates_tab_content = '\
 </form>';
 
 
-var create_template_tmpl = '<div id="template_create_tabs">'+
-    '<ul>'+
-        '<li><a href="#tab-capacity">'+tr("CAPACITY")+'</a></li>'+
-        '<li><a href="#tab-disks">'+tr("DISKs")+'</a></li>'+
-        '<li><a href="#tab-nics">'+tr("NETWORKs")+'</a></li>'+
-    '</ul>'+
-    '<div id="tab-capacity">'+
+var capacity_tab = 
     '<fieldset>'+
       '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
           '<label for="NAME">'+tr("Name")+':</label>'+
@@ -78,9 +72,9 @@ var create_template_tmpl = '<div id="template_create_tabs">'+
       '</div>'+
     '</fieldset>'+
        '<div class="show_hide" id="advanced_capacity">'+
-            '<h4>'+tr("Advanced options")+'</h4>'+
+            '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
        '</div>'+
-    '<fieldset>'+
+    '<fieldset class="advanced">'+
       '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
             '<label for="VCPU">'+tr("VCPU")+':</label>'+
             '<input type="text" id="VCPU" name="vcpu" size="3" />'+
@@ -90,15 +84,19 @@ var create_template_tmpl = '<div id="template_create_tabs">'+
     '</fieldset>'+
               '<div class="form_buttons">'+
                 '<button class="button" type="" value="" id="tf_btn_disks">'+tr("DISKs")+'</button>'+
-              '</div>'+
-    '</div>'+
-    '<div id="tab-disks">'+
-        '<p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>'+
-        '<fieldset>'+
-              '<div class="form_buttons">'+
-                '<button class="button" type="" value="" id="tf_btn_adddisk">'+tr("Add disk")+'</button>'+
-              '</div>'+
-        '</fieldset>'+
+              '</div>'
+
+
+  
+var create_template_tmpl = '<div id="template_create_tabs">'+
+    '<ul>'+
+        '<li class="temp_tab"><a href="#tab-capacity">'+tr("CAPACITY")+'</a></li>'+
+        '<li class="temp_tab"><a href="#">'+tr("DISKs")+'</a></li>'+
+        '<li class="temp_tab"><<a href="#" class="button" type="" value="" id="tf_btn_disks">'+tr("Add disk")+'</button></li>'+
+        '<li class="temp_tab"><a href="#tab-nics">'+tr("NETWORKs")+'</a></li>'+
+    '</ul>'+
+    '<div id="tab-capacity">'+
+      capacity_tab +
     '</div>'+
     '<div id="tab-nics">'+
         '<p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>'+
@@ -108,6 +106,7 @@ var create_template_tmpl = '<div id="template_create_tabs">'+
           '</div>'+
         '</fieldset>'+
     '</div>'+
+'</div>'+
     '<fieldset>'+
     '<div class="form_buttons">'+
     '<button class="button" id="create_template_form_easy" value="OpenNebula.Template.create">'+
@@ -115,8 +114,7 @@ var create_template_tmpl = '<div id="template_create_tabs">'+
     '</button>'+
     '<button class="button" id="reset_template_form" type="reset" value="reset">'+tr("Reset")+'</button>'+
     '</div>'+
-    '</fieldset>'
-'</div>';
+    '</fieldset>';
 
 
 /*
@@ -1329,14 +1327,108 @@ function setupCreateTemplateDialog(){
             });
     };
 
+    var number_of_disks = 0;
+    var disks_index     = 1;
+
+    function updateTemplateImages(request, images_list){
+        var image_list_array = [];
+
+        $.each(images_list,function(){
+           image_list_array.push(imageElementArray(this));
+        });
+
+        updateView(image_list_array, dataTable_template_images);
+    }
+
+    var add_disk_tab = function(){
+      number_of_disks++;
+      disks_index++;
+      create_disk_tab(number_of_disks, disks_index);
+    }
+
+    var create_disk_tab = function(disk_id, disk_tab_index) {
+      var disk_tab_id    = 'disk' + disk_id;
+      var datatable_id   = 'datatable_template_images' + disk_id;
+      var button_id      = 'tf_btn_adddisk' + disk_id;
+
+      var tab_content = '<div id="'+disk_tab_id+'">'+
+          '<table id="'+datatable_id+'" class="display">'+
+            '<thead>'+
+              '<tr>'+
+                '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
+                '<th>'+tr("ID")+'</th>'+
+                '<th>'+tr("Owner")+'</th>'+
+                '<th>'+tr("Group")+'</th>'+
+                '<th>'+tr("Name")+'</th>'+
+                '<th>'+tr("Datastore")+'</th>'+
+                '<th>'+tr("Size")+'</th>'+
+                '<th>'+tr("Type")+'</th>'+
+                '<th>'+tr("Registration time")+'</th>'+
+                '<th>'+tr("Persistent")+'</th>'+
+                '<th>'+tr("Status")+'</th>'+
+                '<th>'+tr("#VMS")+'</th>'+
+                '<th>'+tr("Target")+'</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody id="tbodyimages">'+
+            '</tbody>'+
+          '</table>'+
+          '<fieldset>'+
+                '<div class="form_buttons">'+
+                  '<button class="button" type="" value="" id="'+button_id+'">'+tr("Add disk")+'</button>'+
+                '</div>'+
+          '</fieldset>'+
+        '</div>'
+
+      tabs.append(tab_content).tabs('add', '#'+disk_tab_id, disk_tab_id, disk_tab_index); 
+      tabs.tabs( "select", disk_tab_index);
+      
+      dataTable_template_images = $('#'+datatable_id, dialog).dataTable({
+          "bJQueryUI": true,
+          "bSortClasses": false,
+          "bAutoWidth":false,
+          "sDom" : '<"H"lfrC>t<"F"ip>',
+          "oColVis": {
+              "aiExclude": [ 0 ]
+          },
+          "sPaginationType": "full_numbers",
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
+              { "sWidth": "35px", "aTargets": [1,6,11,12] },
+              { "sWidth": "100px", "aTargets": [5,7] },
+              { "sWidth": "150px", "aTargets": [8] },
+              { "bVisible": false, "aTargets": [2,3,6,7,9,8,12]}
+          ],
+          "oLanguage": (datatable_lang != "") ?
+              {
+                  sUrl: "locale/"+lang+"/"+datatable_lang
+              } : ""
+      });
+
+      dataTable_template_images.fnClearTable();
+      addElement([spinner,'','','','','','','','','','','',''],dataTable_template_images);
+
+      OpenNebula.Image.list({
+        timeout: true, 
+        success: updateTemplateImages, 
+        error: onError
+      });
+
+      $('#'+button_id, dialog).click(add_disk_tab);
+    }
+
     // Set ups the capacity section
     var capacity_setup = function(){
         $(function() {
+            // Change tab if the DISKs button is clicked
+            $("#tf_btn_disks", dialog).click(add_disk_tab);
+
             // Hide advanced options
-            $('fieldset',section_capacity).last().hide();
+            $('fieldset.advanced',section_capacity).hide();
 
             $('#advanced_capacity',section_capacity).click(function(){
-                $('fieldset',section_capacity).last().toggle();
+                $('fieldset.advanced',section_capacity).toggle();
                 return false;
             });
 
@@ -1407,16 +1499,6 @@ function setupCreateTemplateDialog(){
                 vcpu_slider.slider( "value", this.value );
             });
         });
-        //Actually there is nothing to set up, but it used to be
-        //possible to hide it like others
-        /*
-          $('fieldset',section_capacity).hide();
-          $('#add_capacity',section_capacity).click(function(){
-          $('fieldset',section_capacity).toggle();
-          return false;
-          });
-        */
-
     }
 
     //Sets up the OS_BOOT section
@@ -1467,80 +1549,89 @@ function setupCreateTemplateDialog(){
     // Sets up the disk section
     var disks_setup = function(){
 
-        $('fieldset',section_disks).hide();
-        $('.vm_param', section_disks).hide();
-        //$('#image_vs_disk',section_disks).show();
-
-        $('#add_disks', section_disks).click(function(){
-            $('fieldset',section_disks).toggle();
-            return false;
-        });
-
-        //Auto-set IMAGE_UNAME hidden field value
-        $('#IMAGE', section_disks).change(function(){
-            var option = $('option:selected',this);
-            var uname = getValue(option.attr('elem_id'),1,2,dataTable_images);
-            $('input#IMAGE_UNAME',section_disks).val(uname);
-            var target = getValue(option.attr('elem_id'),1,12,dataTable_images);
-            if (target && target != "--")
-                $('input#TARGET',section_disks).val(target);
-            else
-                $('input#TARGET',section_disks).val('');
-        });
-
-        //Depending on adding a disk or a image we need to show/hide
-        //different options and make then mandatory or not
-        $('#image_vs_disk input',section_disks).click(function(){
-            //$('fieldset',section_disks).show();
-            $('.vm_param', section_disks).show();
-            var select = $(this).val();
-            switch (select)
-            {
-            case "disk":
-                $('.add_image',section_disks).hide();
-                $('.add_image',section_disks).attr('disabled','disabled');
-                $('.add_disk',section_disks).show();
-                $('.add_disk',section_disks).removeAttr('disabled');
-                // Trigger since disk type is preselected
-                $('select#TYPE', section_disks).trigger('change');
-                break;
-            case "image":
-                $('.add_disk',section_disks).hide();
-                $('.add_disk',section_disks).attr('disabled','disabled');
-                $('.add_image',section_disks).show();
-                $('.add_image',section_disks).removeAttr('disabled');
-                break;
-            }
-            //hide_disabled(section_disks);
-        });
-
-        //Depending on the type of disk we need to show/hide
-        //different options and make then mandatory or not
-        $('select#TYPE',section_disks).change(function(){
-            var select = $(this).val();
-            switch (select) {
-                //size,format,target
-            case "swap":
-                //size mandatory
-                $('#SIZE',section_disks).parent().show();
-                $('#SIZE',section_disks).parent().removeAttr('disabled');
-
-                //format hidden
-                $('#FORMAT',section_disks).parent().hide();
-                $('#FORMAT',section_disks).parent().attr('disabled','disabled');
-                break;
-            case "fs":
-                //size mandatory
-                $('#SIZE',section_disks).parent().show();
-                $('#SIZE',section_disks).parent().removeAttr('disabled');
-
-                //format mandatory
-                $('#FORMAT',section_disks).parent().show();
-                $('#FORMAT',section_disks).parent().removeAttr('disabled');
-                $('#FORMAT',section_disks).parent().removeClass(opt_class);
-                $('#FORMAT',section_disks).parent().addClass(man_class);
-
-                 break;
+//        $('input:checkbox', $("#datatable_template_images")).live('change', function(){
+//            if($(this).is(':checked')){
+//                addDiskTab();
+//                console.log(this);
+//            } else {
+//              console.log(this);
+//            }
+//        });
+//
+        //$('fieldset',section_disks).hide();
+        //$('.vm_param', section_disks).hide();
+        ////$('#image_vs_disk',section_disks).show();
+//
+        //$('#add_disks', section_disks).click(function(){
+        //    $('fieldset',section_disks).toggle();
+        //    return false;
+        //});
+//
+        ////Auto-set IMAGE_UNAME hidden field value
+        //$('#IMAGE', section_disks).change(function(){
+        //    var option = $('option:selected',this);
+        //    var uname = getValue(option.attr('elem_id'),1,2,dataTable_images);
+        //    $('input#IMAGE_UNAME',section_disks).val(uname);
+        //    var target = getValue(option.attr('elem_id'),1,12,dataTable_images);
+        //    if (target && target != "--")
+        //        $('input#TARGET',section_disks).val(target);
+        //    else
+        //        $('input#TARGET',section_disks).val('');
+        //});
+//
+        ////Depending on adding a disk or a image we need to show/hide
+        ////different options and make then mandatory or not
+        //$('#image_vs_disk input',section_disks).click(function(){
+        //    //$('fieldset',section_disks).show();
+        //    $('.vm_param', section_disks).show();
+        //    var select = $(this).val();
+        //    switch (select)
+        //    {
+        //    case "disk":
+        //        $('.add_image',section_disks).hide();
+        //        $('.add_image',section_disks).attr('disabled','disabled');
+        //        $('.add_disk',section_disks).show();
+        //        $('.add_disk',section_disks).removeAttr('disabled');
+        //        // Trigger since disk type is preselected
+        //        $('select#TYPE', section_disks).trigger('change');
+        //        break;
+        //    case "image":
+        //        $('.add_disk',section_disks).hide();
+        //        $('.add_disk',section_disks).attr('disabled','disabled');
+        //        $('.add_image',section_disks).show();
+        //        $('.add_image',section_disks).removeAttr('disabled');
+        //        break;
+        //    }
+        //    //hide_disabled(section_disks);
+        //});
+//
+        ////Depending on the type of disk we need to show/hide
+        ////different options and make then mandatory or not
+        //$('select#TYPE',section_disks).change(function(){
+        //    var select = $(this).val();
+        //    switch (select) {
+        //        //size,format,target
+        //    case "swap":
+        //        //size mandatory
+        //        $('#SIZE',section_disks).parent().show();
+        //        $('#SIZE',section_disks).parent().removeAttr('disabled');
+//
+        //        //format hidden
+        //        $('#FORMAT',section_disks).parent().hide();
+        //        $('#FORMAT',section_disks).parent().attr('disabled','disabled');
+        //        break;
+        //    case "fs":
+        //        //size mandatory
+        //        $('#SIZE',section_disks).parent().show();
+        //        $('#SIZE',section_disks).parent().removeAttr('disabled');
+//
+        //        //format mandatory
+        //        $('#FORMAT',section_disks).parent().show();
+        //        $('#FORMAT',section_disks).parent().removeAttr('disabled');
+        //        $('#FORMAT',section_disks).parent().removeClass(opt_class);
+        //        $('#FORMAT',section_disks).parent().addClass(man_class);
+//
+//                 break;
 /* As of 3.8 the following dont exist */
 /*
            case "block":
@@ -1584,24 +1675,24 @@ function setupCreateTemplateDialog(){
                 $('#SOURCE',section_disks).parent().
                     removeAttr('disabled');
 */
-            }
+//            }
             //hide_disabled(section_disks);
-        });
+        //};
 
         //Our filter for the disks section fields is the standard
         //mandatory filter applied for this section
-        var diskFilter = function(){
-            return mandatory_filter(section_disks);
-        };
-
-        $('#add_disk_button',section_disks).click(function(){
-            box_add_element(section_disks,'#disks_box',diskFilter);
-            return false;
-        });
-        $('#remove_disk_button',section_disks).click(function(){
-            box_remove_element(section_disks,'#disks_box');
-            return false;
-        });
+        //var diskFilter = function(){
+        //    return mandatory_filter(section_disks);
+        //};
+//
+        //$('#add_disk_button',section_disks).click(function(){
+        //    box_add_element(section_disks,'#disks_box',diskFilter);
+        //    return false;
+        //});
+        //$('#remove_disk_button',section_disks).click(function(){
+        //    box_remove_element(section_disks,'#disks_box');
+        //    return false;
+        //});
     };
 
     // Sets up the network section
@@ -1896,12 +1987,6 @@ function setupCreateTemplateDialog(){
     // Enhace buttons
     $('button',dialog).button();
 
-    $("#tf_btn_disks", dialog).click( function()
-       {
-         $("#template_create_tabs", dialog).tabs( "select", "tab-disks" );
-       }
-    );
-
     $("#tf_btn_adddisk", dialog).click( function(){
          addDiskTab();
     });
@@ -1910,25 +1995,20 @@ function setupCreateTemplateDialog(){
          addNicTab();
     });
 
-    var number_of_disks = 0;
-    var disks_index     = 0;
+
 
     var number_of_nics = 0;
     var nics_index     = 0;
 
-    var $tabs = $( "#template_create_tabs").tabs({
-        tabTemplate: "<li><a href='#{href}'>#{label}</a> <span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
-        add: function( event, ui ) {
-            var tab_content = "Tab content.";
-            $( ui.panel ).append( "<p>" + tab_content + "</p>" );
-        }
+    var tabs = $( "#template_create_tabs").tabs({
+        tabTemplate: "<li class='temp_tab'><a href='#{href}'>#{label}</a> <span class='ui-icon ui-icon-close'>Remove Tab</span></li>"
     });
 
     // close icon: removing the tab on click
     // note: closable tabs gonna be an option in the future - see http://dev.jqueryui.com/ticket/3924
     $( "#template_create_tabs span.ui-icon-close" ).live( "click", function() {
-        var index = $( "li", $tabs ).index( $( this ).parent() );
-        $tabs.tabs( "remove", index );
+        var index = $( "li.temp_tab", tabs ).index( $( this ).parent() );
+        tabs.tabs( "remove", index );
         if (index > disks_index+1 ) {
           nics_index--;
         } else {
@@ -1939,19 +2019,15 @@ function setupCreateTemplateDialog(){
 
     // actual addTab function: adds new tab using the input from the form above
     function addDiskTab() {
-        index = $tabs.tabs('option', 'selected');
-        number_of_disks++;
-        disks_index++;
 
-        $tabs.tabs('add', '#disk'+number_of_disks, 'disk'+number_of_disks, index+disks_index); 
     };
 
     function addNicTab() {
-        index = $tabs.tabs('option', 'selected');
+        index = tabs.tabs('option', 'selected');
         number_of_nics++;
         nics_index++;
 
-        $tabs.tabs('add', '#nic'+number_of_nics, 'nic'+number_of_nics, index+nics_index); 
+        tabs.tabs('add', '#nic'+number_of_nics, 'nic'+number_of_nics, index+nics_index); 
     };
 
 
