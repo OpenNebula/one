@@ -35,21 +35,23 @@
 class QuotaDatastore :  public Quota
 {
 public:
-    
-    QuotaDatastore():Quota("DATASTORE_QUOTA",
-                           "DATASTORE",
-                           DS_METRICS, 
-                           NUM_DS_METRICS)
+
+    QuotaDatastore(bool is_default):
+        Quota("DATASTORE_QUOTA",
+              "DATASTORE",
+              DS_METRICS,
+              NUM_DS_METRICS,
+              is_default)
     {};
 
     ~QuotaDatastore(){};
 
     /**
-     *  Check if the resource allocation will exceed the quota limits. If not 
+     *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated
      *    @param tmpl template for the resource
      *    @param default_quotas Quotas that contain the default limits
-     *    @param error string 
+     *    @param error string
      *    @return true if the operation can be performed
      */
     bool check(Template* tmpl, Quotas& default_quotas, string& error);

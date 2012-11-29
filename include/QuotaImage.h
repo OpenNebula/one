@@ -33,21 +33,23 @@
 class QuotaImage :  public Quota
 {
 public:
-    
-    QuotaImage():Quota("IMAGE_QUOTA",
-                       "IMAGE",
-                       IMAGE_METRICS, 
-                       NUM_IMAGE_METRICS)
+
+    QuotaImage(bool is_default):
+        Quota("IMAGE_QUOTA",
+              "IMAGE",
+              IMAGE_METRICS,
+              NUM_IMAGE_METRICS,
+              is_default)
     {};
 
     ~QuotaImage(){};
 
     /**
-     *  Check if the resource allocation will exceed the quota limits. If not 
+     *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated
      *    @param tmpl template for the resource
      *    @param default_quotas Quotas that contain the default limits
-     *    @param error string 
+     *    @param error string
      *    @return true if the operation can be performed
      */
     bool check(Template* tmpl, Quotas& default_quotas, string& error);

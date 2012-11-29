@@ -23,6 +23,9 @@
 const char * DefaultQuotas::table    = "system_attributes";
 const char * DefaultQuotas::db_names = "name, body";
 
+const char * DefaultQuotas::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
+        " system_attributes (name VARCHAR(128) PRIMARY KEY, body TEXT)";
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -139,13 +142,3 @@ error_body:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-int DefaultQuotas::bootstrap(SqlDB * db)
-{
-    ostringstream oss;
-
-    oss << "CREATE TABLE IF NOT EXISTS system_attributes ("
-            "name VARCHAR(128) PRIMARY KEY, body TEXT)";
-
-    return db->exec(oss);
-}

@@ -24,14 +24,14 @@ class Quotas;
 
 /**
  *  Base class for resource quotas, it provides basic storage and management of
- *  the quotas. Each resource MUST inherit from it to implement check and 
+ *  the quotas. Each resource MUST inherit from it to implement check and
  *  update methods. Quotas are stored in a template form, each class store the
  *  limits and usage in a resource specific format.
  */
 class Quota: public Template
 {
 public:
-    
+
     /**
      *  Set the quotas. If the quota previously exists its limit is updated.
      *    @param quota_str the quota template in ASCII or XML formats
@@ -42,11 +42,11 @@ public:
     int set(vector<Attribute*> * quotas, string& error);
 
     /**
-     *  Check if the resource allocation will exceed the quota limits. If not 
+     *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated
      *    @param tmpl template for the resource
      *    @param default_quotas Quotas that contain the default limits
-     *    @param error string 
+     *    @param error string
      *    @return true if the operation can be performed
      */
     virtual bool check(Template* tmpl, Quotas& default_quotas, string& error) = 0;
@@ -78,31 +78,23 @@ public:
          return get_quota(id, va, it);
      }
 
-     /**
-      * Sets this Quota as a Default Quota. Default quotas do not have usage,
-      * and can't have a limit of -1
-      */
-     void make_default()
-     {
-         is_default = true;
-     };
-
 protected:
 
     Quota(const char *  quota_name,
           const char *  _template_name,
           const char ** _metrics,
-          int           _num_metrics)
+          int           _num_metrics,
+          bool          _is_default)
         : Template(false, '=', quota_name),
           template_name(_template_name),
           metrics(_metrics),
           num_metrics(_num_metrics),
-          is_default(false){};
-    
+          is_default(_is_default){};
+
     virtual ~Quota(){};
 
     /**
-     *  Generic Quota Names 
+     *  Generic Quota Names
      *
      *  template_name = [
      *      ID              = "ID to identify the resource",
@@ -128,8 +120,14 @@ protected:
      */
     int num_metrics;
 
-    /** 
-     *  Check a given quota for an usage request and update counters if the 
+    /**
+     * Whether or not this is a default quota. Default quotas do not have usage,
+     * and can't have a limit of -1
+     */
+    bool is_default;
+
+    /**
+     *  Check a given quota for an usage request and update counters if the
      *  request does not exceed quota limits
      *    @param qid id that identifies the quota, to be used by get_quota
      *    @param usage_req usage for each metric
@@ -137,7 +135,7 @@ protected:
      *    @param error string describing the error
      *    @return true if the request does not exceed current limits
      */
-    bool check_quota(const string& qid, 
+    bool check_quota(const string& qid,
                      map<string, float>& usage_req,
                      Quotas& default_quotas,
                      string& error);
@@ -147,7 +145,7 @@ protected:
      *    @param qid id that identifies the quota, to be used by get_quota
      *    @param usage_req usage for each metric
      */
-    void del_quota(const string& qid, 
+    void del_quota(const string& qid,
                    map<string, float>& usage_req);
 
     /**
@@ -184,12 +182,6 @@ protected:
      */
     void cleanup_quota(const string& qid);
 
-    /**
-     * Whether or not this is a default quota. Default quotas do not have usage,
-     * and can't have a limit of -1
-     */
-    bool is_default;
-
 private:
     /**
      *  Creates an empty quota based on the given attribute. The attribute va
@@ -218,7 +210,7 @@ private:
      */
     void add_to_quota(VectorAttribute * attr, const string& va_name, float num);
 
-    /** 
+    /**
      *  Sets new limit values for the quota
      *    @param quota to be updated
      *    @param va attribute with the new limits

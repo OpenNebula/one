@@ -30,14 +30,9 @@ public:
             const char * _net_xpath,
             const char * _img_xpath,
             const char * _vm_xpath):
-               Quotas(_ds_xpath, _net_xpath, _img_xpath, _vm_xpath),
+               Quotas(_ds_xpath, _net_xpath, _img_xpath, _vm_xpath, true),
                root_elem(_root_elem)
-    {
-        datastore_quota.make_default();
-        network_quota.make_default();
-        image_quota.make_default();
-        vm_quota.make_default();
-    };
+    {};
 
     ~DefaultQuotas(){};
 
@@ -80,7 +75,12 @@ public:
      *  Bootstraps the database table(s) associated to the default quotas
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db);
+    static int bootstrap(SqlDB * db)
+    {
+        ostringstream oss(DefaultQuotas::db_bootstrap);
+
+        return db->exec(oss);
+    }
 
 private:
     const char * root_elem;

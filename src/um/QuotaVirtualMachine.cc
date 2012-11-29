@@ -73,7 +73,7 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     vm_request.insert(make_pair("VMS",1));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
-    
+
     return check_quota("", vm_request, default_quotas, error);
 }
 
@@ -100,14 +100,17 @@ void QuotaVirtualMachine::del(Template * tmpl)
     vm_request.insert(make_pair("VMS",1));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
-    
+
     del_quota("", vm_request);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaVirtualMachine::get_default_quota(const string& id, Quotas& default_quotas, VectorAttribute **va)
+int QuotaVirtualMachine::get_default_quota(
+    const string& id,
+    Quotas& default_quotas,
+    VectorAttribute **va)
 {
     return default_quotas.vm_get(id, va);
 }
