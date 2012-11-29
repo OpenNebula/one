@@ -413,7 +413,7 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va, bool default_allowed)
         if ( (default_allowed && limit_i < -1) ||
              (!default_allowed && limit_i < 0) )
         {
-            limit = "0";
+            return 0;
         }
 
         limits.insert(make_pair(metrics[i], limit));

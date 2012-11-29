@@ -182,7 +182,7 @@ private:
      *    @param va limits for the new quota if 0 limits will be 0
      *    @param default_allowed whether or not the limit -1 is allowed
      *
-     *    @return a new attribute representing the quota
+     *    @return a new attribute representing the quota, 0 on error
      */
     VectorAttribute * new_quota(VectorAttribute* va, bool default_allowed);
 
