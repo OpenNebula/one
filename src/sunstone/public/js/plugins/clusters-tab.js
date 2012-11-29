@@ -18,78 +18,111 @@
 
 /* ------------ Cluster creation dialog ------------ */
 
-var create_cluster_tmpl =
-'<div class="create_form"><form id="create_cluster_form" action="">\
+var create_cluster_tmpl ='<div id="cluster_create_tabs">\
   <fieldset>\
   <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
   </fieldset>\
-Pick hosts\
-<hr>\
-<table id="datatable_cluster_hosts" class="display">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
-      <th>' + tr("ID") + '</th>\
-      <th>' + tr("Name") + '</th>\
-      <th>' + tr("Cluster") + '</th>\
-      <th>' + tr("Running VMs") + '</th>\
-      <th>' + tr("Real CPU") + '</th>\
-      <th>' + tr("Allocated CPU") + '</th>\
-      <th>' + tr("Real MEM") + '</th>\
-      <th>' + tr("Allocated MEM") + '</th>\
-      <th>' + tr("Status") + '</th>\
-      <th>' + tr("IM MAD") + '</th>\
-      <th>' + tr("VM MAD") + '</th>\
-      <th>' + tr("Last monitored on") + '</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyhosts">\
-  </tbody>\
-</table>\
-Pick virtual networks\
-<hr>\
-<table id="datatable_cluster_vnets" class="display">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Cluster")+'</th>\
-      <th>'+tr("Type")+'</th>\
-      <th>'+tr("Bridge")+'</th>\
-      <th>'+tr("Total Leases")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodyvnetworks">\
-  </tbody>\
-</table>\
-<table id="datatable_cluster_datastores" class="display">\
-  <thead>\
-    <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
-      <th>'+tr("ID")+'</th>\
-      <th>'+tr("Owner")+'</th>\
-      <th>'+tr("Group")+'</th>\
-      <th>'+tr("Name")+'</th>\
-      <th>'+tr("Cluster")+'</th>\
-      <th>'+tr("Basepath")+'</th>\
-      <th>'+tr("TM MAD")+'</th>\
-      <th>'+tr("DS MAD")+'</th>\
-      <th>'+tr("System")+'</th>\
-    </tr>\
-  </thead>\
-  <tbody id="tbodydatastores">\
-  </tbody>\
-</table>\
+    <ul>\
+        <li><a href="#tab-hosts">'+tr("HOSTs")+'</a></li>\
+        <li><a href="#tab-vnets">'+tr("VIRTUAL NETWORKs")+'</a></li>\
+        <li><a href="#tab-datastores">'+tr("DATASTOREs")+'</a></li>\
+    </ul>\
+    <div id="tab-hosts">\
+    <fieldset>\
+      <div class="datatable_cluster_hosts_div">\
+            Pick hosts\
+            <hr>\
+            <table id="datatable_cluster_hosts" class="display">\
+              <thead>\
+                <tr>\
+                  <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+                  <th>' + tr("ID") + '</th>\
+                  <th>' + tr("Name") + '</th>\
+                  <th>' + tr("Cluster") + '</th>\
+                  <th>' + tr("Running VMs") + '</th>\
+                  <th>' + tr("Real CPU") + '</th>\
+                  <th>' + tr("Allocated CPU") + '</th>\
+                  <th>' + tr("Real MEM") + '</th>\
+                  <th>' + tr("Allocated MEM") + '</th>\
+                  <th>' + tr("Status") + '</th>\
+                  <th>' + tr("IM MAD") + '</th>\
+                  <th>' + tr("VM MAD") + '</th>\
+                  <th>' + tr("Last monitored on") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodyhosts">\
+              </tbody>\
+            </table>\
+      </div>\
+    </fieldset>\
+              <div class="form_buttons">\
+                <button class="button" type="" value="" id="tf_btn_vnets">'+tr("VIRTUAL NETWORKs")+'</button>\
+              </div>\
+    </div>\
+    <div id="tab-vnets">\
+    <fieldset>\
+      <div class="datatable_cluster_vnets_div">\
+            Pick virtual networks\
+            <hr>\
+            <table id="datatable_cluster_vnets" class="display">\
+              <thead>\
+                <tr>\
+                  <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+                  <th>'+tr("ID")+'</th>\
+                  <th>'+tr("Owner")+'</th>\
+                  <th>'+tr("Group")+'</th>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Cluster")+'</th>\
+                  <th>'+tr("Type")+'</th>\
+                  <th>'+tr("Bridge")+'</th>\
+                  <th>'+tr("Total Leases")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodyvnetworks">\
+              </tbody>\
+            </table>\
+      </div>\
+    </fieldset>\
+              <div class="form_buttons">\
+                <button class="button" type="" value="" id="tf_btn_datastores">'+tr("DATASTOREs")+'</button>\
+              </div>\
+    </div>\
+    <div id="tab-datastores">\
+    <fieldset>\
+      <div class="datatable_cluster_hosts_div">\
+            Pick datastores\
+            <hr>\
+            <table id="datatable_cluster_datastores" class="display">\
+              <thead>\
+                <tr>\
+                  <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+                  <th>'+tr("ID")+'</th>\
+                  <th>'+tr("Owner")+'</th>\
+                  <th>'+tr("Group")+'</th>\
+                  <th>'+tr("Name")+'</th>\
+                  <th>'+tr("Cluster")+'</th>\
+                  <th>'+tr("Basepath")+'</th>\
+                  <th>'+tr("TM MAD")+'</th>\
+                  <th>'+tr("DS MAD")+'</th>\
+                  <th>'+tr("System")+'</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbodydatastores">\
+              </tbody>\
+            </table>\
+      </div>\
+    </fieldset>\
+              <div class="form_buttons">\
+                <button class="button" type="" value="" id="tf_btn_datastores">'+tr("DATASTOREs")+'</button>\
+              </div>\
+    </div>\
   <fieldset>\
     <div class="form_buttons">\
         <div><button class="button" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
         <button class="button" type="reset" value="reset">' + tr("Reset") + '</button></div>\
     </div>\
   </fieldset>\
-</form></div>';
+</div>';
 
 // Common utils for datatatables
   // Holds the selected items
@@ -99,7 +132,7 @@ var datastore_list_for_cluster_creation={};
 
 // Prepares the cluster creation dialog
 function setupCreateClusterDialog(){
-    dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
+
     $create_cluster_dialog = $('div#create_cluster_dialog');
     var dialog = $create_cluster_dialog;
 
@@ -111,6 +144,113 @@ function setupCreateClusterDialog(){
         height: height,
         width: 'auto'//400
     });
+
+    dataTable_cluster_hosts = $("#datatable_cluster_hosts").dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": { //exclude checkbox column
+            "aiExclude": [ 0 ]
+        },
+        "bAutoWidth":false,
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,4] },
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
+            { "sWidth": "150", "aTargets": [5,6,7,8] },
+            { "bVisible": false, "aTargets": [5,7,10,11,12]}
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+
+
+    //preload it
+    dataTable_cluster_hosts.fnClearTable();
+    addElement([
+        spinner,
+        '','','','','','','','','','','',''],dataTable_cluster_hosts);
+    Sunstone.runAction("ClusterHost.list");
+
+    setClusterHostAutorefresh();
+
+
+    dataTable_cluster_vnets = $("#datatable_cluster_vnets").dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,6,7,8] },
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "100px", "aTargets": [2,3,5] },
+            { "bVisible": false, "aTargets": [7]}
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+
+    //preload it
+    dataTable_cluster_vnets.fnClearTable();
+    addElement([
+        spinner,
+        '','','','','','','','','','','',''],dataTable_cluster_vnets);
+    Sunstone.runAction("ClusterVN.list");
+
+
+    setClusterVNetworksAutorefresh();
+
+
+    dataTable_cluster_datastores = $("#datatable_cluster_datastores").dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
+        "sPaginationType": "full_numbers",
+        "bAutoWidth":false,
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0] },
+            { "sWidth": "35px", "aTargets": [1,9] },
+            { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
+            { "bVisible": false, "aTargets": [6,7,8,9] }
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+
+    //preload it
+    dataTable_cluster_datastores.fnClearTable();
+    addElement([
+        spinner,
+        '','','','','','','','','','','',''],dataTable_cluster_datastores);
+    Sunstone.runAction("ClusterDS.list");
+
+
+    setClusterDatastoreAutorefresh();
+
+   // initCheckAllBoxes(dataTable_cluster_hosts);
+//    tableCheckboxesListener(dataTable_hosts);
+
+//    infoListener(dataTable_cluster_hosts, "Host.showinfo");
 
     // Listener for hosts datatable
     $('input:checkbox', $('#datatable_cluster_hosts')).live('change', function(){
@@ -140,8 +280,24 @@ function setupCreateClusterDialog(){
     });
 
     // Enhance buttons
-
     $('button',dialog).button();
+
+    //Enable tabs
+    $('#cluster_create_tabs',dialog).tabs({});
+
+    $("#tf_btn_vnets", dialog).click( function()
+       {
+         $("#cluster_create_tabs", dialog).tabs( "select", "tab-vnets" );
+       }
+    );
+
+    $("#tf_btn_datastores", dialog).click( function()
+       {
+         $("#cluster_create_tabs", dialog).tabs( "select", "tab-datastores" );
+       }
+    );
+
+    $("#cluster_create_tabs", dialog).tabs( "select", "tab-vnets" );
 
     // Handle the form submission
     $('#create_cluster_form',dialog).submit(function(){
@@ -1260,6 +1416,9 @@ function setClusterAutorefresh() {
 }
 
 
+
+
+
 function clusters_sel() {
     return clusters_select;
 }
@@ -1307,114 +1466,5 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_clusters);
     tableCheckboxesListener(dataTable_clusters);
     infoListener(dataTable_clusters);
-
-
-    dataTable_cluster_hosts = $("#datatable_cluster_hosts").dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
-        "oColVis": { //exclude checkbox column
-            "aiExclude": [ 0 ]
-        },
-        "bAutoWidth":false,
-        "sPaginationType": "full_numbers",
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,4] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
-            { "sWidth": "150", "aTargets": [5,6,7,8] },
-            { "bVisible": false, "aTargets": [5,7,10,11,12]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
-    });
-
-
-
-    //preload it
-    dataTable_cluster_hosts.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_hosts);
-    Sunstone.runAction("ClusterHost.list");
-
-
-    setClusterHostAutorefresh();
-
-
-    dataTable_cluster_vnets = $("#datatable_cluster_vnets").dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
-        "sPaginationType": "full_numbers",
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,6,7,8] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,5] },
-            { "bVisible": false, "aTargets": [7]}
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
-    });
-
-
-    //preload it
-    dataTable_cluster_vnets.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_vnets);
-    Sunstone.runAction("ClusterVN.list");
-
-
-    setClusterVNetworksAutorefresh();
-
-
-    dataTable_cluster_datastores = $("#datatable_cluster_datastores").dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
-        "oColVis": {
-            "aiExclude": [ 0 ]
-        },
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,9] },
-            { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
-            { "bVisible": false, "aTargets": [6,7,8,9] }
-        ],
-        "oLanguage": (datatable_lang != "") ?
-            {
-                sUrl: "locale/"+lang+"/"+datatable_lang
-            } : ""
-    });
-
-
-    //preload it
-    dataTable_cluster_datastores.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_datastores);
-    Sunstone.runAction("ClusterDS.list");
-
-
-    setClusterDatastoreAutorefresh();
-
-   // initCheckAllBoxes(dataTable_cluster_hosts);
-//    tableCheckboxesListener(dataTable_hosts);
-
-//    infoListener(dataTable_cluster_hosts, "Host.showinfo");
 
 });
