@@ -51,7 +51,7 @@ bool QuotaImage::check(Template * tmpl, Quotas& default_quotas, string& error)
         }
 
         image_id = disk->vector_value("IMAGE_ID");
-        
+
         if ( !image_id.empty() )
         {
             if ( !check_quota(image_id, image_request, default_quotas, error) )
@@ -92,7 +92,7 @@ void QuotaImage::del(Template * tmpl)
         }
 
         image_id = disk->vector_value("IMAGE_ID");
-        
+
         del_quota(image_id, image_request);
     }
 }
@@ -100,7 +100,10 @@ void QuotaImage::del(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaImage::get_default_quota(const string& id, Quotas& default_quotas, VectorAttribute **va)
+int QuotaImage::get_default_quota(
+    const string& id,
+    Quotas& default_quotas,
+    VectorAttribute **va)
 {
     return default_quotas.image_get(id, va);
 }

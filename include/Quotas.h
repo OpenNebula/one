@@ -31,10 +31,14 @@ public:
            const char * _net_xpath,
            const char * _img_xpath,
            const char * _vm_xpath):
-               ds_xpath(_ds_xpath),
-               net_xpath(_net_xpath),
-               img_xpath(_img_xpath),
-               vm_xpath(_vm_xpath)
+                datastore_quota(false),
+                network_quota(false),
+                image_quota(false),
+                vm_quota(false),
+                ds_xpath(_ds_xpath),
+                net_xpath(_net_xpath),
+                img_xpath(_img_xpath),
+                vm_xpath(_vm_xpath)
     {};
 
     virtual ~Quotas(){};
@@ -200,6 +204,26 @@ public:
     static void quota_del(QuotaType type, int uid, int gid, Template * tmpl);
 
 protected:
+    /**
+     *  This is an specialized constructor only for derived Quotas classes.
+     *  It allows to set the defaultness attribute
+     */
+    Quotas(const char * _ds_xpath,
+           const char * _net_xpath,
+           const char * _img_xpath,
+           const char * _vm_xpath,
+           bool         is_deafult):
+                datastore_quota(is_deafult),
+                network_quota(is_deafult),
+                image_quota(is_deafult),
+                vm_quota(is_deafult),
+                ds_xpath(_ds_xpath),
+                net_xpath(_net_xpath),
+                img_xpath(_img_xpath),
+                vm_xpath(_vm_xpath)
+    {};
+
+private:
     //--------------------------------------------------------------------------
     // Usage Counters and Quotas
     //--------------------------------------------------------------------------

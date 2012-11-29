@@ -92,7 +92,7 @@ void QuotaNetwork::del(Template * tmpl)
         }
 
         net_id = nic->vector_value("NETWORK_ID");
-        
+
         del_quota(net_id, net_request);
     }
 }
