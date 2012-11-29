@@ -80,7 +80,7 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float nu
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Quota::set(vector<Attribute*> * new_quotas, bool default_allowed, string& error)
+int Quota::set(vector<Attribute*> * new_quotas, string& error)
 {
     vector<Attribute *>::iterator  it;
 
@@ -108,7 +108,7 @@ int Quota::set(vector<Attribute*> * new_quotas, bool default_allowed, string& er
         {
             VectorAttribute * nq;
 
-            if ((nq = new_quota(iq, default_allowed)) == 0)
+            if ((nq = new_quota(iq)) == 0)
             {
                 goto error_limits;
             }
@@ -117,7 +117,7 @@ int Quota::set(vector<Attribute*> * new_quotas, bool default_allowed, string& er
         }
         else
         {
-            if (update_limits(tq, iq, default_allowed) != 0)
+            if (update_limits(tq, iq) != 0)
             {
                 goto error_limits;
             } 
@@ -323,7 +323,7 @@ void Quota::cleanup_quota(const string& qid)
     VectorAttribute * q;
     map<string, Attribute *>::iterator q_it;
 
-    float usage, usage_tmp, limit_tmp;
+    float usage, usage_tmp, limit_tmp, implicit_limit;
     bool  default_limit;
 
     if ( get_quota(qid, &q, q_it) == -1)
@@ -334,6 +334,15 @@ void Quota::cleanup_quota(const string& qid)
     if ( q == 0 )
     {
         return;
+    }
+
+    if ( is_default )
+    {
+        implicit_limit = 0;
+    }
+    else
+    {
+        implicit_limit = -1;
     }
 
     default_limit = true;
@@ -348,7 +357,7 @@ void Quota::cleanup_quota(const string& qid)
         q->vector_value(metrics[i],             limit_tmp);
         q->vector_value(metrics_used.c_str(),   usage_tmp);
 
-        default_limit = (default_limit && (limit_tmp == -1) );
+        default_limit = (default_limit && limit_tmp == implicit_limit );
         usage += usage_tmp;
     }
 
@@ -365,8 +374,7 @@ void Quota::cleanup_quota(const string& qid)
 
 int Quota::update_limits(
         VectorAttribute *       quota,
-        const VectorAttribute * va,
-        bool                    default_allowed)
+        const VectorAttribute * va)
 {
     string limit;
     float  limit_i;
@@ -376,9 +384,9 @@ int Quota::update_limits(
         limit = va->vector_value_str(metrics[i], limit_i);
 
         //No quota, NaN or negative
-        if ((default_allowed &&
+        if ((!is_default &&
                 ( limit_i < -1 || ( limit_i == -1 && limit == "" ))) ||
-            (!default_allowed && limit_i < 0) )
+            (is_default && limit_i < 0) )
         {
             return -1;
         }
@@ -394,7 +402,7 @@ int Quota::update_limits(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * Quota::new_quota(VectorAttribute * va, bool default_allowed)
+VectorAttribute * Quota::new_quota(VectorAttribute * va)
 {
     map<string,string> limits;
 
@@ -410,8 +418,8 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va, bool default_allowed)
         limit = va->vector_value_str(metrics[i], limit_i);
 
         //No quota, NaN or negative
-        if ( (default_allowed && limit_i < -1) ||
-             (!default_allowed && limit_i < 0) )
+        if ( (!is_default && limit_i < -1) ||
+             (is_default && limit_i < 0) )
         {
             return 0;
         }
