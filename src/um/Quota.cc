@@ -120,12 +120,12 @@ int Quota::set(vector<Attribute*> * new_quotas, string& error)
             if (update_limits(tq, iq) != 0)
             {
                 goto error_limits;
-            } 
+            }
         }
 
         cleanup_quota(id);
     }
-    
+
     return 0;
 
 error_limits:
@@ -141,16 +141,16 @@ error_limits:
 
         delete quota_str;
     }
-     
+
     error = oss.str();
 
-    return -1;        
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Quota::check_quota(const string& qid, 
+bool Quota::check_quota(const string& qid,
                         map<string, float>& usage_req,
                         Quotas& default_quotas,
                         string& error)
@@ -184,7 +184,7 @@ bool Quota::check_quota(const string& qid,
     if ( q == 0 )
     {
         map<string, string> values;
-    
+
         for (int i=0; i < num_metrics; i++)
         {
             string metrics_used = metrics[i];
@@ -211,7 +211,7 @@ bool Quota::check_quota(const string& qid,
     for (int i=0; i < num_metrics; i++)
     {
         string metrics_used = metrics[i];
-            
+
         metrics_used += "_USED";
 
         it = usage_req.find(metrics[i]);
@@ -245,7 +245,7 @@ bool Quota::check_quota(const string& qid,
             oss << "limit of " << limit << " reached for " << metrics[i]
                 << " quota in " << template_name;
 
-            if ( !qid.empty() ) 
+            if ( !qid.empty() )
             {
                 oss << " with ID: " << qid;
             }
@@ -262,7 +262,7 @@ bool Quota::check_quota(const string& qid,
     for (int i=0; i < num_metrics; i++)
     {
         string metrics_used = metrics[i];
-            
+
         metrics_used += "_USED";
 
         it = usage_req.find(metrics[i]);
@@ -294,12 +294,12 @@ void Quota::del_quota(const string& qid, map<string, float>& usage_req)
     if ( q == 0 )
     {
         return;
-    } 
+    }
 
     for (int i=0; i < num_metrics; i++)
     {
         string metrics_used = metrics[i];
-            
+
         metrics_used += "_USED";
 
         it = usage_req.find(metrics[i]);
@@ -323,8 +323,7 @@ void Quota::cleanup_quota(const string& qid)
     VectorAttribute * q;
     map<string, Attribute *>::iterator q_it;
 
-    float usage, usage_tmp, limit_tmp, implicit_limit;
-    bool  default_limit;
+    float usage, limit, implicit_limit;
 
     if ( get_quota(qid, &q, q_it) == -1)
     {
@@ -345,28 +344,24 @@ void Quota::cleanup_quota(const string& qid)
         implicit_limit = -1;
     }
 
-    default_limit = true;
-    usage = 0;
-
     for (int i=0; i < num_metrics; i++)
     {
         string metrics_used = metrics[i];
 
         metrics_used += "_USED";
 
-        q->vector_value(metrics[i],             limit_tmp);
-        q->vector_value(metrics_used.c_str(),   usage_tmp);
+        q->vector_value(metrics[i], limit);
+        q->vector_value(metrics_used.c_str(), usage);
 
-        default_limit = (default_limit && limit_tmp == implicit_limit );
-        usage += usage_tmp;
+        if ( usage != 0 || limit != implicit_limit )
+        {
+            return;
+        }
     }
 
-    if ( usage == 0 && default_limit )
-    {
-        delete static_cast<Attribute *>(q_it->second);
+    delete static_cast<Attribute *>(q_it->second);
 
-        attributes.erase(q_it);
-    }
+    attributes.erase(q_it);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -395,7 +390,7 @@ int Quota::update_limits(
             quota->replace(metrics[i], limit);
         }
     }
-    
+
     return 0;
 }
 
@@ -412,7 +407,7 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
     for (int i=0; i < num_metrics; i++)
     {
         string metrics_used = metrics[i];
-            
+
         metrics_used += "_USED";
 
         limit = va->vector_value_str(metrics[i], limit_i);
