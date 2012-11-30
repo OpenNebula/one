@@ -331,10 +331,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Disk type and source for the image ----
 
-        if (type.empty() == false)
-        {
-            transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-        }
+        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
         if ( type == "BLOCK" )
         {
@@ -532,13 +529,10 @@ int LibVirtDriver::deployment_description_kvm(
             passwd = graphics->vector_value("PASSWD");
             keymap = graphics->vector_value("KEYMAP");
 
-            if (type.empty() != false)
-            {
-                transform(type.begin(),
-                          type.end(),
-                          type.begin(),
-                          (int(*)(int))tolower);
-            }
+            transform(type.begin(),
+                      type.end(),
+                      type.begin(),
+                      (int(*)(int))tolower);
 
             if ( type == "vnc" || type == "spice" )
             {

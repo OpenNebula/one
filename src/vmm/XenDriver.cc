@@ -245,10 +245,7 @@ int XenDriver::deployment_description(
             goto error_disk;
         }
 
-        if (type.empty() == false)
-        {
-            transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-        }
+        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
         mode = "w";
 

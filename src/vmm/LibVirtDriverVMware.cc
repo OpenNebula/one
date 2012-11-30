@@ -211,10 +211,7 @@ int LibVirtDriver::deployment_description_vmware(
             }
         }
 
-        if (type.empty() == false)
-        {
-            transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-        }
+        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
         // ---- Disk type and source for the image ----
 
