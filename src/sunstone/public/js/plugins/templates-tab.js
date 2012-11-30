@@ -92,19 +92,13 @@ var create_template_tmpl = '<div id="template_create_tabs">'+
     '<ul>'+
         '<li class="temp_tab"><a href="#tab-capacity">'+tr("CAPACITY")+'</a></li>'+
         '<li class="temp_tab"><a href="#">'+tr("DISKs")+'</a></li>'+
-        '<li class="temp_tab"><<a href="#" class="button" type="" value="" id="tf_btn_disks">'+tr("Add disk")+'</button></li>'+
-        '<li class="temp_tab"><a href="#tab-nics">'+tr("NETWORKs")+'</a></li>'+
+        '<li class="temp_tab"><a href="#" class="button" type="" value="" id="tf_btn_disks">'+tr("Add disk")+'</a></li>'+
+        '<li class="temp_tab"><a href="#">'+tr("NETWORKs")+'</a></li>'+
+        '<li class="temp_tab"><a href="#" class="button tf_btn_nics" type="" value="">'+tr("Add nic")+'</a></li>'+
+
     '</ul>'+
     '<div id="tab-capacity">'+
       capacity_tab +
-    '</div>'+
-    '<div id="tab-nics">'+
-        '<p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>'+
-        '<fieldset>'+
-          '<div class="form_buttons">'+
-            '<button class="button" type="" value="" id="tf_btn_addnic">'+tr("Add NIC")+'</button>'+
-          '</div>'+
-        '</fieldset>'+
     '</div>'+
 '</div>'+
     '<fieldset>'+
@@ -1237,7 +1231,7 @@ function setupCreateTemplateDialog(){
     //values to the template JSON.
     var addSectionJSON = function(template_json,context){
         var params= $('.vm_param',context);
-        var inputs= $('input:enabled',params);
+        var inputs= $('input',params);
         var selects = $('select:enabled',params);
         var fields = $.merge(inputs,selects);
 
@@ -1327,102 +1321,18 @@ function setupCreateTemplateDialog(){
             });
     };
 
-    var number_of_disks = 0;
-    var disks_index     = 1;
+    /**************************************************************************
+        CAPACITY TAB
 
-    function updateTemplateImages(request, images_list){
-        var image_list_array = [];
-
-        $.each(images_list,function(){
-           image_list_array.push(imageElementArray(this));
-        });
-
-        updateView(image_list_array, dataTable_template_images);
-    }
-
-    var add_disk_tab = function(){
-      number_of_disks++;
-      disks_index++;
-      create_disk_tab(number_of_disks, disks_index);
-    }
-
-    var create_disk_tab = function(disk_id, disk_tab_index) {
-      var disk_tab_id    = 'disk' + disk_id;
-      var datatable_id   = 'datatable_template_images' + disk_id;
-      var button_id      = 'tf_btn_adddisk' + disk_id;
-
-      var tab_content = '<div id="'+disk_tab_id+'">'+
-          '<table id="'+datatable_id+'" class="display">'+
-            '<thead>'+
-              '<tr>'+
-                '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
-                '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Owner")+'</th>'+
-                '<th>'+tr("Group")+'</th>'+
-                '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Datastore")+'</th>'+
-                '<th>'+tr("Size")+'</th>'+
-                '<th>'+tr("Type")+'</th>'+
-                '<th>'+tr("Registration time")+'</th>'+
-                '<th>'+tr("Persistent")+'</th>'+
-                '<th>'+tr("Status")+'</th>'+
-                '<th>'+tr("#VMS")+'</th>'+
-                '<th>'+tr("Target")+'</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody id="tbodyimages">'+
-            '</tbody>'+
-          '</table>'+
-          '<fieldset>'+
-                '<div class="form_buttons">'+
-                  '<button class="button" type="" value="" id="'+button_id+'">'+tr("Add disk")+'</button>'+
-                '</div>'+
-          '</fieldset>'+
-        '</div>'
-
-      tabs.append(tab_content).tabs('add', '#'+disk_tab_id, disk_tab_id, disk_tab_index); 
-      tabs.tabs( "select", disk_tab_index);
-      
-      dataTable_template_images = $('#'+datatable_id, dialog).dataTable({
-          "bJQueryUI": true,
-          "bSortClasses": false,
-          "bAutoWidth":false,
-          "sDom" : '<"H"lfrC>t<"F"ip>',
-          "oColVis": {
-              "aiExclude": [ 0 ]
-          },
-          "sPaginationType": "full_numbers",
-          "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check"] },
-              { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
-              { "sWidth": "35px", "aTargets": [1,6,11,12] },
-              { "sWidth": "100px", "aTargets": [5,7] },
-              { "sWidth": "150px", "aTargets": [8] },
-              { "bVisible": false, "aTargets": [2,3,6,7,9,8,12]}
-          ],
-          "oLanguage": (datatable_lang != "") ?
-              {
-                  sUrl: "locale/"+lang+"/"+datatable_lang
-              } : ""
-      });
-
-      dataTable_template_images.fnClearTable();
-      addElement([spinner,'','','','','','','','','','','',''],dataTable_template_images);
-
-      OpenNebula.Image.list({
-        timeout: true, 
-        success: updateTemplateImages, 
-        error: onError
-      });
-
-      $('#'+button_id, dialog).click(add_disk_tab);
-    }
+    **************************************************************************/
 
     // Set ups the capacity section
     var capacity_setup = function(){
         $(function() {
             // Change tab if the DISKs button is clicked
             $("#tf_btn_disks", dialog).click(add_disk_tab);
+            $(".tf_btn_nics", dialog).click(add_nic_tab);
+            $(".tf_btn_nics").live('click', add_nic_tab);
 
             // Hide advanced options
             $('fieldset.advanced',section_capacity).hide();
@@ -1500,6 +1410,270 @@ function setupCreateTemplateDialog(){
             });
         });
     }
+
+    /**************************************************************************
+        DISK TAB
+
+    **************************************************************************/
+
+    var number_of_disks = 0;
+    var disks_index     = 1;
+
+    var add_disk_tab = function() {
+      number_of_disks++;
+      disks_index++;
+
+      var str_disk_tab_id  = 'disk' + number_of_disks;
+      var str_datatable_id = 'datatable_template_images' + number_of_disks;
+
+      var html_tab_content = '<div id="'+str_disk_tab_id+'" class="disk">'+
+          '<table id="'+str_datatable_id+'" class="display">'+
+            '<thead>'+
+              '<tr>'+
+                '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
+                '<th>'+tr("ID")+'</th>'+
+                '<th>'+tr("Owner")+'</th>'+
+                '<th>'+tr("Group")+'</th>'+
+                '<th>'+tr("Name")+'</th>'+
+                '<th>'+tr("Datastore")+'</th>'+
+                '<th>'+tr("Size")+'</th>'+
+                '<th>'+tr("Type")+'</th>'+
+                '<th>'+tr("Registration time")+'</th>'+
+                '<th>'+tr("Persistent")+'</th>'+
+                '<th>'+tr("Status")+'</th>'+
+                '<th>'+tr("#VMS")+'</th>'+
+                '<th>'+tr("Target")+'</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody id="tbodyimages">'+
+            '</tbody>'+
+          '</table>'+
+          '<fieldset>'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+              '<p>You selected the following image: '+
+                '<span type="text" id="IMAGE" name="image"></span>'+
+                '</p>'+
+              '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
+              '</div>'+
+          '</fieldset>'+
+                 '<div class="show_hide" id="advanced_capacity">'+
+            '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
+       '</div>'+
+    '<fieldset class="advanced">'+
+      '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+            '<label for="TARGET">'+tr("TARGET")+':</label>'+
+            '<input type="text" id="TARGET" name="target" size="3" />'+
+            '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>'+
+      '</div>'+
+    '</fieldset>'+
+                '<div class="form_buttons">'+
+                  '<button class="button tf_btn_nics" type="" value="">'+tr("NETWORKs")+'</button>'+
+                '</div>'+
+        '</div>'
+
+      // Append the new div containing the tab and add the tab to the list
+      tabs.append(html_tab_content).tabs('add', '#'+str_disk_tab_id, str_disk_tab_id, disks_index); 
+      tabs.tabs( "select", disks_index);
+      
+      var dataTable_template_images = $('#'+str_datatable_id, dialog).dataTable({
+          "bJQueryUI": true,
+          "bSortClasses": false,
+          "bAutoWidth":false,
+          "sDom" : '<"H"lfrC>t<"F"ip>',
+          "oColVis": {
+              "aiExclude": [ 0 ]
+          },
+          "sPaginationType": "full_numbers",
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": ["check"] },
+              { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
+              { "sWidth": "35px", "aTargets": [1,6,11,12] },
+              { "sWidth": "100px", "aTargets": [5,7] },
+              { "sWidth": "150px", "aTargets": [8] },
+              { "bVisible": false, "aTargets": [0,2,3,6,7,9,8,12]}
+          ],
+          "oLanguage": (datatable_lang != "") ?
+              {
+                  sUrl: "locale/"+lang+"/"+datatable_lang
+              } : ""
+      });
+
+      dataTable_template_images.fnClearTable();
+      addElement([spinner,'','','','','','','','','','','',''],dataTable_template_images);
+
+      // Retrieve the images to fill the datatable
+      OpenNebula.Image.list({
+        timeout: true, 
+        success: function (request, images_list){
+            var image_list_array = [];
+
+            $.each(images_list,function(){
+               image_list_array.push(imageElementArray(this));
+            });
+
+            updateView(image_list_array, dataTable_template_images);
+        }, 
+        error: onError
+      });
+
+      // TBD Add refresh button for the datatable
+
+      // When a row is selected the background color is updated. If a previous row
+      // was selected (previous_row) the background color is removed.
+      // #IMAGE and #IMAGE_ID inputs are updated using the row information
+      if (typeof previous_row === 'undefined') {
+          var previous_row = 0;
+      }
+      
+      $('#'+str_datatable_id + '  tbody', dialog).delegate("tr", "click", function(e){
+          if ($(e.target).is('input') ||
+              $(e.target).is('select') ||
+              $(e.target).is('option')) return true;
+
+          var aData = dataTable_template_images.fnGetData(this);
+
+          if (previous_row)
+              $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
+          previous_row = this;
+          $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+          
+          $('#IMAGE', $('div#' + str_disk_tab_id)).text(aData[4]);
+          $('#IMAGE_ID', $('div#' + str_disk_tab_id)).val(aData[1]);
+          return false;
+      });
+
+      // Hide advanced options
+      $('fieldset.advanced', $('div#' + str_disk_tab_id)).hide();
+
+      $('#advanced_capacity', $('div#' + str_disk_tab_id)).click(function(){
+          $('fieldset.advanced', $('div#' + str_disk_tab_id)).toggle();
+          return false;
+      });
+
+      setupTips($('div#' + str_disk_tab_id));
+      $('button',$('div#' + str_disk_tab_id)).button();
+    }
+
+    /**************************************************************************
+        NETWORK TAB
+        
+    **************************************************************************/
+
+    var number_of_nics = 0;
+    var nics_index     = 2;
+
+    var add_nic_tab = function() {
+      number_of_nics++;
+      nics_index++;
+      console.log('a'+number_of_nics);
+      console.log('b'+nics_index);
+      var temp_index = disks_index+nics_index;
+
+      var str_nic_tab_id  = 'nic' + number_of_nics;
+      var str_datatable_id = 'datatable_template_networks' + number_of_nics;
+
+      var html_tab_content = '<div id="'+str_nic_tab_id+'" class="nic">'+
+          '<table id="'+str_datatable_id+'" class="display">'+
+            '<thead>'+
+              '<tr>'+
+                '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
+                '<th>'+tr("ID")+'</th>'+
+                '<th>'+tr("Owner")+'</th>'+
+                '<th>'+tr("Group")+'</th>'+
+                '<th>'+tr("Name")+'</th>'+
+                '<th>'+tr("Cluster")+'</th>'+
+                '<th>'+tr("Type")+'</th>'+
+                '<th>'+tr("Bridge")+'</th>'+
+                '<th>'+tr("Total Leases")+'</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody id="tbodynetworks">'+
+            '</tbody>'+
+          '</table>'+
+          '<fieldset>'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+              '<p>You selected the following image: '+
+                '<span type="text" id="NETWORK" name="network"></span>'+
+                '</p>'+
+              '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+              '</div>'+
+                '<div class="form_buttons">'+
+                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
+                '</div>'+
+          '</fieldset>'+
+        '</div>'
+
+      // Append the new div containing the tab and add the tab to the list
+      tabs.append(html_tab_content).tabs('add', '#'+str_nic_tab_id, str_nic_tab_id, temp_index); 
+      tabs.tabs( "select", temp_index);
+      
+      var dataTable_template_networks = $('#'+str_datatable_id, dialog).dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,6,7,8] },
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "100px", "aTargets": [2,3,5] },
+            { "bVisible": false, "aTargets": [7]}
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+      });
+
+      dataTable_template_networks.fnClearTable();
+      addElement([spinner,'','','','','','','',''],dataTable_template_networks);
+
+      // Retrieve the networks to fill the datatable
+      OpenNebula.Network.list({
+        timeout: true, 
+        success: function (request, networks_list){
+            var network_list_array = [];
+
+            $.each(networks_list,function(){
+               network_list_array.push(vNetworkElementArray(this));
+            });
+
+            updateView(network_list_array, dataTable_template_networks);
+        }, 
+        error: onError
+      });
+
+      // TBD Add refresh button for the datatable
+
+      // When a row is selected the background color is updated. If a previous row
+      // was selected (previous_row) the background color is removed.
+      // #IMAGE and #IMAGE_ID inputs are updated using the row information
+      if (typeof previous_row === 'undefined') {
+          var previous_row = 0;
+      }
+      
+      $('#'+str_datatable_id + '  tbody', dialog).delegate("tr", "click", function(e){
+          if ($(e.target).is('input') ||
+              $(e.target).is('select') ||
+              $(e.target).is('option')) return true;
+
+          var aData = dataTable_template_networks.fnGetData(this);
+
+          if (previous_row)
+              $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
+          previous_row = this;
+          $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+          
+          $('#NETWORK', $('div#' + str_nic_tab_id)).text(aData[4]);
+          $('#NETWORK_ID', $('div#' + str_nic_tab_id)).val(aData[1]);
+          return false;
+      });
+    }
+
 
     //Sets up the OS_BOOT section
     var os_boot_setup = function(){
@@ -1969,11 +2143,7 @@ function setupCreateTemplateDialog(){
     //Insert HTML in place
     dialog.html(create_template_tmpl);
 
-    //Enable tabs
-    $('#template_create_tabs',dialog).tabs({
-        //select:vmTabChange
-    });
-    $('#template_create_tabs',dialog).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
+
 
     //Prepare jquery dialog
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
@@ -1987,48 +2157,28 @@ function setupCreateTemplateDialog(){
     // Enhace buttons
     $('button',dialog).button();
 
-    $("#tf_btn_adddisk", dialog).click( function(){
-         addDiskTab();
-    });
-
-    $("#tf_btn_addnic", dialog).click( function(){
-         addNicTab();
-    });
-
-
-
-    var number_of_nics = 0;
-    var nics_index     = 0;
-
-    var tabs = $( "#template_create_tabs").tabs({
+    var tabs = $( "#template_create_tabs", dialog).tabs({
         tabTemplate: "<li class='temp_tab'><a href='#{href}'>#{label}</a> <span class='ui-icon ui-icon-close'>Remove Tab</span></li>"
-    });
+    }).addClass( "ui-tabs-vertical ui-helper-clearfix" );
 
     // close icon: removing the tab on click
     // note: closable tabs gonna be an option in the future - see http://dev.jqueryui.com/ticket/3924
     $( "#template_create_tabs span.ui-icon-close" ).live( "click", function() {
-        var index = $( "li.temp_tab", tabs ).index( $( this ).parent() );
-        tabs.tabs( "remove", index );
-        if (index > disks_index+1 ) {
+        var parent = $( this ).parent();
+        var index = $( "li.temp_tab", tabs ).index( parent );
+        
+        $('div#'+$('a', parent).text()).remove();
+
+        if (index > disks_index ) {
           nics_index--;
+          tabs.tabs( "select", (disks_index+nics_index));
         } else {
           disks_index--;
+          tabs.tabs( "select", disks_index);
         }
         
+        tabs.tabs( "remove", index );
     });
-
-    // actual addTab function: adds new tab using the input from the form above
-    function addDiskTab() {
-
-    };
-
-    function addNicTab() {
-        index = tabs.tabs('option', 'selected');
-        number_of_nics++;
-        nics_index++;
-
-        tabs.tabs('add', '#nic'+number_of_nics, 'nic'+number_of_nics, index+nics_index); 
-    };
 
 
     // Re-Setup tips
@@ -2041,7 +2191,7 @@ function setupCreateTemplateDialog(){
     var section_capacity = $('div#tab-capacity',dialog);
     var section_os_boot = $('div#os_boot_opts',dialog);
     var section_features = $('div#features',dialog);
-    var section_disks = $('div#disks',dialog);
+    var section_disks = $('div#disk1',dialog);
     var section_networks = $('div#networks',dialog);
     var section_inputs = $('div#inputs',dialog);
     var section_graphics = $('div#graphics',dialog);
@@ -2123,9 +2273,23 @@ function setupCreateTemplateDialog(){
         //addSectionJSON(vm_json["FEATURES"],scope);
 //
         ////process disks -> fetch from box
-        //scope = section_disks;
-        //vm_json["DISK"] = addBoxJSON(scope,'#disks_box');
-//
+        vm_json["DISK"] = [];
+
+        $('div.disk',dialog).each(function(){
+          var hash  = {};
+          addSectionJSON(hash, this);
+          vm_json["DISK"].push(hash);
+        });
+
+        vm_json["NIC"] = [];
+
+        $('div.nic',dialog).each(function(){
+          var hash  = {};
+          addSectionJSON(hash, this);
+          vm_json["NIC"].push(hash);
+        });
+
+        console.log(vm_json)
         ////process nics -> fetch from box
         //scope = section_networks;
         //vm_json["NIC"] = addBoxJSON(scope,'#nics_box');
