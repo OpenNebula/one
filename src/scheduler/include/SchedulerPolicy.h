@@ -43,7 +43,7 @@ public:
 
         policy(vm);
 
-        if(priority.empty()!=true)
+        if(!priority.empty())
         {
             sw.max = fabs(*max_element(
                 priority.begin(),
