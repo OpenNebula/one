@@ -17,14 +17,7 @@
 #include "DefaultQuotas.h"
 #include "ObjectXML.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const char * DefaultQuotas::table    = "system_attributes";
-const char * DefaultQuotas::db_names = "name, body";
-
-const char * DefaultQuotas::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
-        " system_attributes (name VARCHAR(128) PRIMARY KEY, body TEXT)";
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -61,84 +54,39 @@ int DefaultQuotas::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DefaultQuotas::select(SqlDB *db)
+int DefaultQuotas::select()
 {
-    ostringstream oss;
+    string  xml_body;
+    Nebula& nd  = Nebula::instance();
 
-    int rc;
-
-    set_callback(
-            static_cast<Callbackable::Callback>(&DefaultQuotas::select_cb));
-
-    oss << "SELECT body FROM " << table << " WHERE name = '" << root_elem << "'";
-
-    rc = db->exec(oss, this);
-
-    unset_callback();
-
-    if (rc != 0)
+    if ( nd.select_sys_attribute(root_elem, xml_body) != 0 )
     {
         return -1;
     }
 
-    return 0;
+    return from_xml(xml_body);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DefaultQuotas::insert_replace(SqlDB *db, bool replace, string& error_str)
+int DefaultQuotas::insert()
 {
-    ostringstream   oss;
+    string  xml_body;
+    string  error;
+    Nebula& nd  = Nebula::instance();
 
-    int    rc;
-    string xml_body;
-
-    char * sql_xml;
-
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
-
-    if ( sql_xml == 0 )
-    {
-        goto error_body;
-    }
-
-    if ( ObjectXML::validate_xml(sql_xml) != 0 )
-    {
-        goto error_xml;
-    }
-
-    if ( replace )
-    {
-        oss << "REPLACE";
-    }
-    else
-    {
-        oss << "INSERT";
-    }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        << "'" <<   root_elem            << "',"
-        << "'" <<   sql_xml             << "')";
-
-    rc = db->exec(oss);
-
-    db->free_str(sql_xml);
-
-    return rc;
-
-error_xml:
-    db->free_str(sql_xml);
-
-    error_str = "Error transforming the Quotas to XML.";
-    return -1;
-
-error_body:
-    error_str = "Error inserting Quotas in DB.";
-    return -1;
+    return nd.insert_sys_attribute(root_elem, to_xml(xml_body), error);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int DefaultQuotas::update()
+{
+    string  xml_body;
+    string  error;
+    Nebula& nd  = Nebula::instance();
+
+    return nd.update_sys_attribute(root_elem, to_xml(xml_body), error);
+}

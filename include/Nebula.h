@@ -18,6 +18,7 @@
 #define NEBULA_H_
 
 #include "SqlDB.h"
+#include "SystemDB.h"
 
 #include "NebulaTemplate.h"
 
@@ -46,7 +47,13 @@
 
 #include "Callbackable.h"
 
-class Nebula : public Callbackable
+
+/**
+ *  This is the main class for the OpenNebula daemon oned. It stores references
+ *  to the main modules and data pools. It also includes functions to bootstrap
+ *  the system and start all its components.
+ */
+class Nebula
 {
 public:
 
@@ -325,7 +332,7 @@ public:
 
         if ( rc == 0 )
         {
-            rc = default_user_quota.update(db);
+            rc = default_user_quota.update();
         }
 
         return rc;
@@ -343,10 +350,50 @@ public:
 
         if ( rc == 0 )
         {
-            rc = default_group_quota.update(db);
+            rc = default_group_quota.update();
         }
 
         return rc;
+    };
+
+    // -----------------------------------------------------------------------
+    // System attributes
+    // -----------------------------------------------------------------------
+    /**
+     *  Reads a System attribute from the DB
+     *    @param attr_name name of the attribute
+     *    @param cb Callback that will receive the attribute in XML
+     *    @return 0 on success
+     */
+    int select_sys_attribute(const string& attr_name, string& attr_xml)
+    {
+        return system_db->select_sys_attribute(attr_name, attr_xml);
+    };
+
+    /**
+     *  Writes a system attribute in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int insert_sys_attribute(
+        const string& attr_name,
+        const string& xml_attr,
+        string&       error_str)
+    {
+        return system_db->insert_sys_attribute(attr_name, xml_attr, error_str);
+    };
+
+    /**
+     *  Updates the system attribute in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update_sys_attribute(
+        const string& attr_name,
+        const string& xml_attr,
+        string&       error_str)
+    {
+        return system_db->update_sys_attribute(attr_name, xml_attr, error_str);
     };
 
 private:
@@ -366,9 +413,10 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
-        db(0),vmpool(0),hpool(0),vnpool(0),
-        upool(0),ipool(0),gpool(0),tpool(0),dspool(0),clpool(0),docpool(0),
-        lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0),aclm(0),imagem(0)
+        system_db(0), db(0), vmpool(0), hpool(0), vnpool(0),
+        upool(0), ipool(0), gpool(0), tpool(0), dspool(0), clpool(0),
+        docpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
+        aclm(0), imagem(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -514,6 +562,11 @@ private:
         {
             delete db;
         }
+
+        if ( system_db != 0 )
+        {
+            delete system_db;
+        }
     };
 
     Nebula& operator=(Nebula const&){return *this;};
@@ -539,7 +592,7 @@ private:
     // Configuration
     // ---------------------------------------------------------------
 
-    OpenNebulaTemplate *    nebula_configuration;
+    OpenNebulaTemplate * nebula_configuration;
 
     // ---------------------------------------------------------------
     // Default quotas
@@ -548,6 +601,11 @@ private:
     DefaultQuotas default_user_quota;
     DefaultQuotas default_group_quota;
 
+    // ---------------------------------------------------------------
+    // The system database
+    // ---------------------------------------------------------------
+
+    SystemDB * system_db;
 
     // ---------------------------------------------------------------
     // Nebula Pools
@@ -585,34 +643,6 @@ private:
     // ---------------------------------------------------------------
 
     friend void nebula_signal_handler (int sig);
-
-    /**
-     *  Bootstraps the database control tables
-     *
-     *    @return 0 on success
-     */
-    int bootstrap();
-
-    /**
-     *  Callback function for the check_db_version method. Stores the read
-     *  version in loaded_db_version
-     *    @param _loaded_db_version returned columns
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void *_loaded_db_version, int num, char **values,
-                  char **names);
-
-    /**
-     * Reads the current DB version.
-     *
-     * @return  0 on success,
-     *          -1 if there is a version mismatch,
-     *          -2 if the DB needs a bootstrap
-     */
-    int check_db_version();
 };
 
 #endif /*NEBULA_H_*/
