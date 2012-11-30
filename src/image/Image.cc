@@ -545,6 +545,9 @@ int Image::disk_attribute(  VectorAttribute * disk,
           disk_attr_type = "CDROM";
           disk->replace("READONLY","YES");
         break;
+
+        default: //Other file types should not be never a DISK
+        break;
     }
 
     disk->replace("TYPE",disk_attr_type);

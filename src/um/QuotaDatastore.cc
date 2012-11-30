@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "QuotaDatastore.h"
+#include "Quotas.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -26,7 +27,7 @@ const int QuotaDatastore::NUM_DS_METRICS  = 2;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaDatastore::check(Template * tmpl,  string& error)
+bool QuotaDatastore::check(Template * tmpl, Quotas& default_quotas, string& error)
 {
     map<string, float> ds_request;
 
@@ -49,8 +50,8 @@ bool QuotaDatastore::check(Template * tmpl,  string& error)
 
     ds_request.insert(make_pair("IMAGES",1));
     ds_request.insert(make_pair("SIZE",  size));
-    
-    return check_quota(ds_id, ds_request, error);
+
+    return check_quota(ds_id, ds_request, default_quotas, error);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -79,6 +80,17 @@ void QuotaDatastore::del(Template * tmpl)
     ds_request.insert(make_pair("SIZE",  size));
 
     del_quota(ds_id, ds_request);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int QuotaDatastore::get_default_quota(
+        const string& id,
+        Quotas& default_quotas,
+        VectorAttribute **va)
+{
+    return default_quotas.ds_get(id, va);
 }
 
 /* -------------------------------------------------------------------------- */

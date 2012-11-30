@@ -48,6 +48,7 @@ require 'OpenNebula/Cluster'
 require 'OpenNebula/ClusterPool'
 require 'OpenNebula/Document'
 require 'OpenNebula/DocumentPool'
+require 'OpenNebula/System'
 
 module OpenNebula
 

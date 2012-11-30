@@ -36,23 +36,26 @@
 class QuotaVirtualMachine :  public Quota
 {
 public:
-    
-    QuotaVirtualMachine():Quota("VM_QUOTA",
-                                "VM",
-                                VM_METRICS, 
-                                NUM_VM_METRICS)
+
+    QuotaVirtualMachine(bool is_default):
+        Quota("VM_QUOTA",
+              "VM",
+              VM_METRICS,
+              NUM_VM_METRICS,
+              is_default)
     {};
 
     ~QuotaVirtualMachine(){};
 
     /**
-     *  Check if the resource allocation will exceed the quota limits. If not 
+     *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated
      *    @param tmpl template for the resource
-     *    @param error string 
+     *    @param default_quotas Quotas that contain the default limits
+     *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl,  string& error);
+    bool check(Template* tmpl, Quotas& default_quotas, string& error);
 
     /**
      *  Decrement usage counters when deallocating image
@@ -60,7 +63,6 @@ public:
      */
     void del(Template* tmpl);
 
-protected:
     /**
      *  Gets a quota, overrides base to not to use ID.
      *    @param id of the quota, ignored
@@ -69,6 +71,8 @@ protected:
      *    @return a pointer to the quota or 0 if not found
      */
     int get_quota(const string& id, VectorAttribute **va);
+
+protected:
 
     /**
      * Gets a quota, overrides base to not to use ID.
@@ -87,6 +91,20 @@ protected:
         it = attributes.begin();
         return get_quota(id, va);
     }
+
+    /**
+     * Gets the default quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param default_quotas Quotas that contain the default limits
+     *    @param va The quota, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int get_default_quota(
+        const string& id,
+        Quotas& default_quotas,
+        VectorAttribute **va);
 
     static const char * VM_METRICS[];
 

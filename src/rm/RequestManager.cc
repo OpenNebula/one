@@ -368,6 +368,12 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr system_version(new SystemVersion());
     xmlrpc_c::methodPtr system_config(new SystemConfig());
 
+    xmlrpc_c::methodPtr user_get_default_quota(new UserQuotaInfo());
+    xmlrpc_c::methodPtr user_set_default_quota(new UserQuotaUpdate());
+
+    xmlrpc_c::methodPtr group_get_default_quota(new GroupQuotaInfo());
+    xmlrpc_c::methodPtr group_set_default_quota(new GroupQuotaUpdate());
+
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
@@ -416,6 +422,9 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 
+    RequestManagerRegistry.addMethod("one.groupquota.info", group_get_default_quota);
+    RequestManagerRegistry.addMethod("one.groupquota.update", group_set_default_quota);
+
     /* Network related methods*/
     RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
     RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
@@ -441,6 +450,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.quota", user_set_quota);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
+
+    RequestManagerRegistry.addMethod("one.userquota.info", user_get_default_quota);
+    RequestManagerRegistry.addMethod("one.userquota.update", user_set_default_quota);
     
     /* Image related methods*/
     RequestManagerRegistry.addMethod("one.image.persistent", image_persistent);
@@ -500,8 +512,6 @@ void RequestManager::register_xml_methods()
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
     RequestManagerRegistry.addMethod("one.system.config", system_config);
-
-
 };
 
 /* -------------------------------------------------------------------------- */
