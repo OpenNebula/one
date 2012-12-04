@@ -641,11 +641,19 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-    if ( type == Image::DATAFILE )
+    switch (type)
     {
-        failure_response(INTERNAL,
-                request_error("Cannot save_as image of type FILE", ""),
-                att);
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+        break;
+
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            failure_response(INTERNAL,
+                    request_error("Cannot save_as image of type FILE", ""),
+                    att);
         return;
     }
 

@@ -52,13 +52,15 @@ module OpenNebula
             "USED_PERS" => "used"
         }
 
-        IMAGE_TYPES=%w{OS CDROM DATABLOCK FILE}
+        IMAGE_TYPES=%w{OS CDROM DATABLOCK KERNEL RAMDISK CONTEXT}
 
         SHORT_IMAGE_TYPES={
             "OS"        => "OS",
             "CDROM"     => "CD",
             "DATABLOCK" => "DB",
-            "FILE"      => "FL"
+            "KERNEL"    => "KL",
+            "RAMDISK"   => "RD",
+            "CONTEXT"   => "CX"
         }
 
         # Creates an Image description with just its identifier

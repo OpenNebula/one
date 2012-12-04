@@ -138,14 +138,6 @@ int get_image_path(VirtualMachine * vm,
 
     img->get_permissions(perm);
 
-    if ( img->get_type() != Image::DATAFILE )
-    {
-        error_str = "FILE variables must use images of type FILE.";
-        img->unlock();
-
-        return -1;
-    }
-
     img->unlock();
 
     AuthRequest ar(vm->get_uid(), vm->get_gid());
