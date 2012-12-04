@@ -386,8 +386,8 @@ void VirtualMachineManagerDriver::protocol(
 
             int             cpu    = -1;
             int             memory = -1;
-            int             net_tx = -1;
-            int             net_rx = -1;
+            long long       net_tx = -1;
+            long long       net_rx = -1;
             char            state  = '-';
 
             string monitor_str = is.str();
