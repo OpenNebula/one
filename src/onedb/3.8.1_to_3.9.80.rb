@@ -112,6 +112,87 @@ module Migrator
         @db.run("DROP TABLE image_pool")
         @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
 
+
+        ########################################################################
+        # Feature #1611: Default quotas
+        ########################################################################
+
+        @db.run("CREATE TABLE IF NOT EXISTS system_attributes (name VARCHAR(128) PRIMARY KEY, body TEXT)")
+        @db.run("INSERT INTO system_attributes VALUES('DEFAULT_GROUP_QUOTAS','<DEFAULT_GROUP_QUOTAS><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></DEFAULT_GROUP_QUOTAS>');")
+        @db.run("INSERT INTO system_attributes VALUES('DEFAULT_USER_QUOTAS','<DEFAULT_USER_QUOTAS><DATASTORE_QUOTA></DATASTORE_QUOTA><NETWORK_QUOTA></NETWORK_QUOTA><VM_QUOTA></VM_QUOTA><IMAGE_QUOTA></IMAGE_QUOTA></DEFAULT_USER_QUOTAS>');")
+
+
+        @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
+        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        # oneadmin does not have quotas
+        @db.fetch("SELECT * FROM old_user_pool WHERE oid=0") do |row|
+            @db[:user_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => row[:body],
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
+            doc = Document.new(row[:body])
+
+            set_default_quotas(doc)
+
+            @db[:user_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_user_pool;"
+
+
+        @db.run "ALTER TABLE group_pool RENAME TO old_group_pool;"
+        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+
+        # oneadmin group does not have quotas
+        @db.fetch("SELECT * FROM old_group_pool WHERE oid=0") do |row|
+            @db[:group_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => row[:body],
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
+            doc = Document.new(row[:body])
+
+            set_default_quotas(doc)
+
+            @db[:group_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:oid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_group_pool;"
+
+
         ########################################################################
         #
         # Banner for the new /var/lib/one/vms directory
@@ -129,5 +210,45 @@ module Migrator
         END
 
         return true
+    end
+
+
+    def set_default_quotas(doc)
+
+        # VM quotas
+
+        doc.root.each_element("VM_QUOTA/VM/CPU") do |e|
+            e.text = "-1" if e.text.to_f == 0
+        end
+
+        doc.root.each_element("VM_QUOTA/VM/MEMORY") do |e|
+            e.text = "-1" if e.text.to_i == 0
+        end
+
+        doc.root.each_element("VM_QUOTA/VM/VMS") do |e|
+            e.text = "-1" if e.text.to_i == 0
+        end
+
+        # VNet quotas
+
+        doc.root.each_element("NETWORK_QUOTA/NETWORK/LEASES") do |e|
+            e.text = "-1" if e.text.to_i == 0
+        end
+
+        # Image quotas
+
+        doc.root.each_element("IMAGE_QUOTA/IMAGE/RVMS") do |e|
+            e.text = "-1" if e.text.to_i == 0
+        end
+
+        # Datastore quotas
+
+        doc.root.each_element("DATASTORE_QUOTA/DATASTORE/IMAGES") do |e|
+            e.text = "-1" if e.text.to_i == 0
+        end
+
+        doc.root.each_element("DATASTORE_QUOTA/DATASTORE/SIZE") do |e|
+            e.text = "-1" if e.text.to_i == 0
+        end
     end
 end
