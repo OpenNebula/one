@@ -44,6 +44,37 @@ required gems. You have more information at:
 
   http://opennebula.org/documentation:documentation:compile
 
+If you want to install them manually here are the list of required rubygems:
+
+* OpenNebula and clients (plus cloud interfaces)
+  * sqlite3
+  * json
+  * sequel
+  * mysql
+  * net-ldap
+  * amazon-ec2
+  * rack
+  * sinatra
+  * thin
+  * uuidtools
+  * curb
+  * nokogiri
+
+* OpenNebula zones (client and server)
+  * json
+  * sequel
+  * sqlite3
+  * mysql
+  * nokogiri
+
+* Sunstone server
+  * json
+  * rack
+  * sinatra
+  * thin
+  * sequel
+  * nokogiri
+
 ### OPTIONAL PACKAGES
 
 These packages are not needed to run or build OpenNebula. They improve the
