@@ -173,13 +173,13 @@ public:
      *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
-     *   @param _net_tx received bytes (total)
+     *   @param _net_rx received bytes (total)
      */
     void update_info(
         const int _memory,
         const int _cpu,
-        const int _net_tx,
-        const int _net_rx)
+        const long long _net_tx,
+        const long long _net_rx)
     {
         if (_memory != -1)
         {
@@ -950,12 +950,12 @@ private:
     /**
      *  Network usage, transmitted bytes
      */
-    int         net_tx;
+    long long   net_tx;
 
     /**
      *  Network usage, received bytes
      */
-    int         net_rx;
+    long long   net_rx;
 
     /**
      *  History record, for the current host
