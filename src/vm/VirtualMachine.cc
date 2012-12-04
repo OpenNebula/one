@@ -390,6 +390,7 @@ error_common:
 
 int VirtualMachine::set_os_file(VectorAttribute *  os,
                                 const string&      base_name,
+                                Image::ImageType   base_type,
                                 string&            error_str)
 {
     vector<int>  img_ids;
@@ -397,6 +398,8 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
 
     ImagePool * ipool = nd.get_ipool();
     Image  *    img   = 0;
+
+    Image::ImageType type;
 
     DatastorePool * ds_pool = nd.get_dspool();
     Datastore *     ds;
@@ -437,6 +440,7 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
     }
 
     ds_id = img->get_ds_id();
+    type  = img->get_type();
 
     os->remove(base_name);
 
@@ -445,6 +449,18 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
     os->replace(base_name_ds_id,  img->get_ds_id());
 
     img->unlock();
+
+    if ( type != base_type )
+    {
+        ostringstream oss;
+
+        oss << base_name << " needs an image of type "
+            << Image::type_to_str(base_type) << " and not "
+            << Image::type_to_str(type);
+
+        error_str = oss.str();
+        return -1;
+    }
 
     ds = ds_pool->get(ds_id, true);
 
@@ -496,14 +512,14 @@ int VirtualMachine::parse_os(string& error_str)
         return -1;
     }
 
-    rc = set_os_file(os, "KERNEL", error_str);
+    rc = set_os_file(os, "KERNEL", Image::KERNEL, error_str);
 
     if ( rc != 0 )
     {
         return -1;
     }
 
-    rc = set_os_file(os, "INITRD", error_str);
+    rc = set_os_file(os, "INITRD", Image::RAMDISK, error_str);
 
     if ( rc != 0 )
     {
@@ -608,6 +624,8 @@ int VirtualMachine::parse_context(string& error_str)
             ImagePool * ipool = nd.get_ipool();
             Image  *    img   = 0;
 
+            Image::ImageType type;
+
             for ( it=img_ids.begin() ; it < img_ids.end(); it++ )
             {
                 img = ipool->get(*it, true);
@@ -615,8 +633,16 @@ int VirtualMachine::parse_context(string& error_str)
                 if ( img != 0 )
                 {
                     oss_parsed << img->get_source() << " ";
+                    type = img->get_type();
 
                     img->unlock();
+
+                    if (type != Image::CONTEXT)
+                    {
+                        error_str = "Only images of type CONTEXT can be used in"
+                                    " FILE_DS attribute.";
+                        return -1;
+                    }
                 }
             }
         }

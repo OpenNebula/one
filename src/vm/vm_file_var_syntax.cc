@@ -196,14 +196,6 @@ int get_image_path(VirtualMachine * vm,
 
     img->get_permissions(perm);
 
-    if ( img->get_type() != Image::DATAFILE )
-    {
-        error_str = "FILE variables must use images of type FILE.";
-        img->unlock();
-
-        return -1;
-    }
-
     img->unlock();
 
     AuthRequest ar(vm->get_uid(), vm->get_gid());
@@ -226,7 +218,7 @@ int get_image_path(VirtualMachine * vm,
 
 
 /* Line 360 of yacc.c  */
-#line 230 "vm_file_var_syntax.cc"
+#line 222 "vm_file_var_syntax.cc"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -279,7 +271,7 @@ extern int vm_file_var__debug;
 typedef union YYSTYPE
 {
 /* Line 376 of yacc.c  */
-#line 178 "vm_file_var_syntax.y"
+#line 170 "vm_file_var_syntax.y"
 
     char * val_str;
     int    val_int;
@@ -287,7 +279,7 @@ typedef union YYSTYPE
 
 
 /* Line 376 of yacc.c  */
-#line 291 "vm_file_var_syntax.cc"
+#line 283 "vm_file_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -327,7 +319,7 @@ int vm_file_var__parse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 379 of yacc.c  */
-#line 331 "vm_file_var_syntax.cc"
+#line 323 "vm_file_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -618,7 +610,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   202,   202,   203,   207,   225
+       0,   194,   194,   195,   199,   217
 };
 #endif
 
@@ -1626,7 +1618,7 @@ yyreduce:
     {
         case 4:
 /* Line 1778 of yacc.c  */
-#line 208 "vm_file_var_syntax.y"
+#line 200 "vm_file_var_syntax.y"
     {
         string file((yyvsp[(1) - (7)].val_str));
         string var1((yyvsp[(3) - (7)].val_str));
@@ -1648,7 +1640,7 @@ yyreduce:
 
   case 5:
 /* Line 1778 of yacc.c  */
-#line 226 "vm_file_var_syntax.y"
+#line 218 "vm_file_var_syntax.y"
     {
         string file((yyvsp[(1) - (11)].val_str));
         string var1((yyvsp[(3) - (11)].val_str));
@@ -1673,7 +1665,7 @@ yyreduce:
 
 
 /* Line 1778 of yacc.c  */
-#line 1677 "vm_file_var_syntax.cc"
+#line 1669 "vm_file_var_syntax.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1912,7 +1904,7 @@ yyreturn:
 
 
 /* Line 2041 of yacc.c  */
-#line 247 "vm_file_var_syntax.y"
+#line 239 "vm_file_var_syntax.y"
 
 
 extern "C" void vm_file_var__error(

@@ -20,6 +20,7 @@
 #include "VirtualMachineTemplate.h"
 #include "PoolSQL.h"
 #include "History.h"
+#include "Image.h"
 #include "Log.h"
 #include "NebulaLog.h"
 
@@ -1137,11 +1138,13 @@ private:
      *  INITRD files.
      *    @param os attribute of the VM template
      *    @param base_name of the attribute "KERNEL", or "INITRD"
+     *    @param base_type of the image attribute KERNEL, RAMDISK
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
     int set_os_file(VectorAttribute *  os,
                     const string&      base_name,
+                    Image::ImageType   base_type,
                     string&            error_str);
     /**
      *  Parse the "OS" attribute of the template by substituting
