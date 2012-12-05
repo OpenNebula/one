@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,10 @@
  ******************************************************************************/
 import static org.junit.Assert.assertTrue;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -22,8 +26,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
+import org.opennebula.client.OneSystem;
 import org.opennebula.client.group.Group;
 import org.opennebula.client.group.GroupPool;
+import org.w3c.dom.Node;
 
 public class GroupTest
 {
@@ -63,7 +69,7 @@ public class GroupTest
     {
         res = Group.allocate(client, group_name);
 
-        int group_id = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
+        int group_id = res.isError() ? -1 : Integer.parseInt(res.getMessage());
         group = new Group(group_id, client);
     }
 
@@ -84,7 +90,7 @@ public class GroupTest
         res = Group.allocate(client, group_name);
         assertTrue( res.getErrorMessage(), !res.isError() );
 
-        int group_id = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
+        int group_id = res.isError() ? -1 : Integer.parseInt(res.getMessage());
         group = new Group(group_id, client);
 
 
@@ -128,6 +134,30 @@ public class GroupTest
         }
 
         assertTrue( !found );
+    }
+
+    @Test
+    public void defaultqutoas()
+    {
+        OneSystem system = new OneSystem(client);
+
+        res = system.getGroupQuotas();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        res = system.setGroupQuotas("VM = [ VMS = 7, MEMORY = 0, CPU = 3]");
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        Node node = system.getGroupQuotasXML();
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+
+        try
+        {
+            assertTrue( xpath.evaluate("VM_QUOTA/VM/VMS", node).equals("7") );
+        } catch (XPathExpressionException e)
+        {
+            assertTrue(e.getMessage(), false);
+        }
     }
 
 //  Commented out, secondary groups do not exist any more
@@ -185,17 +215,17 @@ public class GroupTest
         assertTrue(  users.get("a").isPartOf( groups.get("b").id() ) );
         assertFalse( users.get("a").isPartOf( groups.get("c").id() ) );
         assertFalse( users.get("a").isPartOf( groups.get("d").id() ) );
-                                                                       
+
         assertFalse( users.get("b").isPartOf( groups.get("a").id() ) );
         assertTrue(  users.get("b").isPartOf( groups.get("b").id() ) );
         assertFalse( users.get("b").isPartOf( groups.get("c").id() ) );
         assertFalse( users.get("b").isPartOf( groups.get("d").id() ) );
-                                                                       
+
         assertFalse( users.get("c").isPartOf( groups.get("a").id() ) );
         assertTrue(  users.get("c").isPartOf( groups.get("b").id() ) );
         assertTrue(  users.get("c").isPartOf( groups.get("c").id() ) );
         assertTrue(  users.get("c").isPartOf( groups.get("d").id() ) );
-                                                                       
+
         assertFalse( users.get("d").isPartOf( groups.get("a").id() ) );
         assertTrue(  users.get("d").isPartOf( groups.get("b").id() ) );
         assertTrue(  users.get("d").isPartOf( groups.get("c").id() ) );
