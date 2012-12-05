@@ -82,9 +82,9 @@ var capacity_tab =
             '<div id="vcpu_slider"></div>'+
       '</div>'+
     '</fieldset>'+
-              '<div class="form_buttons">'+
-                '<button class="button" type="" value="" id="tf_btn_disks">'+tr("DISKs")+'</button>'+
-              '</div>'
+    '<div class="form_buttons">'+
+    '<button class="button" type="" value="" id="tf_btn_disks">'+tr("DISKs")+'</button>'+
+    '</div>'
 
 
   
@@ -95,6 +95,7 @@ var create_template_tmpl = '<div id="template_create_tabs">'+
         '<li class="temp_tab"><a href="#" class="button" type="" value="" id="tf_btn_disks">'+tr("Add disk")+'</a></li>'+
         '<li class="temp_tab"><a href="#">'+tr("NETWORKs")+'</a></li>'+
         '<li class="temp_tab"><a href="#" class="button tf_btn_nics" type="" value="">'+tr("Add nic")+'</a></li>'+
+        '<li class="temp_tab"><a href="#">'+tr("ADVANCED")+'</a></li>'+
 
     '</ul>'+
     '<div id="tab-capacity">'+
@@ -1427,54 +1428,163 @@ function setupCreateTemplateDialog(){
       var str_datatable_id = 'datatable_template_images' + number_of_disks;
 
       var html_tab_content = '<div id="'+str_disk_tab_id+'" class="disk">'+
-          '<table id="'+str_datatable_id+'" class="display">'+
-            '<thead>'+
-              '<tr>'+
-                '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
-                '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Owner")+'</th>'+
-                '<th>'+tr("Group")+'</th>'+
-                '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Datastore")+'</th>'+
-                '<th>'+tr("Size")+'</th>'+
-                '<th>'+tr("Type")+'</th>'+
-                '<th>'+tr("Registration time")+'</th>'+
-                '<th>'+tr("Persistent")+'</th>'+
-                '<th>'+tr("Status")+'</th>'+
-                '<th>'+tr("#VMS")+'</th>'+
-                '<th>'+tr("Target")+'</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody id="tbodyimages">'+
-            '</tbody>'+
-          '</table>'+
           '<fieldset>'+
-            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-              '<p>You selected the following image: '+
-                '<span type="text" id="IMAGE" name="image"></span>'+
-                '</p>'+
-              '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
-              '</div>'+
+            '<input type="radio" name="'+str_disk_tab_id+'" value="image" checked> Image '+
+            '<input type="radio" name="'+str_disk_tab_id+'" value="volatile"> Volatile Disk '+
           '</fieldset>'+
-                 '<div class="show_hide" id="advanced_capacity">'+
-            '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
-       '</div>'+
-    '<fieldset class="advanced">'+
-      '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-            '<label for="TARGET">'+tr("TARGET")+':</label>'+
-            '<input type="text" id="TARGET" name="target" size="3" />'+
-            '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>'+
-      '</div>'+
-    '</fieldset>'+
-                '<div class="form_buttons">'+
-                  '<button class="button tf_btn_nics" type="" value="">'+tr("NETWORKs")+'</button>'+
+          '<br>'+
+          '<div id="disk_type" class="image vm_param">'+
+            '<table id="'+str_datatable_id+'" class="display">'+
+              '<thead>'+
+                '<tr>'+
+                  '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
+                  '<th>'+tr("ID")+'</th>'+
+                  '<th>'+tr("Owner")+'</th>'+
+                  '<th>'+tr("Group")+'</th>'+
+                  '<th>'+tr("Name")+'</th>'+
+                  '<th>'+tr("Datastore")+'</th>'+
+                  '<th>'+tr("Size")+'</th>'+
+                  '<th>'+tr("Type")+'</th>'+
+                  '<th>'+tr("Registration time")+'</th>'+
+                  '<th>'+tr("Persistent")+'</th>'+
+                  '<th>'+tr("Status")+'</th>'+
+                  '<th>'+tr("#VMS")+'</th>'+
+                  '<th>'+tr("Target")+'</th>'+
+                '</tr>'+
+              '</thead>'+
+              '<tbody id="tbodyimages">'+
+              '</tbody>'+
+            '</table>'+
+            '<fieldset>'+
+              '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                '<p>You selected the following image: '+
+                  '<span type="text" id="IMAGE" name="image"></span>'+
+                  '</p>'+
+                '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
                 '</div>'+
+            '</fieldset>'+
+            '<div class="show_hide" id="advanced_image">'+
+              '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
+            '</div>'+
+            '<fieldset class="advanced">'+
+              '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                '<label for="TARGET">'+tr("TARGET")+':</label>'+
+                '<input type="text" id="TARGET" name="target" size="3" />'+
+                '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>'+
+              '</div>'+
+              '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                    '<label for="DRIVER">'+tr("Driver")+':</label>'+
+                    '<input type="text" id="DRIVER" name="driver" />'+
+                    '<div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported")+'</div>'+
+              '</div>'+
+            '</fieldset>'+
+          '</div>'+
+          '<div id="disk_type" class="volatile hidden">'+
+            '<fieldset>'+
+                '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                  '<label for="TYPE">'+tr("Type")+':</label>'+
+                  '<select id="TYPE" name="type">'+
+                    '<option value="fs">'+tr("FS")+'</option>'+
+                    '<option value="swap">'+tr("Swap")+'</option>'+
+                  '</select>'+
+                  '<div class="tip">'+tr("Disk type")+'</div>'+
+                '</div>'+
+                '<div class="vm_param kvm xen vmware">'+
+                  '<label for="SIZE">'+tr("Size")+':</label>'+
+                  '<input type="text" id="SIZE" name="size" size="4" />'+
+                    '<select id="size_unit" name="SIZE_UNIT">'+
+                        '<option value="MB">'+tr("MB")+'</option>'+
+                        '<option value="GB">'+tr("GB")+'</option>'+
+                    '</select>'+
+                    '<div class="tip">'+tr("Size of the new disk")+'</div>'+
+                    '<div id="size_slider"></div>'+
+                '</div>'+
+                '<div class="vm_param kvm xen wmware">'+
+                      '<label for="FORMAT">'+tr("Format")+':</label>'+
+                      '<input type="text" id="FORMAT" name="format" />'+
+                      '<div class="tip">'+tr("Filesystem type for the fs images")+'</div>'+
+                '</div>'+
+            '</fieldset>'+
+            '<div class="show_hide" id="advanced_volatile">'+
+              '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
+            '</div>'+
+            '<fieldset class="advanced">'+
+              '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                '<label for="TARGET">'+tr("TARGET")+':</label>'+
+                '<input type="text" id="TARGET" name="target" size="3" />'+
+                '<div class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'</div>'+
+              '</div>'+
+              '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                    '<label for="DRIVER">'+tr("Driver")+':</label>'+
+                    '<input type="text" id="DRIVER" name="driver" />'+
+                    '<div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. Xen:tap:aio:, file:. VMware unsupported")+'</div>'+
+              '</div>'+
+            '</fieldset>'+
+          '</div>'+
+          '<div class="form_buttons">'+
+            '<button class="button tf_btn_nics" type="" value="">'+tr("NETWORKs")+'</button>'+
+          '</div>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
       tabs.append(html_tab_content).tabs('add', '#'+str_disk_tab_id, str_disk_tab_id, disks_index); 
       tabs.tabs( "select", disks_index);
+
+      // Add delete button for this tab
+      $('li.'+str_disk_tab_id).append("<span class='ui-icon ui-icon-close'>Remove Tab</span>");
       
+      // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
+      // vm_param class is included to be computed when the template is generated.
+      $("input[name='"+str_disk_tab_id+"']").change(function(){
+        if ($("input[name='"+str_disk_tab_id+"']:checked").val() == "image") {
+            $("div.image",  $('div#' + str_disk_tab_id)).toggle();
+            $("div.image",  $('div#' + str_disk_tab_id)).addClass('vm_param');
+            $("div.volatile",  $('div#' + str_disk_tab_id)).hide();
+            $("div.volatile",  $('div#' + str_disk_tab_id)).removeClass('vm_param');
+        }
+        else {
+            $("div.image",  $('div#' + str_disk_tab_id)).hide();
+            $("div.image",  $('div#' + str_disk_tab_id)).removeClass('vm_param');
+            $("div.volatile",  $('div#' + str_disk_tab_id)).toggle();
+            $("div.volatile",  $('div#' + str_disk_tab_id)).addClass('vm_param');
+        }
+      });
+
+        // Define size slider
+        var size_input = $( "#SIZE",  $('div#' + str_disk_tab_id) );
+        var size_unit  = $( "#size_unit",  $('div#' + str_disk_tab_id) );
+        var size_slider = $( "#size_slider",  $('div#' + str_disk_tab_id) ).slider({
+            min: 0,
+            max: 4096,
+            range: "min",
+            value: 0,
+            step: 128,
+            slide: function( event, ui ) {
+                size_input.val(ui.value);
+            }
+        });
+        size_input.change(function() {
+            size_slider.slider( "value", this.value );
+        });
+        size_unit.change(function() {
+            var size_unit_val = $('#size_unit :selected').val();
+            if (size_unit_val == 'GB') {
+                size_slider.slider( "option", "min", 0 );
+                size_slider.slider( "option", "max", 40 );
+                size_slider.slider( "option", "step", 0.5 );
+                size_slider.slider( "option", "value", 4 );
+                size_input.val(4);
+            } 
+            else if (size_unit_val == 'MB') {
+                size_slider.slider( "option", "min", 0 );
+                size_slider.slider( "option", "max", 4096 );
+                size_slider.slider( "option", "step", 128 );
+                size_slider.slider( "option", "value", 512 );
+                size_input.val(512);
+            }
+            
+        });
+
       var dataTable_template_images = $('#'+str_datatable_id, dialog).dataTable({
           "bJQueryUI": true,
           "bSortClasses": false,
@@ -1542,11 +1652,19 @@ function setupCreateTemplateDialog(){
           return false;
       });
 
-      // Hide advanced options
-      $('fieldset.advanced', $('div#' + str_disk_tab_id)).hide();
+      // Hide image advanced options
+      $('.image fieldset.advanced', $('div#' + str_disk_tab_id)).hide();
 
-      $('#advanced_capacity', $('div#' + str_disk_tab_id)).click(function(){
-          $('fieldset.advanced', $('div#' + str_disk_tab_id)).toggle();
+      $('#advanced_image', $('div#' + str_disk_tab_id)).click(function(){
+          $('.image fieldset.advanced', $('div#' + str_disk_tab_id)).toggle();
+          return false;
+      });
+
+      // Hide volatile advanced options
+      $('.volatile fieldset.advanced', $('div#' + str_disk_tab_id)).hide();
+
+      $('#advanced_volatile', $('div#' + str_disk_tab_id)).click(function(){
+          $('.volatile fieldset.advanced', $('div#' + str_disk_tab_id)).toggle();
           return false;
       });
 
@@ -1565,8 +1683,7 @@ function setupCreateTemplateDialog(){
     var add_nic_tab = function() {
       number_of_nics++;
       nics_index++;
-      console.log('a'+number_of_nics);
-      console.log('b'+nics_index);
+
       var temp_index = disks_index+nics_index;
 
       var str_nic_tab_id  = 'nic' + number_of_nics;
@@ -1606,6 +1723,9 @@ function setupCreateTemplateDialog(){
       // Append the new div containing the tab and add the tab to the list
       tabs.append(html_tab_content).tabs('add', '#'+str_nic_tab_id, str_nic_tab_id, temp_index); 
       tabs.tabs( "select", temp_index);
+
+      // Add delete button for this tab
+      $('li.'+str_nic_tab_id).append("<span class='ui-icon ui-icon-close'>Remove Tab</span>");
       
       var dataTable_template_networks = $('#'+str_datatable_id, dialog).dataTable({
         "bJQueryUI": true,
@@ -1672,8 +1792,207 @@ function setupCreateTemplateDialog(){
           $('#NETWORK_ID', $('div#' + str_nic_tab_id)).val(aData[1]);
           return false;
       });
+
+      // ADVANCED button
+      $('button',$('div#' + str_nic_tab_id)).button();
+      $("#tf_btn_advanced", $('div#' + str_nic_tab_id)).click(add_advanced_tabs);
     }
 
+    var advanced_tab_added = false;
+
+    var add_advanced_tabs = function() {
+        var temp_index = disks_index+nics_index+3;
+
+        if (advanced_tab_added == false) {
+            advanced_tab_added = true;
+
+            add_os_tab(temp_index);
+            tabs.tabs( "select", temp_index);
+
+            temp_index++;
+            add_io_tab(temp_index);
+
+            temp_index++;
+            add_context_tab(temp_index);
+
+            temp_index++;
+            add_placement_tab(temp_index);
+
+            temp_index++;
+            add_other_tab(temp_index);
+        }
+        else {
+            tabs.tabs( "select", temp_index);
+        }
+    }
+
+
+    /**************************************************************************
+        OS TAB
+        
+    **************************************************************************/
+
+    var add_os_tab = function(temp_index) {
+      var html_tab_content = '<div id="os_tab">'+
+          '<fieldset>'+
+            '<div class="vm_param kvm vmware">'+
+              '<label for="ARCH">'+tr("Architecture")+':</label>'+
+              '<select id="ARCH" name="arch">'+
+                    '<option value="i686">i686</option>'+
+                    '<option value="x86_64">x86_64</option>'+
+              '</select>'+
+              '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
+            '</div>'+
+            '<!--xen necesita kernel o bootloader.'+
+            'Opciones de kernel son obligatorias si se activa kernel-->'+
+            '<div class="" id="kernel_bootloader">'+
+              '<label>'+tr("Boot method")+':</label>'+
+              '<select id="boot_method" name="boot_method">'+
+                '<option id="no_boot" name="no_boot" value=""></option>'+
+                '<option value="kernel">'+tr("Kernel")+'</option>'+
+                '<option value="bootloader">'+tr("Bootloader")+'</option>'+
+              '</select>'+
+              '<div class="tip">'+tr("Select boot method")+'</div>'+
+            '</div>'+
+            '<div class="vm_param kvm_opt xen kernel">'+
+                  '<label for="KERNEL">'+tr("Kernel")+':</label>'+
+                  '<input type="text" id="KERNEL" name="kernel" />'+
+                  '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
+                '</div>'+
+            '<div class="vm_param kvm xen kernel">'+
+                  '<label for="INITRD">'+tr("Initrd")+':</label>'+
+                  '<input type="text" id="INITRD" name="initrd"/>'+
+                  '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
+            '</div>'+
+            '<div class="vm_param kvm xen kernel">'+
+                  '<label for="ROOT">'+tr("Root")+':</label>'+
+                  '<input type="text" id="ROOT" name="root"/>'+
+                  '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
+            '</div>'+
+                '<div class="vm_param kvm xen kernel">'+
+                  '<label for="KERNEL_CMD">'+tr("Kernel commands")+':</label>'+
+                  '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
+                  '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
+            '</div>'+
+            '<div class="vm_param kvm_opt xen bootloader">'+
+                  '<label for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
+                  '<input type="text" id="BOOTLOADER" name="bootloader" />'+
+                  '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
+            '</div>'+
+            '<div class="vm_param kvm">'+
+                  '<label for="BOOT">'+tr("Boot")+':</label>'+
+                  '<select id="BOOT" name="boot">'+
+                  '</select>'+
+                  '<div class="tip">'+tr("Boot device type")+'</div>'+
+            '</div>'+
+          '</fieldset>'+
+        '</div>'
+
+      // Append the new div containing the tab and add the tab to the list
+      tabs.append(html_tab_content).tabs('add', '#os_tab', 'OS', temp_index); 
+      $( "#template_create_tabs a[href='#os_tab']").parent().remove("span")
+
+      setupTips($('div#os_tab'));
+    }
+
+
+    /**************************************************************************
+        INPUT/OUTPUT TAB
+        
+    **************************************************************************/
+
+    var add_io_tab = function(temp_index) {
+      var html_tab_content = '<div id="io_tab" class="nic">'+
+          '<fieldset>'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+              '<p>You selected the following image: '+
+                '<span type="text" id="NETWORK" name="network"></span>'+
+                '</p>'+
+              '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+              '</div>'+
+                '<div class="form_buttons">'+
+                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
+                '</div>'+
+          '</fieldset>'+
+        '</div>'
+
+      // Append the new div containing the tab and add the tab to the list
+      tabs.append(html_tab_content).tabs('add', '#io_tab', 'INPUT/OUTPUT', temp_index); 
+    }
+
+    /**************************************************************************
+        CONTEXT TAB
+        
+    **************************************************************************/
+
+    var add_context_tab = function(temp_index) {
+      var html_tab_content = '<div id="context_tab" class="nic">'+
+          '<fieldset>'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+              '<p>You selected the following image: '+
+                '<span type="text" id="NETWORK" name="network"></span>'+
+                '</p>'+
+              '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+              '</div>'+
+                '<div class="form_buttons">'+
+                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
+                '</div>'+
+          '</fieldset>'+
+        '</div>'
+
+      // Append the new div containing the tab and add the tab to the list
+      tabs.append(html_tab_content).tabs('add', '#context_tab', 'CONTEXT', temp_index); 
+    }
+
+
+    /**************************************************************************
+        PLACEMENT TAB
+        
+    **************************************************************************/
+
+    var add_placement_tab = function(temp_index) {
+      var html_tab_content = '<div id="placement_tab" class="nic">'+
+          '<fieldset>'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+              '<p>You selected the following image: '+
+                '<span type="text" id="NETWORK" name="network"></span>'+
+                '</p>'+
+              '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+              '</div>'+
+                '<div class="form_buttons">'+
+                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
+                '</div>'+
+          '</fieldset>'+
+        '</div>'
+
+      // Append the new div containing the tab and add the tab to the list
+      tabs.append(html_tab_content).tabs('add', '#placement_tab', 'PLACEMENT', temp_index); 
+    }
+
+
+    /**************************************************************************
+        OTHER TAB
+        
+    **************************************************************************/
+
+    var add_other_tab = function(temp_index) {
+      var html_tab_content = '<div id="other_tab" class="nic">'+
+          '<fieldset>'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+              '<p>You selected the following image: '+
+                '<span type="text" id="NETWORK" name="network"></span>'+
+                '</p>'+
+              '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
+              '</div>'+
+                '<div class="form_buttons">'+
+                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
+                '</div>'+
+          '</fieldset>'+
+        '</div>'
+
+      // Append the new div containing the tab and add the tab to the list
+      tabs.append(html_tab_content).tabs('add', '#other_tab', 'OTHER', temp_index); 
+    }
 
     //Sets up the OS_BOOT section
     var os_boot_setup = function(){
@@ -2158,7 +2477,7 @@ function setupCreateTemplateDialog(){
     $('button',dialog).button();
 
     var tabs = $( "#template_create_tabs", dialog).tabs({
-        tabTemplate: "<li class='temp_tab'><a href='#{href}'>#{label}</a> <span class='ui-icon ui-icon-close'>Remove Tab</span></li>"
+        tabTemplate: "<li class='temp_tab #{label}'><a href='#{href}'>#{label}</a></li>"
     }).addClass( "ui-tabs-vertical ui-helper-clearfix" );
 
     // close icon: removing the tab on click
@@ -2275,7 +2594,7 @@ function setupCreateTemplateDialog(){
         ////process disks -> fetch from box
         vm_json["DISK"] = [];
 
-        $('div.disk',dialog).each(function(){
+        $('div.disk div#disk_type.vm_param',dialog).each(function(){
           var hash  = {};
           addSectionJSON(hash, this);
           vm_json["DISK"].push(hash);
