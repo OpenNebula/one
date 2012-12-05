@@ -30,7 +30,9 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     <div id="tab-hosts">\
     <fieldset>\
       <div class="datatable_cluster_hosts_div">\
-            Pick hosts\
+            <h3>' +
+            tr("Select Hosts for this Cluster") +
+            '<button id="refresh_host_table_button_class" class="icon-refresh action_button" value="ClusterHost.list" style="float:right;"></h3>\
             <hr>\
             <table id="datatable_cluster_hosts" class="display">\
               <thead>\
@@ -63,7 +65,9 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     <div id="tab-vnets">\
     <fieldset>\
       <div class="datatable_cluster_vnets_div">\
-            Pick virtual networks\
+            <h3>' +
+            tr("Select Virtual Networks for this Cluster") +
+            '<button id="refresh_vnet_table_button_class" class="icon-refresh action_button" value="ClusterVN.list" style="float:right;"></h3>\
             <hr>\
             <table id="datatable_cluster_vnets" class="display">\
               <thead>\
@@ -95,7 +99,9 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     <div id="tab-datastores">\
     <fieldset>\
       <div class="datatable_cluster_datastores_div">\
-            Pick datastores\
+            <h3>' +
+            tr("Select Datastores for this Xluster") +
+            '<button id="refresh_datastore_table_button_class" class="icon-refresh action_button" value="ClusterDS.list" style="float:right;"></h3>\
             <hr>\
             <table id="datatable_cluster_datastores" class="display">\
               <thead>\
@@ -160,7 +166,7 @@ function setupCreateClusterDialog(){
     //Enable tabs
     $('#cluster_create_tabs',dialog).tabs({});
 
-    //Create the dialog datatables
+    //  ------- Create the dialog datatables ------------
     dataTable_cluster_hosts = $("#datatable_cluster_hosts", dialog).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
@@ -191,10 +197,6 @@ function setupCreateClusterDialog(){
     addElement([
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_hosts);
-    Sunstone.runAction("ClusterHost.list");
-
-    setClusterHostAutorefresh();
-
 
     dataTable_cluster_vnets = $("#datatable_cluster_vnets", dialog).dataTable({
         "bJQueryUI": true,
@@ -225,11 +227,6 @@ function setupCreateClusterDialog(){
     addElement([
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_vnets);
-    Sunstone.runAction("ClusterVN.list");
-
-
-    setClusterVNetworksAutorefresh();
-
 
     dataTable_cluster_datastores = $("#datatable_cluster_datastores", dialog).dataTable({
         "bJQueryUI": true,
@@ -260,9 +257,8 @@ function setupCreateClusterDialog(){
     addElement([
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_datastores);
-    Sunstone.runAction("ClusterDS.list");
 
-    setClusterDatastoreAutorefresh();
+    //  ------- End of create the dialog datatables ------------
 
     // Add listener to row select action
     //   Marks it in another background color
@@ -375,6 +371,21 @@ function setupCreateClusterDialog(){
     // Enhance buttons
     $('button',dialog).button();
 
+    $("#refresh_host_table_button_class", dialog).click( function(){
+       Sunstone.runAction("ClusterHost.list");
+      }
+    );
+
+    $("#refresh_vnet_table_button_class", dialog).click( function(){
+       Sunstone.runAction("ClusterVN.list");
+      }
+    );
+
+    $("#refresh_datastore_table_button_class", dialog).click( function(){
+       Sunstone.runAction("ClusterDS.list");
+      }
+    );
+
     $("#tf_btn_hosts_next", dialog).click( function()
        {
          $("#cluster_create_tabs", dialog).tabs( "select", "tab-vnets" );
@@ -430,6 +441,9 @@ function setupCreateClusterDialog(){
 
 // Open creation dialogs
 function popUpCreateClusterDialog(){
+    Sunstone.runAction("ClusterHost.list");
+    Sunstone.runAction("ClusterVN.list");
+    Sunstone.runAction("ClusterDS.list");
     $create_cluster_dialog.dialog('open');
     return false;
 }
@@ -445,12 +459,6 @@ var cluster_host_actions = {
         call: OpenNebula.Host.list,
         callback: updateClusterHostsView,
         error: onError
-    },
-    "ClusterHost.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.Host.list({timeout: true, success: updateClusterHostsView,error: onError});
-        }
     }
 }
 
@@ -479,12 +487,7 @@ function updateHostSelect(){
 }
 
 
-//Prepares the autorefresh for hosts
-function setClusterHostAutorefresh() {
-    setInterval(function(){
-        Sunstone.runAction("ClusterHost.autorefresh");
-    },INTERVAL+someTime());
-}
+
 
 
 /* -------- Virtual Networks datatable -------- */
@@ -518,12 +521,6 @@ function updateVNetworksView(request, network_list){
     updateView(network_list_array,dataTable_cluster_vnets);
 }
 
-//Prepares the autorefresh for hosts
-function setClusterVNetworksAutorefresh() {
-    setInterval(function(){
-      Sunstone.runAction("ClusterVN.autorefresh");
-    },INTERVAL+someTime());
-}
 
 /* -------- Datastores datatable -------- */
 
@@ -558,20 +555,6 @@ function updateDatastoresView(request, list){
     updateInfraDashboard("datastores",list);
 }
 
-//Prepares the autorefresh for hosts
-function setClusterDatastoreAutorefresh(){
-     setInterval(function(){
-         /*var checked = $('input.check_item:checked',dataTable_cluster_datastores);
-         var filter = $("#datatable_cluster_datastores_filter input",
-                        dataTable_datastores.parents('#datatable_cluster_datastores_wrapper')).attr('value');
-         if (!checked.length && !filter.length){
-             Sunstone.runAction("ClusterDS.autorefresh");
-         };*/
-
-         Sunstone.runAction("ClusterDS.autorefresh");
-
-     },INTERVAL+someTime());
-}
 
 /* -------- End of datatables section -------- */
 
@@ -1270,16 +1253,10 @@ function clusterTabContent(cluster_json) {
 function removeClusterMenus(){
     var data = dataTable_clusters.fnGetData();
 
-//    Sunstone.removeMainTab('cluster_vnets_tab_n',true);
-//    Sunstone.removeMainTab('cluster_datastores_tab_n',true);
-//    Sunstone.removeMainTab('cluster_hosts_tab_n',true);
     Sunstone.removeMainTab('cluster_tab_-',true);
 
     for (var i=0; i < data.length; i++){
         var id = data[i][1];
-//        Sunstone.removeMainTab('cluster_vnets_tab_'+id,true);
-//        Sunstone.removeMainTab('cluster_datastores_tab_'+id,true);
-//        Sunstone.removeMainTab('cluster_hosts_tab_'+id,true);
         Sunstone.removeMainTab('cluster_tab_'+id,true);
     };
 };
@@ -1391,10 +1368,6 @@ function setClusterAutorefresh() {
         }
     },INTERVAL+someTime());
 }
-
-
-
-
 
 function clusters_sel() {
     return clusters_select;
