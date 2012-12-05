@@ -652,7 +652,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         case Image::RAMDISK:
         case Image::CONTEXT:
             failure_response(INTERNAL,
-                    request_error("Cannot save_as image of type FILE", ""),
+                    request_error("Cannot save_as image of type " + Image::type_to_str(type), ""),
                     att);
         return;
     }

@@ -270,7 +270,7 @@ void ImageClone::request_execute(
         case Image::CONTEXT:
             failure_response(ACTION,
                 allocate_error("KERNEL, RAMDISK and CONTEXT files cannot be "
-                    "clonned."), att);
+                    "cloned."), att);
             img->unlock();
         return;
     }

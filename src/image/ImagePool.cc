@@ -212,7 +212,7 @@ error_types_missmatch_file:
 
 error_types_missmatch_image:
     oss << "IMAGES of type KERNEL, RAMDISK and CONTEXT cannot be registered"
-        " in a IMAGE_DS datastore";
+        " in an IMAGE_DS datastore";
     goto error_common;
 
 error_duplicated:
