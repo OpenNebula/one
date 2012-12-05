@@ -38,9 +38,9 @@ public:
         OS        = 0, /** < Base OS image */
         CDROM     = 1, /** < An ISO9660 image */
         DATABLOCK = 2, /** < User persistent data device */
-        KERNEL    = 3, /** < Context, kernels and initrd files */
-        RAMDISK   = 4, /** < Context, kernels and initrd files */
-        CONTEXT   = 5  /** < Context, kernels and initrd files */
+        KERNEL    = 3, /** < Kernel files */
+        RAMDISK   = 4, /** < Initrd files */
+        CONTEXT   = 5  /** < Context files */
     };
 
     /**
