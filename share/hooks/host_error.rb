@@ -41,8 +41,8 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-#require 'OpenNebula'
-#include OpenNebula
+require 'OpenNebula'
+include OpenNebula
 
 require 'getoptlong'
 
