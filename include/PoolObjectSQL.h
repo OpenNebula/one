@@ -140,6 +140,11 @@ public:
         return name;
     };
 
+    void set_name(const string& _name)
+    {
+        name = _name;
+    };
+
     int get_uid() const
     {
         return uid;
