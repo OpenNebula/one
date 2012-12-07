@@ -18,6 +18,60 @@
 
 /* ------------ Cluster creation dialog ------------ */
 
+var host_datatable_table_tmpl='<thead>\
+        <tr>\
+          <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+          <th>' + tr("ID") + '</th>\
+          <th>' + tr("Name") + '</th>\
+          <th>' + tr("Cluster") + '</th>\
+          <th>' + tr("Running VMs") + '</th>\
+          <th>' + tr("Real CPU") + '</th>\
+          <th>' + tr("Allocated CPU") + '</th>\
+          <th>' + tr("Real MEM") + '</th>\
+          <th>' + tr("Allocated MEM") + '</th>\
+          <th>' + tr("Status") + '</th>\
+          <th>' + tr("IM MAD") + '</th>\
+          <th>' + tr("VM MAD") + '</th>\
+          <th>' + tr("Last monitored on") + '</th>\
+        </tr>\
+      </thead>\
+      <tbody id="tbodyhosts">\
+      </tbody>'
+
+var vnet_datatable_table_tmpl='<thead>\
+      <tr>\
+        <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+        <th>'+tr("ID")+'</th>\
+        <th>'+tr("Owner")+'</th>\
+        <th>'+tr("Group")+'</th>\
+        <th>'+tr("Name")+'</th>\
+        <th>'+tr("Cluster")+'</th>\
+        <th>'+tr("Type")+'</th>\
+        <th>'+tr("Bridge")+'</th>\
+        <th>'+tr("Total Leases")+'</th>\
+      </tr>\
+    </thead>\
+    <tbody id="tbodyvnetworks">\
+    </tbody>'
+
+var datastore_datatable_table_tmpl='<thead>\
+      <tr>\
+        <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+        <th>'+tr("ID")+'</th>\
+        <th>'+tr("Owner")+'</th>\
+        <th>'+tr("Group")+'</th>\
+        <th>'+tr("Name")+'</th>\
+        <th>'+tr("Cluster")+'</th>\
+        <th>'+tr("Basepath")+'</th>\
+        <th>'+tr("TM MAD")+'</th>\
+        <th>'+tr("DS MAD")+'</th>\
+        <th>'+tr("System")+'</th>\
+      </tr>\
+    </thead>\
+    <tbody id="tbodydatastores">\
+    </tbody>'
+
+
 var create_cluster_tmpl ='<div id="cluster_create_tabs">\
   <fieldset>\
   <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
@@ -29,33 +83,12 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     </ul>\
     <div id="tab-hosts">\
     <fieldset>\
-      <div class="datatable_cluster_hosts_div">\
+      <div id="datatable_cluster_hosts_div">\
             <h3>' +
             tr("Select Hosts for this Cluster") +
             '<button id="refresh_host_table_button_class" class="icon-refresh action_button" value="ClusterHost.list" style="float:right;"></h3>\
             <hr>\
-            <table id="datatable_cluster_hosts" class="display">\
-              <thead>\
-                <tr>\
-                  <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
-                  <th>' + tr("ID") + '</th>\
-                  <th>' + tr("Name") + '</th>\
-                  <th>' + tr("Cluster") + '</th>\
-                  <th>' + tr("Running VMs") + '</th>\
-                  <th>' + tr("Real CPU") + '</th>\
-                  <th>' + tr("Allocated CPU") + '</th>\
-                  <th>' + tr("Real MEM") + '</th>\
-                  <th>' + tr("Allocated MEM") + '</th>\
-                  <th>' + tr("Status") + '</th>\
-                  <th>' + tr("IM MAD") + '</th>\
-                  <th>' + tr("VM MAD") + '</th>\
-                  <th>' + tr("Last monitored on") + '</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodyhosts">\
-              </tbody>\
-            </table>\
-      </div>\
+            <table id="datatable_cluster_hosts" class="display">' + host_datatable_table_tmpl + '</table></div>\
       <div id="selected_hosts_div"></div>\
     </fieldset>\
               <div class="form_buttons">\
@@ -64,29 +97,12 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     </div>\
     <div id="tab-vnets">\
     <fieldset>\
-      <div class="datatable_cluster_vnets_div">\
+      <div id="datatable_cluster_vnets_div">\
             <h3>' +
             tr("Select Virtual Networks for this Cluster") +
             '<button id="refresh_vnet_table_button_class" class="icon-refresh action_button" value="ClusterVN.list" style="float:right;"></h3>\
             <hr>\
-            <table id="datatable_cluster_vnets" class="display">\
-              <thead>\
-                <tr>\
-                  <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Cluster")+'</th>\
-                  <th>'+tr("Type")+'</th>\
-                  <th>'+tr("Bridge")+'</th>\
-                  <th>'+tr("Total Leases")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodyvnetworks">\
-              </tbody>\
-            </table>\
-      </div>\
+            <table id="datatable_cluster_vnets" class="display">' + vnet_datatable_table_tmpl + '</table></div>\
       <div id="selected_vnets_div"></div>\
     </fieldset>\
               <div class="form_buttons">\
@@ -98,30 +114,12 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     </div>\
     <div id="tab-datastores">\
     <fieldset>\
-      <div class="datatable_cluster_datastores_div">\
+      <div id="datatable_cluster_datastores_div">\
             <h3>' +
             tr("Select Datastores for this Xluster") +
             '<button id="refresh_datastore_table_button_class" class="icon-refresh action_button" value="ClusterDS.list" style="float:right;"></h3>\
             <hr>\
-            <table id="datatable_cluster_datastores" class="display">\
-              <thead>\
-                <tr>\
-                  <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Cluster")+'</th>\
-                  <th>'+tr("Basepath")+'</th>\
-                  <th>'+tr("TM MAD")+'</th>\
-                  <th>'+tr("DS MAD")+'</th>\
-                  <th>'+tr("System")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodydatastores">\
-              </tbody>\
-            </table>\
-      </div>\
+            <table id="datatable_cluster_datastores" class="display">' + datastore_datatable_table_tmpl + '</table></div>\
       <div id="selected_datastores_div"></div>\
     </fieldset>\
               <div class="form_buttons">\
@@ -459,10 +457,17 @@ var cluster_host_actions = {
         call: OpenNebula.Host.list,
         callback: updateClusterHostsView,
         error: onError
+    },
+
+    "ClusterHostInfo.list" : {
+        type: "list",
+        call: OpenNebula.Host.list,
+        callback: updateClusterHostsInfoView,
+        error: onError
     }
 }
 
-//callback to update the list of hosts.
+//callback to update the list of hosts for Create dialog
 function updateClusterHostsView (request,host_list){
     var host_list_array = [];
 
@@ -471,9 +476,20 @@ function updateClusterHostsView (request,host_list){
         host_list_array.push(hostElementArray(this));
     });
 
-
     updateView(host_list_array,dataTable_cluster_hosts);
     updateHostSelect();
+}
+
+//callback to update the list of hosts for info panel
+function updateClusterHostsInfoView (request,host_list){
+    var host_list_array = [];
+
+    $.each(host_list,function(){
+        if(this.HOST.CLUSTER_ID == cluster_info.ID)
+          host_list_array.push(hostElementArray(this));
+    });
+
+    updateView(host_list_array,dataTable_cluster_hosts_panel);
 }
 
 //updates the host select by refreshing the options in it
@@ -485,9 +501,6 @@ function updateHostSelect(){
                                      [tr("ERROR"),tr("OFF"),tr("RETRY")]//bad_st
                                     );
 }
-
-
-
 
 
 /* -------- Virtual Networks datatable -------- */
@@ -502,15 +515,15 @@ var cluster_vnet_actions = {
         error: onError
     },
 
-    "ClusterVN.autorefresh" : {
-        type: "custom",
-        call: function() {
-            OpenNebula.Network.list({timeout: true, success: updateVNetworksView, error: onError});
-        }
+    "ClusterVNInfo.list" : {
+        type: "list",
+        call: OpenNebula.Network.list,
+        callback: updateClusterVNetworksInfoView,
+        error: onError
     }
 }
 
-//updates the list of virtual networks
+//updates the list of virtual networks for Create dialog
 function updateVNetworksView(request, network_list){
     var network_list_array = [];
 
@@ -519,6 +532,18 @@ function updateVNetworksView(request, network_list){
     });
 
     updateView(network_list_array,dataTable_cluster_vnets);
+}
+
+//callback to update the list of vnets for info panel
+function updateClusterVNetworksInfoView (request,vnet_list){
+    var vnet_list_array = [];
+
+    $.each(vnet_list,function(){
+        if(this.VNET.CLUSTER_ID == cluster_info.ID)
+          vnet_list_array.push(vNetworkElementArray(this));
+    });
+
+    updateView(vnet_list_array,dataTable_cluster_vnets_panel);
 }
 
 
@@ -534,15 +559,15 @@ var cluster_datastore_actions = {
         error: onError
     },
 
-    "ClusterDS.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.Datastore.list({timeout: true, success: updateDatastoresView,error: onError});
-        }
+    "ClusterDSInfo.list" : {
+        type: "list",
+        call: OpenNebula.Datastore.list,
+        callback: updateClusterDatastoresInfoView,
+        error: onError
     }
 }
 
-//updates the list of datastores
+//updates the list of datastores for Create dialog
 function updateDatastoresView(request, list){
     var list_array = [];
 
@@ -553,6 +578,18 @@ function updateDatastoresView(request, list){
     updateView(list_array,dataTable_cluster_datastores);
     updateDatastoreSelect();
     updateInfraDashboard("datastores",list);
+}
+
+//callback to update the list of datastores for info panel
+function updateClusterDatastoresInfoView (request,datastore_list){
+    var datastore_list_array = [];
+
+    $.each(datastore_list,function(){
+        if(this.DATASTORE.CLUSTER_ID == cluster_info.ID)
+          datastore_list_array.push(datastoreElementArray(this));
+    });
+
+    updateView(datastore_list_array,dataTable_cluster_datastores_panel);
 }
 
 
@@ -629,7 +666,14 @@ var cluster_actions = {
     "Cluster.show" : {
         type: "single",
         call: OpenNebula.Cluster.show,
-        callback: updateClusterElement,
+        callback: updateClusterInfo,
+        error: onError
+    },
+
+    "Cluster.showinfo" : {
+        type: "single",
+        call: OpenNebula.Cluster.show,
+        callback: updateClusterInfo,
         error: onError
     },
 
@@ -774,6 +818,27 @@ var clusters_tab = {
     parentTab: "infra_tab"
 };
 
+var cluster_info_panel = {
+    "cluster_info_tab" : {
+        title: tr("Cluster information"),
+        content:""
+    },
+
+    "cluster_host_tab" : {
+        title: tr("Cluster Hosts"),
+        content: ""
+    },
+    "cluster_vnet_tab" : {
+        title: tr("Cluster Virtual Networks"),
+        content: ""
+    },
+    "cluster_datastore_tab" : {
+        title: tr("Cluster Datastores"),
+        content: ""
+    }
+
+};
+
 
 // Cluster monitoring configuration. This config controls the monitoring
 // which is plotted in the cluster dashboards.
@@ -906,7 +971,7 @@ Sunstone.addActions(cluster_vnet_actions);
 Sunstone.addActions(cluster_datastore_actions);
 Sunstone.addActions(cluster_actions);
 Sunstone.addMainTab('clusters_tab',clusters_tab);
-//Sunstone.addInfoPanel("host_info_panel",host_info_panel);
+Sunstone.addInfoPanel("cluster_info_panel",cluster_info_panel);
 
 //return lists of selected elements in cluster list
 function clusterElements(){
@@ -1000,6 +1065,160 @@ function updateClustersView (request,list){
     //dependency with the infraestructure dashboard plugin
     updateInfraDashboard("clusters",list);
 };
+
+// Updates the cluster info panel tab content and pops it up
+function updateClusterInfo(request,cluster){
+    cluster_info = cluster.CLUSTER;
+
+    //Information tab
+    var info_tab = {
+        title : tr("Cluster information"),
+        content :
+        '<table id="info_cluster_table" class="info_table">\
+            <thead>\
+               <tr><th colspan="2">' + tr("Cluster information") + ' - '+cluster_info.NAME+'</th></tr>\
+            </thead>\
+            <tbody>\
+            <tr>\
+                <td class="key_td">' + tr("id") + '</td>\
+                <td class="value_td">'+cluster_info.ID+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">' + tr("Name") + '</td>\
+                <td class="value_td">'+cluster_info.NAME+'</td>\
+            </tr>\
+            </tbody>\
+         </table>\
+         <table id="cluster_template_table" class="info_table">\
+             <thead><tr><th colspan="2">' + tr("Cluster template") + '</th></tr></thead>'+
+                prettyPrintJSON(cluster_info.TEMPLATE)+
+         '</table>'
+    }
+
+    var cluster_host_tab = {
+        title: tr("Hosts"),
+        content : '<div id="datatable_cluster_hosts_info_div"><table id="datatable_cluster_hosts_info_panel" class="display">' + host_datatable_table_tmpl + '</table></div>'
+    }
+
+    var cluster_vnet_tab = {
+        title: tr("Virtual Networks"),
+        content : '<div id="datatable_cluster_vnets_info_div"><table id="datatable_cluster_vnets_info_panel" class="display">' + vnet_datatable_table_tmpl + '</table></div>'
+    }
+
+    var cluster_datastore_tab = {
+        title: tr("Datastores"),
+        content : '<div id="datatable_cluster_datastores_info_div"><table id="datatable_cluster_datastores_info_panel" class="display">' + datastore_datatable_table_tmpl + '</table></div>'
+    }
+
+    //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
+    Sunstone.updateInfoPanelTab("cluster_info_panel","cluster_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("cluster_info_panel","cluster_host_tab",cluster_host_tab);
+    Sunstone.updateInfoPanelTab("cluster_info_panel","cluster_vnet_tab",cluster_vnet_tab);
+    Sunstone.updateInfoPanelTab("cluster_info_panel","cluster_datastore_tab",cluster_datastore_tab);
+
+    Sunstone.popUpInfoPanel("cluster_info_panel");
+
+    // Hosts datatable
+
+    dataTable_cluster_hosts_panel = $("#datatable_cluster_hosts_info_panel").dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": { //exclude checkbox column
+            "aiExclude": [ 0 ]
+        },
+        "bAutoWidth":false,
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,4] },
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
+            { "sWidth": "150", "aTargets": [5,6,7,8] },
+            { "bVisible": false, "aTargets": [0,3,5,6,7,8,10,11,12]}
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+    //preload it
+    dataTable_cluster_hosts_panel.fnClearTable();
+
+    addElement([
+        spinner,
+        '','','','','','','','','','','',''],dataTable_cluster_hosts_panel);
+
+    // Virtual networks datatable
+
+    dataTable_cluster_vnets_panel = $("#datatable_cluster_vnets_info_panel", dialog).dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,6,7,8] },
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "100px", "aTargets": [2,3,5] },
+            { "bVisible": false, "aTargets": [0,5,7]}
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+
+    //preload it
+    dataTable_cluster_vnets_panel.fnClearTable();
+    addElement([
+        spinner,
+        '','','','','','','','','','','',''],dataTable_cluster_vnets_panel);
+
+    // Datastores datatable
+
+    dataTable_cluster_datastores_panel = $("#datatable_cluster_datastores_info_panel", dialog).dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
+        "sPaginationType": "full_numbers",
+        "bAutoWidth":false,
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0] },
+            { "sWidth": "35px", "aTargets": [1,9] },
+            { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
+            { "bVisible": false, "aTargets": [0,5,6,7,8,9] }
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+
+    //preload it
+    dataTable_cluster_datastores_panel.fnClearTable();
+    addElement([
+        spinner,
+        '','','','','','','','','','','',''],dataTable_cluster_datastores_panel);
+
+    // initializa datatables values
+
+    Sunstone.runAction("ClusterHostInfo.list");
+    Sunstone.runAction("ClusterVNInfo.list");
+    Sunstone.runAction("ClusterDSInfo.list");
+}
+
 
 //generates the HTML for the dashboard of a specific cluster
 function clusterTabContent(cluster_json) {
@@ -1415,6 +1634,6 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_clusters);
     tableCheckboxesListener(dataTable_clusters);
-    infoListener(dataTable_clusters);
+    infoListener(dataTable_clusters, "Cluster.showinfo");
 
 });
