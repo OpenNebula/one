@@ -26,6 +26,7 @@
 #include "RequestManagerChown.h"
 #include "RequestManagerChmod.h"
 #include "RequestManagerClone.h"
+#include "RequestManagerRename.h"
 
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
@@ -374,6 +375,13 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr group_get_default_quota(new GroupQuotaInfo());
     xmlrpc_c::methodPtr group_set_default_quota(new GroupQuotaUpdate());
 
+    // Rename Methods
+    xmlrpc_c::methodPtr vm_rename(new VirtualMachineRename());
+    xmlrpc_c::methodPtr template_rename(new TemplateRename());
+    xmlrpc_c::methodPtr vn_rename(new VirtualNetworkRename());
+    xmlrpc_c::methodPtr image_rename(new ImageRename());
+    xmlrpc_c::methodPtr doc_rename(new DocumentRename());
+
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
@@ -386,6 +394,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.monitoring", vm_monitoring);
     RequestManagerRegistry.addMethod("one.vm.attach", vm_attach);
     RequestManagerRegistry.addMethod("one.vm.detach", vm_detach);
+    RequestManagerRegistry.addMethod("one.vm.rename", vm_rename);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);
@@ -400,6 +409,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
     RequestManagerRegistry.addMethod("one.template.chmod", template_chmod);
     RequestManagerRegistry.addMethod("one.template.clone", template_clone);
+    RequestManagerRegistry.addMethod("one.template.rename", template_rename);
 
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
@@ -436,6 +446,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.info", vn_info); 
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
     RequestManagerRegistry.addMethod("one.vn.chmod", vn_chmod);
+    RequestManagerRegistry.addMethod("one.vn.rename", vn_rename);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info); 
     
@@ -465,6 +476,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.chmod", image_chmod);
     RequestManagerRegistry.addMethod("one.image.chtype", image_chtype);
     RequestManagerRegistry.addMethod("one.image.clone", image_clone);
+    RequestManagerRegistry.addMethod("one.image.rename", image_rename);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 
@@ -506,6 +518,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.document.chown",   doc_chown);
     RequestManagerRegistry.addMethod("one.document.chmod",   doc_chmod);
     RequestManagerRegistry.addMethod("one.document.clone",   doc_clone);
+    RequestManagerRegistry.addMethod("one.document.rename",   doc_rename);
 
     RequestManagerRegistry.addMethod("one.documentpool.info",docpool_info);
 
