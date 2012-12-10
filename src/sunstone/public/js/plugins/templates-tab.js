@@ -83,7 +83,7 @@ var capacity_tab =
       '</div>'+
     '</fieldset>'+
     '<div class="form_buttons">'+
-    '<button class="button" type="" value="" id="tf_btnn_disks">'+tr("DISKs")+'</button>'+
+      '<button href="#" class="next-tab" rel="1">'+tr("STORAGE")+' ></button>'+
     '</div>'
 
 
@@ -1232,6 +1232,7 @@ function setupCreateTemplateDialog(){
         var fields = $.merge(inputs,selects);
 
         fields.each(function(){
+            console.log(this)
             var field=$(this);
             if (!(field.parents(".vm_param").attr('disabled'))){ //if ! disabled
                 if (field.val().length){ //if has a length
@@ -1343,6 +1344,8 @@ function setupCreateTemplateDialog(){
             temp_index++;
             add_other_tab(temp_index);
 
+            // Enhace buttons
+            $('button',dialog).button();
 
             // Change tab if the DISKs button is clicked
             //$(".tf_btn_nics", dialog).click(add_nic_tab);
@@ -1568,7 +1571,8 @@ function setupCreateTemplateDialog(){
               '</fieldset>'+
             '</div>'+
             '<div class="form_buttons">'+
-              '<button class="button tf_btn_nics" type="" value="">'+tr("NETWORKs")+'</button>'+
+              '<button href="#" class="prev-tab" rel="0" style="float: left">< '+tr("GENERAL")+'</button>'+
+              '<button href="#" class="next-tab" rel="2">'+tr("NETWORK")+' ></button>'+
             '</div>'+
           '</div>'
 
@@ -1791,10 +1795,11 @@ function setupCreateTemplateDialog(){
                 '</p>'+
               '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
               '</div>'+
-                '<div class="form_buttons">'+
-                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
-                '</div>'+
           '</fieldset>'+
+            '<div class="form_buttons">'+
+              '<button href="#" class="prev-tab" rel="1" style="float: left">< '+tr("STORAGE")+'</button>'+
+              '<button href="#" class="next-tab" rel="3">'+tr("OS BOOTING")+' ></button>'+
+            '</div>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
@@ -1912,7 +1917,91 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_os_tab = function(temp_index) {
-      var html_tab_content = '<div id="os_tab">'+
+      var html_tab_content = '<div id="os_tab">'+            
+            '<fieldset>'+
+              '<input type="radio" name="kernel_type" value="kernel_ds" checked> Select a registered KERNEL '+
+              '<input type="radio" name="kernel_type" value="kernel_path"> Specify the KERNEL path in the remote Host'+
+            '</fieldset>'+
+            '<br>'+
+            '<div class="kernel_ds">'+
+              '<table id="datatable_kernel" class="display">'+
+                '<thead>'+
+                  '<tr>'+
+                    '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
+                    '<th>'+tr("ID")+'</th>'+
+                    '<th>'+tr("Owner")+'</th>'+
+                    '<th>'+tr("Group")+'</th>'+
+                    '<th>'+tr("Name")+'</th>'+
+                    '<th>'+tr("Datastore")+'</th>'+
+                    '<th>'+tr("Size")+'</th>'+
+                    '<th>'+tr("Type")+'</th>'+
+                    '<th>'+tr("Registration time")+'</th>'+
+                    '<th>'+tr("Persistent")+'</th>'+
+                    '<th>'+tr("Status")+'</th>'+
+                    '<th>'+tr("#VMS")+'</th>'+
+                    '<th>'+tr("Target")+'</th>'+
+                  '</tr>'+
+                '</thead>'+
+                '<tbody id="tbodyimages">'+
+                '</tbody>'+
+              '</table>'+
+              '<fieldset>'+
+                '<div id="kernel_ds_inputs" class="vm_param kvm_opt xen_opt vmware_opt">'+
+                  '<p>You selected the following KERNEL: '+
+                    '<span type="text" id="KERNEL" name="kernel"></span>'+
+                    '</p>'+
+                  '<input type="hidden" id="KERNEL_DS" name="kernel_ds" size="2"/>'+
+                  '</div>'+
+              '</fieldset>'+
+            '</div>'+
+            '<div id="kernel_path_inputs" class="kernel_path hidden">'+
+                  '<label for="KERNEL">'+tr("Kernel")+':</label>'+
+                  '<input type="text" id="KERNEL" name="kernel" />'+
+                  '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
+                '</div>'+
+            '<br>'+  
+            '<fieldset>'+
+              '<input type="radio" name="initrd_type" value="initrd_ds" checked> Select a registered INITRD '+
+              '<input type="radio" name="initrd_type" value="initrd_path"> Specify the INITRD path in the remote Host'+
+            '</fieldset>'+
+            '<br>'+
+            '<div class="initrd_ds">'+
+              '<table id="datatable_initrd" class="display">'+
+                '<thead>'+
+                  '<tr>'+
+                    '<th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>'+
+                    '<th>'+tr("ID")+'</th>'+
+                    '<th>'+tr("Owner")+'</th>'+
+                    '<th>'+tr("Group")+'</th>'+
+                    '<th>'+tr("Name")+'</th>'+
+                    '<th>'+tr("Datastore")+'</th>'+
+                    '<th>'+tr("Size")+'</th>'+
+                    '<th>'+tr("Type")+'</th>'+
+                    '<th>'+tr("Registration time")+'</th>'+
+                    '<th>'+tr("Persistent")+'</th>'+
+                    '<th>'+tr("Status")+'</th>'+
+                    '<th>'+tr("#VMS")+'</th>'+
+                    '<th>'+tr("Target")+'</th>'+
+                  '</tr>'+
+                '</thead>'+
+                '<tbody id="tbodyimages">'+
+                '</tbody>'+
+              '</table>'+
+              '<fieldset>'+
+                '<div id="initrd_ds_inputs" class="vm_param kvm_opt xen_opt vmware_opt">'+
+                  '<p>You selected the following INITRD: '+
+                    '<span type="text" id="INITRD" name="initrd"></span>'+
+                    '</p>'+
+                  '<input type="hidden" id="INITRD_DS" name="initrd_id" size="2"/>'+
+                  '</div>'+
+              '</fieldset>'+
+            '</div>'+
+            '<div id="initrd_path_inputs" class="initrd_path hidden">'+
+                  '<label for="INITRD">'+tr("Initrd")+':</label>'+
+                  '<input type="text" id="INITRD" name="initrd"/>'+
+                  '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
+                '</div>'+
+            '<br>'+  
           '<fieldset>'+
             '<div class="vm_param kvm vmware">'+
               '<label for="ARCH">'+tr("Architecture")+':</label>'+
@@ -1925,23 +2014,15 @@ function setupCreateTemplateDialog(){
             '<!--xen necesita kernel o bootloader.'+
             'Opciones de kernel son obligatorias si se activa kernel-->'+
             '<div class="" id="kernel_bootloader">'+
-              '<label>'+tr("Boot method")+':</label>'+
-              '<select id="boot_method" name="boot_method">'+
+              '<label for="BOOT">'+tr("Boot")+':</label>'+
+              '<select id="BOOT" name="boot">'+
                 '<option id="no_boot" name="no_boot" value=""></option>'+
-                '<option value="kernel">'+tr("Kernel")+'</option>'+
-                '<option value="bootloader">'+tr("Bootloader")+'</option>'+
+                '<option value="hd">'+tr("HD")+'</option>'+
+                '<option value="fd">'+tr("FD")+'</option>'+
+                '<option value="cdrom">'+tr("CDROM")+'</option>'+
+                '<option value="network">'+tr("NETWORK")+'</option>'+
               '</select>'+
-              '<div class="tip">'+tr("Select boot method")+'</div>'+
-            '</div>'+
-            '<div class="vm_param kvm_opt xen kernel">'+
-                  '<label for="KERNEL">'+tr("Kernel")+':</label>'+
-                  '<input type="text" id="KERNEL" name="kernel" />'+
-                  '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
-                '</div>'+
-            '<div class="vm_param kvm xen kernel">'+
-                  '<label for="INITRD">'+tr("Initrd")+':</label>'+
-                  '<input type="text" id="INITRD" name="initrd"/>'+
-                  '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
+              '<div class="tip">'+tr("Boot device type")+'</div>'+
             '</div>'+
             '<div class="vm_param kvm xen kernel">'+
                   '<label for="ROOT">'+tr("Root")+':</label>'+
@@ -1958,18 +2039,192 @@ function setupCreateTemplateDialog(){
                   '<input type="text" id="BOOTLOADER" name="bootloader" />'+
                   '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
             '</div>'+
-            '<div class="vm_param kvm">'+
-                  '<label for="BOOT">'+tr("Boot")+':</label>'+
-                  '<select id="BOOT" name="boot">'+
-                  '</select>'+
-                  '<div class="tip">'+tr("Boot device type")+'</div>'+
-            '</div>'+
           '</fieldset>'+
+            '<div class="form_buttons">'+
+              '<button href="#" class="prev-tab" rel="2" style="float: left">< '+tr("NETWORK")+'</button>'+
+              '<button href="#" class="next-tab" rel="4">'+tr("INPUT/OUTPUT")+' ></button>'+
+            '</div>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
       tabs.append(html_tab_content).tabs('add', '#os_tab', 'OS BOOTING', temp_index); 
       $( "#template_create_tabs a[href='#os_tab']").parent().remove("span")
+
+        // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
+        // vm_param class is included to be computed when the template is generated.
+        $("input[name='kernel_type']").change(function(){
+          if ($("input[name='kernel_type']:checked").val() == "kernel_ds") {
+              $("div.kernel_ds",  $('div#os_tab')).toggle();
+              $("div#kernel_ds_inputs",  $('div#os_tab')).addClass('vm_param');
+              $("div.kernel_path",  $('div#os_tab')).hide();
+              $("div#kernel_path_inputs",  $('div#os_tab')).removeClass('vm_param');
+          }
+          else {
+              $("div.kernel_ds",  $('div#os_tab')).hide();
+              $("div#kernel_ds_inputs",  $('div#os_tab')).removeClass('vm_param');
+              $("div.kernel_path",  $('div#os_tab')).toggle();
+              $("div#kernel_path_inputs",  $('div#os_tab')).addClass('vm_param');
+          }
+        });
+
+        $("input[name='initrd_type']").change(function(){
+          if ($("input[name='initrd_type']:checked").val() == "initrd_ds") {
+              $("div.initrd_ds",  $('div#os_tab')).toggle();
+              $("div#initrd_ds_inputs",  $('div#os_tab')).addClass('vm_param');
+              $("div.initrd_path",  $('div#os_tab')).hide();
+              $("div#initrd_path_inputs",  $('div#os_tab')).removeClass('vm_param');
+          }
+          else {
+              $("div.initrd_ds",  $('div#os_tab')).hide();
+              $("div#initrd_ds_inputs",  $('div#os_tab')).removeClass('vm_param');
+              $("div.initrd_path",  $('div#os_tab')).toggle();
+              $("div#initrd_path_inputs",  $('div#os_tab')).addClass('vm_param');
+          }
+        });
+
+        var dataTable_template_kernel = $('#datatable_kernel', dialog).dataTable({
+            "bJQueryUI": true,
+            "bSortClasses": false,
+            "bAutoWidth":false,
+            "sDom" : '<"H"lfrC>t<"F"ip>',
+            "oColVis": {
+                "aiExclude": [ 0 ]
+            },
+            "sPaginationType": "full_numbers",
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ["check"] },
+                { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
+                { "sWidth": "35px", "aTargets": [1,6,11,12] },
+                { "sWidth": "100px", "aTargets": [5,7] },
+                { "sWidth": "150px", "aTargets": [8] },
+                { "bVisible": false, "aTargets": [0,2,3,6,7,9,8,12]}
+            ],
+            "oLanguage": (datatable_lang != "") ?
+                {
+                    sUrl: "locale/"+lang+"/"+datatable_lang
+                } : ""
+        });
+
+        dataTable_template_kernel.fnClearTable();
+        addElement([spinner,'','','','','','','','','','','',''],dataTable_template_kernel);
+
+        // Retrieve the images to fill the datatable
+        OpenNebula.Image.list({
+          timeout: true, 
+          success: function (request, images_list){
+              var image_list_array = [];
+
+              $.each(images_list,function(){
+                 image_list_array.push(imageElementArray(this));
+              });
+
+              updateView(image_list_array, dataTable_template_kernel);
+          }, 
+          error: onError
+        });
+
+        // TBD Add refresh button for the datatable
+
+        // When a row is selected the background color is updated. If a previous row
+        // was selected (previous_row) the background color is removed.
+        // #IMAGE and #IMAGE_ID inputs are updated using the row information
+        if (typeof previous_kernel_row === 'undefined') {
+            var previous_kernel_row = 0;
+        }
+        
+        $('#datatable_kernel tbody', dialog).delegate("tr", "click", function(e){
+            if ($(e.target).is('input') ||
+                $(e.target).is('select') ||
+                $(e.target).is('option')) return true;
+
+            var aData = dataTable_template_kernel.fnGetData(this);
+
+            if (previous_kernel_row)
+                $("td:first", previous_kernel_row).parent().children().each(function(){$(this).removeClass('markrow');});
+            previous_kernel_row = this;
+            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+            
+            $('#KERNEL', $('div#os_tab')).text(aData[4]);
+            $('#KERNEL_DS', $('div#os_tab')).val("$FILE[IMAGE_ID="+ aData[1] +"]");
+            return false;
+        });
+
+
+
+          var datTable_template_initrd = $('#datatable_initrd', dialog).dataTable({
+            "bJQueryUI": true,
+            "bSortClasses": false,
+            "bAutoWidth":false,
+            "sDom" : '<"H"lfrC>t<"F"ip>',
+            "oColVis": {
+                "aiExclude": [ 0 ]
+            },
+            "sPaginationType": "full_numbers",
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ["check"] },
+                { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
+                { "sWidth": "35px", "aTargets": [1,6,11,12] },
+                { "sWidth": "100px", "aTargets": [5,7] },
+                { "sWidth": "150px", "aTargets": [8] },
+                { "bVisible": false, "aTargets": [0,2,3,6,7,9,8,12]}
+            ],
+            "oLanguage": (datatable_lang != "") ?
+                {
+                    sUrl: "locale/"+lang+"/"+datatable_lang
+                } : ""
+        });
+
+        datTable_template_initrd.fnClearTable();
+        addElement([spinner,'','','','','','','','','','','',''],datTable_template_initrd);
+
+        // Retrieve the images to fill the datatable
+        OpenNebula.Image.list({
+          timeout: true, 
+          success: function (request, images_list){
+              var image_list_array = [];
+
+              $.each(images_list,function(){
+                 image_list_array.push(imageElementArray(this));
+              });
+
+              updateView(image_list_array, datTable_template_initrd);
+          }, 
+          error: onError
+        });
+
+        // TBD Add refresh button for the datatable
+
+        // When a row is selected the background color is updated. If a previous row
+        // was selected (previous_row) the background color is removed.
+        // #IMAGE and #IMAGE_ID inputs are updated using the row information
+        if (typeof previous_initrd_row === 'undefined') {
+            var previous_initrd_row = 0;
+        }
+        
+        $('#datatable_initrd tbody', dialog).delegate("tr", "click", function(e){
+            if ($(e.target).is('input') ||
+                $(e.target).is('select') ||
+                $(e.target).is('option')) return true;
+
+            var aData = datTable_template_initrd.fnGetData(this);
+
+            if (previous_initrd_row)
+                $("td:first", previous_initrd_row).parent().children().each(function(){$(this).removeClass('markrow');});
+            previous_initrd_row = this;
+            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+            
+            $('#INITRD', $('div#os_tab')).text(aData[4]);
+            $('#INITRD_DS', $('div#os_tab')).val("$FILE[IMAGE_ID="+ aData[1] +"]");
+            return false;
+        });
+
+        // Hide image advanced options
+        $('fieldset.advanced', $('div#advanced_os')).hide();
+
+        $('#advanced_os', dialog).click(function(){
+            $('fieldset.advanced', $('div##advanced_os')).toggle();
+            return false;
+        });
 
       setupTips($('div#os_tab'));
     }
@@ -1981,7 +2236,7 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_io_tab = function(temp_index) {
-      var html_tab_content = '<div id="io_tab" class="nic">'+
+      var html_tab_content = '<div id="io_tab">'+
           '<fieldset>'+
             '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
               '<p>You selected the following image: '+
@@ -1989,10 +2244,11 @@ function setupCreateTemplateDialog(){
                 '</p>'+
               '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
               '</div>'+
-                '<div class="form_buttons">'+
-                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
-                '</div>'+
           '</fieldset>'+
+            '<div class="form_buttons">'+
+              '<button href="#" class="prev-tab" rel="3" style="float: left">< '+tr("OS BOOTING")+'</button>'+
+              '<button href="#" class="next-tab" rel="5">'+tr("CONTEXT")+' ></button>'+
+            '</div>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
@@ -2005,7 +2261,7 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_context_tab = function(temp_index) {
-      var html_tab_content = '<div id="context_tab" class="nic">'+
+      var html_tab_content = '<div id="context_tab">'+
           '<fieldset>'+
             '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
               '<p>You selected the following image: '+
@@ -2013,10 +2269,11 @@ function setupCreateTemplateDialog(){
                 '</p>'+
               '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
               '</div>'+
-                '<div class="form_buttons">'+
-                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
-                '</div>'+
           '</fieldset>'+
+            '<div class="form_buttons">'+
+              '<button href="#" class="prev-tab" rel="4" style="float: left">< '+tr("INPUT/OUTPUT")+'</button>'+
+              '<button href="#" class="next-tab" rel="6">'+tr("PLACEMENT")+' ></button>'+
+            '</div>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
@@ -2030,7 +2287,7 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_placement_tab = function(temp_index) {
-      var html_tab_content = '<div id="placement_tab" class="nic">'+
+      var html_tab_content = '<div id="placement_tab">'+
           '<fieldset>'+
             '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
               '<p>You selected the following image: '+
@@ -2038,10 +2295,11 @@ function setupCreateTemplateDialog(){
                 '</p>'+
               '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
               '</div>'+
-                '<div class="form_buttons">'+
-                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
-                '</div>'+
           '</fieldset>'+
+            '<div class="form_buttons">'+
+              '<button href="#" class="prev-tab" rel="5" style="float: left">< '+tr("CONTEXT")+'</button>'+
+              '<button href="#" class="next-tab" rel="7">'+tr("OTHER")+' ></button>'+
+            '</div>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
@@ -2055,7 +2313,7 @@ function setupCreateTemplateDialog(){
     **************************************************************************/
 
     var add_other_tab = function(temp_index) {
-      var html_tab_content = '<div id="other_tab" class="nic">'+
+      var html_tab_content = '<div id="other_tab">'+
           '<fieldset>'+
             '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
               '<p>You selected the following image: '+
@@ -2063,10 +2321,10 @@ function setupCreateTemplateDialog(){
                 '</p>'+
               '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
               '</div>'+
-                '<div class="form_buttons">'+
-                  '<button class="button" type="" value="" id="tf_btn_advanced">'+tr("ADVANCED")+'</button>'+
-                '</div>'+
           '</fieldset>'+
+            '<div class="form_buttons">'+
+              '<button href="#" class="prev-tab" rel="6" style="float: left">< '+tr("PLACEMENT")+'</button>'+
+            '</div>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
@@ -2552,11 +2810,16 @@ function setupCreateTemplateDialog(){
         height: height
     });
 
-    // Enhace buttons
-    $('button',dialog).button();
+
 
     var tabs = $( "#template_create_tabs", dialog).tabs().addClass("ui-tabs-vertical");
     $(".ui-tabs-vertical .ui-tabs-nav", dialog).removeClass("ui-tabs-nav").addClass("ui-tabs-nav-vert")
+
+    $('.next-tab, .prev-tab').live("click", function() { 
+          console.log($(this).attr("rel"))
+         tabs.tabs('select', parseInt($(this).attr("rel")));
+         return false;
+    });
 
     // Re-Setup tips
     setupTips(dialog);
@@ -2611,6 +2874,9 @@ function setupCreateTemplateDialog(){
     raw_setup();
     custom_variables_setup();
 
+    // Enhace buttons
+    $('button',dialog).button();
+
     //Process form
     $('button#create_template_form_easy',dialog).click(function(){
         //validate form
@@ -2641,8 +2907,8 @@ function setupCreateTemplateDialog(){
         //    notifyError(tr("There are mandatory fields missing in the OS Boot options section"));
         //    return false;
         //};
-        //vm_json["OS"] = {};
-        //addSectionJSON(vm_json["OS"],scope);
+        vm_json["OS"] = {};
+        addSectionJSON(vm_json["OS"],$('div#os_tab',dialog));
 //
         ////Fetch pae and acpi options
         //scope = section_features;
@@ -2661,6 +2927,7 @@ function setupCreateTemplateDialog(){
         vm_json["NIC"] = [];
 
         $('div.nic',dialog).each(function(){
+          console.log("nic")
           var hash  = {};
           addSectionJSON(hash, this);
           vm_json["NIC"].push(hash);
