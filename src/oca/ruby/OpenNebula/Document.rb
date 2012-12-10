@@ -44,6 +44,7 @@ module OpenNebula
             :chown      => "document.chown",
             :chmod      => "document.chmod",
             :clone      => "document.clone",
+            :rename     => "document.rename"
         }
 
         # Creates a Document Object description with just its identifier
@@ -183,6 +184,16 @@ module OpenNebula
             rc = @client.call(DOCUMENT_METHODS[:clone], @pe_id, name)
 
             return rc
+        end
+
+        # Renames this Document
+        #
+        # @param name [String] New name for the Document.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(DOCUMENT_METHODS[:rename], @pe_id, name)
         end
 
         #######################################################################

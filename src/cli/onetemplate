@@ -265,6 +265,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Lists Templates in the pool
     EOT
 
+    rename_desc = <<-EOT.unindent
+        Renames the Template
+    EOT
+
+    command :rename, rename_desc, :templateid, :name do
+        helper.perform_action(args[0],options,"renamed") do |o|
+            o.rename(args[1])
+        end
+    end
+
     command :list, list_desc, [:filterflag, nil], :options=>list_options do
         helper.list_pool(options, false, args[0])
     end
