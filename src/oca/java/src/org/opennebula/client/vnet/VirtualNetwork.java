@@ -38,6 +38,7 @@ public class VirtualNetwork extends PoolElement{
     private static final String UPDATE          = METHOD_PREFIX + "update";
     private static final String HOLD            = METHOD_PREFIX + "hold";
     private static final String RELEASE         = METHOD_PREFIX + "release";
+    private static final String RENAME          = METHOD_PREFIX + "rename";
 
     /**
      * Creates a new virtual network representation.
@@ -263,13 +264,26 @@ public class VirtualNetwork extends PoolElement{
      * Replaces the VirtualNetwork template contents.
      *
      * @param client XML-RPC Client.
-     * @param id The user id of the target vnet we want to modify.
+     * @param id The vnet id of the target vnet we want to modify.
      * @param new_template New template contents.
      * @return If successful the message contains the vnet id.
      */
     public static OneResponse update(Client client, int id, String new_template)
     {
         return client.call(UPDATE, id, new_template);
+    }
+
+    /**
+     * Renames this VirtualNetwork
+     *
+     * @param client XML-RPC Client.
+     * @param id The VirtualNetwork id of the target VirtualNetwork.
+     * @param name New name for the VirtualNetwork.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
     }
 
     // =================================
@@ -489,6 +503,17 @@ public class VirtualNetwork extends PoolElement{
     public OneResponse update(String new_template)
     {
         return update(client, id, new_template);
+    }
+
+    /**
+     * Renames this VirtualNetwork
+     *
+     * @param name New name for the VirtualNetwork.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================
