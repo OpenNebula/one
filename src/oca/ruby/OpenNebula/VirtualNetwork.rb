@@ -34,7 +34,8 @@ module OpenNebula
             :chmod      => "vn.chmod",
             :update     => "vn.update",
             :hold       => "vn.hold",
-            :release    => "vn.release"
+            :release    => "vn.release",
+            :rename     => "vn.rename"
         }
 
         VN_TYPES=%w{RANGED FIXED}
@@ -190,6 +191,16 @@ module OpenNebula
                 other_m, other_a)
             super(VN_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
+        end
+        
+        # Renames this virtual network
+        #
+        # @param name [String] New name for the virtual network.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(VN_METHODS[:rename], @pe_id, name)
         end
 
         #######################################################################

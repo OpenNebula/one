@@ -160,7 +160,7 @@ module OpenNebula
 
         # Renames this Template
         #
-        # @param name [String] New name for the new Template.
+        # @param name [String] New name for the Template.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
