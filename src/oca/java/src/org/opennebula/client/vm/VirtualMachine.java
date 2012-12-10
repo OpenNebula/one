@@ -39,6 +39,7 @@ public class VirtualMachine extends PoolElement{
     private static final String MONITORING = METHOD_PREFIX + "monitoring";
     private static final String ATTACH  = METHOD_PREFIX + "attach";
     private static final String DETACH  = METHOD_PREFIX + "detach";
+    private static final String RENAME  = METHOD_PREFIX + "rename";
 
     private static final String[] VM_STATES =
     {
@@ -273,6 +274,19 @@ public class VirtualMachine extends PoolElement{
         return client.call(DETACH, id, diskId);
     }
 
+    /**
+     * Renames this VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param name New name for the VM.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -484,6 +498,17 @@ public class VirtualMachine extends PoolElement{
     public OneResponse detachdisk(int diskId)
     {
         return detachdisk(client, id, diskId);
+    }
+
+    /**
+     * Renames this VM
+     *
+     * @param name New name for the VM.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================
