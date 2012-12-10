@@ -128,37 +128,34 @@ int Image::insert(SqlDB *db, string& error_str)
         goto error_type;
     }
 
-    // ------------ PERSISTENT --------------------
+    // ------------ PERSISTENT & PREFIX --------------------
 
     erase_template_attribute("PERSISTENT", persistent_attr);
 
-    if ( type != DATAFILE )
+    switch (type)
     {
-        TO_UPPER(persistent_attr);
+        case OS:
+        case DATABLOCK:
+        case CDROM:
+            TO_UPPER(persistent_attr);
+            persistent_img = (persistent_attr == "YES");
 
-        persistent_img = (persistent_attr == "YES");
-    }
-    else // Files are always non-persistent
-    {
-        persistent_img = false;
-    }
+            get_template_attribute("DEV_PREFIX", dev_prefix);
 
-    // ------------ PREFIX --------------------
-
-    if ( type != DATAFILE )
-    {
-        get_template_attribute("DEV_PREFIX", dev_prefix);
-
-        if( dev_prefix.empty() )
-        {
-            SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
+            if( dev_prefix.empty() )
+            {
+                SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                               ImagePool::default_dev_prefix());
-            obj_template->set(dev_att);
-        }
-    }
-    else // Do not set dev_prefix for files
-    {
-        erase_template_attribute("DEV_PREFIX", dev_prefix);
+                obj_template->set(dev_att);
+            }
+        break;
+
+        case KERNEL: // Files are always non-persistent with no dev_prefix
+        case RAMDISK:
+        case CONTEXT:
+            persistent_img = false;
+            erase_template_attribute("DEV_PREFIX", dev_prefix);
+        break;
     }
 
     // ------------ SIZE --------------------
@@ -545,6 +542,9 @@ int Image::disk_attribute(  VectorAttribute * disk,
           disk_attr_type = "CDROM";
           disk->replace("READONLY","YES");
         break;
+
+        default: //Other file types should not be never a DISK
+        break;
     }
 
     disk->replace("TYPE",disk_attr_type);
@@ -583,9 +583,17 @@ int Image::set_type(string& _type)
     {
         type = DATABLOCK;
     }
-    else if ( _type == "FILE" )
+    else if ( _type == "KERNEL" )
     {
-        type = DATAFILE;
+        type = KERNEL;
+    }
+    else if ( _type == "RAMDISK" )
+    {
+        type = RAMDISK;
+    }
+    else if ( _type == "CONTEXT" )
+    {
+        type = CONTEXT;
     }
     else
     {
@@ -648,9 +656,17 @@ Image::ImageType Image::str_to_type(string& str_type)
     {
         it = DATABLOCK;
     }
-    else if ( str_type == "FILE" )
+    else if ( str_type == "KERNEL" )
     {
-        it = DATAFILE;
+        it = KERNEL;
+    }
+    else if ( str_type == "RAMDISK" )
+    {
+        it = RAMDISK;
+    }
+    else if ( str_type == "CONTEXT" )
+    {
+        it = CONTEXT;
     }
 
     return it;

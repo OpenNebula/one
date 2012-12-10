@@ -88,15 +88,24 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 {
     int rc = 0;
 
-    if ( img->get_type() == Image::DATAFILE )
+    switch(img->get_type())
     {
-        ostringstream oss;
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+            break;
 
-        oss << "Image " << img->get_oid() << " (" << img->get_name() << ") "
-            << "of type FILE cannot be used as DISK.";
-        error = oss.str();
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            ostringstream oss;
 
-        return -1;
+            oss << "Image " << img->get_oid() << " (" << img->get_name() << ") "
+                << "of type " << Image::type_to_str(img->get_type())
+                << " cannot be used as DISK.";
+
+            error = oss.str();
+            return -1;
     }
 
     switch (img->get_state())
@@ -160,12 +169,20 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         return;
     }
 
-    if ( img->get_type() == Image::DATAFILE )
+    switch(img->get_type())
     {
-        NebulaLog::log("ImM", Log::ERROR, "Trying to release a FILE image");
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+            break;
 
-        img->unlock();
-        return;
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            NebulaLog::log("ImM", Log::ERROR, "Trying to release a KERNEL, "
+                "RAMDISK or CONTEXT image");
+            img->unlock();
+            return;
     }
 
     switch (img->get_state())
@@ -257,12 +274,20 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
         return;
     }
 
-    if ( img->get_type() == Image::DATAFILE )
+    switch(img->get_type())
     {
-        NebulaLog::log("ImM", Log::ERROR, "Trying to release a cloning FILE image");
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+            break;
 
-        img->unlock();
-        return;
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            NebulaLog::log("ImM", Log::ERROR, "Trying to release a cloning "
+                "KERNEL, RAMDISK or CONTEXT image");
+            img->unlock();
+            return;
     }
 
     switch (img->get_state())
@@ -709,7 +734,9 @@ int ImageManager::stat_image(Template*     img_tmpl,
     {
         case Image::OS:
         case Image::CDROM:
-        case Image::DATAFILE:
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
             img_tmpl->get("SOURCE", res);
 
             if (!res.empty())

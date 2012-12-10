@@ -105,16 +105,25 @@ int ImagePool::allocate (
 
     img->get_template_attribute("TYPE", type);
 
-    if ( ds_type == Datastore::FILE_DS &&
-         img->str_to_type(type) != Image::DATAFILE )
+    switch (img->str_to_type(type))
     {
-        goto error_types_missmatch_file;
-    }
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+            if ( ds_type != Datastore::IMAGE_DS  )
+            {
+                goto error_types_missmatch_file;
+            }
+        break;
 
-    if ( ds_type == Datastore::IMAGE_DS &&
-         img->str_to_type(type) == Image::DATAFILE )
-    {
-        goto error_types_missmatch_image;
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            if ( ds_type != Datastore::FILE_DS  )
+            {
+                goto error_types_missmatch_image;
+            }
+        break;
     }
 
     img_aux = get(name,uid,false);
@@ -197,11 +206,13 @@ error_name_length:
     goto error_common;
 
 error_types_missmatch_file:
-    oss << "Only IMAGES of type FILE can be registered in a FILE_DS datastore";
+    oss << "Only IMAGES of type KERNEL, RAMDISK and CONTEXT can be registered"
+        " in a FILE_DS datastore";
     goto error_common;
 
 error_types_missmatch_image:
-    oss << "IMAGES of type FILE cannot be registered in a IMAGE_DS datastore";
+    oss << "IMAGES of type KERNEL, RAMDISK and CONTEXT cannot be registered"
+        " in an IMAGE_DS datastore";
     goto error_common;
 
 error_duplicated:

@@ -40,7 +40,7 @@ public:
     };
 
     /**
-     *  Return the string representation of an DatastoreType
+     *  Return the string representation of a DatastoreType
      *    @param ob the type
      *    @return the string
      */
@@ -56,9 +56,9 @@ public:
     };
 
     /**
-     *  Return the string representation of an DatastoreType
+     *  Return the string representation of a DatastoreType
      *    @param str_type string representing the DatastoreTypr
-     *    @return the ImageType (defaults to IMAGE_DS)
+     *    @return the DatastoreType (defaults to IMAGE_DS)
      */
     static DatastoreType str_to_type(string& str_type);
 

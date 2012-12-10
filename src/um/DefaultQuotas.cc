@@ -14,106 +14,79 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "QuotaVirtualMachine.h"
-#include "Quotas.h"
+#include "DefaultQuotas.h"
+#include "ObjectXML.h"
+
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * QuotaVirtualMachine::VM_METRICS[] = {"VMS", "CPU", "MEMORY"};
-
-const int QuotaVirtualMachine::NUM_VM_METRICS  = 3;
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int QuotaVirtualMachine::get_quota(const string& id, VectorAttribute **va)
+string& DefaultQuotas::to_xml(string& xml) const
 {
-    vector<Attribute*> values;
-    int num;
+    ostringstream oss;
 
-    *va = 0;
+    string aux_xml;
 
-    num = get(template_name, values);
+    oss << "<" << root_elem << ">"
+        << Quotas::to_xml(aux_xml)
+        << "</" << root_elem << ">";
 
-    if ( num == 0 )
-    {
-        return 0;
-    }
+    xml = oss.str();
 
-    *va = dynamic_cast<VectorAttribute *>(values[0]);
-
-    return 0;
+    return xml;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaVirtualMachine::check(Template * tmpl,
-                                Quotas& default_quotas,
-                                string& error)
+int DefaultQuotas::from_xml(const string& xml)
 {
-    map<string, float> vm_request;
+    ObjectXML *object_xml = new ObjectXML(xml);
 
-    int memory;
-    float cpu;
+    int rc = Quotas::from_xml(object_xml);
 
-    if ( tmpl->get("MEMORY", memory) == false  || memory <= 0 )
-    {
-        error = "MEMORY attribute must be a positive integer value";
-        return false;
-    }
+    delete object_xml;
 
-    if ( tmpl->get("CPU", cpu) == false || cpu <= 0 )
-    {
-        error = "CPU attribute must be a positive float or integer value";
-        return false;
-    }
-
-    vm_request.insert(make_pair("VMS",1));
-    vm_request.insert(make_pair("MEMORY", memory));
-    vm_request.insert(make_pair("CPU", cpu));
-
-    return check_quota("", vm_request, default_quotas, error);
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void QuotaVirtualMachine::del(Template * tmpl)
+int DefaultQuotas::select()
 {
-    map<string, float> vm_request;
+    string  xml_body;
+    Nebula& nd  = Nebula::instance();
 
-    int memory;
-    float cpu;
-
-    if ( tmpl->get("MEMORY", memory) == false )
+    if ( nd.select_sys_attribute(root_elem, xml_body) != 0 )
     {
-        memory = 0;
+        return -1;
     }
 
-    if ( tmpl->get("CPU", cpu) == false )
-    {
-        cpu = 0;
-    }
-
-    vm_request.insert(make_pair("VMS",1));
-    vm_request.insert(make_pair("MEMORY", memory));
-    vm_request.insert(make_pair("CPU", cpu));
-
-    del_quota("", vm_request);
+    return from_xml(xml_body);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int QuotaVirtualMachine::get_default_quota(
-    const string& id,
-    Quotas& default_quotas,
-    VectorAttribute **va)
+int DefaultQuotas::insert()
 {
-    return default_quotas.vm_get(id, va);
+    string  xml_body;
+    string  error;
+    Nebula& nd  = Nebula::instance();
+
+    return nd.insert_sys_attribute(root_elem, to_xml(xml_body), error);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int DefaultQuotas::update()
+{
+    string  xml_body;
+    string  error;
+    Nebula& nd  = Nebula::instance();
+
+    return nd.update_sys_attribute(root_elem, to_xml(xml_body), error);
+}

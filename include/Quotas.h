@@ -30,7 +30,11 @@ public:
     Quotas(const char * _ds_xpath,
            const char * _net_xpath,
            const char * _img_xpath,
-           const char * _vm_xpath): 
+           const char * _vm_xpath):
+                datastore_quota(false),
+                network_quota(false),
+                image_quota(false),
+                vm_quota(false),
                 ds_xpath(_ds_xpath),
                 net_xpath(_net_xpath),
                 img_xpath(_img_xpath),
@@ -60,18 +64,6 @@ public:
     int set(Template *tmpl, string& error);
 
     /**
-     *  Check Datastore quotas, it updates usage counters if quotas are not 
-     *  exceeded.
-     *    @param tmpl template for the image
-     *    @param reason string describing the error
-     *    @return true if image can be allocated, false otherwise
-     */
-     bool ds_check(Template * tmpl, string& reason)
-     {
-        return datastore_quota.check(tmpl, reason);
-     }
-
-    /**
      *  Delete usage from quota counters.
      *    @param tmpl template for the image, with usage
      */
@@ -80,16 +72,17 @@ public:
         datastore_quota.del(tmpl);
      }
 
-    /**
-     *  Check Virtual Machine quotas (network, image and compute), it updates 
-     *  usage counters if quotas are not exceeded.
-     *    @param tmpl template for the VirtualMachine
-     *    @param error_str string describing the error
-     *    @return true if VM can be allocated, false otherwise
-     */
-     bool vm_check(Template * tmpl, string& error_str)
+     /**
+      * Gets a Datastore quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int ds_get(const string& id, VectorAttribute **va)
      {
-        return quota_check(VIRTUALMACHINE, tmpl, error_str);
+         return datastore_quota.get_quota(id, va);
      }
 
     /**
@@ -103,14 +96,57 @@ public:
         image_quota.del(tmpl);
      }
 
+     /**
+      * Gets a VM quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int vm_get(const string& id, VectorAttribute **va)
+     {
+         return vm_quota.get_quota(id, va);
+     }
+
+     /**
+      * Gets a Network quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int network_get(const string& id, VectorAttribute **va)
+     {
+         return network_quota.get_quota(id, va);
+     }
+
+     /**
+      * Gets an Image quota identified by its ID.
+      *
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *
+      *    @return 0 on success, -1 if not found
+      */
+     int image_get(const string& id, VectorAttribute **va)
+     {
+         return image_quota.get_quota(id, va);
+     }
+
     /**
      *  Check quota, it updates  usage counters if quotas are not exceeded.
      *    @param type the quota to work with
      *    @param tmpl template for the VirtualMachine
+     *    @param default_quotas Quotas that contain the default limits
      *    @param error_str string describing the error
      *    @return true if VM can be allocated, false otherwise
      */
-    bool quota_check(QuotaType type, Template *tmpl, string& error_str);
+     bool quota_check(QuotaType type,
+                     Template *tmpl,
+                     Quotas& default_quotas,
+                     string& error_str);
 
     /**
      *  Delete usage from the given quota counters.
@@ -128,7 +164,7 @@ public:
 
     /**
      *  Builds quota object from an ObjectXML
-     *    @param object_xml pointer to the ObjectXML 
+     *    @param object_xml pointer to the ObjectXML
      *    @return 0 if success
      */
     int from_xml(ObjectXML * object_xml);
@@ -167,29 +203,49 @@ public:
      */
     static void quota_del(QuotaType type, int uid, int gid, Template * tmpl);
 
+protected:
+    /**
+     *  This is an specialized constructor only for derived Quotas classes.
+     *  It allows to set the defaultness attribute
+     */
+    Quotas(const char * _ds_xpath,
+           const char * _net_xpath,
+           const char * _img_xpath,
+           const char * _vm_xpath,
+           bool         is_deafult):
+                datastore_quota(is_deafult),
+                network_quota(is_deafult),
+                image_quota(is_deafult),
+                vm_quota(is_deafult),
+                ds_xpath(_ds_xpath),
+                net_xpath(_net_xpath),
+                img_xpath(_img_xpath),
+                vm_xpath(_vm_xpath)
+    {};
+
 private:
     //--------------------------------------------------------------------------
-    // Usage Counters and Quotas 
+    // Usage Counters and Quotas
     //--------------------------------------------------------------------------
 
     /**
-     * Datastore Quotas 
-     */     
+     * Datastore Quotas
+     */
      QuotaDatastore datastore_quota;
 
     /**
-     * Network Quotas 
+     * Network Quotas
      */
      QuotaNetwork network_quota;
 
     /**
-     * Image Quotas 
-     */     
+     * Image Quotas
+     */
      QuotaImage image_quota;
 
     /**
-     * Virtual Machine Quotas 
-     */     
+     * Virtual Machine Quotas
+     */
      QuotaVirtualMachine vm_quota;
 
     //--------------------------------------------------------------------------

@@ -1553,8 +1553,8 @@ void TransferManager::migrate_transfer_command(
 
     xfr << "MIGRATE " //TM action PRE or POST to be completed by VMM driver
         << vm->get_tm_mad() << " "
-        << vm->get_hostname() << " "
         << vm->get_previous_hostname() << " "
+        << vm->get_hostname() << " "
         << vm->get_remote_system_dir() << " "
         << vm->get_oid() << " "
         << vm->get_ds_id()

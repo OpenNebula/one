@@ -538,7 +538,7 @@ Attribute * Template::single_xml_att(const xmlNode * node)
     Attribute * attr = 0;
     xmlNode *   child = node->children;
 
-    if( child->next == 0 && child != 0 &&
+    if( child != 0 && child->next == 0 &&
         (child->type == XML_TEXT_NODE ||
          child->type == XML_CDATA_SECTION_NODE))
     {

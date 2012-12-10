@@ -20,6 +20,7 @@
 #include "VirtualMachineTemplate.h"
 #include "PoolSQL.h"
 #include "History.h"
+#include "Image.h"
 #include "Log.h"
 #include "NebulaLog.h"
 
@@ -173,13 +174,13 @@ public:
      *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
-     *   @param _net_tx received bytes (total)
+     *   @param _net_rx received bytes (total)
      */
     void update_info(
         const int _memory,
         const int _cpu,
-        const int _net_tx,
-        const int _net_rx)
+        const long long _net_tx,
+        const long long _net_rx)
     {
         if (_memory != -1)
         {
@@ -1009,12 +1010,12 @@ private:
     /**
      *  Network usage, transmitted bytes
      */
-    int         net_tx;
+    long long   net_tx;
 
     /**
      *  Network usage, received bytes
      */
-    int         net_rx;
+    long long   net_rx;
 
     /**
      *  History record, for the current host
@@ -1137,11 +1138,13 @@ private:
      *  INITRD files.
      *    @param os attribute of the VM template
      *    @param base_name of the attribute "KERNEL", or "INITRD"
+     *    @param base_type of the image attribute KERNEL, RAMDISK
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
     int set_os_file(VectorAttribute *  os,
                     const string&      base_name,
+                    Image::ImageType   base_type,
                     string&            error_str);
     /**
      *  Parse the "OS" attribute of the template by substituting

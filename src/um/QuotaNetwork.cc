@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "QuotaNetwork.h"
+#include "Quotas.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -26,7 +27,7 @@ const int QuotaNetwork::NUM_NET_METRICS  = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaNetwork::check(Template * tmpl,  string& error)
+bool QuotaNetwork::check(Template * tmpl, Quotas& default_quotas, string& error)
 {
     vector<Attribute*> nics;
     VectorAttribute *  nic;
@@ -53,7 +54,7 @@ bool QuotaNetwork::check(Template * tmpl,  string& error)
 
         if ( !net_id.empty() )
         {
-            if ( !check_quota(net_id, net_request, error) )
+            if ( !check_quota(net_id, net_request, default_quotas, error) )
             {
                 return false;
             }
@@ -91,9 +92,20 @@ void QuotaNetwork::del(Template * tmpl)
         }
 
         net_id = nic->vector_value("NETWORK_ID");
-        
+
         del_quota(net_id, net_request);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int QuotaNetwork::get_default_quota(
+        const string& id,
+        Quotas& default_quotas,
+        VectorAttribute **va)
+{
+    return default_quotas.network_get(id, va);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -87,12 +87,20 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( image->get_type() == Image::DATAFILE )
+    switch (image->get_type())
     {
-        failure_response(ACTION,
-            request_error("FILE images must be non-persistent",""), att);
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+        break;
 
-        image->unlock();
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            failure_response(ACTION,
+                request_error("KERNEL, RAMDISK and CONTEXT files must be "
+                "non-persistent",""), att);
+            image->unlock();
         return;
     }
 
@@ -132,6 +140,8 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
     string  type = xmlrpc_c::value_string(paramList.getString(2));
     int     rc;
 
+    Image::ImageType itype;
+
     Image * image;
     string  err_msg;
 
@@ -151,15 +161,43 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( image->get_type() == Image::DATAFILE )
-    {
-        failure_response(ACTION,
-            request_error("Only FILE images can be stored in a FILE_DS"
-                          " datastore.",""),
-            att);
+    itype = Image::str_to_type(type);
 
-        image->unlock();
-        return;
+    switch (image->get_type())
+    {
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+            if ((itype != Image::OS) &&
+                (itype != Image::DATABLOCK)&&
+                (itype != Image::CDROM) )
+            {
+                failure_response(ACTION,
+                    request_error("Cannot change image type to an incompatible"
+                        " type for the current datastore.",""),
+                    att);
+
+                image->unlock();
+                return;
+            }
+        break;
+
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            if ((itype != Image::KERNEL) &&
+                (itype != Image::RAMDISK)&&
+                (itype != Image::CONTEXT) )
+            {
+                failure_response(ACTION,
+                    request_error("Cannot change image type to an incompatible"
+                        " type for the current datastore.",""),
+                    att);
+
+                image->unlock();
+                return;
+            }
+        break;
     }
 
     rc = image->set_type(type);
@@ -220,14 +258,20 @@ void ImageClone::request_execute(
         return;
     }
 
-    if ( img->get_type() == Image::DATAFILE )
+    switch (img->get_type())
     {
-        failure_response(ACTION,
-                allocate_error("Image of type FILE cannot be clonned"),
-                att);
+        case Image::OS:
+        case Image::DATABLOCK:
+        case Image::CDROM:
+        break;
 
-        img->unlock();
-
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+            failure_response(ACTION,
+                allocate_error("KERNEL, RAMDISK and CONTEXT files cannot be "
+                    "cloned."), att);
+            img->unlock();
         return;
     }
 
