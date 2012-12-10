@@ -75,6 +75,15 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
         int duplicate_obj_oid = object->get_oid();
         object->unlock();
 
+        if ( duplicate_obj_oid == oid )
+        {
+            // Setting the same name for the object, do nothing but consider
+            // it a success
+            success_response(oid, att);
+            return;
+        }
+
+
         oss << PoolObjectSQL::type_to_str(auth_object) << " ["
             << oid << "] cannot be renamed to " << new_name
             << " because it collides with "
