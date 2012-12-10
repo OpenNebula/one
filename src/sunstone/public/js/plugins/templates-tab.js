@@ -1265,6 +1265,22 @@ function setupCreateTemplateDialog(){
             {
                 if (value.length == 0)
                     remove = true;
+                else if (value.length > 0)
+                {
+                  value = jQuery.grep(value, function (n) { 
+                    var obj_length = 0;
+                    for (e in n)
+                        obj_length += 1;
+
+                    if (obj_length == 0)
+                        return false;
+
+                    return true;
+                   });
+
+                  if (value.length == 0)
+                    remove = true;
+                }
             }
             else if (value instanceof Object)
             {
