@@ -295,11 +295,26 @@ public class VirtualMachine extends PoolElement{
      *
      * @param hostId The host id (hid) of the target host where
      * the VM will be instantiated.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse deploy(int hostId, boolean enforce)
+    {
+        return client.call(DEPLOY, id, hostId, enforce);
+    }
+
+    /**
+     * Initiates the instance of the VM on the target host.
+     *
+     * @param hostId The host id (hid) of the target host where
+     * the VM will be instantiated.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse deploy(int hostId)
     {
-        return client.call(DEPLOY, id, hostId);
+        return deploy(hostId, false);
     }
 
     /**
@@ -337,11 +352,14 @@ public class VirtualMachine extends PoolElement{
      * the vm.
      * @param live If true we are indicating that we want livemigration,
      * otherwise false.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse migrate(int hostId, boolean live)
+    public OneResponse migrate(int hostId, boolean live, boolean enforce)
     {
-        return client.call(MIGRATE, id, hostId, live);
+        return client.call(MIGRATE, id, hostId, live, enforce);
     }
 
     /**
@@ -636,6 +654,24 @@ public class VirtualMachine extends PoolElement{
      *
      * @param hostId The target host id (hid) where we want to migrate
      * the vm.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse migrate(int hostId, boolean enforce)
+    {
+        return migrate(hostId, false, enforce);
+    }
+
+    /**
+     * Migrates the virtual machine to the target host (hid).
+     * <br/>
+     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
+     * with live set to false.
+     *
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse migrate(int hostId)
@@ -652,11 +688,30 @@ public class VirtualMachine extends PoolElement{
      *
      * @param hostId The target host id (hid) where we want to migrate
      * the vm.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse liveMigrate(int hostId, boolean enforce)
+    {
+        return migrate(hostId, true, enforce);
+    }
+
+    /**
+     * Performs a live migration of the virtual machine to the
+     * target host (hid).
+     * <br/>
+     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
+     * with live set to true.
+     *
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse liveMigrate(int hostId)
     {
-        return migrate(hostId, true);
+        return liveMigrate(hostId, false);
     }
 
     public int state()
