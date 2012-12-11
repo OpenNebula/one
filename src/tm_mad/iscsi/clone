@@ -92,31 +92,20 @@ EOF
 ssh_exec_and_log "$TARGET_HOST" "$CLONE_CMD" \
         "Error cloning $DST_HOST:$TARGET_DEV"
 
-DISCOVERY_CMD=$(cat <<EOF
+LINK_CMD=$(cat <<EOF
     set -e
+
+    # discover and login
     mkdir -p $DST_DIR
     $SUDO $(iscsiadm_discovery "$TARGET_HOST")
     $SUDO $(iscsiadm_login "$NEW_IQN" "$TARGET_HOST")
-EOF
-)
 
-ssh_exec_and_log "$DST_HOST" "$DISCOVERY_CMD" \
-        "Error discovering $NEW_IQN in $DST_HOST"
-
-TEST_CMD=$(cat <<EOF
-    set -e
+    # poll
     while [ ! -L /dev/disk/by-path/*$NEW_IQN-lun-1 ]; do
-	sleep 1
+	   sleep 1
     done
-EOF
-)
 
-ssh_exec_and_log "$DST_HOST" "$TEST_CMD" \
-        "Error waiting for $NEW_IQN iSCSI LUN to appear in $DST_HOST"
-
-
-LINK_CMD=$(cat <<EOF
-    set -e
+    # link
     DISK_BY_PATH=\$(ls /dev/disk/by-path/*$NEW_IQN-lun-1)
     ln -s "\$DISK_BY_PATH" "$DST_PATH"
     DISK_DEVNAME=\$(readlink -f \$DISK_BY_PATH  | awk -F'/' '{ print \$NF }')
