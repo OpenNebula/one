@@ -102,6 +102,8 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
                                                 string& tm,
                                                 string& ds_location,
                                                 int&    ds_id,
+                                                int&    free_cpu,
+                                                int&    free_mem,
                                                 RequestAttributes& att,
                                                 PoolObjectAuth&    host_perms)
 {
@@ -128,6 +130,9 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     name = host->get_name();
     vmm  = host->get_vmm_mad();
     vnm  = host->get_vnm_mad();
+
+    free_cpu = host->get_share_max_cpu() - host->get_share_cpu_usage();
+    free_mem = host->get_share_max_mem() - host->get_share_mem_usage();
 
     host->get_permissions(host_perms);
 
@@ -386,15 +391,18 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string tm_mad;
     string ds_location;
     int    ds_id;
+    int    free_cpu;
+    int    free_mem;
 
-    int id  = xmlrpc_c::value_int(paramList.getInt(1));
-    int hid = xmlrpc_c::value_int(paramList.getInt(2));
+    int id          = xmlrpc_c::value_int(paramList.getInt(1));
+    int hid         = xmlrpc_c::value_int(paramList.getInt(2));
+    bool enforce    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
 
     bool auth = false;
 
     if (get_host_information(
-            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
-            host_perms) != 0)
+            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id,
+            free_cpu, free_mem, att, host_perms) != 0)
     {
         return;
     }
@@ -419,6 +427,30 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
         vm->unlock();
         return;
+    }
+
+    if ( enforce )
+    {
+        int vm_cpu, vm_mem, vm_disk;
+
+        vm->get_requirements(vm_cpu, vm_mem, vm_disk);
+
+        if ( free_cpu < vm_cpu || free_mem < vm_mem )
+        {
+            ostringstream oss;
+
+            oss << object_name(PoolObjectSQL::HOST)
+                << " [" << hid << "] does not have enough capacity. CPU: Free "
+                << free_cpu << " Requested " << vm_cpu << ", MEMORY: Free "
+                << free_mem << " Requested " << vm_mem;
+
+            failure_response(ACTION,
+                    request_error(oss.str(),""),
+                    att);
+
+            vm->unlock();
+            return;
+        }
     }
 
     if ( add_history(
@@ -453,21 +485,25 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string tm_mad;
     string ds_location;
     int    ds_id;
+    int    free_cpu;
+    int    free_mem;
 
     PoolObjectAuth aux_perms;
     int     current_ds_id;
     string  aux_st;
     int     current_hid;
+    int     aux_int;
 
-    int  id   = xmlrpc_c::value_int(paramList.getInt(1));
-    int  hid  = xmlrpc_c::value_int(paramList.getInt(2));
-    bool live = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    int  id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
+    bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    bool enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
 
     bool auth = false;
 
     if (get_host_information(
-            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
-            host_perms) != 0)
+            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id,
+            free_cpu, free_mem, att, host_perms) != 0)
     {
         return;
     }
@@ -502,7 +538,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (get_host_information(
             current_hid, aux_st, aux_st, aux_st, aux_st, aux_st, current_ds_id,
-            att, aux_perms) != 0)
+            aux_int, aux_int, att, aux_perms) != 0)
     {
         return;
     }
@@ -527,6 +563,30 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     if ( (vm = get_vm(id, att)) == 0 )
     {
         return;
+    }
+
+    if ( enforce )
+    {
+        int vm_cpu, vm_mem, vm_disk;
+
+        vm->get_requirements(vm_cpu, vm_mem, vm_disk);
+
+        if ( free_cpu < vm_cpu || free_mem < vm_mem )
+        {
+            ostringstream oss;
+
+            oss << object_name(PoolObjectSQL::HOST)
+                << " [" << hid << "] does not have enough capacity. CPU: Free "
+                << free_cpu << " Requested " << vm_cpu << ", MEMORY: Free "
+                << free_mem << " Requested " << vm_mem;
+
+            failure_response(ACTION,
+                    request_error(oss.str(),""),
+                    att);
+
+            vm->unlock();
+            return;
+        }
     }
 
     if ( add_history(vm, hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location,
