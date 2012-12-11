@@ -44,7 +44,7 @@ SYNC=sync
 TAR=tar
 TGTADM=tgtadm
 TGTADMIN=tgt-admin
-TGTSETUPLUN=tgt-setup-lun
+TGTSETUPLUN=tgt-setup-lun-one
 VMKFSTOOLS=vmkfstools
 WGET=wget
 
