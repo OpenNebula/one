@@ -129,6 +129,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
   <fieldset>\
     <div class="form_buttons">\
         <button class="button" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
+        <button class="button" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
         <button class="button" type="reset" value="reset">' + tr("Reset") + '</button>\
     </div>\
   </fieldset>\
@@ -148,7 +149,6 @@ var datastore_row_hash={};
 // Prepares the cluster creation dialog
 function setupCreateClusterDialog(){
 
-    dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
     $create_cluster_dialog = $('div#create_cluster_dialog');
     var dialog = $create_cluster_dialog;
 
@@ -435,15 +435,105 @@ function setupCreateClusterDialog(){
         $create_cluster_dialog.dialog('close');
         return false;
     });
+
+
+      // define update button
+    $('#update_cluster_submit',dialog).click(function(){
+      alert("redefined");
+      return false;
+    });
 }
 
 // Open creation dialogs
 function popUpCreateClusterDialog(){
+    if ($create_cluster_dialog)
+    {
+      $create_cluster_dialog.html('');
+    }
+
+    setupCreateClusterDialog();
+
+    // Activate create button
+    $('#create_cluster_submit',$create_cluster_dialog).show();
+    $('#update_cluster_submit',$create_cluster_dialog).hide();
+
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
     $create_cluster_dialog.dialog('open');
     return false;
+}
+
+// Open update dialog
+function popUpUpdateClusterDialog(){
+    if ($create_cluster_dialog)
+    {
+      $create_cluster_dialog.html('');
+    }
+
+    var dialog = $create_cluster_dialog;
+
+    setupCreateClusterDialog();
+
+    datatable_cluster_hosts.fnFilter( "", 3);
+
+    var selected_nodes = getSelectedNodes(dataTable_clusters);
+
+    if ( selected_nodes.length != 1 )
+    {
+      alert("Please select one (and just one) cluster to update.");
+      return false;
+    }
+
+    Sunstone.runAction("ClusterHost.list");
+    Sunstone.runAction("ClusterVN.list");
+    Sunstone.runAction("ClusterDS.list");
+    $create_cluster_dialog.dialog('open');
+
+    // Get proper cluster_id
+    var cluster_id=""+selected_nodes[0];
+
+    Sunstone.runAction("Cluster.show_to_update", cluster_id);
+
+    return false;
+
+}
+
+// Fill update dialog with loaded properties
+function fillPopPup(request,response){
+  var dialog = $create_cluster_dialog;
+
+  // Harvest variables
+  var name     = response.CLUSTER.NAME;
+  var host_ids = response.CLUSTER.HOSTS;
+  var vnet_ids = response.CLUSTER.VNETS;
+  var ds_ids   = response.CLUSTER.DATASTORES;
+
+  // Activate update button
+  $('#create_cluster_submit',dialog).hide();
+  $('#update_cluster_submit',dialog).show();
+
+  // Fill in the name
+   $('#name',dialog).val(name);
+
+  // Select hosts belonging to the cluster
+  for (var host_id in host_ids)
+  {
+    $('#datatable_cluster_hosts tr',dialog).each(function (){
+          var aData = dataTable_cluster_hosts.fnGetData(this);
+          if (aData)
+          {
+            alert(aData[1]);
+ $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+
+            console.log(JSON.stringify(aData));
+          }
+
+
+    })
+   }
+   //          $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+      //      $('div#selected_hosts_div', dialog).append('<span id="tag_host_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[2]+'</span>');
 }
 
 
@@ -477,7 +567,6 @@ function updateClusterHostsView (request,host_list){
     });
 
     updateView(host_list_array,dataTable_cluster_hosts);
-    updateHostSelect();
 }
 
 //callback to update the list of hosts for info panel
@@ -490,16 +579,6 @@ function updateClusterHostsInfoView (request,host_list){
     });
 
     updateView(host_list_array,dataTable_cluster_hosts_panel);
-}
-
-//updates the host select by refreshing the options in it
-function updateHostSelect(){
-    hosts_select = makeSelectOptions(dataTable_cluster_hosts,
-                                     1,//id_col
-                                     2,//name_col
-                                     [7,7],//status_cols
-                                     [tr("ERROR"),tr("OFF"),tr("RETRY")]//bad_st
-                                    );
 }
 
 
@@ -663,17 +742,17 @@ var cluster_actions = {
         error: onError
     },
 
-    "Cluster.show" : {
+    "Cluster.showinfo" : {
         type: "single",
         call: OpenNebula.Cluster.show,
         callback: updateClusterInfo,
         error: onError
     },
 
-    "Cluster.showinfo" : {
+    "Cluster.show_to_update" : {
         type: "single",
         call: OpenNebula.Cluster.show,
-        callback: updateClusterInfo,
+        callback: fillPopPup,
         error: onError
     },
 
@@ -775,17 +854,9 @@ var cluster_actions = {
     },
 
     "Cluster.update_dialog" : {
-        type: "custom",
-        call: function() {
-            popUpTemplateUpdateDialog("Cluster",
-                                      makeSelectOptions(dataTable_clusters,
-                                                        1,//idcol
-                                                        2,//namecol
-                                                        [],
-                                                        []),
-                                      clusterElements());
-        }
-    }
+        type: "single",
+        call: popUpUpdateClusterDialog
+    },
 };
 
 var cluster_buttons = {
@@ -1626,7 +1697,7 @@ $(document).ready(function(){
         '','','','',''],dataTable_clusters);
     Sunstone.runAction("Cluster.list");
 
-    setupCreateClusterDialog();
+    dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
 
     setClusterAutorefresh();
 
@@ -1635,5 +1706,4 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_clusters);
     tableCheckboxesListener(dataTable_clusters);
     infoListener(dataTable_clusters, "Cluster.showinfo");
-
 });
