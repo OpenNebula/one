@@ -147,7 +147,7 @@ var vnet_row_hash={};
 var datastore_row_hash={};
 
 // Prepares the cluster creation dialog
-function setupCreateClusterDialog(){
+function setupCreateClusterDialog(datatable_filter){
 
     $create_cluster_dialog = $('div#create_cluster_dialog');
     var dialog = $create_cluster_dialog;
@@ -180,7 +180,7 @@ function setupCreateClusterDialog(){
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "100px", "aTargets": [9,3,10,11,12] },
             { "sWidth": "150", "aTargets": [5,6,7,8] },
-            { "bVisible": false, "aTargets": [0,3,5,6,7,8,10,11,12]}
+            { "bVisible": false, "aTargets": [0,5,6,7,8,10,11,12]} // 3 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -191,7 +191,7 @@ function setupCreateClusterDialog(){
     //preload it
     dataTable_cluster_hosts.fnClearTable();
 
-    dataTable_cluster_hosts.fnFilter( "-", 3); // Only show no assigned resources
+    dataTable_cluster_hosts.fnFilter( datatable_filter, 3, true); // Only show no assigned resources
     addElement([
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_hosts);
@@ -221,7 +221,7 @@ function setupCreateClusterDialog(){
 
     //preload it
     dataTable_cluster_vnets.fnClearTable();
-    dataTable_cluster_vnets.fnFilter( "-", 5); // Only show no assigned resources
+    dataTable_cluster_vnets.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
     addElement([
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_vnets);
@@ -251,7 +251,7 @@ function setupCreateClusterDialog(){
 
     //preload it
     dataTable_cluster_datastores.fnClearTable();
-    dataTable_cluster_datastores.fnFilter( "-", 5); // Only show no assigned resources
+    dataTable_cluster_datastores.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
     addElement([
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_datastores);
@@ -274,13 +274,13 @@ function setupCreateClusterDialog(){
           {
             host_list_for_cluster_creation[host_id]=1;
             host_row_hash[host_id]=this;
-            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+            $(this).children().each(function(){$(this).addClass('markrow');});
             $('div#selected_hosts_div', dialog).append('<span id="tag_host_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[2]+'</span>');
           }
           else
           {
-            host_list_for_cluster_creation[host_id]=0;
-            $("td:first", this).parent().children().each(function(){$(this).removeClass('markrow');});
+            delete host_list_for_cluster_creation[host_id];
+            $(this).children().each(function(){$(this).removeClass('markrow');});
             $('div#selected_hosts_div span#tag_host_'+host_id, dialog).remove();
           }
 
@@ -301,13 +301,13 @@ function setupCreateClusterDialog(){
           {
             vnet_list_for_cluster_creation[vnet_id]=1;
             vnet_row_hash[vnet_id]=this;
-            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+            $(this).children().each(function(){$(this).addClass('markrow');});
             $('div#selected_vnets_div', dialog).append('<span id="tag_vnet_'+vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
           }
           else
           {
-            vnet_list_for_cluster_creation[vnet_id]=0;
-            $("td:first", this).parent().children().each(function(){$(this).removeClass('markrow');});
+            delete vnet_list_for_cluster_creation[vnet_id];
+            $(this).children().each(function(){$(this).removeClass('markrow');});
             $('div#selected_vnets_div span#tag_vnet_'+vnet_id, dialog).remove();
           }
 
@@ -328,13 +328,13 @@ function setupCreateClusterDialog(){
           {
             datastore_list_for_cluster_creation[ds_id]=1;
             datastore_row_hash[ds_id]=this;
-            $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
+            $(this).children().each(function(){$(this).addClass('markrow');});
             $('div#selected_datastores_div', dialog).append('<span id="tag_datastore_'+ds_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
           }
           else
           {
-            datastore_list_for_cluster_creation[ds_id]=0;
-            $("td:first", this).parent().children().each(function(){$(this).removeClass('markrow');});
+            delete datastore_list_for_cluster_creation[ds_id];
+            $(this).children().each(function(){$(this).removeClass('markrow');});
             $('div#selected_datastores_div span#tag_datastore_'+ds_id, dialog).remove();
           }
 
@@ -451,7 +451,7 @@ function popUpCreateClusterDialog(){
       $create_cluster_dialog.html('');
     }
 
-    setupCreateClusterDialog();
+    setupCreateClusterDialog("-");
 
     // Activate create button
     $('#create_cluster_submit',$create_cluster_dialog).show();
@@ -471,12 +471,6 @@ function popUpUpdateClusterDialog(){
       $create_cluster_dialog.html('');
     }
 
-    var dialog = $create_cluster_dialog;
-
-    setupCreateClusterDialog();
-
-    datatable_cluster_hosts.fnFilter( "", 3);
-
     var selected_nodes = getSelectedNodes(dataTable_clusters);
 
     if ( selected_nodes.length != 1 )
@@ -485,15 +479,26 @@ function popUpUpdateClusterDialog(){
       return false;
     }
 
+    // Get proper cluster_id
+    var cluster_id=""+selected_nodes[0];
+
+var node = $('tbody input.check_item:checked',dataTable_clusters);
+var aData       = dataTable_clusters.fnGetData(node.parent().parent());
+
+console.log(JSON.stringify(node.parent().parent()));
+
+    var dialog = $create_cluster_dialog;
+
+    var filter_expr = "-|"+cluster_id;
+
+    setupCreateClusterDialog(filter_expr);
+
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
     $create_cluster_dialog.dialog('open');
 
-    // Get proper cluster_id
-    var cluster_id=""+selected_nodes[0];
-
-    Sunstone.runAction("Cluster.show_to_update", cluster_id);
+    setTimeout(Sunstone.runAction("Cluster.show_to_update", cluster_id),1000);
 
     return false;
 
@@ -505,9 +510,9 @@ function fillPopPup(request,response){
 
   // Harvest variables
   var name     = response.CLUSTER.NAME;
-  var host_ids = response.CLUSTER.HOSTS;
-  var vnet_ids = response.CLUSTER.VNETS;
-  var ds_ids   = response.CLUSTER.DATASTORES;
+  var host_ids = response.CLUSTER.HOSTS.ID;
+  var vnet_ids = response.CLUSTER.VNETS.ID;
+  var ds_ids   = response.CLUSTER.DATASTORES.ID;
 
   // Activate update button
   $('#create_cluster_submit',dialog).hide();
@@ -517,17 +522,18 @@ function fillPopPup(request,response){
    $('#name',dialog).val(name);
 
   // Select hosts belonging to the cluster
-  for (var host_id in host_ids)
+  for (var i = 0; i < host_ids.length; i++)
   {
     $('#datatable_cluster_hosts tr',dialog).each(function (){
           var aData = dataTable_cluster_hosts.fnGetData(this);
           if (aData)
           {
-            alert(aData[1]);
- $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-
-            console.log(JSON.stringify(aData));
-          }
+            var row_host_id = aData[1];
+            if (row_host_id == host_ids[i])
+            {
+                $(this).children().each(function(){$(this).addClass('markrow');});
+            }
+        }
 
 
     })
