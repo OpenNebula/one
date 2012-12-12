@@ -1554,7 +1554,6 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
 int VirtualMachine::set_attach_disk(int disk_id)
 {
-
     int num_disks;
     int d_id;
 
@@ -1672,6 +1671,176 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachine::get_nic_info(int& max_nic_id)
+{
+    vector<Attribute  *> nics;
+    VectorAttribute *    nic;
+
+    int nic_id;
+    int num_nics;
+
+    max_nic_id = 0;
+
+    num_nics = obj_template->get("NIC", nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = dynamic_cast<VectorAttribute * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+
+        nic->vector_value("NIC_ID", nic_id);
+
+        if ( nic_id > max_nic_id )
+        {
+            max_nic_id = nic_id;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * VirtualMachine::set_up_attach_nic(
+                        int                      vm_id,
+                        VirtualMachineTemplate * tmpl,
+                        int                      max_nic_id,
+                        int                      uid,
+                        int&                     network_id,
+                        string&                  error_str)
+{
+    vector<Attribute  *> nics;
+    VectorAttribute *    new_nic;
+
+    Nebula&             nd     = Nebula::instance();
+    VirtualNetworkPool* vnpool = nd.get_vnpool();
+
+    network_id = -1;
+
+    // -------------------------------------------------------------------------
+    // Get the DISK attribute from the template
+    // -------------------------------------------------------------------------
+
+    if ( tmpl->get("NIC", nics) != 1 )
+    {
+        error_str = "The template must contain one NIC attribute";
+        return 0;
+    }
+
+    new_nic = new VectorAttribute(*(dynamic_cast<VectorAttribute * >(nics[0])));
+
+    // -------------------------------------------------------------------------
+    // Acquire the new network lease
+    // -------------------------------------------------------------------------
+
+    // TODO: set NIC/NIC_ID to max_nic_id + 1 ?
+    int rc = vnpool->nic_attribute(new_nic, uid, vm_id, error_str);
+
+    if ( rc != 0 )
+    {
+        delete new_nic;
+        return 0;
+    }
+
+    return new_nic;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_attach_nic()
+{
+    int                  num_nics;
+    vector<Attribute  *> nics;
+    VectorAttribute *    nic;
+
+    num_nics = obj_template->get("NIC", nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = dynamic_cast<VectorAttribute * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+
+        if ( nic->vector_value("ATTACH") == "YES" )
+        {
+            nic->remove("ATTACH");
+            return;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * VirtualMachine::delete_attach_nic()
+{
+    vector<Attribute  *> nics;
+    VectorAttribute *    nic;
+
+    int num_nics = obj_template->get("NIC", nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = dynamic_cast<VectorAttribute * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+
+        if ( nic->vector_value("ATTACH") == "YES" )
+        {
+            return static_cast<VectorAttribute * >(obj_template->remove(nic));
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_attach_nic(int nic_id)
+{
+    int num_nics;
+    int n_id;
+
+    vector<Attribute  *> nics;
+    VectorAttribute *    nic;
+
+    num_nics = obj_template->get("NIC", nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = dynamic_cast<VectorAttribute * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+
+        nic->vector_value("NIC_ID", n_id);
+
+        if ( n_id == nic_id )
+        {
+            nic->replace("ATTACH", "YES");
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::release_disk_images()
 {
     int     iid;
@@ -1755,58 +1924,66 @@ int VirtualMachine::get_network_leases(string& estr)
 
 void VirtualMachine::release_network_leases()
 {
-    Nebula& nd = Nebula::instance();
-
-    VirtualNetworkPool * vnpool = nd.get_vnpool();
-
     string                        vnid;
     string                        ip;
     int                           num_nics;
-
     vector<Attribute const  * >   nics;
-    VirtualNetwork          *     vn;
 
-    num_nics   = get_template_attribute("NIC",nics);
+    num_nics = get_template_attribute("NIC",nics);
 
     for(int i=0; i<num_nics; i++)
     {
         VectorAttribute const *  nic =
             dynamic_cast<VectorAttribute const * >(nics[i]);
 
-        if ( nic == 0 )
-        {
-            continue;
-        }
-
-        vnid = nic->vector_value("NETWORK_ID");
-
-        if ( vnid.empty() )
-        {
-            continue;
-        }
-
-        ip   = nic->vector_value("IP");
-
-        if ( ip.empty() )
-        {
-            continue;
-        }
-
-        vn = vnpool->get(atoi(vnid.c_str()),true);
-
-        if ( vn == 0 )
-        {
-            continue;
-        }
-
-        if (vn->is_owner(ip,oid))
-        {
-            vn->release_lease(ip);
-            vnpool->update(vn);
-        }
-
-        vn->unlock();
+        release_network_leases(nic, oid);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid)
+{
+    VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
+    VirtualNetwork*     vn;
+
+    int     vnid;
+    string  ip;
+
+    if ( nic == 0 )
+    {
+        return -1;
+    }
+
+    if ( nic->vector_value("NETWORK_ID", vnid) != 0 )
+    {
+        return -1;
+    }
+
+    ip = nic->vector_value("IP");
+
+    if ( ip.empty() )
+    {
+        return -1;
+    }
+
+    vn = vnpool->get(vnid, true);
+
+    if ( vn == 0 )
+    {
+        return -1;
+    }
+
+    if (vn->is_owner(ip,vmid))
+    {
+        vn->release_lease(ip);
+        vnpool->update(vn);
+    }
+
+    vn->unlock();
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

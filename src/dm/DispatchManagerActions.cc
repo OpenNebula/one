@@ -905,7 +905,6 @@ int DispatchManager::resubmit(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
 int DispatchManager::attach(int vid,
                             VirtualMachineTemplate * tmpl,
                             string &                 error_str)
@@ -1022,7 +1021,6 @@ int DispatchManager::detach(
     int      disk_id,
     string&  error_str)
 {
-
     ostringstream oss;
 
     Nebula&           nd       = Nebula::instance();
@@ -1072,6 +1070,171 @@ int DispatchManager::detach(
     vm->unlock();
 
     vmm->trigger(VirtualMachineManager::DETACH,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::attach_nic(
+        int                     vid,
+        VirtualMachineTemplate* tmpl,
+        string &                error_str)
+{
+    ostringstream oss;
+
+    int max_nic_id;
+    int uid;
+    int oid;
+    int network_id;
+
+    VectorAttribute * nic;
+
+    Nebula&                 nd  = Nebula::instance();
+    VirtualMachineManager*  vmm = nd.get_vmm();
+
+    VirtualMachine *        vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not add a new NIC to VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not add a new NIC to VM " << vid << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->get_nic_info(max_nic_id);
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->set_resched(false);
+
+    uid = vm->get_uid();
+    oid = vm->get_oid();
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    nic = VirtualMachine::set_up_attach_nic(oid,
+                                            tmpl,
+                                            max_nic_id,
+                                            uid,
+                                            network_id,
+                                            error_str);
+    vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        VirtualMachine::release_network_leases(nic, vid);
+
+        oss << "Could not attach a new NIC to VM " << vid
+            << ", VM does not exist after setting its state to HOTPLUG." ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( nic == 0 )
+    {
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+
+        vm->unlock();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+        return -1;
+    }
+    else
+    {
+        vm->set_attach_nic(nic);
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::ATTACH_NIC,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::detach_nic(
+    int      vid,
+    int      nic_id,
+    string&  error_str)
+{
+    ostringstream oss;
+
+    Nebula&                 nd  = Nebula::instance();
+    VirtualMachineManager*  vmm = nd.get_vmm();
+
+    VirtualMachine *        vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "VirtualMachine " << vid << " no longer exists";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not detach NIC from VM " << vid << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    if ( vm->set_attach_nic(nic_id) == -1 )
+    {
+        oss << "Could not detach NIC with NIC_ID " << nic_id
+            << ", it does not exist.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->set_resched(false);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::DETACH_NIC,vid);
 
     return 0;
 }

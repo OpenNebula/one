@@ -211,6 +211,40 @@ public:
             RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAttachNic : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttachNic():
+        RequestManagerVirtualMachine("VirtualMachineAttachNic",
+                           "Attaches a new NIC to the virtual machine",
+                           "A:sis"){};
+
+    ~VirtualMachineAttachNic(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDetachNic : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDetachNic():
+        RequestManagerVirtualMachine("VirtualMachineDetachNic",
+                           "Detaches a NIC from a virtual machine",
+                           "A:sii"){};
+
+    ~VirtualMachineDetachNic(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

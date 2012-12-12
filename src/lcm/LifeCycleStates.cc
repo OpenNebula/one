@@ -1161,3 +1161,99 @@ void LifeCycleManager::detach_failure_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_nic_success_action(int vid)
+{
+    VirtualMachine * vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        vm->clear_attach_nic();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"attach_nic_success_action, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::attach_nic_failure_action(int vid)
+{
+    VirtualMachine *  vm;
+    VectorAttribute * nic;
+
+    int uid;
+    int gid;
+    int oid;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        nic = vm->delete_attach_nic();
+        uid = vm->get_uid();
+        gid = vm->get_gid();
+        oid = vm->get_oid();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+
+        vm->unlock();
+
+        if ( nic != 0 )
+        {
+            Template tmpl;
+
+            tmpl.set(nic);
+
+            Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+
+            VirtualMachine::release_network_leases(nic, oid);
+        }
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"attach_nic_failure_action, VM in a wrong state");
+        vm->unlock();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::detach_nic_success_action(int vid)
+{
+    attach_nic_failure_action(vid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::detach_nic_failure_action(int vid)
+{
+    attach_nic_success_action(vid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

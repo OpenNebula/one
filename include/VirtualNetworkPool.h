@@ -97,6 +97,7 @@ public:
      *  Generates a NIC attribute for VM templates using the VirtualNetwork
      *  metadata
      *    @param nic the nic attribute to be generated
+     *    @param uid of the VM owner
      *    @param vid of the VM requesting the lease
      *    @param error_str string describing the error
      *    @return 0 on success,

@@ -145,6 +145,22 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DETACH_FAILURE";
         break;
 
+    case ATTACH_NIC_SUCCESS:
+        aname = "ATTACH_NIC_SUCCESS";
+        break;
+
+    case ATTACH_NIC_FAILURE:
+        aname = "ATTACH_NIC_FAILURE";
+        break;
+
+    case DETACH_NIC_SUCCESS:
+        aname = "DETACH_NIC_SUCCESS";
+        break;
+
+    case DETACH_NIC_FAILURE:
+        aname = "DETACH_NIC_FAILURE";
+        break;
+
     case DEPLOY:
         aname = "DEPLOY";
         break;
@@ -297,6 +313,22 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_FAILURE")
     {
         detach_failure_action(vid);
+    }
+    else if (action == "ATTACH_NIC_SUCCESS")
+    {
+        attach_nic_success_action(vid);
+    }
+    else if (action == "ATTACH_NIC_FAILURE")
+    {
+        attach_nic_failure_action(vid);
+    }
+    else if (action == "DETACH_NIC_SUCCESS")
+    {
+        detach_nic_success_action(vid);
+    }
+    else if (action == "DETACH_NIC_FAILURE")
+    {
+        detach_nic_failure_action(vid);
     }
     else if (action == "DEPLOY")
     {
