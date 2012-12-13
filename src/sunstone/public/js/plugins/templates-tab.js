@@ -2374,7 +2374,7 @@ function setupCreateTemplateDialog(){
           '</fieldset>'+
           '<fieldset>'+
             '<legend>'+tr("Network")+'</legend>'+
-            '<input type="checkbox" name="ssh_context" id="ssh_context">'+ tr("Add Network contextualization")+
+            '<input type="checkbox" name="network_context" id="network_context">'+ tr("Add Network contextualization")+
           '</fieldset>'+
           '<fieldset>'+
             '<legend>'+tr("Custom CONTEXT")+'</legend>'+
@@ -3328,12 +3328,44 @@ function setupCreateTemplateDialog(){
           }
         });
 
+        //
+        // CONTEXT
+        //
+
         vm_json["CONTEXT"] = {};
         $('#context_table tr', $('div#context_tab')).each(function(){
           if ($('#KEY', $(this)).val()) {
             vm_json["CONTEXT"][$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
           }
         });
+
+        if ($("#ssh_context", $('div#context_tab')).is(":checked")) {
+          var public_key = $("#ssh_puclic_key", $('div#context_tab')).val();
+          if (public_key){
+            vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = public_key;
+          }
+          else {
+            vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
+          }
+        };
+
+        if ($("#network_context", $('div#context_tab')).is(":checked")) {
+          var nic_id = 1;
+
+          $.each(vm_json["NIC"], function(){
+            var vnet_id = this["NETWORK_ID"]
+            var eth_str = "ETH"+nic_id+"_"
+            var net_str = 'NETWORK_ID=\\"'+ vnet_id +'\\"'
+
+            vm_json["CONTEXT"][eth_str+"IP"] = "$NIC[IP,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"NETWORK"] = "$NIC[NETWORK,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"MASK"] = "$NIC[MASK,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"GATEWAY"] = "$NIC[GATEWAY,"+ net_str +"]";
+            vm_json["CONTEXT"][eth_str+"DNS"] = "$NIC[DNS,"+ net_str +"]";
+
+            nic_id++;
+          });
+        };
 
         addSectionJSON(vm_json,$('div#placement_tab .requirements',dialog));
 
