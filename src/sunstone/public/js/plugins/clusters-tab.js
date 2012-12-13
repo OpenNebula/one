@@ -116,7 +116,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
     <fieldset>\
       <div id="datatable_cluster_datastores_div">\
             <h3>' +
-            tr("Select Datastores for this Xluster") +
+            tr("Select Datastores for this Cluster") +
             '<button id="refresh_datastore_table_button_class" class="icon-refresh action_button" value="ClusterDS.list" style="float:right;"></h3>\
             <hr>\
             <table id="datatable_cluster_datastores" class="display">' + datastore_datatable_table_tmpl + '</table></div>\
@@ -137,14 +137,13 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
 
 // Common utils for datatatables
   // Holds the selected items
-var host_list_for_cluster_creation={};
-var vnet_list_for_cluster_creation={};
-var datastore_list_for_cluster_creation={};
+var selected_hosts_list     = {};
+var selected_vnets_list     = {};
+var selected_datastore_list = {};
 
-
-var host_row_hash={};
-var vnet_row_hash={};
-var datastore_row_hash={};
+var host_row_hash      = {};
+var vnet_row_hash      = {};
+var datastore_row_hash = {};
 
 // Prepares the cluster creation dialog
 function setupCreateClusterDialog(datatable_filter){
@@ -210,7 +209,7 @@ function setupCreateClusterDialog(datatable_filter){
             { "sWidth": "60px", "aTargets": [0,6,7,8] },
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "100px", "aTargets": [2,3,5] },
-            { "bVisible": false, "aTargets": [0,5,7]}
+            { "bVisible": false, "aTargets": [0,7]} // 5 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -240,7 +239,7 @@ function setupCreateClusterDialog(datatable_filter){
             { "sWidth": "60px", "aTargets": [0] },
             { "sWidth": "35px", "aTargets": [1,9] },
             { "sWidth": "100px", "aTargets": [2,3,5,7,8] },
-            { "bVisible": false, "aTargets": [0,5,6,7,8,9] }
+            { "bVisible": false, "aTargets": [0,6,7,8,9] } // 5 = cluster
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -261,7 +260,6 @@ function setupCreateClusterDialog(datatable_filter){
     // Add listener to row select action
     //   Marks it in another background color
     //   Adds or removes the element from the list
-
     $('#datatable_cluster_hosts', dialog).delegate("tr", "click", function(e){
           if ($(e.target).is('input') ||
               $(e.target).is('select') ||
@@ -269,23 +267,24 @@ function setupCreateClusterDialog(datatable_filter){
 
           var aData   = dataTable_cluster_hosts.fnGetData(this);
           var host_id = aData[1];
+          var name    = aData[2];
 
           if(!$("td:first", this).hasClass('markrow'))
           {
-            host_list_for_cluster_creation[host_id]=1;
+            selected_hosts_list[host_id]=1;
             host_row_hash[host_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_hosts_div', dialog).append('<span id="tag_host_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[2]+'</span>');
+            $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+host_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
           }
           else
           {
-            delete host_list_for_cluster_creation[host_id];
+            delete selected_hosts_list[host_id];
             $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_hosts_div span#tag_host_'+host_id, dialog).remove();
+            $('div#selected_hosts_div span#tag_hosts_'+host_id, dialog).remove();
           }
 
           return false;
-      });
+    });
 
 
     $('#datatable_cluster_vnets', dialog).delegate("tr", "click", function(e){
@@ -299,16 +298,16 @@ function setupCreateClusterDialog(datatable_filter){
 
           if(!$("td:first", this).hasClass('markrow'))
           {
-            vnet_list_for_cluster_creation[vnet_id]=1;
+            selected_vnets_list[vnet_id]=1;
             vnet_row_hash[vnet_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_vnets_div', dialog).append('<span id="tag_vnet_'+vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
+            $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
           }
           else
           {
-            delete vnet_list_for_cluster_creation[vnet_id];
+            delete selected_vnets_list[vnet_id];
             $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_vnets_div span#tag_vnet_'+vnet_id, dialog).remove();
+            $('div#selected_vnets_div span#tag_vnets_'+vnet_id, dialog).remove();
           }
 
           return false;
@@ -326,45 +325,49 @@ function setupCreateClusterDialog(datatable_filter){
 
           if(!$("td:first", this).hasClass('markrow'))
           {
-            datastore_list_for_cluster_creation[ds_id]=1;
+            selected_datastore_list[ds_id]=1;
             datastore_row_hash[ds_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_datastores_div', dialog).append('<span id="tag_datastore_'+ds_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
+            $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+ds_id+'"><span class="ui-icon ui-icon-close"></span>'+name+'</span>');
           }
           else
           {
-            delete datastore_list_for_cluster_creation[ds_id];
+            delete selected_datastore_list[ds_id];
             $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_datastores_div span#tag_datastore_'+ds_id, dialog).remove();
+            $('div#selected_datastores_div span#tag_datastores_'+ds_id, dialog).remove();
           }
 
           return false;
       });
 
+    // Add tag listeners
+     $( "#cluster_create_tabs span.ui-icon-close",$create_cluster_dialog).die('click');
+     $( "#cluster_create_tabs span.ui-icon-close" ).live( "click", function() {
+       // Remove the tag
+       $(this).parent().remove();
 
-      $( "#cluster_create_tabs span.ui-icon-close" ).live( "click", function() {
-         $(this).parent().remove();
-         var id = $(this).parent().attr("ID");
+       // Unselect row
+       var id = $(this).parent().attr("ID");
 
-         if (id.match(/host/g))
-         {
-              var host_id=id.substring(9,id.length);
-              host_list_for_cluster_creation[host_id]=0;
-              $("td:first", host_row_hash[host_id]).parent().children().each(function(){$(this).removeClass('markrow');});
-         }
-         else if (id.match(/vnet/g))
-         {
-              var vnet_id=id.substring(9,id.length);
-              vnet_list_for_cluster_creation[vnet_id]=0;
-              $("td:first", vnet_row_hash[vnet_id]).parent().children().each(function(){$(this).removeClass('markrow');});
-         }
-         else if (id.match(/datastore/g))
-         {
-              var datastore_id=id.substring(14,id.length);
-              datastore_list_for_cluster_creation[datastore_id]=0;
-              $("td:first", datastore_row_hash[datastore_id]).parent().children().each(function(){$(this).removeClass('markrow');});
-         }
-      });
+       if (id.match(/host/g))
+       {
+            var host_id=id.substring(10,id.length);
+            delete selected_hosts_list[host_id];
+            $("td:first", host_row_hash[host_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+       }
+       else if (id.match(/vnet/g))
+       {
+            var vnet_id=id.substring(10,id.length);
+            delete selected_vnets_list[vnet_id];
+            $("td:first", vnet_row_hash[vnet_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+       }
+       else if (id.match(/datastore/g))
+       {
+            var datastore_id=id.substring(15,id.length);
+            delete selected_datastore_list[datastore_id];
+            $("td:first", datastore_row_hash[datastore_id]).parent().children().each(function(){$(this).removeClass('markrow');});
+       }
+     });
 
     // Enhance buttons
     $('button',dialog).button();
@@ -422,9 +425,9 @@ function setupCreateClusterDialog(datatable_filter){
         var cluster_json = {
             "cluster": {
                 "name": $('#name',dialog).val(),
-                "hosts": host_list_for_cluster_creation,
-                "vnets": vnet_list_for_cluster_creation,
-                "datastores": datastore_list_for_cluster_creation
+                "hosts": selected_hosts_list,
+                "vnets": selected_vnets_list,
+                "datastores": selected_datastore_list
             }
         };
 
@@ -435,13 +438,17 @@ function setupCreateClusterDialog(datatable_filter){
         $create_cluster_dialog.dialog('close');
         return false;
     });
+}
+
+function reset_counters(){
+    selected_hosts_list={};
+    selected_vnets_list={};
+    selected_datastore_list={};
 
 
-      // define update button
-    $('#update_cluster_submit',dialog).click(function(){
-      alert("redefined");
-      return false;
-    });
+    host_row_hash={};
+    vnet_row_hash={};
+    datastore_row_hash={};
 }
 
 // Open creation dialogs
@@ -450,6 +457,8 @@ function popUpCreateClusterDialog(){
     {
       $create_cluster_dialog.html('');
     }
+
+    reset_counters;
 
     setupCreateClusterDialog("-");
 
@@ -466,10 +475,15 @@ function popUpCreateClusterDialog(){
 
 // Open update dialog
 function popUpUpdateClusterDialog(){
-    if ($create_cluster_dialog)
+
+    var dialog = $create_cluster_dialog;
+
+    if (dialog)
     {
-      $create_cluster_dialog.html('');
+      dialog.html('');
     }
+
+    reset_counters;
 
     var selected_nodes = getSelectedNodes(dataTable_clusters);
 
@@ -480,16 +494,17 @@ function popUpUpdateClusterDialog(){
     }
 
     // Get proper cluster_id
-    var cluster_id=""+selected_nodes[0];
+    var cluster_id   = ""+selected_nodes[0];
+    var cluster_name = "";
 
-var node = $('tbody input.check_item:checked',dataTable_clusters);
-var aData       = dataTable_clusters.fnGetData(node.parent().parent());
+    var node  = $('tbody input.check_item:checked',dataTable_clusters);
 
-console.log(JSON.stringify(node.parent().parent()));
+    $.each(node,function(){
+        cluster_name = $('td', $(this).closest("tr"))[2].innerHTML;
 
-    var dialog = $create_cluster_dialog;
+    });
 
-    var filter_expr = "-|"+cluster_id;
+    var filter_expr = "-|"+cluster_name;
 
     setupCreateClusterDialog(filter_expr);
 
@@ -498,7 +513,7 @@ console.log(JSON.stringify(node.parent().parent()));
     Sunstone.runAction("ClusterDS.list");
     $create_cluster_dialog.dialog('open');
 
-    setTimeout(Sunstone.runAction("Cluster.show_to_update", cluster_id),1000);
+    Sunstone.runAction("Cluster.show_to_update", cluster_id);
 
     return false;
 
@@ -514,6 +529,18 @@ function fillPopPup(request,response){
   var vnet_ids = response.CLUSTER.VNETS.ID;
   var ds_ids   = response.CLUSTER.DATASTORES.ID;
 
+  if (typeof host_ids == 'string') {
+    host_ids = [host_ids];
+  }
+
+  if (typeof vnet_ids == 'string') {
+    vnet_ids = [vnet_ids];
+  }
+
+  if (typeof ds_ids == 'string') {
+    ds_ids = [ds_ids];
+  }
+
   // Activate update button
   $('#create_cluster_submit',dialog).hide();
   $('#update_cluster_submit',dialog).show();
@@ -522,24 +549,137 @@ function fillPopPup(request,response){
    $('#name',dialog).val(name);
 
   // Select hosts belonging to the cluster
-  for (var i = 0; i < host_ids.length; i++)
+  if (host_ids)
   {
-    $('#datatable_cluster_hosts tr',dialog).each(function (){
-          var aData = dataTable_cluster_hosts.fnGetData(this);
-          if (aData)
-          {
-            var row_host_id = aData[1];
-            if (row_host_id == host_ids[i])
+    for (var i = 0; i < host_ids.length; i++)
+    {
+      $('#datatable_cluster_hosts tr',dialog).each(function (){
+            var aData = dataTable_cluster_hosts.fnGetData(this);
+            if (aData)
             {
-                $(this).children().each(function(){$(this).addClass('markrow');});
+              var row_host_id = aData[1];
+              var host_name   = aData[2];
+              if (row_host_id == host_ids[i])
+              {
+                  selected_hosts_list[row_host_id]=1;
+                  host_row_hash[row_host_id]=this;
+                  $(this).children().each(function(){$(this).addClass('markrow');});
+                  $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+row_host_id+'"><span class="ui-icon ui-icon-close"></span>'+host_name+'</span>');
+              }
             }
+        })
+    }
+  }
+
+  if (vnet_ids)
+  {
+    // Select vnets belonging to the cluster
+    for (var i = 0; i < vnet_ids.length; i++)
+    {
+      $('#datatable_cluster_vnets tr',dialog).each(function (){
+            var aData = dataTable_cluster_vnets.fnGetData(this);
+            if (aData)
+            {
+              var row_vnet_id = aData[1];
+              var vnet_name   = aData[4];
+              if (row_vnet_id == vnet_ids[i])
+              {
+                  selected_vnets_list[row_vnet_id]=1;
+                  vnet_row_hash[row_vnet_id]=this;
+                  $(this).children().each(function(){$(this).addClass('markrow');});
+                  $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+row_vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+vnet_name+'</span>');
+              }
+            }
+       })
+    }
+  }
+
+  if (ds_ids)
+  {
+    // Select datastores belonging to the cluster
+    for (var i = 0; i < ds_ids.length; i++)
+    {
+      $('#datatable_cluster_datastores tr',dialog).each(function (){
+            var aData = dataTable_cluster_datastores.fnGetData(this);
+            if (aData)
+            {
+              var row_datastore_id = aData[1];
+              var datastore_name   = aData[4];
+              if (row_datastore_id == ds_ids[i])
+              {
+                  selected_datastore_list[row_datastore_id]=1;
+                  datastore_row_hash[row_datastore_id]=this;
+                  $(this).children().each(function(){$(this).addClass('markrow');});
+                  $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+row_datastore_id+'"><span class="ui-icon ui-icon-close"></span>'+datastore_name+'</span>');
+              }
+            }
+       })
+    }
+  }
+
+  // Clone already existing resources (to keep track)
+  original_hosts_list      = $.extend({}, selected_hosts_list);
+  original_vnets_list      = $.extend({}, selected_vnets_list);
+  original_datastores_list = $.extend({}, selected_datastore_list);
+  cluster_to_update_id     = response.CLUSTER.ID;
+
+  // Define update button
+  $('#update_cluster_submit').click(function(){
+
+      // find out which ones are in and out
+      for (var host_id in selected_hosts_list)
+      {
+        if (!original_hosts_list[host_id])
+        {
+          Sunstone.runAction("Cluster.addhost",cluster_to_update_id,host_id);
         }
+      }
 
+      for (var host_id in original_hosts_list)
+      {
+        if (!selected_hosts_list[host_id])
+        {
+          Sunstone.runAction("Cluster.delhost",cluster_to_update_id,host_id);
+        }
+      }
 
-    })
-   }
-   //          $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-      //      $('div#selected_hosts_div', dialog).append('<span id="tag_host_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[2]+'</span>');
+      for (var vnet_id in selected_vnets_list)
+      {
+        if (!original_vnets_list[vnet_id])
+        {
+          Sunstone.runAction("Cluster.addvnet",cluster_to_update_id,vnet_id);
+        }
+      }
+
+      for (var vnet_id in original_vnets_list)
+      {
+        if (!selected_vnets_list[vnet_id])
+        {
+          Sunstone.runAction("Cluster.delvnet",cluster_to_update_id,vnet_id);
+        }
+      }
+
+      for (var ds_id in selected_datastore_list)
+      {
+        if (!original_datastores_list[ds_id])
+        {
+          Sunstone.runAction("Cluster.adddatastore",cluster_to_update_id,ds_id);
+        }
+      }
+
+      for (var ds_id in original_datastores_list)
+      {
+        if (!selected_datastore_list[ds_id])
+        {
+          Sunstone.runAction("Cluster.deldatastore",cluster_to_update_id,ds_id);
+        }
+      }
+
+      $create_cluster_dialog.dialog('close');
+      Sunstone.runAction('Cluster.list');
+      updateClustersView();
+      return false;
+  });
 }
 
 
@@ -549,17 +689,17 @@ function fillPopPup(request,response){
 var cluster_host_actions = {
 
     "ClusterHost.list" : {
-        type: "list",
-        call: OpenNebula.Host.list,
+        type:     "list",
+        call:     OpenNebula.Host.list,
         callback: updateClusterHostsView,
-        error: onError
+        error:    onError
     },
 
     "ClusterHostInfo.list" : {
-        type: "list",
-        call: OpenNebula.Host.list,
+        type:     "list",
+        call:     OpenNebula.Host.list,
         callback: updateClusterHostsInfoView,
-        error: onError
+        error:    onError
     }
 }
 
@@ -714,7 +854,6 @@ var cluster_actions = {
         type: "create",
         call: OpenNebula.Cluster.create,
         callback: function(request, response){
-            //addClusterElement,
             for (var host in request.request.data[0].cluster.hosts)
                 if (request.request.data[0].cluster.hosts[host])
                     Sunstone.runAction("Cluster.addhost",response.CLUSTER.ID,host);
@@ -841,14 +980,14 @@ var cluster_actions = {
         notify:true
     },
 
-    "Cluster.update" : {
+/*    "Cluster.update_template" : {  // Update template
         type: "single",
         call: OpenNebula.Cluster.update,
         callback: function(){
             notifyMessage(tr("Template updated correctly"));
         },
         error: onError
-    },
+    },*/
 
     "Cluster.fetch_template" : {
         type: "single",
