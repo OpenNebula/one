@@ -1587,12 +1587,6 @@ void VirtualMachineManager::attach_nic_action(
     string  vm_tmpl;
     string* drv_msg;
 
-    const VectorAttribute * nic;
-    int nic_id;
-    int rc;
-
-    Nebula& nd = Nebula::instance();
-
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
@@ -1636,11 +1630,6 @@ void VirtualMachineManager::attach_nic_action(
 
     return;
 
-error_nic:
-    os.str("");
-    os << "attach_nic_action, could not find NIC to attach";
-    goto error_common;
-
 error_history:
     os.str("");
     os << "attach_nic_action, VM has no history";
@@ -1676,11 +1665,6 @@ void VirtualMachineManager::detach_nic_action(
     string *      drv_msg;
     string        opennebula_hostname;
     string        error_str;
-
-    const VectorAttribute * nic;
-    int nic_id;
-
-    Nebula& nd = Nebula::instance();
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -1724,11 +1708,6 @@ void VirtualMachineManager::detach_nic_action(
     vm->unlock();
 
     return;
-
-error_nic:
-    os.str("");
-    os << "detach_nic_action, could not find NIC to detach";
-    goto error_common;
 
 error_history:
     os.str("");

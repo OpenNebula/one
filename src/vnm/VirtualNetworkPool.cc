@@ -236,6 +236,7 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s,
 }
 
 int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
+                                      int     nic_id,
                                       int     uid,
                                       int     vid,
                                       string& error)
@@ -266,6 +267,8 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
     if ( rc == 0 )
     {
         update(vnet);
+
+        nic->replace("NIC_ID", nic_id);
     }
     else
     {
@@ -273,6 +276,7 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
     }
 
     vnet->unlock();
+
 
     return rc;
 }

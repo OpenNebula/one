@@ -1721,7 +1721,7 @@ VectorAttribute * VirtualMachine::set_up_attach_nic(
     network_id = -1;
 
     // -------------------------------------------------------------------------
-    // Get the DISK attribute from the template
+    // Get the NIC attribute from the template
     // -------------------------------------------------------------------------
 
     if ( tmpl->get("NIC", nics) != 1 )
@@ -1736,8 +1736,7 @@ VectorAttribute * VirtualMachine::set_up_attach_nic(
     // Acquire the new network lease
     // -------------------------------------------------------------------------
 
-    // TODO: set NIC/NIC_ID to max_nic_id + 1 ?
-    int rc = vnpool->nic_attribute(new_nic, uid, vm_id, error_str);
+    int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id, error_str);
 
     if ( rc != 0 )
     {
@@ -1908,7 +1907,7 @@ int VirtualMachine::get_network_leases(string& estr)
             continue;
         }
 
-        rc = vnpool->nic_attribute(nic, uid, oid, estr);
+        rc = vnpool->nic_attribute(nic, i, uid, oid, estr);
 
         if (rc == -1)
         {
