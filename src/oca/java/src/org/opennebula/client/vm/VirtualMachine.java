@@ -28,17 +28,19 @@ import org.w3c.dom.Node;
 public class VirtualMachine extends PoolElement{
 
     private static final String METHOD_PREFIX = "vm.";
-    private static final String ALLOCATE = METHOD_PREFIX + "allocate";
-    private static final String INFO     = METHOD_PREFIX + "info";
-    private static final String DEPLOY   = METHOD_PREFIX + "deploy";
-    private static final String ACTION   = METHOD_PREFIX + "action";
-    private static final String MIGRATE  = METHOD_PREFIX + "migrate";
-    private static final String SAVEDISK = METHOD_PREFIX + "savedisk";
-    private static final String CHOWN    = METHOD_PREFIX + "chown";
-    private static final String CHMOD    = METHOD_PREFIX + "chmod";
-    private static final String MONITORING = METHOD_PREFIX + "monitoring";
-    private static final String ATTACH  = METHOD_PREFIX + "attach";
-    private static final String DETACH  = METHOD_PREFIX + "detach";
+    private static final String ALLOCATE    = METHOD_PREFIX + "allocate";
+    private static final String INFO        = METHOD_PREFIX + "info";
+    private static final String DEPLOY      = METHOD_PREFIX + "deploy";
+    private static final String ACTION      = METHOD_PREFIX + "action";
+    private static final String MIGRATE     = METHOD_PREFIX + "migrate";
+    private static final String SAVEDISK    = METHOD_PREFIX + "savedisk";
+    private static final String CHOWN       = METHOD_PREFIX + "chown";
+    private static final String CHMOD       = METHOD_PREFIX + "chmod";
+    private static final String MONITORING  = METHOD_PREFIX + "monitoring";
+    private static final String ATTACH      = METHOD_PREFIX + "attach";
+    private static final String DETACH      = METHOD_PREFIX + "detach";
+    private static final String ATTACHNIC   = METHOD_PREFIX + "attachnic";
+    private static final String DETACHNIC   = METHOD_PREFIX + "detachnic";
 
     private static final String[] VM_STATES =
     {
@@ -260,7 +262,7 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Detaches a disk to a running VM
+     * Detaches a disk from a running VM
      *
      * @param client XML-RPC Client.
      * @param id The virtual machine id (vid) of the target instance.
@@ -271,6 +273,34 @@ public class VirtualMachine extends PoolElement{
             int diskId)
     {
         return client.call(DETACH, id, diskId);
+    }
+
+    /**
+     * Attaches a NIC to a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param nicTemplate Template containing the new NIC definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse attachnic(Client client, int id,
+            String nicTemplate)
+    {
+        return client.call(ATTACHNIC, id, nicTemplate);
+    }
+
+    /**
+     * Detaches a NIC from a running VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param nicId The NIC_ID of the NIC to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse detachnic(Client client, int id,
+            int nicId)
+    {
+        return client.call(DETACHNIC, id, nicId);
     }
 
     // =================================
@@ -476,7 +506,7 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Detaches a disk to a running VM
+     * Detaches a disk from a running VM
      *
      * @param diskId The DISK_ID of the disk to detach
      * @return If an error occurs the error message contains the reason.
@@ -484,6 +514,28 @@ public class VirtualMachine extends PoolElement{
     public OneResponse detachdisk(int diskId)
     {
         return detachdisk(client, id, diskId);
+    }
+
+    /**
+     * Attaches a NIC to a running VM
+     *
+     * @param nicTemplate Template containing the new NIC definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse attachnic(String nicTemplate)
+    {
+        return attachnic(client, id, nicTemplate);
+    }
+
+    /**
+     * Detaches a NIC from a running VM
+     *
+     * @param nicId The NIC_ID of the NIC to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse detachnic(int nicId)
+    {
+        return detachnic(client, id, nicId);
     }
 
     // =================================
