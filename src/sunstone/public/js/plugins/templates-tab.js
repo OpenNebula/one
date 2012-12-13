@@ -2325,6 +2325,10 @@ function setupCreateTemplateDialog(){
       // Append the new div containing the tab and add the tab to the list
       tabs.append(html_tab_content).tabs('add', '#io_tab', 'INPUT/OUTPUT', temp_index); 
 
+      $("input[name='graphics_type']").change(function(){
+        $("#LISTEN", $('div#io_tab')).val("0.0.0.0")
+      });
+
       $('#add_input', $('div#io_tab')).click(function() {
           var table = $('#input_table', $('div#io_tab'))[0];
           console.log(table)
@@ -3267,7 +3271,9 @@ function setupCreateTemplateDialog(){
         var vm_json = {};
         var name,value,boot_method;
 
-        //process capacity options
+        //
+        // CAPACITY
+        //
         var scope = section_capacity;
 
         if (!mandatory_filter(scope)){
@@ -3290,6 +3296,10 @@ function setupCreateTemplateDialog(){
         //    notifyError(tr("There are mandatory fields missing in the OS Boot options section"));
         //    return false;
         //};
+        //
+        // OS
+        //
+
         vm_json["OS"] = {};
         addSectionJSON(vm_json["OS"],$('div#os_tab',dialog));
 //
@@ -3299,6 +3309,10 @@ function setupCreateTemplateDialog(){
         //addSectionJSON(vm_json["FEATURES"],scope);
 //
         ////process disks -> fetch from box
+        //
+        // DISK
+        //
+
         vm_json["DISK"] = [];
 
         $('div.disk div#disk_type.vm_param',dialog).each(function(){
@@ -3306,6 +3320,10 @@ function setupCreateTemplateDialog(){
           addSectionJSON(hash, this);
           vm_json["DISK"].push(hash);
         });
+
+        //
+        // NIC
+        //
 
         vm_json["NIC"] = [];
 
@@ -3315,8 +3333,16 @@ function setupCreateTemplateDialog(){
           vm_json["NIC"].push(hash);
         });
 
+        //
+        // GRAPHICS
+        //
+
         vm_json["GRAPHICS"] = {};
         addSectionJSON(vm_json["GRAPHICS"],$('div#io_tab .graphics',dialog));
+
+        //
+        // INPUT
+        //
 
         vm_json["INPUT"] = [];
         $('#input_table tr', $('div#io_tab')).each(function(){
@@ -3366,6 +3392,10 @@ function setupCreateTemplateDialog(){
             nic_id++;
           });
         };
+
+        //
+        // PLACEMENT
+        //
 
         addSectionJSON(vm_json,$('div#placement_tab .requirements',dialog));
 
