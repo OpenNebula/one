@@ -42,6 +42,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         :log         => "LOG",
         :attach_disk => "ATTACHDISK",
         :detach_disk => "DETACHDISK",
+        :attach_nic  => "ATTACHNIC",
+        :detach_nic  => "DETACHNIC",
     }
 
     POLL_ATTRIBUTE = {
@@ -89,6 +91,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:poll].to_sym,        method("poll"))
         register_action(ACTION[:attach_disk].to_sym, method("attach_disk"))
         register_action(ACTION[:detach_disk].to_sym, method("detach_disk"))
+        register_action(ACTION[:attach_nic].to_sym,  method("attach_nic"))
+        register_action(ACTION[:detach_nic].to_sym,  method("detach_nic"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -166,6 +170,16 @@ class VirtualMachineDriver < OpenNebulaDriver
     def detach_disk(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:detach_disk],RESULT[:failure],id,error)
+    end
+
+    def attach_nic(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:attach_nic],RESULT[:failure],id,error)
+    end
+
+    def detach_nic(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:detach_nic],RESULT[:failure],id,error)
     end
 
 private

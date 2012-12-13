@@ -1411,7 +1411,7 @@ void VirtualMachine::get_disk_info(int&         max_disk_id,
     int disk_id;
     int num_disks;
 
-    max_disk_id = 0;
+    max_disk_id = -1;
 
     num_disks = obj_template->get("DISK", disks);
 
@@ -1679,7 +1679,7 @@ void VirtualMachine::get_nic_info(int& max_nic_id)
     int nic_id;
     int num_nics;
 
-    max_nic_id = 0;
+    max_nic_id = -1;
 
     num_nics = obj_template->get("NIC", nics);
 

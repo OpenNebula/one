@@ -128,6 +128,18 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:detach_disk],result,id)
     end
 
+    def attach_nic(id, drv_message)
+        result = retrieve_result("attach_nic")
+
+        send_message(ACTION[:attach_nic],result,id)
+    end
+
+    def detach_nic(id, drv_message)
+        result = retrieve_result("detach_nic")
+
+        send_message(ACTION[:detach_nic],result,id)
+    end
+
     def poll(id, drv_message)
         result = retrieve_result("poll")
 
