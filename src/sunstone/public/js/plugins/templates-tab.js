@@ -1651,7 +1651,8 @@ function setupCreateTemplateDialog(){
             "bJQueryUI": true,
             "bSortClasses": false,
             "bAutoWidth":false,
-            "sDom" : '<"H"lfrC>t<"F"ip>',
+            "iDisplayLength": 4,
+            "sDom" : '<"H"frC>t<"F"ip>',
             "oColVis": {
                 "aiExclude": [ 0 ]
             },
@@ -1827,7 +1828,8 @@ function setupCreateTemplateDialog(){
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "iDisplayLength": 4,
+        "sDom" : '<"H"frC>t<"F"ip>',
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -2101,7 +2103,8 @@ function setupCreateTemplateDialog(){
             "bJQueryUI": true,
             "bSortClasses": false,
             "bAutoWidth":false,
-            "sDom" : '<"H"lfrC>t<"F"ip>',
+            "sDom" : '<"H"frC>t<"F"ip>',
+            "iDisplayLength": 4,
             "oColVis": {
                 "aiExclude": [ 0 ]
             },
@@ -2170,7 +2173,8 @@ function setupCreateTemplateDialog(){
             "bJQueryUI": true,
             "bSortClasses": false,
             "bAutoWidth":false,
-            "sDom" : '<"H"lfrC>t<"F"ip>',
+            "iDisplayLength": 4,
+            "sDom" : '<"H"frC>t<"F"ip>',
             "oColVis": {
                 "aiExclude": [ 0 ]
             },
@@ -2516,6 +2520,7 @@ function setupCreateTemplateDialog(){
       dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable({
           "bJQueryUI": true,
           "bSortClasses": false,
+          "iDisplayLength": 4,
           "sDom" : '<"H"frC>t<"F"ip>',
           "oColVis": { //exclude checkbox column
               "aiExclude": [ 0 ]
@@ -2600,6 +2605,7 @@ function setupCreateTemplateDialog(){
       dataTable_template_clusters = $("#datatable_template_clusters", dialog).dataTable({
           "bJQueryUI": true,
           "bSortClasses": false,
+          "iDisplayLength": 4,
           "sDom" : '<"H"frC>t<"F"ip>',
           "oColVis": {
               "aiExclude": [ 0 ]
