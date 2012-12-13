@@ -1812,6 +1812,45 @@ function setupCreateTemplateDialog(){
               '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
               '</div>'+
           '</fieldset>'+
+          '<fieldset>'+
+            '<legend>'+tr("TCP Firewall")+'</legend>'+
+            '<input type="radio" name="tcp_type" id="tcp_type" value="WHITE_PORTS_TCP"> Whitelist '+
+            '<input type="radio" name="tcp_type" id="tcp_type" value="BLACK_PORTS_TCP"> Blacklist'+
+            '<div>'+
+                  '<label for="TCP_PORTS">'+tr("PORTS")+':</label>'+
+                  '<input type="text" id="TCP_PORTS" name="ports" />'+
+                  '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+            '</div>'+
+          '</fieldset>'+
+          '<fieldset>'+
+            '<legend>'+tr("UDP Firewall")+'</legend>'+
+            '<input type="radio" name="udp_type" id="udp_type" value="WHITE_PORTS_UDP"> Whitelist '+
+            '<input type="radio" name="udp_type" id="udp_type" value="BLACK_PORTS_UDP"> Blacklist'+
+            '<div>'+
+                  '<label for="UDP_PORTS">'+tr("PORTS")+':</label>'+
+                  '<input type="text" id="UDP_PORTS" name="ports" />'+
+                  '<div class="tip">'+tr("A list of ports separated by commas or a ranges separated by semilocolons, e.g.: 22,80,5900:6000")+'</div>'+
+            '</div>'+
+          '</fieldset>'+
+          '<fieldset>'+
+            '<legend>'+tr("ICMP Firewall")+'</legend>'+
+            '<input type="checkbox" name="icmp_type" id="icmp_type" value="ICMP"> Drop '+
+          '</fieldset>'+
+          '<div class="show_hide" id="advanced">'+
+            '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
+          '</div>'+
+          '<fieldset class="advanced">'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+              '<label for="IP">'+tr("IP")+':</label>'+
+              '<input type="text" id="IP" name="IP" size="3" />'+
+              '<div class="tip">'+tr("Request an specific IP from the Network")+'</div>'+
+            '</div>'+
+            '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                  '<label for="MODEL">'+tr("MODEL")+':</label>'+
+                  '<input type="text" id="MODEL" name="MODEL" />'+
+                  '<div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>'+
+            '</div>'+
+          '</fieldset>'+
             '<div class="form_buttons">'+
               '<button href="#" class="prev-tab" rel="1" style="float: left">< '+tr("STORAGE")+'</button>'+
               '<button href="#" class="next-tab" rel="3">'+tr("OS BOOTING")+' ></button>'+
@@ -1891,9 +1930,15 @@ function setupCreateTemplateDialog(){
           return false;
       });
 
-      // ADVANCED button
-      $('button',$('div#' + str_nic_tab_id)).button();
-      $("#tf_btn_advanced", $('div#' + str_nic_tab_id)).click(add_advanced_tabs);
+
+      $('fieldset.advanced', $('div#' + str_nic_tab_id)).hide();
+
+      $('#advanced', $('div#' + str_nic_tab_id)).click(function(){
+          $('fieldset.advanced', $('div#' + str_nic_tab_id)).toggle();
+          return false;
+      });
+
+      setupTips($('div#' + str_nic_tab_id));
 
       number_of_nics++;
       nics_index++;
@@ -3336,6 +3381,21 @@ function setupCreateTemplateDialog(){
         $('div.nic',dialog).each(function(){
           var hash  = {};
           addSectionJSON(hash, this);
+
+          var tcp = $("input[name='tcp_type']:checked").val();
+          if (tcp) {
+            hash[tcp] = $("#TCP_PORTS", this).val();
+          }
+
+          var udp = $("input[name='udp_type']:checked").val();
+          if (udp) {
+            hash[udp] = $("#UDP_PORTS", this).val();
+          }
+
+          if ($("#icmp_type", this).is(":checked")) {
+            hash["ICMP"] = "drop"
+          }
+
           vm_json["NIC"].push(hash);
         });
 
