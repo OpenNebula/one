@@ -56,6 +56,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Device where the image will be attached"
     }
 
+    IP={
+        :name => "ip",
+        :short => "-i ip",
+        :large => "--ip ip",
+        :format => String,
+        :description => "IP address for the new NIC"
+    }
+
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -452,6 +461,53 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         helper.perform_action(args[0],options,"Detach disk") do |vm|
             vm.detachdisk(diskid)
+        end
+    end
+
+    attachnic_desc = <<-EOT.unindent
+        Attaches a NIC to a running VM
+
+        States: RUNNING
+    EOT
+
+    command :attachnic, attachnic_desc, :vmid,
+            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, IP] do
+
+        if options[:file].nil? and options[:network].nil?
+            STDERR.puts "Provide a template file or a network:"
+            STDERR.puts "\t--file    <file>"
+            STDERR.puts "\t--network <network>"
+            exit -1
+        end
+
+        if options[:file]
+            template = File.read(options[:file])
+        else
+            network_id = options[:network]
+            ip = options[:ip]
+            if ip
+                template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+            else
+                template = "NIC = [ NETWORK_ID = #{network_id} ]"
+            end
+        end
+
+        helper.perform_action(args[0],options,"Attach NIC") do |vm|
+            vm.attachnic(template)
+        end
+    end
+
+    detachnic_desc = <<-EOT.unindent
+        Detaches a NIC from a running VM
+
+        States: RUNNING
+    EOT
+
+    command :detachnic, detachnic_desc, :vmid, :nicid do
+        nicid = args[1].to_i
+
+        helper.perform_action(args[0],options,"Detach NIC") do |vm|
+            vm.detachnic(nicid)
         end
     end
 

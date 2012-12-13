@@ -35,7 +35,9 @@ module OpenNebula
             :chmod      => "vm.chmod",
             :monitoring => "vm.monitoring",
             :attach     => "vm.attach",
-            :detach     => "vm.detach"
+            :detach     => "vm.detach",
+            :attachnic  => "vm.attachnic",
+            :detachnic  => "vm.detachnic"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED 
@@ -202,23 +204,39 @@ module OpenNebula
         end
 
         # Attaches a disk to a running VM
-        def attachdisk(disk)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(VM_METHODS[:attach], @pe_id, disk)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+        #
+        # @param disk_template [String] Template containing a DISK element
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def attachdisk(disk_template)
+            return call(VM_METHODS[:attach], @pe_id, disk_template)
         end
 
         # Detaches a disk from a running VM
-        def detachdisk(disk)
-            return Error.new('ID not defined') if !@pe_id
+        #
+        # @param disk_id [Integer] Id of the disk to be detached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def detachdisk(disk_id)
+            return call(VM_METHODS[:detach], @pe_id, disk_id)
+        end
 
-            rc = @client.call(VM_METHODS[:detach], @pe_id, disk)
-            rc = nil if !OpenNebula.is_error?(rc)
+        # Attaches a NIC to a running VM
+        #
+        # @param nic_template [String] Template containing a NIC element
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def attachnic(nic_template)
+            return call(VM_METHODS[:attachnic], @pe_id, nic_template)
+        end
 
-            return rc
+        # Detaches a NIC from a running VM
+        #
+        # @param disk_id [Integer] Id of the NIC to be detached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def detachnic(nic_id)
+            return call(VM_METHODS[:detachnic], @pe_id, nic_id)
         end
 
         # Deletes a VM from the pool

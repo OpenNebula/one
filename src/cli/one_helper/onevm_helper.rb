@@ -36,6 +36,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
     }
 
+    NETWORK = {
+        :name   => "network",
+        :short  => "-n id|name",
+        :large  => "--network id|name" ,
+        :description => "Selects the virtual network",
+        :format => String,
+        :proc   => lambda { |o, options|
+            OpenNebulaHelper.rname_to_id(o, "VNET")
+        }
+    }
+
     FILE = {
         :name   => "file",
         :short  => "-f file",
