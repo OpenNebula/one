@@ -260,6 +260,46 @@ module Migrator
 
 
         ########################################################################
+        # Feature #1691 Add new attribute NIC/NIC_ID
+        ########################################################################
+
+        @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.fetch("SELECT * FROM old_vm_pool") do |row|
+            if ( row[:state] != 6 )     # DONE
+                doc = Document.new(row[:body])
+
+                nic_id = 0
+
+                doc.root.each_element("TEMPLATE/NIC") { |e|
+                    e.delete_element("NIC_ID")
+                    e.add_element("NIC_ID").text = (nic_id).to_s
+
+                    nic_id += 1
+                }
+
+                row[:body] = doc.root.to_s
+            end
+
+            @db[:vm_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => row[:body],
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :last_poll  => row[:last_poll],
+                :state      => row[:state],
+                :lcm_state  => row[:lcm_state],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_vm_pool;"
+
+
+        ########################################################################
         #
         # Banner for the new /var/lib/one/vms directory
         #
