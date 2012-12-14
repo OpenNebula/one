@@ -27,7 +27,9 @@ module OpenNebula
             :userquotainfo      => "userquota.info",
             :userquotaupdate    => "userquota.update",
             :groupquotainfo     => "groupquota.info",
-            :groupquotaupdate   => "groupquota.update"
+            :groupquotaupdate   => "groupquota.update",
+            :version            => "system.version",
+            :config             => "system.config"
         }
 
         #######################################################################
@@ -43,6 +45,46 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods
         #######################################################################
+
+        # Gets the oned version
+        #
+        # @return [String, OpenNebula::Error] the oned version in case
+        #   of success, Error otherwise
+        def get_oned_version()
+            return @client.call("system.version")
+        end
+
+        # Returns whether of not the oned version is the same as the OCA version
+        #
+        # @return [true, false, OpenNebula::Error] true if oned is the same
+        #   version
+        def compatible_version()
+            no_revision = VERSION[/^\d+\.\d+\./]
+            oned_v = get_oned_version
+
+            if OpenNebula.is_error?(oned_v)
+                return oned_v
+            end
+
+            return (oned_v =~ /#{no_revision}/) != nil
+        end
+
+        # Gets the oned configuration
+        #
+        # @return [XMLElement, OpenNebula::Error] the oned configuration in case
+        #   of success, Error otherwise
+        def get_configuration()
+            rc = @client.call(SYSTEM_METHODS[:config])
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            end
+
+            config = XMLElement.new
+            config.initialize_xml(rc, 'TEMPLATE')
+
+            return config
+        end
 
         # Gets the default user quota limits
         #
