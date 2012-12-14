@@ -129,16 +129,6 @@ public class Client{
         return call("system.version");
     }
 
-    /**
-     * Calls OpenNebula and retrieves oned configuration
-     *
-     * @return The server's xml-rpc response encapsulated
-     */
-    public OneResponse get_config()
-    {
-        return call("system.config");
-    }
-
     //--------------------------------------------------------------------------
     //  PRIVATE ATTRIBUTES AND METHODS
     //--------------------------------------------------------------------------
