@@ -364,6 +364,7 @@ void PoolSQL::update_cache_index(string& old_name,
                                  int     new_uid)
 {
     map<string,PoolObjectSQL *>::iterator  index;
+    PoolObjectSQL * the_object;
 
     lock();
 
@@ -380,11 +381,13 @@ void PoolSQL::update_cache_index(string& old_name,
 
     if ( index != name_pool.end() )
     {
+        the_object = index->second;
+
         name_pool.erase(old_key);
 
         if ( name_pool.find(new_key) == name_pool.end())
         {
-            name_pool.insert(make_pair(new_key, index->second));
+            name_pool.insert(make_pair(new_key, the_object));
         }
     }
 

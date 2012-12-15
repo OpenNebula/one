@@ -37,17 +37,12 @@ protected:
         auth_op = AuthRequest::MANAGE;
     };
 
-    ~RequestManagerRename(){};
+    virtual ~RequestManagerRename(){};
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                         RequestAttributes& att);
-
-    PoolObjectSQL * get_and_quota(int                       oid,
-                                  int                       new_uid,
-                                  int                       new_gid,
-                                  RequestAttributes&        att);
 
     virtual PoolObjectSQL * get(const string& name, int uid, bool lock) = 0;
 };
@@ -59,20 +54,14 @@ class VirtualMachineRename : public RequestManagerRename
 {
 public:
     VirtualMachineRename():
-        RequestManagerRename("VirtualMachineRename",
-                            "Renames a virtual machine")
-    {    
+        RequestManagerRename("VirtualMachineRename","Renames a virtual machine")
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
     };
 
     ~VirtualMachineRename(){};
-
-    int check_name_unique(int oid, int noid, RequestAttributes& att)
-    {
-        return 0;
-    };
 
     PoolObjectSQL * get(const string& name, int uid, bool lock)
     {
@@ -88,7 +77,7 @@ class TemplateRename : public RequestManagerRename
 public:
     TemplateRename():
         RequestManagerRename("TemplateRename",
-                            "Renames a virtual machine template")
+                             "Renames a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -111,9 +100,8 @@ class VirtualNetworkRename: public RequestManagerRename
 {
 public:
     VirtualNetworkRename():
-        RequestManagerRename("VirtualNetworkRename",
-                           "Renames a virtual network")
-    {    
+        RequestManagerRename("VirtualNetworkRename","Renames a virtual network")
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -134,9 +122,8 @@ class ImageRename: public RequestManagerRename
 {
 public:
     ImageRename():
-        RequestManagerRename("ImageRename",
-                            "Renames an image")
-    {    
+        RequestManagerRename("ImageRename", "Renames an image")
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
@@ -157,8 +144,7 @@ class DocumentRename : public RequestManagerRename
 {
 public:
     DocumentRename():
-        RequestManagerRename("DocumentRename",
-                            "Renames a generic document")
+        RequestManagerRename("DocumentRename", "Renames a generic document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();
