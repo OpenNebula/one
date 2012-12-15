@@ -63,10 +63,14 @@ protected:
                              string& tm,
                              string& ds_location,
                              int&    ds_id,
-                             int&    free_cpu,
-                             int&    free_mem,
                              RequestAttributes& att,
                              PoolObjectAuth& host_perms);
+
+    bool check_host(int     hid,
+                    int     cpu,
+                    int     mem,
+                    int     disk,
+                    string& error);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
