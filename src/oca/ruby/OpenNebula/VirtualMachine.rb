@@ -35,7 +35,8 @@ module OpenNebula
             :chmod      => "vm.chmod",
             :monitoring => "vm.monitoring",
             :attach     => "vm.attach",
-            :detach     => "vm.detach"
+            :detach     => "vm.detach",
+            :rename     => "vm.rename"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED 
@@ -359,6 +360,16 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             return @client.call(VM_METHODS[:monitoring], @pe_id)
+        end
+
+        # Renames this VM
+        #
+        # @param name [String] New name for the VM.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(VM_METHODS[:rename], @pe_id, name)
         end
 
         #######################################################################

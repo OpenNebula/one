@@ -36,6 +36,7 @@ public class Template extends PoolElement
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String INSTANTIATE = METHOD_PREFIX + "instantiate";
     private static final String CLONE    = METHOD_PREFIX + "clone";
+    private static final String RENAME   = METHOD_PREFIX + "rename";
 
     /**
      * Creates a new Template representation.
@@ -219,6 +220,19 @@ public class Template extends PoolElement
         return client.call(CLONE, id, name);
     }
 
+    /**
+     * Renames this Template
+     *
+     * @param client XML-RPC Client.
+     * @param id The Template id of the target Template.
+     * @param name New name for the Template.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -398,6 +412,17 @@ public class Template extends PoolElement
     public OneResponse clone(String name)
     {
         return clone(client, id, name);
+    }
+
+    /**
+     * Renames this Template
+     *
+     * @param name New name for the Template.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================

@@ -32,7 +32,8 @@ module OpenNebula
             :delete      => "template.delete",
             :chown       => "template.chown",
             :chmod       => "template.chmod",
-            :clone       => "template.clone"
+            :clone       => "template.clone",
+            :rename      => "template.rename"
         }
 
         # Creates a Template description with just its identifier
@@ -155,6 +156,16 @@ module OpenNebula
             rc = @client.call(TEMPLATE_METHODS[:clone], @pe_id, name)
 
             return rc
+        end
+
+        # Renames this Template
+        #
+        # @param name [String] New name for the Template.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(TEMPLATE_METHODS[:rename], @pe_id, name)
         end
 
         #######################################################################
