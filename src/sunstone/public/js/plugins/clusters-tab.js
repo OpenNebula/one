@@ -141,9 +141,9 @@ var selected_hosts_list     = {};
 var selected_vnets_list     = {};
 var selected_datastore_list = {};
 
-var host_row_hash      = {};
-var vnet_row_hash      = {};
-var datastore_row_hash = {};
+var host_row_hash           = {};
+var vnet_row_hash           = {};
+var datastore_row_hash      = {};
 
 // Prepares the cluster creation dialog
 function setupCreateClusterDialog(datatable_filter){
@@ -157,7 +157,7 @@ function setupCreateClusterDialog(datatable_filter){
         autoOpen: false,
         modal: true,
         height: height,
-        width: 'auto'//400
+        width: 'auto'
     });
 
     //Enable tabs
@@ -441,21 +441,22 @@ function setupCreateClusterDialog(datatable_filter){
 }
 
 function reset_counters(){
-    selected_hosts_list={};
-    selected_vnets_list={};
-    selected_datastore_list={};
+    selected_hosts_list     = {};
+    selected_vnets_list     = {};
+    selected_datastore_list = {};
 
 
-    host_row_hash={};
-    vnet_row_hash={};
-    datastore_row_hash={};
+    host_row_hash           = {};
+    vnet_row_hash           = {};
+    datastore_row_hash      = {};
 }
 
 // Open creation dialogs
 function popUpCreateClusterDialog(){
     if ($create_cluster_dialog)
     {
-      $create_cluster_dialog.html('');
+      $create_cluster_dialog.remove();
+      dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
     }
 
     reset_counters;
@@ -480,7 +481,8 @@ function popUpUpdateClusterDialog(){
 
     if (dialog)
     {
-      dialog.html('');
+      dialog.remove();
+      dialogs_context.append('<div title=\"'+tr("Update cluster")+'\" id="create_cluster_dialog"></div>');
     }
 
     reset_counters;
@@ -513,6 +515,8 @@ function popUpUpdateClusterDialog(){
     Sunstone.runAction("ClusterDS.list");
     $create_cluster_dialog.dialog('open');
 
+    $('#create_cluster_dialog').attr('title','Update Cluster');
+
     Sunstone.runAction("Cluster.show_to_update", cluster_id);
 
     return false;
@@ -529,15 +533,18 @@ function fillPopPup(request,response){
   var vnet_ids = response.CLUSTER.VNETS.ID;
   var ds_ids   = response.CLUSTER.DATASTORES.ID;
 
-  if (typeof host_ids == 'string') {
+  if (typeof host_ids == 'string')
+  {
     host_ids = [host_ids];
   }
 
-  if (typeof vnet_ids == 'string') {
+  if (typeof vnet_ids == 'string')
+  {
     vnet_ids = [vnet_ids];
   }
 
-  if (typeof ds_ids == 'string') {
+  if (typeof ds_ids == 'string')
+  {
     ds_ids = [ds_ids];
   }
 
@@ -546,28 +553,32 @@ function fillPopPup(request,response){
   $('#update_cluster_submit',dialog).show();
 
   // Fill in the name
-   $('#name',dialog).val(name);
+  $('#name',dialog).val(name);
+  $('#name',dialog).attr("disabled", "disabled");
 
   // Select hosts belonging to the cluster
   if (host_ids)
   {
     for (var i = 0; i < host_ids.length; i++)
     {
-      $('#datatable_cluster_hosts tr',dialog).each(function (){
-            var aData = dataTable_cluster_hosts.fnGetData(this);
-            if (aData)
-            {
-              var row_host_id = aData[1];
-              var host_name   = aData[2];
-              if (row_host_id == host_ids[i])
-              {
-                  selected_hosts_list[row_host_id]=1;
-                  host_row_hash[row_host_id]=this;
-                  $(this).children().each(function(){$(this).addClass('markrow');});
-                  $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+row_host_id+'"><span class="ui-icon ui-icon-close"></span>'+host_name+'</span>');
-              }
-            }
-        })
+      var rows = $("#datatable_cluster_hosts").dataTable().fnGetNodes();
+
+      for(var j=0;j<rows.length;j++){
+        var current_row = $(rows[j]);
+        var row_host_id = $(rows[j]).find("td:eq(0)").html();
+        var host_name   = $(rows[j]).find("td:eq(1)").html();
+
+        if (host_name)
+        {
+          if (row_host_id == host_ids[i])
+          {
+              selected_hosts_list[row_host_id]=1;
+              host_row_hash[row_host_id]=current_row;
+              current_row.children().each(function(){$(this).addClass('markrow');});
+              $('div#selected_hosts_div', dialog).append('<span id="tag_hosts_'+row_host_id+'"><span class="ui-icon ui-icon-close"></span>'+host_name+'</span>');
+          }
+        }
+      }
     }
   }
 
@@ -576,21 +587,25 @@ function fillPopPup(request,response){
     // Select vnets belonging to the cluster
     for (var i = 0; i < vnet_ids.length; i++)
     {
-      $('#datatable_cluster_vnets tr',dialog).each(function (){
-            var aData = dataTable_cluster_vnets.fnGetData(this);
-            if (aData)
-            {
-              var row_vnet_id = aData[1];
-              var vnet_name   = aData[4];
-              if (row_vnet_id == vnet_ids[i])
-              {
-                  selected_vnets_list[row_vnet_id]=1;
-                  vnet_row_hash[row_vnet_id]=this;
-                  $(this).children().each(function(){$(this).addClass('markrow');});
-                  $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+row_vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+vnet_name+'</span>');
-              }
-            }
-       })
+      var rows = $("#datatable_cluster_vnets").dataTable().fnGetNodes();
+
+      for(var j=0;j<rows.length;j++){
+
+        var current_row = $(rows[j]);
+        var row_vnet_id = $(rows[j]).find("td:eq(0)").html();
+        var vnet_name   = $(rows[j]).find("td:eq(3)").html();
+
+        if (vnet_name)
+        {
+          if (row_vnet_id == vnet_ids[i])
+          {
+              selected_vnets_list[row_vnet_id]=1;
+              vnet_row_hash[row_vnet_id]=current_row;
+              current_row.children().each(function(){$(this).addClass('markrow');});
+              $('div#selected_vnets_div', dialog).append('<span id="tag_vnets_'+row_vnet_id+'"><span class="ui-icon ui-icon-close"></span>'+vnet_name+'</span>');
+          }
+        }
+      }
     }
   }
 
@@ -599,21 +614,25 @@ function fillPopPup(request,response){
     // Select datastores belonging to the cluster
     for (var i = 0; i < ds_ids.length; i++)
     {
-      $('#datatable_cluster_datastores tr',dialog).each(function (){
-            var aData = dataTable_cluster_datastores.fnGetData(this);
-            if (aData)
-            {
-              var row_datastore_id = aData[1];
-              var datastore_name   = aData[4];
-              if (row_datastore_id == ds_ids[i])
-              {
-                  selected_datastore_list[row_datastore_id]=1;
-                  datastore_row_hash[row_datastore_id]=this;
-                  $(this).children().each(function(){$(this).addClass('markrow');});
-                  $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+row_datastore_id+'"><span class="ui-icon ui-icon-close"></span>'+datastore_name+'</span>');
-              }
-            }
-       })
+      var rows = $("#datatable_cluster_datastores").dataTable().fnGetNodes();
+
+      for(var j=0;j<rows.length;j++){
+
+        var current_row      = $(rows[j]);
+        var row_datastore_id = $(rows[j]).find("td:eq(0)").html();
+        var datastore_name   = $(rows[j]).find("td:eq(3)").html();
+
+        if (datastore_name)
+        {
+          if (row_datastore_id == ds_ids[i])
+          {
+              selected_datastore_list[row_datastore_id]=1;
+              datastore_row_hash[row_datastore_id]=current_row;
+              current_row.children().each(function(){$(this).addClass('markrow');});
+              $('div#selected_datastores_div', dialog).append('<span id="tag_datastores_'+row_datastore_id+'"><span class="ui-icon ui-icon-close"></span>'+datastore_name+'</span>');
+          }
+        }
+      }
     }
   }
 
@@ -1288,11 +1307,11 @@ function updateClusterInfo(request,cluster){
 
     //Information tab
     var info_tab = {
-        title : tr("Cluster information"),
+        title : tr("Information"),
         content :
         '<table id="info_cluster_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("Cluster information") + ' - '+cluster_info.NAME+'</th></tr>\
+               <tr><th colspan="2">' + tr("Information for cluster") + ' - '+cluster_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
@@ -1308,7 +1327,9 @@ function updateClusterInfo(request,cluster){
          <table id="cluster_template_table" class="info_table">\
              <thead><tr><th colspan="2">' + tr("Cluster template") + '</th></tr></thead>'+
                 prettyPrintJSON(cluster_info.TEMPLATE)+
-         '</table>'
+         '</table>'+
+         '<hr/>'
+
     }
 
     var cluster_host_tab = {
