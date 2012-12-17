@@ -86,9 +86,18 @@ protected:
         return ClusterPool::NONE_CLUSTER_ID;
     };
 
-    virtual int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    virtual int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return -1;
+    };
+
+    virtual Datastore::DatastoreType get_ds_type(int oid)
+    {
+        return Datastore::FILE_DS;
     };
 
 protected:
@@ -176,7 +185,11 @@ public:
         return xmlrpc_c::value_int(paramList.getInt(2));
     };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return cluster->add_vnet(id, error_msg);
     };
@@ -274,7 +287,11 @@ public:
         return xmlrpc_c::value_int(paramList.getInt(5));
     };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return cluster->add_host(id, error_msg);
     };
@@ -376,9 +393,27 @@ public:
         return xmlrpc_c::value_int(paramList.getInt(2));
     };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    virtual Datastore::DatastoreType get_ds_type(int oid)
     {
-        return cluster->add_datastore(id, error_msg);
+        Datastore::DatastoreType ds_type = Datastore::FILE_DS;
+        Datastore *ds = static_cast<DatastorePool*>(pool)->get(oid, true);
+
+        if ( ds != 0 )
+        {
+            ds_type = ds->get_type();
+            ds->unlock();
+        }
+
+        return ds_type;
+    };
+
+    int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
+    {
+        return cluster->add_datastore(id, ds_type, error_msg);
     };
 };
 

@@ -45,6 +45,8 @@ void RequestManagerCluster::add_generic(
     int     old_cluster_id;
     string  old_cluster_name;
 
+    Datastore::DatastoreType ds_type;
+
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
         rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms, cluster_name);
@@ -102,6 +104,8 @@ void RequestManagerCluster::add_generic(
     old_cluster_id   = cluster_obj->get_cluster_id();
     old_cluster_name = cluster_obj->get_cluster_name();
 
+    ds_type = get_ds_type(object);
+
     if ( old_cluster_id == cluster_id )
     {
         object->unlock();
@@ -141,7 +145,7 @@ void RequestManagerCluster::add_generic(
             return;
         }
 
-        if ( add_object(cluster, object_id, err_msg) < 0 )
+        if ( add_object(cluster, object_id, ds_type, err_msg) < 0 )
         {
             cluster->unlock();
 

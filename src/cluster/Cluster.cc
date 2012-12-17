@@ -117,7 +117,7 @@ string& Cluster::get_ds_location(string &ds_location)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Cluster::add_datastore(int id, string& error_msg)
+int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg)
 {
     if ( id == DatastorePool::SYSTEM_DS_ID )
     {
@@ -129,19 +129,6 @@ int Cluster::add_datastore(int id, string& error_msg)
 
         return -1;
     }
-
-    // TODO: Do not lock DS here, take ds_type as an argument
-
-    Datastore *ds = Nebula::instance().get_dspool()->get(id, true);
-
-    if ( ds == 0 )
-    {
-        return -1;
-    }
-
-    Datastore::DatastoreType ds_type = ds->get_type();
-
-    ds->unlock();
 
     if ( ds_type == Datastore::SYSTEM_DS )
     {
