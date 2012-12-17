@@ -41,6 +41,7 @@ class LdapAuth
 
         ops[:host]=@options[:host] if @options[:host]
         ops[:port]=@options[:port].to_i if @options[:port]
+        ops[:encryption]=@options[:encryption] if @options[:encryption]
 
         @ldap=Net::LDAP.new(ops)
     end
