@@ -498,15 +498,9 @@ module CommandParser
                 else
                     puts "one parameter to run"
                 end
-                puts
-                puts "Usage:"
 
-                if @main
-                    print "    #{@usage}\n"
-                else
-                    print "    #{name} "
-                    print_command(@commands[name])
-                end
+                print_command_help(name)
+
                 exit -1
             else
                 id=0
