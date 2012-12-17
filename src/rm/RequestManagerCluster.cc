@@ -149,6 +149,18 @@ void RequestManagerCluster::add_generic(
                     request_error("Cannot add object to cluster", err_msg),
                     att);
 
+            // Rollback
+            get(object_id, true, &object, &cluster_obj);
+
+            if ( object != 0 )
+            {
+                cluster_obj->set_cluster(old_cluster_id, old_cluster_name);
+
+                pool->update(object);
+
+                object->unlock();
+            }
+
             return;
         }
 
