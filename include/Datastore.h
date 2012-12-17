@@ -57,10 +57,17 @@ public:
 
     /**
      *  Return the string representation of a DatastoreType
-     *    @param str_type string representing the DatastoreTypr
+     *    @param str_type string representing the DatastoreType
      *    @return the DatastoreType (defaults to IMAGE_DS)
      */
     static DatastoreType str_to_type(string& str_type);
+
+    /**
+     *  Returns the DS type found in the string template
+     *    @param str_template string template
+     *    @return the DatastoreType (defaults to IMAGE_DS)
+     */
+    static DatastoreType type_in_template(string& str_template);
 
     /**
      * Function to print the Datastore object into a string in XML format

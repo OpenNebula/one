@@ -42,6 +42,16 @@ public:
     }
 
     /**
+     * Sets the SYSTEM_DS attribute
+     *
+     * @param ds_id The new system datastore
+     */
+    void set_ds_id(int ds_id)
+    {
+        system_ds = ds_id;
+    }
+
+    /**
      * Returns the DATASTORE_LOCATION for the hosts of the cluster. If not
      * defined that in oned.conf is returned.
      *

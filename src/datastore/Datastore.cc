@@ -122,6 +122,22 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+Datastore::DatastoreType Datastore::type_in_template(string& str_template)
+{
+    string s_ds_type;
+    string error_str;
+
+    Template tmp_template;
+    tmp_template.parse_str_or_xml(str_template, error_str);
+
+    tmp_template.get("TYPE", s_ds_type);
+
+    return Datastore::str_to_type(s_ds_type);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 int Datastore::insert(SqlDB *db, string& error_str)
 {
     int           rc;
@@ -431,9 +447,9 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     else
     {
         type = str_to_type(s_ds_type);
-
-        replace_template_attribute("TYPE", type_to_str(type));
     }
+
+    replace_template_attribute("TYPE", type_to_str(type));
 
     if ( type == SYSTEM_DS )
     {

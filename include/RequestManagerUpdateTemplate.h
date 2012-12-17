@@ -40,7 +40,7 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 };
 
@@ -150,6 +150,9 @@ public:
     };
 
     ~DatastoreUpdateTemplate(){};
+
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
