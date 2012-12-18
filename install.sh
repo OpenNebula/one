@@ -196,7 +196,7 @@ ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/cli"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
-          $LIB_LOCATION/ruby/OpenNebula \
+          $LIB_LOCATION/ruby/opennebula \
           $LIB_LOCATION/ruby/zona \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
@@ -357,22 +357,22 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font"
 
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cli \
                  $LIB_LOCATION/ruby/cli/ozones_helper \
                  $LIB_LOCATION/ruby/zona"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
 LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/occi"
 
 LIB_MARKET_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/marketplace"
 
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
@@ -488,11 +488,11 @@ INSTALL_CLIENT_FILES=(
     OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
     CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     OCA_LIB_FILES:$LIB_LOCATION/ruby
 )
 
@@ -541,7 +541,7 @@ INSTALL_SUNSTONE_ETC_FILES=(
 
 INSTALL_OZONES_RUBY_FILES=(
     OZONES_RUBY_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
 INSTALL_OZONES_FILES=(
@@ -673,7 +673,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/oca/ruby/OpenNebula.rb \
+                src/oca/ruby/opennebula.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
                 src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
