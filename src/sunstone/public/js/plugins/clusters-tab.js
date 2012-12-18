@@ -341,7 +341,7 @@ function setupCreateClusterDialog(datatable_filter){
       });
 
     // Add tag listeners
-     $( "#cluster_create_tabs span.ui-icon-close",$create_cluster_dialog).die('click');
+     $( "#cluster_create_tabs span.ui-icon-close",$create_cluster_dialog).die();
      $( "#cluster_create_tabs span.ui-icon-close" ).live( "click", function() {
        // Remove the tag
        $(this).parent().remove();
@@ -999,14 +999,15 @@ var cluster_actions = {
         notify:true
     },
 
-/*    "Cluster.update_template" : {  // Update template
+    "Cluster.update_template" : {  // Update template
         type: "single",
         call: OpenNebula.Cluster.update,
-        callback: function(){
-            notifyMessage(tr("Template updated correctly"));
+        callback: function(request,response){
+           notifyMessage(tr("Template updated correctly"));
+           Sunstone.runAction('Cluster.showinfo',request.request.data[0]);
         },
         error: onError
-    },*/
+    },
 
     "Cluster.fetch_template" : {
         type: "single",
@@ -1301,9 +1302,11 @@ function updateClustersView (request,list){
     updateInfraDashboard("clusters",list);
 };
 
+
 // Updates the cluster info panel tab content and pops it up
 function updateClusterInfo(request,cluster){
-    cluster_info = cluster.CLUSTER;
+    cluster_info     = cluster.CLUSTER;
+    cluster_template = cluster_info.TEMPLATE;
 
     //Information tab
     var info_tab = {
@@ -1311,7 +1314,9 @@ function updateClusterInfo(request,cluster){
         content :
         '<table id="info_cluster_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("Information for cluster") + ' - '+cluster_info.NAME+'</th></tr>\
+               <tr><th colspan="2">' +
+                        tr("Information for cluster") +
+                        ' - '+cluster_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
@@ -1323,13 +1328,10 @@ function updateClusterInfo(request,cluster){
                 <td class="value_td">'+cluster_info.NAME+'</td>\
             </tr>\
             </tbody>\
-         </table>\
-         <table id="cluster_template_table" class="info_table">\
-             <thead><tr><th colspan="2">' + tr("Cluster template") + '</th></tr></thead>'+
-                prettyPrintJSON(cluster_info.TEMPLATE)+
-         '</table>'+
-         '<hr/>'
-
+         </table>' +
+                insert_extended_template_table(cluster_template,
+                                         "Cluster",
+                                         cluster_info.ID)
     }
 
     var cluster_host_tab = {
@@ -1449,8 +1451,7 @@ function updateClusterInfo(request,cluster){
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_datastores_panel);
 
-    // initializa datatables values
-
+    // initialize datatables values
     Sunstone.runAction("ClusterHostInfo.list");
     Sunstone.runAction("ClusterVNInfo.list");
     Sunstone.runAction("ClusterDSInfo.list");

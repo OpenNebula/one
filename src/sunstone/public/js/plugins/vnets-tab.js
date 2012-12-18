@@ -368,9 +368,8 @@ var vnet_actions = {
         type: "single",
         call: OpenNebula.Network.show,
         callback: function(request,vnet_json){
-            var dialog = $('#vnet_template_update_dialog form');
             var vnet = vnet_json.VNET;
-            setPermissionsTable(vnet,dialog);
+            setPermissionsTable(vnet,$(".network_permissions_table"));
         },
         error: onError
     },
@@ -380,11 +379,12 @@ var vnet_actions = {
         call: popUpVNetTemplateUpdateDialog
     },
 
-    "Network.update" : {
+    "Network.update_template" : {
         type: "single",
         call: OpenNebula.Network.update,
-        callback: function() {
+        callback: function(request) {
             notifyMessage("Template updated correctly");
+            Sunstone.runAction('Network.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -560,14 +560,54 @@ function updateVNetworksView(request, network_list){
 
 }
 
+function insert_permissions_table(resource_type,resource_id){
+     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table" style="padding:0 10px;">\
+                     <thead><tr>\
+                         <td style="width:130px">'+tr("Permissions")+':</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="permission_check owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="permission_check owner_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="permission_check group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="permission_check group_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Other")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="permission_check other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="permission_check other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="permission_check other_a" /></td>\
+                     </tr>\
+                   </table>'
+
+    $(".permission_check").die();
+    $(".permission_check").live('change',function(){
+        var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
+        var permissions_octect = { octet : buildOctet(permissions_table) };
+
+        Sunstone.runAction("Network.chmod",resource_id,permissions_octect);
+    });
+
+    return str;
+
+}
+
+
 //updates the information panel tabs and pops the panel up
 function updateVNetworkInfo(request,vn){
     var vn_info = vn.VNET;
     var info_tab_content =
         '<table id="info_vn_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">'+tr("Virtual Network")+' '+vn_info.ID+' '+
-        tr("information")+'</th></tr>\
+               <tr><th colspan="2">'+tr("Information for Virtual Network")+' '+vn_info.NAME+' '+
+                   '</th></tr>\
             </thead>\
             <tr>\
               <td class="key_td">'+tr("ID")+'</td>\
@@ -605,30 +645,18 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">'+tr("VLAN ID")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.VLAN_ID) == "object" ? "--": vn_info.VLAN_ID) +'</td>\
             </tr>\
-            <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
-            <tr>\
-              <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-              <td class="value_td" style="font-family:monospace;">'+ownerPermStr(vn_info)+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-              <td class="value_td" style="font-family:monospace;">'+groupPermStr(vn_info)+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-              <td class="value_td" style="font-family:monospace;">'+otherPermStr(vn_info)+'</td>\
-            </tr>\
         </table>';
 
-    info_tab_content += '\
-          <table id="vn_template_table" class="info_table">\
-            <thead><tr><th colspan="2">'+tr("Virtual Network template (attributes)")+'</th></tr></thead>'+
-            prettyPrintJSON(vn_info.TEMPLATE)+
-         '</table>';
+    info_tab_content += insert_extended_template_table(vn_info.TEMPLATE,
+                                                       "Network",
+                                                       vn_info.ID);
+
+    info_tab_content += '<table  class="info_table"><thead><tr><th colspan="2"></th></tr></thead>\
+            <tr></tr></table>'+insert_permissions_table("Network",vn_info.ID);
 
 
     var info_tab = {
-        title: tr("Virtual Network information"),
+        title: tr("Information"),
         content: info_tab_content
     };
 
@@ -641,6 +669,8 @@ function updateVNetworkInfo(request,vn){
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
 
     Sunstone.popUpInfoPanel("vnet_info_panel");
+
+    Sunstone.runAction("Network.fetch_permissions",vn_info.ID);
 
 }
 
@@ -1063,27 +1093,7 @@ function setupVNetTemplateUpdateDialog(){
         $(this).parents('table').attr('update','update');
     });
 
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var new_template = $('#vnet_template_update_textarea',dialog).val();
-        var id = $('#vnet_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#vnet_template_update_dialog').dialog('close');
-            return false;
-        };
 
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("Network.chmod",id,perms);
-        };
-
-        Sunstone.runAction("Network.update",id,new_template);
-        $(this).parents('#vnet_template_update_dialog').dialog('close');
-        return false;
-    });
 };
 
 

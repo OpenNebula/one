@@ -237,7 +237,7 @@ function notifyMessage(msg){
 // Returns an HTML string with the json keys and values
 // Attempts to css format output, giving different values to
 // margins etc. according to depth level etc.
-// See exapmle of use in plugins.
+// See example of use in plugins.
 function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
     var str = ""
     if (!template_json){ return "Not defined";}
@@ -1217,7 +1217,7 @@ function quotaListItem(quota_json){
 */
 function progressBar(value, opts){
     if (value > 100) value = 100;
-    
+
     if (!opts) opts = {};
 
     if (!opts.width) opts.width = 'auto';
@@ -1261,4 +1261,133 @@ function loadAccounting(resource, id, graphs, options){
         graph_cfg.show_date = (end - start) > (3600 * 24)? true : false;
         Sunstone.runAction(resource+".accounting", id, graph_cfg);
     };
+}
+
+function insert_extended_template_table(template_json,resource_type,resource_id)
+{
+    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table">\
+                 <thead>\
+                   <tr>\
+                     <th colspan="2">' +
+                      tr("Extended Template") +
+                     '</th>\
+                   </tr>\
+                  </thead>' + fromJSONtoHTMLTable(template_json,
+                                                  resource_type,
+                                                  resource_id) +
+                 '<tr>\
+                    <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
+                    <td class="value_td"><input type="text" name="new_value" id="new_value" /></td>\
+                  </tr>\
+                </table>'
+
+    // Remove previous listeners
+    $("#new_key").die();
+    $("#new_value").die();
+    $("#div_minus").die();
+
+    // Add listener for add key and add value for Extended Template
+    $("#new_key").live("change", function() {
+      if ( $('#new_value').val() != "" )
+      {
+        template_json[$('#new_key').val()] = $('#new_value').val();
+
+        var template_str = "";
+        for(var key in template_json)
+            template_str=template_str+key+"="+ template_json[key]+"\n";
+
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+      }
+    });
+
+    $("#new_value").live("change", function() {
+      if ( $('#new_key').val() != "" )
+      {
+        template_json[$('#new_key').val()] = $('#new_value').val();
+
+        var template_str = "";
+        for(var key in template_json)
+            template_str=template_str+key+"="+ template_json[key]+"\n";
+
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+      }
+    });
+
+    // Listener for key,value pair remove action
+    $("#div_minus").live("click", function() {
+        // Remove div_minus_ from the id
+        field=this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
+        // Erase the value from the template
+        delete template_json[tr(field)];
+
+        // Convert from hash to string
+        var template_str = "\n";
+        for(var key in template_json)
+            template_str=template_str+key+"="+ template_json[key]+"\n";
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+    });
+
+    return str;
+}
+
+// Returns an HTML string with the json keys and values
+function fromJSONtoHTMLTable(template_json,resource_type,resource_id){
+    var str = ""
+    if (!template_json){ return "Not defined";}
+    var field = null;
+
+    if (template_json.constructor == Array){
+        for (field = 0; field < template_json.length; ++field){
+            str += fromJSONtoHTMLRow(field,
+                                      template_json[field],
+                                      template_json,
+                                      resource_type,
+                                      resource_id);
+        }
+    } else {
+        for (field in template_json) {
+            str += fromJSONtoHTMLRow(field,
+                                      template_json[field],
+                                      template_json,
+                                      resource_type,
+                                      resource_id);
+        }
+    }
+    return str;
+}
+
+function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
+    var str="";
+
+    if (typeof value == 'object'){
+        //name of field row
+        str += '<tr>\
+                  <td class="key_td">'+tr(field)+'</td>\
+                  <td class="value_td"></td>\
+                  <td class="value_td"></td>\
+                </tr>';
+        //attributes rows
+        //empty row - prettyprint - empty row
+        str += '<tr>\
+                  <td class="key_td" style="border-bottom:0"></td>\
+                  <td class="value_td" style="border-bottom:0"></td>\
+                </tr>' + fromJSONtoHTMLTable(value) +
+                '<tr>\
+                  <td class="key_td"></td>\
+                  <td class="value_td"></td>\
+               </tr>';
+    } else {
+        str += '<tr>\
+                  <td class="key_td">'+tr(field)+'</td>\
+                  <td class="value_td">'+value+'</td>\
+                  <td><div id="div_minus">\
+                         <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
+                      </div>\
+                  </td>\
+                </tr>';
+    };
+
+    return str;
 }
