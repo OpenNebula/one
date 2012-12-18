@@ -260,6 +260,92 @@ module Migrator
 
 
         ########################################################################
+        # Bug #1694: SYSTEM_DS is now set with the method adddatastore
+        ########################################################################
+
+        @db.run "ALTER TABLE cluster_pool RENAME TO old_cluster_pool;"
+        @db.run "CREATE TABLE cluster_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        @db.fetch("SELECT * FROM old_cluster_pool") do |row|
+            doc = Document.new(row[:body])
+
+            system_ds = 0
+
+            doc.root.each_element("TEMPLATE") do |e|
+                elem = e.delete_element("SYSTEM_DS")
+
+                if !elem.nil?
+                    system_ds = elem.text.to_i
+                end
+            end
+
+            if system_ds != 0
+                updated_body = nil
+
+                @db.fetch("SELECT body FROM datastore_pool WHERE oid=#{system_ds}") do |ds_row|
+                    ds_doc = Document.new(ds_row[:body])
+
+                    type = "0"  # IMAGE_DS
+
+                    ds_doc.root.each_element("TYPE") do |e|
+                        type = e.text
+                    end
+
+                    if type != "1"
+                        puts "    > Cluster #{row[:oid]} has the "<<
+                        "System Datastore set to Datastore #{system_ds}, "<<
+                        "but its type is not SYSTEM_DS. The System Datastore "<<
+                        "for this Cluster will be set to 0"
+
+                        system_ds = 0
+                    else
+                        cluster_id = "-1"
+
+                        ds_doc.root.each_element("CLUSTER_ID") do |e|
+                            cluster_id = e.text
+                        end
+
+                        if row[:oid] != cluster_id.to_i
+                            puts "    > Cluster #{row[:oid]} has the "<<
+                            "System Datastore set to Datastore #{system_ds}, "<<
+                            "but it is not part of the Cluster. It will be added now."
+
+                            ds_doc.root.each_element("CLUSTER_ID") do |e|
+                                e.text = row[:oid]
+                            end
+
+                            ds_doc.root.each_element("CLUSTER") do |e|
+                                e.text = row[:name]
+                            end
+
+                            updated_body = ds_doc.root.to_s
+                        end
+                    end
+                end
+
+                if !updated_body.nil?
+                    @db[:datastore_pool].where(:oid => system_ds).update(
+                        :body => updated_body)
+                end
+            end
+
+            doc.root.add_element("SYSTEM_DS").text = system_ds.to_s
+
+            @db[:cluster_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_cluster_pool;"
+
+
+        ########################################################################
         #
         # Banner for the new /var/lib/one/vms directory
         #
