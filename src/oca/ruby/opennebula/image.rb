@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 
-require 'OpenNebula/Pool'
+require 'opennebula/pool'
 require 'fileutils'
 
 module OpenNebula

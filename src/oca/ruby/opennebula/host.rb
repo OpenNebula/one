@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 
-require 'OpenNebula/Pool'
+require 'opennebula/pool'
 
 module OpenNebula
     class Host < PoolElement

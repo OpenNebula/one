@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula/Pool'
+require 'opennebula/pool'
 
 module OpenNebula
 
@@ -22,7 +22,7 @@ module OpenNebula
     # and the factory method.
     #
     # @example
-    #   require 'OpenNebula/DocumentPool'
+    #   require 'opennebuña/document_pool'
     #
     #   module OpenNebula
     #       class CustomObjectPool < DocumentPool

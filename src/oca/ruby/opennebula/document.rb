@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula/Pool'
+require 'opennebula/pool'
 
 module OpenNebula
 

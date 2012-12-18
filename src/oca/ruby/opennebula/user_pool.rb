@@ -15,16 +15,16 @@
 #--------------------------------------------------------------------------- #
 
 
-require 'OpenNebula/Pool'
+require 'opennebula/pool'
 
 module OpenNebula
-    class DatastorePool < Pool
+    class UserPool < Pool
         #######################################################################
         # Constants and Class attribute accessors
         #######################################################################
 
-        DATASTORE_POOL_METHODS = {
-            :info => "datastorepool.info"
+        USER_POOL_METHODS = {
+            :info => "userpool.info"
         }
 
         #######################################################################
@@ -33,21 +33,21 @@ module OpenNebula
 
         # +client+ a Client object that represents a XML-RPC connection
         def initialize(client)
-            super('DATASTORE_POOL','DATASTORE',client)
+            super('USER_POOL','USER',client)
         end
 
         # Factory method to create User objects
         def factory(element_xml)
-            OpenNebula::Group.new(element_xml,@client)
+            OpenNebula::User.new(element_xml,@client)
         end
 
         #######################################################################
         # XML-RPC Methods for the User Object
         #######################################################################
 
-        # Retrieves all the Groups in the pool.
+        # Retrieves all the Users in the pool.
         def info()
-            super(DATASTORE_POOL_METHODS[:info])
+            super(USER_POOL_METHODS[:info])
         end
     end
 end

@@ -15,39 +15,60 @@
 #--------------------------------------------------------------------------- #
 
 
-require 'OpenNebula/Pool'
+require 'opennebula/pool'
 
 module OpenNebula
-    class UserPool < Pool
+    class TemplatePool < Pool
         #######################################################################
         # Constants and Class attribute accessors
         #######################################################################
 
-        USER_POOL_METHODS = {
-            :info => "userpool.info"
+
+        TEMPLATE_POOL_METHODS = {
+            :info => "templatepool.info"
         }
 
         #######################################################################
         # Class constructor & Pool Methods
         #######################################################################
 
-        # +client+ a Client object that represents a XML-RPC connection
-        def initialize(client)
-            super('USER_POOL','USER',client)
+        # +client+ a Client object that represents an XML-RPC connection
+        # +user_id+ used to refer to a Pool with Templates from that user
+        def initialize(client, user_id=-1)
+            super('VMTEMPLATE_POOL','VMTEMPLATE',client)
+
+            @user_id  = user_id
         end
 
-        # Factory method to create User objects
+        # Factory method to create Template objects
         def factory(element_xml)
-            OpenNebula::User.new(element_xml,@client)
+            OpenNebula::Template.new(element_xml,@client)
         end
 
         #######################################################################
-        # XML-RPC Methods for the User Object
+        # XML-RPC Methods for the Template Object
         #######################################################################
 
-        # Retrieves all the Users in the pool.
-        def info()
-            super(USER_POOL_METHODS[:info])
+        # Retrieves all or part of the VirtualMachines in the pool.
+        def info(*args)
+            case args.size
+                when 0
+                    info_filter(TEMPLATE_POOL_METHODS[:info],@user_id,-1,-1)
+                when 3
+                    info_filter(TEMPLATE_POOL_METHODS[:info],args[0],args[1],args[2])
+            end
+        end
+
+        def info_all()
+            return super(TEMPLATE_POOL_METHODS[:info])
+        end
+
+        def info_mine()
+            return super(TEMPLATE_POOL_METHODS[:info])
+        end
+
+        def info_group()
+            return super(TEMPLATE_POOL_METHODS[:info])
         end
     end
 end
