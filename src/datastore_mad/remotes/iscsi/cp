@@ -76,6 +76,9 @@ SHA1="${XPATH_ELEMENTS[10]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[11]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[12]}"
 
+# Check if 'TGTSETUPLUN' is installed
+tgt_setup_lun_install "$DST_HOST" "$BASE_PATH"
+
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 LV_NAME="lv-one-${ID}"
