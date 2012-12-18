@@ -16,7 +16,7 @@
 
 require 'cli_helper'
 
-require 'OpenNebula'
+require 'opennebula'
 include OpenNebula
 
 module OpenNebulaHelper

@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
+require 'opennebula'
 
 ##############################################################################
 # This class represents a generic Cloud Server using the OpenNebula Cloud

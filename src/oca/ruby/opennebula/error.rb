@@ -14,21 +14,39 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'xml_pool'
 
 module OpenNebula
+    # The Error Class represents a generic error in the OpenNebula
+    # library. It contains a readable representation of the error.
+    # Any function in the OpenNebula module will return an Error
+    # object in case of error.
+    class Error
+        ESUCCESS        = 0x0000
+        EAUTHENTICATION = 0x0100
+        EAUTHORIZATION  = 0x0200
+        ENO_EXISTS      = 0x0400
+        EACTION         = 0x0800
+        EXML_RPC_API    = 0x1000
+        EINTERNAL       = 0x2000
+        ENOTDEFINED     = 0x1111
 
-    begin
-        require 'nokogiri'
-        NOKOGIRI=true
-    rescue LoadError
-        NOKOGIRI=false
+        attr_reader :message, :errno
+
+        # +message+ Description of the error
+        # +errno+   OpenNebula code error
+        def initialize(message=nil, errno=0x1111)
+            @message = message
+            @errno   = errno
+        end
+
+        def to_str()
+            @message
+        end
     end
 
-    begin
-        require 'rexml/formatters/pretty'
-        REXML_FORMATTERS=true
-    rescue LoadError
-        REXML_FORMATTERS=false
+    # Returns true if the object returned by a method of the OpenNebula
+    # library is an Error
+    def self.is_error?(value)
+        value.class==OpenNebula::Error
     end
 end

@@ -1109,6 +1109,11 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/host.rb \
                            src/oca/ruby/opennebula/cluster.rb \
                            src/oca/ruby/opennebula/cluster_pool.rb \
                            src/oca/ruby/opennebula/xml_utils.rb \
+                           src/oca/ruby/opennebula/client.rb \
+                           src/oca/ruby/opennebula/error.rb \
+                           src/oca/ruby/opennebula/pool_element.rb \
+                           src/oca/ruby/opennebula/xml_element.rb \
+                           src/oca/ruby/opennebula/xml_pool.rb \
                            src/oca/ruby/opennebula/system.rb"
 
 #-------------------------------------------------------------------------------

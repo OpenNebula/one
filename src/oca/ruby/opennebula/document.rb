@@ -21,7 +21,7 @@ module OpenNebula
     # All subclasses must define the DOCUMENT_TYPE constant.
     #
     # @example
-    #   require 'OpenNebula/Document'
+    #   require 'opennebula/document'
     #
     #   module OpenNebula
     #       class CustomObject < Document

@@ -19,7 +19,7 @@
 #
 
 require 'json'
-require 'OpenNebula'
+require 'opennebula'
 
 TOKEN_EXPIRE_SECONDS = 4
 

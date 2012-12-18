@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebulaJSON'
+require 'opennebula_json'
 
 require 'OZones/Zones'
 require 'OZones/VDC'

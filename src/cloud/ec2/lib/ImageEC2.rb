@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'uuidtools'
-require 'OpenNebula'
+require 'opennebula'
 
 include OpenNebula
 
