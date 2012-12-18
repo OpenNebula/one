@@ -403,6 +403,24 @@ function iqn_get_vg_name {
     echo $TARGET|$AWK -F. '{print $(NF-1)}'
 }
 
+function tgt_setup_lun_install {
+    DST_HOST="$1"
+    BASE_PATH="$2"
+
+    CHECK_FILE="$BASE_PATH/.tgt-setup-lun"
+
+    if [ ! -f "$CHECK_FILE" ]; then
+        $SSH "$DST_HOST" "$SUDO $TGTSETUPLUN" 2>&1 | \
+            $GREP -q "command not found"
+        if [ "$?" = "0" ]; then
+            error_message "$TGTSETUPLUN is not installed in $DST_HOST."
+            exit 127
+        else
+            touch "$CHECK_FILE"
+        fi
+    fi
+}
+
 function tgt_setup_lun {
     IQN="$1"
     DEV="$2"
