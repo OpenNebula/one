@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/pool'
 
 module OpenNebula
     # The PoolElement Class represents a generic element of a Pool in

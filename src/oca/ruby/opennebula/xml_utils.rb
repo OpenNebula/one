@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'xml_pool'
+require 'opennebula/xml_pool'
 
 module OpenNebula
 

@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 
-require 'opennebula/pool'
+require 'opennebula/pool_element'
 
 module OpenNebula
     class VirtualNetwork < PoolElement

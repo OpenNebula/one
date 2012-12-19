@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'xml_element'
+require 'opennebula/xml_element'
 
 module OpenNebula
     # The XMLUtilsPool module provides an abstraction of the underlying
