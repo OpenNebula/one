@@ -90,56 +90,68 @@ var create_datastore_tmpl =
   </fieldset>\
 </form></div>';
 
-var update_datastore_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the datastore you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="datastore_template_update_select">'+tr("Select a datastore")+':</label>\
-                 <select id="datastore_template_update_select" name="datastore_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="datastore_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-                 <label for="datastore_template_update_textarea">'+tr("Datastore")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="datastore_template_update_textarea" style="width:100%; height:14em;"></textarea>\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="datastore_template_update_button" value="Datastore.update_template">\
-                       '+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
+var datastore_image_table_tmpl='<thead>\
+    <tr>\
+      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th>'+tr("ID")+'</th>\
+      <th>'+tr("Owner")+'</th>\
+      <th>'+tr("Group")+'</th>\
+      <th>'+tr("Name")+'</th>\
+      <th>'+tr("Datastore")+'</th>\
+      <th>'+tr("Size")+'</th>\
+      <th>'+tr("Type")+'</th>\
+      <th>'+tr("Registration time")+'</th>\
+      <th>'+tr("Persistent")+'</th>\
+      <th>'+tr("Status")+'</th>\
+      <th>'+tr("#VMS")+'</th>\
+      <th>'+tr("Target")+'</th>\
+    </tr>\
+  </thead>\
+  <tbody id="tbodyimages">\
+  </tbody>'
 
 var datastores_select="";
 var dataTable_datastores;
 var $create_datastore_dialog;
+
+
+/* -------- Image datatable -------- */
+
+//Setup actions
+var datastore_image_actions = {
+
+    "DatastoreImageInfo.list" : {
+        type:     "list",
+        call:     OpenNebula.Image.list,
+        callback: updateDatastoreImagesInfoView,
+        error:    onError
+    }
+}
+
+//callback to update the list of images for Create dialog
+function updateDatastoreImagesInfoView (request,image_list){
+    var image_list_array = [];
+
+    $.each(image_list,function(){
+        //Grab table data from the image_list
+        image_list_array.push(imageElementArray(this));
+    });
+
+    updateView(image_list_array,dataTable_datastore_images_panel);
+}
+
+//callback to update the list of images for info panel
+function updateDatastoreimagesInfoView (request,image_list){
+    var image_list_array = [];
+
+    $.each(image_list,function(){
+        if(this.IMAGE.DATASTORE_ID == datastore_info.ID)
+          image_list_array.push(imageElementArray(this));
+    });
+
+    updateView(image_list_array,dataTable_datastore_images_panel);
+}
+
 
 //Setup actions
 var datastore_actions = {
@@ -187,29 +199,25 @@ var datastore_actions = {
         error: onError
     },
 
-    "Datastore.fetch_template" : {
-        type: "single",
-        call: OpenNebula.Datastore.fetch_template,
-        callback: function (request,response) {
-            $('#datastore_template_update_dialog #datastore_template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
 
     "Datastore.fetch_permissions" : {
         type: "single",
         call: OpenNebula.Datastore.show,
         callback: function(request,element_json){
-            var dialog = $('#datastore_template_update_dialog form');
             var ds = element_json.DATASTORE;
-            setPermissionsTable(ds,dialog);
+            setPermissionsTable(ds,$(".datastore_permissions_table"));
         },
         error: onError
     },
 
-    "Datastore.update_dialog" : {
-        type: "custom",
-        call: popUpDatastoreTemplateUpdateDialog
+    "Datastore.update_template" : {
+        type: "single",
+        call: OpenNebula.Network.update,
+        callback: function(request) {
+            notifyMessage("Template updated correctly");
+            Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
+        },
+        error: onError
     },
 
     "Datastore.update" : {
@@ -309,12 +317,6 @@ var datastore_buttons = {
         text: tr("+ New"),
         condition: mustBeAdmin
     },
-    "Datastore.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        alwaysActive: true,
-        condition: mustBeAdmin
-    },
     "Datastore.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
@@ -351,11 +353,7 @@ var datastore_buttons = {
 
 var datastore_info_panel = {
     "datastore_info_tab" : {
-        title: tr("Datastore information"),
-        content: ""
-    },
-    "datastore_template_tab" : {
-        title: tr("Datastore template"),
+        title: tr("Information"),
         content: ""
     }
 }
@@ -370,6 +368,7 @@ var datastores_tab = {
 }
 
 Sunstone.addActions(datastore_actions);
+Sunstone.addActions(datastore_image_actions);
 Sunstone.addMainTab('datastores_tab',datastores_tab);
 Sunstone.addInfoPanel('datastore_info_panel',datastore_info_panel);
 
@@ -451,12 +450,9 @@ function updateDatastoreInfo(request,ds){
         images_str=getImageName(info.IMAGES.ID);
     };
 
-    var info_tab = {
-        title : tr("Datastore information"),
-        content:
-        '<table id="info_datastore_table" class="info_table" style="width:80%">\
+    var info_tab_content = '<table id="info_datastore_table" class="info_table">\
             <thead>\
-              <tr><th colspan="2">'+tr("Datastore information")+' - '+info.NAME+'</th></tr>\
+              <tr><th colspan="2">'+tr("Information for Datastore")+' - '+info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
@@ -491,39 +487,74 @@ function updateDatastoreInfo(request,ds){
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
               </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Images")+'</td>\
-                 <td class="value_td">'+images_str+'</td>\
-              </tr>\
-              <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+ownerPermStr(info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+groupPermStr(info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+otherPermStr(info)+'</td>\
-              </tr>\
             </tbody>\
-          </table>'
+          </table>';
+
+
+    // Inserts the extended template table to the show info tab (down tab)
+    info_tab_content += insert_extended_template_table(info.TEMPLATE,
+                                         "Datastore",
+                                         info.ID)
+
+    // Inserts the change permissions table
+    info_tab_content += insert_permissions_table("Datastore",info.ID);
+
+
+    var info_tab = {
+        title : tr("Information"),
+        content: info_tab_content
     }
 
-    var template_tab = {
-        title: tr("Datastore Template"),
-        content:
-        '<table id="datastore_template_table" class="info_table" style="width:80%">\
-               <thead><tr><th colspan="2">'+tr("Datastore template")+'</th></tr></thead>'+
-                prettyPrintJSON(info.TEMPLATE)+
-            '</table>'
+    var datastore_info_tab = {
+        title: tr("Images"),
+        content : '<div id="datatable_datastore_images_info_div"><table id="datatable_datastore_images_info_panel" class="display">' + datastore_image_table_tmpl + '</table></div>'
     }
 
+
+    // Add tabs
     Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_template_tab",template_tab);
+    Sunstone.updateInfoPanelTab("datastore_info_panel","datastore_image_tab",datastore_info_tab);
     Sunstone.popUpInfoPanel("datastore_info_panel");
+
+    // Define datatables
+    // Images datatable
+
+    dataTable_datastore_images_panel = $("#datatable_datastore_images_info_panel").dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "oColVis": {
+            "aiExclude": [ 0 ]
+        },
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
+            { "sWidth": "35px", "aTargets": [1,6,11,12] },
+            { "sWidth": "100px", "aTargets": [5,7] },
+            { "sWidth": "150px", "aTargets": [8] },
+            { "bVisible": false, "aTargets": [6,8,12]}
+        ],
+        "oLanguage": (datatable_lang != "") ?
+            {
+                sUrl: "locale/"+lang+"/"+datatable_lang
+            } : ""
+    });
+
+    //preload it
+    dataTable_datastore_images_panel.fnClearTable();
+
+    addElement([
+        spinner,
+        '','','','','','','','','','','',''],dataTable_datastore_images_panel);
+
+
+    // initialize datatables values
+    Sunstone.runAction("DatastoreImageInfo.list");
+
+    Sunstone.runAction("Datastore.fetch_permissions",info.ID);
+
 }
 
 // Set up the create datastore dialog
@@ -593,107 +624,6 @@ function popUpCreateDatastoreDialog(){
     $create_datastore_dialog.dialog('open');
 }
 
-function setupDatastoreTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="datastore_template_update_dialog" title="'+tr("Update Datastore properties")+'"></div>');
-    var dialog = $('#datastore_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_datastore_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:500,
-        modal:true,
-        height:height,
-        resizable:true
-    });
-
-    $('button',dialog).button();
-
-    $('#datastore_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked');
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#datastore_template_update_dialog');
-            $('#template_template_update_textarea',dialog).val(tr("Loading")+"...");
-            Sunstone.runAction("Datastore.fetch_template",id);
-            Sunstone.runAction("Datastore.fetch_permissions",id);
-        } else {
-            $('#datastore_template_update_textarea',dialog).val("");
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var new_template = $('#datastore_template_update_textarea',dialog).val();
-        var id = $('#datastore_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#datastore_template_update_dialog').dialog('close');
-            return false;
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("Datastore.chmod",id,perms);
-        };
-
-        Sunstone.runAction("Datastore.update",id,new_template);
-        $(this).parents('#datastore_template_update_dialog').dialog('close');
-        return false;
-    });
-};
-
-// Standard template edition dialog
-// If one element is selected auto fecth template
-// otherwise let user select
-function popUpDatastoreTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_datastores,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_datastores);
-
-
-    var dialog =  $('#datastore_template_update_dialog');
-    $('#datastore_template_update_select',dialog).html(select);
-    $('#datastore_template_update_textarea',dialog).val("");
-    $('.permissions_table input',dialog).removeAttr('checked');
-    $('.permissions_table',dialog).removeAttr('update');
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#datastore_template_update_select',dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#datastore_template_update_select option',dialog).attr('selected','selected');
-            $('#datastore_template_update_select',dialog).trigger("change");
-        };
-    };
-
-    dialog.dialog('open');
-    return false;
-};
-
 //Prepares autorefresh
 function setDatastoreAutorefresh(){
      setInterval(function(){
@@ -738,7 +668,6 @@ $(document).ready(function(){
     Sunstone.runAction("Datastore.list");
 
     setupCreateDatastoreDialog();
-    setupDatastoreTemplateUpdateDialog();
     setDatastoreAutorefresh();
 
     initCheckAllBoxes(dataTable_datastores);

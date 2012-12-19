@@ -1358,6 +1358,7 @@ function fromJSONtoHTMLTable(template_json,resource_type,resource_id){
     return str;
 }
 
+// Helper for fromJSONtoHTMLTable function
 function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
     var str="";
 
@@ -1390,4 +1391,44 @@ function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
     };
 
     return str;
+}
+
+// Returns HTML with listeners to control permissions
+function insert_permissions_table(resource_type,resource_id){
+     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table" style="padding:0 10px;">\
+                     <thead><tr>\
+                         <td style="width:130px">'+tr("Permissions")+':</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="permission_check owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="permission_check owner_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="permission_check group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="permission_check group_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Other")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="permission_check other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="permission_check other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="permission_check other_a" /></td>\
+                     </tr>\
+                   </table>'
+
+    $(".permission_check").die();
+    $(".permission_check").live('change',function(){
+        var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
+        var permissions_octect = { octet : buildOctet(permissions_table) };
+
+        Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
+    });
+
+    return str;
+
 }

@@ -1315,7 +1315,7 @@ function updateClusterInfo(request,cluster){
         '<table id="info_cluster_table" class="info_table">\
             <thead>\
                <tr><th colspan="2">' +
-                        tr("Information for cluster") +
+                        tr("Information for Cluster") +
                         ' - '+cluster_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\

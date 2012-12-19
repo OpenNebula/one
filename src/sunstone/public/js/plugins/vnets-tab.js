@@ -355,15 +355,6 @@ var vnet_actions = {
         notify: true
     },
 
-    "Network.fetch_template" : {
-        type: "single",
-        call: OpenNebula.Network.fetch_template,
-        callback: function (request,response) {
-            $('#vnet_template_update_dialog #vnet_template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
-
     "Network.fetch_permissions" : {
         type: "single",
         call: OpenNebula.Network.show,
@@ -372,11 +363,6 @@ var vnet_actions = {
             setPermissionsTable(vnet,$(".network_permissions_table"));
         },
         error: onError
-    },
-
-    "Network.update_dialog" : {
-        type: "custom",
-        call: popUpVNetTemplateUpdateDialog
     },
 
     "Network.update_template" : {
@@ -434,11 +420,6 @@ var vnet_buttons = {
         text: tr("+ New")
     },
 
-    "Network.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        alwaysActive: true
-    },
     "Network.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
@@ -560,53 +541,13 @@ function updateVNetworksView(request, network_list){
 
 }
 
-function insert_permissions_table(resource_type,resource_id){
-     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="permission_check owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="permission_check owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="permission_check group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="permission_check group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="permission_check other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="permission_check other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="permission_check other_a" /></td>\
-                     </tr>\
-                   </table>'
-
-    $(".permission_check").die();
-    $(".permission_check").live('change',function(){
-        var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
-        var permissions_octect = { octet : buildOctet(permissions_table) };
-
-        Sunstone.runAction("Network.chmod",resource_id,permissions_octect);
-    });
-
-    return str;
-
-}
-
-
 //updates the information panel tabs and pops the panel up
 function updateVNetworkInfo(request,vn){
     var vn_info = vn.VNET;
     var info_tab_content =
         '<table id="info_vn_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">'+tr("Information for Virtual Network")+' '+vn_info.NAME+' '+
+               <tr><th colspan="2">'+tr("Information for Virtual Network")+' - '+vn_info.NAME+' '+
                    '</th></tr>\
             </thead>\
             <tr>\
@@ -651,8 +592,7 @@ function updateVNetworkInfo(request,vn){
                                                        "Network",
                                                        vn_info.ID);
 
-    info_tab_content += '<table  class="info_table"><thead><tr><th colspan="2"></th></tr></thead>\
-            <tr></tr></table>'+insert_permissions_table("Network",vn_info.ID);
+    info_tab_content += insert_permissions_table("Network",vn_info.ID);
 
 
     var info_tab = {
@@ -1053,89 +993,6 @@ function popUpCreateVnetDialog() {
 }
 
 
-function setupVNetTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="vnet_template_update_dialog" title="'+tr("Update network properties")+'"></div>');
-    var dialog = $('#vnet_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_vnet_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:700,
-        modal:true,
-        height:height,
-        resizable:true
-    });
-
-    $('button',dialog).button();
-
-    $('#vnet_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked')
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#vnet_template_update_dialog');
-            $('#vnet_template_update_textarea',dialog).val(tr("Loading")+"...");
-
-            Sunstone.runAction("Network.fetch_permissions",id);
-            Sunstone.runAction("Network.fetch_template",id);
-        } else {
-            $('#vnet_template_update_textarea',dialog).val("");
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-
-};
-
-
-// When 1 elem in the list is selected then fetch template automaticly
-// Otherwise include selected elements in the select and let user choose
-function popUpVNetTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_vNetworks,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_vNetworks);
-
-
-    var dialog =  $('#vnet_template_update_dialog');
-    $('#vnet_template_update_select',dialog).html(select);
-    $('#vnet_template_update_textarea',dialog).val("");
-    $('.permissions_table input',dialog).removeAttr('checked');
-    $('.permissions_table',dialog).removeAttr('update');
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#vnet_template_update_select',dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#vnet_template_update_select option',dialog).attr('selected','selected');
-            $('#vnet_template_update_select',dialog).trigger("change");
-        };
-    };
-
-    dialog.dialog('open');
-    return false;
-
-}
-
 // Listeners to the add, hold, release, delete leases operations in the
 // extended information panel.
 function setupLeasesOps(){
@@ -1238,7 +1095,6 @@ $(document).ready(function(){
     Sunstone.runAction("Network.list");
 
     setupCreateVNetDialog();
-    setupVNetTemplateUpdateDialog();
     setupLeasesOps();
     setVNetAutorefresh();
 
