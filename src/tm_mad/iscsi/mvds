@@ -101,7 +101,7 @@ CLONE_CMD=$(cat <<EOF
     set -e
 
     # clone lv with dd
-    $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=64k
+    $SUDO $DD if=$SOURCE_DEV of=$TARGET_DEV bs=2M
 
     # remove if source_dev is not persistent
     if [ -z "$PERSISTENT" ]; then
