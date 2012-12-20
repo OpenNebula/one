@@ -37,7 +37,8 @@ public:
                        const string&                hook_location,
                        const string&                remotes_location,
                        vector<const Attribute *>&   restricted_attrs,
-                       time_t                       expire_time);
+                       time_t                       expire_time,
+                       bool                         on_hold);
 
     ~VirtualMachinePool(){};
 
@@ -48,7 +49,6 @@ public:
      *    @param vm_template a VM Template object describing the VM
      *    @param oid the id assigned to the VM (output)
      *    @param error_str Returns the error reason, if any
-     *    @param on_hold flag to submit on hold
      *    @return oid on success, -1 error inserting in DB or -2 error parsing
      *  the template
      */
@@ -59,8 +59,7 @@ public:
         const string&            gname,
         VirtualMachineTemplate * vm_template,
         int *                    oid,
-        string&                  error_str,
-        bool                     on_hold = false);
+        string&                  error_str);
 
     /**
      *  Function to get a VM from the pool, if the object is not in memory
@@ -255,6 +254,11 @@ private:
      * Size, in seconds, of the historical monitoring information
      */
     static time_t _monitor_expiration;
+
+    /**
+     * True or false whether to submit new VM on HOLD or not
+     */
+    static bool _submit_on_hold;
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

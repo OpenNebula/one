@@ -244,7 +244,7 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     Template tmpl_back(*tmpl);
 
     int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
-                error_str, false);
+                error_str);
 
     if ( rc < 0 )
     {

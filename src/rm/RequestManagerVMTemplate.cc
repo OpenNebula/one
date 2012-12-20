@@ -109,7 +109,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     Template tmpl_back(*tmpl);
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
-            error_str, false);
+            error_str);
 
     if ( rc < 0 )
     {

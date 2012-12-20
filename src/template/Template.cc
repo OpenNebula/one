@@ -473,6 +473,34 @@ bool Template::get(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool Template::get(
+        const string&   name,
+        bool&           value) const
+{
+    string sval;
+
+    get(name, sval);
+
+    if ( sval == "" )
+    {
+        value = false;
+        return false;
+    }
+
+    if ( sval == "1" || sval == "true" || sval == "YES" ) {
+        value = true;
+    }
+    else
+    {
+        value = false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& Template::to_xml(string& xml) const
 {
     multimap<string,Attribute *>::const_iterator  it;
