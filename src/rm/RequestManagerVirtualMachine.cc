@@ -429,7 +429,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     int id          = xmlrpc_c::value_int(paramList.getInt(1));
     int hid         = xmlrpc_c::value_int(paramList.getInt(2));
-    bool enforce    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    bool enforce    = false;
+
+    if ( paramList.size() != 3 )
+    {
+        enforce = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
 
     bool auth = false;
 
@@ -537,7 +542,12 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     int  id      = xmlrpc_c::value_int(paramList.getInt(1));
     int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
     bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
-    bool enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
+    bool enforce = false;
+
+    if ( paramList.size() != 4 )
+    {
+        enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
+    }
 
     bool auth = false;
 
