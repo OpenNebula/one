@@ -51,8 +51,8 @@ GEM_DESCRIPTION={
     :oca => {
         :name => 'oca',
         :files => [
-            ['src/oca/ruby/OpenNebula.rb', '/lib'],
-            ['src/oca/ruby/OpenNebula/*.rb', '/lib/OpenNebula'],
+            ['src/oca/ruby/opennebula.rb', '/lib'],
+            ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
             ['NOTICE', ''],
             ['LICENSE', '']
         ],
