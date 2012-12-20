@@ -138,6 +138,9 @@ module OpenNebula
         #   the VirtualMachine.
         # @param hold [true,false] false to create the VM in pending state,
         #   true to create it on hold
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
         def allocate(description, hold=false)
             super(VM_METHODS[:allocate], description, hold)
         end

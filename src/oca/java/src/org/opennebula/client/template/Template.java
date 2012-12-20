@@ -200,11 +200,13 @@ public class Template extends PoolElement
      * @param client XML-RPC Client.
      * @param id The template id of the target template.
      * @param name A string containing the name of the VM instance, can be empty.
+     * @param onHold False to create this VM in pending state, true on hold
      * @return If successful the message contains the VM Instance ID.
      */
-    public static OneResponse instantiate(Client client, int id, String name)
+    public static OneResponse instantiate(Client client, int id, String name,
+        boolean onHold)
     {
-        return client.call(INSTANTIATE, id, name);
+        return client.call(INSTANTIATE, id, name, onHold);
     }
 
     /**
@@ -386,11 +388,23 @@ public class Template extends PoolElement
      * Creates a VM instance from a Template
      * 
      * @param name A string containing the name of the VM instance, can be empty.
+     * @param onHold False to create this VM in pending state, true on hold
+     * @return If successful the message contains the VM Instance ID.
+     */
+    public OneResponse instantiate(String name, boolean onHold)
+    {
+        return instantiate(client, id, name, onHold);
+    }
+
+    /**
+     * Creates a VM instance from a Template
+     * 
+     * @param name A string containing the name of the VM instance, can be empty.
      * @return If successful the message contains the VM Instance ID.
      */
     public OneResponse instantiate(String name)
     {
-        return instantiate(client, id, name);
+        return instantiate(client, id, name, false);
     }
 
     /**
@@ -400,7 +414,7 @@ public class Template extends PoolElement
      */
     public OneResponse instantiate()
     {
-        return instantiate(client, id, "");
+        return instantiate(client, id, "", false);
     }
 
     /**
