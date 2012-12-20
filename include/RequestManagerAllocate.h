@@ -109,7 +109,7 @@ public:
     VirtualMachineAllocate():
         RequestManagerAllocate("VirtualMachineAllocate",
                                "Allocates a new virtual machine",
-                               "A:ss",
+                               "A:ssb",
                                true)
     {    
         Nebula& nd = Nebula::instance();
