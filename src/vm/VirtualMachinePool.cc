@@ -235,7 +235,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     vm = new VirtualMachine(-1, uid, gid, uname, gname, vm_template);
 
-    if (_submit_on_hold == true)
+    if ( _submit_on_hold == true || on_hold )
     {
         vm->state = VirtualMachine::HOLD;
     }

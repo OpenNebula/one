@@ -22,6 +22,8 @@
 #include <cstring>
 #include <cstdio>
 
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -487,7 +489,10 @@ bool Template::get(
         return false;
     }
 
-    if ( sval == "1" || sval == "true" || sval == "YES" ) {
+    TO_UPPER(sval);
+
+    if ( sval == "YES" )
+    {
         value = true;
     }
     else
