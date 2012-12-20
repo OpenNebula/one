@@ -1285,6 +1285,8 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
     $("#new_key").die();
     $("#new_value").die();
     $("#div_minus").die();
+    $("#div_edit").die();
+    $(".input_edit_value").die();
 
     // Add listener for add key and add value for Extended Template
     $("#new_key").live("change", function() {
@@ -1319,6 +1321,32 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
         field=this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
         // Erase the value from the template
         delete template_json[tr(field)];
+
+        // Convert from hash to string
+        var template_str = "\n";
+        for(var key in template_json)
+            template_str=template_str+key+"="+ template_json[key]+"\n";
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+    });
+
+    // Listener for key,value pair edit action
+    $("#div_edit").live("click", function() {
+        var key_str=this.firstElementChild.id.substring(9,this.firstElementChild.id.length);
+
+        var value_str = $("#value_td_input_"+key_str).text();
+        $("#value_td_input_"+key_str).html('<input class="input_edit_value" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
+
+    });
+
+
+     $(".input_edit_value").live("change", function() {
+        var key_str   = this.id.substring(11,this.id.length);
+        var value_str = this.value;
+
+        delete template_json[key_str];
+        template_json[key_str]=value_str;
 
         // Convert from hash to string
         var template_str = "\n";
@@ -1382,7 +1410,11 @@ function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
     } else {
         str += '<tr>\
                   <td class="key_td">'+tr(field)+'</td>\
-                  <td class="value_td">'+value+'</td>\
+                  <td class="value_td" id="value_td_input_'+tr(field)+'">'+value+'</td>\
+                  <td><div id="div_edit">\
+                         <a id="div_edit_'+tr(field)+'" class="edit_e" href="#">e</a>\
+                      </div>\
+                  </td>\
                   <td><div id="div_minus">\
                          <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
                       </div>\

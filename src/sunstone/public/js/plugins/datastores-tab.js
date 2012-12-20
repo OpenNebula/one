@@ -212,7 +212,7 @@ var datastore_actions = {
 
     "Datastore.update_template" : {
         type: "single",
-        call: OpenNebula.Network.update,
+        call: OpenNebula.Datastore.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
             Sunstone.runAction('Datastore.showinfo',request.request.data[0]);
