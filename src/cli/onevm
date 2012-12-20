@@ -125,7 +125,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, create_desc, [:file, nil], :options =>
-            [OneVMHelper::MULTIPLE]+OpenNebulaHelper::TEMPLATE_OPTIONS_VM do
+            [OneVMHelper::MULTIPLE, OneVMHelper::HOLD]+
+            OpenNebulaHelper::TEMPLATE_OPTIONS_VM do
 
         number    = options[:multiple] || 1
         exit_code = nil
@@ -160,9 +161,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit 0
         end
 
+        on_hold = options[:hold] != nil
+
         number.times do
             exit_code = helper.create_resource(options) do |vm|
-                error = vm.allocate(template)
+                error = vm.allocate(template, on_hold)
             end
 
             break if exit_code == -1

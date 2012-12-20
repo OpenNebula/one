@@ -134,9 +134,12 @@ module OpenNebula
 
         # Allocates a new VirtualMachine in OpenNebula
         #
-        # +description+ A string containing the template of the VirtualMachine.
-        def allocate(description)
-            super(VM_METHODS[:allocate],description)
+        # @param description [String] A string containing the template of
+        #   the VirtualMachine.
+        # @param hold [true,false] false to create the VM in pending state,
+        #   true to create it on hold
+        def allocate(description, hold=false)
+            super(VM_METHODS[:allocate], description, hold)
         end
 
         # Initiates the instance of the VM on the target host.
