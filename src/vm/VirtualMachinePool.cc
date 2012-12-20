@@ -25,6 +25,7 @@
 /* -------------------------------------------------------------------------- */
 
 time_t VirtualMachinePool::_monitor_expiration;
+bool   VirtualMachinePool::_submit_on_hold;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -35,7 +36,8 @@ VirtualMachinePool::VirtualMachinePool(
         const string&               hook_location,
         const string&               remotes_location,
         vector<const Attribute *>&  restricted_attrs,
-        time_t                      expire_time)
+        time_t                      expire_time,
+        bool                        on_hold)
     : PoolSQL(db, VirtualMachine::table, false)
 {
     const VectorAttribute * vattr;
@@ -50,6 +52,7 @@ VirtualMachinePool::VirtualMachinePool(
     bool state_hook = false;
 
     _monitor_expiration = expire_time;
+    _submit_on_hold = on_hold;
 
     if ( _monitor_expiration == 0 )
     {
@@ -232,7 +235,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     vm = new VirtualMachine(-1, uid, gid, uname, gname, vm_template);
 
-    if (on_hold == true)
+    if (_submit_on_hold == true)
     {
         vm->state = VirtualMachine::HOLD;
     }
