@@ -406,6 +406,7 @@ INSTALL_FILES=(
     INCLUDE_FILES:$INCLUDE_LOCATION
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
+    RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
@@ -673,8 +674,13 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/oca/ruby/opennebula.rb \
-                src/authm_mad/remotes/ssh/ssh_auth.rb \
+                src/oca/ruby/opennebula.rb"
+
+#-------------------------------------------------------------------------------
+# Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
+#-------------------------------------------------------------------------------
+
+RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
                 src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
                 src/authm_mad/remotes/ldap/ldap_auth.rb \

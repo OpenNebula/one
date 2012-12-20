@@ -28,7 +28,7 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'x509_auth'
+require 'opennebula/x509_auth'
 require 'scripts_common'
 
 user   = ARGV[0] # username as registered in OpenNebula
@@ -44,7 +44,7 @@ begin
     token = asecret[0]
     certs = asecret[1..-1]
 
-    x509_auth = X509Auth.new(:certs_pem=>certs)
+    x509_auth = OpenNebula::X509Auth.new(:certs_pem=>certs)
 
     rc = x509_auth.authenticate(user, pass, token)
 rescue => e

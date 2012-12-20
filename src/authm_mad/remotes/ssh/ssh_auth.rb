@@ -20,10 +20,12 @@ require 'openssl'
 require 'base64'
 require 'fileutils'
 
+module OpenNebula; end
+
 # SSH key authentication class. It can be used as a driver for auth_mad
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
-class SshAuth
+class OpenNebula::SshAuth
     LOGIN_PATH = ENV['HOME']+'/.one/one_ssh'
 
     # Initialize SshAuth object
