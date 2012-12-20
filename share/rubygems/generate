@@ -53,6 +53,7 @@ GEM_DESCRIPTION={
         :files => [
             ['src/oca/ruby/opennebula.rb', '/lib'],
             ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
+            ['src/authm_mad/remotes/**/*.rb', '/lib/opennebula'],
             ['NOTICE', ''],
             ['LICENSE', '']
         ],
