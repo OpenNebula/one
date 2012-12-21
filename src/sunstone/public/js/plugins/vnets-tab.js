@@ -556,7 +556,11 @@ function updateVNetworkInfo(request,vn){
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Name")+'</td>\
-              <td class="value_td">'+vn_info.NAME+'</td>\
+              <td class="value_td_rename">'+vn_info.NAME+'</td>\
+              <td><div id="div_edit_rename">\
+                     <a id="div_edit_rename_link" class="edit_e" href="#">e</a>\
+                  </div>\
+              </td>\
             </tr>\
             <tr>\
               <td class="key_td">'+tr("Cluster")+'</td>\
@@ -604,6 +608,24 @@ function updateVNetworkInfo(request,vn){
         title: tr("Lease management"),
         content: printLeases(vn_info)
     };
+
+    $("#div_edit_link").die();
+    $(".input_edit_value").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_link").live("click", function() {
+        var value_str = $("#value_td_rename").text();
+        $("#value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+
+    });
+
+    $(".input_edit_value").live("change", function() {
+        var value_str = $("#value_td_rename").text();
+
+        // Let OpenNebula know
+        Sunstone.runAction("Network.rename",vn_info.ID,$("#input_edit_rename").val());
+    });
+
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
