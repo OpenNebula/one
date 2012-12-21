@@ -86,13 +86,18 @@ module OpenNebula
 
         # Creates a VM instance from a Template
         #
-        # +name+ A string containing the name of the VM instance.
-        # [return] The new VM Instance ID, or an Error object
-        def instantiate(name="")
+        # @param name [String] Name for the VM instance. If it is an empty
+        #   string OpenNebula will set a default name
+        # @param hold [true,false] false to create the VM in pending state,
+        #   true to create it on hold
+        #
+        # @return [Integer, OpenNebula::Error] The new VM id, Error
+        #   otherwise
+        def instantiate(name="", hold=false)
             return Error.new('ID not defined') if !@pe_id
 
             name ||= ""
-            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name)
+            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name, hold)
 
             return rc
         end

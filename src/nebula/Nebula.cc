@@ -517,6 +517,8 @@ void Nebula::start()
         time_t  vm_expiration;
         time_t  host_expiration;
 
+        bool    vm_submit_on_hold;
+
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
         vector<const Attribute *> vnet_hooks;
@@ -543,12 +545,15 @@ void Nebula::start()
         nebula_configuration->get("VM_MONITORING_EXPIRATION_TIME",vm_expiration);
         nebula_configuration->get("HOST_MONITORING_EXPIRATION_TIME",host_expiration);
 
+        nebula_configuration->get("VM_SUBMIT_ON_HOLD",vm_submit_on_hold);
+
         vmpool = new VirtualMachinePool(db,
                                         vm_hooks,
                                         hook_location,
                                         remotes_location,
                                         vm_restricted_attrs,
-                                        vm_expiration);
+                                        vm_expiration,
+                                        vm_submit_on_hold);
         hpool  = new HostPool(db,
                               host_hooks,
                               hook_location,

@@ -27,6 +27,13 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
 
+    bool on_hold = false;
+
+    if ( paramList.size() > 3 )
+    {
+        on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
+
     int rc, vid;
 
     PoolObjectAuth perms;
@@ -109,7 +116,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     Template tmpl_back(*tmpl);
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
-            error_str, false);
+            error_str, on_hold);
 
     if ( rc < 0 )
     {

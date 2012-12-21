@@ -150,7 +150,22 @@ public class VirtualMachine extends PoolElement{
      */
     public static OneResponse allocate(Client client, String description)
     {
-        return client.call(ALLOCATE, description);
+        return allocate(client, description, false);
+    }
+
+    /**
+     * Allocates a new VM in OpenNebula.
+     *
+     * @param client XML-RPC Client.
+     * @param description A string containing the template of the vm.
+     * @param onHold False to create this VM in pending state, true on hold
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocate(Client client, String description,
+        boolean onHold)
+    {
+        return client.call(ALLOCATE, description, onHold);
     }
 
     /**

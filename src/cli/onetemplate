@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/onetemplate_helper'
+require 'one_helper/onevm_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onetemplate` <command> [<args>] [<options>]"
@@ -52,7 +53,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     instantiate_options = [
         OneTemplateHelper::VM_NAME,
-        OneTemplateHelper::MULTIPLE
+        OneTemplateHelper::MULTIPLE,
+        OneVMHelper::HOLD
     ]
 
     ########################################################################
@@ -179,7 +181,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit_code=helper.perform_action(args[0],options,"instantiated") do |t|
                 name = options[:name]
                 name = name.gsub("%i",i.to_s) if name
-                res = t.instantiate(name)
+
+                on_hold = options[:hold] != nil
+
+                res = t.instantiate(name, on_hold)
 
                 if !OpenNebula.is_error?(res)
                     puts "VM ID: #{res}"

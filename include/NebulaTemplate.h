@@ -102,6 +102,13 @@ public:
         Template::get(_name,value);
     };
 
+    void get(const char *name, bool& value) const
+    {
+        string _name(name);
+
+        Template::get(_name,value);
+    };
+
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
 

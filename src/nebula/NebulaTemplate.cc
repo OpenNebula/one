@@ -98,6 +98,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  DB
 #  VNC_BASE_PORT
 #  SCRIPTS_REMOTE_DIR
+#  VM_SUBMIT_ON_HOLD
 #*******************************************************************************
 */
     // MONITOR_INTERVAL
@@ -165,6 +166,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "/var/tmp/one";
 
     attribute = new SingleAttribute("SCRIPTS_REMOTE_DIR",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // VM_SUBMIT_ON_HOLD
+    value = "NO";
+
+    attribute = new SingleAttribute("VM_SUBMIT_ON_HOLD",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
 /*

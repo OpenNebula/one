@@ -238,13 +238,20 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
                                           string& error_str,
                                           RequestAttributes& att)
 {
+    bool on_hold = false;
+
+    if ( paramList.size() > 2 )
+    {
+        on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
     VirtualMachineTemplate * ttmpl= static_cast<VirtualMachineTemplate *>(tmpl);
     VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
 
     Template tmpl_back(*tmpl);
 
     int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
-                error_str, false);
+                error_str, on_hold);
 
     if ( rc < 0 )
     {

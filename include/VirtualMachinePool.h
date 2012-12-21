@@ -37,7 +37,8 @@ public:
                        const string&                hook_location,
                        const string&                remotes_location,
                        vector<const Attribute *>&   restricted_attrs,
-                       time_t                       expire_time);
+                       time_t                       expire_time,
+                       bool                         on_hold);
 
     ~VirtualMachinePool(){};
 
@@ -255,6 +256,11 @@ private:
      * Size, in seconds, of the historical monitoring information
      */
     static time_t _monitor_expiration;
+
+    /**
+     * True or false whether to submit new VM on HOLD or not
+     */
+    static bool _submit_on_hold;
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/
