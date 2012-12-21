@@ -59,6 +59,12 @@ public:
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
 
+    virtual void set_name(const string& _name)
+    {
+        name = _name;
+        replace_template_attribute("TEMPLATE_NAME", name);
+    };
+
 private:
     // -------------------------------------------------------------------------
     // Friends
