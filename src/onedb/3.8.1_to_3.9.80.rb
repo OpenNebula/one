@@ -260,6 +260,34 @@ module Migrator
 
 
         ########################################################################
+        # Feature #1326
+        ########################################################################
+
+        @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
+        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.fetch("SELECT * FROM old_template_pool") do |row|
+            doc = Document.new(row[:body])
+
+            doc.root.each_element("TEMPLATE") { |e|
+                e.add_element("TEMPLATE_NAME").text = row[:name]
+            }
+
+            @db[:template_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_template_pool;"
+
+
+        ########################################################################
         #
         # Banner for the new /var/lib/one/vms directory
         #
