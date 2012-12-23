@@ -230,16 +230,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     if ( name.empty() == true )
     {
-        string prefix;
-        get_template_attribute("TEMPLATE_NAME",prefix);
-
-        if ( prefix.empty() )
-        {
-            prefix = "one";
-        }
-
         oss.str("");
-        oss << prefix << "-" << oid;
+        oss << "one-" << oid;
         name = oss.str();
 
         replace_template_attribute("NAME", name);

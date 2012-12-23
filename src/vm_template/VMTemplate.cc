@@ -98,8 +98,6 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    replace_template_attribute("TEMPLATE_NAME", name);
-
     // ------------------------------------------------------------------------
     // Insert the Template
     // ------------------------------------------------------------------------

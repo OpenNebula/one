@@ -140,7 +140,7 @@ public:
         return name;
     };
 
-    virtual void set_name(const string& _name)
+    void set_name(const string& _name)
     {
         name = _name;
     };
