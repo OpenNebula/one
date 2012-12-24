@@ -48,7 +48,7 @@ public:
         if  ((size >0 && !isalpha(aname[0]))||
              (size >=3 && (aname[0]=='X' && aname[1]=='M' && aname[2]=='L')))
         {
-            attribute_name.insert(0,"ONE_");    
+            attribute_name.insert(0,"ONE_");
         }
     };
 
@@ -198,7 +198,7 @@ public:
      */
     Attribute* clone() const
     {
-        return new SingleAttribute(*this);   
+        return new SingleAttribute(*this);
     };
 
 private:
@@ -245,6 +245,15 @@ public:
      *    @return the value of the attribute if found, empty otherwise
      */
     string vector_value(const char *name) const;
+
+    /**
+     *  Returns the boolean value
+     *    @param name of the attribute
+     *    @param value Bool value ("YES" is true)
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int vector_value(const char *name, bool& value) const;
 
     /**
      * Returns the integer value
@@ -336,7 +345,7 @@ public:
         oss << value;
 
         replace(name, oss.str());
-    } 
+    }
 
     /**
      * Removes given the vector attribute
@@ -357,7 +366,7 @@ public:
      */
     Attribute* clone() const
     {
-        return new VectorAttribute(*this);   
+        return new VectorAttribute(*this);
     };
 
 private:

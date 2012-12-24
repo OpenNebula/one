@@ -46,7 +46,6 @@ VirtualMachinePool::VirtualMachinePool(
     string on;
     string cmd;
     string arg;
-    string rmt;
     bool   remote;
 
     bool state_hook = false;
@@ -67,7 +66,7 @@ VirtualMachinePool::VirtualMachinePool(
         on   = vattr->vector_value("ON");
         cmd  = vattr->vector_value("COMMAND");
         arg  = vattr->vector_value("ARGUMENTS");
-        rmt  = vattr->vector_value("REMOTE");
+        vattr->vector_value("REMOTE", remote);
 
         transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
 
@@ -85,18 +84,6 @@ VirtualMachinePool::VirtualMachinePool(
         if ( name.empty() )
         {
             name = cmd;
-        }
-
-        remote = false;
-
-        if ( !rmt.empty() )
-        {
-            transform(rmt.begin(),rmt.end(),rmt.begin(),(int(*)(int))toupper);
-
-            if ( rmt == "YES" )
-            {
-                remote = true;
-            }
         }
 
         if (cmd[0] != '/')

@@ -288,11 +288,19 @@ public:
     	return oss.str();
     };
 
+    /**
+     *  Returns the name of the host running oned
+     *    @return the name
+     */
     const string& get_nebula_hostname()
     {
         return hostname;
     };
 
+    /**
+     *  Returns the version of oned
+     *    @return the version
+     */
     static string version()
     {
         return "OpenNebula 3.9.0";
@@ -303,32 +311,74 @@ public:
         return "3.9.0";
     }
 
+    /**
+     *  Starts all the modules and services for OpenNebula
+     */
     void start();
 
+    // -----------------------------------------------------------------------
+    // Configuration attributes (read from oned.conf)
+    // -----------------------------------------------------------------------
+
+    /**
+     *  Gets a configuration attribute for oned
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
     void get_configuration_attribute(
         const char * name,
         string& value) const
     {
         string _name(name);
 
-        nebula_configuration->Template::get(_name,value);
+        nebula_configuration->Template::get(_name, value);
     };
 
+    /**
+     *  Gets a configuration attribute for oned, bool version
+     */
+    void get_configuration_attribute(
+        const char * name,
+        bool& value) const
+    {
+        string _name(name);
+
+        nebula_configuration->Template::get(_name, value);
+    };
+
+    /**
+     *  Gets an XML document with all of the configuration attributes
+     *    @return the XML
+     */
     string get_configuration_xml() const
     {
         string xml;
         return nebula_configuration->to_xml(xml);
     };
 
+    // -----------------------------------------------------------------------
+    // Default Quotas
+    // -----------------------------------------------------------------------
+
+    /**
+     *  Get the default quotas for OpenNebula users
+     *    @return the default quotas
+     */
     const DefaultQuotas& get_default_user_quota()
     {
         return default_user_quota;
     };
 
+    /**
+     *  Set the default quotas for OpenNebula users
+     *    @param tmpl template with the default quotas
+     *    @param error describes the error if any
+     *
+     *    @return 0 if success
+     */
     int set_default_user_quota(Template *tmpl, string& error)
     {
-        int rc;
-        rc = default_user_quota.set(tmpl, error);
+        int rc = default_user_quota.set(tmpl, error);
 
         if ( rc == 0 )
         {
@@ -338,15 +388,25 @@ public:
         return rc;
     };
 
+    /**
+     *  Get the default quotas for OpenNebula for groups
+     *    @return the default quotas
+     */
     const DefaultQuotas& get_default_group_quota()
     {
         return default_group_quota;
     };
 
+    /**
+     *  Set the default quotas for OpenNebula groups
+     *    @param tmpl template with the default quotas
+     *    @param error describes the error if any
+     *
+     *    @return 0 if success
+     */
     int set_default_group_quota(Template *tmpl, string& error)
     {
-        int rc;
-        rc = default_group_quota.set(tmpl, error);
+        int rc = default_group_quota.set(tmpl, error);
 
         if ( rc == 0 )
         {

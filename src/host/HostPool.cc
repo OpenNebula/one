@@ -57,7 +57,6 @@ HostPool::HostPool(SqlDB*                    db,
     string on;
     string cmd;
     string arg;
-    string rmt;
     bool   remote;
 
     bool state_hook = false;
@@ -70,7 +69,7 @@ HostPool::HostPool(SqlDB*                    db,
         on   = vattr->vector_value("ON");
         cmd  = vattr->vector_value("COMMAND");
         arg  = vattr->vector_value("ARGUMENTS");
-        rmt  = vattr->vector_value("REMOTE");
+        vattr->vector_value("REMOTE", remote);
 
         transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
 
@@ -90,33 +89,21 @@ HostPool::HostPool(SqlDB*                    db,
             name = cmd;
         }
 
-        remote = false;
-
-        if ( !rmt.empty() )
-        {
-            transform(rmt.begin(),rmt.end(),rmt.begin(),(int(*)(int))toupper);
-
-            if ( rmt == "YES" )
-            {
-                remote = true;
-            }
-        }
-
         if (cmd[0] != '/')
         {
             ostringstream cmd_os;
 
             if ( remote )
             {
-                cmd_os << hook_location << "/" << cmd;     
+                cmd_os << hook_location << "/" << cmd;
             }
             else
             {
                 cmd_os << remotes_location << "/hooks/" << cmd;
-            } 
+            }
 
             cmd = cmd_os.str();
-        } 
+        }
 
         if ( on == "CREATE" )
         {

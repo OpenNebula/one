@@ -19,8 +19,6 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -95,14 +93,12 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( other_u != -1 || other_m != -1 || other_a != -1 )
         {
-            string enable_other;
+            bool enable_other;
 
             Nebula::instance().get_configuration_attribute(
                     "ENABLE_OTHER_PERMISSIONS", enable_other);
 
-            TO_UPPER(enable_other);
-            
-            if ( enable_other != "YES" )
+            if ( !enable_other )
             {
                 failure_response(AUTHORIZATION,
                          "Management of 'other' permissions is disabled in oned.conf",
@@ -130,13 +126,13 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
     object = pool->get(oid,true);
 
-    if ( object == 0 )                             
-    {                                            
+    if ( object == 0 )
+    {
         failure_response(NO_EXISTS,
                 get_error(object_name(auth_object),oid),
                 att);
         return;
-    }    
+    }
 
     int rc = object->set_permissions(owner_u, owner_m, owner_a, group_u,
                         group_m, group_a, other_u, other_m, other_a, error_str);

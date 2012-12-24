@@ -20,6 +20,7 @@
 
 #include "Attribute.h"
 
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
@@ -145,7 +146,7 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
     	{
     		continue;
     	}
-        
+
         if ( mpos + 1 == tmp.size() )
         {
             attribute_value.insert(make_pair(tmp.substr(0,mpos),""));
@@ -154,7 +155,7 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
         {
             attribute_value.insert(make_pair(tmp.substr(0,mpos),
                                              tmp.substr(mpos+1)));
-        } 
+        }
     }
 }
 /* -------------------------------------------------------------------------- */
@@ -173,12 +174,12 @@ void VectorAttribute::replace(const string& name, const string& value)
     map<string,string>::iterator it;
 
     it = attribute_value.find(name);
-    
+
     if ( it != attribute_value.end() )
     {
         attribute_value.erase(it);
     }
-    
+
     attribute_value.insert(make_pair(name,value));
 }
 
@@ -214,6 +215,37 @@ string VectorAttribute::vector_value(const char *name) const
     {
         return it->second;
     }
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VectorAttribute::vector_value(const char *name, bool & value) const
+{
+    map<string,string>::const_iterator it;
+
+    value = false;
+    it    = attribute_value.find(name);
+
+    if (it == attribute_value.end())
+    {
+        return -1;
+    }
+
+    if (it->second.empty())
+    {
+        return -1;
+    }
+
+    string tmp = it->second;
+
+    TO_UPPER(tmp);
+
+    if (tmp == "YES")
+    {
+        value = true;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
