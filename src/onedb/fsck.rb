@@ -249,6 +249,7 @@ module OneDBFsck
         ########################################################################
         # Clusters
         #
+        # CLUSTER/SYSTEM_DS
         # CLUSTER/HOSTS/ID
         # CLUSTER/DATASTORES/ID
         # CLUSTER/VNETS/ID
@@ -277,6 +278,8 @@ module OneDBFsck
             cluster[row[:oid]][:hosts]      = []
             cluster[row[:oid]][:datastores] = []
             cluster[row[:oid]][:vnets]      = []
+
+            cluster[row[:oid]][:system_ds]  = 0
         end
 
         hosts_fix       = {}
@@ -331,7 +334,26 @@ module OneDBFsck
 
                     datastores_fix[row[:oid]] = doc.to_s
                 else
-                    cluster[cluster_id][:datastores] << row[:oid]
+                    if doc.root.get_text('TYPE').to_s != "1"
+                        cluster[cluster_id][:datastores] << row[:oid]
+                    else
+                        if cluster[cluster_id][:system_ds] == 0
+                            cluster[cluster_id][:datastores] << row[:oid]
+                            cluster[cluster_id][:system_ds] = row[:oid]
+                        else
+                            log_error("System Datastore #{row[:oid]} is in Cluster #{cluster_id}, but it already contains System Datastore #{cluster[cluster_id][:system_ds]}")
+
+                            doc.root.each_element('CLUSTER_ID') do |e|
+                                e.text = "-1"
+                            end
+
+                            doc.root.each_element('CLUSTER') do |e|
+                                e.text = ""
+                            end
+
+                            datastores_fix[row[:oid]] = doc.to_s
+                        end
+                    end
                 end
             end
         end
@@ -400,6 +422,16 @@ module OneDBFsck
             ds_elem = doc.root.elements.delete("DATASTORES")
 
             ds_new_elem = doc.root.add_element("DATASTORES")
+
+            doc.root.each_element("SYSTEM_DS") do |e|
+                system_ds = e.text.to_i
+
+                if system_ds != cluster[cluster_id][:system_ds]
+                    log_error("Cluster #{cluster_id} has System Datastore set to #{system_ds}, but it should be #{cluster[cluster_id][:system_ds]}")
+
+                    e.text = cluster[cluster_id][:system_ds].to_s
+                end
+            end
 
             cluster[cluster_id][:datastores].each do |id|
                 id_elem = ds_elem.elements.delete("ID[.=#{id}]")

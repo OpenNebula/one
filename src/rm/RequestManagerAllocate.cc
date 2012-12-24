@@ -189,6 +189,8 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
+        Datastore::DatastoreType ds_type = get_ds_type(id);
+
         cluster = clpool->get(cluster_id, true);
 
         if ( cluster == 0 )
@@ -200,7 +202,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
 
-        rc = add_to_cluster(cluster, id, error_str);
+        rc = add_to_cluster(cluster, id, ds_type, error_str);
 
         if ( rc < 0 )
         {

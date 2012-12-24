@@ -45,7 +45,8 @@ Cluster::Cluster(
             PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
             hosts("HOSTS"),
             datastores("DATASTORES"),
-            vnets("VNETS")
+            vnets("VNETS"),
+            system_ds(DatastorePool::SYSTEM_DS_ID)
 {
     if (cl_template != 0)
     {
@@ -111,6 +112,69 @@ string& Cluster::get_ds_location(string &ds_location)
     }
 
     return ds_location;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg)
+{
+    if ( id == DatastorePool::SYSTEM_DS_ID )
+    {
+        ostringstream oss;
+        oss << "Datastore "<< DatastorePool::SYSTEM_DS_ID
+            << " cannot be added to any cluster.";
+
+        error_msg = oss.str();
+
+        return -1;
+    }
+
+    if ( ds_type == Datastore::SYSTEM_DS )
+    {
+        if ( system_ds != DatastorePool::SYSTEM_DS_ID )
+        {
+            ostringstream oss;
+            oss << "Cluster " << oid << " already contains the System Datastore "
+                << system_ds << ".";
+
+            error_msg = oss.str();
+
+            return -1;
+        }
+    }
+
+    int rc = datastores.add_collection_id(id);
+
+    if ( rc < 0 )
+    {
+        error_msg = "Datastore ID is already in the cluster set.";
+    }
+    else if ( ds_type == Datastore::SYSTEM_DS )
+    {
+        system_ds = id;
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Cluster::del_datastore(int id, string& error_msg)
+{
+    int rc = datastores.del_collection_id(id);
+
+    if ( rc < 0 )
+    {
+        error_msg = "Datastore ID is not part of the cluster set.";
+    }
+    else if ( system_ds == id )
+    {
+        system_ds = DatastorePool::SYSTEM_DS_ID;
+    }
+
+    return rc;
 }
 
 /* ************************************************************************ */
@@ -215,8 +279,9 @@ string& Cluster::to_xml(string& xml) const
 
     oss <<
     "<CLUSTER>"  <<
-        "<ID>"   << oid  << "</ID>"   <<
-        "<NAME>" << name << "</NAME>" <<
+        "<ID>"          << oid          << "</ID>"          <<
+        "<NAME>"        << name         << "</NAME>"        <<
+        "<SYSTEM_DS>"   << system_ds    << "</SYSTEM_DS>"   <<
 
         hosts.to_xml(host_collection_xml)    <<
         datastores.to_xml(ds_collection_xml) <<
@@ -241,8 +306,9 @@ int Cluster::from_xml(const string& xml)
     update_from_str(xml);
 
     // Get class base attributes
-    rc += xpath(oid, "/CLUSTER/ID",   -1);
-    rc += xpath(name,"/CLUSTER/NAME", "not_found");
+    rc += xpath(oid,        "/CLUSTER/ID",          -1);
+    rc += xpath(name,       "/CLUSTER/NAME",        "not_found");
+    rc += xpath(system_ds,  "/CLUSTER/SYSTEM_DS",   -1);
 
     // Set oneadmin as the owner
     set_user(0,"");

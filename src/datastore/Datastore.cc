@@ -411,18 +411,67 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     string new_tm_mad;
     string s_ds_type;
 
-    int rc;
+    DatastoreType new_ds_type;
+    Template *    new_tmpl  = new DatastoreTemplate;
 
-    rc = PoolObjectSQL::replace_template(tmpl_str, error_str);
-
-    if ( rc != 0 )
+    if ( new_tmpl == 0 )
     {
-        return rc;
+        error_str = "Cannot allocate a new template";
+        return -1;
     }
 
-    get_template_attribute("DS_MAD", new_ds_mad);
-    get_template_attribute("TYPE", s_ds_type);
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error_str) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
 
+    /* ---------------------------------------------------------------------- */
+    /* Set the TYPE of the Datastore (class & template)                       */
+    /* ---------------------------------------------------------------------- */
+
+    new_tmpl->get("TYPE", s_ds_type);
+
+    if (!s_ds_type.empty())
+    {
+        new_ds_type = str_to_type(s_ds_type);
+
+        if (get_cluster_id() != ClusterPool::NONE_CLUSTER_ID)//It's in a cluster
+        {
+            if (type == SYSTEM_DS && new_ds_type != SYSTEM_DS)
+            {
+                error_str = "Datastore is associated to a cluster, and it is "
+                            "the SYSTEM_DS, remove it from cluster first to "
+                            "update its type.";
+
+                delete new_tmpl;
+                return -1;
+            }
+            else if (new_ds_type == SYSTEM_DS && type != SYSTEM_DS)
+            {
+                error_str = "Datastore is associated to a cluster, cannot set "
+                            "type to SYSTEM_DS. Remove it from cluster first "
+                            "to update its type.";
+
+                delete new_tmpl;
+                return -1;
+            }
+        }
+    }
+    else //No TYPE in the new Datastore template
+    {
+        new_ds_type = type;
+    }
+
+    /* --- Update the Datastore template --- */
+
+    delete obj_template;
+
+    obj_template = new_tmpl;
+
+    /* ---------------------------------------------------------------------- */
+    /* Set the TYPE of the Datastore (class & template)                       */
+    /* ---------------------------------------------------------------------- */
 
     if ( oid == DatastorePool::SYSTEM_DS_ID )
     {
@@ -430,14 +479,22 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     }
     else
     {
-        type = str_to_type(s_ds_type);
-
-        replace_template_attribute("TYPE", type_to_str(type));
+        type = new_ds_type;
     }
+
+    replace_template_attribute("TYPE", type_to_str(type));
+
+    /* ---------------------------------------------------------------------- */
+    /* Set the DS_MAD of the Datastore (class & template)                     */
+    /* ---------------------------------------------------------------------- */
 
     if ( type == SYSTEM_DS )
     {
         new_ds_mad = "-";
+    }
+    else
+    {
+        get_template_attribute("DS_MAD", new_ds_mad);
     }
 
     if ( !new_ds_mad.empty() )
@@ -446,6 +503,10 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     }
 
     replace_template_attribute("DS_MAD", ds_mad);
+
+    /* ---------------------------------------------------------------------- */
+    /* Set the TM_MAD of the Datastore (class & template)                     */
+    /* ---------------------------------------------------------------------- */
 
     get_template_attribute("TM_MAD", new_tm_mad);
 
