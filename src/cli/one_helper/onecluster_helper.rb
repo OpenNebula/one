@@ -96,13 +96,12 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_resource(cluster)
-        str="%-18s: %-20s"
+        str="%-15s: %-20s"
         str_h1="%-80s"
 
         CLIHelper.print_header(str_h1 % "CLUSTER #{cluster['ID']} INFORMATION")
         puts str % ["ID",   cluster.id.to_s]
         puts str % ["NAME", cluster.name]
-        puts str % ["SYSTEM DATASTORE", cluster['SYSTEM_DS']]
         puts
 
         CLIHelper.print_header(str_h1 % "CLUSTER TEMPLATE", false)
