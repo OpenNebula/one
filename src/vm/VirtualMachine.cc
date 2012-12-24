@@ -211,10 +211,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 {
     int    rc;
     string name;
+    string prefix;
 
-    string        value;
-    int           ivalue;
-    float         fvalue;
+    string value;
+    int    ivalue;
+    float  fvalue;
+
     ostringstream oss;
 
     // ------------------------------------------------------------------------
@@ -228,15 +230,22 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     get_template_attribute("NAME",name);
 
-    if ( name.empty() == true )
+    if (name.empty() == true)
     {
+        get_template_attribute("TEMPLATE_NAME", prefix);
+
+        if (prefix.empty())
+        {
+            prefix = "one";
+        }
+
         oss.str("");
-        oss << "one-" << oid;
+        oss << prefix << "-" << oid;
         name = oss.str();
 
         replace_template_attribute("NAME", name);
     }
-    else if ( name.length() > 128 )
+    else if (name.length() > 128)
     {
         goto error_name_length;
     }

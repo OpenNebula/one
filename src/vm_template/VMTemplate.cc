@@ -73,22 +73,17 @@ const char * VMTemplate::db_bootstrap =
 int VMTemplate::insert(SqlDB *db, string& error_str)
 {
     int             rc;
-    ostringstream   oss;
 
     // ---------------------------------------------------------------------
     // Check default attributes
     // ---------------------------------------------------------------------
 
-    // ------------ NAME & TEMPLATE_ID --------------------
-    oss << oid;
-
-    replace_template_attribute("TEMPLATE_ID",oss.str()); 
-
     get_template_attribute("NAME", name);
 
     if ( name.empty() == true )
     {
-        oss.str("");
+        ostringstream  oss;
+
         oss << "template-" << oid;
         name = oss.str();
     }
@@ -204,8 +199,8 @@ string& VMTemplate::to_xml(string& xml) const
             << "<ID>"       << oid        << "</ID>"
             << "<UID>"      << uid        << "</UID>"
             << "<GID>"      << gid        << "</GID>"
-            << "<UNAME>"    << uname      << "</UNAME>" 
-            << "<GNAME>"    << gname      << "</GNAME>" 
+            << "<UNAME>"    << uname      << "</UNAME>"
+            << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
