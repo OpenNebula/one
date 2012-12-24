@@ -24,11 +24,11 @@
 string& PoolObjectSQL::to_xml64(string &xml64)
 {
     string *str64;
-    
+
     to_xml(xml64);
 
     str64 = SSLTools::base64_encode(xml64);
-   
+
     xml64 = *str64;
 
     delete str64;
@@ -138,7 +138,7 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 {
     VectorAttribute *  attr;
     map<string,string> error_value;
-    
+
     char   str[26];
     time_t the_time;
 
@@ -175,9 +175,10 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
         error = "Cannot allocate a new template";
         return -1;
     }
-    
+
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
+        delete new_tmpl;
         return -1;
     }
 
@@ -186,7 +187,7 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
     obj_template = new_tmpl;
 
     return 0;
-} 
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
