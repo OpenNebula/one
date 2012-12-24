@@ -427,16 +427,16 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string ds_location;
     int    ds_id;
 
-    int id          = xmlrpc_c::value_int(paramList.getInt(1));
-    int hid         = xmlrpc_c::value_int(paramList.getInt(2));
-    bool enforce    = false;
+    int id       = xmlrpc_c::value_int(paramList.getInt(1));
+    int hid      = xmlrpc_c::value_int(paramList.getInt(2));
+    bool enforce = false;
 
-    if ( paramList.size() != 3 )
+    bool auth = false;
+
+    if ( paramList.size() > 3 )
     {
         enforce = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
-
-    bool auth = false;
 
     if (get_host_information(hid,
                              hostname,
@@ -544,7 +544,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     bool enforce = false;
 
-    if ( paramList.size() != 4 )
+    if ( paramList.size() > 4 )
     {
         enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
     }
