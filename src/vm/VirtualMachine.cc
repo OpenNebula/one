@@ -925,8 +925,9 @@ int VirtualMachine::automatic_requirements(string& error_str)
     return 0;
 
 error_disk:
-    oss << "Incompatible clusters in DISKs. Datastore for DISK["
-        << incomp_id <<"] should be in cluster " << cluster_id << ".";
+    oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
+        << " is not the same as the one used by other VM elements (cluster "
+        << cluster_id << ")";
     goto error_common;
 
 error_kernel:
@@ -940,8 +941,9 @@ error_initrd:
     goto error_common;
 
 error_nic:
-    oss << "Incompatible clusters in NICs. Network for NIC[" << incomp_id <<"]"
-        << " should be in cluster " << cluster_id << ".";
+    oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
+        << " is not the same as the one used by other VM elements (cluster "
+        << cluster_id << ")";
     goto error_common;
 
 error_common:
