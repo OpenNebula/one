@@ -68,6 +68,8 @@ VirtualMachine::VirtualMachine(int           id,
     {
         obj_template = new VirtualMachineTemplate;
     }
+
+    user_obj_template = new Template(false,'=',"USER_TEMPLATE");
 }
 
 VirtualMachine::~VirtualMachine()
@@ -77,14 +79,19 @@ VirtualMachine::~VirtualMachine()
             delete history_records[i];
     }
 
-    if ( _log != 0 )
+    if (_log != 0)
     {
         delete _log;
     }
 
-    if ( obj_template != 0 )
+    if (obj_template != 0)
     {
         delete obj_template;
+    }
+
+    if (user_obj_template != 0)
+    {
+        delete user_obj_template;
     }
 }
 
@@ -2220,6 +2227,7 @@ error_yy:
 string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
 {
     string template_xml;
+    string user_template_xml;
     string history_xml;
     string perm_xml;
     ostringstream	oss;
@@ -2243,7 +2251,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << obj_template->to_xml(template_xml);
+        << obj_template->to_xml(template_xml)
+        << user_obj_template->to_xml(user_template_xml);
 
     if ( hasHistory() && n_history > 0 )
     {
@@ -2319,20 +2328,33 @@ int VirtualMachine::from_xml(const string &xml_str)
     state     = static_cast<VmState>(istate);
     lcm_state = static_cast<LcmState>(ilcmstate);
 
-    // Get associated classes
+    // Virtual Machine template
     ObjectXML::get_nodes("/VM/TEMPLATE", content);
 
     if (content.empty())
     {
         return -1;
     }
-
-    // Virtual Machine template
     rc += obj_template->from_xml_node(content[0]);
 
-    // Last history entry
     ObjectXML::free_nodes(content);
     content.clear();
+
+    // Virtual Machine user template
+
+    ObjectXML::get_nodes("/VM/USER_TEMPLATE", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += user_obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Last history entry
 
     ObjectXML::get_nodes("/VM/HISTORY_RECORDS/HISTORY", content);
 
@@ -2367,3 +2389,35 @@ string VirtualMachine::get_system_dir() const
 
     return oss.str();
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::replace_template(const string& tmpl_str, string& error)
+{
+    Template * new_tmpl  = new Template(false,'=',"USER_TEMPLATE");
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    if (user_obj_template != 0)
+    {
+        delete user_obj_template;
+    }
+
+    user_obj_template = new_tmpl;
+
+    return 0;
+}

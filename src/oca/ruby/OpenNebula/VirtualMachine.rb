@@ -36,10 +36,11 @@ module OpenNebula
             :monitoring => "vm.monitoring",
             :attach     => "vm.attach",
             :detach     => "vm.detach",
-            :rename     => "vm.rename"
+            :rename     => "vm.rename",
+            :update     => "vm.update"
         }
 
-        VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED 
+        VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
             POWEROFF}
 
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
@@ -144,6 +145,15 @@ module OpenNebula
         def allocate(description, hold=false)
             super(VM_METHODS[:allocate], description, hold)
         end
+
+        # Replaces the template contents
+        #
+        # @param new_template New template contents. If no argument is provided
+        #   the object will be updated using the @xml variable
+        def update(new_template=nil)
+            super(VM_METHODS[:update], new_template)
+        end
+
 
         # Initiates the instance of the VM on the target host.
         #

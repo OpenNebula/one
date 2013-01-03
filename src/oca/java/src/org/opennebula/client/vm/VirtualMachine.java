@@ -40,6 +40,7 @@ public class VirtualMachine extends PoolElement{
     private static final String ATTACH  = METHOD_PREFIX + "attach";
     private static final String DETACH  = METHOD_PREFIX + "detach";
     private static final String RENAME  = METHOD_PREFIX + "rename";
+    private static final String UPDATE  = METHOD_PREFIX + "update";
 
     private static final String[] VM_STATES =
     {
@@ -166,6 +167,19 @@ public class VirtualMachine extends PoolElement{
         boolean onHold)
     {
         return client.call(ALLOCATE, description, onHold);
+    }
+
+    /**
+     * Replaces the user template contents for the given VM.
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target vm.
+     * @param new_template New template contents
+     * @return If successful the message contains the vm id.
+     */
+    public static OneResponse update(Client client, int id, String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
     }
 
     /**
