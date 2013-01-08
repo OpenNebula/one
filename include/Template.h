@@ -278,6 +278,22 @@ public:
         const string&   name,
         bool&           value) const;
 
+    /**
+     *  Trims the trailing spaces in the NAME attribute
+     *    @return True if the attribute was found and trimmed
+     */
+    virtual bool trim_name()
+    {
+        return trim("NAME");
+    };
+
+    /**
+     *  Trims the trailing spaces in the attribute
+     *    @param name of the attribute
+     *    @return True if the attribute was found and trimmed
+     */
+    virtual bool trim(const string& name);
+
     friend ostream& operator<<(ostream& os, const Template& t);
 
     /**

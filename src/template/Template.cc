@@ -177,6 +177,11 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
         }
     }
 
+    if(rc == 0)
+    {
+        trim_name();
+    }
+
     return rc;
 }
 
@@ -549,6 +554,24 @@ string& Template::to_str(string& str) const
 
 	str = os.str();
     return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Template::trim(const string& name)
+{
+    string st;
+    get(name, st);
+
+    if(st.empty())
+    {
+        return false;
+    }
+
+    replace("NAME", st.substr( 0, st.find_last_not_of(" \f\n\r\t\v") + 1 ) );
+
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
