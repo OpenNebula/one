@@ -346,6 +346,35 @@ module Migrator
 
 
         ########################################################################
+        # Feature #1556: New elem USER_TEMPLATE
+        ########################################################################
+
+        @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.fetch("SELECT * FROM old_vm_pool") do |row|
+
+            doc = Document.new(row[:body])
+            doc.root.add_element("USER_TEMPLATE")
+
+            @db[:vm_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :last_poll  => row[:last_poll],
+                :state      => row[:state],
+                :lcm_state  => row[:lcm_state],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_vm_pool;"
+
+
+        ########################################################################
         #
         # Banner for the new /var/lib/one/vms directory
         #

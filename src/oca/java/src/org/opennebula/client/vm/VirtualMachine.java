@@ -175,7 +175,7 @@ public class VirtualMachine extends PoolElement{
      * @param client XML-RPC Client.
      * @param id The id of the target vm.
      * @param new_template New template contents
-     * @return If successful the message contains the vm id.
+     * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse update(Client client, int id, String new_template)
     {
@@ -556,6 +556,17 @@ public class VirtualMachine extends PoolElement{
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Replaces this VM's user template contents.
+     *
+     * @param new_template New template contents
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse update(String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
     }
 
     // =================================

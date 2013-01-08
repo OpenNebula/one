@@ -87,6 +87,7 @@
         <!-- NET_RX: Received bytes from the network -->
         <xs:element name="NET_RX" type="xs:integer"/>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
         <xs:element name="HISTORY_RECORDS">
           <xs:complexType>
             <xs:sequence>
