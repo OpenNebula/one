@@ -623,7 +623,7 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.update_template(id, resource, path=nil)
+    def OpenNebulaHelper.update_template(id, resource, path=nil, xpath='TEMPLATE')
         unless path
             require 'tempfile'
 
@@ -637,7 +637,7 @@ EOT
                 exit -1
             end
 
-            tmp << resource.template_str
+            tmp << resource.template_like_str(xpath)
             tmp.flush
 
             editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH

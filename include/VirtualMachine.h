@@ -702,6 +702,13 @@ public:
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
 
+    /**
+     *  This function replaces the *user template*.
+     *    @param tmpl_str new contents
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int replace_template(const string& tmpl_str, string& error);
 
     // ------------------------------------------------------------------------
     // States
@@ -1043,6 +1050,12 @@ private:
      *          /var/log/one/$VM_ID.log
      */
     FileLog * _log;
+
+    /**
+     *  User template to store custom metadata. This template can be updated
+     *
+     */
+    Template * user_obj_template;
 
     // *************************************************************************
     // DataBase implementation (Private)

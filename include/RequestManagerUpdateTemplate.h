@@ -53,7 +53,7 @@ public:
     TemplateUpdateTemplate():
         RequestManagerUpdateTemplate("TemplateUpdateTemplate",
                                      "Updates a virtual machine template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
@@ -65,13 +65,31 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualMachineUpdateTemplate: public RequestManagerUpdateTemplate
+{
+public:
+    VirtualMachineUpdateTemplate():
+        RequestManagerUpdateTemplate("VirtualMachineUpdateTemplate",
+                                     "Updates a virtual machine user template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+    };
+
+    ~VirtualMachineUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class ImageUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:
     ImageUpdateTemplate():
         RequestManagerUpdateTemplate("ImageUpdateTemplate",
                                      "Updates an image template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
@@ -89,7 +107,7 @@ public:
     HostUpdateTemplate():
         RequestManagerUpdateTemplate("HostUpdateTemplate",
                                      "Updates a host template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
@@ -107,7 +125,7 @@ public:
     VirtualNetworkUpdateTemplate():
         RequestManagerUpdateTemplate("VirtualNetworkUpdateTemplate",
                                      "Updates a vnet template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -125,7 +143,7 @@ public:
     UserUpdateTemplate():
         RequestManagerUpdateTemplate("UserUpdateTemplate",
                                      "Updates a user template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
