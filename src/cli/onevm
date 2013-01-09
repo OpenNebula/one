@@ -175,7 +175,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     update_desc = <<-EOT.unindent
-        Update the *user* template contents. If a path is not provided the
+        Update the user template contents. If a path is not provided the
         editor will be launched to modify the current content.
     EOT
 
