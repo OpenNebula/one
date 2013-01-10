@@ -185,7 +185,12 @@ class VmmAction
                 @vmm.log(@id,
                          "Failed to execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
-                break
+
+                if step[:no_fail]
+                    result = DriverExecHelper::RESULT[:success]
+                else
+                    break
+                end
             else
                 @vmm.log(@id,
                          "Successfully execute #{DRIVER_NAMES[step[:driver]]} " \
