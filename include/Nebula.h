@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -286,12 +286,12 @@ public:
 
     static string version()
     {
-        return "OpenNebula 3.8.1";
+        return "OpenNebula 3.8.3";
     };
 
     static string db_version()
     {
-        return "3.8.1";
+        return "3.8.3";
     }
 
     void start();

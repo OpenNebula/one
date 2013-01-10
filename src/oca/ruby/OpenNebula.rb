@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -52,7 +52,7 @@ require 'OpenNebula/DocumentPool'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '3.8.1'
+    VERSION = '3.8.3'
 
     # The Error Class represents a generic error in the OpenNebula
     # library. It contains a readable representation of the error.

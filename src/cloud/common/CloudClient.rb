@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -50,7 +50,7 @@ end
 module CloudClient
 
     # OpenNebula version
-    VERSION = '3.8.1'
+    VERSION = '3.8.3'
 
     # #########################################################################
     # Default location for the authentication file
@@ -201,7 +201,7 @@ module CloudCLI
     def version_text
         version=<<EOT
 OpenNebula #{CloudClient::VERSION}
-Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+Copyright 2002-2013, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain

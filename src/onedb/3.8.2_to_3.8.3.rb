@@ -1,5 +1,3 @@
-# SConstruct for src/vm
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,33 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+module Migrator
+    def db_version
+        "3.8.3"
+    end
 
-lib_name='nebula_vm'
+    def one_version
+        "OpenNebula 3.8.3"
+    end
 
-if env['parsers']=='yes':
-    # LEX
-    parser=env.Lex(
-    source='vm_var_parser.l'
-    )
-    env.NoClean(parser)
-
-    # BISON
-    parser=env.Bison(
-    source='vm_var_syntax.y'
-    )
-    env.NoClean(parser)
-
-# Sources to generate the library
-source_files=[
-    'History.cc',
-    'VirtualMachine.cc',
-    'vm_var_parser.c',
-    'vm_var_syntax.cc',
-    'VirtualMachinePool.cc',
-    'VirtualMachineHook.cc',
-    'VirtualMachineTemplate.cc'
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)
+    def up
+        return true
+    end
+end
