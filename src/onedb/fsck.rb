@@ -20,12 +20,14 @@ require 'ipaddr'
 require 'set'
 
 module OneDBFsck
+    VERSION = "4.0.0"
+
     def db_version
-        "4.0.0"
+        VERSION
     end
 
     def one_version
-        "OpenNebula 4.0.0"
+        "OpenNebula #{VERSION}"
     end
 
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
