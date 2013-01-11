@@ -2,7 +2,7 @@
 
 FLAVOR="#FLAVOR#"
 
-case "$FLAVOR" in;
+case "$FLAVOR" in
 debian)
     SUNSTONE_PLUGINS=/etc/one/sunstone-plugins.yaml
     SUNSTONE_SERVER=/etc/one/sunstone-server.conf
