@@ -3,7 +3,7 @@
 SUNSTONE_PLUGINS=/etc/one/sunstone-plugins.yaml
 SUNSTONE_SERVER=/etc/one/sunstone-server.conf
 OPENNEBULA_JS=/usr/lib/one/sunstone/public/js/opennebula.js
-OPENNEBULA_JS_NEW=/usr/share/one/oneapps/sunstone/public/js/opennebula.js
+OPENNEBULA_JS_NEW=/usr/share/one/oneapps/public/js/opennebula.js
 SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
 APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
 
