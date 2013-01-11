@@ -15,16 +15,17 @@
 
 usage() {
  echo
- echo "Usage: install.sh [-u install_user] [-g install_group]"
+ echo "Usage: install.sh [-u install_user] [-g install_group] [-f flavour]"
  echo "                  [-d ONE_LOCATION] [-l] [-h]"
  echo
+ echo "-f: distribution, debian or other"
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
  echo "-l: creates symlinks instead of copying files, useful for development"
  echo "-h: prints this help"
 }
 
-TEMP_OPT=`getopt -o hlu:g:d: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o hlu:g:d:f: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -37,6 +38,7 @@ LINK="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
+FLAVOR="other"
 
 while true ; do
     case "$1" in
@@ -45,18 +47,33 @@ while true ; do
         -l) LINK="yes" ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
+        -f) FLAVOR="$2"; shift 2;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
     esac
 done
 
+echo $FLAVOR
+
 if [ -z "$ROOT" ]; then
-    LIB_LOCATION="/usr/lib/one/ruby/oneapps"
-    BIN_LOCATION="/usr/bin"
-    PACKAGES_LOCATION="/usr/share/one/oneapps"
-    SHARE_LOCATION="/usr/share/one/oneapps"
-    ETC_LOCATION="/etc/one"
-    SUNSTONE_LOCATION="/usr/lib/one/sunstone"
+    case "$FLAVOR" in
+    "debian")
+        LIB_LOCATION="/usr/lib/one/ruby/oneapps"
+        BIN_LOCATION="/usr/bin"
+        PACKAGES_LOCATION="/usr/share/opennebula/oneapps"
+        SHARE_LOCATION="/usr/share/opennebula/oneapps"
+        ETC_LOCATION="/etc/one"
+        SUNSTONE_LOCATION="/usr/share/opennebula/sunstone"
+        ;;
+    *)
+        LIB_LOCATION="/usr/lib/one/ruby/oneapps"
+        BIN_LOCATION="/usr/bin"
+        PACKAGES_LOCATION="/usr/share/one/oneapps"
+        SHARE_LOCATION="/usr/share/one/oneapps"
+        ETC_LOCATION="/etc/one"
+        SUNSTONE_LOCATION="/usr/lib/one/sunstone"
+        ;;
+    esac
 else
     LIB_LOCATION="$ROOT/lib/ruby/oneapps"
     BIN_LOCATION="$ROOT/bin"

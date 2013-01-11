@@ -1,11 +1,26 @@
 #!/bin/bash
 
-SUNSTONE_PLUGINS=/etc/one/sunstone-plugins.yaml
-SUNSTONE_SERVER=/etc/one/sunstone-server.conf
-OPENNEBULA_JS=/usr/lib/one/sunstone/public/js/opennebula.js
-OPENNEBULA_JS_NEW=/usr/share/one/oneapps/public/js/opennebula.js
-SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
-APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
+FLAVOR="#FLAVOR#"
+
+case "$FLAVOR" in;
+debian)
+    SUNSTONE_PLUGINS=/etc/one/sunstone-plugins.yaml
+    SUNSTONE_SERVER=/etc/one/sunstone-server.conf
+    OPENNEBULA_JS=/usr/share/opennebula/sunstone/public/js/opennebula.js
+    OPENNEBULA_JS_NEW=/usr/share/opennebula/oneapps/public/js/opennebula.js
+    SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
+    APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
+    ;;
+
+*)
+    SUNSTONE_PLUGINS=/etc/one/sunstone-plugins.yaml
+    SUNSTONE_SERVER=/etc/one/sunstone-server.conf
+    OPENNEBULA_JS=/usr/lib/one/sunstone/public/js/opennebula.js
+    OPENNEBULA_JS_NEW=/usr/share/one/oneapps/public/js/opennebula.js
+    SUNSTONE_AUTH="/var/lib/one/.one/sunstone_auth"
+    APPFLOW_AUTH="/var/lib/one/.one/appflow_auth"
+    ;;
+esac
 
 function print_install_message() {
 cat <<EOT
