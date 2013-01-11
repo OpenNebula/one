@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-VERSION=${VERSION:-3.8.2}
+VERSION=${VERSION:-3.8.3}
 MAINTAINER=${MAINTAINER:-C12G Labs <support@c12g.com>}
 LICENSE=${LICENSE:-Apache}
 PACKAGE_NAME=${PACKAGE_NAME:-oneapps}
