@@ -20,12 +20,14 @@ require 'ipaddr'
 require 'set'
 
 module OneDBFsck
+    VERSION = "3.8.2"
+
     def db_version
-        "3.8.2"
+        VERSION
     end
 
     def one_version
-        "OpenNebula 3.8.2"
+        "OpenNebula #{VERSION}"
     end
 
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -563,7 +565,7 @@ module OneDBFsck
 
             doc.root.each_element("CLONING_ID") do |e|
                 img_id = e.text.to_i
-                
+
                 cloning_ops[img_id] = [] if cloning_ops[img_id].nil?
 
                 cloning_ops[img_id] << row[:oid]
@@ -691,7 +693,7 @@ module OneDBFsck
             }
 
 
-            # re-do list of VM IDs 
+            # re-do list of VM IDs
             vms_elem = host_doc.root.elements.delete("VMS")
 
             vms_new_elem = host_doc.root.add_element("VMS")
@@ -773,7 +775,7 @@ module OneDBFsck
                 end
             }
 
-            # re-do list of VM IDs 
+            # re-do list of VM IDs
             vms_elem = doc.root.elements.delete("VMS")
 
             vms_new_elem = doc.root.add_element("VMS")
