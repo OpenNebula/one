@@ -17,6 +17,8 @@
 require "scripts_common"
 require 'yaml'
 require "CommandManager"
+require 'rexml/document'
+include REXML
 
 class VMwareDriver
     # -------------------------------------------------------------------------#
@@ -25,13 +27,13 @@ class VMwareDriver
     ONE_LOCATION = ENV["ONE_LOCATION"]
 
     if !ONE_LOCATION
-       BIN_LOCATION = "/usr/bin" 
+       BIN_LOCATION = "/usr/bin"
        LIB_LOCATION = "/usr/lib/one"
-       ETC_LOCATION = "/etc/one/" 
+       ETC_LOCATION = "/etc/one/"
        VAR_LOCATION = "/var/lib/one"
     else
        LIB_LOCATION = ONE_LOCATION + "/lib"
-       BIN_LOCATION = ONE_LOCATION + "/bin" 
+       BIN_LOCATION = ONE_LOCATION + "/bin"
        ETC_LOCATION = ONE_LOCATION  + "/etc/"
        VAR_LOCATION = ONE_LOCATION + "/var/"
     end
@@ -46,8 +48,9 @@ class VMwareDriver
 
     def initialize(host)
        conf  = YAML::load(File.read(CONF_FILE))
-       
+
        @uri  = conf[:libvirt_uri].gsub!('@HOST@', host)
+       @host = host
 
        @user = conf[:username]
        if conf[:password] and !conf[:password].empty?
@@ -134,14 +137,14 @@ class VMwareDriver
     def migrate(deploy_id, dst_host, src_host)
         src_url  = "vpx://#{@vcenter}/#{@datacenter}/#{src_host}/?no_verify=1"
         dst_url  = "vpx://#{@vcenter}/#{@datacenter}/#{dst_host}/?no_verify=1"
-         
+
         mgr_cmd  = "-r virsh -c #{src_url} migrate #{deploy_id} #{dst_url}"
 
         rc, info = do_action(mgr_cmd)
 
         exit info if rc == false
     end
-    
+
     # ------------------------------------------------------------------------ #
     # Monitor a VM                                                             #
     # ------------------------------------------------------------------------ #
@@ -180,7 +183,9 @@ class VMwareDriver
     # ------------------------------------------------------------------------ #
     def restore(checkpoint)
         begin
-            vm_folder=VAR_LOCATION + "/vms/" + File.basename(File.dirname(checkpoint))
+            vm_folder=VAR_LOCATION <<
+                      "/vms/" <<
+                      File.basename(File.dirname(checkpoint))
             dfile=`ls -1 #{vm_folder}/deployment*|tail -1`
             dfile.strip!
         rescue => e
@@ -193,7 +198,7 @@ class VMwareDriver
         exit(-1) if deploy_id.nil?
 
         # Revert snapshot VM
-        # Note: This assumes the checkpoint name is "checkpoint", to change 
+        # Note: This assumes the checkpoint name is "checkpoint", to change
         # this it is needed to change also [1]
         #
         # [1] $ONE_LOCATION/lib/remotes/vmm/vmware/checkpoint
@@ -206,7 +211,7 @@ class VMwareDriver
         # Delete checkpoint
         rc, info = do_action(
             "virsh -c #{@uri} snapshot-delete #{deploy_id} checkpoint")
-       
+
         OpenNebula.log_error("Could not delete snapshot") if rc == false
     end
 
@@ -245,7 +250,7 @@ class VMwareDriver
 
             sleep SHUTDOWN_INTERVAL
 
-            counter = counter + SHUTDOWN_INTERVAL 
+            counter = counter + SHUTDOWN_INTERVAL
         end while info.match(deploy_id) and counter < SHUTDOWN_TIMEOUT
 
         if counter >= SHUTDOWN_TIMEOUT
@@ -268,7 +273,7 @@ class VMwareDriver
         cmd = "#{BIN_LOCATION}/tty_expect -u #{@user} -p #{@pass} #{command}"
     end
 
-    #Performs a action usgin libvirt
+    #Performs a action usign libvirt
     def do_action(cmd, log=true)
         rc = LocalCommand.run(esx_cmd(cmd))
 
@@ -276,6 +281,20 @@ class VMwareDriver
             return [true, rc.stdout]
         else
             err = "Error executing: #{cmd} err: #{rc.stderr} out: #{rc.stdout}"
+            OpenNebula.log_error(err) if log
+            return [false, rc.code]
+        end
+    end
+
+    #Performs a remote action using ssh
+    def do_ssh_action(cmd, log=true)
+        rc = SSHCommand.run("'#{cmd}'", @host)
+
+        if rc.code == 0
+            return [true, rc.stdout]
+        else
+            err = "Error executing: #{cmd} on host: #{@host} " <<
+                  "err: #{rc.stderr} out: #{rc.stdout}"
             OpenNebula.log_error(err) if log
             return [false, rc.code]
         end
@@ -309,8 +328,37 @@ class VMwareDriver
                 break
             end
         }
-        
+
         deploy_id.strip!
+
+        dfile_hash = Document.new(File.open(dfile).read)
+        metadata   = XPath.first(dfile_hash, "//metadata")
+
+        if metadata
+            # Get the ds_id for system_ds from the first disk
+            metadata = metadata.text
+            disk   = XPath.first(dfile_hash, "//disk").text
+            source = XPath.first(dfile_hash, "//disk/source").attributes['file']
+            ds_id  = source.match(/^\[(.*)\](.*)/)[1]
+
+            name   = XPath.first(dfile_hash, "//name").text
+            vm_id  = name.match(/^one-(.*)/)[1]
+
+            # Reconstruct path to vmx
+            path_to_vmx = "/vmfs/volumes/#{ds_id}/#{vm_id}/disk.0/#{name}.vmx"
+
+            # Create temp file with metadata
+            File.open("/tmp/one-tmp-file", 'w') {|f|
+                f.write(metadata.gsub("\\n","\n"))
+            }
+
+            `scp /tmp/one-tmp-file #{@host}:/tmp`
+
+            # Add metadata to .vmx file
+            cmd = "cat /tmp/one-tmp-file >> #{path_to_vmx}"
+            do_ssh_action(cmd)
+        end
+
 
         return deploy_id
     end

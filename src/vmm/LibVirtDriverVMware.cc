@@ -77,6 +77,7 @@ int LibVirtDriver::deployment_description_vmware(
     const VectorAttribute * raw;
     string data;
     string default_raw;
+    string data_vmx;
 
     // ------------------------------------------------------------------------
 
@@ -447,6 +448,9 @@ int LibVirtDriver::deployment_description_vmware(
         {
             data = raw->vector_value("DATA");
             file << "\t" << data << endl;
+
+            data_vmx = raw->vector_value("DATA_VMX");
+            file << "\t<metadata>" << data_vmx << "</metadata>" << endl;
         }
     }
 
