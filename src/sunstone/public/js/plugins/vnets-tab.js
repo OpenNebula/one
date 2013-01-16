@@ -355,6 +355,17 @@ var vnet_actions = {
         notify: true
     },
 
+    "Network.rename" : {
+        type: "single",
+        call: OpenNebula.Network.rename,
+        callback: function(request) {
+            notifyMessage("VirtualNetwork renamed correctly");
+            Sunstone.runAction('Network.showinfo',request.request.data[0]);
+        },
+        error: onError,
+        notify: true
+    },
+
     "Network.fetch_permissions" : {
         type: "single",
         call: OpenNebula.Network.show,
@@ -610,20 +621,22 @@ function updateVNetworkInfo(request,vn){
     };
 
     $("#div_edit_link").die();
-    $(".input_edit_value").die();
+    $(".div_edit_rename_link").die();
 
     // Listener for key,value pair edit action
-    $("#div_edit_link").live("click", function() {
-        var value_str = $("#value_td_rename").text();
-        $("#value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
-
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
     });
 
-    $(".input_edit_value").live("change", function() {
-        var value_str = $("#value_td_rename").text();
-
-        // Let OpenNebula know
-        Sunstone.runAction("Network.rename",vn_info.ID,$("#input_edit_rename").val());
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        console.log(this);
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            Sunstone.runAction("Network.rename",vn_info.ID,value_str);
+        }
     });
 
 

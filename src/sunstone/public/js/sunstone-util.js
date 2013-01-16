@@ -1272,14 +1272,15 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
                       tr("Extended Template") +
                      '</th>\
                    </tr>\
-                  </thead>' + fromJSONtoHTMLTable(template_json,
-                                                  resource_type,
-                                                  resource_id) +
-                 '<tr>\
+                  </thead>\
+                  <tr>\
                     <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
                     <td class="value_td"><input type="text" name="new_value" id="new_value" /></td>\
-                  </tr>\
-                </table>'
+                    <td class=""><button id="button_add_value">'+tr("Add")+'</button>\</td>\
+                  </tr>' + fromJSONtoHTMLTable(template_json,
+                                               resource_type,
+                                               resource_id) +
+                 '</table>'
 
     // Remove previous listeners
     $("#new_key").die();
@@ -1287,32 +1288,20 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
     $("#div_minus").die();
     $("#div_edit").die();
     $(".input_edit_value").die();
+    $("button").die();
 
     // Add listener for add key and add value for Extended Template
-    $("#new_key").live("change", function() {
-      if ( $('#new_value').val() != "" )
-      {
-        template_json[$('#new_key').val()] = $('#new_value').val();
+    $('button').live("click", function() {
+        if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
+        {
+            template_json[$('#new_key').val()] = $('#new_value').val();
 
-        var template_str = "";
-        for(var key in template_json)
-            template_str=template_str+key+"="+ template_json[key]+"\n";
+            var template_str = "";
+            for(var key in template_json)
+                template_str=template_str+key+"="+ template_json[key]+"\n";
 
-        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
-      }
-    });
-
-    $("#new_value").live("change", function() {
-      if ( $('#new_key').val() != "" )
-      {
-        template_json[$('#new_key').val()] = $('#new_value').val();
-
-        var template_str = "";
-        for(var key in template_json)
-            template_str=template_str+key+"="+ template_json[key]+"\n";
-
-        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
-      }
+            Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+        }
     });
 
     // Listener for key,value pair remove action
@@ -1391,22 +1380,24 @@ function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
     var str="";
 
     if (typeof value == 'object'){
-        //name of field row
-        str += '<tr>\
-                  <td class="key_td">'+tr(field)+'</td>\
-                  <td class="value_td"></td>\
-                  <td class="value_td"></td>\
-                </tr>';
-        //attributes rows
-        //empty row - prettyprint - empty row
-        str += '<tr>\
-                  <td class="key_td" style="border-bottom:0"></td>\
-                  <td class="value_td" style="border-bottom:0"></td>\
-                </tr>' + fromJSONtoHTMLTable(value) +
-                '<tr>\
-                  <td class="key_td"></td>\
-                  <td class="value_td"></td>\
-               </tr>';
+
+        for(var key in value){
+
+            str += '<tr>\
+                      <td class="key_td">'+tr(field)+'</td>\
+                      <td class="value_td" id="value_td_input_'+tr(field)+'">'+value[key]+'</td>\
+                      <td><div id="div_edit">\
+                             <a id="div_edit_'+tr(field)+'" class="edit_e" href="#">e</a>\
+                          </div>\
+                      </td>\
+                      <td><div id="div_minus">\
+                             <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
+                          </div>\
+                      </td>\
+                    </tr>';
+
+        };
+
     } else {
         str += '<tr>\
                   <td class="key_td">'+tr(field)+'</td>\
