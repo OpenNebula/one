@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
+require 'opennebula'
 require 'ipaddr'
 
 include OpenNebula

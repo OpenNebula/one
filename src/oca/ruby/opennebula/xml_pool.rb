@@ -14,29 +14,32 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula'
-include OpenNebula
-
-require 'OpenNebulaJSON/GroupJSON'
-require 'OpenNebulaJSON/HostJSON'
-require 'OpenNebulaJSON/ClusterJSON'
-require 'OpenNebulaJSON/ImageJSON'
-require 'OpenNebulaJSON/TemplateJSON'
-require 'OpenNebulaJSON/JSONUtils'
-require 'OpenNebulaJSON/PoolJSON'
-require 'OpenNebulaJSON/UserJSON'
-require 'OpenNebulaJSON/VirtualMachineJSON'
-require 'OpenNebulaJSON/VirtualNetworkJSON'
-require 'OpenNebulaJSON/AclJSON'
-require 'OpenNebulaJSON/DatastoreJSON'
+require 'opennebula/xml_element'
 
 module OpenNebula
-    class Error
-        def to_json
-            message = { :message => @message }
-            error_hash = { :error => message }
+    # The XMLUtilsPool module provides an abstraction of the underlying
+    # XML parser engine. It provides XML-related methods for the Pools
+    class XMLPool < XMLElement
 
-            return JSON.pretty_generate error_hash
+        def initialize(xml=nil)
+            super(xml)
+        end
+
+        #Executes the given block for each element of the Pool
+        #block:: _Block_
+        def each_element(block)
+            if NOKOGIRI
+                @xml.xpath(
+                    "#{@element_name}").each {|pelem|
+                    block.call self.factory(pelem)
+                }
+            else
+                @xml.elements.each(
+                    "#{@element_name}") {|pelem|
+                    block.call self.factory(pelem)
+                }
+            end
         end
     end
+
 end

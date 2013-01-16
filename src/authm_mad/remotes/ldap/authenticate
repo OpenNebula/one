@@ -29,7 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'yaml'
-require 'ldap_auth'
+require 'opennebula/ldap_auth'
 require 'uri'
 
 if defined?(URI::Parser)
@@ -66,7 +66,7 @@ order.each do |server_name|
     end
 
 begin
-    ldap=LdapAuth.new(server_conf)
+    ldap=OpenNebula::LdapAuth.new(server_conf)
 
     user_name=ldap.find_user(user)
 

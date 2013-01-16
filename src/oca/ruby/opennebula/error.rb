@@ -15,39 +15,38 @@
 #--------------------------------------------------------------------------- #
 
 
-require 'OpenNebula/Pool'
-
 module OpenNebula
-    class UserPool < Pool
-        #######################################################################
-        # Constants and Class attribute accessors
-        #######################################################################
+    # The Error Class represents a generic error in the OpenNebula
+    # library. It contains a readable representation of the error.
+    # Any function in the OpenNebula module will return an Error
+    # object in case of error.
+    class Error
+        ESUCCESS        = 0x0000
+        EAUTHENTICATION = 0x0100
+        EAUTHORIZATION  = 0x0200
+        ENO_EXISTS      = 0x0400
+        EACTION         = 0x0800
+        EXML_RPC_API    = 0x1000
+        EINTERNAL       = 0x2000
+        ENOTDEFINED     = 0x1111
 
-        USER_POOL_METHODS = {
-            :info => "userpool.info"
-        }
+        attr_reader :message, :errno
 
-        #######################################################################
-        # Class constructor & Pool Methods
-        #######################################################################
-
-        # +client+ a Client object that represents a XML-RPC connection
-        def initialize(client)
-            super('USER_POOL','USER',client)
+        # +message+ Description of the error
+        # +errno+   OpenNebula code error
+        def initialize(message=nil, errno=0x1111)
+            @message = message
+            @errno   = errno
         end
 
-        # Factory method to create User objects
-        def factory(element_xml)
-            OpenNebula::User.new(element_xml,@client)
+        def to_str()
+            @message
         end
+    end
 
-        #######################################################################
-        # XML-RPC Methods for the User Object
-        #######################################################################
-
-        # Retrieves all the Users in the pool.
-        def info()
-            super(USER_POOL_METHODS[:info])
-        end
+    # Returns true if the object returned by a method of the OpenNebula
+    # library is an Error
+    def self.is_error?(value)
+        value.class==OpenNebula::Error
     end
 end

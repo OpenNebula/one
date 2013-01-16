@@ -14,82 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
-begin # require 'rubygems'
-    require 'rubygems'
-rescue Exception
-end
-
 require 'xmlrpc/client'
-require 'digest/sha1'
-require 'rexml/document'
-require 'pp'
-
-require 'OpenNebula/XMLUtils'
-require 'OpenNebula/VirtualMachine'
-require 'OpenNebula/VirtualMachinePool'
-require 'OpenNebula/VirtualNetwork'
-require 'OpenNebula/VirtualNetworkPool'
-require 'OpenNebula/Image'
-require 'OpenNebula/ImagePool'
-require 'OpenNebula/User'
-require 'OpenNebula/UserPool'
-require 'OpenNebula/Host'
-require 'OpenNebula/HostPool'
-require 'OpenNebula/Template'
-require 'OpenNebula/TemplatePool'
-require 'OpenNebula/Group'
-require 'OpenNebula/GroupPool'
-require 'OpenNebula/Acl'
-require 'OpenNebula/AclPool'
-require 'OpenNebula/Datastore'
-require 'OpenNebula/DatastorePool'
-require 'OpenNebula/Cluster'
-require 'OpenNebula/ClusterPool'
-require 'OpenNebula/Document'
-require 'OpenNebula/DocumentPool'
-require 'OpenNebula/System'
 
 module OpenNebula
-
-    # OpenNebula version
-    VERSION = '3.9.0'
-
-    # The Error Class represents a generic error in the OpenNebula
-    # library. It contains a readable representation of the error.
-    # Any function in the OpenNebula module will return an Error
-    # object in case of error.
-    class Error
-        ESUCCESS        = 0x0000
-        EAUTHENTICATION = 0x0100
-        EAUTHORIZATION  = 0x0200
-        ENO_EXISTS      = 0x0400
-        EACTION         = 0x0800
-        EXML_RPC_API    = 0x1000
-        EINTERNAL       = 0x2000
-        ENOTDEFINED     = 0x1111
-
-        attr_reader :message, :errno
-
-        # +message+ Description of the error
-        # +errno+   OpenNebula code error
-        def initialize(message=nil, errno=0x1111)
-            @message = message
-            @errno   = errno
-        end
-
-        def to_str()
-            @message
-        end
-    end
-
-    # Returns true if the object returned by a method of the OpenNebula
-    # library is an Error
-    def self.is_error?(value)
-        value.class==OpenNebula::Error
-    end
-
-
     if OpenNebula::NOKOGIRI
         class NokogiriStreamParser < XMLRPC::XMLParser::AbstractStreamParser
             def initialize
@@ -111,7 +38,6 @@ module OpenNebula
             end
         end
     end
-
 
     # The client class, represents the connection with the core and handles the
     # xml-rpc calls.

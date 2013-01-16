@@ -28,7 +28,7 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'ssh_auth'
+require 'opennebula/ssh_auth'
 require 'scripts_common'
 
 user   = ARGV[0]
@@ -37,7 +37,7 @@ secret = ARGV[2]
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 begin
-    ssh_auth = SshAuth.new(:public_key=>pass)
+    ssh_auth = OpenNebula::SshAuth.new(:public_key=>pass)
 rescue Exception => e
     OpenNebula.error_message e.message
     exit -1

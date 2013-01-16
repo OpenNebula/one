@@ -16,21 +16,6 @@
 
 
 module OpenNebula
-
-    begin
-        require 'nokogiri'
-        NOKOGIRI=true
-    rescue LoadError
-        NOKOGIRI=false
-    end
-
-    begin
-        require 'rexml/formatters/pretty'
-        REXML_FORMATTERS=true
-    rescue LoadError
-        REXML_FORMATTERS=false
-    end
-
     # The XMLElement class provides an abstraction of the underlying
     # XML parser engine. It provides XML-related methods for the Pool and
     # PoolElement classes

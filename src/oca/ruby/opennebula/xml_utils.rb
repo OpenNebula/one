@@ -14,29 +14,21 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula'
-include OpenNebula
-
-require 'OpenNebulaJSON/GroupJSON'
-require 'OpenNebulaJSON/HostJSON'
-require 'OpenNebulaJSON/ClusterJSON'
-require 'OpenNebulaJSON/ImageJSON'
-require 'OpenNebulaJSON/TemplateJSON'
-require 'OpenNebulaJSON/JSONUtils'
-require 'OpenNebulaJSON/PoolJSON'
-require 'OpenNebulaJSON/UserJSON'
-require 'OpenNebulaJSON/VirtualMachineJSON'
-require 'OpenNebulaJSON/VirtualNetworkJSON'
-require 'OpenNebulaJSON/AclJSON'
-require 'OpenNebulaJSON/DatastoreJSON'
+require 'opennebula/xml_pool'
 
 module OpenNebula
-    class Error
-        def to_json
-            message = { :message => @message }
-            error_hash = { :error => message }
 
-            return JSON.pretty_generate error_hash
-        end
+    begin
+        require 'nokogiri'
+        NOKOGIRI=true
+    rescue LoadError
+        NOKOGIRI=false
+    end
+
+    begin
+        require 'rexml/formatters/pretty'
+        REXML_FORMATTERS=true
+    rescue LoadError
+        REXML_FORMATTERS=false
     end
 end

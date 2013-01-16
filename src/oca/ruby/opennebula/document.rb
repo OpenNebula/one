@@ -14,14 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula/Pool'
+require 'opennebula/pool_element'
 
 module OpenNebula
 
     # All subclasses must define the DOCUMENT_TYPE constant.
     #
     # @example
-    #   require 'OpenNebula/Document'
+    #   require 'opennebula/document'
     #
     #   module OpenNebula
     #       class CustomObject < Document

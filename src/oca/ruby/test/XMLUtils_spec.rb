@@ -2,7 +2,7 @@ $: << '..'
 
 
 require 'rexml/document'
-require 'OpenNebula/XMLUtils'
+require 'opennebula/XMLUtils'
 
     shared_examples "modifying XML" do
         it "add a new element '.', 'B2' => 'bdos'" do

@@ -17,7 +17,9 @@
 require 'rubygems'
 require 'net/ldap'
 
-class LdapAuth
+module OpenNebula; end
+
+class OpenNebula::LdapAuth
     def initialize(options)
         @options={
             :host => 'localhost',

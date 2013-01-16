@@ -14,29 +14,45 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula'
-include OpenNebula
 
-require 'OpenNebulaJSON/GroupJSON'
-require 'OpenNebulaJSON/HostJSON'
-require 'OpenNebulaJSON/ClusterJSON'
-require 'OpenNebulaJSON/ImageJSON'
-require 'OpenNebulaJSON/TemplateJSON'
-require 'OpenNebulaJSON/JSONUtils'
-require 'OpenNebulaJSON/PoolJSON'
-require 'OpenNebulaJSON/UserJSON'
-require 'OpenNebulaJSON/VirtualMachineJSON'
-require 'OpenNebulaJSON/VirtualNetworkJSON'
-require 'OpenNebulaJSON/AclJSON'
-require 'OpenNebulaJSON/DatastoreJSON'
+begin # require 'rubygems'
+    require 'rubygems'
+rescue Exception
+end
+
+require 'digest/sha1'
+require 'rexml/document'
+require 'pp'
+
+require 'opennebula/xml_utils'
+require 'opennebula/client'
+require 'opennebula/error'
+require 'opennebula/virtual_machine'
+require 'opennebula/virtual_machine_pool'
+require 'opennebula/virtual_network'
+require 'opennebula/virtual_network_pool'
+require 'opennebula/image'
+require 'opennebula/image_pool'
+require 'opennebula/user'
+require 'opennebula/user_pool'
+require 'opennebula/host'
+require 'opennebula/host_pool'
+require 'opennebula/template'
+require 'opennebula/template_pool'
+require 'opennebula/group'
+require 'opennebula/group_pool'
+require 'opennebula/acl'
+require 'opennebula/acl_pool'
+require 'opennebula/datastore'
+require 'opennebula/datastore_pool'
+require 'opennebula/cluster'
+require 'opennebula/cluster_pool'
+require 'opennebula/document'
+require 'opennebula/document_pool'
+require 'opennebula/system'
 
 module OpenNebula
-    class Error
-        def to_json
-            message = { :message => @message }
-            error_hash = { :error => message }
 
-            return JSON.pretty_generate error_hash
-        end
-    end
+    # OpenNebula version
+    VERSION = '3.9.0'
 end

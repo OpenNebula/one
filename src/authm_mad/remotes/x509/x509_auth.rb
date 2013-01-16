@@ -19,10 +19,12 @@ require 'base64'
 require 'fileutils'
 require 'yaml'
 
+module OpenNebula; end
+
 # X509 authentication class. It can be used as a driver for auth_mad
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
-class X509Auth
+class OpenNebula::X509Auth
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################

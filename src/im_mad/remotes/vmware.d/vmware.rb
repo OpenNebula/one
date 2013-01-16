@@ -41,7 +41,7 @@ ENV['LANG'] = 'C'
 require "scripts_common"
 require 'yaml'
 require "CommandManager"
-require 'OpenNebula'
+require 'opennebula'
 include OpenNebula
 
 begin
