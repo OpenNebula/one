@@ -569,7 +569,7 @@ bool Template::trim(const string& name)
         return false;
     }
 
-    replace("NAME", st.substr( 0, st.find_last_not_of(" \f\n\r\t\v") + 1 ) );
+    replace(name, st.substr( 0, st.find_last_not_of(" \f\n\r\t\v") + 1 ) );
 
     return true;
 }
