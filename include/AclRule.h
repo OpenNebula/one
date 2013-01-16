@@ -40,6 +40,8 @@ public:
     static const long long GROUP_ID;
 
     static const long long ALL_ID;
+
+    static const long long CLUSTER_ID;
     // ------------------------------------------------------------------------
 
     /**

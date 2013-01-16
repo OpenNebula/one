@@ -17,6 +17,7 @@
 #include "PoolObjectSQL.h"
 #include "PoolObjectAuth.h"
 #include "SSLTools.h"
+#include "Clusterable.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -260,6 +261,13 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     auth.other_u = other_u;
     auth.other_m = other_m;
     auth.other_a = other_a;
+
+    Clusterable* cl = dynamic_cast<Clusterable*>(this);
+
+    if(cl != 0)
+    {
+        auth.cid = cl->get_cluster_id();
+    }
 }
 
 /* -------------------------------------------------------------------------- */

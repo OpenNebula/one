@@ -179,10 +179,12 @@ private:
      *    @param user_req user/group id and flags
      *    @param resource_oid_req 64 bit request, ob. type and individual oid
      *    @param resource_gid_req 64 bit request, ob. type and group id
+     *    @param resource_cid_req 64 bit request, ob. type and cluster id
      *    @param resource_all_req 64 bit request, ob. type and all flag
      *    @param rights_req Requested rights
      *    @param individual_obj_type Mask with ob. type and individual flags
      *    @param group_obj_type Mask with ob. type and group flags
+     *    @param cluster_obj_type Mask with ob. type and cluster flags
      *    @param rules ACL rules to match
      *
      *    @return true if any rule grants permission
@@ -191,10 +193,12 @@ private:
             long long user_req,
             long long resource_oid_req,
             long long resource_gid_req,
+            long long resource_cid_req,
             long long resource_all_req,
             long long rights_req,
             long long individual_obj_type,
             long long group_obj_type,
+            long long cluster_obj_type,
             multimap<long long, AclRule*> &rules);
 
     /**
@@ -204,10 +208,12 @@ private:
      *    @param user_req user/group id and flags
      *    @param resource_oid_req 64 bit request, ob. type and individual oid
      *    @param resource_gid_req 64 bit request, ob. type and group id
+     *    @param resource_cid_req 64 bit request, ob. type and cluster id
      *    @param resource_all_req 64 bit request, ob. type and all flag
      *    @param rights_req Requested rights
      *    @param individual_obj_type Mask with ob. type and individual flags
      *    @param group_obj_type Mask with ob. type and group flags
+     *    @param cluster_obj_type Mask with ob. type and cluster flags
      *    @param tmp_rules Temporary map group of ACL rules
      *
      *    @return true if any rule grants permission
@@ -216,10 +222,12 @@ private:
             long long user_req,
             long long resource_oid_req,
             long long resource_gid_req,
+            long long resource_cid_req,
             long long resource_all_req,
             long long rights_req,
             long long individual_obj_type,
             long long group_obj_type,
+            long long cluster_obj_type,
             multimap<long long, AclRule*> &tmp_rules);
 
     /**
