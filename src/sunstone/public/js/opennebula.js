@@ -140,7 +140,7 @@ var OpenNebula = {
 
         "image_type": function(value)
         {
-            return ["OS", "CDROM", "DATABLOCK"][value];
+            return ["OS", "CDROM", "DATABLOCK", "KERNEL", "RAMDISK", "CONTEXT"][value];
         },
 
         "action": function(action, params)

@@ -84,7 +84,9 @@ var create_image_tmpl =
                  <select name="img_type" id="img_type">\
                       <option value="OS">'+tr("OS")+'</option>\
                       <option value="CDROM">'+tr("CD-ROM")+'</option>\
-                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
+                      <option value="KERNEL">'+tr("Kernel")+'</option>\
+                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
+                      <option value="CONTEXT">'+tr("Context")+'</option>\
                  </select>\
                  <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
                </div>\
@@ -544,6 +546,9 @@ function imageElementArray(image_json){
                       <option value="OS">'+tr("OS")+'</option>\
                       <option value="CDROM">'+tr("CD-ROM")+'</option>\
                       <option value="DATABLOCK">'+tr("Datablock")+'</option>\
+                      <option value="KERNEL">'+tr("Kernel")+'</option>\
+                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
+                      <option value="CONTEXT">'+tr("Context")+'</option>\
                  </select>');
 
     var value = OpenNebula.Helper.image_type(image.TYPE);
