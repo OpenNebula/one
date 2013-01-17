@@ -93,6 +93,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~HostUpdateTemplate(){};
