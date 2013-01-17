@@ -42,8 +42,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
     main do
         filter_flag = (options[:user] || VirtualMachinePool::INFO_ALL)
-        start_time  = options[:start] ? options[:start].to_i : -1
-        end_time    = options[:end] ? options[:end].to_i : -1
+        start_time  = options[:start_time] ? options[:start_time].to_i : -1
+        end_time    = options[:end_time] ? options[:end_time].to_i : -1
 
         common_opts = {
             :start_time => start_time,
