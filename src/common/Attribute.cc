@@ -219,7 +219,7 @@ string VectorAttribute::vector_value(const char *name) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VectorAttribute::vector_value(const char *name, bool & value) const
+int VectorAttribute::vector_value(const char *name, bool& value) const
 {
     map<string,string>::const_iterator it;
 

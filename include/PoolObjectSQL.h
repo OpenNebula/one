@@ -110,7 +110,7 @@ public:
              other_u(0),
              other_m(0),
              other_a(0),
-             obj_template(0), 
+             obj_template(0),
              table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -164,7 +164,7 @@ public:
     {
         return gname;
     };
-    
+
     /**
      * Changes the object's owner
      * @param _uid New User ID
@@ -345,6 +345,21 @@ public:
     bool get_template_attribute(
         const char *    name,
         float&          value) const
+    {
+        return obj_template->get(name,value);
+    }
+
+    /**
+     *  Gets a boolean attribute (single) (YES = true)
+     *    @param name of the attribute
+     *    @param value of the attribute (True if "YES", false otherwise)
+     *
+     *    @return True if the Single attribute was found and is a valid boolean
+     *    value
+     */
+    bool get_template_attribute(
+        const char *    name,
+        bool&           value) const
     {
         return obj_template->get(name,value);
     }

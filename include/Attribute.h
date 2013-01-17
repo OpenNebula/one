@@ -348,6 +348,35 @@ public:
     }
 
     /**
+     *  Replace the value of the given vector attribute
+     */
+    void replace(const string& name, const char* value)
+    {
+        string svalue(value);
+
+        replace(name, svalue);
+    }
+
+    /**
+     *  Replace the value of the given vector attribute
+     */
+    void replace(const string& name, bool value)
+    {
+        string b_value;
+
+        if (value == true)
+        {
+            b_value = "YES";
+        }
+        else
+        {
+            b_value = "NO";
+        }
+
+        replace(name, b_value);
+    }
+
+    /**
      * Removes given the vector attribute
      * @param name of the vector attribute
      */
