@@ -186,66 +186,15 @@ form.create_form{
     margin:0;
     padding:0;}
 
-fieldset{
-    margin:0 0;
-    border:none;
-    border-top:1px solid #ccc;
-    padding: 10px 5px;}
 
-fieldset div{
-    margin-bottom:.5em;
-    padding:0;
-    display:block;
-}
-
-
-fieldset input,
-fieldset textarea{
-    width:180px;
-    /*border-top:1px solid #555;
-      border-left:1px solid #555;
-      border-bottom:1px solid #ccc;
-      border-right:1px solid #ccc;*/
-    padding:1px;color:#333;
-    vertical-align: top;
-    margin: 0 2px;
-    margin-bottom: 4px;
-}
-
-fieldset select{
-    width:184px;
-    /*border-top:1px solid #555;
-      border-left:1px solid #555;
-      border-bottom:1px solid #ccc;
-      border-right:1px solid #ccc;*/
-    padding:1px;
-    color:#333;
-    vertical-align: top;
-    margin: 0 2px;
-    margin-bottom: 4px;
-}
 
 /*Chrome hack*/
 input[type="radio"],input[type="checkbox"] {
     width:20px;
 }
 
-legend{
-    margin-top:0;
-    margin-bottom: 5px;
-    padding:0 .5em;
-    color:#036;
-    background:transparent;
-    font-size:1.0em;
-    font-weight:bold;
-}
 
-label{
-    float: left;
-    width:120px;
-    padding:0 1em;
-    text-align:left;
-}
+
 
 .dataTables_wrapper {
     min-height: 0;
@@ -307,9 +256,7 @@ div.show_hide {
     clear:both;
 }
 
-.vm_param label{
-    float:left;
-}
+
 
 fieldset div.vm_section {
     margin-top:-8px;
@@ -693,4 +640,11 @@ div.current_quotas ul{
 
 .padding2 {
     padding-left: 55px!important;
+}
+
+div.wizard_tab {
+    overflow: auto; 
+    height: 480px;
+    overflow-x: hidden;
+    width: auto;
 }
