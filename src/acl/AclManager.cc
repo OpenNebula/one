@@ -707,7 +707,8 @@ void AclManager::reverse_search(int                       uid,
                                 AuthRequest::Operation    op,
                                 bool&                     all,
                                 vector<int>&              oids,
-                                vector<int>&              gids)
+                                vector<int>&              gids,
+                                vector<int>&              cids)
 {
     ostringstream oss;
 
@@ -719,6 +720,7 @@ void AclManager::reverse_search(int                       uid,
     long long resource_oid_req = obj_type | AclRule::INDIVIDUAL_ID;
     long long resource_gid_req = obj_type | AclRule::GROUP_ID;
     long long resource_all_req = obj_type | AclRule::ALL_ID;
+    long long resource_cid_req = obj_type | AclRule::CLUSTER_ID;
     long long rights_req       = op;
 
     long long resource_oid_mask =
@@ -726,6 +728,9 @@ void AclManager::reverse_search(int                       uid,
 
     long long resource_gid_mask  =
             ( obj_type | AclRule::GROUP_ID );
+
+    long long resource_cid_mask  =
+            ( obj_type | AclRule::CLUSTER_ID );
 
 
     // Create a temporal rule, to log the request
@@ -789,6 +794,13 @@ void AclManager::reverse_search(int                       uid,
                 {
                     oids.push_back(it->second->resource_id());
                 }
+
+                // Rule grants permission for all objects of a cluster
+                if ( ( it->second->resource & resource_cid_mask ) == resource_cid_req )
+                {
+                    cids.push_back(it->second->resource_id());
+                }
+
             }
         }
 
@@ -798,6 +810,7 @@ void AclManager::reverse_search(int                       uid,
         {
             oids.clear();
             gids.clear();
+            cids.clear();
         }
     }
 }

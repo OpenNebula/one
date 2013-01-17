@@ -127,6 +127,7 @@ public:
      *    @param all True if the user can perform the operation over any object
      *    @param oids Set of object IDs over which the user can operate
      *    @param gids Set of object group IDs over which the user can operate
+     *    @param cids Set of object cluster IDs over which the user can operate
      */
     void reverse_search(int                       uid,
                         int                       gid,
@@ -134,7 +135,8 @@ public:
                         AuthRequest::Operation    op,
                         bool&                     all,
                         vector<int>&              oids,
-                        vector<int>&              gids);
+                        vector<int>&              gids,
+                        vector<int>&              cids);
 
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
