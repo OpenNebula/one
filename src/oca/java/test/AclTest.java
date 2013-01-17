@@ -157,6 +157,8 @@ public class AclTest
             "* VM+IMAGE+TEMPLATE/@100 CREATE+USE",
             "#2345 VM+IMAGE+TEMPLATE/* CREATE+USE",
             "@7 HOST/@100 USE+MANAGE",
+            "* HOST+DATASTORE/%100 MANAGE+USE",
+            "@107 NET/%100 USE"
         };
 
         long[] users = {
@@ -165,7 +167,9 @@ public class AclTest
             0x20000006bL,
             0x400000000L,
             0x100000929L,
-            0x200000007L
+            0x200000007L,
+            0x400000000L,
+            0x20000006bL
         };
 
         long[] resources = {
@@ -174,7 +178,9 @@ public class AclTest
             0x28200000064L,
             0x29200000064L,
             0x29400000000L,
-            0x2200000064L
+            0x2200000064L,
+            0x102800000064L,
+            0x4800000064L
         };
 
         long[] rights = {
@@ -183,7 +189,9 @@ public class AclTest
             0x1L,
             0x9L,
             0x9L,
-            0x3L
+            0x3L,
+            0x3L,
+            0x1L
         };
 
         for( int i = 0; i < rules.length; i++ )
@@ -254,6 +262,7 @@ public class AclTest
                 "#3 TEMPLATE+HOS/#0 USE",
                 "#3 /#0 USE",
                 "#3 TEMPLATE/# USE",
+                "#3 TEMPLATE/% USE",
                 "#3 TEMPLATE/#5 USE CREATE",
                 "#3 TEMPLATE/#5",
                 "#3     ",
