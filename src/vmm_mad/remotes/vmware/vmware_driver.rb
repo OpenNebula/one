@@ -346,7 +346,11 @@ class VMwareDriver
             # Reconstruct path to vmx & add metadata
             path_to_vmx = "/vmfs/volumes/#{ds_id}/#{vm_id}/disk.0/#{name}.vmx"
 
-            do_ssh_action("cat >> #{path_to_vmx}", metadata.gsub("\\n","\n"))
+            metadata.gsub!("\\n","\n")
+
+            sed_str = metadata.scan(/^([^ ]+) *=/).join("|")
+
+            do_ssh_action("sed -ri \"/^(#{sed_str}) *=.*$/d\" #{path_to_vmx} ; cat >> #{path_to_vmx}", metadata)
         end
 
 
