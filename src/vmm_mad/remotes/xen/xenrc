@@ -35,10 +35,14 @@ export XM_DETACH_DISK="sudo $XM_PATH block-detach"
 # uncomment this line if you are using this version
 #export XM_CREDITS="sudo $XM_PATH sched-credit"
 
+# Xen 4 uses the new blktap2 and tap:aio handler is no longer supported.
+# To make it work uncomment this line. This will be used as the default
+# handler for disk hot plug
+#export IMAGE_PREFIX="tap:tapdisk:aio"
+
 # Seconds to wait after shutdown until timeout
 export SHUTDOWN_TIMEOUT=300
 
 # Uncomment this line to force VM cancellation after shutdown timeout
 #export FORCE_DESTROY=yes
-
 

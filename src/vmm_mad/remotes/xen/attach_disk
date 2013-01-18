@@ -47,12 +47,18 @@ READONLY="${XPATH_ELEMENTS[2]}"
 BUS="${XPATH_ELEMENTS[3]}"
 CACHE="${XPATH_ELEMENTS[4]}"
 
+DEFAULT_FILE_PREFIX="tap:aio"
+
+if [ -n "$IMAGE_PREFIX" ]; then
+    DEFAULT_FILE_PREFIX="$IMAGE_PREFIX"
+fi
+
 case "$TYPE" in
 block)
     FILE_PREFIX="phy"
     ;;
 *)
-    FILE_PREFIX="tap:aio"
+    FILE_PREFIX=DEFAULT_FILE_PREFIX
     ;;
 esac
 
