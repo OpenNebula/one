@@ -28,7 +28,7 @@ void RequestManagerClone::request_execute(
     int    source_id = xmlrpc_c::value_int(paramList.getInt(1));
     string name      = xmlrpc_c::value_string(paramList.getString(2));
 
-    int rc, new_id;
+    int rc, new_id, umask;
 
     PoolObjectAuth  perms;
 
@@ -80,7 +80,9 @@ void RequestManagerClone::request_execute(
         }
     }
 
-    rc = pool_allocate(source_id, tmpl, new_id, error_str, att);
+    umask = Nebula::instance().get_default_umask();
+
+    rc = pool_allocate(source_id, tmpl, new_id, error_str, att, umask);
 
     if ( rc < 0 )
     {

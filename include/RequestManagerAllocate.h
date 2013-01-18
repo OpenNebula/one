@@ -65,7 +65,8 @@ protected:
                               Template * tmpl,
                               int& id, 
                               string& error_str,
-                              RequestAttributes& att)
+                              RequestAttributes& att,
+                              int umask)
     {
         return -1;
     };
@@ -76,9 +77,10 @@ protected:
                               string& error_str,
                               RequestAttributes& att,
                               int cluster_id,
-                              const string& cluster_name)
+                              const string& cluster_name,
+                              int umask)
     {
-        return pool_allocate(_paramList, tmpl, id, error_str, att);
+        return pool_allocate(_paramList, tmpl, id, error_str, att, umask);
     };
 
     virtual int get_cluster_id(xmlrpc_c::paramList const&  paramList)
@@ -139,7 +141,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 
     bool allocate_authorization(Template *          obj_template,
                                 RequestAttributes&  att,
@@ -178,7 +181,8 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name,
+                      int umask);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -250,7 +254,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -280,7 +285,8 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name,
+                      int umask);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -320,7 +326,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 
     void log_xmlrpc_param(
             const xmlrpc_c::value&  v,
@@ -351,7 +358,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -386,7 +394,8 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name,
+                      int umask);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -440,7 +449,8 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -473,7 +483,8 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* -------------------------------------------------------------------------- */

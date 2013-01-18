@@ -356,6 +356,23 @@ public:
         return nebula_configuration->to_xml(xml);
     };
 
+    int get_default_umask() const
+    {
+        string umask_st;
+        int umask;
+
+        istringstream iss;
+
+        get_configuration_attribute(
+                "DEFAULT_UMASK", umask_st);
+
+        iss.str(umask_st);
+
+        iss >> oct >> umask;
+
+        return umask;
+    };
+
     // -----------------------------------------------------------------------
     // Default Quotas
     // -----------------------------------------------------------------------

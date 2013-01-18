@@ -229,7 +229,7 @@ void ImageClone::request_execute(
     int    clone_id = xmlrpc_c::value_int(paramList.getInt(1));
     string name     = xmlrpc_c::value_string(paramList.getString(2));
 
-    int             rc, new_id, ds_id, size;
+    int             rc, new_id, ds_id, size, umask;
     string          error_str, ds_name, ds_data;
 
     Image::DiskType disk_type;
@@ -356,10 +356,13 @@ void ImageClone::request_execute(
         }
     }
 
+    umask = Nebula::instance().get_default_umask();
+
     rc = ipool->allocate(att.uid,
                          att.gid,
                          att.uname,
                          att.gname,
+                         umask,
                          tmpl,
                          ds_id,
                          ds_name,

@@ -127,6 +127,7 @@ protected:
                 int gid,
                 const string& uname,
                 const string& gname,
+                int umask,
                 int type,
                 Template * _template_contents);
 

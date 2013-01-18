@@ -299,6 +299,7 @@ private:
                    int                      gid,
                    const string&            _uname,
                    const string&            _gname,
+                   int                      _umask,
                    int                      _cluster_id,
                    const string&            _cluster_name,
                    VirtualNetworkTemplate * _vn_template = 0);

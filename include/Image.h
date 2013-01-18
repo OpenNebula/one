@@ -615,6 +615,7 @@ protected:
           int            gid,
           const string&  uname,
           const string&  gname,
+          int            umask,
           ImageTemplate* img_template);
 
     virtual ~Image();

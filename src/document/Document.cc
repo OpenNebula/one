@@ -25,6 +25,7 @@ Document::Document( int id,
                     int _gid,
                     const string& _uname,
                     const string& _gname,
+                    int _umask,
                     int _type,
                     Template * _template_contents):
         PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,table), type(_type)
@@ -37,6 +38,8 @@ Document::Document( int id,
     {
         obj_template = new Template;
     }
+
+    set_umask(_umask);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -28,6 +28,7 @@ VMTemplate::VMTemplate(int id,
                        int _gid,
                        const string& _uname,
                        const string& _gname,
+                       int umask,
                        VirtualMachineTemplate * _template_contents):
         PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,table),
         regtime(time(0))
@@ -40,6 +41,8 @@ VMTemplate::VMTemplate(int id,
     {
         obj_template = new VirtualMachineTemplate;
     }
+
+    set_umask(umask);
 }
 
 /* ------------------------------------------------------------------------ */

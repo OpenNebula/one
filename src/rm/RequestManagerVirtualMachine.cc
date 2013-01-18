@@ -855,10 +855,13 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // Create the image
     // -------------------------------------------------------------------------
 
+    int umask = Nebula::instance().get_default_umask();
+
     rc = ipool->allocate(att.uid,
                          att.gid,
                          att.uname,
                          att.gname,
+                         umask,
                          itemplate,
                          ds_id,
                          ds_name,

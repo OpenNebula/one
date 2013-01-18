@@ -30,6 +30,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     int  rc;
     int  vid;
+    int  umask;
 
     ostringstream sid;
 
@@ -138,8 +139,10 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     Template tmpl_back(*tmpl);
 
-    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
-            error_str, on_hold);
+    umask = Nebula::instance().get_default_umask();
+
+    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+            tmpl, &vid, error_str, on_hold);
 
     if ( rc < 0 )
     {
