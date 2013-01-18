@@ -434,7 +434,10 @@ int LibVirtDriver::deployment_description_vmware(
             file << "\t" << data << endl;
 
             data_vmx = raw->vector_value("DATA_VMX");
-            file << "\t<metadata>" << data_vmx << "</metadata>" << endl;
+            if ( !data_vmx.empty() )
+            {
+                file << "\t<metadata>" << data_vmx << "</metadata>" << endl;
+            }
         }
     }
 

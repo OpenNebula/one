@@ -287,15 +287,15 @@ class VMwareDriver
     end
 
     #Performs a remote action using ssh
-    def do_ssh_action(cmd, log=true)
-        rc = SSHCommand.run("'#{cmd}'", @host)
+    def do_ssh_action(cmd, stdin=nil)
+        rc = SSHCommand.run("'#{cmd}'", @host, nil, stdin)
 
         if rc.code == 0
             return [true, rc.stdout]
         else
             err = "Error executing: #{cmd} on host: #{@host} " <<
                   "err: #{rc.stderr} out: #{rc.stdout}"
-            OpenNebula.log_error(err) if log
+            OpenNebula.log_error(err)
             return [false, rc.code]
         end
     end
@@ -337,26 +337,16 @@ class VMwareDriver
         if metadata
             # Get the ds_id for system_ds from the first disk
             metadata = metadata.text
-            disk   = XPath.first(dfile_hash, "//disk").text
             source = XPath.first(dfile_hash, "//disk/source").attributes['file']
             ds_id  = source.match(/^\[(.*)\](.*)/)[1]
 
             name   = XPath.first(dfile_hash, "//name").text
             vm_id  = name.match(/^one-(.*)/)[1]
 
-            # Reconstruct path to vmx
+            # Reconstruct path to vmx & add metadata
             path_to_vmx = "/vmfs/volumes/#{ds_id}/#{vm_id}/disk.0/#{name}.vmx"
 
-            # Create temp file with metadata
-            File.open("/tmp/one-tmp-file", 'w') {|f|
-                f.write(metadata.gsub("\\n","\n"))
-            }
-
-            `scp /tmp/one-tmp-file #{@host}:/tmp`
-
-            # Add metadata to .vmx file
-            cmd = "cat /tmp/one-tmp-file >> #{path_to_vmx}"
-            do_ssh_action(cmd)
+            do_ssh_action("cat >> #{path_to_vmx}", metadata.gsub("\\n","\n"))
         end
 
 
