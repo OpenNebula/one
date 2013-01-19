@@ -542,7 +542,7 @@ class ExecDriver < VirtualMachineDriver
         # Bug #1355, argument character limitation in ESX
         # Message not used in vmware anyway
         if @hypervisor == "vmware"
-            drv_message = "drv_message" 
+            drv_message = "drv_message"
         end
 
         steps = [
@@ -604,6 +604,54 @@ class ExecDriver < VirtualMachineDriver
                 :parameters => tm_command.split
             }
         ]
+
+        action.run(steps)
+    end
+
+    #
+    # CLEANUP action, frees resources allocated in a host: VM and disk images
+    #
+    def cleanup(id, drv_message)
+        aname    = ACTION[:cleanup]
+        xml_data = decode(drv_message)
+
+        tm_command = xml_data.elements['TM_COMMAND'].text.strip
+        mhost      = xml_data.elements['MIGR_HOST'].text.strip
+
+        action = VmmAction.new(self, id, :cleanup, drv_message)
+
+        # Cancel the VM at host
+        steps = [
+            {
+                :driver     => :vmm,
+                :action     => :cancel,
+                :parameters => [:deploy_id, :host],
+                :no_fail    => true
+            }
+        ]
+
+        # Cancel the VM at the previous host (in case of migration)
+        steps <<
+            {
+                :driver      => :vmm,
+                :action      => :cancel,
+                :parameters  => [:deploy_id, :dest_host],
+                :destination => true,
+                :no_fail     => true
+            } if !mhost.empty?
+
+        # Cleans VM disk images and directory
+        tm_command.each_line { |tc|
+            tc.strip!
+
+            steps <<
+            {
+                :driver     => :tm,
+                :action     => :tm_command,
+                :parameters => tm_command.split
+                :no_fail    => true
+            } if !tc.empty?
+        }
 
         action.run(steps)
     end
