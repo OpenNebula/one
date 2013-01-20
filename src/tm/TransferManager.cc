@@ -115,6 +115,10 @@ void TransferManager::trigger(Actions action, int _vid)
         aname = "EPILOG_DELETE_PREVIOUS";
         break;
 
+    case EPILOG_DELETE_BOTH:
+        aname = "EPILOG_DELETE_BOTH";
+        break;
+
     case CHECKPOINT:
         aname = "CHECKPOINT";
         break;
@@ -182,6 +186,10 @@ void TransferManager::do_action(const string &action, void * arg)
     else if (action == "EPILOG_DELETE_PREVIOUS")
     {
         epilog_delete_previous_action(vid);
+    }
+    else if (action == "EPILOG_DELETE_BOTH")
+    {
+        epilog_delete_both_action(vid);
     }
     else if (action == "CHECKPOINT")
     {
@@ -1394,8 +1402,7 @@ error_driver:
 
 error_file:
     os << "epilog_delete, could not open file: " << xfr_name;
-    os << ". You may need to manually clean " << vm->get_hostname()
-       << ":" << vm->get_remote_system_dir();
+    os << ". You may need to manually clean the host (current)";
     goto error_common;
 
 error_common:
@@ -1468,8 +1475,81 @@ error_driver:
 
 error_file:
     os << "epilog_delete_previous, could not open file: " << xfr_name;
-    os << ". You may need to manually clean " << vm->get_previous_hostname()
-       << ":" << vm->get_remote_system_dir();
+    os << ". You may need to manually clean the host (previous)";
+    goto error_common;
+
+error_common:
+    vm->log("TM", Log::ERROR, os);
+    (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE, vid);
+
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::epilog_delete_both_action(int vid)
+{
+    ostringstream os;
+
+    ofstream xfr;
+    string   xfr_name;
+
+    VirtualMachine * vm;
+    Nebula&          nd = Nebula::instance();
+
+    const TransferManagerDriver * tm_md;
+
+    int rc;
+
+    // ------------------------------------------------------------------------
+    // Setup & Transfer script
+    // ------------------------------------------------------------------------
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    tm_md = get();
+
+    if (tm_md == 0)
+    {
+        goto error_driver;
+    }
+
+    xfr_name = vm->get_transfer_file() + ".delete_both";
+    xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
+
+    if (xfr.fail() == true)
+    {
+        goto error_file;
+    }
+
+    rc = epilog_delete_commands(vm, xfr, false, false); //current
+    rc = epilog_delete_commands(vm, xfr, false, true);  //previous
+
+    if ( rc != 0 )
+    {
+        goto error_common;
+    }
+
+    xfr.close();
+
+    tm_md->transfer(vid, xfr_name);
+
+    vm->unlock();
+    return;
+
+error_driver:
+    os << "epilog_delete_both, error getting TM driver.";
+    goto error_common;
+
+error_file:
+    os << "epilog_delete_both, could not open file: " << xfr_name;
+    os << ". You may need to manually clean hosts (previous & current)";
     goto error_common;
 
 error_common:

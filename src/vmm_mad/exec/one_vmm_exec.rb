@@ -627,18 +627,33 @@ class ExecDriver < VirtualMachineDriver
                 :action     => :cancel,
                 :parameters => [:deploy_id, :host],
                 :no_fail    => true
+            },
+            {
+                :driver  => :vnm,
+                :action  => :clean,
+                :no_fail => true
             }
         ]
 
         # Cancel the VM at the previous host (in case of migration)
-        steps <<
+        if !mhost.empty?
+            steps <<
             {
                 :driver      => :vmm,
                 :action      => :cancel,
                 :parameters  => [:deploy_id, :dest_host],
                 :destination => true,
                 :no_fail     => true
-            } if !mhost.empty?
+            }
+
+            steps <<
+            {
+                :driver  => :vnm,
+                :action  => :clean,
+                :destination => true,
+                :no_fail => true
+            }
+        end
 
         # Cleans VM disk images and directory
         tm_command.each_line { |tc|

@@ -683,9 +683,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-            vmm->trigger(VirtualMachineManager::CANCEL,vid);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
         case VirtualMachine::MIGRATE:
@@ -701,11 +699,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-
-            vmm->trigger(VirtualMachineManager::CANCEL,vid);
-            vmm->trigger(VirtualMachineManager::CANCEL_PREVIOUS,vid);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP_BOTH,vid);
         break;
 
         case VirtualMachine::SAVE_STOP:
@@ -714,9 +708,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-            vmm->trigger(VirtualMachineManager::CANCEL,vid);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
         case VirtualMachine::SAVE_MIGRATE:
@@ -742,8 +734,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             vmpool->update_history(vm);
 
             tm->trigger(TransferManager::DRIVER_CANCEL,vid);
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
-            tm->trigger(TransferManager::EPILOG_DELETE_PREVIOUS,vid);
+            tm->trigger(TransferManager::EPILOG_DELETE_BOTH,vid);
         break;
 
         case VirtualMachine::EPILOG_STOP:

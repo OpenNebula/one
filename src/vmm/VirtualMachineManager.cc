@@ -146,6 +146,14 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "CANCEL_PREVIOUS";
         break;
 
+    case CLEANUP:
+        aname = "CLEANUP";
+        break;
+
+    case CLEANUP_BOTH:
+        aname = "CLEANUP_BOTH";
+        break;
+
     case MIGRATE:
         aname = "MIGRATE";
         break;
@@ -233,6 +241,14 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "CANCEL_PREVIOUS")
     {
         cancel_previous_action(vid);
+    }
+    else if (action == "CLEANUP")
+    {
+        cleanup_action(vid, false);
+    }
+    else if (action == "CLEANUP_BOTH")
+    {
+        cleanup_action(vid, true);
     }
     else if (action == "MIGRATE")
     {
@@ -925,6 +941,106 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineManager::cleanup_action(
+    int vid, bool cancel_previous)
+{
+    int rc;
+
+    VirtualMachine * vm;
+    ostringstream    os;
+
+    string   vm_tmpl;
+    string * drv_msg;
+
+    string m_hostname = "";
+    string m_net_drv  = "";
+
+    const VirtualMachineManagerDriver *   vmd;
+
+    Nebula& nd = Nebula::instance();
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    if ( cancel_previous && vm->hasPreviousHistory() )
+    {
+        m_hostname = vm->get_previous_hostname();
+        m_net_drv  = vm->get_previous_vnm_mad();
+    }
+
+    rc = nd.get_tm()->epilog_delete_commands(vm, os, false, false);
+
+    if ( rc != 0 )
+    {
+        goto error_common;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        m_hostname,
+        m_net_drv,
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        os.str(),
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->cleanup(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "cleanup_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "cleanup_action, error getting driver " << vm->get_vmm_mad();
+
+error_common:
+    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP)
+    {
+        Nebula              &ne = Nebula::instance();
+        LifeCycleManager *  lcm = ne.get_lcm();
+
+        //TODO
+        //lcm->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
+    }
+
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineManager::migrate_action(
     int vid)
 {
@@ -1366,7 +1482,7 @@ void VirtualMachineManager::attach_action(
     vm_tm_mad = vm->get_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
-    rc = Nebula::instance().get_tm()->prolog_transfer_command(
+    rc = nd.get_tm()->prolog_transfer_command(
             vm,
             disk,
             vm_tm_mad,

@@ -49,6 +49,8 @@ public:
         SHUTDOWN,
         CANCEL,
         CANCEL_PREVIOUS,
+        CLEANUP,
+        CLEANUP_BOTH,
         MIGRATE,
         RESTORE,
         REBOOT,
@@ -256,6 +258,13 @@ private:
      */
     void cancel_previous_action(
         int vid);
+
+    /**
+     *  Cleanups a host (cancel VM + delete disk images).
+     *    @param vid the id of the VM.
+     */
+    void cleanup_action(
+        int vid, bool cancel_previous);
 
     /**
      *  Function to migrate (live) a VM (MIGRATE action).
