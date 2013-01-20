@@ -268,6 +268,13 @@ private:
     void epilog_delete_action(bool local, int vid);
 
     /**
+     *  This function starts the epilog_delete sequence
+     */
+    int epilog_delete_commands(VirtualMachine *vm,
+                               ostream&        xfr,
+                               bool            local,
+                               bool            previous);
+    /**
      *  This function starts the epilog_delete sequence on the previous host
      */
     void epilog_delete_previous_action(int vid);
