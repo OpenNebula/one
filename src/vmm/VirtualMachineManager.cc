@@ -154,6 +154,10 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "CLEANUP_BOTH";
         break;
 
+    case CLEANUP_PREVIOUS:
+        aname = "CLEANUP_PREVIOUS";
+        break;
+
     case MIGRATE:
         aname = "MIGRATE";
         break;
@@ -249,6 +253,10 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "CLEANUP_BOTH")
     {
         cleanup_action(vid, true);
+    }
+    else if (action == "CLEANUP_PREVIOUS")
+    {
+        cleanup_previous_action(vid);
     }
     else if (action == "MIGRATE")
     {
@@ -1025,14 +1033,91 @@ error_driver:
     os << "cleanup_action, error getting driver " << vm->get_vmm_mad();
 
 error_common:
-    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP)
-    {
-        Nebula              &ne = Nebula::instance();
-        LifeCycleManager *  lcm = ne.get_lcm();
+    (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
 
-        //TODO
-        //lcm->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::cleanup_previous_action(
+    int vid)
+{
+    int rc;
+
+    VirtualMachine * vm;
+    ostringstream    os;
+
+    string   vm_tmpl;
+    string * drv_msg;
+
+    const VirtualMachineManagerDriver *   vmd;
+
+    Nebula& nd = Nebula::instance();
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
     }
+
+    if (!vm->hasHistory() || !vm->hasPreviousHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    rc = nd.get_tm()->epilog_delete_commands(vm, os, false, true);
+
+    if ( rc != 0 )
+    {
+        goto error_common;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_previous_hostname(),
+        vm->get_previous_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        os.str(),
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->cleanup(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "cleanup_previous_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "cleanup_previous_action, error getting driver " << vm->get_vmm_mad();
+
+error_common:
+    (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
 
     vm->unlock();
     return;

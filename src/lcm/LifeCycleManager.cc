@@ -145,6 +145,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DETACH_FAILURE";
         break;
 
+    case CLEANUP_SUCCESS:
+        aname = "CLEANUP_SUCCESS";
+        break;
+
+    case CLEANUP_FAILURE:
+        aname = "CLEANUP_FAILURE";
+        break;
+
     case DEPLOY:
         aname = "DEPLOY";
         break;
@@ -297,6 +305,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_FAILURE")
     {
         detach_failure_action(vid);
+    }
+    else if (action == "CLEANUP_SUCCESS")
+    {
+        cleanup_callback_action(vid);
+    }
+    else if (action == "CLEANUP_FAILURE")
+    {
+        cleanup_callback_action(vid);
     }
     else if (action == "DEPLOY")
     {

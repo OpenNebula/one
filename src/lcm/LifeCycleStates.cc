@@ -722,7 +722,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
     {
         action = DispatchManager::DONE;
     }
-    else if ( state == VirtualMachine::CLEANUP )
+    else if ( state == VirtualMachine::CLEANUP_RESUBMIT )
     {
         dm->trigger(DispatchManager::RESUBMIT, vid);
 
@@ -762,6 +762,42 @@ void  LifeCycleManager::epilog_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void  LifeCycleManager::cleanup_callback_action(int vid)
+{
+    Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+
+    VirtualMachine *    vm;
+
+    VirtualMachine::LcmState state;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    state = vm->get_lcm_state();
+
+    if ( state == VirtualMachine::CLEANUP_RESUBMIT )
+    {
+        dm->trigger(DispatchManager::RESUBMIT, vid);
+
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"cleanup_callback_action, VM in a wrong state");
+    }
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void  LifeCycleManager::epilog_failure_action(int vid)
 {
     VirtualMachine * vm;
@@ -774,7 +810,7 @@ void  LifeCycleManager::epilog_failure_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP )
+    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP_RESUBMIT )
     {
         Nebula&           nd = Nebula::instance();
         DispatchManager * dm = nd.get_dm();

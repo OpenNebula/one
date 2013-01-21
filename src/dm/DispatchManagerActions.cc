@@ -868,7 +868,7 @@ int DispatchManager::resubmit(int vid)
         case VirtualMachine::FAILED: //Cleanup VM host files
             vm->log("DiM", Log::INFO, "New VM state is CLEANUP.");
 
-            vm->set_state(VirtualMachine::CLEANUP);
+            vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
             vm->set_state(VirtualMachine::ACTIVE);
 
             vmpool->update(vm);
