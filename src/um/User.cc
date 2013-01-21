@@ -283,6 +283,30 @@ bool User::pass_is_valid(const string& pass, string& error_str)
 
     return true;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int User::get_umask() const
+{
+    string umask_st;
+    int umask;
+
+    istringstream iss;
+
+    get_template_attribute("UMASK", umask_st);
+
+    if(umask_st.empty())
+    {
+        return Nebula::instance().get_default_umask();
+    }
+
+    iss.str(umask_st);
+
+    iss >> oct >> umask;
+
+    return umask;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

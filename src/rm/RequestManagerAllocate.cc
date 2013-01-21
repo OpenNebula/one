@@ -138,6 +138,24 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
     string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
     PoolObjectAuth  cluster_perms;
 
+    User *          user;
+    UserPool *      upool = Nebula::instance().get_upool();
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
+
     if ( do_template == true )
     {
         string str_tmpl  = xmlrpc_c::value_string(params.getString(1));
@@ -178,8 +196,6 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         delete tmpl;
         return;
     }
-
-    umask = Nebula::instance().get_default_umask();
 
     rc = pool_allocate(params, tmpl, id, error_str, att, cluster_id, cluster_name, umask);
 
@@ -314,20 +330,40 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     Nebula&  nd  = Nebula::instance();
 
+    UserPool *      upool  = nd.get_upool();
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
     ImageManager *  imagem = nd.get_imagem();
 
-    ImageTemplate * tmpl = new ImageTemplate;
+    ImageTemplate * tmpl;
     Template        img_usage;
 
+    User *          user;
     Datastore *     ds;
     Image::DiskType ds_disk_type;
 
-    string  umask_st;
-    int     umask;
+    int             umask;
+
+    // ------------------------- Get user's umask ------------------------------
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     // ------------------------- Parse image template --------------------------
+
+    tmpl = new ImageTemplate;
 
     rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
 
@@ -459,8 +495,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
     }
-
-    umask = Nebula::instance().get_default_umask();
 
     rc = ipool->allocate(att.uid,
                          att.gid,

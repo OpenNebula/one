@@ -173,6 +173,14 @@ public:
      */
     Quotas quota;
 
+    /**
+     * Returns the UMASK template attribute (read as an octal number), or the
+     * default UMASK from oned.conf if it does not exist
+     *
+     * @return the UMASK to create new objects
+     */
+    int get_umask() const;
+
 private:
     // -------------------------------------------------------------------------
     // Friends

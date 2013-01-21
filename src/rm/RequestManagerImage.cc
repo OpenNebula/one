@@ -239,11 +239,30 @@ void ImageClone::request_execute(
     Template        img_usage;
     Image *         img;
     Datastore *     ds;
+    User *          user;
 
     Nebula&  nd = Nebula::instance();
 
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
+    UserPool *      upool  = nd.get_upool();
+
+    // ------------------------- Get user's umask ------------------------------
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     // ------------------------- Get source Image info -------------------------
 
@@ -355,8 +374,6 @@ void ImageClone::request_execute(
             return;
         }
     }
-
-    umask = Nebula::instance().get_default_umask();
 
     rc = ipool->allocate(att.uid,
                          att.gid,

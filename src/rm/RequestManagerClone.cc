@@ -34,8 +34,26 @@ void RequestManagerClone::request_execute(
 
     Template *      tmpl;
     PoolObjectSQL * source_obj;
+    User *          user;
+
+    UserPool *      upool = Nebula::instance().get_upool();
 
     string          error_str;
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     source_obj = pool->get(source_id, true);
 
@@ -79,8 +97,6 @@ void RequestManagerClone::request_execute(
             return;
         }
     }
-
-    umask = Nebula::instance().get_default_umask();
 
     rc = pool_allocate(source_id, tmpl, new_id, error_str, att, umask);
 
