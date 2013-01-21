@@ -323,9 +323,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         end
 
         template=create_image_variables(
-            options, template_options-[:persistent, :dry])
+            options, template_options-[:persistent, :dry, :prefix])
 
         template<<"PERSISTENT=YES\n" if options[:persistent]
+        if options[:prefix]
+            template<<"DEV_PREFIX=\"#{options[:prefix]}\"\n"
+        end
 
         [0, template]
     end
