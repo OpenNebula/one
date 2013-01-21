@@ -211,10 +211,10 @@ class DummyDriver < VirtualMachineDriver
 
             case result[0]
             when "success", 1, "1"
-                sleep result[1].to_io if result[1]
+                sleep result[1].to_i if result[1]
                 return RESULT[:success]
             when "failure", 0, "0"
-                sleep result[1].to_io if result[1]
+                sleep result[1].to_i if result[1]
                 return RESULT[:failure]
             when "-"
                 return nil
