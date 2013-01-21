@@ -172,6 +172,26 @@ class DummyDriver < VirtualMachineDriver
 
     private
 
+    # Retrives the result for a given action from the OpenNebula core. Each
+    # action has a defined set of responses in:
+    #    /tmp/opennebula_dummy_actions/<action_name>
+    #
+    # Each line of this file represents a response in the form:
+    #    <"sucess|0" | "failure|1" | "-"> [sleep]
+    #
+    #    - success or 1 returns SUCCESS
+    #    - failure o 0 returns FAILURE
+    #    - "-" returns nothing
+    #    - sleep optional number of seconds to wait before answering
+    #
+    # Example: /tmp/opennebula_dummy_actions/deploy
+    #  0
+    #  0
+    #  1 120
+    #  1
+    #  -
+    #  0
+    #
     def retrieve_result(action)
         begin
             actions = File.read(DUMMY_ACTIONS_DIR+"/#{action}")
@@ -184,18 +204,26 @@ class DummyDriver < VirtualMachineDriver
         action_id     %= actions_array.size
 
         if actions_array && actions_array[action_id]
-            result = actions_array[action_id]
-            if result == "success" || result == 0 || result == "0"
-                return RESULT[:success]
-            else
-                return RESULT[:failure]
-            end
 
             @actions_counter[action] += 1
+
+            result = actions_array[action_id].split
+
+            case result[0]
+            when "success", 1, "1"
+                sleep result[1].to_io if result[1]
+                return RESULT[:success]
+            when "failure", 0, "0"
+                sleep result[1].to_io if result[1]
+                return RESULT[:failure]
+            when "-"
+                return nil
+            else
+                return RESULT[:success]
+            end
         else
             return RESULT[:success]
         end
-
     end
 end
 
