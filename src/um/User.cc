@@ -197,8 +197,8 @@ int User::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-   
-    rc += quota.from_xml(this); 
+
+    rc += quota.from_xml(this);
 
     if (rc != 0)
     {
@@ -298,14 +298,14 @@ int User::get_umask() const
 
     if(umask_st.empty())
     {
-        return Nebula::instance().get_default_umask();
+        Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
     }
 
     iss.str(umask_st);
 
     iss >> oct >> umask;
 
-    return umask;
+    return (umask & 0777);
 }
 
 /* -------------------------------------------------------------------------- */
