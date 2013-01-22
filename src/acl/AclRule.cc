@@ -17,7 +17,7 @@
 #include "AclRule.h"
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
-    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -50,6 +50,11 @@ const AuthRequest::Operation AclRule::auth_operations[] = {
             AuthRequest::CREATE
 };
 
+const long long AclRule::INVALID_CLUSTER_OBJECTS =
+        PoolObjectSQL::VM | PoolObjectSQL::IMAGE | PoolObjectSQL::USER |
+        PoolObjectSQL::TEMPLATE | PoolObjectSQL::GROUP | PoolObjectSQL::ACL |
+        PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -57,6 +62,7 @@ bool AclRule::malformed(string& error_str) const
 {
     ostringstream oss;
     bool error = false;
+    long long resource_type;
 
     // Check user
 
@@ -137,6 +143,22 @@ bool AclRule::malformed(string& error_str) const
         error = true;
         oss << "[resource] INDIVIDUAL (#), GROUP (@), CLUSTER (%) "
             << "and ALL (*) bits are exclusive";
+    }
+
+    resource_type = resource_code() & 0xFFFFFFF000000000LL;
+
+    if ((resource & CLUSTER_ID) && (resource_type & INVALID_CLUSTER_OBJECTS))
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[resource] CLUSTER(%) selector can be applied only to "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::DATASTORE) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::HOST) << " and "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::NET) << " types";
     }
 
     if ( (resource & 0xF00000000LL) == 0 )
@@ -290,7 +312,7 @@ void AclRule::build_str()
     {
         oss << "??";
     }
-    
+
     oss << " ";
 
     prefix = false;
@@ -348,7 +370,7 @@ int AclRule::from_xml(xmlNodePtr node)
             break;
         }
 
-        xmlNodePtr elem = acl->children; 
+        xmlNodePtr elem = acl->children;
 
         if ( elem->type != XML_TEXT_NODE )
         {
