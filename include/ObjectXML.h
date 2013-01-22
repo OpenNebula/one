@@ -149,6 +149,18 @@ public:
     int get_nodes(const char * xpath_expr, vector<xmlNodePtr>& content);
 
     /**
+     * Adds a copy of the node as a child of the node in the xpath expression.
+     * The source node must be cleaned by the caller.
+     *
+     * @param xpath_expr Path of the parent node
+     * @param node Node copy and add
+     * @param new_name New name for the node copy
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int add_node(const char * xpath_expr, xmlNodePtr node, const char * new_name);
+
+    /**
      *  Frees a vector of XMLNodes, as returned by the get_nodes function
      *    @param content the vector of xmlNodePtr
      */
