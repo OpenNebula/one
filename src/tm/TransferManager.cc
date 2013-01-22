@@ -1323,7 +1323,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         << vm_tm_mad << " "
         << host <<":"<< system_dir << " "
         << vm->get_oid() << " "
-        << vm_ds_id;
+        << vm_ds_id << endl;
 
     return 0;
 

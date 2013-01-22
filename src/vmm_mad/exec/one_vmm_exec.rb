@@ -615,28 +615,32 @@ class ExecDriver < VirtualMachineDriver
         aname    = ACTION[:cleanup]
         xml_data = decode(drv_message)
 
-        tm_command = xml_data.elements['TM_COMMAND'].text.strip
-        mhost      = xml_data.elements['MIGR_HOST'].text.strip
+        tm_command = xml_data.elements['TM_COMMAND'].text
+        mhost      = xml_data.elements['MIGR_HOST'].text
+        deploy_id  = xml_data.elements['DEPLOY_ID'].text
 
         action = VmmAction.new(self, id, :cleanup, drv_message)
+        steps  = Array.new
 
-        # Cancel the VM at host
-        steps = [
+        # Cancel the VM at host (only if we have a valid deploy-id)
+        if deploy_id && !deploy_id.empty?
+            steps <<
             {
                 :driver     => :vmm,
                 :action     => :cancel,
                 :parameters => [:deploy_id, :host],
                 :no_fail    => true
-            },
+            }
+            steps <<
             {
                 :driver  => :vnm,
                 :action  => :clean,
                 :no_fail => true
             }
-        ]
+        end
 
         # Cancel the VM at the previous host (in case of migration)
-        if !mhost.empty?
+        if mhost && !mhost.empty?
             steps <<
             {
                 :driver      => :vmm,
@@ -645,7 +649,6 @@ class ExecDriver < VirtualMachineDriver
                 :destination => true,
                 :no_fail     => true
             }
-
             steps <<
             {
                 :driver  => :vnm,
@@ -662,11 +665,11 @@ class ExecDriver < VirtualMachineDriver
             steps <<
             {
                 :driver     => :tm,
-                :action     => :tm_command,
-                :parameters => tm_command.split
+                :action     => :tm_delete,
+                :parameters => tc.split,
                 :no_fail    => true
             } if !tc.empty?
-        }
+        } if tm_command
 
         action.run(steps)
     end
