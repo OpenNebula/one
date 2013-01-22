@@ -101,6 +101,8 @@ class OpenNebulaNetwork
     end
 
     def initialize(vm_tpl, xpath_filter, deploy_id = nil, hypervisor = nil)
+        @locking = false
+
         if !hypervisor
             @hypervisor = detect_hypervisor
         else
@@ -108,6 +110,20 @@ class OpenNebulaNetwork
         end
 
         @vm = VM.new(REXML::Document.new(vm_tpl).root, xpath_filter, deploy_id, @hypervisor)
+    end
+
+    def lock
+        if @locking
+            driver_name = self.class.name.downcase
+            @locking_file = File.open("/tmp/onevnm-#{driver_name}-lock","w")
+            @locking_file.flock(File::LOCK_EX)
+        end
+    end
+
+    def unlock
+        if @locking
+           @locking_file.close
+        end
     end
 
     def process(&block)

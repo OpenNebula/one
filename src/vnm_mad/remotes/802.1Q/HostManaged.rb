@@ -17,14 +17,20 @@
 require 'OpenNebulaNetwork'
 
 class OpenNebulaHM < OpenNebulaNetwork
+    DRIVER = "802.1Q"
+
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
+        @locking = false
+
         @bridges = get_interfaces
     end
 
     def activate
+        lock
+
         vm_id =  @vm['ID']
         process do |nic|
             bridge  = nic[:bridge]
@@ -52,6 +58,8 @@ class OpenNebulaHM < OpenNebulaNetwork
                 end
             end
         end
+
+        unlock
 
         return 0
     end
