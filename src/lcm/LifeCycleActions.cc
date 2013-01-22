@@ -573,6 +573,7 @@ void  LifeCycleManager::delete_action(int vid)
 
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
+    TransferManager * tm = nd.get_tm();
 
     vm = vmpool->get(vid,true);
 
@@ -603,6 +604,14 @@ void  LifeCycleManager::delete_action(int vid)
             dm->trigger(DispatchManager::DONE, vid);
         break;
 
+        case VirtualMachine::FAILURE:
+            vm->set_state(VirtualMachine::CLEANUP_DELETE);
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            dm->trigger(DispatchManager::DONE, vid);
+        break;
+
         default:
             clean_up_vm(vm, true);
             dm->trigger(DispatchManager::DONE, vid);
@@ -623,6 +632,7 @@ void  LifeCycleManager::clean_action(int vid)
 
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
+    TransferManager * tm = nd.get_tm();
 
     vm = vmpool->get(vid,true);
 
@@ -648,6 +658,13 @@ void  LifeCycleManager::clean_action(int vid)
 
         case VirtualMachine::CLEANUP_RESUBMIT:
             dm->trigger(DispatchManager::RESUBMIT, vid);
+        break;
+
+        case VirtualMachine::FAILURE:
+            vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
         default:
@@ -782,12 +799,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
-        case VirtualMachine::FAILURE:
-            vmpool->update_history(vm);
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
-        break;
-
-        default: //LCM_INIT,CLEANUP_RESUBMIT, CLEANUP_DELETE
+        default: //LCM_INIT,CLEANUP_RESUBMIT, CLEANUP_DELETE, FAILURE
         break;
     }
 }
