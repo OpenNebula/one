@@ -873,13 +873,13 @@ function setupCreateTemplateDialog(){
         var html_tab_content = '<div id="'+str_disk_tab_id+'" class="disk">'+
             '<div class="row">'+
               '<div class="three columns push-three">'+
-                '<input type="radio" name="'+str_disk_tab_id+'" value="image" checked> Image '+
+                '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> Image '+
               '</div>'+
               '<div class="three columns pull-three">'+
-                '<input type="radio" name="'+str_disk_tab_id+'" value="volatile"> Volatile Disk '+
+                '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> Volatile Disk '+
               '</div>'+
             '</div>'+         
-              '<div id="disk_type" class="image">'+
+              '<div id="disk_type" class="vm_param image">'+
             '<fieldset>'+
               '<legend>'+tr("Please select an image from the list")+'</legend>'+
                 '<table id="'+str_datatable_id+'" class="display">'+
@@ -913,7 +913,7 @@ function setupCreateTemplateDialog(){
               '<div class="show_hide" id="advanced_image">'+
                 '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
               '</div>'+
-              '<div class="row advanced">'+
+              '<div class="row advanced vm_param">'+
                 '<div class="six columns">'+
                   '<div class="row">'+
                     '<div class="four columns">'+
@@ -945,7 +945,7 @@ function setupCreateTemplateDialog(){
             '<div id="disk_type" class="volatile hidden">'+
               '<br>'+
                 '<form>'+
-                  '<div class="row">'+
+                  '<div class="row vm_param">'+
                     '<div class="six columns">'+
                       '<div class="row">'+
                         '<div class="four columns">'+
@@ -976,7 +976,7 @@ function setupCreateTemplateDialog(){
                       '</div>'+
                     '</div>'+
                   '</div>'+        
-                  '<div class="row">'+
+                  '<div class="row vm_param">'+
                       '<div class="two columns">'+
                         '<label class="inline right" for="SIZE">'+tr("SIZE")+':</label>'+
                       '</div>'+
@@ -999,7 +999,7 @@ function setupCreateTemplateDialog(){
               '<div class="show_hide" id="advanced_volatile">'+
                 '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
               '</div>'+
-              '<div class="row advanced">'+
+              '<div class="row advanced vm_param">'+
                 '<div class="six columns">'+
                   '<div class="row">'+
                     '<div class="four columns">'+
@@ -1034,28 +1034,30 @@ function setupCreateTemplateDialog(){
         // Append the new div containing the tab and add the tab to the list
         disk_tabs.append(html_tab_content).tabs('add', '#'+str_disk_tab_id, str_disk_tab_id, disks_index); 
         //disk_tabs.tabs( "select", disks_index);
-        
+                
+        var disk_section = $('div#' + str_disk_tab_id, dialog);
+
         // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
         // vm_param class is included to be computed when the template is generated.
-        $("input[name='"+str_disk_tab_id+"']").change(function(){
-          if ($("input[name='"+str_disk_tab_id+"']:checked").val() == "image") {
-              $("div.image",  $('div#' + str_disk_tab_id)).toggle();
-              $("div.image",  $('div#' + str_disk_tab_id)).addClass('vm_param');
-              $("div.volatile",  $('div#' + str_disk_tab_id)).hide();
-              $("div.volatile",  $('div#' + str_disk_tab_id)).removeClass('vm_param');
+        $("input[name='"+str_disk_tab_id+"']", disk_section).change(function(){
+          if ($("input[name='"+str_disk_tab_id+"']:checked", disk_section).val() == "image") {
+              $("div.image",  disk_section).toggle();
+              $("div.image",  disk_section).addClass('vm_param');
+              $("div.volatile",  disk_section).hide();
+              $("div.volatile",  disk_section).removeClass('vm_param');
           }
           else {
-              $("div.image",  $('div#' + str_disk_tab_id)).hide();
-              $("div.image",  $('div#' + str_disk_tab_id)).removeClass('vm_param');
-              $("div.volatile",  $('div#' + str_disk_tab_id)).toggle();
-              $("div.volatile",  $('div#' + str_disk_tab_id)).addClass('vm_param');
+              $("div.image",  disk_section).hide();
+              $("div.image",  disk_section).removeClass('vm_param');
+              $("div.volatile",  disk_section).toggle();
+              $("div.volatile",  disk_section).addClass('vm_param');
           }
         });
 
           // Define size slider
-          var size_input = $( "#SIZE",  $('div#' + str_disk_tab_id) );
-          var size_unit  = $( "#size_unit",  $('div#' + str_disk_tab_id) );
-          var size_slider = $( "#size_slider",  $('div#' + str_disk_tab_id) ).slider({
+          var size_input = $( "#SIZE",  disk_section );
+          var size_unit  = $( "#size_unit",  disk_section );
+          var size_slider = $( "#size_slider",  disk_section ).slider({
               min: 0,
               max: 4096,
               range: "min",
@@ -1150,29 +1152,29 @@ function setupCreateTemplateDialog(){
             previous_row = this;
             $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
             
-            $('#IMAGE', $('div#' + str_disk_tab_id)).text(aData[4]);
-            $('#IMAGE_ID', $('div#' + str_disk_tab_id)).val(aData[1]);
+            $('#IMAGE', disk_section).text(aData[4]);
+            $('#IMAGE_ID', disk_section).val(aData[1]);
             return false;
         });
 
         // Hide image advanced options
-        $('.image .advanced', $('div#' + str_disk_tab_id)).hide();
+        $('.image .advanced', disk_section).hide();
 
-        $('#advanced_image', $('div#' + str_disk_tab_id)).click(function(){
-            $('.image .advanced', $('div#' + str_disk_tab_id)).toggle();
+        $('#advanced_image', disk_section).click(function(){
+            $('.image .advanced', disk_section).toggle();
             return false;
         });
 
         // Hide volatile advanced options
-        $('.volatile .advanced', $('div#' + str_disk_tab_id)).hide();
+        $('.volatile .advanced', disk_section).hide();
 
-        $('#advanced_volatile', $('div#' + str_disk_tab_id)).click(function(){
-            $('.volatile .advanced', $('div#' + str_disk_tab_id)).toggle();
+        $('#advanced_volatile', disk_section).click(function(){
+            $('.volatile .advanced', disk_section).toggle();
             return false;
         });
 
-        setupTips($('div#' + str_disk_tab_id));
-        $('button',$('div#' + str_disk_tab_id)).button();
+        setupTips(disk_section);
+        $('button',disk_section).button();
 
         number_of_disks++;
         disks_index++;
@@ -1459,7 +1461,7 @@ function setupCreateTemplateDialog(){
     var add_os_tab = function() {
       var html_tab_content = '<div id="os_tab" class="wizard_tab">'+     
       '<form>'+
-        '<div class="row">'+
+        '<div class="row vm_param">'+
           '<div class="six columns">'+ 
               '<div class="row">'+
                 '<div class="four columns">'+
@@ -1535,10 +1537,10 @@ function setupCreateTemplateDialog(){
               '<legend>'+tr("Kernel")+'</legend>'+
               '<div class="row">'+
                 '<div class="six columns">'+
-                  '<input type="radio" name="kernel_type" value="kernel_ds" checked> Registered Image'+
+                  '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> Registered Image'+
                 '</div>'+
                 '<div class="six columns">'+
-                  '<input type="radio" name="kernel_type" value="kernel_path"> Remote PATH'+
+                  '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> Remote PATH'+
                 '</div>'+
               '</div>'+
               '<br>'+
@@ -1591,10 +1593,10 @@ function setupCreateTemplateDialog(){
               '<legend>'+tr("Ramdisk")+'</legend>'+
               '<div class="row">'+
                 '<div class="six columns">'+
-                  '<input type="radio" name="initrd_type" value="initrd_ds" checked> Registered Image '+
+                  '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> Registered Image '+
                 '</div>'+
                 '<div class="six columns">'+
-                  '<input type="radio" name="initrd_type" value="initrd_path"> Remote PATH'+
+                  '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> Remote PATH'+
                 '</div>'+
               '</div>'+
               '<br>'+
@@ -1720,6 +1722,7 @@ function setupCreateTemplateDialog(){
               });
 
               updateView(image_list_array, dataTable_template_kernel);
+              dataTable_template_kernel.fnFilter("KERNEL", 6)
           }, 
           error: onError
         });
@@ -1790,11 +1793,12 @@ function setupCreateTemplateDialog(){
               });
 
               updateView(image_list_array, datTable_template_initrd);
+              datTable_template_initrd.fnFilter("RAMDISK", 6)
           }, 
           error: onError
         });
 
-        datTable_template_initrd.fnFilter("RAMDISK", 6)
+
         // TBD Add refresh button for the datatable
 
         // When a row is selected the background color is updated. If a previous row
@@ -2156,7 +2160,7 @@ function setupCreateTemplateDialog(){
               '<div id="selected_hosts_template"></div>'+
               '<br>'+
             '</div>'+
-          '<div id="disk_type" class="cluster_select hidden row">'+
+          '<div id="req_type" class="cluster_select hidden row">'+
               '<table id="datatable_template_clusters" class="display">'+
                 '<thead>'+
                   '<tr>'+
@@ -2534,7 +2538,7 @@ function setupCreateTemplateDialog(){
 
         vm_json["DISK"] = [];
 
-        $('div.disk div#disk_type.vm_param',dialog).each(function(){
+        $('div.disk div#disk_type.vm_param ',dialog).each(function(){
           var hash  = {};
           addSectionJSON(hash, this);
           vm_json["DISK"].push(hash);
@@ -2792,29 +2796,257 @@ function fillTemplatePopUp(request, response){
     setupCreateTemplateDialog();
     console.log(response.VMTEMPLATE)
 
+    function autoFillInputs(template_json, context){
+        console.log(context)
+        var params = $('.vm_param',context);
+        var inputs = $('input',params);
+        var selects = $('select:enabled',params);
+        var fields = $.merge(inputs,selects);
+
+        fields.each(function(){
+            var field = $(this);
+                if (template_json[field.attr('id')]){ //if has a length
+                    field.val(template_json[field.attr('id')]);
+                    field.change();
+
+                    if (field.parents(".advanced")) {
+                        $('.advanced', context).toggle();
+                    }
+                };
+        });
+    };
+
     var template = response.VMTEMPLATE.TEMPLATE;
 
-    var capacity_section = $('div#capacity_tab',$create_template_dialog);
+
+    //
+    // GENERAL
+    //
+   
+    var capacity_section = $('div#capacity_tab', $create_template_dialog);
+    autoFillInputs(template, capacity_section);
 
 
-    if (template.NAME) {
-        $('#NAME', capacity_section).val(template.NAME); 
+    //
+    // DISKS
+    //
+    
+    var number_of_disks = 0;
+
+    function fillDiskTab(disk) {
+        var str_disk_tab_id = 'disk' + number_of_disks;
+        var disk_section  = $('div#' + str_disk_tab_id, $create_template_dialog);
+
+        if (disk.IMAGE_ID) {
+            $('input#'+str_disk_tab_id+'radioImage', disk_section).click();
+
+            var dataTable_template_images = $("#datatable_template_images" + number_of_disks).dataTable();
+
+            // TODO updateView should not be required. Currently the dataTable
+            //  is filled twice.
+            OpenNebula.Image.list({
+                timeout: true, 
+                success: function (request, images_list){
+                    var image_list_array = [];
+
+                    $.each(images_list,function(){
+                        image_list_array.push(imageElementArray(this));
+                    });
+
+                    updateView(image_list_array, dataTable_template_images);
+
+                    var rows = dataTable_template_images.fnGetNodes();
+
+                    for (var j=0;j<rows.length;j++) {
+                        var current_row = $(rows[j]);
+                        var row_image_id = $(rows[j]).find("td:eq(0)").html();
+
+                        if (row_image_id == disk.IMAGE_ID) {
+                            rows[j].click();
+                        }
+                    }
+              }, 
+              error: onError
+            });
+
+        }
+        else {
+            $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
+        }
+
+        autoFillInputs(disk, $('div#disk_type.vm_param', disk_section));
     }
 
-    if (template.CPU) {
-        $('#CPU', capacity_section).val(template.CPU);
-        //$('#cpu_slider', capacity_section).slider( "value", template.CPU );
+    if (template.DISK) {
+        var disks = template.DISK
+
+        if (disks instanceof Array) {
+            $.each(disks, function(){
+                if (number_of_disks > 0) {
+                    $("#tf_btn_disks").click();
+                }
+
+                fillDiskTab(this);
+                number_of_disks++;
+            });
+        }
+        else if (disks instanceof Object) {
+            fillDiskTab(disks);
+        }
     }
 
-    if (template.MEMORY) {
-        $('#MEMORY', capacity_section).val(template.MEMORY);
-        //$('#memory_slider', capacity_section).slider( "value", template.MEMORY );
+
+    //
+    // NICS
+    //
+    
+    var number_of_nics = 0;
+
+    function fillNicTab(nic) {
+        var str_nic_tab_id = 'nic' + number_of_nics;
+        var nic_section  = $('div#' + str_nic_tab_id, $create_template_dialog);
+
+        var dataTable_template_networks = $("#datatable_template_networks" + number_of_nics).dataTable();
+
+        // TODO updateView should not be required. Currently the dataTable
+        //  is filled twice.
+        OpenNebula.Network.list({
+            timeout: true, 
+            success: function (request, networks_list){
+                var network_list_array = [];
+
+                $.each(networks_list,function(){
+                    network_list_array.push(vNetworkElementArray(this));
+                });
+
+                updateView(network_list_array, dataTable_template_networks);
+
+                var rows = dataTable_template_networks.fnGetNodes();
+
+                for (var j=0;j<rows.length;j++) {
+                    var current_row = $(rows[j]);
+                    var row_network_id = $(rows[j]).find("td:eq(1)").html();
+
+                    if (row_network_id == nic.NETWORK_ID) {
+                        rows[j].click();
+                    }
+                }
+          }, 
+          error: onError
+        });
+
+        autoFillInputs(nic, nic_section);
     }
 
-    if (template.VCPU) {
-        $('#VCPU', capacity_section).val(template.VCPU);
-        //$('#vcpu_slider', capacity_section).slider( "value", template.VCPU );    
+    if (template.NIC) {
+        var nics = template.NIC
+
+        if (nics instanceof Array) {
+            $.each(nics, function(){
+                if (number_of_nics > 0) {
+                    $("#tf_btn_nics").click();
+                }
+
+                fillNicTab(this);
+                number_of_nics++;
+            });
+        }
+        else if (nics instanceof Object) {
+            fillNicTab(nics);
+        }
     }
+
+
+    //
+    // OS
+    //
+    
+    var os = template.OS;
+    var os_section = $('div#os_tab', $create_template_dialog);
+
+    if (os) {
+        if (os.KERNEL_DS) {
+            $('input#radioKernelDs', os_section).click();
+
+            var dataTable_template = $("#datatable_kernel").dataTable();
+            var regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/;
+
+            // TODO updateView should not be required. Currently the dataTable
+            //  is filled twice.
+            OpenNebula.Image.list({
+                timeout: true, 
+                success: function (request, list){
+                    var list_array = [];
+
+                    $.each(list,function(){
+                        list_array.push(imageElementArray(this));
+                    });
+
+                    updateView(list_array, dataTable_template);
+                    dataTable_template.fnFilter("KERNEL", 6)
+
+                    var rows = dataTable_template.fnGetNodes();
+
+                    for (var j=0;j<rows.length;j++) {
+                        var current_row = $(rows[j]);
+                        var row_id = $(rows[j]).find("td:eq(0)").html();
+
+                        match = regexp.exec(os.KERNEL_DS)
+                        if (match && row_id == match[1]) {
+                            rows[j].click();
+                        }
+                    }
+              }, 
+              error: onError
+            });
+        }
+        else if (os.KERNEL) {
+            $('input#radioKernelPath', os_section).click();
+        };
+
+        if (os.INITRD_DS) {
+            $('input#radioInitrdDs', os_section).click();
+
+            var dataTable_template = $("#datatable_initrd").dataTable();
+            var regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/;
+
+            // TODO updateView should not be required. Currently the dataTable
+            //  is filled twice.
+            OpenNebula.Image.list({
+                timeout: true, 
+                success: function (request, list){
+                    var list_array = [];
+
+                    $.each(list,function(){
+                        list_array.push(imageElementArray(this));
+                    });
+
+                    updateView(list_array, dataTable_template);
+                    dataTable_template.fnFilter("RAMDISK", 6)
+
+                    var rows = dataTable_template.fnGetNodes();
+
+                    for (var j=0;j<rows.length;j++) {
+                        var current_row = $(rows[j]);
+                        var row_id = $(rows[j]).find("td:eq(0)").html();
+
+                        match = regexp.exec(os.INITRD_DS)
+                        if (match && row_id == match[1]) {
+                            rows[j].click();
+                        }
+                    }
+              }, 
+              error: onError
+            });
+        }
+        else if (os.INITRD) {
+            $('input#radioInitrdPath', os_section).click();
+        };
+
+        autoFillInputs(os, os_section);
+    }
+    
+
 
 
     popUpCreateTemplateDialog();
