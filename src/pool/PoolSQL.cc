@@ -593,6 +593,7 @@ void PoolSQL::acl_filter(int                       uid,
 
     vector<int> oids;
     vector<int> gids;
+    vector<int> cids;
 
     aclm->reverse_search(uid,
                          gid,
@@ -600,7 +601,8 @@ void PoolSQL::acl_filter(int                       uid,
                          AuthRequest::USE,
                          all,
                          oids,
-                         gids);
+                         gids,
+                         cids);
 
     for ( it = oids.begin(); it < oids.end(); it++ )
     {
@@ -610,6 +612,11 @@ void PoolSQL::acl_filter(int                       uid,
     for ( it = gids.begin(); it < gids.end(); it++ )
     {
         acl_filter << " OR gid = " << *it;
+    }
+
+    for ( it = cids.begin(); it < cids.end(); it++ )
+    {
+        acl_filter << " OR cid = " << *it;
     }
 
     filter = acl_filter.str();

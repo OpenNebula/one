@@ -52,6 +52,7 @@ public class Acl extends PoolElement{
         tmpUsers.put("#", 0x0000000100000000L);
         tmpUsers.put("@", 0x0000000200000000L);
         tmpUsers.put("*", 0x0000000400000000L);
+        tmpUsers.put("%", 0x0000000800000000L);
 
         USERS = Collections.unmodifiableMap(tmpUsers);
 
@@ -339,7 +340,7 @@ public class Acl extends PoolElement{
      */
     private static long calculateIds(String id) throws RuleParseException
     {
-        if( !id.matches("^([#@]\\d+|\\*)$") )
+        if( !id.matches("^([#@%]\\d+|\\*)$") )
         {
             throw new RuleParseException("ID string '" + id + "' malformed");
         }

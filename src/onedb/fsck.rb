@@ -313,7 +313,7 @@ module OneDBFsck
         end
 
         hosts_fix.each do |id, body|
-            @db[:host_pool].where(:oid => id).update(:body => body)
+            @db[:host_pool].where(:oid => id).update(:body => body, :cid => -1)
         end
 
 
@@ -361,7 +361,7 @@ module OneDBFsck
         end
 
         datastores_fix.each do |id, body|
-            @db[:datastore_pool].where(:oid => id).update(:body => body)
+            @db[:datastore_pool].where(:oid => id).update(:body => body, :cid => -1)
         end
 
 
@@ -390,7 +390,7 @@ module OneDBFsck
         end
 
         vnets_fix.each do |id, body|
-            @db[:network_pool].where(:oid => id).update(:body => body)
+            @db[:network_pool].where(:oid => id).update(:body => body, :cid => -1)
         end
 
 
@@ -532,7 +532,7 @@ module OneDBFsck
         end
 
 
-        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
 
         @db.fetch("SELECT * from datastore_pool") do |row|
             ds_id = row[:oid]
@@ -710,7 +710,7 @@ module OneDBFsck
                 "name VARCHAR(128), body TEXT, state INTEGER, " <<
                 "last_mon_time INTEGER, uid INTEGER, gid INTEGER, " <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER, " <<
-                "UNIQUE(name));"
+                "cid INTEGER, UNIQUE(name));"
 
         # Calculate the host's xml and write them to host_pool_new
         @db[:host_pool].each do |row|
@@ -1037,7 +1037,7 @@ module OneDBFsck
         ########################################################################
 
         # Create a new empty table where we will store the new calculated values
-        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
+        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
 
         @db[:network_pool].each do |row|
             doc = Document.new(row[:body])

@@ -17,13 +17,14 @@
 #include "AclRule.h"
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
-    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 const long long AclRule::INDIVIDUAL_ID  = 0x0000000100000000LL;
 const long long AclRule::GROUP_ID       = 0x0000000200000000LL;
 const long long AclRule::ALL_ID         = 0x0000000400000000LL;
+const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
@@ -49,6 +50,11 @@ const AuthRequest::Operation AclRule::auth_operations[] = {
             AuthRequest::CREATE
 };
 
+const long long AclRule::INVALID_CLUSTER_OBJECTS =
+        PoolObjectSQL::VM | PoolObjectSQL::IMAGE | PoolObjectSQL::USER |
+        PoolObjectSQL::TEMPLATE | PoolObjectSQL::GROUP | PoolObjectSQL::ACL |
+        PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -56,6 +62,7 @@ bool AclRule::malformed(string& error_str) const
 {
     ostringstream oss;
     bool error = false;
+    long long resource_type;
 
     // Check user
 
@@ -122,7 +129,11 @@ bool AclRule::malformed(string& error_str) const
 
     // Check resource
 
-    if ( (resource & INDIVIDUAL_ID) != 0 && (resource & GROUP_ID) != 0 )
+    if ( ( (resource & INDIVIDUAL_ID) != 0 && (resource & 0xF00000000LL) != INDIVIDUAL_ID ) ||
+         ( (resource & GROUP_ID)      != 0 && (resource & 0xF00000000LL) != GROUP_ID ) ||
+         ( (resource & CLUSTER_ID)    != 0 && (resource & 0xF00000000LL) != CLUSTER_ID ) ||
+         ( (resource & ALL_ID)        != 0 && (resource & 0xF00000000LL) != ALL_ID )
+        )
     {
         if ( error )
         {
@@ -130,10 +141,13 @@ bool AclRule::malformed(string& error_str) const
         }
 
         error = true;
-        oss << "[resource] INDIVIDUAL (#) and GROUP (@) bits are exclusive";
+        oss << "[resource] INDIVIDUAL (#), GROUP (@), CLUSTER (%) "
+            << "and ALL (*) bits are exclusive";
     }
 
-    if ( (resource & INDIVIDUAL_ID) != 0 && (resource & ALL_ID) != 0 )
+    resource_type = resource_code() & 0xFFFFFFF000000000LL;
+
+    if ((resource & CLUSTER_ID) && (resource_type & INVALID_CLUSTER_OBJECTS))
     {
         if ( error )
         {
@@ -141,10 +155,13 @@ bool AclRule::malformed(string& error_str) const
         }
 
         error = true;
-        oss << "[resource] INDIVIDUAL (#) and ALL (*) bits are exclusive";
+        oss << "[resource] CLUSTER(%) selector can be applied only to "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::DATASTORE) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::HOST) << " and "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::NET) << " types";
     }
 
-    if ( (resource & GROUP_ID) != 0 && (resource & ALL_ID) != 0 )
+    if ( (resource & 0xF00000000LL) == 0 )
     {
         if ( error )
         {
@@ -152,18 +169,7 @@ bool AclRule::malformed(string& error_str) const
         }
 
         error = true;
-        oss << "[resource] GROUP (@) and ALL (*) bits are exclusive";
-    }
-
-    if ( (resource & 0x700000000LL) == 0 )
-    {
-        if ( error )
-        {
-            oss << "; ";
-        }
-
-        error = true;
-        oss << "[resource] is missing one of the INDIVIDUAL, GROUP or ALL bits";
+        oss << "[resource] is missing one of the INDIVIDUAL, GROUP, CLUSTER or ALL bits";
     }
 
     if ( resource_id() < 0 )
@@ -294,6 +300,10 @@ void AclRule::build_str()
     {
         oss << "#" << resource_id();
     }
+    else if ( (resource & CLUSTER_ID) != 0 )
+    {
+        oss << "%" << resource_id();
+    }
     else if ( (resource & ALL_ID) != 0 )
     {
         oss << "*";
@@ -302,7 +312,7 @@ void AclRule::build_str()
     {
         oss << "??";
     }
-    
+
     oss << " ";
 
     prefix = false;
@@ -360,7 +370,7 @@ int AclRule::from_xml(xmlNodePtr node)
             break;
         }
 
-        xmlNodePtr elem = acl->children; 
+        xmlNodePtr elem = acl->children;
 
         if ( elem->type != XML_TEXT_NODE )
         {

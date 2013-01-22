@@ -24,13 +24,13 @@
 const char * Datastore::table = "datastore_pool";
 
 const char * Datastore::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
+        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid";
 
 const char * Datastore::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS datastore_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
+    "cid INTEGER, UNIQUE(name))";
 
 /* ************************************************************************ */
 /* Datastore :: Constructor/Destructor                                      */
@@ -268,7 +268,8 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid                 << ","
         <<          owner_u             << ","
         <<          group_u             << ","
-        <<          other_u             << ")";
+        <<          other_u             << ","
+        <<          cluster_id          << ")";
 
 
     rc = db->exec(oss);

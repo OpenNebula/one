@@ -22,7 +22,7 @@ module OpenNebula
     #     USER      -> #<num>
     #                  @<num>
     #                  ALL
-    #     RESOURCE  -> + separated list and "/{#,@}<num>|ALL"
+    #     RESOURCE  -> + separated list and "/{#,@,%}<num>|ALL"
     #                  VM,
     #                  HOST
     #                  NET
@@ -41,7 +41,8 @@ module OpenNebula
         USERS = {
             "UID"           => 0x100000000,
             "GID"           => 0x200000000,
-            "ALL"           => 0x400000000
+            "ALL"           => 0x400000000,
+            "CLUSTER"       => 0x800000000
         }
 
         RESOURCES =
@@ -236,7 +237,7 @@ private
         # @return [Integer] the numeric value for the given id_str
         def self.calculate_ids(id_str)
             raise "ID string '#{id_str}' malformed" if
-                !id_str.match(/^([\#@]\d+|\*)$/)
+                !id_str.match(/^([\#@\%]\d+|\*)$/)
 
             value = 0
 
@@ -251,6 +252,10 @@ private
 
                 when "*"
                     users_value = USERS["ALL"]
+
+                when "%"
+                    value = USERS["CLUSTER"]
+                    users_value = id_str[1..-1].to_i + value
             end
 
             return users_value

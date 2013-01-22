@@ -62,12 +62,12 @@ Host::~Host()
 const char * Host::table = "host_pool";
 
 const char * Host::db_names =
-    "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u";
+    "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u, cid";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, state INTEGER, "
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
-    "group_u INTEGER, other_u INTEGER, UNIQUE(name))";
+    "group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name))";
 
 
 const char * Host::monit_table = "host_monitoring";
@@ -136,7 +136,8 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid                 << ","
         <<          owner_u             << ","
         <<          group_u             << ","
-        <<          other_u             << ")";
+        <<          other_u             << ","
+        <<          cluster_id          << ")";
 
     rc = db->exec(oss);
 

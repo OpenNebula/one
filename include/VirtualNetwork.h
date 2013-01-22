@@ -36,7 +36,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 /**
- *  The Virtual Network class. It represents a Virtual Network at manages its 
+ *  The Virtual Network class. It represents a Virtual Network at manages its
  *  leases. One lease is formed by one IP and one MAC address.
  *  MAC address are derived from IP addresses.
  */
@@ -70,7 +70,7 @@ public:
     /**
      * Adds Leases to the virtual network (Only implemented for FIXED networks)
      *  @param leases template in the form LEASES = [IP=XX, MAC=XX].
-     *         MAC is optional. The template can only contain one LEASE 
+     *         MAC is optional. The template can only contain one LEASE
      *         definition.
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
@@ -78,7 +78,7 @@ public:
     int add_leases(VirtualNetworkTemplate * leases, string& error_msg);
 
     /**
-     * Removes Leases from the virtual network; if they are not used.(Only 
+     * Removes Leases from the virtual network; if they are not used.(Only
      * implemented for FIXED networks)
      *  @param leases template in the form LEASES = [IP=XX].
      *         The template can only contain one LEASE definition.
@@ -146,7 +146,7 @@ public:
     };
 
     /**
-     *  Check if a VM is the owner of the ip 
+     *  Check if a VM is the owner of the ip
      *    @param ip of the lease to be checked
      *    @param vid the ID of the VM
      *    @return true if the ip was already assigned
@@ -216,7 +216,7 @@ private:
      *  Name of the physical device the bridge should be attached to
      */
     string  phydev;
-    
+
     /**
      *  VLAN ID of the NIC
      */
@@ -327,8 +327,8 @@ private:
      *  Reads the Virtual Network (identified with its OID) from the database.
      *    @param db pointer to the db
      *    @param name of the network
-     *    @param uid of the owner 
-     * 
+     *    @param uid of the owner
+     *
      *    @return 0 on success
      */
     int select(SqlDB * db, const string& name, int uid);
