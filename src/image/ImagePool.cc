@@ -67,6 +67,7 @@ int ImagePool::allocate (
         int                      gid,
         const string&            uname,
         const string&            gname,
+        int                      umask,
         ImageTemplate *          img_template,
         int                      ds_id,
         const string&            ds_name,
@@ -86,7 +87,7 @@ int ImagePool::allocate (
     string          type;
     ostringstream   oss;
 
-    img = new Image(uid, gid, uname, gname, img_template);
+    img = new Image(uid, gid, uname, gname, umask, img_template);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

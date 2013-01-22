@@ -519,6 +519,14 @@ protected:
     };
 
     /**
+     * Initializes the object's permissions, according to the provided umask.
+     *
+     * @param umask Permission mask, similar to unix umask.
+     * For example a umask of 137 will set the permissions "um- u-- ---"
+     */
+    void set_umask(int umask);
+
+    /**
      *  The object's unique ID
      */
     int     oid;

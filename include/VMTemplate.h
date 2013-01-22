@@ -117,6 +117,7 @@ protected:
                int gid,
                const string& uname,
                const string& gname,
+               int umask,
                VirtualMachineTemplate * _template_contents);
 
     ~VMTemplate();

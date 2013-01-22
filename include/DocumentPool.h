@@ -38,6 +38,7 @@ public:
      *    @param gid the id of the group this object is assigned to
      *    @param uname name of the owner user
      *    @param gname name of the group
+     *    @param umask permissions umask
      *    @param type for the new Document
      *    @param template_contents a Template object
      *    @param oid the id assigned to the Document
@@ -49,13 +50,14 @@ public:
                  int                      gid,
                  const string&            uname,
                  const string&            gname,
+                 int                      umask,
                  int                      type,
                  Template *               template_contents,
                  int *                    oid,
                  string&                  error_str)
     {
         *oid = PoolSQL::allocate(
-            new Document(-1, uid, gid, uname, gname, type, template_contents),
+            new Document(-1, uid, gid, uname, gname, umask, type, template_contents),
             error_str);
 
         return *oid;
@@ -115,7 +117,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Document(-1,-1,-1,"","",0,0);
+        return new Document(-1,-1,-1,"","",0,0,0);
     };
 };
 

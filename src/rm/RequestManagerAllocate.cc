@@ -131,12 +131,30 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
     Template * tmpl = 0;
 
     string error_str;
-    int    rc, id;
+    int    rc, id, umask;
 
     Cluster *       cluster      = 0;
     int             cluster_id   = ClusterPool::NONE_CLUSTER_ID;
     string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
     PoolObjectAuth  cluster_perms;
+
+    User *          user;
+    UserPool *      upool = Nebula::instance().get_upool();
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     if ( do_template == true )
     {
@@ -179,7 +197,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    rc = pool_allocate(params, tmpl, id, error_str, att, cluster_id, cluster_name);
+    rc = pool_allocate(params, tmpl, id, error_str, att, cluster_id, cluster_name, umask);
 
     if ( rc < 0 )
     {
@@ -234,11 +252,13 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
-                                          Template * tmpl,
-                                          int& id,
-                                          string& error_str,
-                                          RequestAttributes& att)
+int VirtualMachineAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
 {
     bool on_hold = false;
 
@@ -252,8 +272,8 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 
     Template tmpl_back(*tmpl);
 
-    int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
-                error_str, on_hold);
+    int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+            ttmpl, &id, error_str, on_hold);
 
     if ( rc < 0 )
     {
@@ -274,13 +294,14 @@ int VirtualNetworkAllocate::pool_allocate(
         string&                     error_str,
         RequestAttributes&          att,
         int                         cluster_id,
-        const string&               cluster_name)
+        const string&               cluster_name,
+        int                         umask)
 {
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
-    return vpool->allocate(att.uid, att.gid, att.uname, att.gname, vtmpl, &id,
-            cluster_id, cluster_name, error_str);
+    return vpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+            vtmpl, &id, cluster_id, cluster_name, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -309,17 +330,40 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     Nebula&  nd  = Nebula::instance();
 
+    UserPool *      upool  = nd.get_upool();
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
     ImageManager *  imagem = nd.get_imagem();
 
-    ImageTemplate * tmpl = new ImageTemplate;
+    ImageTemplate * tmpl;
     Template        img_usage;
 
+    User *          user;
     Datastore *     ds;
     Image::DiskType ds_disk_type;
 
+    int             umask;
+
+    // ------------------------- Get user's umask ------------------------------
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
+
     // ------------------------- Parse image template --------------------------
+
+    tmpl = new ImageTemplate;
 
     rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
 
@@ -456,6 +500,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          att.gid,
                          att.uname,
                          att.gname,
+                         umask,
                          tmpl,
                          ds_id,
                          ds_name,
@@ -490,18 +535,20 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
-                                    Template * tmpl,
-                                    int& id,
-                                    string& error_str,
-                                    RequestAttributes& att)
+int TemplateAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
 {
     VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
 
     VirtualMachineTemplate * ttmpl=static_cast<VirtualMachineTemplate *>(tmpl);
 
-    return tpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
-            error_str);
+    return tpool->allocate(att.uid, att.gid, att.uname, att.gname, umask, ttmpl,
+            &id, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -514,7 +561,8 @@ int HostAllocate::pool_allocate(
         string&                     error_str,
         RequestAttributes&          att,
         int                         cluster_id,
-        const string&               cluster_name)
+        const string&               cluster_name,
+        int                         umask)
 {
     string host    = xmlrpc_c::value_string(paramList.getString(1));
     string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
@@ -531,11 +579,13 @@ int HostAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
-                                Template * tmpl,
-                                int& id,
-                                string& error_str,
-                                RequestAttributes& att)
+int UserAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
 {
     string uname  = xmlrpc_c::value_string(paramList.getString(1));
     string passwd = xmlrpc_c::value_string(paramList.getString(2));
@@ -580,11 +630,13 @@ void UserAllocate::log_xmlrpc_param(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
-                                 Template * tmpl,
-                                 int& id,
-                                 string& error_str,
-                                 RequestAttributes& att)
+int GroupAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
 {
     string gname = xmlrpc_c::value_string(paramList.getString(1));
 
@@ -603,24 +655,27 @@ int DatastoreAllocate::pool_allocate(
         string&                     error_str,
         RequestAttributes&          att,
         int                         cluster_id,
-        const string&               cluster_name)
+        const string&               cluster_name,
+        int                         umask)
 {
     DatastorePool * dspool = static_cast<DatastorePool *>(pool);
 
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
-    return dspool->allocate(att.uid, att.gid, att.uname, att.gname,
+    return dspool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
             ds_tmpl, &id, cluster_id, cluster_name, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ClusterAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
-                                    Template * tmpl,
-                                    int& id,
-                                    string& error_str,
-                                    RequestAttributes& att)
+int ClusterAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
 {
     string name = xmlrpc_c::value_string(paramList.getString(1));
 
@@ -632,16 +687,18 @@ int ClusterAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DocumentAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
-                                    Template * tmpl,
-                                    int& id,
-                                    string& error_str,
-                                    RequestAttributes& att)
+int DocumentAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att,
+        int                         umask)
 {
     int type = xmlrpc_c::value_int(paramList.getInt(2));
 
     DocumentPool * docpool = static_cast<DocumentPool *>(pool);
 
-    return docpool->allocate(att.uid, att.gid, att.uname, att.gname, type,
-            tmpl, &id, error_str);
+    return docpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+            type, tmpl, &id, error_str);
 }

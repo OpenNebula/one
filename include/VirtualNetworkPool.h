@@ -45,6 +45,9 @@ public:
      *  Function to allocate a new VNET object
      *    @param uid user identifier
      *    @param gid the id of the group this object is assigned to
+     *    @param uname user name
+     *    @param gname group name
+     *    @param umask permissions umask
      *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
      *    @param cluster_id the id of the cluster this VNET will belong to
@@ -57,6 +60,7 @@ public:
         int                         gid,
         const string&               uname,
         const string&               gname,
+        int                         umask,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
         int                         cluster_id,
@@ -169,7 +173,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(-1,-1,"","",-1,"",0);
+        return new VirtualNetwork(-1,-1,"","",0,-1,"",0);
     };
 
     /**

@@ -47,7 +47,6 @@ DatastorePool::DatastorePool(SqlDB * db):
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
         DatastoreTemplate * ds_tmpl;
-        Datastore *         ds;
 
         int     rc;
 
@@ -71,6 +70,7 @@ DatastorePool::DatastorePool(SqlDB * db):
                 GroupPool::ONEADMIN_ID,
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
+                0137,
                 ds_tmpl,
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
@@ -104,6 +104,7 @@ DatastorePool::DatastorePool(SqlDB * db):
                 GroupPool::ONEADMIN_ID,
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
+                0133,
                 ds_tmpl,
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
@@ -114,18 +115,6 @@ DatastorePool::DatastorePool(SqlDB * db):
         {
             goto error_bootstrap;
         }
-
-        ds = get(rc, true);
-
-        ds->set_permissions(
-                -1,-1,-1,
-                -1,-1,-1,
-                1,-1,-1,
-                error_str);
-
-        update(ds);
-
-        ds->unlock();
 
         // ---------------------------------------------------------------------
         // Create the default file datastore
@@ -149,6 +138,7 @@ DatastorePool::DatastorePool(SqlDB * db):
                 GroupPool::ONEADMIN_ID,
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
+                0133,
                 ds_tmpl,
                 &rc,
                 ClusterPool::NONE_CLUSTER_ID,
@@ -159,18 +149,6 @@ DatastorePool::DatastorePool(SqlDB * db):
         {
             goto error_bootstrap;
         }
-
-        ds = get(rc, true);
-
-        ds->set_permissions(
-                -1,-1,-1,
-                -1,-1,-1,
-                1,-1,-1,
-                error_str);
-
-        update(ds);
-
-        ds->unlock();
 
         // User created datastores will start from ID 100
         set_update_lastOID(99);
@@ -194,6 +172,7 @@ int DatastorePool::allocate(
         int                 gid,
         const string&       uname,
         const string&       gname,
+        int                 umask,
         DatastoreTemplate * ds_template,
         int *               oid,
         int                 cluster_id,
@@ -205,7 +184,7 @@ int DatastorePool::allocate(
     string          name;
     ostringstream   oss;
 
-    ds = new Datastore(uid, gid, uname, gname,
+    ds = new Datastore(uid, gid, uname, gname, umask,
             ds_template, cluster_id, cluster_name);
 
     // -------------------------------------------------------------------------

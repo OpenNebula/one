@@ -210,6 +210,7 @@ int VirtualMachinePool::allocate (
     int            gid,
     const string&  uname,
     const string&  gname,
+    int            umask,
     VirtualMachineTemplate * vm_template,
     int *          oid,
     string&        error_str,
@@ -220,7 +221,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine(-1, uid, gid, uname, gname, vm_template);
+    vm = new VirtualMachine(-1, uid, gid, uname, gname, umask, vm_template);
 
     if ( _submit_on_hold == true || on_hold )
     {

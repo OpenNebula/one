@@ -17,6 +17,7 @@
 #include "PoolObjectSQL.h"
 #include "PoolObjectAuth.h"
 #include "SSLTools.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -301,6 +302,44 @@ int PoolObjectSQL::set_permissions( int _owner_u,
 error_value:
     error_str = "New permission values must be -1, 0 or 1";
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::set_umask(int umask)
+{
+    int perms;
+    bool enable_other;
+
+    Nebula::instance().get_configuration_attribute(
+            "ENABLE_OTHER_PERMISSIONS", enable_other);
+
+    if (uid == 0 || gid == 0)
+    {
+        perms = 0777;
+    }
+    else if (enable_other)
+    {
+        perms = 0666;
+    }
+    else
+    {
+        perms = 0660;
+    }
+
+    perms = perms & ~umask;
+
+    owner_u = ( (perms & 0400) != 0 ) ? 1 : 0;
+    owner_m = ( (perms & 0200) != 0 ) ? 1 : 0;
+    owner_a = ( (perms & 0100) != 0 ) ? 1 : 0;
+    group_u = ( (perms & 0040) != 0 ) ? 1 : 0;
+    group_m = ( (perms & 0020) != 0 ) ? 1 : 0;
+    group_a = ( (perms & 0010) != 0 ) ? 1 : 0;
+    other_u = ( (perms & 0004) != 0 ) ? 1 : 0;
+    other_m = ( (perms & 0002) != 0 ) ? 1 : 0;
+    other_a = ( (perms & 0001) != 0 ) ? 1 : 0;
+
 }
 
 /* -------------------------------------------------------------------------- */

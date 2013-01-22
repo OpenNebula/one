@@ -36,6 +36,9 @@ public:
      *  allocated for the object.
      *    @param uid user id (the owner of the Template)
      *    @param gid the id of the group this object is assigned to
+     *    @param uname user name
+     *    @param gname group name
+     *    @param umask permissions umask
      *    @param template_contents a VM Template object
      *    @param oid the id assigned to the Template
      *    @param error_str Returns the error reason, if any
@@ -46,6 +49,7 @@ public:
                  int                      gid,
                  const string&            uname,
                  const string&            gname,
+                 int                      umask,
                  VirtualMachineTemplate * template_contents,
                  int *                    oid,
                  string&                  error_str);
@@ -118,7 +122,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VMTemplate(-1,-1,-1,"","",0);
+        return new VMTemplate(-1,-1,-1,"","",0,0);
     };
 };
 

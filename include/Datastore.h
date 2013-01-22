@@ -195,6 +195,7 @@ private:
             int                 gid,
             const string&       uname,
             const string&       gname,
+            int                 umask,
             DatastoreTemplate*  ds_template,
             int                 cluster_id,
             const string&       cluster_name);

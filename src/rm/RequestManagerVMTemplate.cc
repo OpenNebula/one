@@ -30,6 +30,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     int  rc;
     int  vid;
+    int  umask;
 
     ostringstream sid;
 
@@ -37,11 +38,13 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     Nebula& nd = Nebula::instance();
 
-    VirtualMachinePool* vmpool = nd.get_vmpool();
-    VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
+    VirtualMachinePool* vmpool  = nd.get_vmpool();
+    VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
+    UserPool *          upool   = nd.get_upool();
 
     VirtualMachineTemplate * tmpl;
     VMTemplate *             rtmpl;
+    User *                   user;
 
     string error_str;
     string aname;
@@ -52,6 +55,25 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     {
         on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* Get user's umask                                                       */
+    /* ---------------------------------------------------------------------- */
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
@@ -138,8 +160,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     Template tmpl_back(*tmpl);
 
-    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
-            error_str, on_hold);
+    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+            tmpl, &vid, error_str, on_hold);
 
     if ( rc < 0 )
     {

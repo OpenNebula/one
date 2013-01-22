@@ -38,6 +38,7 @@ Image::Image(int             _uid,
              int             _gid,
              const string&   _uname,
              const string&   _gname,
+             int             _umask,
              ImageTemplate * _image_template):
         PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,table),
         type(OS),
@@ -64,6 +65,8 @@ Image::Image(int             _uid,
     {
         obj_template = new ImageTemplate;
     }
+
+    set_umask(_umask);
 }
 
 Image::~Image()

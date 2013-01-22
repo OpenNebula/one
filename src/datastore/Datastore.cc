@@ -41,6 +41,7 @@ Datastore::Datastore(
         int                 gid,
         const string&       uname,
         const string&       gname,
+        int                 umask,
         DatastoreTemplate*  ds_template,
         int                 cluster_id,
         const string&       cluster_name):
@@ -52,8 +53,6 @@ Datastore::Datastore(
             base_path(""),
             type(IMAGE_DS)
 {
-    group_u = 1;
-
     if (ds_template != 0)
     {
         obj_template = ds_template;
@@ -62,6 +61,10 @@ Datastore::Datastore(
     {
         obj_template = new DatastoreTemplate;
     }
+
+    set_umask(umask);
+
+    group_u = 1;
 }
 
 /* ------------------------------------------------------------------------ */

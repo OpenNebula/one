@@ -49,7 +49,8 @@ protected:
             Template *                  tmpl,
             int&                        id,
             string&                     error_str,
-            RequestAttributes&          att) = 0;
+            RequestAttributes&          att,
+            int                         umask) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -83,15 +84,16 @@ public:
             Template *                  tmpl,
             int&                        id,
             string&                     error_str,
-            RequestAttributes&          att)
+            RequestAttributes&          att,
+            int                         umask)
     {
         VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
 
         VirtualMachineTemplate * ttmpl =
                 static_cast<VirtualMachineTemplate *>(tmpl);
 
-        return tpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl,
-                &id, error_str);
+        return tpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+                ttmpl, &id, error_str);
     };
 };
 
@@ -127,12 +129,13 @@ public:
             Template *                  tmpl,
             int&                        id,
             string&                     error_str,
-            RequestAttributes&          att)
+            RequestAttributes&          att,
+            int                         umask)
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
         Document * doc = docpool->get(source_id, true);
 
-        return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
+        return docpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
                 doc->get_document_type(), tmpl, &id, error_str);
     };
 };

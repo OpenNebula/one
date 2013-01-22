@@ -43,6 +43,7 @@ VirtualMachine::VirtualMachine(int           id,
                                int           _gid,
                                const string& _uname,
                                const string& _gname,
+                               int           umask,
                                VirtualMachineTemplate * _vm_template):
         PoolObjectSQL(id,VM,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
@@ -70,6 +71,8 @@ VirtualMachine::VirtualMachine(int           id,
     }
 
     user_obj_template = new Template(false,'=',"USER_TEMPLATE");
+
+    set_umask(umask);
 }
 
 VirtualMachine::~VirtualMachine()

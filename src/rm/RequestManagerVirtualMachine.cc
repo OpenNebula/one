@@ -681,8 +681,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 {
     Nebula& nd  = Nebula::instance();
 
-    ImagePool *      ipool = nd.get_ipool();
-    DatastorePool * dspool = nd.get_dspool();
+    ImagePool *     ipool   = nd.get_ipool();
+    DatastorePool * dspool  = nd.get_dspool();
+    UserPool *      upool   = nd.get_upool();
 
     int    id       = xmlrpc_c::value_int(paramList.getInt(1));
     int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
@@ -695,8 +696,10 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     Image         *  img;
     Datastore     *  ds;
+    User          *  user;
     Image::DiskType  ds_disk_type;
 
+    int           umask;
     int           rc;
     string        error_str;
 
@@ -729,6 +732,25 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          att);
         return;
     }
+
+    // -------------------------------------------------------------------------
+    // Get user's umask
+    // -------------------------------------------------------------------------
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
@@ -859,6 +881,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          att.gid,
                          att.uname,
                          att.gname,
+                         umask,
                          itemplate,
                          ds_id,
                          ds_name,

@@ -1220,6 +1220,7 @@ protected:
                    int gid,
                    const string& uname,
                    const string& gname,
+                   int umask,
                    VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();
