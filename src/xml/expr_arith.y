@@ -105,17 +105,24 @@ expr:   STRING              { float val = 0.0;
 
                               ostringstream  xpath_t;
                               ostringstream  xpath_s;
+                              ostringstream  xpath_c;
 
                               vector<string> results;
 
                               xpath_t << "/HOST/TEMPLATE/" << $1;
                               xpath_s << "/HOST/HOST_SHARE/" << $1;
+                              xpath_c << "/HOST/CLUSTER_TEMPLATE/" << $1;
 
                               results = (*oxml)[xpath_t.str().c_str()];
 
                               if (results.size() == 0)
                               {
                                   results = (*oxml)[xpath_s.str().c_str()];
+                              }
+
+                              if (results.size() == 0)
+                              {
+                                  results = (*oxml)[xpath_c.str().c_str()];
                               }
 
                               if (results.size() != 0)
