@@ -19,6 +19,7 @@
 
 #include "Log.h"
 #include "HostPoolXML.h"
+#include "ClusterPoolXML.h"
 #include "VirtualMachinePoolXML.h"
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
@@ -47,6 +48,7 @@ protected:
 
     Scheduler():
         hpool(0),
+        clpool(0),
         vmpool(0),
         acls(0),
         timer(0),
@@ -65,6 +67,11 @@ protected:
         if ( hpool != 0)
         {
             delete hpool;
+        }
+
+        if ( clpool != 0)
+        {
+            delete clpool;
         }
 
         if ( vmpool != 0)
@@ -88,6 +95,7 @@ protected:
     // ---------------------------------------------------------------
 
     HostPoolXML *             hpool;
+    ClusterPoolXML *          clpool;
     VirtualMachinePoolXML *   vmpool;
 
     AclXML *                  acls;

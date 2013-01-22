@@ -14,32 +14,47 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <math.h>
-#include "HostXML.h"
+#include "ClusterPoolXML.h"
 
-
-float HostXML::hypervisor_mem; 
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void HostXML::init_attributes()
+void ClusterPoolXML::add_object(xmlNodePtr node)
 {
-    oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
-    cluster_id  = atoi(((*this)["/HOST/CLUSTER_ID"] )[0].c_str() );
+    if ( node == 0 || node->children == 0 )
+    {
+        NebulaLog::log("CLUSTER",Log::ERROR,
+                       "XML Node does not represent a valid Cluster");
 
-    disk_usage  = atoi(((*this)["/HOST/HOST_SHARE/DISK_USAGE"])[0].c_str());
-    mem_usage   = atoi(((*this)["/HOST/HOST_SHARE/MEM_USAGE"])[0].c_str());
-    cpu_usage   = atoi(((*this)["/HOST/HOST_SHARE/CPU_USAGE"])[0].c_str());
+        return;
+    }
 
-    max_disk    = atoi(((*this)["/HOST/HOST_SHARE/MAX_DISK"])[0].c_str());
-    max_mem     = atoi(((*this)["/HOST/HOST_SHARE/MAX_MEM"])[0].c_str());
-    max_cpu     = atoi(((*this)["/HOST/HOST_SHARE/MAX_CPU"])[0].c_str());
+    ClusterXML* cluster = new ClusterXML( node );
 
-    running_vms = atoi(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
+    objects.insert( pair<int,ObjectXML*>(cluster->get_oid(), cluster) );
+}
 
-    //Reserve memory for the hypervisor
-    max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ClusterPoolXML::load_info(xmlrpc_c::value &result)
+{
+    try
+    {
+        client->call( client->get_endpoint(),           // serverUrl
+                      "one.clusterpool.info",           // methodName
+                      "s",                              // arguments format
+                      &result,                          // resultP
+                      client->get_oneauth().c_str()     // argument
+                    );
+        return 0;
+    }
+    catch (exception const& e)
+    {
+        ostringstream   oss;
+        oss << "Exception raised: " << e.what();
+
+        NebulaLog::log("CLUSTER", Log::ERROR, oss);
+
+        return -1;
+    }
 }
 
 /* -------------------------------------------------------------------------- */

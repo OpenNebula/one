@@ -14,34 +14,39 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <math.h>
-#include "HostXML.h"
 
+#ifndef CLUSTER_XML_H_
+#define CLUSTER_XML_H_
 
-float HostXML::hypervisor_mem; 
+#include "ObjectXML.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
-void HostXML::init_attributes()
+class ClusterXML : public ObjectXML
 {
-    oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
-    cluster_id  = atoi(((*this)["/HOST/CLUSTER_ID"] )[0].c_str() );
+public:
+    ClusterXML(const string &xml_doc):ObjectXML(xml_doc)
+    {
+        init_attributes();
+    };
 
-    disk_usage  = atoi(((*this)["/HOST/HOST_SHARE/DISK_USAGE"])[0].c_str());
-    mem_usage   = atoi(((*this)["/HOST/HOST_SHARE/MEM_USAGE"])[0].c_str());
-    cpu_usage   = atoi(((*this)["/HOST/HOST_SHARE/CPU_USAGE"])[0].c_str());
+    ClusterXML(const xmlNodePtr node):ObjectXML(node)
+    {
+        init_attributes();
+    };
 
-    max_disk    = atoi(((*this)["/HOST/HOST_SHARE/MAX_DISK"])[0].c_str());
-    max_mem     = atoi(((*this)["/HOST/HOST_SHARE/MAX_MEM"])[0].c_str());
-    max_cpu     = atoi(((*this)["/HOST/HOST_SHARE/MAX_CPU"])[0].c_str());
+    int get_oid() const
+    {
+        return oid;
+    };
 
-    running_vms = atoi(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
+private:
+    int oid;
 
-    //Reserve memory for the hypervisor
-    max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
-}
+    void init_attributes()
+    {
+        oid = atoi(((*this)["/CLUSTER/ID"] )[0].c_str() );
+    };
+};
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
+#endif /* CLUSTER_XML_H_ */

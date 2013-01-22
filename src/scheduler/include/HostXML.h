@@ -40,6 +40,11 @@ public:
         return oid;
     };
 
+    int get_cid() const
+    {
+        return cluster_id;
+    };
+
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
@@ -82,6 +87,7 @@ public:
 
 private:
     int oid;
+    int cluster_id;
 
     // Host share values
     int disk_usage; /**< Disk allocated to VMs (in Mb).        */
