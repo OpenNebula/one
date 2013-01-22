@@ -598,6 +598,7 @@ void  LifeCycleManager::delete_action(int vid)
         break;
 
         case VirtualMachine::CLEANUP_RESUBMIT:
+        case VirtualMachine::CLEANUP_DELETE:
             vm->set_state(VirtualMachine::CLEANUP_DELETE);
             vmpool->update(vm);
 
