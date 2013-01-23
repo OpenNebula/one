@@ -471,6 +471,11 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
         }
 
+        if ( vm->get_vnm_mad() == "ovswitch" )
+        {
+            file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
+        }
+
         if( !mac.empty() )
         {
             file << "\t\t\t<mac address='" << mac << "'/>" << endl;
