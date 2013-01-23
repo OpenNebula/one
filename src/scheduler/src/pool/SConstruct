@@ -25,7 +25,8 @@ source_files=[
 	'HostPoolXML.cc',
 	'HostXML.cc',
 	'VirtualMachinePoolXML.cc',
-	'VirtualMachineXML.cc']
+	'VirtualMachineXML.cc',
+	'ClusterPoolXML.cc']
 
 # Build library
 sched_env.StaticLibrary(lib_name, source_files)

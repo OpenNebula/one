@@ -175,6 +175,7 @@ void Scheduler::start()
     // -----------------------------------------------------------
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
+    clpool = new ClusterPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client, 
                                        machines_limit,
                                        (live_rescheds == 1));
@@ -274,6 +275,24 @@ int Scheduler::set_up_pools()
     {
         return rc;
     }
+
+    //--------------------------------------------------------------------------
+    //Cleans the cache and get the cluster information
+    //--------------------------------------------------------------------------
+
+    rc = clpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
+    //Add to each host the corresponding cluster template
+    //--------------------------------------------------------------------------
+
+    hpool->merge_clusters(clpool);
+
 
     //--------------------------------------------------------------------------
     //Cleans the cache and get the pending VMs

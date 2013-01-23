@@ -14,34 +14,43 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <math.h>
-#include "HostXML.h"
 
+#ifndef CLUSTER_POOL_XML_H_
+#define CLUSTER_POOL_XML_H_
 
-float HostXML::hypervisor_mem; 
+#include "PoolXML.h"
+#include "ClusterXML.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
-void HostXML::init_attributes()
+class ClusterPoolXML : public PoolXML
 {
-    oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
-    cluster_id  = atoi(((*this)["/HOST/CLUSTER_ID"] )[0].c_str() );
+public:
 
-    disk_usage  = atoi(((*this)["/HOST/HOST_SHARE/DISK_USAGE"])[0].c_str());
-    mem_usage   = atoi(((*this)["/HOST/HOST_SHARE/MEM_USAGE"])[0].c_str());
-    cpu_usage   = atoi(((*this)["/HOST/HOST_SHARE/CPU_USAGE"])[0].c_str());
+    ClusterPoolXML(Client* client):PoolXML(client)
+    {};
 
-    max_disk    = atoi(((*this)["/HOST/HOST_SHARE/MAX_DISK"])[0].c_str());
-    max_mem     = atoi(((*this)["/HOST/HOST_SHARE/MAX_MEM"])[0].c_str());
-    max_cpu     = atoi(((*this)["/HOST/HOST_SHARE/MAX_CPU"])[0].c_str());
+    /**
+     *  Gets an object from the pool
+     *   @param oid the object unique identifier
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    ClusterXML * get(int oid) const
+    {
+        return static_cast<ClusterXML *>(PoolXML::get(oid));
+    };
 
-    running_vms = atoi(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
+protected:
 
-    //Reserve memory for the hypervisor
-    max_mem = static_cast<int>(hypervisor_mem * static_cast<float>(max_mem));
-}
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    {
+        return get_nodes("/CLUSTER_POOL/CLUSTER", content);
+    };
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+    void add_object(xmlNodePtr node);
 
+    int load_info(xmlrpc_c::value &result);
+};
+
+#endif /* CLUSTER_POOL_XML_H_ */

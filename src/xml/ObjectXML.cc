@@ -375,6 +375,65 @@ int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ObjectXML::add_node(
+        const char *    xpath_expr,
+        xmlNodePtr      node,
+        const char *    new_name)
+{
+    xmlXPathObjectPtr obj;
+    vector<string>    content;
+
+    obj = xmlXPathEvalExpression(
+        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+
+    if (obj == 0 || obj->nodesetval == 0)
+    {
+        return -1;
+    }
+
+    xmlNodeSetPtr ns = obj->nodesetval;
+    int           size = ns->nodeNr;
+    xmlNodePtr    cur;
+
+    for(int i = 0; i < size; ++i)
+    {
+        cur = ns->nodeTab[i];
+
+        if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
+        {
+            continue;
+        }
+
+        xmlNodePtr node_cpy = xmlCopyNode(node, 1);
+
+        if (node_cpy == 0)
+        {
+            xmlXPathFreeObject(obj);
+
+            return -1;
+        }
+
+        xmlNodeSetName(node_cpy, reinterpret_cast<const xmlChar *>(new_name));
+
+        xmlNodePtr res = xmlAddChild(cur, node_cpy);
+
+        if (res == 0)
+        {
+            xmlXPathFreeObject(obj);
+            xmlFreeNode(node_cpy);
+
+            return -1;
+        }
+    }
+
+    xmlXPathFreeObject(obj);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ObjectXML::update_from_str(const string &xml_doc)
 {
     if (xml != 0)
