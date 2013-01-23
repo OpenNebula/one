@@ -54,6 +54,7 @@ public:
         EPILOG_DELETE,
         EPILOG_DELETE_PREVIOUS,
         EPILOG_DELETE_STOP,
+        EPILOG_DELETE_BOTH,
         CHECKPOINT,
         DRIVER_CANCEL,
         FINALIZE
@@ -138,6 +139,20 @@ public:
         VirtualMachine *        vm,
         ostream&                xfr);
 
+    /**
+     *  This function generates the the epilog_delete sequence for current,
+     *  front-end and previous hosts.
+     *    @param vm pointer to VM, locked
+     *    @param xfr stream to write the commands
+     *    @param local true to delete the front-end
+     *    @param previous true to delete the previous host
+     *
+     *    @return 0 on success
+     */
+    int epilog_delete_commands(VirtualMachine *vm,
+                               ostream&        xfr,
+                               bool            local,
+                               bool            previous);
 private:
     /**
      *  Thread id for the Transfer Manager
@@ -247,7 +262,8 @@ private:
     void epilog_stop_action(int vid);
 
     /**
-     *  This function starts the epilog_delete sequence
+     *  This function starts the epilog_delete sequence in the current host
+     *    @param vid the Virtual Machine ID
      */
     void epilog_delete_action(int vid)
     {
@@ -256,6 +272,8 @@ private:
 
     /**
      *  This function starts the epilog_delete_stop sequence on the local host
+     *  i.e. the front-end (the VM is not running)
+     *    @param vid the Virtual Machine ID
      */
     void epilog_delete_stop_action(int vid)
     {
@@ -263,14 +281,22 @@ private:
     }
 
     /**
+     *  This function starts the epilog_delete sequence on the previous host
+     *    @param vid the Virtual Machine ID
+     */
+    void epilog_delete_previous_action(int vid);
+
+    /**
+     *  This function starts the epilog_delete sequence on the current and
+     *  previous hosts
+     *    @param vid the Virtual Machine ID
+     */
+    void epilog_delete_both_action(int vid);
+
+    /**
      *  This function starts the epilog_delete sequence
      */
     void epilog_delete_action(bool local, int vid);
-
-    /**
-     *  This function starts the epilog_delete sequence on the previous host
-     */
-    void epilog_delete_previous_action(int vid);
 
     /**
      *  This function starts the epilog sequence

@@ -109,6 +109,13 @@ public:
     void del_gid_rules(int gid);
 
     /**
+     * Deletes rules that apply to this cluster id
+     *
+     * @param cid The cluster id
+     */
+    void del_cid_rules(int cid);
+
+    /**
      * Deletes all rules that apply to this resource
      *
      * @param oid Id of the deleted object

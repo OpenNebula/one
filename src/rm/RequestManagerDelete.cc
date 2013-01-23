@@ -210,6 +210,21 @@ int GroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int ClusterDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+
+    if ( rc == 0 )
+    {
+        aclm->del_cid_rules(oid);
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
     User * user  = static_cast<User *>(object);

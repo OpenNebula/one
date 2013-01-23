@@ -127,7 +127,7 @@ void TransferManagerDriver::protocol(
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
-                case VirtualMachine::CLEANUP:
+                case VirtualMachine::CLEANUP_RESUBMIT:
                     lcm_action = LifeCycleManager::EPILOG_SUCCESS;
                     break;
 
@@ -164,7 +164,7 @@ void TransferManagerDriver::protocol(
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
-                case VirtualMachine::CLEANUP:
+                case VirtualMachine::CLEANUP_RESUBMIT:
                     lcm_action = LifeCycleManager::EPILOG_FAILURE;
                     break;
 

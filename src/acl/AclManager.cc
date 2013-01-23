@@ -624,6 +624,20 @@ void AclManager::del_gid_rules(int gid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AclManager::del_cid_rules(int cid)
+{
+    long long request = AclRule::CLUSTER_ID | cid;
+    long long resource_gid_mask = AclRule::CLUSTER_ID |
+                                  0x00000000FFFFFFFFLL;
+
+    // Delete rules that match
+    // __  __/%cid  __
+    del_resource_matching_rules(request, resource_gid_mask);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AclManager::del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type)
 {
     long long request = obj_type |
