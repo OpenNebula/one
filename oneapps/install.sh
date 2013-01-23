@@ -18,6 +18,6 @@
 
 . ../install_lib.sh
 
-copy_files "share/sunstone/* share/LICENSE" "$SHARE_LOCATION"
+copy_files "share/sunstone/* share/LICENSE share/NOTICE" "$SHARE_LOCATION"
 copy_files "share/version.rb" "$LIB_LOCATION"
 
