@@ -81,14 +81,15 @@ public:
         SHUTDOWN            = 12,
         CANCEL              = 13,
         FAILURE             = 14,
-        CLEANUP             = 15,
+        CLEANUP_RESUBMIT    = 15,
         UNKNOWN             = 16,
         HOTPLUG             = 17,
         SHUTDOWN_POWEROFF   = 18,
         BOOT_UNKNOWN        = 19,
         BOOT_POWEROFF       = 20,
         BOOT_SUSPENDED      = 21,
-        BOOT_STOPPED        = 22
+        BOOT_STOPPED        = 22,
+        CLEANUP_DELETE      = 23
     };
 
     // -------------------------------------------------------------------------

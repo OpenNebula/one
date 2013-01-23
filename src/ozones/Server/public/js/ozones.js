@@ -94,14 +94,15 @@ var oZones = {
                                "SHUTDOWN",
                                "CANCEL",
                                "FAILURE",
-                               "CLEANUP",
+                               "CLEANUP_RESUBMIT",
                                "UNKNOWN",
                                "HOTPLUG",
                                "SHUTDOWN_POWEROFF",
                                "BOOT_UNKNOWN",
                                "BOOT_POWEROFF",
                                "BOOT_SUSPENDED",
-                               "BOOT_STOPPED"][value]);
+                               "BOOT_STOPPED",
+                               "CLEANUP_DELETE"][value]);
                     break;
                 case "IMAGE":
                 case "image":

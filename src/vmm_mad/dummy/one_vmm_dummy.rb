@@ -128,6 +128,12 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:detach_disk],result,id)
     end
 
+    def cleanup(id, drv_message)
+        result = retrieve_result("cleanup")
+
+        send_message(ACTION[:cleanup],result,id)
+    end
+
     def poll(id, drv_message)
         result = retrieve_result("poll")
 
@@ -159,13 +165,33 @@ class DummyDriver < VirtualMachineDriver
                        "#{POLL_ATTRIBUTE[:nettx]}=#{prev_nettx+(50*rand(3))} " \
                        "#{POLL_ATTRIBUTE[:netrx]}=#{prev_netrx+(100*rand(4))} " \
                        "#{POLL_ATTRIBUTE[:usedmemory]}=#{max_memory * (rand(80)+20)/100} " \
-                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100}" 
+                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100}"
 
         send_message(ACTION[:poll],result,id,monitor_info)
     end
 
     private
 
+    # Retrives the result for a given action from the OpenNebula core. Each
+    # action has a defined set of responses in:
+    #    /tmp/opennebula_dummy_actions/<action_name>
+    #
+    # Each line of this file represents a response in the form:
+    #    <"sucess|0" | "failure|1" | "-"> [sleep]
+    #
+    #    - success or 1 returns SUCCESS
+    #    - failure o 0 returns FAILURE
+    #    - "-" returns nothing
+    #    - sleep optional number of seconds to wait before answering
+    #
+    # Example: /tmp/opennebula_dummy_actions/deploy
+    #  0
+    #  0
+    #  1 120
+    #  1
+    #  -
+    #  0
+    #
     def retrieve_result(action)
         begin
             actions = File.read(DUMMY_ACTIONS_DIR+"/#{action}")
@@ -178,18 +204,26 @@ class DummyDriver < VirtualMachineDriver
         action_id     %= actions_array.size
 
         if actions_array && actions_array[action_id]
-            result = actions_array[action_id]
-            if result == "success" || result == 0 || result == "0"
-                return RESULT[:success]
-            else
-                return RESULT[:failure]
-            end
 
             @actions_counter[action] += 1
+
+            result = actions_array[action_id].split
+
+            case result[0]
+            when "success", 1, "1"
+                sleep result[1].to_i if result[1]
+                return RESULT[:success]
+            when "failure", 0, "0"
+                sleep result[1].to_i if result[1]
+                return RESULT[:failure]
+            when "-"
+                return nil
+            else
+                return RESULT[:success]
+            end
         else
             return RESULT[:success]
         end
-
     end
 end
 

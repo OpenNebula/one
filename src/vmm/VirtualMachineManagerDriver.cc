@@ -106,8 +106,8 @@ void VirtualMachineManagerDriver::get_default(
 /* Helpers for the protocol function                                          */
 /* -------------------------------------------------------------------------- */
 
-static void log_error(VirtualMachine* vm, 
-                      ostringstream&  os, 
+static void log_error(VirtualMachine* vm,
+                      ostringstream&  os,
                       istringstream&  is,
                       const char *    msg)
 {
@@ -186,8 +186,7 @@ void VirtualMachineManagerDriver::protocol(
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP ||
-         vm->get_lcm_state() == VirtualMachine::FAILURE ||
+    if ( vm->get_lcm_state() == VirtualMachine::FAILURE ||
          vm->get_lcm_state() == VirtualMachine::LCM_INIT )
     {
         os.str("");
@@ -371,6 +370,25 @@ void VirtualMachineManagerDriver::protocol(
             vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::DETACH_FAILURE, id);
+        }
+    }
+    else if ( action == "CLEANUP" )
+    {
+        Nebula           &ne  = Nebula::instance();
+        LifeCycleManager *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM", Log::ERROR, "Host Successfully cleaned.");
+
+            lcm->trigger(LifeCycleManager::CLEANUP_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error cleaning Host");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::CLEANUP_FAILURE, id);
         }
     }
     else if ( action == "POLL" )

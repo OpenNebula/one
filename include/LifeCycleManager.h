@@ -62,6 +62,8 @@ public:
         ATTACH_FAILURE,   /**< Sent by the VMM when an attach action fails    */
         DETACH_SUCCESS,   /**< Sent by the VMM when a detach action succeeds  */
         DETACH_FAILURE,   /**< Sent by the VMM when a detach action fails     */
+        CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
+        CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */
@@ -145,7 +147,7 @@ private:
      *  the history registers
      *      @param vm with the lock aquired
      */
-    void clean_up_vm (VirtualMachine *vm);
+    void clean_up_vm (VirtualMachine *vm, bool dispose);
 
     void save_success_action(int vid);
 
@@ -184,6 +186,8 @@ private:
     void detach_success_action(int vid);
 
     void detach_failure_action(int vid);
+
+    void cleanup_callback_action(int vid);
 
     void deploy_action(int vid);
 
