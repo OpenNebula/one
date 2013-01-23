@@ -45,29 +45,30 @@
         <!-- LCM_STATE values, this sub-state is relevant only when STATE is
              ACTIVE (4)
 
-          LCM_INIT          = 0
-          PROLOG            = 1
-          BOOT              = 2
-          RUNNING           = 3
-          MIGRATE           = 4
-          SAVE_STOP         = 5
-          SAVE_SUSPEND      = 6
-          SAVE_MIGRATE      = 7
-          PROLOG_MIGRATE    = 8
-          PROLOG_RESUME     = 9
-          EPILOG_STOP       = 10
-          EPILOG            = 11
-          SHUTDOWN          = 12
-          CANCEL            = 13
-          FAILURE           = 14
-          CLEANUP           = 15
-          UNKNOWN           = 16
-          HOTPLUG           = 17
-          SHUTDOWN_POWEROFF = 18
-          BOOT_UNKNOWN      = 19
-          BOOT_POWEROFF     = 20
-          BOOT_SUSPENDED    = 21
-          BOOT_STOPPED      = 22
+          LCM_INIT            = 0,
+          PROLOG              = 1,
+          BOOT                = 2,
+          RUNNING             = 3,
+          MIGRATE             = 4,
+          SAVE_STOP           = 5,
+          SAVE_SUSPEND        = 6,
+          SAVE_MIGRATE        = 7,
+          PROLOG_MIGRATE      = 8,
+          PROLOG_RESUME       = 9,
+          EPILOG_STOP         = 10,
+          EPILOG              = 11,
+          SHUTDOWN            = 12,
+          CANCEL              = 13,
+          FAILURE             = 14,
+          CLEANUP_RESUBMIT    = 15,
+          UNKNOWN             = 16,
+          HOTPLUG             = 17,
+          SHUTDOWN_POWEROFF   = 18,
+          BOOT_UNKNOWN        = 19,
+          BOOT_POWEROFF       = 20,
+          BOOT_SUSPENDED      = 21,
+          BOOT_STOPPED        = 22,
+          CLEANUP_DELETE      = 23
         -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="RESCHED" type="xs:integer"/>
