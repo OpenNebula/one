@@ -268,6 +268,8 @@ public:
     };
 
     ~ClusterDelete(){};
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
