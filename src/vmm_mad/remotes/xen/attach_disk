@@ -58,7 +58,7 @@ block)
     FILE_PREFIX="phy"
     ;;
 *)
-    FILE_PREFIX=DEFAULT_FILE_PREFIX
+    FILE_PREFIX="$DEFAULT_FILE_PREFIX"
     ;;
 esac
 
