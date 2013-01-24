@@ -62,9 +62,15 @@ protected:
                              string& vnm,
                              string& tm,
                              string& ds_location,
-                             int& ds_id,
+                             int&    ds_id,
                              RequestAttributes& att,
                              PoolObjectAuth& host_perms);
+
+    bool check_host(int     hid,
+                    int     cpu,
+                    int     mem,
+                    int     disk,
+                    string& error);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
@@ -106,7 +112,7 @@ public:
     VirtualMachineDeploy():
         RequestManagerVirtualMachine("VirtualMachineDeploy",
                                      "Deploys a virtual machine",
-                                     "A:sii")
+                                     "A:siib")
     {
          auth_op = AuthRequest::ADMIN;
     };
@@ -126,7 +132,7 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("VirtualMachineMigrate",
                                      "Migrates a virtual machine",
-                                     "A:siib")
+                                     "A:siibb")
     {
          auth_op = AuthRequest::ADMIN;
     };

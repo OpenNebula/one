@@ -114,19 +114,29 @@ if is_iscsi "$DST_HOST"; then
 
     TARGET_HOST=$(iqn_get_host "$IQN")
 
-    LOGIN_CMD=$(cat <<EOF
-        set -e
-        mkdir -p $DST_DIR
-        $SUDO $(iscsiadm_discovery "$TARGET_HOST")
-        $SUDO $(iscsiadm_login "$IQN" "$TARGET_HOST")
+    LINK_CMD=$(cat <<EOF
+    set -e
+
+    # discover and login
+    mkdir -p $DST_DIR
+    $SUDO $(iscsiadm_discovery "$TARGET_HOST")
+    $SUDO $(iscsiadm_login "$IQN" "$TARGET_HOST")
+
+    # poll
+    while [ ! -L /dev/disk/by-path/*$IQN-lun-1 ]; do
         sleep 1
-        DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)
-        ln -sf "\$DISK_BY_PATH" "$DST_PATH"
+    done
+
+    # link
+    DISK_BY_PATH=\$(ls /dev/disk/by-path/*$IQN-lun-1)
+    ln -sf "\$DISK_BY_PATH" "$DST_PATH"
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$LOGIN_CMD" \
-    "Error logging in $IQN"
+    ssh_exec_and_log "$DST_HOST" "$LINK_CMD" \
+        "Error linking to $DISK_BY_PATH $DST_PATH"
+
+
 fi
 
 exit 0

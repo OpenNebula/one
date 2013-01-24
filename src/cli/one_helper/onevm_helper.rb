@@ -51,6 +51,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
     }
 
+    HOLD = {
+        :name  => "hold",
+        :large => "--hold",
+        :description => "Creates the new VM on hold state instead of pending"
+    }
+
     def self.rname
         "VM"
     end

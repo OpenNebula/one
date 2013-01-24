@@ -36,6 +36,7 @@ public class Template extends PoolElement
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String INSTANTIATE = METHOD_PREFIX + "instantiate";
     private static final String CLONE    = METHOD_PREFIX + "clone";
+    private static final String RENAME   = METHOD_PREFIX + "rename";
 
     /**
      * Creates a new Template representation.
@@ -199,11 +200,13 @@ public class Template extends PoolElement
      * @param client XML-RPC Client.
      * @param id The template id of the target template.
      * @param name A string containing the name of the VM instance, can be empty.
+     * @param onHold False to create this VM in pending state, true on hold
      * @return If successful the message contains the VM Instance ID.
      */
-    public static OneResponse instantiate(Client client, int id, String name)
+    public static OneResponse instantiate(Client client, int id, String name,
+        boolean onHold)
     {
-        return client.call(INSTANTIATE, id, name);
+        return client.call(INSTANTIATE, id, name, onHold);
     }
 
     /**
@@ -217,6 +220,19 @@ public class Template extends PoolElement
     public static OneResponse clone(Client client, int id, String name)
     {
         return client.call(CLONE, id, name);
+    }
+
+    /**
+     * Renames this Template
+     *
+     * @param client XML-RPC Client.
+     * @param id The Template id of the target Template.
+     * @param name New name for the Template.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
     }
 
     // =================================
@@ -372,11 +388,23 @@ public class Template extends PoolElement
      * Creates a VM instance from a Template
      * 
      * @param name A string containing the name of the VM instance, can be empty.
+     * @param onHold False to create this VM in pending state, true on hold
+     * @return If successful the message contains the VM Instance ID.
+     */
+    public OneResponse instantiate(String name, boolean onHold)
+    {
+        return instantiate(client, id, name, onHold);
+    }
+
+    /**
+     * Creates a VM instance from a Template
+     * 
+     * @param name A string containing the name of the VM instance, can be empty.
      * @return If successful the message contains the VM Instance ID.
      */
     public OneResponse instantiate(String name)
     {
-        return instantiate(client, id, name);
+        return instantiate(client, id, name, false);
     }
 
     /**
@@ -386,7 +414,7 @@ public class Template extends PoolElement
      */
     public OneResponse instantiate()
     {
-        return instantiate(client, id, "");
+        return instantiate(client, id, "", false);
     }
 
     /**
@@ -398,6 +426,17 @@ public class Template extends PoolElement
     public OneResponse clone(String name)
     {
         return clone(client, id, name);
+    }
+
+    /**
+     * Renames this Template
+     *
+     * @param name New name for the Template.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================

@@ -32,7 +32,8 @@ module OpenNebula
             :delete      => "template.delete",
             :chown       => "template.chown",
             :chmod       => "template.chmod",
-            :clone       => "template.clone"
+            :clone       => "template.clone",
+            :rename      => "template.rename"
         }
 
         # Creates a Template description with just its identifier
@@ -85,13 +86,18 @@ module OpenNebula
 
         # Creates a VM instance from a Template
         #
-        # +name+ A string containing the name of the VM instance.
-        # [return] The new VM Instance ID, or an Error object
-        def instantiate(name="")
+        # @param name [String] Name for the VM instance. If it is an empty
+        #   string OpenNebula will set a default name
+        # @param hold [true,false] false to create the VM in pending state,
+        #   true to create it on hold
+        #
+        # @return [Integer, OpenNebula::Error] The new VM id, Error
+        #   otherwise
+        def instantiate(name="", hold=false)
             return Error.new('ID not defined') if !@pe_id
 
             name ||= ""
-            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name)
+            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name, hold)
 
             return rc
         end
@@ -155,6 +161,16 @@ module OpenNebula
             rc = @client.call(TEMPLATE_METHODS[:clone], @pe_id, name)
 
             return rc
+        end
+
+        # Renames this Template
+        #
+        # @param name [String] New name for the Template.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(TEMPLATE_METHODS[:rename], @pe_id, name)
         end
 
         #######################################################################

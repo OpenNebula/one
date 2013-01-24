@@ -112,27 +112,28 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, bool resched) const
 
     try
     {
-        //TODO Get live migration from config file
         if (resched == true)
         {
             client->call(client->get_endpoint(),           // serverUrl
                          "one.vm.migrate",                 // methodName
-                         "siib",                           // arguments format
+                         "siibb",                          // arguments format
                          &deploy_result,                   // resultP
                          client->get_oneauth().c_str(),    // argument 0 (AUTH)
                          vid,                              // argument 1 (VM)
                          hid,                              // argument 2 (HOST)
-                         live_resched);                    // argument 3 (LIVE)
+                         live_resched,                     // argument 3 (LIVE)
+                         false);                           // argument 4 (ENFORCE)
         }
         else
         {
             client->call(client->get_endpoint(),           // serverUrl
                          "one.vm.deploy",                  // methodName
-                         "sii",                            // arguments format
+                         "siib",                           // arguments format
                          &deploy_result,                   // resultP
                          client->get_oneauth().c_str(),    // argument 0 (AUTH)
                          vid,                              // argument 1 (VM)
-                         hid);                             // argument 2 (HOST)
+                         hid,                              // argument 2 (HOST)
+                         false);                           // argument 3 (ENFORCE)
         }
     }
     catch (exception const& e)

@@ -237,7 +237,7 @@ function notifyMessage(msg){
 // Returns an HTML string with the json keys and values
 // Attempts to css format output, giving different values to
 // margins etc. according to depth level etc.
-// See exapmle of use in plugins.
+// See example of use in plugins.
 function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
     var str = ""
     if (!template_json){ return "Not defined";}
@@ -1217,7 +1217,7 @@ function quotaListItem(quota_json){
 */
 function progressBar(value, opts){
     if (value > 100) value = 100;
-    
+
     if (!opts) opts = {};
 
     if (!opts.width) opts.width = 'auto';
@@ -1261,4 +1261,174 @@ function loadAccounting(resource, id, graphs, options){
         graph_cfg.show_date = (end - start) > (3600 * 24)? true : false;
         Sunstone.runAction(resource+".accounting", id, graph_cfg);
     };
+}
+
+function insert_extended_template_table(template_json,resource_type,resource_id)
+{
+    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table">\
+                 <thead>\
+                   <tr>\
+                     <th colspan="2">' +
+                      tr("Extended Template") +
+                     '</th>\
+                   </tr>\
+                  </thead>\
+                  <tr>\
+                    <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
+                    <td class="value_td"><input type="text" name="new_value" id="new_value" /></td>\
+                    <td class=""><button id="button_add_value">'+tr("Add")+'</button>\</td>\
+                  </tr>' + fromJSONtoHTMLTable(template_json,
+                                               resource_type,
+                                               resource_id) +
+                 '</table>'
+
+    // Remove previous listeners
+    $("#new_key").die();
+    $("#new_value").die();
+    $("#div_minus").die();
+    $("#div_edit").die();
+    $(".input_edit_value").die();
+    $("button").die();
+
+    // Add listener for add key and add value for Extended Template
+    $('button').live("click", function() {
+        if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
+        {
+            template_json[$('#new_key').val()] = $('#new_value').val();
+
+            var template_str = "";
+            for(var key in template_json)
+                template_str=template_str+key+"="+ template_json[key]+"\n";
+
+            Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+        }
+    });
+
+    // Listener for key,value pair remove action
+    $("#div_minus").live("click", function() {
+        // Remove div_minus_ from the id
+        field=this.firstElementChild.id.substring(10,this.firstElementChild.id.length);
+        // Erase the value from the template
+        delete template_json[tr(field)];
+
+        // Convert from hash to string
+        var template_str = "\n";
+        for(var key in template_json)
+            template_str=template_str+key+"="+ template_json[key]+"\n";
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+    });
+
+    // Listener for key,value pair edit action
+    $("#div_edit").live("click", function() {
+        var key_str=this.firstElementChild.id.substring(9,this.firstElementChild.id.length);
+
+        var value_str = $("#value_td_input_"+key_str).text();
+        $("#value_td_input_"+key_str).html('<input class="input_edit_value" id="input_edit_'+key_str+'" type="text" value="'+value_str+'"/>');
+
+    });
+
+
+     $(".input_edit_value").live("change", function() {
+        var key_str   = this.id.substring(11,this.id.length);
+        var value_str = this.value;
+
+        delete template_json[key_str];
+        template_json[key_str]=value_str;
+
+        // Convert from hash to string
+        var template_str = "\n";
+        for(var key in template_json)
+            template_str=template_str+key+"="+ template_json[key]+"\n";
+
+        // Let OpenNebula know
+        Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
+    });
+
+    return str;
+}
+
+// Returns an HTML string with the json keys and values
+function fromJSONtoHTMLTable(template_json,resource_type,resource_id){
+    var str = ""
+    if (!template_json){ return "Not defined";}
+    var field = null;
+
+    if (template_json.constructor == Array){
+        for (field = 0; field < template_json.length; ++field){
+            str += fromJSONtoHTMLRow(field,
+                                      template_json[field],
+                                      template_json,
+                                      resource_type,
+                                      resource_id);
+        }
+    } else {
+        for (field in template_json) {
+            str += fromJSONtoHTMLRow(field,
+                                      template_json[field],
+                                      template_json,
+                                      resource_type,
+                                      resource_id);
+        }
+    }
+    return str;
+}
+
+// Helper for fromJSONtoHTMLTable function
+function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
+    var str = '<tr>\
+                  <td class="key_td">'+tr(field)+'</td>\
+                  <td class="value_td" id="value_td_input_'+tr(field)+'">'+value+'</td>\
+                  <td><div id="div_edit">\
+                         <a id="div_edit_'+tr(field)+'" class="edit_e" href="#">e</a>\
+                      </div>\
+                  </td>\
+                  <td><div id="div_minus">\
+                         <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
+                      </div>\
+                  </td>\
+               </tr>';
+
+    return str;
+}
+
+// Returns HTML with listeners to control permissions
+function insert_permissions_table(resource_type,resource_id){
+     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table" style="padding:0 10px;">\
+                     <thead><tr>\
+                         <td style="width:130px">'+tr("Permissions")+':</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
+                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="permission_check owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="permission_check owner_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="permission_check group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="permission_check group_a" /></td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Other")+'</td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="permission_check other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="permission_check other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="permission_check other_a" /></td>\
+                     </tr>\
+                   </table>'
+
+    $(".permission_check").die();
+    $(".permission_check").live('change',function(){
+        var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
+        var permissions_octect = { octet : buildOctet(permissions_table) };
+
+        Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
+    });
+
+    return str;
+
 }

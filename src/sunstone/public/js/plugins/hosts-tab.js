@@ -243,34 +243,12 @@ var host_actions = {
         error: hostMonitorError
     },
 
-    "Host.fetch_template" : {
-        type: "single",
-        call: OpenNebula.Host.fetch_template,
-        callback: function (request,response) {
-            $('#template_update_dialog #template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
-
-    "Host.update_dialog" : {
-        type: "custom",
-        call: function() {
-            popUpTemplateUpdateDialog("Host",
-                                      makeSelectOptions(dataTable_hosts,
-                                                        1,//id_col
-                                                        2,//name_col
-                                                        [],
-                                                        []
-                                                       ),
-                                      getSelectedNodes(dataTable_hosts));
-        }
-    },
-
-    "Host.update" : {
+    "Host.update_template" : {
         type: "single",
         call: OpenNebula.Host.update,
-        callback: function() {
+        callback: function(request) {
             notifyMessage(tr("Template updated correctly"));
+            Sunstone.runAction('Host.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -319,12 +297,7 @@ var host_buttons = {
         text: tr("+ New"),
         condition: mustBeAdmin
     },
-    "Host.update_dialog" : {
-        type: "action",
-        text: tr("Update a template"),
-        alwaysActive: true,
-        condition: mustBeAdmin
-    },
+
     "Host.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
@@ -571,53 +544,53 @@ function hostElementArray(host_json){
 
     // Generate CPU progress bars
     var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
-    if (!max_cpu) { 
+    if (!max_cpu) {
         max_cpu = 100
     }
 
     var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
     var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
 
-    var pb_allocated_cpu = progressBar(ratio_allocated_cpu, { 
+    var pb_allocated_cpu = progressBar(ratio_allocated_cpu, {
         label: allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)',
-        width: '150px', 
-        height: '15px', 
+        width: '150px',
+        height: '15px',
         fontSize: '1em' });
 
 
     var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
     var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
 
-    var pb_real_cpu      = progressBar(ratio_real_cpu, { 
+    var pb_real_cpu      = progressBar(ratio_real_cpu, {
         label: real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)',
-        width: '150px', 
-        height: '15px', 
+        width: '150px',
+        height: '15px',
         fontSize: '1em'});
 
 
     // Generate MEM progress bars
     var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
-    if (!max_mem) { 
+    if (!max_mem) {
         max_mem = 100
     }
 
     var allocated_mem = parseInt(host.HOST_SHARE.MEM_USAGE);
     var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
 
-    var pb_allocated_mem = progressBar(ratio_allocated_mem, { 
+    var pb_allocated_mem = progressBar(ratio_allocated_mem, {
         label: humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)',
-        width: '150px', 
-        height: '15px', 
+        width: '150px',
+        height: '15px',
         fontSize: '1em' });
 
 
     var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
     var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
 
-    var pb_real_mem      = progressBar(ratio_real_mem, { 
+    var pb_real_mem      = progressBar(ratio_real_mem, {
         label: humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)',
-        width: '150px', 
-        height: '15px', 
+        width: '150px',
+        height: '15px',
         fontSize: '1em' });
 
 
@@ -697,11 +670,11 @@ function updateHostInfo(request,host){
 
     //Information tab
     var info_tab = {
-        title : tr("Host information"),
+        title : tr("Information"),
         content :
         '<table id="info_host_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">' + tr("Host information") + ' - '+host_info.NAME+'</th></tr>\
+               <tr><th colspan="2">' + tr("Information for Host") + ' - '+host_info.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
@@ -768,18 +741,11 @@ function updateHostInfo(request,host){
                   <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
                </tr>\
             </tbody>\
-          </table>'
+          </table>' + insert_extended_template_table(host_info.TEMPLATE,
+                                         "Host",
+                                         host_info.ID)
     }
 
-    //Template tab
-    var template_tab = {
-        title : tr("Host template"),
-        content :
-        '<table id="host_template_table" class="info_table" style="width:80%">\
-                <thead><tr><th colspan="2">' + tr("Host template") + '</th></tr></thead>'+
-                prettyPrintJSON(host_info.TEMPLATE)+
-                '</table>'
-    }
 
     var monitor_tab = {
         title: tr("Monitoring information"),
@@ -788,7 +754,6 @@ function updateHostInfo(request,host){
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
 
     Sunstone.popUpInfoPanel("host_info_panel");

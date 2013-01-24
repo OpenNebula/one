@@ -200,6 +200,46 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool RequestManagerVirtualMachine::check_host(int     hid,
+                                              int     cpu,
+                                              int     mem,
+                                              int     disk,
+                                              string& error)
+{
+    Nebula&    nd    = Nebula::instance();
+    HostPool * hpool = nd.get_hpool();
+
+    Host * host;
+    bool   test;
+
+    host = hpool->get(hid, true);
+
+    if (host == 0)
+    {
+        error = "Host no longer exists";
+        return false;
+    }
+
+    test = host->test_capacity(cpu, mem, disk);
+
+    if (!test)
+    {
+        ostringstream oss;
+
+        oss << object_name(PoolObjectSQL::HOST)
+            << " " << hid << " does not have enough capacity.";
+
+        error = oss.str();
+    }
+
+    host->unlock();
+
+    return test;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 VirtualMachine * RequestManagerVirtualMachine::get_vm(int id,
                                                       RequestAttributes& att)
 {
@@ -387,31 +427,43 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string ds_location;
     int    ds_id;
 
-    int id  = xmlrpc_c::value_int(paramList.getInt(1));
-    int hid = xmlrpc_c::value_int(paramList.getInt(2));
+    int id          = xmlrpc_c::value_int(paramList.getInt(1));
+    int hid         = xmlrpc_c::value_int(paramList.getInt(2));
+    bool enforce    = false;
+
+    if ( paramList.size() != 3 )
+    {
+        enforce = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
 
     bool auth = false;
 
-    if (get_host_information(
-            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
-            host_perms) != 0)
+    if (get_host_information(hid,
+                             hostname,
+                             vmm_mad,
+                             vnm_mad,
+                             tm_mad,
+                             ds_location,
+                             ds_id,
+                             att,
+                             host_perms) != 0)
     {
         return;
     }
 
     auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
-    if ( auth == false )
+    if (auth == false)
     {
         return;
     }
 
-    if ( (vm = get_vm(id, att)) == 0 )
+    if ((vm = get_vm(id, att)) == 0)
     {
         return;
     }
 
-    if ( vm->get_state() != VirtualMachine::PENDING )
+    if (vm->get_state() != VirtualMachine::PENDING)
     {
         failure_response(ACTION,
                 request_error("Wrong state to perform action",""),
@@ -421,8 +473,36 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( add_history(
-            vm,hid,hostname,vmm_mad,vnm_mad,tm_mad,ds_location,ds_id,att) != 0)
+    if (enforce)
+    {
+        int    cpu, mem, disk;
+        string error;
+
+        vm->get_requirements(cpu, mem, disk);
+
+        vm->unlock();
+
+        if (check_host(hid, cpu, mem, disk, error) == false)
+        {
+            failure_response(ACTION, request_error(error,""), att);
+            return;
+        }
+
+        if ((vm = get_vm(id, att)) == 0)
+        {
+            return;
+        }
+    }
+
+    if (add_history(vm,
+                    hid,
+                    hostname,
+                    vmm_mad,
+                    vnm_mad,
+                    tm_mad,
+                    ds_location,
+                    ds_id,
+                    att) != 0)
     {
         vm->unlock();
         return;
@@ -459,27 +539,39 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string  aux_st;
     int     current_hid;
 
-    int  id   = xmlrpc_c::value_int(paramList.getInt(1));
-    int  hid  = xmlrpc_c::value_int(paramList.getInt(2));
-    bool live = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    int  id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
+    bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    bool enforce = false;
+
+    if ( paramList.size() != 4 )
+    {
+        enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
+    }
 
     bool auth = false;
 
-    if (get_host_information(
-            hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id, att,
-            host_perms) != 0)
+    if (get_host_information(hid,
+                             hostname,
+                             vmm_mad,
+                             vnm_mad,
+                             tm_mad,
+                             ds_location,
+                             ds_id,
+                             att,
+                             host_perms) != 0)
     {
         return;
     }
 
     auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
 
-    if ( auth == false )
+    if (auth == false)
     {
         return;
     }
 
-    if ( (vm = get_vm(id, att)) == 0 )
+    if ((vm = get_vm(id, att)) == 0)
     {
         return;
     }
@@ -498,11 +590,35 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     current_hid = vm->get_hid();
 
-    vm->unlock();
+    if (enforce)
+    {
+        int    cpu, mem, disk;
+        string error;
 
-    if (get_host_information(
-            current_hid, aux_st, aux_st, aux_st, aux_st, aux_st, current_ds_id,
-            att, aux_perms) != 0)
+        vm->get_requirements(cpu, mem, disk);
+
+        vm->unlock();
+
+        if (check_host(hid, cpu, mem, disk, error) == false)
+        {
+            failure_response(ACTION, request_error(error,""), att);
+            return;
+        }
+    }
+    else
+    {
+        vm->unlock();
+    }
+
+    if (get_host_information(current_hid,
+                             aux_st,
+                             aux_st,
+                             aux_st,
+                             aux_st,
+                             aux_st,
+                             current_ds_id,
+                             att,
+                             aux_perms) != 0)
     {
         return;
     }
@@ -529,14 +645,21 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if ( add_history(vm, hid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location,
-            ds_id, att) != 0)
+    if (add_history(vm,
+                    hid,
+                    hostname,
+                    vmm_mad,
+                    vnm_mad,
+                    tm_mad,
+                    ds_location,
+                    ds_id,
+                    att) != 0)
     {
         vm->unlock();
         return;
     }
 
-    if ( live == true )
+    if (live == true)
     {
         dm->live_migrate(vm);
     }

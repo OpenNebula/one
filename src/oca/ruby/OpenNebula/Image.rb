@@ -35,7 +35,8 @@ module OpenNebula
             :chown       => "image.chown",
             :chmod       => "image.chmod",
             :chtype      => "image.chtype",
-            :clone       => "image.clone"
+            :clone       => "image.clone",
+            :rename      => "image.rename"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -203,6 +204,16 @@ module OpenNebula
             rc = @client.call(IMAGE_METHODS[:clone], @pe_id, name)
 
             return rc
+        end
+
+        # Renames this Image
+        #
+        # @param name [String] New name for the Image.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(IMAGE_METHODS[:rename], @pe_id, name)
         end
 
         #######################################################################

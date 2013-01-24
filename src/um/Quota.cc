@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Quota.h"
+#include <math.h>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -63,7 +64,6 @@ int Quota::get_quota(
 void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float num)
 {
     istringstream iss;
-    ostringstream oss;
     float         total;
 
     iss.str(attr->vector_value(va_name.c_str()));
@@ -72,9 +72,7 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float nu
 
     total += num;
 
-    oss << total;
-
-    attr->replace(va_name, oss.str());
+    attr->replace(va_name, float_to_str(total));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -371,24 +369,22 @@ int Quota::update_limits(
         VectorAttribute *       quota,
         const VectorAttribute * va)
 {
-    string limit;
-    float  limit_i;
+    string  limit;
+    float   limit_f;
 
     for (int i=0; i < num_metrics; i++)
     {
-        limit = va->vector_value_str(metrics[i], limit_i);
+        limit = va->vector_value_str(metrics[i], limit_f);
 
         //No quota, NaN or negative
         if ((!is_default &&
-                ( limit_i < -1 || ( limit_i == -1 && limit == "" ))) ||
-            (is_default && limit_i < 0) )
+                ( limit_f < -1 || ( limit_f == -1 && limit == "" ))) ||
+            (is_default && limit_f < 0) )
         {
             return -1;
         }
-        else
-        {
-            quota->replace(metrics[i], limit);
-        }
+
+        quota->replace(metrics[i], float_to_str(limit_f));
     }
 
     return 0;
@@ -402,7 +398,7 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
     map<string,string> limits;
 
     string limit;
-    int    limit_i;
+    float  limit_f;
 
     for (int i=0; i < num_metrics; i++)
     {
@@ -410,16 +406,16 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         metrics_used += "_USED";
 
-        limit = va->vector_value_str(metrics[i], limit_i);
+        limit = va->vector_value_str(metrics[i], limit_f);
 
         //No quota, NaN or negative
-        if ( (!is_default && limit_i < -1) ||
-             (is_default && limit_i < 0) )
+        if ( (!is_default && limit_f < -1) ||
+             (is_default && limit_f < 0) )
         {
             return 0;
         }
 
-        limits.insert(make_pair(metrics[i], limit));
+        limits.insert(make_pair(metrics[i], float_to_str(limit_f)));
         limits.insert(make_pair(metrics_used, "0"));
     }
 
@@ -433,3 +429,23 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
     return new VectorAttribute(template_name,limits);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Quota::float_to_str(const float &num)
+{
+    ostringstream oss;
+
+    if ( num == ceil(num) )
+    {
+        oss.precision(0);
+    }
+    else
+    {
+        oss.precision(2);
+    }
+
+    oss << fixed << num;
+
+    return oss.str();
+}

@@ -76,6 +76,9 @@ SHA1="${XPATH_ELEMENTS[10]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[11]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[12]}"
 
+# Check if 'TGTSETUPLUN' is installed
+tgt_setup_lun_install "$DST_HOST" "$BASE_PATH"
+
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS" "$UMASK"
 
 LV_NAME="lv-one-${ID}"
@@ -86,13 +89,7 @@ REGISTER_CMD=$(cat <<EOF
     set -e
     $SUDO $LVCREATE -L${SIZE}M ${VG_NAME} -n ${LV_NAME}
 
-    TID=\$($SUDO $(tgtadm_next_tid))
-
-    [ -z "\$TID" ] && TID=1
-
-    $SUDO $(tgtadm_target_new "\$TID" "$IQN")
-    $SUDO $(tgtadm_target_bind_all "\$TID")
-    $SUDO $(tgtadm_logicalunit_new "\$TID" "$DEV")
+    $SUDO $(tgt_setup_lun "$IQN" "$DEV")
     $SUDO $(tgt_admin_dump_config "$TARGET_CONF")
 EOF
 )
@@ -123,7 +120,7 @@ esac
 
 ssh_exec_and_log "$DST_HOST" "$REGISTER_CMD" "Error registering $DST_HOST:$DEV"
 
-exec_and_log "eval $DUMP | $SSH $DST_HOST $SUDO $DD of=$DEV bs=64k" \
+exec_and_log "eval $DUMP | $SSH $DST_HOST $SUDO $DD of=$DEV bs=2M" \
     "Error dumping $SRC to $DST_HOST:$DEV"
 
 echo "$IQN"

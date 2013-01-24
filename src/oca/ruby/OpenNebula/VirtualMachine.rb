@@ -35,7 +35,8 @@ module OpenNebula
             :chmod      => "vm.chmod",
             :monitoring => "vm.monitoring",
             :attach     => "vm.attach",
-            :detach     => "vm.detach"
+            :detach     => "vm.detach",
+            :rename     => "vm.rename"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED 
@@ -133,22 +134,29 @@ module OpenNebula
 
         # Allocates a new VirtualMachine in OpenNebula
         #
-        # +description+ A string containing the template of the VirtualMachine.
-        def allocate(description)
-            super(VM_METHODS[:allocate],description)
+        # @param description [String] A string containing the template of
+        #   the VirtualMachine.
+        # @param hold [true,false] false to create the VM in pending state,
+        #   true to create it on hold
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def allocate(description, hold=false)
+            super(VM_METHODS[:allocate], description, hold)
         end
 
         # Initiates the instance of the VM on the target host.
         #
-        # +host_id+ The host id (hid) of the target host where
-        # the VM will be instantiated.
-        def deploy(host_id)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(VM_METHODS[:deploy], @pe_id, host_id.to_i)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+        # @param host_id [Interger] The host id (hid) of the target host where
+        #   the VM will be instantiated.
+        # @param enforce [true|false] If it is set to true, the host capacity
+        #   will be checked, and the deployment will fail if the host is
+        #   overcommited. Defaults to false
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def deploy(host_id, enforce=false)
+            return call(VM_METHODS[:deploy], @pe_id, host_id.to_i, enforce)
         end
 
         # Shutdowns an already deployed VM
@@ -247,23 +255,31 @@ module OpenNebula
         end
 
         # Saves a running VM and starts it again in the specified host
-        def migrate(host_id)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(VM_METHODS[:migrate], @pe_id, host_id.to_i, false)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+        #
+        # @param host_id [Interger] The host id (hid) of the target host where
+        #   the VM will be migrated.
+        # @param enforce [true|false] If it is set to true, the host capacity
+        #   will be checked, and the deployment will fail if the host is
+        #   overcommited. Defaults to false
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def migrate(host_id, enforce=false)
+            return call(VM_METHODS[:migrate], @pe_id, host_id.to_i, false, enforce)
         end
 
         # Migrates a running VM to another host without downtime
-        def live_migrate(host_id)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(VM_METHODS[:migrate], @pe_id, host_id.to_i, true)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+        #
+        # @param host_id [Interger] The host id (hid) of the target host where
+        #   the VM will be migrated.
+        # @param enforce [true|false] If it is set to true, the host capacity
+        #   will be checked, and the deployment will fail if the host is
+        #   overcommited. Defaults to false
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def live_migrate(host_id, enforce=false)
+            return call(VM_METHODS[:migrate], @pe_id, host_id.to_i, true, enforce)
         end
 
         # Set the specified vm's disk to be saved in a new image
@@ -350,6 +366,16 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             return @client.call(VM_METHODS[:monitoring], @pe_id)
+        end
+
+        # Renames this VM
+        #
+        # @param name [String] New name for the VM.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def rename(name)
+            return call(VM_METHODS[:rename], @pe_id, name)
         end
 
         #######################################################################

@@ -39,6 +39,7 @@ public class VirtualMachine extends PoolElement{
     private static final String MONITORING = METHOD_PREFIX + "monitoring";
     private static final String ATTACH  = METHOD_PREFIX + "attach";
     private static final String DETACH  = METHOD_PREFIX + "detach";
+    private static final String RENAME  = METHOD_PREFIX + "rename";
 
     private static final String[] VM_STATES =
     {
@@ -149,7 +150,22 @@ public class VirtualMachine extends PoolElement{
      */
     public static OneResponse allocate(Client client, String description)
     {
-        return client.call(ALLOCATE, description);
+        return allocate(client, description, false);
+    }
+
+    /**
+     * Allocates a new VM in OpenNebula.
+     *
+     * @param client XML-RPC Client.
+     * @param description A string containing the template of the vm.
+     * @param onHold False to create this VM in pending state, true on hold
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocate(Client client, String description,
+        boolean onHold)
+    {
+        return client.call(ALLOCATE, description, onHold);
     }
 
     /**
@@ -273,6 +289,19 @@ public class VirtualMachine extends PoolElement{
         return client.call(DETACH, id, diskId);
     }
 
+    /**
+     * Renames this VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param name New name for the VM.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse rename(Client client, int id, String name)
+    {
+        return client.call(RENAME, id, name);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -295,11 +324,26 @@ public class VirtualMachine extends PoolElement{
      *
      * @param hostId The host id (hid) of the target host where
      * the VM will be instantiated.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse deploy(int hostId, boolean enforce)
+    {
+        return client.call(DEPLOY, id, hostId, enforce);
+    }
+
+    /**
+     * Initiates the instance of the VM on the target host.
+     *
+     * @param hostId The host id (hid) of the target host where
+     * the VM will be instantiated.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse deploy(int hostId)
     {
-        return client.call(DEPLOY, id, hostId);
+        return deploy(hostId, false);
     }
 
     /**
@@ -337,11 +381,14 @@ public class VirtualMachine extends PoolElement{
      * the vm.
      * @param live If true we are indicating that we want livemigration,
      * otherwise false.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse migrate(int hostId, boolean live)
+    public OneResponse migrate(int hostId, boolean live, boolean enforce)
     {
-        return client.call(MIGRATE, id, hostId, live);
+        return client.call(MIGRATE, id, hostId, live, enforce);
     }
 
     /**
@@ -484,6 +531,17 @@ public class VirtualMachine extends PoolElement{
     public OneResponse detachdisk(int diskId)
     {
         return detachdisk(client, id, diskId);
+    }
+
+    /**
+     * Renames this VM
+     *
+     * @param name New name for the VM.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse rename(String name)
+    {
+        return rename(client, id, name);
     }
 
     // =================================
@@ -636,6 +694,24 @@ public class VirtualMachine extends PoolElement{
      *
      * @param hostId The target host id (hid) where we want to migrate
      * the vm.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse migrate(int hostId, boolean enforce)
+    {
+        return migrate(hostId, false, enforce);
+    }
+
+    /**
+     * Migrates the virtual machine to the target host (hid).
+     * <br/>
+     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
+     * with live set to false.
+     *
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse migrate(int hostId)
@@ -652,11 +728,30 @@ public class VirtualMachine extends PoolElement{
      *
      * @param hostId The target host id (hid) where we want to migrate
      * the vm.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse liveMigrate(int hostId, boolean enforce)
+    {
+        return migrate(hostId, true, enforce);
+    }
+
+    /**
+     * Performs a live migration of the virtual machine to the
+     * target host (hid).
+     * <br/>
+     * It does the same as {@link VirtualMachine#migrate(int, boolean)}
+     * with live set to true.
+     *
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse liveMigrate(int hostId)
     {
-        return migrate(hostId, true);
+        return liveMigrate(hostId, false);
     }
 
     public int state()
