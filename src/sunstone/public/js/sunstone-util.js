@@ -1377,29 +1377,7 @@ function fromJSONtoHTMLTable(template_json,resource_type,resource_id){
 
 // Helper for fromJSONtoHTMLTable function
 function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
-    var str="";
-
-    if (typeof value == 'object'){
-
-        for(var key in value){
-
-            str += '<tr>\
-                      <td class="key_td">'+tr(field)+'</td>\
-                      <td class="value_td" id="value_td_input_'+tr(field)+'">'+value[key]+'</td>\
-                      <td><div id="div_edit">\
-                             <a id="div_edit_'+tr(field)+'" class="edit_e" href="#">e</a>\
-                          </div>\
-                      </td>\
-                      <td><div id="div_minus">\
-                             <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
-                          </div>\
-                      </td>\
-                    </tr>';
-
-        };
-
-    } else {
-        str += '<tr>\
+    var str = '<tr>\
                   <td class="key_td">'+tr(field)+'</td>\
                   <td class="value_td" id="value_td_input_'+tr(field)+'">'+value+'</td>\
                   <td><div id="div_edit">\
@@ -1410,8 +1388,7 @@ function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
                          <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
                       </div>\
                   </td>\
-                </tr>';
-    };
+               </tr>';
 
     return str;
 }

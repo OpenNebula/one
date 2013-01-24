@@ -631,11 +631,11 @@ function updateVNetworkInfo(request,vn){
 
     $(".input_edit_value_rename").live("change", function() {
         var value_str = $(".input_edit_value_rename").val();
-        console.log(this);
         if(value_str!="")
         {
             // Let OpenNebula know
-            Sunstone.runAction("Network.rename",vn_info.ID,value_str);
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Network.rename",vn_info.ID,name_template);
         }
     });
 
