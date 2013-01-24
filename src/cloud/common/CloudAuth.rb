@@ -67,7 +67,7 @@ class CloudAuth
         end
 
         begin
-            require core_auth[0]
+            require "opennebula/#{core_auth[0]}"
             @server_auth = Kernel.const_get(core_auth[1]).new_client
         rescue => e
             raise e.message
