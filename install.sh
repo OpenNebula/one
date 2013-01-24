@@ -1427,6 +1427,7 @@ SUNSTONE_PUBLIC_VENDOR_JQUERY="\
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYUI="\
 src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.css \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.9.2.custom.min.css \
 src/sunstone/public/vendor/jQueryUI/MIT-LICENSE.txt \
 src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.16.custom.min.js \
 src/sunstone/public/vendor/jQueryUI/NOTICE \
