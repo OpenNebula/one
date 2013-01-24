@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,7 +65,8 @@ protected:
                               Template * tmpl,
                               int& id, 
                               string& error_str,
-                              RequestAttributes& att)
+                              RequestAttributes& att,
+                              int umask)
     {
         return -1;
     };
@@ -76,9 +77,10 @@ protected:
                               string& error_str,
                               RequestAttributes& att,
                               int cluster_id,
-                              const string& cluster_name)
+                              const string& cluster_name,
+                              int umask)
     {
-        return pool_allocate(_paramList, tmpl, id, error_str, att);
+        return pool_allocate(_paramList, tmpl, id, error_str, att, umask);
     };
 
     virtual int get_cluster_id(xmlrpc_c::paramList const&  paramList)
@@ -86,9 +88,18 @@ protected:
         return ClusterPool::NONE_CLUSTER_ID;
     };
 
-    virtual int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    virtual int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return -1;
+    };
+
+    virtual Datastore::DatastoreType get_ds_type(int oid)
+    {
+        return Datastore::FILE_DS;
     };
 
 protected:
@@ -130,7 +141,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 
     bool allocate_authorization(Template *          obj_template,
                                 RequestAttributes&  att,
@@ -169,14 +181,19 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name,
+                      int umask);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
         return xmlrpc_c::value_int(paramList.getInt(2));
     };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return cluster->add_vnet(id, error_msg);
     };
@@ -237,7 +254,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -267,14 +285,19 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name,
+                      int umask);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
         return xmlrpc_c::value_int(paramList.getInt(5));
     };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
     {
         return cluster->add_host(id, error_msg);
     };
@@ -303,7 +326,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 
     void log_xmlrpc_param(
             const xmlrpc_c::value&  v,
@@ -334,7 +358,8 @@ public:
                       Template * tmpl,
                       int& id, 
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -369,16 +394,35 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name,
+                      int umask);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
         return xmlrpc_c::value_int(paramList.getInt(2));
     };
 
-    int add_to_cluster(Cluster* cluster, int id, string& error_msg)
+    virtual Datastore::DatastoreType get_ds_type(int oid)
     {
-        return cluster->add_datastore(id, error_msg);
+        Datastore::DatastoreType ds_type = Datastore::FILE_DS;
+        Datastore *ds = static_cast<DatastorePool*>(pool)->get(oid, true);
+
+        if ( ds != 0 )
+        {
+            ds_type = ds->get_type();
+            ds->unlock();
+        }
+
+        return ds_type;
+    };
+
+    int add_to_cluster(
+            Cluster* cluster,
+            int id,
+            Datastore::DatastoreType ds_type,
+            string& error_msg)
+    {
+        return cluster->add_datastore(id, ds_type, error_msg);
     };
 };
 
@@ -405,7 +449,8 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -438,7 +483,8 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att);
+                      RequestAttributes& att,
+                      int umask);
 };
 
 /* -------------------------------------------------------------------------- */

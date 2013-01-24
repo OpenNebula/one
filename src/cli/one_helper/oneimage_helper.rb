@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -323,9 +323,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         end
 
         template=create_image_variables(
-            options, template_options-[:persistent, :dry])
+            options, template_options-[:persistent, :dry, :prefix])
 
         template<<"PERSISTENT=YES\n" if options[:persistent]
+        if options[:prefix]
+            template<<"DEV_PREFIX=\"#{options[:prefix]}\"\n"
+        end
 
         [0, template]
     end

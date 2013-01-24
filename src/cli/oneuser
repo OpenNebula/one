@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -268,6 +268,39 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         exit 0
+    end
+
+    umask_desc = <<-EOT.unindent
+        Changes the umask used to create the default permissions. In a similar
+        way to the Unix umask command, the expected value is a three-digit
+        base-8 number. Each digit is a mask that disables permissions for the
+        owner, group and other, respectively.
+
+        If mask is not given, or if it is an empty string, the umask will
+        be unset
+    EOT
+
+    command :umask, umask_desc, [:range, :userid_list], [:mask, nil] do
+        helper.perform_actions(args[0],options,
+                "umask changed") do |user|
+
+            rc = user.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            user.delete_element('/USER/TEMPLATE/UMASK')
+
+            tmp_str = user.template_str
+
+            if !args[1].nil? && args[1] != ""
+                tmp_str << "\nUMASK = #{args[1]}"
+            end
+
+            user.update(tmp_str)
+        end
     end
 
     login_desc = <<-EOT.unindent

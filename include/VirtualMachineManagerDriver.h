@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,7 +30,7 @@ using namespace std;
  *  VirtualMachineManagerDriver provides a base class to implement VM Manager
  *  Drivers. This class implements the protocol and recover functions
  *  from the Mad interface. Classes derived from the VirtualMachineManagerDriver
- *  must implement the deployment function to generate specific VM  
+ *  must implement the deployment function to generate specific VM
  *  deployment information for the unerlying MAD.
  */
 class VirtualMachineManagerDriver : public Mad
@@ -53,7 +53,7 @@ public:
         string&     message);
 
     /**
-     *  TODO: What do we need here? just poll the active VMs to recover 
+     *  TODO: What do we need here? just poll the active VMs to recover
      *  connections? Or an specific recover action from the MAD?
      */
     void recover();
@@ -67,25 +67,25 @@ public:
     virtual int deployment_description(
         const VirtualMachine *  vm,
         const string&           file_name) const = 0;
-    
-protected:	
+
+protected:
     /**
-     *  Gets a configuration attr from driver configuration file (single 
+     *  Gets a configuration attr from driver configuration file (single
      *  version)
      *    @param name of config attribute
      *    @param value of the attribute
      */
     void get_default(
-    	const char *  name, 
+    	const char *  name,
         string&       value) const
     {
     	string sn = name;
-    	
+
     	driver_conf.get(sn,value);
-    }    
+    }
 
     /**
-     *  Gets a configuration attr from driver configuration file (vector 
+     *  Gets a configuration attr from driver configuration file (vector
      *  version)
      *    @param name of config vector attribute for the domain
      *    @param vname of the attribute
@@ -95,20 +95,20 @@ protected:
     	const char *  name,
     	const char *  vname,
         string&       value) const;
-    
-private:	
-	/**	
+
+private:
+	/**
 	 *  Configuration file for the driver
 	 */
 	Template	driver_conf;
-	
+
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool * vmpool;
 
     friend class VirtualMachineManager;
-      
+
     /**
      *  Sends a deploy request to the MAD: "DEPLOY ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
@@ -167,6 +167,18 @@ private:
         const string& drv_msg) const
     {
         write_drv("CANCEL", oid, drv_msg);
+    }
+
+    /**
+     *  Sends a cleanup request to the MAD: "CLEANUP ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void cleanup (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("CLEANUP", oid, drv_msg);
     }
 
     /**
@@ -263,7 +275,7 @@ private:
         ostringstream os;
 
         os << aname << " " << oid << " " << msg << endl;
-    
+
         write(os);
     }
 };

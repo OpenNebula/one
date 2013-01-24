@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,6 +26,7 @@ float HostXML::hypervisor_mem;
 void HostXML::init_attributes()
 {
     oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
+    cluster_id  = atoi(((*this)["/HOST/CLUSTER_ID"] )[0].c_str() );
 
     disk_usage  = atoi(((*this)["/HOST/HOST_SHARE/DISK_USAGE"])[0].c_str());
     mem_usage   = atoi(((*this)["/HOST/HOST_SHARE/MEM_USAGE"])[0].c_str());

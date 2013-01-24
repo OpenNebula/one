@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,12 +18,14 @@ require 'openssl'
 require 'base64'
 require 'fileutils'
 
-require 'x509_auth'
+require 'opennebula/x509_auth'
+
+module OpenNebula; end
 
 # Server authentication class. This authmethod can be used by opennebula services
 # to let access authenticated users by other means. It is based on x509 server
 # certificates
-class ServerX509Auth < X509Auth
+class OpenNebula::ServerX509Auth < OpenNebula::X509Auth
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################
@@ -61,7 +63,7 @@ class ServerX509Auth < X509Auth
     ###########################################################################
 
     # Creates a ServerCipher for client and driver sage
-    class << ServerX509Auth
+    class << OpenNebula::ServerX509Auth
         alias :new_client :new
         alias :new_driver :new
     end

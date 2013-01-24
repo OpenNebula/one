@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -44,6 +44,8 @@ void RequestManagerCluster::add_generic(
 
     int     old_cluster_id;
     string  old_cluster_name;
+
+    Datastore::DatastoreType ds_type;
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
@@ -102,6 +104,8 @@ void RequestManagerCluster::add_generic(
     old_cluster_id   = cluster_obj->get_cluster_id();
     old_cluster_name = cluster_obj->get_cluster_name();
 
+    ds_type = get_ds_type(object);
+
     if ( old_cluster_id == cluster_id )
     {
         object->unlock();
@@ -141,13 +145,25 @@ void RequestManagerCluster::add_generic(
             return;
         }
 
-        if ( add_object(cluster, object_id, err_msg) < 0 )
+        if ( add_object(cluster, object_id, ds_type, err_msg) < 0 )
         {
             cluster->unlock();
 
             failure_response(INTERNAL,
                     request_error("Cannot add object to cluster", err_msg),
                     att);
+
+            // Rollback
+            get(object_id, true, &object, &cluster_obj);
+
+            if ( object != 0 )
+            {
+                cluster_obj->set_cluster(old_cluster_id, old_cluster_name);
+
+                pool->update(object);
+
+                object->unlock();
+            }
 
             return;
         }

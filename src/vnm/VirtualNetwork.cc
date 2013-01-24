@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -36,6 +36,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                int                      _gid,
                                const string&            _uname,
                                const string&            _gname,
+                               int                      _umask,
                                int                      _cluster_id,
                                const string&            _cluster_name,
                                VirtualNetworkTemplate * _vn_template):
@@ -53,6 +54,8 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
     {
         obj_template = new VirtualNetworkTemplate;
     }
+
+    set_umask(_umask);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -78,12 +81,13 @@ VirtualNetwork::~VirtualNetwork()
 const char * VirtualNetwork::table        = "network_pool";
 
 const char * VirtualNetwork::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
+        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body TEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid))";
+    " body TEXT, uid INTEGER, gid INTEGER,"
+    " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
+    " cid INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -393,7 +397,8 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid         << ","
         <<          owner_u     << ","
         <<          group_u     << ","
-        <<          other_u     << ")";
+        <<          other_u     << ","
+        <<          cluster_id  << ")";
 
     rc = db->exec(oss);
 

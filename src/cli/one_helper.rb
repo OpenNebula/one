@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,13 +16,13 @@
 
 require 'cli_helper'
 
-require 'OpenNebula'
+require 'opennebula'
 include OpenNebula
 
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
@@ -623,7 +623,7 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.update_template(id, resource, path=nil)
+    def OpenNebulaHelper.update_template(id, resource, path=nil, xpath='TEMPLATE')
         unless path
             require 'tempfile'
 
@@ -637,7 +637,7 @@ EOT
                 exit -1
             end
 
-            tmp << resource.template_str
+            tmp << resource.template_like_str(xpath)
             tmp.flush
 
             editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH

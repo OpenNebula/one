@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -168,6 +168,19 @@ const bool AclManager::authorize(
         resource_gid_req = AclRule::NONE_ID;
     }
 
+    long long resource_cid_req;
+
+    if ( obj_perms.cid >= 0 )
+    {
+        resource_cid_req = obj_perms.obj_type |
+                           AclRule::CLUSTER_ID |
+                           obj_perms.cid;
+    }
+    else
+    {
+        resource_cid_req = AclRule::NONE_ID;
+    }
+
     long long resource_all_req  = obj_perms.obj_type | AclRule::ALL_ID;
     long long rights_req        = op;
 
@@ -177,6 +190,10 @@ const bool AclManager::authorize(
 
     long long resource_gid_mask = obj_perms.obj_type |
                                   AclRule::GROUP_ID |
+                                  0x00000000FFFFFFFFLL;
+
+    long long resource_cid_mask = obj_perms.obj_type |
+                                  AclRule::CLUSTER_ID |
                                   0x00000000FFFFFFFFLL;
 
     // Create a temporal rule, to log the request
@@ -189,6 +206,10 @@ const bool AclManager::authorize(
     else if ( obj_perms.gid >= 0 )
     {
         log_resource = resource_gid_req;
+    }
+    else if ( obj_perms.cid >= 0 )
+    {
+        log_resource = resource_cid_req;
     }
     else
     {
@@ -226,10 +247,12 @@ const bool AclManager::authorize(
     auth     = match_rules_wrapper(user_req,
                                    resource_oid_req,
                                    resource_gid_req,
+                                   resource_cid_req,
                                    resource_all_req,
                                    rights_req,
                                    resource_oid_mask,
                                    resource_gid_mask,
+                                   resource_cid_mask,
                                    tmp_rules);
     if ( auth == true )
     {
@@ -244,10 +267,12 @@ const bool AclManager::authorize(
     auth     = match_rules_wrapper(user_req,
                                    resource_oid_req,
                                    resource_gid_req,
+                                   resource_cid_req,
                                    resource_all_req,
                                    rights_req,
                                    resource_oid_mask,
                                    resource_gid_mask,
+                                   resource_cid_mask,
                                    tmp_rules);
     if ( auth == true )
     {
@@ -262,10 +287,12 @@ const bool AclManager::authorize(
     auth     = match_rules_wrapper(user_req,
                                    resource_oid_req,
                                    resource_gid_req,
+                                   resource_cid_req,
                                    resource_all_req,
                                    rights_req,
                                    resource_oid_mask,
                                    resource_gid_mask,
+                                   resource_cid_mask,
                                    tmp_rules);
     if ( auth == true )
     {
@@ -285,10 +312,12 @@ bool AclManager::match_rules_wrapper(
         long long user_req,
         long long resource_oid_req,
         long long resource_gid_req,
+        long long resource_cid_req,
         long long resource_all_req,
         long long rights_req,
         long long individual_obj_type,
         long long group_obj_type,
+        long long cluster_obj_type,
         multimap<long long, AclRule*> &tmp_rules)
 {
     bool auth = false;
@@ -298,10 +327,12 @@ bool AclManager::match_rules_wrapper(
             user_req,
             resource_oid_req,
             resource_gid_req,
+            resource_cid_req,
             resource_all_req,
             rights_req,
             individual_obj_type,
             group_obj_type,
+            cluster_obj_type,
             tmp_rules);
 
     if ( auth == true )
@@ -316,10 +347,12 @@ bool AclManager::match_rules_wrapper(
             user_req,
             resource_oid_req,
             resource_gid_req,
+            resource_cid_req,
             resource_all_req,
             rights_req,
             individual_obj_type,
             group_obj_type,
+            cluster_obj_type,
             acl_rules);
 
     unlock();
@@ -334,10 +367,12 @@ bool AclManager::match_rules(
         long long user_req,
         long long resource_oid_req,
         long long resource_gid_req,
+        long long resource_cid_req,
         long long resource_all_req,
         long long rights_req,
         long long resource_oid_mask,
         long long resource_gid_mask,
+        long long resource_cid_mask,
         multimap<long long, AclRule*> &rules)
 
 {
@@ -370,6 +405,9 @@ bool AclManager::match_rules(
             ||
             // Or rule's object type and individual object ID match
             ( ( it->second->resource & resource_oid_mask ) == resource_oid_req )
+            ||
+            // Or rule's object type and cluster object ID match
+            ( ( it->second->resource & resource_cid_mask ) == resource_cid_req )
           );
 
         if ( auth == true )
@@ -586,6 +624,20 @@ void AclManager::del_gid_rules(int gid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AclManager::del_cid_rules(int cid)
+{
+    long long request = AclRule::CLUSTER_ID | cid;
+    long long resource_gid_mask = AclRule::CLUSTER_ID |
+                                  0x00000000FFFFFFFFLL;
+
+    // Delete rules that match
+    // __  __/%cid  __
+    del_resource_matching_rules(request, resource_gid_mask);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AclManager::del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type)
 {
     long long request = obj_type |
@@ -669,7 +721,8 @@ void AclManager::reverse_search(int                       uid,
                                 AuthRequest::Operation    op,
                                 bool&                     all,
                                 vector<int>&              oids,
-                                vector<int>&              gids)
+                                vector<int>&              gids,
+                                vector<int>&              cids)
 {
     ostringstream oss;
 
@@ -681,6 +734,7 @@ void AclManager::reverse_search(int                       uid,
     long long resource_oid_req = obj_type | AclRule::INDIVIDUAL_ID;
     long long resource_gid_req = obj_type | AclRule::GROUP_ID;
     long long resource_all_req = obj_type | AclRule::ALL_ID;
+    long long resource_cid_req = obj_type | AclRule::CLUSTER_ID;
     long long rights_req       = op;
 
     long long resource_oid_mask =
@@ -688,6 +742,9 @@ void AclManager::reverse_search(int                       uid,
 
     long long resource_gid_mask  =
             ( obj_type | AclRule::GROUP_ID );
+
+    long long resource_cid_mask  =
+            ( obj_type | AclRule::CLUSTER_ID );
 
 
     // Create a temporal rule, to log the request
@@ -751,6 +808,13 @@ void AclManager::reverse_search(int                       uid,
                 {
                     oids.push_back(it->second->resource_id());
                 }
+
+                // Rule grants permission for all objects of a cluster
+                if ( ( it->second->resource & resource_cid_mask ) == resource_cid_req )
+                {
+                    cids.push_back(it->second->resource_id());
+                }
+
             }
         }
 
@@ -760,6 +824,7 @@ void AclManager::reverse_search(int                       uid,
         {
             oids.clear();
             gids.clear();
+            cids.clear();
         }
     }
 }

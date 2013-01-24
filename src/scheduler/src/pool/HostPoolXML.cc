@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,7 +15,6 @@
 /* -------------------------------------------------------------------------- */
 
 #include "HostPoolXML.h"
-
 
 int HostPoolXML::set_up()
 {
@@ -89,3 +88,42 @@ int HostPoolXML::load_info(xmlrpc_c::value &result)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void HostPoolXML::merge_clusters(ClusterPoolXML * clpool)
+{
+    map<int,ObjectXML*>::iterator it;
+
+    ClusterXML* cluster;
+    HostXML*    host;
+
+    int cluster_id;
+    vector<xmlNodePtr> nodes;
+
+    for (it=objects.begin(); it!=objects.end(); it++)
+    {
+        host = static_cast<HostXML*>(it->second);
+
+        cluster_id = host->get_cid();
+
+        if(cluster_id != -1) //ClusterPool::NONE_CLUSTER_ID
+        {
+            cluster = clpool->get(cluster_id);
+
+            if(cluster != 0)
+            {
+                nodes.clear();
+
+                cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
+
+                if (!nodes.empty())
+                {
+                    host->add_node("/HOST", nodes[0], "CLUSTER_TEMPLATE");
+                }
+
+                cluster->free_nodes(nodes);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

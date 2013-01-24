@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs      */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -25,6 +25,7 @@ Document::Document( int id,
                     int _gid,
                     const string& _uname,
                     const string& _gname,
+                    int _umask,
                     int _type,
                     Template * _template_contents):
         PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,table), type(_type)
@@ -37,6 +38,8 @@ Document::Document( int id,
     {
         obj_template = new Template;
     }
+
+    set_umask(_umask);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,6 +38,11 @@ public:
     int get_hid() const
     {
         return oid;
+    };
+
+    int get_cid() const
+    {
+        return cluster_id;
     };
 
     /**
@@ -82,6 +87,7 @@ public:
 
 private:
     int oid;
+    int cluster_id;
 
     // Host share values
     int disk_usage; /**< Disk allocated to VMs (in Mb).        */

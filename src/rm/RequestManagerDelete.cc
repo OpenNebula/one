@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -202,6 +202,21 @@ int GroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
     if ( rc == 0 )
     {
         aclm->del_gid_rules(oid);
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int ClusterDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+
+    if ( rc == 0 )
+    {
+        aclm->del_cid_rules(oid);
     }
 
     return rc;

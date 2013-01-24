@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -593,6 +593,7 @@ void PoolSQL::acl_filter(int                       uid,
 
     vector<int> oids;
     vector<int> gids;
+    vector<int> cids;
 
     aclm->reverse_search(uid,
                          gid,
@@ -600,7 +601,8 @@ void PoolSQL::acl_filter(int                       uid,
                          AuthRequest::USE,
                          all,
                          oids,
-                         gids);
+                         gids,
+                         cids);
 
     for ( it = oids.begin(); it < oids.end(); it++ )
     {
@@ -610,6 +612,11 @@ void PoolSQL::acl_filter(int                       uid,
     for ( it = gids.begin(); it < gids.end(); it++ )
     {
         acl_filter << " OR gid = " << *it;
+    }
+
+    for ( it = cids.begin(); it < cids.end(); it++ )
+    {
+        acl_filter << " OR cid = " << *it;
     }
 
     filter = acl_filter.str();

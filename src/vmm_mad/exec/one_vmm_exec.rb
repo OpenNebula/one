@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -185,7 +185,12 @@ class VmmAction
                 @vmm.log(@id,
                          "Failed to execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
-                break
+
+                if step[:no_fail]
+                    result = DriverExecHelper::RESULT[:success]
+                else
+                    break
+                end
             else
                 @vmm.log(@id,
                          "Successfully execute #{DRIVER_NAMES[step[:driver]]} " \
@@ -537,7 +542,7 @@ class ExecDriver < VirtualMachineDriver
         # Bug #1355, argument character limitation in ESX
         # Message not used in vmware anyway
         if @hypervisor == "vmware"
-            drv_message = "drv_message" 
+            drv_message = "drv_message"
         end
 
         steps = [
@@ -599,6 +604,72 @@ class ExecDriver < VirtualMachineDriver
                 :parameters => tm_command.split
             }
         ]
+
+        action.run(steps)
+    end
+
+    #
+    # CLEANUP action, frees resources allocated in a host: VM and disk images
+    #
+    def cleanup(id, drv_message)
+        aname    = ACTION[:cleanup]
+        xml_data = decode(drv_message)
+
+        tm_command = xml_data.elements['TM_COMMAND'].text
+        mhost      = xml_data.elements['MIGR_HOST'].text
+        deploy_id  = xml_data.elements['DEPLOY_ID'].text
+
+        action = VmmAction.new(self, id, :cleanup, drv_message)
+        steps  = Array.new
+
+        # Cancel the VM at host (only if we have a valid deploy-id)
+        if deploy_id && !deploy_id.empty?
+            steps <<
+            {
+                :driver     => :vmm,
+                :action     => :cancel,
+                :parameters => [:deploy_id, :host],
+                :no_fail    => true
+            }
+            steps <<
+            {
+                :driver  => :vnm,
+                :action  => :clean,
+                :no_fail => true
+            }
+        end
+
+        # Cancel the VM at the previous host (in case of migration)
+        if mhost && !mhost.empty?
+            steps <<
+            {
+                :driver      => :vmm,
+                :action      => :cancel,
+                :parameters  => [:deploy_id, :dest_host],
+                :destination => true,
+                :no_fail     => true
+            }
+            steps <<
+            {
+                :driver  => :vnm,
+                :action  => :clean,
+                :destination => true,
+                :no_fail => true
+            }
+        end
+
+        # Cleans VM disk images and directory
+        tm_command.each_line { |tc|
+            tc.strip!
+
+            steps <<
+            {
+                :driver     => :tm,
+                :action     => :tm_delete,
+                :parameters => tc.split,
+                :no_fail    => true
+            } if !tc.empty?
+        } if tm_command
 
         action.run(steps)
     end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -469,6 +469,11 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t<interface type='bridge'>" << endl;
             file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
+        }
+
+        if ( vm->get_vnm_mad() == "ovswitch" )
+        {
+            file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
         }
 
         if( !mac.empty() )

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,6 +43,7 @@ VirtualMachine::VirtualMachine(int           id,
                                int           _gid,
                                const string& _uname,
                                const string& _gname,
+                               int           umask,
                                VirtualMachineTemplate * _vm_template):
         PoolObjectSQL(id,VM,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
@@ -68,6 +69,10 @@ VirtualMachine::VirtualMachine(int           id,
     {
         obj_template = new VirtualMachineTemplate;
     }
+
+    user_obj_template = new Template(false,'=',"USER_TEMPLATE");
+
+    set_umask(umask);
 }
 
 VirtualMachine::~VirtualMachine()
@@ -77,14 +82,19 @@ VirtualMachine::~VirtualMachine()
             delete history_records[i];
     }
 
-    if ( _log != 0 )
+    if (_log != 0)
     {
         delete _log;
     }
 
-    if ( obj_template != 0 )
+    if (obj_template != 0)
     {
         delete obj_template;
+    }
+
+    if (user_obj_template != 0)
+    {
+        delete user_obj_template;
     }
 }
 
@@ -211,10 +221,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 {
     int    rc;
     string name;
+    string prefix;
 
-    string        value;
-    int           ivalue;
-    float         fvalue;
+    string value;
+    int    ivalue;
+    float  fvalue;
+
     ostringstream oss;
 
     // ------------------------------------------------------------------------
@@ -228,15 +240,22 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     get_template_attribute("NAME",name);
 
-    if ( name.empty() == true )
+    if (name.empty() == true)
     {
+        get_template_attribute("TEMPLATE_NAME", prefix);
+
+        if (prefix.empty())
+        {
+            prefix = "one";
+        }
+
         oss.str("");
-        oss << "one-" << oid;
+        oss << prefix << "-" << oid;
         name = oss.str();
 
         replace_template_attribute("NAME", name);
     }
-    else if ( name.length() > 128 )
+    else if (name.length() > 128)
     {
         goto error_name_length;
     }
@@ -916,8 +935,9 @@ int VirtualMachine::automatic_requirements(string& error_str)
     return 0;
 
 error_disk:
-    oss << "Incompatible clusters in DISKs. Datastore for DISK["
-        << incomp_id <<"] should be in cluster " << cluster_id << ".";
+    oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
+        << " is not the same as the one used by other VM elements (cluster "
+        << cluster_id << ")";
     goto error_common;
 
 error_kernel:
@@ -931,8 +951,9 @@ error_initrd:
     goto error_common;
 
 error_nic:
-    oss << "Incompatible clusters in NICs. Network for NIC[" << incomp_id <<"]"
-        << " should be in cluster " << cluster_id << ".";
+    oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
+        << " is not the same as the one used by other VM elements (cluster "
+        << cluster_id << ")";
     goto error_common;
 
 error_common:
@@ -2209,6 +2230,7 @@ error_yy:
 string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
 {
     string template_xml;
+    string user_template_xml;
     string history_xml;
     string perm_xml;
     ostringstream	oss;
@@ -2232,7 +2254,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << obj_template->to_xml(template_xml);
+        << obj_template->to_xml(template_xml)
+        << user_obj_template->to_xml(user_template_xml);
 
     if ( hasHistory() && n_history > 0 )
     {
@@ -2308,20 +2331,33 @@ int VirtualMachine::from_xml(const string &xml_str)
     state     = static_cast<VmState>(istate);
     lcm_state = static_cast<LcmState>(ilcmstate);
 
-    // Get associated classes
+    // Virtual Machine template
     ObjectXML::get_nodes("/VM/TEMPLATE", content);
 
     if (content.empty())
     {
         return -1;
     }
-
-    // Virtual Machine template
     rc += obj_template->from_xml_node(content[0]);
 
-    // Last history entry
     ObjectXML::free_nodes(content);
     content.clear();
+
+    // Virtual Machine user template
+
+    ObjectXML::get_nodes("/VM/USER_TEMPLATE", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += user_obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Last history entry
 
     ObjectXML::get_nodes("/VM/HISTORY_RECORDS/HISTORY", content);
 
@@ -2356,3 +2392,35 @@ string VirtualMachine::get_system_dir() const
 
     return oss.str();
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::replace_template(const string& tmpl_str, string& error)
+{
+    Template * new_tmpl  = new Template(false,'=',"USER_TEMPLATE");
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    if (user_obj_template != 0)
+    {
+        delete user_obj_template;
+    }
+
+    user_obj_template = new_tmpl;
+
+    return 0;
+}

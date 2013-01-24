@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2010-2012, C12G Labs S.L                                           #
+# Copyright 2010-2013, C12G Labs S.L                                           #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -29,7 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'yaml'
-require 'ldap_auth'
+require 'opennebula/ldap_auth'
 require 'uri'
 
 if defined?(URI::Parser)
@@ -66,7 +66,7 @@ order.each do |server_name|
     end
 
 begin
-    ldap=LdapAuth.new(server_conf)
+    ldap=OpenNebula::LdapAuth.new(server_conf)
 
     user_name=ldap.find_user(user)
 

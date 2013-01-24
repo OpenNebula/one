@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -172,6 +172,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         exit_code
+    end
+
+    update_desc = <<-EOT.unindent
+        Update the user template contents. If a path is not provided the
+        editor will be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :vmid, [:file, nil] do
+        helper.perform_action(args[0],options,"modified") do |vm|
+            str = OpenNebulaHelper.update_template(args[0], vm, args[1],'USER_TEMPLATE')
+            vm.update(str)
+        end
     end
 
     delete_desc = <<-EOT.unindent

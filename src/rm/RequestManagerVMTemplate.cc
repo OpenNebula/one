@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,27 +26,58 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 {
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
+    bool   on_hold = false; //Optional XML-RPC argument
 
-    bool on_hold = false;
+    int  rc;
+    int  vid;
+    int  umask;
+
+    ostringstream sid;
+
+    PoolObjectAuth perms;
+
+    Nebula& nd = Nebula::instance();
+
+    VirtualMachinePool* vmpool  = nd.get_vmpool();
+    VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
+    UserPool *          upool   = nd.get_upool();
+
+    VirtualMachineTemplate * tmpl;
+    VMTemplate *             rtmpl;
+    User *                   user;
+
+    string error_str;
+    string aname;
+
+    string tmpl_name;
 
     if ( paramList.size() > 3 )
     {
         on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
 
-    int rc, vid;
+    /* ---------------------------------------------------------------------- */
+    /* Get user's umask                                                       */
+    /* ---------------------------------------------------------------------- */
 
-    PoolObjectAuth perms;
+    user = upool->get(att.uid, true);
 
-    Nebula& nd = Nebula::instance();
-    VirtualMachinePool* vmpool = nd.get_vmpool();
-    VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
 
-    VirtualMachineTemplate * tmpl;
-    VMTemplate *             rtmpl;
+        return;
+    }
 
-    string error_str;
-    string aname;
+    umask = user->get_umask();
+
+    user->unlock();
+
+    /* ---------------------------------------------------------------------- */
+    /* Get, check and clone the template                                      */
+    /* ---------------------------------------------------------------------- */
 
     rtmpl = tpool->get(id,true);
 
@@ -59,14 +90,14 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    tmpl  = rtmpl->clone_template();
+    tmpl_name = rtmpl->get_name();
+    tmpl      = rtmpl->clone_template();
 
     rtmpl->get_permissions(perms);
 
     rtmpl->unlock();
 
-    // Check template for restricted attributes, but only if the Template owner
-    // is not oneadmin
+    // Check template for restricted attributes, only if owner is not oneadmin
 
     if ( perms.uid != UserPool::ONEADMIN_ID && perms.gid != GroupPool::ONEADMIN_ID )
     {
@@ -85,8 +116,22 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Store the template attributes in the VM                                */
+    /* ---------------------------------------------------------------------- */
     tmpl->erase("NAME");
-    tmpl->set(new SingleAttribute("NAME",name));
+    tmpl->erase("TEMPLATE_NAME");
+    tmpl->erase("TEMPLATE_ID");
+
+    sid << id;
+
+    tmpl->set(new SingleAttribute("TEMPLATE_NAME", tmpl_name));
+    tmpl->set(new SingleAttribute("TEMPLATE_ID", sid.str()));
+
+    if (!name.empty())
+    {
+        tmpl->set(new SingleAttribute("NAME",name));
+    }
 
     if ( att.uid != 0 )
     {
@@ -115,8 +160,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     Template tmpl_back(*tmpl);
 
-    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
-            error_str, on_hold);
+    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+            tmpl, &vid, error_str, on_hold);
 
     if ( rc < 0 )
     {
@@ -125,10 +170,10 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                 att);
 
         quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
-        
+
         return;
     }
-    
+
     success_response(vid, att);
 }
 

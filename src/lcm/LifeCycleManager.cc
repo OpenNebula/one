@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -143,6 +143,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case DETACH_FAILURE:
         aname = "DETACH_FAILURE";
+        break;
+
+    case CLEANUP_SUCCESS:
+        aname = "CLEANUP_SUCCESS";
+        break;
+
+    case CLEANUP_FAILURE:
+        aname = "CLEANUP_FAILURE";
         break;
 
     case DEPLOY:
@@ -297,6 +305,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_FAILURE")
     {
         detach_failure_action(vid);
+    }
+    else if (action == "CLEANUP_SUCCESS")
+    {
+        cleanup_callback_action(vid);
+    }
+    else if (action == "CLEANUP_FAILURE")
+    {
+        cleanup_callback_action(vid);
     }
     else if (action == "DEPLOY")
     {

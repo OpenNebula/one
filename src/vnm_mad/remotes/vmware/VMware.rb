@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -37,11 +37,14 @@ require 'CommandManager'
 require 'OpenNebulaNetwork'
 
 class OpenNebulaVMware < OpenNebulaNetwork
+    DRIVER = "vmware"
+
     XPATH_FILTER = "TEMPLATE/NIC"
     VCLI_PREFIX  = "/usr/bin/vicfg"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
+        @locking = false
 
         @config = YAML::load(File.read(CONF_FILE))
 
@@ -59,6 +62,8 @@ class OpenNebulaVMware < OpenNebulaNetwork
     end
 
     def activate
+        lock
+
         vm_id =  @vm['ID']
         hostname = @vm['HISTORY_RECORDS/HISTORY/HOSTNAME']
         process do |nic|
@@ -78,6 +83,8 @@ class OpenNebulaVMware < OpenNebulaNetwork
 
             add_pg(pg, switch, vlan) if !check_pg(pg, switch)
         end
+
+        unlock
 
         return 0
     end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -81,14 +81,15 @@ public:
         SHUTDOWN            = 12,
         CANCEL              = 13,
         FAILURE             = 14,
-        CLEANUP             = 15,
+        CLEANUP_RESUBMIT    = 15,
         UNKNOWN             = 16,
         HOTPLUG             = 17,
         SHUTDOWN_POWEROFF   = 18,
         BOOT_UNKNOWN        = 19,
         BOOT_POWEROFF       = 20,
         BOOT_SUSPENDED      = 21,
-        BOOT_STOPPED        = 22
+        BOOT_STOPPED        = 22,
+        CLEANUP_DELETE      = 23
     };
 
     // -------------------------------------------------------------------------
@@ -702,6 +703,13 @@ public:
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
 
+    /**
+     *  This function replaces the *user template*.
+     *    @param tmpl_str new contents
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int replace_template(const string& tmpl_str, string& error);
 
     // ------------------------------------------------------------------------
     // States
@@ -1044,6 +1052,12 @@ private:
      */
     FileLog * _log;
 
+    /**
+     *  User template to store custom metadata. This template can be updated
+     *
+     */
+    Template * user_obj_template;
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
@@ -1207,6 +1221,7 @@ protected:
                    int gid,
                    const string& uname,
                    const string& gname,
+                   int umask,
                    VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,14 +17,20 @@
 require 'OpenNebulaNetwork'
 
 class OpenNebulaHM < OpenNebulaNetwork
+    DRIVER = "802.1Q"
+
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
+        @locking = false
+
         @bridges = get_interfaces
     end
 
     def activate
+        lock
+
         vm_id =  @vm['ID']
         process do |nic|
             bridge  = nic[:bridge]
@@ -52,6 +58,8 @@ class OpenNebulaHM < OpenNebulaNetwork
                 end
             end
         end
+
+        unlock
 
         return 0
     end

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -197,7 +197,7 @@ ETC_DIRS="$ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/cli"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
-          $LIB_LOCATION/ruby/OpenNebula \
+          $LIB_LOCATION/ruby/opennebula \
           $LIB_LOCATION/ruby/zona \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
@@ -227,6 +227,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
+          $VAR_LOCATION/remotes/vnm/ovswitch_brcompat \
           $VAR_LOCATION/remotes/vnm/vmware \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
@@ -358,26 +359,26 @@ SELF_SERVICE_DIRS="\
                  $LIB_LOCATION/ruby/cloud/occi/ui/public/vendor/FontAwesome/font"
 
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cli \
                  $LIB_LOCATION/ruby/cli/ozones_helper \
                  $LIB_LOCATION/ruby/zona"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
 LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/occi"
 
 LIB_MARKET_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula \
+                 $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/marketplace"
 
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula"
+                 $LIB_LOCATION/ruby/opennebula"
 
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
                      $LIB_LOCATION/ruby/cli/one_helper"
@@ -407,7 +408,8 @@ INSTALL_FILES=(
     INCLUDE_FILES:$INCLUDE_LOCATION
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
@@ -450,6 +452,7 @@ INSTALL_FILES=(
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
+    NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
     NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     TGT_SHARE_FILES:$SHARE_LOCATION/tgt
@@ -490,11 +493,11 @@ INSTALL_CLIENT_FILES=(
     OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
     CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     OCA_LIB_FILES:$LIB_LOCATION/ruby
 )
 
@@ -543,7 +546,7 @@ INSTALL_SUNSTONE_ETC_FILES=(
 
 INSTALL_OZONES_RUBY_FILES=(
     OZONES_RUBY_LIB_FILES:$LIB_LOCATION/ruby
-    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
 INSTALL_OZONES_FILES=(
@@ -675,8 +678,13 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/oca/ruby/OpenNebula.rb \
-                src/authm_mad/remotes/ssh/ssh_auth.rb \
+                src/oca/ruby/opennebula.rb"
+
+#-------------------------------------------------------------------------------
+# Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
+#-------------------------------------------------------------------------------
+
+RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
                 src/authm_mad/remotes/server_x509/server_x509_auth.rb \
                 src/authm_mad/remotes/server_cipher/server_cipher_auth.rb \
                 src/authm_mad/remotes/ldap/ldap_auth.rb \
@@ -844,6 +852,11 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/post \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+
+NETWORK_OVSWITCH_BRCOMPAT_FILES="src/vnm_mad/remotes/ovswitch_brcompat/clean \
+                    src/vnm_mad/remotes/ovswitch_brcompat/post \
+                    src/vnm_mad/remotes/ovswitch_brcompat/pre \
+                    src/vnm_mad/remotes/ovswitch_brcompat/OpenvSwitch.rb"
 
 NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
                     src/vnm_mad/remotes/vmware/post \
@@ -1089,35 +1102,40 @@ INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
 #-------------------------------------------------------------------------------
 # OCA Files
 #-------------------------------------------------------------------------------
-OCA_LIB_FILES="src/oca/ruby/OpenNebula.rb"
+OCA_LIB_FILES="src/oca/ruby/opennebula.rb"
 
-RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
-                           src/oca/ruby/OpenNebula/HostPool.rb \
-                           src/oca/ruby/OpenNebula/Pool.rb \
-                           src/oca/ruby/OpenNebula/User.rb \
-                           src/oca/ruby/OpenNebula/UserPool.rb \
-                           src/oca/ruby/OpenNebula/VirtualMachine.rb \
-                           src/oca/ruby/OpenNebula/VirtualMachinePool.rb \
-                           src/oca/ruby/OpenNebula/VirtualNetwork.rb \
-                           src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
-                           src/oca/ruby/OpenNebula/Image.rb \
-                           src/oca/ruby/OpenNebula/ImagePool.rb \
-                           src/oca/ruby/OpenNebula/Template.rb \
-                           src/oca/ruby/OpenNebula/TemplatePool.rb \
-                           src/oca/ruby/OpenNebula/Document.rb \
-                           src/oca/ruby/OpenNebula/DocumentPool.rb \
-                           src/oca/ruby/OpenNebula/DocumentJSON.rb \
-                           src/oca/ruby/OpenNebula/DocumentPoolJSON.rb \
-                           src/oca/ruby/OpenNebula/Group.rb \
-                           src/oca/ruby/OpenNebula/GroupPool.rb \
-                           src/oca/ruby/OpenNebula/Acl.rb \
-                           src/oca/ruby/OpenNebula/AclPool.rb \
-                           src/oca/ruby/OpenNebula/Datastore.rb \
-                           src/oca/ruby/OpenNebula/DatastorePool.rb \
-                           src/oca/ruby/OpenNebula/Cluster.rb \
-                           src/oca/ruby/OpenNebula/ClusterPool.rb \
-                           src/oca/ruby/OpenNebula/XMLUtils.rb \
-                           src/oca/ruby/OpenNebula/System.rb"
+RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/host.rb \
+                           src/oca/ruby/opennebula/host_pool.rb \
+                           src/oca/ruby/opennebula/pool.rb \
+                           src/oca/ruby/opennebula/user.rb \
+                           src/oca/ruby/opennebula/user_pool.rb \
+                           src/oca/ruby/opennebula/virtual_machine.rb \
+                           src/oca/ruby/opennebula/virtual_machine_pool.rb \
+                           src/oca/ruby/opennebula/virtual_network.rb \
+                           src/oca/ruby/opennebula/virtual_network_pool.rb \
+                           src/oca/ruby/opennebula/image.rb \
+                           src/oca/ruby/opennebula/image_pool.rb \
+                           src/oca/ruby/opennebula/template.rb \
+                           src/oca/ruby/opennebula/template_pool.rb \
+                           src/oca/ruby/opennebula/document.rb \
+                           src/oca/ruby/opennebula/document_pool.rb \
+                           src/oca/ruby/opennebula/document_json.rb \
+                           src/oca/ruby/opennebula/document_pool_json.rb \
+                           src/oca/ruby/opennebula/group.rb \
+                           src/oca/ruby/opennebula/group_pool.rb \
+                           src/oca/ruby/opennebula/acl.rb \
+                           src/oca/ruby/opennebula/acl_pool.rb \
+                           src/oca/ruby/opennebula/datastore.rb \
+                           src/oca/ruby/opennebula/datastore_pool.rb \
+                           src/oca/ruby/opennebula/cluster.rb \
+                           src/oca/ruby/opennebula/cluster_pool.rb \
+                           src/oca/ruby/opennebula/xml_utils.rb \
+                           src/oca/ruby/opennebula/client.rb \
+                           src/oca/ruby/opennebula/error.rb \
+                           src/oca/ruby/opennebula/pool_element.rb \
+                           src/oca/ruby/opennebula/xml_element.rb \
+                           src/oca/ruby/opennebula/xml_pool.rb \
+                           src/oca/ruby/opennebula/system.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -49,6 +49,9 @@ public:
         SHUTDOWN,
         CANCEL,
         CANCEL_PREVIOUS,
+        CLEANUP,
+        CLEANUP_BOTH,
+        CLEANUP_PREVIOUS,
         MIGRATE,
         RESTORE,
         REBOOT,
@@ -255,6 +258,22 @@ private:
      *    @param vid the id of the VM.
      */
     void cancel_previous_action(
+        int vid);
+
+    /**
+     *  Cleanups a host (cancel VM + delete disk images).
+     *    @param vid the id of the VM.
+     *    @param cancel_previous if true the VM will be canceled in the previous
+     *    host (only relevant to delete VM's in MIGRATE state)
+     */
+    void cleanup_action(
+        int vid, bool cancel_previous);
+
+    /**
+     *  Cleanups the previous host (cancel VM + delete disk images).
+     *    @param vid the id of the VM.
+     */
+    void cleanup_previous_action(
         int vid);
 
     /**

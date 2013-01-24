@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -225,6 +225,7 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 # SESSION_EXPIRATION_TIME
 # ENABLE_OTHER_PERMISSIONS
+# DEFAULT_UMASK
 #*******************************************************************************
 */
     // SESSION_EXPIRATION_TIME
@@ -237,6 +238,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "YES";
 
     attribute = new SingleAttribute("ENABLE_OTHER_PERMISSIONS",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // DEFAULT_UMASK
+    value = "177";
+
+    attribute = new SingleAttribute("DEFAULT_UMASK",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 }
 

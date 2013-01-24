@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -427,16 +427,16 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string ds_location;
     int    ds_id;
 
-    int id          = xmlrpc_c::value_int(paramList.getInt(1));
-    int hid         = xmlrpc_c::value_int(paramList.getInt(2));
-    bool enforce    = false;
+    int id       = xmlrpc_c::value_int(paramList.getInt(1));
+    int hid      = xmlrpc_c::value_int(paramList.getInt(2));
+    bool enforce = false;
 
-    if ( paramList.size() != 3 )
+    bool auth = false;
+
+    if ( paramList.size() > 3 )
     {
         enforce = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
-
-    bool auth = false;
 
     if (get_host_information(hid,
                              hostname,
@@ -544,7 +544,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     bool enforce = false;
 
-    if ( paramList.size() != 4 )
+    if ( paramList.size() > 4 )
     {
         enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
     }
@@ -681,8 +681,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 {
     Nebula& nd  = Nebula::instance();
 
-    ImagePool *      ipool = nd.get_ipool();
-    DatastorePool * dspool = nd.get_dspool();
+    ImagePool *     ipool   = nd.get_ipool();
+    DatastorePool * dspool  = nd.get_dspool();
+    UserPool *      upool   = nd.get_upool();
 
     int    id       = xmlrpc_c::value_int(paramList.getInt(1));
     int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
@@ -695,8 +696,10 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     Image         *  img;
     Datastore     *  ds;
+    User          *  user;
     Image::DiskType  ds_disk_type;
 
+    int           umask;
     int           rc;
     string        error_str;
 
@@ -729,6 +732,25 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          att);
         return;
     }
+
+    // -------------------------------------------------------------------------
+    // Get user's umask
+    // -------------------------------------------------------------------------
+
+    user = upool->get(att.uid, true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::USER), att.uid),
+                att);
+
+        return;
+    }
+
+    umask = user->get_umask();
+
+    user->unlock();
 
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
@@ -859,6 +881,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                          att.gid,
                          att.uname,
                          att.gname,
+                         umask,
                          itemplate,
                          ds_id,
                          ds_name,

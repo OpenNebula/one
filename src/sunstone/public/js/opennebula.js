@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -102,14 +102,15 @@ var OpenNebula = {
                                "SHUTDOWN",
                                "CANCEL",
                                "FAILURE",
-                               "CLEANUP",
+                               "CLEANUP_RESUBMIT",
                                "UNKNOWN",
                                "HOTPLUG",
                                "SHUTDOWN_POWEROFF",
                                "BOOT_UNKNOWN",
                                "BOOT_POWEROFF",
                                "BOOT_SUSPENDED",
-                               "BOOT_STOPPED"][value]);
+                               "BOOT_STOPPED",
+                               "CLEANUP_DELETE"][value]);
                     break;
                 case "IMAGE":
                 case "image":

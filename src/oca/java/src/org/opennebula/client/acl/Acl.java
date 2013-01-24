@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ public class Acl extends PoolElement{
         tmpUsers.put("#", 0x0000000100000000L);
         tmpUsers.put("@", 0x0000000200000000L);
         tmpUsers.put("*", 0x0000000400000000L);
+        tmpUsers.put("%", 0x0000000800000000L);
 
         USERS = Collections.unmodifiableMap(tmpUsers);
 
@@ -339,7 +340,7 @@ public class Acl extends PoolElement{
      */
     private static long calculateIds(String id) throws RuleParseException
     {
-        if( !id.matches("^([#@]\\d+|\\*)$") )
+        if( !id.matches("^([#@%]\\d+|\\*)$") )
         {
             throw new RuleParseException("ID string '" + id + "' malformed");
         }

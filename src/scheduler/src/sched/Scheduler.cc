@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -175,6 +175,7 @@ void Scheduler::start()
     // -----------------------------------------------------------
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
+    clpool = new ClusterPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client, 
                                        machines_limit,
                                        (live_rescheds == 1));
@@ -274,6 +275,24 @@ int Scheduler::set_up_pools()
     {
         return rc;
     }
+
+    //--------------------------------------------------------------------------
+    //Cleans the cache and get the cluster information
+    //--------------------------------------------------------------------------
+
+    rc = clpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
+    //Add to each host the corresponding cluster template
+    //--------------------------------------------------------------------------
+
+    hpool->merge_clusters(clpool);
+
 
     //--------------------------------------------------------------------------
     //Cleans the cache and get the pending VMs

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'optparse/time'
 
 class AcctHelper < OpenNebulaHelper::OneHelper
     START_TIME = {
@@ -22,7 +23,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :short  => "-s TIME",
         :large  => "--start TIME" ,
         :description => "Start date and time to take into account",
-        :format => String # TODO Time
+        :format => Time
     }
 
     END_TIME = {
@@ -30,7 +31,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :short  => "-e TIME",
         :large  => "--end TIME" ,
         :description => "End date and time",
-        :format => String # TODO Time
+        :format => Time
     }
 
     USERFILTER = {
@@ -144,7 +145,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         default :VID, :HOSTNAME, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
     end
 
-    def self.print_start_enc_time_header(start_time, end_time)
+    def self.print_start_end_time_header(start_time, end_time)
         print "Showing active history records from "
 
         CLIHelper.scr_bold

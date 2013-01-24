@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -214,6 +214,14 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
 
             xpath_h << "/HOST/" << attr;
             results = (*oxml)[xpath_h.str().c_str()];
+
+            if (results.size() == 0)
+            {
+                xpath_h.str("");
+
+                xpath_h << "/HOST/CLUSTER_TEMPLATE/" << attr;
+                results = (*oxml)[xpath_h.str().c_str()];
+            }
         }
     }
 
@@ -248,6 +256,14 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
 
             xpath_h << "/HOST/" << attr;
             results = (*oxml)[xpath_h.str().c_str()];
+
+            if (results.size() == 0)
+            {
+                xpath_h.str("");
+
+                xpath_h << "/HOST/CLUSTER_TEMPLATE/" << attr;
+                results = (*oxml)[xpath_h.str().c_str()];
+            }
         }
     }
 
@@ -282,6 +298,14 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
 
             xpath_h << "/HOST/" << attr;
             results = (*oxml)[xpath_h.str().c_str()];
+
+            if (results.size() == 0)
+            {
+                xpath_h.str("");
+
+                xpath_h << "/HOST/CLUSTER_TEMPLATE/" << attr;
+                results = (*oxml)[xpath_h.str().c_str()];
+            }
         }
     }
 

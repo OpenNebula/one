@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,10 +20,12 @@ require 'digest/sha1'
 require 'base64'
 require 'fileutils'
 
+module OpenNebula; end
+
 # Server authentication class. This method can be used by OpenNebula services
 # to let access authenticated users by other means. It is based on OpenSSL 
 # symmetric ciphers
-class ServerCipherAuth 
+class OpenNebula::ServerCipherAuth 
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################
@@ -143,3 +145,4 @@ class ServerCipherAuth
         return rc
     end
 end
+

@@ -1,7 +1,7 @@
 
 
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -77,6 +77,7 @@ int LibVirtDriver::deployment_description_vmware(
     const VectorAttribute * raw;
     string data;
     string default_raw;
+    string data_vmx;
 
     // ------------------------------------------------------------------------
 
@@ -447,6 +448,12 @@ int LibVirtDriver::deployment_description_vmware(
         {
             data = raw->vector_value("DATA");
             file << "\t" << data << endl;
+
+            data_vmx = raw->vector_value("DATA_VMX");
+            if ( !data_vmx.empty() )
+            {
+                file << "\t<metadata>" << data_vmx << "</metadata>" << endl;
+            }
         }
     }
 

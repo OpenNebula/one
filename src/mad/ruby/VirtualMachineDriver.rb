@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,6 +42,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         :log         => "LOG",
         :attach_disk => "ATTACHDISK",
         :detach_disk => "DETACHDISK",
+        :cleanup     => "CLEANUP"
     }
 
     POLL_ATTRIBUTE = {
@@ -89,6 +90,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:poll].to_sym,        method("poll"))
         register_action(ACTION[:attach_disk].to_sym, method("attach_disk"))
         register_action(ACTION[:detach_disk].to_sym, method("detach_disk"))
+        register_action(ACTION[:cleanup].to_sym,     method("cleanup"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -166,6 +168,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     def detach_disk(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:detach_disk],RESULT[:failure],id,error)
+    end
+
+    def cleanup(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:cleanup],RESULT[:failure],id,error)
     end
 
 private

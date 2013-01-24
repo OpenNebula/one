@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2010-2012, C12G Labs S.L                                           #
+# Copyright 2010-2013, C12G Labs S.L                                           #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -41,7 +41,7 @@ ENV['LANG'] = 'C'
 require "scripts_common"
 require 'yaml'
 require "CommandManager"
-require 'OpenNebula'
+require 'opennebula'
 include OpenNebula
 
 begin

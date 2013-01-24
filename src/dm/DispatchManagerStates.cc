@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -161,7 +161,7 @@ void  DispatchManager::done_action(int vid)
     if ((dm_state == VirtualMachine::ACTIVE) &&
           (lcm_state == VirtualMachine::EPILOG ||
            lcm_state == VirtualMachine::CANCEL ||
-           lcm_state == VirtualMachine::CLEANUP ))
+           lcm_state == VirtualMachine::CLEANUP_DELETE))
     {
         vm->set_state(VirtualMachine::DONE);
 
@@ -180,11 +180,11 @@ void  DispatchManager::done_action(int vid)
         uid  = vm->get_uid();
         gid  = vm->get_gid();
         tmpl = vm->clone_template();
-    
+
         vm->unlock();
 
         Quotas::vm_del(uid, gid, tmpl);
-        
+
         delete tmpl;
     }
     else
@@ -196,7 +196,7 @@ void  DispatchManager::done_action(int vid)
 
         vm->unlock();
     }
-    
+
     return;
 }
 
@@ -247,7 +247,7 @@ void  DispatchManager::resubmit_action(int vid)
         return;
     }
 
-    if (vm->get_lcm_state() == VirtualMachine::CLEANUP)
+    if (vm->get_lcm_state() == VirtualMachine::CLEANUP_RESUBMIT)
     {
 
         vm->set_state(VirtualMachine::LCM_INIT);

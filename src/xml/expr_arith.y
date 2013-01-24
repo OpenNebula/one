@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -105,17 +105,24 @@ expr:   STRING              { float val = 0.0;
 
                               ostringstream  xpath_t;
                               ostringstream  xpath_s;
+                              ostringstream  xpath_c;
 
                               vector<string> results;
 
                               xpath_t << "/HOST/TEMPLATE/" << $1;
                               xpath_s << "/HOST/HOST_SHARE/" << $1;
+                              xpath_c << "/HOST/CLUSTER_TEMPLATE/" << $1;
 
                               results = (*oxml)[xpath_t.str().c_str()];
 
                               if (results.size() == 0)
                               {
                                   results = (*oxml)[xpath_s.str().c_str()];
+                              }
+
+                              if (results.size() == 0)
+                              {
+                                  results = (*oxml)[xpath_c.str().c_str()];
                               }
 
                               if (results.size() != 0)

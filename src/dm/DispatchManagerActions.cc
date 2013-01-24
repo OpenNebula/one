@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -868,7 +868,7 @@ int DispatchManager::resubmit(int vid)
         case VirtualMachine::FAILED: //Cleanup VM host files
             vm->log("DiM", Log::INFO, "New VM state is CLEANUP.");
 
-            vm->set_state(VirtualMachine::CLEANUP);
+            vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
             vm->set_state(VirtualMachine::ACTIVE);
 
             vmpool->update(vm);

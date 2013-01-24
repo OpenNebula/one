@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -215,9 +215,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 
-        if vm.has_elements?("/VM/HISTORY_RECORDS")
+        if vm.has_elements?("/VM/USER_TEMPLATE")
             puts
 
+            CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
+            puts vm.template_like_str('USER_TEMPLATE')
+        end
+
+        if vm.has_elements?("/VM/HISTORY_RECORDS")
+            puts
 
             CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
             format_history(vm)

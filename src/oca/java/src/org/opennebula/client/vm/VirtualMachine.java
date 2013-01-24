@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)
+ * Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public class VirtualMachine extends PoolElement{
     private static final String ATTACH  = METHOD_PREFIX + "attach";
     private static final String DETACH  = METHOD_PREFIX + "detach";
     private static final String RENAME  = METHOD_PREFIX + "rename";
+    private static final String UPDATE  = METHOD_PREFIX + "update";
 
     private static final String[] VM_STATES =
     {
@@ -82,14 +83,15 @@ public class VirtualMachine extends PoolElement{
         "SHUTDOWN",
         "CANCEL",
         "FAILURE",
-        "CLEANUP",
+        "CLEANUP_RESUBMIT",
         "UNKNOWN",
         "HOTPLUG",
         "SHUTDOWN_POWEROFF",
         "BOOT_UNKNOWN",
         "BOOT_POWEROFF",
         "BOOT_SUSPENDED",
-        "BOOT_STOPPED" };
+        "BOOT_STOPPED",
+        "CLEANUP_DELETE" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -115,7 +117,8 @@ public class VirtualMachine extends PoolElement{
         "boot",
         "boot",
         "boot",
-        "boot" };
+        "boot",
+        "clea" };
 
     /**
      * Creates a new VM representation.
@@ -166,6 +169,19 @@ public class VirtualMachine extends PoolElement{
         boolean onHold)
     {
         return client.call(ALLOCATE, description, onHold);
+    }
+
+    /**
+     * Replaces the user template contents for the given VM.
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target vm.
+     * @param new_template New template contents
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse update(Client client, int id, String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
     }
 
     /**
@@ -542,6 +558,17 @@ public class VirtualMachine extends PoolElement{
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Replaces this VM's user template contents.
+     *
+     * @param new_template New template contents
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse update(String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
     }
 
     // =================================

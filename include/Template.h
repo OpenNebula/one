@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -277,6 +277,22 @@ public:
     virtual bool get(
         const string&   name,
         bool&           value) const;
+
+    /**
+     *  Trims the trailing spaces in the NAME attribute
+     *    @return True if the attribute was found and trimmed
+     */
+    virtual bool trim_name()
+    {
+        return trim("NAME");
+    };
+
+    /**
+     *  Trims the trailing spaces in the attribute
+     *    @param name of the attribute
+     *    @return True if the attribute was found and trimmed
+     */
+    virtual bool trim(const string& name);
 
     friend ostream& operator<<(ostream& os, const Template& t);
 
