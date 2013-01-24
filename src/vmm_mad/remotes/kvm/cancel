@@ -21,5 +21,19 @@ source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 
-exec_and_log "virsh --connect $LIBVIRT_URI destroy $deploy_id" \
-    "Could not destroy $deploy_id"
+TIMEOUT=60
+
+function destroy_and_monitor
+{
+    virsh --connect $LIBVIRT_URI destroy $deploy_id
+
+    virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id
+    [ "x$?" != "x0" ]
+}
+
+retry $TIMEOUT destroy_and_monitor
+
+if [ "x$?" != "x0" ]; then
+    error_message "Could not destroy $deploy_id"
+    exit 1
+fi
