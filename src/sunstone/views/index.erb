@@ -76,7 +76,7 @@
 
 *, *:before, *:after { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
 
-html { font-size: 62.5%; }
+html { font-size: 62.5%; } 
 
 body { background: white; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; font-weight: normal; font-style: normal; font-size: 14px; line-height: 1; color: #222222; position: relative; -webkit-font-smoothing: antialiased; }
 
@@ -266,6 +266,35 @@ img { -ms-interpolation-mode: bicubic; }
 .row:after { clear: both; }
 
 .ui-slider-range { background: #4d4d4d; }
+
+/* Tables ---------------------- */
+.table { background: #fff; -webkit-border-radius: 3px; -moz-border-radius: 3px; -ms-border-radius: 3px; -o-border-radius: 3px; border-radius: 3px; margin: 0 0 18px; border: 1px solid #ddd; }
+
+.table thead, .table tfoot { background: #f5f5f5; }
+
+.table thead tr th, .table tfoot tr th, .table tbody tr td, .table tr td, .table tfoot tr td { display: table-cell; font-size: 12; line-height: 10px; text-align: left; }
+
+.table thead tr th, .table tfoot tr td { padding: 8px 10px 9px; font-size: 12px; font-weight: bold; color: #222; }
+
+.table thead tr th:first-child, .table tfoot tr td:first-child { border-left: none; }
+
+.table thead tr th:last-child, .table tfoot tr td:last-child { border-right: none; }
+
+.table tbody tr.even, .table tbody tr.alt { background: #f9f9f9; }
+
+.table tbody tr:nth-child(even) { background: #f9f9f9; }
+
+.table tbody tr td { color: #333; padding: 9px 10px; vertical-align: top; border: none; }
+
+hr{margin:18px 0;border:0;border-top:1px solid #eee;border-bottom:1px solid #fff}
+
+/* Labels ---------------------- */
+.label { padding: 1px 4px 2px; font-size: 12px; font-weight: bold; text-align: center; text-decoration: none; line-height: 1; white-space: nowrap; display: inline; position: relative; bottom: 1px; color: #fff; background: #2ba6cb; }
+.label.radius { -webkit-border-radius: 3px; -moz-border-radius: 3px; -ms-border-radius: 3px; -o-border-radius: 3px; border-radius: 3px; }
+.label.round { padding: 1px 7px 2px; -webkit-border-radius: 1000px; -moz-border-radius: 1000px; -ms-border-radius: 1000px; -o-border-radius: 1000px; border-radius: 1000px; }
+.label.alert { background-color: #c60f13; }
+.label.success { background-color: #5da423; }
+.label.secondary { background-color: #e9e9e9; color: #505050; }
 
 .markrow { background-color:#ffbba9 !important; }
     </style>
