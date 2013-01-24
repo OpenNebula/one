@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEGROUP" "1" "October 2012" "" "onegroup(1) -- manages OpenNebula groups"
+.TH "ONEGROUP" "1" "January 2013" "" "onegroup(1) -- manages OpenNebula groups"
 .
 .SH "NAME"
 \fBonegroup\fR
@@ -15,12 +15,17 @@
 
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
+ \-f, \-\-filter x,y,z        Filter data\. An array is specified with
+                           column=value pairs\.
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
  \-\-describe                Describe list columns
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
+ \-\-user name               User name used to connect to OpenNebula
+ \-\-password password       Password to authenticate with OpenNebula
+ \-\-endpoint endpoint       URL of OpenNebula xmlrpc frontend
 .
 .fi
 .
@@ -62,7 +67,7 @@ list
 .nf
 
 Lists Groups in the pool
-valid options: list, delay, xml, numeric, describe
+valid options: list, delay, filter, xml, numeric, describe
 .
 .fi
 .
@@ -108,6 +113,21 @@ batchquota \fIrange|groupid_list\fR [\fIfile\fR]
 
 Sets the quota limits in batch for various groups\. If a path is not
 provided the editor will be launched to create new quotas\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+defaultquota [\fIfile\fR]
+.
+.IP "" 4
+.
+.nf
+
+Sets the default quota limits for the groups\. If a path is not provided
+the editor will be launched to modify the current default quotas\.
 .
 .fi
 .
@@ -191,7 +211,7 @@ Comma\-separated list of OpenNebula GROUP names or ids
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.9\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.9\.0 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

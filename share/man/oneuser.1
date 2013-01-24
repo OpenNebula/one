@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEUSER" "1" "October 2012" "" "oneuser(1) -- manages OpenNebula users"
+.TH "ONEUSER" "1" "January 2013" "" "oneuser(1) -- manages OpenNebula users"
 .
 .SH "NAME"
 \fBoneuser\fR
@@ -14,7 +14,8 @@
 .nf
 
  \-r, \-\-read\-file           Read password from file
- \-\-sha1                    The password will be hashed using the sha1 algorithm
+ \-\-sha1                    The password will be hashed using the sha1
+                           algorithm
  \-\-ssh                     SSH Auth system
  \-\-x509                    x509 Auth system for x509 certificates
  \-k, \-\-key path_to_private_key_pem Path to the Private Key of the User
@@ -25,12 +26,17 @@
  \-\-time x                  Token duration in seconds, defaults to 3600 (1 h)
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
+ \-f, \-\-filter x,y,z        Filter data\. An array is specified with
+                           column=value pairs\.
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
  \-\-describe                Describe list columns
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
+ \-\-user name               User name used to connect to OpenNebula
+ \-\-password password       Password to authenticate with OpenNebula
+ \-\-endpoint endpoint       URL of OpenNebula xmlrpc frontend
 .
 .fi
 .
@@ -96,6 +102,41 @@ batchquota \fIrange|userid_list\fR [\fIfile\fR]
 
 Sets the quota limits in batch for various users\. If a path is not
 provided the editor will be launched to create new quotas\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+defaultquota [\fIfile\fR]
+.
+.IP "" 4
+.
+.nf
+
+Sets the default quota limits for the users\. If a path is not provided
+the editor will be launched to modify the current default quotas\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+umask \fIrange|userid_list\fR [\fImask\fR]
+.
+.IP "" 4
+.
+.nf
+
+Changes the umask used to create the default permissions\. In a similar
+way to the Unix umask command, the expected value is a three\-digit
+base\-8 number\. Each digit is a mask that disables permissions for the
+owner, group and other, respectively\.
+
+If mask is not given, or if it is an empty string, the umask will
+be unset
 .
 .fi
 .
@@ -214,7 +255,7 @@ list
 .nf
 
 Lists Users in the pool
-valid options: list, delay, xml, numeric, describe
+valid options: list, delay, filter, xml, numeric, describe
 .
 .fi
 .
@@ -355,7 +396,7 @@ User password
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 3\.9\.0 Copyright 2002\-2012, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 3\.9\.0 Copyright 2002\-2013, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

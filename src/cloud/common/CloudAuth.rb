@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2012, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -67,7 +67,7 @@ class CloudAuth
         end
 
         begin
-            require core_auth[0]
+            require "opennebula/#{core_auth[0]}"
             @server_auth = Kernel.const_get(core_auth[1]).new_client
         rescue => e
             raise e.message
