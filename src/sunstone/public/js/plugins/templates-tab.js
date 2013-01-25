@@ -2060,9 +2060,7 @@ function setupCreateTemplateDialog(){
                     '</tbody>'+
                   '</table>'+
                     '<div id="files_ds_inputs" class="vm_param kvm_opt xen_opt vmware_opt">'+
-                      '<p>You selected the following FILES: '+
-                        '<span type="text" id="FILES" name="context_files"></span>'+
-                        '</p>'+
+                      '<div id="selected_files_template"></div>'+
                       '<input type="hidden" id="FILES_DS" name="context_files" size="2"/>'+
                       '</div>'+
                 '</div>'+
@@ -2112,21 +2110,19 @@ function setupCreateTemplateDialog(){
 
       $('#add_context', $('div#context_tab')).click(function() {
           var table = $('#context_table', $('div#context_tab'))[0];
-          console.log(table)
           var rowCount = table.rows.length;
           var row = table.insertRow(rowCount);
-          $(row).addClass("vm_param");
 
           var cell1 = row.insertCell(0);
           var element1 = document.createElement("input");
-          element1.id = "KEY"
+          element1.id = "KEY";
           element1.type = "text";
           element1.value = $('input#KEY', $('div#context_tab')).val()
           cell1.appendChild(element1);
 
           var cell2 = row.insertCell(1);
           var element2 = document.createElement("input");
-          element2.id = "VALUE"
+          element2.id = "VALUE";
           element2.type = "text";
           element2.value = $('input#VALUE', $('div#context_tab')).val()
           cell2.appendChild(element2);
@@ -2176,8 +2172,9 @@ function setupCreateTemplateDialog(){
           $.each(images_list,function(){
               image_list_array.push(imageElementArray(this));
           });   
+          console.log(image_list_array);
           updateView(image_list_array, datTable_template_context);
-          datTable_template_context.fnFilter("CONTEXT", 6)
+          datTable_template_context.fnFilter("CONTEXT", 7)
       }, 
       error: onError
       });   
@@ -2192,19 +2189,59 @@ function setupCreateTemplateDialog(){
           var previous_context_row = 0;
       }         
 
+      var selected_files = {};
+      var file_row_hash = {};
+
       $('#datatable_context tbody', dialog).delegate("tr", "click", function(e){
           if ($(e.target).is('input') ||
               $(e.target).is('select') ||
-              $(e.target).is('option')) return true;    
-          var aData = datTable_template_context.fnGetData(this);     
-          if (previous_context_row)
-              $("td:first", previous_context_row).parent().children().each(function(){$(this).removeClass('markrow');});
-          previous_context_row = this;
-          $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});           
-          $('#FILES', $('div#context_tab')).text(aData[4]);
-          $('#FILES_DS', $('div#context_tab')).val("$FILE[IMAGE_ID="+ aData[1] +"]");
+              $(e.target).is('option')) return true;
+
+          var aData   = datTable_template_context.fnGetData(this);
+          var file_id = aData[1];
+
+          if(!$("td:first", this).hasClass('markrow'))
+          {
+            selected_files[file_id]=1;
+            file_row_hash[file_id]=this;
+            console.log("asdfasdfasdf")
+            console.log(aData)
+            $(this).children().each(function(){$(this).addClass('markrow');});
+            $('div#selected_files_template', dialog).append('<span id="tag_file_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[4]+'</span>');
+          }
+          else
+          {
+            delete selected_files[file_id];
+            $(this).children().each(function(){$(this).removeClass('markrow');});
+            $('div#selected_files_template span#tag_file_'+file_id, dialog).remove();
+          }
+
+          generate_context_files();
+
           return false;
       });
+
+      $( "#selected_files_template span.ui-icon-close" ).live( "click", function() {
+         $(this).parent().remove();
+         var id = $(this).parent().attr("ID");
+
+         var file_id=id.substring(9,id.length);
+         delete selected_files[file_id];
+         $(file_row_hash[file_id]).children().each(function(){$(this).removeClass('markrow');});
+
+         generate_context_files();
+      });
+
+      var generate_context_files = function() {
+        var req_string=[];
+
+        $.each(selected_files, function(key, value) { 
+          req_string.push("$FILE[IMAGE_ID="+ key +"]");
+        });
+
+
+        $('#FILES_DS', dialog).val(req_string.join(" "));
+      };
     }
 
 
@@ -2284,7 +2321,22 @@ function setupCreateTemplateDialog(){
           '</div>'+
         '</fieldset>'+
         '<fieldset>'+
-          '<legend>'+tr("RANK")+'</legend>'+
+          '<legend>'+tr("Scheduling policy")+'</legend>'+
+            '<div class="row">'+
+              '<div class="four columns ">'+
+                '<input type="radio" name="rank_select" value="RUNNING_VMS"> PACKING '+
+                '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
+              '</div>'+
+              '<div class="four columns ">'+
+                '<input type="radio" name="rank_select" value="-RUNNING_VMS"> STRIPING '+
+                '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
+              '</div>'+
+              '<div class="four columns ">'+
+                '<input type="radio" name="rank_select" value="FREECPU"> LOAD-AWARE'+
+                '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
+              '</div>'+
+            '</div>'+  
+            '<hr>'+
           '<div class="row vm_param">'+
             '<div class="two columns">'+
               '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
@@ -2487,6 +2539,10 @@ function setupCreateTemplateDialog(){
             $("div.cluster_select",  $('div#placement_tab')).toggle();
             $("div.cluster_select",  $('div#placement_tab')).addClass('vm_param');
         }
+      });
+
+      $("input[name='rank_select']").change(function(){
+        $("#RANK", dialog).val(this.value);
       });
 
       var generate_requirements = function() {
@@ -2728,6 +2784,8 @@ function setupCreateTemplateDialog(){
             nic_id++;
           });
         };
+
+        addSectionJSON(vm_json["CONTEXT"],$('div#context_tab',dialog));
 
         //
         // PLACEMENT
@@ -3158,6 +3216,101 @@ function fillTemplatePopUp(request, response){
 
             autoFillInputs(graphics, graphics_section);
         }
+    }
+
+    // TBD INPUTS TABLE
+
+    //
+    // CONTEXT
+    //
+
+    var context = template.CONTEXT;
+    var context_section = $('div#context_tab', $create_template_dialog);
+
+
+
+    if (context) {
+        var file_ds_regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/g;
+        var net_regexp = /^ETH[(0-9)+]_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
+        var ssh_regexp = /^SSH_PUBLIC_KEY$/;
+
+        var net_flag = false;
+        var files = [];
+
+        $.each(context, function(key, value){ 
+            if (ssh_regexp.test(key)) {
+                $("#ssh_context", context_section).click();
+                $("input#ssh_puclic_key").val(value);
+            }
+            else if (net_regexp.test(key)) {
+                if (!net_flag) {
+                    $("#network_context", context_section).click();
+                    net_flag = true;
+                }
+            }
+            else if ("FILES_DS" == key){
+                var files = [];
+                while (match = file_ds_regexp.exec(value)) {
+                    files.push(match[1])
+                }
+
+                var dataTable_context = $("#datatable_context").dataTable();
+
+                // TODO updateView should not be required. Currently the dataTable
+                //  is filled twice.
+                OpenNebula.Image.list({
+                    timeout: true, 
+                    success: function (request, list){
+                        var list_array = [];
+
+                        $.each(list,function(){
+                            list_array.push(imageElementArray(this));
+                        });
+
+                        updateView(list_array, dataTable_context);
+                        dataTable_context.fnFilter("CONTEXT", 7)
+
+                        var rows = dataTable_context.fnGetNodes();
+
+                        for (var j=0;j<rows.length;j++) {
+                            var current_row = $(rows[j]);
+                            var row_id = $(rows[j]).find("td:eq(0)").html();
+
+                            if ($.inArray(row_id, files) != -1) {
+                                // TBD check if all the files were clicked
+                                rows[j].click();
+                            }
+                        }
+                  }, 
+                  error: onError
+                });
+            }
+            else {
+              var table = $('#context_table', context_section)[0];
+              var rowCount = table.rows.length;
+              var row = table.insertRow(rowCount);
+
+              var cell1 = row.insertCell(0);
+              var element1 = document.createElement("input");
+              element1.id = "KEY";
+              element1.type = "text";
+              element1.value = key
+              cell1.appendChild(element1);
+
+              var cell2 = row.insertCell(1);
+              var element2 = document.createElement("input");
+              element2.id = "VALUE";
+              element2.type = "text";
+              element2.value = value
+              cell2.appendChild(element2);
+
+
+              var cell3 = row.insertCell(2);
+              cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
+            }
+        });
+
+
     }
 
     popUpCreateTemplateDialog();
