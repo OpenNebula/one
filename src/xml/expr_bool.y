@@ -65,11 +65,11 @@ extern "C"
     }
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
+int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
+int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
+int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 
 %}
 
@@ -104,55 +104,55 @@ stmt:   expr    { result=$1;   }
         |       { result=true; } /* TRUE BY DEFAULT, ON EMPTY STRINGS */
         ;
 
-expr:   STRING '=' INTEGER { int val;
+expr:   STRING '=' INTEGER { int val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val == $3;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val == $3);}
 
-        | STRING '!' '=' INTEGER { int val;
+        | STRING '!' '=' INTEGER { int val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val != $4;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val != $4);}
 
-        | STRING '>' INTEGER { int val;
+        | STRING '>' INTEGER { int val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val > $3;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val > $3);}
 
-        | STRING '<' INTEGER { int val;
+        | STRING '<' INTEGER { int val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val < $3;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val < $3);}
 
-        | STRING '=' FLOAT { float val;
+        | STRING '=' FLOAT { float val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val == $3;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val == $3);}
 
-        | STRING '!' '=' FLOAT { float val;
+        | STRING '!' '=' FLOAT { float val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val != $4;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val != $4);}
 
-        | STRING '>' FLOAT { float val;
+        | STRING '>' FLOAT { float val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val > $3;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val > $3);}
 
-        | STRING '<' FLOAT { float val;
+        | STRING '<' FLOAT { float val, rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = val < $3;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc == 0 && val < $3);}
 
-        | STRING '=' STRING { string val;
+        | STRING '=' STRING { string val; int rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = (val.empty() || $3==0) ? false : fnmatch($3,val.c_str(),0)==0;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc != 0 || $3==0) ? false : fnmatch($3,val.c_str(),0)==0;}
 
-        | STRING '!''=' STRING { string val;
+        | STRING '!''=' STRING { string val; int rc;
 
-            get_xml_attribute(oxml,$1,val);
-            $$ = (val.empty() || $4==0) ? false : fnmatch($4,val.c_str(),0)!=0;}
+            rc = get_xml_attribute(oxml,$1,val);
+            $$ = (rc != 0 || $4==0) ? false : fnmatch($4,val.c_str(),0)!=0;}
 
         | expr '&' expr { $$ = $1 && $3; }
         | expr '|' expr { $$ = $1 || $3; }
@@ -190,7 +190,7 @@ extern "C" void expr_bool__error(
     result = false;
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
+int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
 {
     val = 0;
 
@@ -229,10 +229,14 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
     {
         istringstream iss(results[0]);
         iss >> val;
+
+        return 0;
     }
+
+    return -1;
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
+int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
 {
     val = 0.0;
 
@@ -271,10 +275,14 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
     {
         istringstream iss(results[0]);
         iss >> val;
+
+        return 0;
     }
+
+    return -1;
 }
 
-void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
+int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
 {
     val = "";
 
@@ -312,5 +320,9 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
     if (results.size() != 0)
     {
         val = results[0];
+
+        return 0;
     }
+
+    return -1;
 }
