@@ -1434,20 +1434,44 @@ src/sunstone/public/vendor/jQueryUI/NOTICE \
 "
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYUIIMAGES="\
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png  \
-src/sunstone/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png  \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_353735_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_aaaaaa_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_eeeeee_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_f2f2f2_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_0_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_100_f6f6f6_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_25_f6f6f6_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_55_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_65_353735_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_flat_75_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_55_fbf9ee_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_65_ffffff_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_dadada_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_75_e6e6e6_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_glass_95_fef1ec_1x400.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_100_f6f6f6_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0073ea_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_0098c3_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_353735_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_25_f6f6f6_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_dddddd_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_50_ffffff_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-bg_highlight-soft_75_cccccc_1x100.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_0073ea_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_0098c3_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_222222_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_2e83ff_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_353735_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_454545_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_666666_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_888888_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_cd0a0a_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_d10300_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_ff0084_256x240.png \
+src/sunstone/public/vendor/jQueryUI/images/ui-icons_ffffff_256x240.png \
 "
+
+
 
 SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
             src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
