@@ -314,16 +314,12 @@ var image_actions = {
         error: onError
     },
 
-    "Image.update_dialog" : {
-        type: "custom",
-        call: popUpImageTemplateUpdateDialog
-    },
-
-    "Image.update" : {
+    "Image.update_template" : {
         type: "single",
         call: OpenNebula.Image.update,
-        callback: function() {
-            notifyMessage(tr("Image updated correctly"));
+        callback: function(request) {
+            notifyMessage("Template updated correctly");
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
         },
         error: onError
     },
@@ -437,7 +433,18 @@ var image_actions = {
             hideDialog();
             $('div#images_tab div.legend_div').slideToggle();
         }
-    }
+    },
+    "Image.rename" : {
+        type: "single",
+        call: OpenNebula.Image.rename,
+        callback: function(request) {
+            notifyMessage("Image renamed correctly");
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
+            Sunstone.runAction('Image.list');
+        },
+        error: onError,
+        notify: true
+    },
 };
 
 
@@ -450,11 +457,6 @@ var image_buttons = {
     "Image.create_dialog" : {
         type: "create_dialog",
         text: tr('+ New')
-    },
-    "Image.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
-        alwaysActive: true
     },
     "Image.chown" : {
         type: "confirm_with_select",
@@ -607,7 +609,7 @@ function updateImagesView(request, images_list){
 function updateImageInfo(request,img){
     var img_info = img.IMAGE;
     var info_tab = {
-        title: tr("Image information"),
+        title: tr("Information"),
         content:
         '<table id="info_img_table" class="info_table" style="width:80%;">\
            <thead>\
@@ -619,9 +621,13 @@ function updateImageInfo(request,img){
               <td class="value_td">'+img_info.ID+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Name")+'</td>\
-              <td class="value_td">'+img_info.NAME+'</td>\
-           </tr>\
+            <td class="key_td">'+tr("Name")+'</td>\
+            <td class="value_td_rename">'+img_info.NAME+'</td>\
+            <td><div id="div_edit_rename">\
+                   <a id="div_edit_rename_link" class="edit_e" href="#">e</a>\
+                </div>\
+            </td>\
+          </tr>\
            <tr>\
               <td class="key_td">'+tr("Datastore")+'</td>\
               <td class="value_td">'+img_info.DATASTORE+'</td>\
@@ -683,7 +689,10 @@ function updateImageInfo(request,img){
              <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
              <td class="value_td" style="font-family:monospace;">'+otherPermStr(img_info)+'</td>\
            </tr>\
-        </table>'
+        </table>' +  insert_extended_template_table(img_info.TEMPLATE,
+                                                    "Image",
+                                                    img_info.ID) +
+                  +  insert_permissions_table("Image",img_info.ID)
     }
 
     var template_tab = {
@@ -693,6 +702,25 @@ function updateImageInfo(request,img){
             prettyPrintJSON(img_info.TEMPLATE)+
             '</table>'
     }
+
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("Image.rename",img_info.ID,name_template);
+        }
+    });
 
     Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("image_info_panel","image_template_tab",template_tab);
@@ -970,126 +998,6 @@ function popUpCreateImageDialog(){
     $create_image_dialog.dialog('open');
 }
 
-
-
-function setupImageTemplateUpdateDialog(){
-
-    //Append to DOM
-    dialogs_context.append('<div id="image_template_update_dialog" title="'+tr("Update image properties")+'"></div>');
-    var dialog = $('#image_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_image_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:700,
-        modal:true,
-        height:height,
-        resizable:false
-    });
-
-    $('button',dialog).button();
-
-    $('#image_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked')
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#image_template_update_dialog');
-            $('#image_template_update_textarea',dialog).val(tr("Loading")+
-                                                            "...");
-
-            var img_persistent = is_persistent_image(id);
-
-            if (img_persistent){
-                $('#image_template_update_persistent',dialog).attr('checked','checked')
-            } else {
-                $('#image_template_update_persistent',dialog).removeAttr('checked')
-            };
-
-            Sunstone.runAction("Image.fetch_permissions",id);
-            Sunstone.runAction("Image.fetch_template",id);
-        } else {
-            $('#image_template_update_textarea',dialog).val("");
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var new_template = $('#image_template_update_textarea',dialog).val();
-        var id = $('#image_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#image_template_update_dialog').dialog('close');
-            return false;
-        };
-
-        var old_persistent = is_persistent_image(id);
-        var new_persistent = $('#image_template_update_persistent',dialog).is(':checked');
-        if (old_persistent != new_persistent){
-            if (new_persistent) Sunstone.runAction("Image.persistent",[id]);
-            else Sunstone.runAction("Image.nonpersistent",[id]);
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("Image.chmod",id,perms);
-        };
-
-        Sunstone.runAction("Image.update",id,new_template);
-        $(this).parents('#image_template_update_dialog').dialog('close');
-        return false;
-    });
-};
-
-
-function popUpImageTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_images,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_images);
-
-
-    var dialog =  $('#image_template_update_dialog');
-    $('#image_template_update_select',dialog).html(select);
-    $('#image_template_update_textarea',dialog).val("");
-    $('#image_template_update_persistent',dialog).removeAttr('checked');
-    $('.permissions_table input',dialog).removeAttr('checked');
-    $('.permissions_table',dialog).removeAttr('update');
-
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">'+tr("Please select")+'</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#image_template_update_select',dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#image_template_update_select option',dialog).attr('selected','selected');
-            $('#image_template_update_select',dialog).trigger("change");
-        };
-    };
-
-    dialog.dialog('open');
-    return false;
-};
-
 // Set the autorefresh interval for the datatable
 function setImageAutorefresh() {
     setInterval(function(){
@@ -1236,7 +1144,7 @@ $(document).ready(function(){
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
-    setupImageTemplateUpdateDialog();
+  /*  setupImageTemplateUpdateDialog();*/
     setupTips($create_image_dialog);
     setupImageActionCheckboxes();
     setupImageCloneDialog();
