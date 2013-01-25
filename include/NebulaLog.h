@@ -31,7 +31,8 @@ public:
     enum LogType {
         FILE       = 0,
         FILE_TS    = 1,
-        CERR       = 2
+        CERR       = 2,
+        SYSLOG     = 3
     };
 
     // ---------------------------------------------------------------
@@ -56,6 +57,11 @@ public:
               NebulaLog::logger = new CerrLog(clevel);
               break;
         }
+    };
+
+    static void init_syslog_system(Log::MessageType clevel)
+    {
+        NebulaLog::logger = new SysLog(clevel);
     };
 
     static void finalize_log_system()

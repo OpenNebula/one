@@ -1049,8 +1049,9 @@ private:
      *          $ONE_LOCATION/var/$VID/vm.log
      *  or, in case that OpenNebula is installed in root
      *          /var/log/one/$VM_ID.log
+     *  For the syslog... TODO
      */
-    FileLog * _log;
+    Log * _log;
 
     /**
      *  User template to store custom metadata. This template can be updated

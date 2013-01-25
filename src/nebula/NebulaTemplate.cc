@@ -245,5 +245,18 @@ void OpenNebulaTemplate::set_conf_default()
 
     attribute = new SingleAttribute("DEFAULT_UMASK",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+
+/*
+#*******************************************************************************
+# Log system configuration
+#*******************************************************************************
+#  LOG_SYSTEM
+#*******************************************************************************
+*/
+    // LOG_SYSTEM
+    value = "file";
+
+    attribute = new SingleAttribute("LOG_SYSTEM",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
 }
 

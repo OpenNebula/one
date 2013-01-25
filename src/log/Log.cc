@@ -21,6 +21,15 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
+#include <syslog.h>
+
+#include "log4cpp/Category.hh"
+#include "log4cpp/CategoryStream.hh"
+#include "log4cpp/Appender.hh"
+#include "log4cpp/SyslogAppender.hh"
+#include "log4cpp/Layout.hh"
+#include "log4cpp/SimpleLayout.hh"
+#include "log4cpp/Priority.hh"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -140,4 +149,74 @@ void CerrLog::log(
 
         cerr.flush();
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+SysLog::SysLog(const MessageType level):Log(level) {
+
+    log4cpp::Appender *syslog_appender = new log4cpp::SyslogAppender(
+                                            "syslog", "OpenNebula", LOG_DAEMON);
+
+    syslog_appender->setLayout(new log4cpp::SimpleLayout());
+
+    log4cpp::Category& root = log4cpp::Category::getRoot();
+
+    root.setPriority(get_priority_level(level));
+
+    root.addAppender(syslog_appender);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+SysLog::~SysLog() {}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void SysLog::log(
+    const char *            module,
+    const MessageType       type,
+    const char *            message)
+{
+    log4cpp::Category& root = log4cpp::Category::getRoot();
+
+    root << get_priority_level(type) << "[" << module << "]"
+                                     << "[" << error_names[type] << "]: "
+                                     << message;
+}
+
+log4cpp::Priority::PriorityLevel SysLog::get_priority_level(
+                                                        const MessageType level)
+{
+    log4cpp::Priority::PriorityLevel priority_level;
+
+    switch (level)
+    {
+    case Log::ERROR:
+        priority_level = log4cpp::Priority::ERROR;
+        break;
+
+    case Log::WARNING:
+        priority_level = log4cpp::Priority::WARN;
+        break;
+
+    case Log::INFO:
+        priority_level = log4cpp::Priority::INFO;
+        break;
+
+    case Log::DEBUG:
+    case Log::DDEBUG:
+    case Log::DDDEBUG:
+        priority_level = log4cpp::Priority::DEBUG;
+        break;
+
+    default:
+        priority_level = log4cpp::Priority::NOTSET;
+        break;
+    }
+
+    return priority_level;
 }

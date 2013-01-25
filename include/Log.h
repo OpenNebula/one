@@ -20,6 +20,8 @@
 #include <string>
 #include <fstream>
 
+#include "log4cpp/Priority.hh"
+
 using namespace std;
 
 /**
@@ -79,7 +81,7 @@ public:
         const char *            module,
         const MessageType       type,
         const char *            message);
-    
+
 private:
     char * log_file;
 };
@@ -135,6 +137,28 @@ public:
         const char *            module,
         const MessageType       type,
         const char *            message);
+};
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  Send log messages to syslog
+ */
+class SysLog : public Log
+{
+public:
+    SysLog(const MessageType level = WARNING);
+
+    ~SysLog();
+
+    void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message);
+protected:
+    log4cpp::Priority::PriorityLevel get_priority_level(const MessageType level);
 };
 
 #endif /* _LOG_H_ */
