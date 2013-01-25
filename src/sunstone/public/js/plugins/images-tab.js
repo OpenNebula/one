@@ -352,6 +352,7 @@ var image_actions = {
         call: OpenNebula.Image.persistent,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
+            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: onError,
@@ -363,6 +364,7 @@ var image_actions = {
         call: OpenNebula.Image.nonpersistent,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
+            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: onError,
@@ -638,7 +640,11 @@ function updateImageInfo(request,img){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
-             <td class="value_td">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
+             <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
+             <td><div id="div_edit_persistency">\
+                   <a id="div_edit_persistency_link" class="edit_e" href="#">e</a>\
+                 </div>\
+             </td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Source")+'</td>\
@@ -670,11 +676,12 @@ function updateImageInfo(request,img){
                      insert_permissions_table("Image",img_info.ID)
     }
 
-
     $("#div_edit_rename_link").die();
     $(".input_edit_value_rename").die();
     $("#div_edit_chg_type_link").die();
     $("#chg_type_select").die();
+    $("#div_edit_persistency").die();
+    $("#persistency_select").die();
 
 
     // Listener for edit link for rename
@@ -713,6 +720,26 @@ function updateImageInfo(request,img){
         Sunstone.runAction("Image.chtype", img_info.ID, new_value);
     });
 
+    // Listener for edit link for persistency change
+    $("#div_edit_persistency").live("click", function() {
+        var value_str = $(".value_td_persistency").text();
+        $(".value_td_persistency").html(
+                  '<select id="persistency_select">\
+                      <option value="yes">'+tr("yes")+'</option>\
+                      <option value="no">'+tr("no")+'</option>\
+                  </select>');
+       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
+    });
+
+    $("#persistency_select").live("change", function() {
+        var new_value=$("option:selected", this).text();
+
+        if (new_value=="yes")
+            Sunstone.runAction("Image.persistent",[img_info.ID]);
+        else
+            Sunstone.runAction("Image.nonpersistent",[img_info.ID]);
+
+    });
 
     Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
     Sunstone.popUpInfoPanel("image_info_panel");
