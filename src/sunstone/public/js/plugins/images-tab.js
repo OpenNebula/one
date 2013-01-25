@@ -83,7 +83,7 @@ var create_image_tmpl =
                  <label for="img_type">'+tr("Type")+':</label>\
                  <select name="img_type" id="img_type">\
                       <option value="OS">'+tr("OS")+'</option>\
-                      <option value="CDROM">'+tr("CD-ROM")+'</option>\
+                      <option value="CDROM">'+tr("CDROM")+'</option>\
                       <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
                       <option value="KERNEL">'+tr("Kernel")+'</option>\
                       <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
@@ -413,6 +413,7 @@ var image_actions = {
         call: OpenNebula.Image.chtype,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
+            Sunstone.runAction("Image.list");
         },
         elements: imageElements,
         error: onError,
@@ -511,7 +512,7 @@ var image_buttons = {
 
 var image_info_panel = {
     "image_info_tab" : {
-        title: tr("Image information"),
+        title: tr("Information"),
         content: ""
     }
 }
@@ -548,7 +549,7 @@ function imageElementArray(image_json){
         image.NAME,
         image.DATASTORE,
         image.SIZE,
-        OpenNebula.Helper.image_type(image.TYPE),  
+        OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
         parseInt(image.PERSISTENT) ? '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
             : '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'"/>',
@@ -625,7 +626,11 @@ function updateImageInfo(request,img){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
-             <td class="value_td">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
+             <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
+             <td><div id="div_edit_chg_type">\
+                   <a id="div_edit_chg_type_link" class="edit_e" href="#">e</a>\
+                 </div>\
+             </td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Register time")+'</td>\
@@ -659,19 +664,6 @@ function updateImageInfo(request,img){
               <td class="key_td">'+tr("Running #VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
            </tr>\
-           <tr><td class="key_td">'+tr("Permissions")+'</td><td></td></tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+ownerPermStr(img_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+groupPermStr(img_info)+'</td>\
-           </tr>\
-           <tr>\
-             <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-             <td class="value_td" style="font-family:monospace;">'+otherPermStr(img_info)+'</td>\
-           </tr>\
         </table>' +  insert_extended_template_table(img_info.TEMPLATE,
                                                     "Image",
                                                     img_info.ID) +
@@ -681,8 +673,11 @@ function updateImageInfo(request,img){
 
     $("#div_edit_rename_link").die();
     $(".input_edit_value_rename").die();
+    $("#div_edit_chg_type_link").die();
+    $("#chg_type_select").die();
 
-    // Listener for key,value pair edit action
+
+    // Listener for edit link for rename
     $("#div_edit_rename_link").live("click", function() {
         var value_str = $(".value_td_rename").text();
         $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
@@ -697,6 +692,27 @@ function updateImageInfo(request,img){
             Sunstone.runAction("Image.rename",img_info.ID,name_template);
         }
     });
+
+    // Listener for edit link for type change
+    $("#div_edit_chg_type_link").live("click", function() {
+        var value_str = $(".value_td_type").text();
+        $(".value_td_type").html(
+                  '<select id="chg_type_select">\
+                      <option value="OS">'+tr("OS")+'</option>\
+                      <option value="CDROM">'+tr("CDROM")+'</option>\
+                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
+                      <option value="KERNEL">'+tr("Kernel")+'</option>\
+                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
+                      <option value="CONTEXT">'+tr("Context")+'</option>\
+                  </select>');
+       $('option[value="'+value_str+'"]').replaceWith('<option value="'+value_str+'" selected="selected">'+tr(value_str)+'</option>');
+    });
+
+    $("#chg_type_select").live("change", function() {
+        var new_value=$("option:selected", this).text();
+        Sunstone.runAction("Image.chtype", img_info.ID, new_value);
+    });
+
 
     Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
     Sunstone.popUpInfoPanel("image_info_panel");
@@ -1000,15 +1016,6 @@ function setupImageActionCheckboxes(){
 
         return true;
     });
-
-    $('select.action_cb#select_chtype_image', dataTable_images).live("change",function(){
-        var $this = $(this);
-        var value = $this.val();
-        var id = $this.attr('elem_id');
-
-        Sunstone.runAction("Image.chtype", id, value);
-    });
-
 }
 
 function setupImageCloneDialog(){
@@ -1118,9 +1125,8 @@ $(document).ready(function(){
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
-  /*  setupImageTemplateUpdateDialog();*/
-    setupTips($create_image_dialog);
     setupImageActionCheckboxes();
+    setupTips($create_image_dialog);
     setupImageCloneDialog();
     setImageAutorefresh();
 
