@@ -1288,7 +1288,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
     $("#div_minus").die();
     $("#div_edit").die();
     $(".input_edit_value").die();
-    $("button").die();
+    $("#button_add_value").die();
 
     // Add listener for add key and add value for Extended Template
     $('#button_add_value').live("click", function() {

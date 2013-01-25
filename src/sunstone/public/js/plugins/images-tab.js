@@ -513,13 +513,7 @@ var image_info_panel = {
     "image_info_tab" : {
         title: tr("Image information"),
         content: ""
-    },
-
-    "image_template_tab" : {
-        title: tr("Image template"),
-        content: ""
     }
-
 }
 
 var images_tab = {
@@ -600,7 +594,7 @@ function updateImageInfo(request,img){
     var info_tab = {
         title: tr("Information"),
         content:
-        '<table id="info_img_table" class="info_table" style="width:80%;">\
+        '<table id="info_img_table" class="info_table">\
            <thead>\
             <tr><th colspan="2">'+tr("Image")+' "'+img_info.NAME+'" '+
             tr("information")+'</th></tr>\
@@ -681,16 +675,9 @@ function updateImageInfo(request,img){
         </table>' +  insert_extended_template_table(img_info.TEMPLATE,
                                                     "Image",
                                                     img_info.ID) +
-                  +  insert_permissions_table("Image",img_info.ID)
+                     insert_permissions_table("Image",img_info.ID)
     }
 
-    var template_tab = {
-        title: tr("Image template"),
-        content: '<table id="img_template_table" class="info_table" style="width:80%;">\
-            <thead><tr><th colspan="2">'+tr("Image template")+'</th></tr></thead>'+
-            prettyPrintJSON(img_info.TEMPLATE)+
-            '</table>'
-    }
 
     $("#div_edit_rename_link").die();
     $(".input_edit_value_rename").die();
@@ -712,8 +699,6 @@ function updateImageInfo(request,img){
     });
 
     Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
-    Sunstone.updateInfoPanelTab("image_info_panel","image_template_tab",template_tab);
-
     Sunstone.popUpInfoPanel("image_info_panel");
 
 }

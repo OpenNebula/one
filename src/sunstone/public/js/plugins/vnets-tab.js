@@ -620,8 +620,8 @@ function updateVNetworkInfo(request,vn){
         content: printLeases(vn_info)
     };
 
-    $("#div_edit_link").die();
-    $(".div_edit_rename_link").die();
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
 
     // Listener for key,value pair edit action
     $("#div_edit_rename_link").live("click", function() {
