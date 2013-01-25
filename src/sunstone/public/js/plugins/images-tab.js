@@ -84,6 +84,7 @@ var create_image_tmpl =
                  <select name="img_type" id="img_type">\
                       <option value="OS">'+tr("OS")+'</option>\
                       <option value="CDROM">'+tr("CD-ROM")+'</option>\
+                      <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
                       <option value="KERNEL">'+tr("Kernel")+'</option>\
                       <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
                       <option value="CONTEXT">'+tr("Context")+'</option>\
@@ -544,18 +545,6 @@ function imageElementArray(image_json){
     //Changing this? It may affect to the is_persistent() functions.
     var image = image_json.IMAGE;
 
-    var type = $('<select>\
-                      <option value="OS">'+tr("OS")+'</option>\
-                      <option value="CDROM">'+tr("CD-ROM")+'</option>\
-                      <option value="DATABLOCK">'+tr("Datablock")+'</option>\
-                      <option value="KERNEL">'+tr("Kernel")+'</option>\
-                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                      <option value="CONTEXT">'+tr("Context")+'</option>\
-                 </select>');
-
-    var value = OpenNebula.Helper.image_type(image.TYPE);
-    $('option[value="'+value+'"]',type).replaceWith('<option value="'+value+'" selected="selected">'+tr(value)+'</option>');
-
     //add also persistent/non-persistent selects, type select.
     return [
         '<input class="check_item" type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
@@ -565,7 +554,7 @@ function imageElementArray(image_json){
         image.NAME,
         image.DATASTORE,
         image.SIZE,
-        '<select class="action_cb" id="select_chtype_image" elem_id="'+image.ID+'" style="width:100px">'+type.html()+'</select>',
+        OpenNebula.Helper.image_type(image.TYPE),  
         pretty_time(image.REGTIME),
         parseInt(image.PERSISTENT) ? '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
             : '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'"/>',
