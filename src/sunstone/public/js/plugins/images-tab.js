@@ -191,56 +191,6 @@ var create_image_tmpl =
         </div>\
 </div>';
 
-var update_image_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the image you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="image_template_update_select">'+tr("Select an image")+':</label>\
-                 <select id="image_template_update_select" name="image_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <label for="image_template_update_persistent">'+tr("Persistent")+':</label>\
-                   <input type="checkbox" name="image_template_update_persistent" id="image_template_update_persistent" />\
-                 </div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-                 <label for="image_template_update_textarea">'+tr("Template")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="image_template_update_textarea" style="width:100%; height:14em;"></textarea>\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="image_template_update_button" value="Image.update_template">'+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
-
 var dataTable_images;
 var $create_image_dialog;
 
@@ -553,8 +503,7 @@ function imageElementArray(image_json){
         image.SIZE,
         OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
-        parseInt(image.PERSISTENT) ? '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'" checked="checked"/>'
-            : '<input class="action_cb" id="cb_persistent_image" type="checkbox" elem_id="'+image.ID+'"/>',
+        parseInt(image.PERSISTENT) ? "yes" : "no",
         OpenNebula.Helper.resource_state("image",image.STATE),
         image.RUNNING_VMS,
         image.TEMPLATE.TARGET ? image.TEMPLATE.TARGET : '--'
@@ -1032,19 +981,6 @@ function is_persistent_image(id){
     return $(data).is(':checked');
 };
 
-function setupImageActionCheckboxes(){
-    $('input.action_cb#cb_persistent_image',dataTable_images).live("click",function(){
-        var $this = $(this)
-        var id=$this.attr('elem_id');
-        if ($this.attr('checked'))
-            Sunstone.runAction("Image.persistent",[id]);
-        else
-            Sunstone.runAction("Image.nonpersistent",[id]);
-
-        return true;
-    });
-}
-
 function setupImageCloneDialog(){
     //Append to DOM
     dialogs_context.append('<div id="image_clone_dialog" title="'+tr("Clone an image")+'"></div>');
@@ -1152,7 +1088,6 @@ $(document).ready(function(){
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
-    setupImageActionCheckboxes();
     setupTips($create_image_dialog);
     setupImageCloneDialog();
     setImageAutorefresh();
