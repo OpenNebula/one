@@ -1910,7 +1910,7 @@ function setupCreateTemplateDialog(){
               '</div>'+
             '</fieldset>'+
           '</div>'+
-          '<div class="six columns">'+
+          '<div class="six columns inputs">'+
             '<fieldset>'+
               '<legend>'+tr("Inputs")+'</legend>'+
               '<div class="row">'+
@@ -3216,6 +3216,39 @@ function fillTemplatePopUp(request, response){
 
             autoFillInputs(graphics, graphics_section);
         }
+    }
+
+    var inputs = template.INPUT;
+    var inputs_section = $('div#io_tab .inputs', $create_template_dialog);
+
+    if (inputs) {
+        if (!(inputs instanceof Array)) {
+            inputs = [inputs];
+        }
+
+        $.each(inputs, function(){ 
+            var table = $('#input_table', inputs_section)[0];
+            var rowCount = table.rows.length;
+            var row = table.insertRow(rowCount);
+            console.log(this)
+            var cell1 = row.insertCell(0);
+            var element1 = document.createElement("input");
+            element1.id = "TYPE";
+            element1.type = "text";
+            element1.value = this.TYPE;
+            cell1.appendChild(element1);
+
+            var cell2 = row.insertCell(1);
+            var element2 = document.createElement("input");
+            element2.id = "BUS";
+            element2.type = "text";
+            element2.value = this.BUS;
+            cell2.appendChild(element2);
+
+
+            var cell3 = row.insertCell(2);
+            cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
+        });
     }
 
     // TBD INPUTS TABLE
