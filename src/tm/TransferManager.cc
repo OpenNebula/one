@@ -851,14 +851,28 @@ void TransferManager::epilog_transfer_command(
     }
     else //No saving disk
     {
-        //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
-        xfr << "DELETE "
-            << vm->get_tm_mad() << " "
-            << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-            << vm->get_oid() << " "
-            << vm->get_ds_id()
-            << endl;
+        if ( isVolatile(disk) == true )
+        {
+            tm_mad = vm->get_tm_mad();
+            ds_id  = vm->get_ds_id();
+        }
+        else
+        {
+            tm_mad = disk->vector_value("TM_MAD");
+            ds_id  = disk->vector_value("DATASTORE_ID");
+        }
+
+        if ( !tm_mad.empty() && !ds_id.empty() )
+        {
+            //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
+            xfr << "DELETE "
+                << tm_mad << " "
+                << vm->get_hostname() << ":"
+                << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+                << vm->get_oid() << " "
+                << ds_id
+                << endl;
+        }
     }
 }
 
