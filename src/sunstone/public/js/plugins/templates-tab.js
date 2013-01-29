@@ -2258,10 +2258,10 @@ function setupCreateTemplateDialog(){
             '<legend>'+tr("REQUIREMENTS")+'</legend>'+
             '<div class="row">'+
               '<div class="three columns push-three">'+
-                '<input type="radio" name="req_select" value="host_select" checked> Select Hosts '+
+                '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> Select Hosts '+
               '</div>'+
               '<div class="three columns pull-three">'+
-                '<input type="radio" name="req_select" value="cluster_select"> Select Clusters '+
+                '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> Select Clusters '+
               '</div>'+
             '</div>'+    
             '<hr>'+     
@@ -2324,15 +2324,15 @@ function setupCreateTemplateDialog(){
           '<legend>'+tr("Scheduling policy")+'</legend>'+
             '<div class="row">'+
               '<div class="four columns ">'+
-                '<input type="radio" name="rank_select" value="RUNNING_VMS"> PACKING '+
+                '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> PACKING '+
                 '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
               '</div>'+
               '<div class="four columns ">'+
-                '<input type="radio" name="rank_select" value="-RUNNING_VMS"> STRIPING '+
+                '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> STRIPING '+
                 '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
               '</div>'+
               '<div class="four columns ">'+
-                '<input type="radio" name="rank_select" value="FREECPU"> LOAD-AWARE'+
+                '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> LOAD-AWARE'+
                 '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
               '</div>'+
             '</div>'+  
@@ -3251,7 +3251,6 @@ function fillTemplatePopUp(request, response){
         });
     }
 
-    // TBD INPUTS TABLE
 
     //
     // CONTEXT
@@ -3259,8 +3258,6 @@ function fillTemplatePopUp(request, response){
 
     var context = template.CONTEXT;
     var context_section = $('div#context_tab', $create_template_dialog);
-
-
 
     if (context) {
         var file_ds_regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/g;
@@ -3342,8 +3339,116 @@ function fillTemplatePopUp(request, response){
               cell3.innerHTML = "<span class='ui-icon ui-icon-close'></span>";
             }
         });
+    }
 
+    //
+    // REQUIREMENTS & RANK
+    //
 
+    var req = template.REQUIREMENTS;
+    var req_section = $('div#placement_tab', $create_template_dialog);
+
+    if (req) {
+        req = escapeDoubleQuotes(req);
+
+        var host_id_regexp = /ID=\\"([(0-9)+])\\"/g;
+        var cluster_id_regexp = /CLUSTER_ID=\\"([(0-9)+])\\"/g;
+
+        var hosts = [];
+        while (match = host_id_regexp.exec(req)) {
+            hosts.push(match[1])
+        }
+
+        var clusters = [];
+        while (match = cluster_id_regexp.exec(req)) {
+            clusters.push(match[1])
+        }
+
+        if (hosts.length != 0) {
+            var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
+
+            OpenNebula.Host.list({
+                timeout: true, 
+                success: function (request, host_list){
+                    var host_list_array = [];
+
+                    $.each(host_list,function(){
+                        //Grab table data from the host_list
+                        host_list_array.push(hostElementArray(this));
+                    });
+
+                    updateView(host_list_array, dataTable_template_hosts);
+
+                    var rows = dataTable_template_hosts.fnGetNodes();
+
+                    for (var j=0;j<rows.length;j++) {
+                        var current_row = $(rows[j]);
+                        var row_id = $(rows[j]).find("td:eq(0)").html();
+
+                        if ($.inArray(row_id, hosts) != -1) {
+                            // TBD check if all the hosts were clicked
+                            rows[j].click();
+                        }
+                    }
+                }, 
+                error: onError
+            });
+        }
+
+        if (clusters.length != 0) {
+            $('input#clusters_req', req_section).click();
+
+            var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
+
+            OpenNebula.Host.list({
+                timeout: true, 
+                success: function (request, cluster_list){
+                    var cluster_list_array = [];
+
+                    $.each(cluster_list,function(){
+                        //Grab table data from the cluster_list
+                        cluster_list_array.push(clusterElementArray(this));
+                    });
+
+                    updateView(cluster_list_array, dataTable_template_clusters);
+
+                    var rows = dataTable_template_clusters.fnGetNodes();
+
+                    for (var j=0;j<rows.length;j++) {
+                        var current_row = $(rows[j]);
+                        var row_id = $(rows[j]).find("td:eq(0)").html();
+
+                        if ($.inArray(row_id, clusters) != -1) {
+                            // TBD check if all the clusters were clicked
+                            rows[j].click();
+                        }
+                    }
+                }, 
+                error: onError
+            });
+        }
+
+        $('input#REQUIREMENTS', req_section).val(req);
+    }
+
+    var rank = template.RANK;
+
+    if (rank) {
+        var striping_regexp = /-RUNNING_VMS/;
+        var packing_regexp = /RUNNING_VMS/;
+        var loadaware_regexp = /FREECPU/;
+
+        if (striping_regexp.test(rank)) {
+            $('input#stripingRadio', req_section).click()
+        }
+        else if (packing_regexp.test(rank)) {
+            $('input#packingRadio', req_section).click()
+        }
+        else if (loadaware_regexp.test(rank)) {
+            $('input#loadawareRadio', req_section).click()
+        }
+
+        $('input#RANK', req_section).val(rank);
     }
 
     popUpCreateTemplateDialog();
