@@ -198,32 +198,12 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
     vector<string> results;
     ostringstream  xpath_t;
 
-    xpath_t << "/HOST/TEMPLATE/" << attr;
+    xpath_t << "/HOST/TEMPLATE/" << attr
+        << "|/HOST/HOST_SHARE/" << attr
+        << "|/HOST/" << attr
+        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
+
     results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-
-            if (results.size() == 0)
-            {
-                xpath_h.str("");
-
-                xpath_h << "/HOST/CLUSTER_TEMPLATE/" << attr;
-                results = (*oxml)[xpath_h.str().c_str()];
-            }
-        }
-    }
 
     if (results.size() != 0)
     {
@@ -251,32 +231,12 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
     ostringstream  xpath_t;
     vector<string> results;
 
-    xpath_t << "/HOST/TEMPLATE/" << attr;
+    xpath_t << "/HOST/TEMPLATE/" << attr
+        << "|/HOST/HOST_SHARE/" << attr
+        << "|/HOST/" << attr
+        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
+
     results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-
-            if (results.size() == 0)
-            {
-                xpath_h.str("");
-
-                xpath_h << "/HOST/CLUSTER_TEMPLATE/" << attr;
-                results = (*oxml)[xpath_h.str().c_str()];
-            }
-        }
-    }
 
     if (results.size() != 0)
     {
@@ -304,32 +264,12 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
     ostringstream  xpath_t;
     vector<string> results;
 
-    xpath_t << "/HOST/TEMPLATE/" << attr;
+    xpath_t << "/HOST/TEMPLATE/" << attr
+        << "|/HOST/HOST_SHARE/" << attr
+        << "|/HOST/" << attr
+        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
+
     results = (*oxml)[xpath_t.str().c_str()];
-
-    if (results.size() == 0)
-    {
-        ostringstream  xpath_s;
-
-        xpath_s << "/HOST/HOST_SHARE/" << attr;
-        results = (*oxml)[xpath_s.str().c_str()];
-
-        if (results.size() == 0)
-        {
-            ostringstream  xpath_h;
-
-            xpath_h << "/HOST/" << attr;
-            results = (*oxml)[xpath_h.str().c_str()];
-
-            if (results.size() == 0)
-            {
-                xpath_h.str("");
-
-                xpath_h << "/HOST/CLUSTER_TEMPLATE/" << attr;
-                results = (*oxml)[xpath_h.str().c_str()];
-            }
-        }
-    }
 
     if (results.size() != 0)
     {
