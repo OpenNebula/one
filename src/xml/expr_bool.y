@@ -230,6 +230,13 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
         istringstream iss(results[0]);
         iss >> val;
 
+        if (iss.fail())
+        {
+            val = 0;
+
+            return -1;
+        }
+
         return 0;
     }
 
@@ -275,6 +282,13 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
     {
         istringstream iss(results[0]);
         iss >> val;
+
+        if (iss.fail())
+        {
+            val = 0;
+
+            return -1;
+        }
 
         return 0;
     }
