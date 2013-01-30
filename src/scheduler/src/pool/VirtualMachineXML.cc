@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
+#include "VirtualMachineTemplate.h"
 
 void VirtualMachineXML::init_attributes()
 {
@@ -222,3 +223,97 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
     memory = this->memory * 1024;    //now in Kilobytes
     disk   = 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::log(const string &st)
+{
+    vector<xmlNodePtr> nodes;
+    int rc = get_nodes("/VM/USER_TEMPLATE", nodes);
+
+    if (rc > 0)
+    {
+        ObjectXML* templ = new ObjectXML(nodes[0]);
+
+        free_nodes(nodes);
+
+        templ->rename_nodes("/USER_TEMPLATE", "TEMPLATE");
+
+        nodes.clear();
+        rc = templ->get_nodes("/TEMPLATE", nodes);
+
+        if (rc <= 0)
+        {
+            return;
+        }
+
+        VirtualMachineTemplate vm_template;
+        vm_template.from_xml_node(nodes[0]);
+
+        string debug_st;
+        vm_template.to_str(debug_st);
+
+        free_nodes(nodes);
+
+        if (!st.empty())
+        {
+            vm_template.replace("SCHEDULER_MESSAGE", st);
+        }
+        else
+        {
+            vector<Attribute*> attr;
+            int num = vm_template.remove("SCHEDULER_MESSAGE", attr);
+
+            for (int i = 0; i < num ; i++)
+            {
+                if (attr[i] != 0)
+                {
+                    delete attr[i];
+                }
+            }
+        }
+
+        string xml_st;
+
+        update(vm_template.to_xml(xml_st));
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineXML::update(const string &st)
+{
+    xmlrpc_c::value result;
+    bool            success;
+
+    try
+    {
+        client->call( client->get_endpoint(),     // serverUrl
+                "one.vm.update",                  // methodName
+                "sis",                            // arguments format
+                &result,                          // resultP
+                client->get_oneauth().c_str(),    // argument
+                oid,
+                st.c_str()
+        );
+    }
+    catch (exception const& e)
+    {
+        return -1;
+    }
+
+    vector<xmlrpc_c::value> values =
+            xmlrpc_c::value_array(result).vectorValueValue();
+
+    success = xmlrpc_c::value_boolean( values[0] );
+
+    if (!success)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+

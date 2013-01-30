@@ -29,12 +29,16 @@ class VirtualMachineXML : public ObjectXML
 {
 public:
 
-    VirtualMachineXML(const string &xml_doc):ObjectXML(xml_doc)
+    VirtualMachineXML(Client * client, const string &xml_doc):
+        ObjectXML(xml_doc),
+        client(client)
     {
         init_attributes();
     };
 
-    VirtualMachineXML(const xmlNodePtr node):ObjectXML(node)
+    VirtualMachineXML(Client * client, const xmlNodePtr node):
+        ObjectXML(node),
+        client(client)
     {
         init_attributes();
     }
@@ -119,6 +123,29 @@ public:
         return os;
     };
 
+    /**
+     * Adds a message to the VM's USER_TEMPLATE/SCHEDULER_MESSAGE attribute
+     * @param st Message to set
+     */
+    void log(const string &st);
+
+    /**
+     * Clears the VM's USER_TEMPLATE/SCHEDULER_MESSAGE attribute
+     */
+    void clear_log()
+    {
+        log("");
+    };
+
+    /**
+     * Replaces the VM USER_TEMPLATE contents
+     *
+     * @param st New template contents
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int update(const string &st);
+
 protected:
 
     /**
@@ -175,6 +202,10 @@ protected:
      */
     vector<VirtualMachineXML::Host *>   hosts;
 
+    /**
+     * XML-RPC client
+     */
+    Client * client;
 };
 
 #endif /* VM_XML_H_ */

@@ -339,6 +339,8 @@ void Scheduler::match()
     int oid;
     int uid;
     int gid;
+    int n_hosts;
+    int n_matched;
 
     string reqs;
 
@@ -363,6 +365,9 @@ void Scheduler::match()
         oid  = vm->get_oid();
         uid  = vm->get_uid();
         gid  = vm->get_gid();
+
+        n_hosts   = 0;
+        n_matched = 0;
 
         for (h_it=hosts.begin(), matched=false; h_it != hosts.end(); h_it++)
         {
@@ -441,6 +446,8 @@ void Scheduler::match()
                 continue;
             }
 
+            n_matched++;
+
             // -----------------------------------------------------------------
             // Check host capacity
             // -----------------------------------------------------------------
@@ -449,7 +456,9 @@ void Scheduler::match()
 
             if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
             {
-            	vm->add_host(host->get_hid());
+                vm->add_host(host->get_hid());
+
+                n_hosts++;
             }
             else
             {
@@ -459,6 +468,18 @@ void Scheduler::match()
                     << " filtered out. Not enough capacity.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
+            }
+        }
+
+        if (n_hosts == 0)
+        {
+            if (n_matched == 0)
+            {
+                vm->log("The Scheduler could not find a Host that meets the requirements expression");
+            }
+            else
+            {
+                vm->log("The Scheduler could not find a Host with enough capacity to deploy the VM");
             }
         }
     }
@@ -562,6 +583,8 @@ void Scheduler::dispatch()
         if (rc == 0)
         {
             rc = vmpool->dispatch(vm_it->first, hid, vm->is_resched());
+
+            vm->clear_log();
 
             if (rc == 0 && !vm->is_resched())
             {
