@@ -127,54 +127,6 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
 </fieldset>\
 </form>';
 
-var update_vm_tmpl =
-   '<form action="javascript:alert(\'js error!\');">\
-         <h3 style="margin-bottom:10px;">'+tr("Please, choose and modify the virtual machine you want to update")+':</h3>\
-            <fieldset style="border-top:none;">\
-                 <label for="vm_template_update_select">'+tr("Select a VM")+':</label>\
-                 <select id="vm_template_update_select" name="vm_template_update_select"></select>\
-                 <div class="clear"></div>\
-                 <div>\
-                   <table class="permissions_table" style="padding:0 10px;">\
-                     <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
-                     <tr>\
-                         <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_owner_u" class="owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_owner_m" class="owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_owner_a" class="owner_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_group_u" class="group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_group_m" class="group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_group_a" class="group_a" /></td>\
-                     </tr>\
-                     <tr>\
-                         <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_other_u" class="other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_other_m" class="other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vm_other_a" class="other_a" /></td>\
-                     </tr>\
-                   </table>\
-                 </div>\
-<!--                 <label for="vnet_template_update_textarea">'+tr("Template")+':</label>\
-                 <div class="clear"></div>\
-                 <textarea id="vnet_template_update_textarea" style="width:100%; height:14em;"></textarea>\
--->\
-            </fieldset>\
-            <fieldset>\
-                 <div class="form_buttons">\
-                    <button class="button" id="vm_template_update_button" value="VM.update_template">\
-                       '+tr("Update")+'\
-                    </button>\
-                 </div>\
-            </fieldset>\
-</form>';
-
 var vmachine_list_json = {};
 var dataTable_vMachines;
 var $create_vm_dialog;
@@ -195,11 +147,6 @@ var vm_actions = {
     "VM.create_dialog" : {
         type: "custom",
         call: popUpCreateVMDialog
-    },
-
-    "VM.update_dialog" : {
-        type: "custom",
-        call: popUpVMTemplateUpdateDialog
     },
 
     "VM.list" : {
@@ -450,16 +397,7 @@ var vm_actions = {
         error: onError,
         notify: true
     },
-    "VM.fetch_permissions" : {
-        type: "single",
-        call: OpenNebula.VM.show,
-        callback : function(request, vm_json){
-            var dialog = $('#vm_template_update_dialog form');
-            var vm = vm_json.VM;
-            setPermissionsTable(vm,dialog);
-        },
-        error: onError
-    },
+
     "VM.chmod" : {
         type: "single",
         call: OpenNebula.VM.chmod,
@@ -490,6 +428,18 @@ var vm_actions = {
         }
     },
 
+    "VM.rename" : {
+        type: "single",
+        call: OpenNebula.VM.rename,
+        callback: function(request) {
+            notifyMessage("VirtualMachine renamed correctly");
+            Sunstone.runAction('VM.showinfo',request.request.data[0]);
+            Sunstone.runAction("VM.list");
+        },
+        error: onError,
+        notify: true
+    },
+
     "VM.update_template" : {  // Update template
         type: "single",
         call: OpenNebula.VM.update,
@@ -513,12 +463,6 @@ var vm_buttons = {
     "VM.create_dialog" : {
         type: "action",
         text: tr("+ New"),
-        alwaysActive: true
-    },
-
-    "VM.update_dialog" : {
-        type: "action",
-        text: tr("Update properties"),
         alwaysActive: true
     },
 
@@ -985,10 +929,14 @@ function updateVMInfo(request,vm){
                  <td class="key_td">'+tr("ID")+'</td>\
                  <td class="value_td">'+vm_info.ID+'</td>\
               </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Name")+'</td>\
-                 <td class="value_td">'+vm_info.NAME+'</td>\
-              </tr>\
+            <tr>\
+              <td class="key_td">'+tr("Name")+'</td>\
+              <td class="value_td_rename">'+vm_info.NAME+'</td>\
+              <td><div id="div_edit_rename">\
+                     <a id="div_edit_rename_link" class="edit_e" href="#">e</a>\
+                  </div>\
+              </td>\
+            </tr>\
               <tr>\
                  <td class="key_td">'+tr("Owner")+'</td>\
                  <td class="value_td">'+vm_info.UNAME+'</td>\
@@ -1079,6 +1027,25 @@ function updateVMInfo(request,vm){
         title: tr("History information"),
         content: generateHistoryTable(vm_info)
     };
+
+    $("#div_edit_rename_link").die();
+    $(".input_edit_value_rename").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_rename_link").live("click", function() {
+        var value_str = $(".value_td_rename").text();
+        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+    });
+
+    $(".input_edit_value_rename").live("change", function() {
+        var value_str = $(".input_edit_value_rename").val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            var name_template = {"name": value_str};
+            Sunstone.runAction("VM.rename",vm_info.ID,name_template);
+        }
+    });
 
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_hotplugging_tab",hotplugging_tab);
@@ -1375,98 +1342,6 @@ function popUpCreateVMDialog(){
     $create_vm_dialog.dialog('open');
 }
 
-function setupVMTemplateUpdateDialog(){
-    //Append to DOM
-    dialogs_context.append('<div id="vm_template_update_dialog" title="'+tr("Update VM properties")+'"></div>');
-    var dialog = $('#vm_template_update_dialog',dialogs_context);
-
-    //Put HTML in place
-    dialog.html(update_vm_tmpl);
-
-    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-
-    //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:500,
-        modal:true,
-        height:height,
-        resizable:true
-    });
-
-    $('button',dialog).button();
-
-    $('#vm_template_update_select',dialog).change(function(){
-        var id = $(this).val();
-        $('.permissions_table input',dialog).removeAttr('checked');
-        $('.permissions_table',dialog).removeAttr('update');
-        if (id && id.length){
-            var dialog = $('#vm_template_update_dialog');
-            Sunstone.runAction("VM.fetch_permissions",id);
-        };
-    });
-
-    $('.permissions_table input',dialog).change(function(){
-        $(this).parents('table').attr('update','update');
-    });
-
-    $('form',dialog).submit(function(){
-        var dialog = $(this);
-        var id = $('#vm_template_update_select',dialog).val();
-        if (!id || !id.length) {
-            $(this).parents('#vm_template_update_dialog').dialog('close');
-            return false;
-        };
-
-        var permissions = $('.permissions_table',dialog);
-        if (permissions.attr('update')){
-            var perms = {
-                octet : buildOctet(permissions)
-            };
-            Sunstone.runAction("VM.chmod",id,perms);
-        };
-
-        $(this).parents('#vm_template_update_dialog').dialog('close');
-        return false;
-    });
-};
-
-function popUpVMTemplateUpdateDialog(){
-    var select = makeSelectOptions(dataTable_vMachines,
-                                   1,//id_col
-                                   4,//name_col
-                                   [],
-                                   []
-                                  );
-    var sel_elems = getSelectedNodes(dataTable_vMachines);
-
-
-    var dialog =  $('#vm_template_update_dialog');
-    $('#vm_template_update_select',dialog).html(select);
-    $('#vm_template_update_textarea',dialog).val("");
-    $('.permissions_table input',dialog).removeAttr('checked');
-    $('.permissions_table',dialog).removeAttr('update');
-
-    if (sel_elems.length >= 1){ //several items in the list are selected
-        //grep them
-        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
-        $('option','<select>'+select+'</select>').each(function(){
-            var val = $(this).val();
-            if ($.inArray(val,sel_elems) >= 0){
-                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
-            };
-        });
-        $('#vm_template_update_select',dialog).html(new_select);
-        if (sel_elems.length == 1) {
-            $('#vm_template_update_select option',dialog).attr('selected','selected');
-            $('#vm_template_update_select',dialog).trigger("change");
-        };
-    };
-
-    dialog.dialog('open');
-    return false;
-};
-
 //Prepares autorefresh
 function setVMAutorefresh(){
      setInterval(function(){
@@ -1639,7 +1514,6 @@ $(document).ready(function(){
     Sunstone.runAction("VM.list");
 
     setupCreateVMDialog();
-    setupVMTemplateUpdateDialog();
     setVMAutorefresh();
     setupVNC();
     hotpluggingOps();

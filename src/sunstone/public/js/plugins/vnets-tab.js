@@ -361,6 +361,7 @@ var vnet_actions = {
         callback: function(request) {
             notifyMessage("VirtualNetwork renamed correctly");
             Sunstone.runAction('Network.showinfo',request.request.data[0]);
+            Sunstone.runAction("Network.list");
         },
         error: onError,
         notify: true
