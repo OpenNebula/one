@@ -64,6 +64,7 @@ module OpenNebulaJSON
                  when "chmod"        then self.chmod_octet(action_hash['params'])
                  when "attachdisk"   then self.attachdisk(action_hash['params'])
                  when "detachdisk"   then self.detachdisk(action_hash['params'])
+                 when "update"       then self.update(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -107,6 +108,10 @@ module OpenNebulaJSON
 
         def detachdisk(params=Hash.new)
             super(params['disk_id'].to_i)
+        end
+
+        def update(params=Hash.new)
+            super(params['template_raw'])
         end
     end
 end

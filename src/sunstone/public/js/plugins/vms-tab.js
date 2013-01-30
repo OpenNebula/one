@@ -488,7 +488,17 @@ var vm_actions = {
             hideDialog();
             $('div#vms_tab div.legend_div').slideToggle();
         }
-    }
+    },
+
+    "VM.update_template" : {  // Update template
+        type: "single",
+        call: OpenNebula.VM.update,
+        callback: function(request,response){
+           notifyMessage(tr("Template updated correctly"));
+           Sunstone.runAction('VM.showinfo',request.request.data[0]);
+        },
+        error: onError
+    },
 };
 
 
@@ -964,7 +974,7 @@ function updateVMInfo(request,vm){
     };
 
     var info_tab = {
-        title : tr("VM information"),
+        title : tr("Information"),
         content:
         '<table id="info_vm_table" class="info_table">\
             <thead>\
@@ -1007,22 +1017,12 @@ function updateVMInfo(request,vm){
                  <td class="key_td">'+tr("Deploy ID")+'</td>\
                  <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
               </tr>\
-              <tr><td class="key_td">Permissions</td><td></td></tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Owner")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+ownerPermStr(vm_info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Group")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+groupPermStr(vm_info)+'</td>\
-              </tr>\
-              <tr>\
-                <td class="key_td"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+tr("Other")+'</td>\
-                <td class="value_td" style="font-family:monospace;">'+otherPermStr(vm_info)+'</td>\
-              </tr>\
-                 </tbody>\
-                </table>\
-                <table id="vm_monitoring_table" class="info_table">\
+              </tbody>\
+               </table>' + insert_extended_template_table(vm_info.USER_TEMPLATE,
+                                                    "VM",
+                                                    vm_info.ID) +
+                     insert_permissions_table("VM",vm_info.ID) +
+                '<table id="vm_monitoring_table" class="info_table">\
                    <thead>\
                      <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
                    </thead>\

@@ -713,6 +713,13 @@ var OpenNebula = {
         "startvnc" : function(params){
             OpenNebula.VM.vnc(params,"startvnc");
         },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.VM.resource,
+                                            "update",
+                                            action_obj);
+        },
         "monitor" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.VM.resource,false);
         },
