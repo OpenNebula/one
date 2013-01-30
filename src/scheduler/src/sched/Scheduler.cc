@@ -336,6 +336,7 @@ void Scheduler::match()
     int vm_cpu;
     int vm_disk;
 
+    int oid;
     int uid;
     int gid;
 
@@ -359,6 +360,7 @@ void Scheduler::match()
 
         reqs = vm->get_requirements();
 
+        oid  = vm->get_oid();
         uid  = vm->get_uid();
         gid  = vm->get_gid();
 
@@ -366,43 +368,6 @@ void Scheduler::match()
         {
             host = static_cast<HostXML *>(h_it->second);
 
-            // -----------------------------------------------------------------
-            // Evaluate VM requirements
-            // -----------------------------------------------------------------
-
-            if (reqs != "")
-            {
-                rc = host->eval_bool(reqs,matched,&error);
-
-                if ( rc != 0 )
-                {
-                    ostringstream oss;
-
-                    matched = false;
-
-                    oss << "Error evaluating expresion: " << reqs
-                    << ", error: " << error;
-                    NebulaLog::log("SCHED",Log::ERROR,oss);
-
-                    free(error);
-                }
-            }
-            else
-            {
-                matched = true;
-            }
-            
-            if ( matched == false )
-            {
-                ostringstream oss;
-
-                oss << "Host " << host->get_hid() << 
-                    " filtered out. It does not fullfil REQUIREMENTS.";
-
-                NebulaLog::log("SCHED",Log::DEBUG,oss);
-                continue;
-            }
-            
             // -----------------------------------------------------------------
             // Check if user is authorized
             // -----------------------------------------------------------------
@@ -420,7 +385,7 @@ void Scheduler::match()
                 host_perms.oid      = host->get_hid();
                 host_perms.obj_type = PoolObjectSQL::HOST;
 
-                matched = acls->authorize(uid, 
+                matched = acls->authorize(uid,
                                           gid,
                                           host_perms,
                                           AuthRequest::MANAGE);
@@ -430,7 +395,7 @@ void Scheduler::match()
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid()
+                oss << "VM " << oid << ": Host " << host->get_hid()
                     << " filtered out. User is not authorized to "
                     << AuthRequest::operation_to_str(AuthRequest::MANAGE)
                     << " it.";
@@ -438,6 +403,44 @@ void Scheduler::match()
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
             }
+
+            // -----------------------------------------------------------------
+            // Evaluate VM requirements
+            // -----------------------------------------------------------------
+
+            if (reqs != "")
+            {
+                rc = host->eval_bool(reqs,matched,&error);
+
+                if ( rc != 0 )
+                {
+                    ostringstream oss;
+
+                    matched = false;
+
+                    oss << "VM " << oid << ": Error evaluating expression: "
+                        << reqs << ", error: " << error;
+                    NebulaLog::log("SCHED",Log::ERROR,oss);
+
+                    free(error);
+                }
+            }
+            else
+            {
+                matched = true;
+            }
+            
+            if ( matched == false )
+            {
+                ostringstream oss;
+
+                oss << "VM " << oid << ": Host " << host->get_hid() <<
+                    " filtered out. It does not fulfill REQUIREMENTS.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                continue;
+            }
+
             // -----------------------------------------------------------------
             // Check host capacity
             // -----------------------------------------------------------------
@@ -452,8 +455,8 @@ void Scheduler::match()
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid() << " filtered out. "
-                    << "Not enough capacity. " << endl;
+                oss << "VM " << oid << ": Host " << host->get_hid()
+                    << " filtered out. Not enough capacity.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
             }
