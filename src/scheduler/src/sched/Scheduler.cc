@@ -266,6 +266,17 @@ int Scheduler::set_up_pools()
     map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
+    //Cleans the cache and get the pending VMs
+    //--------------------------------------------------------------------------
+
+    rc = vmpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
     //Cleans the cache and get the hosts ids
     //--------------------------------------------------------------------------
 
@@ -292,18 +303,6 @@ int Scheduler::set_up_pools()
     //--------------------------------------------------------------------------
 
     hpool->merge_clusters(clpool);
-
-
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the pending VMs
-    //--------------------------------------------------------------------------
-
-    rc = vmpool->set_up();
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
 
     //--------------------------------------------------------------------------
     //Cleans the cache and get the ACLs
@@ -563,9 +562,7 @@ void Scheduler::dispatch()
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        oss << "\t PRI\tHID  VM: " << vm->get_oid() << endl
-            << "\t-----------------------"  << endl
-            << *vm << endl;
+        oss << *vm;
     }
 
     NebulaLog::log("SCHED",Log::INFO,oss);

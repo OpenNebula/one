@@ -112,13 +112,23 @@ public:
      */
     friend ostream& operator<<(ostream& os, VirtualMachineXML& vm)
     {
+        if (vm.hosts.empty())
+        {
+            return os;
+        }
+
         vector<VirtualMachineXML::Host *>::reverse_iterator  i;
         vector<int>::iterator j;
+
+        os  << "\t PRI\tHID  VM: " << vm.oid << endl
+            << "\t-----------------------"  << endl;
 
         for (i=vm.hosts.rbegin();i!=vm.hosts.rend();i++)
         {
             os << "\t" << (*i)->priority << "\t" << (*i)->hid << endl;
         }
+
+        os << endl;
 
         return os;
     };

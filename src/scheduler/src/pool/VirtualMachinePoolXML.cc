@@ -26,6 +26,11 @@ int VirtualMachinePoolXML::set_up()
 
     if ( rc == 0 )
     {
+        if (objects.empty())
+        {
+            return -2;
+        }
+
         oss.str("");
         oss << "Pending and rescheduling VMs:" << endl;
 

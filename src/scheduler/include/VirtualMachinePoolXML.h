@@ -34,6 +34,13 @@ public:
 
     ~VirtualMachinePoolXML(){};
 
+    /**
+     * Retrieves the pending and rescheduling VMs
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs need to be scheduled
+     */
     int set_up();
 
     /**
