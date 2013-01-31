@@ -132,10 +132,12 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
 
 int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 
+void get_xml_values(ObjectXML * oxml, const char* attr, vector<string>& results);
+
 
 
 /* Line 268 of yacc.c  */
-#line 139 "expr_bool.cc"
+#line 141 "expr_bool.cc"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -175,7 +177,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 83 "expr_bool.y"
+#line 85 "expr_bool.y"
 
     char * 	val_str;
     int 	val_int;
@@ -184,7 +186,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 188 "expr_bool.cc"
+#line 190 "expr_bool.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -209,7 +211,7 @@ typedef struct YYLTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 213 "expr_bool.cc"
+#line 215 "expr_bool.cc"
 
 #ifdef short
 # undef short
@@ -504,8 +506,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   103,   103,   104,   107,   112,   117,   122,   127,   132,
-     137,   142,   147,   152,   157,   158,   159,   160
+       0,   105,   105,   106,   109,   114,   119,   124,   129,   134,
+     139,   144,   149,   154,   159,   160,   161,   162
 };
 #endif
 
@@ -1512,21 +1514,21 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 103 "expr_bool.y"
+#line 105 "expr_bool.y"
     { result=(yyvsp[(1) - (1)].val_int);   }
     break;
 
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 104 "expr_bool.y"
+#line 106 "expr_bool.y"
     { result=true; }
     break;
 
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 107 "expr_bool.y"
+#line 109 "expr_bool.y"
     { int val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
@@ -1536,7 +1538,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 112 "expr_bool.y"
+#line 114 "expr_bool.y"
     { int val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
@@ -1546,7 +1548,7 @@ yyreduce:
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 117 "expr_bool.y"
+#line 119 "expr_bool.y"
     { int val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
@@ -1556,7 +1558,7 @@ yyreduce:
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 122 "expr_bool.y"
+#line 124 "expr_bool.y"
     { int val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
@@ -1566,7 +1568,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 127 "expr_bool.y"
+#line 129 "expr_bool.y"
     { float val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
@@ -1576,7 +1578,7 @@ yyreduce:
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 132 "expr_bool.y"
+#line 134 "expr_bool.y"
     { float val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
@@ -1586,7 +1588,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 137 "expr_bool.y"
+#line 139 "expr_bool.y"
     { float val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
@@ -1596,7 +1598,7 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 142 "expr_bool.y"
+#line 144 "expr_bool.y"
     { float val, rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
@@ -1606,7 +1608,7 @@ yyreduce:
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 147 "expr_bool.y"
+#line 149 "expr_bool.y"
     { string val; int rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
@@ -1616,7 +1618,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 152 "expr_bool.y"
+#line 154 "expr_bool.y"
     { string val; int rc;
 
             rc = get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
@@ -1626,35 +1628,35 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 157 "expr_bool.y"
+#line 159 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) && (yyvsp[(3) - (3)].val_int); }
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 158 "expr_bool.y"
+#line 160 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) || (yyvsp[(3) - (3)].val_int); }
     break;
 
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 159 "expr_bool.y"
+#line 161 "expr_bool.y"
     { (yyval.val_int) = ! (yyvsp[(2) - (2)].val_int); }
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 160 "expr_bool.y"
+#line 162 "expr_bool.y"
     { (yyval.val_int) =   (yyvsp[(2) - (3)].val_int); }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1658 "expr_bool.cc"
+#line 1660 "expr_bool.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1892,7 +1894,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 163 "expr_bool.y"
+#line 165 "expr_bool.y"
 
 
 extern "C" void expr_bool__error(
@@ -1923,20 +1925,31 @@ extern "C" void expr_bool__error(
     result = false;
 }
 
+void get_xml_values(ObjectXML * oxml, const char* attr, vector<string> &results)
+{
+    if (attr[0] == '/')
+    {
+        results = (*oxml)[attr];
+    }
+    else
+    {
+        ostringstream  xpath;
+
+        xpath << "/HOST/TEMPLATE/" << attr
+            << "|/HOST/HOST_SHARE/" << attr
+            << "|/HOST/" << attr
+            << "|/HOST/CLUSTER_TEMPLATE/" << attr;
+
+        results = (*oxml)[xpath.str().c_str()];
+    }
+}
+
 int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
 {
     val = 0;
 
-    //TODO: pass xpath base
     vector<string> results;
-    ostringstream  xpath_t;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr
-        << "|/HOST/HOST_SHARE/" << attr
-        << "|/HOST/" << attr
-        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
-
-    results = (*oxml)[xpath_t.str().c_str()];
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {
@@ -1960,16 +1973,8 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
 {
     val = 0.0;
 
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
     vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr
-        << "|/HOST/HOST_SHARE/" << attr
-        << "|/HOST/" << attr
-        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
-
-    results = (*oxml)[xpath_t.str().c_str()];
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {
@@ -1993,16 +1998,8 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
 {
     val = "";
 
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
     vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr
-        << "|/HOST/HOST_SHARE/" << attr
-        << "|/HOST/" << attr
-        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
-
-    results = (*oxml)[xpath_t.str().c_str()];
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {

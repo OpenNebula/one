@@ -496,8 +496,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   100,   100,   101,   104,   124,   125,   126,   127,   128,
-     129,   130,   131
+       0,   100,   100,   101,   104,   132,   133,   134,   135,   136,
+     137,   138,   139
 };
 #endif
 
@@ -1518,15 +1518,23 @@ yyreduce:
 #line 104 "expr_arith.y"
     { float val = 0.0;
 
-                              ostringstream  xpath_t;
-
                               vector<string> results;
 
-                              xpath_t << "/HOST/TEMPLATE/" << (yyvsp[(1) - (1)].val_str)
-                                      << "|/HOST/HOST_SHARE/" << (yyvsp[(1) - (1)].val_str)
-                                      << "|/HOST/CLUSTER_TEMPLATE/" << (yyvsp[(1) - (1)].val_str);
+                              if ((yyvsp[(1) - (1)].val_str)[0] == '/')
+                              {
+                                  results = (*oxml)[(yyvsp[(1) - (1)].val_str)];
+                              }
+                              else
+                              {
+                                  ostringstream  xpath_t;
 
-                              results = (*oxml)[xpath_t.str().c_str()];
+                                  xpath_t << "/HOST/TEMPLATE/" << (yyvsp[(1) - (1)].val_str)
+                                          << "|/HOST/HOST_SHARE/" << (yyvsp[(1) - (1)].val_str)
+                                          << "|/HOST/" << (yyvsp[(1) - (1)].val_str)
+                                          << "|/HOST/CLUSTER_TEMPLATE/" << (yyvsp[(1) - (1)].val_str);
+
+                                  results = (*oxml)[xpath_t.str().c_str()];
+                              }
 
                               if (results.size() != 0)
                               {
@@ -1541,63 +1549,63 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 124 "expr_arith.y"
+#line 132 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (1)].val_float); }
     break;
 
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 125 "expr_arith.y"
+#line 133 "expr_arith.y"
     { (yyval.val_float) = static_cast<float>((yyvsp[(1) - (1)].val_int)); }
     break;
 
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 126 "expr_arith.y"
+#line 134 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) + (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 127 "expr_arith.y"
+#line 135 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) - (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 128 "expr_arith.y"
+#line 136 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) * (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 129 "expr_arith.y"
+#line 137 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) / (yyvsp[(3) - (3)].val_float);}
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 130 "expr_arith.y"
+#line 138 "expr_arith.y"
     { (yyval.val_float) = - (yyvsp[(2) - (2)].val_float);}
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 131 "expr_arith.y"
+#line 139 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(2) - (3)].val_float);}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1601 "expr_arith.cc"
+#line 1609 "expr_arith.cc"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1835,7 +1843,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 134 "expr_arith.y"
+#line 142 "expr_arith.y"
 
 
 extern "C" void expr_arith__error(
