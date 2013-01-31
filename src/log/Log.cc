@@ -186,12 +186,20 @@ void SysLog::log(
     const char *            message)
 {
     log4cpp::Category& root = log4cpp::Category::getRoot();
-
     log4cpp::Priority::PriorityLevel level = get_priority_level(type);
 
-    root << level   << "[" << module << "]"
-                    << "[" << error_names[type] << "]: "
-                    << message;
+    istringstream   smessage;
+    string          line;
+
+    smessage.str(message);
+
+
+    while ( getline(smessage, line) )
+    {
+        root << level   << "[" << module << "]"
+                        << "[" << error_names[type] << "]: "
+                        << line;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -287,11 +295,18 @@ void SysLogResource::log(
 {
     log4cpp::Category& res = log4cpp::Category::getInstance(
                                                         SysLogResource::name);
-
     log4cpp::Priority::PriorityLevel level = get_priority_level(type);
 
-    res << level    << obj_label
-                    << "[" << module << "]"
-                    << "[" << error_names[type] << "]: "
-                    << message;
+    istringstream   smessage;
+    string          line;
+
+    smessage.str(message);
+
+    while ( getline(smessage, line) )
+    {
+        res << level    << obj_label
+                        << "[" << module << "]"
+                        << "[" << error_names[type] << "]: "
+                        << line;
+    }
 }
