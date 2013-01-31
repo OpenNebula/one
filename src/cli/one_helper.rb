@@ -315,7 +315,15 @@ EOT
                         pool_to_array(pool)
                     }
                 else
-                    table.show(pool_to_array(pool), options)
+                    array=pool_to_array(pool)
+
+                    if options[:ids]
+                        array=array.select do |element|
+                            options[:ids].include? element['ID'].to_i
+                        end
+                    end
+
+                    table.show(array, options)
                 end
 
                 return 0
