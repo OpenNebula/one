@@ -384,7 +384,10 @@ var vm_actions = {
     "VM.chown" : {
         type: "multiple",
         call: OpenNebula.VM.chown,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction('VM.showinfo',request.request.data[0]);
+            Sunstone.runAction("VM.show",request.request.data[0]);
+        },
         elements: vmElements,
         error: onError,
         notify: true
@@ -392,7 +395,10 @@ var vm_actions = {
     "VM.chgrp" : {
         type: "multiple",
         call: OpenNebula.VM.chgrp,
-        callback: vmShow,
+        callback: function(request) {
+            Sunstone.runAction('VM.showinfo',request.request.data[0]);
+            Sunstone.runAction("VM.show",request.request.data[0]);
+        },
         elements: vmElements,
         error: onError,
         notify: true
@@ -464,22 +470,6 @@ var vm_buttons = {
         type: "action",
         text: tr("+ New"),
         alwaysActive: true
-    },
-
-    "VM.chown" : {
-        type: "confirm_with_select",
-        text: tr("Change owner"),
-        select: users_sel,
-        tip: tr("Select the new owner")+":",
-        condition: mustBeAdmin
-    },
-
-    "VM.chgrp" : {
-        type: "confirm_with_select",
-        text: tr("Change group"),
-        select: groups_sel,
-        tip: tr("Select the new group")+":",
-        condition: mustBeAdmin
     },
 
     "VM.shutdown" : {
@@ -969,7 +959,7 @@ function updateVMInfo(request,vm){
                </table>' + insert_extended_template_table(vm_info.USER_TEMPLATE,
                                                     "VM",
                                                     vm_info.ID) +
-                     insert_permissions_table("VM",vm_info.ID) +
+                     insert_permissions_table("VM",vm_info.ID, vm_info.UNAME, vm_info.GNAME, vm_info.UID, vm_info.GID) +
                 '<table id="vm_monitoring_table" class="info_table">\
                    <thead>\
                      <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\
@@ -1034,7 +1024,7 @@ function updateVMInfo(request,vm){
     // Listener for key,value pair edit action
     $("#div_edit_rename_link").live("click", function() {
         var value_str = $(".value_td_rename").text();
-        $(".value_td_rename").html('<input class="input_edit_value_rename" id="input_edit_rename" type="text" value="'+value_str+'"/>');
+        $(".value_td_rename").html('<input class="input_edit_value_rename" type="text" value="'+value_str+'"/>');
     });
 
     $(".input_edit_value_rename").live("change", function() {
@@ -1065,6 +1055,9 @@ function updateVMInfo(request,vm){
     var $hotplugging_tab = $('div#vm_hotplugging_tab', $info_panel);
     $('tr.at_volatile',$hotplugging_tab).hide();
     $('tr.at_image',$hotplugging_tab).show();
+
+    // Populate permissions grid
+    setPermissionsTable(vm_info,'');
 }
 
 // Generates the HTML for the hotplugging tab

@@ -73,7 +73,7 @@ var Sunstone = {
     "updateMainTabContent" : function(tab_id,content_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["content"]=content_arg;
         //if not present it will not be updated
-        if (refresh){ 
+        if (refresh){
             $('div#'+tab_id, main_tabs_context).html(content_arg);
         }
     },
@@ -393,7 +393,7 @@ function readCookie(){
     });
 }
 
-//sets the user info in the top bar and creates a listner in the
+//sets the user info in the top bar and creates a listener in the
 //signout button
 function setLogin(){
     //This variables can be used anywhere

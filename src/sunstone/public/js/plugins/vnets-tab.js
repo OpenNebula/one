@@ -367,16 +367,6 @@ var vnet_actions = {
         notify: true
     },
 
-    "Network.fetch_permissions" : {
-        type: "single",
-        call: OpenNebula.Network.show,
-        callback: function(request,vnet_json){
-            var vnet = vnet_json.VNET;
-            setPermissionsTable(vnet,$(".network_permissions_table"));
-        },
-        error: onError
-    },
-
     "Network.update_template" : {
         type: "single",
         call: OpenNebula.Network.update,
@@ -646,7 +636,7 @@ function updateVNetworkInfo(request,vn){
 
     Sunstone.popUpInfoPanel("vnet_info_panel");
 
-    Sunstone.runAction("Network.fetch_permissions",vn_info.ID);
+    setPermissionsTable(vn_info,'');
 
 }
 

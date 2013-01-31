@@ -965,37 +965,6 @@ function setPermissionsTable(resource,context){
         $('.other_a',context).attr('checked','checked');
 };
 
-//Returns an octet given a permission table with checkboxes
-function buildOctet(permTable){
-    var owner=0;
-    var group=0;
-    var other=0;
-
-    if ($('.owner_u',permTable).is(':checked'))
-        owner+=4;
-    if ($('.owner_m',permTable).is(':checked'))
-        owner+=2;
-    if ($('.owner_a',permTable).is(':checked'))
-        owner+=1;
-
-    if ($('.group_u',permTable).is(':checked'))
-        group+=4;
-    if ($('.group_m',permTable).is(':checked'))
-        group+=2;
-    if ($('.group_a',permTable).is(':checked'))
-        group+=1;
-
-    if ($('.other_u',permTable).is(':checked'))
-        other+=4;
-    if ($('.other_m',permTable).is(':checked'))
-        other+=2;
-    if ($('.other_a',permTable).is(':checked'))
-        other+=1;
-
-    return ""+owner+group+other;
-};
-
-
 // Sets up a dialog to edit and update user and group quotas
 // Called from user/group plugins
 function setupQuotasDialog(dialog){
@@ -1405,8 +1374,39 @@ function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
     return str;
 }
 
+//Returns an octet given a permission table with checkboxes
+function buildOctet(permTable){
+    var owner=0;
+    var group=0;
+    var other=0;
+
+    if ($('.owner_u',permTable).is(':checked'))
+        owner+=4;
+    if ($('.owner_m',permTable).is(':checked'))
+        owner+=2;
+    if ($('.owner_a',permTable).is(':checked'))
+        owner+=1;
+
+    if ($('.group_u',permTable).is(':checked'))
+        group+=4;
+    if ($('.group_m',permTable).is(':checked'))
+        group+=2;
+    if ($('.group_a',permTable).is(':checked'))
+        group+=1;
+
+    if ($('.other_u',permTable).is(':checked'))
+        other+=4;
+    if ($('.other_m',permTable).is(':checked'))
+        other+=2;
+    if ($('.other_a',permTable).is(':checked'))
+        other+=1;
+
+    return ""+owner+group+other;
+};
+
+
 // Returns HTML with listeners to control permissions
-function insert_permissions_table(resource_type,resource_id){
+function insert_permissions_table(resource_type,resource_id, owner, group, uid, gid){
      var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table" style="padding:0 10px;">\
                      <thead><tr>\
                          <td style="width:130px">'+tr("Permissions")+':</td>\
@@ -1415,21 +1415,40 @@ function insert_permissions_table(resource_type,resource_id){
                          <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check owner_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_m" class="permission_check owner_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_a" class="permission_check owner_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check owner_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Group")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_owner_u" class="permission_check group_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_m" class="permission_check group_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_group_a" class="permission_check group_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check group_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check group_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check group_a" /></td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Other")+'</td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_u" class="permission_check other_u" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_m" class="permission_check other_m" /></td>\
-                         <td style="text-align:center"><input type="checkbox" name="vnet_other_a" class="permission_check other_a" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check other_u" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check other_m" /></td>\
+                         <td style="text-align:center"><input type="checkbox" class="permission_check other_a" /></td>\
+                     </tr>\
+                     <tr><td style="width:130px">'+tr("Ownership")+'</td>\</tr>\
+                     <tr>\
+                         <td>'+tr("Owner")+'</td>\
+                         <td></td>\
+                         <td id="value_td_owner">'+owner+'</td>\
+                          <td><div id="div_edit_chg_owner">\
+                                 <a id="div_edit_chg_owner_link" class="edit_e" href="#">e</a>\
+                              </div>\
+                          </td>\
+                     </tr>\
+                     <tr>\
+                         <td>'+tr("Group")+'</td>\
+                         <td></td>\
+                         <td id="value_td_group">'+group+'</td>\
+                          <td><div id="div_edit_chg_group">\
+                                 <a id="div_edit_chg_group_link" class="edit_e" href="#">e</a>\
+                              </div>\
+                          </td>\
                      </tr>\
                    </table>'
 
@@ -1439,6 +1458,52 @@ function insert_permissions_table(resource_type,resource_id){
         var permissions_octect = { octet : buildOctet(permissions_table) };
 
         Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
+    });
+
+    // Handlers for chown
+    $("#div_edit_chg_owner_link").die();
+    $("#user_confirm_select").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_chg_owner_link").live("click", function() {
+        var value_str = $("#value_td_owner").text();
+        var select_str='<select style="margin: 10px 0;" id="user_confirm_select">';
+        select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
+        select_str+="</select>";
+        $("#value_td_owner").html(select_str);
+        $("select#user_confirm_select").val(uid);
+    });
+
+    $("#user_confirm_select").live("change", function() {
+        var value_str = $('select#user_confirm_select').val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            Sunstone.runAction(resource_type+".chown",resource_id,value_str);
+        }
+    });
+
+    // Handlers for chgrp
+    $("#div_edit_chg_group_link").die();
+    $("#group_confirm_select").die();
+
+    // Listener for key,value pair edit action
+    $("#div_edit_chg_group_link").live("click", function() {
+        var value_str = $("#value_td_group").text();
+        var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
+        select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
+        select_str+="</select>";
+        $("#value_td_group").html(select_str);
+        $("select#group_confirm_select").val(gid);
+    });
+
+    $("#group_confirm_select").live("change", function() {
+        var value_str = $('select#group_confirm_select').val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            Sunstone.runAction(resource_type+".chgrp",resource_id,value_str);
+        }
     });
 
     return str;
