@@ -230,35 +230,38 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
 void VirtualMachineXML::log(const string &st)
 {
     vector<xmlNodePtr> nodes;
+
+    ostringstream   oss;
+    string          xml_st;
+
     int rc = get_nodes("/VM/USER_TEMPLATE", nodes);
 
     if (rc > 0)
     {
-        ObjectXML* templ = new ObjectXML(nodes[0]);
-
-        free_nodes(nodes);
-
-        templ->rename_nodes("/USER_TEMPLATE", "TEMPLATE");
-
-        nodes.clear();
-        rc = templ->get_nodes("/TEMPLATE", nodes);
-
-        if (rc <= 0)
-        {
-            return;
-        }
-
         VirtualMachineTemplate vm_template;
         vm_template.from_xml_node(nodes[0]);
-
-        string debug_st;
-        vm_template.to_str(debug_st);
 
         free_nodes(nodes);
 
         if (!st.empty())
         {
-            vm_template.replace("SCHEDULER_MESSAGE", st);
+            char str[26];
+
+            time_t the_time = time(NULL);
+
+#ifdef SOLARIS
+            ctime_r(&(the_time),str,sizeof(char)*26);
+#else
+            ctime_r(&(the_time),str);
+#endif
+            // Get rid of final enter character
+            str[24] = '\0';
+
+            oss << str << ": " << st;
+
+            vm_template.replace("SCHEDULER_MESSAGE", oss.str());
+
+            update(vm_template.to_xml(xml_st));
         }
         else
         {
@@ -272,11 +275,12 @@ void VirtualMachineXML::log(const string &st)
                     delete attr[i];
                 }
             }
+
+            if (num > 0)
+            {
+                update(vm_template.to_xml(xml_st));
+            }
         }
-
-        string xml_st;
-
-        update(vm_template.to_xml(xml_st));
     }
 }
 

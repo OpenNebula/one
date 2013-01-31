@@ -419,12 +419,17 @@ void Scheduler::match()
                 if ( rc != 0 )
                 {
                     ostringstream oss;
+                    ostringstream error_msg;
 
                     matched = false;
 
-                    oss << "VM " << oid << ": Error evaluating expression: "
-                        << reqs << ", error: " << error;
+                    error_msg << "Error evaluating REQUIREMENTS expression: '"
+                            << reqs << "', error: " << error;
+
+                    oss << "VM " << oid << ": " << error_msg.str();
                     NebulaLog::log("SCHED",Log::ERROR,oss);
+
+                    vm->log(error_msg.str());
 
                     free(error);
                 }
@@ -474,11 +479,11 @@ void Scheduler::match()
         {
             if (n_matched == 0)
             {
-                vm->log("The Scheduler could not find a Host that meets the requirements expression");
+                vm->log("The Scheduler could not find any Host that meets the requirements expression");
             }
             else
             {
-                vm->log("The Scheduler could not find a Host with enough capacity to deploy the VM");
+                vm->log("The Scheduler could not find any Host with enough capacity to deploy the VM");
             }
         }
     }
