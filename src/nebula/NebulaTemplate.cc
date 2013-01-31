@@ -179,7 +179,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.insert(make_pair("SYSTEM","file"));
     vvalue.insert(make_pair("DEBUG_LEVEL","3"));
     vattribute = new VectorAttribute("LOG",vvalue);
-
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
 # Physical Networks configuration
