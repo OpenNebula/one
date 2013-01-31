@@ -71,6 +71,8 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val);
 
 int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 
+void get_xml_values(ObjectXML * oxml, const char* attr, vector<string>& results);
+
 %}
 
 %parse-param {mem_collector * mc}
@@ -190,20 +192,31 @@ extern "C" void expr_bool__error(
     result = false;
 }
 
+void get_xml_values(ObjectXML * oxml, const char* attr, vector<string> &results)
+{
+    if (attr[0] == '/')
+    {
+        results = (*oxml)[attr];
+    }
+    else
+    {
+        ostringstream  xpath;
+
+        xpath << "/HOST/TEMPLATE/" << attr
+            << "|/HOST/HOST_SHARE/" << attr
+            << "|/HOST/" << attr
+            << "|/HOST/CLUSTER_TEMPLATE/" << attr;
+
+        results = (*oxml)[xpath.str().c_str()];
+    }
+}
+
 int get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
 {
     val = 0;
 
-    //TODO: pass xpath base
     vector<string> results;
-    ostringstream  xpath_t;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr
-        << "|/HOST/HOST_SHARE/" << attr
-        << "|/HOST/" << attr
-        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
-
-    results = (*oxml)[xpath_t.str().c_str()];
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {
@@ -227,16 +240,8 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
 {
     val = 0.0;
 
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
     vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr
-        << "|/HOST/HOST_SHARE/" << attr
-        << "|/HOST/" << attr
-        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
-
-    results = (*oxml)[xpath_t.str().c_str()];
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {
@@ -260,16 +265,8 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
 {
     val = "";
 
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
     vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr
-        << "|/HOST/HOST_SHARE/" << attr
-        << "|/HOST/" << attr
-        << "|/HOST/CLUSTER_TEMPLATE/" << attr;
-
-    results = (*oxml)[xpath_t.str().c_str()];
+    get_xml_values(oxml, attr, results);
 
     if (results.size() != 0)
     {

@@ -100,18 +100,26 @@ extern "C"
 stmt:   expr                { result = static_cast<int>($1);}
         |                   { result = 0; }
         ;
-                            //TODO Pass Xpath base for search
-expr:   STRING              { float val = 0.0;
 
-                              ostringstream  xpath_t;
+expr:   STRING              { float val = 0.0;
 
                               vector<string> results;
 
-                              xpath_t << "/HOST/TEMPLATE/" << $1
-                                      << "|/HOST/HOST_SHARE/" << $1
-                                      << "|/HOST/CLUSTER_TEMPLATE/" << $1;
+                              if ($1[0] == '/')
+                              {
+                                  results = (*oxml)[$1];
+                              }
+                              else
+                              {
+                                  ostringstream  xpath_t;
 
-                              results = (*oxml)[xpath_t.str().c_str()];
+                                  xpath_t << "/HOST/TEMPLATE/" << $1
+                                          << "|/HOST/HOST_SHARE/" << $1
+                                          << "|/HOST/" << $1
+                                          << "|/HOST/CLUSTER_TEMPLATE/" << $1;
+
+                                  results = (*oxml)[xpath_t.str().c_str()];
+                              }
 
                               if (results.size() != 0)
                               {
