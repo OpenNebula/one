@@ -192,9 +192,24 @@ int VirtualMachine::select(SqlDB * db)
     try
     {
         Log::MessageType clevel;
+        string           log_system;
 
-        clevel = nd.get_debug_level();
-        _log   = new FileLog(nd.get_vm_log_filename(oid), clevel);
+        log_system  = nd.get_log_system();
+        clevel      = nd.get_debug_level();
+
+        if ( log_system == "file" )
+        {
+            _log   = new FileLog(nd.get_vm_log_filename(oid), clevel);
+        }
+        else if ( log_system == "syslog" )
+        {
+            _log   = new SysLogResource(oid, obj_type, clevel);
+        }
+        else
+        {
+            throw('Unknown log system.');
+        }
+
     }
     catch(exception &e)
     {

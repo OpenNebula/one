@@ -172,22 +172,57 @@ public:
     // --------------------------------------------------------------
 
     /**
-     *  Returns the value of DEBUG_LEVEL in oned.conf file
+     *  Returns the value of LOG->DEBUG_LEVEL in oned.conf file
      *      @return the debug level, to instantiate Log'ers
      */
     Log::MessageType get_debug_level() const
     {
-        Log::MessageType    clevel = Log::ERROR;
-        int                 log_level_int;
+        Log::MessageType            clevel = Log::ERROR;
+        vector<const Attribute *>   logs;
+        int                         rc;
+        int                         log_level_int;
 
-        nebula_configuration->get("DEBUG_LEVEL", log_level_int);
+        rc = nebula_configuration->get("LOG", logs);
 
-        if (0 <= log_level_int && log_level_int <= 3 )
+        if ( rc != 0 )
         {
-            clevel = static_cast<Log::MessageType>(log_level_int);
+            string value;
+            const VectorAttribute * log = static_cast<const VectorAttribute *>
+                                                          (logs[0]);
+            value = log->vector_value("DEBUG_LEVEL");
+
+            log_level_int = atoi(value.c_str());
+
+            if (0 <= log_level_int && log_level_int <= 3 )
+            {
+                clevel = static_cast<Log::MessageType>(log_level_int);
+            }
         }
 
         return clevel;
+    }
+
+    /**
+     *  Returns the value of LOG->SYSTEM in oned.conf file
+     *      @return the system, either "file" or "syslog"
+     */
+    string get_log_system() const
+    {
+        vector<const Attribute *>   logs;
+        int                         rc;
+        string                      log_system = "file";
+
+        rc = nebula_configuration->get("LOG", logs);
+
+        if ( rc != 0 )
+        {
+            string value;
+            const VectorAttribute * log = static_cast<const VectorAttribute *>
+                                                          (logs[0]);
+            log_system = log->vector_value("SYSTEM");
+        }
+
+        return log_system;
     }
 
     /**

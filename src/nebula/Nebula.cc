@@ -320,7 +320,7 @@ void Nebula::start()
         Log::MessageType clevel;
         string           log_system;
 
-        nebula_configuration->get("LOG_SYSTEM", log_system);
+        log_system = get_log_system();
         clevel = get_debug_level();
 
         // Initializing ONE Daemon log system
