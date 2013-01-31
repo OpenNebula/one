@@ -326,7 +326,7 @@ void Nebula::start()
         // Initializing ONE Daemon log system
         if ( log_system == "syslog" )
         {
-            NebulaLog::init_syslog_system(clevel);
+            NebulaLog::init_syslog_system(clevel, "oned");
         }
         else if ( log_system == "file" )
         {

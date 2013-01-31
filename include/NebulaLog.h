@@ -70,14 +70,14 @@ public:
         }
     };
 
-    static void init_syslog_system(Log::MessageType clevel)
+    static void init_syslog_system(Log::MessageType clevel, string label)
     {
         // Initialize the 'root' syslog logger
-        SysLog::init(clevel, "root", "OpenNebula");
+        SysLog::init(clevel, "root", label);
         NebulaLog::logger = new SysLog(clevel);
 
         // Initialize the 'resource' syslog logger
-        SysLogResource::init(clevel, "resource", "OpenNebula");
+        SysLogResource::init(clevel, "resource", label);
     };
 
     static void finalize_log_system()
