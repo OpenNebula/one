@@ -22,6 +22,9 @@
 #include <sstream>
 #include <iostream>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <syslog.h>
 
 #include "log4cpp/Category.hh"
@@ -29,7 +32,7 @@
 #include "log4cpp/Appender.hh"
 #include "log4cpp/SyslogAppender.hh"
 #include "log4cpp/Layout.hh"
-#include "log4cpp/SimpleLayout.hh"
+#include "log4cpp/PatternLayout.hh"
 #include "log4cpp/Priority.hh"
 
 /* -------------------------------------------------------------------------- */
@@ -158,11 +161,17 @@ void CerrLog::log(
 void SysLog::init(
     Log::MessageType clevel,
     string name,
-    string label)
+    string _label)
 {
+    ostringstream oss_label;
+    string label;
+
+    oss_label << _label << "[" << getpid() << "]";
+    label = oss_label.str();
+
     log4cpp::Appender *syslog_appender;
     syslog_appender = new log4cpp::SyslogAppender(name,label,LOG_DAEMON);
-    syslog_appender->setLayout(new log4cpp::SimpleLayout());
+    syslog_appender->setLayout(new log4cpp::PatternLayout());
     log4cpp::Category& root = log4cpp::Category::getRoot();
     root.setPriority(SysLog::get_priority_level(clevel));
     root.addAppender(syslog_appender);
@@ -180,7 +189,8 @@ void SysLog::log(
 
     log4cpp::Priority::PriorityLevel level = get_priority_level(type);
 
-    root << level   << "[" << module << "] "
+    root << level   << "[" << module << "]"
+                    << "[" << error_names[type] << "]: "
                     << message;
 }
 
@@ -232,14 +242,20 @@ string SysLogResource::name;
 void SysLogResource::init(
     Log::MessageType clevel,
     string name,
-    string label)
+    string _label)
 {
     SysLogResource::name = name;
+
+    ostringstream oss_label;
+    string label;
+
+    oss_label << _label << "[" << getpid() << "]";
+    label = oss_label.str();
 
     log4cpp::Appender *resource_appender;
     resource_appender = new log4cpp::SyslogAppender(name,label,LOG_DAEMON);
 
-    resource_appender->setLayout(new log4cpp::SimpleLayout());
+    resource_appender->setLayout(new log4cpp::PatternLayout());
     log4cpp::Category& res = log4cpp::Category::getInstance(name);
     res.addAppender(resource_appender);
     res.setPriority(SysLog::get_priority_level(clevel));
@@ -257,7 +273,7 @@ SysLogResource::SysLogResource(
     ostringstream oss_label;
     string obj_type_str = PoolObjectSQL::type_to_str(obj_type);
 
-    oss_label << "[" << obj_type_str << " " << oid << "]: ";
+    oss_label << "[" << obj_type_str << " " << oid << "]";
     obj_label = oss_label.str();
 };
 
@@ -274,6 +290,8 @@ void SysLogResource::log(
 
     log4cpp::Priority::PriorityLevel level = get_priority_level(type);
 
-    res << level    << "[THISISAVM] "
+    res << level    << obj_label
+                    << "[" << module << "]"
+                    << "[" << error_names[type] << "]: "
                     << message;
 }
