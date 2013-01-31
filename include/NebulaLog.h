@@ -18,7 +18,18 @@
 #define _NEBULA_LOG_H_
 
 #include "Log.h"
+
 #include <sstream>
+
+#include <syslog.h>
+
+//#include "log4cpp/Category.hh"
+//#include "log4cpp/CategoryStream.hh"
+//#include "log4cpp/Appender.hh"
+//#include "log4cpp/SyslogAppender.hh"
+//#include "log4cpp/Layout.hh"
+//#include "log4cpp/SimpleLayout.hh"
+//#include "log4cpp/Priority.hh"
 
 using namespace std;
 
@@ -61,7 +72,12 @@ public:
 
     static void init_syslog_system(Log::MessageType clevel)
     {
+        // Initialize the 'root' syslog logger
+        SysLog::init(clevel, "root", "OpenNebula");
         NebulaLog::logger = new SysLog(clevel);
+
+        // Initialize the 'resource' syslog logger
+        SysLogResource::init(clevel, "resource", "OpenNebula");
     };
 
     static void finalize_log_system()

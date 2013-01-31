@@ -20,6 +20,8 @@
 #include <string>
 #include <fstream>
 
+#include "PoolObjectSQL.h"
+
 #include "log4cpp/Priority.hh"
 
 using namespace std;
@@ -139,7 +141,6 @@ public:
         const char *            message);
 };
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -149,16 +150,51 @@ public:
 class SysLog : public Log
 {
 public:
-    SysLog(const MessageType level = WARNING);
+    SysLog(const MessageType level = WARNING):Log(level){};
 
-    ~SysLog();
+    ~SysLog() {};
+
+    virtual void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message);
+
+    static void init(
+        Log::MessageType clevel,
+        string           name,
+        string           label);
+
+    static log4cpp::Priority::PriorityLevel get_priority_level(
+                                                    const MessageType level);
+};
+
+/**
+ *  Send log messages to syslog per resource
+ */
+class SysLogResource : public SysLog
+{
+public:
+    SysLogResource(
+        int                             oid,
+        const PoolObjectSQL::ObjectType obj_type,
+        const MessageType               clevel);
+
+    ~SysLogResource(){};
 
     void log(
         const char *            module,
         const MessageType       type,
         const char *            message);
-protected:
-    log4cpp::Priority::PriorityLevel get_priority_level(const MessageType level);
+
+    static void init(
+        Log::MessageType clevel,
+        string           name,
+        string           label);
+
+    static string name;
+
+private:
+    string obj_label;
 };
 
 #endif /* _LOG_H_ */

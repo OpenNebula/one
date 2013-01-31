@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
+
 #include <syslog.h>
 
 #include "log4cpp/Category.hh"
@@ -154,24 +155,18 @@ void CerrLog::log(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-SysLog::SysLog(const MessageType level):Log(level) {
-
-    log4cpp::Appender *syslog_appender = new log4cpp::SyslogAppender(
-                                            "syslog", "OpenNebula", LOG_DAEMON);
-
+void SysLog::init(
+    Log::MessageType clevel,
+    string name,
+    string label)
+{
+    log4cpp::Appender *syslog_appender;
+    syslog_appender = new log4cpp::SyslogAppender(name,label,LOG_DAEMON);
     syslog_appender->setLayout(new log4cpp::SimpleLayout());
-
     log4cpp::Category& root = log4cpp::Category::getRoot();
-
-    root.setPriority(get_priority_level(level));
-
+    root.setPriority(SysLog::get_priority_level(clevel));
     root.addAppender(syslog_appender);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-SysLog::~SysLog() {}
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -183,13 +178,17 @@ void SysLog::log(
 {
     log4cpp::Category& root = log4cpp::Category::getRoot();
 
-    root << get_priority_level(type) << "[" << module << "]"
-                                     << "[" << error_names[type] << "]: "
-                                     << message;
+    log4cpp::Priority::PriorityLevel level = get_priority_level(type);
+
+    root << level   << "[" << module << "] "
+                    << message;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 log4cpp::Priority::PriorityLevel SysLog::get_priority_level(
-                                                        const MessageType level)
+    const MessageType level)
 {
     log4cpp::Priority::PriorityLevel priority_level;
 
@@ -219,4 +218,62 @@ log4cpp::Priority::PriorityLevel SysLog::get_priority_level(
     }
 
     return priority_level;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string SysLogResource::name;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
+void SysLogResource::init(
+    Log::MessageType clevel,
+    string name,
+    string label)
+{
+    SysLogResource::name = name;
+
+    log4cpp::Appender *resource_appender;
+    resource_appender = new log4cpp::SyslogAppender(name,label,LOG_DAEMON);
+
+    resource_appender->setLayout(new log4cpp::SimpleLayout());
+    log4cpp::Category& res = log4cpp::Category::getInstance(name);
+    res.addAppender(resource_appender);
+    res.setPriority(SysLog::get_priority_level(clevel));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+SysLogResource::SysLogResource(
+    int                             oid,
+    const PoolObjectSQL::ObjectType obj_type,
+    const MessageType               clevel = WARNING)
+    :SysLog(clevel)
+{
+    ostringstream oss_label;
+    string obj_type_str = PoolObjectSQL::type_to_str(obj_type);
+
+    oss_label << "[" << obj_type_str << " " << oid << "]: ";
+    obj_label = oss_label.str();
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void SysLogResource::log(
+    const char *            module,
+    const MessageType       type,
+    const char *            message)
+{
+    log4cpp::Category& res = log4cpp::Category::getInstance(
+                                                        SysLogResource::name);
+
+    log4cpp::Priority::PriorityLevel level = get_priority_level(type);
+
+    res << level    << "[THISISAVM] "
+                    << message;
 }
