@@ -25,7 +25,7 @@ var datastores_tab_content = '\
 <table id="datatable_datastores" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
@@ -497,8 +497,12 @@ function updateDatastoreInfo(request,ds){
                                          info.ID)
 
     // Inserts the change permissions table
-    info_tab_content += insert_permissions_table("Datastore",info.ID);
-
+    info_tab_content += insert_permissions_table("Datastore",
+                                                 info.ID,
+                                                 info.UNAME,
+                                                 info.GNAME,
+                                                 info.UID,
+                                                 info.GID);
 
     var info_tab = {
         title : tr("Information"),

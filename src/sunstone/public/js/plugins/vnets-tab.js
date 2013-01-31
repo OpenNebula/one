@@ -24,7 +24,7 @@ var vnets_tab_content = '\
 <table id="datatable_vnetworks" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
@@ -598,8 +598,12 @@ function updateVNetworkInfo(request,vn){
                                                        "Network",
                                                        vn_info.ID);
 
-    info_tab_content += insert_permissions_table("Network",vn_info.ID);
-
+    info_tab_content += insert_permissions_table("Network",
+                                                 vn_info.ID,
+                                                 vn_info.UNAME,
+                                                 vn_info.GNAME,
+                                                 vn_info.UID,
+                                                 vn_info.GID);
 
     var info_tab = {
         title: tr("Information"),

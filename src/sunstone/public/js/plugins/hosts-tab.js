@@ -44,7 +44,7 @@ var hosts_tab_content = '\
 <table id="datatable_hosts" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
       <th>' + tr("Cluster") + '</th>\

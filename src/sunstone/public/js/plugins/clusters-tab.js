@@ -20,7 +20,7 @@
 
 var host_datatable_table_tmpl='<thead>\
         <tr>\
-          <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+          <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
           <th>' + tr("ID") + '</th>\
           <th>' + tr("Name") + '</th>\
           <th>' + tr("Cluster") + '</th>\
@@ -40,7 +40,7 @@ var host_datatable_table_tmpl='<thead>\
 
 var vnet_datatable_table_tmpl='<thead>\
       <tr>\
-        <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+        <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
         <th>'+tr("ID")+'</th>\
         <th>'+tr("Owner")+'</th>\
         <th>'+tr("Group")+'</th>\
@@ -56,7 +56,7 @@ var vnet_datatable_table_tmpl='<thead>\
 
 var datastore_datatable_table_tmpl='<thead>\
       <tr>\
-        <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+        <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
         <th>'+tr("ID")+'</th>\
         <th>'+tr("Owner")+'</th>\
         <th>'+tr("Group")+'</th>\
@@ -848,7 +848,7 @@ var clusters_tab_content = '\
 <table id="datatable_clusters" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">' + tr("All") + '</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
       <th>' + tr("Hosts") + '</th>\

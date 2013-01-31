@@ -1406,7 +1406,7 @@ function buildOctet(permTable){
 
 
 // Returns HTML with listeners to control permissions
-function insert_permissions_table(resource_type,resource_id, owner, group, uid, gid){
+function insert_permissions_table(resource_type,resource_id, owner, group, vm_uid, vm_gid){
      var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table" style="padding:0 10px;">\
                      <thead><tr>\
                          <td style="width:130px">'+tr("Permissions")+':</td>\
@@ -1430,8 +1430,11 @@ function insert_permissions_table(resource_type,resource_id, owner, group, uid, 
                          <td style="text-align:center"><input type="checkbox" class="permission_check other_u" /></td>\
                          <td style="text-align:center"><input type="checkbox" class="permission_check other_m" /></td>\
                          <td style="text-align:center"><input type="checkbox" class="permission_check other_a" /></td>\
-                     </tr>\
-                     <tr><td style="width:130px">'+tr("Ownership")+'</td>\</tr>\
+                     </tr>'
+
+     if (mustBeAdmin())
+     {
+        str += '<tr><td style="width:130px">'+tr("Ownership")+'</td>\</tr>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
                          <td></td>\
@@ -1452,58 +1455,59 @@ function insert_permissions_table(resource_type,resource_id, owner, group, uid, 
                      </tr>\
                    </table>'
 
+        // Handlers for chown
+        $("#div_edit_chg_owner_link").die();
+        $("#user_confirm_select").die();
+
+        // Listener for key,value pair edit action
+        $("#div_edit_chg_owner_link").live("click", function() {
+            var value_str = $("#value_td_owner").text();
+            var select_str='<select style="margin: 10px 0;" id="user_confirm_select">';
+            select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
+            select_str+="</select>";
+            $("#value_td_owner").html(select_str);
+            $("select#user_confirm_select").val(vm_uid);
+        });
+
+        $("#user_confirm_select").live("change", function() {
+            var value_str = $('select#user_confirm_select').val();
+            if(value_str!="")
+            {
+                // Let OpenNebula know
+                Sunstone.runAction(resource_type+".chown",resource_id,value_str);
+            }
+        });
+
+        // Handlers for chgrp
+        $("#div_edit_chg_group_link").die();
+        $("#group_confirm_select").die();
+
+        // Listener for key,value pair edit action
+        $("#div_edit_chg_group_link").live("click", function() {
+            var value_str = $("#value_td_group").text();
+            var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
+            select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
+            select_str+="</select>";
+            $("#value_td_group").html(select_str);
+            $("select#group_confirm_select").val(vm_gid);
+        });
+
+        $("#group_confirm_select").live("change", function() {
+            var value_str = $('select#group_confirm_select').val();
+            if(value_str!="")
+            {
+                // Let OpenNebula know
+                Sunstone.runAction(resource_type+".chgrp",resource_id,value_str);
+            }
+        });
+    }
+
     $(".permission_check").die();
     $(".permission_check").live('change',function(){
         var permissions_table  = $("."+resource_type.toLowerCase()+"_permissions_table");
         var permissions_octect = { octet : buildOctet(permissions_table) };
 
         Sunstone.runAction(resource_type+".chmod",resource_id,permissions_octect);
-    });
-
-    // Handlers for chown
-    $("#div_edit_chg_owner_link").die();
-    $("#user_confirm_select").die();
-
-    // Listener for key,value pair edit action
-    $("#div_edit_chg_owner_link").live("click", function() {
-        var value_str = $("#value_td_owner").text();
-        var select_str='<select style="margin: 10px 0;" id="user_confirm_select">';
-        select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
-        select_str+="</select>";
-        $("#value_td_owner").html(select_str);
-        $("select#user_confirm_select").val(uid);
-    });
-
-    $("#user_confirm_select").live("change", function() {
-        var value_str = $('select#user_confirm_select').val();
-        if(value_str!="")
-        {
-            // Let OpenNebula know
-            Sunstone.runAction(resource_type+".chown",resource_id,value_str);
-        }
-    });
-
-    // Handlers for chgrp
-    $("#div_edit_chg_group_link").die();
-    $("#group_confirm_select").die();
-
-    // Listener for key,value pair edit action
-    $("#div_edit_chg_group_link").live("click", function() {
-        var value_str = $("#value_td_group").text();
-        var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
-        select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
-        select_str+="</select>";
-        $("#value_td_group").html(select_str);
-        $("select#group_confirm_select").val(gid);
-    });
-
-    $("#group_confirm_select").live("change", function() {
-        var value_str = $('select#group_confirm_select').val();
-        if(value_str!="")
-        {
-            // Let OpenNebula know
-            Sunstone.runAction(resource_type+".chgrp",resource_id,value_str);
-        }
     });
 
     return str;

@@ -68,7 +68,7 @@ var vms_tab_content = '\
 <table id="datatable_vmachines" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
@@ -477,7 +477,21 @@ var vm_buttons = {
         text: tr("Shutdown"),
         tip: tr("This will initiate the shutdown process in the selected VMs")
     },
+    "VM.chown" : {
+        type: "confirm_with_select",
+        text: tr("Change owner"),
+        select: users_sel,
+        tip: tr("Select the new owner")+":",
+        condition: mustBeAdmin
+    },
 
+    "VM.chgrp" : {
+        type: "confirm_with_select",
+        text: tr("Change group"),
+        select: groups_sel,
+        tip: tr("Select the new group")+":",
+        condition: mustBeAdmin
+    },
     "action_list" : {
         type: "select",
         actions: {
@@ -956,10 +970,18 @@ function updateVMInfo(request,vm){
                  <td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
               </tr>\
               </tbody>\
-               </table>' + insert_extended_template_table(vm_info.USER_TEMPLATE,
-                                                    "VM",
-                                                    vm_info.ID) +
-                     insert_permissions_table("VM",vm_info.ID, vm_info.UNAME, vm_info.GNAME, vm_info.UID, vm_info.GID) +
+               </table>' +
+
+               insert_extended_template_table(vm_info.USER_TEMPLATE,
+                                                          "VM",
+                                                          vm_info.ID) +
+               insert_permissions_table("VM",
+                                        vm_info.ID,
+                                        vm_info.UNAME,
+                                        vm_info.GNAME,
+                                        vm_info.UID,
+                                        vm_info.GID) +
+
                 '<table id="vm_monitoring_table" class="info_table">\
                    <thead>\
                      <tr><th colspan="2">'+tr("Monitoring information")+'</th></tr>\

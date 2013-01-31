@@ -24,7 +24,7 @@ var images_tab_content = '\
 <table id="datatable_images" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Owner")+'</th>\
       <th>'+tr("Group")+'</th>\
@@ -245,26 +245,6 @@ var image_actions = {
         }
     },
 
-    "Image.fetch_template" : {
-        type: "single",
-        call: OpenNebula.Image.fetch_template,
-        callback: function (request,response) {
-            $('#image_template_update_dialog #image_template_update_textarea').val(response.template);
-        },
-        error: onError
-    },
-
-    "Image.fetch_permissions" : {
-        type: "single",
-        call: OpenNebula.Image.show,
-        callback: function(request,image_json){
-            var dialog = $('#image_template_update_dialog form');
-            var image = image_json.IMAGE;
-            setPermissionsTable(image,dialog);
-        },
-        error: onError
-    },
-
     "Image.update_template" : {
         type: "single",
         call: OpenNebula.Image.update,
@@ -335,6 +315,7 @@ var image_actions = {
         call: OpenNebula.Image.chown,
         callback:  function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
         },
         elements: imageElements,
         error: onError,
@@ -346,6 +327,7 @@ var image_actions = {
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0][0]);
+            Sunstone.runAction('Image.showinfo',request.request.data[0]);
         },
         elements: imageElements,
         error: onError,
@@ -619,10 +601,17 @@ function updateImageInfo(request,img){
               <td class="key_td">'+tr("Running #VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
            </tr>\
-        </table>' +  insert_extended_template_table(img_info.TEMPLATE,
-                                                    "Image",
-                                                    img_info.ID) +
-                     insert_permissions_table("Image",img_info.ID)
+        </table>' +
+
+            insert_extended_template_table(img_info.TEMPLATE,
+                                           "Image",
+                                           img_info.ID) +
+            insert_permissions_table("Image",
+                                     img_info.ID,
+                                     img_info.UNAME,
+                                     img_info.GNAME,
+                                     img_info.UID,
+                                     img_info.GID)
     }
 
     $("#div_edit_rename_link").die();
@@ -692,6 +681,8 @@ function updateImageInfo(request,img){
 
     Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
     Sunstone.popUpInfoPanel("image_info_panel");
+
+    setPermissionsTable(img_info,'');
 
 }
 
