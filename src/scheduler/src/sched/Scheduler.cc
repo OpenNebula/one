@@ -340,6 +340,7 @@ void Scheduler::match()
     int gid;
     int n_hosts;
     int n_matched;
+    bool req_error;
 
     string reqs;
 
@@ -367,6 +368,7 @@ void Scheduler::match()
 
         n_hosts   = 0;
         n_matched = 0;
+        req_error = false;
 
         for (h_it=hosts.begin(), matched=false; h_it != hosts.end(); h_it++)
         {
@@ -422,6 +424,7 @@ void Scheduler::match()
                     ostringstream error_msg;
 
                     matched = false;
+                    req_error = true;
 
                     error_msg << "Error evaluating REQUIREMENTS expression: '"
                             << reqs << "', error: " << error;
@@ -432,6 +435,8 @@ void Scheduler::match()
                     vm->log(error_msg.str());
 
                     free(error);
+
+                    break;
                 }
             }
             else
@@ -475,7 +480,7 @@ void Scheduler::match()
             }
         }
 
-        if (n_hosts == 0)
+        if (n_hosts == 0 && !req_error)
         {
             if (n_matched == 0)
             {
