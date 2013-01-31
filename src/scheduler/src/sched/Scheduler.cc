@@ -78,45 +78,27 @@ void Scheduler::start()
     pthread_attr_t pattr;
 
     // -----------------------------------------------------------
-    // Log system & Configuration File
-    // -----------------------------------------------------------
-
-    try
-    {
-        string        log_file;
-        const char *  nl = getenv("ONE_LOCATION");
-
-        if (nl == 0) //OpenNebula installed under root directory
-        {
-            log_file = "/var/log/one/sched.log";
-            etc_path = "/etc/one/";
-        }
-        else
-        {
-            oss << nl << "/var/sched.log";
-
-            log_file = oss.str();
-
-            oss.str("");
-            oss << nl << "/etc/";
-
-            etc_path = oss.str();
-        }
-
-        NebulaLog::init_log_system(NebulaLog::FILE,
-                                   Log::DEBUG,
-                                   log_file.c_str());
-
-        NebulaLog::log("SCHED", Log::INFO, "Init Scheduler Log system");
-    }
-    catch(runtime_error &)
-    {
-        throw;
-    }
-
-    // -----------------------------------------------------------
     // Configuration File
     // -----------------------------------------------------------
+    string        log_file;
+    const char *  nl = getenv("ONE_LOCATION");
+
+    if (nl == 0) //OpenNebula installed under root directory
+    {
+        log_file = "/var/log/one/sched.log";
+        etc_path = "/etc/one/";
+    }
+    else
+    {
+        oss << nl << "/var/sched.log";
+
+        log_file = oss.str();
+
+        oss.str("");
+        oss << nl << "/etc/";
+
+        etc_path = oss.str();
+    }
 
     SchedulerTemplate conf(etc_path);
 
@@ -128,7 +110,7 @@ void Scheduler::start()
     conf.get("ONED_PORT", oned_port);
 
     oss.str("");
-    oss << "http://localhost:" << oned_port << "/RPC2"; 
+    oss << "http://localhost:" << oned_port << "/RPC2";
     url = oss.str();
 
     conf.get("SCHED_INTERVAL", timer);
@@ -142,9 +124,41 @@ void Scheduler::start()
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
     conf.get("HYPERVISOR_MEM", hypervisor_mem);
-   
+
+    conf.get("LOG_SYSTEM", log_system);
+
+    // -----------------------------------------------------------
+    // Log system & Configuration File
+    // -----------------------------------------------------------
+
+    try
+    {
+        // Start the log system
+        if ( log_system == "syslog" )
+        {
+            NebulaLog::init_syslog_system(Log::DEBUG, "mm_sched");
+        }
+        else if ( log_system == "file" )
+        {
+            NebulaLog::init_log_system(NebulaLog::FILE,
+                                       Log::DEBUG,
+                                       log_file.c_str());
+        }
+        else
+        {
+            throw runtime_error("Unknown LOG_SYSTEM.");
+        }
+
+
+        NebulaLog::log("SCHED", Log::INFO, "Init Scheduler Log system");
+    }
+    catch(runtime_error &)
+    {
+        throw;
+    }
+
     oss.str("");
-     
+
     oss << "Starting Scheduler Daemon" << endl;
     oss << "----------------------------------------\n";
     oss << "     Scheduler Configuration File       \n";
@@ -175,7 +189,7 @@ void Scheduler::start()
     // -----------------------------------------------------------
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
-    vmpool = new VirtualMachinePoolXML(client, 
+    vmpool = new VirtualMachinePoolXML(client,
                                        machines_limit,
                                        (live_rescheds == 1));
     acls   = new AclXML(client);
@@ -372,18 +386,18 @@ void Scheduler::match()
             {
                 matched = true;
             }
-            
+
             if ( matched == false )
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid() << 
+                oss << "Host " << host->get_hid() <<
                     " filtered out. It does not fullfil REQUIREMENTS.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
             }
-            
+
             // -----------------------------------------------------------------
             // Check if user is authorized
             // -----------------------------------------------------------------
@@ -401,7 +415,7 @@ void Scheduler::match()
                 host_perms.oid      = host->get_hid();
                 host_perms.obj_type = PoolObjectSQL::HOST;
 
-                matched = acls->authorize(uid, 
+                matched = acls->authorize(uid,
                                           gid,
                                           host_perms,
                                           AuthRequest::MANAGE);
