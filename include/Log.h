@@ -20,6 +20,10 @@
 #include <string>
 #include <fstream>
 
+#include "PoolObjectSQL.h"
+
+#include "log4cpp/Priority.hh"
+
 using namespace std;
 
 /**
@@ -79,7 +83,7 @@ public:
         const char *            module,
         const MessageType       type,
         const char *            message);
-    
+
 private:
     char * log_file;
 };
@@ -135,6 +139,79 @@ public:
         const char *            module,
         const MessageType       type,
         const char *            message);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  Send log messages to syslog
+ */
+class SysLog : public Log
+{
+public:
+    SysLog(const MessageType level,
+           const string&     label);
+
+    virtual ~SysLog() {};
+
+    virtual void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message);
+
+    static log4cpp::Priority::PriorityLevel get_priority_level(
+                                                    const MessageType level);
+protected:
+    /**
+     *  Specialized constructor only for derived classes that uses an initialzed
+     *  SysLog system.
+     */
+    SysLog(const MessageType level):Log(level){};
+
+    /**
+     *  This is the root category name used by any syslog resource
+     *  in the process
+     */
+    static const char * CATEGORY;
+
+    /**
+     *  This is the daemon name+pid, used to label every message in the process
+     */
+    static string LABEL;
+
+};
+
+/**
+ *  Send log messages to syslog per resource. It requires a Root Syslog
+ *  to be initialized before using a SysLogResource
+ */
+class SysLogResource : public SysLog
+{
+public:
+    SysLogResource(
+        int                             oid,
+        const PoolObjectSQL::ObjectType obj_type,
+        const MessageType               clevel);
+
+    virtual ~SysLogResource(){};
+
+    void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message);
+
+protected:
+    /**
+     *  This is the resource category name used by any syslog resource
+     *  in the process
+     */
+    static const char * CATEGORY;
+
+    /**
+     *  The resource log label
+     */
+    string obj_label;
 };
 
 #endif /* _LOG_H_ */

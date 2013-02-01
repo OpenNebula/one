@@ -78,6 +78,7 @@ void OpenNebulaTemplate::set_conf_default()
     SingleAttribute *   attribute;
     VectorAttribute *   vattribute;
     string              value;
+    map<string,string>  vvalue;
 
     // MANAGER_TIMER
     value = "15";
@@ -144,7 +145,6 @@ void OpenNebulaTemplate::set_conf_default()
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //DB CONFIGURATION
-    map<string,string> vvalue;
     vvalue.insert(make_pair("BACKEND","sqlite"));
 
     vattribute = new VectorAttribute("DB",vvalue);
@@ -174,6 +174,13 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("VM_SUBMIT_ON_HOLD",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    // LOG CONFIGURATION
+    vvalue.clear();
+    vvalue.insert(make_pair("SYSTEM","file"));
+    vvalue.insert(make_pair("DEBUG_LEVEL","3"));
+
+    vattribute = new VectorAttribute("LOG",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
 # Physical Networks configuration

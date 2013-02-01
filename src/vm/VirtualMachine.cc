@@ -191,10 +191,31 @@ int VirtualMachine::select(SqlDB * db)
     //--------------------------------------------------------------------------
     try
     {
-        Log::MessageType clevel;
+        Log::MessageType   clevel;
+        NebulaLog::LogType log_system;
 
-        clevel = nd.get_debug_level();
-        _log   = new FileLog(nd.get_vm_log_filename(oid), clevel);
+        log_system  = nd.get_log_system();
+        clevel      = nd.get_debug_level();
+
+        switch(log_system)
+        {
+            case NebulaLog::FILE_TS:
+            case NebulaLog::FILE:
+                _log = new FileLog(nd.get_vm_log_filename(oid), clevel);
+                break;
+
+            case NebulaLog::SYSLOG:
+                _log = new SysLogResource(oid, obj_type, clevel);
+                break;
+
+            case NebulaLog::CERR:
+                _log = new CerrLog(clevel);
+                break;
+
+            default:
+                throw runtime_error("Unknown log system.");
+                break;
+        }
     }
     catch(exception &e)
     {

@@ -29,6 +29,7 @@ void SchedulerTemplate::set_conf_default()
     SingleAttribute *   attribute;
     VectorAttribute *   vattribute;
     string              value;
+    map<string,string>  vvalue;
 
 /*
 #*******************************************************************************
@@ -42,6 +43,7 @@ void SchedulerTemplate::set_conf_default()
 #  DEFAULT_SCHED
 #  LIVE_RESCHEDS
 #  HYPERVISOR_MEM
+#  LOG
 #-------------------------------------------------------------------------------
 */
     // ONED_PORT
@@ -81,7 +83,7 @@ void SchedulerTemplate::set_conf_default()
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //DEFAULT_SCHED
-    map<string,string> vvalue;
+    vvalue.clear();
     vvalue.insert(make_pair("POLICY","1"));
 
     vattribute = new VectorAttribute("DEFAULT_SCHED",vvalue);
@@ -92,6 +94,14 @@ void SchedulerTemplate::set_conf_default()
 
     attribute = new SingleAttribute("HYPERVISOR_MEM",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //LOG CONFIGURATION
+    vvalue.clear();
+    vvalue.insert(make_pair("SYSTEM","file"));
+    vvalue.insert(make_pair("DEBUG_LEVEL","3"));
+
+    vattribute = new VectorAttribute("LOG",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 }
 
 /* -------------------------------------------------------------------------- */

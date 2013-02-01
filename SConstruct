@@ -118,6 +118,9 @@ if mysql=='yes':
 else:
     main_env.Append(mysql='no')
 
+# log4cpp
+main_env.Append(LIBS=['pthread','log4cpp'])
+
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
 if xmlrpc_dir!='none':
