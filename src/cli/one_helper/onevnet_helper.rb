@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'one_helper/onevm_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
     def self.rname
@@ -152,5 +153,19 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 puts leases_str
             end
         }
+
+        puts
+        CLIHelper.print_header("VIRTUAL MACHINES", false)
+        puts
+
+        vms=vn.retrieve_elements("LEASES/LEASE/VID")
+
+        if vms
+            vms=vms.delete_if {|vm| vm=="-1" }
+            vms.map!{|e| e.to_i }
+            onevm_helper=OneVMHelper.new
+            onevm_helper.client=@client
+            onevm_helper.list_pool({:ids=>vms}, false)
+        end
     end
 end
