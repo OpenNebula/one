@@ -150,26 +150,41 @@ public:
 class SysLog : public Log
 {
 public:
-    SysLog(const MessageType level = WARNING):Log(level){};
+    SysLog(const MessageType level,
+           const string&     label);
 
-    ~SysLog() {};
+    virtual ~SysLog() {};
 
     virtual void log(
         const char *            module,
         const MessageType       type,
         const char *            message);
 
-    static void init(
-        Log::MessageType clevel,
-        string           name,
-        string           label);
-
     static log4cpp::Priority::PriorityLevel get_priority_level(
                                                     const MessageType level);
+protected:
+    /**
+     *  Specialized constructor only for derived classes that uses an initialzed
+     *  SysLog system.
+     */
+    SysLog(const MessageType level):Log(level){};
+
+    /**
+     *  This is the root category name used by any syslog resource
+     *  in the process
+     */
+    static const char * CATEGORY;
+
+    /**
+     *  This is the daemon name+pid, used to label every message in the process
+     */
+    static string LABEL;
+
 };
 
 /**
- *  Send log messages to syslog per resource
+ *  Send log messages to syslog per resource. It requires a Root Syslog
+ *  to be initialized before using a SysLogResource
  */
 class SysLogResource : public SysLog
 {
@@ -179,21 +194,23 @@ public:
         const PoolObjectSQL::ObjectType obj_type,
         const MessageType               clevel);
 
-    ~SysLogResource(){};
+    virtual ~SysLogResource(){};
 
     void log(
         const char *            module,
         const MessageType       type,
         const char *            message);
 
-    static void init(
-        Log::MessageType clevel,
-        string           name,
-        string           label);
+protected:
+    /**
+     *  This is the resource category name used by any syslog resource
+     *  in the process
+     */
+    static const char * CATEGORY;
 
-    static string name;
-
-private:
+    /**
+     *  The resource log label
+     */
     string obj_label;
 };
 

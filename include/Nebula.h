@@ -204,13 +204,13 @@ public:
 
     /**
      *  Returns the value of LOG->SYSTEM in oned.conf file
-     *      @return the system, either "file" or "syslog"
+     *      @return the logging system CERR, FILE_TS or SYSLOG
      */
-    string get_log_system() const
+    NebulaLog::LogType get_log_system() const
     {
-        vector<const Attribute *>   logs;
-        int                         rc;
-        string                      log_system = "file";
+        vector<const Attribute *> logs;
+        int                       rc;
+        NebulaLog::LogType        log_system = NebulaLog::UNDEFINED;
 
         rc = nebula_configuration->get("LOG", logs);
 
@@ -219,11 +219,13 @@ public:
             string value;
             const VectorAttribute * log = static_cast<const VectorAttribute *>
                                                           (logs[0]);
-            log_system = log->vector_value("SYSTEM");
+
+            value      = log->vector_value("SYSTEM");
+            log_system = NebulaLog::str_to_type(value);
         }
 
         return log_system;
-    }
+    };
 
     /**
      *  Returns the value of ONE_LOCATION env variable. When this variable is

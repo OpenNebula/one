@@ -317,26 +317,23 @@ void Nebula::start()
 
     try
     {
-        Log::MessageType clevel;
-        string           log_system;
+        Log::MessageType   clevel;
+        NebulaLog::LogType log_system;
 
         log_system = get_log_system();
-        clevel = get_debug_level();
+        clevel     = get_debug_level();
 
         // Initializing ONE Daemon log system
-        if ( log_system == "syslog" )
-        {
-            NebulaLog::init_syslog_system(clevel, "oned");
-        }
-        else if ( log_system == "file" )
+        if ( log_system != NebulaLog::UNDEFINED )
         {
             string log_fname;
             log_fname = log_location + "oned.log";
 
-            NebulaLog::init_log_system(NebulaLog::FILE_TS,
+            NebulaLog::init_log_system(log_system,
                                        clevel,
                                        log_fname.c_str(),
-                                       ios_base::trunc);
+                                       ios_base::trunc,
+                                       "oned");
         }
         else
         {

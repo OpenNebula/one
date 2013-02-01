@@ -158,23 +158,35 @@ void CerrLog::log(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void SysLog::init(
-    Log::MessageType clevel,
-    string name,
-    string _label)
+const char * SysLog::CATEGORY = "ROOT";
+string       SysLog::LABEL;
+
+/* -------------------------------------------------------------------------- */
+
+SysLog::SysLog(const MessageType level,
+               const string&     label):Log(level)
 {
-    ostringstream oss_label;
-    string label;
+    static bool initialized = false;
 
-    oss_label << _label << "[" << getpid() << "]";
-    label = oss_label.str();
+    if (!initialized) //Initialize just once for all SysLog instances
+    {
+        ostringstream     oss;
+        log4cpp::Appender *appender;
 
-    log4cpp::Appender *syslog_appender;
-    syslog_appender = new log4cpp::SyslogAppender(name,label,LOG_DAEMON);
-    syslog_appender->setLayout(new log4cpp::PatternLayout());
-    log4cpp::Category& root = log4cpp::Category::getRoot();
-    root.setPriority(SysLog::get_priority_level(clevel));
-    root.addAppender(syslog_appender);
+        oss << label << "[" << getpid() << "]";
+
+        LABEL = oss.str();
+
+        appender = new log4cpp::SyslogAppender(CATEGORY, LABEL, LOG_DAEMON);
+        appender->setLayout(new log4cpp::PatternLayout());
+
+        log4cpp::Category& root = log4cpp::Category::getRoot();
+
+        root.setPriority(SysLog::get_priority_level(level));
+        root.addAppender(appender);
+
+        initialized = true;
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -185,14 +197,13 @@ void SysLog::log(
     const MessageType       type,
     const char *            message)
 {
-    log4cpp::Category& root = log4cpp::Category::getRoot();
+    log4cpp::Category&               root  = log4cpp::Category::getRoot();
     log4cpp::Priority::PriorityLevel level = get_priority_level(type);
 
-    istringstream   smessage;
-    string          line;
+    istringstream smessage;
+    string        line;
 
     smessage.str(message);
-
 
     while ( getline(smessage, line) )
     {
@@ -241,49 +252,42 @@ log4cpp::Priority::PriorityLevel SysLog::get_priority_level(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string SysLogResource::name;
+const char * SysLogResource::CATEGORY = "RESOURCE";
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-
-void SysLogResource::init(
-    Log::MessageType clevel,
-    string name,
-    string _label)
-{
-    SysLogResource::name = name;
-
-    ostringstream oss_label;
-    string label;
-
-    oss_label << _label << "[" << getpid() << "]";
-    label = oss_label.str();
-
-    log4cpp::Appender *resource_appender;
-    resource_appender = new log4cpp::SyslogAppender(name,label,LOG_DAEMON);
-
-    resource_appender->setLayout(new log4cpp::PatternLayout());
-    log4cpp::Category& res = log4cpp::Category::getInstance(name);
-    res.addAppender(resource_appender);
-    res.setPriority(SysLog::get_priority_level(clevel));
-}
-
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 SysLogResource::SysLogResource(
-    int                             oid,
-    const PoolObjectSQL::ObjectType obj_type,
-    const MessageType               clevel = WARNING)
-    :SysLog(clevel)
+        int                             oid,
+        const PoolObjectSQL::ObjectType obj_type,
+        const MessageType               clevel):SysLog(clevel)
 {
+    static bool   initialized = false;
     ostringstream oss_label;
-    string obj_type_str = PoolObjectSQL::type_to_str(obj_type);
+    string        obj_type_str;
+
+    if (!initialized)
+    {
+        log4cpp::Appender *appender;
+
+        appender = new log4cpp::SyslogAppender(CATEGORY,
+                                               SysLog::LABEL,
+                                               LOG_DAEMON);
+
+        appender->setLayout(new log4cpp::PatternLayout());
+
+        log4cpp::Category& res = log4cpp::Category::getInstance(CATEGORY);
+
+        res.addAppender(appender);
+        res.setPriority(SysLog::get_priority_level(clevel));
+
+        initialized = true;
+    }
+
+    obj_type_str = PoolObjectSQL::type_to_str(obj_type);
 
     oss_label << "[" << obj_type_str << " " << oid << "]";
     obj_label = oss_label.str();
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -293,8 +297,7 @@ void SysLogResource::log(
     const MessageType       type,
     const char *            message)
 {
-    log4cpp::Category& res = log4cpp::Category::getInstance(
-                                                        SysLogResource::name);
+    log4cpp::Category& res = log4cpp::Category::getInstance(CATEGORY);
     log4cpp::Priority::PriorityLevel level = get_priority_level(type);
 
     istringstream   smessage;

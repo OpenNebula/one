@@ -51,7 +51,6 @@ protected:
         acls(0),
         timer(0),
         url(""),
-        log_system("file"),
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
@@ -126,7 +125,6 @@ private:
 
     friend void * scheduler_action_loop(void *arg);
 
-
     // ---------------------------------------------------------------
     // Scheduling Policies
     // ---------------------------------------------------------------
@@ -165,11 +163,6 @@ private:
      *  XML_RPC client
      */
     Client * client;
-
-    /**
-     *  Log system
-     */
-    string log_system;
 
     // ---------------------------------------------------------------
     // Timer to periodically schedule and dispatch VMs

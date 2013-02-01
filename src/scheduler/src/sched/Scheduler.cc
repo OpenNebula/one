@@ -125,30 +125,52 @@ void Scheduler::start()
 
     conf.get("HYPERVISOR_MEM", hypervisor_mem);
 
-    conf.get("LOG_SYSTEM", log_system);
-
     // -----------------------------------------------------------
     // Log system & Configuration File
     // -----------------------------------------------------------
 
     try
     {
-        // Start the log system
-        if ( log_system == "syslog" )
+        vector<const Attribute *> logs;
+        int rc;
+
+        NebulaLog::LogType log_system = NebulaLog::UNDEFINED;
+        Log::MessageType   clevel     = Log::ERROR;;
+
+        rc = conf.get("LOG", logs);
+
+        if ( rc != 0 )
         {
-            NebulaLog::init_syslog_system(Log::DEBUG, "mm_sched");
+            string value;
+            int    ilevel;
+
+            const VectorAttribute * log = static_cast<const VectorAttribute *>
+                                                          (logs[0]);
+            value      = log->vector_value("SYSTEM");
+            log_system = NebulaLog::str_to_type(value);
+
+            value  = log->vector_value("DEBUG_LEVEL");
+            ilevel = atoi(value.c_str());
+
+            if (0 <= ilevel && ilevel <= 3 )
+            {
+                clevel = static_cast<Log::MessageType>(ilevel);
+            }
         }
-        else if ( log_system == "file" )
+
+        // Start the log system
+        if ( log_system != NebulaLog::UNDEFINED )
         {
-            NebulaLog::init_log_system(NebulaLog::FILE,
-                                       Log::DEBUG,
-                                       log_file.c_str());
+            NebulaLog::init_log_system(log_system,
+                           clevel,
+                           log_file.c_str(),
+                           ios_base::trunc,
+                           "mm_sched");
         }
         else
         {
             throw runtime_error("Unknown LOG_SYSTEM.");
         }
-
 
         NebulaLog::log("SCHED", Log::INFO, "Init Scheduler Log system");
     }
@@ -180,7 +202,6 @@ void Scheduler::start()
     {
         throw;
     }
-
 
     xmlInitParser();
 

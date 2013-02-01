@@ -20,16 +20,7 @@
 #include "Log.h"
 
 #include <sstream>
-
 #include <syslog.h>
-
-//#include "log4cpp/Category.hh"
-//#include "log4cpp/CategoryStream.hh"
-//#include "log4cpp/Appender.hh"
-//#include "log4cpp/SyslogAppender.hh"
-//#include "log4cpp/Layout.hh"
-//#include "log4cpp/SimpleLayout.hh"
-//#include "log4cpp/Priority.hh"
 
 using namespace std;
 
@@ -43,7 +34,8 @@ public:
         FILE       = 0,
         FILE_TS    = 1,
         CERR       = 2,
-        SYSLOG     = 3
+        SYSLOG     = 3,
+        UNDEFINED  = 4
     };
 
     // ---------------------------------------------------------------
@@ -53,32 +45,46 @@ public:
     static void init_log_system(
         LogType             ltype,
         Log::MessageType    clevel,
-        const char *        filename = 0,
-        ios_base::openmode  mode     = ios_base::trunc)
+        const char *        filename,
+        ios_base::openmode  mode,
+        const string&       daemon)
     {
         switch(ltype)
         {
             case FILE:
-              NebulaLog::logger = new FileLog(filename,clevel,mode);
-              break;
+                NebulaLog::logger = new FileLog(filename,clevel,mode);
+                break;
             case FILE_TS:
-              NebulaLog::logger = new FileLogTS(filename,clevel,mode);
-              break;
+                NebulaLog::logger = new FileLogTS(filename,clevel,mode);
+                break;
+            case SYSLOG:
+                NebulaLog::logger = new SysLog(clevel, daemon);
+                break;
             default:
-              NebulaLog::logger = new CerrLog(clevel);
-              break;
+                NebulaLog::logger = new CerrLog(clevel);
+                break;
         }
     };
 
-    static void init_syslog_system(Log::MessageType clevel, string label)
+    static LogType str_to_type(string& type)
     {
-        // Initialize the 'root' syslog logger
-        SysLog::init(clevel, "root", label);
-        NebulaLog::logger = new SysLog(clevel);
+        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
 
-        // Initialize the 'resource' syslog logger
-        SysLogResource::init(clevel, "resource", label);
-    };
+        if (type == "FILE")
+        {
+            return FILE_TS;
+        }
+        else if (type == "SYSLOG")
+        {
+            return SYSLOG;
+        }
+        else if (type == "STDERR")
+        {
+            return CERR;
+        }
+
+        return UNDEFINED;
+    }
 
     static void finalize_log_system()
     {
