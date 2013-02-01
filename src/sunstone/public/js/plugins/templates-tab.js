@@ -57,13 +57,11 @@ var create_template_tmpl = '<div id="template_create_tabs" class="row">'+
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="two columns">'+
-      '<button class="success large button" id="create_template_form_easy" value="OpenNebula.Template.create">'+tr("Create")+'</button>'+
-    '</div>'+
-    '<div class="ten columns">'+
-      '<button class="large button" id="wizard_next" type="reset" value="reset"  style="float: right">'+tr("Next")+'</button>'+
-      '<button class="large button" id="wizard_previous" type="reset" value="reset"  style="float: right">'+tr("Previous")+'</button>'+
-    '</div>'+
+      '<button class="success button" id="create_template_form_easy" value="OpenNebula.Template.create">'+tr("Create")+'</button>'+
+      '<button class="button hidden" id="template_template_update_button" value="Template.update_template">'+tr("Update")+'</button>'+
+      '<button class="button secondary" id="template_template_reset_button" value="">'+tr("Reset")+'</button>'+
+      '<button class="button secondary" id="wizard_next" type="reset" style="float: right">'+tr("Next")+' <span class=" icon-angle-right"></span> </button>'+
+      '<button class="button secondary" id="wizard_previous" type="reset" style="float: right"><span class="icon-angle-left"></span> '+tr("Previous")+'</button>'+
   '</div>';
 
 
@@ -740,7 +738,7 @@ function setupCreateTemplateDialog(){
         tabs.append(html_tab_content).tabs('add', '#capacity_tab', 'General'); 
 
         // Enhace buttons
-        $('button',dialog).button();
+        //$('button',dialog).button();
 
         // Change tab if the DISKs button is clicked
         //$(".tf_btn_nics", dialog).click(add_nic_tab);
@@ -812,7 +810,7 @@ function setupCreateTemplateDialog(){
             max: 8,
             range: "min",
             value: 0,
-            step: 0.5,
+            step: 1,
             slide: function( event, ui ) {
                 vcpu_input.val(ui.value);
             }
@@ -832,22 +830,24 @@ function setupCreateTemplateDialog(){
 
     var add_disks_tab = function() {
       var html_tab_content = '<div id="template_create_disks_tabs" class="wizard_tab">'+
+            '<div class="tabs-nohdr">'+
           '<ul>'+
-              '<button href="#" class="button" type="" value="" id="tf_btn_disks"> + </button>'+
+              '<button href="#" class="button tiny" type="" value="" id="tf_btn_disks"><span class="icon-plus"></span> Add another disk</button>'+
           '</ul>'+
+          '</div>'+
         '</div>';
 
       tabs.append(html_tab_content).tabs('add', '#template_create_disks_tabs', 'Storage'); 
 
       var disk_tabs = $( "#template_create_disks_tabs", dialog).tabs({
-          tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
+          tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='icon-remove grey'></span></li>",
           add: function(event, ui) {
               disk_tabs.tabs('select', '#' + ui.panel.id);
           }
       });
 
       // close icon: removing the tab on click
-      $( "#template_create_disks_tabs span.ui-icon-close" ).live( "click", function() {
+      $( "#template_create_disks_tabs span.icon-remove" ).live( "click", function() {
           var parent = $( this ).parent();
           var index = $( "li", disk_tabs ).index( parent );
           
@@ -870,7 +870,7 @@ function setupCreateTemplateDialog(){
         var str_disk_tab_id  = 'disk' + number_of_disks;
         var str_datatable_id = 'datatable_template_images' + number_of_disks;
 
-        var html_tab_content = '<div id="'+str_disk_tab_id+'" class="disk">'+
+        var html_tab_content = '<div id="'+str_disk_tab_id+'" class="disk wizard_internal_tab">'+
             '<div class="row">'+
               '<div class="three columns push-three">'+
                 '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> Image '+
@@ -879,14 +879,12 @@ function setupCreateTemplateDialog(){
                 '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> Volatile Disk '+
               '</div>'+
             '</div>'+     
-            '<hr>'+    
+            '<hr>'+
               '<div id="disk_type" class="vm_param image">'+
-                '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-                  '<span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>'+
-                  '<span id="image_selected" class="radius secondary label hidden">You selected the following image: '+
-                  '</span>'+
-                  '<span class="radius label" type="text" id="IMAGE" name="image"></span>'+
-                  '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
+                '<div class="row collapse ">'+
+                  '<div class="five columns push-seven">'+
+                    '<input id="'+str_disk_tab_id+'_search" type="text" placeholder="Search"/>'+
+                  '</div>'+
                 '</div>'+
                 '<table id="'+str_datatable_id+'" class="display">'+
                   '<thead>'+
@@ -910,6 +908,14 @@ function setupCreateTemplateDialog(){
                   '</tbody>'+
                 '</table>'+
                 '<br>'+
+                '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                  '<span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>'+
+                  '<span id="image_selected" class="radius secondary label hidden">You selected the following image: '+
+                  '</span>'+
+                  '<span class="radius label" type="text" id="IMAGE" name="image"></span>'+
+                  '<input type="hidden" id="IMAGE_ID" name="image_id" size="2"/>'+
+                '</div>'+
+                '<hr>'+
               '<div class="show_hide" id="advanced_image">'+
                 '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
               '</div>'+
@@ -1094,7 +1100,7 @@ function setupCreateTemplateDialog(){
             "bSortClasses": false,
             "bAutoWidth":false,
             "iDisplayLength": 4,
-            "sDom" : '<"H"fr>t<"F"ip>',
+            "sDom" : '<"H">t<"F"p>',
             "oColVis": {
                 "aiExclude": [ 0 ]
             },
@@ -1130,6 +1136,10 @@ function setupCreateTemplateDialog(){
           }, 
           error: onError
         });
+
+        $('#'+str_disk_tab_id+'_search', disk_section).keyup(function(){
+          dataTable_template_images.fnFilter( $(this).val() );
+        })
 
         // TBD Add refresh button for the datatable
 
@@ -1180,7 +1190,7 @@ function setupCreateTemplateDialog(){
         });
 
         setupTips(disk_section);
-        $('button',disk_section).button();
+        //$('button',disk_section).button();
 
         number_of_disks++;
         disks_index++;
@@ -1196,15 +1206,17 @@ function setupCreateTemplateDialog(){
 
     var add_nics_tab = function() {
       var html_tab_content = '<div id="template_create_nics_tabs" class="wizard_tab">'+
+            '<div class="tabs-nohdr">'+
           '<ul>'+
-              '<button href="#" class="button" type="" value="" id="tf_btn_nics"> + </button>'+
+              '<button href="#" class="button tiny" type="" value="" id="tf_btn_nics"><span class="icon-plus"></span> Add another nic</button>'+
           '</ul>'+
+          '</div>'+
         '</div>';
 
       tabs.append(html_tab_content).tabs('add', '#template_create_nics_tabs', 'Network'); 
 
       var nic_tabs = $( "#template_create_nics_tabs", dialog).tabs({
-          tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
+          tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='icon-remove grey'></span></li>",
           add: function(event, ui) {
               nic_tabs.tabs('select', '#' + ui.panel.id);
           }
@@ -1214,7 +1226,7 @@ function setupCreateTemplateDialog(){
         nic_tabs.tabs("refresh");
 
       // close icon: removing the tab on click
-      $( "#template_create_nics_tabs span.ui-icon-close" ).live( "click", function() {
+      $( "#template_create_nics_tabs span.icon-remove" ).live( "click", function() {
           var parent = $( this ).parent();
           var index = $( "li", nic_tabs ).index( parent );
           
@@ -1241,10 +1253,13 @@ function setupCreateTemplateDialog(){
       var str_nic_tab_id  = 'nic' + number_of_nics;
       var str_datatable_id = 'datatable_template_networks' + number_of_nics;
 
-      var html_tab_content = '<div id="'+str_nic_tab_id+'" class="nic">'+
+      var html_tab_content = '<div id="'+str_nic_tab_id+'" class="nic wizard_internal_tab">'+
       '<form>'+
-      '<fieldset>'+
-        '<legend>'+tr("Please select a network from the list")+'</legend>'+
+                '<div class="row collapse ">'+
+                  '<div class="five columns push-seven">'+
+                    '<input id="'+str_nic_tab_id+'_search" type="text" placeholder="Search"/>'+
+                  '</div>'+
+                '</div>'+
           '<table id="'+str_datatable_id+'" class="display">'+
             '<thead>'+
               '<tr>'+
@@ -1256,23 +1271,53 @@ function setupCreateTemplateDialog(){
                 '<th>'+tr("Cluster")+'</th>'+
                 '<th>'+tr("Type")+'</th>'+
                 '<th>'+tr("Bridge")+'</th>'+
-                '<th>'+tr("Total Leases")+'</th>'+
+                '<th>'+tr("Leases")+'</th>'+
               '</tr>'+
             '</thead>'+
             '<tbody id="tbodynetworks">'+
             '</tbody>'+
           '</table>'+
+          '<br>'+
           '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
-            '<p>You selected the following image: '+
-              '<span type="text" id="NETWORK" name="network"></span>'+
-              '</p>'+
+            '<span id="select_network" class="radius secondary label">'+tr("Please select an network from the list")+'</span>'+
+            '<span id="network_selected" class="radius secondary label hidden">You selected the following image: '+
+            '</span>'+
+            '<span class="radius label" type="text" id="NETWORK" name="network"></span>'+
             '<input type="hidden" id="NETWORK_ID" name="network_id" size="2"/>'+
-            '</div>'+
-      '</fieldset>'+
+          '</div>'+
+        '<hr>'+
           '<div class="show_hide" id="advanced">'+
             '<h4>'+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h4>'+
           '</div>'+
-          '<div class="advanced">'+          
+          '<div class="advanced">'+     
+            '<div class="row">'+
+              '<div class="six columns">'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<input type="text" id="IP" name="IP" size="3" />'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Request an specific IP from the Network")+'</div>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+              '<div class="six columns">'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                      '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<input type="text" id="MODEL" name="MODEL" />'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+     
           '<div class="row">'+
           '<div class="six columns">'+
             '<fieldset>'+
@@ -1329,34 +1374,6 @@ function setupCreateTemplateDialog(){
               '<div class="six columns">'+
                 '<div class="row">'+
                   '<div class="four columns">'+
-                    '<label class="right inline" for="IP">'+tr("IP")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="IP" name="IP" size="3" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Request an specific IP from the Network")+'</div>'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-              '<div class="six columns">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
-                      '<label class="right inline" for="MODEL">'+tr("MODEL")+':</label>'+
-                  '</div>'+
-                  '<div class="six columns">'+
-                    '<input type="text" id="MODEL" name="MODEL" />'+
-                  '</div>'+
-                  '<div class="two columns">'+
-                    '<div class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</div>'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-            '</div>'+
-            '<div class="row">'+
-              '<div class="six columns">'+
-                '<div class="row">'+
-                  '<div class="four columns">'+
                       '<label class="right inline" for="ICMP">'+tr("ICMP")+':</label>'+
                   '</div>'+
                   '<div class="six columns">'+
@@ -1382,7 +1399,7 @@ function setupCreateTemplateDialog(){
         "bSortClasses": false,
         "bAutoWidth":false,
         "iDisplayLength": 4,
-        "sDom" : '<"H"frC>t<"F"ip>',
+        "sDom" : '<"H">t<"F"p>',
         "oColVis": {
             "aiExclude": [ 0 ]
         },
@@ -1392,7 +1409,7 @@ function setupCreateTemplateDialog(){
             { "sWidth": "60px", "aTargets": [0,6,7,8] },
             { "sWidth": "35px", "aTargets": [1] },
             { "sWidth": "100px", "aTargets": [2,3,5] },
-            { "bVisible": false, "aTargets": [7]}
+            { "bVisible": false, "aTargets": [0, 7]}
         ],
         "oLanguage": (datatable_lang != "") ?
             {
@@ -1418,6 +1435,12 @@ function setupCreateTemplateDialog(){
         error: onError
       });
 
+
+
+        $('#'+str_nic_tab_id+'_search', $('div#' + str_nic_tab_id)).keyup(function(){
+          dataTable_template_networks.fnFilter( $(this).val() );
+        })
+
       // TBD Add refresh button for the datatable
 
       // When a row is selected the background color is updated. If a previous row
@@ -1434,8 +1457,15 @@ function setupCreateTemplateDialog(){
 
           var aData = dataTable_template_networks.fnGetData(this);
 
-          if (previous_row)
-              $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
+        if (previous_row) {
+            $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
+        }
+        else {
+            $('#network_selected',  $('div#' + str_nic_tab_id)).toggle();
+            $('#select_network',  $('div#' + str_nic_tab_id)).hide();
+        }   
+
+
           previous_row = this;
           $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
           
@@ -1467,196 +1497,207 @@ function setupCreateTemplateDialog(){
     var add_os_tab = function() {
       var html_tab_content = '<div id="os_tab" class="wizard_tab">'+     
       '<form>'+
-        '<div class="row vm_param">'+
-          '<div class="six columns">'+ 
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<select id="ARCH" name="arch">'+
-                        '<option value="i686">i686</option>'+
-                        '<option value="x86_64">x86_64</option>'+
-                  '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
-                '</div>'+
-              '</div>'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="BOOT">'+tr("Boot")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<select id="BOOT" name="boot">'+
-                    '<option id="no_boot" name="no_boot" value=""></option>'+
-                    '<option value="hd">'+tr("HD")+'</option>'+
-                    '<option value="fd">'+tr("FD")+'</option>'+
-                    '<option value="cdrom">'+tr("CDROM")+'</option>'+
-                    '<option value="network">'+tr("NETWORK")+'</option>'+
-                  '</select>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Boot device type")+'</div>'+
-                '</div>'+
-              '</div>'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="ROOT">'+tr("Root")+':</label>'+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="ROOT" name="root"/>'+
-                '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
-                '</div>'+
-              '</div>'+
+        '<div id="tabs-bootos">'+
+            '<div class="tabs-nohdr">'+
+          '<ul>'+
+            '<li><a href="#tabs-boot">'+tr("Boot")+'</a></li>'+
+            '<li><a href="#tabs-kernel">'+tr("Kernel")+'</a></li>'+
+            '<li><a href="#tabs-ramdisk">'+tr("Ramdisk")+'</a></li>'+
+          '</ul>'+
           '</div>'+
-          '<div class="six columns">'+ 
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
+          '<div class="wizard_internal_tab vm_param" id="tabs-boot">'+
+          '<hr>'+
+            '<div class="six columns">'+ 
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="ARCH">'+tr("Arch")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="ARCH" name="arch">'+
+                          '<option value="i686">i686</option>'+
+                          '<option value="x86_64">x86_64</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("CPU architecture to virtualization")+'</div>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="BOOT">'+tr("Boot")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<select id="BOOT" name="boot">'+
+                      '<option id="no_boot" name="no_boot" value=""></option>'+
+                      '<option value="hd">'+tr("HD")+'</option>'+
+                      '<option value="fd">'+tr("FD")+'</option>'+
+                      '<option value="cdrom">'+tr("CDROM")+'</option>'+
+                      '<option value="network">'+tr("NETWORK")+'</option>'+
+                    '</select>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Boot device type")+'</div>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="ROOT">'+tr("Root")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<input type="text" id="ROOT" name="root"/>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Device to be mounted as root")+'</div>'+
+                  '</div>'+
                 '</div>'+
-              '</div>'+
-              '<div class="row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
+            '</div>'+
+            '<div class="six columns">'+ 
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="KERNEL_CMD">'+tr("Kernel cmd")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<input type="text" id="KERNEL_CMD" name="kernel_cmd" />'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Arguments for the booting kernel")+'</div>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="BOOTLOADER" name="bootloader" />'+
+                '<div class="row">'+
+                  '<div class="four columns">'+
+                    '<label class="right inline" for="BOOTLOADER">'+tr("Bootloader")+':</label>'+
+                  '</div>'+
+                  '<div class="six columns">'+
+                    '<input type="text" id="BOOTLOADER" name="bootloader" />'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Path to the bootloader executable")+'</div>'+
-                '</div>'+
-              '</div>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="six columns">'+
-            '<fieldset>'+
-              '<legend>'+tr("Kernel")+'</legend>'+
-              '<div class="row">'+
-                '<div class="six columns">'+
-                  '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> Registered Image'+
+          '<div id="tabs-kernel" class="wizard_internal_tab">'+
+                '<div class="row">'+
+                  '<div class="three columns push-three">'+
+                    '<input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked> Registered Image'+
+                  '</div>'+
+                  '<div class="three columns pull-three">'+
+                    '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> Remote PATH'+
+                  '</div>'+
                 '</div>'+
-                '<div class="six columns">'+
-                  '<input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"> Remote PATH'+
-                '</div>'+
-              '</div>'+
-              '<br>'+
-              '<div class="row kernel_ds">'+
-                '<table id="datatable_kernel" class="display">'+
-                  '<thead>'+
-                    '<tr>'+
-                      '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                      '<th>'+tr("ID")+'</th>'+
-                      '<th>'+tr("Owner")+'</th>'+
-                      '<th>'+tr("Group")+'</th>'+
-                      '<th>'+tr("Name")+'</th>'+
-                      '<th>'+tr("Datastore")+'</th>'+
-                      '<th>'+tr("Size")+'</th>'+
-                      '<th>'+tr("Type")+'</th>'+
-                      '<th>'+tr("Registration time")+'</th>'+
-                      '<th>'+tr("Persistent")+'</th>'+
-                      '<th>'+tr("Status")+'</th>'+
-                      '<th>'+tr("#VMS")+'</th>'+
-                      '<th>'+tr("Target")+'</th>'+
-                    '</tr>'+
-                  '</thead>'+
-                  '<tbody id="tbodyimages">'+
-                  '</tbody>'+
-                '</table>'+
-                '<fieldset>'+
-                  '<div id="kernel_ds_inputs" class="vm_param kvm_opt xen_opt vmware_opt">'+
-                    '<p>You selected the following KERNEL: '+
-                      '<span type="text" id="KERNEL" name="kernel"></span>'+
-                      '</p>'+
-                    '<input type="hidden" id="KERNEL_DS" name="kernel_ds" size="2"/>'+
+                '<hr>'+
+                '<div class="row kernel_ds">'+
+                  '<div class="row collapse ">'+
+                    '<div class="five columns push-seven">'+
+                      '<input id="kernel_search" type="text" placeholder="Search"/>'+
                     '</div>'+
-                '</fieldset>'+
-              '</div>'+
-            '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="KERNEL">'+tr("PATH")+':</label>'+
+                  '</div>'+
+                  '<table id="datatable_kernel" class="display">'+
+                    '<thead>'+
+                      '<tr>'+
+                        '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                        '<th>'+tr("ID")+'</th>'+
+                        '<th>'+tr("Owner")+'</th>'+
+                        '<th>'+tr("Group")+'</th>'+
+                        '<th>'+tr("Name")+'</th>'+
+                        '<th>'+tr("Datastore")+'</th>'+
+                        '<th>'+tr("Size")+'</th>'+
+                        '<th>'+tr("Type")+'</th>'+
+                        '<th>'+tr("Registration time")+'</th>'+
+                        '<th>'+tr("Persistent")+'</th>'+
+                        '<th>'+tr("Status")+'</th>'+
+                        '<th>'+tr("#VMS")+'</th>'+
+                        '<th>'+tr("Target")+'</th>'+
+                      '</tr>'+
+                    '</thead>'+
+                    '<tbody id="tbodyimages">'+
+                    '</tbody>'+
+                  '</table>'+
+                  '<div id="kernel_ds_inputs"  class="vm_param kvm_opt xen_opt vmware_opt">'+
+                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Kernel from the list")+'</span>'+
+                    '<span id="image_selected" class="radius secondary label hidden">You selected the following Kernel: '+
+                    '</span>'+
+                    '<span class="radius label" type="text"  id="KERNEL" name="kernel""></span>'+
+                    '<input type="hidden" id="KERNEL_DS" name="kernel_ds" s size="2"/>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="KERNEL" name="kernel" />'+
+              '<div id="kernel_path_inputs" class="kernel_path hidden row">'+
+                  '<div class="two columns">'+
+                    '<label class="right inline" for="KERNEL">'+tr("PATH")+':</label>'+
+                  '</div>'+
+                  '<div class="eight columns">'+
+                    '<input type="text" id="KERNEL" name="kernel" />'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Path to the OS kernel to boot the image")+'</div>'+
+            '</div>'+
+            '<div id="tabs-ramdisk" class="wizard_internal_tab">'+
+                '<div class="row">'+
+                  '<div class="three columns push-three">'+
+                    '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> Registered Image '+
+                  '</div>'+
+                  '<div class="three columns pull-three">'+
+                    '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> Remote PATH'+
+                  '</div>'+
                 '</div>'+
-              '</div>'+
-            '</fieldset>'+
-          '</div>'+
-          '<div class="six columns">'+
-            '<fieldset>'+
-              '<legend>'+tr("Ramdisk")+'</legend>'+
-              '<div class="row">'+
-                '<div class="six columns">'+
-                  '<input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked> Registered Image '+
-                '</div>'+
-                '<div class="six columns">'+
-                  '<input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path"> Remote PATH'+
-                '</div>'+
-              '</div>'+
-              '<br>'+
-              '<div class="row initrd_ds">'+
-                '<table id="datatable_initrd" class="display">'+
-                  '<thead>'+
-                    '<tr>'+
-                      '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                      '<th>'+tr("ID")+'</th>'+
-                      '<th>'+tr("Owner")+'</th>'+
-                      '<th>'+tr("Group")+'</th>'+
-                      '<th>'+tr("Name")+'</th>'+
-                      '<th>'+tr("Datastore")+'</th>'+
-                      '<th>'+tr("Size")+'</th>'+
-                      '<th>'+tr("Type")+'</th>'+
-                      '<th>'+tr("Registration time")+'</th>'+
-                      '<th>'+tr("Persistent")+'</th>'+
-                      '<th>'+tr("Status")+'</th>'+
-                      '<th>'+tr("#VMS")+'</th>'+
-                      '<th>'+tr("Target")+'</th>'+
-                    '</tr>'+
-                  '</thead>'+
-                  '<tbody id="tbodyimages">'+
-                  '</tbody>'+
-                '</table>'+
-                '<fieldset>'+
-                  '<div id="initrd_ds_inputs" class="vm_param kvm_opt xen_opt vmware_opt">'+
-                    '<p>You selected the following INITRD: '+
-                      '<span type="text" id="INITRD" name="initrd"></span>'+
-                      '</p>'+
-                    '<input type="hidden" id="INITRD_DS" name="initrd_id" size="2"/>'+
+                '<hr>'+
+                '<div class="row initrd_ds">'+
+                  '<div class="row collapse ">'+
+                    '<div class="five columns push-seven">'+
+                      '<input id="initrd_search" type="text" placeholder="Search"/>'+
                     '</div>'+
-                '</fieldset>'+
-              '</div>'+
-            '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
-                '<div class="four columns">'+
-                  '<label class="right inline" for="INITRD">'+tr("PATH")+':</label>'+
+                  '</div>'+
+                  '<table id="datatable_initrd" class="display">'+
+                    '<thead>'+
+                      '<tr>'+
+                        '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                        '<th>'+tr("ID")+'</th>'+
+                        '<th>'+tr("Owner")+'</th>'+
+                        '<th>'+tr("Group")+'</th>'+
+                        '<th>'+tr("Name")+'</th>'+
+                        '<th>'+tr("Datastore")+'</th>'+
+                        '<th>'+tr("Size")+'</th>'+
+                        '<th>'+tr("Type")+'</th>'+
+                        '<th>'+tr("Registration time")+'</th>'+
+                        '<th>'+tr("Persistent")+'</th>'+
+                        '<th>'+tr("Status")+'</th>'+
+                        '<th>'+tr("#VMS")+'</th>'+
+                        '<th>'+tr("Target")+'</th>'+
+                      '</tr>'+
+                    '</thead>'+
+                    '<tbody id="tbodyimages">'+
+                    '</tbody>'+
+                  '</table>'+
+                  '<div class="vm_param kvm_opt xen_opt vmware_opt">'+
+                    '<span id="select_image" class="radius secondary label">'+tr("Please select a Ramdisk from the list")+'</span>'+
+                    '<span id="image_selected" class="radius secondary label hidden">You selected the following Ramdisk: '+
+                    '</span>'+
+                    '<span class="radius label" type="text" id="INITRD" name="initrd"></span>'+
+                    '<input type="hidden"id="INITRD_DS" name="initrd_id" size="2"/>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="six columns">'+
-                  '<input type="text" id="INITRD" name="initrd"/>'+
+              '<div id="initrd_path_inputs" class="initrd_path hidden row">'+
+                  '<div class="two columns">'+
+                    '<label class="right inline" for="INITRD">'+tr("PATH")+':</label>'+
+                  '</div>'+
+                  '<div class="eight columns">'+
+                    '<input type="text" id="INITRD" name="initrd"/>'+
+                  '</div>'+
+                  '<div class="two columns">'+
+                    '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
+                  '</div>'+
                 '</div>'+
-                '<div class="two columns">'+
-                  '<div class="tip">'+tr("Path to the initrd image")+'</div>'+
-                '</div>'+
-              '</div>'+
-            '</fieldset>'+
-          '</div>'+  
-        '</div>'+
+            '</div>'+  
       '</form>'+
         '</div>'
 
       // Append the new div containing the tab and add the tab to the list
       tabs.append(html_tab_content).tabs('add', '#os_tab', 'OS Booting'); 
       $( "#template_create_tabs a[href='#os_tab']").parent().remove("span")
+
+      $('#tabs-bootos', dialog).tabs();
 
         // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
         // vm_param class is included to be computed when the template is generated.
@@ -1694,7 +1735,7 @@ function setupCreateTemplateDialog(){
             "bJQueryUI": true,
             "bSortClasses": false,
             "bAutoWidth":false,
-            "sDom" : '<"H"fr>t<"F"p>',
+            "sDom" : '<"H">t<"F"p>',
             "iDisplayLength": 4,
             "oColVis": {
                 "aiExclude": [ 0 ]
@@ -1725,10 +1766,11 @@ function setupCreateTemplateDialog(){
 
               $.each(images_list,function(){
                  image_list_array.push(imageElementArray(this));
+              console.log(imageElementArray(this));
               });
 
               updateView(image_list_array, dataTable_template_kernel);
-              dataTable_template_kernel.fnFilter("KERNEL", 6)
+              dataTable_template_kernel.fnFilter("KERNEL", 7)
           }, 
           error: onError
         });
@@ -1759,14 +1801,16 @@ function setupCreateTemplateDialog(){
             return false;
         });
 
-
+        $('#kernel_search', dialog).keyup(function(){
+          dataTable_template_kernel.fnFilter( $(this).val() );
+        })
 
           var datTable_template_initrd = $('#datatable_initrd', dialog).dataTable({
             "bJQueryUI": true,
             "bSortClasses": false,
             "bAutoWidth":false,
             "iDisplayLength": 4,
-            "sDom" : '<"H"fr>t<"F"p>',
+            "sDom" : '<"H">t<"F"p>',
             "oColVis": {
                 "aiExclude": [ 0 ]
             },
@@ -1799,11 +1843,14 @@ function setupCreateTemplateDialog(){
               });
 
               updateView(image_list_array, datTable_template_initrd);
-              datTable_template_initrd.fnFilter("RAMDISK", 6)
+              datTable_template_initrd.fnFilter("RAMDISK", 7)
           }, 
           error: onError
         });
 
+        $('#initrd_search', dialog).keyup(function(){
+          datTable_template_initrd.fnFilter( $(this).val() );
+        })
 
         // TBD Add refresh button for the datatable
 
@@ -2007,69 +2054,80 @@ function setupCreateTemplateDialog(){
     var add_context_tab = function() {
       var html_tab_content = '<div id="context_tab" class="wizard_tab">'+
         '<form>'+
-          '<div class="row">'+
-            '<div class="six columns">'+
-                '<fieldset>'+
-                  '<legend>'+tr("SSH")+'</legend>'+
-                  '<div class="row">'+
-                    '<input type="checkbox" name="ssh_context" id="ssh_context">'+ tr("Add SSH contextualization")+
-                  '</div>'+
-                  '<br>'+
-                  '<div class="row">'+
-                    '<div class="four columns">'+
-                      '<label class="right inline" for="ssh_puclic_key">'+tr("Public Key")+':</label>'+
-                    '</div>'+
-                    '<div class="six columns">'+
-                      '<input type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
-                    '</div>'+
-                    '<div class="two columns">'+
-                    '</div>'+
-                  '</div>'+
-                '</fieldset>'+
-                '<fieldset>'+
-                    '<legend>'+tr("Network")+'</legend>'+
-                  '<div class="row">'+
-                    '<input type="checkbox" name="network_context" id="network_context">'+ tr("Add Network contextualization")+
-                  '</div>'+
-                  '<br>'+
-                '</fieldset>'+
+          '<div id="tabs-context">'+
+            '<div class="tabs-nohdr">'+
+            '<ul>'+
+              '<li><a href="#tabs-netssh">'+tr("Network & SSH")+'</a></li>'+
+              '<li><a href="#tabs-files">'+tr("Files")+'</a></li>'+
+              '<li><a href="#tabs-zcustom">'+tr("Custom variables")+'</a></li>'+
+            '</ul>'+
             '</div>'+
-            '<div class="six columns">'+
-              '<fieldset>'+
-                '<legend>'+tr("Context Files")+'</legend>'+
-                '<div class="row">'+
-                  '<table id="datatable_context" class="display">'+
-                    '<thead>'+
-                      '<tr>'+
-                        '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                        '<th>'+tr("ID")+'</th>'+
-                        '<th>'+tr("Owner")+'</th>'+
-                        '<th>'+tr("Group")+'</th>'+
-                        '<th>'+tr("Name")+'</th>'+
-                        '<th>'+tr("Datastore")+'</th>'+
-                        '<th>'+tr("Size")+'</th>'+
-                        '<th>'+tr("Type")+'</th>'+
-                        '<th>'+tr("Registration time")+'</th>'+
-                        '<th>'+tr("Persistent")+'</th>'+
-                        '<th>'+tr("Status")+'</th>'+
-                        '<th>'+tr("#VMS")+'</th>'+
-                        '<th>'+tr("Target")+'</th>'+
-                      '</tr>'+
-                    '</thead>'+
-                    '<tbody id="tbodyimages">'+
-                    '</tbody>'+
-                  '</table>'+
-                    '<div id="files_ds_inputs" class="vm_param kvm_opt xen_opt vmware_opt">'+
-                      '<div id="selected_files_template"></div>'+
-                      '<input type="hidden" id="FILES_DS" name="context_files" size="2"/>'+
+            '<div class="wizard_internal_tab vm_param" id="tabs-netssh">'+
+              '<div class="row">'+
+                '<div class="six columns">'+
+                    '<fieldset>'+
+                      '<legend>'+tr("SSH")+'</legend>'+
+                      '<div class="row">'+
+                        '<input type="checkbox" name="ssh_context" id="ssh_context">'+ tr("Add SSH contextualization")+
                       '</div>'+
-                '</div>'+
-              '</fieldset>'+
-            '</div>'+  
-          '</div>'+  
-          '<div class="row">'+
-            '<fieldset>'+
-              '<legend>'+tr("Custom CONTEXT")+'</legend>'+
+                      '<br>'+
+                      '<div class="row">'+
+                        '<div class="four columns">'+
+                          '<label class="right inline" for="ssh_puclic_key">'+tr("Public Key")+':</label>'+
+                        '</div>'+
+                        '<div class="six columns">'+
+                          '<input type="text" id="ssh_puclic_key" name="ssh_puclic_key" />'+
+                        '</div>'+
+                        '<div class="two columns">'+
+                        '</div>'+
+                      '</div>'+
+                    '</fieldset>'+
+                '</div>'+ 
+                '<div class="six columns">'+
+                    '<fieldset>'+
+                        '<legend>'+tr("Network")+'</legend>'+
+                      '<div class="row">'+
+                        '<input type="checkbox" name="network_context" id="network_context">'+ tr("Add Network contextualization")+
+                      '</div>'+
+                      '<br>'+
+                    '</fieldset>'+
+                '</div>'+ 
+              '</div>'+  
+            '</div>'+ 
+            '<div class="wizard_internal_tab vm_param" id="tabs-files">'+
+                    '<div class="row collapse ">'+
+                      '<div class="five columns push-seven">'+
+                        '<input id="files_search" type="text" placeholder="Search"/>'+
+                      '</div>'+
+                    '</div>'+
+                      '<table id="datatable_context" class="display">'+
+                        '<thead>'+
+                          '<tr>'+
+                            '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                            '<th>'+tr("ID")+'</th>'+
+                            '<th>'+tr("Owner")+'</th>'+
+                            '<th>'+tr("Group")+'</th>'+
+                            '<th>'+tr("Name")+'</th>'+
+                            '<th>'+tr("Datastore")+'</th>'+
+                            '<th>'+tr("Size")+'</th>'+
+                            '<th>'+tr("Type")+'</th>'+
+                            '<th>'+tr("Registration time")+'</th>'+
+                            '<th>'+tr("Persistent")+'</th>'+
+                            '<th>'+tr("Status")+'</th>'+
+                            '<th>'+tr("#VMS")+'</th>'+
+                            '<th>'+tr("Target")+'</th>'+
+                          '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyimages">'+
+                        '</tbody>'+
+                      '</table>'+
+                  '<div class="vm_param kvm_opt xen_opt vmware_opt row" id="selected_files_spans">'+
+                    '<span id="select_files" class="radius secondary label">'+tr("Please select files from the list")+'</span> '+
+                    '<span id="files_selected" class="radius secondary label hidden">You selected the following files:</span> '+
+                    '<input type="hidden" id="FILES_DS" name="files_ds" size="2"/>'+
+                  '</div>'+
+            '</div>'+
+            '<div class="wizard_internal_tab vm_param" id="tabs-zcustom">'+
               '<div class="row">'+
                 '<div class="three columns">'+
                   '<input type="text" id="KEY" name="key" />'+
@@ -2100,13 +2158,15 @@ function setupCreateTemplateDialog(){
               '</table>'+
               '<br>'+
               '</div>'+
-            '</fieldset>'+
+            '</div>'+
           '</div>'+
         '</form>'+
       '</div>'
 
       // Append the new div containing the tab and add the tab to the list
       tabs.append(html_tab_content).tabs('add', '#context_tab', 'Context'); 
+
+      $('#tabs-context', dialog).tabs();
 
       $('#add_context', $('div#context_tab')).click(function() {
           var table = $('#context_table', $('div#context_tab'))[0];
@@ -2142,7 +2202,7 @@ function setupCreateTemplateDialog(){
           "bSortClasses": false,
           "bAutoWidth":false,
           "iDisplayLength": 4,
-          "sDom" : '<"H"fr>t<"F"p>',
+          "sDom" : '<"H">t<"F"p>',
           "oColVis": {
               "aiExclude": [ 0 ]
           },
@@ -2179,6 +2239,10 @@ function setupCreateTemplateDialog(){
       error: onError
       });   
 
+      $('#files_search', dialog).keyup(function(){
+        datTable_template_context.fnFilter( $(this).val() );
+      })
+
       // TBD More than one file
       
       // TBD Add refresh button for the datatable   
@@ -2200,20 +2264,28 @@ function setupCreateTemplateDialog(){
           var aData   = datTable_template_context.fnGetData(this);
           var file_id = aData[1];
 
+          if ($.isEmptyObject(selected_files)) {
+            $('#files_selected',  dialog).toggle();
+            $('#select_files', dialog).toggle();
+          }
+
           if(!$("td:first", this).hasClass('markrow'))
           {
             selected_files[file_id]=1;
             file_row_hash[file_id]=this;
-            console.log("asdfasdfasdf")
-            console.log(aData)
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_files_template', dialog).append('<span id="tag_file_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[4]+'</span>');
+            $('#selected_files_spans', dialog).append('<span id="tag_file_'+aData[1]+'" class="radius label">'+aData[4]+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
             delete selected_files[file_id];
             $(this).children().each(function(){$(this).removeClass('markrow');});
-            $('div#selected_files_template span#tag_file_'+file_id, dialog).remove();
+            $('div#selected_files_spans span#tag_file_'+file_id, dialog).remove();
+          }
+
+          if ($.isEmptyObject(selected_files)) {
+            $('#files_selected',  dialog).toggle();
+            $('#select_files', dialog).toggle();
           }
 
           generate_context_files();
@@ -2221,13 +2293,18 @@ function setupCreateTemplateDialog(){
           return false;
       });
 
-      $( "#selected_files_template span.ui-icon-close" ).live( "click", function() {
+      $( "#selected_files_spans span.icon-remove" ).live( "click", function() {
          $(this).parent().remove();
          var id = $(this).parent().attr("ID");
 
          var file_id=id.substring(9,id.length);
          delete selected_files[file_id];
          $(file_row_hash[file_id]).children().each(function(){$(this).removeClass('markrow');});
+
+          if ($.isEmptyObject(selected_files)) {
+            $('#files_selected',  dialog).toggle();
+            $('#select_files', dialog).toggle();
+          }
 
          generate_context_files();
       });
@@ -2253,115 +2330,138 @@ function setupCreateTemplateDialog(){
     var add_placement_tab = function() {
       var html_tab_content = '<div id="placement_tab" class="wizard_tab">'+
       '<form>'+
-       '<div class="requirements">'+
-          '<fieldset>'+
-            '<legend>'+tr("REQUIREMENTS")+'</legend>'+
-            '<div class="row">'+
-              '<div class="three columns push-three">'+
-                '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> Select Hosts '+
-              '</div>'+
-              '<div class="three columns pull-three">'+
-                '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> Select Clusters '+
-              '</div>'+
-            '</div>'+    
-            '<hr>'+     
-          '<div id="req_type" class="host_select row">'+
-              '<table id="datatable_template_hosts" class="display">'+
-                '<thead>'+
-                  '<tr>'+
-                    '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                    '<th>' + tr("ID") + '</th>'+
-                    '<th>' + tr("Name") + '</th>'+
-                    '<th>' + tr("Cluster") + '</th>'+
-                    '<th>' + tr("Running VMs") + '</th>'+
-                    '<th>' + tr("Real CPU") + '</th>'+
-                    '<th>' + tr("Allocated CPU") + '</th>'+
-                    '<th>' + tr("Real MEM") + '</th>'+
-                    '<th>' + tr("Allocated MEM") + '</th>'+
-                    '<th>' + tr("Status") + '</th>'+
-                    '<th>' + tr("IM MAD") + '</th>'+
-                    '<th>' + tr("VM MAD") + '</th>'+
-                    '<th>' + tr("Last monitored on") + '</th>'+
-                  '</tr>'+
-                '</thead>'+
-                '<tbody id="tbodyhosts">'+
-                '</tbody>'+
-              '</table>'+
-              '<div id="selected_hosts_template"></div>'+
-              '<br>'+
+          '<div id="tabs-scheduling">'+
+            '<div class="tabs-nohdr">'+
+            '<ul>'+
+              '<li><a href="#tabs-1placement">'+tr("Placement")+'</a></li>'+
+              '<li><a href="#tabs-2policy">'+tr("Policy")+'</a></li>'+
+            '</ul>'+
             '</div>'+
-          '<div id="req_type" class="cluster_select hidden row">'+
-              '<table id="datatable_template_clusters" class="display">'+
-                '<thead>'+
-                  '<tr>'+
-                    '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
-                    '<th>' + tr("ID") + '</th>'+
-                    '<th>' + tr("Name") + '</th>'+
-                    '<th>' + tr("Hosts") + '</th>'+
-                    '<th>' + tr("Virtual Networks") + '</th>'+
-                    '<th>' + tr("Datastores") + '</th>'+
-                  '</tr>'+
-                '</thead>'+
-                '<tbody id="tbodyclusters">'+
-                '</tbody>'+
-              '</table>'+
-              '<div id="selected_clusters_template"></div>'+
-              '<br>'+
+            '<div class="requirements wizard_internal_tab" id="tabs-1placement">'+
+                '<div class="row">'+
+                  '<div class="three columns push-three">'+
+                      '<input type="radio" id="hosts_req" name="req_select" value="host_select" checked> Select Hosts '+
+                  '</div>'+
+                  '<div class="three columns pull-three">'+
+                      '<input type="radio" id="clusters_req"  name="req_select" value="cluster_select"> Select Clusters '+
+                  '</div>'+
+                '</div>'+    
+                '<hr>'+     
+                '<div id="req_type" class="host_select row">'+
+                    '<div class="row collapse ">'+
+                      '<div class="five columns push-seven">'+
+                        '<input id="hosts_search" type="text" placeholder="Search"/>'+
+                      '</div>'+
+                    '</div>'+
+                    '<table id="datatable_template_hosts" class="display">'+
+                        '<thead>'+
+                        '<tr>'+
+                            '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                            '<th>' + tr("ID") + '</th>'+
+                            '<th>' + tr("Name") + '</th>'+
+                            '<th>' + tr("Cluster") + '</th>'+
+                            '<th>' + tr("RVMs") + '</th>'+
+                            '<th>' + tr("Real CPU") + '</th>'+
+                            '<th>' + tr("Allocated CPU") + '</th>'+
+                            '<th>' + tr("Real MEM") + '</th>'+
+                            '<th>' + tr("Allocated MEM") + '</th>'+
+                            '<th>' + tr("Status") + '</th>'+
+                            '<th>' + tr("IM MAD") + '</th>'+
+                            '<th>' + tr("VM MAD") + '</th>'+
+                            '<th>' + tr("Last monitored on") + '</th>'+
+                        '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyhosts">'+
+                        '</tbody>'+
+                    '</table>'+
+                    '<div class="vm_param kvm_opt xen_opt vmware_opt row" id="selected_hosts_template">'+
+                      '<span id="select_hosts" class="radius secondary label">'+tr("Please select one or more hosts from the list")+'</span> '+
+                      '<span id="hosts_selected" class="radius secondary label hidden">You selected the following hosts:</span> '+
+                    '</div>'+
+                    '<br>'+
+                '</div>'+
+                '<div id="req_type" class="cluster_select hidden row">'+
+                    '<div class="row collapse ">'+
+                      '<div class="five columns push-seven">'+
+                        '<input id="clusters_search" type="text" placeholder="Search"/>'+
+                      '</div>'+
+                    '</div>'+
+                    '<table id="datatable_template_clusters" class="display">'+
+                        '<thead>'+
+                        '<tr>'+
+                            '<th class="check"><input type="checkbox" class="check_all" value=""></input></th>'+
+                            '<th>' + tr("ID") + '</th>'+
+                            '<th>' + tr("Name") + '</th>'+
+                            '<th>' + tr("Hosts") + '</th>'+
+                            '<th>' + tr("VNets") + '</th>'+
+                            '<th>' + tr("Datastores") + '</th>'+
+                        '</tr>'+
+                        '</thead>'+
+                        '<tbody id="tbodyclusters">'+
+                        '</tbody>'+
+                    '</table>'+
+                    '<div class="vm_param kvm_opt xen_opt vmware_opt row" id="selected_clusters_template">'+
+                      '<span id="select_clusters" class="radius secondary label">'+tr("Please select one or more clusters from the list")+'</span> '+
+                      '<span id="clusters_selected" class="radius secondary label hidden">You selected the following clusters:</span> '+
+                    '</div>'+
+                    '<br>'+
+                '</div>'+
+                '<hr>'+
+                '<div class="row vm_param">'+
+                    '<div class="two columns">'+
+                        '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
+                    '</div>'+
+                    '<div class="nine columns">'+
+                        '<input type="text" id="REQUIREMENTS" name="requirements" />'+
+                    '</div>'+
+                    '<div class="one columns">'+
+                        '<div class="tip"></div>'+
+                    '</div>'+
+                '</div>'+
+            '</div>'+
+            '<div id="tabs-2policy" class="wizard_internal_tab">'+
+                  '<div class="row">'+
+                    '<div class="three columns push-two">'+
+                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> PACKING '+
+                      '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
+                    '</div>'+
+                    '<div class="three columns push-two">'+
+                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> STRIPING '+
+                      '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
+                    '</div>'+
+                    '<div class="four columns">'+
+                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> LOAD-AWARE'+
+                      '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
+                    '</div>'+
+                  '</div>'+  
+                  '<hr>'+
+                '<div class="row vm_param">'+
+                  '<div class="two columns">'+
+                    '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
+                  '</div>'+
+                  '<div class="nine columns">'+
+                    '<input type="text" id="RANK" name="RANK" />'+
+                  '</div>'+
+                  '<div class="one columns">'+
+                    '<div class="tip"></div>'+
+                  '</div>'+
+                '</div>'+
+            '</div>'+
           '</div>'+
-          '<div class="row vm_param">'+
-            '<div class="two columns">'+
-              '<label class="inline right" for="REQUIREMENTS">'+tr("Requirements")+':</label>'+
-            '</div>'+
-            '<div class="nine columns">'+
-              '<input type="text" id="REQUIREMENTS" name="requirements" />'+
-            '</div>'+
-            '<div class="one columns">'+
-              '<div class="tip"></div>'+
-            '</div>'+
-          '</div>'+
-        '</fieldset>'+
-        '<fieldset>'+
-          '<legend>'+tr("Scheduling policy")+'</legend>'+
-            '<div class="row">'+
-              '<div class="four columns ">'+
-                '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> PACKING '+
-                '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
-              '</div>'+
-              '<div class="four columns ">'+
-                '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> STRIPING '+
-                '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
-              '</div>'+
-              '<div class="four columns ">'+
-                '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> LOAD-AWARE'+
-                '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
-              '</div>'+
-            '</div>'+  
-            '<hr>'+
-          '<div class="row vm_param">'+
-            '<div class="two columns">'+
-              '<label class="inline right" for="RANK">'+tr("Rank")+':</label>'+
-            '</div>'+
-            '<div class="nine columns">'+
-              '<input type="text" id="RANK" name="RANK" />'+
-            '</div>'+
-            '<div class="one columns">'+
-              '<div class="tip"></div>'+
-            '</div>'+
-          '</div>'+
-        '</fieldset>'+
-        '</div>'+
       '</form>'+
     '</div>'
 
       // Append the new div containing the tab and add the tab to the list
-      tabs.append(html_tab_content).tabs('add', '#placement_tab', 'Placement'); 
+      tabs.append(html_tab_content).tabs('add', '#placement_tab', 'Scheduling'); 
+
+      $('#tabs-scheduling', dialog).tabs();
 
       // hOSTS TABLE
       dataTable_template_hosts = $("#datatable_template_hosts",dialog).dataTable({
           "bJQueryUI": true,
           "bSortClasses": false,
           "iDisplayLength": 4,
-          "sDom" : '<"H"fr>t<"F"ip>',
+          "sDom" : '<"H">t<"F"p>',
           "oColVis": { //exclude checkbox column
               "aiExclude": [ 0 ]
           },
@@ -2380,6 +2480,7 @@ function setupCreateTemplateDialog(){
                   sUrl: "locale/"+lang+"/"+datatable_lang
               } : ""
       });
+
 
       //preload it
       dataTable_template_hosts.fnClearTable();
@@ -2400,6 +2501,10 @@ function setupCreateTemplateDialog(){
         error: onError
       });
 
+      $('#hosts_search', dialog).keyup(function(){
+        dataTable_template_hosts.fnFilter( $(this).val() );
+      })
+
       var selected_hosts = {};
       var host_row_hash = {};
 
@@ -2411,12 +2516,17 @@ function setupCreateTemplateDialog(){
           var aData   = dataTable_template_hosts.fnGetData(this);
           var host_id = aData[1];
 
+          if ($.isEmptyObject(selected_hosts)) {
+            $('#hosts_selected',  dialog).toggle();
+            $('#select_hosts', dialog).toggle();
+          }
+
           if(!$("td:first", this).hasClass('markrow'))
           {
             selected_hosts[host_id]=1;
             host_row_hash[host_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[2]+'</span>');
+            $('div#selected_hosts_template', dialog).append('<span id="tag_host_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
@@ -2425,18 +2535,28 @@ function setupCreateTemplateDialog(){
             $('div#selected_hosts_template span#tag_host_'+host_id, dialog).remove();
           }
 
+          if ($.isEmptyObject(selected_hosts)) {
+            $('#hosts_selected',  dialog).toggle();
+            $('#select_hosts', dialog).toggle();
+          }
+
           generate_requirements();
 
           return false;
       });
 
-      $( "#selected_hosts_template span.ui-icon-close" ).live( "click", function() {
+      $( "#selected_hosts_template span.icon-remove" ).live( "click", function() {
          $(this).parent().remove();
          var id = $(this).parent().attr("ID");
 
          var host_id=id.substring(9,id.length);
          delete selected_hosts[host_id];
          $(host_row_hash[host_id]).children().each(function(){$(this).removeClass('markrow');});
+
+          if ($.isEmptyObject(selected_hosts)) {
+            $('#hosts_selected',  dialog).toggle();
+            $('#select_hosts', dialog).toggle();
+          }
 
          generate_requirements();
       });
@@ -2446,7 +2566,7 @@ function setupCreateTemplateDialog(){
           "bJQueryUI": true,
           "bSortClasses": false,
           "iDisplayLength": 4,
-          "sDom" : '<"H"fr>t<"F"ip>',
+          "sDom" : '<"H">t<"F"p>',
           "oColVis": {
               "aiExclude": [ 0 ]
           },
@@ -2483,6 +2603,11 @@ function setupCreateTemplateDialog(){
         error: onError
       });
 
+
+      $('#clusters_search', dialog).keyup(function(){
+        dataTable_template_clusters.fnFilter( $(this).val() );
+      })
+
       var selected_clusters = {};
       var cluster_row_hash = {};
 
@@ -2494,12 +2619,17 @@ function setupCreateTemplateDialog(){
           var aData   = dataTable_template_clusters.fnGetData(this);
           var cluster_id = aData[1];
 
+          if ($.isEmptyObject(selected_clusters)) {
+            $('#clusters_selected',  dialog).toggle();
+            $('#select_clusters', dialog).toggle();
+          }
+
           if(!$("td:first", this).hasClass('markrow'))
           {
             selected_clusters[cluster_id]=1;
             cluster_row_hash[cluster_id]=this;
             $(this).children().each(function(){$(this).addClass('markrow');});
-            $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'"><span class="ui-icon ui-icon-close"></span>'+aData[2]+'</span>');
+            $('div#selected_clusters_template', dialog).append('<span id="tag_cluster_'+aData[1]+'" class="radius label">'+aData[2]+' <span class="icon-remove blue"></span></span> ');
           }
           else
           {
@@ -2508,18 +2638,29 @@ function setupCreateTemplateDialog(){
             $('div#selected_clusters_template span#tag_cluster_'+cluster_id, dialog).remove();
           }
 
+
+          if ($.isEmptyObject(selected_clusters)) {
+            $('#clusters_selected',  dialog).toggle();
+            $('#select_clusters', dialog).toggle();
+          }
+
           generate_requirements();
 
           return false;
       });
 
-      $( "#selected_clusters_template span.ui-icon-close" ).live( "click", function() {
+      $( "#selected_clusters_template span.icon-remove" ).live( "click", function() {
          $(this).parent().remove();
          var id = $(this).parent().attr("ID");
 
          var cluster_id=id.substring(12,id.length);
          delete selected_clusters[cluster_id];
          $(cluster_row_hash[cluster_id]).children().each(function(){$(this).removeClass('markrow');});
+
+          if ($.isEmptyObject(selected_clusters)) {
+            $('#clusters_selected',  dialog).toggle();
+            $('#select_clusters', dialog).toggle();
+          }
 
          generate_requirements();
       });
@@ -2619,6 +2760,13 @@ function setupCreateTemplateDialog(){
       tabs.tabs('select', selected-1);
     });
 
+    $('#template_template_reset_button').click(function(){ 
+        $create_template_dialog.dialog('close');
+        $create_template_dialog.empty();
+        setupCreateTemplateDialog();
+        $create_template_dialog.dialog('open');
+    });
+
     add_capacity_tab();
     add_disks_tab();
     add_nics_tab();
@@ -2654,12 +2802,9 @@ function setupCreateTemplateDialog(){
     foldUnfoldToggle();
 
     // Enhace buttons
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
-    //Process form
-    $('button#create_template_form_easy',dialog).click(function(){
-        //validate form
-
+    var build_template = function(){
         var vm_json = {};
         var name,value,boot_method;
 
@@ -2795,11 +2940,16 @@ function setupCreateTemplateDialog(){
 
         // remove empty elements
         vm_json = removeEmptyObjects(vm_json);
+        return vm_json;
 
-        //wrap it in the "vmtemplate" object
+    }
+
+    //Process form
+    $('button#create_template_form_easy',dialog).click(function(){
+         //wrap it in the "vmtemplate" object
+        var vm_json = build_template();
         vm_json = {vmtemplate: vm_json};
-
-
+        //validate form
         Sunstone.runAction("Template.create",vm_json);
 
         $create_template_dialog.dialog('close');
@@ -2809,6 +2959,17 @@ function setupCreateTemplateDialog(){
         return false;
     });
 
+    $('button#template_template_update_button',dialog).click(function(){
+        var vm_json = build_template();
+        vm_json = {vmtemplate: vm_json};
+        vm_json =JSON.stringify(vm_json);
+
+        Sunstone.runAction("Template.update",template_to_update_id,vm_json);
+
+        $create_template_dialog.dialog('close');
+
+        return false;
+    });
     //Handle manual forms
     $('button#create_template_form_manual',$create_template_dialog).click(function(){
         var template = $('textarea#textarea_vm_template',$create_template_dialog).val();
@@ -2823,15 +2984,25 @@ function setupCreateTemplateDialog(){
 
     //Reset form - empty boxes
     $('button#reset_vm_form',dialog).click(function(){
-        $('select#disks_box option',section_disks).remove();
-        $('select#nics_box option',section_networks).remove();
+        $('select#disks_box option',section_disks).remove(); 
+       $('select#nics_box option',section_networks).remove();
         $('select#inputs_box option',section_inputs).remove();
         $('select#custom_var_box option',section_custom_var).remove();
         return true;
     });
 }
 
+function popUpUpdateTemplateDialog(){
+    $('button#create_template_form_easy', $create_template_dialog).hide();
+    $('button#template_template_update_button', $create_template_dialog).show();
+
+    $create_template_dialog.dialog('open');
+};
+
 function popUpCreateTemplateDialog(){
+    $('button#create_template_form_easy', $create_template_dialog).show();
+    $('button#template_template_update_button', $create_template_dialog).hide();
+    
     $create_template_dialog.dialog('open');
 };
 
@@ -2854,7 +3025,7 @@ function setupTemplateTemplateUpdateDialog(){
         resizable:false
     });
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
     $('#template_template_update_select',dialog).change(function(){
         var id = $(this).val();
@@ -2950,7 +3121,6 @@ function popUpTemplateTemplateUpdateDialog(){
 function fillTemplatePopUp(request, response){
     $create_template_dialog.empty();
     setupCreateTemplateDialog();
-    console.log(response.VMTEMPLATE)
 
     function autoFillInputs(template_json, context){
         console.log(context)
@@ -2974,6 +3144,7 @@ function fillTemplatePopUp(request, response){
 
     var template = response.VMTEMPLATE.TEMPLATE;
 
+    template_to_update_id = response.VMTEMPLATE.ID
 
     //
     // GENERAL
@@ -3263,6 +3434,7 @@ function fillTemplatePopUp(request, response){
         var file_ds_regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/g;
         var net_regexp = /^ETH[(0-9)+]_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
         var ssh_regexp = /^SSH_PUBLIC_KEY$/;
+        var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
 
         var net_flag = false;
         var files = [];
@@ -3270,7 +3442,11 @@ function fillTemplatePopUp(request, response){
         $.each(context, function(key, value){ 
             if (ssh_regexp.test(key)) {
                 $("#ssh_context", context_section).click();
-                $("input#ssh_puclic_key").val(value);
+
+                if (!publickey_regexp.test(value)) {
+                    $("input#ssh_puclic_key").val(value);
+                }
+                
             }
             else if (net_regexp.test(key)) {
                 if (!net_flag) {
@@ -3451,7 +3627,7 @@ function fillTemplatePopUp(request, response){
         $('input#RANK', req_section).val(rank);
     }
 
-    popUpCreateTemplateDialog();
+    popUpUpdateTemplateDialog();
 }
 
 // Template clone dialog

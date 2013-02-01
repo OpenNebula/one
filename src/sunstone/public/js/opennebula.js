@@ -926,7 +926,7 @@ var OpenNebula = {
                                             action_obj);
         },
         "update" : function(params){
-            var action_obj = {"template_raw" : params.data.extra_param };
+            var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
                                      OpenNebula.Template.resource,
                                      "update",
