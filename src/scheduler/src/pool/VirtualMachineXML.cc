@@ -17,17 +17,18 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
-#include "VirtualMachineTemplate.h"
 
 void VirtualMachineXML::init_attributes()
 {
-    vector<string> result;
+    vector<string>     result;
+    vector<xmlNodePtr> nodes;
 
     oid = atoi(((*this)["/VM/ID"] )[0].c_str());
     uid = atoi(((*this)["/VM/UID"])[0].c_str());
     gid = atoi(((*this)["/VM/GID"])[0].c_str());
 
     result = ((*this)["/VM/TEMPLATE/MEMORY"]);
+
     if (result.size() > 0)
     {
         memory = atoi(result[0].c_str());
@@ -38,6 +39,7 @@ void VirtualMachineXML::init_attributes()
     }
 
     result = ((*this)["/VM/TEMPLATE/CPU"]);
+
     if (result.size() > 0)
     {
         istringstream   iss;
@@ -50,6 +52,7 @@ void VirtualMachineXML::init_attributes()
     }
 
     result = ((*this)["/VM/TEMPLATE/RANK"]);
+
     if (result.size() > 0)
     {
         rank = result[0];
@@ -60,6 +63,7 @@ void VirtualMachineXML::init_attributes()
     }
 
     result = ((*this)["/VM/TEMPLATE/REQUIREMENTS"]);
+
     if (result.size() > 0)
     {
         requirements = result[0];
@@ -67,11 +71,11 @@ void VirtualMachineXML::init_attributes()
     else
     {
         requirements = "";
-    }    
+    }
 
     result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
 
-    if (result.size() > 0) 
+    if (result.size() > 0)
     {
         hid = atoi(result[0].c_str());
     }
@@ -89,7 +93,20 @@ void VirtualMachineXML::init_attributes()
     else
     {
         resched = 0;
-    }    
+    }
+
+    if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
+    {
+        vm_template = new VirtualMachineTemplate;
+
+        vm_template->from_xml_node(nodes[0]);
+
+        free_nodes(nodes);
+    }
+    else
+    {
+        vm_template = 0;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -105,6 +122,11 @@ VirtualMachineXML::~VirtualMachineXML()
     }
 
     hosts.clear();
+
+    if (vm_template != 0)
+    {
+        delete vm_template;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -118,7 +140,7 @@ void VirtualMachineXML::add_host(int host_id)
 
         ss = new VirtualMachineXML::Host(host_id);
 
-        hosts.push_back(ss);            
+        hosts.push_back(ss);
     }
 }
 
@@ -229,95 +251,25 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
 
 void VirtualMachineXML::log(const string &st)
 {
-    vector<xmlNodePtr> nodes;
-
-    ostringstream   oss;
-    string          xml_st;
-
-    int rc = get_nodes("/VM/USER_TEMPLATE", nodes);
-
-    if (rc > 0)
+    if (vm_template == 0 || st.empty())
     {
-        VirtualMachineTemplate vm_template;
-        vm_template.from_xml_node(nodes[0]);
+        return;
+    }
 
-        free_nodes(nodes);
+    char   str[26];
+    time_t the_time = time(NULL);
 
-        if (!st.empty())
-        {
-            char str[26];
-
-            time_t the_time = time(NULL);
+    ostringstream  oss;
 
 #ifdef SOLARIS
-            ctime_r(&(the_time),str,sizeof(char)*26);
+    ctime_r(&(the_time),str,sizeof(char)*26);
 #else
-            ctime_r(&(the_time),str);
+    ctime_r(&(the_time),str);
 #endif
-            // Get rid of final enter character
-            str[24] = '\0';
 
-            oss << str << ": " << st;
+    str[24] = '\0'; // Get rid of final enter character
 
-            vm_template.replace("SCHEDULER_MESSAGE", oss.str());
+    oss << str << " : " << st;
 
-            update(vm_template.to_xml(xml_st));
-        }
-        else
-        {
-            vector<Attribute*> attr;
-            int num = vm_template.remove("SCHEDULER_MESSAGE", attr);
-
-            for (int i = 0; i < num ; i++)
-            {
-                if (attr[i] != 0)
-                {
-                    delete attr[i];
-                }
-            }
-
-            if (num > 0)
-            {
-                update(vm_template.to_xml(xml_st));
-            }
-        }
-    }
+    vm_template->replace("SCHED_MESSAGE", oss.str());
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachineXML::update(const string &st)
-{
-    xmlrpc_c::value result;
-    bool            success;
-
-    try
-    {
-        client->call( client->get_endpoint(),     // serverUrl
-                "one.vm.update",                  // methodName
-                "sis",                            // arguments format
-                &result,                          // resultP
-                client->get_oneauth().c_str(),    // argument
-                oid,
-                st.c_str()
-        );
-    }
-    catch (exception const& e)
-    {
-        return -1;
-    }
-
-    vector<xmlrpc_c::value> values =
-            xmlrpc_c::value_array(result).vectorValueValue();
-
-    success = xmlrpc_c::value_boolean( values[0] );
-
-    if (!success)
-    {
-        return -1;
-    }
-
-    return 0;
-}
-

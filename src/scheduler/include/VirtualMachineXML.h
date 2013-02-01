@@ -22,6 +22,7 @@
 
 #include "ObjectXML.h"
 #include "HostPoolXML.h"
+#include "VirtualMachineTemplate.h"
 
 using namespace std;
 
@@ -29,16 +30,14 @@ class VirtualMachineXML : public ObjectXML
 {
 public:
 
-    VirtualMachineXML(Client * client, const string &xml_doc):
-        ObjectXML(xml_doc),
-        client(client)
+    VirtualMachineXML(const string &xml_doc):
+        ObjectXML(xml_doc)
     {
         init_attributes();
     };
 
-    VirtualMachineXML(Client * client, const xmlNodePtr node):
-        ObjectXML(node),
-        client(client)
+    VirtualMachineXML(const xmlNodePtr node):
+        ObjectXML(node)
     {
         init_attributes();
     }
@@ -108,6 +107,24 @@ public:
     };
 
     /**
+     *  Get the user template of the VM
+     *    @return the template as a XML string
+     */
+    string& get_template(string& xml_str)
+    {
+        if (vm_template != 0)
+        {
+            vm_template->to_xml(xml_str);
+        }
+        else
+        {
+            xml_str = "";
+        }
+
+        return xml_str;
+    }
+
+    /**
      *  Function to write a Virtual Machine in an output stream
      */
     friend ostream& operator<<(ostream& os, VirtualMachineXML& vm)
@@ -134,27 +151,10 @@ public:
     };
 
     /**
-     * Adds a message to the VM's USER_TEMPLATE/SCHEDULER_MESSAGE attribute
-     * @param st Message to set
+     * Adds a message to the VM's USER_TEMPLATE/SCHED_MESSAGE attribute
+     *   @param st Message to set
      */
     void log(const string &st);
-
-    /**
-     * Clears the VM's USER_TEMPLATE/SCHEDULER_MESSAGE attribute
-     */
-    void clear_log()
-    {
-        log("");
-    };
-
-    /**
-     * Replaces the VM USER_TEMPLATE contents
-     *
-     * @param st New template contents
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int update(const string &st);
 
 protected:
 
@@ -213,9 +213,9 @@ protected:
     vector<VirtualMachineXML::Host *>   hosts;
 
     /**
-     * XML-RPC client
+     * The VM user template
      */
-    Client * client;
+     VirtualMachineTemplate * vm_template;
 };
 
 #endif /* VM_XML_H_ */

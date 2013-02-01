@@ -128,7 +128,7 @@ void Scheduler::start()
     conf.get("ONED_PORT", oned_port);
 
     oss.str("");
-    oss << "http://localhost:" << oned_port << "/RPC2"; 
+    oss << "http://localhost:" << oned_port << "/RPC2";
     url = oss.str();
 
     conf.get("SCHED_INTERVAL", timer);
@@ -142,9 +142,9 @@ void Scheduler::start()
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
     conf.get("HYPERVISOR_MEM", hypervisor_mem);
-   
+
     oss.str("");
-     
+
     oss << "Starting Scheduler Daemon" << endl;
     oss << "----------------------------------------\n";
     oss << "     Scheduler Configuration File       \n";
@@ -176,7 +176,7 @@ void Scheduler::start()
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
     clpool = new ClusterPoolXML(client);
-    vmpool = new VirtualMachinePoolXML(client, 
+    vmpool = new VirtualMachinePoolXML(client,
                                        machines_limit,
                                        (live_rescheds == 1));
     acls   = new AclXML(client);
@@ -340,7 +340,8 @@ void Scheduler::match()
     int gid;
     int n_hosts;
     int n_matched;
-    bool req_error;
+    int n_auth;
+    int n_error;
 
     string reqs;
 
@@ -368,7 +369,8 @@ void Scheduler::match()
 
         n_hosts   = 0;
         n_matched = 0;
-        req_error = false;
+        n_auth    = 0;
+        n_error   = 0;
 
         for (h_it=hosts.begin(), matched=false; h_it != hosts.end(); h_it++)
         {
@@ -410,6 +412,8 @@ void Scheduler::match()
                 continue;
             }
 
+            n_auth++;
+
             // -----------------------------------------------------------------
             // Evaluate VM requirements
             // -----------------------------------------------------------------
@@ -424,7 +428,7 @@ void Scheduler::match()
                     ostringstream error_msg;
 
                     matched = false;
-                    req_error = true;
+                    n_error++;
 
                     error_msg << "Error evaluating REQUIREMENTS expression: '"
                             << reqs << "', error: " << error;
@@ -443,7 +447,7 @@ void Scheduler::match()
             {
                 matched = true;
             }
-            
+
             if ( matched == false )
             {
                 ostringstream oss;
@@ -480,16 +484,33 @@ void Scheduler::match()
             }
         }
 
-        if (n_hosts == 0 && !req_error)
+        // ---------------------------------------------------------------------
+        // Log scheduling errors to VM user if any
+        // ---------------------------------------------------------------------
+
+        if (n_hosts == 0) //No hosts assigned, let's see why
         {
-            if (n_matched == 0)
+            if (n_error == 0) //No syntax error
             {
-                vm->log("The Scheduler could not find any Host that meets the requirements expression");
+                if (hosts.size() == 0)
+                {
+                    vm->log("No hosts enabled to run VMs");
+                }
+                else if (n_auth == 0)
+                {
+                    vm->log("User is not authorized to use any host");
+                }
+                else if (n_matched == 0)
+                {
+                    vm->log("No host meets the REQUIREMENTS expression");
+                }
+                else
+                {
+                    vm->log("No host with enough capacity to deploy the VM");
+                }
             }
-            else
-            {
-                vm->log("The Scheduler could not find any Host with enough capacity to deploy the VM");
-            }
+
+            vmpool->update(vm);
         }
     }
 }
@@ -590,8 +611,6 @@ void Scheduler::dispatch()
         if (rc == 0)
         {
             rc = vmpool->dispatch(vm_it->first, hid, vm->is_resched());
-
-            vm->clear_log();
 
             if (rc == 0 && !vm->is_resched())
             {

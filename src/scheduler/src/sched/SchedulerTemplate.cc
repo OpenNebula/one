@@ -73,19 +73,19 @@ void SchedulerTemplate::set_conf_default()
 
     attribute = new SingleAttribute("MAX_HOST",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
-    
+
     //LIVE_RESCHEDS
     value = "0";
 
     attribute = new SingleAttribute("LIVE_RESCHEDS",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
-    //DEFAULT_SCHED 
+    //DEFAULT_SCHED
     map<string,string> vvalue;
     vvalue.insert(make_pair("POLICY","1"));
 
     vattribute = new VectorAttribute("DEFAULT_SCHED",vvalue);
-    conf_default.insert(make_pair(attribute->name(),vattribute));
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 
     //HYPERVISOR_MEM
     value = "0.1";
@@ -105,7 +105,7 @@ string SchedulerTemplate::get_policy() const
     istringstream iss;
 
     vector<const Attribute *> vsched;
-    const  VectorAttribute *  sched; 
+    const  VectorAttribute *  sched;
 
     get("DEFAULT_SCHED", vsched);
 
@@ -123,7 +123,7 @@ string SchedulerTemplate::get_policy() const
         case 1: //Striping
             rank = "- RUNNING_VMS";
         break;
- 
+
         case 2: //Load-aware
             rank = "FREE_CPU";
         break;
