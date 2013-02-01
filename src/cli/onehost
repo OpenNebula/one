@@ -44,7 +44,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+    cmd_options=CommandParser::OPTIONS-[CommandParser::VERBOSE]
+    set :option, cmd_options+OpenNebulaHelper::CLIENT_OPTIONS
 
     IM = {
     :name   => "im",
