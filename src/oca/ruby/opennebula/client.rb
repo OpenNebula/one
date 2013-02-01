@@ -51,10 +51,24 @@ module OpenNebula
             XMLPARSER=false
         end
 
-        def initialize(secret=nil, endpoint=nil)
+        # Creates a new client object that will be used to call OpenNebula
+        # functions.
+        #
+        # @param [String, nil] secret user credentials ("user:password") or
+        #   nil to get the credentials from user auth file
+        # @param [String, nil] endpoint OpenNebula server endpoint
+        #   (http://host:2633/RPC2) or nil to get it form the environment
+        #   variable ONE_XMLRPC or use the default endpoint
+        # @param [Hash] options
+        # @option params [Integer] :timeout connection timeout in seconds,
+        #   defaults to 30
+        #
+        # @return [OpenNebula::Client]
+        def initialize(secret=nil, endpoint=nil, options={})
             if secret
                 @one_auth = secret
-            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
+            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
+                    File.file?(ENV["ONE_AUTH"])
                 @one_auth = File.read(ENV["ONE_AUTH"])
             elsif File.file?(ENV["HOME"]+"/.one/one_auth")
                 @one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
@@ -72,7 +86,10 @@ module OpenNebula
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
 
-            @server = XMLRPC::Client.new2(@one_endpoint)
+            timeout=nil
+            timeout=options[:timeout] if options[:timeout]
+
+            @server = XMLRPC::Client.new2(@one_endpoint, nil, timeout)
 
             if OpenNebula::NOKOGIRI
                 @server.set_parser(NokogiriStreamParser.new)
