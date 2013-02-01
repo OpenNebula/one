@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison interface for Yacc-like parsers in C
    
@@ -60,14 +60,14 @@ extern int template__debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 2042 of yacc.c  */
+/* Line 2058 of yacc.c  */
 #line 74 "template_syntax.y"
 
     char * val_str;
     void * val_attr;
 
 
-/* Line 2042 of yacc.c  */
+/* Line 2058 of yacc.c  */
 #line 72 "template_syntax.hh"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
