@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 #include <ctype.h>
 #include <string.h>
@@ -73,6 +74,8 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 
 void get_xml_values(ObjectXML * oxml, const char* attr, vector<string>& results);
 
+void get_vm_ids(ObjectXML * oxml, set<int>& vm_ids);
+
 %}
 
 %parse-param {mem_collector * mc}
@@ -108,13 +111,35 @@ stmt:   expr    { result=$1;   }
 
 expr:   STRING '=' INTEGER { int val, rc;
 
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc == 0 && val == $3);}
+            if ($1 == string("CURRENT_VMS"))
+            {
+                set<int> vm_ids;
+                get_vm_ids(oxml, vm_ids);
+
+                $$ = vm_ids.count($3) > 0;
+            }
+            else
+            {
+                rc = get_xml_attribute(oxml,$1,val);
+                $$ = (rc == 0 && val == $3);
+            }
+          }
 
         | STRING '!' '=' INTEGER { int val, rc;
 
-            rc = get_xml_attribute(oxml,$1,val);
-            $$ = (rc == 0 && val != $4);}
+            if ($1 == string("CURRENT_VMS"))
+            {
+                set<int> vm_ids;
+                get_vm_ids(oxml, vm_ids);
+
+                $$ = vm_ids.count($4) == 0;
+            }
+            else
+            {
+                rc = get_xml_attribute(oxml,$1,val);
+                $$ = (rc == 0 && val != $4);
+            }
+          }
 
         | STRING '>' INTEGER { int val, rc;
 
@@ -276,4 +301,26 @@ int get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
     }
 
     return -1;
+}
+
+void get_vm_ids(ObjectXML * oxml, set<int>& vm_ids)
+{
+    istringstream  iss;
+    vector<string> results;
+    int id;
+
+    get_xml_values(oxml, "/HOST/VMS/ID", results);
+
+    for (vector<string>::iterator it=results.begin(); it!=results.end(); it++)
+    {
+        iss.clear();
+        iss.str(*it);
+
+        iss >> id;
+
+        if (!iss.fail())
+        {
+            vm_ids.insert(id);
+        }
+    }
 }
