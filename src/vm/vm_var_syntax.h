@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison interface for Yacc-like parsers in C
    
@@ -62,7 +62,7 @@ extern int vm_var__debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 2042 of yacc.c  */
+/* Line 2058 of yacc.c  */
 #line 416 "vm_var_syntax.y"
 
     char * val_str;
@@ -70,7 +70,7 @@ typedef union YYSTYPE
     char   val_char;
 
 
-/* Line 2042 of yacc.c  */
+/* Line 2058 of yacc.c  */
 #line 75 "vm_var_syntax.hh"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
