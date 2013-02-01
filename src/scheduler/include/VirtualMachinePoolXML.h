@@ -34,6 +34,13 @@ public:
 
     ~VirtualMachinePoolXML(){};
 
+    /**
+     * Retrieves the pending and rescheduling VMs
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs need to be scheduled
+     */
     int set_up();
 
     /**
@@ -51,9 +58,27 @@ public:
      *  Dispatch a VM to the given host
      *    @param vid the VM id
      *    @param hid the id of the target host
-     *    @param resched the machine is going to be rescheduled 
+     *    @param resched the machine is going to be rescheduled
      */
     int dispatch(int vid, int hid, bool resched) const;
+
+    /**
+     *  Update the VM template
+     *    @param vid the VM id
+     *    @param st the template string
+     */
+    int update(int vid, const string &st) const;
+
+    /**
+     *  Update the VM template
+     *      @param the VM
+     */
+    int update(VirtualMachineXML * vm) const
+    {
+        string xml;
+
+        return update(vm->get_oid(), vm->get_template(xml));
+    };
 
 protected:
 

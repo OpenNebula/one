@@ -196,6 +196,15 @@ public:
      */
     static int validate_xml(const string &xml_doc);
 
+    /**
+     * Renames the nodes given in the xpath expression
+     * @param xpath_expr xpath expression to find the nodes to rename
+     * @param new_name new name for the xml elements
+     *
+     * @return the number of nodes renamed
+     */
+    int rename_nodes(const char * xpath_expr, const char * new_name);
+
     // ---------------------------------------------------------
     //  Lex & bison parser for requirements and rank expressions
     // ---------------------------------------------------------

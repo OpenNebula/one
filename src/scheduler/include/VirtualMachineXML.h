@@ -22,6 +22,7 @@
 
 #include "ObjectXML.h"
 #include "HostPoolXML.h"
+#include "VirtualMachineTemplate.h"
 
 using namespace std;
 
@@ -29,12 +30,14 @@ class VirtualMachineXML : public ObjectXML
 {
 public:
 
-    VirtualMachineXML(const string &xml_doc):ObjectXML(xml_doc)
+    VirtualMachineXML(const string &xml_doc):
+        ObjectXML(xml_doc)
     {
         init_attributes();
     };
 
-    VirtualMachineXML(const xmlNodePtr node):ObjectXML(node)
+    VirtualMachineXML(const xmlNodePtr node):
+        ObjectXML(node)
     {
         init_attributes();
     }
@@ -104,20 +107,54 @@ public:
     };
 
     /**
+     *  Get the user template of the VM
+     *    @return the template as a XML string
+     */
+    string& get_template(string& xml_str)
+    {
+        if (vm_template != 0)
+        {
+            vm_template->to_xml(xml_str);
+        }
+        else
+        {
+            xml_str = "";
+        }
+
+        return xml_str;
+    }
+
+    /**
      *  Function to write a Virtual Machine in an output stream
      */
     friend ostream& operator<<(ostream& os, VirtualMachineXML& vm)
     {
+        if (vm.hosts.empty())
+        {
+            return os;
+        }
+
         vector<VirtualMachineXML::Host *>::reverse_iterator  i;
         vector<int>::iterator j;
+
+        os  << "\t PRI\tHID  VM: " << vm.oid << endl
+            << "\t-----------------------"  << endl;
 
         for (i=vm.hosts.rbegin();i!=vm.hosts.rend();i++)
         {
             os << "\t" << (*i)->priority << "\t" << (*i)->hid << endl;
         }
 
+        os << endl;
+
         return os;
     };
+
+    /**
+     * Adds a message to the VM's USER_TEMPLATE/SCHED_MESSAGE attribute
+     *   @param st Message to set
+     */
+    void log(const string &st);
 
 protected:
 
@@ -175,6 +212,10 @@ protected:
      */
     vector<VirtualMachineXML::Host *>   hosts;
 
+    /**
+     * The VM user template
+     */
+     VirtualMachineTemplate * vm_template;
 };
 
 #endif /* VM_XML_H_ */

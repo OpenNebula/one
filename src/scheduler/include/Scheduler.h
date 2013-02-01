@@ -124,6 +124,13 @@ protected:
 
     virtual int schedule();
 
+    /**
+     * Retrieves the pools
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs need to be scheduled
+     */
     virtual int set_up_pools();
 
 private:

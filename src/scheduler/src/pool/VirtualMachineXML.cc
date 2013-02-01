@@ -20,13 +20,15 @@
 
 void VirtualMachineXML::init_attributes()
 {
-    vector<string> result;
+    vector<string>     result;
+    vector<xmlNodePtr> nodes;
 
     oid = atoi(((*this)["/VM/ID"] )[0].c_str());
     uid = atoi(((*this)["/VM/UID"])[0].c_str());
     gid = atoi(((*this)["/VM/GID"])[0].c_str());
 
     result = ((*this)["/VM/TEMPLATE/MEMORY"]);
+
     if (result.size() > 0)
     {
         memory = atoi(result[0].c_str());
@@ -37,6 +39,7 @@ void VirtualMachineXML::init_attributes()
     }
 
     result = ((*this)["/VM/TEMPLATE/CPU"]);
+
     if (result.size() > 0)
     {
         istringstream   iss;
@@ -49,6 +52,7 @@ void VirtualMachineXML::init_attributes()
     }
 
     result = ((*this)["/VM/TEMPLATE/RANK"]);
+
     if (result.size() > 0)
     {
         rank = result[0];
@@ -59,6 +63,7 @@ void VirtualMachineXML::init_attributes()
     }
 
     result = ((*this)["/VM/TEMPLATE/REQUIREMENTS"]);
+
     if (result.size() > 0)
     {
         requirements = result[0];
@@ -66,11 +71,11 @@ void VirtualMachineXML::init_attributes()
     else
     {
         requirements = "";
-    }    
+    }
 
     result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
 
-    if (result.size() > 0) 
+    if (result.size() > 0)
     {
         hid = atoi(result[0].c_str());
     }
@@ -88,7 +93,20 @@ void VirtualMachineXML::init_attributes()
     else
     {
         resched = 0;
-    }    
+    }
+
+    if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
+    {
+        vm_template = new VirtualMachineTemplate;
+
+        vm_template->from_xml_node(nodes[0]);
+
+        free_nodes(nodes);
+    }
+    else
+    {
+        vm_template = 0;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -104,6 +122,11 @@ VirtualMachineXML::~VirtualMachineXML()
     }
 
     hosts.clear();
+
+    if (vm_template != 0)
+    {
+        delete vm_template;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,7 +140,7 @@ void VirtualMachineXML::add_host(int host_id)
 
         ss = new VirtualMachineXML::Host(host_id);
 
-        hosts.push_back(ss);            
+        hosts.push_back(ss);
     }
 }
 
@@ -221,4 +244,32 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
     cpu    = (int) (this->cpu * 100);//now in 100%
     memory = this->memory * 1024;    //now in Kilobytes
     disk   = 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::log(const string &st)
+{
+    if (vm_template == 0 || st.empty())
+    {
+        return;
+    }
+
+    char   str[26];
+    time_t the_time = time(NULL);
+
+    ostringstream  oss;
+
+#ifdef SOLARIS
+    ctime_r(&(the_time),str,sizeof(char)*26);
+#else
+    ctime_r(&(the_time),str);
+#endif
+
+    str[24] = '\0'; // Get rid of final enter character
+
+    oss << str << " : " << st;
+
+    vm_template->replace("SCHED_MESSAGE", oss.str());
 }

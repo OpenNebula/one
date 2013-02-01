@@ -541,6 +541,43 @@ void ObjectXML::xml_parse(const string &xml_doc)
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::rename_nodes(const char * xpath_expr, const char * new_name)
+{
+    xmlXPathObjectPtr obj;
+
+    obj = xmlXPathEvalExpression(
+        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+
+    if (obj == 0 || obj->nodesetval == 0)
+    {
+        return 0;
+    }
+
+    xmlNodeSetPtr ns = obj->nodesetval;
+    int           size = ns->nodeNr;
+    int           renamed = 0;
+    xmlNodePtr    cur;
+
+    for(int i = 0; i < size; ++i)
+    {
+        cur = ns->nodeTab[i];
+
+        if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
+        {
+            continue;
+        }
+
+        xmlNodeSetName(cur, reinterpret_cast<const xmlChar *>(new_name));
+        renamed++;
+    }
+
+    xmlXPathFreeObject(obj);
+
+    return renamed;
+}
 
 /* ************************************************************************ */
 /* Host :: Parse functions to compute rank and evaluate requirements        */

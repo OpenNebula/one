@@ -128,7 +128,7 @@ void Scheduler::start()
     conf.get("ONED_PORT", oned_port);
 
     oss.str("");
-    oss << "http://localhost:" << oned_port << "/RPC2"; 
+    oss << "http://localhost:" << oned_port << "/RPC2";
     url = oss.str();
 
     conf.get("SCHED_INTERVAL", timer);
@@ -142,9 +142,9 @@ void Scheduler::start()
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
     conf.get("HYPERVISOR_MEM", hypervisor_mem);
-   
+
     oss.str("");
-     
+
     oss << "Starting Scheduler Daemon" << endl;
     oss << "----------------------------------------\n";
     oss << "     Scheduler Configuration File       \n";
@@ -176,7 +176,7 @@ void Scheduler::start()
 
     hpool  = new HostPoolXML(client, hypervisor_mem);
     clpool = new ClusterPoolXML(client);
-    vmpool = new VirtualMachinePoolXML(client, 
+    vmpool = new VirtualMachinePoolXML(client,
                                        machines_limit,
                                        (live_rescheds == 1));
     acls   = new AclXML(client);
@@ -266,6 +266,17 @@ int Scheduler::set_up_pools()
     map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
+    //Cleans the cache and get the pending VMs
+    //--------------------------------------------------------------------------
+
+    rc = vmpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
     //Cleans the cache and get the hosts ids
     //--------------------------------------------------------------------------
 
@@ -292,18 +303,6 @@ int Scheduler::set_up_pools()
     //--------------------------------------------------------------------------
 
     hpool->merge_clusters(clpool);
-
-
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the pending VMs
-    //--------------------------------------------------------------------------
-
-    rc = vmpool->set_up();
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
 
     //--------------------------------------------------------------------------
     //Cleans the cache and get the ACLs
@@ -336,8 +335,13 @@ void Scheduler::match()
     int vm_cpu;
     int vm_disk;
 
+    int oid;
     int uid;
     int gid;
+    int n_hosts;
+    int n_matched;
+    int n_auth;
+    int n_error;
 
     string reqs;
 
@@ -359,50 +363,19 @@ void Scheduler::match()
 
         reqs = vm->get_requirements();
 
+        oid  = vm->get_oid();
         uid  = vm->get_uid();
         gid  = vm->get_gid();
+
+        n_hosts   = 0;
+        n_matched = 0;
+        n_auth    = 0;
+        n_error   = 0;
 
         for (h_it=hosts.begin(), matched=false; h_it != hosts.end(); h_it++)
         {
             host = static_cast<HostXML *>(h_it->second);
 
-            // -----------------------------------------------------------------
-            // Evaluate VM requirements
-            // -----------------------------------------------------------------
-
-            if (reqs != "")
-            {
-                rc = host->eval_bool(reqs,matched,&error);
-
-                if ( rc != 0 )
-                {
-                    ostringstream oss;
-
-                    matched = false;
-
-                    oss << "Error evaluating expresion: " << reqs
-                    << ", error: " << error;
-                    NebulaLog::log("SCHED",Log::ERROR,oss);
-
-                    free(error);
-                }
-            }
-            else
-            {
-                matched = true;
-            }
-            
-            if ( matched == false )
-            {
-                ostringstream oss;
-
-                oss << "Host " << host->get_hid() << 
-                    " filtered out. It does not fullfil REQUIREMENTS.";
-
-                NebulaLog::log("SCHED",Log::DEBUG,oss);
-                continue;
-            }
-            
             // -----------------------------------------------------------------
             // Check if user is authorized
             // -----------------------------------------------------------------
@@ -420,7 +393,7 @@ void Scheduler::match()
                 host_perms.oid      = host->get_hid();
                 host_perms.obj_type = PoolObjectSQL::HOST;
 
-                matched = acls->authorize(uid, 
+                matched = acls->authorize(uid,
                                           gid,
                                           host_perms,
                                           AuthRequest::MANAGE);
@@ -430,7 +403,7 @@ void Scheduler::match()
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid()
+                oss << "VM " << oid << ": Host " << host->get_hid()
                     << " filtered out. User is not authorized to "
                     << AuthRequest::operation_to_str(AuthRequest::MANAGE)
                     << " it.";
@@ -438,6 +411,56 @@ void Scheduler::match()
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
             }
+
+            n_auth++;
+
+            // -----------------------------------------------------------------
+            // Evaluate VM requirements
+            // -----------------------------------------------------------------
+
+            if (reqs != "")
+            {
+                rc = host->eval_bool(reqs,matched,&error);
+
+                if ( rc != 0 )
+                {
+                    ostringstream oss;
+                    ostringstream error_msg;
+
+                    matched = false;
+                    n_error++;
+
+                    error_msg << "Error evaluating REQUIREMENTS expression: '"
+                            << reqs << "', error: " << error;
+
+                    oss << "VM " << oid << ": " << error_msg.str();
+                    NebulaLog::log("SCHED",Log::ERROR,oss);
+
+                    vm->log(error_msg.str());
+
+                    free(error);
+
+                    break;
+                }
+            }
+            else
+            {
+                matched = true;
+            }
+
+            if ( matched == false )
+            {
+                ostringstream oss;
+
+                oss << "VM " << oid << ": Host " << host->get_hid() <<
+                    " filtered out. It does not fulfill REQUIREMENTS.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                continue;
+            }
+
+            n_matched++;
+
             // -----------------------------------------------------------------
             // Check host capacity
             // -----------------------------------------------------------------
@@ -446,17 +469,48 @@ void Scheduler::match()
 
             if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
             {
-            	vm->add_host(host->get_hid());
+                vm->add_host(host->get_hid());
+
+                n_hosts++;
             }
             else
             {
                 ostringstream oss;
 
-                oss << "Host " << host->get_hid() << " filtered out. "
-                    << "Not enough capacity. " << endl;
+                oss << "VM " << oid << ": Host " << host->get_hid()
+                    << " filtered out. Not enough capacity.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
             }
+        }
+
+        // ---------------------------------------------------------------------
+        // Log scheduling errors to VM user if any
+        // ---------------------------------------------------------------------
+
+        if (n_hosts == 0) //No hosts assigned, let's see why
+        {
+            if (n_error == 0) //No syntax error
+            {
+                if (hosts.size() == 0)
+                {
+                    vm->log("No hosts enabled to run VMs");
+                }
+                else if (n_auth == 0)
+                {
+                    vm->log("User is not authorized to use any host");
+                }
+                else if (n_matched == 0)
+                {
+                    vm->log("No host meets the REQUIREMENTS expression");
+                }
+                else
+                {
+                    vm->log("No host with enough capacity to deploy the VM");
+                }
+            }
+
+            vmpool->update(vm);
         }
     }
 }
@@ -539,9 +593,7 @@ void Scheduler::dispatch()
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        oss << "\t PRI\tHID  VM: " << vm->get_oid() << endl
-            << "\t-----------------------"  << endl
-            << *vm << endl;
+        oss << *vm;
     }
 
     NebulaLog::log("SCHED",Log::INFO,oss);
