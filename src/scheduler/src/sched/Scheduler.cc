@@ -34,6 +34,7 @@
 #include "RankPolicy.h"
 #include "NebulaLog.h"
 #include "PoolObjectAuth.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -649,21 +650,10 @@ int Scheduler::scheduled_actions()
     int action_time, done_time, has_time, has_done;
     string action_st, error_msg;
 
-    // TODO: Move the time string creation to a common place
-
-    char   time_str[26];
-
     ostringstream oss;
     ostringstream oss_aux;
 
-#ifdef SOLARIS
-    ctime_r(&(the_time),time_str,sizeof(char)*26);
-#else
-    ctime_r(&(the_time),time_str);
-#endif
-
-    time_str[24] = '\0'; // Get rid of final enter character
-
+    string time_str = one_util::log_time(the_time);
 
     const map<int, ObjectXML*> vms = vmpool->get_objects();
 
@@ -689,8 +679,9 @@ int Scheduler::scheduled_actions()
             has_time = vatt->vector_value("TIME", action_time);
             has_done = vatt->vector_value("DONE", done_time);
 
-            // TODO: Transform to lower case
             action_st = vatt->vector_value("ACTION");
+
+            one_util::tolower(action_st);
 
             if (has_time == 0 && has_done == -1 && action_time < the_time)
             {
