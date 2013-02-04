@@ -1232,8 +1232,10 @@ function loadAccounting(resource, id, graphs, options){
     };
 }
 
+
 function insert_extended_template_table(template_json,resource_type,resource_id)
 {
+    console.log(template_json);
     var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table">\
                  <thead>\
                    <tr>\
@@ -1321,7 +1323,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
         // Convert from hash to string
         var template_str = "\n";
         for(var key in template_json)
-            template_str=template_str+key+"="+ template_json[key]+"\n";
+            template_str=template_str+key+"=\""+ template_json[key]+"\"\n";
 
         // Let OpenNebula know
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
@@ -1331,45 +1333,112 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
 }
 
 // Returns an HTML string with the json keys and values
-function fromJSONtoHTMLTable(template_json,resource_type,resource_id){
+function fromJSONtoHTMLTable(template_json,resource_type,resource_id,vectorial){
     var str = ""
     if (!template_json){ return "Not defined";}
     var field = null;
 
-    if (template_json.constructor == Array){
-        for (field = 0; field < template_json.length; ++field){
-            str += fromJSONtoHTMLRow(field,
-                                      template_json[field],
-                                      template_json,
-                                      resource_type,
-                                      resource_id);
-        }
-    } else {
-        for (field in template_json) {
-            str += fromJSONtoHTMLRow(field,
-                                      template_json[field],
-                                      template_json,
-                                      resource_type,
-                                      resource_id);
-        }
+    // Iterate for each value in the JSON object
+    for (field in template_json)
+    {
+        str += fromJSONtoHTMLRow(field,
+                                 template_json[field],
+                                 resource_type,
+                                 resource_id,
+                                 vectorial);
     }
+
     return str;
 }
 
+
 // Helper for fromJSONtoHTMLTable function
-function fromJSONtoHTMLRow(field,value,template_json,resource_type,resource_id){
-    var str = '<tr>\
-                  <td class="key_td">'+tr(field)+'</td>\
-                  <td class="value_td" id="value_td_input_'+tr(field)+'">'+value+'</td>\
-                  <td><div id="div_edit">\
-                         <a id="div_edit_'+tr(field)+'" class="edit_e" href="#">e</a>\
-                      </div>\
-                  </td>\
-                  <td><div id="div_minus">\
-                         <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
-                      </div>\
-                  </td>\
-               </tr>';
+function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial){
+    var str = "";
+
+    // value can be an array
+    if (value.constructor == Array)
+    {
+        var it=null;
+
+        for (it = 0; it < value.length; ++it)
+        {
+           var current_value = value[it];
+
+           // if value is object, we are dealing with a vectorial value
+           if (typeof current_value == 'object')
+           {
+               if (it==0)
+               {
+                   // if it is the first occurrence, print the header
+                   str += '<tr id="'+resource_type.toLowerCase()+'_template_table_'+tr(field)+'">\
+                               <td class="key_td key_vectorial_td">'+tr(field)+'</td>\
+                               <td class="value_vectorial_td"></td>\
+                               <td>\
+                                  <div id="div_edit">\
+                                     <a id="div_edit_vectorial_'+tr(field)+'" class="edit_vectorial_e" href="#">e</a>\
+                                  </div>\
+                               </td>\
+                               <td>\
+                                 <div id="div_minus">\
+                                    <a id="div_minus_vectorial_'+tr(field)+'" class="remove_vectorial_x" href="#">x</a>\
+                                 </div>\
+                               </td>'
+               }
+
+               str += fromJSONtoHTMLTable(current_value,
+                                          resource_type,
+                                          resource_id,
+                                          true);
+           }
+           else
+           {
+               str += fromJSONtoHTMLRow(field,
+                                        current_value,
+                                        resource_type,
+                                        resource_id,
+                                        false);
+           }
+        }
+    }
+    else // or value can be a string
+    {
+        var align_str       = "";
+        var key_class_str   = "";
+        var value_class_str = "";
+
+        if(vectorial)
+        {
+            align_str="text-align:center";
+            key_class_str=" key_vectorial_td";
+            value_class_str=" value_vectorial_td";
+        }
+
+        str += '<tr>\
+                  <td class="key_td'+key_class_str+'" style="'+align_str+'">'+tr(field)+'</td>\
+                  <td class="value_td'+value_class_str+'" id="value_td_input_'+tr(field)+'">'+value+'</td>';
+
+        if (vectorial)
+        {
+            str += '<td></td><td></td></tr>'
+        }
+        else
+        {
+            str += '<td>\
+                     <div id="div_edit">\
+                       <a id="div_edit_'+tr(field)+'" class="edit_e" href="#">e</a>\
+                     </div>\
+                    </td>\
+                    <td>\
+                          <div id="div_minus">\
+                             <a id="div_minus_'+tr(field)+'" class="remove_x" href="#">x</a>\
+                          </div>\
+                    </td>\
+                   </tr>';
+        }
+
+    }
+
 
     return str;
 }
