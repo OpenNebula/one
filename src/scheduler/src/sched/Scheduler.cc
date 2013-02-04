@@ -623,12 +623,150 @@ void Scheduler::dispatch()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Scheduler::scheduled_actions()
+{
+    int rc = vmpool->set_up_actions();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    VirtualMachineXML* vm;
+    VirtualMachineTemplate* vm_template;
+
+    vector<string> v_st;
+
+    map<int, ObjectXML*>::const_iterator vm_it;
+
+    vector<Attribute *> attributes;
+    vector<Attribute *>::iterator it;
+
+    VectorAttribute* vatt;
+
+    time_t the_time = time(0);
+
+    int action_time, done_time, has_time, has_done;
+    string action_st, error_msg;
+
+    // TODO: Move the time string creation to a common place
+
+    char   time_str[26];
+
+    ostringstream oss;
+    ostringstream oss_aux;
+
+#ifdef SOLARIS
+    ctime_r(&(the_time),time_str,sizeof(char)*26);
+#else
+    ctime_r(&(the_time),time_str);
+#endif
+
+    time_str[24] = '\0'; // Get rid of final enter character
+
+
+    const map<int, ObjectXML*> vms = vmpool->get_objects();
+
+    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
+    {
+        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+        vm_template = vm->get_template();
+
+        attributes.clear();
+        vm_template->remove("SCHED_ACTION", attributes);
+
+        // TODO: Sort actions by TIME
+
+        for (it=attributes.begin(); it != attributes.end(); it++)
+        {
+            vatt = dynamic_cast<VectorAttribute*>(*it);
+
+            if (vatt == 0)
+            {
+                continue;
+            }
+
+            has_time = vatt->vector_value("TIME", action_time);
+            has_done = vatt->vector_value("DONE", done_time);
+
+            // TODO: Transform to lower case
+            action_st = vatt->vector_value("ACTION");
+
+            if (has_time == 0 && has_done == -1 && action_time < the_time)
+            {
+                oss.str("");
+
+                // onevm delete command uses the xml-rpc finalize action
+                if (action_st == "delete")
+                {
+                    action_st = "finalize";
+                }
+
+                oss << "Executing action '" << action_st << "' for VM "
+                    << vm->get_oid() << " : ";
+
+                if (   action_st != "shutdown"
+                    && action_st != "hold"
+                    && action_st != "release"
+                    && action_st != "stop"
+                    && action_st != "cancel"
+                    && action_st != "suspend"
+                    && action_st != "resume"
+                    && action_st != "restart"
+                    && action_st != "resubmit"
+                    && action_st != "reboot"
+                    && action_st != "reset"
+                    && action_st != "poweroff"
+                    && action_st != "finalize")
+                {
+                    error_msg = "This action is not supported.";
+                    rc = -1;
+                }
+                else
+                {
+                    rc = vmpool->action(vm->get_oid(), action_st, error_msg);
+                }
+
+                if (rc == 0)
+                {
+                    vatt->remove("MESSAGE");
+                    vatt->replace("DONE", static_cast<int>(the_time));
+
+                    oss << "Success.";
+                }
+                else
+                {
+                    oss_aux.str("");
+                    oss_aux << time_str << " : " << error_msg;
+
+                    vatt->replace("MESSAGE", oss_aux.str());
+
+                    oss << "Failure. " << error_msg;
+                }
+
+                NebulaLog::log("VM",Log::INFO,oss);
+            }
+
+            vm_template->set(vatt);
+        }
+
+        vmpool->update(vm);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Scheduler::do_action(const string &name, void *args)
 {
     int rc;
 
     if (name == ACTION_TIMER)
     {
+        scheduled_actions();
+
         rc = set_up_pools();
 
         if ( rc != 0 )

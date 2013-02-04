@@ -133,6 +133,9 @@ protected:
      */
     virtual int set_up_pools();
 
+
+    virtual int scheduled_actions();
+
 private:
     Scheduler(Scheduler const&){};
 

@@ -125,6 +125,16 @@ public:
     }
 
     /**
+     * Returns a the VM Template
+     *
+     * @return A pointer to the VM Template (not to a copy)
+     */
+    VirtualMachineTemplate* get_template()
+    {
+        return vm_template;
+    };
+
+    /**
      *  Function to write a Virtual Machine in an output stream
      */
     friend ostream& operator<<(ostream& os, VirtualMachineXML& vm)

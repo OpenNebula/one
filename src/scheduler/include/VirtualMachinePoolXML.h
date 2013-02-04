@@ -44,6 +44,15 @@ public:
     int set_up();
 
     /**
+     * Retrieves the VMs with scheduled actions
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs need to be scheduled
+     */
+    int set_up_actions();
+
+    /**
      *  Gets an object from the pool
      *   @param oid the object unique identifier
      *
@@ -66,12 +75,16 @@ public:
      *  Update the VM template
      *    @param vid the VM id
      *    @param st the template string
+     *
+     *    @return 0 on success, -1 otherwise
      */
     int update(int vid, const string &st) const;
 
     /**
      *  Update the VM template
      *      @param the VM
+     *
+     *      @return 0 on success, -1 otherwise
      */
     int update(VirtualMachineXML * vm) const
     {
@@ -80,20 +93,35 @@ public:
         return update(vm->get_oid(), vm->get_template(xml));
     };
 
+    /**
+     * Calls one.vm.action
+     *
+     * @param vid The VM id
+     * @param action Action argument (shutdown, hold, release...)
+     * @param error_msg Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int action(int vid, const string &action, string &error_msg) const;
+
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
-    {
-        return get_nodes("/VM_POOL/VM[STATE=1 or (LCM_STATE=3 and RESCHED=1)]",
-                         content);
-    };
+    int get_suitable_nodes(vector<xmlNodePtr>& content);
 
     virtual void add_object(xmlNodePtr node);
 
     virtual int load_info(xmlrpc_c::value &result);
 
-    /* Do live migrations to resched VMs*/
+    /**
+     * Do live migrations to resched VMs
+     */
     bool live_resched;
+
+    /**
+     * True to retrieve pending/resched VMs, false to get VMs with scheduled
+     * actions
+     */
+    bool retrieve_pending;
 };
 
 #endif /* VM_POOL_XML_H_ */
