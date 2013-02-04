@@ -243,7 +243,7 @@ function mkfs_command {
         "jfs")
             OPTS="-q"
             ;;
-        "raw")
+        "raw"|"")
             echo ""
             return 0
             ;;
