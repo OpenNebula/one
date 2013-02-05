@@ -1111,7 +1111,7 @@ function setupCreateTemplateDialog(){
                 { "sWidth": "35px", "aTargets": [1,6,11,12] },
                 { "sWidth": "100px", "aTargets": [5,7] },
                 { "sWidth": "150px", "aTargets": [8] },
-                { "bVisible": false, "aTargets": [0,2,3,6,7,9,8,12]}
+                { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
             ],
             "oLanguage": (datatable_lang != "") ?
                 {
@@ -1133,6 +1133,7 @@ function setupCreateTemplateDialog(){
               });
 
               updateView(image_list_array, dataTable_template_images);
+              dataTable_template_images.fnFilter("OS|DATABLOCK|CDROM", 7, true)
           }, 
           error: onError
         });
@@ -1163,7 +1164,9 @@ function setupCreateTemplateDialog(){
             else {
                 $('#image_selected', disk_section).toggle();
                 $('#select_image', disk_section).hide();
-            }   
+            }
+
+            $('.alert-box', disk_section).hide();
 
             previous_row = this;
             $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
@@ -1393,6 +1396,8 @@ function setupCreateTemplateDialog(){
 
       // Add delete button for this tab
       $('li.'+str_nic_tab_id).append("<span class='ui-icon ui-icon-close'>Remove Tab</span>");
+
+      var nic_section = $('div#' + str_nic_tab_id);
       
       var dataTable_template_networks = $('#'+str_datatable_id, dialog).dataTable({
         "bJQueryUI": true,
@@ -1437,7 +1442,7 @@ function setupCreateTemplateDialog(){
 
 
 
-        $('#'+str_nic_tab_id+'_search', $('div#' + str_nic_tab_id)).keyup(function(){
+        $('#'+str_nic_tab_id+'_search', nic_section).keyup(function(){
           dataTable_template_networks.fnFilter( $(this).val() );
         })
 
@@ -1461,28 +1466,29 @@ function setupCreateTemplateDialog(){
             $("td:first", previous_row).parent().children().each(function(){$(this).removeClass('markrow');});
         }
         else {
-            $('#network_selected',  $('div#' + str_nic_tab_id)).toggle();
-            $('#select_network',  $('div#' + str_nic_tab_id)).hide();
+            $('#network_selected',  nic_section).toggle();
+            $('#select_network',  nic_section).hide();
         }   
 
+            $('.alert-box', nic_section).hide();
 
           previous_row = this;
           $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
           
-          $('#NETWORK', $('div#' + str_nic_tab_id)).text(aData[4]);
-          $('#NETWORK_ID', $('div#' + str_nic_tab_id)).val(aData[1]);
+          $('#NETWORK', nic_section).text(aData[4]);
+          $('#NETWORK_ID', nic_section).val(aData[1]);
           return false;
       });
 
 
-      $('.advanced', $('div#' + str_nic_tab_id)).hide();
+      $('.advanced', nic_section).hide();
 
-      $('#advanced', $('div#' + str_nic_tab_id)).click(function(){
-          $('.advanced', $('div#' + str_nic_tab_id)).toggle();
+      $('#advanced', nic_section).click(function(){
+          $('.advanced', nic_section).toggle();
           return false;
       });
 
-      setupTips($('div#' + str_nic_tab_id));
+      setupTips(nic_section);
 
       number_of_nics++;
       nics_index++;
@@ -1697,37 +1703,39 @@ function setupCreateTemplateDialog(){
       tabs.append(html_tab_content).tabs('add', '#os_tab', 'OS Booting'); 
       $( "#template_create_tabs a[href='#os_tab']").parent().remove("span")
 
-      $('#tabs-bootos', dialog).tabs();
+      var os_section = $('div#os_tab', dialog);
+
+      $('#tabs-bootos', os_section).tabs();
 
         // Select Image or Volatile disk. The div is hidden depending on the selection, and the 
         // vm_param class is included to be computed when the template is generated.
         $("input[name='kernel_type']").change(function(){
           if ($("input[name='kernel_type']:checked").val() == "kernel_ds") {
-              $("div.kernel_ds",  $('div#os_tab')).toggle();
-              $("div#kernel_ds_inputs",  $('div#os_tab')).addClass('vm_param');
-              $("div.kernel_path",  $('div#os_tab')).hide();
-              $("div#kernel_path_inputs",  $('div#os_tab')).removeClass('vm_param');
+              $("div.kernel_ds",  os_section).toggle();
+              $("div#kernel_ds_inputs",  os_section).addClass('vm_param');
+              $("div.kernel_path",  os_section).hide();
+              $("div#kernel_path_inputs",  os_section).removeClass('vm_param');
           }
           else {
-              $("div.kernel_ds",  $('div#os_tab')).hide();
-              $("div#kernel_ds_inputs",  $('div#os_tab')).removeClass('vm_param');
-              $("div.kernel_path",  $('div#os_tab')).toggle();
-              $("div#kernel_path_inputs",  $('div#os_tab')).addClass('vm_param');
+              $("div.kernel_ds",  os_section).hide();
+              $("div#kernel_ds_inputs",  os_section).removeClass('vm_param');
+              $("div.kernel_path",  os_section).toggle();
+              $("div#kernel_path_inputs",  os_section).addClass('vm_param');
           }
         });
 
         $("input[name='initrd_type']").change(function(){
           if ($("input[name='initrd_type']:checked").val() == "initrd_ds") {
-              $("div.initrd_ds",  $('div#os_tab')).toggle();
-              $("div#initrd_ds_inputs",  $('div#os_tab')).addClass('vm_param');
-              $("div.initrd_path",  $('div#os_tab')).hide();
-              $("div#initrd_path_inputs",  $('div#os_tab')).removeClass('vm_param');
+              $("div.initrd_ds",  os_section).toggle();
+              $("div#initrd_ds_inputs",  os_section).addClass('vm_param');
+              $("div.initrd_path",  os_section).hide();
+              $("div#initrd_path_inputs",  os_section).removeClass('vm_param');
           }
           else {
-              $("div.initrd_ds",  $('div#os_tab')).hide();
-              $("div#initrd_ds_inputs",  $('div#os_tab')).removeClass('vm_param');
-              $("div.initrd_path",  $('div#os_tab')).toggle();
-              $("div#initrd_path_inputs",  $('div#os_tab')).addClass('vm_param');
+              $("div.initrd_ds",  os_section).hide();
+              $("div#initrd_ds_inputs",  os_section).removeClass('vm_param');
+              $("div.initrd_path",  os_section).toggle();
+              $("div#initrd_path_inputs",  os_section).addClass('vm_param');
           }
         });
 
@@ -1796,8 +1804,10 @@ function setupCreateTemplateDialog(){
             previous_kernel_row = this;
             $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
             
-            $('#KERNEL', $('div#os_tab')).text(aData[4]);
-            $('#KERNEL_DS', $('div#os_tab')).val("$FILE[IMAGE_ID="+ aData[1] +"]");
+            $('.kernel_ds .alert-box', os_section).hide();
+
+            $('#KERNEL', os_section).text(aData[4]);
+            $('#KERNEL_DS', os_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
             return false;
         });
 
@@ -1872,9 +1882,11 @@ function setupCreateTemplateDialog(){
                 $("td:first", previous_initrd_row).parent().children().each(function(){$(this).removeClass('markrow');});
             previous_initrd_row = this;
             $("td:first", this).parent().children().each(function(){$(this).addClass('markrow');});
-            
-            $('#INITRD', $('div#os_tab')).text(aData[4]);
-            $('#INITRD_DS', $('div#os_tab')).val("$FILE[IMAGE_ID="+ aData[1] +"]");
+
+            $('.initrd_ds .alert-box', os_section).hide();
+
+            $('#INITRD', os_section).text(aData[4]);
+            $('#INITRD_DS', os_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
             return false;
         });
 
@@ -1885,15 +1897,15 @@ function setupCreateTemplateDialog(){
             $('fieldset.advanced', $('div##advanced_os')).toggle();
             return false;
         });
-
-      setupTips($('div#os_tab'));
     }
 
 
     /**************************************************************************
         INPUT/OUTPUT TAB
         
-    **************************************************************************/
+                  $('.kernel_ds .alert-box', os_section).hide();
+    **************
+    ************************************************************/
 
     var add_io_tab = function() {
       var html_tab_content = '<div id="io_tab" class="wizard_tab">'+
@@ -2041,9 +2053,6 @@ function setupCreateTemplateDialog(){
       $( "#io_tab span.ui-icon-close" ).live( "click", function() {
           $(this).closest("tr").remove()
       });
-
-
-      setupTips($('div#io_tab'));
     }
 
     /**************************************************************************
@@ -2232,7 +2241,7 @@ function setupCreateTemplateDialog(){
           $.each(images_list,function(){
               image_list_array.push(imageElementArray(this));
           });   
-          console.log(image_list_array);
+
           updateView(image_list_array, datTable_template_context);
           datTable_template_context.fnFilter("CONTEXT", 7)
       }, 
@@ -2288,6 +2297,8 @@ function setupCreateTemplateDialog(){
             $('#select_files', dialog).toggle();
           }
 
+          $('.alert-box', $('div#context_tab')).hide();
+          
           generate_context_files();
 
           return false;
@@ -2421,16 +2432,22 @@ function setupCreateTemplateDialog(){
             '</div>'+
             '<div id="tabs-2policy" class="wizard_internal_tab">'+
                   '<div class="row">'+
-                    '<div class="three columns push-two">'+
-                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> PACKING '+
+                    '<div class="two columns push-two">'+
+                      '<input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS"> Packing '+
+                    '</div>'+
+                    '<div class="one columns push-two">'+
                       '<div class="tip">'+tr("Pack the VMs in the cluster nodes to reduce VM fragmentation")+'</div>'+
                     '</div>'+
-                    '<div class="three columns push-two">'+
-                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> STRIPING '+
+                    '<div class="two columns push-two">'+
+                      '<input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS"> Stripping '+
+                    '</div>'+
+                    '<div class="one columns push-two">'+
                       '<div class="tip">'+tr("Spread the VMs in the cluster nodes")+'</div>'+
                     '</div>'+
-                    '<div class="four columns">'+
-                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> LOAD-AWARE'+
+                    '<div class="two columns push-two">'+
+                      '<input type="radio"  id="loadawareRadio" name="rank_select" value="FREECPU"> Load-aware'+
+                    '</div>'+
+                    '<div class="two columns">'+
                       '<div class="tip">'+tr("Maximize the resources available to VMs in a node")+'</div>'+
                     '</div>'+
                   '</div>'+  
@@ -2540,6 +2557,8 @@ function setupCreateTemplateDialog(){
             $('#select_hosts', dialog).toggle();
           }
 
+          $('.alert-box', $('div#placement_tab .host_select')).hide();
+
           generate_requirements();
 
           return false;
@@ -2643,6 +2662,8 @@ function setupCreateTemplateDialog(){
             $('#clusters_selected',  dialog).toggle();
             $('#select_clusters', dialog).toggle();
           }
+
+          $('.alert-box', $('div#placement_tab .cluster_select')).hide();
 
           generate_requirements();
 
@@ -3184,13 +3205,24 @@ function fillTemplatePopUp(request, response){
 
                     var rows = dataTable_template_images.fnGetNodes();
 
+                    var clicked = false
                     for (var j=0;j<rows.length;j++) {
                         var current_row = $(rows[j]);
                         var row_image_id = $(rows[j]).find("td:eq(0)").html();
 
                         if (row_image_id == disk.IMAGE_ID) {
                             rows[j].click();
+                            clicked = true;
                         }
+                    }
+
+                    if (!clicked) {
+                        var alert = '<div class="alert-box alert">'+
+'IMAGE: '+ disk.IMAGE_ID + tr(" does not exists any more") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
+                    
+                        $(".dataTables_wrapper", disk_section).append(alert);   
                     }
               }, 
               error: onError
@@ -3250,12 +3282,23 @@ function fillTemplatePopUp(request, response){
 
                 var rows = dataTable_template_networks.fnGetNodes();
 
+                var clicked = false;
                 for (var j=0;j<rows.length;j++) {
                     var current_row = $(rows[j]);
                     var row_network_id = $(rows[j]).find("td:eq(1)").html();
 
                     if (row_network_id == nic.NETWORK_ID) {
                         rows[j].click();
+                        clicked = true;
+                    }
+
+                    if (!clicked) {
+                        var alert = '<div class="alert-box alert">'+
+'NETWORK: '+ nic.NETWORK_ID + tr(" does not exists any more") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
+                    
+                        $(".dataTables_wrapper", nic_section).append(alert);   
                     }
                 }
           }, 
@@ -3314,14 +3357,24 @@ function fillTemplatePopUp(request, response){
 
                     var rows = dataTable_template.fnGetNodes();
 
+                    var match = regexp.exec(os.KERNEL_DS)
+                    var clicked = false;
                     for (var j=0;j<rows.length;j++) {
                         var current_row = $(rows[j]);
                         var row_id = $(rows[j]).find("td:eq(0)").html();
 
-                        match = regexp.exec(os.KERNEL_DS)
                         if (match && row_id == match[1]) {
                             rows[j].click();
+                            clicked = true;
                         }
+                    }
+                    if (!clicked) {
+                        var alert = '<div class="alert-box alert">'+
+'KERNEL: '+ match[1] + tr(" does not exists any more") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
+                    
+                        $("#tabs-kernel .dataTables_wrapper", os_section).append(alert);   
                     }
               }, 
               error: onError
@@ -3352,15 +3405,25 @@ function fillTemplatePopUp(request, response){
                     dataTable_template.fnFilter("RAMDISK", 6)
 
                     var rows = dataTable_template.fnGetNodes();
-
+                    var match = regexp.exec(os.INITRD_DS);
+                    var clicked = false;
                     for (var j=0;j<rows.length;j++) {
                         var current_row = $(rows[j]);
                         var row_id = $(rows[j]).find("td:eq(0)").html();
 
-                        match = regexp.exec(os.INITRD_DS)
                         if (match && row_id == match[1]) {
                             rows[j].click();
+                            clicked = true;
                         }
+                    }
+
+                    if (!clicked) {
+                        var alert = '<div class="alert-box alert">'+
+'RAMDISK: '+ match[1] + tr(" does not exists any more") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
+                    
+                        $("#tabs-ramdisk .dataTables_wrapper", os_section).append(alert);   
                     }
               }, 
               error: onError
@@ -3482,11 +3545,25 @@ function fillTemplatePopUp(request, response){
                             var current_row = $(rows[j]);
                             var row_id = $(rows[j]).find("td:eq(0)").html();
 
-                            if ($.inArray(row_id, files) != -1) {
+                            var in_array = $.inArray(row_id, files)
+                            if (in_array != -1) {
+                                files.splice(in_array, 1);
                                 // TBD check if all the files were clicked
                                 rows[j].click();
                             }
                         }
+
+                        if (files.length != 0) {
+                            if (!clicked) {
+                                var alert = '<div class="alert-box alert">'+
+        tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
+        '  <a href="" class="close">&times;</a>'+
+        '</div>';
+                            
+                                $(".dataTables_wrapper", context_section).append(alert);   
+                            }
+                        }
+
                   }, 
                   error: onError
                 });
@@ -3756,6 +3833,8 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_templates);
     infoListener(dataTable_templates,'Template.showinfo');
 
+$(document).foundationTooltips();
+$(document).foundationAlerts();
 
     $('div#templates_tab div.legend_div').hide();
 });
