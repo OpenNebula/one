@@ -577,13 +577,19 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time)
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true)
         value=time.to_i
         if value==0
             value='-'
         else
-            value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            if print_seconds
+                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            else
+                value=Time.at(value).strftime("%m/%d %H:%M")
+            end
         end
+
+        return value
     end
 
     def OpenNebulaHelper.period_to_str(time, print_seconds=true)

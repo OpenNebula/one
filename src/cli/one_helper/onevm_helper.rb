@@ -241,11 +241,38 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
+        if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
+            CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ACTION", "", :left, :size=>10 do |d|
+                    d["ACTION"] if !d.nil?
+                end
+
+                column :"SCHEDULED", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"DONE", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
+                end
+
+                column :"MESSAGE", "", :left, :donottruncate, :size=>43 do |d|
+                    d["MESSAGE"] if !d.nil?
+                end
+            end.show(vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION'], {})
+
+            puts
+        end
+
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 
         if vm.has_elements?("/VM/USER_TEMPLATE")
             puts
+
+            vm.delete_element("/VM/USER_TEMPLATE/SCHED_ACTION")
 
             CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
             puts vm.template_like_str('USER_TEMPLATE')
