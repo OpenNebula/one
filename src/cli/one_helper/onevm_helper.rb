@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'optparse/time'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     MULTIPLE={
@@ -55,6 +56,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :name  => "hold",
         :large => "--hold",
         :description => "Creates the new VM on hold state instead of pending"
+    }
+
+    SCHEDULE = {
+        :name       => "schedule",
+        :large      => "--schedule TIME",
+        :description => "Schedules this action to be executed after the given time",
+        :format     => Time
     }
 
     def self.rname
@@ -139,6 +147,27 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+
+    def schedule_actions(ids,options,action)
+        perform_actions(
+            ids, options,
+            "#{action} scheduled at #{options[:schedule]}") do |vm|
+
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            tmp_str = vm.user_template_str
+
+            tmp_str << "\nSCHED_ACTION = [ACTION = #{action}, TIME = #{options[:schedule].to_i}]"
+
+            vm.update(tmp_str)
+        end
     end
 
     private
