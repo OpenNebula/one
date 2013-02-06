@@ -343,6 +343,27 @@ def print_all_vm_info(hypervisor)
     puts Base64.encode64(compressed).delete("\n")
 end
 
+def print_all_vm_template(hypervisor)
+    vms=hypervisor.get_all_vm_info
+
+    vms.each do |name, data|
+        number=name.split("-")[-1]
+
+        string="VM=[\n"
+        string<<"  ID=#{number},\n"
+
+        values=data.map do |key, value|
+            print_data(key, value)
+        end
+
+        monitor=values.zip.join(' ')
+
+        string<<"  POLL=\"#{monitor}\" ]"
+
+        puts string
+    end
+end
+
 hypervisor=select_hypervisor
 
 if !hypervisor
@@ -354,7 +375,9 @@ load_vars(hypervisor)
 
 vm_id=ARGV[0]
 
-if vm_id
+if vm_id=='-t'
+    print_all_vm_template(hypervisor)
+elsif vm_id
     print_one_vm_info(hypervisor, vm_id)
 else
     print_all_vm_info(hypervisor)
