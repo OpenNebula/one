@@ -1774,7 +1774,6 @@ function setupCreateTemplateDialog(){
 
               $.each(images_list,function(){
                  image_list_array.push(imageElementArray(this));
-              console.log(imageElementArray(this));
               });
 
               updateView(image_list_array, dataTable_template_kernel);
@@ -2019,14 +2018,12 @@ function setupCreateTemplateDialog(){
       tabs.append(html_tab_content).tabs('add', '#io_tab', 'Input/Output'); 
 
       $("input[name='graphics_type']").change(function(){
-        console.log(this)
         $("#TYPE", $('div#io_tab .graphics')).val($(this).attr("value"))
         $("#LISTEN", $('div#io_tab')).val("0.0.0.0")
       });
 
       $('#add_input', $('div#io_tab')).click(function() {
           var table = $('#input_table', $('div#io_tab'))[0];
-          console.log(table)
           var rowCount = table.rows.length;
           var row = table.insertRow(-1);
           $(row).addClass("vm_param");
@@ -2071,7 +2068,7 @@ function setupCreateTemplateDialog(){
               '<li><a href="#tabs-zcustom">'+tr("Custom variables")+'</a></li>'+
             '</ul>'+
             '</div>'+
-            '<div class="wizard_internal_tab vm_param" id="tabs-netssh">'+
+            '<div class="wizard_internal_tab" id="tabs-netssh">'+
               '<div class="row">'+
                 '<div class="six columns">'+
                     '<fieldset>'+
@@ -2136,7 +2133,7 @@ function setupCreateTemplateDialog(){
                     '<input type="hidden" id="FILES_DS" name="files_ds" size="2"/>'+
                   '</div>'+
             '</div>'+
-            '<div class="wizard_internal_tab vm_param" id="tabs-zcustom">'+
+            '<div class="wizard_internal_tab" id="tabs-zcustom">'+
               '<div class="row">'+
                 '<div class="three columns">'+
                   '<input type="text" id="KEY" name="key" />'+
@@ -2274,8 +2271,8 @@ function setupCreateTemplateDialog(){
           var file_id = aData[1];
 
           if ($.isEmptyObject(selected_files)) {
-            $('#files_selected',  dialog).toggle();
-            $('#select_files', dialog).toggle();
+            $('#files_selected',  dialog).show();
+            $('#select_files', dialog).hide();
           }
 
           if(!$("td:first", this).hasClass('markrow'))
@@ -2293,8 +2290,8 @@ function setupCreateTemplateDialog(){
           }
 
           if ($.isEmptyObject(selected_files)) {
-            $('#files_selected',  dialog).toggle();
-            $('#select_files', dialog).toggle();
+            $('#files_selected',  dialog).hide();
+            $('#select_files', dialog).show();
           }
 
           $('.alert-box', $('div#context_tab')).hide();
@@ -2313,8 +2310,8 @@ function setupCreateTemplateDialog(){
          $(file_row_hash[file_id]).children().each(function(){$(this).removeClass('markrow');});
 
           if ($.isEmptyObject(selected_files)) {
-            $('#files_selected',  dialog).toggle();
-            $('#select_files', dialog).toggle();
+            $('#files_selected',  dialog).hide();
+            $('#select_files', dialog).show();
           }
 
          generate_context_files();
@@ -2534,8 +2531,8 @@ function setupCreateTemplateDialog(){
           var host_id = aData[1];
 
           if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).toggle();
-            $('#select_hosts', dialog).toggle();
+            $('#hosts_selected',  dialog).show();
+            $('#select_hosts', dialog).hide();
           }
 
           if(!$("td:first", this).hasClass('markrow'))
@@ -2553,8 +2550,8 @@ function setupCreateTemplateDialog(){
           }
 
           if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).toggle();
-            $('#select_hosts', dialog).toggle();
+            $('#hosts_selected',  dialog).hide();
+            $('#select_hosts', dialog).show();
           }
 
           $('.alert-box', $('div#placement_tab .host_select')).hide();
@@ -2573,8 +2570,8 @@ function setupCreateTemplateDialog(){
          $(host_row_hash[host_id]).children().each(function(){$(this).removeClass('markrow');});
 
           if ($.isEmptyObject(selected_hosts)) {
-            $('#hosts_selected',  dialog).toggle();
-            $('#select_hosts', dialog).toggle();
+            $('#hosts_selected',  dialog).hide();
+            $('#select_hosts', dialog).show();
           }
 
          generate_requirements();
@@ -2639,8 +2636,8 @@ function setupCreateTemplateDialog(){
           var cluster_id = aData[1];
 
           if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).toggle();
-            $('#select_clusters', dialog).toggle();
+            $('#clusters_selected',  dialog).show();
+            $('#select_clusters', dialog).hide();
           }
 
           if(!$("td:first", this).hasClass('markrow'))
@@ -2659,8 +2656,8 @@ function setupCreateTemplateDialog(){
 
 
           if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).toggle();
-            $('#select_clusters', dialog).toggle();
+            $('#clusters_selected',  dialog).hide();
+            $('#select_clusters', dialog).show();
           }
 
           $('.alert-box', $('div#placement_tab .cluster_select')).hide();
@@ -2679,8 +2676,8 @@ function setupCreateTemplateDialog(){
          $(cluster_row_hash[cluster_id]).children().each(function(){$(this).removeClass('markrow');});
 
           if ($.isEmptyObject(selected_clusters)) {
-            $('#clusters_selected',  dialog).toggle();
-            $('#select_clusters', dialog).toggle();
+            $('#clusters_selected',  dialog).hide();
+            $('#select_clusters', dialog).show();
           }
 
          generate_requirements();
@@ -2883,7 +2880,6 @@ function setupCreateTemplateDialog(){
             hash["ICMP"] = "drop"
           }
 
-          console.log(hash)
           if (!$.isEmptyObject(hash)) {
               vm_json["NIC"].push(hash);
           }
@@ -2934,8 +2930,6 @@ function setupCreateTemplateDialog(){
         if ($("#network_context", $('div#context_tab')).is(":checked")) {
           var nic_id = 0;
 
-          console.log("nic")
-          console.log(vm_json["NIC"])
           $.each(vm_json["NIC"], function(){
             var vnet_id = this["NETWORK_ID"]
             var eth_str = "ETH"+nic_id+"_"
@@ -3144,7 +3138,6 @@ function fillTemplatePopUp(request, response){
     setupCreateTemplateDialog();
 
     function autoFillInputs(template_json, context){
-        console.log(context)
         var params = $('.vm_param',context);
         var inputs = $('input',params);
         var selects = $('select:enabled',params);
@@ -3339,7 +3332,7 @@ function fillTemplatePopUp(request, response){
             $('input#radioKernelDs', os_section).click();
 
             var dataTable_template = $("#datatable_kernel").dataTable();
-            var regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/;
+            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
 
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
@@ -3388,7 +3381,7 @@ function fillTemplatePopUp(request, response){
             $('input#radioInitrdDs', os_section).click();
 
             var dataTable_template = $("#datatable_initrd").dataTable();
-            var regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/;
+            var regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/;
 
             // TODO updateView should not be required. Currently the dataTable
             //  is filled twice.
@@ -3464,7 +3457,7 @@ function fillTemplatePopUp(request, response){
             var table = $('#input_table', inputs_section)[0];
             var rowCount = table.rows.length;
             var row = table.insertRow(rowCount);
-            console.log(this)
+
             var cell1 = row.insertCell(0);
             var element1 = document.createElement("input");
             element1.id = "TYPE";
@@ -3494,8 +3487,8 @@ function fillTemplatePopUp(request, response){
     var context_section = $('div#context_tab', $create_template_dialog);
 
     if (context) {
-        var file_ds_regexp = /\$FILE\[IMAGE_ID=([(0-9)+])+/g;
-        var net_regexp = /^ETH[(0-9)+]_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
+        var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
+        var net_regexp = /^ETH[0-9]+_(MASK|GATEWAY|IP|NETWORK|DNS)$/;
         var ssh_regexp = /^SSH_PUBLIC_KEY$/;
         var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
 
@@ -3554,14 +3547,12 @@ function fillTemplatePopUp(request, response){
                         }
 
                         if (files.length != 0) {
-                            if (!clicked) {
-                                var alert = '<div class="alert-box alert">'+
-        tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
-        '  <a href="" class="close">&times;</a>'+
-        '</div>';
-                            
-                                $(".dataTables_wrapper", context_section).append(alert);   
-                            }
+                            var alert = '<div class="alert-box alert">'+
+    tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
+    '  <a href="" class="close">&times;</a>'+
+    '</div>';
+                        
+                            $(".dataTables_wrapper", context_section).append(alert);   
                         }
 
                   }, 
@@ -3604,12 +3595,12 @@ function fillTemplatePopUp(request, response){
     if (req) {
         req = escapeDoubleQuotes(req);
 
-        var host_id_regexp = /ID=\\"([(0-9)+])\\"/g;
-        var cluster_id_regexp = /CLUSTER_ID=\\"([(0-9)+])\\"/g;
+        var host_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+        var cluster_id_regexp = /CLUSTER_ID=\\"([0-9]+)\\"/g;
 
         var hosts = [];
         while (match = host_id_regexp.exec(req)) {
-            hosts.push(match[1])
+            hosts.push(match[2])
         }
 
         var clusters = [];
@@ -3638,10 +3629,21 @@ function fillTemplatePopUp(request, response){
                         var current_row = $(rows[j]);
                         var row_id = $(rows[j]).find("td:eq(0)").html();
 
-                        if ($.inArray(row_id, hosts) != -1) {
+                        var in_array = $.inArray(row_id, hosts)
+                        if (in_array != -1) {
+                            hosts.splice(in_array, 1);
                             // TBD check if all the hosts were clicked
                             rows[j].click();
                         }
+                    }
+
+                    if (hosts.length != 0) {
+                        var alert = '<div class="alert-box alert">'+
+tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
+                    
+                        $("#datatable_template_hosts_wrapper", req_section).append(alert);   
                     }
                 }, 
                 error: onError
@@ -3653,7 +3655,7 @@ function fillTemplatePopUp(request, response){
 
             var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
 
-            OpenNebula.Host.list({
+            OpenNebula.Cluster.list({
                 timeout: true, 
                 success: function (request, cluster_list){
                     var cluster_list_array = [];
@@ -3671,10 +3673,21 @@ function fillTemplatePopUp(request, response){
                         var current_row = $(rows[j]);
                         var row_id = $(rows[j]).find("td:eq(0)").html();
 
-                        if ($.inArray(row_id, clusters) != -1) {
+                        var in_array = $.inArray(row_id, clusters)
+                        if (in_array != -1) {
+                            clusters.splice(in_array, 1);
                             // TBD check if all the clusters were clicked
                             rows[j].click();
                         }
+                    }
+
+                    if (clusters.length != 0) {
+                        var alert = '<div class="alert-box alert">'+
+tr('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
+'  <a href="" class="close">&times;</a>'+
+'</div>';
+                    
+                        $("#datatable_template_clusters_wrapper", req_section).append(alert);   
                     }
                 }, 
                 error: onError
