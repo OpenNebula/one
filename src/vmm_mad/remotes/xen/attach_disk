@@ -66,7 +66,7 @@ if [ -n "$DRIVER" ]; then
     FILE_PREFIX="$DRIVER"
 fi
 
-FULL_DISK="$FILE_PREFIX:$SOURCE"
+FULL_DISK="${FILE_PREFIX%:}:$SOURCE"
 
 if [ "$READONLY" = "YES" ]; then
     MODE="r"
