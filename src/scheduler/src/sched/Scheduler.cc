@@ -180,6 +180,8 @@ void Scheduler::start()
     vmpool = new VirtualMachinePoolXML(client,
                                        machines_limit,
                                        (live_rescheds == 1));
+    vmapool= new VirtualMachineActionsPoolXML(client, machines_limit);
+
     acls   = new AclXML(client);
 
     // -----------------------------------------------------------
@@ -624,20 +626,11 @@ void Scheduler::dispatch()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Scheduler::scheduled_actions()
+int Scheduler::do_scheduled_actions()
 {
-    int rc = vmpool->set_up_actions();
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
     VirtualMachineXML* vm;
-    VirtualMachineTemplate* vm_template;
 
-    vector<string> v_st;
-
+    const map<int, ObjectXML*>  vms = vmapool->get_objects();
     map<int, ObjectXML*>::const_iterator vm_it;
 
     vector<Attribute *> attributes;
@@ -645,28 +638,23 @@ int Scheduler::scheduled_actions()
 
     VectorAttribute* vatt;
 
-    time_t the_time = time(0);
+    int action_time;
+    int done_time;
+    int has_time;
+    int has_done;
 
-    int action_time, done_time, has_time, has_done;
     string action_st, error_msg;
 
-    ostringstream oss;
-    ostringstream oss_aux;
-
+    time_t the_time = time(0);
     string time_str = one_util::log_time(the_time);
-
-    const map<int, ObjectXML*> vms = vmpool->get_objects();
 
     for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
-        vm_template = vm->get_template();
 
-        attributes.clear();
-        vm_template->remove("SCHED_ACTION", attributes);
+        vm->get_actions(attributes);
 
         // TODO: Sort actions by TIME
-
         for (it=attributes.begin(); it != attributes.end(); it++)
         {
             vatt = dynamic_cast<VectorAttribute*>(*it);
@@ -676,46 +664,26 @@ int Scheduler::scheduled_actions()
                 continue;
             }
 
-            has_time = vatt->vector_value("TIME", action_time);
-            has_done = vatt->vector_value("DONE", done_time);
-
+            has_time  = vatt->vector_value("TIME", action_time);
+            has_done  = vatt->vector_value("DONE", done_time);
             action_st = vatt->vector_value("ACTION");
-
-            one_util::tolower(action_st);
 
             if (has_time == 0 && has_done == -1 && action_time < the_time)
             {
-                oss.str("");
+                ostringstream oss;
 
-                // onevm delete command uses the xml-rpc finalize action
-                if (action_st == "delete")
-                {
-                    action_st = "finalize";
-                }
+                int rc = VirtualMachineXML::parse_action_name(action_st);
 
                 oss << "Executing action '" << action_st << "' for VM "
                     << vm->get_oid() << " : ";
 
-                if (   action_st != "shutdown"
-                    && action_st != "hold"
-                    && action_st != "release"
-                    && action_st != "stop"
-                    && action_st != "cancel"
-                    && action_st != "suspend"
-                    && action_st != "resume"
-                    && action_st != "restart"
-                    && action_st != "resubmit"
-                    && action_st != "reboot"
-                    && action_st != "reset"
-                    && action_st != "poweroff"
-                    && action_st != "finalize")
+                if ( rc != 0 )
                 {
                     error_msg = "This action is not supported.";
-                    rc = -1;
                 }
                 else
                 {
-                    rc = vmpool->action(vm->get_oid(), action_st, error_msg);
+                    rc = vmapool->action(vm->get_oid(), action_st, error_msg);
                 }
 
                 if (rc == 0)
@@ -727,7 +695,8 @@ int Scheduler::scheduled_actions()
                 }
                 else
                 {
-                    oss_aux.str("");
+                    ostringstream oss_aux;
+
                     oss_aux << time_str << " : " << error_msg;
 
                     vatt->replace("MESSAGE", oss_aux.str());
@@ -735,13 +704,13 @@ int Scheduler::scheduled_actions()
                     oss << "Failure. " << error_msg;
                 }
 
-                NebulaLog::log("VM",Log::INFO,oss);
+                NebulaLog::log("VM", Log::INFO, oss);
+
+                vm->set_attribute(vatt);
+
+                vmpool->update(vm);
             }
-
-            vm_template->set(vatt);
         }
-
-        vmpool->update(vm);
     }
 
     return 0;
@@ -756,7 +725,12 @@ void Scheduler::do_action(const string &name, void *args)
 
     if (name == ACTION_TIMER)
     {
-        scheduled_actions();
+        rc = vmapool->set_up();
+
+        if ( rc == 0 )
+        {
+            do_scheduled_actions();
+        }
 
         rc = set_up_pools();
 

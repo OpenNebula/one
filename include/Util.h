@@ -19,23 +19,21 @@
 
 #include <string>
 
-using namespace std;
-
 namespace one_util
 {
-    string& toupper(string& st)
+    inline string& toupper(string& st)
     {
         transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::toupper);
         return st;
     };
 
-    string& tolower(string& st)
+    inline string& tolower(string& st)
     {
         transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::tolower);
         return st;
     };
 
-    string log_time(time_t the_time)
+    inline string log_time(time_t the_time)
     {
         char time_str[26];
 
@@ -50,11 +48,10 @@ namespace one_util
         return string(time_str);
     };
 
-    string log_time()
+    inline string log_time()
     {
         return log_time( time(0) );
     };
-}
-
+};
 
 #endif /* UTIL_H_ */

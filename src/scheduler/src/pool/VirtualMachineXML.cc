@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
+#include "Util.h"
 
 void VirtualMachineXML::init_attributes()
 {
@@ -265,21 +266,42 @@ void VirtualMachineXML::log(const string &st)
     {
         return;
     }
+    ostringstream oss;
 
-    char   str[26];
-    time_t the_time = time(NULL);
-
-    ostringstream  oss;
-
-#ifdef SOLARIS
-    ctime_r(&(the_time),str,sizeof(char)*26);
-#else
-    ctime_r(&(the_time),str);
-#endif
-
-    str[24] = '\0'; // Get rid of final enter character
-
-    oss << str << " : " << st;
+    oss << one_util::log_time(time(0)) << " : " << st;
 
     vm_template->replace("SCHED_MESSAGE", oss.str());
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineXML::parse_action_name(string& action_st)
+{
+   one_util::tolower(action_st);
+
+    // onevm delete command uses the xml-rpc finalize action
+    if (action_st == "delete")
+    {
+        action_st = "finalize";
+    }
+
+    if (   action_st != "shutdown"
+        && action_st != "hold"
+        && action_st != "release"
+        && action_st != "stop"
+        && action_st != "cancel"
+        && action_st != "suspend"
+        && action_st != "resume"
+        && action_st != "restart"
+        && action_st != "resubmit"
+        && action_st != "reboot"
+        && action_st != "reset"
+        && action_st != "poweroff"
+        && action_st != "finalize")
+    {
+        return -1;
+    }
+
+    return 0;
+};

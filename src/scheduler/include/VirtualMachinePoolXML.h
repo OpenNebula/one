@@ -32,7 +32,7 @@ public:
                           bool           _live_resched):
         PoolXML(client, machines_limit), live_resched(_live_resched){};
 
-    ~VirtualMachinePoolXML(){};
+    virtual ~VirtualMachinePoolXML(){};
 
     /**
      * Retrieves the pending and rescheduling VMs
@@ -42,15 +42,6 @@ public:
      *          -2 if no VMs need to be scheduled
      */
     int set_up();
-
-    /**
-     * Retrieves the VMs with scheduled actions
-     *
-     * @return   0 on success
-     *          -1 on error
-     *          -2 if no VMs need to be scheduled
-     */
-    int set_up_actions();
 
     /**
      *  Gets an object from the pool
@@ -93,6 +84,46 @@ public:
         return update(vm->get_oid(), vm->get_template(xml));
     };
 
+protected:
+
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    {
+        return get_nodes("/VM_POOL/VM[STATE=1 or (LCM_STATE=3 and RESCHED=1)]",
+                         content);
+    }
+
+    virtual void add_object(xmlNodePtr node);
+
+    virtual int load_info(xmlrpc_c::value &result);
+
+    /**
+     * Do live migrations to resched VMs
+     */
+    bool live_resched;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineActionsPoolXML : public VirtualMachinePoolXML
+{
+public:
+
+    VirtualMachineActionsPoolXML(Client*       client,
+                                 unsigned int  machines_limit):
+        VirtualMachinePoolXML(client, machines_limit, false){};
+
+    virtual ~VirtualMachineActionsPoolXML(){};
+
+    /**
+     * Retrieves the VMs with pending actions
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs with pending actions
+     */
+    int set_up();
+
     /**
      * Calls one.vm.action
      *
@@ -106,22 +137,15 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content);
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    {
+        ostringstream oss;
 
-    virtual void add_object(xmlNodePtr node);
+        oss << "/VM_POOL/VM/USER_TEMPLATE/SCHED_ACTION[TIME < " << time(0)
+            << " and not(DONE > 0)]/../..";
 
-    virtual int load_info(xmlrpc_c::value &result);
-
-    /**
-     * Do live migrations to resched VMs
-     */
-    bool live_resched;
-
-    /**
-     * True to retrieve pending/resched VMs, false to get VMs with scheduled
-     * actions
-     */
-    bool retrieve_pending;
+        return get_nodes(oss.str().c_str(), content);
+    }
 };
 
 #endif /* VM_POOL_XML_H_ */
