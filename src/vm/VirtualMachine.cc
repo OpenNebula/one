@@ -63,14 +63,17 @@ VirtualMachine::VirtualMachine(int           id,
 {
     if (_vm_template != 0)
     {
-        obj_template = _vm_template;
+        // This is a VM Template, with the root TEMPLATE.
+        _vm_template->set_xml_root("USER_TEMPLATE");
+
+        user_obj_template = _vm_template;
     }
     else
     {
-        obj_template = new VirtualMachineTemplate;
+        user_obj_template = new Template(false,'=',"USER_TEMPLATE");
     }
 
-    user_obj_template = new Template(false,'=',"USER_TEMPLATE");
+    obj_template = new VirtualMachineTemplate;
 
     set_umask(umask);
 }
@@ -236,13 +239,24 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     oss << oid;
     value = oss.str();
 
-    replace_template_attribute("VMID", value);
+    user_obj_template->erase("VMID");
+    obj_template->add("VMID", value);
 
-    get_template_attribute("NAME",name);
+    user_obj_template->get("TEMPLATE_ID", value);
+    user_obj_template->erase("TEMPLATE_ID");
+
+    if (!value.empty())
+    {
+        obj_template->add("TEMPLATE_ID", value);
+    }
+
+    user_obj_template->get("NAME",name);
+    user_obj_template->erase("NAME");
 
     if (name.empty() == true)
     {
-        get_template_attribute("TEMPLATE_NAME", prefix);
+        user_obj_template->get("TEMPLATE_NAME", prefix);
+        user_obj_template->erase("TEMPLATE_NAME");
 
         if (prefix.empty())
         {
@@ -252,8 +266,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         oss.str("");
         oss << prefix << "-" << oid;
         name = oss.str();
-
-        replace_template_attribute("NAME", name);
     }
     else if (name.length() > 128)
     {
@@ -266,26 +278,35 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Check for CPU, VCPU and MEMORY attributes
     // ------------------------------------------------------------------------
 
-    if ( get_template_attribute("MEMORY", ivalue) == false || ivalue <= 0 )
+    if ( user_obj_template->get("MEMORY", ivalue) == false || ivalue <= 0 )
     {
         goto error_memory;
     }
 
-    if ( get_template_attribute("CPU", fvalue) == false || fvalue <= 0 )
+    user_obj_template->erase("MEMORY");
+    obj_template->add("MEMORY", ivalue);
+
+    if ( user_obj_template->get("CPU", fvalue) == false || fvalue <= 0 )
     {
         goto error_cpu;
     }
 
+    user_obj_template->erase("CPU");
+    obj_template->add("CPU", fvalue);
+
     // VCPU is optional, first check if the attribute exists, then check it is
     // an integer
-    get_template_attribute("VCPU", value);
+    user_obj_template->get("VCPU", value);
 
     if ( value.empty() == false )
     {
-        if ( get_template_attribute("VCPU", ivalue) == false || ivalue <= 0 )
+        if ( user_obj_template->get("VCPU", ivalue) == false || ivalue <= 0 )
         {
             goto error_vcpu;
         }
+
+        user_obj_template->erase("VCPU");
+        obj_template->add("VCPU", ivalue);
     }
 
     // ------------------------------------------------------------------------
@@ -511,7 +532,14 @@ int VirtualMachine::parse_os(string& error_str)
     vector<Attribute *> os_attr;
     VectorAttribute *   os;
 
-    num = obj_template->get("OS", os_attr);
+    vector<Attribute *>::iterator it;
+
+    num = user_obj_template->remove("OS", os_attr);
+
+    for (it=os_attr.begin(); it != os_attr.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     if ( num == 0 )
     {
@@ -568,7 +596,7 @@ int VirtualMachine::parse_context(string& error_str)
 
     vector<int>  img_ids;
 
-    num = obj_template->remove("CONTEXT", array_context);
+    num = user_obj_template->remove("CONTEXT", array_context);
 
     if ( num == 0 )
     {
@@ -703,7 +731,14 @@ void VirtualMachine::parse_graphics()
     vector<Attribute *> array_graphics;
     VectorAttribute *   graphics;
 
-    num = obj_template->get("GRAPHICS", array_graphics);
+    vector<Attribute *>::iterator it;
+
+    num = user_obj_template->remove("GRAPHICS", array_graphics);
+
+    for (it=array_graphics.begin(); it != array_graphics.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     if ( num == 0 )
     {
@@ -750,7 +785,7 @@ int VirtualMachine::parse_requirements(string& error_str)
 
     string              parsed;
 
-    num = obj_template->remove("REQUIREMENTS", array_reqs);
+    num = user_obj_template->remove("REQUIREMENTS", array_reqs);
 
     if ( num == 0 )
     {
@@ -838,6 +873,8 @@ int VirtualMachine::automatic_requirements(string& error_str)
     vector<Attribute  * > v_attributes;
     VectorAttribute *     vatt;
 
+    vector<Attribute*>::iterator it;
+
     ostringstream   oss;
     string          requirements;
     string          cluster_id = "";
@@ -847,7 +884,12 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     // Get cluster id from all DISK vector attributes (IMAGE Datastore)
 
-    num_vatts = obj_template->get("DISK",v_attributes);
+    num_vatts = user_obj_template->remove("DISK",v_attributes);
+
+    for (it=v_attributes.begin(); it != v_attributes.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     for(int i=0; i<num_vatts; i++)
     {
@@ -870,7 +912,12 @@ int VirtualMachine::automatic_requirements(string& error_str)
     // Get cluster id from the KERNEL and INITRD (FILE Datastores)
 
     v_attributes.clear();
-    num_vatts = obj_template->get("OS",v_attributes);
+    num_vatts = user_obj_template->remove("OS",v_attributes);
+
+    for (it=v_attributes.begin(); it != v_attributes.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     if ( num_vatts > 0 )
     {
@@ -897,7 +944,12 @@ int VirtualMachine::automatic_requirements(string& error_str)
     // Get cluster id from all NIC vector attributes
 
     v_attributes.clear();
-    num_vatts = obj_template->get("NIC",v_attributes);
+    num_vatts = user_obj_template->remove("NIC",v_attributes);
+
+    for (it=v_attributes.begin(); it != v_attributes.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     for(int i=0; i<num_vatts; i++)
     {
@@ -922,14 +974,15 @@ int VirtualMachine::automatic_requirements(string& error_str)
         oss.str("");
         oss << "CLUSTER_ID = " << cluster_id;
 
-        obj_template->get("REQUIREMENTS", requirements);
+        user_obj_template->get("REQUIREMENTS", requirements);
+        user_obj_template->erase("REQUIREMENTS");
 
         if ( !requirements.empty() )
         {
             oss << " & ( " << requirements << " )";
         }
 
-        replace_template_attribute("REQUIREMENTS", oss.str());
+        obj_template->add("REQUIREMENTS", oss.str());
     }
 
     return 0;
@@ -1289,11 +1342,23 @@ int VirtualMachine::get_disk_images(string& error_str)
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
+    vector<Attribute*>::iterator it;
+
     // -------------------------------------------------------------------------
     // The context is the first of the cdroms
     // -------------------------------------------------------------------------
-    num_context = obj_template->get("CONTEXT", context_disks);
-    num_disks   = obj_template->get("DISK", disks);
+    num_context = user_obj_template->remove("CONTEXT", context_disks);
+    num_disks   = user_obj_template->remove("DISK", disks);
+
+    for (it=context_disks.begin(); it != context_disks.end(); it++)
+    {
+        obj_template->set(*it);
+    }
+
+    for (it=disks.begin(); it != disks.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     if ( num_disks > 20 )
     {
@@ -1408,11 +1473,11 @@ error_duplicated_target:
 error_common:
     ImageManager *  imagem  = nd.get_imagem();
 
-    vector<int>::iterator it;
+    vector<int>::iterator img_it;
 
-    for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
+    for ( img_it=acquired_images.begin() ; img_it < acquired_images.end(); img_it++ )
     {
-        imagem->release_image(oid, *it, false);
+        imagem->release_image(oid, *img_it, false);
     }
 
     return -1;
@@ -1749,7 +1814,12 @@ int VirtualMachine::get_network_leases(string& estr)
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
-    num_nics   = obj_template->get("NIC",nics);
+    num_nics   = user_obj_template->remove("NIC",nics);
+
+    for (vector<Attribute*>::iterator it=nics.begin(); it != nics.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     for(int i=0; i<num_nics; i++)
     {
