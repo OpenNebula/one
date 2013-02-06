@@ -77,11 +77,37 @@ end
 
 def add_info(name, value)
     value = "0" if value.nil? or value.to_s.empty?
-    @result_str << "#{name}=#{value} "
+    @result_str << "#{name}=#{value}\n"
 end
 
 def print_info
     puts @result_str
+end
+
+def get_vm_names
+    rc, data = do_action("virsh -c #{@uri} --readonly list")
+
+    return [] if !rc
+
+    lines=data.split(/\n/)[2..-1]
+
+    lines.map do |line|
+        line.split(/\s+/).delete_if {|d| d.empty? }[1]
+    end.compact
+end
+
+def get_vm_info(host, vm)
+    `../../vmm/vmware/poll #{vm} #{host}`.strip
+end
+
+def get_all_vm_info(host, vms)
+    vms.each do |vm|
+        info=get_vm_info(host, vm)
+        number=vm.split('-').last
+        puts "VM=["
+        puts "  ID=#{number},"
+        puts "  POLL=\"#{info}\" ]"
+    end
 end
 
 # ######################################################################## #
@@ -165,3 +191,5 @@ add_info("TOTALMEMORY",$total_memory)
 add_info("FREEMEMORY",free_memory.to_i)
 
 print_info
+
+get_all_vm_info(host, get_vm_names)
