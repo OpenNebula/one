@@ -785,7 +785,30 @@ int VirtualMachine::parse_requirements(string& error_str)
 
     string              parsed;
 
-    num = user_obj_template->remove("REQUIREMENTS", array_reqs);
+    num = user_obj_template->remove("SCHED_REQUIREMENTS", array_reqs);
+
+    if ( num == 0 ) // Compatibility with old REQUIREMENTS attribute
+    {
+        vector<Attribute *> array_reqs_aux;
+        vector<Attribute*>::iterator it;
+
+        num = user_obj_template->remove("REQUIREMENTS", array_reqs_aux);
+
+        // Rename att to SCHED_REQUIREMENTS
+        for (it = array_reqs_aux.begin(); it != array_reqs_aux.end(); it++)
+        {
+            reqs = dynamic_cast<SingleAttribute *>(*it);
+
+            if (reqs != 0)
+            {
+                array_reqs.push_back( new SingleAttribute(
+                        "SCHED_REQUIREMENTS",
+                        reqs->value()) );
+            }
+
+            delete *it;
+        }
+    }
 
     if ( num == 0 )
     {
@@ -793,7 +816,7 @@ int VirtualMachine::parse_requirements(string& error_str)
     }
     else if ( num > 1 )
     {
-        error_str = "Only one REQUIREMENTS attribute can be defined.";
+        error_str = "Only one SCHED_REQUIREMENTS attribute can be defined.";
         goto error_cleanup;
     }
 
@@ -801,7 +824,7 @@ int VirtualMachine::parse_requirements(string& error_str)
 
     if ( reqs == 0 )
     {
-        error_str = "Wrong format for REQUIREMENTS attribute.";
+        error_str = "Wrong format for SCHED_REQUIREMENTS attribute.";
         goto error_cleanup;
     }
 
@@ -811,8 +834,8 @@ int VirtualMachine::parse_requirements(string& error_str)
     {
         SingleAttribute * reqs_parsed;
 
-        reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
-        obj_template->set(reqs_parsed);
+        reqs_parsed = new SingleAttribute("SCHED_REQUIREMENTS",parsed);
+        user_obj_template->set(reqs_parsed);
     }
 
     /* --- Delete old requirements attributes --- */
@@ -974,15 +997,15 @@ int VirtualMachine::automatic_requirements(string& error_str)
         oss.str("");
         oss << "CLUSTER_ID = " << cluster_id;
 
-        user_obj_template->get("REQUIREMENTS", requirements);
-        user_obj_template->erase("REQUIREMENTS");
+        user_obj_template->get("SCHED_REQUIREMENTS", requirements);
+        user_obj_template->erase("SCHED_REQUIREMENTS");
 
         if ( !requirements.empty() )
         {
             oss << " & ( " << requirements << " )";
         }
 
-        obj_template->add("REQUIREMENTS", oss.str());
+        user_obj_template->add("SCHED_REQUIREMENTS", oss.str());
     }
 
     return 0;

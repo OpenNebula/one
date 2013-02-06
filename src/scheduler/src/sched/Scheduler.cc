@@ -431,7 +431,7 @@ void Scheduler::match()
                     matched = false;
                     n_error++;
 
-                    error_msg << "Error evaluating REQUIREMENTS expression: '"
+                    error_msg << "Error evaluating SCHED_REQUIREMENTS expression: '"
                             << reqs << "', error: " << error;
 
                     oss << "VM " << oid << ": " << error_msg.str();
@@ -454,7 +454,7 @@ void Scheduler::match()
                 ostringstream oss;
 
                 oss << "VM " << oid << ": Host " << host->get_hid() <<
-                    " filtered out. It does not fulfill REQUIREMENTS.";
+                    " filtered out. It does not fulfill SCHED_REQUIREMENTS.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
@@ -503,7 +503,7 @@ void Scheduler::match()
                 }
                 else if (n_matched == 0)
                 {
-                    vm->log("No host meets the REQUIREMENTS expression");
+                    vm->log("No host meets the SCHED_REQUIREMENTS expression");
                 }
                 else
                 {

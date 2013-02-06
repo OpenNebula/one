@@ -1177,7 +1177,7 @@ private:
     int parse_context(string& error_str);
 
     /**
-     *  Parse the "REQUIREMENTS" attribute of the template by substituting
+     *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success

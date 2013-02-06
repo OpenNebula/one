@@ -51,7 +51,7 @@ void VirtualMachineXML::init_attributes()
         cpu = 0;
     }
 
-    result = ((*this)["/VM/TEMPLATE/RANK"]);
+    result = ((*this)["/VM/USER_TEMPLATE/SCHED_RANK"]);
 
     if (result.size() > 0)
     {
@@ -59,10 +59,20 @@ void VirtualMachineXML::init_attributes()
     }
     else
     {
-        rank = "";
+        // Compatibility with previous versions
+        result = ((*this)["/VM/USER_TEMPLATE/RANK"]);
+
+        if (result.size() > 0)
+        {
+            rank = result[0];
+        }
+        else
+        {
+            rank = "";
+        }
     }
 
-    result = ((*this)["/VM/TEMPLATE/REQUIREMENTS"]);
+    result = ((*this)["/VM/USER_TEMPLATE/SCHED_REQUIREMENTS"]);
 
     if (result.size() > 0)
     {
