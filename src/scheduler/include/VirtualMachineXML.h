@@ -125,7 +125,7 @@ public:
     }
 
     /**
-     * Returns the scheduled actions of the VM
+     * Removes (but does not delete) the scheduled actions of the VM
      *
      * @param attributes to hold the VM actions
      */

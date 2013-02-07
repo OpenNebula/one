@@ -661,6 +661,8 @@ int Scheduler::do_scheduled_actions()
 
             if (vatt == 0)
             {
+                delete *it;
+
                 continue;
             }
 

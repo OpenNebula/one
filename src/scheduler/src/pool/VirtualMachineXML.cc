@@ -268,7 +268,7 @@ void VirtualMachineXML::log(const string &st)
     }
     ostringstream oss;
 
-    oss << one_util::log_time(time(0)) << " : " << st;
+    oss << one_util::log_time() << " : " << st;
 
     vm_template->replace("SCHED_MESSAGE", oss.str());
 }
@@ -278,7 +278,7 @@ void VirtualMachineXML::log(const string &st)
 
 int VirtualMachineXML::parse_action_name(string& action_st)
 {
-   one_util::tolower(action_st);
+    one_util::tolower(action_st);
 
     // onevm delete command uses the xml-rpc finalize action
     if (action_st == "delete")

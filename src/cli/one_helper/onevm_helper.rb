@@ -261,7 +261,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 column :"MESSAGE", "", :left, :donottruncate, :size=>43 do |d|
                     d["MESSAGE"] if !d.nil?
                 end
-            end.show(vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION'], {})
+            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
 
             puts
         end
