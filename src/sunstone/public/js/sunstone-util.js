@@ -1502,27 +1502,30 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
 
     // Listener for key,value pair remove action
     $("#div_add_vectorial").live("click", function() {
-        var field=this.firstElementChild.id.substring(18,this.firstElementChild.id.length);
-        var list_of_classes=this.firstElementChild.className.split(" ");
-        var ocurrence=null;
-        var vectorial_key=null;
+        if (!$('#button_add_value_vectorial').html())
+        {
+            var field=this.firstElementChild.id.substring(18,this.firstElementChild.id.length);
+            var list_of_classes=this.firstElementChild.className.split(" ");
+            var ocurrence=null;
+            var vectorial_key=null;
 
-        if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^ocurrence_/))
-                    ocurrence=list_of_classes[current_class];
+            if (list_of_classes.length!=1)
+                for (var current_class in list_of_classes)
+                    if (list_of_classes[current_class].match(/^ocurrence_/))
+                        ocurrence=list_of_classes[current_class];
 
-        if (list_of_classes.length!=1)
-            for (var current_class in list_of_classes)
-                if (list_of_classes[current_class].match(/^vectorial_key_/))
-                    vectorial_key=list_of_classes[current_class];
+            if (list_of_classes.length!=1)
+                for (var current_class in list_of_classes)
+                    if (list_of_classes[current_class].match(/^vectorial_key_/))
+                        vectorial_key=list_of_classes[current_class];
 
 
-        $(this).parent().parent().after('<tr>\
-                                          <td class="key_td"><input type="text" style="text-align:center" name="new_key_vectorial" id="new_key_vectorial" /></td>\
-                                          <td class="value_td"><input type="text" name="new_value" id="new_value_vectorial" /></td>\
-                                          <td class=""><button class="'+vectorial_key+" "+ocurrence+'" id="button_add_value_vectorial">'+tr("Add")+'</button>\</td>\
-                                         </tr>');
+            $(this).parent().parent().after('<tr>\
+                                              <td class="key_td"><input type="text" style="text-align:center" name="new_key_vectorial" id="new_key_vectorial" /></td>\
+                                              <td class="value_td"><input type="text" name="new_value" id="new_value_vectorial" /></td>\
+                                              <td class=""><button class="'+vectorial_key+" "+ocurrence+'" id="button_add_value_vectorial">'+tr("Add")+'</button>\</td>\
+                                             </tr>');
+        }
     });
 
     // Add listener for add key and add value for Extended Template
@@ -1876,7 +1879,7 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
 
 ;(function ($, window, undefined) {
   'use strict';
-  
+
   var settings = {
       bodyHeight : 0,
       selector : '.has-tip',
@@ -2013,7 +2016,7 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
                 return el;
               }
           }).join(' ') : '';
-          
+
         return $.trim(filtered);
       },
       show : function ($target) {
@@ -2056,12 +2059,12 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
 
 ;(function ($, window, undefined) {
   'use strict';
-  
+
   $.fn.foundationAlerts = function (options) {
     var settings = $.extend({
       callback: $.noop
     }, options);
-    
+
     $(document).on("click", ".alert-box a.close", function (e) {
       e.preventDefault();
       $(this).closest(".alert-box").fadeOut(function () {
@@ -2070,7 +2073,7 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
         settings.callback();
       });
     });
-    
+
   };
 
 })(jQuery, this);
