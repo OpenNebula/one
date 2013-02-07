@@ -49,34 +49,9 @@ GANGLIA_PORT=8649
 #GANGLIA_FILE='data.xml'
 
 
-def info_string(dom_info)
-    if dom_info
-        info=dom_info.map do |key, value|
-            "#{key.to_s.upcase}=#{value}"
-        end.join(' ')
-    else
-        ''
-    end
-end
-
-def vm_info(name, dom_info)
-    number=name.split('-').last
-    string="VM=[\n"
-    string<<"  ID=\"#{number}\",\n"
-    string<<"  POLL=\"#{info_string(dom_info)}\" ]"
-    string
-end
-
-
-if ARGV.length==1
-    host=ARGV[0]
-    ALL=true
-else
-    domain=ARGV[0]
-    dom_id=ARGV[2]
-    host=ARGV[1]
-    ALL=false
-end
+domain=ARGV[0]
+dom_id=ARGV[2]
+host=ARGV[1]
 
 # Gets monitoring data from ganglia or file
 begin
@@ -91,24 +66,24 @@ rescue
 end
 
 doms_info=ganglia.get_vms_information
+dom_id=domain.split('-').last
 
-if !ALL
-    dom_id=domain.split('-').last
-
-    # Unknown state when the VM is not found
-    if !doms_info || !(doms_info[domain] || doms_info[dom_id])
-        puts "STATE=d"
-        exit(0)
-    end
-
-    # Get key one-<vmid> or <vmid> key from the hash
-    dom_info=doms_info[domain]
-    dom_info=doms_info[dom_id] if !dom_info
-
-    puts info_string(dom_info)
-else
-    doms_info.each do |name, data|
-        puts vm_info(name, data)
-    end
+# Unknown state when the VM is not found
+if !doms_info || !(doms_info[domain] || doms_info[dom_id])
+    puts "STATE=d"
+    exit(0)
 end
+
+# Get key one-<vmid> or <vmid> key from the hash
+dom_info=doms_info[domain]
+dom_info=doms_info[dom_id] if !dom_info
+
+if dom_info
+    info=dom_info.map do |key, value|
+        "#{key.to_s.upcase}=#{value}"
+    end.join(' ')
+    
+    puts info
+end
+
 
