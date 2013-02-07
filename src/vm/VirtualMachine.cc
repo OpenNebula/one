@@ -896,8 +896,6 @@ int VirtualMachine::automatic_requirements(string& error_str)
     vector<Attribute  * > v_attributes;
     VectorAttribute *     vatt;
 
-    vector<Attribute*>::iterator it;
-
     ostringstream   oss;
     string          requirements;
     string          cluster_id = "";
@@ -907,12 +905,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     // Get cluster id from all DISK vector attributes (IMAGE Datastore)
 
-    num_vatts = user_obj_template->remove("DISK",v_attributes);
-
-    for (it=v_attributes.begin(); it != v_attributes.end(); it++)
-    {
-        obj_template->set(*it);
-    }
+    num_vatts = obj_template->get("DISK",v_attributes);
 
     for(int i=0; i<num_vatts; i++)
     {
@@ -935,12 +928,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
     // Get cluster id from the KERNEL and INITRD (FILE Datastores)
 
     v_attributes.clear();
-    num_vatts = user_obj_template->remove("OS",v_attributes);
-
-    for (it=v_attributes.begin(); it != v_attributes.end(); it++)
-    {
-        obj_template->set(*it);
-    }
+    num_vatts = obj_template->get("OS",v_attributes);
 
     if ( num_vatts > 0 )
     {
@@ -967,12 +955,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
     // Get cluster id from all NIC vector attributes
 
     v_attributes.clear();
-    num_vatts = user_obj_template->remove("NIC",v_attributes);
-
-    for (it=v_attributes.begin(); it != v_attributes.end(); it++)
-    {
-        obj_template->set(*it);
-    }
+    num_vatts = obj_template->get("NIC",v_attributes);
 
     for(int i=0; i<num_vatts; i++)
     {
