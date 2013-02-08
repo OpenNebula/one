@@ -21,13 +21,13 @@
 
 namespace one_util
 {
-    inline std::string& toupper(std::string& st);
+    std::string& toupper(std::string& st);
 
-    inline std::string& tolower(std::string& st);
+    std::string& tolower(std::string& st);
 
     std::string log_time(time_t the_time);
 
-    inline std::string log_time();
+    std::string log_time();
 };
 
 #endif /* UTIL_H_ */
