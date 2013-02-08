@@ -1248,8 +1248,12 @@ function loadAccounting(resource, id, graphs, options){
 }
 
 // Convert from hash to string
-function convert_template_to_string(template_json)
+function convert_template_to_string(template_json,unshown_values)
 {
+    if (unshown_values)
+       template_json = $.extend({}, template_json, unshown_values);
+
+
     var template_str = "\n";
     for(var key in template_json)
     {
@@ -1296,15 +1300,13 @@ function convert_template_to_string(template_json)
                }
         }
     }
-    console.log(template_str);
 
     return template_str;
 }
 
 // Create the extended template table (with listeners)
-function insert_extended_template_table(template_json,resource_type,resource_id)
+function insert_extended_template_table(template_json,resource_type,resource_id,unshown_values)
 {
-    console.log(template_json);
     var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table">\
                  <thead>\
                    <tr>\
@@ -1341,7 +1343,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
         if ( $('#new_value').val() != "" && $('#new_key').val() != "" )
         {
             template_json[$('#new_key').val()] = $('#new_value').val();
-            template_str = convert_template_to_string(template_json);
+            template_str = convert_template_to_string(template_json,unshown_values);
 
             Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
         }
@@ -1380,7 +1382,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
         else
             delete template_json[field];
 
-        template_str = convert_template_to_string(template_json);
+        template_str = convert_template_to_string(template_json,unshown_values);
 
         // Let OpenNebula know
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
@@ -1402,7 +1404,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
         delete template_json[key_str];
         template_json[key_str]=value_str;
 
-        template_str = convert_template_to_string(template_json);
+        template_str = convert_template_to_string(template_json,unshown_values);
 
         // Let OpenNebula know
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
@@ -1464,7 +1466,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
         else
             template_json[vectorial_key][key_str]=value_str;
 
-        template_str = convert_template_to_string(template_json);
+        template_str = convert_template_to_string(template_json,unshown_values);
 
         // Let OpenNebula know
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
@@ -1494,7 +1496,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
         else
             delete template_json[vectorial_key][field];
 
-        template_str = convert_template_to_string(template_json);
+        template_str = convert_template_to_string(template_json,unshown_values);
 
         // Let OpenNebula know
         Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
@@ -1558,7 +1560,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id)
                 template_json[vectorial_key][$('#new_key_vectorial').val()] = $('#new_value_vectorial').val();
             }
 
-            template_str = convert_template_to_string(template_json);
+            template_str = convert_template_to_string(template_json,unshown_values);
 
             Sunstone.runAction(resource_type+".update_template",resource_id,template_str);
         }

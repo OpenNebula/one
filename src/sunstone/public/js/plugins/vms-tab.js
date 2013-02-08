@@ -921,6 +921,17 @@ function updateVMInfo(request,vm){
         };
     };
 
+    // Get rid of the unwanted (for show) SCHED_* keys
+    var stripped_vm_template = {};
+    var unshown_values       = {};
+
+    for (key in vm_info.USER_TEMPLATE)
+        if(!key.match(/^SCHED_*/))
+            stripped_vm_template[key]=vm_info.USER_TEMPLATE[key];
+        else
+            unshown_values[key]=vm_info.USER_TEMPLATE[key];
+
+
     var info_tab = {
         title : tr("Information"),
         content:
@@ -972,9 +983,10 @@ function updateVMInfo(request,vm){
               </tbody>\
                </table>' +
 
-               insert_extended_template_table(vm_info.USER_TEMPLATE,
-                                                          "VM",
-                                                          vm_info.ID) +
+               insert_extended_template_table(stripped_vm_template,
+                                              "VM",
+                                              vm_info.ID,
+                                              unshown_values) +
                insert_permissions_table("VM",
                                         vm_info.ID,
                                         vm_info.UNAME,
