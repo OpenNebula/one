@@ -707,12 +707,12 @@ int Scheduler::do_scheduled_actions()
                 }
 
                 NebulaLog::log("VM", Log::INFO, oss);
-
-                vm->set_attribute(vatt);
-
-                vmpool->update(vm);
             }
+
+            vm->set_attribute(vatt);
         }
+
+        vmpool->update(vm);
     }
 
     return 0;
