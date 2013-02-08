@@ -125,6 +125,37 @@ public:
     }
 
     /**
+     * Removes (but does not delete) the scheduled actions of the VM
+     *
+     * @param attributes to hold the VM actions
+     */
+    void get_actions(vector<Attribute *>& attributes) const
+    {
+        attributes.clear();
+
+        vm_template->remove("SCHED_ACTION", attributes);
+    }
+
+    /**
+     * Sets an attribute in the VM Template, it must be allocated in the heap
+     *
+     * @param attributes to hold the VM actions
+     */
+    void set_attribute(Attribute* att)
+    {
+        return vm_template->set(att);
+    }
+
+    /**
+     *  Checks the action to be performed and returns the corresponding XML-RPC
+     *  method name.
+     *    @param action_st, the action to be performed. The XML-RPC name is
+     *    returned here
+     *    @return 0 on success.
+     */
+    static int parse_action_name(string& action_st);
+
+    /**
      *  Function to write a Virtual Machine in an output stream
      */
     friend ostream& operator<<(ostream& os, VirtualMachineXML& vm)

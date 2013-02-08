@@ -155,6 +155,26 @@ module OpenNebula
             super(VM_METHODS[:update], new_template)
         end
 
+        # Returns the <USER_TEMPLATE> element in text form
+        #
+        # @param indent [true,false] indents the resulting string, defaults to true
+        #
+        # @return [String] The USER_TEMPLATE
+        def user_template_str(indent=true)
+            template_like_str('USER_TEMPLATE', indent)
+        end
+
+        # Returns the <USER_TEMPLATE> element in XML form
+        #
+        # @return [String] The USER_TEMPLATE
+        def user_template_xml
+            if NOKOGIRI
+                @xml.xpath('TEMPLATE').to_s
+            else
+                @xml.elements['TEMPLATE'].to_s
+            end
+        end
+
 
         # Initiates the instance of the VM on the target host.
         #

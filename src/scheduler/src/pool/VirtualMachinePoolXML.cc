@@ -209,3 +209,76 @@ int VirtualMachinePoolXML::update(int vid, const string &st) const
 
     return 0;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineActionsPoolXML::set_up()
+{
+    ostringstream   oss;
+    int             rc;
+
+    rc = PoolXML::set_up();
+
+    if ( rc == 0 )
+    {
+        if (objects.empty())
+        {
+            return -2;
+        }
+
+        oss.str("");
+        oss << "VMs with scheduled actions:" << endl;
+
+        map<int,ObjectXML*>::iterator it;
+
+        for (it=objects.begin();it!=objects.end();it++)
+        {
+            oss << " " << it->first;
+        }
+
+        NebulaLog::log("VM",Log::DEBUG,oss);
+    }
+
+    return rc;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineActionsPoolXML::action(
+        int             vid,
+        const string&   action,
+        string&         error_msg) const
+{
+    xmlrpc_c::value result;
+    bool            success;
+
+    try
+    {
+        client->call( client->get_endpoint(),     // serverUrl
+                "one.vm.action",                  // methodName
+                "ssi",                            // arguments format
+                &result,                          // resultP
+                client->get_oneauth().c_str(),    // session
+                action.c_str(),                   // action
+                vid                               // VM ID
+        );
+    }
+    catch (exception const& e)
+    {
+        return -1;
+    }
+
+    vector<xmlrpc_c::value> values =
+            xmlrpc_c::value_array(result).vectorValueValue();
+
+    success = xmlrpc_c::value_boolean(values[0]);
+
+    if (!success)
+    {
+        error_msg = xmlrpc_c::value_string(  values[1] );
+
+        return -1;
+    }
+
+    return 0;
+}

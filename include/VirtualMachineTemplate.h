@@ -45,7 +45,12 @@ public:
     {
         return Template::check(rs_attr, restricted_attributes);
     };
-    
+
+    void set_xml_root(const char * _xml_root)
+    {
+        Template::set_xml_root(_xml_root);
+    };
+
 private:
 
     friend class VirtualMachinePool;

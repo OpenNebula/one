@@ -402,6 +402,10 @@ module Migrator
 
         ########################################################################
         # Feature #1556: New elem USER_TEMPLATE
+        #
+        # Feature #1483: Move scheduling attributes
+        #   /VM/TEMPLATE/REQUIREMENTS -> USER_TEMPLATE/SCHED_REQUIREMENTS
+        #   /VM/TEMPLATE/RANK -> USER_TEMPLATE/SCHED_RANK
         ########################################################################
 
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
@@ -410,7 +414,21 @@ module Migrator
         @db.fetch("SELECT * FROM old_vm_pool") do |row|
 
             doc = Document.new(row[:body])
-            doc.root.add_element("USER_TEMPLATE")
+            user_template = doc.root.add_element("USER_TEMPLATE")
+
+            doc.root.each_element("TEMPLATE") do |e|
+                elem = e.delete_element("REQUIREMENTS")
+
+                if !elem.nil?
+                    user_template.add_element("SCHED_REQUIREMENTS").text = elem.text
+                end
+
+                elem = e.delete_element("RANK")
+
+                if !elem.nil?
+                    user_template.add_element("SCHED_RANK").text = elem.text
+                end
+            end
 
             @db[:vm_pool].insert(
                 :oid        => row[:oid],
@@ -427,6 +445,53 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
+
+
+        ########################################################################
+        # Feature #1483: Move scheduling attributes
+        #   /VMTEMPLATE/TEMPLATE/REQUIREMENTS -> /VMTEMPLATE/TEMPLATE/SCHED_REQUIREMENTS
+        #   /VMTEMPLATE/TEMPLATE/RANK -> /VMTEMPLATE/TEMPLATE/SCHED_RANK
+        ########################################################################
+
+        @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
+        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.fetch("SELECT * FROM old_template_pool") do |row|
+
+            doc = Document.new(row[:body])
+
+            template = nil
+
+            doc.root.each_element("TEMPLATE") do |e|
+                template = e
+            end
+
+            doc.root.each_element("TEMPLATE") do |e|
+                elem = e.delete_element("REQUIREMENTS")
+
+                if !elem.nil?
+                    template.add_element("SCHED_REQUIREMENTS").text = elem.text
+                end
+
+                elem = e.delete_element("RANK")
+
+                if !elem.nil?
+                    template.add_element("SCHED_RANK").text = elem.text
+                end
+            end
+
+            @db[:template_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        @db.run "DROP TABLE old_template_pool;"
 
 
         ########################################################################
