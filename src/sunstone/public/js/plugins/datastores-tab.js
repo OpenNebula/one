@@ -54,12 +54,22 @@ var create_datastore_tmpl =
   <label for="name">' + tr("Name") + ':</label>\
   <input type="text" name="name" id="name" />\
   <div class="clear"></div>\
-  <label for="system">' + tr("System datastore") + ':</label>\
-  <input id="sys_ds" type="checkbox" name="system" value="YES" />\
-  <div class="clear"></div>\
   <label for="cluster">' + tr("Cluster") + ':</label>\
   <select id="cluster_id" name="cluster_id">\
   </select><br />\
+  <label for="ds_type">' + tr("Datastore type") + ':</label>\
+  <select id="ds_type" name="ds_type">\
+        <option value="fs">' + tr("Filesystem") + '</option>\
+        <option value="vmware_fs">' + tr("VMware (FS Based)") + '</option>\
+        <option value="vmware_vmfs">' + tr("VMware (VMFS Based)") + '</option>\
+        <option value="iscsi">' + tr("iSCSI") + '</option>\
+        <option value="lvm">' + tr("LVM") + '</option>\
+  </select><br name="ds_type" />\
+  <label for="system">' + tr("System datastore") + ':</label>\
+  <input id="sys_ds" type="checkbox" name="system" value="YES" />\
+  <label for="files_ds">' + tr("Files datastore") + ':</label>\
+  <input id="files_ds" type="checkbox" name="files_ds" value="YES" />\
+  <div class="clear"></div>\
   <label for="ds_mad">' + tr("Datastore manager") + ':</label>\
   <select id="ds_mad" name="ds_mad">\
         <option value="fs">' + tr("Filesystem") + '</option>\
@@ -81,6 +91,24 @@ var create_datastore_tmpl =
         <option value="file">' + tr("File") + '</option>\
         <option value="block">' + tr("Block") + '</option>\
   </select><br />\
+  <label for="safe_dirs">' + tr("Safe Directories") + ':</label>\
+  <input type="text" name="safe_dirs" id="safe_dirs" />\
+  <label for="restricted_dirs">' + tr("Restricted Directories") + ':</label>\
+  <input type="text" name="restricted_dirs" id="restricted_dirs" />\
+  <label for="no_decompress">' + tr("Don't Decompress") + ':</label>\
+  <input id="no_decompress" type="checkbox" name="no_decompress" value="YES" />\
+  <label for="bridge_list">' + tr("Host Bridge List") + ':</label>\
+  <input type="text" name="bridge_list" id="bridge_list" />\
+  <label for="ds_use_ssh">' + tr("Use SSH for Datastore Manager") + ':</label>\
+  <input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" />\
+  <label for="tm_use_ssh">' + tr("Use SSH for Transfer Manager") + ':</label>\
+  <input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" />\
+  <label for="host">' + tr("Storage Server") + ':</label>\
+  <input type="text" name="host" id="host" />\
+  <label for="base_iqn">' + tr("Base IQN") + ':</label>\
+  <input type="text" name="base_iqn" id="base_iqn" />\
+  <label for="vg_name">' + tr("Volume Group Name") + ':</label>\
+  <input type="text" name="vg_name" id="vg_name" />\
   </fieldset>\
   <fieldset>\
     <div class="form_buttons">\
@@ -561,6 +589,17 @@ function updateDatastoreInfo(request,ds){
 
 }
 
+function hide_all(context)
+{
+    // Hide all the options that depends on datastore type
+    $('label[for="bridge_list"],input#bridge_list',context).hide();
+    $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
+    $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
+    $('label[for="host"],input#host',context).hide();
+    $('label[for="base_iqn"],input#base_iqn',context).hide();
+    $('label[for="vg_name"],input#vg_name',context).hide();
+}
+
 // Set up the create datastore dialog
 function setupCreateDatastoreDialog(){
 
@@ -582,18 +621,70 @@ function setupCreateDatastoreDialog(){
 
     $('#sys_ds').click(function(){
         if ($(this).is(':checked'))
+        {
             $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeOut();
+            $('label[for="files_ds"],input#files_ds',$(this).parent()).fadeOut();
+        }
         else
+        {
             $('label[for="ds_mad"],select#ds_mad,br[name="ds_mad"]',$(this).parent()).fadeIn();
+            $('label[for="files_ds"],input#files_ds',$(this).parent()).fadeIn();
+        }
     });
 
+    $('#files_ds').click(function(){
+        if ($(this).is(':checked'))
+        {
+            $('label[for="system"],input#sys_ds',$(this).parent()).fadeOut();
+        }
+        else
+        {
+            $('label[for="system"],input#sys_ds',$(this).parent()).fadeIn();
+        }
+    });
+
+    $('#ds_type').change(function(){
+        hide_all($(this).parent());
+        var choice_str = $(this).val();
+        switch(choice_str)
+        {
+          case 'fs':
+            break;
+          case 'vmware_fs':
+            break;
+          case 'vmware_vmfs':
+            $('label[for="bridge_list"],input#bridge_list',$(this).parent()).fadeIn();
+            $('label[for="ds_use_ssh"],input#ds_use_ssh',$(this).parent()).fadeIn();
+            $('label[for="tm_use_ssh"],input#tm_use_ssh',$(this).parent()).fadeIn();
+            break;
+          case 'lvm':
+          case 'iscsi':
+            $('label[for="host"],input#host',$(this).parent()).fadeIn();
+            $('label[for="base_iqn"],input#base_iqn',$(this).parent()).fadeIn();
+            $('label[for="vg_name"],input#vg_name',$(this).parent()).fadeIn();
+            break;
+        }
+    });
+
+
     $('#create_datastore_form',dialog).submit(function(){
-        var name = $('#name',this).val();
-        var cluster_id = $('#cluster_id',this).val();
-        var system = $('#sys_ds',this).is(':checked');
-        var ds_mad = $('#ds_mad',this).val();
-        var tm_mad = $('#tm_mad',this).val();
-        var type = $('#disk_type',this).val();
+        var name            = $('#name',this).val();
+        var cluster_id      = $('#cluster_id',this).val();
+        var system          = $('#sys_ds',this).is(':checked');
+        var ds_mad          = $('#ds_mad',this).val();
+        var tm_mad          = $('#tm_mad',this).val();
+        var type            = $('#disk_type',this).val();
+        var safe_dirs       = $('#safe_dirs',this).val();
+        var restricted_dirs = $('#restricted_dirs',this).val();
+        var no_decompress   = $('#no_decompress',this).is(':checked');
+        var bridge_list     = $('#bridge_list',this).val();
+        var ds_use_ssh      = $('#ds_use_ssh',this).is(':checked');
+        var tm_use_ssh      = $('#tm_use_ssh',this).is(':checked');
+        var host            = $('#host',this).val();
+        var base_iqn        = $('#base_iqn',this).val();
+        var vg_name         = $('#vg_name',this).val();
+
+
 
         if (!name){
             notifyError("Please provide a name");
@@ -616,6 +707,33 @@ function setupCreateDatastoreDialog(){
         else
             ds_obj.datastore.ds_mad = ds_mad;
 
+        if (safe_dirs)
+            ds_obj.datastore.safe_dirs = safe_dirs;
+
+        if (restricted_dirs)
+            ds_obj.datastore.restricted_dirs = restricted_dirs;
+
+        if (no_decompress)
+            ds_obj.datastore.no_decompress = "YES";
+
+        if (bridge_list)
+            ds_obj.datastore.bridge_list = bridge_list;
+
+        if (ds_use_ssh)
+            ds_obj.datastore.ds_use_ssh = "YES";
+
+        if (tm_use_ssh)
+            ds_obj.datastore.tm_use_ssh = "YES";
+
+        if (host)
+            ds_obj.datastore.host = host;
+
+        if (base_iqn)
+            ds_obj.datastore.base_iqn = base_iqn;
+
+        if (vg_name)
+            ds_obj.vg_name.bridge_list = vg_name;
+
         Sunstone.runAction("Datastore.create",ds_obj);
 
         $create_datastore_dialog.dialog('close');
@@ -626,6 +744,7 @@ function setupCreateDatastoreDialog(){
 function popUpCreateDatastoreDialog(){
     $('select#cluster_id',$create_datastore_dialog).html(clusters_sel());
     $create_datastore_dialog.dialog('open');
+    hide_all($create_datastore_dialog);
 }
 
 //Prepares autorefresh
