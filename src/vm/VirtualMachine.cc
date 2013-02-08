@@ -596,7 +596,7 @@ int VirtualMachine::parse_context(string& error_str)
 
     vector<int>  img_ids;
 
-    num = user_obj_template->remove("CONTEXT", array_context);
+    num = obj_template->remove("CONTEXT", array_context);
 
     if ( num == 0 )
     {
