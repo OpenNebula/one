@@ -73,15 +73,29 @@ void VirtualMachineXML::init_attributes()
         }
     }
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_REQUIREMENTS"]);
+    result = ((*this)["/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS"]);
 
     if (result.size() > 0)
     {
         requirements = result[0];
     }
-    else
+
+    result = ((*this)["/VM/USER_TEMPLATE/SCHED_REQUIREMENTS"]);
+
+    if (result.size() > 0)
     {
-        requirements = "";
+        if ( !requirements.empty() )
+        {
+            ostringstream oss;
+
+            oss << requirements << " & ( " << result[0] << " )";
+
+            requirements = oss.str();
+        }
+        else
+        {
+            requirements = result[0];
+        }
     }
 
     result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);

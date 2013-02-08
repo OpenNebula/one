@@ -980,15 +980,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
         oss.str("");
         oss << "CLUSTER_ID = " << cluster_id;
 
-        user_obj_template->get("SCHED_REQUIREMENTS", requirements);
-        user_obj_template->erase("SCHED_REQUIREMENTS");
-
-        if ( !requirements.empty() )
-        {
-            oss << " & ( " << requirements << " )";
-        }
-
-        user_obj_template->add("SCHED_REQUIREMENTS", oss.str());
+        obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
     }
 
     return 0;
