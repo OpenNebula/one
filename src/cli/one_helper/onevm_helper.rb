@@ -165,9 +165,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 exit -1
             end
 
+            ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
+
+            id = 0
+            if (!ids.nil? && !ids.empty?)
+                ids.map! {|e| e.to_i }
+                id = ids.max + 1
+            end
+
             tmp_str = vm.user_template_str
 
-            tmp_str << "\nSCHED_ACTION = [ACTION = #{action}, TIME = #{options[:schedule].to_i}]"
+            tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{options[:schedule].to_i}]"
 
             vm.update(tmp_str)
         end
@@ -249,6 +257,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             CLIHelper::ShowTable.new(nil, self) do
 
+                column :"ID", "", :size=>2 do |d|
+                    d["ID"] if !d.nil?
+                end
+
                 column :"ACTION", "", :left, :size=>10 do |d|
                     d["ACTION"] if !d.nil?
                 end
@@ -261,7 +273,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
                 end
 
-                column :"MESSAGE", "", :left, :donottruncate, :size=>43 do |d|
+                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
                     d["MESSAGE"] if !d.nil?
                 end
             end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
