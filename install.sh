@@ -219,7 +219,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
-          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/xen3 \
+          $VAR_LOCATION/remotes/vmm/xen4 \
           $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
@@ -429,7 +430,8 @@ INSTALL_FILES=(
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
-    VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_EXEC_XEN3_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen3
+    VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
@@ -752,9 +754,9 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
-                    src/vmm_mad/remotes/xen/xenrc \
+                    src/vmm_mad/remotes/xen/xen3/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/reboot \
@@ -766,6 +768,19 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/detach_disk \
                     src/vmm_mad/remotes/xen/shutdown"
 
+VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+                    src/vmm_mad/remotes/xen/deploy \
+                    src/vmm_mad/remotes/xen/xen4/xenrc \
+                    src/vmm_mad/remotes/xen/migrate \
+                    src/vmm_mad/remotes/xen/restore \
+                    src/vmm_mad/remotes/xen/reboot \
+                    src/vmm_mad/remotes/xen/reset \
+                    src/vmm_mad/remotes/xen/save \
+                    src/vmm_mad/remotes/xen/poll \
+                    src/vmm_mad/remotes/xen/poll_ganglia \
+                    src/vmm_mad/remotes/xen/attach_disk \
+                    src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/shutdown"
 #-------------------------------------------------------------------------------
 # VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
 #-------------------------------------------------------------------------------
@@ -1048,7 +1063,8 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
-                  src/vmm_mad/exec/vmm_exec_xen.conf \
+                  src/vmm_mad/exec/vmm_exec_xen3.conf \
+                  src/vmm_mad/exec/vmm_exec_xen4.conf \
                   src/vmm_mad/exec/vmm_exec_vmware.conf"
 
 #-------------------------------------------------------------------------------
