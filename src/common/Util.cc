@@ -14,20 +14,40 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef UTIL_H_
-#define UTIL_H_
+#include "Util.h"
+#include <algorithm>
 
-#include <string>
+using namespace std;
 
-namespace one_util
+string& one_util::toupper(string& st)
 {
-    std::string& toupper(std::string& st);
-
-    std::string& tolower(std::string& st);
-
-    std::string log_time(time_t the_time);
-
-    std::string log_time();
+    transform(st.begin(),st.end(),st.begin(),(int(*)(int))toupper);
+    return st;
 };
 
-#endif /* UTIL_H_ */
+string& one_util::tolower(string& st)
+{
+    transform(st.begin(),st.end(),st.begin(),(int(*)(int))tolower);
+    return st;
+};
+
+string one_util::log_time(time_t the_time)
+{
+    char time_str[26];
+
+#ifdef SOLARIS
+    ctime_r(&(the_time),time_str,sizeof(char)*26);
+#else
+    ctime_r(&(the_time),time_str);
+#endif
+
+    time_str[24] = '\0'; // Get rid of final enter character
+
+    return string(time_str);
+};
+
+string one_util::log_time()
+{
+    return log_time( time(0) );
+};
+
