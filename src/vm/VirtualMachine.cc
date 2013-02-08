@@ -789,25 +789,11 @@ int VirtualMachine::parse_requirements(string& error_str)
 
     if ( num == 0 ) // Compatibility with old REQUIREMENTS attribute
     {
-        vector<Attribute *> array_reqs_aux;
-        vector<Attribute*>::iterator it;
-
-        num = user_obj_template->remove("REQUIREMENTS", array_reqs_aux);
-
-        // Rename att to SCHED_REQUIREMENTS
-        for (it = array_reqs_aux.begin(); it != array_reqs_aux.end(); it++)
-        {
-            reqs = dynamic_cast<SingleAttribute *>(*it);
-
-            if (reqs != 0)
-            {
-                array_reqs.push_back( new SingleAttribute(
-                        "SCHED_REQUIREMENTS",
-                        reqs->value()) );
-            }
-
-            delete *it;
-        }
+        num = user_obj_template->remove("REQUIREMENTS", array_reqs);
+    }
+    else
+    {
+        user_obj_template->erase("REQUIREMENTS");
     }
 
     if ( num == 0 )
@@ -838,15 +824,9 @@ int VirtualMachine::parse_requirements(string& error_str)
         user_obj_template->set(reqs_parsed);
     }
 
-    /* --- Delete old requirements attributes --- */
+    /* --- Delete old requirements attribute --- */
 
-    for (int i = 0; i < num ; i++)
-    {
-        if (array_reqs[i] != 0)
-        {
-            delete array_reqs[i];
-        }
-    }
+    delete array_reqs[0];
 
     return rc;
 
