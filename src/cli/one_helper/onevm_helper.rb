@@ -151,6 +151,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
 
     def schedule_actions(ids,options,action)
+        # Verbose by default
+        options[:verbose] = true
+
         perform_actions(
             ids, options,
             "#{action} scheduled at #{options[:schedule]}") do |vm|
