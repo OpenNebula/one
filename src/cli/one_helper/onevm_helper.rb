@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'optparse/time'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     MULTIPLE={
@@ -55,6 +56,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :name  => "hold",
         :large => "--hold",
         :description => "Creates the new VM on hold state instead of pending"
+    }
+
+    SCHEDULE = {
+        :name       => "schedule",
+        :large      => "--schedule TIME",
+        :description => "Schedules this action to be executed after the given time",
+        :format     => Time
     }
 
     def self.rname
@@ -141,6 +149,38 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+
+    def schedule_actions(ids,options,action)
+        # Verbose by default
+        options[:verbose] = true
+
+        perform_actions(
+            ids, options,
+            "#{action} scheduled at #{options[:schedule]}") do |vm|
+
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
+
+            id = 0
+            if (!ids.nil? && !ids.empty?)
+                ids.map! {|e| e.to_i }
+                id = ids.max + 1
+            end
+
+            tmp_str = vm.user_template_str
+
+            tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{options[:schedule].to_i}]"
+
+            vm.update(tmp_str)
+        end
+    end
+
     private
 
     def factory(id=nil)
@@ -212,11 +252,42 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
+        if vm.has_elements?("/VM/USER_TEMPLATE/SCHED_ACTION")
+            CLIHelper.print_header(str_h1 % "SCHEDULED ACTIONS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>2 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"ACTION", "", :left, :size=>10 do |d|
+                    d["ACTION"] if !d.nil?
+                end
+
+                column :"SCHEDULED", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"DONE", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
+                end
+
+                column :"MESSAGE", "", :left, :donottruncate, :size=>40 do |d|
+                    d["MESSAGE"] if !d.nil?
+                end
+            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
+
+            puts
+        end
+
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 
         if vm.has_elements?("/VM/USER_TEMPLATE")
             puts
+
+            vm.delete_element("/VM/USER_TEMPLATE/SCHED_ACTION")
 
             CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
             puts vm.template_like_str('USER_TEMPLATE')

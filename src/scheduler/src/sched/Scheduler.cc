@@ -34,6 +34,7 @@
 #include "RankPolicy.h"
 #include "NebulaLog.h"
 #include "PoolObjectAuth.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -214,6 +215,8 @@ void Scheduler::start()
     vmpool = new VirtualMachinePoolXML(client,
                                        machines_limit,
                                        (live_rescheds == 1));
+    vmapool= new VirtualMachineActionsPoolXML(client, machines_limit);
+
     acls   = new AclXML(client);
 
     // -----------------------------------------------------------
@@ -465,7 +468,7 @@ void Scheduler::match()
                     matched = false;
                     n_error++;
 
-                    error_msg << "Error evaluating REQUIREMENTS expression: '"
+                    error_msg << "Error evaluating SCHED_REQUIREMENTS expression: '"
                             << reqs << "', error: " << error;
 
                     oss << "VM " << oid << ": " << error_msg.str();
@@ -488,7 +491,7 @@ void Scheduler::match()
                 ostringstream oss;
 
                 oss << "VM " << oid << ": Host " << host->get_hid() <<
-                    " filtered out. It does not fulfill REQUIREMENTS.";
+                    " filtered out. It does not fulfill SCHED_REQUIREMENTS.";
 
                 NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
@@ -537,7 +540,7 @@ void Scheduler::match()
                 }
                 else if (n_matched == 0)
                 {
-                    vm->log("No host meets the REQUIREMENTS expression");
+                    vm->log("No host meets the SCHED_REQUIREMENTS expression");
                 }
                 else
                 {
@@ -658,12 +661,117 @@ void Scheduler::dispatch()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Scheduler::do_scheduled_actions()
+{
+    VirtualMachineXML* vm;
+
+    const map<int, ObjectXML*>  vms = vmapool->get_objects();
+    map<int, ObjectXML*>::const_iterator vm_it;
+
+    vector<Attribute *> attributes;
+    vector<Attribute *>::iterator it;
+
+    VectorAttribute* vatt;
+
+    int action_time;
+    int done_time;
+    int has_time;
+    int has_done;
+
+    string action_st, error_msg;
+
+    time_t the_time = time(0);
+    string time_str = one_util::log_time(the_time);
+
+    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
+    {
+        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+
+        vm->get_actions(attributes);
+
+        // TODO: Sort actions by TIME
+        for (it=attributes.begin(); it != attributes.end(); it++)
+        {
+            vatt = dynamic_cast<VectorAttribute*>(*it);
+
+            if (vatt == 0)
+            {
+                if ( *it != 0 )
+                {
+                    delete *it;
+                }
+
+                continue;
+            }
+
+            has_time  = vatt->vector_value("TIME", action_time);
+            has_done  = vatt->vector_value("DONE", done_time);
+            action_st = vatt->vector_value("ACTION");
+
+            if (has_time == 0 && has_done == -1 && action_time < the_time)
+            {
+                ostringstream oss;
+
+                int rc = VirtualMachineXML::parse_action_name(action_st);
+
+                oss << "Executing action '" << action_st << "' for VM "
+                    << vm->get_oid() << " : ";
+
+                if ( rc != 0 )
+                {
+                    error_msg = "This action is not supported.";
+                }
+                else
+                {
+                    rc = vmapool->action(vm->get_oid(), action_st, error_msg);
+                }
+
+                if (rc == 0)
+                {
+                    vatt->remove("MESSAGE");
+                    vatt->replace("DONE", static_cast<int>(the_time));
+
+                    oss << "Success.";
+                }
+                else
+                {
+                    ostringstream oss_aux;
+
+                    oss_aux << time_str << " : " << error_msg;
+
+                    vatt->replace("MESSAGE", oss_aux.str());
+
+                    oss << "Failure. " << error_msg;
+                }
+
+                NebulaLog::log("VM", Log::INFO, oss);
+            }
+
+            vm->set_attribute(vatt);
+        }
+
+        vmpool->update(vm);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Scheduler::do_action(const string &name, void *args)
 {
     int rc;
 
     if (name == ACTION_TIMER)
     {
+        rc = vmapool->set_up();
+
+        if ( rc == 0 )
+        {
+            do_scheduled_actions();
+        }
+
         rc = set_up_pools();
 
         if ( rc != 0 )

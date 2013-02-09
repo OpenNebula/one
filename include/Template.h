@@ -351,6 +351,16 @@ protected:
      */
     bool check(string& rs_attr, const vector<string> &restricted_attributes);
 
+    /**
+     * Updates the xml root element name
+     *
+     * @param _xml_root New name
+     */
+    void set_xml_root(const char * _xml_root)
+    {
+        xml_root = _xml_root;
+    };
+
 private:
 
     bool                            replace_mode;

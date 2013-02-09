@@ -252,6 +252,9 @@ module CLIHelper
             if @columns[field]
                 minus=( @columns[field][:left] ? "-" : "" )
                 size=@columns[field][:size]
+                if @columns[field][:donottruncate]
+                    return "%#{minus}#{size}s" % [ data.to_s ]
+                end
                 return "%#{minus}#{size}.#{size}s" % [ data.to_s ]
             else
                 exit -1, "Column #{field} not defined."
