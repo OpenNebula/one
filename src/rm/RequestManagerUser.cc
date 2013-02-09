@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerUser.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -47,14 +48,14 @@ void RequestManagerUser::
         failure_response(ACTION, request_error(error_str,""), att);
         return;
     }
- 
+
     success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserChangePassword::user_action(int     user_id, 
+int UserChangePassword::user_action(int     user_id,
                                     xmlrpc_c::paramList const& paramList,
                                     string& error_str)
 {
@@ -71,7 +72,7 @@ int UserChangePassword::user_action(int     user_id,
 
     if (user->get_auth_driver() == UserPool::CORE_AUTH)
     {
-        new_pass = SSLTools::sha1_digest(new_pass);
+        new_pass = one_util::sha1_digest(new_pass);
     }
 
     int rc = user->set_password(new_pass, error_str);
@@ -128,7 +129,7 @@ int UserChangeAuth::user_action(int     user_id,
     {
         if ( new_auth == UserPool::CORE_AUTH)
         {
-            new_pass = SSLTools::sha1_digest(new_pass);
+            new_pass = one_util::sha1_digest(new_pass);
         }
 
         // The password may be invalid, try to change it first
@@ -170,7 +171,7 @@ void UserChangeAuth::log_xmlrpc_param(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserSetQuota::user_action(int     user_id, 
+int UserSetQuota::user_action(int     user_id,
                               xmlrpc_c::paramList const& paramList,
                               string& error_str)
 {

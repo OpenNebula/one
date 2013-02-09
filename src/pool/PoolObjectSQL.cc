@@ -16,7 +16,7 @@
 
 #include "PoolObjectSQL.h"
 #include "PoolObjectAuth.h"
-#include "SSLTools.h"
+#include "Util.h"
 #include "Nebula.h"
 #include "Clusterable.h"
 
@@ -29,7 +29,7 @@ string& PoolObjectSQL::to_xml64(string &xml64)
 
     to_xml(xml64);
 
-    str64 = SSLTools::base64_encode(xml64);
+    str64 = one_util::base64_encode(xml64);
 
     xml64 = *str64;
 

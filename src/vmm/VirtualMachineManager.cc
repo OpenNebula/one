@@ -19,6 +19,7 @@
 #include "XenDriver.h"
 #include "XMLDriver.h"
 #include "LibVirtDriver.h"
+#include "Util.h"
 
 #include "Nebula.h"
 
@@ -380,7 +381,7 @@ string * VirtualMachineManager::format_message(
     oss << tmpl
         << "</VMM_DRIVER_ACTION_DATA>";
 
-    return SSLTools::base64_encode(oss.str());
+    return one_util::base64_encode(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

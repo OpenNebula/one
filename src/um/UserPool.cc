@@ -22,7 +22,7 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 #include "AuthManager.h"
-#include "SSLTools.h"
+#include "Util.h"
 
 #include <fstream>
 #include <sys/types.h>
@@ -145,7 +145,7 @@ UserPool::UserPool(SqlDB * db,
     srand(time(0));
     sstr << rand();
 
-    random = SSLTools::sha1_digest( sstr.str() );
+    random = one_util::sha1_digest(sstr.str());
 
     filenames[0] = nd.get_var_location() + "/.one/sunstone_auth";
     filenames[1] = nd.get_var_location() + "/.one/occi_auth";
@@ -188,7 +188,7 @@ UserPool::UserPool(SqlDB * db,
              GroupPool::ONEADMIN_ID,
              SERVER_NAME,
              GroupPool::ONEADMIN_NAME,
-             SSLTools::sha1_digest(random),
+             one_util::sha1_digest(random),
              "server_cipher",
              true,
              error_str);
@@ -289,7 +289,7 @@ int UserPool::allocate (
 
     if (auth_driver == UserPool::CORE_AUTH)
     {
-        upass = SSLTools::sha1_digest(password);
+        upass = one_util::sha1_digest(password);
     }
 
     // Build a new User object

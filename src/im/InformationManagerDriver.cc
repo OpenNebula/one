@@ -16,6 +16,7 @@
 
 #include "InformationManagerDriver.h"
 #include "NebulaLog.h"
+#include "Util.h"
 #include <sstream>
 
 
@@ -49,7 +50,7 @@ void InformationManagerDriver::protocol(
     int             id;
 
     ostringstream   ess;
-    string          hinfo;
+
     Host *          host;
 
     // Parse the driver message
@@ -98,27 +99,29 @@ void InformationManagerDriver::protocol(
         {
             size_t  pos;
             int     rc;
+            string  hinfo64;
+            string* hinfo;
 
             ostringstream oss;
 
-            getline (is,hinfo);
+            getline (is, hinfo64);
 
-            for (pos=hinfo.find(',');pos!=string::npos;pos=hinfo.find(','))
-            {
-                hinfo.replace(pos,1,"\n");
-            }
+            hinfo = one_util::base64_decode(hinfo64);
 
-            hinfo += "\n";
+            oss << "Host " << id << " successfully monitored.";
+            NebulaLog::log("InM", Log::DEBUG, oss);
 
-            oss << "Host " << id << " successfully monitored."; 
-            NebulaLog::log("InM",Log::DEBUG,oss);
-
-            rc = host->update_info(hinfo);
+            rc = host->update_info(*hinfo);
 
             if (rc != 0)
             {
-                goto error_parse_info;
+                ess << "Error parsing host information: " << *hinfo;
+                delete hinfo;
+
+                goto  error_common_info;
             }
+
+            delete hinfo;
         }
         else
         {
@@ -144,10 +147,6 @@ void InformationManagerDriver::protocol(
 
 error_driver_info:
 	ess << "Error monitoring host " << id << " : " << is.str();
-	goto  error_common_info;
-
-error_parse_info:
-    ess << "Error parsing host information: " << hinfo;
 	goto  error_common_info;
 
 error_common_info:

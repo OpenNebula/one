@@ -17,7 +17,6 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
-#include "SSLTools.h"
 #include "SyncRequest.h"
 #include "Template.h"
 #include "Nebula.h"
@@ -812,7 +811,7 @@ string * ImageManager::format_message(
         << ds_data
         << "</DS_DRIVER_ACTION_DATA>";
 
-    return SSLTools::base64_encode(oss.str());
+    return one_util::base64_encode(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
