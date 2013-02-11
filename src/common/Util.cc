@@ -21,13 +21,13 @@ using namespace std;
 
 string& one_util::toupper(string& st)
 {
-    transform(st.begin(),st.end(),st.begin(),(int(*)(int))toupper);
+    transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::toupper);
     return st;
 };
 
 string& one_util::tolower(string& st)
 {
-    transform(st.begin(),st.end(),st.begin(),(int(*)(int))tolower);
+    transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::tolower);
     return st;
 };
 
