@@ -68,6 +68,11 @@ public:
         const VirtualMachine *  vm,
         const string&           file_name) const = 0;
 
+
+    static void process_poll(int id, const string &monitor_str);
+
+    static void process_poll(VirtualMachine* vm, const string &monitor_str);
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single

@@ -17,6 +17,7 @@
 #include "InformationManagerDriver.h"
 #include "NebulaLog.h"
 #include "Util.h"
+#include "VirtualMachineManagerDriver.h"
 #include <sstream>
 
 
@@ -100,12 +101,19 @@ void InformationManagerDriver::protocol(
             goto error_driver_info;
         }
 
-        size_t  pos;
         int     rc;
         string  hinfo64;
         string* hinfo;
 
         ostringstream oss;
+
+        int     vmid;
+        char *  error_msg;
+        string  monitor_str;
+
+        VectorAttribute*                vatt;
+        vector<Attribute*>              vm_att;
+        vector<Attribute*>::iterator    it;
 
         getline (is, hinfo64);
 
@@ -124,7 +132,16 @@ void InformationManagerDriver::protocol(
             goto  error_common_info;
         }
 
+        // TODO The hinfo string is parsed again because HostTemplate has
+        // replace_mode set to true, but we expect several VM vector attributes
+        Template* tmpl = new Template();
+        tmpl->parse(*hinfo, &error_msg);
+
+        tmpl->remove("VM", vm_att);
+
         delete hinfo;
+
+        host->remove_template_attribute("VM");
 
         host->touch(true);
 
@@ -132,6 +149,30 @@ void InformationManagerDriver::protocol(
         hpool->update_monitoring(host);
 
         host->unlock();
+
+        for (it=vm_att.begin(); it != vm_att.end(); it++)
+        {
+            vatt = dynamic_cast<VectorAttribute*>(*it);
+
+            if (vatt == 0)
+            {
+                delete *it;
+                continue;
+            }
+
+            rc = vatt->vector_value("ID", vmid);
+
+            if (rc == 0)
+            {
+                // TODO: update last_poll   vm->set_last_poll
+
+                monitor_str = vatt->vector_value("POLL");
+
+                VirtualMachineManagerDriver::process_poll(vmid, monitor_str);
+            }
+
+            delete *it;
+        }
     }
     else if (action == "LOG")
     {

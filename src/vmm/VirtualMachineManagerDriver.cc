@@ -395,154 +395,9 @@ void VirtualMachineManagerDriver::protocol(
     {
         if (result == "SUCCESS")
         {
-            size_t          pos;
-
-            string          tmp;
-            string          var;
-            ostringstream   os;
-            istringstream   tiss;
-
-            int             cpu    = -1;
-            int             memory = -1;
-            long long       net_tx = -1;
-            long long       net_rx = -1;
-            char            state  = '-';
-
             string monitor_str = is.str();
-            bool   parse_error = false;
 
-            while(is.good())
-            {
-                is >> tmp >> ws;
-
-                pos = tmp.find('=');
-
-                if ( pos == string::npos )
-                {
-                    parse_error = true;
-                    continue;
-                }
-
-                tmp.replace(pos,1," ");
-
-                tiss.clear();
-
-                tiss.str(tmp);
-
-                tiss >> var >> ws;
-
-                if (!tiss.good())
-                {
-                    parse_error = true;
-                    continue;
-                }
-
-                if (var == "USEDMEMORY")
-                {
-                    tiss >> memory;
-                }
-                else if (var == "USEDCPU")
-                {
-                    tiss >> cpu;
-                }
-                else if (var == "NETRX")
-                {
-                    tiss >> net_rx;
-                }
-                else if (var == "NETTX")
-                {
-                    tiss >> net_tx;
-                }
-                else if (var == "STATE")
-                {
-                    tiss >> state;
-                }
-                else if (!var.empty())
-                {
-                    string val;
-
-                    os.str("");
-                    os << "Adding custom monitoring attribute: " << tmp;
-
-                    vm->log("VMM",Log::WARNING,os);
-
-                    tiss >> val;
-
-                    vm->replace_template_attribute(var,val);
-                }
-            }
-
-            if (parse_error)
-            {
-                os.str("");
-                os << "Error parsing monitoring str:\"" << monitor_str <<"\"";
-
-                vm->log("VMM",Log::ERROR,os);
-
-                vm->set_template_error_message(os.str());
-                vmpool->update(vm);
-
-                vm->unlock();
-                return;
-            }
-
-            vm->update_info(memory,cpu,net_tx,net_rx);
-            vm->set_vm_info();
-
-            vmpool->update(vm);
-            vmpool->update_history(vm);
-            vmpool->update_monitoring(vm);
-
-            if (state != '-' &&
-                (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-                 vm->get_lcm_state() == VirtualMachine::UNKNOWN))
-            {
-                Nebula              &ne  = Nebula::instance();
-                LifeCycleManager *  lcm = ne.get_lcm();
-
-                switch (state)
-                {
-                case 'a': // Still active, good!
-                    os.str("");
-                    os  << "Monitor Information:\n"
-                        << "\tCPU   : "<< cpu    << "\n"
-                        << "\tMemory: "<< memory << "\n"
-                        << "\tNet_TX: "<< net_tx << "\n"
-                        << "\tNet_RX: "<< net_rx;
-                    vm->log("VMM",Log::DEBUG,os);
-
-                    if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
-                    {
-                        vm->log("VMM",Log::INFO,"VM was now found, new state is"
-                                " RUNNING");
-                        vm->set_state(VirtualMachine::RUNNING);
-                        vmpool->update(vm);
-                    }
-                    break;
-
-                case 'p': // It's paused
-                    vm->log("VMM",Log::INFO,"VM running but new state "
-                            "from monitor is PAUSED.");
-
-                    lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, id);
-                    break;
-
-                case 'e': //Failed
-                    vm->log("VMM",Log::INFO,"VM running but new state "
-                            "from monitor is ERROR.");
-
-                    lcm->trigger(LifeCycleManager::MONITOR_FAILURE, id);
-                    break;
-
-                case 'd': //The VM was not found
-                    vm->log("VMM",Log::INFO,"VM running but it was not found."
-                            " Restart and delete actions available or try to"
-                            " recover it manually");
-
-                    lcm->trigger(LifeCycleManager::MONITOR_DONE, id);
-                    break;
-                }
-            }
+            process_poll(vm, monitor_str);
         }
         else
         {
@@ -561,6 +416,186 @@ void VirtualMachineManagerDriver::protocol(
     }
 
     vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManagerDriver::process_poll(
+        int id,
+        const string &monitor_str)
+{
+    // Get the VM from the pool
+    VirtualMachine* vm = Nebula::instance().get_vmpool()->get(id,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    process_poll(vm, monitor_str);
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManagerDriver::process_poll(
+        VirtualMachine* vm,
+        const string&   monitor_str)
+{
+    size_t          pos;
+
+    string          tmp;
+    string          var;
+    ostringstream   os;
+    istringstream   tiss;
+
+    int             cpu    = -1;
+    int             memory = -1;
+    long long       net_tx = -1;
+    long long       net_rx = -1;
+    char            state  = '-';
+
+    bool   parse_error = false;
+
+    VirtualMachinePool * vmpool = Nebula::instance().get_vmpool();
+
+    istringstream is;
+    is.str(monitor_str);
+
+    while(is.good())
+    {
+        is >> tmp >> ws;
+
+        pos = tmp.find('=');
+
+        if ( pos == string::npos )
+        {
+            parse_error = true;
+            continue;
+        }
+
+        tmp.replace(pos,1," ");
+
+        tiss.clear();
+
+        tiss.str(tmp);
+
+        tiss >> var >> ws;
+
+        if (!tiss.good())
+        {
+            parse_error = true;
+            continue;
+        }
+
+        if (var == "USEDMEMORY")
+        {
+            tiss >> memory;
+        }
+        else if (var == "USEDCPU")
+        {
+            tiss >> cpu;
+        }
+        else if (var == "NETRX")
+        {
+            tiss >> net_rx;
+        }
+        else if (var == "NETTX")
+        {
+            tiss >> net_tx;
+        }
+        else if (var == "STATE")
+        {
+            tiss >> state;
+        }
+        else if (!var.empty())
+        {
+            string val;
+
+            os.str("");
+            os << "Adding custom monitoring attribute: " << tmp;
+
+            vm->log("VMM",Log::WARNING,os);
+
+            tiss >> val;
+
+            vm->replace_template_attribute(var,val);
+        }
+    }
+
+    if (parse_error)
+    {
+        os.str("");
+        os << "Error parsing monitoring str:\"" << monitor_str <<"\"";
+
+        vm->log("VMM",Log::ERROR,os);
+
+        vm->set_template_error_message(os.str());
+        vmpool->update(vm);
+
+        return;
+    }
+
+    vm->update_info(memory,cpu,net_tx,net_rx);
+    vm->set_vm_info();
+
+    vmpool->update(vm);
+    vmpool->update_history(vm);
+    vmpool->update_monitoring(vm);
+
+    if (state != '-' &&
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+    {
+        Nebula              &ne  = Nebula::instance();
+        LifeCycleManager *  lcm = ne.get_lcm();
+
+        switch (state)
+        {
+        case 'a': // Still active, good!
+            os.str("");
+            os  << "Monitor Information:\n"
+                << "\tCPU   : "<< cpu    << "\n"
+                << "\tMemory: "<< memory << "\n"
+                << "\tNet_TX: "<< net_tx << "\n"
+                << "\tNet_RX: "<< net_rx;
+            vm->log("VMM",Log::DEBUG,os);
+
+            if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+            {
+                vm->log("VMM",Log::INFO,"VM was now found, new state is"
+                        " RUNNING");
+                vm->set_state(VirtualMachine::RUNNING);
+                vmpool->update(vm);
+            }
+            break;
+
+        case 'p': // It's paused
+            vm->log("VMM",Log::INFO,"VM running but new state "
+                    "from monitor is PAUSED.");
+
+            lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, vm->get_oid());
+            break;
+
+        case 'e': //Failed
+            vm->log("VMM",Log::INFO,"VM running but new state "
+                    "from monitor is ERROR.");
+
+            lcm->trigger(LifeCycleManager::MONITOR_FAILURE, vm->get_oid());
+            break;
+
+        case 'd': //The VM was not found
+            vm->log("VMM",Log::INFO,"VM running but it was not found."
+                    " Restart and delete actions available or try to"
+                    " recover it manually");
+
+            lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
+            break;
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
