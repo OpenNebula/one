@@ -271,7 +271,7 @@ def select_hypervisor
         case $0
         when %r{/vmm\/kvm/}
             hypervisor=KVM
-        when %r{/vmm\/xen/}
+        when %r{/vmm\/xen\d?/}
             hypervisor=XEN
         end
     end
