@@ -95,38 +95,36 @@ void InformationManagerDriver::protocol(
             goto error_host;
         }
 
-        if (result == "SUCCESS")
+        if (result != "SUCCESS")
         {
-            size_t  pos;
-            int     rc;
-            string  hinfo64;
-            string* hinfo;
+            goto error_driver_info;
+        }
 
-            ostringstream oss;
+        size_t  pos;
+        int     rc;
+        string  hinfo64;
+        string* hinfo;
 
-            getline (is, hinfo64);
+        ostringstream oss;
 
-            hinfo = one_util::base64_decode(hinfo64);
+        getline (is, hinfo64);
 
-            oss << "Host " << id << " successfully monitored.";
-            NebulaLog::log("InM", Log::DEBUG, oss);
+        hinfo = one_util::base64_decode(hinfo64);
 
-            rc = host->update_info(*hinfo);
+        oss << "Host " << id << " successfully monitored.";
+        NebulaLog::log("InM", Log::DEBUG, oss);
 
-            if (rc != 0)
-            {
-                ess << "Error parsing host information: " << *hinfo;
-                delete hinfo;
+        rc = host->update_info(*hinfo);
 
-                goto  error_common_info;
-            }
-
+        if (rc != 0)
+        {
+            ess << "Error parsing host information: " << *hinfo;
             delete hinfo;
+
+            goto  error_common_info;
         }
-        else
-        {
-        	goto error_driver_info;
-        }
+
+        delete hinfo;
 
         host->touch(true);
 
