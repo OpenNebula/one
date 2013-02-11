@@ -1338,8 +1338,6 @@ void VirtualMachineManager::poll_action(
         "",
         vm->to_xml(vm_tmpl));
 
-    vm->set_last_poll(time(0));
-
     vmd->poll(vid, *drv_msg);
 
     delete drv_msg;
@@ -1479,8 +1477,6 @@ void VirtualMachineManager::timer_action()
         os << "Monitoring VM " << *it << ".";
         NebulaLog::log("VMM", Log::INFO, os);
 
-        vm->set_last_poll(thetime);
-
         vmd = get(vm->get_vmm_mad());
 
         if ( vmd == 0 )
@@ -1505,8 +1501,6 @@ void VirtualMachineManager::timer_action()
         vmd->poll(*it, *drv_msg);
 
         delete drv_msg;
-
-        vmpool->update(vm);
 
         vm->unlock();
     }

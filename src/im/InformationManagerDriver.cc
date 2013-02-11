@@ -164,8 +164,6 @@ void InformationManagerDriver::protocol(
 
             if (rc == 0)
             {
-                // TODO: update last_poll   vm->set_last_poll
-
                 monitor_str = vatt->vector_value("POLL");
 
                 VirtualMachineManagerDriver::process_poll(vmid, monitor_str);

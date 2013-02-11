@@ -540,6 +540,8 @@ void VirtualMachineManagerDriver::process_poll(
         return;
     }
 
+    vm->set_last_poll(time(0));
+
     vm->update_info(memory,cpu,net_tx,net_rx);
     vm->set_vm_info();
 
