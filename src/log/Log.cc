@@ -25,15 +25,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <syslog.h>
+#ifdef SYSLOG_LOG
+#   include <syslog.h>
 
-#include "log4cpp/Category.hh"
-#include "log4cpp/CategoryStream.hh"
-#include "log4cpp/Appender.hh"
-#include "log4cpp/SyslogAppender.hh"
-#include "log4cpp/Layout.hh"
-#include "log4cpp/PatternLayout.hh"
-#include "log4cpp/Priority.hh"
+#   include "log4cpp/Category.hh"
+#   include "log4cpp/CategoryStream.hh"
+#   include "log4cpp/Appender.hh"
+#   include "log4cpp/SyslogAppender.hh"
+#   include "log4cpp/Layout.hh"
+#   include "log4cpp/PatternLayout.hh"
+#   include "log4cpp/Priority.hh"
+#endif /* SYSLOG_LOG */
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -157,6 +159,8 @@ void CerrLog::log(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+#ifdef SYSLOG_LOG
 
 const char * SysLog::CATEGORY = "ROOT";
 string       SysLog::LABEL;
@@ -313,3 +317,5 @@ void SysLogResource::log(
                         << line;
     }
 }
+
+#endif  /* SYSLOG_LOG */
