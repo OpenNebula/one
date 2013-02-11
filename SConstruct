@@ -118,8 +118,14 @@ if mysql=='yes':
 else:
     main_env.Append(mysql='no')
 
-# log4cpp
-main_env.Append(LIBS=['pthread','log4cpp'])
+# SysLog
+syslog=ARGUMENTS.get('syslog', 'no')
+if syslog=='yes':
+    main_env.Append(syslog='yes')
+    main_env.Append(CPPFLAGS=["-DSYSLOG_LOG"])
+    main_env.Append(LIBS=['pthread','log4cpp'])
+else:
+    main_env.Append(syslog='no')
 
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')

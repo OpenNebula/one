@@ -20,7 +20,10 @@
 #include "Log.h"
 
 #include <sstream>
-#include <syslog.h>
+
+#ifdef SYSLOG_LOG
+#   include <syslog.h>
+#endif /* SYSLOG_LOG */
 
 using namespace std;
 
