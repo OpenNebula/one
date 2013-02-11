@@ -395,7 +395,8 @@ void VirtualMachineManagerDriver::protocol(
     {
         if (result == "SUCCESS")
         {
-            string monitor_str = is.str();
+            string monitor_str;
+            getline(is, monitor_str);
 
             process_poll(vm, monitor_str);
         }
