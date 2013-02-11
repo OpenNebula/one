@@ -270,6 +270,11 @@ int VectorAttribute::vector_value(const char *name, int & value) const
     istringstream iss(it->second);
     iss >> value;
 
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
     return 0;
 }
 
@@ -294,6 +299,11 @@ int VectorAttribute::vector_value(const char *name, float & value) const
 
     istringstream iss(it->second);
     iss >> value;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
 
     return 0;
 }
