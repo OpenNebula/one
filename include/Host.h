@@ -134,7 +134,7 @@ public:
     int update_monitoring(SqlDB * db);
 
     /**
-     * Retrives host state
+     * Retrieves host state
      *    @return HostState code number
      */
     HostState get_state() const
@@ -143,7 +143,7 @@ public:
     };
 
     /**
-     * Retrives VMM mad name
+     * Retrieves VMM mad name
      *    @return string vmm mad name
      */
     const string& get_vmm_mad() const
@@ -152,7 +152,7 @@ public:
     };
 
     /**
-     * Retrives VNM mad name
+     * Retrieves VNM mad name
      *    @return string vnm mad name
      */
     const string& get_vnm_mad() const
@@ -161,7 +161,7 @@ public:
     };
 
     /**
-     * Retrives IM mad name
+     * Retrieves IM mad name
      *    @return string im mad name
      */
     const string& get_im_mad() const
@@ -194,7 +194,7 @@ public:
     };
 
     /**
-     * Retrives last time the host was monitored
+     * Retrieves last time the host was monitored
      *    @return time_t last monitored time
      */
     time_t get_last_monitored() const
@@ -273,7 +273,7 @@ public:
     }
 
     /**
-     *  Adds a new VM to the given share by icrementing the cpu, mem and disk
+     *  Adds a new VM to the given share by incrementing the cpu, mem and disk
      *  counters
      *    @param vm_id id of the vm to add to the host
      *    @param cpu needed by the VM (percentage)
@@ -302,7 +302,7 @@ public:
      *  disk counters
      *    @param vm_id id of the vm to delete from the host
      *    @param cpu used by the VM (percentage)
-     *    @param mem used by the VM (in Kb)
+     *    @param mem used by the VM (in KB)
      *    @param disk used by the VM
      *    @return 0 on success
      */
@@ -333,6 +333,16 @@ public:
     {
         return host_share.test(cpu,mem,disk);
     }
+
+    /**
+     * Returns a set with the IDs of the VMs currently running on this host
+     *
+     * @return A set of running VM IDs
+     */
+    set<int> get_running_vms()
+    {
+        return vm_collection.get_collection_copy();
+    };
 
     /**
      *  Factory method for host templates

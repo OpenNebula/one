@@ -114,6 +114,7 @@ void InformationManagerDriver::protocol(
         VectorAttribute*                vatt;
         vector<Attribute*>              vm_att;
         vector<Attribute*>::iterator    it;
+        set<int>                        vm_ids;
 
         getline (is, hinfo64);
 
@@ -143,6 +144,8 @@ void InformationManagerDriver::protocol(
 
         host->remove_template_attribute("VM");
 
+        vm_ids = host->get_running_vms();
+
         host->touch(true);
 
         hpool->update(host);
@@ -164,12 +167,34 @@ void InformationManagerDriver::protocol(
 
             if (rc == 0)
             {
+                if (vm_ids.erase(vmid) != 1)
+                {
+                    // TODO: This VM shoulnd't be running on this host
+                }
+
                 monitor_str = vatt->vector_value("POLL");
 
                 VirtualMachineManagerDriver::process_poll(vmid, monitor_str);
             }
+            else
+            {
+                // TODO: unknown VM found running on this host
+            }
 
             delete *it;
+        }
+
+        // TODO Some drivers do not return info about the VMs, but we should
+        // have a better way to check that. This will be true when no VMs are
+        // reported
+        if (!vm_att.empty())
+        {
+            for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
+            {
+                // This VM should be running on this host, but it was not reported
+
+                VirtualMachineManagerDriver::process_poll(*it, "STATE=d");
+            }
         }
     }
     else if (action == "LOG")
