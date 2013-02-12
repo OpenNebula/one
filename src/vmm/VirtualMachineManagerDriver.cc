@@ -206,12 +206,10 @@ void VirtualMachineManagerDriver::protocol(
         if (result == "SUCCESS")
         {
             string deploy_id;
-            time_t thetime = time(0);
 
             is >> deploy_id;
 
             vm->update_info(deploy_id);
-            vm->set_last_poll(thetime);
 
             vmpool->update(vm);
 
