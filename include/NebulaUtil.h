@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef _NEBULA_UTIL_H_
+#define _NEBULA_UTIL_H_
 
 #include <string>
 
@@ -30,4 +30,4 @@ namespace one_util
     std::string log_time();
 };
 
-#endif /* UTIL_H_ */
+#endif /* _NEBULA_UTIL_H_ */

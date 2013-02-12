@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
-#include "Util.h"
+#include "NebulaUtil.h"
 
 void VirtualMachineXML::init_attributes()
 {

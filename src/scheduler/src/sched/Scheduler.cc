@@ -34,7 +34,7 @@
 #include "RankPolicy.h"
 #include "NebulaLog.h"
 #include "PoolObjectAuth.h"
-#include "Util.h"
+#include "NebulaUtil.h"
 
 using namespace std;
 

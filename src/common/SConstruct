@@ -26,7 +26,7 @@ source_files=[
     'Attribute.cc',
     'mem_collector.c',
     'SSLTools.cc',
-    'Util.cc'
+    'NebulaUtil.cc'
 ]
 
 # Build library
