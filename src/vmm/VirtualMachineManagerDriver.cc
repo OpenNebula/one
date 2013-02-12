@@ -401,7 +401,8 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error monitoring VM");
-            vmpool->update(vm);
+
+            process_poll(vm, "STATE=d");
 
             vm->log("VMM",Log::ERROR,os);
         }
