@@ -168,14 +168,16 @@ void InformationManagerDriver::protocol(
 
             if (rc == 0)
             {
-                if (vm_ids.erase(vmid) != 1)
+                if (vm_ids.erase(vmid) == 1)
+                {
+                    monitor_str = vatt->vector_value("POLL");
+
+                    VirtualMachineManagerDriver::process_poll(vmid, monitor_str);
+                }
+                else
                 {
                     // TODO: This VM shoulnd't be running on this host
                 }
-
-                monitor_str = vatt->vector_value("POLL");
-
-                VirtualMachineManagerDriver::process_poll(vmid, monitor_str);
             }
             else
             {
