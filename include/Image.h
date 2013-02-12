@@ -77,7 +77,8 @@ public:
     {
         FILE   = 0, /** < File-based disk */
         CD_ROM = 1, /** < An ISO9660 disk */
-        BLOCK  = 2  /** < Block-device disk */
+        BLOCK  = 2, /** < Block-device disk */
+        RBD    = 3  /** < CEPH RBD disk */
     };
 
     /**
@@ -92,6 +93,7 @@ public:
             case FILE:   return "FILE" ; break;
             case CD_ROM: return "CDROM" ; break;
             case BLOCK:  return "BLOCK" ; break;
+            case RBD:    return "RBD" ; break;
             default:     return "";
         }
     };

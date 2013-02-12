@@ -174,7 +174,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     if ( type == IMAGE_DS )
     {
-        get_template_attribute("DISK_TYPE", s_disk_type);
+        erase_template_attribute("DISK_TYPE", s_disk_type);
 
         if (s_disk_type == "BLOCK")
         {
@@ -183,6 +183,10 @@ int Datastore::insert(SqlDB *db, string& error_str)
         else if (s_disk_type == "CDROM")
         {
             disk_type = Image::CD_ROM;
+        }
+        else if (s_disk_type == "RBD")
+        {
+            disk_type = Image::RBD;
         }
     }
 

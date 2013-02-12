@@ -342,6 +342,13 @@ int LibVirtDriver::deployment_description_kvm(
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
+        else if ( type == "RBD" )
+        {
+            file << "\t\t<disk type='network' device='disk'>" << endl
+                 << "\t\t\t<source protocol='rbd' name='"
+                 << vm->get_remote_system_dir()
+                 << "/disk." << disk_id << "'/>" << endl;
+        }
         else if ( type == "CDROM" )
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl
