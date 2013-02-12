@@ -60,9 +60,15 @@ def info_string(dom_info)
 end
 
 def vm_info(name, dom_info)
-    number=name.split('-').last
+    number = -1
+
+    if (name =~ /^one-\d*$/)
+        number = name.split('-').last
+    end
+
     string="VM=[\n"
     string<<"  ID=\"#{number}\",\n"
+    string<<"  DEPLOY_ID=#{name},\n"
     string<<"  POLL=\"#{info_string(dom_info)}\" ]"
     string
 end

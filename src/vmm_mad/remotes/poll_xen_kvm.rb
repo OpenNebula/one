@@ -347,10 +347,15 @@ def print_all_vm_template(hypervisor)
     vms=hypervisor.get_all_vm_info
 
     vms.each do |name, data|
-        number=name.split("-")[-1]
+        number = -1
+
+        if (name =~ /^one-\d*$/)
+            number = name.split('-').last
+        end
 
         string="VM=[\n"
         string<<"  ID=#{number},\n"
+        string<<"  DEPLOY_ID=#{name},\n"
 
         values=data.map do |key, value|
             print_data(key, value)

@@ -103,9 +103,15 @@ end
 def get_all_vm_info(host, vms)
     vms.each do |vm|
         info=get_vm_info(host, vm)
-        number=vm.split('-').last
+
+        number = -1
+        if (vm =~ /^one-\d*$/)
+            number = vm.split('-').last
+        end
+
         puts "VM=["
         puts "  ID=#{number},"
+        puts "  DEPLOY_ID=#{vm},\n"
         puts "  POLL=\"#{info}\" ]"
     end
 end
