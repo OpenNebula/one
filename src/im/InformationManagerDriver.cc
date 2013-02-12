@@ -47,12 +47,14 @@ void InformationManagerDriver::protocol(
     string          action;
     //stores the action result
     string          result;
-    //stores the action id of the asociated HOSR
+    //stores the action id of the associated HOST
     int             id;
 
     ostringstream   ess;
 
     Host *          host;
+
+    set<int>        vm_ids;
 
     // Parse the driver message
 
@@ -96,6 +98,8 @@ void InformationManagerDriver::protocol(
             goto error_host;
         }
 
+        vm_ids = host->get_running_vms();
+
         if (result != "SUCCESS")
         {
             goto error_driver_info;
@@ -114,7 +118,6 @@ void InformationManagerDriver::protocol(
         VectorAttribute*                vatt;
         vector<Attribute*>              vm_att;
         vector<Attribute*>::iterator    it;
-        set<int>                        vm_ids;
 
         getline (is, hinfo64);
 
@@ -143,8 +146,6 @@ void InformationManagerDriver::protocol(
         delete hinfo;
 
         host->remove_template_attribute("VM");
-
-        vm_ids = host->get_running_vms();
 
         host->touch(true);
 
@@ -208,8 +209,14 @@ void InformationManagerDriver::protocol(
     return;
 
 error_driver_info:
-	ess << "Error monitoring host " << id << " : " << is.str();
-	goto  error_common_info;
+    ess << "Error monitoring host " << id << " : " << is.str();
+
+    for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
+    {
+        VirtualMachineManagerDriver::process_poll(*it, "STATE=d");
+    }
+
+    goto  error_common_info;
 
 error_common_info:
     NebulaLog::log("InM",Log::ERROR,ess);
