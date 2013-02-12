@@ -64,6 +64,7 @@ var create_datastore_tmpl =
         <option value="vmware_vmfs">' + tr("VMware (VMFS Based)") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="lvm">' + tr("LVM") + '</option>\
+        <option value="ceph">' + tr("Ceph") + '</option>\
   </select><br name="ds_type" />\
   <label for="system">' + tr("System datastore") + ':</label>\
   <input id="sys_ds" type="checkbox" name="system" value="YES" />\
@@ -77,26 +78,29 @@ var create_datastore_tmpl =
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="lvm">' + tr("LVM") + '</option>\
         <option value="vmfs">' + tr("VMFS") + '</option>\
+        <option value="ceph">' + tr("Ceph") + '</option>\
   </select><br name="ds_mad" />\
   <label>' + tr("Transfer manager") + ':</label>\
   <select id="tm_mad" name="tm_mad">\
         <option value="shared">' + tr("Shared") + '</option>\
         <option value="ssh">' + tr("SSH") + '</option>\
+        <option value="qcow2">' + tr("qcow2") + '</option>\
         <option value="iscsi">' + tr("iSCSI") + '</option>\
         <option value="dummy">' + tr("Dummy") + '</option>\
+        <option value="lvm">' + tr("LVM") + '</option>\
         <option value="vmfs">' + tr("VMFS") + '</option>\
+        <option value="ceph">' + tr("Ceph") + '</option>\
   </select><div class="clear">\
   <label for="disk_type">' + tr("Disk type") + ':</label>\
   <select id="disk_type" name="disk_type">\
         <option value="file">' + tr("File") + '</option>\
         <option value="block">' + tr("Block") + '</option>\
+        <option value="rbd">' + tr("RBD") + '</option>\
   </select><br />\
   <label for="safe_dirs">' + tr("Safe Directories") + ':</label>\
   <input type="text" name="safe_dirs" id="safe_dirs" />\
   <label for="restricted_dirs">' + tr("Restricted Directories") + ':</label>\
   <input type="text" name="restricted_dirs" id="restricted_dirs" />\
-  <label for="no_decompress">' + tr("Don't Decompress") + ':</label>\
-  <input id="no_decompress" type="checkbox" name="no_decompress" value="YES" />\
   <label for="bridge_list">' + tr("Host Bridge List") + ':</label>\
   <input type="text" name="bridge_list" id="bridge_list" />\
   <label for="ds_use_ssh">' + tr("Use SSH for Datastore Manager") + ':</label>\
@@ -298,7 +302,6 @@ var datastore_actions = {
     "Datastore.chmod" : {
         type: "single",
         call: OpenNebula.Datastore.chmod,
-//        callback
         error: onError,
         notify: true
     },
@@ -592,12 +595,22 @@ function updateDatastoreInfo(request,ds){
 function hide_all(context)
 {
     // Hide all the options that depends on datastore type
+    // and reset the selects
     $('label[for="bridge_list"],input#bridge_list',context).hide();
     $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
     $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
     $('label[for="host"],input#host',context).hide();
     $('label[for="base_iqn"],input#base_iqn',context).hide();
     $('label[for="vg_name"],input#vg_name',context).hide();
+    $('select#ds_mad').removeAttr('disabled');
+    $('select#tm_mad').removeAttr('disabled');
+    $('select#tm_mad').children('option').each(function() {
+      $(this).removeAttr('disabled');
+    });
+    $('select#disk_type').removeAttr('disabled');
+    $('select#disk_type').children('option').each(function() {
+      $(this).removeAttr('disabled');
+    });
 }
 
 // Set up the create datastore dialog
@@ -649,19 +662,22 @@ function setupCreateDatastoreDialog(){
         switch(choice_str)
         {
           case 'fs':
+            select_filesystem();
             break;
           case 'vmware_fs':
+            select_vmware_fs();
             break;
           case 'vmware_vmfs':
-            $('label[for="bridge_list"],input#bridge_list',$(this).parent()).fadeIn();
-            $('label[for="ds_use_ssh"],input#ds_use_ssh',$(this).parent()).fadeIn();
-            $('label[for="tm_use_ssh"],input#tm_use_ssh',$(this).parent()).fadeIn();
+            select_vmware_vmfs();
             break;
           case 'lvm':
+            select_lvm();
+            break;
           case 'iscsi':
-            $('label[for="host"],input#host',$(this).parent()).fadeIn();
-            $('label[for="base_iqn"],input#base_iqn',$(this).parent()).fadeIn();
-            $('label[for="vg_name"],input#vg_name',$(this).parent()).fadeIn();
+            select_iscsi();
+            break;
+          case 'ceph':
+            select_ceph();
             break;
         }
     });
@@ -676,7 +692,6 @@ function setupCreateDatastoreDialog(){
         var type            = $('#disk_type',this).val();
         var safe_dirs       = $('#safe_dirs',this).val();
         var restricted_dirs = $('#restricted_dirs',this).val();
-        var no_decompress   = $('#no_decompress',this).is(':checked');
         var bridge_list     = $('#bridge_list',this).val();
         var ds_use_ssh      = $('#ds_use_ssh',this).is(':checked');
         var tm_use_ssh      = $('#tm_use_ssh',this).is(':checked');
@@ -713,9 +728,6 @@ function setupCreateDatastoreDialog(){
         if (restricted_dirs)
             ds_obj.datastore.restricted_dirs = restricted_dirs;
 
-        if (no_decompress)
-            ds_obj.datastore.no_decompress = "YES";
-
         if (bridge_list)
             ds_obj.datastore.bridge_list = bridge_list;
 
@@ -741,10 +753,98 @@ function setupCreateDatastoreDialog(){
     });
 }
 
+function select_filesystem(){
+    $('select#ds_mad').val('fs');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "qcow2"  ||
+          value_str == "shared" ||
+          value_str == "ssh"    ||
+          value_str == "dummy")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+    $('select#disk_type').val('file');
+    $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_vmware_fs(){
+    $('select#ds_mad').val('vmware');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "shared"  ||
+          value_str == "ssh")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+    $('select#disk_type').val('file');
+    $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_vmware_vmfs(){
+    $('label[for="bridge_list"],input#bridge_list').fadeIn();
+    $('label[for="ds_use_ssh"],input#ds_use_ssh').fadeIn();
+    $('label[for="tm_use_ssh"],input#tm_use_ssh').fadeIn();
+    $('select#ds_mad').val('vmfs');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('vmfs');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('select#disk_type').val('file');
+    $('select#disk_type').attr('disabled', 'disabled');
+}
+
+function select_iscsi(){
+    $('label[for="host"],input#host').fadeIn();
+    $('label[for="base_iqn"],input#base_iqn').fadeIn();
+    $('label[for="vg_name"],input#vg_name').fadeIn();
+    $('select#disk_type').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "file"  ||
+          value_str == "block")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+}
+
+function select_ceph(){
+    $('select#ds_mad').val('ceph');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('ceph');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('select#ds_type').val('rbd');
+}
+
+function select_lvm(){
+    $('select#ds_mad').val('lvm');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('lvm');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('label[for="host"],input#host').fadeIn();
+    $('label[for="vg_name"],input#vg_name').fadeIn();
+    $('select#disk_type').children('option').each(function() {
+      var value_str = $(this).val();
+      $(this).attr('disabled', 'disabled');
+      if (value_str == "file"  ||
+          value_str == "block")
+      {
+           $(this).removeAttr('disabled');
+      }
+    });
+}
+
 function popUpCreateDatastoreDialog(){
     $('select#cluster_id',$create_datastore_dialog).html(clusters_sel());
     $create_datastore_dialog.dialog('open');
     hide_all($create_datastore_dialog);
+    select_filesystem();
 }
 
 //Prepares autorefresh
