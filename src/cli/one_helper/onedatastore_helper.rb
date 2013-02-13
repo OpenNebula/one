@@ -110,6 +110,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["DS_MAD",   datastore['DS_MAD']]
         puts str % ["TM_MAD",   datastore['TM_MAD']]
         puts str % ["BASE PATH",datastore['BASE_PATH']]
+        puts str % ["DISK_TYPE",Image::DISK_TYPES[datastore['DISK_TYPE'].to_i]]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
