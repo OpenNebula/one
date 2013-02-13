@@ -138,29 +138,26 @@ const char * PoolObjectSQL::error_attribute_name = "ERROR";
 
 void PoolObjectSQL::set_template_error_message(const string& message)
 {
+    set_template_message(error_attribute_name, message);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::set_template_message(
+        const string& att_name,
+        const string& message)
+{
     SingleAttribute * attr;
     ostringstream     error_value;
 
-    char   str[26];
-    time_t the_time;
-
-    the_time = time(NULL);
-
-#ifdef SOLARIS
-    ctime_r(&(the_time),str,sizeof(char)*26);
-#else
-    ctime_r(&(the_time),str);
-#endif
-
-    str[24] = '\0'; // Get rid of final enter character
-
-    error_value << str << " : " << message;
+    error_value << one_util::log_time() << " : " << message;
 
     //Replace previous error message and insert the new one
 
-    attr = new SingleAttribute(error_attribute_name, error_value.str());
+    attr = new SingleAttribute(att_name, error_value.str());
 
-    obj_template->erase(error_attribute_name);
+    obj_template->erase(att_name);
     obj_template->set(attr);
 }
 

@@ -397,11 +397,19 @@ public:
     }
 
     /**
-     *  Sets an error message for the VM in the template
-     *    @param message
+     *  Sets an error message with timestamp in the template
+     *    @param message Message string
      *    @return 0 on success
      */
     void set_template_error_message(const string& message);
+
+    /**
+     *  Sets a message with timestamp in the template
+     *    @param att_name Name for the attribute
+     *    @param message Message string
+     *    @return 0 on success
+     */
+    void set_template_message(const string& att_name, const string& message);
 
     /**
      *  Factory method for templates, it should be implemented

@@ -138,7 +138,7 @@ void InformationManagerDriver::protocol(
             goto  error_common_info;
         }
 
-        // TODO The hinfo string is parsed again because HostTemplate has
+        // The hinfo string is parsed again because HostTemplate has
         // replace_mode set to true, but we expect several VM vector attributes
         Template* tmpl = new Template();
         tmpl->parse(*hinfo, &error_msg);
@@ -159,6 +159,9 @@ void InformationManagerDriver::protocol(
 
         host->unlock();
 
+        vector<string> external_vms;
+        map<int,string> rogue_vms;
+
         for (it=vm_att.begin(); it != vm_att.end(); it++)
         {
             vatt = dynamic_cast<VectorAttribute*>(*it);
@@ -171,7 +174,7 @@ void InformationManagerDriver::protocol(
 
             rc = vatt->vector_value("ID", vmid);
 
-            if (rc == 0)
+            if (rc == 0 && vmid != -1)
             {
                 if (vm_ids.erase(vmid) == 1)
                 {
@@ -181,12 +184,12 @@ void InformationManagerDriver::protocol(
                 }
                 else
                 {
-                    // TODO: This VM shoulnd't be running on this host
+                    rogue_vms[vmid] = vatt->vector_value("DEPLOY_ID");
                 }
             }
-            else
+            else if (rc == 0)
             {
-                // TODO: unknown VM found running on this host
+                external_vms.push_back( vatt->vector_value("DEPLOY_ID") );
             }
 
             delete *it;
@@ -199,6 +202,57 @@ void InformationManagerDriver::protocol(
                 // This VM should be running on this host, but it was not reported
 
                 VirtualMachineManagerDriver::process_failed_poll(*it);
+            }
+        }
+
+        if (!rogue_vms.empty())
+        {
+            map<int,string>::iterator it;
+
+            oss.str("");
+            oss << "Manual intervention required, these VMs should"
+                << " not be running on Host " << id << ":";
+
+            for(it = rogue_vms.begin(); it != rogue_vms.end(); it++)
+            {
+                oss << " VM " << it->first << " (hypervisor name '" << it->second << "')";
+            }
+
+            host = hpool->get(id,true);
+
+            if ( host != 0 )
+            {
+                host->set_template_error_message(oss.str());
+
+                hpool->update(host);
+
+                host->unlock();
+            }
+
+            NebulaLog::log("InM",Log::ERROR,oss);
+        }
+
+        if (!external_vms.empty())
+        {
+            vector<string>::iterator it;
+
+            oss.str("");
+            oss << "External VMs found:";
+
+            for(it = external_vms.begin(); it != external_vms.end(); it++)
+            {
+                oss << " " << *it;
+            }
+
+            host = hpool->get(id,true);
+
+            if ( host != 0 )
+            {
+                host->set_template_message("INFO_MESSAGE", oss.str());
+
+                hpool->update(host);
+
+                host->unlock();
             }
         }
     }
