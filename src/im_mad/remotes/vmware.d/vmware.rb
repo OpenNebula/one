@@ -86,10 +86,10 @@ end
 
 def get_vm_names
     rc, data = do_action("virsh -c #{@uri} --readonly list")
-
     return [] if !rc
 
-    lines=data.split(/\n/)[2..-1]
+    data.gsub!(/^.*----$/m, '').strip!
+    lines=data.split(/\n/)
 
     lines.map do |line|
         line.split(/\s+/).delete_if {|d| d.empty? }[1]
@@ -102,7 +102,6 @@ end
 
 def get_all_vm_info(host, vms)
     puts "VM_POLL=YES"
-
     vms.each do |vm|
         info=get_vm_info(host, vm)
 
