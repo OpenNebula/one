@@ -234,7 +234,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            log_error(vm,os,is,"Error shuting down VM");
+            log_error(vm,os,is,"Error shutting down VM");
             vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::SHUTDOWN_FAILURE, id);
@@ -312,7 +312,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         if (result == "SUCCESS")
         {
-            vm->log("VMM",Log::ERROR,"VM Successfully rebooted.");
+            vm->log("VMM",Log::INFO,"VM successfully rebooted.");
         }
         else
         {
@@ -324,7 +324,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         if (result == "SUCCESS")
         {
-            vm->log("VMM",Log::ERROR,"VM Successfully reseted.");
+            vm->log("VMM",Log::INFO,"VM successfully reset.");
         }
         else
         {
@@ -339,7 +339,7 @@ void VirtualMachineManagerDriver::protocol(
 
         if ( result == "SUCCESS" )
         {
-            vm->log("VMM", Log::ERROR, "VM Disk Successfully attached.");
+            vm->log("VMM", Log::INFO, "VM Disk successfully attached.");
 
             lcm->trigger(LifeCycleManager::ATTACH_SUCCESS, id);
         }
@@ -358,7 +358,7 @@ void VirtualMachineManagerDriver::protocol(
 
         if ( result == "SUCCESS" )
         {
-            vm->log("VMM",Log::ERROR,"VM Disk Successfully detached.");
+            vm->log("VMM",Log::INFO,"VM Disk successfully detached.");
 
             lcm->trigger(LifeCycleManager::DETACH_SUCCESS, id);
         }
@@ -377,7 +377,7 @@ void VirtualMachineManagerDriver::protocol(
 
         if ( result == "SUCCESS" )
         {
-            vm->log("VMM", Log::ERROR, "Host Successfully cleaned.");
+            vm->log("VMM", Log::INFO, "Host successfully cleaned.");
 
             lcm->trigger(LifeCycleManager::CLEANUP_SUCCESS, id);
         }
@@ -403,8 +403,6 @@ void VirtualMachineManagerDriver::protocol(
             log_error(vm,os,is,"Error monitoring VM");
 
             process_poll(vm, "STATE=d");
-
-            vm->log("VMM",Log::ERROR,os);
         }
     }
     else if (action == "LOG")
@@ -523,11 +521,6 @@ void VirtualMachineManagerDriver::process_poll(
         {
             string val;
 
-            os.str("");
-            os << "Adding custom monitoring attribute: " << tmp;
-
-            vm->log("VMM",Log::WARNING,os);
-
             tiss >> val;
 
             vm->replace_template_attribute(var,val);
@@ -566,14 +559,6 @@ void VirtualMachineManagerDriver::process_poll(
         switch (state)
         {
         case 'a': // Still active, good!
-            os.str("");
-            os  << "Monitor Information:\n"
-                << "\tCPU   : "<< cpu    << "\n"
-                << "\tMemory: "<< memory << "\n"
-                << "\tNet_TX: "<< net_tx << "\n"
-                << "\tNet_RX: "<< net_rx;
-            vm->log("VMM",Log::DEBUG,os);
-
             if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
             {
                 vm->log("VMM",Log::INFO,"VM was now found, new state is"
