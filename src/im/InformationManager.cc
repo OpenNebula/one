@@ -144,8 +144,8 @@ void InformationManager::timer_action()
 
     struct stat     sb;
 
-    map<int, string>            discovered_hosts;
-    map<int, string>::iterator  it;
+    set<int>            discovered_hosts;
+    set<int>::iterator  it;
 
     const InformationManagerDriver * imd;
 
@@ -184,7 +184,7 @@ void InformationManager::timer_action()
 
     for(it=discovered_hosts.begin();it!=discovered_hosts.end();it++)
     {
-        host = hpool->get(it->first,true);
+        host = hpool->get(*it,true);
 
         if (host == 0)
         {
@@ -204,16 +204,16 @@ void InformationManager::timer_action()
         {
             oss.str("");
             oss << "Monitoring host " << host->get_name()
-                << " (" << it->first << ")";
+                << " (" << host->get_oid() << ")";
 
             NebulaLog::log("InM",Log::INFO,oss);
 
-            imd = get(it->second);
+            imd = get(host->get_im_mad());
 
             if (imd == 0)
             {
                 oss.str("");
-                oss << "Could not find information driver " << it->second;
+                oss << "Could not find information driver " << host->get_im_mad();
                 NebulaLog::log("InM",Log::ERROR,oss);
 
                 host->set_state(Host::ERROR);
@@ -228,7 +228,7 @@ void InformationManager::timer_action()
                     update_remotes = true;
                 }
 
-            	imd->monitor(it->first,host->get_name(),update_remotes);
+                imd->monitor(host->get_oid(),host->get_name(),update_remotes);
 
             	host->set_monitoring_state();
             }
