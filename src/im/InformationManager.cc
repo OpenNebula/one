@@ -200,8 +200,7 @@ void InformationManager::timer_action()
             hpool->update(host);
         }
 
-        if ( host->isEnabled() && !(host->isMonitoring()) && 
-            (monitor_length >= monitor_period))
+        if ( !(host->isMonitoring()) && (monitor_length >= monitor_period))
         {
             oss.str("");
             oss << "Monitoring host " << host->get_name()

@@ -281,8 +281,7 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
                  static_cast<void *>(discovered_hosts));
 
     sql << "SELECT oid, body FROM "
-        << Host::table << " WHERE state != "
-        << Host::DISABLED << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
+        << Host::table << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
 
