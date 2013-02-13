@@ -113,6 +113,8 @@ if !ALL
 
     puts info_string(dom_info)
 else
+    puts "VM_POLL=YES"
+
     doms_info.each do |name, data|
         puts vm_info(name, data)
     end

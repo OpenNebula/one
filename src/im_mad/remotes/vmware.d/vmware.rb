@@ -101,6 +101,8 @@ def get_vm_info(host, vm)
 end
 
 def get_all_vm_info(host, vms)
+    puts "VM_POLL=YES"
+
     vms.each do |vm|
         info=get_vm_info(host, vm)
 
@@ -111,7 +113,7 @@ def get_all_vm_info(host, vms)
 
         puts "VM=["
         puts "  ID=#{number},"
-        puts "  DEPLOY_ID=#{vm},\n"
+        puts "  DEPLOY_ID=#{vm},"
         puts "  POLL=\"#{info}\" ]"
     end
 end

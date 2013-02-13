@@ -346,6 +346,8 @@ end
 def print_all_vm_template(hypervisor)
     vms=hypervisor.get_all_vm_info
 
+    puts "VM_POLL=YES"
+
     vms.each do |name, data|
         number = -1
 

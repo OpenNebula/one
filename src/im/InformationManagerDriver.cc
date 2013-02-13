@@ -91,6 +91,8 @@ void InformationManagerDriver::protocol(
 
     if ( action == "MONITOR" )
     {
+        bool vm_poll;
+
         host = hpool->get(id,true);
 
         if ( host == 0 )
@@ -145,6 +147,9 @@ void InformationManagerDriver::protocol(
 
         delete hinfo;
 
+        host->get_template_attribute("VM_POLL", vm_poll);
+
+        host->remove_template_attribute("VM_POLL");
         host->remove_template_attribute("VM");
 
         host->touch(true);
@@ -187,10 +192,7 @@ void InformationManagerDriver::protocol(
             delete *it;
         }
 
-        // TODO Some drivers do not return info about the VMs, but we should
-        // have a better way to check that. This will be true when no VMs are
-        // reported
-        if (!vm_att.empty())
+        if (vm_poll)
         {
             for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
             {
