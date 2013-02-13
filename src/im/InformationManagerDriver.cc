@@ -196,7 +196,7 @@ void InformationManagerDriver::protocol(
             {
                 // This VM should be running on this host, but it was not reported
 
-                VirtualMachineManagerDriver::process_poll(*it, "STATE=d");
+                VirtualMachineManagerDriver::process_failed_poll(*it);
             }
         }
     }
@@ -215,7 +215,7 @@ error_driver_info:
 
     for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
     {
-        VirtualMachineManagerDriver::process_poll(*it, "STATE=d");
+        VirtualMachineManagerDriver::process_failed_poll(*it);
     }
 
     goto  error_common_info;

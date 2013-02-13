@@ -421,6 +421,14 @@ void VirtualMachineManagerDriver::protocol(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineManagerDriver::process_failed_poll(int id)
+{
+    process_poll(id, "STATE=d");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineManagerDriver::process_poll(
         int id,
         const string &monitor_str)
