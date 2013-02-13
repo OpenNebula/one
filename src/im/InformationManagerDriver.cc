@@ -56,6 +56,9 @@ void InformationManagerDriver::protocol(
 
     set<int>        vm_ids;
 
+    string  hinfo64;
+    string* hinfo;
+
     // Parse the driver message
 
     if ( is.good() )
@@ -102,14 +105,16 @@ void InformationManagerDriver::protocol(
 
         vm_ids = host->get_running_vms();
 
+        getline (is, hinfo64);
+
+        hinfo = one_util::base64_decode(hinfo64);
+
         if (result != "SUCCESS")
         {
             goto error_driver_info;
         }
 
         int     rc;
-        string  hinfo64;
-        string* hinfo;
 
         ostringstream oss;
 
@@ -120,10 +125,6 @@ void InformationManagerDriver::protocol(
         VectorAttribute*                vatt;
         vector<Attribute*>              vm_att;
         vector<Attribute*>::iterator    it;
-
-        getline (is, hinfo64);
-
-        hinfo = one_util::base64_decode(hinfo64);
 
         oss << "Host " << id << " successfully monitored.";
         NebulaLog::log("InM", Log::DEBUG, oss);
@@ -267,7 +268,9 @@ void InformationManagerDriver::protocol(
     return;
 
 error_driver_info:
-    ess << "Error monitoring host " << id << " : " << is.str();
+    ess << "Error monitoring host " << id << " : " << *hinfo;
+
+    delete hinfo;
 
     for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
     {
