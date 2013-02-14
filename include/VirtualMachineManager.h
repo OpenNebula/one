@@ -122,6 +122,11 @@ private:
     time_t                  timer_period;
 
     /**
+     *  Time when the VMM was started
+     */
+    time_t                  timer_start;
+
+    /**
      *  Virtual Machine polling interval
      */
     time_t                  poll_period;

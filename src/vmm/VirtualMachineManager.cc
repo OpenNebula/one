@@ -40,6 +40,7 @@ VirtualMachineManager::VirtualMachineManager(
         vmpool(_vmpool),
         hpool(_hpool),
         timer_period(_timer_period),
+        timer_start(0),
         poll_period(_poll_period),
         vm_limit(_vm_limit)
 {
@@ -62,6 +63,8 @@ extern "C" void * vmm_action_loop(void *arg)
     vmm = static_cast<VirtualMachineManager *>(arg);
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager started.");
+
+    vmm->timer_start = time(0);
 
     if ( vmm->poll_period == 0 )
     {
@@ -1444,6 +1447,13 @@ void VirtualMachineManager::timer_action()
 
     // Clear the expired monitoring records
     vmpool->clean_expired_monitoring();
+
+    // Skip monitoring the first poll_period to allow the Host monitoring to
+    // gather the VM info
+    if ( timer_start + poll_period > thetime )
+    {
+        return;
+    }
 
     // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
     rc = vmpool->get_running(oids, vm_limit, thetime - poll_period);
