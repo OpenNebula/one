@@ -68,6 +68,8 @@ cdrom)
     ;;
 esac
 
+[ -z "$CACHE" ] && [ -n "$DEFAULT_ATTACH_CACHE" ] && \
+    CACHE="$DEFAULT_ATTACH_CACHE"
 [ -n "$CACHE" ] && CACHE="cache='$CACHE'"
 
 if [ "$READONLY" = "YES" ]; then

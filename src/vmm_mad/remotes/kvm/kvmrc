@@ -30,3 +30,8 @@ export SHUTDOWN_TIMEOUT=300
 # on shutdown
 #CANCEL_NO_ACPI=yes
 
+# This parameter will set the default cache type for new attached disks. It
+# will be used in case the attached disk does not have an specific cache
+# method set (can be set using templates when attaching a disk).
+#DEFAULT_ATTACH_CACHE=none
+
