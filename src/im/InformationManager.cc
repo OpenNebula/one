@@ -97,6 +97,8 @@ int InformationManager::start()
         return -1;
     }
 
+    utimensat(0, remotes_location.c_str(), 0, 0);
+
     NebulaLog::log("InM",Log::INFO,"Starting Information Manager...");
 
     pthread_attr_init (&pattr);
