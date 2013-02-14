@@ -248,7 +248,6 @@ int HostPool::discover_cb(void * _set, int num, char **values, char **names)
     set<int> *  discovered_hosts;
     string      im_mad;
     int         hid;
-    int         rc;
 
     discovered_hosts = static_cast<set<int> *>(_set);
 
