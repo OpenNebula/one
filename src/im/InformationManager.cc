@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 
 
-const time_t InformationManager::monitor_expire = 600;
+const time_t InformationManager::monitor_expire = 300;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
