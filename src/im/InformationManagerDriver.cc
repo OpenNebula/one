@@ -139,6 +139,9 @@ void InformationManagerDriver::protocol(
             goto  error_common_info;
         }
 
+        host->clear_template_error_message();
+        host->remove_template_attribute("INFO_MESSAGE");
+
         // The hinfo string is parsed again because HostTemplate has
         // replace_mode set to true, but we expect several VM vector attributes
         Template* tmpl = new Template();
@@ -206,35 +209,31 @@ void InformationManagerDriver::protocol(
             }
         }
 
+        bool log_error = false;
+        bool log_info  = false;
+
         if (!rogue_vms.empty())
         {
+            log_error = true;
+
             map<int,string>::iterator it;
 
-            oss.str("");
-            oss << "Manual intervention required, these VMs should"
+            ess.str("");
+            ess << "Manual intervention required, these VMs should"
                 << " not be running on Host " << id << ":";
 
             for(it = rogue_vms.begin(); it != rogue_vms.end(); it++)
             {
-                oss << " VM " << it->first << " (hypervisor name '" << it->second << "')";
+                ess << " VM " << it->first << " (hypervisor name '" << it->second << "')";
             }
 
-            host = hpool->get(id,true);
-
-            if ( host != 0 )
-            {
-                host->set_template_error_message(oss.str());
-
-                hpool->update(host);
-
-                host->unlock();
-            }
-
-            NebulaLog::log("InM",Log::ERROR,oss);
+            NebulaLog::log("InM",Log::ERROR,ess);
         }
 
         if (!external_vms.empty())
         {
+            log_info = true;
+
             vector<string>::iterator it;
 
             oss.str("");
@@ -244,12 +243,23 @@ void InformationManagerDriver::protocol(
             {
                 oss << " " << *it;
             }
+        }
 
+        if (log_error || log_info)
+        {
             host = hpool->get(id,true);
 
             if ( host != 0 )
             {
-                host->set_template_message("INFO_MESSAGE", oss.str());
+                if (log_error)
+                {
+                    host->set_template_error_message(ess.str());
+                }
+
+                if (log_info)
+                {
+                    host->set_template_message("INFO_MESSAGE", oss.str());
+                }
 
                 hpool->update(host);
 

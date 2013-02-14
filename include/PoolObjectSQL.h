@@ -399,9 +399,13 @@ public:
     /**
      *  Sets an error message with timestamp in the template
      *    @param message Message string
-     *    @return 0 on success
      */
     void set_template_error_message(const string& message);
+
+    /**
+     *  Deletes the error message from the template
+     */
+    void clear_template_error_message();
 
     /**
      *  Sets a message with timestamp in the template

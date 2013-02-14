@@ -144,6 +144,14 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void PoolObjectSQL::clear_template_error_message()
+{
+    remove_template_attribute(error_attribute_name);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void PoolObjectSQL::set_template_message(
         const string& att_name,
         const string& message)
