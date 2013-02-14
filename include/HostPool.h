@@ -111,9 +111,10 @@ public:
      * Get the least monitored hosts
      *   @param discovered hosts
      *   @param host_limit max. number of hosts to monitor at a time
+     *   @param target_time Filters hosts with last_mon_time <= target_time
      *   @return int 0 if success
      */
-    int discover(set<int> * discovered_hosts, int host_limit);
+    int discover(set<int> * discovered_hosts, int host_limit, time_t target_time);
 
     /**
      * Allocates a given capacity to the host

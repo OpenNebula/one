@@ -265,7 +265,10 @@ int HostPool::discover_cb(void * _set, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover(set<int> * discovered_hosts, int host_limit)
+int HostPool::discover(
+        set<int> *  discovered_hosts,
+        int         host_limit,
+        time_t      target_time)
 {
     ostringstream   sql;
     int             rc;
@@ -273,8 +276,9 @@ int HostPool::discover(set<int> * discovered_hosts, int host_limit)
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
-    sql << "SELECT oid FROM "
-        << Host::table << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
+    sql << "SELECT oid FROM " << Host::table
+        << " WHERE last_mon_time <= " << target_time
+        << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
 

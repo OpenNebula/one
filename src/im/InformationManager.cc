@@ -155,6 +155,7 @@ void InformationManager::timer_action()
     istringstream   iss;
 
     time_t          monitor_length;
+    time_t          target_time;
 
     mark = mark + timer_period;
 
@@ -167,14 +168,16 @@ void InformationManager::timer_action()
     // Clear the expired monitoring records
     hpool->clean_expired_monitoring();
 
-    rc = hpool->discover(&discovered_hosts, host_limit);
+    now = time(0);
+
+    target_time = now - monitor_period;
+
+    rc = hpool->discover(&discovered_hosts, host_limit, target_time);
 
     if ((rc != 0) || (discovered_hosts.empty() == true))
     {
         return;
     }
-
-    now = time(0);
 
     if (stat(remotes_location.c_str(), &sb) == -1)
     {
@@ -202,7 +205,7 @@ void InformationManager::timer_action()
             hpool->update(host);
         }
 
-        if ( !(host->isMonitoring()) && (monitor_length >= monitor_period) &&
+        if ( !(host->isMonitoring()) &&
              (host->isEnabled() || host->get_share_running_vms() != 0) )
         {
             oss.str("");
