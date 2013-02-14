@@ -686,6 +686,14 @@ function updateImageInfo(request,img){
 
 }
 
+function enable_all_datastores()
+{
+
+    $('select#disk_type').children('option').each(function() {
+      $(this).removeAttr('disabled');
+    });
+}
+
 // Prepare the image creation dialog
 function setupCreateImageDialog(){
     dialogs_context.append('<div title="'+tr("Create Image")+'" id="create_image_dialog"></div>');
@@ -839,6 +847,38 @@ function setupCreateImageDialog(){
         file_input = input;  return false;
     };
 
+    $('#img_type').change(function(){
+        enable_all_datastores();
+        var choice_str = $(this).val();
+        switch(choice_str)
+        {
+          case 'OS':
+          case 'CDROM':
+          case 'DATABLOCK':
+            $('select#img_datastore').children('option').each(function() {
+              $(this).removeAttr('disabled');
+              if ($(this).val() == "2")
+              {
+                $(this).attr('disabled', 'disabled');
+              }
+            });
+            $('select#img_datastore').val("1");
+            break;
+          case 'KERNEL':
+          case 'RAMDISK':
+          case 'CONTEXT':
+            $('select#img_datastore').children('option').each(function() {
+              $(this).attr('disabled', 'disabled');
+              if ($(this).val() == "2")
+              {
+                  $(this).removeAttr('disabled');
+              }
+            });
+            $('select#img_datastore').val("2");
+            break;
+         }
+    });
+
     $('#create_image_form_easy',dialog).submit(function(){
         var exit = false;
         var upload = false;
@@ -949,10 +989,21 @@ function popUpCreateImageDialog(){
     $('#file-uploader input',$create_image_dialog).removeAttr("style");
     $('#file-uploader input',$create_image_dialog).attr('style','margin:0;width:256px!important');
 
-    $('#img_datastore',$create_image_dialog).html(datastores_sel());
-    $('#img_datastore_raw',$create_image_dialog).html(datastores_sel());
+    var datastores_str = datastores_sel();
+    // Get rid of default datastore (51 characters in string)
+    datastores_str     = datastores_str.substring(51,datastores_str.length);
+
+    $('#img_datastore',$create_image_dialog).html(datastores_str);
+    $('#img_datastore_raw',$create_image_dialog).html(datastores_str);
 
     $create_image_dialog.dialog('open');
+
+    $('select#img_datastore').children('option').each(function() {
+      if ($(this).val() == "2")
+      {
+          $(this).attr('disabled', 'disabled');
+      }
+    });
 }
 
 // Set the autorefresh interval for the datatable
