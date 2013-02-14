@@ -56,6 +56,9 @@ int LibVirtDriver::deployment_description_kvm(
     string  ro         = "";
     string  driver     = "";
     string  cache      = "";
+    string  source     = "";
+    string  clone      = "";
+
     int     disk_id;
     string  default_driver       = "";
     string  default_driver_cache = "";
@@ -305,7 +308,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( disk == 0 )
         {
-         continue;
+            continue;
         }
 
         type   = disk->vector_value("TYPE");
@@ -313,6 +316,9 @@ int LibVirtDriver::deployment_description_kvm(
         ro     = disk->vector_value("READONLY");
         driver = disk->vector_value("DRIVER");
         cache  = disk->vector_value("CACHE");
+        source = disk->vector_value("SOURCE");
+        clone  = disk->vector_value("CLONE");
+
         disk->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
@@ -341,6 +347,19 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<disk type='block' device='disk'>" << endl
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
+        }
+        else if ( type == "RBD" )
+        {
+            file << "\t\t<disk type='network' device='disk'>" << endl
+                 << "\t\t\t<source protocol='rbd' name='"
+                 << source;
+
+            if ( clone == "YES" )
+            {
+                file << "-" << vm->get_oid() << "-" << disk_id;
+            }
+
+            file << "'/>" << endl;
         }
         else if ( type == "CDROM" )
         {
