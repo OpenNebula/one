@@ -271,7 +271,9 @@ var host_actions = {
             else
                 Sunstone.runAction("Cluster.addhost",cluster,host);
         },
-        callback: null,
+        callback: function(request) {
+            Sunstone.runAction('Host.showinfo',request.request.data[0]);
+        },
         elements: hostElements,
         notify:true
     },
@@ -681,10 +683,9 @@ function updateHostInfo(request,host){
                 <td class="key_td">' + tr("Name") + '</td>\
                 <td class="value_td">'+host_info.NAME+'</td>\
             </tr>\
-            <tr>\
-                <td class="key_td">' + tr("Cluster") + '</td>\
-                <td class="value_td">'+(host_info.CLUSTER.length ? host_info.CLUSTER : "-")+'</td>\
-            </tr>\
+            <tr>' +
+                insert_cluster_dropdown("Host",host_info.ID,host_info.CLUSTER,host_info.CLUSTER_ID) +
+            '</tr>\
             <tr>\
                 <td class="key_td">' + tr("State") + '</td>\
                 <td class="value_td">'+tr(OpenNebula.Helper.resource_state("host",host_info.STATE))+'</td>\
@@ -750,8 +751,6 @@ function updateHostInfo(request,host){
     for (var i=0; i<host_graphs.length; i++){
         Sunstone.runAction("Host.monitor",host_info.ID,host_graphs[i]);
     };
-
-
 }
 
 //Prepares the host creation dialog

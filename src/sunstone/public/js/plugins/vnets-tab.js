@@ -395,7 +395,9 @@ var vnet_actions = {
             else
                 Sunstone.runAction("Cluster.addvnet",cluster,vnet);
         },
-        callback: null,
+        callback: function(request) {
+            Sunstone.runAction('Network.showinfo',request.request.data[0]);
+        },
         elements: vnElements,
         notify: true
     },
@@ -564,10 +566,9 @@ function updateVNetworkInfo(request,vn){
                   </div>\
               </td>\
             </tr>\
-            <tr>\
-              <td class="key_td">'+tr("Cluster")+'</td>\
-              <td class="value_td">'+(vn_info.CLUSTER.length ? vn_info.CLUSTER : "-")+'</td>\
-            </tr>\
+            <tr>' +
+        insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID) +
+            '</tr>\
             <tr>\
               <td class="key_td">'+tr("Owner")+'</td>\
               <td class="value_td">'+vn_info.UNAME+'</td>\

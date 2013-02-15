@@ -1867,6 +1867,42 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
 
 }
 
+function insert_cluster_dropdown(resource_type, resource_id, cluster_value, cluster_id){
+    var str =  '<td class="key_td">' + tr("Cluster") + '</td>\
+                <td class="value_td_cluster">'+(cluster_value.length ? cluster_value : "-")+'</td>\
+                <td>\
+                  <div id="div_edit_chg_cluster">\
+                     <a id="div_edit_chg_cluster_link" class="edit_e" href="#">e</a>\
+                  </div>\
+                </td>';
+
+    $("#div_edit_chg_cluster_link").die();
+    $("#cluster_confirm_select").die();
+
+
+    // Listener for key,value pair edit action
+    $("#div_edit_chg_cluster_link").live("click", function() {
+        var value_str = $(".value_td_cluster").text();
+        var select_str='<select style="margin: 10px 0;" id="cluster_confirm_select">';
+        select_str+='<option elem_id="-" value="-1">none (id:-)</option>';
+        select_str += makeSelectOptions(dataTable_clusters,1,2,[],[],true);
+        select_str+="</select>";
+        $(".value_td_cluster").html(select_str);
+        $("select#cluster_confirm_select").val(cluster_id);
+    });
+
+    $("#cluster_confirm_select").live("change", function() {
+        var value_str = $('select#cluster_confirm_select').val();
+        if(value_str!="")
+        {
+            // Let OpenNebula know
+            Sunstone.runAction(resource_type+".addtocluster",resource_id,value_str);
+        }
+    });
+
+    return str;
+}
+
 
 
 /*
