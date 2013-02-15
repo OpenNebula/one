@@ -172,7 +172,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         managed with the 'onevm' command
     EOT
 
-    command :instantiate, instantiate_desc, :templateid,
+    command :instantiate, instantiate_desc, :templateid, [:file, nil],
             :options=>instantiate_options do
         exit_code=0
 
@@ -184,7 +184,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                 on_hold = options[:hold] != nil
 
-                res = t.instantiate(name, on_hold)
+                extra_template = ""
+                if !args[1].nil?
+                    extra_template = File.read(args[1])
+                end
+
+                res = t.instantiate(name, on_hold, extra_template)
 
                 if !OpenNebula.is_error?(res)
                     puts "VM ID: #{res}"

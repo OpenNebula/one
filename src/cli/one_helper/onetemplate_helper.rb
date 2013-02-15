@@ -23,7 +23,7 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
         :format => String,
         :description =>  <<-EOT.strip
 Name of the new VM or TEMPLATE. When instantiating
-                               multiple VMs you can use the\"%i\" wildcard to produce
+                               multiple VMs you can use the \"%i\" wildcard to produce
                                different names such as vm-0, vm-1...
 EOT
     }
