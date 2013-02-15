@@ -610,7 +610,7 @@ var vm_info_panel = {
         content: ""
     },
     "vm_monitoring_tab" : {
-        title: tr("Monitoring information"),
+        title: tr("Graphs"),
         content: ""
     }
 };
@@ -952,14 +952,6 @@ function updateVMInfo(request,vm){
                   </div>\
               </td>\
             </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Owner")+'</td>\
-                 <td class="value_td">'+vm_info.UNAME+'</td>\
-              </tr>\
-              <tr>\
-                 <td class="key_td">'+tr("Group")+'</td>\
-                 <td class="value_td">'+vm_info.GNAME+'</td>\
-              </tr>\
               <tr>\
                  <td class="key_td">'+tr("State")+'</td>\
                  <td class="value_td">'+tr(vm_state)+'</td>\

@@ -570,14 +570,6 @@ function updateVNetworkInfo(request,vn){
         insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID) +
             '</tr>\
             <tr>\
-              <td class="key_td">'+tr("Owner")+'</td>\
-              <td class="value_td">'+vn_info.UNAME+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">'+tr("Group")+'</td>\
-              <td class="value_td">'+vn_info.GNAME+'</td>\
-            </tr>\
-            <tr>\
               <td class="key_td">'+tr("Bridge")+'</td>\
               <td class="value_td">'+ (typeof(vn_info.BRIDGE) == "object" ? "--": vn_info.BRIDGE) +'</td>\
             </tr>\
