@@ -1035,7 +1035,7 @@ function updateVMInfo(request,vm){
     };
 
     var monitoring_tab = {
-        title: tr("Monitoring information"),
+        title: tr("Graphs"),
         content: generateMonitoringDivs(vm_graphs,"vm_monitor_")
     };
 
