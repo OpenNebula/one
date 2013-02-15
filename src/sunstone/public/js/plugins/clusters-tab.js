@@ -251,6 +251,7 @@ function setupCreateClusterDialog(datatable_filter){
     //preload it
     dataTable_cluster_datastores.fnClearTable();
     dataTable_cluster_datastores.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
+    dataTable_cluster_datastores.fnFilter( '^(?!0)', 1, true);
     addElement([
         spinner,
         '','','','','','','','','','','',''],dataTable_cluster_datastores);
