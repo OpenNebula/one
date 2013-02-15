@@ -695,47 +695,14 @@ int Template::merge(const Template * from_tmpl, string& error_str)
 {
     multimap<string,Attribute *>::const_iterator it;
 
-    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it) {
+    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
+    {
+        this->erase(it->first);
+    }
 
-        // Get the attribute to be replaced
-        vector<Attribute*> attrs;
-        get(it->first, attrs);
-
-        // Insert if attribute does not exist
-        if ( attrs.size() == 0 )
-        {
-            attributes.insert(make_pair(it->first,(it->second)->clone()));
-            continue;
-        }
-
-        Attribute* attr = attrs[0];
-
-        if (attr->type() != it->second->type())
-        {
-            ostringstream oss;
-            oss << "Cannot merge attributes of different types " << it->first;
-            error_str = oss.str();
-            return -1;
-        }
-   
-        if (attr->type() == Attribute::SIMPLE)
-        {
-            // Replace an existing Simple Attribute
-            ((SingleAttribute*) attr)->replace( ((SingleAttribute*) it->second)->value());
-            continue;
-        }
-        else
-        {
-            // Replace values of an existing Vector Attribute
-            const map<string,string> values = ((VectorAttribute*) it->second)->value();
-
-            map<string,string>::const_iterator it;
-
-            for (it = values.begin(); it != values.end(); ++it)
-            {
-                ((VectorAttribute*) attr)->replace(it->first, it->second);
-            }
-        }
+    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
+    {
+        this->set(it->second->clone());
     }
 
     return 0;

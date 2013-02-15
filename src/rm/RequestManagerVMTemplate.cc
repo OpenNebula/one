@@ -27,7 +27,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
     bool   on_hold = false; //Optional XML-RPC argument
-    string str_uattrs;
+    string str_uattrs;      //Optional XML-RPC argument
 
     int  rc;
     int  vid;
@@ -44,10 +44,9 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     UserPool *          upool   = nd.get_upool();
 
     VirtualMachineTemplate * tmpl;
+    VirtualMachineTemplate   uattrs;
     VMTemplate *             rtmpl;
     User *                   user;
-
-    VirtualMachineTemplate uattrs;
 
     string error_str;
     string aname;
@@ -104,6 +103,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     // Parse user supplied attributes
     rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
+
     if ( rc != 0 )
     {
         failure_response(INTERNAL, error_str, att);
@@ -130,25 +130,28 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
     }
 
-    // Check user attributes for restricted attributes, but only if the Request user
+    // Check user template for restricted attributes, but only if the Request user
     // is not oneadmin
     if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
     {
         if (uattrs.check(aname))
         {
             ostringstream oss;
-            oss << "User Attributes includes a restricted attribute " << aname;
+
+            oss << "User Template includes a restricted attribute " << aname;
+
             failure_response(AUTHORIZATION,
                     authorization_error(oss.str(), att),
                     att);
+
             delete tmpl;
             return;
         }
     }
 
     // Merge user attributes into template
-
     rc = tmpl->merge(&uattrs, error_str);
+
     if ( rc != 0 )
     {
         failure_response(INTERNAL, error_str, att);
