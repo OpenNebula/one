@@ -173,8 +173,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
-            :options=>instantiate_options do
+            :options=>instantiate_options+OpenNebulaHelper::TEMPLATE_OPTIONS do
         exit_code=0
+
+        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You cannot use both template file and template"<<
+                " creation options."
+            next -1
+        end
 
         number = options[:multiple] || 1
         number.times do |i|
@@ -185,8 +191,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 on_hold = options[:hold] != nil
 
                 extra_template = ""
-                if !args[1].nil?
+
+                if args[1]
                     extra_template = File.read(args[1])
+                else
+                    res = OpenNebulaHelper.create_template(options)
+
+                    if res.first != 0
+                        STDERR.puts res.last
+                        next -1
+                    end
+
+                    extra_template = res.last
                 end
 
                 res = t.instantiate(name, on_hold, extra_template)
