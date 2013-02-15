@@ -550,14 +550,6 @@ function updateImageInfo(request,img){
               <td class="value_td">'+img_info.DATASTORE+'</td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Owner")+'</td>\
-              <td class="value_td">'+img_info.UNAME+'</td>\
-           </tr>\
-           <tr>\
-              <td class="key_td">'+tr("Group")+'</td>\
-              <td class="value_td">'+img_info.GNAME+'</td>\
-           </tr>\
-           <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
              <td><div id="div_edit_chg_type">\

@@ -1037,7 +1037,7 @@ var cluster_buttons = {
     },
     "Cluster.update_dialog" : {
         type : "action",
-        text : tr("Update properties"),
+        text : tr("Update"),
         alwaysActive: true
     },
     "Cluster.delete" : {

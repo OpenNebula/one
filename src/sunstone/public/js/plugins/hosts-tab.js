@@ -329,16 +329,12 @@ var host_buttons = {
 
 var host_info_panel = {
     "host_info_tab" : {
-        title: tr("Host information"),
+        title: tr("Information"),
         content:""
     },
 
-    "host_template_tab" : {
-        title: tr("Host template"),
-        content: ""
-    },
     "host_monitoring_tab": {
-        title: tr("Monitoring information"),
+        title: tr("Graphs"),
         content: ""
     }
 };
@@ -705,50 +701,43 @@ function updateHostInfo(request,host){
                 <td class="key_td">'+ tr("VN MAD") +'</td>\
                 <td class="value_td">'+host_info.VN_MAD+'</td>\
             </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Total Mem") + '</td>\
+              <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used Mem (real)") + '</td>\
+              <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
+              <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Total CPU") + '</td>\
+              <td class="value_td">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used CPU (real)") + '</td>\
+              <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
+              <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">' + tr("Running VMs") + '</td>\
+              <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
+            </tr>\
             </tbody>\
-         </table>\
-         <table id="host_shares_table" class="info_table">\
-            <thead>\
-               <tr><th colspan="2">' + tr("Host shares") + '</th></tr>\
-            </thead>\
-            <tbody>\
-               <tr>\
-                  <td class="key_td">' + tr("Total Mem") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used Mem (real)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used Mem (allocated)") + '</td>\
-                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MEM_USAGE)+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Total CPU") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.MAX_CPU+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used CPU (real)") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Used CPU (allocated)") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
-               </tr>\
-               <tr>\
-                  <td class="key_td">' + tr("Running VMs") + '</td>\
-                  <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
-               </tr>\
-            </tbody>\
-          </table>' + insert_extended_template_table(host_info.TEMPLATE,
+         </table>' + insert_extended_template_table(host_info.TEMPLATE,
                                          "Host",
                                          host_info.ID)
     }
 
 
     var monitor_tab = {
-        title: tr("Monitoring information"),
+        title: tr("Graphs"),
         content : generateMonitoringDivs(host_graphs,"host_monitor_")
     }
 
