@@ -27,6 +27,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
     bool   on_hold = false; //Optional XML-RPC argument
+    string str_uattrs;
 
     int  rc;
     int  vid;
@@ -46,6 +47,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     VMTemplate *             rtmpl;
     User *                   user;
 
+    VirtualMachineTemplate uattrs;
+
     string error_str;
     string aname;
 
@@ -54,6 +57,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     if ( paramList.size() > 3 )
     {
         on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+
+        str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
     }
 
     /* ---------------------------------------------------------------------- */
@@ -97,6 +102,15 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     rtmpl->unlock();
 
+    // Parse user supplied attributes
+    rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, error_str, att);
+        delete tmpl;
+        return;
+    }
+
     // Check template for restricted attributes, only if owner is not oneadmin
 
     if ( perms.uid != UserPool::ONEADMIN_ID && perms.gid != GroupPool::ONEADMIN_ID )
@@ -114,6 +128,32 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             delete tmpl;
             return;
         }
+    }
+
+    // Check user attributes for restricted attributes, but only if the Request user
+    // is not oneadmin
+    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        if (uattrs.check(aname))
+        {
+            ostringstream oss;
+            oss << "User Attributes includes a restricted attribute " << aname;
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+            delete tmpl;
+            return;
+        }
+    }
+
+    // Merge user attributes into template
+
+    rc = tmpl->merge(&uattrs, error_str);
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, error_str, att);
+        delete tmpl;
+        return;
     }
 
     /* ---------------------------------------------------------------------- */
