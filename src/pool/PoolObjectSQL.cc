@@ -138,7 +138,17 @@ const char * PoolObjectSQL::error_attribute_name = "ERROR";
 
 void PoolObjectSQL::set_template_error_message(const string& message)
 {
-    set_template_message(error_attribute_name, message);
+    SingleAttribute * attr;
+    ostringstream     error_value;
+
+    error_value << one_util::log_time() << " : " << message;
+
+    //Replace previous error message and insert the new one
+
+    attr = new SingleAttribute(error_attribute_name, error_value.str());
+
+    obj_template->erase(error_attribute_name);
+    obj_template->set(attr);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -147,26 +157,6 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 void PoolObjectSQL::clear_template_error_message()
 {
     remove_template_attribute(error_attribute_name);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolObjectSQL::set_template_message(
-        const string& att_name,
-        const string& message)
-{
-    SingleAttribute * attr;
-    ostringstream     error_value;
-
-    error_value << one_util::log_time() << " : " << message;
-
-    //Replace previous error message and insert the new one
-
-    attr = new SingleAttribute(att_name, error_value.str());
-
-    obj_template->erase(att_name);
-    obj_template->set(attr);
 }
 
 /* -------------------------------------------------------------------------- */

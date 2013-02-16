@@ -408,12 +408,24 @@ public:
     void clear_template_error_message();
 
     /**
-     *  Sets a message with timestamp in the template
+     *  Adds a string attribute
      *    @param att_name Name for the attribute
-     *    @param message Message string
-     *    @return 0 on success
+     *    @param att_val Message string
      */
-    void set_template_message(const string& att_name, const string& message);
+    void add_template_attribute(const string& name, const string& value)
+    {
+        obj_template->add(name, value);
+    }
+
+    /**
+     *  Adds an int attribute
+     *    @param att_name Name for the attribute
+     *    @param att_val integer
+     */
+    void add_template_attribute(const string& name, int value)
+    {
+        obj_template->add(name, value);
+    }
 
     /**
      *  Factory method for templates, it should be implemented

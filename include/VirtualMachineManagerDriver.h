@@ -84,13 +84,6 @@ public:
      */
     static void process_poll(VirtualMachine* vm, const string &monitor_str);
 
-    /**
-     * Updates the VM after a failed poll driver action
-     *
-     * @param id VM id
-     */
-    static void process_failed_poll(int id);
-
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -291,8 +284,6 @@ private:
         write_drv("DETACHDISK", oid, drv_msg);
     }
 
-private:
-
     void write_drv(const char * aname, const int oid, const string& msg) const
     {
         ostringstream os;
@@ -301,6 +292,32 @@ private:
 
         write(os);
     }
+
+    /**
+     *  Gets VM information from the driver answer
+     *    @param monitor_str from the driver
+     *    @param memory Kilobytes used by the VM (total)
+     *    @param cpu used by the VM (rate)
+     *    @param net_tx transmitted bytes (total)
+     *    @param net_rx received bytes (total)
+     *    @param state of the vm
+     *    @param custom monitor information
+     */
+    static int parse_vm_info(
+        const string&   monitor_str,
+        int                &cpu,
+        int                &memory,
+        long long          &net_tx,
+        long long          &net_rx,
+        char               &state,
+        map<string,string> &custom);
+
+    /**
+     *  Based on the monitoring state updates or trigger LCM actions
+     *    @param vm virtual machine
+     *    @param state from driver
+     */
+    static void process_poll_state(VirtualMachine* vm, char state);
 };
 
 /* -------------------------------------------------------------------------- */

@@ -40,7 +40,6 @@ VirtualMachineManager::VirtualMachineManager(
         vmpool(_vmpool),
         hpool(_hpool),
         timer_period(_timer_period),
-        timer_start(0),
         poll_period(_poll_period),
         vm_limit(_vm_limit)
 {
@@ -63,8 +62,6 @@ extern "C" void * vmm_action_loop(void *arg)
     vmm = static_cast<VirtualMachineManager *>(arg);
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager started.");
-
-    vmm->timer_start = time(0);
 
     if ( vmm->poll_period == 0 )
     {
@@ -1422,7 +1419,8 @@ error_common:
 
 void VirtualMachineManager::timer_action()
 {
-    static int mark = 0;
+    static int mark        = 0;
+    static int timer_start = time(0);
 
     VirtualMachine *        vm;
     vector<int>             oids;

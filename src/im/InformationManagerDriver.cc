@@ -16,6 +16,7 @@
 
 #include "InformationManagerDriver.h"
 #include "NebulaLog.h"
+#include "Nebula.h"
 #include "Util.h"
 #include "VirtualMachineManagerDriver.h"
 #include <sstream>
@@ -96,6 +97,11 @@ void InformationManagerDriver::protocol(
     {
         bool vm_poll;
 
+        set<int>        lost;
+        map<int,string> found;
+
+        int rc;
+
         host = hpool->get(id,true);
 
         if ( host == 0 )
@@ -103,167 +109,72 @@ void InformationManagerDriver::protocol(
             goto error_host;
         }
 
-        vm_ids = host->get_running_vms();
-
         getline (is, hinfo64);
 
         hinfo = one_util::base64_decode(hinfo64);
 
         if (result != "SUCCESS")
         {
-            goto error_driver_info;
+            set<int> vm_ids;
+
+            host->error_info(*hinfo, vm_ids);
+
+            for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
+            {
+                Nebula           &ne  = Nebula::instance();
+                LifeCycleManager *lcm = ne.get_lcm();
+
+                lcm->trigger(LifeCycleManager::MONITOR_DONE, *it);
+            }
+
+            delete hinfo;
+
+            hpool->update(host);
+            host->unlock();
+
+            return;
         }
 
-        int     rc;
-
-        ostringstream oss;
-
-        int     vmid;
-        char *  error_msg;
-        string  monitor_str;
-
-        VectorAttribute*                vatt;
-        vector<Attribute*>              vm_att;
-        vector<Attribute*>::iterator    it;
-
-        oss << "Host " << id << " successfully monitored.";
-        NebulaLog::log("InM", Log::DEBUG, oss);
-
-        rc = host->update_info(*hinfo);
+        rc = host->update_info(*hinfo, vm_poll, lost, found);
 
         if (rc != 0)
         {
-            ess << "Error parsing host information: " << *hinfo;
             delete hinfo;
 
-            goto  error_common_info;
+            hpool->update(host);
+            host->unlock();
+
+            return;
         }
 
-        host->clear_template_error_message();
-        host->remove_template_attribute("INFO_MESSAGE");
-
-        // The hinfo string is parsed again because HostTemplate has
-        // replace_mode set to true, but we expect several VM vector attributes
-        Template* tmpl = new Template();
-        tmpl->parse(*hinfo, &error_msg);
-
-        tmpl->remove("VM", vm_att);
-
         delete hinfo;
-
-        host->get_template_attribute("VM_POLL", vm_poll);
-
-        host->remove_template_attribute("VM_POLL");
-        host->remove_template_attribute("VM");
-
-        host->touch(true);
 
         hpool->update(host);
         hpool->update_monitoring(host);
 
+        ess << "Host " << host->get_name() << " (" << host->get_oid() << ")"
+            << " successfully monitored.";
+
+        NebulaLog::log("InM", Log::DEBUG, ess);
+
         host->unlock();
-
-        vector<string> external_vms;
-        map<int,string> rogue_vms;
-
-        for (it=vm_att.begin(); it != vm_att.end(); it++)
-        {
-            vatt = dynamic_cast<VectorAttribute*>(*it);
-
-            if (vatt == 0)
-            {
-                delete *it;
-                continue;
-            }
-
-            rc = vatt->vector_value("ID", vmid);
-
-            if (rc == 0 && vmid != -1)
-            {
-                if (vm_ids.erase(vmid) == 1)
-                {
-                    monitor_str = vatt->vector_value("POLL");
-
-                    VirtualMachineManagerDriver::process_poll(vmid, monitor_str);
-                }
-                else
-                {
-                    rogue_vms[vmid] = vatt->vector_value("DEPLOY_ID");
-                }
-            }
-            else if (rc == 0)
-            {
-                external_vms.push_back( vatt->vector_value("DEPLOY_ID") );
-            }
-
-            delete *it;
-        }
 
         if (vm_poll)
         {
-            for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
+            set<int>::iterator         its;
+            map<int,string>::iterator  itm;
+
+            for (its = lost.begin(); its != lost.end(); its++)
             {
-                // This VM should be running on this host, but it was not reported
+                Nebula           &ne  = Nebula::instance();
+                LifeCycleManager *lcm = ne.get_lcm();
 
-                VirtualMachineManagerDriver::process_failed_poll(*it);
-            }
-        }
-
-        bool log_error = false;
-        bool log_info  = false;
-
-        if (!rogue_vms.empty())
-        {
-            log_error = true;
-
-            map<int,string>::iterator it;
-
-            ess.str("");
-            ess << "Manual intervention required, these VMs should"
-                << " not be running on Host " << id << ":";
-
-            for(it = rogue_vms.begin(); it != rogue_vms.end(); it++)
-            {
-                ess << " VM " << it->first << " (hypervisor name '" << it->second << "')";
+                lcm->trigger(LifeCycleManager::MONITOR_DONE, *its);
             }
 
-            NebulaLog::log("InM",Log::ERROR,ess);
-        }
-
-        if (!external_vms.empty())
-        {
-            log_info = true;
-
-            vector<string>::iterator it;
-
-            oss.str("");
-            oss << "External VMs found:";
-
-            for(it = external_vms.begin(); it != external_vms.end(); it++)
+            for (itm = found.begin(); itm != found.end(); itm++)
             {
-                oss << " " << *it;
-            }
-        }
-
-        if (log_error || log_info)
-        {
-            host = hpool->get(id,true);
-
-            if ( host != 0 )
-            {
-                if (log_error)
-                {
-                    host->set_template_error_message(ess.str());
-                }
-
-                if (log_info)
-                {
-                    host->set_template_message("INFO_MESSAGE", oss.str());
-                }
-
-                hpool->update(host);
-
-                host->unlock();
+                VirtualMachineManagerDriver::process_poll(itm->first, itm->second);
             }
         }
     }
@@ -277,31 +188,6 @@ void InformationManagerDriver::protocol(
 
     return;
 
-error_driver_info:
-    ess << "Error monitoring host " << id << " : " << *hinfo;
-
-    delete hinfo;
-
-    for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
-    {
-        VirtualMachineManagerDriver::process_failed_poll(*it);
-    }
-
-    goto  error_common_info;
-
-error_common_info:
-    NebulaLog::log("InM",Log::ERROR,ess);
-
-    host->set_template_error_message(ess.str());
-
-    host->touch(false);
-
-    hpool->update(host);
-
-    host->unlock();
-
-    return;
-
 error_host:
     ess << "Could not get host " << id;
     NebulaLog::log("InM",Log::ERROR,ess);
@@ -309,7 +195,6 @@ error_host:
     return;
 
 error_parse:
-
     ess << "Error while parsing driver message: " << message;
     NebulaLog::log("InM",Log::ERROR,ess);
 

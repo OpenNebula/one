@@ -81,27 +81,6 @@ public:
      }
 
     /**
-     *  Updates the Host's last_monitored time stamp.
-     *    @param success if the monitored action was successfully performed
-     */
-    void touch(bool success)
-    {
-        last_monitored = time(0);
-
-        if ( state != DISABLED) //Don't change the state is host is disabled
-        {
-            if (success == true)
-            {
-                state = MONITORED;
-            }
-            else
-            {
-                state = ERROR;
-            }
-        }
-    };
-
-    /**
      *   Disables the current host, it will not be monitored nor used by the
      *   scheduler
      */
@@ -119,11 +98,27 @@ public:
         state = INIT;
     };
 
-    /** Update host counters and update the whole host on the DB
+    /**
+     * Update host after a successful monitor. It modifies counters, state
+     * and template attributes
      *    @param parse_str string with values to be parsed
+     *    @param with_vm_info if monitoring contains VM information
+     *    @param lost set of VMs that should be in the host and were not found
+     *    @param found VMs running in the host (as expected) and info.
      *    @return 0 on success
      **/
-    int update_info(string &parse_str);
+    int update_info(string          &parse_str,
+                    bool            &with_vm_info,
+                    set<int>        &lost,
+                    map<int,string> &found);
+
+    /**
+     * Update host after a failed monitor. It state
+     * and template attributes
+     *    @param message from the driver
+     *    @param vm_ids running on the host
+     */
+    void error_info(const string& message, set<int> &vm_ids);
 
     /**
      * Inserts the last monitoring, and deletes old monitoring entries.
@@ -418,6 +413,31 @@ private:
          const string& cluster_name);
 
     virtual ~Host();
+
+    // *************************************************************************
+    // Host Management
+    // *************************************************************************
+
+    /**
+     *  Updates the Host's last_monitored time stamp.
+     *    @param success if the monitored action was successfully performed
+     */
+    void touch(bool success)
+    {
+        last_monitored = time(0);
+
+        if ( state != DISABLED) //Don't change the state is host is disabled
+        {
+            if (success == true)
+            {
+                state = MONITORED;
+            }
+            else
+            {
+                state = ERROR;
+            }
+        }
+    };
 
     // *************************************************************************
     // DataBase implementation (Private)
