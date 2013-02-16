@@ -311,13 +311,6 @@ private:
         long long          &net_rx,
         char               &state,
         map<string,string> &custom);
-
-    /**
-     *  Based on the monitoring state updates or trigger LCM actions
-     *    @param vm virtual machine
-     *    @param state from driver
-     */
-    static void process_poll_state(VirtualMachine* vm, char state);
 };
 
 /* -------------------------------------------------------------------------- */

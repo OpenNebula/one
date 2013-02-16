@@ -330,16 +330,6 @@ public:
     }
 
     /**
-     * Returns a set with the IDs of the VMs currently running on this host
-     *
-     * @return A set of running VM IDs
-     */
-    set<int> get_running_vms()
-    {
-        return vm_collection.get_collection_copy();
-    };
-
-    /**
      *  Factory method for host templates
      */
     Template * get_new_template() const

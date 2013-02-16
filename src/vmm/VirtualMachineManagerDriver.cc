@@ -338,7 +338,7 @@ void VirtualMachineManagerDriver::protocol(
         LifeCycleManager *lcm = ne.get_lcm();
 
         if ( result == "SUCCESS" )
-        {
+       {
             vm->log("VMM", Log::INFO, "VM Disk successfully attached.");
 
             lcm->trigger(LifeCycleManager::ATTACH_SUCCESS, id);
@@ -457,7 +457,14 @@ void VirtualMachineManagerDriver::process_poll(
     map<string, string> custom;
     ostringstream oss;
 
-    VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
+    Nebula &ne = Nebula::instance();
+
+    LifeCycleManager* lcm      = ne.get_lcm();
+    VirtualMachinePool* vmpool = ne.get_vmpool();
+
+    /* ---------------------------------------------------------------------- */
+    /* Parse VM info and update VM                                            */
+    /* ---------------------------------------------------------------------- */
 
     rc = parse_vm_info(monitor_str, cpu, memory, net_tx, net_rx, state, custom);
 
@@ -481,8 +488,48 @@ void VirtualMachineManagerDriver::process_poll(
 
     vmpool->update_monitoring(vm);
 
-    process_poll_state(vm, state);
+    /* ---------------------------------------------------------------------- */
+    /* Process the VM state from the monitoring info                          */
+    /* ---------------------------------------------------------------------- */
 
+    if (state == '-' || ( vm->get_lcm_state() != VirtualMachine::RUNNING &&
+        vm->get_lcm_state() != VirtualMachine::UNKNOWN))
+    {
+        return;
+    }
+
+    switch (state)
+    {
+        case 'a': // Still active, good!
+            if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+            {
+                vm->log("VMM", Log::INFO, "VM found again, state is RUNNING");
+
+                vm->set_state(VirtualMachine::RUNNING);
+                vmpool->update(vm);
+            }
+            break;
+
+        case 'p': // It's paused
+            vm->log("VMM",Log::INFO, "VM running but monitor state is PAUSED.");
+
+            lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, vm->get_oid());
+            break;
+
+        case 'e': //Failed
+            vm->log("VMM", Log::INFO, "VM running but monitor state is ERROR.");
+
+            lcm->trigger(LifeCycleManager::MONITOR_FAILURE, vm->get_oid());
+            break;
+
+        case 'd': //The VM was not found
+            vm->log("VMM", Log::INFO, "VM running but it was not found."
+                    " Restart and delete actions available or try to"
+                    " recover it manually");
+
+            lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
+            break;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -575,59 +622,6 @@ int VirtualMachineManagerDriver::parse_vm_info(
     }
 
     return parse_error;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::process_poll_state(
-        VirtualMachine* vm,
-        char state)
-{
-    if (state == '-' ||
-        (vm->get_lcm_state() != VirtualMachine::RUNNING &&
-         vm->get_lcm_state() != VirtualMachine::UNKNOWN))
-    {
-        return;
-    }
-
-    Nebula &ne = Nebula::instance();
-
-    LifeCycleManager* lcm      = ne.get_lcm();
-    VirtualMachinePool* vmpool = ne.get_vmpool();
-
-    switch (state)
-    {
-        case 'a': // Still active, good!
-            if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
-            {
-                vm->log("VMM",Log::INFO,"VM found again, state is RUNNING");
-
-                vm->set_state(VirtualMachine::RUNNING);
-                vmpool->update(vm);
-            }
-            break;
-
-        case 'p': // It's paused
-            vm->log("VMM",Log::INFO,"VM running but monitor state is PAUSED.");
-
-            lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, vm->get_oid());
-            break;
-
-        case 'e': //Failed
-            vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
-
-            lcm->trigger(LifeCycleManager::MONITOR_FAILURE, vm->get_oid());
-            break;
-
-        case 'd': //The VM was not found
-            vm->log("VMM",Log::INFO,"VM running but it was not found."
-                    " Restart and delete actions available or try to"
-                    " recover it manually");
-
-            lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
-            break;
-    }
 }
 
 /* -------------------------------------------------------------------------- */

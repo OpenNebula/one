@@ -260,7 +260,7 @@ int Host::update_info(string          &parse_str,
     // ---------------------------------------------------------------------- //
     tmpl->remove("VM", vm_att);
 
-    lost = get_running_vms();
+    lost = vm_collection.get_collection_copy();
 
     for (it = vm_att.begin(); it != vm_att.end(); it++)
     {
