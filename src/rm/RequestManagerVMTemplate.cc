@@ -101,19 +101,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     rtmpl->unlock();
 
-    // Parse user supplied attributes
-    rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
-
-    if ( rc != 0 )
-    {
-        failure_response(INTERNAL, error_str, att);
-        delete tmpl;
-        return;
-    }
-
     // Check template for restricted attributes, only if owner is not oneadmin
-
-    if ( perms.uid != UserPool::ONEADMIN_ID && perms.gid != GroupPool::ONEADMIN_ID )
+    if (perms.uid!=UserPool::ONEADMIN_ID && perms.gid!=GroupPool::ONEADMIN_ID)
     {
         if (tmpl->check(aname))
         {
@@ -130,33 +119,43 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
     }
 
-    // Check user template for restricted attributes, but only if the Request user
-    // is not oneadmin
-    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    // Parse & merge user attributes (check if the request user is not oneadmin)
+    if (!str_uattrs.empty())
     {
-        if (uattrs.check(aname))
+        rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
+
+        if ( rc != 0 )
         {
-            ostringstream oss;
-
-            oss << "User Template includes a restricted attribute " << aname;
-
-            failure_response(AUTHORIZATION,
-                    authorization_error(oss.str(), att),
-                    att);
-
+            failure_response(INTERNAL, error_str, att);
             delete tmpl;
             return;
         }
-    }
 
-    // Merge user attributes into template
-    rc = tmpl->merge(&uattrs, error_str);
+        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+        {
+            if (uattrs.check(aname))
+            {
+                ostringstream oss;
 
-    if ( rc != 0 )
-    {
-        failure_response(INTERNAL, error_str, att);
-        delete tmpl;
-        return;
+                oss << "User Template includes a restricted attribute "<< aname;
+
+                failure_response(AUTHORIZATION,
+                        authorization_error(oss.str(), att),
+                        att);
+
+                delete tmpl;
+                return;
+            }
+        }
+
+        rc = tmpl->merge(&uattrs, error_str);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
+            delete tmpl;
+            return;
+        }
     }
 
     /* ---------------------------------------------------------------------- */
@@ -181,6 +180,11 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         AuthRequest ar(att.uid, att.gid);
 
         ar.add_auth(auth_op, perms); //USE TEMPLATE
+
+        if (!str_uattrs.empty())
+        {
+            ar.add_auth(AuthRequest::CREATE, perms); //CREATE TEMPLATE
+        }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
