@@ -15,7 +15,6 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Client.h"
-#include "SSLTools.h"
 
 #include <fstream>
 #include <pwd.h>

@@ -813,11 +813,13 @@ IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
                      src/im_mad/remotes/kvm.d/architecture.sh \
                      src/im_mad/remotes/kvm.d/cpu.sh \
+                     src/im_mad/remotes/kvm.d/poll.sh \
                      src/im_mad/remotes/kvm.d/name.sh"
 
 IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
                      src/im_mad/remotes/xen.d/architecture.sh \
                      src/im_mad/remotes/xen.d/cpu.sh \
+                     src/im_mad/remotes/xen.d/poll.sh \
                      src/im_mad/remotes/xen.d/name.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"

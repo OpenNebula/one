@@ -171,7 +171,7 @@ public:
     };
 
     /**
-     *  Updates VM dynamic information (usage counters).
+     *  Updates VM dynamic information (usage counters), and updates last_poll
      *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
@@ -181,28 +181,8 @@ public:
         const int _memory,
         const int _cpu,
         const long long _net_tx,
-        const long long _net_rx)
-    {
-        if (_memory != -1)
-        {
-            memory = _memory;
-        }
-
-        if (_cpu != -1)
-        {
-            cpu    = _cpu;
-        }
-
-        if (_net_tx != -1)
-        {
-            net_tx = _net_tx;
-        }
-
-        if (_net_rx != -1)
-        {
-            net_rx = _net_rx;
-        }
-    };
+        const long long _net_rx,
+        const map<string, string> &custom);
 
     /**
      *  Returns the deployment ID
@@ -776,15 +756,6 @@ public:
     time_t get_last_poll() const
     {
         return last_poll;
-    };
-
-    /**
-     *  Sets time of last information polling.
-     *    @param poll time in epoch, normally time(0)
-     */
-    void set_last_poll(time_t poll)
-    {
-        last_poll = poll;
     };
 
     /**

@@ -638,17 +638,19 @@ void Nebula::start()
     MadManager::mad_manager_system_init();
 
     time_t timer_period;
+    time_t monitor_period;
 
     nebula_configuration->get("MANAGER_TIMER", timer_period);
+    nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
 
     // ---- Virtual Machine Manager ----
     try
     {
-        time_t                    poll_period;
         vector<const Attribute *> vmm_mads;
         int                       vm_limit;
+        time_t                    poll_period;
 
-        nebula_configuration->get("VM_POLLING_INTERVAL", poll_period);
+        poll_period = monitor_period * 2.5;
 
         nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
@@ -695,10 +697,7 @@ void Nebula::start()
     try
     {
         vector<const Attribute *>   im_mads;
-        time_t                      monitor_period;
         int                         host_limit;
-
-        nebula_configuration->get("HOST_MONITORING_INTERVAL", monitor_period);
 
         nebula_configuration->get("HOST_PER_INTERVAL", host_limit);
 

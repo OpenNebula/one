@@ -81,27 +81,6 @@ public:
      }
 
     /**
-     *  Updates the Host's last_monitored time stamp.
-     *    @param success if the monitored action was successfully performed
-     */
-    void touch(bool success)
-    {
-        last_monitored = time(0);
-
-        if ( state != DISABLED) //Don't change the state is host is disabled
-        {
-            if (success == true)
-            {
-                state = MONITORED;
-            }
-            else
-            {
-                state = ERROR;
-            }
-        }
-    };
-
-    /**
      *   Disables the current host, it will not be monitored nor used by the
      *   scheduler
      */
@@ -119,11 +98,27 @@ public:
         state = INIT;
     };
 
-    /** Update host counters and update the whole host on the DB
+    /**
+     * Update host after a successful monitor. It modifies counters, state
+     * and template attributes
      *    @param parse_str string with values to be parsed
+     *    @param with_vm_info if monitoring contains VM information
+     *    @param lost set of VMs that should be in the host and were not found
+     *    @param found VMs running in the host (as expected) and info.
      *    @return 0 on success
      **/
-    int update_info(string &parse_str);
+    int update_info(string          &parse_str,
+                    bool            &with_vm_info,
+                    set<int>        &lost,
+                    map<int,string> &found);
+
+    /**
+     * Update host after a failed monitor. It state
+     * and template attributes
+     *    @param message from the driver
+     *    @param vm_ids running on the host
+     */
+    void error_info(const string& message, set<int> &vm_ids);
 
     /**
      * Inserts the last monitoring, and deletes old monitoring entries.
@@ -134,7 +129,7 @@ public:
     int update_monitoring(SqlDB * db);
 
     /**
-     * Retrives host state
+     * Retrieves host state
      *    @return HostState code number
      */
     HostState get_state() const
@@ -143,7 +138,7 @@ public:
     };
 
     /**
-     * Retrives VMM mad name
+     * Retrieves VMM mad name
      *    @return string vmm mad name
      */
     const string& get_vmm_mad() const
@@ -152,7 +147,7 @@ public:
     };
 
     /**
-     * Retrives VNM mad name
+     * Retrieves VNM mad name
      *    @return string vnm mad name
      */
     const string& get_vnm_mad() const
@@ -161,7 +156,7 @@ public:
     };
 
     /**
-     * Retrives IM mad name
+     * Retrieves IM mad name
      *    @return string im mad name
      */
     const string& get_im_mad() const
@@ -194,7 +189,7 @@ public:
     };
 
     /**
-     * Retrives last time the host was monitored
+     * Retrieves last time the host was monitored
      *    @return time_t last monitored time
      */
     time_t get_last_monitored() const
@@ -273,7 +268,7 @@ public:
     }
 
     /**
-     *  Adds a new VM to the given share by icrementing the cpu, mem and disk
+     *  Adds a new VM to the given share by incrementing the cpu, mem and disk
      *  counters
      *    @param vm_id id of the vm to add to the host
      *    @param cpu needed by the VM (percentage)
@@ -302,7 +297,7 @@ public:
      *  disk counters
      *    @param vm_id id of the vm to delete from the host
      *    @param cpu used by the VM (percentage)
-     *    @param mem used by the VM (in Kb)
+     *    @param mem used by the VM (in KB)
      *    @param disk used by the VM
      *    @return 0 on success
      */
@@ -408,6 +403,31 @@ private:
          const string& cluster_name);
 
     virtual ~Host();
+
+    // *************************************************************************
+    // Host Management
+    // *************************************************************************
+
+    /**
+     *  Updates the Host's last_monitored time stamp.
+     *    @param success if the monitored action was successfully performed
+     */
+    void touch(bool success)
+    {
+        last_monitored = time(0);
+
+        if ( state != DISABLED) //Don't change the state is host is disabled
+        {
+            if (success == true)
+            {
+                state = MONITORED;
+            }
+            else
+            {
+                state = ERROR;
+            }
+        }
+    };
 
     // *************************************************************************
     // DataBase implementation (Private)

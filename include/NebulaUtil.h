@@ -28,6 +28,30 @@ namespace one_util
     std::string log_time(time_t the_time);
 
     std::string log_time();
+
+    /**
+     *  sha1 digest
+     *  @param in the string to be hashed
+     *  @return sha1 hash of str
+     */
+    std::string sha1_digest(const std::string& in);
+
+   /**
+    *  Base 64 encoding
+    *    @param in the string to encoded
+    *    @return a pointer to the encoded string (must be freed) or 0 in case of
+    *    error
+    */
+    std::string * base64_encode(const std::string& in);
+
+   /**
+    *  Base 64 deencoding
+    *    @param in the string to decode
+    *    @return a pointer to the decoded string (must be freed) or 0 in case of
+    *    error
+    */
+    std::string * base64_decode(const std::string& in);
+
 };
 
 #endif /* _NEBULA_UTIL_H_ */

@@ -122,7 +122,7 @@ private:
     friend void * im_action_loop(void *arg);
 
     /**
-     *  Time in seconds to expire a monitoring action (10 minutes)
+     *  Time in seconds to expire a monitoring action (5 minutes)
      */
     static const time_t monitor_expire;
 

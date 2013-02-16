@@ -19,9 +19,10 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <utime.h>
 
 
-const time_t InformationManager::monitor_expire = 600;
+const time_t InformationManager::monitor_expire = 300;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -97,6 +98,8 @@ int InformationManager::start()
         return -1;
     }
 
+    utime(remotes_location.c_str(), 0);
+
     NebulaLog::log("InM",Log::INFO,"Starting Information Manager...");
 
     pthread_attr_init (&pattr);
@@ -144,8 +147,8 @@ void InformationManager::timer_action()
 
     struct stat     sb;
 
-    map<int, string>            discovered_hosts;
-    map<int, string>::iterator  it;
+    set<int>            discovered_hosts;
+    set<int>::iterator  it;
 
     const InformationManagerDriver * imd;
 
@@ -153,6 +156,7 @@ void InformationManager::timer_action()
     istringstream   iss;
 
     time_t          monitor_length;
+    time_t          target_time;
 
     mark = mark + timer_period;
 
@@ -165,14 +169,16 @@ void InformationManager::timer_action()
     // Clear the expired monitoring records
     hpool->clean_expired_monitoring();
 
-    rc = hpool->discover(&discovered_hosts, host_limit);
+    now = time(0);
+
+    target_time = now - monitor_period;
+
+    rc = hpool->discover(&discovered_hosts, host_limit, target_time);
 
     if ((rc != 0) || (discovered_hosts.empty() == true))
     {
         return;
     }
-
-    now = time(0);
 
     if (stat(remotes_location.c_str(), &sb) == -1)
     {
@@ -184,7 +190,7 @@ void InformationManager::timer_action()
 
     for(it=discovered_hosts.begin();it!=discovered_hosts.end();it++)
     {
-        host = hpool->get(it->first,true);
+        host = hpool->get(*it,true);
 
         if (host == 0)
         {
@@ -200,21 +206,21 @@ void InformationManager::timer_action()
             hpool->update(host);
         }
 
-        if ( host->isEnabled() && !(host->isMonitoring()) && 
-            (monitor_length >= monitor_period))
+        if ( !(host->isMonitoring()) &&
+             (host->isEnabled() || host->get_share_running_vms() != 0) )
         {
             oss.str("");
             oss << "Monitoring host " << host->get_name()
-                << " (" << it->first << ")";
+                << " (" << host->get_oid() << ")";
 
             NebulaLog::log("InM",Log::INFO,oss);
 
-            imd = get(it->second);
+            imd = get(host->get_im_mad());
 
             if (imd == 0)
             {
                 oss.str("");
-                oss << "Could not find information driver " << it->second;
+                oss << "Could not find information driver " << host->get_im_mad();
                 NebulaLog::log("InM",Log::ERROR,oss);
 
                 host->set_state(Host::ERROR);
@@ -229,7 +235,7 @@ void InformationManager::timer_action()
                     update_remotes = true;
                 }
 
-            	imd->monitor(it->first,host->get_name(),update_remotes);
+                imd->monitor(host->get_oid(),host->get_name(),update_remotes);
 
             	host->set_monitoring_state();
             }

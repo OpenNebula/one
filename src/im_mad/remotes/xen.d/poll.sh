@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -16,42 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/../scripts_common.sh
+../../vmm/xen/poll --xen -t
 
-export LANG=C
-
-HYPERVISOR_DIR=$1.d
-ARGUMENTS=$*
-
-SCRIPTS_DIR=`dirname $0`
-cd $SCRIPTS_DIR
-
-function run_dir {
-    (
-    cd $1
-    for i in `ls *`;do
-        if [ -x "$i" ]; then
-            ./$i $ARGUMENTS
-            EXIT_CODE=$?
-            if [ "x$EXIT_CODE" != "x0" ]; then
-                error_message "Error executing $i"
-                exit $EXIT_CODE
-            fi
-        fi
-    done
-    )
-}
-
-data=$(
-    if [ -d "$HYPERVISOR_DIR" ]; then
-        run_dir "$HYPERVISOR_DIR"
-    fi
-)
-
-EXIT_CODE=$?
-
-echo "$data"
-
-if [ "x$EXIT_CODE" != "x0" ]; then
-    exit $EXIT_CODE
-fi

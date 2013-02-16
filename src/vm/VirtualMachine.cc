@@ -2465,6 +2465,47 @@ string VirtualMachine::get_system_dir() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachine::update_info(
+    const int _memory,
+    const int _cpu,
+    const long long _net_tx,
+    const long long _net_rx,
+    const map<string, string> &custom)
+{
+    map<string, string>::const_iterator it;
+
+    last_poll = time(0);
+
+    if (_memory != -1)
+    {
+        memory = _memory;
+    }
+
+    if (_cpu != -1)
+    {
+        cpu    = _cpu;
+    }
+
+    if (_net_tx != -1)
+    {
+        net_tx = _net_tx;
+    }
+
+    if (_net_rx != -1)
+    {
+        net_rx = _net_rx;
+    }
+
+    for (it = custom.begin(); it != custom.end(); it++)
+    {
+        replace_template_attribute(it->first, it->second);
+    }
+
+    set_vm_info();
+
+    clear_template_error_message();
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

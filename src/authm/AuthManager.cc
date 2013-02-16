@@ -17,7 +17,7 @@
 #include "AuthManager.h"
 #include "AuthRequest.h"
 #include "NebulaLog.h"
-#include "SSLTools.h"
+#include "NebulaUtil.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 
@@ -40,7 +40,7 @@ void AuthRequest::add_auth(Operation             op,
 
     if ( !ob_template.empty() )
     {
-        string * encoded_id = SSLTools::base64_encode(ob_template);
+        string * encoded_id = one_util::base64_encode(ob_template);
 
         if (encoded_id != 0)
         {

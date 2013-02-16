@@ -68,6 +68,22 @@ public:
         const VirtualMachine *  vm,
         const string&           file_name) const = 0;
 
+    /**
+     * Updates the VM with the information gathered by the drivers
+     *
+     * @param id VM id
+     * @param monitor_str String returned by the poll driver call
+     */
+    static void process_poll(int id, const string &monitor_str);
+
+    /**
+     * Updates the VM with the information gathered by the drivers
+     *
+     * @param vm VM to update, must be locked
+     * @param monitor_str String returned by the poll driver call
+     */
+    static void process_poll(VirtualMachine* vm, const string &monitor_str);
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -268,8 +284,6 @@ private:
         write_drv("DETACHDISK", oid, drv_msg);
     }
 
-private:
-
     void write_drv(const char * aname, const int oid, const string& msg) const
     {
         ostringstream os;
@@ -278,6 +292,25 @@ private:
 
         write(os);
     }
+
+    /**
+     *  Gets VM information from the driver answer
+     *    @param monitor_str from the driver
+     *    @param memory Kilobytes used by the VM (total)
+     *    @param cpu used by the VM (rate)
+     *    @param net_tx transmitted bytes (total)
+     *    @param net_rx received bytes (total)
+     *    @param state of the vm
+     *    @param custom monitor information
+     */
+    static int parse_vm_info(
+        const string&   monitor_str,
+        int                &cpu,
+        int                &memory,
+        long long          &net_tx,
+        long long          &net_rx,
+        char               &state,
+        map<string,string> &custom);
 };
 
 /* -------------------------------------------------------------------------- */
