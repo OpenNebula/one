@@ -470,9 +470,15 @@ void VirtualMachineManagerDriver::process_poll(
 
     if (rc == -1)
     {
-        vm->set_template_error_message("Error parsing monitoring information.");
+        oss << "Error parsing monitoring information: " << monitor_str;
+        NebulaLog::log("VMM", Log::ERROR, oss);
+
+        vm->set_template_error_message(oss.str());
+        vm->log("VMM", Log::ERROR, oss);
 
         vmpool->update(vm);
+
+        lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
 
         return;
     }
@@ -546,7 +552,7 @@ int VirtualMachineManagerDriver::parse_vm_info(
 {
     istringstream is;
 
-    int    parse_error = 0;
+    int    parse_result = 0;
     size_t pos;
 
     string tmp;
@@ -565,7 +571,7 @@ int VirtualMachineManagerDriver::parse_vm_info(
 
     is.str(monitor_str);
 
-    while(is.good())
+    while(parse_result == 0 && is.good())
     {
         is >> tmp >> ws;
 
@@ -573,7 +579,7 @@ int VirtualMachineManagerDriver::parse_vm_info(
 
         if ( pos == string::npos )
         {
-            parse_error = -1;
+            parse_result = -1;
             continue;
         }
 
@@ -587,7 +593,7 @@ int VirtualMachineManagerDriver::parse_vm_info(
 
         if (!tiss.good())
         {
-            parse_error = -1;
+            parse_result = -1;
             continue;
         }
 
@@ -619,9 +625,15 @@ int VirtualMachineManagerDriver::parse_vm_info(
 
             custom.insert(make_pair(var, val));
         }
+
+        if (!tiss.good())
+        {
+            parse_result = -1;
+            continue;
+        }
     }
 
-    return parse_error;
+    return parse_result;
 }
 
 /* -------------------------------------------------------------------------- */
