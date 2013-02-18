@@ -1,0 +1,35 @@
+/* Artfully masterminded by ZURB  */
+
+/* -------------------------------------------------- 
+   Table of Contents
+-----------------------------------------------------
+:: Shared Styles
+:: DataTables Foundation Styles
+*/
+
+
+/* -----------------------------------------
+   Shared Styles
+----------------------------------------- */
+
+
+/* -----------------------------------------
+   DataTables Foundation Styles
+----------------------------------------- */
+form.dataTables {
+    display: inline-block;
+    margin: 0;
+}
+
+table.dataTable {
+    margin: 0 0 18px;
+}
+
+.dataTables_filter input {
+    display: inline-block;
+    width: auto;
+}
+
+.dataTables_length select {
+    width: auto;
+}
