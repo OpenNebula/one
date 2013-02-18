@@ -201,12 +201,14 @@ public class Template extends PoolElement
      * @param id The template id of the target template.
      * @param name A string containing the name of the VM instance, can be empty.
      * @param onHold False to create this VM in pending state, true on hold
+     * @param template User provided Template to merge with the one
+     * being instantiated
      * @return If successful the message contains the VM Instance ID.
      */
     public static OneResponse instantiate(Client client, int id, String name,
-        boolean onHold)
+        boolean onHold, String template)
     {
-        return client.call(INSTANTIATE, id, name, onHold);
+        return client.call(INSTANTIATE, id, name, onHold, template);
     }
 
     /**
@@ -389,11 +391,13 @@ public class Template extends PoolElement
      * 
      * @param name A string containing the name of the VM instance, can be empty.
      * @param onHold False to create this VM in pending state, true on hold
+     * @param template User provided Template to merge with the one
+     * being instantiated
      * @return If successful the message contains the VM Instance ID.
      */
-    public OneResponse instantiate(String name, boolean onHold)
+    public OneResponse instantiate(String name, boolean onHold, String template)
     {
-        return instantiate(client, id, name, onHold);
+        return instantiate(client, id, name, onHold, template);
     }
 
     /**
@@ -404,7 +408,7 @@ public class Template extends PoolElement
      */
     public OneResponse instantiate(String name)
     {
-        return instantiate(client, id, name, false);
+        return instantiate(client, id, name, false, "");
     }
 
     /**
@@ -414,7 +418,7 @@ public class Template extends PoolElement
      */
     public OneResponse instantiate()
     {
-        return instantiate(client, id, "", false);
+        return instantiate(client, id, "", false, "");
     }
 
     /**

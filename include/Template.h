@@ -312,6 +312,17 @@ public:
      */
     int from_xml_node(const xmlNodePtr node);
 
+    /**
+     *  Merges another Template, adding the new attributes and
+     *  replacing the existing ones
+     *
+     *    @param from_tmpl the template to be merged
+     *    @param error_str string describing the error
+     *
+     *    @return 0 on success.
+     */
+     int merge(const Template * from_tmpl, string& error_str);
+
 protected:
     /**
      *  The template attributes

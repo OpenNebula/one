@@ -90,14 +90,19 @@ module OpenNebula
         #   string OpenNebula will set a default name
         # @param hold [true,false] false to create the VM in pending state,
         #   true to create it on hold
+        # @param template [String] User provided Template to merge with the
+        #   one being instantiated
         #
         # @return [Integer, OpenNebula::Error] The new VM id, Error
         #   otherwise
-        def instantiate(name="", hold=false)
+        def instantiate(name="", hold=false, template="")
             return Error.new('ID not defined') if !@pe_id
 
             name ||= ""
-            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name, hold)
+            template ||= ""
+
+            rc = @client.call(
+                TEMPLATE_METHODS[:instantiate], @pe_id, name, hold, template)
 
             return rc
         end
