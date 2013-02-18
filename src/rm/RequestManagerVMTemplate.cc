@@ -183,7 +183,12 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
         if (!str_uattrs.empty())
         {
-            ar.add_auth(AuthRequest::CREATE, perms); //CREATE TEMPLATE
+            PoolObjectAuth tmp_perms;
+
+            perms.uid      = att.uid;
+            perms.obj_type = auth_object;
+
+            ar.add_auth(AuthRequest::CREATE, tmp_perms); //CREATE TEMPLATE
         }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
