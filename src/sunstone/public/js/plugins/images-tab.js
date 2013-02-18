@@ -1072,10 +1072,9 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_images.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_images);
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_images);
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();

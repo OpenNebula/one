@@ -547,11 +547,10 @@ function updateDatastoreInfo(request,ds){
     });
 
     //preload it
-    dataTable_datastore_images_panel.fnClearTable();
 
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_datastore_images_panel);
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_datastore_images_panel);
 
 
     // initialize datatables values
@@ -665,10 +664,10 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_datastores.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','',''],dataTable_datastores);
+    //dataTable_datastores.fnClearTable();
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','',''],dataTable_datastores);
     Sunstone.runAction("Datastore.list");
 
     setupCreateDatastoreDialog();

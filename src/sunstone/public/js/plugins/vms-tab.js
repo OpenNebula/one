@@ -1522,10 +1522,9 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_vMachines.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','',''],dataTable_vMachines);
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','',''],dataTable_vMachines);
     Sunstone.runAction("VM.list");
 
     setupCreateVMDialog();

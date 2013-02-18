@@ -629,10 +629,9 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_groups.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','',''],dataTable_groups);
+    //addElement([
+    //    spinner,
+    //    '','','','','',''],dataTable_groups);
 
     Sunstone.runAction("Group.list");
     setupCreateGroupDialog();
