@@ -203,7 +203,7 @@ int Host::update_info(string          &parse_str,
         ostringstream ess;
 
         ess << "Error parsing host information: " << error_msg
-            << "Monitoring information: " << parse_str;
+            << ". Monitoring information: " << endl << parse_str;
 
         NebulaLog::log("ONE", Log::ERROR, ess);
 

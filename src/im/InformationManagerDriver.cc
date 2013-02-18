@@ -119,11 +119,11 @@ void InformationManagerDriver::protocol(
 
             host->error_info(*hinfo, vm_ids);
 
+            Nebula           &ne  = Nebula::instance();
+            LifeCycleManager *lcm = ne.get_lcm();
+
             for (set<int>::iterator it = vm_ids.begin(); it != vm_ids.end(); it++)
             {
-                Nebula           &ne  = Nebula::instance();
-                LifeCycleManager *lcm = ne.get_lcm();
-
                 lcm->trigger(LifeCycleManager::MONITOR_DONE, *it);
             }
 
@@ -137,19 +137,17 @@ void InformationManagerDriver::protocol(
 
         rc = host->update_info(*hinfo, vm_poll, lost, found);
 
+        delete hinfo;
+
+        hpool->update(host);
+
         if (rc != 0)
         {
-            delete hinfo;
-
-            hpool->update(host);
             host->unlock();
 
             return;
         }
 
-        delete hinfo;
-
-        hpool->update(host);
         hpool->update_monitoring(host);
 
         ess << "Host " << host->get_name() << " (" << host->get_oid() << ")"
@@ -164,11 +162,11 @@ void InformationManagerDriver::protocol(
             set<int>::iterator         its;
             map<int,string>::iterator  itm;
 
+            Nebula           &ne  = Nebula::instance();
+            LifeCycleManager *lcm = ne.get_lcm();
+
             for (its = lost.begin(); its != lost.end(); its++)
             {
-                Nebula           &ne  = Nebula::instance();
-                LifeCycleManager *lcm = ne.get_lcm();
-
                 lcm->trigger(LifeCycleManager::MONITOR_DONE, *its);
             }
 
