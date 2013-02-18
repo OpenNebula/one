@@ -16,5 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-../../vmm/xen/poll --xen -t
+../../vmm/xen4/poll --xen -t
 
