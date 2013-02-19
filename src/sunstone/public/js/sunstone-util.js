@@ -331,8 +331,10 @@ function initCheckAllBoxes(datatable){
         var checked = $(this).attr('checked');
         if (checked) { //check all
             $('tbody input.check_item',table).attr('checked','checked');
+            $('td',table).addClass('markrowchecked');
         } else { //uncheck all
             $('tbody input.check_item',table).removeAttr('checked');
+            $('td',table).removeClass('markrowchecked');
         };
         recountCheckboxes(table);
     });
