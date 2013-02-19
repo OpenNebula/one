@@ -35,6 +35,13 @@ function showTab(tabname,highlight_tab){
     //Since menu items no longer have an <a> element
     //we no longer expect #tab_id here, but simply tab_id
     //So safety check - remove # from #tab_id if present to ensure compatibility
+
+    if (last_selected_row)
+    {
+        last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
+        last_select_row = null;
+    }
+
     if (tabname.indexOf('#') == 0)
         tabname = tabname.substring(1);
     if (highlight_tab && highlight_tab.indexOf('#') == 0)

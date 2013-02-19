@@ -18,6 +18,8 @@
 /* Some useful functions for Sunstone default plugins */
 var INTERVAL=60000; //milisecs
 
+var last_selected_row = null;
+
 function someTime(){ //some time under 30secs
     return Math.floor(Math.random()*30000);
 }
@@ -163,6 +165,12 @@ function tableCheckboxesListener(dataTable){
     //listen to changes in the visible inputs
     $('tbody input.check_item',dataTable).live("change",function(){
         var datatable = $(this).parents('table');
+
+        if($(this).is(":checked"))
+            $(this).parents('tr').children().each(function(){$(this).addClass('markrowchecked');});
+        else
+            $(this).parents('tr').children().each(function(){$(this).removeClass('markrowchecked');});
+
         recountCheckboxes(datatable);
     });
 }
@@ -847,6 +855,7 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
 //Shows run a custom action when clicking on rows.
 function infoListener(dataTable, info_action){
     $('tbody tr',dataTable).live("click",function(e){
+
         if ($(e.target).is('input') ||
             $(e.target).is('select') ||
             $(e.target).is('option')) return true;
@@ -855,18 +864,26 @@ function infoListener(dataTable, info_action){
         var id = $(aData[0]).val();
         if (!id) return true;
 
-        var count = $('tbody .check_item:checked', dataTable).length;
-
-        //If ctrl is hold down or there is already some item selected
-        //then just select.
-        if (info_action){
-            if (e.ctrlKey || count >= 1)
+        if (info_action)
+        {
+            //If ctrl is hold down, make check_box click
+            if (e.ctrlKey || e.metaKey || $(e.target).is('input'))
+            {
                 $('.check_item',this).trigger('click');
-            else {
+            }
+            else
+            {
                 popDialogLoading();
-                Sunstone.runAction(info_action,id)
+                Sunstone.runAction(info_action,id);
+                // Take care of the coloring business
+                $("td:first", this).parent().children().each(function(){$(this).addClass('markrowselected');});
+                if(last_selected_row)
+                    last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
+                last_selected_row = $("td:first", this).parent();
             };
-        } else {
+        }
+        else
+        {
             $('.check_item',this).trigger('click');
         };
 
@@ -1902,8 +1919,6 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
 
     return str;
 }
-
-
 
 /*
  * jQuery Foundation Tooltips 2.0.2

@@ -42,7 +42,7 @@
 
         .ui-tabs-vertical .ui-tabs-nav-vert li a {
             display: block;
-            border: 0px;      
+            border: 0px;
             font-weight: normal;  }
 
         .ui-tabs-vertical .ui-tabs-nav-vert li.ui-tabs-selected {
@@ -62,7 +62,7 @@
 
 *, *:before, *:after { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
 
-html { font-size: 62.5%; } 
+html { font-size: 62.5%; }
 
 body { background: white; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; font-weight: normal; font-style: normal; font-size: 14px; line-height: 1; color: #222222; position: relative; -webkit-font-smoothing: antialiased; }
 
@@ -283,7 +283,7 @@ hr{margin:18px 0;border:0;border-top:1px solid #eee;border-bottom:1px solid #fff
 .label.secondary { background-color: #e9e9e9; color: #505050; }
 
 /* Normal Buttons ---------------------- */
-.button { width: auto; background: #2ba6cb; border: 1px solid #1e728c; -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; color: white; cursor: pointer; display: inline-block; font-family: inherit; font-size: 14px; font-weight: bold; line-height: 1; margin: 0; padding: 10px 20px 11px; position: relative; text-align: center; text-decoration: none; -webkit-transition: background-color 0.15s ease-in-out; -moz-transition: background-color 0.15s ease-in-out; -o-transition: background-color 0.15s ease-in-out; transition: background-color 0.15s ease-in-out; 
+.button { width: auto; background: #2ba6cb; border: 1px solid #1e728c; -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; color: white; cursor: pointer; display: inline-block; font-family: inherit; font-size: 14px; font-weight: bold; line-height: 1; margin: 0; padding: 10px 20px 11px; position: relative; text-align: center; text-decoration: none; -webkit-transition: background-color 0.15s ease-in-out; -moz-transition: background-color 0.15s ease-in-out; -o-transition: background-color 0.15s ease-in-out; transition: background-color 0.15s ease-in-out;
 /* Hovers */ /* Sizes */ /* Colors */ /* Radii */ /* Layout */ /* Disabled ---------- */ }
 .button:hover, .button:focus { color: white; background-color: #2284a1; }
 .button:active { -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; }
@@ -335,6 +335,8 @@ input[type=submit].button, button.button { -webkit-appearance: none; }
 
 
 .markrow { background-color:#cdebf5 !important; }
+.markrowselected { background-color:#cdeb05 !important; }
+.markrowchecked { background-color:#cd0bf5; }
 
 
 
@@ -1006,7 +1008,7 @@ div.current_quotas ul{
 }
 
 div.wizard_tab {
-    overflow: auto; 
+    overflow: auto;
     height: 480px;
     overflow-x: hidden;
     width: 56em;

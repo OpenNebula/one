@@ -859,7 +859,6 @@ function setDatastoreAutorefresh(){
      },INTERVAL+someTime());
 }
 
-
 $(document).ready(function(){
 
     dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
