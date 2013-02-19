@@ -1111,10 +1111,9 @@ $(document).ready(function(){
             } : ""
     });
 
-    dataTable_vNetworks.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','',''],dataTable_vNetworks);
+    //addElement([
+    //    spinner,
+    //    '','','','','','','',''],dataTable_vNetworks);
     Sunstone.runAction("Network.list");
 
     setupCreateVNetDialog();

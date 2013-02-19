@@ -539,10 +539,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
-    dataTable_acls.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','',''],dataTable_acls);
+
+    //addElement([
+    //    spinner,
+    //    '','','','','',''],dataTable_acls);
 
     Sunstone.runAction("Acl.list");
 

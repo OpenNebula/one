@@ -255,12 +255,12 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "aoColumns": [
             { "bSortable": false,
-              "fnRender": function ( o, val ) {
+              "mData": function ( o, val, data ) {
                   //we render 1st column as a checkbox directly
                   return '<input class="check_item" type="checkbox" id="marketplace_'+
-                      o.aData['_id']['$oid']+
+                      o['_id']['$oid']+
                       '" name="selected_items" value="'+
-                      o.aData['_id']['$oid']+'"/>'
+                      o['_id']['$oid']+'"/>'
               },
               "sWidth" : "60px"
             },

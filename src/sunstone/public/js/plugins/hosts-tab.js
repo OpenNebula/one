@@ -889,10 +889,9 @@ $(document).ready(function(){
     });
 
     //preload it
-    dataTable_hosts.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_hosts);
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_hosts);
     Sunstone.runAction("Host.list");
 
     setupCreateHostDialog();

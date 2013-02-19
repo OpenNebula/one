@@ -128,10 +128,10 @@ function recountCheckboxes(dataTable){
 
     if (checked_length) { //at least 1 element checked
         //enable action buttons
-        $('.top_button, .list_button',context).button("enable");
+        $('.top_button, .list_button',context).prop('disabled', false);
         //check if the last_action_button should be enabled
         if (last_action_b.length && last_action_b.val().length){
-            last_action_b.button("enable");
+            last_action_b.prop('disabled', false);
         };
         //enable checkall box
         if (total_length == checked_length){
@@ -142,13 +142,13 @@ function recountCheckboxes(dataTable){
     } else { //no elements cheked
         //disable action buttons, uncheck checkAll
         $('.check_all',dataTable).removeAttr('checked');
-        $('.top_button, .list_button',context).button("disable");
-        last_action_b.button("disable");
+        $('.top_button, .list_button',context).prop('disabled', true);
+        last_action_b.prop('disabled', true);
     };
 
     //any case the create dialog buttons should always be enabled.
-    $('.create_dialog_button',context).button("enable");
-    $('.alwaysActive',context).button("enable");
+    $('.create_dialog_button',context).prop('disabled', false);
+    $('.alwaysActive',context).prop('disabled', false);
 }
 
 //Init action buttons and checkboxes listeners
@@ -156,11 +156,11 @@ function tableCheckboxesListener(dataTable){
     //Initialization - disable all buttons
     var context = dataTable.parents('form');
 
-    $('.last_action_button',context).button("disable");
-    $('.top_button, .list_button',context).button("disable");
+    $('.last_action_button',context).prop('disabled', true);
+    $('.top_button, .list_button',context).attr('disabled', true);
     //These are always enabled
-    $('.create_dialog_button',context).button("enable");
-    $('.alwaysActive',context).button("enable");
+    $('.create_dialog_button',context).prop('disabled', false);
+    $('.alwaysActive',context).prop('disabled', false);
 
     //listen to changes in the visible inputs
     $('tbody input.check_item',dataTable).live("change",function(){
@@ -567,8 +567,7 @@ function setupTips(context){
         obj.removeClass('tip');
         var tip = obj.html();
         //replace the text with an icon and spans
-        console.log(tip)
-        obj.html('<span class="has-tip" data-width="210" title="'+tip+'"><span class="ui-icon ui-icon-info info_icon"></span></span>');
+        obj.html('<span class="has-tip" data-width="210" title="'+tip+'"><i class="icon-info-sign"></i></span>');
 
         //obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
 
@@ -781,15 +780,16 @@ function setupTemplateUpdateDialog(){
         </form>');
 
     //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:700,
-        modal:true,
-        height:430,
-        resizable:false
-    });
-
-    $('button',dialog).button();
+    //dialog.dialog({
+    //    autoOpen:false,
+    //    width:700,
+    //    modal:true,
+    //    height:430,
+    //    resizable:false
+    //});
+    
+    dialog.addClass("reveal-modal")
+    //$('button',dialog).button();
 
     $('#template_update_select',dialog).change(function(){
         var id = $(this).val();
@@ -809,7 +809,7 @@ function setupTemplateUpdateDialog(){
         var id = $('#template_update_select',dialog).val();
 
         if (!id || !id.length) {
-            dialog.dialog('close');
+            dialog.trigger('reveal:close');
             return false;
         };
 
@@ -818,7 +818,7 @@ function setupTemplateUpdateDialog(){
 
         var resource = $(this).val();
         Sunstone.runAction(resource+".update",id,new_template);
-        dialog.dialog('close');
+        dialog.trigger('reveal:close');
         return false;
     });
 }
@@ -849,7 +849,7 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
         }
     };
 
-    dialog.dialog('open');
+    dialog.reveal();
     return false;
 }
 
@@ -1006,14 +1006,15 @@ function setupQuotasDialog(dialog){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 740,
-        height: height
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 740,
+    //    height: height
+    //});
+    dialog.addClass("reveal-modal")
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
     $('#vm_quota,#datastore_quota,#image_quota,#network_quota',dialog).hide();
 
     $('#quota_types input',dialog).click(function(){
@@ -1067,7 +1068,7 @@ function setupQuotasDialog(dialog){
         var action = $('div.form_buttons button',this).val();
         var sel_elems = SunstoneCfg["actions"][action].elements();
         Sunstone.runAction(action,sel_elems,obj);
-        dialog.dialog('close');
+        dialog.trigger('reveal:close');
         return false;
     });
 }
@@ -1086,7 +1087,7 @@ function popUpQuotasDialog(dialog, resource, sel_elems){
         Sunstone.runAction(resource + '.fetch_quotas',id);
     };
 
-    dialog.dialog('open');
+    dialog.reveal();
 }
 
 

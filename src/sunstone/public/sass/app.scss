@@ -1,0 +1,430 @@
+// Your custom settings file to override Foundation defaults
+@import "settings";
+
+// Comment out this import if you are customizing you imports below
+@import "foundation";
+
+// ----------------------------------------
+// Import specific parts of Foundation by commenting the import "foundation"
+// and uncommenting what you want below. You must uncomment the following if customizing
+
+// @import "compass/css3";
+// @import "foundation/settings";
+// @import "foundation/functions/all";
+
+// Control which mixins you have access too
+
+// @import "foundation/mixins/clearfix";
+// @import "foundation/mixins/css-triangle";
+// @import "foundation/mixins/font-size";
+
+// Must include next two for semantic grid to work
+
+// @import "foundation/mixins/respond-to";
+// @import "foundation/mixins/semantic-grid";
+
+// @import "modular-scale";
+// @import "foundation/common/globals";
+
+// Must include the grid for any responsiveness
+
+// @import "foundation/components/grid";
+
+// Control which common styles get compiled
+
+// @import "foundation/common/typography";
+// @import "foundation/common/forms";
+
+// Control which components you get if customizing
+
+// @import "foundation/components/modules/buttons";
+// @import "foundation/components/modules/tabs";
+// @import "foundation/components/modules/ui";
+// @import "foundation/components/modules/topbar";
+// @import "foundation/components/modules/navbar";
+// @import "foundation/components/modules/orbit";
+// @import "foundation/components/modules/reveal";
+// @import "foundation/components/modules/offcanvas";
+// @import "foundation/components/modules/clearing";
+// @import "foundation/components/modules/joyride";
+
+// Media Queries Overrides
+// @import "foundation/components/modules/mqueries";
+
+
+/* -----------------------------------------
+   DataTables Foundation Styles
+----------------------------------------- */
+form.dataTables {
+    display: inline-block;
+    margin: 0;
+}
+
+table.dataTable {
+    margin: 0 0 18px;
+    box-shadow: 0 0 1px 0px black;
+    border:none;
+}
+
+.dataTables_filter input {
+    display: inline-block;
+    width: auto;
+}
+
+.dataTables_length select {
+    width: auto;
+}
+
+/*
+ * Filter
+ */
+.dataTables_filter {
+	float: right;
+	text-align: right;
+}
+
+/*
+ * Pagination
+ */
+.dataTables_paginate {
+	float: right;
+	text-align: right;
+}
+
+table thead, table tfoot {
+background: #f2f2f2;
+}
+
+
+/* -----------------------------------------
+   Shared Styles
+----------------------------------------- */
+
+table th { font-weight: bold; }
+table td, table th { padding: 9px 10px; text-align: left; }
+
+table.dataTable td {
+padding: 3px 10px;
+}
+
+/* -----------------------------------------
+   Tabs remove icon 
+----------------------------------------- */
+
+.remove-tab:hover {
+  color: $alertColor;
+}
+
+.has-tip {
+border-bottom: none;
+}
+
+
+
+
+div.button-bar {
+  overflow: visible;
+}
+
+
+
+
+
+.outer-center, .inner-center  {
+    padding:        0;
+}
+
+.outer-center {
+    border:         0;
+}
+
+.inner-south {
+   padding: 0;
+}
+
+#dialog div {
+    border: 0;
+}
+
+#header {
+    padding: 0 10px 0 10px;
+    background-color: #4d4d4d;
+    border:0;
+}
+
+
+
+#logo {
+    padding-top: 6px;
+    font-weight: bold;
+    color: white;
+    margin:10%;
+}
+
+#login-info {
+    padding-top: 4px;
+    float: right;
+    padding-right: 5px;
+}
+
+#links {
+    padding-top: 4px;
+    margin-right: 40px;
+    float: right;
+}
+
+#login-info, #login-info a, #links, #links a {
+    color: white;
+}
+
+#login-info, #login-info a {
+    font-weight: bold;
+}
+.sunstone-color {
+    color: #2ba6cb;
+}
+
+#logo-wrapper {
+    float:  right;
+    margin-top: 0px;
+    margin-right: 20px;
+}
+
+#menu {
+    padding-right:  0;
+    padding-left:   0;
+    border:0;
+}
+
+#tabs_content {
+    box-shadow: -8px -8px 11px -11px black;
+    z-index: 2 !important;
+}
+
+#navigation {
+    margin: 8%;;
+    box-shadow: 0 0 1px 0px black;
+}
+
+#navigation > li {
+    border:none;
+}
+
+
+#navigation .topTab {
+}
+
+#navigation i {
+    margin-right: 3px;
+}
+
+
+#navigation li.subTab > a {
+    background: #fdfdfd;
+    padding-left:       25px;
+}
+
+#navigation li.subsubTab {
+    padding-left:       35px;
+}
+
+#navigation li:hover, .navigation-active-li {
+    font-weight: bold;
+    border-left: 3px solid #555 !important;
+}
+
+//ul.nav-bar {
+//  background: -webkit-linear-gradient(left, #4d4d4d 95%, #000000 100%);
+//  margin-top: 10%;
+//    margin-left: 10%;
+//}
+//
+//ul.nav-bar.vertical {
+//  margin-top: 10%;
+//}
+
+//#navigation li {
+//    color:  #ffffff !important;
+//    cursor: pointer;
+//}
+//
+//#navigation li:hover, .navigation-active-li {
+//    border: none !important;
+//    background: #2ba6cb; /* Old browsers */
+//    background: -moz-linear-gradient(left, #2ba6cb 95%, #4d4d4d 100%); /* FF3.6+ */
+//    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#2ba6cb), color-stop(100%,#4d4d4d)); /* //Chrome,Safari4+ */
+//    background: -webkit-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* Chrome10+,Safari5.1+ */
+//    background: -o-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* Opera 11.10+ */
+//    background: -ms-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* IE10+ */
+//    background: linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* W3C */
+//    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2ba6cb', endColorstr='#4d4d4d',GradientType=1 ); /* IE6-9 //*/;
+//    margin-left: -5% !important;
+//}
+//
+//
+//.navigation-active-li {
+//    font-weight: bold;
+//}
+//
+//#navigation li:hover {
+//    color: #ffffff !important;
+//}
+//
+//.subTab:not(.navigation-active-li) {
+//    margin-left: 5%;
+//    background: #919191; /* Old browsers */
+//    background: -moz-linear-gradient(left, #919191 95%, black 100%); /* FF3.6+ */
+//    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#919191), color-stop(100%,black)); /* //Chrome,Safari4+ */
+//    background: -webkit-linear-gradient(left, #919191 95%,black 100%); /* Chrome10+,Safari5.1+ */
+//    background: -o-linear-gradient(left, #919191 95%,black 100%); /* Opera 11.10+ */
+//    background: -ms-linear-gradient(left, #919191 95%,black 100%); /* IE10+ */
+//    background: linear-gradient(left, #919191 95%,black 100%); /* W3C */
+//    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#919191', endColorstr='black',GradientType=1 ); /* IE6-9 */
+//}
+
+//#navigation li.subsubTab {
+//    padding-left:       25px;
+//}
+//
+
+
+
+/* top menu css */
+#menutop_container{
+    margin:0px 171px;
+    color:#FFFFFF;
+    font-size:13px;
+    font-weight:bold;
+}
+#menutop_navbar{
+    float:left;
+    height:25px;
+    font-size:13px;
+}
+#menutop_navbar ul{
+    float:left;
+    height:25px;
+    color:#000000;
+    margin: 0 0;
+    padding-left: 1px;
+}
+#menutop_navbar ul{
+    background-color: #4d4d4d;
+}
+#menutop_navbar ul li{
+    float:left;
+    min-width:72px;
+    margin:0px 0 0 0;
+    height:22px;
+    display: inline;
+    text-align:center;
+    padding-left:5px;
+    padding-right: 5px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    border-left:1px solid white;
+    cursor:pointer;
+    color: white;
+}
+
+#menutop_navbar ul li:hover {
+    background-color: #ffffff;
+
+}
+
+/* end top menu css */
+
+
+
+
+
+.ui-layout-pane {
+  border: none;
+}
+
+
+.button.small {
+    font-size: 14px;
+    padding: 6px 12px 6px;
+    box-shadow: none;
+}
+
+.panel {
+    padding: 0px;
+    background: #f2f2f2;
+}
+
+.tabs.vertical li a {
+    padding: 15px 11px;
+}
+
+input[type="text"] {
+    height: 28px !important;
+}
+
+.right {
+    float: right;
+}
+
+.ui-layout-pane {
+    background: #fdfdfd;
+}
+
+
+
+
+tr.odd:hover{
+    background-color: #E69138 !important;
+    cursor: pointer;
+}
+
+tr.even:hover{
+    background-color: #E69138 !important;
+    cursor: pointer;
+}
+
+
+
+
+table thead tr th, table tfoot tr td {
+padding: 5px 10px 5px;
+line-height:16px;
+}
+
+/* Growl */
+.jGrowl-notification h1 {
+    font-size: 1.2em;
+}
+
+.jGrowl-notification, .jGrowl-notify-submit {
+    border: 2px #444444 solid;
+    background-color: #F3F3F3!important;
+    color: #666666;
+}
+
+.jGrowl-notify-error {
+    border: 2px #660000 solid;
+    background-color: #F39999!important;
+    color: #660000;
+}
+
+.jGrowl-notify-error table td.key_error {
+    text-transform: capitalize;
+    width: 100%;
+    font-weight: bold;
+}
+
+.jGrowl-notify-error table td.key_error:after {
+    content:":";
+}
+
+
+
+
+
+
+
+
+
+
+

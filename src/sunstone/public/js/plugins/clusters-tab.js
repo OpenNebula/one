@@ -188,12 +188,12 @@ function setupCreateClusterDialog(datatable_filter){
     });
 
     //preload it
-    dataTable_cluster_hosts.fnClearTable();
+    //dataTable_cluster_hosts.fnClearTable();
 
-    dataTable_cluster_hosts.fnFilter( datatable_filter, 3, true); // Only show no assigned resources
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_hosts);
+    //dataTable_cluster_hosts.fnFilter( datatable_filter, 3, true); // Only show no assigned resources
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_cluster_hosts);
 
     dataTable_cluster_vnets = $("#datatable_cluster_vnets", dialog).dataTable({
         "bJQueryUI": true,
@@ -219,11 +219,11 @@ function setupCreateClusterDialog(datatable_filter){
 
 
     //preload it
-    dataTable_cluster_vnets.fnClearTable();
-    dataTable_cluster_vnets.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_vnets);
+    //dataTable_cluster_vnets.fnClearTable();
+    //dataTable_cluster_vnets.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_cluster_vnets);
 
     dataTable_cluster_datastores = $("#datatable_cluster_datastores", dialog).dataTable({
         "bJQueryUI": true,
@@ -249,12 +249,11 @@ function setupCreateClusterDialog(datatable_filter){
 
 
     //preload it
-    dataTable_cluster_datastores.fnClearTable();
-    dataTable_cluster_datastores.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
-    dataTable_cluster_datastores.fnFilter( '^(?!0)', 1, true);
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_datastores);
+    //dataTable_cluster_datastores.fnClearTable();
+    //dataTable_cluster_datastores.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_cluster_datastores);
 
     //  ------- End of create the dialog datatables ------------
 
@@ -1384,11 +1383,10 @@ function updateClusterInfo(request,cluster){
     });
 
     //preload it
-    dataTable_cluster_hosts_panel.fnClearTable();
 
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_hosts_panel);
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_cluster_hosts_panel);
 
     // Virtual networks datatable
 
@@ -1416,10 +1414,10 @@ function updateClusterInfo(request,cluster){
 
 
     //preload it
-    dataTable_cluster_vnets_panel.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_vnets_panel);
+    //dataTable_cluster_vnets_panel.fnClearTable();
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_cluster_vnets_panel);
 
     // Datastores datatable
 
@@ -1447,10 +1445,10 @@ function updateClusterInfo(request,cluster){
 
 
     //preload it
-    dataTable_cluster_datastores_panel.fnClearTable();
-    addElement([
-        spinner,
-        '','','','','','','','','','','',''],dataTable_cluster_datastores_panel);
+    //dataTable_cluster_datastores_panel.fnClearTable();
+    //addElement([
+    //    spinner,
+    //    '','','','','','','','','','','',''],dataTable_cluster_datastores_panel);
 
     // initialize datatables values
     Sunstone.runAction("ClusterHostInfo.list");
@@ -1859,10 +1857,10 @@ $(document).ready(function(){
     });
 
     //preload it
-    dataTable_clusters.fnClearTable();
-    addElement([
-        spinner,
-        '','','','',''],dataTable_clusters);
+    //dataTable_clusters.fnClearTable();
+    //addElement([
+    //    spinner,
+    //    '','','','',''],dataTable_clusters);
     Sunstone.runAction("Cluster.list");
 
     dialogs_context.append('<div title=\"'+tr("Create cluster")+'\" id="create_cluster_dialog"></div>');
