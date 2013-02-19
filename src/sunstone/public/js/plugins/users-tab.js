@@ -928,6 +928,10 @@ $(document).ready(function(){
     //    spinner,
     //    '','','','','','','',''],dataTable_users);
 
+    $('#user_search').keyup(function(){
+      dataTable_users.fnFilter( $(this).val() );
+    })
+
     Sunstone.runAction("User.list");
 
     setupCreateUserDialog();

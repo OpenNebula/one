@@ -39,11 +39,26 @@ var group_acct_graphs = [
 ];
 
 var groups_tab_content = '\
-<h2><i class="icon-group"></i> '+tr("Groups")+'</h2>\
-<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="group_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <h4 class="subheader"><i class="icon-group"></i> '+tr("Groups")+'</h4>\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
   </div>\
-<table id="datatable_groups" class="display">\
+  <div class="three columns">\
+    <input id="user_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_groups" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
@@ -80,6 +95,7 @@ var create_group_tmpl =
         <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
       </div>\
   </fieldset>\
+  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var group_quotas_tmpl = '<form id="group_quotas_form" action="">\
@@ -259,12 +275,12 @@ var group_actions = {
 var group_buttons = {
     "Group.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Group.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New Group"),
+        layout: "create",
         condition: mustBeAdmin
     },
     // "Group.chown" : {
@@ -277,18 +293,20 @@ var group_buttons = {
     "Group.quotas_dialog" : {
         type : "action",
         text : tr("Update quotas"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Group.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         condition: mustBeAdmin
     },
-    "Group.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Group.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 };
 
 var group_info_panel = {
@@ -564,25 +582,26 @@ function setupCreateGroupDialog(){
     var dialog = $create_group_dialog;
 
     dialog.html(create_group_tmpl);
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    width: 400
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
     $('#create_group_form',dialog).submit(function(){
         var name=$('#name',this).val();
         var group_json = { "group" : { "name" : name }};
         Sunstone.runAction("Group.create",group_json);
-        $create_group_dialog.dialog('close');
+        $create_group_dialog.trigger("reveal:close");
         return false;
     });
 }
 
 function popUpCreateGroupDialog(){
-    $create_group_dialog.dialog('open');
+    $create_group_dialog.trigger("reveal:close")
     return false;
 }
 
@@ -613,11 +632,7 @@ function setGroupAutorefresh(){
 
 $(document).ready(function(){
     dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
