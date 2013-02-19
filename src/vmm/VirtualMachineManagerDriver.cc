@@ -603,7 +603,7 @@ int VirtualMachineManagerDriver::parse_vm_info(
         }
         else if (var == "USEDCPU")
         {
-            tiss >> cpu;
+            tiss >> fixed >> cpu;
         }
         else if (var == "NETRX")
         {
@@ -626,7 +626,7 @@ int VirtualMachineManagerDriver::parse_vm_info(
             custom.insert(make_pair(var, val));
         }
 
-        if (!tiss.good())
+        if (tiss.fail())
         {
             parse_result = -1;
             continue;
