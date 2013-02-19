@@ -33,7 +33,10 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-. $TMCOMMON
+DRIVER_PATH=$(dirname $0)
+
+source $TMCOMMON
+source ${DRIVER_PATH}/../../datastore/lvm/lvm.conf
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -55,14 +58,8 @@ DUMP_CMD=$(cat <<EOF
     VM=\$(echo \$LV|cut -d- -f4)
     DISK_ID=\$(echo \$LV|cut -d- -f5)
 
-    SOURCE_DEV=\$(echo \$DEV|sed 's/-[0-9]*-[0-9]*$//')
-    SIZE=\$($SUDO $LVS \$SOURCE_DEV --noheadings|awk '{print \$4}'|tr -d m)
-
-    $SUDO $LVCREATE -L\${SIZE}M ${VG_NAME} -n ${LV_NAME}
-    $SUDO $DD if=$SRC_PATH of=$TARGET_DEV bs=64k
-
     if [ -n "\$VM" -a -n "\$DISK_ID" ]; then
-        $SUDO $LVREMOVE -f \$DEV
+        $SUDO $LVRENAME ${VG_NAME} \${LV} ${LV_NAME}
     fi
 EOF
 )
