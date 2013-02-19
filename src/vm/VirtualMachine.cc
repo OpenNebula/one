@@ -1839,6 +1839,8 @@ int VirtualMachine::new_snapshot(string& name)
 
     snap->replace("ACTIVE", "YES");
 
+    obj_template->set(snap);
+
     return 0;
 }
 
