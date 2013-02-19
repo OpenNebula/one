@@ -624,6 +624,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    # TODO: Write a more complete description:
+    # what is a snapshot (system snapshot)
+    # how to revert to a snapshot
+    snapshot_create_desc = <<-EOT.unindent
+        Creates a new VM snapshot
+    EOT
+
+    command :"snapshot-create", snapshot_create_desc, :vmid, :name do
+        helper.perform_action(args[0],options,"snapshot created") do |o|
+            o.snapshot_create(args[1])
+        end
+    end
+
     command :list, list_desc, [:filterflag, nil],
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS+
             [OpenNebulaHelper::DESCRIBE] do

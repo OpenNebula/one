@@ -25,19 +25,20 @@ module OpenNebula
 
 
         VM_METHODS = {
-            :info       => "vm.info",
-            :allocate   => "vm.allocate",
-            :action     => "vm.action",
-            :migrate    => "vm.migrate",
-            :deploy     => "vm.deploy",
-            :savedisk   => "vm.savedisk",
-            :chown      => "vm.chown",
-            :chmod      => "vm.chmod",
-            :monitoring => "vm.monitoring",
-            :attach     => "vm.attach",
-            :detach     => "vm.detach",
-            :rename     => "vm.rename",
-            :update     => "vm.update"
+            :info           => "vm.info",
+            :allocate       => "vm.allocate",
+            :action         => "vm.action",
+            :migrate        => "vm.migrate",
+            :deploy         => "vm.deploy",
+            :savedisk       => "vm.savedisk",
+            :chown          => "vm.chown",
+            :chmod          => "vm.chmod",
+            :monitoring     => "vm.monitoring",
+            :attach         => "vm.attach",
+            :detach         => "vm.detach",
+            :rename         => "vm.rename",
+            :update         => "vm.update",
+            :snapshotcreate => "vm.snapshotcreate"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -407,6 +408,16 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VM_METHODS[:rename], @pe_id, name)
+        end
+
+        # Creates a new VM snapshot
+        #
+        # @param name [String] Name for the snapshot.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def snapshot_create(name)
+            return call(VM_METHODS[:snapshotcreate], @pe_id, name)
         end
 
         #######################################################################
