@@ -70,8 +70,8 @@ var users_tab_content = '\
       <th>'+tr("Group")+'</th>\
       <th>'+tr("Auth driver")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Used memory")+'</th>\
-      <th>'+tr("Used CPU")+'</th>\
+      <th>'+tr("Memory")+'</th>\
+      <th>'+tr("CPU")+'</th>\
       <th>'+tr("Group ID")+'</th>\
     </tr>\
   </thead>\

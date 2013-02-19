@@ -62,6 +62,8 @@ form.dataTables {
 
 table.dataTable {
     margin: 0 0 18px;
+    box-shadow: 0 0 1px 0px black;
+    border:none;
 }
 
 .dataTables_filter input {
@@ -88,6 +90,11 @@ table.dataTable {
 	float: right;
 	text-align: right;
 }
+
+table thead, table tfoot {
+background: #f2f2f2;
+}
+
 
 /* -----------------------------------------
    Shared Styles
@@ -344,17 +351,80 @@ div.button-bar {
 
 .panel {
     padding: 0px;
-    background: #fbfbfb;
+    background: #f2f2f2;
 }
 
 .tabs.vertical li a {
     padding: 15px 11px;
 }
 
-input {
+input[type="text"] {
     height: 28px !important;
 }
 
 .right {
     float: right;
 }
+
+.ui-layout-pane {
+    background: #fdfdfd;
+}
+
+
+
+
+tr.odd:hover{
+    background-color: #E69138 !important;
+    cursor: pointer;
+}
+
+tr.even:hover{
+    background-color: #E69138 !important;
+    cursor: pointer;
+}
+
+
+
+
+table thead tr th, table tfoot tr td {
+padding: 5px 10px 5px;
+line-height:16px;
+}
+
+/* Growl */
+.jGrowl-notification h1 {
+    font-size: 1.2em;
+}
+
+.jGrowl-notification, .jGrowl-notify-submit {
+    border: 2px #444444 solid;
+    background-color: #F3F3F3!important;
+    color: #666666;
+}
+
+.jGrowl-notify-error {
+    border: 2px #660000 solid;
+    background-color: #F39999!important;
+    color: #660000;
+}
+
+.jGrowl-notify-error table td.key_error {
+    text-transform: capitalize;
+    width: 100%;
+    font-weight: bold;
+}
+
+.jGrowl-notify-error table td.key_error:after {
+    content:":";
+}
+
+
+
+
+
+
+
+
+
+
+
