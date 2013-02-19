@@ -17,7 +17,7 @@
 /*Templates tab plugin*/
 
 var templates_tab_content = '\
-<form class="custom" id="template_form" action="" action="javascript:alert(\'js error!\');">\
+<form class="custom" id="template_form" action="">\
 <div class="panel">\
 <div class="row">\
   <h4 class="subheader">Templates</h4>\

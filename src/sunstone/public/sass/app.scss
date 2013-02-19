@@ -208,7 +208,7 @@ div.button-bar {
 }
 
 #navigation i {
-    margin-right: 5px;
+    margin-right: 3px;
 }
 
 
@@ -337,7 +337,7 @@ div.button-bar {
 
 
 .button.small {
-    font-size: 13px;
+    font-size: 14px;
     padding: 6px 12px 6px;
     box-shadow: none;
 }
@@ -349,4 +349,12 @@ div.button-bar {
 
 .tabs.vertical li a {
     padding: 15px 11px;
+}
+
+input {
+    height: 28px !important;
+}
+
+.right {
+    float: right;
 }

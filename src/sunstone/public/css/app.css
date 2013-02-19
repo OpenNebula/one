@@ -6208,7 +6208,7 @@ div.button-bar {
 
 /* line 210, ../sass/app.scss */
 #navigation i {
-  margin-right: 5px;
+  margin-right: 3px;
 }
 
 /* line 215, ../sass/app.scss */
@@ -6288,7 +6288,7 @@ div.button-bar {
 
 /* line 339, ../sass/app.scss */
 .button.small {
-  font-size: 13px;
+  font-size: 14px;
   padding: 6px 12px 6px;
   box-shadow: none;
 }
@@ -6302,4 +6302,14 @@ div.button-bar {
 /* line 350, ../sass/app.scss */
 .tabs.vertical li a {
   padding: 15px 11px;
+}
+
+/* line 354, ../sass/app.scss */
+input {
+  height: 28px !important;
+}
+
+/* line 358, ../sass/app.scss */
+.right {
+  float: right;
 }

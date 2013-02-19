@@ -554,7 +554,7 @@ function insertButtonsInTab(tab_name){
                 "</div>"+
             "</div>"+
             "<div class='eight columns'>"+
-                '<div class="button-bar">'+
+                '<div class="button-bar right">'+
                   '<ul class="button-group">'+
                     '<li>'+
                         "<div id='main_buttons'>"+

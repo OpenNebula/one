@@ -42,18 +42,33 @@ var user_acct_graphs = [
 
 
 var users_tab_content = '\
-<h2><i class="icon-user"></i> '+tr("Users")+'</h2>\
-<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="user_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
   </div>\
-<table id="datatable_users" class="display">\
+  <div class="three columns">\
+    <input id="user_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_users" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Group")+'</th>\
-      <th>'+tr("Authentication driver")+'</th>\
+      <th>'+tr("Auth driver")+'</th>\
       <th>'+tr("VMs")+'</th>\
       <th>'+tr("Used memory")+'</th>\
       <th>'+tr("Used CPU")+'</th>\
@@ -63,6 +78,8 @@ var users_tab_content = '\
   <tbody id="tbodyusers">\
   </tbody>\
 </table>\
+  </div>\
+  </div>\
 <div class="legend_div">\
 <span>?</span>\
 <p class="legend_p">\
@@ -105,6 +122,7 @@ var create_user_tmpl =
                 <button class="button" id="create_user_submit" value="user/create">'+tr("Create")+'</button>\
                 <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
+        <a class="close-reveal-modal">&#215;</a>\
 </fieldset>\
 </form>';
 
@@ -389,31 +407,35 @@ var user_actions = {
 var user_buttons = {
     "User.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "User.create_dialog" : {
         type: "create_dialog",
-        text: tr("+ New"),
+        layout: "create",
         condition: mustBeAdmin
     },
     "User.update_dialog" : {
         type: "action",
         text: tr("Update properties"),
+        layout: "more_select",
         alwaysActive: true
     },
     "User.update_password" : {
         type : "action",
+        layout: "more_select",
         text : tr("Change password")
     },
     "User.quotas_dialog" : {
         type : "action",
+        layout: "more_select",
         text : tr("Update quotas"),
         condition: mustBeAdmin
     },
     "User.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
+        layout: "user_select",
         select: groups_sel,
         tip: tr("This will change the main group of the selected users. Select the new group")+":",
         condition: mustBeAdmin
@@ -421,6 +443,7 @@ var user_buttons = {
     "User.chauth" : {
         type: "confirm_with_select",
         text: tr("Change authentication"),
+        layout: "user_select",
         //We insert our custom select there.
         select: function() {
             return   '<option value="core" selected="selected">'+tr("Core")+'</option>\
@@ -448,13 +471,14 @@ var user_buttons = {
     "User.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         condition: mustBeAdmin
     },
-    "User.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"User.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 
 };
 
@@ -768,13 +792,15 @@ function setupCreateUserDialog(){
     dialog.html(create_user_tmpl);
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 400
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 400
+    //});
 
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal");
+
+    //$('button',dialog).button();
 
     $('input[name="custom_auth"]',dialog).parent().hide();
     $('select#driver').change(function(){
@@ -804,7 +830,7 @@ function setupCreateUserDialog(){
                           }
                         };
         Sunstone.runAction("User.create",user_json);
-        $create_user_dialog.dialog('close');
+        $create_user_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -816,13 +842,15 @@ function setupUpdatePasswordDialog(){
     dialog.html(update_pw_tmpl);
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 400
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 400
+    //});
 
-    $('button',dialog).button();
+    dialog.addClass("reveal-modal");
+
+    //$('button',dialog).button();
 
     $('#update_user_pw_form',dialog).submit(function(){
         var pw=$('#new_password',this).val();
@@ -833,7 +861,7 @@ function setupUpdatePasswordDialog(){
         }
 
         Sunstone.runAction("User.passwd",getSelectedNodes(dataTable_users),pw);
-        $update_pw_dialog.dialog('close');
+        $update_pw_dialog.trigger("reveal:close")
         return false;
     });
 };
@@ -854,14 +882,14 @@ function popUpUserQuotasDialog(){
 }
 
 function popUpCreateUserDialog(){
-    $create_user_dialog.dialog('open');
+    $create_user_dialog.reveal();
 
 }
 
 
 function popUpUpdatePasswordDialog(){
     $('#new_password',$update_pw_dialog).val("");
-    $update_pw_dialog.dialog('open');
+    $update_pw_dialog.reveal();
 }
 
 // Prepare the autorefresh of the list
@@ -879,14 +907,10 @@ function setUserAutorefresh(){
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        //"bSortClasses": false,
-        "sPaginationType": "full_numbers",
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "bAutoWidth":false,
         "aoColumnDefs": [
             //{ "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
