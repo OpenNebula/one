@@ -46,13 +46,13 @@ var groups_tab_content = '\
 <table id="datatable_groups" class="display">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Name")+'</th>\
       <th>'+tr("Users")+'</th>\
       <th>'+tr("VMs")+'</th>\
-      <th>'+tr("Used memory")+'</th>\
-      <th>'+tr("Used CPU")+'</th>\
+      <th>'+tr("UMEM")+'</th>\
+      <th>'+tr("UCPU")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\

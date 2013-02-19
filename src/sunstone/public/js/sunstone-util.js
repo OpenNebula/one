@@ -878,10 +878,10 @@ function infoListener(dataTable, info_action){
                 popDialogLoading();
                 Sunstone.runAction(info_action,id);
                 // Take care of the coloring business
-                $("td:first", this).parent().children().each(function(){$(this).addClass('markrowselected');});
                 if(last_selected_row)
                     last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
                 last_selected_row = $("td:first", this).parent();
+                $("td:first", this).parent().children().each(function(){$(this).addClass('markrowselected');});
             };
         }
         else
