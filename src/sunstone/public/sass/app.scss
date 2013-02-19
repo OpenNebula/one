@@ -1,0 +1,313 @@
+// Your custom settings file to override Foundation defaults
+@import "settings";
+
+// Comment out this import if you are customizing you imports below
+@import "foundation";
+
+// ----------------------------------------
+// Import specific parts of Foundation by commenting the import "foundation"
+// and uncommenting what you want below. You must uncomment the following if customizing
+
+// @import "compass/css3";
+// @import "foundation/settings";
+// @import "foundation/functions/all";
+
+// Control which mixins you have access too
+
+// @import "foundation/mixins/clearfix";
+// @import "foundation/mixins/css-triangle";
+// @import "foundation/mixins/font-size";
+
+// Must include next two for semantic grid to work
+
+// @import "foundation/mixins/respond-to";
+// @import "foundation/mixins/semantic-grid";
+
+// @import "modular-scale";
+// @import "foundation/common/globals";
+
+// Must include the grid for any responsiveness
+
+// @import "foundation/components/grid";
+
+// Control which common styles get compiled
+
+// @import "foundation/common/typography";
+// @import "foundation/common/forms";
+
+// Control which components you get if customizing
+
+// @import "foundation/components/modules/buttons";
+// @import "foundation/components/modules/tabs";
+// @import "foundation/components/modules/ui";
+// @import "foundation/components/modules/topbar";
+// @import "foundation/components/modules/navbar";
+// @import "foundation/components/modules/orbit";
+// @import "foundation/components/modules/reveal";
+// @import "foundation/components/modules/offcanvas";
+// @import "foundation/components/modules/clearing";
+// @import "foundation/components/modules/joyride";
+
+// Media Queries Overrides
+// @import "foundation/components/modules/mqueries";
+
+
+/* -----------------------------------------
+   DataTables Foundation Styles
+----------------------------------------- */
+form.dataTables {
+    display: inline-block;
+    margin: 0;
+}
+
+table.dataTable {
+    margin: 0 0 18px;
+}
+
+.dataTables_filter input {
+    display: inline-block;
+    width: auto;
+}
+
+.dataTables_length select {
+    width: auto;
+}
+
+/*
+ * Filter
+ */
+.dataTables_filter {
+	float: right;
+	text-align: right;
+}
+
+/*
+ * Pagination
+ */
+.dataTables_paginate {
+	float: right;
+	text-align: right;
+}
+
+/* -----------------------------------------
+   Shared Styles
+----------------------------------------- */
+
+table th { font-weight: bold; }
+table td, table th { padding: 9px 10px; text-align: left; }
+
+table.dataTable td {
+padding: 3px 10px;
+}
+
+/* -----------------------------------------
+   Tabs remove icon 
+----------------------------------------- */
+
+.remove-tab:hover {
+  color: $alertColor;
+}
+
+.has-tip {
+border-bottom: none;
+}
+
+
+
+
+div.button-bar {
+  overflow: visible;
+}
+
+ul.nav-bar {
+  background: -webkit-linear-gradient(left, #4d4d4d 95%, #000000 100%);
+  margin-left: 10%;
+  margin-top: 10%;
+}
+
+ul.nav-bar.vertical {
+  margin-top: 10%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.outer-center, .inner-center  {
+    padding:        0;
+}
+
+.outer-center {
+    border:         0;
+}
+
+.inner-south {
+   padding: 0;
+}
+
+#dialog div {
+    border: 0;
+}
+
+#header {
+    padding: 0 10px 0 10px;
+    background-color: #4d4d4d;
+    border:0;
+}
+
+
+
+#logo {
+    padding-top: 6px;
+    font-weight: bold;
+    color: white;
+    float:left;
+}
+
+#login-info {
+    padding-top: 4px;
+    float: right;
+    padding-right: 5px;
+}
+
+#links {
+    padding-top: 4px;
+    margin-right: 40px;
+    float: right;
+}
+
+#login-info, #login-info a, #links, #links a {
+    color: white;
+}
+
+#login-info, #login-info a {
+    font-weight: bold;
+}
+.sunstone-color {
+    color: #2ba6cb;
+}
+
+#logo-wrapper {
+    float:  right;
+    margin-top: 0px;
+    margin-right: 20px;
+}
+
+#menu {
+    padding-right:  0;
+    padding-left:   0;
+    border:0;
+
+    background: #f2f2f2; /* Old browsers */
+    background: -moz-linear-gradient(left, #f2f2f2 95%, rgb(145, 145, 145) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#f2f2f2), color-stop(100%,rgb(145, 145, 145))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, #f2f2f2 95%,rgb(145, 145, 145) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, #f2f2f2 95%,rgb(145, 145, 145) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, #f2f2f2 95%,rgb(145, 145, 145) 100%); /* IE10+ */
+    background: linear-gradient(left, #f2f2f2 95%,rgb(145, 145, 145) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f2f2', endColorstr='rgb(145, 145, 145)',GradientType=1 ); /* IE6-9 */
+}
+
+
+
+#navigation li {
+    color:  #ffffff;
+    cursor: pointer;
+}
+
+#navigation li:hover, .navigation-active-li {
+    background: #2ba6cb; /* Old browsers */
+    background: -moz-linear-gradient(left, #2ba6cb 95%, #4d4d4d 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(95%,#2ba6cb), color-stop(100%,#4d4d4d)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* IE10+ */
+    background: linear-gradient(left, #2ba6cb 95%,#4d4d4d 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2ba6cb', endColorstr='#4d4d4d',GradientType=1 ); /* IE6-9 */
+}
+
+
+.navigation-active-li {
+    font-weight: bold;
+}
+
+#navigation li:hover {
+    color: #ffffff !important;
+}
+
+
+/* top menu css */
+#menutop_container{
+    margin:0px 171px;
+    color:#FFFFFF;
+    font-size:13px;
+    font-weight:bold;
+}
+#menutop_navbar{
+    float:left;
+    height:25px;
+    font-size:13px;
+}
+#menutop_navbar ul{
+    float:left;
+    height:25px;
+    color:#000000;
+    margin: 0 0;
+    padding-left: 1px;
+}
+#menutop_navbar ul{
+    background-color: #4d4d4d;
+}
+#menutop_navbar ul li{
+    float:left;
+    min-width:72px;
+    margin:0px 0 0 0;
+    height:22px;
+    display: inline;
+    text-align:center;
+    padding-left:5px;
+    padding-right: 5px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    border-left:1px solid white;
+    cursor:pointer;
+    color: white;
+}
+
+#menutop_navbar ul li:hover {
+    background-color: #ffffff;
+
+}
+
+/* end top menu css */
+
+
+
+#navigation li.subTab {
+    padding-left:       35px;
+}
+
+#navigation li.subsubTab {
+    padding-left:       45px;
+}
+
+.ui-layout-pane {
+  border: none;
+}

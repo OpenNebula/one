@@ -98,7 +98,7 @@
   jQuery.foundation.customForms = jQuery.foundation.customForms || {};
 
   $.foundation.customForms.appendCustomMarkup = function ( options ) {
-    console.log("adsad")
+
     var defaults = {
       disable_class: "no-custom"
     };
@@ -119,7 +119,6 @@
     }
 
     function appendCustomSelect(idx, sel) {
-      console.log("pepe")
       var hiddenFixObj = hiddenFix();
           //
           // jQueryify the <select> element and cache it.

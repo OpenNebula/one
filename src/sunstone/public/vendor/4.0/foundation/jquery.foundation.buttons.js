@@ -6,7 +6,7 @@
         config = $.extend({
           dropdownAsToggle:false,
           activeClass:'active'
-        }, options  ),
+        }, options),
 
     // close all dropdowns except for the dropdown passed
       closeDropdowns = function (dropdown) {
