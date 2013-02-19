@@ -18,7 +18,10 @@
 
 var templates_tab_content = '\
 <form class="custom" id="template_form" action="" action="javascript:alert(\'js error!\');">\
-<br>\
+<div class="panel">\
+<div class="row">\
+  <h4 class="subheader">Templates</h4>\
+</div>\
 <div class="row">\
   <div class="nine columns">\
     <div class="action_blocks">\
@@ -29,6 +32,7 @@ var templates_tab_content = '\
   </div>\
   <br>\
   <br>\
+</div>\
 </div>\
   <div class="row">\
     <div class="twelve columns">\
