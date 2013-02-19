@@ -56,6 +56,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Device where the image will be attached"
     }
 
+    CACHE={
+        :name => "cache",
+        :large => "--cache cache_mode",
+        :format => String,
+        :description => "Hypervisor cache mode: default, none, writethrough,"<<
+            " writeback, directsync or unsafe. (Only KVM driver)"
+    }
+
     ENFORCE={
         :name  => "enforce",
         :short => "-e",
@@ -512,7 +520,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :attachdisk, attachdisk_desc, :vmid,
-            :options => [OneVMHelper::FILE, OneVMHelper::IMAGE, TARGET] do
+            :options => [OneVMHelper::FILE, OneVMHelper::IMAGE,
+                         TARGET, CACHE] do
 
         if options[:file].nil? and options[:image].nil?
             STDERR.puts "Provide a template file or an image:"
@@ -528,11 +537,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             target = options[:target]
             if target
                 template =
-                    "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target} ]"
+                    "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target}"
             else
                 template =
-                    "DISK = [ IMAGE_ID = #{image_id}, DEV_PREFIX = sd ]"
+                    "DISK = [ IMAGE_ID = #{image_id}, DEV_PREFIX = sd"
             end
+
+            if options[:cache]
+                template<<", CACHE = \"#{options[:cache]}\""
+            end
+
+            template << " ]"
         end
 
         helper.perform_action(args[0],options,"Attach disk") do |vm|
