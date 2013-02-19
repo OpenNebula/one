@@ -64,6 +64,8 @@ public:
         DETACH_FAILURE,   /**< Sent by the VMM when a detach action fails     */
         CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
+        SNAPSHOT_CREATE_SUCCESS, /**< Sent by the VMM on snap. create success */
+        SNAPSHOT_CREATE_FAILURE, /**< Sent by the VMM on snap. create failure */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */
@@ -188,6 +190,10 @@ private:
     void detach_failure_action(int vid);
 
     void cleanup_callback_action(int vid);
+
+    void snapshot_create_success(int vid);
+
+    void snapshot_create_failure(int vid);
 
     void deploy_action(int vid);
 

@@ -1075,3 +1075,61 @@ int DispatchManager::detach(
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::snapshot_create(
+    int         vid,
+    string&     name,
+    string&     error_str)
+{
+    ostringstream oss;
+
+    Nebula&                 nd  = Nebula::instance();
+    VirtualMachineManager*  vmm = nd.get_vmm();
+
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not create a new snapshot for VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not create a new snapshot for VM " << vid
+            << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->set_resched(false);
+
+    vm->new_snapshot(name);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::SNAPSHOT_CREATE,vid);
+
+    return 0;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

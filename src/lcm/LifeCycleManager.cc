@@ -153,6 +153,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "CLEANUP_FAILURE";
         break;
 
+    case SNAPSHOT_CREATE_SUCCESS:
+        aname = "SNAPSHOT_CREATE_SUCCESS";
+        break;
+
+    case SNAPSHOT_CREATE_FAILURE:
+        aname = "SNAPSHOT_CREATE_FAILURE";
+        break;
+
     case DEPLOY:
         aname = "DEPLOY";
         break;
@@ -313,6 +321,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "CLEANUP_FAILURE")
     {
         cleanup_callback_action(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE_SUCCESS")
+    {
+        snapshot_create_success(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE_FAILURE")
+    {
+        snapshot_create_failure(vid);
     }
     else if (action == "DEPLOY")
     {

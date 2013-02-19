@@ -924,6 +924,38 @@ public:
      */
     int detach_failure();
 
+
+    // ------------------------------------------------------------------------
+    // Snapshot related functions
+    // ------------------------------------------------------------------------
+
+    int new_snapshot(string& name);
+
+    /**
+     * Returns the snapshot with an active operation
+     *
+     * @return the snapshot with an active operation, or 0
+     */
+    VectorAttribute* get_active_snapshot();
+
+    /**
+     * Replaces HYPERVISOR_ID for the active SNAPSHOT
+     *
+     * @param hypervisor_id Id returned by the hypervisor for the newly
+     * created snapshot
+     */
+    void update_snapshot_id(string& hypervisor_id);
+
+    /**
+     * Cleans the ACTIVE = YES attribute from the snapshots
+     */
+    void clear_active_snapshot();
+
+    /**
+     * Deletes the SNAPSHOT that was in the process of being created
+     */
+    void delete_active_snapshot();
+
 private:
 
     // -------------------------------------------------------------------------

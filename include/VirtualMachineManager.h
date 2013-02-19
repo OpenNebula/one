@@ -61,7 +61,8 @@ public:
         DRIVER_CANCEL,
         FINALIZE,
         ATTACH,
-        DETACH
+        DETACH,
+        SNAPSHOT_CREATE
     };
 
     /**
@@ -323,6 +324,12 @@ private:
      */
     void attach_action(
         int vid);
+
+    /**
+     * Creates a new system snapshot
+     * @param vid the id of the VM.
+     */
+    void snapshot_create_action(int vid);
 
     /**
      * Detaches a disk from a VM. The VM must have a disk with the

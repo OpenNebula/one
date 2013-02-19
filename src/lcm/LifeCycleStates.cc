@@ -1197,3 +1197,63 @@ void LifeCycleManager::detach_failure_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::snapshot_create_success(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        vm->clear_active_snapshot();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"snapshot_create_success, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::snapshot_create_failure(int vid)
+{
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        vm->delete_active_snapshot();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"snapshot_create_failure, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

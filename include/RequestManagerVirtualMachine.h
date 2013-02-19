@@ -217,6 +217,23 @@ public:
             RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotCreate: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotCreate():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotCreate",
+                           "Creates a new virtual machine snapshot",
+                           "A:sis"){};
+
+    ~VirtualMachineSnapshotCreate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
