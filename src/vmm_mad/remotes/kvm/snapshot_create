@@ -24,3 +24,6 @@ NAME="$2"
 
 exec_and_log "virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN $NAME" \
                 "Could not create snapshot $NAME for domain $DOMAIN."
+
+echo "$NAME"
+exit 0
