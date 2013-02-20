@@ -417,7 +417,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def snapshot_create(name)
+        def snapshot_create(name="")
+            name ||= ""
             return call(VM_METHODS[:snapshotcreate], @pe_id, name)
         end
 

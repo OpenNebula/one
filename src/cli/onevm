@@ -627,7 +627,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new VM snapshot
     EOT
 
-    command :"snapshot-create", snapshot_create_desc, :vmid, :name do
+    command :"snapshot-create", snapshot_create_desc, :vmid, [:name, nil] do
         helper.perform_action(args[0],options,"snapshot created") do |o|
             o.snapshot_create(args[1])
         end
