@@ -1831,6 +1831,15 @@ int VirtualMachine::new_snapshot(string& name)
         }
     }
 
+    if (name.empty())
+    {
+        ostringstream oss;
+
+        oss << "snapshot-" << max_id+1;
+
+        name = oss.str();
+    }
+
     snap = new VectorAttribute("SNAPSHOT");
     snap->replace("SNAPSHOT_ID", max_id+1);
     snap->replace("NAME", name);

@@ -1067,8 +1067,8 @@ void VirtualMachineSnapshotCreate::request_execute(
     int    rc;
     string error_str;
 
-    int     id  = xmlrpc_c::value_int(paramList.getInt(1));
-    string  str = xmlrpc_c::value_string(paramList.getString(2));
+    int     id   = xmlrpc_c::value_int(paramList.getInt(1));
+    string  name = xmlrpc_c::value_string(paramList.getString(2));
 
     // -------------------------------------------------------------------------
     // Authorize the operation
@@ -1079,7 +1079,7 @@ void VirtualMachineSnapshotCreate::request_execute(
         return;
     }
 
-    rc = dm->snapshot_create(id, str, error_str);
+    rc = dm->snapshot_create(id, name, error_str);
 
     if ( rc != 0 )
     {
