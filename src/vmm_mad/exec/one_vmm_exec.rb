@@ -615,7 +615,6 @@ class ExecDriver < VirtualMachineDriver
         action   = ACTION[:snapshot_create]
         xml_data = decode(drv_message)
 
-        puts xml_data
         host      = xml_data.elements['HOST'].text
         deploy_id = xml_data.elements['DEPLOY_ID'].text
 
