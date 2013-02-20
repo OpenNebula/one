@@ -610,10 +610,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    list_desc = <<-EOT.unindent
-        Lists VMs in the pool
-    EOT
-
     rename_desc = <<-EOT.unindent
         Renames the VM
     EOT
@@ -636,6 +632,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             o.snapshot_create(args[1])
         end
     end
+
+    list_desc = <<-EOT.unindent
+        Lists VMs in the pool
+    EOT
 
     command :list, list_desc, [:filterflag, nil],
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS+

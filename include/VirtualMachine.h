@@ -929,7 +929,23 @@ public:
     // Snapshot related functions
     // ------------------------------------------------------------------------
 
+    /**
+     * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
+     *
+     * @param name for the new Snapshot
+     *
+     * @return 0 on success
+     */
     int new_snapshot(string& name);
+
+    /**
+     * Sets the given Snapshot as ACTIVE=YES
+     *
+     * @param snap_id the snapshow ID
+     *
+     * @return 0 on success
+     */
+    int set_active_snapshot(int snap_id);
 
     /**
      * Returns the snapshot with an active operation

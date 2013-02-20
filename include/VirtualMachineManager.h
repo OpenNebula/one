@@ -62,7 +62,8 @@ public:
         FINALIZE,
         ATTACH,
         DETACH,
-        SNAPSHOT_CREATE
+        SNAPSHOT_CREATE,
+        SNAPSHOT_REVERT
     };
 
     /**
@@ -326,18 +327,28 @@ private:
         int vid);
 
     /**
-     * Creates a new system snapshot
-     * @param vid the id of the VM.
-     */
-    void snapshot_create_action(int vid);
-
-    /**
      * Detaches a disk from a VM. The VM must have a disk with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
     void detach_action(
         int vid);
+
+    /**
+     * Creates a new system snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_create_action(int vid);
+
+    /**
+     * Reverts to a snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_revert_action(int vid);
 
     /**
      *  This function cancels the current driver operation

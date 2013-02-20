@@ -397,6 +397,25 @@ void VirtualMachineManagerDriver::protocol(
             lcm->trigger(LifeCycleManager::SNAPSHOT_CREATE_FAILURE, id);
         }
     }
+    else if ( action == "SNAPSHOTREVERT" )
+    {
+        Nebula              &ne  = Nebula::instance();
+        LifeCycleManager    *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM",Log::INFO,"VM Snapshot successfully reverted.");
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_REVERT_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm,os,is,"Error reverting VM Snapshot");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::SNAPSHOT_REVERT_FAILURE, id);
+        }
+    }
     else if ( action == "CLEANUP" )
     {
         Nebula           &ne  = Nebula::instance();

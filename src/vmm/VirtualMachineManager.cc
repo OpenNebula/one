@@ -187,6 +187,10 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "SNAPSHOT_CREATE";
         break;
 
+    case SNAPSHOT_REVERT:
+        aname = "SNAPSHOT_REVERT";
+        break;
+
     default:
         delete vid;
         return;
@@ -286,6 +290,10 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "SNAPSHOT_CREATE")
     {
         snapshot_create_action(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT")
+    {
+        snapshot_revert_action(vid);
     }
     else if (action == ACTION_TIMER)
     {
@@ -1839,6 +1847,83 @@ error_common:
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::SNAPSHOT_CREATE_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::snapshot_revert_action(int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    // Get the driver for this VM
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl));
+
+    vmd->snapshot_revert(vid, *drv_msg);
+
+    delete drv_msg;
+
+    vm->unlock();
+
+    return;
+
+error_history:
+    os.str("");
+    os << "snapshot_revert_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "snapshot_revert_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::SNAPSHOT_REVERT_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();

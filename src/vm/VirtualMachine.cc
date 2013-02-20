@@ -1847,6 +1847,40 @@ int VirtualMachine::new_snapshot(string& name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::set_active_snapshot(int snap_id)
+{
+    int num_snaps;
+    int s_id;
+
+    vector<Attribute  *> snaps;
+    VectorAttribute *    snap;
+
+    num_snaps = obj_template->get("SNAPSHOT", snaps);
+
+    for(int i=0; i<num_snaps; i++)
+    {
+        snap = dynamic_cast<VectorAttribute * >(snaps[i]);
+
+        if ( snap == 0 )
+        {
+            continue;
+        }
+
+        snap->vector_value("SNAPSHOT_ID", s_id);
+
+        if ( s_id == snap_id )
+        {
+            snap->replace("ACTIVE", "YES");
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 VectorAttribute* VirtualMachine::get_active_snapshot()
 {
     int                  num_snaps;

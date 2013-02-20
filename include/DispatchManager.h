@@ -290,6 +290,20 @@ public:
         string&     name,
         string&     error_str);
 
+    /**
+     * Starts the snapshot revert action
+     *
+     * @param vid VirtualMachine identification
+     * @param snap_id Snapshot to be restored
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_revert(
+        int         vid,
+        int         snap_id,
+        string&     error_str);
+
 private:
     /**
      *  Thread id for the Dispatch Manager

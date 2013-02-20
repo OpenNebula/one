@@ -234,6 +234,23 @@ public:
             RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotRevert: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotRevert():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotRevert",
+                           "Reverts a virtual machine to a snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotRevert(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

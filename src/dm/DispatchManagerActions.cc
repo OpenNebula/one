@@ -1130,6 +1130,73 @@ int DispatchManager::snapshot_create(
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::snapshot_revert(
+    int         vid,
+    int         snap_id,
+    string&     error_str)
+{
+    ostringstream oss;
+
+    int rc;
+
+    Nebula&                 nd  = Nebula::instance();
+    VirtualMachineManager*  vmm = nd.get_vmm();
+
+    VirtualMachine * vm  = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not revert VM " << vid << " to snapshot " << snap_id
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
+         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    {
+        oss << "Could not revert VM " << vid << " to snapshot " << snap_id
+            << ", wrong state.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::HOTPLUG);
+
+    vm->set_resched(false);
+
+    rc = vm->set_active_snapshot(snap_id);
+
+    if ( rc == -1 )
+    {
+        oss << "Could not revert VM " << vid << " to snapshot " << snap_id
+            << ", it does not exist.";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    vmm->trigger(VirtualMachineManager::SNAPSHOT_REVERT,vid);
+
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

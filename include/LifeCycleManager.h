@@ -66,6 +66,8 @@ public:
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
         SNAPSHOT_CREATE_SUCCESS, /**< Sent by the VMM on snap. create success */
         SNAPSHOT_CREATE_FAILURE, /**< Sent by the VMM on snap. create failure */
+        SNAPSHOT_REVERT_SUCCESS, /**< Sent by the VMM on snap. revert success */
+        SNAPSHOT_REVERT_FAILURE, /**< Sent by the VMM on snap. revert failure */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */
@@ -194,6 +196,10 @@ private:
     void snapshot_create_success(int vid);
 
     void snapshot_create_failure(int vid);
+
+    void snapshot_revert_success(int vid);
+
+    void snapshot_revert_failure(int vid);
 
     void deploy_action(int vid);
 

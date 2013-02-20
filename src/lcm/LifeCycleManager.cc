@@ -161,6 +161,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "SNAPSHOT_CREATE_FAILURE";
         break;
 
+    case SNAPSHOT_REVERT_SUCCESS:
+        aname = "SNAPSHOT_REVERT_SUCCESS";
+        break;
+
+    case SNAPSHOT_REVERT_FAILURE:
+        aname = "SNAPSHOT_REVERT_FAILURE";
+        break;
+
     case DEPLOY:
         aname = "DEPLOY";
         break;
@@ -329,6 +337,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "SNAPSHOT_CREATE_FAILURE")
     {
         snapshot_create_failure(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT_SUCCESS")
+    {
+        snapshot_revert_success(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT_FAILURE")
+    {
+        snapshot_revert_failure(vid);
     }
     else if (action == "DEPLOY")
     {
