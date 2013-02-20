@@ -640,7 +640,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id do
         helper.perform_action(args[0],options,"snapshot reverted") do |o|
-            o.snapshot_revert(args[1])
+            o.snapshot_revert(args[1].to_i)
         end
     end
 
