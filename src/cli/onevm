@@ -633,6 +633,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    # TODO: Write a more complete description:
+    snapshot_revert_desc = <<-EOT.unindent
+        Reverts a VM to a saved snapshot
+    EOT
+
+    command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id do
+        helper.perform_action(args[0],options,"snapshot reverted") do |o|
+            o.snapshot_revert(args[1])
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists VMs in the pool
     EOT

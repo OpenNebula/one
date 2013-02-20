@@ -38,7 +38,8 @@ module OpenNebula
             :detach         => "vm.detach",
             :rename         => "vm.rename",
             :update         => "vm.update",
-            :snapshotcreate => "vm.snapshotcreate"
+            :snapshotcreate => "vm.snapshotcreate",
+            :snapshotrevert => "vm.snapshotrevert"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -418,6 +419,16 @@ module OpenNebula
         #   otherwise
         def snapshot_create(name)
             return call(VM_METHODS[:snapshotcreate], @pe_id, name)
+        end
+
+        # Creates a new VM snapshot
+        #
+        # @param snap_id [Integer] Id of the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def snapshot_revert(snap_id)
+            return call(VM_METHODS[:snapshotrevert], @pe_id, snap_id)
         end
 
         #######################################################################
