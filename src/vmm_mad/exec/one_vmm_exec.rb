@@ -609,6 +609,28 @@ class ExecDriver < VirtualMachineDriver
     end
 
     #
+    # SNAPSHOTCREATE action, creates a new system snapshot
+    #
+    def snapshot_create(id, drv_message)
+        action   = ACTION[:snapshot_create]
+        xml_data = decode(drv_message)
+
+        puts xml_data
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/SNAPSHOT_ID"
+        snap_id       = xml_data.elements[snap_id_xpath].text.to_i
+
+        snapshot_name = "onesnap-#{snap_id}"
+        do_action("#{deploy_id} #{snapshot_name}",
+                    id,
+                    host,
+                    ACTION[:snapshot_create],
+                    :script_name => "snapshot_create")
+    end
+
+    #
     # CLEANUP action, frees resources allocated in a host: VM and disk images
     #
     def cleanup(id, drv_message)
