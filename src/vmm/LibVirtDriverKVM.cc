@@ -56,12 +56,14 @@ int LibVirtDriver::deployment_description_kvm(
     string  ro         = "";
     string  driver     = "";
     string  cache      = "";
+    string  disk_io    = "";
     string  source     = "";
     string  clone      = "";
 
     int     disk_id;
-    string  default_driver       = "";
-    string  default_driver_cache = "";
+    string  default_driver          = "";
+    string  default_driver_cache    = "";
+    string  default_driver_disk_io  = "";
     bool    readonly;
 
     const VectorAttribute * nic;
@@ -298,6 +300,7 @@ int LibVirtDriver::deployment_description_kvm(
        default_driver_cache = "default";
     }
 
+    get_default("DISK","IO",default_driver_disk_io);
     // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK",attrs);
@@ -316,6 +319,7 @@ int LibVirtDriver::deployment_description_kvm(
         ro     = disk->vector_value("READONLY");
         driver = disk->vector_value("DRIVER");
         cache  = disk->vector_value("CACHE");
+        disk_io= disk->vector_value("IO");
         source = disk->vector_value("SOURCE");
         clone  = disk->vector_value("CLONE");
 
@@ -406,14 +410,23 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !cache.empty() )
         {
-            file << cache << "'/>" << endl;
+            file << cache << "'";
         }
         else
         {
-            file << default_driver_cache << "'/>" << endl;
+            file << default_driver_cache << "'";
         }
 
-        file << "\t\t</disk>" << endl;
+        if ( !disk_io.empty() )
+        {
+            file << " io='" << disk_io << "'";
+        }
+        else if ( !default_driver_disk_io.empty() )
+        {
+            file << " io='" << default_driver_disk_io << "'";
+        }
+
+        file << "/>" << endl << "\t\t</disk>" << endl;
     }
 
     attrs.clear();
