@@ -92,6 +92,7 @@ var create_acl_tmpl =
                 <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
 </fieldset>\
+<a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var acl_actions = {
@@ -354,12 +355,13 @@ function setupCreateAclDialog(){
     dialog.html(create_acl_tmpl);
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 650,
-        height: height
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 650,
+    //    height: height
+    //});
+    dialog.addClass("reveal-modal");
 
     //Default selected options
     $('#res_subgroup_all',dialog).attr('checked','checked');
@@ -477,7 +479,7 @@ function setupCreateAclDialog(){
 
         var acl_json = { "acl" : acl_string };
         Sunstone.runAction("Acl.create",acl_json);
-        $create_acl_dialog.dialog('close');
+        $create_acl_dialog.trigger("reveal:close");
         return false;
     });
 }
@@ -502,7 +504,7 @@ function popUpCreateAclDialog(){
     $('#belonging_to',dialog).html(groups_select);
 
     $('#applies',dialog).trigger("change");
-    dialog.dialog('open');
+    dialog.reveal();
 }
 
 // Prepare the autorefresh of the list

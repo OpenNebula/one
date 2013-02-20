@@ -6209,34 +6209,48 @@ div.button-bar {
 }
 
 /* line 209, ../sass/app.scss */
-#navigation > li {
-  border: none;
+.tabs.vertical li {
+  border-left: none;
+}
+
+/* line 213, ../sass/app.scss */
+.tabs.vertical li.active {
+  border-top: none;
 }
 
 /* line 217, ../sass/app.scss */
+#navigation > li:not(.subTab).navigation-active-li > a {
+  background: #f2f2f2;
+  border: none;
+  color: #555;
+}
+
+/* line 227, ../sass/app.scss */
 #navigation i {
   margin-right: 3px;
 }
 
-/* line 222, ../sass/app.scss */
+/* line 232, ../sass/app.scss */
 #navigation li.subTab > a {
   background: #fdfdfd;
+  color: #555;
   padding-left: 25px;
+  border: none;
 }
 
-/* line 227, ../sass/app.scss */
+/* line 239, ../sass/app.scss */
 #navigation li.subsubTab {
   padding-left: 35px;
 }
 
-/* line 231, ../sass/app.scss */
+/* line 243, ../sass/app.scss */
 #navigation li:hover, .navigation-active-li {
   font-weight: bold;
   border-left: 3px solid #555555 !important;
 }
 
 /* top menu css */
-/* line 293, ../sass/app.scss */
+/* line 305, ../sass/app.scss */
 #menutop_container {
   margin: 0px 171px;
   color: #FFFFFF;
@@ -6244,14 +6258,14 @@ div.button-bar {
   font-weight: bold;
 }
 
-/* line 299, ../sass/app.scss */
+/* line 311, ../sass/app.scss */
 #menutop_navbar {
   float: left;
   height: 25px;
   font-size: 13px;
 }
 
-/* line 304, ../sass/app.scss */
+/* line 316, ../sass/app.scss */
 #menutop_navbar ul {
   float: left;
   height: 25px;
@@ -6260,12 +6274,12 @@ div.button-bar {
   padding-left: 1px;
 }
 
-/* line 311, ../sass/app.scss */
+/* line 323, ../sass/app.scss */
 #menutop_navbar ul {
   background-color: #4d4d4d;
 }
 
-/* line 314, ../sass/app.scss */
+/* line 326, ../sass/app.scss */
 #menutop_navbar ul li {
   float: left;
   min-width: 72px;
@@ -6282,18 +6296,18 @@ div.button-bar {
   color: white;
 }
 
-/* line 330, ../sass/app.scss */
+/* line 342, ../sass/app.scss */
 #menutop_navbar ul li:hover {
   background-color: #ffffff;
 }
 
 /* end top menu css */
-/* line 341, ../sass/app.scss */
+/* line 353, ../sass/app.scss */
 .ui-layout-pane {
   border: none;
 }
 
-/* line 346, ../sass/app.scss */
+/* line 358, ../sass/app.scss */
 .button.small {
   font-size: 12px;
   padding: 6px 12px 6px;
@@ -6301,78 +6315,93 @@ div.button-bar {
   height: 28px;
 }
 
-/* line 353, ../sass/app.scss */
+/* line 365, ../sass/app.scss */
 .panel {
   padding: 0px;
   background: #f2f2f2;
 }
 
-/* line 358, ../sass/app.scss */
+/* line 370, ../sass/app.scss */
 .tabs.vertical li a {
   padding: 15px 11px;
 }
 
-/* line 362, ../sass/app.scss */
+/* line 374, ../sass/app.scss */
 input[type="text"] {
   height: 28px !important;
 }
 
-/* line 366, ../sass/app.scss */
+/* line 378, ../sass/app.scss */
 .right {
   float: right;
 }
 
-/* line 370, ../sass/app.scss */
+/* line 382, ../sass/app.scss */
 .ui-layout-pane {
   background: #fdfdfd;
 }
 
-/* line 377, ../sass/app.scss */
+/* line 389, ../sass/app.scss */
 tr.odd:hover {
-  background-color: #e69138 !important;
+  background-color: #2ba6cb !important;
   cursor: pointer;
 }
 
-/* line 382, ../sass/app.scss */
+/* line 394, ../sass/app.scss */
 tr.even:hover {
-  background-color: #e69138 !important;
+  background-color: #2ba6cb !important;
   cursor: pointer;
 }
 
-/* line 390, ../sass/app.scss */
+/* line 402, ../sass/app.scss */
 table thead tr th, table tfoot tr td {
   padding: 5px 10px 5px;
   line-height: 16px;
 }
 
 /* Growl */
-/* line 396, ../sass/app.scss */
+/* line 408, ../sass/app.scss */
 .jGrowl-notification h1 {
   font-size: 1.2em;
 }
 
-/* line 400, ../sass/app.scss */
+/* line 412, ../sass/app.scss */
 .jGrowl-notification, .jGrowl-notify-submit {
   border: 2px #444444 solid;
   background-color: #F3F3F3!important;
   color: #666666;
 }
 
-/* line 406, ../sass/app.scss */
+/* line 418, ../sass/app.scss */
 .jGrowl-notify-error {
   border: 2px #660000 solid;
   background-color: #F39999!important;
   color: #660000;
 }
 
-/* line 412, ../sass/app.scss */
+/* line 424, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error {
   text-transform: capitalize;
   width: 100%;
   font-weight: bold;
 }
 
-/* line 418, ../sass/app.scss */
+/* line 430, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error:after {
   content: ":";
+}
+
+/* line 437, ../sass/app.scss */
+.markrow {
+  background-color: #cdebf5 !important;
+}
+
+/* line 438, ../sass/app.scss */
+.markrowselected {
+  background-color: #2ba6cb !important;
+}
+
+/* line 439, ../sass/app.scss */
+.markrowchecked {
+  background-color: #cdebf5;
 }
