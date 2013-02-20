@@ -28,6 +28,7 @@ GREP=grep
 ISCSIADM=iscsiadm
 LVCREATE=lvcreate
 LVREMOVE=lvremove
+LVRENAME=lvrename
 LVS=lvs
 LN=ln
 MD5SUM=md5sum

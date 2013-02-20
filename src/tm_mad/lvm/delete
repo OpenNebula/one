@@ -42,10 +42,22 @@ DST_HOST=`arg_host $DST`
 # Delete the device if it's a clone (LVM snapshot)
 DELETE_CMD=$(cat <<EOF
     DEV=\$(readlink $DST_PATH)
-    $SUDO $LVREMOVE -f \$DEV
+    LV_NAME=\$(basename \$DEV)
 
     # remove link
     rm -f $DST_PATH
+
+    # The following attrs will only be there if the image is non-persistent
+    # lv-one-<image>                 ==> persistent
+    # lv-one-<image>-<vmid>-<diskid> ==> non-persistent (clone)
+
+    VMID=\$(echo \$LV_NAME|cut -d- -f4)
+    DISKID=\$(echo \$LV_NAME|cut -d- -f5)
+
+    if [ -n "\$VMID" -a -n "\$DISKID" ]; then
+        # this is a cloned image
+        $SUDO $LVREMOVE -f \$DEV
+    fi
 EOF
 )
 
