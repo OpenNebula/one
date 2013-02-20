@@ -18,11 +18,28 @@
 
 
 var datastores_tab_content = '\
-<h2><i class="icon-folder-open"></i> '+tr("Datastores")+'</h2>\
-<form id="form_datastores" action="javascript:alert(\'js errors?!\')">\
-  <div class="action_blocks">\
+<form class="custom" id="form_datastores" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-folder-open"></i> '+tr("Datastores")+'</h4>\
   </div>\
-<table id="datatable_datastores" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="datastore_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_datastores" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
@@ -340,18 +357,20 @@ var datastore_actions = {
 var datastore_buttons = {
     "Datastore.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Datastore.create_dialog" : {
         type: "create_dialog",
         text: tr("+ New"),
+        layout: "create",
         condition: mustBeAdmin
     },
     "Datastore.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
         select: clusters_sel,
+        layout: "more_select",
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
     },
@@ -359,6 +378,7 @@ var datastore_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
+        layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -366,20 +386,22 @@ var datastore_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
+        layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
     "Datastore.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "del",
         condition: mustBeAdmin
     },
 
-    "Datastore.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Datastore.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var datastore_info_panel = {
@@ -622,13 +644,14 @@ function setupCreateDatastoreDialog(){
     dialog.html(create_datastore_tmpl);
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    width: 400
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
     setupTips(dialog);
 
     $('#sys_ds').click(function(){
@@ -747,7 +770,7 @@ function setupCreateDatastoreDialog(){
 
         Sunstone.runAction("Datastore.create",ds_obj);
 
-        $create_datastore_dialog.dialog('close');
+        $create_datastore_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -841,7 +864,7 @@ function select_lvm(){
 
 function popUpCreateDatastoreDialog(){
     $('select#cluster_id',$create_datastore_dialog).html(clusters_sel());
-    $create_datastore_dialog.dialog('open');
+    $create_datastore_dialog.reveal();
     hide_all($create_datastore_dialog);
     select_filesystem();
 }
@@ -861,14 +884,10 @@ function setDatastoreAutorefresh(){
 $(document).ready(function(){
 
     dataTable_datastores = $("#datatable_datastores",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
@@ -881,6 +900,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+    $('#datastore_search').keyup(function(){
+      dataTable_datastores.fnFilter( $(this).val() );
+    })
 
     //dataTable_datastores.fnClearTable();
     //addElement([

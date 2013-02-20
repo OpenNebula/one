@@ -19,14 +19,31 @@ var dataTable_acls;
 var $create_acl_dialog;
 
 var acls_tab_content = '\
-<h2><i class="icon-key"></i> '+tr("Access Control Lists")+'</h2>\
-<form id="acl_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="acl_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-key"></i> '+tr("Access Control Lists")+'</h4>\
   </div>\
-<table id="datatable_acls" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="acl_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_acls" class="datatable twelve">\
   <thead>\
     <tr>\
-      <th class="check"><input type="checkbox" class="check_all" value="">'+tr("All")+'</input></th>\
+      <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>'+tr("ID")+'</th>\
       <th>'+tr("Applies to")+'</th>\
       <th>'+tr("Affected resources")+'</th>\
@@ -158,22 +175,24 @@ var acl_actions = {
 var acl_buttons = {
     "Acl.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Acl.create_dialog" : {
         type: "create_dialog",
+        layout: "create",
         text: tr("+ New")
     },
     "Acl.delete" : {
         type: "confirm",
+        layout: "del",
         text: tr("Delete")
     },
-    "Acl.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Acl.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var acls_tab = {
@@ -368,7 +387,7 @@ function setupCreateAclDialog(){
     $('#res_id',dialog).attr('disabled','disabled');
     $('#belonging_to',dialog).attr('disabled','disabled');
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
     //Resource subset radio buttons
     $('.res_subgroup',dialog).click(function(){
@@ -522,14 +541,10 @@ function setAclAutorefresh(){
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
     dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
@@ -541,6 +556,11 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+
+    $('#acl_search').keyup(function(){
+      dataTable_templates.fnFilter( $(this).val() );
+    })
 
     //addElement([
     //    spinner,

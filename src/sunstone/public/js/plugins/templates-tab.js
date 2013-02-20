@@ -20,7 +20,9 @@ var templates_tab_content = '\
 <form class="custom" id="template_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <h4 class="subheader">Templates</h4>\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-file-alt"></i> '+tr("Templates")+'</h4>\
+  </div>\
 </div>\
 <div class="row">\
   <div class="nine columns">\
@@ -1070,7 +1072,7 @@ function setupCreateTemplateDialog(){
           '</li>'
 
         // Append the new div containing the tab and add the tab to the list
-        var a = $("<dd><a href='#"+str_disk_tab_id+"'>DISK <i class='icon-remove-sign icon-large remove-tab'></i></a></dd>").appendTo($("dl#template_create_storage_tabs"));
+        var a = $("<dd><a href='#"+str_disk_tab_id+"'>DISK <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_storage_tabs"));
 
         $(html_tab_content).appendTo($("ul#template_create_storage_tabs_content"));
 
@@ -1413,7 +1415,7 @@ function setupCreateTemplateDialog(){
         '</li>'
 
         // Append the new div containing the tab and add the tab to the list
-        var a = $("<dd><a href='#"+str_nic_tab_id+"'>NIC <i class='icon-remove-sign icon-large remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
+        var a = $("<dd><a href='#"+str_nic_tab_id+"'>NIC <i class='icon-remove-sign remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs"));
 
         $(html_tab_content).appendTo($("ul#template_create_network_tabs_content"));
 

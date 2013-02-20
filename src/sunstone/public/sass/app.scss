@@ -62,8 +62,12 @@ form.dataTables {
 
 table.dataTable {
     margin: 0 0 18px;
-    box-shadow: 0 0 1px 0px black;
+    //box-shadow: 0 0 1px 0px black;
     border:none;
+}
+
+table.dataTable tr {
+    border: 1px solid #e6e6e6;
 }
 
 .dataTables_filter input {
@@ -232,8 +236,8 @@ div.button-bar {
 #navigation li.subTab > a {
     background: #fdfdfd;
     color: #555;
-    padding-left:       25px;
     border:none;
+    padding: 10px 25px;
 }
 
 #navigation li.subsubTab {
@@ -362,6 +366,10 @@ div.button-bar {
     height:28px;
 }
 
+.button.tiny {
+    box-shadow: none;
+}
+
 .panel {
     padding: 0px;
     background: #f2f2f2;
@@ -386,22 +394,32 @@ input[type="text"] {
 
 
 
-tr.odd:hover{
+tr.odd:hover td {
     background-color: #2ba6cb !important;
     cursor: pointer;
+    color: #FFF !important;
 }
 
-tr.even:hover{
+tr.even:hover td {
     background-color: #2ba6cb !important;
     cursor: pointer;
+    color: #FFF !important;
 }
 
+tr {
+    border-bottom: 1px solid #e6e6e6;
+    }
 
 
 
 table thead tr th, table tfoot tr td {
 padding: 5px 10px 5px;
 line-height:16px;
+}
+
+table {
+    border-collapse:collapse;
+    border-spacing:0
 }
 
 /* Growl */
@@ -435,9 +453,13 @@ line-height:16px;
 
 
 .markrow { background-color:#cdebf5 !important; }
-.markrowselected { background-color:#2ba6cb !important; }
+.markrowselected { background-color:#2ba6cb !important; color: #FFF; }
 .markrowchecked { background-color:#cdebf5; }
 
+
+.hidden {
+    display:none;
+}
 
 
 

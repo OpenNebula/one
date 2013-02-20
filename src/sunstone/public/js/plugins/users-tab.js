@@ -45,7 +45,9 @@ var users_tab_content = '\
 <form class="custom" id="user_form" action="">\
 <div class="panel">\
 <div class="row">\
-  <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-user"></i> '+tr("Users")+'</h4>\
+  </div>\
 </div>\
 <div class="row">\
   <div class="nine columns">\
@@ -55,8 +57,6 @@ var users_tab_content = '\
   <div class="three columns">\
     <input id="user_search" type="text" placeholder="Search" />\
   </div>\
-  <br>\
-  <br>\
 </div>\
 </div>\
   <div class="row">\

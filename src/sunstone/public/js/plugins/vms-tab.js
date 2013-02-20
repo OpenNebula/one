@@ -61,11 +61,26 @@ var netUsage = {
 }
 
 var vms_tab_content = '\
-<h2><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h2>\
-<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="virtualMachine_list" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-cloud"></i> '+tr("Virtual Machines")+'</h4>\
   </div>\
-<table id="datatable_vmachines" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="vms_search" type="text" placeholder="Search" />\
+  </div>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_vmachines" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
@@ -79,7 +94,7 @@ var vms_tab_content = '\
       <th>'+tr("Host")+'</th>\
       <th>'+tr("IPs")+'</th>\
       <th>'+tr("Start Time")+'</th>\
-      <th>'+tr("VNC Access")+'</th>\
+      <th>'+tr("VNC")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -125,6 +140,7 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
            <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
         </div>\
 </fieldset>\
+<a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var vmachine_list_json = {};
@@ -462,25 +478,26 @@ var vm_actions = {
 var vm_buttons = {
     "VM.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
 
     "VM.create_dialog" : {
         type: "action",
-        text: tr("+ New"),
+        layout: "create",
         alwaysActive: true
     },
-
     "VM.shutdown" : {
         type: "confirm",
         text: tr("Shutdown"),
+        layout: "main",
         tip: tr("This will initiate the shutdown process in the selected VMs")
     },
     "VM.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
         select: users_sel,
+        layout: "user_select",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -489,103 +506,114 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: groups_sel,
+        layout: "user_select",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
-    "action_list" : {
-        type: "select",
-        actions: {
-            "VM.deploy" : {
-                type: "confirm_with_select",
-                text: tr("Deploy"),
-                tip: tr("This will deploy the selected VMs on the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-            },
-            "VM.migrate" : {
-                type: "confirm_with_select",
-                text: tr("Migrate"),
-                tip: tr("This will migrate the selected VMs to the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
+    "VM.deploy" : {
+        type: "confirm_with_select",
+        text: tr("Deploy"),
+        tip: tr("This will deploy the selected VMs on the chosen host"),
+        layout: "more_select",
+        select: hosts_sel,
+        condition: mustBeAdmin
+    },
+    "VM.migrate" : {
+        type: "confirm_with_select",
+        text: tr("Migrate"),
+        tip: tr("This will migrate the selected VMs to the chosen host"),
+        layout: "more_select",
+        select: hosts_sel,
+        condition: mustBeAdmin
 
-            },
-            "VM.livemigrate" : {
-                type: "confirm_with_select",
-                text: tr("Live migrate"),
-                tip: tr("This will live-migrate the selected VMs to the chosen host"),
-                select: hosts_sel,
-                condition: mustBeAdmin
-            },
-            "VM.hold" : {
-                type: "confirm",
-                text: tr("Hold"),
-                tip: tr("This will hold selected pending VMs from being deployed")
-            },
-            "VM.release" : {
-                type: "confirm",
-                text: tr("Release"),
-                tip: tr("This will release held machines")
-            },
-            "VM.suspend" : {
-                type: "confirm",
-                text: tr("Suspend"),
-                tip: tr("This will suspend selected machines")
-            },
-            "VM.resume" : {
-                type: "confirm",
-                text: tr("Resume"),
-                tip: tr("This will resume selected stopped or suspended VMs")
-            },
-            "VM.stop" : {
-                type: "confirm",
-                text: tr("Stop"),
-                tip: tr("This will stop selected VMs")
-            },
-            "VM.restart" : {
-                type: "confirm",
-                text: tr("Restart"),
-                tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
-            },
-            "VM.resubmit" : {
-                type: "confirm",
-                text: tr("Resubmit"),
-                tip: tr("This will resubmits VMs to PENDING state")
-            },
-            "VM.poweroff" : {
-                type : "confirm",
-                text: tr("Power Off"),
-                tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
-            },
-            "VM.reboot" : {
-                type : "confirm",
-                text: tr("Reboot"),
-                tip: tr("This will send a reboot action to running VMs")
-            },
-            "VM.reset" : {
-                type: "confirm",
-                text: tr("Reset"),
-                tip: tr("This will perform a hard reboot on selected VMs")
-            },
-            "VM.cancel" : {
-                type: "confirm",
-                text: tr("Cancel"),
-                tip: tr("This will cancel selected VMs")
-            }
-        }
+    },
+    "VM.livemigrate" : {
+        type: "confirm_with_select",
+        text: tr("Live migrate"),
+        tip: tr("This will live-migrate the selected VMs to the chosen host"),
+        layout: "more_select",
+        select: hosts_sel,
+        condition: mustBeAdmin
+    },
+    "VM.hold" : {
+        type: "confirm",
+        text: tr("Hold"),
+        tip: tr("This will hold selected pending VMs from being deployed"),
+        layout: "more_select",
+    },
+    "VM.release" : {
+        type: "confirm",
+        text: tr("Release"),
+        layout: "more_select",
+        tip: tr("This will release held machines")
+    },
+    "VM.suspend" : {
+        type: "confirm",
+        text: tr("Suspend"),
+        layout: "more_select",
+        tip: tr("This will suspend selected machines")
+    },
+    "VM.resume" : {
+        type: "confirm",
+        text: tr("Resume"),
+        layout: "main",
+        tip: tr("This will resume selected stopped or suspended VMs")
+    },
+    "VM.stop" : {
+        type: "confirm",
+        text: tr("Stop"),
+        layout: "main",
+        tip: tr("This will stop selected VMs")
+    },
+    "VM.restart" : {
+        type: "confirm",
+        text: tr("Restart"),
+        layout: "more_select",
+        tip: tr("This will redeploy selected VMs (in UNKNOWN or BOOT state)")
+    },
+    "VM.resubmit" : {
+        type: "confirm",
+        text: tr("Resubmit"),
+        layout: "more_select",
+        tip: tr("This will resubmits VMs to PENDING state")
+    },
+    "VM.poweroff" : {
+        type : "confirm",
+        text: tr("Power Off"),
+        layout: "more_select",
+        tip: tr("This will send a power off signal to running VMs. They can be restarted later.")
+    },
+    "VM.reboot" : {
+        type : "confirm",
+        text: tr("Reboot"),
+        layout: "more_select",
+        tip: tr("This will send a reboot action to running VMs")
+    },
+    "VM.reset" : {
+        type: "confirm",
+        text: tr("Reset"),
+        layout: "more_select",
+        tip: tr("This will perform a hard reboot on selected VMs")
+    },
+    "VM.cancel" : {
+        type: "confirm",
+        text: tr("Cancel"),
+        layout: "more_select",
+        tip: tr("This will cancel selected VMs")
     },
 
     "VM.delete" : {
         type: "confirm",
         text: tr("Delete"),
+        layout: "more_select",
         tip: tr("This will delete the selected VMs from the database")
     },
 
-    "VM.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"VM.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var vm_info_panel = {
@@ -1308,13 +1336,14 @@ function setupCreateVMDialog(){
     dialog.html(create_vm_tmpl);
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    width: 400
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
     setupTips(dialog);
 
     $('#create_vm_form',dialog).submit(function(){
@@ -1351,14 +1380,14 @@ function setupCreateVMDialog(){
         setTimeout(function(){
             Sunstone.runAction("VM.list");
         },1500);
-        $create_vm_dialog.dialog('close');
+        $create_vm_dialog.trigger("reveal:close")
         return false;
     });
 }
 
 // Open creation dialog
 function popUpCreateVMDialog(){
-    $create_vm_dialog.dialog('open');
+    $create_vm_dialog.reveal();
 }
 
 //Prepares autorefresh
@@ -1430,14 +1459,15 @@ function setupVNC(){
         </canvas>\
 ');
 
-    dialog.dialog({
-        autoOpen:false,
-        width:750,
-        modal:true,
-        height:500,
-        resizable:true,
-        closeOnEscape: false
-    });
+    //dialog.dialog({
+    //    autoOpen:false,
+    //    width:750,
+    //    modal:true,
+    //    height:500,
+    //    resizable:true,
+    //    closeOnEscape: false
+    //});
+    dialog.addClass("reveal-modal");
 
     $('#sendCtrlAltDelButton',dialog).click(function(){
         rfb.sendCtrlAltDel();
@@ -1471,7 +1501,7 @@ function vncCallback(request,response){
     var token = response["token"];
     var path = '?token='+token;
     rfb.connect(proxy_host, proxy_port, pw, path);
-    $vnc_dialog.dialog('open');
+    $vnc_dialog.reveal();
 }
 
 function vncIcon(vm){
@@ -1504,14 +1534,10 @@ function vmMonitorError(req,error_json){
 $(document).ready(function(){
 
     dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "bSortClasses": false,
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7] },
@@ -1525,6 +1551,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+    $('#vms_search').keyup(function(){
+      dataTable_templates.fnFilter( $(this).val() );
+    })
 
     //addElement([
     //    spinner,

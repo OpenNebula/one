@@ -153,12 +153,13 @@ function setupCreateClusterDialog(datatable_filter){
 
     dialog.html(create_cluster_tmpl);
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        height: height,
-        width: 'auto'
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    height: height,
+    //    width: 'auto'
+    //});
+    dialog.addClass("reveal-modal");
 
     //Enable tabs
     $('#cluster_create_tabs',dialog).tabs({});
@@ -370,7 +371,7 @@ function setupCreateClusterDialog(datatable_filter){
      });
 
     // Enhance buttons
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
     $("#refresh_host_table_button_class", dialog).click( function(){
        Sunstone.runAction("ClusterHost.list");
@@ -435,7 +436,7 @@ function setupCreateClusterDialog(datatable_filter){
         // If it is successfull we refresh the list.
         Sunstone.runAction("Cluster.create",cluster_json);
 
-        $create_cluster_dialog.dialog('close');
+        $create_cluster_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -470,7 +471,7 @@ function popUpCreateClusterDialog(){
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
-    $create_cluster_dialog.dialog('open');
+    $create_cluster_dialog.reveal();
     return false;
 }
 
@@ -513,7 +514,7 @@ function popUpUpdateClusterDialog(){
     Sunstone.runAction("ClusterHost.list");
     Sunstone.runAction("ClusterVN.list");
     Sunstone.runAction("ClusterDS.list");
-    $create_cluster_dialog.dialog('open');
+    $create_cluster_dialog.reveal();
 
     $('#create_cluster_dialog').attr('title','Update Cluster');
 
@@ -694,7 +695,7 @@ function fillPopPup(request,response){
         }
       }
 
-      $create_cluster_dialog.dialog('close');
+      $create_cluster_dialog.trigger("reveal:close")
       Sunstone.runAction('Cluster.list');
       updateClustersView();
       return false;
@@ -841,11 +842,26 @@ function updateClusterDatastoresInfoView (request,datastore_list){
 
 
 var clusters_tab_content = '\
-<h2><i class="icon-copy"></i> '+tr("Clusters")+'</h2>\
-<form id="form_cluters" action="javascript:alert(\'js errors?!\')">\
-  <div class="action_blocks">\
+<form class="custom" id="form_cluters" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-copy"></i> '+tr("Clusters")+'</h4>\
   </div>\
-<table id="datatable_clusters" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="cluster_search" type="text" placeholder="Search" />\
+  </div>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_clusters" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
@@ -1027,20 +1043,23 @@ var cluster_actions = {
 var cluster_buttons = {
     "Cluster.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Cluster.create_dialog" : {
         type: "create_dialog",
+        layout: "create",
         text: tr("+ New")
     },
     "Cluster.update_dialog" : {
         type : "action",
+        layout: "more_select",
         text : tr("Update"),
         alwaysActive: true
     },
     "Cluster.delete" : {
         type: "confirm",
+        layout: "del",
         text: tr("Delete")
     }
 };
@@ -1837,14 +1856,10 @@ $(document).ready(function(){
 
     //prepare host datatable
     dataTable_clusters = $("#datatable_clusters",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" :"<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "bAutoWidth":false,
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
@@ -1855,6 +1870,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+    $('#cluster_search').keyup(function(){
+      dataTable_users.fnFilter( $(this).val() );
+    })
 
     //preload it
     //dataTable_clusters.fnClearTable();

@@ -37,18 +37,35 @@ var host_graphs = [
 
 
 var hosts_tab_content = '\
-<h2><i class="icon-hdd"></i> '+tr("Hosts")+'</h2>\
-<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
-  <div class="action_blocks">\
+<form class="custom" id="form_hosts" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-hdd"></i> '+tr("Hosts")+'</h4>\
   </div>\
-<table id="datatable_hosts" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="hosts_search" type="text" placeholder="Search" />\
+  </div>\
+  <br>\
+  <br>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_hosts" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
       <th>' + tr("ID") + '</th>\
       <th>' + tr("Name") + '</th>\
       <th>' + tr("Cluster") + '</th>\
-      <th>' + tr("Running VMs") + '</th>\
+      <th>' + tr("RVMs") + '</th>\
       <th>' + tr("Real CPU") + '</th>\
       <th>' + tr("Allocated CPU") + '</th>\
       <th>' + tr("Real MEM") + '</th>\
@@ -291,12 +308,13 @@ var host_actions = {
 var host_buttons = {
     "Host.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Host.create_dialog" : {
         type: "create_dialog",
         text: tr("+ New"),
+        layout: "create",
         condition: mustBeAdmin
     },
 
@@ -305,28 +323,32 @@ var host_buttons = {
         text: tr("Select cluster"),
         select: clusters_sel,
         tip: tr("Select the destination cluster:"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Host.enable" : {
         type: "action",
         text: tr("Enable"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Host.disable" : {
         type: "action",
         text: tr("Disable"),
+        layout: "more_select",
         condition: mustBeAdmin
     },
     "Host.delete" : {
         type: "confirm",
         text: tr("Delete host"),
+        layout: "del",
         condition: mustBeAdmin
     },
-    "Host.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Host.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 };
 
 var host_info_panel = {
@@ -760,13 +782,14 @@ function setupCreateHostDialog(){
     var dialog = $create_host_dialog;
 
     dialog.html(create_host_tmpl);
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 500
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    width: 500
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
 
     // Show custom driver input only when custom is selected in selects
@@ -826,7 +849,7 @@ function setupCreateHostDialog(){
         //Create the OpenNebula.Host.
         //If it is successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-        $create_host_dialog.dialog('close');
+        $create_host_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -834,7 +857,7 @@ function setupCreateHostDialog(){
 //Open creation dialogs
 function popUpCreateHostDialog(){
     $('#host_cluster_id',$create_host_dialog).html(clusters_sel());
-    $create_host_dialog.dialog('open');
+    $create_host_dialog.reveal();
     return false;
 }
 
@@ -866,14 +889,10 @@ $(document).ready(function(){
 
     //prepare host datatable
     dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
-        "bAutoWidth":false,
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,4] },
@@ -887,6 +906,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+    $('#hosts_search').keyup(function(){
+      dataTable_templates.fnFilter( $(this).val() );
+    })
 
     //preload it
     //addElement([

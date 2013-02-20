@@ -17,11 +17,26 @@
 /*Images tab plugin*/
 
 var images_tab_content = '\
-<h2><i class="icon-upload"></i> '+tr("Images")+'</h2>\
-<form id="image_form" action="" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="image_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-upload"></i> '+tr("Images")+'</h4>\
   </div>\
-<table id="datatable_images" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="image_search" type="text" placeholder="Search" />\
+  </div>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_images" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
@@ -52,10 +67,12 @@ var images_tab_content = '\
 
 var create_image_tmpl =
 '<div id="img_tabs">\
-        <ul><li><a href="#img_easy">'+tr("Wizard")+'</a></li>\
-                <li><a href="#img_manual">'+tr("Advanced mode")+'</a></li>\
-        </ul>\
-        <div id="img_easy">\
+        <dl class="tabs">\
+        <dd><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
+          <dd><a href="#img_manual">'+tr("Advanced mode")+'</a></dd>\
+        </dl>\
+        <ul class="tabs-content">\
+        <li id="img_easyTab">\
            <form id="create_image_form_easy" action="">\
              <p style="font-size:0.8em;text-align:right;"><i>'+
     tr("Fields marked with")+' <span style="display:inline-block;" class="ui-icon ui-icon-alert" /> '+
@@ -169,8 +186,8 @@ var create_image_tmpl =
                     </div>\
                     </fieldset>\
             </form>\
-        </div>\
-        <div id="img_manual">\
+        </li>\
+        <li id="img_manualTab">\
             <form id="create_image_form_manual" action="">\
                <fieldset style="border-top:none;">\
                  <h3 style="margin-bottom:10px;">'+tr("Write the image template here")+'</h3>\
@@ -188,7 +205,8 @@ var create_image_tmpl =
                </div>\
              </fieldset>\
            </form>\
-        </div>\
+        </li>\
+        </ul>\
 </div>';
 
 var dataTable_images;
@@ -387,16 +405,18 @@ var image_actions = {
 var image_buttons = {
     "Image.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
     "Image.create_dialog" : {
         type: "create_dialog",
+        layout: "create",
         text: tr('+ New')
     },
     "Image.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
+        layout: "user_select",
         select: users_sel,
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
@@ -404,44 +424,46 @@ var image_buttons = {
     "Image.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
+        layout: "user_select",
         select: groups_sel,
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
-    "action_list" : {
-        type: "select",
-        actions: {
-            "Image.enable" : {
-                type: "action",
-                text: tr("Enable")
-            },
-            "Image.disable" : {
-                type: "action",
-                text: tr("Disable")
-            },
-            "Image.persistent" : {
-                type: "action",
-                text: tr("Make persistent")
-            },
-            "Image.nonpersistent" : {
-                type: "action",
-                text: tr("Make non persistent")
-            }
-        }
+    "Image.enable" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Enable")
+    },
+    "Image.disable" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Disable")
+    },
+    "Image.persistent" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Make persistent")
+    },
+    "Image.nonpersistent" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Make non persistent")
     },
     "Image.clone_dialog" : {
         type: "action",
+        layout: "main",
         text: tr("Clone")
     },
     "Image.delete" : {
         type: "confirm",
+        layout: "del",
         text: tr("Delete")
     },
-    "Image.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Image.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var image_info_panel = {
@@ -697,15 +719,16 @@ function setupCreateImageDialog(){
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare jquery dialog
-    dialog.dialog({
-        autoOpen: false,
-        modal:true,
-        width: 520,
-        height: height
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal:true,
+    //    width: 520,
+    //    height: height
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('#img_tabs',dialog).tabs();
-    $('button',dialog).button();
+    //$('#img_tabs',dialog).tabs();
+    //$('button',dialog).button();
     $('#img_type option',dialog).first().attr('selected','selected');
     $('#datablock_img',dialog).attr('disabled','disabled');
 
@@ -804,18 +827,23 @@ function setupCreateImageDialog(){
             //we pop up an upload progress dialog
             var pos_top = $(window).height() - 120;
             var pos_left = 220;
+            //var pb_dialog = $('<div id="pb_dialog" title="'+
+            //                  tr("Uploading...")+'">'+
+            //                  '<div id="upload-progress"></div>'+
+            //                  '</div>').dialog({
+            //                      draggable:true,
+            //                      modal:false,
+            //                      resizable:false,
+            //                      buttons:{},
+            //                      width: 460,
+            //                      minHeight: 50,
+            //                      position: [pos_left, pos_top]
+            //                  });
+
             var pb_dialog = $('<div id="pb_dialog" title="'+
                               tr("Uploading...")+'">'+
                               '<div id="upload-progress"></div>'+
-                              '</div>').dialog({
-                                  draggable:true,
-                                  modal:false,
-                                  resizable:false,
-                                  buttons:{},
-                                  width: 460,
-                                  minHeight: 50,
-                                  position: [pos_left, pos_top]
-                              });
+                              '</div>').addClass("reveal-modal");
 
             $('#upload-progress',pb_dialog).progressbar({value:0});
         },
@@ -826,7 +854,8 @@ function setupCreateImageDialog(){
         onComplete: function(id, fileName, responseJSON){
             //Inform complete upload, destroy upload dialog, refresh img list
             notifyMessage("Image uploaded correctly");
-            $('div#pb_dialog').dialog('destroy');
+            //$('div#pb_dialog').dialog('destroy');
+            $('div#pb_dialog').trigger("reveal:close")
             Sunstone.runAction("Image.list");
             return false;
         },
@@ -952,7 +981,7 @@ function setupCreateImageDialog(){
             Sunstone.runAction("Image.create", img_obj);
         };
 
-        $create_image_dialog.dialog('close');
+        $create_image_dialog.trigger("reveal:close")
         return false;
     });
 
@@ -972,7 +1001,7 @@ function setupCreateImageDialog(){
             "ds_id" : ds_id
         };
         Sunstone.runAction("Image.create",img_obj);
-        $create_image_dialog.dialog('close');
+        $create_image_dialog.trigger("reveal:close")
         return false;
     });
 }
@@ -988,7 +1017,7 @@ function popUpCreateImageDialog(){
     $('#img_datastore',$create_image_dialog).html(datastores_str);
     $('#img_datastore_raw',$create_image_dialog).html(datastores_str);
 
-    $create_image_dialog.dialog('open');
+    $create_image_dialog.reveal();
 
     $('select#img_datastore').children('option').each(function() {
       if ($(this).val() == "2")
@@ -1039,14 +1068,15 @@ function setupImageCloneDialog(){
     dialog.html(html);
 
     //Convert into jQuery
-    dialog.dialog({
-        autoOpen:false,
-        width:375,
-        modal:true,
-        resizable:false
-    });
+    //dialog.dialog({
+    //    autoOpen:false,
+    //    width:375,
+    //    modal:true,
+    //    resizable:false
+    //});
+    dialog.addClass("reveal-modal");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
     $('form',dialog).submit(function(){
         var name = $('input', this).val();
@@ -1063,7 +1093,7 @@ function setupImageCloneDialog(){
         } else {
             Sunstone.runAction('Image.clone',sel_elems[0],name)
         };
-        dialog.dialog('close');
+        dialog.trigger("reveal:close")
         setTimeout(function(){
             Sunstone.runAction('Image.refresh');
         }, 1500);
@@ -1086,21 +1116,17 @@ function popUpImageCloneDialog(){
         $('input',dialog).val('Copy of '+getImageName(sel_elems[0]));
     };
 
-    $(dialog).dialog('open');
+    $(dialog).reveal();
 }
 
 //The DOM is ready at this point
 $(document).ready(function(){
 
     dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,2,3,9,10] },
@@ -1114,6 +1140,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+    $('#image_search').keyup(function(){
+      dataTable_images.fnFilter( $(this).val() );
+    })
 
     //addElement([
     //    spinner,

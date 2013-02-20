@@ -17,11 +17,26 @@
 /*Virtual networks tab plugin*/
 
 var vnets_tab_content = '\
-<h2><i class="icon-sitemap"></i> '+tr("Virtual Networks")+'</h2>\
-<form id="virtualNetworks_form" action="javascript:alert(\'js error!\');">\
-  <div class="action_blocks">\
+<form class="custom" id="virtualNetworks_form" action="">\
+<div class="panel">\
+<div class="row">\
+  <div class="twelve columns">\
+    <h4 class="subheader"><i class="icon-sitemap"></i> '+tr("Virtual Networks")+'</h4>\
   </div>\
-<table id="datatable_vnetworks" class="display">\
+</div>\
+<div class="row">\
+  <div class="nine columns">\
+    <div class="action_blocks">\
+    </div>\
+  </div>\
+  <div class="three columns">\
+    <input id="vnet_search" type="text" placeholder="Search" />\
+  </div>\
+</div>\
+</div>\
+  <div class="row">\
+    <div class="twelve columns">\
+<table id="datatable_vnetworks" class="datatable twelve">\
   <thead>\
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
@@ -32,7 +47,7 @@ var vnets_tab_content = '\
       <th>'+tr("Cluster")+'</th>\
       <th>'+tr("Type")+'</th>\
       <th>'+tr("Bridge")+'</th>\
-      <th>'+tr("Total Leases")+'</th>\
+      <th>'+tr("Leases")+'</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvnetworks">\
@@ -48,11 +63,12 @@ var vnets_tab_content = '\
 
 var create_vn_tmpl =
 '<div id="vn_tabs">\
-        <ul>\
-          <li><a href="#easy">'+tr("Wizard")+'</a></li>\
-          <li><a href="#manual">'+tr("Advanced mode")+'</a></li>\
-        </ul>\
-        <div id="easy">\
+        <dl class="tabs">\
+          <dd><a href="#easy">'+tr("Wizard")+'</a></dd>\
+          <dd><a href="#manual">'+tr("Advanced mode")+'</a></dd>\
+        </dl>\
+        <ul class="tabs-content">\
+        <li id="easyTab">\
            <form id="create_vn_form_easy" action="">\
               <fieldset>\
                  <label for="name">'+tr("Name")+':</label>\
@@ -146,8 +162,8 @@ var create_vn_tmpl =
             </div>\
           </fieldset>\
         </form>\
-      </div>\
-      <div id="manual">\
+      </li>\
+      <li id="manualTab">\
         <form id="create_vn_form_manual" action="">\
            <h3 style="margin-bottom:10px;">'+tr("Write the Virtual Network template here")+'</h3>\
              <fieldset style="border-top:none;">\
@@ -163,7 +179,9 @@ var create_vn_tmpl =
               </div>\
             </fieldset>\
           </form>\
-        </div>\
+        </li>\
+    </ul>\
+    <a class="close-reveal-modal">&#215;</a>\
 </div>';
 
 var update_vnet_tmpl =
@@ -415,18 +433,20 @@ var vnet_actions = {
 var vnet_buttons = {
     "Network.refresh" : {
         type: "action",
-        text: '<i class="icon-refresh icon-large">',
+        layout: "refresh",
         alwaysActive: true
     },
 
     "Network.create_dialog" : {
         type: "create_dialog",
+        layout: "create",
         text: tr("+ New")
     },
 
     "Network.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
+        layout: "more_select",
         select: clusters_sel,
         tip: tr("Select the destination cluster:"),
         condition: mustBeAdmin
@@ -434,6 +454,7 @@ var vnet_buttons = {
     "Network.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
+        layout: "user_select",
         select: users_sel,
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
@@ -442,6 +463,7 @@ var vnet_buttons = {
     "Network.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
+        layout: "user_select",
         select: groups_sel,
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
@@ -449,14 +471,15 @@ var vnet_buttons = {
 
     "Network.delete" : {
         type: "confirm",
+        layout: "del",
         text: tr("Delete")
     },
 
-    "Network.help" : {
-        type: "action",
-        text: '?',
-        alwaysActive: true
-    }
+    //"Network.help" : {
+    //    type: "action",
+    //    text: '?',
+    //    alwaysActive: true
+    //}
 }
 
 var vnet_info_panel = {
@@ -748,15 +771,16 @@ function setupCreateVNetDialog() {
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare the jquery-ui dialog. Set style options here.
-    dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        width: 475,
-        height: height
-    });
+    //dialog.dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    width: 475,
+    //    height: height
+    //});
+    dialog.addClass("reveal-modal");
 
     //Make the tabs look nice for the creation mode
-    $('#vn_tabs',dialog).tabs();
+    //$('#vn_tabs',dialog).tabs();
     $('div#ranged',dialog).hide();
     $('#fixed_check',dialog).click(function(){
         $('div#fixed',$create_vn_dialog).show();
@@ -800,7 +824,7 @@ function setupCreateVNetDialog() {
     //Initialize shown options
     $('#network_mode',dialog).trigger("change");
 
-    $('button',dialog).button();
+    //$('button',dialog).button();
 
 
     //When we hit the add lease button...
@@ -998,7 +1022,7 @@ function setupCreateVNetDialog() {
         };
 
         Sunstone.runAction("Network.create",network_json);
-        $create_vn_dialog.dialog('close');
+        $create_vn_dialog.trigger("reveal:close")
         return false;
     });
 
@@ -1006,13 +1030,13 @@ function setupCreateVNetDialog() {
         var template=$('#template',this).val();
         var vnet_json = {vnet: {vnet_raw: template}};
         Sunstone.runAction("Network.create",vnet_json);
-        $create_vn_dialog.dialog('close');
+        $create_vn_dialog.trigger("reveal:close")
         return false;
     });
 }
 
 function popUpCreateVnetDialog() {
-    $create_vn_dialog.dialog('open');
+    $create_vn_dialog.reveal();
 }
 
 
@@ -1090,14 +1114,10 @@ function setVNetAutorefresh() {
 $(document).ready(function(){
 
     dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7,8] },
@@ -1110,6 +1130,10 @@ $(document).ready(function(){
                 sUrl: "locale/"+lang+"/"+datatable_lang
             } : ""
     });
+
+    $('#vnet_search').keyup(function(){
+      dataTable_vNetworks.fnFilter( $(this).val() );
+    })
 
     //addElement([
     //    spinner,
