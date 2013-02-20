@@ -1803,7 +1803,7 @@ void VirtualMachine::release_disk_images()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::new_snapshot(string& name)
+int VirtualMachine::new_snapshot(string& name, int& snap_id)
 {
     int num_snaps;
     int id;
@@ -1831,17 +1831,19 @@ int VirtualMachine::new_snapshot(string& name)
         }
     }
 
+    snap_id = max_id + 1;
+
     if (name.empty())
     {
         ostringstream oss;
 
-        oss << "snapshot-" << max_id+1;
+        oss << "snapshot-" << snap_id;
 
         name = oss.str();
     }
 
     snap = new VectorAttribute("SNAPSHOT");
-    snap->replace("SNAPSHOT_ID", max_id+1);
+    snap->replace("SNAPSHOT_ID", snap_id);
     snap->replace("NAME", name);
     snap->replace("TIME", (int)time(0));
     snap->replace("HYPERVISOR_ID", "");

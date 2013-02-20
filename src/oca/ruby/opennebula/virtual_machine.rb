@@ -415,11 +415,13 @@ module OpenNebula
         #
         # @param name [String] Name for the snapshot.
         #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
+        # @return [Integer, OpenNebula::Error] The new snaphost ID in case
+        #   of success, Error otherwise
         def snapshot_create(name="")
+            return Error.new('ID not defined') if !@pe_id
+
             name ||= ""
-            return call(VM_METHODS[:snapshotcreate], @pe_id, name)
+            return @client.call(VM_METHODS[:snapshotcreate], @pe_id, name)
         end
 
         # Creates a new VM snapshot

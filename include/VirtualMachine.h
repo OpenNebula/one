@@ -932,11 +932,13 @@ public:
     /**
      * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
      *
-     * @param name for the new Snapshot
+     * @param name for the new Snapshot. If it is empty, the generated name
+     * will be placed in this param
+     * @param snap_id Id of the new snapshot
      *
      * @return 0 on success
      */
-    int new_snapshot(string& name);
+    int new_snapshot(string& name, int& snap_id);
 
     /**
      * Sets the given Snapshot as ACTIVE=YES

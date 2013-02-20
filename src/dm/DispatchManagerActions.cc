@@ -1082,6 +1082,7 @@ int DispatchManager::detach(
 int DispatchManager::snapshot_create(
     int         vid,
     string&     name,
+    int&        snap_id,
     string&     error_str)
 {
     ostringstream oss;
@@ -1119,7 +1120,7 @@ int DispatchManager::snapshot_create(
 
     vm->set_resched(false);
 
-    vm->new_snapshot(name);
+    vm->new_snapshot(name, snap_id);
 
     vmpool->update(vm);
 

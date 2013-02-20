@@ -1064,8 +1064,9 @@ void VirtualMachineSnapshotCreate::request_execute(
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    int    rc;
-    string error_str;
+    int     rc;
+    int     snap_id;
+    string  error_str;
 
     int     id   = xmlrpc_c::value_int(paramList.getInt(1));
     string  name = xmlrpc_c::value_string(paramList.getString(2));
@@ -1079,7 +1080,7 @@ void VirtualMachineSnapshotCreate::request_execute(
         return;
     }
 
-    rc = dm->snapshot_create(id, name, error_str);
+    rc = dm->snapshot_create(id, name, snap_id, error_str);
 
     if ( rc != 0 )
     {
@@ -1089,7 +1090,7 @@ void VirtualMachineSnapshotCreate::request_execute(
     }
     else
     {
-        success_response(id, att);
+        success_response(snap_id, att);
     }
 
     return;

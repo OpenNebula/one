@@ -281,6 +281,7 @@ public:
      *
      * @param vid VirtualMachine identification
      * @param name Name for the new snapshot
+     * @param snap_id Will contain the new snapshot ID
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
@@ -288,6 +289,7 @@ public:
     int snapshot_create(
         int         vid,
         string&     name,
+        int&        snap_id,
         string&     error_str);
 
     /**
