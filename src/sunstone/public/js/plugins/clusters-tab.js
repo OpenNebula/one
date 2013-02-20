@@ -76,12 +76,13 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
   <fieldset>\
   <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
   </fieldset>\
-    <ul>\
-        <li><a href="#tab-hosts">'+tr("HOSTs")+'</a></li>\
-        <li><a href="#tab-vnets">'+tr("VIRTUAL NETWORKs")+'</a></li>\
-        <li><a href="#tab-datastores">'+tr("DATASTOREs")+'</a></li>\
-    </ul>\
-    <div id="tab-hosts">\
+    <dl class="tabs">\
+        <dd><a href="#tab-hosts">'+tr("HOSTs")+'</a></dd>\
+        <dd><a href="#tab-vnets">'+tr("VIRTUAL NETWORKs")+'</a></dd>\
+        <dd><a href="#tab-datastores">'+tr("DATASTOREs")+'</a></dd>\
+    </dl>\
+    <ul class="tabs-content">\
+    <li id="tab-hostsTab">\
     <fieldset>\
       <div id="datatable_cluster_hosts_div">\
             <h3>' +
@@ -94,8 +95,8 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
               <div class="form_buttons">\
                 <button class="button" type="" value="" id="tf_btn_hosts_next">'+tr("VIRTUAL NETWORKs >")+'</button>\
               </div>\
-    </div>\
-    <div id="tab-vnets">\
+    </li>\
+    <li id="tab-vnetsTab">\
     <fieldset>\
       <div id="datatable_cluster_vnets_div">\
             <h3>' +
@@ -111,8 +112,8 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
               <div class="form_buttons">\
                 <button class="button" type="" value="" id="tf_btn_vnets_next">'+tr("DATASTOREs >")+'</button>\
               </div>\
-    </div>\
-    <div id="tab-datastores">\
+    </li>\
+    <li id="tab-datastoresTab">\
     <fieldset>\
       <div id="datatable_cluster_datastores_div">\
             <h3>' +
@@ -125,7 +126,7 @@ var create_cluster_tmpl ='<div id="cluster_create_tabs">\
               <div class="form_buttons">\
                 <button class="button" type="" value="" id="tf_btn_datastores_back">'+tr("< VIRTUAL NETWORKS")+'</button>\
               </div>\
-    </div>\
+    </li>\
   <fieldset>\
     <div class="form_buttons">\
         <button class="button" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
@@ -162,7 +163,7 @@ function setupCreateClusterDialog(datatable_filter){
     dialog.addClass("reveal-modal");
 
     //Enable tabs
-    $('#cluster_create_tabs',dialog).tabs({});
+    //$('#cluster_create_tabs',dialog).tabs({});
 
     //  ------- Create the dialog datatables ------------
     dataTable_cluster_hosts = $("#datatable_cluster_hosts", dialog).dataTable({
@@ -387,32 +388,6 @@ function setupCreateClusterDialog(datatable_filter){
        Sunstone.runAction("ClusterDS.list");
       }
     );
-
-    $("#tf_btn_hosts_next", dialog).click( function()
-       {
-         $("#cluster_create_tabs", dialog).tabs( "select", "tab-vnets" );
-       }
-    );
-
-    $("#tf_btn_vnets_back", dialog).click( function()
-       {
-         $("#cluster_create_tabs", dialog).tabs( "select", "tab-hosts" );
-       }
-    );
-
-    $("#tf_btn_vnets_next", dialog).click( function()
-       {
-         $("#cluster_create_tabs", dialog).tabs( "select", "tab-datastores" );
-       }
-    );
-
-    $("#tf_btn_datastores_back", dialog).click( function()
-       {
-         $("#cluster_create_tabs", dialog).tabs( "select", "tab-vnets" );
-       }
-    );
-
-    $("#cluster_create_tabs", dialog).tabs( "select", "tab-hosts" );
 
     // Handle the Create button
     $('#create_cluster_submit').click(function(){
