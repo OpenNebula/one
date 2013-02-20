@@ -16,5 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-log_error "Snapshotting is not yet supported for Xen."
+log_error "Snapshotting is not yet supported for VMware."
 exit 1
