@@ -771,6 +771,7 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/snapshot_create \
                     src/vmm_mad/remotes/xen/shutdown"
 
 VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
@@ -785,6 +786,7 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/attach_disk \
                     src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/snapshot_create \
                     src/vmm_mad/remotes/xen/shutdown"
 #-------------------------------------------------------------------------------
 # VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
@@ -793,6 +795,7 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/attach_disk \
                          src/vmm_mad/remotes/vmware/detach_disk \
+                         src/vmm_mad/remotes/vmware/snapshot_create \
                          src/vmm_mad/remotes/vmware/scripts_common_sh.sh \
                          src/vmm_mad/remotes/vmware/deploy \
                          src/vmm_mad/remotes/vmware/migrate \
