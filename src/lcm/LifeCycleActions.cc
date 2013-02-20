@@ -704,6 +704,9 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose)
     }
 
     vm->set_resched(false);
+
+    vm->delete_snapshots();
+
     vmpool->update(vm);
 
     vm->set_etime(the_time);

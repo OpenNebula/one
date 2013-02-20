@@ -45,6 +45,8 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_state(VirtualMachine::PROLOG_MIGRATE);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_previous_etime(the_time);
@@ -81,6 +83,10 @@ void  LifeCycleManager::save_success_action(int vid)
         //                SUSPENDED STATE
         //----------------------------------------------------
 
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
+
         vm->set_running_etime(the_time);
 
         vm->set_etime(the_time);
@@ -106,6 +112,8 @@ void  LifeCycleManager::save_success_action(int vid)
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::EPILOG_STOP);
+
+        vm->delete_snapshots();
 
         vmpool->update(vm);
 
@@ -271,6 +279,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
         hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->set_state(VirtualMachine::RUNNING);
+
+        vm->delete_snapshots();
 
         vmpool->update(vm);
 
@@ -464,6 +474,8 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_epilog_stime(the_time);
@@ -483,6 +495,10 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //----------------------------------------------------
         //                POWEROFF STATE
         //----------------------------------------------------
+
+        vm->delete_snapshots();
+
+        vmpool->update(vm);
 
         vm->set_running_etime(the_time);
 
@@ -859,6 +875,8 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_reason(History::CANCEL);
@@ -987,6 +1005,8 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_resched(false);
 
+        vm->delete_snapshots();
+
         vmpool->update(vm);
 
         vm->set_running_etime(the_time);
@@ -1072,6 +1092,8 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
     vm->set_state(VirtualMachine::FAILURE);
 
     vm->set_resched(false);
+
+    vm->delete_snapshots();
 
     vmpool->update(vm);
 

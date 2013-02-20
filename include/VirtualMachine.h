@@ -974,6 +974,11 @@ public:
      */
     void delete_active_snapshot();
 
+    /**
+     * Deletes all SNAPSHOT attributes
+     */
+    void delete_snapshots();
+
 private:
 
     // -------------------------------------------------------------------------
