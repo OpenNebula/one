@@ -620,13 +620,33 @@ class ExecDriver < VirtualMachineDriver
 
         snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/SNAPSHOT_ID"
         snap_id       = xml_data.elements[snap_id_xpath].text.to_i
-
         snapshot_name = "onesnap-#{snap_id}"
+
         do_action("#{deploy_id} #{snapshot_name}",
                     id,
                     host,
                     ACTION[:snapshot_create],
                     :script_name => "snapshot_create")
+    end
+
+    #
+    # SNAPSHOTREVERT action, reverts to a system snapshot
+    #
+    def snapshot_revert(id, drv_message)
+        action   = ACTION[:snapshot_revert]
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/HYPERVISOR_ID"
+        snapshot_name = xml_data.elements[snap_id_xpath].text
+
+        do_action("#{deploy_id} #{snapshot_name}",
+                    id,
+                    host,
+                    ACTION[:snapshot_revert],
+                    :script_name => "snapshot_revert")
     end
 
     #
