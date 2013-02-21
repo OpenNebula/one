@@ -620,9 +620,8 @@ class ExecDriver < VirtualMachineDriver
 
         snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/SNAPSHOT_ID"
         snap_id       = xml_data.elements[snap_id_xpath].text.to_i
-        snapshot_name = "onesnap-#{snap_id}"
 
-        do_action("#{deploy_id} #{snapshot_name}",
+        do_action("#{deploy_id} #{snap_id}",
                     id,
                     host,
                     ACTION[:snapshot_create],

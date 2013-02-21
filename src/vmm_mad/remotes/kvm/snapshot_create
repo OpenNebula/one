@@ -20,7 +20,9 @@ source $(dirname $0)/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN="$1"
-NAME="$2"
+SNAP_ID="$2"
+
+NAME="snapshot-${SNAP_ID}"
 
 exec_and_log "virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN $NAME" \
                 "Could not create snapshot $NAME for domain $DOMAIN."
