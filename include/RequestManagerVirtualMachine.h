@@ -251,6 +251,23 @@ public:
             RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineSnapshotDelete: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSnapshotDelete():
+        RequestManagerVirtualMachine("VirtualMachineSnapshotDelete",
+                           "Deletes a virtual machine to a snapshot",
+                           "A:sii"){};
+
+    ~VirtualMachineSnapshotDelete(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

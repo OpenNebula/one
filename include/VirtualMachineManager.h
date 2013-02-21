@@ -63,7 +63,8 @@ public:
         ATTACH,
         DETACH,
         SNAPSHOT_CREATE,
-        SNAPSHOT_REVERT
+        SNAPSHOT_REVERT,
+        SNAPSHOT_DELETE
     };
 
     /**
@@ -349,6 +350,14 @@ private:
      * @param vid the id of the VM.
      */
     void snapshot_revert_action(int vid);
+
+    /**
+     * Deletes a snapshot. The VM must have a snapshot with the
+     * attribute ACTIVE = YES
+     *
+     * @param vid the id of the VM.
+     */
+    void snapshot_delete_action(int vid);
 
     /**
      *  This function cancels the current driver operation

@@ -652,6 +652,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    # TODO: Write a more complete description:
+    snapshot_delete_desc = <<-EOT.unindent
+        Delets a snapshot of a VM
+    EOT
+
+    command :"snapshot-delete", snapshot_delete_desc, :vmid, :snapshot_id do
+        helper.perform_action(args[0],options,"snapshot deleted") do |o|
+            o.snapshot_delete(args[1].to_i)
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists VMs in the pool
     EOT

@@ -306,6 +306,20 @@ public:
         int         snap_id,
         string&     error_str);
 
+    /**
+     * Starts the snapshot delete action
+     *
+     * @param vid VirtualMachine identification
+     * @param snap_id Snapshot to be deleted
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int snapshot_delete(
+        int         vid,
+        int         snap_id,
+        string&     error_str);
+
 private:
     /**
      *  Thread id for the Dispatch Manager
