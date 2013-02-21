@@ -628,10 +628,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"snapshot-create", snapshot_create_desc, [:range,:vmid_list],
-        [:name, nil] do
+        [:name, nil], :options => [OneVMHelper::SCHEDULE] do
 
-        helper.perform_actions(args[0],options,"snapshot created") do |o|
-            o.snapshot_create(args[1])
+        if (!options[:schedule].nil?)
+            helper.schedule_actions(args[0], options, @comm_name)
+        else
+            helper.perform_actions(args[0],options,"snapshot created") do |o|
+                o.snapshot_create(args[1])
+            end
         end
     end
 

@@ -299,7 +299,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
 
                 column :"HYPERVISOR_ID", "", :left, :size=>15 do |d|
-                    d["NAME"] if !d.nil?
+                    d["HYPERVISOR_ID"] if !d.nil?
                 end
 
             end.show([vm.to_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
