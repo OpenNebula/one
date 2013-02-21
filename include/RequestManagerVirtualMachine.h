@@ -259,7 +259,7 @@ class VirtualMachineSnapshotDelete: public RequestManagerVirtualMachine
 public:
     VirtualMachineSnapshotDelete():
         RequestManagerVirtualMachine("VirtualMachineSnapshotDelete",
-                           "Deletes a virtual machine to a snapshot",
+                           "Deletes a virtual machine snapshot",
                            "A:sii"){};
 
     ~VirtualMachineSnapshotDelete(){};

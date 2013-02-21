@@ -1263,7 +1263,7 @@ void LifeCycleManager::snapshot_create_failure(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
-        vm->clear_active_snapshot();
+        vm->delete_active_snapshot();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1296,7 +1296,7 @@ void LifeCycleManager::snapshot_revert_success(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
-        vm->delete_active_snapshot();
+        vm->clear_active_snapshot();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1374,10 +1374,11 @@ void LifeCycleManager::snapshot_delete_failure(int vid)
     }
     else
     {
-        vm->log("LCM",Log::ERROR,"snapshot_delete_success, VM in a wrong state");
+        vm->log("LCM",Log::ERROR,"snapshot_delete_failure, VM in a wrong state");
     }
 
     vm->unlock();
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

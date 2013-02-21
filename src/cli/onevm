@@ -644,10 +644,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Reverts a VM to a saved snapshot
     EOT
 
-    command :"snapshot-revert", snapshot_revert_desc, [:range,:vmid_list],
-        :snapshot_id do
+    command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id do
 
-        helper.perform_actions(args[0],options,"snapshot reverted") do |o|
+        helper.perform_action(args[0],options,"snapshot reverted") do |o|
             o.snapshot_revert(args[1].to_i)
         end
     end
