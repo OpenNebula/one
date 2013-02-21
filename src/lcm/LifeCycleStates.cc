@@ -1263,7 +1263,7 @@ void LifeCycleManager::snapshot_create_failure(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
-        vm->delete_active_snapshot();
+        vm->clear_active_snapshot();
 
         vm->set_state(VirtualMachine::RUNNING);
 
