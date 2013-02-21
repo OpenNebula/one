@@ -16,5 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+source $(dirname $0)/../../scripts_common.sh
+
 log_error "Snapshotting is not yet supported for VMware."
 exit 1
