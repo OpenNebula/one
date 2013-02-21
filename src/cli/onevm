@@ -627,8 +627,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new VM snapshot
     EOT
 
-    command :"snapshot-create", snapshot_create_desc, :vmid, [:name, nil] do
-        helper.perform_action(args[0],options,"snapshot created") do |o|
+    command :"snapshot-create", snapshot_create_desc, [:range,:vmid_list],
+        [:name, nil] do
+
+        helper.perform_actions(args[0],options,"snapshot created") do |o|
             o.snapshot_create(args[1])
         end
     end
@@ -638,8 +640,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Reverts a VM to a saved snapshot
     EOT
 
-    command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id do
-        helper.perform_action(args[0],options,"snapshot reverted") do |o|
+    command :"snapshot-revert", snapshot_revert_desc, [:range,:vmid_list],
+        :snapshot_id do
+
+        helper.perform_actions(args[0],options,"snapshot reverted") do |o|
             o.snapshot_revert(args[1].to_i)
         end
     end
