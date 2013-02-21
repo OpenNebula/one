@@ -281,6 +281,35 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts
         end
 
+        if vm.has_elements?("/VM/TEMPLATE/SNAPSHOT")
+            CLIHelper.print_header(str_h1 % "SNAPSHOTS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>4 do |d|
+                    d["SNAPSHOT_ID"] if !d.nil?
+                end
+
+                column :"TIME", "", :size=>12 do |d|
+                    OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"NAME", "", :left, :size=>46 do |d|
+                    d["NAME"] if !d.nil?
+                end
+
+                column :"HYPERVISOR_ID", "", :left, :size=>15 do |d|
+                    d["NAME"] if !d.nil?
+                end
+
+            end.show([vm.to_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
+
+            vm.delete_element("/VM/TEMPLATE/SNAPSHOT")
+
+            puts
+        end
+
+
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
 
