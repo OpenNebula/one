@@ -44,6 +44,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         :detach_disk     => "DETACHDISK",
         :snapshot_create => "SNAPSHOTCREATE",
         :snapshot_revert => "SNAPSHOTREVERT",
+        :snapshot_delete => "SNAPSHOTDELETE",
         :cleanup         => "CLEANUP"
     }
 
@@ -96,6 +97,8 @@ class VirtualMachineDriver < OpenNebulaDriver
                         method("snapshot_create"))
         register_action(ACTION[:snapshot_revert].to_sym,
                         method("snapshot_revert"))
+        register_action(ACTION[:snapshot_delete].to_sym,
+                        method("snapshot_delete"))
         register_action(ACTION[:cleanup].to_sym,         method("cleanup"))
     end
 
@@ -184,6 +187,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     def snapshot_revert(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:snapshot_revert],RESULT[:failure],id,error)
+    end
+
+    def snapshot_delete(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:snapshot_delete],RESULT[:failure],id,error)
     end
 
     def cleanup(id, drv_message)
