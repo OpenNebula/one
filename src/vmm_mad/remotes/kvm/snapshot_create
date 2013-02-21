@@ -22,10 +22,13 @@ source $(dirname $0)/../../scripts_common.sh
 DOMAIN="$1"
 SNAP_ID="$2"
 
-NAME="snapshot-${SNAP_ID}"
+data=`virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN`
 
-exec_and_log "virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN $NAME" \
-                "Could not create snapshot $NAME for domain $DOMAIN."
+if [ "$?" = "0" ]; then
+    echo "$data" | awk '{print $3}'
+else
+    error_message "Could not create snapshot $NAME for domain $DOMAIN."
+    exit -1
+fi
 
-echo "$NAME"
 exit 0
