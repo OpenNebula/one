@@ -787,72 +787,147 @@ function setupCreateTemplateDialog(){
             return false;
         });
 
-        // Define memory slider
-        //var memory_input = $( "#MEMORY", section_capacity );
-        //var memory_unit  = $( "#memory_unit", section_capacity );
-        //var memory_slider = $( "#memory_slider", section_capacity ).slider({
-        //    min: 0,
-        //    max: 4096,
-        //    range: "min",
-        //    value: 0,
-        //    step: 128,
-        //    slide: function( event, ui ) {
-        //        memory_input.val(ui.value);
-        //    }
-        //});
-        //memory_input.change(function() {
-        //    memory_slider.slider( "value", this.value );
-        //});
-        //memory_unit.change(function() {
-        //    var memory_unit_val = $('#memory_unit :selected').val();
-        //    if (memory_unit_val == 'GB') {
-        //        memory_slider.slider( "option", "min", 0 );
-        //        memory_slider.slider( "option", "max", 16 );
-        //        memory_slider.slider( "option", "step", 0.5 );
-        //        memory_slider.slider( "option", "value", 4 );
-        //        memory_input.val(4);
-        //    } 
-        //    else if (memory_unit_val == 'MB') {
-        //        memory_slider.slider( "option", "min", 0 );
-        //        memory_slider.slider( "option", "max", 4096 );
-        //        memory_slider.slider( "option", "step", 128 );
-        //        memory_slider.slider( "option", "value", 512 );
-        //        memory_input.val(512);
-        //    }
-        //    
-        //});
-//
-        //// Define cpu slider
-        //var cpu_input = $( "#CPU", section_capacity );
-        //var cpu_slider = $( "#cpu_slider", section_capacity ).slider({
-        //    min: 0,
-        //    max: 8,
-        //    range: "min",
-        //    value: 0,
-        //    step: 0.5,
-        //    slide: function( event, ui ) {
-        //        cpu_input.val(ui.value);
-        //    }
-        //});
-        //cpu_input.change(function() {
-        //    cpu_slider.slider( "value", this.value );
-        //});
-//
-        //// Define vcpu slider
-        //var vcpu_input = $( "#VCPU", section_capacity );
-        //var vcpu_slider = $( "#vcpu_slider", section_capacity ).slider({
-        //    min: 0,
-        //    max: 8,
-        //    range: "min",
-        //    value: 0,
-        //    step: 1,
-        //    slide: function( event, ui ) {
-        //        vcpu_input.val(ui.value);
-        //    }
-        //});
-        //vcpu_input.change(function() {
-        //    vcpu_slider.slider( "value", this.value );
-        //});
+        // Define the cpu slider
+
+        var cpu_input = $( "#CPU", section_capacity );
+
+        var cpu_slider = $( "#cpu_slider").noUiSlider('init', {
+            handles: 1,
+            connect: "lower",
+            scale: [0,800],
+//            start: 100,
+            step: 50,
+            change: function(type) {
+                if ( type != "move")
+                {
+                    var values = $(this).noUiSlider( 'value' );
+
+                    cpu_input.val(values[1] / 100);
+                }
+            },
+        });
+
+        cpu_slider.addClass("noUiSlider");
+
+        cpu_input.change(function() {
+            cpu_slider.noUiSlider('move',{
+                to: this.value * 100
+            })
+        });
+
+        cpu_input.val(1);
+
+        // init::start is ignored for some reason
+        cpu_slider.noUiSlider('move',{to: 100});
+
+
+        // Define the memory slider
+
+        var memory_input = $( "#MEMORY", section_capacity );
+        var memory_unit  = $( "#memory_unit", section_capacity );
+
+        var current_memory_unit = memory_unit.val();
+
+        var memory_slider_change = function(type) {
+            if ( type != "move")
+            {
+                var values = $(this).noUiSlider( 'value' );
+
+                memory_input.val(values[1] / 100);
+            }
+        };
+
+        var memory_slider = $( "#memory_slider").noUiSlider('init', {
+            handles: 1,
+            connect: "lower",
+            scale: [0,409600],
+            step: 12800,
+            change: memory_slider_change,
+        });
+
+        memory_slider.addClass("noUiSlider");
+
+        memory_input.change(function() {
+            memory_slider.noUiSlider('move',{
+                to: this.value * 100
+            })
+        });
+
+        // init::start is ignored for some reason
+        memory_slider.noUiSlider('move',{
+            to: 0
+        });
+
+        memory_unit.change(function() {
+            var memory_unit_val = $('#memory_unit :selected').val();
+
+            if (current_memory_unit != memory_unit_val)
+            {
+                current_memory_unit = memory_unit_val
+
+                if (memory_unit_val == 'GB') {
+
+                    memory_slider.empty().noUiSlider('init', {
+                        handles: 1,
+                        connect: "lower",
+                        scale: [0,1600],
+                        step: 50,
+                        change: memory_slider_change,
+                    });
+
+                    var new_val = memory_input.val() / 1024;
+
+                    memory_input.val( new_val );
+                    memory_slider.noUiSlider('move',{to: new_val * 100});
+                }
+                else if (memory_unit_val == 'MB') {
+
+                    memory_slider.empty().noUiSlider('init', {
+                        handles: 1,
+                        connect: "lower",
+                        scale: [0,409600],
+                        step: 12800,
+                        change: memory_slider_change,
+                    });
+
+                    var new_val = Math.round( memory_input.val() * 1024 );
+
+                    memory_input.val( new_val );
+                    memory_slider.noUiSlider('move',{to: new_val * 100});
+                }
+            }
+        });
+
+
+        // Define the vcpu slider
+
+        var vcpu_input = $( "#VCPU", section_capacity );
+
+        var vcpu_slider = $( "#vcpu_slider").noUiSlider('init', {
+            handles: 1,
+            connect: "lower",
+            scale: [0,8],
+            step: 1,
+            change: function(type) {
+                if ( type != "move")
+                {
+                    var values = $(this).noUiSlider( 'value' );
+
+                    vcpu_input.val(values[1]);
+                }
+            },
+        });
+
+        vcpu_slider.addClass("noUiSlider");
+
+        vcpu_input.change(function() {
+            vcpu_slider.noUiSlider('move',{
+                to: this.value
+            })
+        });
+
+        // init::start is ignored for some reason
+        vcpu_slider.noUiSlider('move',{to: 0});
     }
 
     /**************************************************************************
