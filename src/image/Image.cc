@@ -572,7 +572,8 @@ int Image::disk_attribute(  VectorAttribute * disk,
     switch(type)
     {
         case OS:
-        case DATABLOCK: //Type is FILE or BLOCK as inherited from the DS
+        case DATABLOCK:
+        case RBD: //Type is FILE or BLOCK as inherited from the DS
             disk_attr_type = disk_type_to_str(disk_type);
         break;
 

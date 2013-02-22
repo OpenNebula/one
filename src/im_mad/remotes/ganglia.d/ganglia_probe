@@ -87,5 +87,5 @@ info.each do |key, value|
     GangliaHost.print_info(key, value)
 end
 
-
+system("../../vmm/kvm/poll_ganglia #{host}")
 

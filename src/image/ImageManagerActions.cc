@@ -17,7 +17,6 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
-#include "SSLTools.h"
 #include "SyncRequest.h"
 #include "Template.h"
 #include "Nebula.h"
@@ -36,7 +35,7 @@ Image * ImageManager::acquire_image(int vm_id, int image_id, string& error)
     if ( img == 0 )
     {
         ostringstream oss;
-        oss << "Image with ID: " << image_id  << " does not exists";
+        oss << "Image with ID: " << image_id  << " does not exist";
 
         error = oss.str();
         return 0;
@@ -65,7 +64,7 @@ Image * ImageManager::acquire_image(int vm_id, const string& name, int uid, stri
     if ( img == 0 )
     {
         ostringstream oss;
-        oss << "Image " << name << " does not exists for user " << uid;
+        oss << "Image " << name << " does not exist for user " << uid;
 
         error = oss.str();
         return 0;
@@ -812,7 +811,7 @@ string * ImageManager::format_message(
         << ds_data
         << "</DS_DRIVER_ACTION_DATA>";
 
-    return SSLTools::base64_encode(oss.str());
+    return one_util::base64_encode(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

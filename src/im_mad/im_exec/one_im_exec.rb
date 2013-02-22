@@ -71,8 +71,9 @@ class InformationManagerDriver < OpenNebulaDriver
                 end
             end
         end
+
         do_action("#{@hypervisor}", number, host, :MONITOR,
-            :script_name => 'run_probes')
+            :script_name => 'run_probes', :base64 => true)
     end
 end
 
@@ -102,7 +103,7 @@ begin
             when '--local'
                 local_actions={ 'MONITOR' => nil }
             when '--force-copy'
-                force_copy=true          
+                force_copy=true
         end
     end
 rescue Exception => e

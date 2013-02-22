@@ -17,16 +17,19 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
+#include "NebulaUtil.h"
 
 void VirtualMachineXML::init_attributes()
 {
-    vector<string> result;
+    vector<string>     result;
+    vector<xmlNodePtr> nodes;
 
     oid = atoi(((*this)["/VM/ID"] )[0].c_str());
     uid = atoi(((*this)["/VM/UID"])[0].c_str());
     gid = atoi(((*this)["/VM/GID"])[0].c_str());
 
     result = ((*this)["/VM/TEMPLATE/MEMORY"]);
+
     if (result.size() > 0)
     {
         memory = atoi(result[0].c_str());
@@ -37,6 +40,7 @@ void VirtualMachineXML::init_attributes()
     }
 
     result = ((*this)["/VM/TEMPLATE/CPU"]);
+
     if (result.size() > 0)
     {
         istringstream   iss;
@@ -48,29 +52,55 @@ void VirtualMachineXML::init_attributes()
         cpu = 0;
     }
 
-    result = ((*this)["/VM/TEMPLATE/RANK"]);
+    result = ((*this)["/VM/USER_TEMPLATE/SCHED_RANK"]);
+
     if (result.size() > 0)
     {
         rank = result[0];
     }
     else
     {
-        rank = "";
+        // Compatibility with previous versions
+        result = ((*this)["/VM/USER_TEMPLATE/RANK"]);
+
+        if (result.size() > 0)
+        {
+            rank = result[0];
+        }
+        else
+        {
+            rank = "";
+        }
     }
 
-    result = ((*this)["/VM/TEMPLATE/REQUIREMENTS"]);
+    result = ((*this)["/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS"]);
+
     if (result.size() > 0)
     {
         requirements = result[0];
     }
-    else
+
+    result = ((*this)["/VM/USER_TEMPLATE/SCHED_REQUIREMENTS"]);
+
+    if (result.size() > 0)
     {
-        requirements = "";
-    }    
+        if ( !requirements.empty() )
+        {
+            ostringstream oss;
+
+            oss << requirements << " & ( " << result[0] << " )";
+
+            requirements = oss.str();
+        }
+        else
+        {
+            requirements = result[0];
+        }
+    }
 
     result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
 
-    if (result.size() > 0) 
+    if (result.size() > 0)
     {
         hid = atoi(result[0].c_str());
     }
@@ -88,7 +118,20 @@ void VirtualMachineXML::init_attributes()
     else
     {
         resched = 0;
-    }    
+    }
+
+    if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
+    {
+        vm_template = new VirtualMachineTemplate;
+
+        vm_template->from_xml_node(nodes[0]);
+
+        free_nodes(nodes);
+    }
+    else
+    {
+        vm_template = 0;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -104,6 +147,11 @@ VirtualMachineXML::~VirtualMachineXML()
     }
 
     hosts.clear();
+
+    if (vm_template != 0)
+    {
+        delete vm_template;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,7 +165,7 @@ void VirtualMachineXML::add_host(int host_id)
 
         ss = new VirtualMachineXML::Host(host_id);
 
-        hosts.push_back(ss);            
+        hosts.push_back(ss);
     }
 }
 
@@ -222,3 +270,52 @@ void VirtualMachineXML::get_requirements (int& cpu, int& memory, int& disk)
     memory = this->memory * 1024;    //now in Kilobytes
     disk   = 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::log(const string &st)
+{
+    if (vm_template == 0 || st.empty())
+    {
+        return;
+    }
+    ostringstream oss;
+
+    oss << one_util::log_time() << " : " << st;
+
+    vm_template->replace("SCHED_MESSAGE", oss.str());
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineXML::parse_action_name(string& action_st)
+{
+    one_util::tolower(action_st);
+
+    // onevm delete command uses the xml-rpc finalize action
+    if (action_st == "delete")
+    {
+        action_st = "finalize";
+    }
+
+    if (   action_st != "shutdown"
+        && action_st != "hold"
+        && action_st != "release"
+        && action_st != "stop"
+        && action_st != "cancel"
+        && action_st != "suspend"
+        && action_st != "resume"
+        && action_st != "restart"
+        && action_st != "resubmit"
+        && action_st != "reboot"
+        && action_st != "reset"
+        && action_st != "poweroff"
+        && action_st != "finalize")
+    {
+        return -1;
+    }
+
+    return 0;
+};

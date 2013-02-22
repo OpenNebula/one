@@ -219,7 +219,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
-          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/xen3 \
+          $VAR_LOCATION/remotes/vmm/xen4 \
           $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
@@ -237,6 +238,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/vmfs \
           $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/tm/lvm \
+          $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -246,6 +248,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/vmfs \
           $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/datastore/lvm \
+          $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -438,7 +441,8 @@ INSTALL_FILES=(
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
-    VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_EXEC_XEN3_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen3
+    VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
@@ -447,6 +451,7 @@ INSTALL_FILES=(
     TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
+    TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
@@ -455,6 +460,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
+    DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
@@ -687,6 +693,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/mad/ruby/Ganglia.rb \
+                src/oca/ruby/deprecated/OpenNebula.rb \
                 src/oca/ruby/opennebula.rb"
 
 #-------------------------------------------------------------------------------
@@ -760,9 +767,9 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
-                    src/vmm_mad/remotes/xen/xenrc \
+                    src/vmm_mad/remotes/xen/xen3/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/reboot \
@@ -774,6 +781,19 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/detach_disk \
                     src/vmm_mad/remotes/xen/shutdown"
 
+VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+                    src/vmm_mad/remotes/xen/deploy \
+                    src/vmm_mad/remotes/xen/xen4/xenrc \
+                    src/vmm_mad/remotes/xen/migrate \
+                    src/vmm_mad/remotes/xen/restore \
+                    src/vmm_mad/remotes/xen/reboot \
+                    src/vmm_mad/remotes/xen/reset \
+                    src/vmm_mad/remotes/xen/save \
+                    src/vmm_mad/remotes/xen/poll \
+                    src/vmm_mad/remotes/xen/poll_ganglia \
+                    src/vmm_mad/remotes/xen/attach_disk \
+                    src/vmm_mad/remotes/xen/detach_disk \
+                    src/vmm_mad/remotes/xen/shutdown"
 #-------------------------------------------------------------------------------
 # VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
 #-------------------------------------------------------------------------------
@@ -802,11 +822,13 @@ IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
                      src/im_mad/remotes/kvm.d/architecture.sh \
                      src/im_mad/remotes/kvm.d/cpu.sh \
+                     src/im_mad/remotes/kvm.d/poll.sh \
                      src/im_mad/remotes/kvm.d/name.sh"
 
 IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
                      src/im_mad/remotes/xen.d/architecture.sh \
                      src/im_mad/remotes/xen.d/cpu.sh \
+                     src/im_mad/remotes/xen.d/poll.sh \
                      src/im_mad/remotes/xen.d/name.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
@@ -881,6 +903,7 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #   - VMWARE TM, $VAR_LOCATION/tm/vmware
 #   - ISCSI TM, $VAR_LOCATION/tm/iscsi
 #   - LVM TM, $VAR_LOCATION/tm/lvm
+#   - CEPH TM, $VAR_LOCATION/tm/ceph
 #-------------------------------------------------------------------------------
 
 TM_FILES="src/tm_mad/tm_common.sh"
@@ -956,6 +979,14 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/postmigrate \
                  src/tm_mad/lvm/delete"
 
+TM_CEPH_FILES="src/tm_mad/ceph/clone \
+                 src/tm_mad/ceph/ln \
+                 src/tm_mad/ceph/mv \
+                 src/tm_mad/ceph/mvds \
+                 src/tm_mad/ceph/premigrate \
+                 src/tm_mad/ceph/postmigrate \
+                 src/tm_mad/ceph/delete"
+
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
@@ -1009,6 +1040,13 @@ DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/clone \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
+DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
+                         src/datastore_mad/remotes/ceph/mkfs \
+                         src/datastore_mad/remotes/ceph/stat \
+                         src/datastore_mad/remotes/ceph/rm \
+                         src/datastore_mad/remotes/ceph/clone \
+                         src/datastore_mad/remotes/ceph/ceph.conf"
+
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
 #-------------------------------------------------------------------------------
@@ -1056,7 +1094,8 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
-                  src/vmm_mad/exec/vmm_exec_xen.conf \
+                  src/vmm_mad/exec/vmm_exec_xen3.conf \
+                  src/vmm_mad/exec/vmm_exec_xen4.conf \
                   src/vmm_mad/exec/vmm_exec_vmware.conf"
 
 #-------------------------------------------------------------------------------

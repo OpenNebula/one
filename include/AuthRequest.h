@@ -21,8 +21,8 @@
 
 #include "ActionManager.h"
 #include "PoolObjectAuth.h"
-#include "SSLTools.h"
 #include "AuthManager.h"
+#include "NebulaUtil.h"
 
 #include "SyncRequest.h"
 
@@ -75,26 +75,26 @@ public:
         username = _username;
         password = _password;
         session  = _session;
-        
+
         driver   = _driver;
     }
 
     /**
      *  Adds a CREATE authorization request.
-     * 
+     *
      *        OBJECT:<-1|OBJECT_TMPL_XML64>:CREATE:UID:AUTH
-     *      
+     *
      *    @param type of the object to be created
-     *    @param template (base64 encoded) of the new object
+     *    @param txml template of the new object
      */
-     void add_create_auth(PoolObjectSQL::ObjectType type, const string& txml_64)
+     void add_create_auth(PoolObjectSQL::ObjectType type, const string& txml)
      {
          PoolObjectAuth perms; //oid & gid set to -1
-         
+
          perms.uid      = uid;
          perms.obj_type = type;
 
-         add_auth(AuthRequest::CREATE, perms, txml_64);
+         add_auth(AuthRequest::CREATE, perms, txml);
      }
 
     /**
@@ -143,20 +143,20 @@ public:
 
     bool core_authenticate()
     {
-        string sha1_session = SSLTools::sha1_digest(session);
+        string sha1_session = one_util::sha1_digest(session);
 
         return (password == sha1_session);
     }
-    
-private: 
-    
+
+private:
+
     friend class AuthManager;
-    
+
     /**
      *  The user id for this request
      */
     int    uid;
- 
+
     /**
      *  The user group ID
      */

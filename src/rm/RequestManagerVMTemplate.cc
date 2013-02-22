@@ -27,6 +27,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
     bool   on_hold = false; //Optional XML-RPC argument
+    string str_uattrs;      //Optional XML-RPC argument
 
     int  rc;
     int  vid;
@@ -43,6 +44,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     UserPool *          upool   = nd.get_upool();
 
     VirtualMachineTemplate * tmpl;
+    VirtualMachineTemplate   uattrs;
     VMTemplate *             rtmpl;
     User *                   user;
 
@@ -54,6 +56,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     if ( paramList.size() > 3 )
     {
         on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+
+        str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
     }
 
     /* ---------------------------------------------------------------------- */
@@ -98,8 +102,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     rtmpl->unlock();
 
     // Check template for restricted attributes, only if owner is not oneadmin
-
-    if ( perms.uid != UserPool::ONEADMIN_ID && perms.gid != GroupPool::ONEADMIN_ID )
+    if (perms.uid!=UserPool::ONEADMIN_ID && perms.gid!=GroupPool::ONEADMIN_ID)
     {
         if (tmpl->check(aname))
         {
@@ -111,6 +114,45 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                     authorization_error(oss.str(), att),
                     att);
 
+            delete tmpl;
+            return;
+        }
+    }
+
+    // Parse & merge user attributes (check if the request user is not oneadmin)
+    if (!str_uattrs.empty())
+    {
+        rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
+            delete tmpl;
+            return;
+        }
+
+        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+        {
+            if (uattrs.check(aname))
+            {
+                ostringstream oss;
+
+                oss << "User Template includes a restricted attribute "<< aname;
+
+                failure_response(AUTHORIZATION,
+                        authorization_error(oss.str(), att),
+                        att);
+
+                delete tmpl;
+                return;
+            }
+        }
+
+        rc = tmpl->merge(&uattrs, error_str);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
             delete tmpl;
             return;
         }
@@ -138,6 +180,15 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         AuthRequest ar(att.uid, att.gid);
 
         ar.add_auth(auth_op, perms); //USE TEMPLATE
+
+        if (!str_uattrs.empty())
+        {
+            string tmpl_str;
+
+            tmpl->to_xml(tmpl_str);
+
+            ar.add_create_auth(auth_object, tmpl_str); // CREATE TEMPLATE
+        }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 

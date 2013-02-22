@@ -57,7 +57,7 @@ extern int expr_bool__debug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 83 "expr_bool.y"
+#line 88 "expr_bool.y"
 
     char * 	val_str;
     int 	val_int;

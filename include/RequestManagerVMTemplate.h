@@ -57,7 +57,7 @@ public:
     VMTemplateInstantiate():
         RequestManagerVMTemplate("TemplateInstantiate",
                                  "Instantiates a new virtual machine using a template",
-                                 "A:sisb")
+                                 "A:sisbs")
     {
         auth_op = AuthRequest::USE;
     };

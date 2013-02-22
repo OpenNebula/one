@@ -25,7 +25,7 @@ source_files=[
     'ActionManager.cc',
     'Attribute.cc',
     'mem_collector.c',
-    'SSLTools.cc'
+    'NebulaUtil.cc'
 ]
 
 # Build library

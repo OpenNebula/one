@@ -28,6 +28,7 @@ GREP=grep
 ISCSIADM=iscsiadm
 LVCREATE=lvcreate
 LVREMOVE=lvremove
+LVRENAME=lvrename
 LVS=lvs
 LN=ln
 MD5SUM=md5sum
@@ -35,7 +36,9 @@ MKFS=mkfs
 MKISOFS=genisoimage
 MKSWAP=mkswap
 QEMU_IMG=qemu-img
+RBD=rbd
 READLINK=readlink
+RM=rm
 SCP=scp
 SED=sed
 SSH=ssh
@@ -243,7 +246,7 @@ function mkfs_command {
         "jfs")
             OPTS="-q"
             ;;
-        "raw")
+        "raw"|"")
             echo ""
             return 0
             ;;

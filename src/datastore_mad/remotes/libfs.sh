@@ -61,10 +61,10 @@ function set_up_datastore {
 }
 
 #-------------------------------------------------------------------------------
-# Generates an unique image path. Requires BASE_PATH to be set
-#   @return path for the image (empty if error)
+# Generates an unique image hash. Requires BASE_PATH to be set
+#   @return hash for the image (empty if error)
 #-------------------------------------------------------------------------------
-function generate_image_path {
+function generate_image_hash {
 
 	CANONICAL_STR="`$DATE +%s`:$ID"
 
@@ -80,6 +80,15 @@ EOF
 		exit 1
 	fi
 
+	echo "${IMAGE_HASH}"
+}
+
+#-------------------------------------------------------------------------------
+# Generates an unique image path. Requires BASE_PATH to be set
+#   @return path for the image (empty if error)
+#-------------------------------------------------------------------------------
+function generate_image_path {
+	IMAGE_HASH=`generate_image_hash`
 	echo "${BASE_PATH}/${IMAGE_HASH}"
 }
 

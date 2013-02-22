@@ -691,6 +691,26 @@ int Template::from_xml_node(const xmlNodePtr node)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int Template::merge(const Template * from_tmpl, string& error_str)
+{
+    multimap<string,Attribute *>::const_iterator it;
+
+    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
+    {
+        this->erase(it->first);
+    }
+
+    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
+    {
+        this->set(it->second->clone());
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 void Template::rebuild_attributes(const xmlNode * root_element)
 {
     xmlNode * cur_node = 0;

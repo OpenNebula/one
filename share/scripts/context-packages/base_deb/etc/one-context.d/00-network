@@ -146,6 +146,8 @@ configure_network()
 {
     gen_network_configuration > /etc/network/interfaces
 
+    service networking stop
+    sleep 1
     service networking start
 
     sleep 2

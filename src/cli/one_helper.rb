@@ -315,7 +315,15 @@ EOT
                         pool_to_array(pool)
                     }
                 else
-                    table.show(pool_to_array(pool), options)
+                    array=pool_to_array(pool)
+
+                    if options[:ids]
+                        array=array.select do |element|
+                            options[:ids].include? element['ID'].to_i
+                        end
+                    end
+
+                    table.show(array, options)
                 end
 
                 return 0
@@ -569,13 +577,19 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time)
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true)
         value=time.to_i
         if value==0
             value='-'
         else
-            value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            if print_seconds
+                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            else
+                value=Time.at(value).strftime("%m/%d %H:%M")
+            end
         end
+
+        return value
     end
 
     def OpenNebulaHelper.period_to_str(time, print_seconds=true)

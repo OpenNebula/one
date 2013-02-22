@@ -16,7 +16,7 @@
 
 #include "PoolObjectSQL.h"
 #include "PoolObjectAuth.h"
-#include "SSLTools.h"
+#include "NebulaUtil.h"
 #include "Nebula.h"
 #include "Clusterable.h"
 
@@ -29,7 +29,7 @@ string& PoolObjectSQL::to_xml64(string &xml64)
 
     to_xml(xml64);
 
-    str64 = SSLTools::base64_encode(xml64);
+    str64 = one_util::base64_encode(xml64);
 
     xml64 = *str64;
 
@@ -141,20 +141,7 @@ void PoolObjectSQL::set_template_error_message(const string& message)
     SingleAttribute * attr;
     ostringstream     error_value;
 
-    char   str[26];
-    time_t the_time;
-
-    the_time = time(NULL);
-
-#ifdef SOLARIS
-    ctime_r(&(the_time),str,sizeof(char)*26);
-#else
-    ctime_r(&(the_time),str);
-#endif
-
-    str[24] = '\0'; // Get rid of final enter character
-
-    error_value << str << " : " << message;
+    error_value << one_util::log_time() << " : " << message;
 
     //Replace previous error message and insert the new one
 
@@ -162,6 +149,14 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 
     obj_template->erase(error_attribute_name);
     obj_template->set(attr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::clear_template_error_message()
+{
+    remove_template_attribute(error_attribute_name);
 }
 
 /* -------------------------------------------------------------------------- */

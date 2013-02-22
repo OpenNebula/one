@@ -30,6 +30,7 @@ $: << RUBY_LIB_LOCATION
 
 require 'OpenNebulaDriver'
 require 'CommandManager'
+require 'base64'
 
 
 # The SSH Information Manager Driver
@@ -48,20 +49,22 @@ class DummyInformationManager < OpenNebulaDriver
 
     # Execute the sensor array in the remote host
     def action_monitor(number, host, not_used)
-        results =  "HYPERVISOR=dummy,"
-        results << "HOSTNAME=#{host},"
+        results =  "HYPERVISOR=dummy\n"
+        results << "HOSTNAME=#{host}\n"
 
-        results << "CPUSPEED=2.2GHz,"
+        results << "CPUSPEED=2.2GHz\n"
 
         used_memory = rand(16777216)
-        results << "TOTALMEMORY=16777216,"
-        results << "USEDMEMORY=#{used_memory},"
-        results << "FREEMEMORY=#{16777216-used_memory},"
+        results << "TOTALMEMORY=16777216\n"
+        results << "USEDMEMORY=#{used_memory}\n"
+        results << "FREEMEMORY=#{16777216-used_memory}\n"
 
         used_cpu = rand(800)
-        results << "TOTALCPU=800,"
-        results << "USEDCPU=#{used_cpu},"
-        results << "FREECPU=#{800-used_cpu}"
+        results << "TOTALCPU=800\n"
+        results << "USEDCPU=#{used_cpu}\n"
+        results << "FREECPU=#{800-used_cpu}\n"
+
+        results = Base64::encode64(results).strip.delete("\n")
 
         send_message("MONITOR", RESULT[:success], number, results)
     end

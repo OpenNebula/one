@@ -243,36 +243,32 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover_cb(void * _map, int num, char **values, char **names)
+int HostPool::discover_cb(void * _set, int num, char **values, char **names)
 {
-    map<int, string> *  discovered_hosts;
-    string              im_mad;
-    int                 hid;
-    int                 rc;
+    set<int> *  discovered_hosts;
+    string      im_mad;
+    int         hid;
 
-    discovered_hosts = static_cast<map<int, string> *>(_map);
+    discovered_hosts = static_cast<set<int> *>(_set);
 
-    if ( (num<2) || (values[0] == 0) || (values[1] == 0) )
+    if ( (num<1) || (values[0] == 0) )
     {
         return -1;
     }
 
     hid = atoi(values[0]);
-    rc  = ObjectXML::xpath_value(im_mad,values[1],"/HOST/IM_MAD");
 
-    if( rc != 0)
-    {
-        return -1;
-    }
-
-    discovered_hosts->insert(make_pair(hid,im_mad));
+    discovered_hosts->insert(hid);
 
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
+int HostPool::discover(
+        set<int> *  discovered_hosts,
+        int         host_limit,
+        time_t      target_time)
 {
     ostringstream   sql;
     int             rc;
@@ -280,9 +276,9 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
-    sql << "SELECT oid, body FROM "
-        << Host::table << " WHERE state != "
-        << Host::DISABLED << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
+    sql << "SELECT oid FROM " << Host::table
+        << " WHERE last_mon_time <= " << target_time
+        << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
 

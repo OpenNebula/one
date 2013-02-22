@@ -50,7 +50,7 @@ data=$(
 
 EXIT_CODE=$?
 
-echo $data | tr '\n' ' '
+echo "$data"
 
 if [ "x$EXIT_CODE" != "x0" ]; then
     exit $EXIT_CODE

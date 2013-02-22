@@ -69,8 +69,8 @@ LV_NAME=`echo $SRC_PATH|cut -d. -f2`
 VG_NAME=`echo $SRC_PATH|cut -d. -f1`
 
 TARGET_DEV="/dev/$VG_NAME/$LV_NAME"
-LV_SNAPSHOT="$LV_NAME-$VM_ID-$DISK_ID"
-LV_SNAPSHOT_DEV="/dev/$VG_NAME/$LV_SNAPSHOT"
+LV_CLONE="$LV_NAME-$VM_ID-$DISK_ID"
+LV_CLONE_DEV="/dev/$VG_NAME/$LV_CLONE"
 
 #-------------------------------------------------------------------------------
 # Create the snapshot and link it
@@ -79,11 +79,12 @@ LV_SNAPSHOT_DEV="/dev/$VG_NAME/$LV_SNAPSHOT"
 CLONE_CMD=$(cat <<EOF
     set -e
     mkdir -p $DST_DIR
-    $SUDO $LVCREATE -s -L$SIZE -n $LV_SNAPSHOT $TARGET_DEV
-    ln -s "$LV_SNAPSHOT_DEV" "$DST_PATH"
+    $SUDO $LVCREATE -L$SIZE -n $LV_CLONE $VG_NAME
+    $SUDO $DD if=$TARGET_DEV of=$LV_CLONE_DEV bs=64k
+    ln -s "$LV_CLONE_DEV" "$DST_PATH"
 EOF
 )
 
 ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" \
-        "Error cloning $TARGET_DEV to $LV_SNAPSHOT_DEV"
+        "Error cloning $TARGET_DEV to $LV_CLONE_DEV"
 exit 0

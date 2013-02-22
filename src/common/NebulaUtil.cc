@@ -14,29 +14,66 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#include "NebulaUtil.h"
+
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-#include "SSLTools.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
+using namespace std;
 
-//#include <iostream>
-
-
-//#include <sys/types.h>
-//#include <pwd.h>
-//#include <stdlib.h>
+string& one_util::toupper(string& st)
+{
+    transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::toupper);
+    return st;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * SSLTools::base64_encode(const string& in)
+string& one_util::tolower(string& st)
+{
+    transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::tolower);
+    return st;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string one_util::log_time(time_t the_time)
+{
+    char time_str[26];
+
+#ifdef SOLARIS
+    ctime_r(&(the_time),time_str,sizeof(char)*26);
+#else
+    ctime_r(&(the_time),time_str);
+#endif
+
+    time_str[24] = '\0'; // Get rid of final enter character
+
+    return string(time_str);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string one_util::log_time()
+{
+    return log_time( time(0) );
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string * one_util::base64_encode(const string& in)
 {
     BIO *     bio_mem;
     BIO *     bio_64;
@@ -49,7 +86,7 @@ string * SSLTools::base64_encode(const string& in)
 
     BIO_push(bio_64, bio_mem);
 
-    BIO_set_flags(bio_64,BIO_FLAGS_BASE64_NO_NL);
+    BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
 
     BIO_write(bio_64, in.c_str(), in.length());
 
@@ -70,7 +107,48 @@ string * SSLTools::base64_encode(const string& in)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string SSLTools::sha1_digest(const string& in)
+string * one_util::base64_decode(const string& in)
+{
+    BIO *  bio_mem_in;
+    BIO *  bio_mem_out;
+    BIO *  bio_64;
+
+    char inbuf[512];
+    int  inlen;
+
+    char *   decoded_c;
+    long int size;
+
+    bio_64  = BIO_new(BIO_f_base64());
+
+    bio_mem_in  = BIO_new(BIO_s_mem());
+    bio_mem_out = BIO_new(BIO_s_mem());
+
+    bio_64 = BIO_push(bio_64, bio_mem_in);
+
+    BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
+
+    BIO_write(bio_mem_in, in.c_str(), in.length());
+
+    while((inlen = BIO_read(bio_64, inbuf, 512)) > 0)
+    {
+        BIO_write(bio_mem_out, inbuf, inlen);
+    }
+
+    size = BIO_get_mem_data(bio_mem_out, &decoded_c);
+
+    string * decoded = new string(decoded_c, size);
+
+    BIO_free_all(bio_64);
+    BIO_free_all(bio_mem_out);
+
+    return decoded;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string one_util::sha1_digest(const string& in)
 {
     EVP_MD_CTX     mdctx;
     unsigned char  md_value[EVP_MAX_MD_SIZE];

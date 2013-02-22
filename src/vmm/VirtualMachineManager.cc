@@ -19,6 +19,7 @@
 #include "XenDriver.h"
 #include "XMLDriver.h"
 #include "LibVirtDriver.h"
+#include "NebulaUtil.h"
 
 #include "Nebula.h"
 
@@ -380,7 +381,7 @@ string * VirtualMachineManager::format_message(
     oss << tmpl
         << "</VMM_DRIVER_ACTION_DATA>";
 
-    return SSLTools::base64_encode(oss.str());
+    return one_util::base64_encode(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1337,8 +1338,6 @@ void VirtualMachineManager::poll_action(
         "",
         vm->to_xml(vm_tmpl));
 
-    vm->set_last_poll(time(0));
-
     vmd->poll(vid, *drv_msg);
 
     delete drv_msg;
@@ -1420,7 +1419,8 @@ error_common:
 
 void VirtualMachineManager::timer_action()
 {
-    static int mark = 0;
+    static int mark        = 0;
+    static int timer_start = time(0);
 
     VirtualMachine *        vm;
     vector<int>             oids;
@@ -1445,6 +1445,13 @@ void VirtualMachineManager::timer_action()
 
     // Clear the expired monitoring records
     vmpool->clean_expired_monitoring();
+
+    // Skip monitoring the first poll_period to allow the Host monitoring to
+    // gather the VM info
+    if ( timer_start + poll_period > thetime )
+    {
+        return;
+    }
 
     // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
     rc = vmpool->get_running(oids, vm_limit, thetime - poll_period);
@@ -1478,8 +1485,6 @@ void VirtualMachineManager::timer_action()
         os << "Monitoring VM " << *it << ".";
         NebulaLog::log("VMM", Log::INFO, os);
 
-        vm->set_last_poll(thetime);
-
         vmd = get(vm->get_vmm_mad());
 
         if ( vmd == 0 )
@@ -1504,8 +1509,6 @@ void VirtualMachineManager::timer_action()
         vmd->poll(*it, *drv_msg);
 
         delete drv_msg;
-
-        vmpool->update(vm);
 
         vm->unlock();
     }

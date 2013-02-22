@@ -19,6 +19,13 @@
 
 #include <string>
 #include <fstream>
+#include <stdexcept>
+
+#include "PoolObjectSQL.h"
+
+#ifdef SYSLOG_LOG
+#   include "log4cpp/Priority.hh"
+#endif /* SYSLOG_LOG */
 
 using namespace std;
 
@@ -79,7 +86,7 @@ public:
         const char *            module,
         const MessageType       type,
         const char *            message);
-    
+
 private:
     char * log_file;
 };
@@ -136,5 +143,129 @@ public:
         const MessageType       type,
         const char *            message);
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+#ifdef SYSLOG_LOG
+
+/**
+ *  Send log messages to syslog
+ */
+class SysLog : public Log
+{
+public:
+    SysLog(const MessageType level,
+           const string&     label);
+
+    virtual ~SysLog() {};
+
+    virtual void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message);
+
+    static log4cpp::Priority::PriorityLevel get_priority_level(
+                                                    const MessageType level);
+protected:
+    /**
+     *  Specialized constructor only for derived classes that uses an initialzed
+     *  SysLog system.
+     */
+    SysLog(const MessageType level):Log(level){};
+
+    /**
+     *  This is the root category name used by any syslog resource
+     *  in the process
+     */
+    static const char * CATEGORY;
+
+    /**
+     *  This is the daemon name+pid, used to label every message in the process
+     */
+    static string LABEL;
+
+};
+
+#else
+
+/**
+ *  Dummy syslog class
+ */
+class SysLog : public Log
+{
+public:
+    SysLog(const MessageType level,
+           const string&     label) {
+        throw runtime_error("Aborting oned, SysLog support not compiled!");
+    };
+
+    virtual ~SysLog() {};
+
+    virtual void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message) {};
+};
+
+#endif /* SYSLOG_LOG */
+
+#ifdef SYSLOG_LOG
+
+/**
+ *  Send log messages to syslog per resource. It requires a Root Syslog
+ *  to be initialized before using a SysLogResource
+ */
+class SysLogResource : public SysLog
+{
+public:
+    SysLogResource(
+        int                             oid,
+        const PoolObjectSQL::ObjectType obj_type,
+        const MessageType               clevel);
+
+    virtual ~SysLogResource(){};
+
+    void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message);
+
+protected:
+    /**
+     *  This is the resource category name used by any syslog resource
+     *  in the process
+     */
+    static const char * CATEGORY;
+
+    /**
+     *  The resource log label
+     */
+    string obj_label;
+};
+
+#else
+
+/**
+ *  Dummy SysLogResource class
+ */
+class SysLogResource : public SysLog
+{
+public:
+    SysLogResource(int                             oid,
+                   const PoolObjectSQL::ObjectType obj_type,
+                   const MessageType               clevel):SysLog(clevel, "") {
+        throw runtime_error("Aborting oned, SysLog support not compiled!");
+    };
+
+    virtual ~SysLogResource(){};
+
+    void log(
+        const char *            module,
+        const MessageType       type,
+        const char *            message) {};
+};
+
+#endif /* SYSLOG_LOG */
 
 #endif /* _LOG_H_ */

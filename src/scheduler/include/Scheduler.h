@@ -50,6 +50,7 @@ protected:
         hpool(0),
         clpool(0),
         vmpool(0),
+        vmapool(0),
         acls(0),
         timer(0),
         url(""),
@@ -79,6 +80,11 @@ protected:
             delete vmpool;
         }
 
+        if ( vmapool != 0)
+        {
+            delete vmapool;
+        }
+
         if ( acls != 0)
         {
             delete acls;
@@ -94,11 +100,13 @@ protected:
     // Pools
     // ---------------------------------------------------------------
 
-    HostPoolXML *             hpool;
-    ClusterPoolXML *          clpool;
-    VirtualMachinePoolXML *   vmpool;
+    HostPoolXML *    hpool;
+    ClusterPoolXML * clpool;
 
-    AclXML *                  acls;
+    VirtualMachinePoolXML *       vmpool;
+    VirtualMachineActionsPoolXML* vmapool;
+
+    AclXML * acls;
 
     // ---------------------------------------------------------------
     // Scheduler Policies
@@ -124,7 +132,17 @@ protected:
 
     virtual int schedule();
 
+    /**
+     * Retrieves the pools
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs need to be scheduled
+     */
     virtual int set_up_pools();
+
+
+    virtual int do_scheduled_actions();
 
 private:
     Scheduler(Scheduler const&){};
@@ -132,7 +150,6 @@ private:
     Scheduler& operator=(Scheduler const&){return *this;};
 
     friend void * scheduler_action_loop(void *arg);
-
 
     // ---------------------------------------------------------------
     // Scheduling Policies

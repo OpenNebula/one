@@ -28,6 +28,7 @@ $: << RUBY_LIB_LOCATION
 
 require 'pp'
 require 'OpenNebulaDriver'
+require 'base64'
 
 # The EC2 Information Manager Driver
 class EC2InformationManagerDriver < OpenNebulaDriver
@@ -57,15 +58,16 @@ class EC2InformationManagerDriver < OpenNebulaDriver
         totalmemory = smem + lmem + xlmem
         totalcpu    = scpu + lcpu + xlcpu
 
-        @info="HYPERVISOR=ec2,TOTALMEMORY=#{totalmemory},"<<
-            "TOTALCPU=#{totalcpu},CPUSPEED=1000,FREEMEMORY=#{totalmemory},"<<
-            "FREECPU=#{totalcpu}"
+        @info="HYPERVISOR=ec2\nTOTALMEMORY=#{totalmemory}\n"<<
+            "TOTALCPU=#{totalcpu}\nCPUSPEED=1000\nFREEMEMORY=#{totalmemory}"<<
+            "\nFREECPU=#{totalcpu}\n"
     end
 
     # The monitor action, just print the capacity info and hostname
     def action_monitor(num, host, not_used)
-        send_message("MONITOR", RESULT[:success], num,
-            "HOSTNAME=#{host},#{@info}")
+        info   = "HOSTNAME=\"#{host}\"\n#{@info}"
+        info64 = Base64::encode64(info).strip.delete("\n")
+        send_message("MONITOR", RESULT[:success], num, info64)
     end
 end
 

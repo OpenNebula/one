@@ -63,14 +63,17 @@ VirtualMachine::VirtualMachine(int           id,
 {
     if (_vm_template != 0)
     {
-        obj_template = _vm_template;
+        // This is a VM Template, with the root TEMPLATE.
+        _vm_template->set_xml_root("USER_TEMPLATE");
+
+        user_obj_template = _vm_template;
     }
     else
     {
-        obj_template = new VirtualMachineTemplate;
+        user_obj_template = new Template(false,'=',"USER_TEMPLATE");
     }
 
-    user_obj_template = new Template(false,'=',"USER_TEMPLATE");
+    obj_template = new VirtualMachineTemplate;
 
     set_umask(umask);
 }
@@ -191,10 +194,31 @@ int VirtualMachine::select(SqlDB * db)
     //--------------------------------------------------------------------------
     try
     {
-        Log::MessageType clevel;
+        Log::MessageType   clevel;
+        NebulaLog::LogType log_system;
 
-        clevel = nd.get_debug_level();
-        _log   = new FileLog(nd.get_vm_log_filename(oid), clevel);
+        log_system  = nd.get_log_system();
+        clevel      = nd.get_debug_level();
+
+        switch(log_system)
+        {
+            case NebulaLog::FILE_TS:
+            case NebulaLog::FILE:
+                _log = new FileLog(nd.get_vm_log_filename(oid), clevel);
+                break;
+
+            case NebulaLog::SYSLOG:
+                _log = new SysLogResource(oid, obj_type, clevel);
+                break;
+
+            case NebulaLog::CERR:
+                _log = new CerrLog(clevel);
+                break;
+
+            default:
+                throw runtime_error("Unknown log system.");
+                break;
+        }
     }
     catch(exception &e)
     {
@@ -236,13 +260,24 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     oss << oid;
     value = oss.str();
 
-    replace_template_attribute("VMID", value);
+    user_obj_template->erase("VMID");
+    obj_template->add("VMID", value);
 
-    get_template_attribute("NAME",name);
+    user_obj_template->get("TEMPLATE_ID", value);
+    user_obj_template->erase("TEMPLATE_ID");
+
+    if (!value.empty())
+    {
+        obj_template->add("TEMPLATE_ID", value);
+    }
+
+    user_obj_template->get("NAME",name);
+    user_obj_template->erase("NAME");
 
     if (name.empty() == true)
     {
-        get_template_attribute("TEMPLATE_NAME", prefix);
+        user_obj_template->get("TEMPLATE_NAME", prefix);
+        user_obj_template->erase("TEMPLATE_NAME");
 
         if (prefix.empty())
         {
@@ -252,8 +287,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         oss.str("");
         oss << prefix << "-" << oid;
         name = oss.str();
-
-        replace_template_attribute("NAME", name);
     }
     else if (name.length() > 128)
     {
@@ -266,26 +299,35 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Check for CPU, VCPU and MEMORY attributes
     // ------------------------------------------------------------------------
 
-    if ( get_template_attribute("MEMORY", ivalue) == false || ivalue <= 0 )
+    if ( user_obj_template->get("MEMORY", ivalue) == false || ivalue <= 0 )
     {
         goto error_memory;
     }
 
-    if ( get_template_attribute("CPU", fvalue) == false || fvalue <= 0 )
+    user_obj_template->erase("MEMORY");
+    obj_template->add("MEMORY", ivalue);
+
+    if ( user_obj_template->get("CPU", fvalue) == false || fvalue <= 0 )
     {
         goto error_cpu;
     }
 
+    user_obj_template->erase("CPU");
+    obj_template->add("CPU", fvalue);
+
     // VCPU is optional, first check if the attribute exists, then check it is
     // an integer
-    get_template_attribute("VCPU", value);
+    user_obj_template->get("VCPU", value);
 
     if ( value.empty() == false )
     {
-        if ( get_template_attribute("VCPU", ivalue) == false || ivalue <= 0 )
+        if ( user_obj_template->get("VCPU", ivalue) == false || ivalue <= 0 )
         {
             goto error_vcpu;
         }
+
+        user_obj_template->erase("VCPU");
+        obj_template->add("VCPU", ivalue);
     }
 
     // ------------------------------------------------------------------------
@@ -511,7 +553,14 @@ int VirtualMachine::parse_os(string& error_str)
     vector<Attribute *> os_attr;
     VectorAttribute *   os;
 
-    num = obj_template->get("OS", os_attr);
+    vector<Attribute *>::iterator it;
+
+    num = user_obj_template->remove("OS", os_attr);
+
+    for (it=os_attr.begin(); it != os_attr.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     if ( num == 0 )
     {
@@ -703,7 +752,14 @@ void VirtualMachine::parse_graphics()
     vector<Attribute *> array_graphics;
     VectorAttribute *   graphics;
 
-    num = obj_template->get("GRAPHICS", array_graphics);
+    vector<Attribute *>::iterator it;
+
+    num = user_obj_template->remove("GRAPHICS", array_graphics);
+
+    for (it=array_graphics.begin(); it != array_graphics.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     if ( num == 0 )
     {
@@ -750,7 +806,16 @@ int VirtualMachine::parse_requirements(string& error_str)
 
     string              parsed;
 
-    num = obj_template->remove("REQUIREMENTS", array_reqs);
+    num = user_obj_template->remove("SCHED_REQUIREMENTS", array_reqs);
+
+    if ( num == 0 ) // Compatibility with old REQUIREMENTS attribute
+    {
+        num = user_obj_template->remove("REQUIREMENTS", array_reqs);
+    }
+    else
+    {
+        user_obj_template->erase("REQUIREMENTS");
+    }
 
     if ( num == 0 )
     {
@@ -758,7 +823,7 @@ int VirtualMachine::parse_requirements(string& error_str)
     }
     else if ( num > 1 )
     {
-        error_str = "Only one REQUIREMENTS attribute can be defined.";
+        error_str = "Only one SCHED_REQUIREMENTS attribute can be defined.";
         goto error_cleanup;
     }
 
@@ -766,7 +831,7 @@ int VirtualMachine::parse_requirements(string& error_str)
 
     if ( reqs == 0 )
     {
-        error_str = "Wrong format for REQUIREMENTS attribute.";
+        error_str = "Wrong format for SCHED_REQUIREMENTS attribute.";
         goto error_cleanup;
     }
 
@@ -776,19 +841,13 @@ int VirtualMachine::parse_requirements(string& error_str)
     {
         SingleAttribute * reqs_parsed;
 
-        reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
-        obj_template->set(reqs_parsed);
+        reqs_parsed = new SingleAttribute("SCHED_REQUIREMENTS",parsed);
+        user_obj_template->set(reqs_parsed);
     }
 
-    /* --- Delete old requirements attributes --- */
+    /* --- Delete old requirements attribute --- */
 
-    for (int i = 0; i < num ; i++)
-    {
-        if (array_reqs[i] != 0)
-        {
-            delete array_reqs[i];
-        }
-    }
+    delete array_reqs[0];
 
     return rc;
 
@@ -922,14 +981,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
         oss.str("");
         oss << "CLUSTER_ID = " << cluster_id;
 
-        obj_template->get("REQUIREMENTS", requirements);
-
-        if ( !requirements.empty() )
-        {
-            oss << " & ( " << requirements << " )";
-        }
-
-        replace_template_attribute("REQUIREMENTS", oss.str());
+        obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
     }
 
     return 0;
@@ -1289,11 +1341,23 @@ int VirtualMachine::get_disk_images(string& error_str)
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
+    vector<Attribute*>::iterator it;
+
     // -------------------------------------------------------------------------
     // The context is the first of the cdroms
     // -------------------------------------------------------------------------
-    num_context = obj_template->get("CONTEXT", context_disks);
-    num_disks   = obj_template->get("DISK", disks);
+    num_context = user_obj_template->remove("CONTEXT", context_disks);
+    num_disks   = user_obj_template->remove("DISK", disks);
+
+    for (it=context_disks.begin(); it != context_disks.end(); it++)
+    {
+        obj_template->set(*it);
+    }
+
+    for (it=disks.begin(); it != disks.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     if ( num_disks > 20 )
     {
@@ -1408,11 +1472,11 @@ error_duplicated_target:
 error_common:
     ImageManager *  imagem  = nd.get_imagem();
 
-    vector<int>::iterator it;
+    vector<int>::iterator img_it;
 
-    for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
+    for ( img_it=acquired_images.begin() ; img_it < acquired_images.end(); img_it++ )
     {
-        imagem->release_image(oid, *it, false);
+        imagem->release_image(oid, *img_it, false);
     }
 
     return -1;
@@ -1749,7 +1813,12 @@ int VirtualMachine::get_network_leases(string& estr)
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
-    num_nics   = obj_template->get("NIC",nics);
+    num_nics   = user_obj_template->remove("NIC",nics);
+
+    for (vector<Attribute*>::iterator it=nics.begin(); it != nics.end(); it++)
+    {
+        obj_template->set(*it);
+    }
 
     for(int i=0; i<num_nics; i++)
     {
@@ -2395,6 +2464,47 @@ string VirtualMachine::get_system_dir() const
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachine::update_info(
+    const int _memory,
+    const int _cpu,
+    const long long _net_tx,
+    const long long _net_rx,
+    const map<string, string> &custom)
+{
+    map<string, string>::const_iterator it;
+
+    last_poll = time(0);
+
+    if (_memory != -1)
+    {
+        memory = _memory;
+    }
+
+    if (_cpu != -1)
+    {
+        cpu    = _cpu;
+    }
+
+    if (_net_tx != -1)
+    {
+        net_tx = _net_tx;
+    }
+
+    if (_net_rx != -1)
+    {
+        net_rx = _net_rx;
+    }
+
+    for (it = custom.begin(); it != custom.end(); it++)
+    {
+        replace_template_attribute(it->first, it->second);
+    }
+
+    set_vm_info();
+
+    clear_template_error_message();
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
