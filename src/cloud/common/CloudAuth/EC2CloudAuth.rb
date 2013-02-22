@@ -23,6 +23,7 @@ module EC2CloudAuth
         signature = case params['SignatureVersion']
             when "1" then signature_v1(params.clone,one_pass)
             when "2" then signature_v2(params.clone,one_pass,env,true,false)
+            else return nil
         end
 
         if params['Signature'] == signature
