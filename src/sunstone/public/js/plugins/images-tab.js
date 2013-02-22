@@ -132,12 +132,13 @@ var create_image_tmpl =
                       </div>\
                     </div>\
                   </div>\
-                <hr>\
+                 <div class="row">\
+                 <fieldset>\
+                 <legend>'+tr("Image location")+':</legend>\
                  <div class="" id="src_path_select">\
                   <div class="row">\
                     <div class="columns ten centered">\
                       <div class="row">\
-                        <label>'+tr("Image location")+':</label>\
                         <div class="four columns">\
                          <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'</input> \
                         </div>\
@@ -197,17 +198,15 @@ var create_image_tmpl =
                       </div>\
                     </div>\
                   </div>\
-                 </div>\
                  <div class="img_param" id="upload_div">\
                  <div class="row centered">\
-                 <div class="columns three push-three">\
-                   <label for="file-uploader" >'+tr("Upload file")+':</label>\
-                 </div>\
-                 <div class="columns three pull-four">\
+                 <div class="columns eight">\
                    <div id="file-uploader">\
                    </div><div class="clear" />\
                  </div>\
                  </div>\
+                 </div>\
+                 </fieldset>\
                  </div>\
                 <div class="show_hide" id="advanced_image_create">\
                      <h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
@@ -1144,18 +1143,27 @@ function setupImageCloneDialog(){
 
     //Put HTML in place
 
-    var html = '<form><fieldset>\
+    var html = '<form>\
+<div class="row">\
 <div class="clone_one">'+tr("Choose a new name for the image")+':</div>\
 <div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
-<br />\
-<label class="clone_one">'+tr("Name")+':</label>\
-<label class="clone_several">'+tr("Prefix")+':</label>\
-<input type="text" name="name"></input>\
-<div class="form_buttons">\
-  <button class="button" id="image_clone_button" value="Image.clone">\
+<br>\
+</div>\
+<div class="row">\
+  <div class="columns four">\
+    <label class="clone_one inline right">'+tr("Name")+':</label>\
+    <label class="clone_several inline right">'+tr("Prefix")+':</label>\
+  </div>\
+  <div class="columns eight">\
+    <input type="text" name="name"></input>\
+  </div>\
+</div>\
+<hr>\
+<div class="form_buttons row">\
+  <button class="button radius right" id="image_clone_button" value="Image.clone">\
 '+tr("Clone")+'\
   </button>\
-</div></fieldset></form>\
+</div></form>\
 ';
 
     dialog.html(html);
