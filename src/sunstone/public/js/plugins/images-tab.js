@@ -68,142 +68,221 @@ var images_tab_content = '\
 var create_image_tmpl =
 '<div id="img_tabs">\
         <dl class="tabs">\
-        <dd><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
+        <dd class="active"><a href="#img_easy">'+tr("Wizard")+'</a></dd>\
           <dd><a href="#img_manual">'+tr("Advanced mode")+'</a></dd>\
         </dl>\
         <ul class="tabs-content">\
-        <li id="img_easyTab">\
-           <form id="create_image_form_easy" action="">\
-             <p style="font-size:0.8em;text-align:right;"><i>'+
-    tr("Fields marked with")+' <span style="display:inline-block;" class="ui-icon ui-icon-alert" /> '+
-    tr("are mandatory")+'</i><br />\
-             <fieldset>\
+        <li id="img_easyTab" class="active">\
+           <form id="create_image_form_easy" action="" class="">\
                <div class="img_param img_man">\
-               <label for="img_name">'+tr("Name")+':</label>\
-               <input type="text" name="img_name" id="img_name" />\
-               <div class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
-               </div>\
-               <div class="img_param">\
-                 <label for="img_desc">'+tr("Description")+':</label>\
-                 <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
-               <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
-               </div>\
-               <div class="img_param">\
-                 <label for="img_datastore">'+tr("Datastore")+':</label>\
-                 <select id="img_datastore" name="img_datastore">\
-                 </select>\
-                 <div class="tip">'+tr("Select the datastore for this image")+'</div>\
-               </div>\
-             </fieldset>\
-             <fieldset>\
-               <div class="img_param">\
-                 <label for="img_type">'+tr("Type")+':</label>\
-                 <select name="img_type" id="img_type">\
-                      <option value="OS">'+tr("OS")+'</option>\
-                      <option value="CDROM">'+tr("CDROM")+'</option>\
-                      <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
-                      <option value="KERNEL">'+tr("Kernel")+'</option>\
-                      <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                      <option value="CONTEXT">'+tr("Context")+'</option>\
-                 </select>\
-                 <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
-               </div>\
-               <div class="img_param">\
-                 <label for="img_persistent">'+tr("Persistent")+':</label>\
-                 <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
-                 <div class="tip">'+tr("Persistence of the image")+'</div>\
-               </div>\
-               <div class="img_param">\
-                  <label for="img_dev_prefix">'+tr("Device prefix")+':</label>\
-                  <input type="text" name="img_dev_prefix" id="img_dev_prefix" />\
-                  <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</div>\
-               </div>\
-               <div class="img_param">\
-                  <label for="img_driver">'+tr("Driver")+':</label>\
-                  <input type="text" name="img_driver" id="img_driver" />\
-                  <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
-               </div>\
-               <div class="img_param">\
-                  <label for="img_target">'+tr("Target")+':</label>\
-                  <input type="text" name="img_target" id="img_target" />\
-                  <div class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</div>\
-               </div>\
-              </fieldset>\
-              <fieldset>\
-                 <div class="" id="src_path_select">\
-                   <label style="height:5em;">'+tr("Image location")+':</label>\
-\
-                   <input type="radio" name="src_path" id="path_img" value="path" />\
-                   <label style="float:none">'+tr("Provide a path")+'</label><br />\
-\
-                   <input type="radio" name="src_path" id="upload_img" value="upload" />\
-                   <label style="float:none">'+tr("Upload")+'</label><br />\
-\
-                   <input type="radio" name="src_path" id="datablock_img" value="datablock" />\
-                   <label style="float:none;vertical-align:top">'+tr("Create an empty datablock")+'</label>\
-                   <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div><br />\
-\
-                 </div>\
-                 <div class="img_param">\
-                    <label for="img_path">'+tr("Path")+':</label>\
-                    <input type="text" name="img_path" id="img_path" />\
-                    <div class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</div>\
-                 </div>\
-                 <div class="img_size">\
-                    <label for="img_size">'+tr("Size")+':</label>\
-                     <input type="text" name="img_size" id="img_size" />\
-                      <div class="tip">'+tr("Size of the datablock in MB.")+'</div>\
+                  <div class="row vm_param">\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_name">'+tr("Name")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_name" id="img_name" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Name that the Image will get. Every image must have a unique name.")+'</div>\
+                        </div>\
                       </div>\
-                 <div class="img_param">\
-                    <label for="img_fstype">'+tr("FS type")+':</label>\
-                    <input type="text" name="img_fstype" id="img_fstype" />\
-                    <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_desc">'+tr("Description")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Human readable description of the image for other users.")+'</div>\
+                        </div>\
+                      </div>\
+                    </div>\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_type">'+tr("Type")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <select name="img_type" id="img_type">\
+                              <option value="OS">'+tr("OS")+'</option>\
+                              <option value="CDROM">'+tr("CDROM")+'</option>\
+                              <option value="DATABLOCK">'+tr("DATABLOCK")+'</option>\
+                              <option value="KERNEL">'+tr("Kernel")+'</option>\
+                              <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
+                              <option value="CONTEXT">'+tr("Context")+'</option>\
+                         </select>\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Type of the image, explained in detail in the following section. If omitted, the default value is the one defined in oned.conf (install default is OS).")+'</div>\
+                        </div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_persistent">'+tr("Persistent")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Persistence of the image")+'</div>\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>\
+                <hr>\
+                 <div class="" id="src_path_select">\
+                  <div class="row">\
+                    <div class="columns ten centered">\
+                      <div class="row">\
+                        <label>'+tr("Image location")+':</label>\
+                        <div class="four columns">\
+                         <input type="radio" name="src_path" id="path_img" value="path">'+ tr("Provide a path")+'</input> \
+                        </div>\
+                        <div class="three columns">\
+                         <input type="radio" name="src_path" id="upload_img" value="upload" /> '+tr("Upload")+'\
+                        </div>\
+                        <div class="four  columns">\
+                         <input type="radio" name="src_path" id="datablock_img" value="datablock" /> '+tr("Create an empty datablock")+'\
+                        </div>\
+                        <div class="one columns">\
+                         <div class="tip">'+tr("Please choose path if you have a file-based image. Otherwise upload or create an empty datablock disk.")+'</div><br />\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>\
+                 </div>\
+                 <div class="img_param row">\
+                   <div class="eight columns centered">\
+                    <div class=" row">\
+                    <div class="two columns">\
+                      <label class="right inline" for="img_path">'+tr("Path")+':</label>\
+                    </div>\
+                    <div class="nine columns">\
+                     <input type="text" name="img_path" id="img_path" />\
+                    </div>\
+                    <div class="one columns">\
+                      <div class="tip">'+tr("Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created.")+'</div>\
+                    </div>\
+                 </div>\
+                 </div>\
+                 </div>\
+                 <div class="row">\
+                   <div class="six columns">\
+                     <div class="row img_size">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_size">'+tr("Size")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <input type="text" name="img_size" id="img_size" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Size of the datablock in MB.")+'</div>\
+                        </div>\
+                    </div>\
+                  </div>\
+                   <div class="six columns">\
+                     <div class="row img_param">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_fstype">'+tr("FS type")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <input type="text" name="img_fstype" id="img_fstype" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Type of file system to be built. This can be any value understood by mkfs unix command.")+'</div>\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>\
                  </div>\
                  <div class="img_param" id="upload_div">\
+                 <div class="row centered">\
+                 <div class="columns three push-three">\
                    <label for="file-uploader" >'+tr("Upload file")+':</label>\
+                 </div>\
+                 <div class="columns three pull-four">\
                    <div id="file-uploader">\
                    </div><div class="clear" />\
                  </div>\
-               </fieldset>\
-               <fieldset>\
-                  <div class="">\
-                    <label for="custom_var_image_name">'+tr("Name")+':</label>\
-                    <input type="text" id="custom_var_image_name" name="custom_var_image_name" />\
-                    <label for="custom_var_image_value">'+tr("Value")+':</label>\
-                    <input type="text" id="custom_var_image_value" name="custom_var_image_value" />\
-                    <button class="add_remove_button add_button" id="add_custom_var_image_button" value="add_custom_image_var">'+tr("Add")+'</button>\
-                    <button class="add_remove_button" id="remove_custom_var_image_button" value="remove_custom_image_var">'+tr("Remove selected")+'</button>\
-                    <div class="clear"></div>\
-                    <label for="custom_var_image_box">'+tr("Custom attributes")+':</label>\
-                    <select id="custom_var_image_box" name="custom_var_image_box" style="height:100px;" multiple>\
-                    </select>\
                  </div>\
-               </fieldset>\
-               <fieldset>\
-                  <div class="form_buttons">\
-                    <button class="button" id="create_image_submit" value="user/create">'+tr("Create")+'</button>\
-                    <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 </div>\
+                <div class="show_hide" id="advanced_image_create">\
+                     <h4><small><i class=" icon-plus-sign-alt"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>\
+                </div>\
+                <div class="advanced">\
+                  <div class="row">\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_dev_prefix">'+tr("Device prefix")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_dev_prefix" id="img_dev_prefix" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”).")+'</div>\
+                        </div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_driver">'+tr("Driver")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_driver" id="img_driver" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:")+'</div>\
+                        </div>\
+                      </div>\
                     </div>\
-                    </fieldset>\
+                    <div class="six columns">\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_target">'+tr("Target")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                          <input type="text" name="img_target" id="img_target" />\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Target on which the image will be mounted at. For example: hda, sdb...")+'</div>\
+                        </div>\
+                      </div>\
+                      <div class="row">\
+                        <div class="four columns">\
+                          <label class="right inline" for="img_datastore">'+tr("Datastore")+':</label>\
+                        </div>\
+                        <div class="seven columns">\
+                         <select id="img_datastore" name="img_datastore">\
+                         </select>\
+                        </div>\
+                        <div class="one columns">\
+                          <div class="tip">'+tr("Select the datastore for this image")+'</div>\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>\
+                  </div>\
+                  <hr>\
+                  <div class="form_buttons">\
+                    <button class="button success radius right" id="create_image_submit" value="user/create">'+tr("Create")+'</button>\
+                    <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+                  </div>\
             </form>\
         </li>\
         <li id="img_manualTab">\
-            <form id="create_image_form_manual" action="">\
-               <fieldset style="border-top:none;">\
+            <form id="create_image_form_manual" action="" class="custom">\
                  <h3 style="margin-bottom:10px;">'+tr("Write the image template here")+'</h3>\
                  <label for="img_datastores_raw">'+tr("Datastore")+':</label>\
                  <select id="img_datastore_raw" name="img_datastore_raw">\
                  </select>\
                  <textarea id="template" rows="15" style="width:100%;"></textarea>\
-               </fieldset>\
-               <fieldset>\
                <div class="form_buttons">\
-                 <button class="button" id="create_vn_submit_manual" value="vn/create">\
-                    '+tr("Create")+'\
-                 </button>\
-                 <button class="button" type="reset" value="reset">'+tr("Reset")+'</button>\
+                 <button class="button success radius right" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
+                 <button class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
                </div>\
-             </fieldset>\
            </form>\
         </li>\
         </ul>\
@@ -552,7 +631,7 @@ function updateImageInfo(request,img){
         content:
         '<div class="row">\
         <div class="six columns">\
-        <table id="info_img_table" class="twelve datatable">\
+        <table id="info_img_table" class="twelve datatable extended_table">\
            <thead>\
             <tr><th colspan="3">'+tr("Image")+' "'+img_info.NAME+'" '+
             tr("information")+'</th></tr>\
@@ -607,7 +686,7 @@ function updateImageInfo(request,img){
               <td></td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Size (Mb)")+'</td>\
+              <td class="key_td">'+tr("Size (MB)")+'</td>\
               <td class="value_td">'+img_info.SIZE+'</td>\
               <td></td>\
            </tr>\
@@ -617,27 +696,23 @@ function updateImageInfo(request,img){
               <td></td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Running #VMS")+'</td>\
+              <td class="key_td">'+tr("Running VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
               <td></td>\
            </tr>\
         </table>\
         </div>\
-        <div class="six columns">\
-          <div class="row">'
+        <div class="six columns">'
            + insert_permissions_table("Image",
                                    img_info.ID,
                                    img_info.UNAME,
                                    img_info.GNAME,
                                    img_info.UID,
                                    img_info.GID) +
-          '</div>\
-          <div class="row">'
-           + insert_extended_template_table(img_info.TEMPLATE,
+            insert_extended_template_table(img_info.TEMPLATE,
                                                "Image",
                                                img_info.ID) + 
-          '</div>\
-        </div>\
+        '</div>\
       </div>'
     }
 
@@ -738,7 +813,14 @@ function setupCreateImageDialog(){
     //    width: 520,
     //    height: height
     //});
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal xlarge");
+
+    $('.advanced',dialog).hide();
+
+    $('#advanced_image_create',dialog).click(function(){
+        $('.advanced',dialog).toggle();
+        return false;
+    });
 
     //$('#img_tabs',dialog).tabs();
     //$('button',dialog).button();
@@ -755,29 +837,28 @@ function setupCreateImageDialog(){
             break;
         default:
             $('#datablock_img',context).attr('disabled','disabled');
-            $('#path_img',context).attr('checked','checked');
-            $('#img_fstype,#img_size,#file-uploader',context).parent().hide();
-            $('#img_path',context).parent().show();
+            $('#path_img',context).click();
+
         }
     });
 
-    $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).parent().hide();
+    $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).closest('.row').hide();
 
     $('#src_path_select input').click(function(){
         var context = $create_image_dialog;
         var value = $(this).val();
         switch (value){
         case "path":
-            $('#img_fstype,#img_size,#file-uploader',context).parent().hide();
-            $('#img_path',context).parent().show();
+            $('#img_fstype,#img_size,#file-uploader',context).closest('.row').hide();
+            $('#img_path',context).closest('.row').show();
             break;
         case "datablock":
-            $('#img_path,#file-uploader',context).parent().hide();
-            $('#img_fstype,#img_size',context).parent().show();
+            $('#img_path,#file-uploader',context).closest('.row').hide();
+            $('#img_fstype,#img_size',context).closest('.row').show();
             break;
         case "upload":
-            $('#img_path,#img_fstype,#img_size',context).parent().hide();
-            $('#file-uploader',context).parent().show();
+            $('#img_path,#img_fstype,#img_size',context).closest('.row').hide();
+            $('#file-uploader',context).closest('.row').show();
             break;
         };
     });
@@ -858,11 +939,11 @@ function setupCreateImageDialog(){
                               '<div id="upload-progress"></div>'+
                               '</div>').addClass("reveal-modal");
 
-            $('#upload-progress',pb_dialog).progressbar({value:0});
+            //$('#upload-progress',pb_dialog).progressbar({value:0});
         },
         onProgress: function(id, fileName, loaded, total){
             //update upload dialog with current progress
-            $('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
+            //$('div#pb_dialog #upload-progress').progressbar("option","value",Math.floor(loaded*100/total));
         },
         onComplete: function(id, fileName, responseJSON){
             //Inform complete upload, destroy upload dialog, refresh img list
@@ -1044,8 +1125,7 @@ function popUpCreateImageDialog(){
 function setImageAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_images);
-        var filter = $("#datatable_images_filter input",
-                       dataTable_images.parents("#datatable_images_wrapper")).attr('value');
+        var filter = $("#image_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Image.autorefresh");
         }

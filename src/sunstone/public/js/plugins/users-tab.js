@@ -896,8 +896,7 @@ function popUpUpdatePasswordDialog(){
 function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_users);
-        var filter = $("#datatable_users_filter input",
-                       dataTable_users.parents("#datatable_users_wrapper")).attr('value');
+        var filter = $("#user_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
         }

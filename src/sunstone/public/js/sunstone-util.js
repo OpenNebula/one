@@ -1327,7 +1327,7 @@ function convert_template_to_string(template_json,unshown_values)
 // Create the extended template table (with listeners)
 function insert_extended_template_table(template_json,resource_type,resource_id,unshown_values)
 {
-    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table twelve datatable">\
+    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table twelve datatable extended_table">\
                  <thead>\
                    <tr>\
                      <th colspan="4">' +
@@ -1780,7 +1780,7 @@ function buildOctet(permTable){
 
 // Returns HTML with listeners to control permissions
 function insert_permissions_table(resource_type,resource_id, owner, group, vm_uid, vm_gid){
-     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table twelve datatable">\
+     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table twelve datatable extended_table">\
                      <thead><tr>\
                          <th style="width:130px">'+tr("Permissions")+':</th>\
                          <th style="width:40px;text-align:center;">'+tr("Use")+'</th>\

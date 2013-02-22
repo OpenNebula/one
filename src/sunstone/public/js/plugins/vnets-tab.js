@@ -1101,8 +1101,7 @@ function setupLeasesOps(){
 function setVNetAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_vNetworks);
-        var filter = $("#datatable_vnetworks_filter input",
-                       dataTable_vNetworks.parents("#datatable_vnetworks_wrapper")).attr('value');
+        var filter = $("#vnet_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Network.autorefresh");
         }

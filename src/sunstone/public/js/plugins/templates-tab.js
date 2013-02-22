@@ -3823,8 +3823,7 @@ function popUpTemplateCloneDialog(){
 function setTemplateAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_templates);
-        var filter = $("#datatable_templates_filter input",
-                       dataTable_templates.parents('#datatable_templates_wrapper')).attr('value');
+        var filter = $("#template_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Template.autorefresh");
         }

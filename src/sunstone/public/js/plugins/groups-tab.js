@@ -52,7 +52,7 @@ var groups_tab_content = '\
     </div>\
   </div>\
   <div class="three columns">\
-    <input id="user_search" type="text" placeholder="Search" />\
+    <input id="group_search" type="text" placeholder="Search" />\
   </div>\
   <br>\
   <br>\
@@ -625,7 +625,7 @@ function popUpGroupQuotasDialog(){
 function setGroupAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_groups);
-        var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr('value');
+        var  filter = $("#group_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Group.autorefresh");
         }
@@ -649,6 +649,9 @@ $(document).ready(function(){
     //addElement([
     //    spinner,
     //    '','','','','',''],dataTable_groups);
+    $('#group_search').keyup(function(){
+      dataTable_groups.fnFilter( $(this).val() );
+    })
 
     Sunstone.runAction("Group.list");
     setupCreateGroupDialog();

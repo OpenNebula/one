@@ -1394,8 +1394,7 @@ function popUpCreateVMDialog(){
 function setVMAutorefresh(){
      setInterval(function(){
          var checked = $('input.check_item:checked',dataTable_vMachines);
-         var filter = $("#datatable_vmachines_filter input",
-                        dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr('value');
+         var filter = $("#vms_search").attr('value');
          if (!checked.length && !filter.length){
              Sunstone.runAction("VM.autorefresh");
          };

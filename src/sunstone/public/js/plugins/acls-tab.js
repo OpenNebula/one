@@ -530,7 +530,7 @@ function popUpCreateAclDialog(){
 function setAclAutorefresh(){
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_acls);
-        var filter = $("#datatable_acls_filter input",dataTable_acls.parents("#datatable_acls_wrapper")).attr('value');
+        var filter = $('#acl_search').attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Acl.autorefresh");
         }

@@ -6453,3 +6453,13 @@ span.plusIcon {
 span.plusIcon:hover {
   color: #555;
 }
+
+/* line 488, ../sass/app.scss */
+table.extended_table tbody tr td {
+  padding: 3px 10px;
+}
+
+/* line 492, ../sass/app.scss */
+.reveal-modal .row {
+  margin-bottom: 0px;
+}

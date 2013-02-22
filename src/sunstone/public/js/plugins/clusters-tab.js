@@ -1808,7 +1808,7 @@ function setClusterAutorefresh() {
         var inSubMenu = selected_menu.attr('id').indexOf('cluster') > 0;
 
         var checked = $('input.check_item:checked',dataTable_clusters);
-        var  filter = $("#datatable_clusters_filter input",dataTable_clusters.parents('#datatable_clusters_wrapper')).attr('value');
+        var  filter = $("#cluster_search").attr('value');
         if (!checked.length && !filter.length && !inSubMenu){
             Sunstone.runAction("Cluster.autorefresh");
         }

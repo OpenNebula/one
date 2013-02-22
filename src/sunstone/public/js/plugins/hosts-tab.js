@@ -865,7 +865,7 @@ function popUpCreateHostDialog(){
 function setHostAutorefresh() {
     setInterval(function(){
         var checked = $('input.check_item:checked',dataTable_hosts);
-        var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr('value');
+        var  filter = $("#hosts_search").attr('value');
         if (!checked.length && !filter.length){
             Sunstone.runAction("Host.autorefresh");
         }

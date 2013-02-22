@@ -873,8 +873,7 @@ function popUpCreateDatastoreDialog(){
 function setDatastoreAutorefresh(){
      setInterval(function(){
          var checked = $('input.check_item:checked',dataTable_datastores);
-         var filter = $("#datatable_datastores_filter input",
-                        dataTable_datastores.parents('#datatable_datastores_wrapper')).attr('value');
+         var filter = $("#datastore_search").attr('value');
          if (!checked.length && !filter.length){
              Sunstone.runAction("Datastore.autorefresh");
          };
