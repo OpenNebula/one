@@ -22,6 +22,7 @@ module OpenNebula
     # and provides the basic functionality to handle the Pool elements
     class Pool < XMLPool
         include Enumerable
+        alias_method :each_with_xpath, :each
 
     protected
         #pool:: _String_ XML name of the root element
