@@ -1327,10 +1327,10 @@ function convert_template_to_string(template_json,unshown_values)
 // Create the extended template table (with listeners)
 function insert_extended_template_table(template_json,resource_type,resource_id,unshown_values)
 {
-    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table">\
+    var str = '<table id="'+resource_type.toLowerCase()+'_template_table" class="info_table twelve datatable">\
                  <thead>\
                    <tr>\
-                     <th colspan="2">' +
+                     <th colspan="4">' +
                       tr("Extended Template") +
                      '</th>\
                    </tr>\
@@ -1338,7 +1338,7 @@ function insert_extended_template_table(template_json,resource_type,resource_id,
                   <tr>\
                     <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
                     <td class="value_td"><input type="text" name="new_value" id="new_value" /></td>\
-                    <td class=""><button id="button_add_value">'+tr("Add")+'</button>\</td>\
+                    <td colspan="2" class=""><button id="button_add_value" class="button small secondary">'+tr("Add")+'</button>\</td>\
                   </tr>' + fromJSONtoHTMLTable(template_json,
                                                resource_type,
                                                resource_id) +
@@ -1646,12 +1646,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                            <td class="value_vectorial_td"></td>\
                            <td>\
                            <div id="div_add_vectorial">\
-                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a ocurrence_'+it+' vectorial_key_'+field+'" href="#">a</a>\
+                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a ocurrence_'+it+' vectorial_key_'+field+'" href="#"><i class="icon-plus-sign"/></a>\
                            </div>\
                          </td>\
-                         <td>\
+                           <td>\
                            <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_vectorial_x ocurrence_'+it+'" href="#">x</a>\
+                             <a id="div_minus_'+field+'" class="remove_vectorial_x ocurrence_'+it+'" href="#"><i class="icon-edit"/><i class="icon-trash"/></a>\
                            </div>\
                          </td>'
 
@@ -1688,12 +1688,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                      <td class="value_td value_vectorial_td value_td_input_'+field+ocurrence_str+' vectorial_key_'+vectorial_key+'" id="value_td_input_'+field+'">'+value+'</td>\
                      <td>\
                        <div id="div_edit_vectorial">\
-                         <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#">e</a>\
+                         <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="icon-edit"/></a>\
                        </div>\
                      </td>\
                      <td>\
                        <div id="div_minus_vectorial">\
-                         <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#">x</a>\
+                         <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+' vectorial_key_'+vectorial_key+'" href="#"><i class="icon-trash"/></a>\
                        </div>\
                      </td>\
                    </tr>';
@@ -1708,12 +1708,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                            <td class="value_vectorial_td"></td>\
                            <td>\
                            <div id="div_add_vectorial">\
-                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a'+ocurrence_str+' vectorial_key_'+field+'" href="#">a</a>\
+                             <a id="div_add_vectorial_'+field+'" class="add_vectorial_a'+ocurrence_str+' vectorial_key_'+field+'" href="#"><i class="icon-plus-sign"/></a>\
                            </div>\
                          </td>\
-                         <td>\
+                           <td>\
                            <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_vectorial_x'+ocurrence_str+'" href="#">x</a>\
+                             <a id="div_minus_'+field+'" class="remove_vectorial_x'+ocurrence_str+'" href="#"><i class="icon-trash"/></a>\
                            </div>\
                          </td>'
                str += fromJSONtoHTMLTable(value,
@@ -1729,12 +1729,12 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
                          <td class="value_td" id="value_td_input_'+field+'">'+value+'</td>\
                          <td>\
                            <div id="div_edit">\
-                             <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+'" href="#">e</a>\
+                             <a id="div_edit_'+field+'" class="edit_e'+ocurrence_str+'" href="#"><i class="icon-edit"/></a>\
                            </div>\
                          </td>\
                          <td>\
                            <div id="div_minus">\
-                             <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+'" href="#">x</a>\
+                             <a id="div_minus_'+field+'" class="remove_x'+ocurrence_str+'" href="#"><i class="icon-trash"/></a>\
                            </div>\
                          </td>\
                        </tr>';
@@ -1780,12 +1780,12 @@ function buildOctet(permTable){
 
 // Returns HTML with listeners to control permissions
 function insert_permissions_table(resource_type,resource_id, owner, group, vm_uid, vm_gid){
-     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table" style="padding:0 10px;">\
+     var str ='<table class="'+resource_type.toLowerCase()+'_permissions_table twelve datatable">\
                      <thead><tr>\
-                         <td style="width:130px">'+tr("Permissions")+':</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Use")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Manage")+'</td>\
-                         <td style="width:40px;text-align:center;">'+tr("Admin")+'</td></tr></thead>\
+                         <th style="width:130px">'+tr("Permissions")+':</th>\
+                         <th style="width:40px;text-align:center;">'+tr("Use")+'</th>\
+                         <th style="width:40px;text-align:center;">'+tr("Manage")+'</th>\
+                         <th style="width:40px;text-align:center;">'+tr("Admin")+'</th></tr></thead>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
                          <td style="text-align:center"><input type="checkbox" class="permission_check owner_u" /></td>\
@@ -1807,22 +1807,20 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
 
      if (mustBeAdmin())
      {
-        str += '<tr><td style="width:130px">'+tr("Ownership")+'</td>\</tr>\
+        str += '<thead><tr><th colspan="4" style="width:130px">'+tr("Ownership")+'</th>\</tr></thead>\
                      <tr>\
                          <td>'+tr("Owner")+'</td>\
-                         <td></td>\
-                         <td id="value_td_owner">'+owner+'</td>\
+                         <td colspan="2" id="value_td_owner">'+owner+'</td>\
                           <td><div id="div_edit_chg_owner">\
-                                 <a id="div_edit_chg_owner_link" class="edit_e" href="#">e</a>\
+                                 <a id="div_edit_chg_owner_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                               </div>\
                           </td>\
                      </tr>\
                      <tr>\
                          <td>'+tr("Group")+'</td>\
-                         <td></td>\
-                         <td id="value_td_group">'+group+'</td>\
+                         <td colspan="2" id="value_td_group">'+group+'</td>\
                           <td><div id="div_edit_chg_group">\
-                                 <a id="div_edit_chg_group_link" class="edit_e" href="#">e</a>\
+                                 <a id="div_edit_chg_group_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                               </div>\
                           </td>\
                      </tr>\
@@ -1835,7 +1833,7 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
         // Listener for key,value pair edit action
         $("#div_edit_chg_owner_link").live("click", function() {
             var value_str = $("#value_td_owner").text();
-            var select_str='<select style="margin: 10px 0;" id="user_confirm_select">';
+            var select_str='<select id="user_confirm_select">';
             select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
             select_str+="</select>";
             $("#value_td_owner").html(select_str);
@@ -1858,7 +1856,7 @@ function insert_permissions_table(resource_type,resource_id, owner, group, vm_ui
         // Listener for key,value pair edit action
         $("#div_edit_chg_group_link").live("click", function() {
             var value_str = $("#value_td_group").text();
-            var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
+            var select_str='<select id="group_confirm_select">';
             select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
             select_str+="</select>";
             $("#value_td_group").html(select_str);

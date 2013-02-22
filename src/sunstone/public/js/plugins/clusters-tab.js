@@ -24,7 +24,7 @@ var host_datatable_table_tmpl='<thead>\
           <th>' + tr("ID") + '</th>\
           <th>' + tr("Name") + '</th>\
           <th>' + tr("Cluster") + '</th>\
-          <th>' + tr("Running VMs") + '</th>\
+          <th>' + tr("RVMs") + '</th>\
           <th>' + tr("Real CPU") + '</th>\
           <th>' + tr("Allocated CPU") + '</th>\
           <th>' + tr("Real MEM") + '</th>\
@@ -48,7 +48,7 @@ var vnet_datatable_table_tmpl='<thead>\
         <th>'+tr("Cluster")+'</th>\
         <th>'+tr("Type")+'</th>\
         <th>'+tr("Bridge")+'</th>\
-        <th>'+tr("Total Leases")+'</th>\
+        <th>'+tr("Leases")+'</th>\
       </tr>\
     </thead>\
     <tbody id="tbodyvnetworks">\
@@ -73,67 +73,63 @@ var datastore_datatable_table_tmpl='<thead>\
 
 
 var create_cluster_tmpl ='<div id="cluster_create_tabs">\
-  <fieldset>\
+  <form class="custom">\
   <label for="name">' + tr("Name") + ':</label><input type="text" name="name" id="name" />\
-  </fieldset>\
     <dl class="tabs">\
-        <dd><a href="#tab-hosts">'+tr("HOSTs")+'</a></dd>\
+        <dd class="active"><a href="#tab-hosts">'+tr("HOSTs")+'</a></dd>\
         <dd><a href="#tab-vnets">'+tr("VIRTUAL NETWORKs")+'</a></dd>\
         <dd><a href="#tab-datastores">'+tr("DATASTOREs")+'</a></dd>\
     </dl>\
     <ul class="tabs-content">\
-    <li id="tab-hostsTab">\
-    <fieldset>\
+    <li id="tab-hostsTab" class="active">\
+      <div class="row">\
+        <div class="five columns push-seven">\
+          <input id="cluster_hosts_search" type="text" placeholder="Search"/>\
+        </div>\
+      </div>\
       <div id="datatable_cluster_hosts_div">\
             <h3>' +
             tr("Select Hosts for this Cluster") +
             '<button id="refresh_host_table_button_class" class="icon-refresh action_button" value="ClusterHost.list" style="float:right;"></h3>\
             <hr>\
-            <table id="datatable_cluster_hosts" class="display">' + host_datatable_table_tmpl + '</table></div>\
+            <table id="datatable_cluster_hosts" class="table twelve">' + host_datatable_table_tmpl + '</table></div>\
       <div id="selected_hosts_div"></div>\
-    </fieldset>\
-              <div class="form_buttons">\
-                <button class="button" type="" value="" id="tf_btn_hosts_next">'+tr("VIRTUAL NETWORKs >")+'</button>\
-              </div>\
     </li>\
     <li id="tab-vnetsTab">\
-    <fieldset>\
+      <div class="row">\
+        <div class="five columns push-seven">\
+          <input id="cluster_vnets_search" type="text" placeholder="Search"/>\
+        </div>\
+      </div>\
       <div id="datatable_cluster_vnets_div">\
             <h3>' +
             tr("Select Virtual Networks for this Cluster") +
             '<button id="refresh_vnet_table_button_class" class="icon-refresh action_button" value="ClusterVN.list" style="float:right;"></h3>\
             <hr>\
-            <table id="datatable_cluster_vnets" class="display">' + vnet_datatable_table_tmpl + '</table></div>\
+            <table id="datatable_cluster_vnets" class="table twelve">' + vnet_datatable_table_tmpl + '</table></div>\
       <div id="selected_vnets_div"></div>\
-    </fieldset>\
-              <div class="form_buttons">\
-                <button class="button" type="" value="" id="tf_btn_vnets_back">'+tr("< HOSTs")+'</button>\
-              </div>\
-              <div class="form_buttons">\
-                <button class="button" type="" value="" id="tf_btn_vnets_next">'+tr("DATASTOREs >")+'</button>\
-              </div>\
     </li>\
     <li id="tab-datastoresTab">\
-    <fieldset>\
+      <div class="row">\
+        <div class="five columns push-seven">\
+          <input id="cluster_datastores_search" type="text" placeholder="Search"/>\
+        </div>\
+      </div>\
       <div id="datatable_cluster_datastores_div">\
             <h3>' +
             tr("Select Datastores for this Cluster") +
             '<button id="refresh_datastore_table_button_class" class="icon-refresh action_button" value="ClusterDS.list" style="float:right;"></h3>\
             <hr>\
-            <table id="datatable_cluster_datastores" class="display">' + datastore_datatable_table_tmpl + '</table></div>\
+            <table id="datatable_cluster_datastores" class="table twelve">' + datastore_datatable_table_tmpl + '</table></div>\
       <div id="selected_datastores_div"></div>\
-    </fieldset>\
-              <div class="form_buttons">\
-                <button class="button" type="" value="" id="tf_btn_datastores_back">'+tr("< VIRTUAL NETWORKS")+'</button>\
-              </div>\
     </li>\
-  <fieldset>\
+    <hr>\
     <div class="form_buttons">\
         <button class="button" type="submit" id="create_cluster_submit" value="OpenNebula.Cluster.create">' + tr("Create") + '</button>\
         <button class="button" type="submit" id="update_cluster_submit">' + tr("Update") + '</button>\
         <button class="button" type="reset" value="reset">' + tr("Reset") + '</button>\
     </div>\
-  </fieldset>\
+  </form>\
 </div>';
 
 // Common utils for datatatables
@@ -160,21 +156,17 @@ function setupCreateClusterDialog(datatable_filter){
     //    height: height,
     //    width: 'auto'
     //});
-    dialog.addClass("reveal-modal");
+    dialog.addClass("reveal-modal xlarge");
 
     //Enable tabs
     //$('#cluster_create_tabs',dialog).tabs({});
 
     //  ------- Create the dialog datatables ------------
     dataTable_cluster_hosts = $("#datatable_cluster_hosts", dialog).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" :  "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": { //exclude checkbox column
             "aiExclude": [ 0 ]
         },
-        "bAutoWidth":false,
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,4] },
@@ -189,6 +181,10 @@ function setupCreateClusterDialog(datatable_filter){
             } : ""
     });
 
+    $('#cluster_hosts_search', dialog).keyup(function(){
+      dataTable_cluster_hosts.fnFilter( $(this).val() );
+    })
+
     //preload it
     //dataTable_cluster_hosts.fnClearTable();
 
@@ -198,14 +194,10 @@ function setupCreateClusterDialog(datatable_filter){
     //    '','','','','','','','','','','',''],dataTable_cluster_hosts);
 
     dataTable_cluster_vnets = $("#datatable_cluster_vnets", dialog).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "bAutoWidth":false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,6,7,8] },
@@ -220,6 +212,10 @@ function setupCreateClusterDialog(datatable_filter){
     });
 
 
+    $('#cluster_vnets_search', dialog).keyup(function(){
+      dataTable_cluster_hosts.fnFilter( $(this).val() );
+    })
+
     //preload it
     //dataTable_cluster_vnets.fnClearTable();
     //dataTable_cluster_vnets.fnFilter( datatable_filter, 5, true); // Only show no assigned resources
@@ -228,14 +224,10 @@ function setupCreateClusterDialog(datatable_filter){
     //    '','','','','','','','','','','',''],dataTable_cluster_vnets);
 
     dataTable_cluster_datastores = $("#datatable_cluster_datastores", dialog).dataTable({
-        "bJQueryUI": true,
-        "bSortClasses": false,
-        "sDom" : '<"H"lfrC>t<"F"ip>',
+        "sDom" : "<'H'>t<'row'<'six columns'i><'six columns'p>>",
         "oColVis": {
             "aiExclude": [ 0 ]
         },
-        "sPaginationType": "full_numbers",
-        "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
@@ -249,6 +241,10 @@ function setupCreateClusterDialog(datatable_filter){
             } : ""
     });
 
+
+    $('#cluster_datastores_search', dialog).keyup(function(){
+      dataTable_cluster_hosts.fnFilter( $(this).val() );
+    })
 
     //preload it
     //dataTable_cluster_datastores.fnClearTable();

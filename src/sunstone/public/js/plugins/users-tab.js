@@ -238,7 +238,7 @@ var user_actions = {
                 success: updateUsersView,
                 error: onError
             });
-        }
+      }
     },
 
     "User.update_password" : {

@@ -6222,39 +6222,41 @@ div.button-bar {
   border-top: none;
 }
 
-/* line 221, ../sass/app.scss */
-#navigation > li:not(.subTab).navigation-active-li > a {
+/* line 222, ../sass/app.scss */
+#navigation > li:not(.subTab).navigation-active-li > a,
+#navigation > li:not(.subTab).active > a {
   background: #f2f2f2;
   border: none;
   color: #555;
 }
 
-/* line 231, ../sass/app.scss */
+/* line 232, ../sass/app.scss */
 #navigation i {
   margin-right: 3px;
 }
 
-/* line 236, ../sass/app.scss */
+/* line 237, ../sass/app.scss */
 #navigation li.subTab > a {
   background: #fdfdfd;
   color: #555;
   border: none;
-  padding: 10px 25px;
+  padding: 10px 11px 10px 25px;
 }
 
-/* line 243, ../sass/app.scss */
+/* line 244, ../sass/app.scss */
 #navigation li.subsubTab {
   padding-left: 35px;
 }
 
-/* line 247, ../sass/app.scss */
-#navigation li:hover, .navigation-active-li {
+/* line 249, ../sass/app.scss */
+#navigation li:hover, #navigation .navigation-active-li,
+#navigation li:hover {
   font-weight: bold;
   border-left: 3px solid #555555 !important;
 }
 
 /* top menu css */
-/* line 309, ../sass/app.scss */
+/* line 311, ../sass/app.scss */
 #menutop_container {
   margin: 0px 171px;
   color: #FFFFFF;
@@ -6262,14 +6264,14 @@ div.button-bar {
   font-weight: bold;
 }
 
-/* line 315, ../sass/app.scss */
+/* line 317, ../sass/app.scss */
 #menutop_navbar {
   float: left;
   height: 25px;
   font-size: 13px;
 }
 
-/* line 320, ../sass/app.scss */
+/* line 322, ../sass/app.scss */
 #menutop_navbar ul {
   float: left;
   height: 25px;
@@ -6278,12 +6280,12 @@ div.button-bar {
   padding-left: 1px;
 }
 
-/* line 327, ../sass/app.scss */
+/* line 329, ../sass/app.scss */
 #menutop_navbar ul {
   background-color: #4d4d4d;
 }
 
-/* line 330, ../sass/app.scss */
+/* line 332, ../sass/app.scss */
 #menutop_navbar ul li {
   float: left;
   min-width: 72px;
@@ -6300,18 +6302,18 @@ div.button-bar {
   color: white;
 }
 
-/* line 346, ../sass/app.scss */
+/* line 348, ../sass/app.scss */
 #menutop_navbar ul li:hover {
   background-color: #ffffff;
 }
 
 /* end top menu css */
-/* line 357, ../sass/app.scss */
+/* line 359, ../sass/app.scss */
 .ui-layout-pane {
   border: none;
 }
 
-/* line 362, ../sass/app.scss */
+/* line 364, ../sass/app.scss */
 .button.small {
   font-size: 12px;
   padding: 6px 12px 6px;
@@ -6319,117 +6321,135 @@ div.button-bar {
   height: 28px;
 }
 
-/* line 369, ../sass/app.scss */
+/* line 371, ../sass/app.scss */
 .button.tiny {
   box-shadow: none;
 }
 
-/* line 373, ../sass/app.scss */
+/* line 375, ../sass/app.scss */
 .panel {
   padding: 0px;
   background: #f2f2f2;
 }
 
-/* line 378, ../sass/app.scss */
+/* line 380, ../sass/app.scss */
 .tabs.vertical li a {
   padding: 15px 11px;
 }
 
-/* line 382, ../sass/app.scss */
+/* line 384, ../sass/app.scss */
 input[type="text"] {
   height: 28px !important;
+  margin: 0px;
 }
 
-/* line 386, ../sass/app.scss */
+/* line 389, ../sass/app.scss */
 .right {
   float: right;
 }
 
-/* line 390, ../sass/app.scss */
+/* line 393, ../sass/app.scss */
 .ui-layout-pane {
   background: #fdfdfd;
 }
 
-/* line 397, ../sass/app.scss */
+/* line 400, ../sass/app.scss */
 tr.odd:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 403, ../sass/app.scss */
+/* line 406, ../sass/app.scss */
 tr.even:hover td {
   background-color: #2ba6cb !important;
   cursor: pointer;
   color: white !important;
 }
 
-/* line 409, ../sass/app.scss */
+/* line 412, ../sass/app.scss */
 tr {
   border-bottom: 1px solid #e6e6e6;
 }
 
-/* line 415, ../sass/app.scss */
+/* line 418, ../sass/app.scss */
 table thead tr th, table tfoot tr td {
   padding: 5px 10px 5px;
   line-height: 16px;
 }
 
-/* line 420, ../sass/app.scss */
+/* line 423, ../sass/app.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
 /* Growl */
-/* line 426, ../sass/app.scss */
+/* line 429, ../sass/app.scss */
 .jGrowl-notification h1 {
   font-size: 1.2em;
 }
 
-/* line 430, ../sass/app.scss */
+/* line 433, ../sass/app.scss */
 .jGrowl-notification, .jGrowl-notify-submit {
   border: 2px #444444 solid;
   background-color: #F3F3F3!important;
   color: #666666;
 }
 
-/* line 436, ../sass/app.scss */
+/* line 439, ../sass/app.scss */
 .jGrowl-notify-error {
   border: 2px #660000 solid;
   background-color: #F39999!important;
   color: #660000;
 }
 
-/* line 442, ../sass/app.scss */
+/* line 445, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error {
   text-transform: capitalize;
   width: 100%;
   font-weight: bold;
 }
 
-/* line 448, ../sass/app.scss */
+/* line 451, ../sass/app.scss */
 .jGrowl-notify-error table td.key_error:after {
   content: ":";
 }
 
-/* line 455, ../sass/app.scss */
+/* line 458, ../sass/app.scss */
 .markrow {
   background-color: #cdebf5 !important;
 }
 
-/* line 456, ../sass/app.scss */
+/* line 459, ../sass/app.scss */
 .markrowselected {
   background-color: #2ba6cb !important;
   color: #FFF;
 }
 
-/* line 457, ../sass/app.scss */
+/* line 460, ../sass/app.scss */
 .markrowchecked {
   background-color: #cdebf5;
 }
 
-/* line 460, ../sass/app.scss */
+/* line 463, ../sass/app.scss */
 .hidden {
   display: none;
+}
+
+/* line 472, ../sass/app.scss */
+#navigation li.topTab span.plusIcon,
+#navigation li.subTab span.plusIcon {
+  display: none;
+  float: right;
+}
+
+/* line 477, ../sass/app.scss */
+span.plusIcon {
+  color: #d0d0d0;
+}
+
+/* line 481, ../sass/app.scss */
+span.plusIcon:hover {
+  color: #555;
 }

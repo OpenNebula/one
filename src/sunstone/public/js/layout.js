@@ -104,10 +104,11 @@ function setupTabs(){
             //hide subtabs and reset icon to + position, since all subsubtabs
             //are hidden
             subtabs.fadeToggle('fast');
-            $('span',subtabs).removeClass('ui-icon-circle-minus');
-            $('span',subtabs).addClass('ui-icon-circle-plus');
+            $(this).removeClass('active');
+            $('span',subtabs).removeClass(' icon-caret-down');
+            $('span',subtabs).addClass(' icon-caret-left');
             //toggle icon on this tab
-            $('span',this).toggleClass('ui-icon-circle-plus ui-icon-circle-minus');
+            $('span',this).toggleClass(' icon-caret-left  icon-caret-down');
         };
         //if we are clicking on the icon only, do not show the tab
         if ($(e.target).is('span')) return false;
@@ -135,7 +136,7 @@ $(document).ready(function () {
         applyDefaultStyles:       false
     ,   center__paneSelector:	".outer-center"
     ,	west__paneSelector:		".outer-west"
-    ,	west__size:				220
+    ,	west__size:				245
     ,	north__size:			26
     ,   south__size:            26
     ,	spacing_open:			0 // ALL panes

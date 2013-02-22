@@ -218,7 +218,8 @@ div.button-bar {
     border-top: none;
 }
 
-#navigation > li:not(.subTab).navigation-active-li > a {
+#navigation > li:not(.subTab).navigation-active-li > a,
+#navigation > li:not(.subTab).active > a {
     background: #f2f2f2;
     border:none;
     color: #555;
@@ -237,14 +238,15 @@ div.button-bar {
     background: #fdfdfd;
     color: #555;
     border:none;
-    padding: 10px 25px;
+    padding: 10px 11px 10px 25px;
 }
 
 #navigation li.subsubTab {
     padding-left:       35px;
 }
 
-#navigation li:hover, .navigation-active-li {
+#navigation li:hover, #navigation .navigation-active-li,
+#navigation li:hover, {
     font-weight: bold;
     border-left: 3px solid #555 !important;
 }
@@ -381,6 +383,7 @@ div.button-bar {
 
 input[type="text"] {
     height: 28px !important;
+    margin: 0px;
 }
 
 .right {
@@ -464,4 +467,18 @@ table {
 
 
 
+
+#navigation li.topTab span.plusIcon,
+#navigation li.subTab span.plusIcon {
+    display : none;
+    float: right;
+}
+
+span.plusIcon {
+    color: #d0d0d0;
+}
+
+span.plusIcon:hover {
+    color: #555;
+}
 

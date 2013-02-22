@@ -479,7 +479,7 @@ function insertTab(tab_name){
 
     $('div#'+tab_name,main_tabs_context).html(tab_info.content);
 
-    var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#">'+tab_info.title+'<span class="ui-icon ui-icon-circle-plus plusIcon"></span></a></li>';
+    var li_item = '<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#">'+tab_info.title+'<span class="icon-caret-left icon-large plusIcon right"></span></a></li>';
 
     //if this is a submenu...
     if (parent.length) {

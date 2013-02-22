@@ -550,82 +550,95 @@ function updateImageInfo(request,img){
     var info_tab = {
         title: tr("Information"),
         content:
-        '<table id="info_img_table" class="info_table">\
+        '<div class="row">\
+        <div class="six columns">\
+        <table id="info_img_table" class="twelve datatable">\
            <thead>\
-            <tr><th colspan="2">'+tr("Image")+' "'+img_info.NAME+'" '+
+            <tr><th colspan="3">'+tr("Image")+' "'+img_info.NAME+'" '+
             tr("information")+'</th></tr>\
            </thead>\
            <tr>\
               <td class="key_td">'+tr("ID")+'</td>\
               <td class="value_td">'+img_info.ID+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
             <td class="key_td">'+tr("Name")+'</td>\
             <td class="value_td_rename">'+img_info.NAME+'</td>\
             <td><div id="div_edit_rename">\
-                   <a id="div_edit_rename_link" class="edit_e" href="#">e</a>\
+                   <a id="div_edit_rename_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                 </div>\
             </td>\
           </tr>\
            <tr>\
               <td class="key_td">'+tr("Datastore")+'</td>\
               <td class="value_td">'+img_info.DATASTORE+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Type")+'</td>\
              <td class="value_td_type">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
              <td><div id="div_edit_chg_type">\
-                   <a id="div_edit_chg_type_link" class="edit_e" href="#">e</a>\
+                   <a id="div_edit_chg_type_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                  </div>\
              </td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Register time")+'</td>\
              <td class="value_td">'+pretty_time(img_info.REGTIME)+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
              <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
              <td><div id="div_edit_persistency">\
-                   <a id="div_edit_persistency_link" class="edit_e" href="#">e</a>\
+                   <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="icon-edit right"/></a>\
                  </div>\
              </td>\
            </tr>\
            <tr>\
-              <td class="key_td">'+tr("Source")+'</td>\
-              <td class="value_td">'+(typeof img_info.SOURCE === "string" ? img_info.SOURCE : "--")+'</td>\
-           </tr>\
-           <tr>\
               <td class="key_td">'+tr("Path")+'</td>\
               <td class="value_td">'+(typeof img_info.PATH === "string" ? img_info.PATH : "--")+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Filesystem type")+'</td>\
               <td class="value_td">'+(typeof img_info.FSTYPE === "string" ? img_info.FSTYPE : "--")+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Size (Mb)")+'</td>\
               <td class="value_td">'+img_info.SIZE+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("State")+'</td>\
               <td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
+              <td></td>\
            </tr>\
            <tr>\
               <td class="key_td">'+tr("Running #VMS")+'</td>\
               <td class="value_td">'+img_info.RUNNING_VMS+'</td>\
+              <td></td>\
            </tr>\
-        </table>' +
-
-            insert_extended_template_table(img_info.TEMPLATE,
-                                           "Image",
-                                           img_info.ID) +
-            insert_permissions_table("Image",
-                                     img_info.ID,
-                                     img_info.UNAME,
-                                     img_info.GNAME,
-                                     img_info.UID,
-                                     img_info.GID)
+        </table>\
+        </div>\
+        <div class="six columns">\
+          <div class="row">'
+           + insert_permissions_table("Image",
+                                   img_info.ID,
+                                   img_info.UNAME,
+                                   img_info.GNAME,
+                                   img_info.UID,
+                                   img_info.GID) +
+          '</div>\
+          <div class="row">'
+           + insert_extended_template_table(img_info.TEMPLATE,
+                                               "Image",
+                                               img_info.ID) + 
+          '</div>\
+        </div>\
+      </div>'
     }
 
     $("#div_edit_rename_link").die();
