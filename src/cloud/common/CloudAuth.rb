@@ -134,21 +134,18 @@ class CloudAuth
     # password:: _String_ the password
     # [return] _Hash_ with the username
     def get_username(password)
-        xpath = "USER[PASSWORD=\"#{password}\"]/NAME"
-        username = retrieve_from_userpool(xpath)
-
-        # No exact match, trying to match password with each
+        # Trying to match password with each
         # of the pipe-separated DNs stored in USER/PASSWORD
-        if username.nil?
-            @lock.synchronize do
-                @user_pool.each do |user|
-                    return user["NAME"] if user["AUTH_DRIVER"] == "x509" &&
-                        user["PASSWORD"].split('|').include?(password)
-                end
+        @lock.synchronize do
+            @user_pool.each_with_xpath(
+                    "USER[contains(PASSWORD, \"#{password}\")]") do |user|
+                STDERR.puts user.inspect
+                return user["NAME"] if user["AUTH_DRIVER"] == "x509" &&
+                    user["PASSWORD"].split('|').include?(password)
             end
         end
 
-        username
+        nil
     end
 
     private
