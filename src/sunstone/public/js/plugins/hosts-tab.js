@@ -104,11 +104,11 @@ var create_host_tmpl =
     <div class="manager clear" id="vmm_mads">\
           <label>' + tr("Virtualization Manager") + ':</label>\
           <select id="vmm_mad" name="vmm">\
-                <option value="vmm_kvm">' + tr("KVM") + '</option>\
-                <option value="vmm_xen">' + tr("XEN") + '</option>\
-                <option value="vmm_vmware">' + tr("VMware") + '</option>\
-                <option value="vmm_ec2">' + tr("EC2") + '</option>\
-                <option value="vmm_dummy">' + tr("Dummy") + '</option>\
+                <option value="kvm">' + tr("KVM") + '</option>\
+                <option value="xen">' + tr("XEN") + '</option>\
+                <option value="vmware">' + tr("VMware") + '</option>\
+                <option value="ec2">' + tr("EC2") + '</option>\
+                <option value="dummy">' + tr("Dummy") + '</option>\
                 <option value="custom">' + tr("Custom") + '</option>\
           </select>\
           <div>\
@@ -118,12 +118,12 @@ var create_host_tmpl =
     <div class="manager clear" id="im_mads">\
       <label>' + tr("Information Manager") + ':</label>\
       <select id="im_mad" name="im">\
-               <option value="im_kvm">' + tr("KVM") + '</option>\
-               <option value="im_xen">' + tr("XEN") + '</option>\
-               <option value="im_vmware">' + tr("VMware") + '</option>\
-               <option value="im_ec2">' + tr("EC2") + '</option>\
-               <option value="im_ganglia">' + tr("Ganglia") + '</option>\
-               <option value="im_dummy">' + tr("Dummy") + '</option>\
+               <option value="kvm">' + tr("KVM") + '</option>\
+               <option value="xen">' + tr("XEN") + '</option>\
+               <option value="vmware">' + tr("VMware") + '</option>\
+               <option value="ec2">' + tr("EC2") + '</option>\
+               <option value="ganglia">' + tr("Ganglia") + '</option>\
+               <option value="dummy">' + tr("Dummy") + '</option>\
                <option value="custom">' + tr("Custom") + '</option>\
       </select>\
       <div>\
