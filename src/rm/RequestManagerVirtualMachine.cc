@@ -1062,7 +1062,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
     int   id      = xmlrpc_c::value_int(paramList.getInt(1));
-    float ncpu    = xmlrpc_c::value_int(paramList.getDouble(2));
+    float ncpu    = xmlrpc_c::value_double(paramList.getDouble(2));
     int   nmemory = xmlrpc_c::value_int(paramList.getInt(3));
     int   nvcpu   = xmlrpc_c::value_int(paramList.getInt(4));
     bool  enforce = xmlrpc_c::value_boolean(paramList.getBoolean(5));
