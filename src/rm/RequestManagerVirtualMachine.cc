@@ -1241,6 +1241,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (hid != -1)
     {
+        int dcpu_host = (int) (dcpu * 100);//now in 100%
+        int dmem_host = dmemory * 1024;    //now in Kilobytes
+
         host = hpool->get(hid, true);
 
         if (host == 0)
@@ -1254,7 +1257,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             return ;
         }
 
-        if ( enforce && host->test_capacity(dcpu, dmemory, 0) == false )
+        if ( enforce && host->test_capacity(dcpu_host, dmem_host, 0) == false)
         {
             ostringstream oss;
 
@@ -1270,7 +1273,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        host->update_capacity(dcpu, dmemory, 0);
+        host->update_capacity(dcpu_host, dmem_host, 0);
 
         hpool->update(host);
 

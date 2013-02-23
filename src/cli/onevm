@@ -670,12 +670,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :resize, resize_desc, :vmid, :options =>
-            OpenNebulaHelper::CAPACITY_OPTIONS_VM + [ENFORCE]do
+            OpenNebulaHelper::CAPACITY_OPTIONS_VM + [ENFORCE] do
 
         cpu     = options[:cpu] || 0
         memory  = options[:memory] || 0
         vcpu    = options[:vcpu] || 0
-        enforce = options[:enforce] || true
+        enforce = options[:enforce] || false
 
         helper.perform_action(args[0], options, "Resizing VM") do |vm|
             vm.resize(cpu, memory, vcpu, enforce)

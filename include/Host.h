@@ -339,7 +339,7 @@ public:
      */
     bool test_capacity(int cpu, int mem, int disk)
     {
-        return host_share.test(cpu,mem,disk);
+        return host_share.test(cpu, mem, disk);
     }
 
     /**
