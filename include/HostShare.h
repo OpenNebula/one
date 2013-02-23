@@ -55,6 +55,19 @@ public:
     }
 
     /**
+     *  Updates the capacity of VM in this share
+     *    @param cpu increment
+     *    @param mem increment
+     *    @param disk increment
+     */
+    void update(int cpu, int mem, int disk)
+    {
+        cpu_usage  += cpu;
+        mem_usage  += mem;
+        disk_usage += disk;
+    }
+
+    /**
      *  Delete a VM from this share
      *    @param cpu requested by the VM
      *    @param mem requested by the VM

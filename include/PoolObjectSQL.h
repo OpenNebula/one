@@ -428,6 +428,16 @@ public:
     }
 
     /**
+     *  Adds a float attribute
+     *    @param att_name Name for the attribute
+     *    @param att_val integer
+     */
+    void add_template_attribute(const string& name, float value)
+    {
+        obj_template->add(name, value);
+    }
+
+    /**
      *  Factory method for templates, it should be implemented
      *  by classes that uses templates
      *    @return a new template

@@ -747,7 +747,7 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Timers
+    // Timers &
     // ------------------------------------------------------------------------
     /**
      *  Gets time from last information polling.
@@ -765,6 +765,14 @@ public:
      *    @param disk
      */
     void get_requirements (int& cpu, int& memory, int& disk);
+
+    /**
+     *  Resize the VM capacity
+     *    @param cpu
+     *    @param memory
+     *    @param vcpu
+     */
+     void resize (float cpu, int memory, int vcpu);
 
     // ------------------------------------------------------------------------
     // Network Leases & Disk Images

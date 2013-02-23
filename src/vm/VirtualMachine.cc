@@ -1258,14 +1258,11 @@ void VirtualMachine::cp_previous_history()
 
 void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 {
-    string          scpu;
     istringstream   iss;
     float           fcpu;
 
-    get_template_attribute("MEMORY",memory);
-    get_template_attribute("CPU",scpu);
-
-    if ((memory == 0) || (scpu==""))
+    if ((get_template_attribute("MEMORY",memory) == false) ||
+        (get_template_attribute("CPU",fcpu) == false))
     {
         cpu    = 0;
         memory = 0;
@@ -1274,12 +1271,30 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
         return;
     }
 
-    iss.str(scpu);
-    iss >> fcpu;
-
     cpu    = (int) (fcpu * 100);//now in 100%
     memory = memory * 1024;     //now in Kilobytes
     disk   = 0;
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::resize(float cpu, int memory, int vcpu)
+{
+    ostringstream oss;
+
+    oss << cpu;
+    replace_template_attribute("CPU", oss.str());
+    oss.str("");
+
+    oss << memory;
+    replace_template_attribute("MEMORY", oss.str());
+    oss.str("");
+
+    oss << vcpu;
+    replace_template_attribute("VCPU", oss.str());
 
     return;
 }

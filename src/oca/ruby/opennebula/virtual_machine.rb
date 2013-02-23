@@ -37,7 +37,8 @@ module OpenNebula
             :attach     => "vm.attach",
             :detach     => "vm.detach",
             :rename     => "vm.rename",
-            :update     => "vm.update"
+            :update     => "vm.update",
+            :resize     => "vm.resize"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -334,6 +335,17 @@ module OpenNebula
                               image_type)
 
             return rc
+        end
+
+        # Resize the VM
+        # @param cpu [Float] the new CPU value
+        # @param memory [Integer] the new MEMORY value
+        # @param vcpu [Integer] the new VCPU value
+        # @param enforce [true|false] If it is set to true, the host capacity
+        #   will be checked
+        def resize(cpu, memory, vcpu, enforce)
+            return @client.call(VM_METHODS[:resize], @pe_id, cpu, memory,
+                vcpu, enforce)
         end
 
         # Changes the owner/group

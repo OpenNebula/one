@@ -318,6 +318,19 @@ public:
     };
 
     /**
+     *  Updates the capacity used in a host when a VM is resized
+     *  counters
+     *    @param cpu increment of cpu requested by the VM
+     *    @param mem increment of memory requested by the VM
+     *    @param disk not used
+     *    @return 0 on success
+     */
+    void update_capacity(int cpu, int mem, int disk)
+    {
+        host_share.update(cpu,mem,disk);
+    };
+
+    /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in Kb)
