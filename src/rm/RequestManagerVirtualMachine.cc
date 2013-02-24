@@ -1069,6 +1069,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     float ocpu, dcpu;
     int   omemory, dmemory;
+    int   ovcpu;
 
     Nebula&    nd    = Nebula::instance();
     UserPool*  upool = nd.get_upool();
@@ -1102,6 +1103,22 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->get_template_attribute("MEMORY", omemory);
     vm->get_template_attribute("CPU", ocpu);
+    vm->get_template_attribute("VCPU", ovcpu);
+
+    if (nmemory == 0)
+    {
+        nmemory = omemory;
+    }
+
+    if (ncpu == 0)
+    {
+        ncpu = ocpu;
+    }
+
+    if (nvcpu == 0)
+    {
+        nvcpu = ovcpu;
+    }
 
     dcpu    = ncpu - ocpu;
     dmemory = nmemory - omemory;

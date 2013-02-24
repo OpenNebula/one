@@ -672,7 +672,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :resize, resize_desc, :vmid, :options =>
             OpenNebulaHelper::CAPACITY_OPTIONS_VM + [ENFORCE] do
 
-        cpu     = options[:cpu] || 0
+        cpu     = options[:cpu] || 0.0
         memory  = options[:memory] || 0
         vcpu    = options[:vcpu] || 0
         enforce = options[:enforce] || false
