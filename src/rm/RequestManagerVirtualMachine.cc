@@ -1133,6 +1133,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             {
                 hid = vm->get_hid();
             }
+        break;
+
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
