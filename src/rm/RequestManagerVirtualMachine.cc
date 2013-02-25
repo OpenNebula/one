@@ -1065,7 +1065,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     float ncpu    = xmlrpc_c::value_double(paramList.getDouble(2));
     int   nmemory = xmlrpc_c::value_int(paramList.getInt(3));
     int   nvcpu   = xmlrpc_c::value_int(paramList.getInt(4));
-    bool  enforce = xmlrpc_c::value_boolean(paramList.getBoolean(5));
+    bool  enforce_param = xmlrpc_c::value_boolean(paramList.getBoolean(5));
 
     float ocpu, dcpu;
     int   omemory, dmemory;
@@ -1088,6 +1088,26 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine * vm;
+
+    bool enforce = true;
+
+    if (att.uid == UserPool::ONEADMIN_ID || att.gid == GroupPool::ONEADMIN_ID)
+    {
+        enforce = enforce_param;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Authorize the operation                                               */
+    /* ---------------------------------------------------------------------- */
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Get the resize values                                                 */
+    /* ---------------------------------------------------------------------- */
 
     vm = vmpool->get(id, true);
 
@@ -1154,32 +1174,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     vm->unlock();
-
-    /* ---------------------------------------------------------------------- */
-    /*  Authorize the operation                                               */
-    /* ---------------------------------------------------------------------- */
-
-    if ( att.uid != UserPool::ONEADMIN_ID )
-    {
-        AuthRequest    ar(att.uid, att.gid);
-
-        ar.add_auth(AuthRequest::MANAGE, vm_perms);
-
-        if (enforce == false) //Admin rights to overcommit
-        {
-            ar.add_auth(AuthRequest::ADMIN, vm_perms);
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
-
-            vm->unlock();
-            return;
-        }
-    }
 
     /* ---------------------------------------------------------------------- */
     /*  Check quotas                                                          */
@@ -1265,7 +1259,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
             quota_rollback(&deltas, Quotas::VM, att);
 
-            return ;
+            return;
         }
 
         if ( enforce && host->test_capacity(dcpu_host, dmem_host, 0) == false)
