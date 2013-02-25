@@ -1185,73 +1185,65 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /*  Check quotas                                                          */
     /* ---------------------------------------------------------------------- */
 
-    if (att.uid != UserPool::ONEADMIN_ID)
+    if (vm_perms.uid != UserPool::ONEADMIN_ID)
     {
-        User * user  = upool->get(att.uid, true);
+        User * user  = upool->get(vm_perms.uid, true);
 
-        if ( user == 0 )
+        if ( user != 0 )
         {
-            failure_response(NO_EXISTS,
-                            get_error(object_name(PoolObjectSQL::USER),att.uid),
-                            att);
-            return;
-        }
+            rc = user->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
 
-        rc = user->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+            if (rc == false)
+            {
+                ostringstream oss;
 
-        if (rc == false)
-        {
-            ostringstream oss;
+                oss << object_name(PoolObjectSQL::USER)
+                    << " [" << vm_perms.uid << "] "
+                    << error_str;
 
-            oss << object_name(PoolObjectSQL::USER) << " [" << att.uid << "] "
-                << error_str;
+                failure_response(AUTHORIZATION,
+                        request_error(oss.str(), ""),
+                        att);
 
-            failure_response(AUTHORIZATION,
-                             request_error(oss.str(), ""),
-                             att);
+                user->unlock();
+
+                return;
+            }
 
             user->unlock();
-
-            return;
         }
-
-        user->unlock();
     }
 
-    if (att.gid != GroupPool::ONEADMIN_ID)
+    if (vm_perms.gid != GroupPool::ONEADMIN_ID)
     {
-        Group * group  = gpool->get(att.gid, true);
+        Group * group  = gpool->get(vm_perms.gid, true);
 
-        if ( group == 0 )
+        if ( group != 0 )
         {
-            failure_response(NO_EXISTS,
-                            get_error(object_name(PoolObjectSQL::GROUP),att.gid),
-                            att);
-            return;
-        }
+            rc = group->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
 
-        rc = group->quota.quota_update(Quotas::VM, &deltas, dquotas, error_str);
+            if (rc == false)
+            {
+                ostringstream oss;
+                RequestAttributes att_tmp(vm_perms.uid, -1, att);
 
-        if (rc == false)
-        {
-            ostringstream oss;
-            RequestAttributes att_tmp(att.uid, -1, att);
+                oss << object_name(PoolObjectSQL::GROUP)
+                    << " [" << vm_perms.gid << "] "
+                    << error_str;
 
-            oss << object_name(PoolObjectSQL::GROUP) << " [" << att.gid << "] "
-                << error_str;
+                failure_response(AUTHORIZATION,
+                                 request_error(oss.str(), ""),
+                                 att);
 
-            failure_response(AUTHORIZATION,
-                             request_error(oss.str(), ""),
-                             att);
+                group->unlock();
+
+                quota_rollback(&deltas, Quotas::VM, att_tmp);
+
+                return;
+            }
 
             group->unlock();
-
-            quota_rollback(&deltas, Quotas::VM, att_tmp);
-
-            return;
         }
-
-        group->unlock();
     }
 
     /* ---------------------------------------------------------------------- */
