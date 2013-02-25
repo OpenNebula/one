@@ -390,7 +390,7 @@ var user_actions = {
         call: OpenNebula.User.accounting,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            plot_graph(response,'#user_acct_tab','user_acct_', info);
+            plot_graph(response,'#user_acct_tabTab','user_acct_', info);
         },
         error: onError
     },
@@ -729,56 +729,56 @@ function updateUserInfo(request,user){
     Sunstone.popUpInfoPanel("user_info_panel");
 
     //Enable datepicker
-    var info_dialog = $('div#user_acct_tab');
-    $("#user_acct_from", info_dialog).datepicker({
-        defaultDate: "-1d",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        defaultDate: '-1',
-        onSelect: function( selectedDate ) {
-            $( "#user_acct_to", info_dialog).datepicker("option",
-                                                        "minDate",
-                                                        selectedDate );
-        }
-    });
-    $("#user_acct_from", info_dialog).datepicker('setDate', '-1');
-
-    $("#user_acct_to", info_dialog).datepicker({
-        defaultDate: "0",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        maxDate: '+1',
-        onSelect: function( selectedDate ) {
-            $( "#user_acct_from", info_dialog).datepicker( "option",
-                                                           "maxDate",
-                                                           selectedDate );
-        }
-    });
-    $("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
-
-    //Listen to set date button
-    $('button#user_acct_date_ok', info_dialog).click(function(){
-        var from = $("#user_acct_from", info_dialog).val();
-        var to = $("#user_acct_to", info_dialog).val();
-
-        var start = $.datepicker.parseDate('dd/mm/yy', from)
-        if (start){
-            start = start.getTime();
-            start = Math.floor(start / 1000);
-        }
-
-        var end = $.datepicker.parseDate('dd/mm/yy', to);
-        if (end){
-            end = end.getTime();
-            end = Math.floor(end / 1000);
-        }
-
-        loadAccounting('User', user_info.ID, user_acct_graphs,
-                  { start : start, end: end });
-        return false;
-    });
+    //var info_dialog = $('div#user_acct_tabTab');
+    //$("#user_acct_from", info_dialog).datepicker({
+    //    defaultDate: "-1d",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    defaultDate: '-1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#user_acct_to", info_dialog).datepicker("option",
+    //                                                    "minDate",
+    //                                                    selectedDate );
+    //    }
+    //});
+    //$("#user_acct_from", info_dialog).datepicker('setDate', '-1');
+//
+    //$("#user_acct_to", info_dialog).datepicker({
+    //    defaultDate: "0",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    maxDate: '+1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#user_acct_from", info_dialog).datepicker( "option",
+    //                                                       "maxDate",
+    //                                                       selectedDate );
+    //    }
+    //});
+    //$("#user_acct_to", info_dialog).datepicker('setDate', 'Now');
+//
+    ////Listen to set date button
+    //$('button#user_acct_date_ok', info_dialog).click(function(){
+    //    var from = $("#user_acct_from", info_dialog).val();
+    //    var to = $("#user_acct_to", info_dialog).val();
+//
+    //    var start = $.datepicker.parseDate('dd/mm/yy', from)
+    //    if (start){
+    //        start = start.getTime();
+    //        start = Math.floor(start / 1000);
+    //    }
+//
+    //    var end = $.datepicker.parseDate('dd/mm/yy', to);
+    //    if (end){
+    //        end = end.getTime();
+    //        end = Math.floor(end / 1000);
+    //    }
+//
+    //    loadAccounting('User', user_info.ID, user_acct_graphs,
+    //              { start : start, end: end });
+    //    return false;
+    //});
 
     //preload acct
     loadAccounting('User', user_info.ID, user_acct_graphs);

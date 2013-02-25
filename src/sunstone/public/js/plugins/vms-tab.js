@@ -391,7 +391,7 @@ var vm_actions = {
         call : OpenNebula.VM.monitor,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            plot_graph(response,'#vm_monitoring_tab',
+            plot_graph(response,'#vm_monitoring_tabTab',
                        'vm_monitor_',info);
         },
         error: vmMonitorError

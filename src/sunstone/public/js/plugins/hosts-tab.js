@@ -254,7 +254,7 @@ var host_actions = {
         call : OpenNebula.Host.monitor,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            plot_graph(response,'#host_monitoring_tab',
+            plot_graph(response,'#host_monitoring_tabTab',
                        'host_monitor_',info);
         },
         error: hostMonitorError

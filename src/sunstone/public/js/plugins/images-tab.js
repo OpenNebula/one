@@ -73,8 +73,8 @@ var create_image_tmpl =
         </dl>\
         <ul class="tabs-content">\
         <li id="img_easyTab" class="active">\
-           <form id="create_image_form_easy" action="" class="">\
-               <div class="img_param img_man">\
+           <form id="create_image_form_easy" action="" class="custom">\
+               <custom class="img_param img_man">\
                   <div class="row vm_param">\
                     <div class="six columns">\
                       <div class="row">\
@@ -145,7 +145,7 @@ var create_image_tmpl =
                         <div class="three columns">\
                          <input type="radio" name="src_path" id="upload_img" value="upload" /> '+tr("Upload")+'\
                         </div>\
-                        <div class="four  columns">\
+                        <div class="four  columns hidden" id="empty_datablock">\
                          <input type="radio" name="src_path" id="datablock_img" value="datablock" /> '+tr("Create an empty datablock")+'\
                         </div>\
                         <div class="one columns">\
@@ -285,6 +285,7 @@ var create_image_tmpl =
            </form>\
         </li>\
         </ul>\
+        <a class="close-reveal-modal">&#215;</a>\
 </div>';
 
 var dataTable_images;
@@ -628,7 +629,7 @@ function updateImageInfo(request,img){
     var info_tab = {
         title: tr("Information"),
         content:
-        '<div class="row">\
+        '<form class="custom"><div class="row">\
         <div class="six columns">\
         <table id="info_img_table" class="twelve datatable extended_table">\
            <thead>\
@@ -712,7 +713,7 @@ function updateImageInfo(request,img){
                                                "Image",
                                                img_info.ID) + 
         '</div>\
-      </div>'
+      </div></form>'
     }
 
     $("#div_edit_rename_link").die();
@@ -823,8 +824,7 @@ function setupCreateImageDialog(){
 
     //$('#img_tabs',dialog).tabs();
     //$('button',dialog).button();
-    $('#img_type option',dialog).first().attr('selected','selected');
-    $('#datablock_img',dialog).attr('disabled','disabled');
+    //$('#datablock_img',dialog).attr('disabled','disabled');
 
 
     $('select#img_type',dialog).change(function(){
@@ -832,18 +832,21 @@ function setupCreateImageDialog(){
         var context = $create_image_dialog;
         switch (value){
         case "DATABLOCK":
-            $('#datablock_img',context).removeAttr("disabled");
+            //$('#datablock_img',context).removeAttr("disabled");
+            $('#empty_datablock', context).show();
             break;
         default:
-            $('#datablock_img',context).attr('disabled','disabled');
+            //$('#datablock_img',context).attr('disabled','disabled');
+            $('#empty_datablock', context).hide();
             $('#path_img',context).click();
 
         }
     });
 
+
     $('#img_path,#img_fstype,#img_size,#file-uploader',dialog).closest('.row').hide();
 
-    $('#src_path_select input').click(function(){
+    $("input[name='src_path']", dialog).change(function(){
         var context = $create_image_dialog;
         var value = $(this).val();
         switch (value){
@@ -861,6 +864,9 @@ function setupCreateImageDialog(){
             break;
         };
     });
+
+
+    $('#path_img',dialog).click();
 
 
     $('#add_custom_var_image_button', dialog).click(

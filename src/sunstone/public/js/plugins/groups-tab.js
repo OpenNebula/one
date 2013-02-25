@@ -260,7 +260,7 @@ var group_actions = {
         call: OpenNebula.Group.accounting,
         callback: function(req,response) {
             var info = req.request.data[0].monitor;
-            plot_graph(response,'#group_acct_tab','group_acct_', info);
+            plot_graph(response,'#group_acct_tabTab','group_acct_', info);
         },
         error: onError
     },
@@ -519,56 +519,56 @@ function updateGroupInfo(request,group){
 
 
     //Enable datepicker
-    var info_dialog = $('div#group_acct_tab');
-    $("#group_acct_from", info_dialog).datepicker({
-        defaultDate: "-1d",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        defaultDate: '-1',
-        onSelect: function( selectedDate ) {
-            $( "#group_acct_to", info_dialog).datepicker("option",
-                                                         "minDate",
-                                                         selectedDate );
-        }
-    });
-    $("#group_acct_from", info_dialog).datepicker('setDate', '-1');
-
-    $("#group_acct_to", info_dialog).datepicker({
-        defaultDate: "0",
-        changeMonth: true,
-        numberOfMonths: 1,
-        dateFormat: "dd/mm/yy",
-        maxDate: '+1',
-        onSelect: function( selectedDate ) {
-            $( "#group_acct_from", info_dialog).datepicker( "option",
-                                                            "maxDate",
-                                                            selectedDate );
-        }
-    });
-    $("#group_acct_to", info_dialog).datepicker('setDate', 'Now');
-
-    //Listen to set date button
-    $('button#group_acct_date_ok', info_dialog).click(function(){
-        var from = $("#group_acct_from", info_dialog).val();
-        var to = $("#group_acct_to", info_dialog).val();
-
-        var start = $.datepicker.parseDate('dd/mm/yy', from)
-        if (start){
-            start = start.getTime();
-            start = Math.floor(start / 1000);
-        }
-
-        var end = $.datepicker.parseDate('dd/mm/yy', to);
-        if (end){
-            end = end.getTime();
-            end = Math.floor(end / 1000);
-        }
-
-        loadAccounting('Group', info.ID, group_acct_graphs,
-                       { start : start, end: end });
-        return false;
-    });
+    //var info_dialog = $('div#group_acct_tabTab');
+    //$("#group_acct_from", info_dialog).datepicker({
+    //    defaultDate: "-1d",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    defaultDate: '-1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#group_acct_to", info_dialog).datepicker("option",
+    //                                                     "minDate",
+    //                                                     selectedDate );
+    //    }
+    //});
+    //$("#group_acct_from", info_dialog).datepicker('setDate', '-1');
+//
+    //$("#group_acct_to", info_dialog).datepicker({
+    //    defaultDate: "0",
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: "dd/mm/yy",
+    //    maxDate: '+1',
+    //    onSelect: function( selectedDate ) {
+    //        $( "#group_acct_from", info_dialog).datepicker( "option",
+    //                                                        "maxDate",
+    //                                                        selectedDate );
+    //    }
+    //});
+    //$("#group_acct_to", info_dialog).datepicker('setDate', 'Now');
+//
+    ////Listen to set date button
+    //$('button#group_acct_date_ok', info_dialog).click(function(){
+    //    var from = $("#group_acct_from", info_dialog).val();
+    //    var to = $("#group_acct_to", info_dialog).val();
+//
+    //    var start = $.datepicker.parseDate('dd/mm/yy', from)
+    //    if (start){
+    //        start = start.getTime();
+    //        start = Math.floor(start / 1000);
+    //    }
+//
+    //    var end = $.datepicker.parseDate('dd/mm/yy', to);
+    //    if (end){
+    //        end = end.getTime();
+    //        end = Math.floor(end / 1000);
+    //    }
+//
+    //    loadAccounting('Group', info.ID, group_acct_graphs,
+    //                   { start : start, end: end });
+    //    return false;
+    //});
 
     //preload acct
     loadAccounting('Group', info.ID, group_acct_graphs);
