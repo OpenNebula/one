@@ -52,5 +52,7 @@ module OpenNebula
         def info()
             super(CLUSTER_POOL_METHODS[:info])
         end
+
+        alias_method :info!, :info
     end
 end

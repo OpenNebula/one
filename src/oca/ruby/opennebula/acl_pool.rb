@@ -49,5 +49,7 @@ module OpenNebula
         # Retrieves all the Acls in the pool.
             super(ACL_POOL_METHODS[:info])
         end
+
+        alias_method :info!, :info
     end
 end

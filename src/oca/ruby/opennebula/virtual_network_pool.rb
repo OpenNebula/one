@@ -70,5 +70,10 @@ module OpenNebula
         def info_group()
             return super(VN_POOL_METHODS[:info])
         end
+
+        alias_method :info!, :info
+        alias_method :info_all!, :info_all
+        alias_method :info_mine!, :info_mine
+        alias_method :info_group!, :info_group
     end
 end

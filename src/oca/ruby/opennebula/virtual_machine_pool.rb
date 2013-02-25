@@ -113,6 +113,11 @@ module OpenNebula
                                INFO_NOT_DONE)
         end
 
+        alias_method :info!, :info
+        alias_method :info_all!, :info_all
+        alias_method :info_mine!, :info_mine
+        alias_method :info_group!, :info_group
+
         # Retrieves the monitoring data for all the VMs in the pool
         #
         # @param [Array<String>] xpath_expressions Elements to retrieve.

@@ -78,6 +78,8 @@ module OpenNebula
             super(HOST_METHODS[:info], 'HOST')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new Host in OpenNebula
         #
         # @param hostname [String] Name of the new Host.

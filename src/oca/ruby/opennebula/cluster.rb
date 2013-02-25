@@ -67,6 +67,8 @@ module OpenNebula
             super(CLUSTER_METHODS[:info], 'CLUSTER')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new Cluster in OpenNebula
         #
         # +clustername+ A string containing the name of the Cluster.

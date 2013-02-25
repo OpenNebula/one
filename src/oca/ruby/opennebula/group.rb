@@ -108,6 +108,8 @@ module OpenNebula
             super(GROUP_METHODS[:info], 'GROUP')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new Group in OpenNebula
         #
         # +groupname+ A string containing the name of the Group.

@@ -50,6 +50,8 @@ module OpenNebula
             load_body
         end
 
+        alias_method :info!, :info
+
         # Updates the current state of this Service in the OpenNebula DB
         #
         # @params [String, nil] template_json string to be inserted in the

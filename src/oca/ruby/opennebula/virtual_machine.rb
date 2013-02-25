@@ -134,6 +134,8 @@ module OpenNebula
             super(VM_METHODS[:info], 'VM')
         end
 
+        alias_method :info!, :info
+
         # Allocates a new VirtualMachine in OpenNebula
         #
         # @param description [String] A string containing the template of

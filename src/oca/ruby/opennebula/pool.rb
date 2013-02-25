@@ -55,6 +55,8 @@ module OpenNebula
             return xmlrpc_info(xml_method)
         end
 
+        alias_method :info!, :info
+
         def info_all(xml_method, *args)
             return xmlrpc_info(xml_method,INFO_ALL,-1,-1, *args)
         end
