@@ -1204,6 +1204,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                 return;
             }
 
+            upool->update(user);
+
             user->unlock();
         }
     }
@@ -1235,6 +1237,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
                 return;
             }
+
+            gpool->update(group);
 
             group->unlock();
         }
