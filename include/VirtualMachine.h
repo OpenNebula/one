@@ -767,12 +767,26 @@ public:
     void get_requirements (int& cpu, int& memory, int& disk);
 
     /**
+     *  Checks if the resize parameters are valid
+     *    @param cpu New CPU. 0 means unchanged.
+     *    @param memory New MEMORY. 0 means unchanged.
+     *    @param vcpu New VCPU. 0 means unchanged.
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success
+     */
+     int check_resize (float cpu, int memory, int vcpu, string& error_str);
+
+    /**
      *  Resize the VM capacity
      *    @param cpu
      *    @param memory
      *    @param vcpu
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success
      */
-     void resize (float cpu, int memory, int vcpu);
+     int resize (float cpu, int memory, int vcpu, string& error_str);
 
     // ------------------------------------------------------------------------
     // Network Leases & Disk Images

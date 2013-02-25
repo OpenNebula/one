@@ -1281,22 +1281,65 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::resize(float cpu, int memory, int vcpu)
+int VirtualMachine::check_resize (
+        float cpu, int memory, int vcpu, string& error_str)
+{
+    if (cpu < 0)
+    {
+        error_str = "CPU must be a positive float or integer value.";
+        return -1;
+    }
+
+    if (memory < 0)
+    {
+        error_str = "MEMORY must be a positive integer value.";
+        return -1;
+    }
+
+    if (vcpu < 0)
+    {
+        error_str = "VCPU must be a positive integer value.";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::resize(float cpu, int memory, int vcpu, string& error_str)
 {
     ostringstream oss;
 
-    oss << cpu;
-    replace_template_attribute("CPU", oss.str());
-    oss.str("");
+    int rc = check_resize(cpu, memory, vcpu, error_str);
 
-    oss << memory;
-    replace_template_attribute("MEMORY", oss.str());
-    oss.str("");
+    if (rc != 0)
+    {
+        return rc;
+    }
 
-    oss << vcpu;
-    replace_template_attribute("VCPU", oss.str());
+    if (cpu > 0)
+    {
+        oss << cpu;
+        replace_template_attribute("CPU", oss.str());
+        oss.str("");
+    }
 
-    return;
+    if (memory > 0)
+    {
+        oss << memory;
+        replace_template_attribute("MEMORY", oss.str());
+        oss.str("");
+    }
+
+    if (vcpu > 0)
+    {
+        oss << vcpu;
+        replace_template_attribute("VCPU", oss.str());
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

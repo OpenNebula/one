@@ -1082,6 +1082,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     Template deltas;
     string   error_str;
     bool     rc;
+    int      ret;
     int      hid = -1;
 
     PoolObjectAuth vm_perms;
@@ -1173,7 +1174,17 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             return;
     }
 
+    ret = vm->check_resize(ncpu, nmemory, nvcpu, error_str);
+
     vm->unlock();
+
+    if (ret != 0)
+    {
+        failure_response(INTERNAL,
+                request_error("Could resize the VM", error_str),
+                att);
+        return;
+    }
 
     /* ---------------------------------------------------------------------- */
     /*  Check quotas                                                          */
@@ -1326,7 +1337,18 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::HOLD:
         case VirtualMachine::FAILED:
         case VirtualMachine::POWEROFF:
-            vm->resize(ncpu, nmemory, nvcpu);
+            ret = vm->resize(ncpu, nmemory, nvcpu, error_str);
+
+            if (ret != 0)
+            {
+                vm->unlock();
+
+                failure_response(INTERNAL,
+                        request_error("Could not resize the VM", error_str),
+                        att);
+                return;
+            }
+
             vmpool->update(vm);
         break;
 
