@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/x509_auth'
+
 module X509CloudAuth
     def do_auth(env, params={})
         # For https, the web service should be set to include the user cert in the environment.
@@ -32,7 +34,8 @@ module X509CloudAuth
             end
 
             # Password should be DN with whitespace removed.
-            username = get_username(cert.subject.to_s.delete("\s"))
+            username = get_username(
+                OpenNebula::X509Auth.escape_dn(cert.subject.to_s))
 
             return username if username
 
