@@ -343,7 +343,8 @@ module OpenNebula
         # @param memory [Integer] the new MEMORY value
         # @param vcpu [Integer] the new VCPU value
         # @param enforce [true|false] If it is set to true, the host capacity
-        #   will be checked
+        #   will be checked. This will only affect oneadmin requests, regular users
+        #   resize requests will always be enforced
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
