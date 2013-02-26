@@ -734,25 +734,6 @@ function plot_graph(data,context,id_prefix,info){
     $.plot($('#'+id, context),series,options); //call to flot lib
 }
 
-//Enables showing full information on this type of fields on
-//mouse hover
-//Really nice for a user with many groups. Unused.
-/*
-function shortenedInfoFields(context){
-    $('.shortened_info',context).live("mouseenter",function(e){
-        var full_info = $(this).next();
-        var top,left;
-        top = (e.pageY-15)+"px";
-        left = (e.pageX+15)+"px";
-        full_info.css({"top":top,"left":left});
-        full_info.fadeIn();
-    });
-
-    $('.shortened_info',context).live("mouseleave",function(e){
-        $(this).next().fadeOut();
-    });
-}*/
-
 //Prepares the dialog used to update the template of an element.
 function setupTemplateUpdateDialog(){
 
@@ -877,7 +858,13 @@ function infoListener(dataTable, info_action){
             {
                 popDialogLoading();
                 Sunstone.runAction(info_action,id);
-                // Take care of the coloring business
+
+                // Take care of the coloring business 
+                // (and the checking, do not forget the checking)
+                $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
+                $('.check_item',this).click();
+                $('td',$(this).parents('table')).removeClass('markrowchecked');
+
                 if(last_selected_row)
                     last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
                 last_selected_row = $("td:first", this).parent();

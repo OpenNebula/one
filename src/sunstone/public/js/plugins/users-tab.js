@@ -870,11 +870,8 @@ $(document).ready(function(){
     //Also for group tab
     setupQuotaIcons();
 
-
-
     initCheckAllBoxes(dataTable_users);
     tableCheckboxesListener(dataTable_users);
-    //shortenedInfoFields('#datatable_users');
     infoListener(dataTable_users,'User.showinfo');
 
     $('div#users_tab div.legend_div').hide();
