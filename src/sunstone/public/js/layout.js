@@ -39,6 +39,7 @@ function showTab(tabname,highlight_tab){
     if (last_selected_row)
     {
         last_selected_row.children().each(function(){$(this).removeClass('markrowselected');});
+        $('.check_item',last_selected_row).removeAttr('checked');
         last_select_row = null;
     }
 
