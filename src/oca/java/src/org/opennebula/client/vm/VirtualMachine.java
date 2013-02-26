@@ -41,6 +41,7 @@ public class VirtualMachine extends PoolElement{
     private static final String DETACH  = METHOD_PREFIX + "detach";
     private static final String RENAME  = METHOD_PREFIX + "rename";
     private static final String UPDATE  = METHOD_PREFIX + "update";
+    private static final String RESIZE  = METHOD_PREFIX + "resize";
 
     private static final String[] VM_STATES =
     {
@@ -182,6 +183,25 @@ public class VirtualMachine extends PoolElement{
     public static OneResponse update(Client client, int id, String new_template)
     {
         return client.call(UPDATE, id, new_template);
+    }
+
+    /**
+     * Resizes the VM capacity
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target vm.
+     * @param cpu the new CPU value
+     * @param memory the new MEMORY value
+     * @param vcpu the new VCPU value
+     * @param enforce If it is set to true, the host capacity
+     *   will be checked. This will only affect oneadmin requests, regular users
+     *   resize requests will always be enforced
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse resize(Client client, int id,
+        double cpu, int memory, int vcpu, boolean enforce)
+    {
+        return client.call(RESIZE, id, cpu, memory, vcpu, enforce);
     }
 
     /**
@@ -569,6 +589,22 @@ public class VirtualMachine extends PoolElement{
     public OneResponse update(String new_template)
     {
         return client.call(UPDATE, id, new_template);
+    }
+
+    /**
+     * Resizes this VM's capacity
+     *
+     * @param cpu the new CPU value
+     * @param memory the new MEMORY value
+     * @param vcpu the new VCPU value
+     * @param enforce If it is set to true, the host capacity
+     *   will be checked. This will only affect oneadmin requests, regular users
+     *   resize requests will always be enforced
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse resize(double cpu, int memory, int vcpu, boolean enforce)
+    {
+        return client.call(RESIZE, id, cpu, memory, vcpu, enforce);
     }
 
     // =================================

@@ -254,6 +254,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_monitoring(new VirtualMachineMonitoring());
     xmlrpc_c::methodPtr vm_attach(new VirtualMachineAttach());
     xmlrpc_c::methodPtr vm_detach(new VirtualMachineDetach());
+    xmlrpc_c::methodPtr vm_resize(new VirtualMachineResize());
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
 
@@ -396,6 +397,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.attach", vm_attach);
     RequestManagerRegistry.addMethod("one.vm.detach", vm_detach);
     RequestManagerRegistry.addMethod("one.vm.rename", vm_rename);
+    RequestManagerRegistry.addMethod("one.vm.resize", vm_resize);
     RequestManagerRegistry.addMethod("one.vm.update", vm_update);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);

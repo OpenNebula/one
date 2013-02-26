@@ -662,4 +662,23 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
         helper.list_pool(options, true, args[0])
     end
+
+    resize_desc = <<-EOT.unindent
+        Resizes the capacity of a Virtual Machine (offline, the VM cannot be
+        RUNNING)
+
+    EOT
+
+    command :resize, resize_desc, :vmid, :options =>
+            OpenNebulaHelper::CAPACITY_OPTIONS_VM + [ENFORCE] do
+
+        cpu     = options[:cpu] || 0.0
+        memory  = options[:memory] || 0
+        vcpu    = options[:vcpu] || 0
+        enforce = options[:enforce] || false
+
+        helper.perform_action(args[0], options, "Resizing VM") do |vm|
+            vm.resize(cpu, memory, vcpu, enforce)
+        end
+    end
 end

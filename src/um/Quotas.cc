@@ -29,7 +29,7 @@ int Quotas::set(Template *tmpl, string& error)
         {
             return -1;
         }
-    
+
         vquotas.clear();
     }
 
@@ -39,7 +39,7 @@ int Quotas::set(Template *tmpl, string& error)
         {
             return -1;
         }
-    
+
         vquotas.clear();
     }
 
@@ -49,7 +49,7 @@ int Quotas::set(Template *tmpl, string& error)
         {
             return -1;
         }
-    
+
         vquotas.clear();
     }
 
@@ -59,7 +59,7 @@ int Quotas::set(Template *tmpl, string& error)
         {
             return -1;
         }
-    
+
         vquotas.clear();
     }
 
@@ -219,6 +219,31 @@ bool Quotas::quota_check(QuotaType  type,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool Quotas::quota_update(QuotaType  type,
+                          Template    *tmpl,
+                          Quotas      &default_quotas,
+                          string      &error_str)
+{
+    switch (type)
+    {
+        // This is an internal check, should never get in here.
+        case DATASTORE:
+        case NETWORK:
+        case IMAGE:
+        case VIRTUALMACHINE:
+            error_str = "Cannot update quota. Not implemented";
+            return false;
+
+        case VM:
+            return vm_quota.update(tmpl, default_quotas, error_str);
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
 {
     Nebula&     nd    = Nebula::instance();
@@ -239,7 +264,7 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
             upool->update(user);
 
             user->unlock();
-        } 
+        }
     }
 
     if ( gid != GroupPool::ONEADMIN_ID )
@@ -253,6 +278,6 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
             gpool->update(group);
 
             group->unlock();
-        }        
+        }
     }
 }
